@@ -57,6 +57,7 @@ create table players (
 CREATE TABLE matches (
      match_id bigserial NOT null PRIMARY KEY,
      league_id int8 NOT NULL REFERENCES leagues(league_id),
+     played bool default false,
      week_number int default 0,
      match_date timestamptz NOT NULL,
      home_team_id int8 NOT NULL REFERENCES teams(team_id),

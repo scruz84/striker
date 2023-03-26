@@ -94,9 +94,7 @@ func randomWeekMatches2(leagueId *int64, teamIds *[]int64) [][]*fmcommon.WeekMat
 					teamIdxForRestMatchesFromWeek = (teamIdxForRestMatchesFromWeek - 1) % (len(*teamIds) - 1)
 				}
 			}
-
 			teamIdxForMatchFromWeek = (teamIdxForMatchFromWeek + 1) % (len(*teamIds) - 1)
-
 		}
 	}
 	for weekIdx, matches := range weeksMatches {
@@ -113,7 +111,8 @@ func randomWeekMatches2(leagueId *int64, teamIds *[]int64) [][]*fmcommon.WeekMat
 // SimulateMatches simulate matches which has a match date 15 minutes prior current time.
 func SimulateMatches(dbCtx *fmcommon.DatabaseContext) {
 	matches, err := fmcommon.GetSimulableMatches(dbCtx)
-	if funcName(err) {
+	if err != nil {
+		log.Errorf("error getting matches to simulate: %s", err)
 		return
 	}
 	leagueIds := make(map[int64]bool)
@@ -124,15 +123,7 @@ func SimulateMatches(dbCtx *fmcommon.DatabaseContext) {
 			log.Errorf("error simulating match: %s", err)
 		} else {
 			go UpdatePlayedMatch(dbCtx, matchSimulation)
+			go UpdateClassification(dbCtx, matchSimulation)
 		}
 	}
-
-}
-
-func funcName(err error) bool {
-	if err != nil {
-		log.Errorf("error getting matches to simulate: %s", err)
-		return true
-	}
-	return false
 }

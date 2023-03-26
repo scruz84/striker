@@ -23,6 +23,7 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 	events := make([]Event, 0)
 	matchSimulation := &MatchSimulation{
 		Id:                    match.MatchId,
+		DivisionId:            match.DivisionId,
 		Home:                  match.Home,
 		Away:                  match.Away,
 		Minute:                0,

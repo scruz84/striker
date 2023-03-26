@@ -27,7 +27,7 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 	"WHERE t.team_id = $1"
 
 const GetSimulableMatchesStmt = "GetSimulableMatchesStmt"
-const GetSimulableMatchesStmtSql = "select match_id, league_id, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals from matches where match_date > now() and match_date < now()+interval '15 minutes' order by league_id"
+const GetSimulableMatchesStmtSql = "select match_id, league_id, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals from matches where match_date > now() and match_date < now()+interval '15 minutes' and played is false order by league_id"
 
 const GetUserIdByEmailStmt = "GetUserIdByEmailStmt"
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
@@ -56,8 +56,13 @@ const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id = $1"
 const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2 WHERE team_id = $3	"
 
+const UpdateTeamClassificationStmt = "UpdateTeamClassificationStmt"
+const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = matches+$1, points = points+$2, wins = wins+$3, " +
+	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
+	"where league_id = $8 and team_id = $9"
+
 const UpdateMatchStmt = "UpdateMatchStmt"
-const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2 WHERE match_id = $3"
+const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3 WHERE match_id = $4"
 
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")

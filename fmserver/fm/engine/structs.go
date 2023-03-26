@@ -12,6 +12,7 @@ type Simulation interface {
 
 type MatchSimulation struct {
 	Id         int64
+	DivisionId int64
 	Minute     int
 	Home       int64
 	Away       int64
