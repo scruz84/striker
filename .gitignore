@@ -1,2 +1,8 @@
+.idea/
+
 fmserver/.idea
 fmserver/app.env
+fmserver/fm-server.iml
+
+fmfrontend/node_modules
+fmfrontend/.env.development.local
