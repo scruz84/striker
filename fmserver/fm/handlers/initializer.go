@@ -8,8 +8,6 @@ import (
 	"strconv"
 )
 
-const TEAMS_PER_LEAGUE = 10
-
 type ActionResult struct {
 	Result string `json:"result"`
 }
@@ -85,7 +83,7 @@ func createTeams(dbCtx *fmcommon.DatabaseContext, countries []string) {
 
 		//create the teams
 		for _, leagueId := range leagues {
-			for i := 0; i < TEAMS_PER_LEAGUE; i++ {
+			for i := 0; i < fmcommon.TeamsPerLeague; i++ {
 				createTeam(dbCtx, country, leagueId)
 			}
 			createClassification(dbCtx, leagueId)

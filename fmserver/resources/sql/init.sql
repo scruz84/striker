@@ -109,3 +109,6 @@ create table classification (
     goals_received int default 0,
     primary key (league_id, team_id)
 );
+
+
+create index classification_idx1 on classification (league_id);

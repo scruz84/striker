@@ -2,6 +2,7 @@ package fmcommon
 
 import (
 	"database/sql"
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
@@ -12,6 +13,11 @@ const GetFreeTeamStmtSql = "SELECT team_id FROM teams WHERE owner_id IS NULL and
 
 const GetLineupsForMatchStmt = "GetLineupsForMatchStmt"
 const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where team_id in ($1, $2) and match_id = $3) b on (a.team_id = b.team_id) where a.team_id in ($1, $2) "
+
+const GetDivisionDetailsStmt = "GetDivisionDetailsStmt"
+const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
+	" FROM classification a JOIN teams b ON a.team_id = b.team_id " +
+	"WHERE a.league_id = $1 ORDER BY a.points DESC, a.goals_scored-a.goals_received DESC, a.goals_scored DESC, a.wins DESC, a.draws DESC"
 
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
@@ -328,13 +334,52 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 	}, nil
 }
 
-func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) error {
-	_, err := GetDivisionName(dbCtx, leagueId)
+func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetails, error) {
+	leagueName, err := GetDivisionName(dbCtx, leagueId)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	stmt := dbCtx.PreparedStmts[GetDivisionDetailsStmt]
+	rows, err := stmt.Query(leagueId)
+	if err != nil {
+		return nil, err
+	}
+	positions := make([]ClassificationPosition, TeamsPerLeague)
+	teamPosition := 1
+	for rows.Next() {
+		var teamId int64
+		var teamName string
+		var matches int
+		var points int
+		var wins int
+		var losses int
+		var draws int
+		var goalsScored int
+		var goalsReceived int
+
+		rows.Scan(&teamId, &teamName, &matches, &points, &wins, &losses, &draws, &goalsScored, &goalsReceived)
+		positions[teamPosition-1] = ClassificationPosition{
+			Position:      teamPosition,
+			TeamId:        teamId,
+			TeamName:      teamName,
+			Points:        points,
+			Matches:       matches,
+			Wins:          wins,
+			Draws:         draws,
+			Losses:        losses,
+			GoalsScored:   goalsScored,
+			GoalsReceived: goalsReceived,
+		}
+		teamPosition++
 	}
 
-	return nil
+	return &DivisionDetails{
+		Id:   leagueId,
+		Name: leagueName,
+		Classification: Classification{
+			Positions: positions,
+		},
+	}, nil
 }
 
 func GetDivisionName(dbCtx *DatabaseContext, leagueId int64) (string, error) {
@@ -346,6 +391,9 @@ func GetDivisionName(dbCtx *DatabaseContext, leagueId int64) (string, error) {
 	var divisionName string
 	if divs.Next() {
 		divs.Scan(&divisionName)
+	}
+	if divisionName == "" {
+		return "", errors.New("league " + strconv.FormatInt(leagueId, 10) + " not found")
 	}
 	return divisionName, nil
 }

@@ -4,18 +4,24 @@ import (
 	"time"
 )
 
+type ClassificationPosition struct {
+	Position      int    `json:"position"`
+	TeamId        int64  `json:"teamId"`
+	TeamName      string `json:"teamName"`
+	Points        int    `json:"points"`
+	Matches       int    `json:"matches"`
+	Wins          int    `json:"wins"`
+	Draws         int    `json:"draws"`
+	Losses        int    `json:"losses"`
+	GoalsScored   int    `json:"goalsScored"`
+	GoalsReceived int    `json:"goalsReceived"`
+}
+
 type Classification struct {
 	Positions []ClassificationPosition `json:"positions"`
 }
 
-type ClassificationPosition struct {
-	Position int    `json:"position,omitempty"`
-	TeamId   int64  `json:"teamId,omitempty"`
-	TeamName string `json:"teamName,omitempty"`
-	Points   int    `json:"points,omitempty"`
-}
-
-type Division struct {
+type DivisionDetails struct {
 	Id             int64          `json:"id"`
 	Name           string         `json:"name"`
 	Classification Classification `json:"classification"`

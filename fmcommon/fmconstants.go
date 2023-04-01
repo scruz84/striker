@@ -4,6 +4,8 @@ const COOKIE = "jwt"
 const UserId = "id"
 const PictureUrl = "pictureUrl"
 
+const TeamsPerLeague = 10
+
 // Positions
 const GOALKEEPER = 0
 const DEFENSE = 1

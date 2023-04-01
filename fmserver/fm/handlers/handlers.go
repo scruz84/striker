@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"footmanager/fmcommon"
+	"footmanager/fmserver/fm/engine"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/oauth2/v2"
@@ -158,9 +159,19 @@ func GetPictureUrlFromCookie(c *gin.Context) *string {
 func DivisionDetailsHandler(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("Starting to get division details")
-
-		divId := c.Param(ID)
-		log.Infof("Starting to get division details from %d", divId)
+		divIdStr := c.Param(ID)
+		log.Infof("Starting to get division details from %s", divIdStr)
+		divId, err := fmcommon.StringToInt64(divIdStr)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, nil)
+			return
+		}
+		divisionDetails, err := engine.GetDivisionDetails(dbCtx, divId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, divisionDetails)
 		return
 	}
 }

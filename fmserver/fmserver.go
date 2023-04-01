@@ -92,6 +92,8 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.GetPlayersFromTeamStmt] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetTeamDetailsStmtByOwnerSql)
 	dbCtx.PreparedStmts[fmcommon.GetTeamDetailsStmtByOwner] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetDivisionDetailsStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetDivisionDetailsStmt] = preparedStmt
 }
 
 // Initializes the authentication middleware
