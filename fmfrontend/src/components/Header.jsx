@@ -27,7 +27,7 @@ function Header() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>Football</Link>
+                        <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>Striker</Link>
                     </Typography>
                     <AvatarOrLogin/>
                 </Toolbar>

@@ -1,5 +1,3 @@
-import {Card, CardContent} from "@mui/material";
-import Typography from "@mui/material/Typography";
 import {UserTeamDetails} from "./UserTeamDetails";
 import {useEffect} from "react";
 import {GetUserTeamDetails} from "./_userFunctions";

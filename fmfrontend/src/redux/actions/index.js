@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESS, LOGOUT, TEAM } from "../types";
+import {DIVISION_DETAILS, LOGIN_SUCCESS, LOGOUT, TEAM} from "../types";
 
 export const loginResult = (loggedUser) => (dispatch, getState) => {
     try {
@@ -43,5 +43,21 @@ export const teamResult = (userTeam) => (dispatch, getState) => {
 
     } catch (error) {
         console.log("Error", error);
+    }
+};
+
+export const divisionResult = (divisionDetails) => (dispatch, getState) => {
+    try {
+        if (divisionDetails != null) {
+            dispatch({
+                type: DIVISION_DETAILS,
+                payload: {
+                    divisionDetails
+                },
+            });
+        }
+
+    } catch (error) {
+        console.log("Error getting division details", error);
     }
 };

@@ -9,7 +9,6 @@ export function GetUserTeamDetails(dispatcher) {
         .then(response => {
                 return response.json();
         }).then(data => {
-            console.log(data)
             dispatcher(teamResult(data));
         } );
 }
