@@ -1,4 +1,4 @@
-package main
+package fm
 
 import (
 	"footmanager/fmcommon"
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func main() {
+func StartEngine() {
 	log.Info("Starting football manager engine!")
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
