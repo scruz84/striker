@@ -3,8 +3,10 @@ package main
 import (
 	"footmanager/fmcommon"
 	"footmanager/fmserver/fm/engine"
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -13,12 +15,18 @@ func main() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
 
+	err := godotenv.Load("app.env")
+	if err != nil {
+		log.Fatalf("error reading app.env file: %s", err.Error())
+	}
+
+	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
 	databaseDetails := fmcommon.DatabaseDetails{
-		Host:     "localhost",
-		Port:     5432,
-		User:     "sergio",
-		Password: "sergio",
-		DbName:   "footmanager",
+		Host:     os.Getenv("DB_HOST"),
+		Port:     port,
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DbName:   os.Getenv("DB_DATABASE"),
 		SslMode:  "disable",
 	}
 
