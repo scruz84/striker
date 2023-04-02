@@ -1,3 +1,14 @@
+CREATE TABLE public.lastnames_es (
+     lastname varchar(100) NULL,
+     freq float8 NULL
+);
+
+
+CREATE TABLE public.names_es (
+     "name" varchar(100) NULL,
+     freq float8 NULL
+);
+
 CREATE TABLE countries (
     country_id 	bigserial NOT null,
     name varchar(4) null unique,

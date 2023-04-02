@@ -23,4 +23,4 @@ WORKDIR /app
 COPY --from=build /fmserver /app/fmserver
 EXPOSE 1984
 
-ENTRYPOINT ["/app/fmser"]
+ENTRYPOINT ["/app/fmserver"]
