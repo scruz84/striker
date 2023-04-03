@@ -46,7 +46,7 @@ func StartSvc() {
 	initRouter(router, dbCtx)
 	initStatements(dbCtx)
 
-	errorListener := router.Run("localhost:1984")
+	errorListener := router.Run("0.0.0.0:1984")
 	if errorListener != nil {
 		log.Panicf("ERROR starting listener: %s", errorListener)
 	}
