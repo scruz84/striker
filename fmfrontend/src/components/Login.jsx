@@ -1,7 +1,8 @@
-import { GoogleLogin } from '@react-oauth/google';
-import { useSelector, useDispatch } from 'react-redux';
+import {GoogleLogin} from '@react-oauth/google';
+import {useDispatch, useSelector} from 'react-redux';
 import {loginResult, logOut} from "../redux/actions";
-import {redirect, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {GetApiEndpoint} from "./App"
 
 export const Login = () => {
     const dispatch = useDispatch()
@@ -42,7 +43,7 @@ export function GetUserDetails(dispatcher, navigate, redirectUrl = null) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch('/v1/auth/me', requestOptions)
+    fetch(GetApiEndpoint() + '/v1/auth/me', requestOptions)
         .then(response => response.json())
         .then(data => {
             if (data.code === 401) {

@@ -1,25 +1,24 @@
 import React, {useEffect} from 'react';
 import Home from '../Home';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import TeamsList from '../TeamsList';
-import ClientEdit from "../ClientEdit";
-import { red } from '@mui/material/colors';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { lightTheme } from "../themes/light";
+import {ThemeProvider} from '@mui/material/styles';
+import {lightTheme} from "../themes/light";
 import {Container, CssBaseline} from "@mui/material";
 import {CacheProvider} from "@emotion/react";
 import createCache from '@emotion/cache';
-import PropTypes from "prop-types";
 import Header from "./Header";
 import Subheader from "./Subheader";
-import {Login, GetUserDetails} from "./Login";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import {GetUserDetails, Login} from "./Login";
+import {GoogleOAuthProvider} from '@react-oauth/google';
 import '../App.css';
 import {useDispatch, useSelector} from "react-redux";
 import {UserDashboard} from "./user/UserDashboard";
 import {DivisionDetails} from "./team/DivisionDetails";
 
 const GOOGLE_OAUTH_CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID;
+const API_END_POINT = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
+    ? "http://localhost:1984" : window.extended.API_ENDPOINT
 
 function App() {
     const dispatch = useDispatch()
@@ -63,3 +62,7 @@ function App() {
 }
 
 export default App;
+
+export function GetApiEndpoint() {
+    return API_END_POINT
+}

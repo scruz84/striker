@@ -1,11 +1,19 @@
-FROM node:19-alpine
+FROM node:19-alpine as builder
+
 WORKDIR /app
 COPY . .
 
-RUN npm ci
+#https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
+ENV NODE_ENV production
+RUN npm install
 RUN npm run build
 
-ENV NODE_ENV production
-EXPOSE 3000
+FROM nginx:1.23.4
 
-CMD [ "npx", "serve", "build" ]
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/set-env.sh /usr/share/nginx/html
+RUN chmod +x /usr/share/nginx/html/set-env.sh
+
+EXPOSE 80
+
+CMD ["sh", "-c", "cd /usr/share/nginx/html/ && ./set-env.sh && nginx -g 'daemon off;'"]
