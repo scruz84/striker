@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {Link} from "react-router-dom";
 import {Button, ButtonGroup, Container, Table} from "reactstrap";
 import AppNavbar from "./components/AppNavbar";
+import {GetApiEndpoint} from "./components/App";
 
 class TeamsList extends Component {
 
@@ -12,7 +13,7 @@ class TeamsList extends Component {
     }
 
     componentDidMount() {
-        fetch('/v1/teams')
+        fetch(GetApiEndpoint('/v1/teams'))
             .then(response => response.json())
             .then(data => this.setState({teams: data}));
     }

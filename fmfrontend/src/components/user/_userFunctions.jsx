@@ -1,11 +1,12 @@
 import {teamResult} from "../../redux/actions";
+import {GetApiEndpoint} from "../App";
 
 export function GetUserTeamDetails(dispatcher) {
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch('/v1/user/team', requestOptions)
+    fetch(GetApiEndpoint('/v1/user/team'), requestOptions)
         .then(response => {
                 return response.json();
         }).then(data => {

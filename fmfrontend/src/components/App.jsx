@@ -16,12 +16,12 @@ import {useDispatch, useSelector} from "react-redux";
 import {UserDashboard} from "./user/UserDashboard";
 import {DivisionDetails} from "./team/DivisionDetails";
 
-const GOOGLE_OAUTH_CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID;
-const API_END_POINT = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
-    ? "http://localhost:1984" : window.extended.API_ENDPOINT
+const GOOGLE_OAUTH_CLIENT_ID = isDevelopment() ?
+    process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID : window.extended.GOOGLE_OAUTH_CLIENT_ID
+const API_END_POINT = isDevelopment() ? "" : window.extended.API_ENDPOINT
 
 function App() {
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const userReducer = useSelector((state) => state.userReducer);
 
     useEffect(() => {
@@ -63,6 +63,10 @@ function App() {
 
 export default App;
 
-export function GetApiEndpoint() {
-    return API_END_POINT
+export function GetApiEndpoint(path) {
+    return API_END_POINT + path
+}
+
+function isDevelopment() {
+    return !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
 }

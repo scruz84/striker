@@ -31,7 +31,7 @@ function checkCredential(credential, navigate, dispatcher, redirectUrl) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jwt: credential, provider: 'google'})
     };
-    fetch('/v1/login', requestOptions)
+    fetch(GetApiEndpoint('/v1/login'), requestOptions)
         .then(response => response.json())
         .then(data => {
             GetUserDetails(dispatcher, navigate, redirectUrl)
@@ -43,7 +43,7 @@ export function GetUserDetails(dispatcher, navigate, redirectUrl = null) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch(GetApiEndpoint() + '/v1/auth/me', requestOptions)
+    fetch(GetApiEndpoint('/v1/auth/me'), requestOptions)
         .then(response => response.json())
         .then(data => {
             if (data.code === 401) {
@@ -62,7 +62,7 @@ export function DoLogout(dispatcher, navigate, redirectUrl = null) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch('/v1/auth/logout', requestOptions)
+    fetch(GetApiEndpoint('/v1/auth/logout'), requestOptions)
         .then(response => response.json())
         .then(data => {
             dispatcher(logOut())
