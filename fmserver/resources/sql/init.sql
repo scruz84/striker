@@ -123,3 +123,11 @@ create table classification (
 
 
 create index classification_idx1 on classification (league_id);
+create index classification_idx2 on classification(team_id);
+
+create index matches_idx1 on matches(match_date desc);
+
+create index teams_idx1 on teams(country);
+create index teams_idx2 on teams(owner_id);
+
+

@@ -7,11 +7,14 @@ import (
 	"strconv"
 )
 
-const TeamKey = "teamDet_key_"
 const ClassificationKey = "classDet_key_"
+const FullTeamDetailsKey = "fullTeamDet_key_"
+const PlayersFromTeamKey = "playTeam_key_"
+const TeamDetailsKey = "teamDet_key_"
+const TeamOwnerKey = "teamOwner_key_"
 
 func GetPlayersFromTeam(dbCtx *fmcommon.DatabaseContext, teamId int64) (*[]*fmcommon.Player, error) {
-	key := TeamKey + strconv.FormatInt(teamId, 10)
+	key := PlayersFromTeamKey + strconv.FormatInt(teamId, 10)
 	v, _ := dbCtx.ObjectCache.GetValue(key)
 	if v != "" {
 		var players *[]*fmcommon.Player
@@ -44,4 +47,43 @@ func GetDivisionDetails(dbCtx *fmcommon.DatabaseContext, leagueId int64) (*fmcom
 	value, _ := json.Marshal(divisionDetails)
 	dbCtx.ObjectCache.SetValue(key, string(value))
 	return divisionDetails, nil
+}
+
+func GetTeamDetails(dbCtx *fmcommon.DatabaseContext, owner bool, teamId int64) (*fmcommon.TeamDetails, error) {
+	var key string
+	if owner {
+		key = FullTeamDetailsKey + strconv.FormatInt(teamId, 10)
+	} else {
+		key = TeamDetailsKey + strconv.FormatInt(teamId, 10)
+	}
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	var teamDetails *fmcommon.TeamDetails
+	if v != "" {
+		err := json.Unmarshal([]byte(v), &teamDetails)
+		if err == nil {
+			return teamDetails, nil
+		}
+	}
+	var err error
+	teamDetails, err = fmcommon.GetTeamDetailsById(teamId, owner, dbCtx)
+	if err != nil {
+		return nil, err
+	}
+	value, _ := json.Marshal(teamDetails)
+	dbCtx.ObjectCache.SetValue(key, string(value))
+	return teamDetails, nil
+}
+
+func GetUserOfTeamId(dbCtx *fmcommon.DatabaseContext, teamId int64) (int64, error) {
+	key := TeamOwnerKey + strconv.FormatInt(teamId, 10)
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	if v != "" {
+		return fmcommon.StringToInt64(v)
+	}
+	userId, err := fmcommon.GetTeamOwner(dbCtx, teamId)
+	if err != nil {
+		return -1, err
+	}
+	dbCtx.ObjectCache.SetValueLongDuration(key, strconv.FormatInt(userId, 10))
+	return userId, nil
 }

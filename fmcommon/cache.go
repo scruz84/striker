@@ -11,6 +11,7 @@ import (
 type Cache interface {
 	GetValue(key string) (string, error)
 	SetValue(key string, value string)
+	SetValueLongDuration(key string, value string)
 }
 
 func NewRedisCache() *RedisCache {
@@ -38,4 +39,8 @@ func (r RedisCache) GetValue(key string) (string, error) {
 
 func (r RedisCache) SetValue(key string, value string) {
 	r.client.SetNX(*r.ctx, key, value, time.Minute)
+}
+
+func (r RedisCache) SetValueLongDuration(key string, value string) {
+	r.client.SetNX(*r.ctx, key, value, time.Minute*30)
 }

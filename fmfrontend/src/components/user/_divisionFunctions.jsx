@@ -10,7 +10,6 @@ export function GetDivisionDetails(dispatcher, leagueId) {
         .then(response => {
             return response.json();
         }).then(data => {
-        console.log(data)
         dispatcher(divisionResult(data));
     } );
 }

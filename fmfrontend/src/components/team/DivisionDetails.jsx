@@ -1,6 +1,6 @@
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {useEffect} from "react";
+import React, {useEffect} from "react";
 import {GetDivisionDetails} from "../user/_divisionFunctions";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import Box from "@mui/material/Box";
@@ -61,7 +61,10 @@ function GetClassificationTable(divisionDetails) {
                             key={row.position}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                             <TableCell component="th" scope="row">{row.position}</TableCell>
-                            <TableCell align="left">{row.teamName}</TableCell>
+                            <TableCell align="left">
+                                <Link to={`/team/${row.teamId}`} style={{ color: 'inherit' }}>
+                                    {row.teamName}</Link>
+                            </TableCell>
                             <TableCell align="center">{row.points}</TableCell>
                             <TableCell align="left">{row.goalsScored-row.goalsReceived}</TableCell>
                             <TableCell align="left">{row.wins}</TableCell>

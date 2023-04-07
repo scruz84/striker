@@ -75,6 +75,10 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 	v1UserGroup.Use(authMiddleware.MiddlewareFunc())
 	v1UserGroup.GET("/team", handlers.UserTeam(dbCtx))
 
+	v1TeamGroup := v1Group.Group("/teams")
+	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
+
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")
 	v1AuthGroup.Use(authMiddleware.MiddlewareFunc())
@@ -104,6 +108,8 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.GetTeamDetailsStmtByOwner] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetDivisionDetailsStmtSql)
 	dbCtx.PreparedStmts[fmcommon.GetDivisionDetailsStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetTeamStmtByIdSql)
+	dbCtx.PreparedStmts[fmcommon.GetTeamStmtById] = preparedStmt
 }
 
 // Initializes the authentication middleware

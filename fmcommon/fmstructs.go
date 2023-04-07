@@ -60,12 +60,14 @@ type LineupPosition struct {
 }
 
 type Team struct {
-	Id           int64  `json:"id"`
-	OwnerId      int64  `json:"ownerId"`
-	Country      string `json:"country"`
-	TeamName     string `json:"name"`
-	DivisionId   int64  `json:"divisionId"`
-	DivisionName string `json:"divisionName"`
+	Id                     int64  `json:"id"`
+	OwnerId                int64  `json:"ownerId"`
+	OwnerName              string `json:"ownerName"`
+	Country                string `json:"country"`
+	TeamName               string `json:"name"`
+	DivisionId             int64  `json:"divisionId"`
+	DivisionName           string `json:"divisionName"`
+	ClassificationPosition int    `json:"classificationPosition"`
 }
 
 type Player struct {
@@ -95,8 +97,10 @@ type RegisterUser struct {
 }
 
 type TeamDetails struct {
-	Team    *Team     `json:"team"`
-	Players []*Player `json:"players"`
+	Team        *Team       `json:"team"`
+	Players     []*Player   `json:"players"`
+	LastMatches []WeekMatch `json:"lastMatches"`
+	NextMatches []WeekMatch `json:"nextMatches"`
 }
 
 type WeekMatch struct {

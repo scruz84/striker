@@ -12,7 +12,9 @@ import (
 const GetFreeTeamStmtSql = "SELECT team_id FROM teams WHERE owner_id IS NULL and country = $1 limit 1"
 
 const GetLineupsForMatchStmt = "GetLineupsForMatchStmt"
-const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where team_id in ($1, $2) and match_id = $3) b on (a.team_id = b.team_id) where a.team_id in ($1, $2) "
+const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" " +
+	"from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d " +
+	"on (c.lineup_id = d.lineup_id) where team_id in ($1, $2) and match_id = $3) b on (a.team_id = b.team_id) where a.team_id in ($1, $2) "
 
 const GetDivisionDetailsStmt = "GetDivisionDetailsStmt"
 const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
@@ -22,10 +24,17 @@ const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
+const GetTeamStmtById = "GetTeamStmtById"
+const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name " +
+	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) LEFT JOIN users c " +
+	" ON (a.owner_id = c.user_id ) " +
+	"WHERE a.team_id = $1"
+
 const GetTeamDetailsStmtByOwner = "GetTeamDetailsStmtByOwner"
 const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name FROM teams WHERE owner_id = $1"
 const GetTeamDetailsStmtSql = "SELECT owner_id, country, league_id, name FROM teams WHERE team_id = $1"
 const GetTeamIdsFromLeagueSql = "SELECT team_id FROM teams where league_id = $1"
+const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayersFromTeamStmt = "GetPlayersFromTeamStmt"
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical " +
@@ -33,7 +42,8 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 	"WHERE t.team_id = $1"
 
 const GetSimulableMatchesStmt = "GetSimulableMatchesStmt"
-const GetSimulableMatchesStmtSql = "select match_id, league_id, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals from matches where match_date > now() and match_date < now()+interval '15 minutes' and played is false order by league_id"
+const GetSimulableMatchesStmtSql = "select match_id, league_id, week_number, match_date, home_team_id, away_team_id, " +
+	"home_goals, away_goals from matches where match_date > now() and match_date < now()+interval '15 minutes' and played is false order by league_id"
 
 const GetUserIdByEmailStmt = "GetUserIdByEmailStmt"
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
@@ -334,6 +344,29 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 	}, nil
 }
 
+func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
+	var userId sql.NullInt64
+	var userName sql.NullString
+	var country string
+	var leagueId int64
+	var leagueName string
+	var name string
+	stmt := dbCtx.PreparedStmts[GetTeamStmtById]
+	err := stmt.QueryRow(teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name)
+	if err != nil {
+		return nil, err
+	}
+	return &Team{
+		Id:           teamId,
+		OwnerId:      userId.Int64,
+		OwnerName:    userName.String,
+		Country:      country,
+		TeamName:     name,
+		DivisionId:   leagueId,
+		DivisionName: leagueName,
+	}, nil
+}
+
 func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetails, error) {
 	leagueName, err := GetDivisionName(dbCtx, leagueId)
 	if err != nil {
@@ -413,6 +446,33 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		Team:    team,
 		Players: *players,
 	}, nil
+}
+
+func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*TeamDetails, error) {
+	team, errTeam := GetTeamById(teamId, dbCtx)
+	if errTeam != nil {
+		return nil, errTeam
+	}
+
+	players, err := GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &TeamDetails{
+		Team:    team,
+		Players: *players,
+	}, nil
+}
+
+func GetTeamOwner(dbCtx *DatabaseContext, teamId int64) (int64, error) {
+	rows, err := dbCtx.Db.Query(GetTeamOwnerStmtSql, teamId)
+	defer rows.Close()
+	var userId = int64(-1)
+	if rows.Next() {
+		rows.Scan(&userId)
+	}
+	return userId, err
 }
 
 func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, error) {
