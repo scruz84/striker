@@ -123,9 +123,9 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		SendCookie:     true,
 		SecureCookie:   false, //non HTTPS dev environments
 		TokenLookup:    "cookie:jwt",
-		CookieHTTPOnly: true,                       // JS can't modify
-		CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
-		CookieName:     "jwt",
+		CookieHTTPOnly: true, // JS can't modify
+		//CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
+		CookieName: "jwt",
 		//CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		PayloadFunc: func(data interface{}) ginjwt.MapClaims {
