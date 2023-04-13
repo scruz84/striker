@@ -115,16 +115,16 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 // Initializes the authentication middleware
 func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware {
 	authMiddleware, err := ginjwt.New(&ginjwt.GinJWTMiddleware{
-		Realm:          "Football manager",
-		Key:            []byte("secret key"),
+		Realm:          os.Getenv("REALM"), //"Football manager",
+		Key:            []byte(os.Getenv("SECRET_JWT")),
 		Timeout:        time.Minute * 10,
 		MaxRefresh:     time.Hour,
 		IdentityKey:    fmcommon.UserId,
 		SendCookie:     true,
 		SecureCookie:   false, //non HTTPS dev environments
 		TokenLookup:    "cookie:jwt",
-		CookieHTTPOnly: true, // JS can't modify
-		CookieDomain:   "localhost",
+		CookieHTTPOnly: true,                       // JS can't modify
+		CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
 		CookieName:     "jwt",
 		CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		PayloadFunc: func(data interface{}) ginjwt.MapClaims {
