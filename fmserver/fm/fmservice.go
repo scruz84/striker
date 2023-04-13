@@ -127,7 +127,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
 		CookieName:     "jwt",
 		//CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
-		CookieSameSite: http.SameSiteNoneMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
+		CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		PayloadFunc: func(data interface{}) ginjwt.MapClaims {
 			if u, ok := data.(*fmcommon.LoggedUser); ok {
 				return ginjwt.MapClaims{
@@ -147,7 +147,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		},
 
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			log.Infof("Authorizator ... %s", c)
+			//log.Infof("Authorizator ... %s", c)
 			var loginRequest fmcommon.LoginRequest
 			if err := c.ShouldBind(&loginRequest); err != nil {
 				return "", ginjwt.ErrMissingLoginValues
