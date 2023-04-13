@@ -41,7 +41,7 @@ function checkCredential(credential, navigate, dispatcher, redirectUrl) {
 export function GetUserDetails(dispatcher, navigate, redirectUrl = null) {
     const requestOptions = {
         method: 'GET',
-        credentials: 'same-origin',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
     };
     fetch(GetApiEndpoint('/v1/auth/me'), requestOptions)
