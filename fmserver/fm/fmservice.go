@@ -121,7 +121,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		MaxRefresh:     time.Hour,
 		IdentityKey:    fmcommon.UserId,
 		SendCookie:     true,
-		SecureCookie:   false, //non HTTPS dev environments
+		SecureCookie:   true, //non HTTPS dev environments
 		TokenLookup:    "cookie:jwt",
 		CookieHTTPOnly: true, // JS can't modify
 		//CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
