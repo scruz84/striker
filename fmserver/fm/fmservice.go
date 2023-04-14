@@ -6,6 +6,7 @@ import (
 	"footmanager/fmcommon"
 	"footmanager/fmserver/fm/handlers"
 	ginjwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
@@ -57,12 +58,24 @@ func StartSvc() {
 
 // Http router initializer
 func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
+	//CORS
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"https://api.striker.example.com",
+		"https://striker.example.com",
+		"http://localhost:3000"}
+	corsConfig.AllowCredentials = true
+	corsConfig.AddAllowMethods("OPTIONS")
+	corsConfig.AddAllowHeaders("Access-Control-Allow-Origin")
+	corsConfig.AddAllowHeaders("Access-Control-Allow-Headers",
+		"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin",
+		"Cache-Control", "X-Requested-With")
+	router.Use(cors.New(corsConfig))
+
 	//Init session management
 	store, err := postgres.NewStore(dbCtx.Db, []byte("sessions secret"))
 	if err != nil {
 		log.Panicln("Error accessing database for session management: %s", err)
 	}
-	router.Use(CORSMiddleware())
 	router.Use(sessions.Sessions("footballManager", store))
 
 	//V1 API
@@ -124,10 +137,8 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		SecureCookie:   true, //non HTTPS dev environments
 		TokenLookup:    "cookie:jwt",
 		CookieHTTPOnly: true, // JS can't modify
-		//CookieDomain:   os.Getenv("COOKIE_DOMAIN"), //"localhost",
-		CookieName: "jwt",
-		//CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
-		CookieSameSite: http.SameSiteDefaultMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
+		CookieName:     "jwt",
+		CookieSameSite: http.SameSiteNoneMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		PayloadFunc: func(data interface{}) ginjwt.MapClaims {
 			if u, ok := data.(*fmcommon.LoggedUser); ok {
 				return ginjwt.MapClaims{
@@ -188,21 +199,4 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 	}
 
 	return authMiddleware
-}
-
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, "+
-			"X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
 }

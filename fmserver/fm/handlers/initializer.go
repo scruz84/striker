@@ -78,8 +78,11 @@ func createTeams(dbCtx *fmcommon.DatabaseContext, countries []string) {
 	for _, country := range countries {
 		//create leagues
 		leagues = append(leagues, createLeague(dbCtx, country, "I", 1)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "II", 2)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "III", 4)...)
+		leagues = append(leagues, createLeague(dbCtx, country, "II", 4)...)
+		leagues = append(leagues, createLeague(dbCtx, country, "III", 16)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "IV", 64)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "V", 256)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "VI", 512)...)
 
 		//create the teams
 		for _, leagueId := range leagues {

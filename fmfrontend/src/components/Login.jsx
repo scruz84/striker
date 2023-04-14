@@ -28,6 +28,7 @@ export const Login = () => {
 function checkCredential(credential, navigate, dispatcher, redirectUrl) {
     const requestOptions = {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jwt: credential, provider: 'google'})
     };
@@ -61,6 +62,7 @@ export function GetUserDetails(dispatcher, navigate, redirectUrl = null) {
 export function DoLogout(dispatcher, navigate, redirectUrl = null) {
     const requestOptions = {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
     };
     fetch(GetApiEndpoint('/v1/auth/logout'), requestOptions)

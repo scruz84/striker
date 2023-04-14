@@ -66,9 +66,6 @@ function App() {
 export default App;
 
 export function GetApiEndpoint(path) {
-    console.log("Endpoint: " + API_END_POINT)
-    console.log("Path: " + path)
-    console.log("Full: " + API_END_POINT + path)
     return API_END_POINT + path
 }
 

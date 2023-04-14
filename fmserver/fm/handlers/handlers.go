@@ -48,7 +48,6 @@ func Me(dbCtx *fmcommon.DatabaseContext, idKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("Starting to get user details")
 
-		GetUserIdFromCookie(c)
 		id := GetUserIdFromCookie(c)
 		if id == nil {
 			c.JSON(http.StatusForbidden, nil)
