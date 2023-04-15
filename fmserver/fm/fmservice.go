@@ -91,6 +91,7 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
+	v1TeamGroup.GET("/division/:"+handlers.ID+"/", handlers.DivisionDetailsHandler(dbCtx))
 
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")
@@ -100,7 +101,6 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 	v1AuthGroup.POST("/logout", authMiddleware.LogoutHandler)
 
 	//Others V1
-	v1Group.GET("/division/:"+handlers.ID+"/", handlers.DivisionDetailsHandler(dbCtx))
 	v1Group.GET("/initData", handlers.Initialize(dbCtx))
 	v1Group.POST("/login", authMiddleware.LoginHandler)
 	v1Group.POST("/registerUser", handlers.RegisterUser(dbCtx))
