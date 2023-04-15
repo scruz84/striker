@@ -7,7 +7,7 @@ export function GetTeamDetails(dispatcher, teamId) {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch(GetApiEndpoint('/v1/teams/team/'+teamId), requestOptions)
+    fetch(GetApiEndpoint('/v1/teams/team/'+teamId+'/'), requestOptions)
         .then(response => {
             return response.json();
         }).then(data => {

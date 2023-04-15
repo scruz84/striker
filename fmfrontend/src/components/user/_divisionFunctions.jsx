@@ -7,7 +7,7 @@ export function GetDivisionDetails(dispatcher, leagueId) {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }
     };
-    fetch(GetApiEndpoint('/v1/teams/division/'+leagueId), requestOptions)
+    fetch(GetApiEndpoint('/v1/teams/division/'+leagueId+'/'), requestOptions)
         .then(response => {
             return response.json();
         }).then(data => {
