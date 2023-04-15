@@ -123,6 +123,8 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.GetDivisionDetailsStmt] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetTeamStmtByIdSql)
 	dbCtx.PreparedStmts[fmcommon.GetTeamStmtById] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesStmt] = preparedStmt
 }
 
 // Initializes the authentication middleware

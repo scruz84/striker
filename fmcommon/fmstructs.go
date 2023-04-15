@@ -22,9 +22,11 @@ type Classification struct {
 }
 
 type DivisionDetails struct {
-	Id             int64          `json:"id"`
-	Name           string         `json:"name"`
-	Classification Classification `json:"classification"`
+	Id                  int64          `json:"id"`
+	Name                string         `json:"name"`
+	Classification      Classification `json:"classification"`
+	PreviousWeekMatches []WeekMatch    `json:"previousWeekMatches"`
+	NextWeekMatches     []WeekMatch    `json:"nextWeekMatches"`
 }
 
 type LoginRequest struct {
@@ -109,7 +111,9 @@ type WeekMatch struct {
 	WeekNumber int       `json:"weekNumber"`
 	MatchDate  time.Time `json:"matchDate"`
 	Home       int64     `json:"home"`
+	HomeName   string    `json:"homeName"`
 	Away       int64     `json:"away"`
-	HomeGoals  int       `json:"HomeGoals"`
+	AwayName   string    `json:"awayName"`
+	HomeGoals  int       `json:"homeGoals"`
 	AwayGoals  int       `json:"awayGoals"`
 }
