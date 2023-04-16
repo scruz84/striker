@@ -26,6 +26,7 @@ func Initialize(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		deleteTable(dbCtx, "players")
 		deleteTable(dbCtx, "teams")
 		deleteTable(dbCtx, "leagues")
+		deleteTable(dbCtx, "users")
 		deleteTable(dbCtx, "countries")
 
 		//countries

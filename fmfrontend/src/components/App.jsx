@@ -4,7 +4,7 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import TeamsList from '../TeamsList';
 import {ThemeProvider} from '@mui/material/styles';
 import {lightTheme} from "../themes/light";
-import {Container, CssBaseline} from "@mui/material";
+import {CssBaseline} from "@mui/material";
 import {CacheProvider} from "@emotion/react";
 import createCache from '@emotion/cache';
 import Header from "./Header";
@@ -41,23 +41,21 @@ function App() {
                 value={createCache({
                     key: 'css',
                 })}>
-                <Container maxWidth="xl">
-                    <ThemeProvider theme={lightTheme}>
-                        <CssBaseline enableColorScheme />
-                        <BrowserRouter>
-                            <Header/>
-                            <Subheader/>
-                            <Routes>
-                                <Route path="/" element={<Home />}/>
-                                <Route path="/allTeams" element={<TeamsList />}/>
-                                <Route path="/dashboard" element={<UserDashboard/>}/>
-                                <Route path="/division/:id" element={<DivisionDetails/>}/>
-                                <Route path="/team/:id" element={<TeamDetails/>}/>
-                                <Route path="/login" element={<Login />}/>
-                            </Routes>
-                        </BrowserRouter>
-                    </ThemeProvider>
-                </Container>
+                <ThemeProvider theme={lightTheme}>
+                    <CssBaseline enableColorScheme />
+                    <BrowserRouter>
+                        <Header/>
+                        <Subheader/>
+                        <Routes>
+                            <Route path="/" element={<Home />}/>
+                            <Route path="/allTeams" element={<TeamsList />}/>
+                            <Route path="/dashboard" element={<UserDashboard/>}/>
+                            <Route path="/division/:id" element={<DivisionDetails/>}/>
+                            <Route path="/team/:id" element={<TeamDetails/>}/>
+                            <Route path="/login" element={<Login />}/>
+                        </Routes>
+                    </BrowserRouter>
+                </ThemeProvider>
             </CacheProvider>
         </GoogleOAuthProvider>
     );

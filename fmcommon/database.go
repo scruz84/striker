@@ -419,11 +419,21 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 	currentWeek = positions[0].Matches
 	//Last week matches
 	var previousWeekMatches *[]WeekMatch
+	var nextWeekMatches *[]WeekMatch
 	if currentWeek > 1 {
 		previousWeekMatches, err = WeekMatches(dbCtx, leagueId, currentWeek)
 	}
 	//Next week matches
-	nextWeekMatches, err := WeekMatches(dbCtx, leagueId, currentWeek+1)
+	nextWeekMatches, err = WeekMatches(dbCtx, leagueId, currentWeek+1)
+
+	if nextWeekMatches == nil {
+		aux := make([]WeekMatch, 0)
+		nextWeekMatches = &aux
+	}
+	if previousWeekMatches == nil {
+		aux := make([]WeekMatch, 0)
+		previousWeekMatches = &aux
+	}
 
 	return &DivisionDetails{
 		Id:   leagueId,
