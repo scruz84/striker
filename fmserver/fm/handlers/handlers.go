@@ -174,3 +174,23 @@ func DivisionDetailsHandler(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		return
 	}
 }
+
+func MatchDetailsHandler(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Infof("Starting to get match details")
+		matchIdStr := c.Param(ID)
+		log.Infof("Starting to get match from %s", matchIdStr)
+		matchId, err := fmcommon.StringToInt64(matchIdStr)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, nil)
+			return
+		}
+		matchDetails, err := engine.GetMatchDetails(dbCtx, matchId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, matchDetails)
+		return
+	}
+}

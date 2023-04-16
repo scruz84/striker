@@ -59,6 +59,13 @@ const GetWeekMatchesStmtSql = "select match_id, w.league_id, played, week_number
 	"FROM matches where league_id = $1 and week_number = $2) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
+const GetWeekMatchesByIdStmt = "GetWeekMatchesByIdStmt"
+const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+	" t0.name as home_team_name, t1.name as away_team_name " +
+	"FROM (SELECT match_id, league_id, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"FROM matches where match_id = $1) w " +
+	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
+
 const InsertTeamToClassificationStmtSql = "INSERT INTO classification (league_id, team_id) values ($1, $2)"
 
 const InsertMatch = "INSERT INTO matches (league_id, week_number, match_date, home_team_id, away_team_id) " +
@@ -449,38 +456,44 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 func WeekMatches(dbCtx *DatabaseContext, leagueId int64, weekNumber int) (*[]WeekMatch, error) {
 	stmt := dbCtx.PreparedStmts[GetWeekMatchesStmt]
 	rows, err := stmt.Query(leagueId, weekNumber)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
 	matches := make([]WeekMatch, 0)
 	for rows.Next() {
-		var matchId int64
-		var leagueId int64
-		var played bool
-		var weekNumer int64
-		var matchDate time.Time
-		var homeTeamId int64
-		var awayTeamId int64
-		var homeGoals int
-		var awayGoals int
-		var homeTeamName string
-		var awayTeamName string
-		rows.Scan(&matchId, &leagueId, &played, &weekNumer, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
-			&homeTeamName, &awayTeamName)
-		matches = append(matches, WeekMatch{
-			MatchId:    matchId,
-			DivisionId: leagueId,
-			WeekNumber: weekNumber,
-			MatchDate:  matchDate,
-			Home:       homeTeamId,
-			HomeName:   homeTeamName,
-			Away:       awayTeamId,
-			AwayName:   awayTeamName,
-			HomeGoals:  homeGoals,
-			AwayGoals:  awayGoals,
-		})
+		matches = append(matches, *readWeekMatch(rows))
 	}
 	return &matches, nil
+}
+
+func readWeekMatch(rows *sql.Rows) *WeekMatch {
+	var matchId int64
+	var leagueId int64
+	var played bool
+	var weekNumber int
+	var matchDate time.Time
+	var homeTeamId int64
+	var awayTeamId int64
+	var homeGoals int
+	var awayGoals int
+	var homeTeamName string
+	var awayTeamName string
+	rows.Scan(&matchId, &leagueId, &played, &weekNumber, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
+		&homeTeamName, &awayTeamName)
+	return &WeekMatch{
+		MatchId:    matchId,
+		DivisionId: leagueId,
+		WeekNumber: weekNumber,
+		MatchDate:  matchDate,
+		Played:     played,
+		Home:       homeTeamId,
+		HomeName:   homeTeamName,
+		Away:       awayTeamId,
+		AwayName:   awayTeamName,
+		HomeGoals:  homeGoals,
+		AwayGoals:  awayGoals,
+	}
 }
 
 func GetDivisionName(dbCtx *DatabaseContext, leagueId int64) (string, error) {
@@ -514,6 +527,19 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		Team:    team,
 		Players: *players,
 	}, nil
+}
+
+func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
+	stmt := dbCtx.PreparedStmts[GetWeekMatchesByIdStmt]
+	rows, err := stmt.Query(matchId)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	if !rows.Next() {
+		return nil, nil
+	}
+	return readWeekMatch(rows), nil
 }
 
 func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*TeamDetails, error) {

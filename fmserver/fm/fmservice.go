@@ -90,8 +90,9 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
-	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
+	v1TeamGroup.GET("/match/:"+handlers.ID+"/", handlers.MatchDetailsHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/", handlers.DivisionDetailsHandler(dbCtx))
+	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
 
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")
@@ -125,14 +126,22 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.GetTeamStmtById] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesStmtSql)
 	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesByIdStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesByIdStmt] = preparedStmt
 }
 
 // Initializes the authentication middleware
 func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware {
+	var timeout string
+	timeout = os.Getenv("SESSION_TIMEOUT")
+	if timeout == "" {
+		timeout = "30m"
+	}
+	sessionTimeout, _ := time.ParseDuration(timeout)
 	authMiddleware, err := ginjwt.New(&ginjwt.GinJWTMiddleware{
 		Realm:          os.Getenv("REALM"), //"Football manager",
 		Key:            []byte(os.Getenv("SECRET_JWT")),
-		Timeout:        time.Minute * 10,
+		Timeout:        sessionTimeout,
 		MaxRefresh:     time.Hour,
 		IdentityKey:    fmcommon.UserId,
 		SendCookie:     true,

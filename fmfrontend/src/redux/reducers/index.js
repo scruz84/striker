@@ -1,4 +1,13 @@
-import {DIVISION_DETAILS, LOGIN_SUCCESS, LOGOUT, TEAM, TEAM_DETAILS, TEAM_DETAILS_RESET} from "../types";
+import {
+    DIVISION_DETAILS,
+    LOGIN_SUCCESS,
+    LOGOUT,
+    MATCH_DETAILS,
+    MATCH_DETAILS_RESET,
+    TEAM,
+    TEAM_DETAILS,
+    TEAM_DETAILS_RESET
+} from "../types";
 
 const initialState = {
     id:null,
@@ -15,6 +24,7 @@ const initialState = {
 export default (state = initialState, action) => {
     switch (action.type) {
         case DIVISION_DETAILS:
+        case MATCH_DETAILS:
         case TEAM:
         case TEAM_DETAILS:
         case LOGIN_SUCCESS:
@@ -27,6 +37,12 @@ export default (state = initialState, action) => {
                 ...{},
                 ...action.payload,
             };
+        case MATCH_DETAILS_RESET: {
+            state.matchDetails = null
+            return {
+                ...state,
+            }
+        }
         case TEAM_DETAILS_RESET:
             state.teamDetails = null
             return {

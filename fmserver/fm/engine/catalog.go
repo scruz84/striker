@@ -9,6 +9,7 @@ import (
 
 const ClassificationKey = "classDet_key_"
 const FullTeamDetailsKey = "fullTeamDet_key_"
+const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
 const TeamDetailsKey = "teamDet_key_"
 const TeamOwnerKey = "teamOwner_key_"
@@ -86,4 +87,27 @@ func GetUserOfTeamId(dbCtx *fmcommon.DatabaseContext, teamId int64) (int64, erro
 	}
 	dbCtx.ObjectCache.SetValueLongDuration(key, strconv.FormatInt(userId, 10))
 	return userId, nil
+}
+
+func GetMatchDetails(dbCtx *fmcommon.DatabaseContext, matchId int64) (*fmcommon.WeekMatch, error) {
+	key := MatchDetailsKey + strconv.FormatInt(matchId, 10)
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	var matchDetails *fmcommon.WeekMatch
+	if v != "" {
+		err := json.Unmarshal([]byte(v), &matchDetails)
+		if err == nil {
+			return matchDetails, nil
+		}
+	}
+	var err error
+	matchDetails, err = fmcommon.WeekMatchById(dbCtx, matchId)
+	if err != nil {
+		return nil, err
+	}
+	if matchDetails == nil {
+		return nil, nil
+	}
+	value, _ := json.Marshal(matchDetails)
+	dbCtx.ObjectCache.SetValue(key, string(value))
+	return matchDetails, nil
 }

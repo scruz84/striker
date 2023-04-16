@@ -1,4 +1,13 @@
-import {DIVISION_DETAILS, LOGIN_SUCCESS, LOGOUT, TEAM, TEAM_DETAILS, TEAM_DETAILS_RESET} from "../types";
+import {
+    DIVISION_DETAILS,
+    LOGIN_SUCCESS,
+    LOGOUT,
+    MATCH_DETAILS,
+    MATCH_DETAILS_RESET,
+    TEAM,
+    TEAM_DETAILS,
+    TEAM_DETAILS_RESET
+} from "../types";
 
 export const loginResult = (loggedUser) => (dispatch, getState) => {
     try {
@@ -78,12 +87,39 @@ export const teamDetailsResult = (teamDetails) => (dispatch, getState) => {
     }
 };
 
+export const matchDetailsResult = (matchDetails) => (dispatch, getState) => {
+    try {
+        if (matchDetails != null) {
+            dispatch({
+                type: MATCH_DETAILS,
+                payload: {
+                    matchDetails
+                },
+            });
+        }
+
+    } catch (error) {
+        console.log("Error getting match details", error);
+    }
+};
+
+export const matchDetailsReset = () => (dispatch, getState) => {
+    try {
+        dispatch({
+            type: MATCH_DETAILS_RESET,
+            payload: {},
+        });
+    } catch (error) {
+        console.log("Error resetting match details", error);
+    }
+};
+
+
 export const teamDetailsReset = () => (dispatch, getState) => {
     try {
         dispatch({
             type: TEAM_DETAILS_RESET,
-            payload: {
-            },
+            payload: {},
         });
     } catch (error) {
         console.log("Error resetting team details", error);

@@ -4,7 +4,6 @@ import React, {useEffect} from "react";
 import {GetDivisionDetails} from "../user/_divisionFunctions";
 import Moment from 'react-moment';
 import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone';
-
 import {
     Grid,
     List,
@@ -111,25 +110,27 @@ function PrintWeekMatches(weekMatches) {
         <List>
             <Grid container spacing={0}>
                 {weekMatches.weekMatches.map((row, idx) => (
-                    <ListItem key={idx} alignItems="flex-start">
-                        <Grid item xs={9} >
-                            <Typography fontSize="small" xs={1}>
-                                {row.homeName} - {row.awayName}
-                            </Typography>
-                            <Stack direction="row">
-                                <CalendarTodayTwoToneIcon fontSize="small"/>
-                                <Typography fontSize="small" xs={0}>
-                                    <Moment format="DD/MM/YYYY HH:mm">
-                                         {row.matchDate}
-                                    </Moment>
+                    <Link to={`/match/${row.matchId}`} style={{color: 'inherit'}}>
+                        <ListItem key={idx} alignItems="flex-start">
+                            <Grid item xs={9} >
+                                <Typography fontSize="small" xs={1}>
+                                    {row.homeName} - {row.awayName}
                                 </Typography>
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={2}>
-                            <Typography fontSize="small" xs={0}>
-                                {row.homeGoals} - {row.awayGoals}</Typography>
-                        </Grid>
-                    </ListItem>
+                                <Stack direction="row">
+                                    <CalendarTodayTwoToneIcon fontSize="small"/>
+                                    <Typography fontSize="small" xs={0}>
+                                        <Moment format="DD/MM/YYYY HH:mm">
+                                             {row.matchDate}
+                                        </Moment>
+                                    </Typography>
+                                </Stack>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <Typography fontSize="small" xs={0}>
+                                    {row.homeGoals} - {row.awayGoals}</Typography>
+                            </Grid>
+                        </ListItem>
+                    </Link>
                 ))}
             </Grid>
         </List>

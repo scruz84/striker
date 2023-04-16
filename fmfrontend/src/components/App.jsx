@@ -16,6 +16,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {UserDashboard} from "./user/UserDashboard";
 import {DivisionDetails} from "./team/DivisionDetails";
 import {TeamDetails} from "./team/TeamDetails";
+import {MatchDetails} from "./team/MatchDetails";
 
 const GOOGLE_OAUTH_CLIENT_ID = isDevelopment() ?
     process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID : window.extended.GOOGLE_OAUTH_CLIENT_ID
@@ -51,8 +52,10 @@ function App() {
                             <Route path="/allTeams" element={<TeamsList />}/>
                             <Route path="/dashboard" element={<UserDashboard/>}/>
                             <Route path="/division/:id" element={<DivisionDetails/>}/>
+                            <Route path="/match/:id" element={<MatchDetails/>}/>
                             <Route path="/team/:id" element={<TeamDetails/>}/>
                             <Route path="/login" element={<Login />}/>
+                            <Route path="*" element={<Home />}/>
                         </Routes>
                     </BrowserRouter>
                 </ThemeProvider>

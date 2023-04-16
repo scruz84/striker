@@ -110,6 +110,7 @@ type WeekMatch struct {
 	DivisionId int64     `json:"divisionId"`
 	WeekNumber int       `json:"weekNumber"`
 	MatchDate  time.Time `json:"matchDate"`
+	Played     bool      `json:"played"`
 	Home       int64     `json:"home"`
 	HomeName   string    `json:"homeName"`
 	Away       int64     `json:"away"`
