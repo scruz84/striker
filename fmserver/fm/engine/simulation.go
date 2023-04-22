@@ -4,7 +4,7 @@ import (
 	"footmanager/fmcommon"
 )
 
-func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (*MatchSimulation, error) {
+func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (*fmcommon.MatchSimulation, error) {
 	// get the teams lineups
 	lineups, err := fmcommon.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
 	if err != nil {
@@ -20,8 +20,9 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 	if err != nil {
 		return nil, err
 	}
-	events := make([]Event, 0)
-	matchSimulation := &MatchSimulation{
+	events := make([]fmcommon.Event, 0)
+	matchInstants := make([]fmcommon.MatchInstant, 0)
+	matchSimulation := &fmcommon.MatchSimulation{
 		Id:                    match.MatchId,
 		DivisionId:            match.DivisionId,
 		Home:                  match.Home,
@@ -31,15 +32,17 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 		AwayLineup:            (*lineups)[match.Away],
 		HomeGoals:             0,
 		AwayGoals:             0,
-		HomeQua:               &TeamQualification{},
-		AwayQua:               &TeamQualification{},
+		HomeQua:               &fmcommon.TeamQualification{},
+		AwayQua:               &fmcommon.TeamQualification{},
 		HomePlayers:           playersToMapById(homePlayers),
 		AwayPlayers:           playersToMapById(awayPlayers),
 		HomePlayersByPosition: playersByPosition((*lineups)[match.Home]),
 		AwayPlayersByPosition: playersByPosition((*lineups)[match.Away]),
 		Events:                &events,
+		MatchInstants:         &matchInstants,
 	}
 	events = nil
+	matchInstants = nil
 
 	simulations := make([]Simulation, 0)
 	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation())

@@ -128,6 +128,12 @@ func initStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesStmt] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesByIdStmtSql)
 	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesByIdStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetCurrentSeasonStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetCurrentSeasonStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesEventsByIdStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesEventsByIdStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesInstantsByIdStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesInstantsByIdStmt] = preparedStmt
 }
 
 // Initializes the authentication middleware

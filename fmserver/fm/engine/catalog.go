@@ -7,12 +7,27 @@ import (
 	"strconv"
 )
 
-const ClassificationKey = "classDet_key_"
+const ClassificationKey = "classDet_key"
+const CurrentSeasonKey = "currentSeason_key_"
 const FullTeamDetailsKey = "fullTeamDet_key_"
 const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
 const TeamDetailsKey = "teamDet_key_"
 const TeamOwnerKey = "teamOwner_key_"
+
+func GetCurrentSeason(dbCtx *fmcommon.DatabaseContext) (int, error) {
+	key := CurrentSeasonKey
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	if v != "" {
+		vint, err := strconv.Atoi(v)
+		if err == nil {
+			return vint, nil
+		}
+	}
+	vint := fmcommon.GetCurrentSeason(dbCtx)
+	dbCtx.ObjectCache.SetValueLongDuration(key, strconv.Itoa(vint))
+	return vint, nil
+}
 
 func GetPlayersFromTeam(dbCtx *fmcommon.DatabaseContext, teamId int64) (*[]*fmcommon.Player, error) {
 	key := PlayersFromTeamKey + strconv.FormatInt(teamId, 10)

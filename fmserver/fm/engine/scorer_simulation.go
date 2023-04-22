@@ -19,14 +19,14 @@ func NewScorerSimulation() *ScorerSimulation {
 	return &ScorerSimulation{r: rand.New(rand.NewSource(time.Now().UnixMilli()))}
 }
 
-func (s ScorerSimulation) Apply(dbCtx *fmcommon.DatabaseContext, match *MatchSimulation) {
+func (s ScorerSimulation) Apply(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
 	if rand.Float32() < ProbChance {
 		teamChance := getTeamChance(s, match)
 		processChance(s, match, teamChance)
 	}
 }
 
-func processChance(s ScorerSimulation, match *MatchSimulation, teamChance int64) {
+func processChance(s ScorerSimulation, match *fmcommon.MatchSimulation, teamChance int64) {
 	isRight := false
 	isLeft := false
 	//decide if is right, left or center chance
@@ -95,7 +95,7 @@ func processChance(s ScorerSimulation, match *MatchSimulation, teamChance int64)
 		eventType = fmcommon.NO_GOAL
 	}
 
-	*match.Events = append(*match.Events, Event{
+	*match.Events = append(*match.Events, fmcommon.Event{
 		EventType:        eventType,
 		Minute:           match.Minute,
 		TeamOwner:        teamChance,
@@ -105,7 +105,7 @@ func processChance(s ScorerSimulation, match *MatchSimulation, teamChance int64)
 	})
 }
 
-func getTeamChance(s ScorerSimulation, match *MatchSimulation) int64 {
+func getTeamChance(s ScorerSimulation, match *fmcommon.MatchSimulation) int64 {
 	homeMidfieldAverage := match.HomeQua.Midfield / (match.HomeQua.Midfield + match.AwayQua.Midfield)
 	if s.r.Float32() < homeMidfieldAverage {
 		return match.Home

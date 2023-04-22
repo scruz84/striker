@@ -3,7 +3,6 @@ CREATE TABLE public.lastnames_es (
      freq float8 NULL
 );
 
-
 CREATE TABLE public.names_es (
      "name" varchar(100) NULL,
      freq float8 NULL
@@ -35,6 +34,9 @@ CREATE TABLE teams (
    PRIMARY KEY (team_id)
 );
 
+CREATE TABLE season (
+    current_season int
+);
 
 CREATE TABLE leagues (
      league_id 	bigserial NOT null,
@@ -68,6 +70,7 @@ create table players (
 CREATE TABLE matches (
      match_id bigserial NOT null PRIMARY KEY,
      league_id int8 NOT NULL REFERENCES leagues(league_id),
+     season int not null,
      played bool default false,
      week_number int default 0,
      match_date timestamptz NOT NULL,
@@ -87,6 +90,24 @@ CREATE TABLE match_events (
     team_players varchar(200),
     other_team_players varchar(200)
 );
+
+CREATE TABLE match_instants (
+      match_id bigint not null references matches(match_id),
+      minute int not null,
+      home_goals int default 0,
+      away_goals int default 0,
+      home_qua  varchar(500),
+      away_qua  varchar(500),
+      midfield_Diff         double precision,
+      HomeAttack_Right_Diff  double precision,
+      HomeAttack_Left_Diff   double precision,
+      HomeAttack_Center_Diff double precision,
+      AwayAttack_Right_Diff  double precision,
+      AwayAttack_Left_Diff   double precision,
+      AwayAttack_Center_Diff double precision,
+      primary key (match_id, minute)
+);
+
 
 create table default_lineup_positions (
     team_id bigint references teams(team_id),
@@ -111,6 +132,7 @@ create table lineup_positions (
 create table classification (
     league_id	bigint references leagues(league_id),
     team_id		bigint references teams(team_id),
+    season  int not null,
     matches int default 0,
     points 	int default 0,
     wins 	int default 0,

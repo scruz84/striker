@@ -59,6 +59,10 @@ func initEngineStatements(dbCtx *fmcommon.DatabaseContext) {
 	dbCtx.PreparedStmts[fmcommon.UpdateMatchStmt] = preparedStmt
 	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.UpdateTeamClassificationStmtSql)
 	dbCtx.PreparedStmts[fmcommon.UpdateTeamClassificationStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.InsertMatchInstantStmtSql)
+	dbCtx.PreparedStmts[fmcommon.InsertMatchInstantStmt] = preparedStmt
+	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetCurrentSeasonStmtSql)
+	dbCtx.PreparedStmts[fmcommon.GetCurrentSeasonStmt] = preparedStmt
 }
 
 func longPeriodicTimeTasks(dbCtx *fmcommon.DatabaseContext) {

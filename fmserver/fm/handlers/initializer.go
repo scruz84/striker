@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"footmanager/fmcommon"
+	"footmanager/fmserver/fm/engine"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -20,6 +21,7 @@ func Initialize(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		deleteTable(dbCtx, "lineup_positions")
 		deleteTable(dbCtx, "lineup")
 		deleteTable(dbCtx, "default_lineup_positions")
+		deleteTable(dbCtx, "match_instants")
 		deleteTable(dbCtx, "match_events")
 		deleteTable(dbCtx, "matches")
 		deleteTable(dbCtx, "classification")
@@ -28,12 +30,16 @@ func Initialize(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		deleteTable(dbCtx, "leagues")
 		deleteTable(dbCtx, "users")
 		deleteTable(dbCtx, "countries")
+		deleteTable(dbCtx, "season")
 
 		//countries
 		countries := createCountries(dbCtx)
 
-		//create teams
+		//create teams and leagues
 		createTeams(dbCtx, countries)
+
+		//create matches
+		engine.GenerateMatches(dbCtx)
 
 		c.JSON(http.StatusOK, &ActionResult{"Initialized!"})
 	}
@@ -58,7 +64,8 @@ func createLeague(dbCtx *fmcommon.DatabaseContext, country string, name string, 
 	log.Debug("initializing country %s league %s with groups %d", country, name, groups)
 
 	leagues := make([]int64, 0)
-	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name) values ($1, $2, $3) returning league_id")
+	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name) " +
+		"values ($1, $2, $3) returning league_id")
 	if errInsert != nil {
 		log.Printf("error inserting new league %s", errInsert)
 	} else {
@@ -112,7 +119,7 @@ func createTeam(dbCtx *fmcommon.DatabaseContext, country string, leagueId int64)
 
 func createClassification(dbCtx *fmcommon.DatabaseContext, leagueId int64) {
 	teamIds := fmcommon.GetDivisionTeams(dbCtx, leagueId)
-	fmcommon.InsertTeamsToClassification(dbCtx, leagueId, teamIds)
+	fmcommon.InsertTeamsToClassification(dbCtx, leagueId, 1, teamIds)
 }
 
 func generateLineup(dbCtx *fmcommon.DatabaseContext, teamId int64) *map[int][]int64 {

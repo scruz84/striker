@@ -23,6 +23,7 @@ type Classification struct {
 
 type DivisionDetails struct {
 	Id                  int64          `json:"id"`
+	Season              int            `json:"season"`
 	Name                string         `json:"name"`
 	Classification      Classification `json:"classification"`
 	PreviousWeekMatches []WeekMatch    `json:"previousWeekMatches"`
@@ -105,9 +106,82 @@ type TeamDetails struct {
 	NextMatches []WeekMatch `json:"nextMatches"`
 }
 
+type MatchSimulation struct {
+	Id         int64
+	DivisionId int64
+	Minute     int
+	Home       int64
+	Away       int64
+	HomeLineup *Lineup
+	AwayLineup *Lineup
+	HomeGoals  int
+	AwayGoals  int
+	//Players
+	HomePlayers           *map[int64]Player
+	AwayPlayers           *map[int64]Player
+	HomePlayersByPosition *map[int][]int64
+	AwayPlayersByPosition *map[int][]int64
+	//Qualifications
+	HomeQua *TeamQualification
+	AwayQua *TeamQualification
+	//Calculations
+	MidfieldDiff         float32 // home midfield vs away midfield difference
+	HomeAttackRightDiff  float32
+	HomeAttackLeftDiff   float32
+	HomeAttackCenterDiff float32
+	AwayAttackRightDiff  float32
+	AwayAttackLeftDiff   float32
+	AwayAttackCenterDiff float32
+	//Events
+	Events *[]Event
+	//Instants
+	MatchInstants *[]MatchInstant
+}
+
+type TeamQualification struct {
+	Goalkeeper    float32
+	LeftDefense   float32
+	RightDefense  float32
+	Defense       float32
+	LeftMidfield  float32
+	RightMidfield float32
+	Midfield      float32
+	LeftAttack    float32
+	RightAttach   float32
+	Attack        float32
+}
+
+type MatchInstant struct {
+	MatchId   int64
+	Minute    int
+	HomeGoals int
+	AwayGoals int
+	//Qualifications
+	HomeQua TeamQualification
+	AwayQua TeamQualification
+	//Calculations
+	MidfieldDiff         float32
+	HomeAttackRightDiff  float32
+	HomeAttackLeftDiff   float32
+	HomeAttackCenterDiff float32
+	AwayAttackRightDiff  float32
+	AwayAttackLeftDiff   float32
+	AwayAttackCenterDiff float32
+}
+
+type Event struct {
+	EventType        int
+	Minute           int
+	TeamOwner        int64
+	TeamOwnerPlayers []int64
+	OtherTeam        int64
+	OtherTeamPlayers []int64
+}
+
 type WeekMatch struct {
 	MatchId    int64     `json:"matchId"`
 	DivisionId int64     `json:"divisionId"`
+	Season     int       `json:"season"`
 	WeekNumber int       `json:"weekNumber"`
 	MatchDate  time.Time `json:"matchDate"`
 	Played     bool      `json:"played"`
@@ -117,4 +191,8 @@ type WeekMatch struct {
 	AwayName   string    `json:"awayName"`
 	HomeGoals  int       `json:"homeGoals"`
 	AwayGoals  int       `json:"awayGoals"`
+	//Events
+	Events *[]Event
+	//Instants
+	MatchInstants *[]MatchInstant
 }

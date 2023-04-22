@@ -4,12 +4,18 @@ import (
 	"footmanager/fmcommon"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
 // GenerateMatches Generates the matches for the leagues
 func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
-	rows, err := dbCtx.Db.Query("select 1 as c from matches where match_date > now() limit 1")
+	season, err := GetCurrentSeason(dbCtx)
+	if err != nil {
+		log.Errorf("error checking for upcoming matches: %s", err)
+		return
+	}
+	rows, err := dbCtx.Db.Query("select 1 as c from matches where season = " + strconv.Itoa(season) + " and match_date > now() limit 1")
 	defer rows.Close()
 	if err != nil {
 		log.Errorf("error checking for upcoming matches: %s", err)
@@ -39,7 +45,7 @@ func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
 
 			log.Infof("Team ids: %s", teamIds)
 
-			weekMatches := randomWeekMatches2(&leagueId, &teamIds)
+			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds)
 			//Insert the matches
 			_ = fmcommon.InsertMatches(dbCtx, weekMatches)
 		}
@@ -47,7 +53,7 @@ func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
 }
 
 // Algorithm from: https://www.competize.com/blog/hacer-fixture-crear-calendario-liga-excel/
-func randomWeekMatches2(leagueId *int64, teamIds *[]int64) [][]*fmcommon.WeekMatch {
+func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*fmcommon.WeekMatch {
 	// Here we have a random sort for the teams
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	rand.Shuffle(len(*teamIds), func(i, j int) {
@@ -69,6 +75,7 @@ func randomWeekMatches2(leagueId *int64, teamIds *[]int64) [][]*fmcommon.WeekMat
 			home := (*teamIds)[teamIdxForMatchFromWeek]
 			weeksMatches[weekIdx][weekIndex] = &fmcommon.WeekMatch{
 				DivisionId: *leagueId,
+				Season:     season,
 				WeekNumber: idx,
 				Home:       home,
 			}

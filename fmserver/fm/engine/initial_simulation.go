@@ -6,7 +6,7 @@ type SimulationPipelineImpl struct {
 	simulations []Simulation
 }
 
-func (s SimulationPipelineImpl) Simulate(dbCtx *fmcommon.DatabaseContext, match *MatchSimulation) {
+func (s SimulationPipelineImpl) Simulate(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
 	for _, sim := range s.simulations {
 		sim.Apply(dbCtx, match)
 	}
@@ -17,20 +17,36 @@ func (s SimulationPipelineImpl) Simulate(dbCtx *fmcommon.DatabaseContext, match 
 // InitialSimulation calculates initial weights based on players.
 type InitialSimulation struct{}
 
-func (s InitialSimulation) Apply(dbCtx *fmcommon.DatabaseContext, match *MatchSimulation) {
+func (s InitialSimulation) Apply(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
 	calculateQua(match.HomeQua, match.HomeLineup, match.HomePlayersByPosition, match.HomePlayers)
 	calculateQua(match.AwayQua, match.AwayLineup, match.AwayPlayersByPosition, match.AwayPlayers)
 
 	calculateDiffs(match)
+	//Append a new match instant
+	*match.MatchInstants = append(*match.MatchInstants, fmcommon.MatchInstant{
+		MatchId:              match.Id,
+		Minute:               match.Minute,
+		HomeGoals:            match.HomeGoals,
+		AwayGoals:            match.AwayGoals,
+		HomeQua:              *match.HomeQua,
+		AwayQua:              *match.AwayQua,
+		MidfieldDiff:         match.MidfieldDiff,
+		HomeAttackRightDiff:  match.HomeAttackRightDiff,
+		HomeAttackLeftDiff:   match.HomeAttackLeftDiff,
+		HomeAttackCenterDiff: match.HomeAttackCenterDiff,
+		AwayAttackRightDiff:  match.AwayAttackRightDiff,
+		AwayAttackLeftDiff:   match.AwayAttackLeftDiff,
+		AwayAttackCenterDiff: match.AwayAttackCenterDiff,
+	})
 }
 
-func calculateDiffs(match *MatchSimulation) {
+func calculateDiffs(match *fmcommon.MatchSimulation) {
 	match.MidfieldDiff = calculateMidfieldDiff(match)
 	match.HomeAttackCenterDiff = calculateHomeAttackDiff(match)
 	match.AwayAttackCenterDiff = calculateAwayAttackDiff(match)
 }
 
-func calculateQua(teamQua *TeamQualification, lineup *fmcommon.Lineup, playersByPosition *map[int][]int64,
+func calculateQua(teamQua *fmcommon.TeamQualification, lineup *fmcommon.Lineup, playersByPosition *map[int][]int64,
 	players *map[int64]fmcommon.Player) {
 	//defense
 	teamQua.LeftDefense = calculateLateralDefense(
@@ -94,17 +110,17 @@ func calculateAttack(striker []int64, mid []int64, players *map[int64]fmcommon.P
 	return value
 }
 
-func calculateMidfieldDiff(match *MatchSimulation) float32 {
+func calculateMidfieldDiff(match *fmcommon.MatchSimulation) float32 {
 	return (match.HomeQua.Midfield*0.7 + match.HomeQua.LeftMidfield*0.15 + match.HomeQua.RightMidfield*0.15) -
 		(match.AwayQua.Midfield*0.7 + match.AwayQua.LeftMidfield*0.15 + match.AwayQua.RightMidfield*0.15)
 }
 
-func calculateHomeAttackDiff(match *MatchSimulation) float32 {
+func calculateHomeAttackDiff(match *fmcommon.MatchSimulation) float32 {
 	return (match.HomeQua.Attack*0.7 + match.HomeQua.LeftAttack*0.15 + match.HomeQua.RightAttach*0.15) -
 		(match.AwayQua.Defense*0.7 + match.AwayQua.LeftDefense*0.15 + match.AwayQua.RightDefense*0.15)
 }
 
-func calculateAwayAttackDiff(match *MatchSimulation) float32 {
+func calculateAwayAttackDiff(match *fmcommon.MatchSimulation) float32 {
 	return (match.AwayQua.Attack*0.7 + match.AwayQua.LeftAttack*0.15 + match.AwayQua.RightAttach*0.15) -
 		(match.HomeQua.Defense*0.7 + match.HomeQua.LeftDefense*0.15 + match.HomeQua.RightDefense*0.15)
 }
