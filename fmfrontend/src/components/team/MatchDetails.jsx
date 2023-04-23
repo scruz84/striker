@@ -7,6 +7,8 @@ import Box from "@mui/material/Box";
 import {Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
+import PropTypes from 'prop-types';
+import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 
 export function MatchDetails() {
     const routeParams = useParams();
@@ -38,12 +40,44 @@ export function MatchDetails() {
     }
 }
 
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}>
+            {value === index && (
+                <Box sx={{ p: 3 }}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
+}
+
 function PlayedMatchDetails(m) {
-    const [value, setValue] = React.useState('Eventos');
+    const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
+    console.log(m.matchDetails)
     return (
         <div>
             <Paper>
@@ -76,12 +110,26 @@ function PlayedMatchDetails(m) {
             </Paper>
             <Paper>
                 <Box sx={{ width: '100%' }}>
-                    <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto">
-                        <Tab value="Eventos" label="Eventos"  wrapped/>
-                        <Tab value="Resumen" label="Resumen" />
-                        <Tab value="Calificaciones" label="Calificaciones" />
-                        <Tab value="Jugadores" label="Jugadores" />
-                    </Tabs>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs value={value} onChange={handleChange} variant="scrollable" scrollButtons="auto">
+                            <Tab label="Eventos" {...a11yProps(0)} wrapped/>
+                            <Tab label="Resumen" {...a11yProps(1)} />
+                            <Tab label="Calificaciones" {...a11yProps(2)} />
+                            <Tab label="Jugadores" {...a11yProps(3)} />
+                        </Tabs>
+                    </Box>
+                    <TabPanel value={value} index={0}>
+                        <Events events={m.matchDetails.events}/>
+                    </TabPanel>
+                    <TabPanel value={value} index={1}>
+                        Resumen
+                    </TabPanel>
+                    <TabPanel value={value} index={2}>
+                        Calificaciones
+                    </TabPanel>
+                    <TabPanel value={value} index={3}>
+                        Jugadores...!
+                    </TabPanel>
                 </Box>
             </Paper>
         </div>
@@ -92,4 +140,24 @@ function NotPlayedMatchDetails(matchDetails) {
     return (
         <div>Not Played!</div>
     );
+}
+
+function Events(events) {
+    return (
+        <div>
+            {events.events.map((event) => (
+                <Grid container spacing={0} columns={10}>
+                    <Grid xs={1}>
+                        <SportsSoccerIcon/>
+                    </Grid>
+                    <Grid xs={8}>
+                        {event.teamOwnerPlayers}
+                    </Grid>
+                    <Grid xs={1}>
+                        {event.minute}
+                    </Grid>
+                </Grid>
+            ))}
+        </div>
+    )
 }

@@ -1,5 +1,6 @@
 import {
     DIVISION_DETAILS,
+    DIVISION_DETAILS_RESET,
     LOGIN_SUCCESS,
     LOGOUT,
     MATCH_DETAILS,
@@ -37,6 +38,12 @@ export default (state = initialState, action) => {
                 ...{},
                 ...action.payload,
             };
+        case DIVISION_DETAILS_RESET : {
+            state.divisionDetails = null
+            return {
+                ...state,
+            }
+        }
         case MATCH_DETAILS_RESET: {
             state.matchDetails = null
             return {

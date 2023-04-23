@@ -1,6 +1,7 @@
 import {Link, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect} from "react";
+import {divisionDetailsReset} from "../../redux/actions";
 import {GetDivisionDetails} from "../user/_divisionFunctions";
 import Moment from 'react-moment';
 import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone';
@@ -34,6 +35,7 @@ export function DivisionDetails() {
         }
         return () => {
             // Anything in here is fired on component unmount.
+            dispatch(divisionDetailsReset());
         }
     }, [])
 

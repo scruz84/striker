@@ -1,5 +1,6 @@
 import {
     DIVISION_DETAILS,
+    DIVISION_DETAILS_RESET,
     LOGIN_SUCCESS,
     LOGOUT,
     MATCH_DETAILS,
@@ -114,6 +115,16 @@ export const matchDetailsReset = () => (dispatch, getState) => {
     }
 };
 
+export const divisionDetailsReset = () => (dispatch, getState) => {
+    try {
+        dispatch({
+            type: DIVISION_DETAILS_RESET,
+            payload: {},
+        });
+    } catch (error) {
+        console.log("Error resetting division details", error);
+    }
+};
 
 export const teamDetailsReset = () => (dispatch, getState) => {
     try {
