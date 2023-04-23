@@ -68,7 +68,7 @@ func initEngineStatements(dbCtx *fmcommon.DatabaseContext) {
 func longPeriodicTimeTasks(dbCtx *fmcommon.DatabaseContext) {
 	for {
 		log.Info("Checking long periodic actions...")
-		engine.GenerateMatches(dbCtx)
+		//engine.GenerateMatches(dbCtx)
 		time.Sleep(30 * time.Second)
 	}
 }

@@ -32,6 +32,9 @@ func Initialize(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		deleteTable(dbCtx, "countries")
 		deleteTable(dbCtx, "season")
 
+		//season
+		createSeason(dbCtx)
+
 		//countries
 		countries := createCountries(dbCtx)
 
@@ -58,6 +61,12 @@ func createCountries(dbCtx *fmcommon.DatabaseContext) []string {
 	}
 	defer insertStmt.Close()
 	return countries
+}
+
+func createSeason(dbCtx *fmcommon.DatabaseContext) {
+	insertStmt, _ := dbCtx.Db.Prepare("INSERT INTO season (current_season) values(1)")
+	insertStmt.Exec()
+	defer insertStmt.Close()
 }
 
 func createLeague(dbCtx *fmcommon.DatabaseContext, country string, name string, groups int) []int64 {
