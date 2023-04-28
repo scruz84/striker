@@ -8,7 +8,6 @@ import {Divider, Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 
 export function MatchDetails() {
     const routeParams = useParams();
@@ -148,16 +147,22 @@ function Events(events) {
             {events.events.filter(event => event.eventType === 0).map((event) => (
                 <Grid container spacing={0} columns={10}>
                     <Grid xs={1}>
-                        <SportsSoccerIcon/>
+                        <Typography fontSize="small" xs={1}>
+                            {event.homeGoals} - {event.awayGoals}
+                        </Typography>
                     </Grid>
                     <Grid xs={1}>
                         <Divider orientation="vertical" />
                     </Grid>
                     <Grid xs={6} sx={{ml: 1}}>
-                        {event.teamOwnerPlayers}
+                        <Typography fontSize="small" xs={1}>
+                            {event.teamOwnerPlayers}
+                        </Typography>
                     </Grid>
                     <Grid xs={1}>
-                        {event.minute}'
+                        <Typography fontSize="small" xs={1}>
+                            {event.minute}'
+                        </Typography>
                     </Grid>
                 </Grid>
             ))}
