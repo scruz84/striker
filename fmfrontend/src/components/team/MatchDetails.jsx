@@ -4,7 +4,7 @@ import React, {useEffect} from "react";
 import {matchDetailsReset} from "../../redux/actions";
 import {GetMatchDetails} from "../user/_teamFunctions";
 import Box from "@mui/material/Box";
-import {Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
+import {Divider, Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
@@ -145,16 +145,19 @@ function NotPlayedMatchDetails(matchDetails) {
 function Events(events) {
     return (
         <div>
-            {events.events.map((event) => (
+            {events.events.filter(event => event.eventType === 0).map((event) => (
                 <Grid container spacing={0} columns={10}>
                     <Grid xs={1}>
                         <SportsSoccerIcon/>
                     </Grid>
-                    <Grid xs={8}>
+                    <Grid xs={1}>
+                        <Divider orientation="vertical" />
+                    </Grid>
+                    <Grid xs={6} sx={{ml: 1}}>
                         {event.teamOwnerPlayers}
                     </Grid>
                     <Grid xs={1}>
-                        {event.minute}
+                        {event.minute}'
                     </Grid>
                 </Grid>
             ))}

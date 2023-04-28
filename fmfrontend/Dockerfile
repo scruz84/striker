@@ -13,6 +13,7 @@ FROM nginx:1.23.4
 COPY --from=builder /app/build /usr/share/nginx/html
 COPY --from=builder /app/set-env.sh /usr/share/nginx/html
 RUN chmod +x /usr/share/nginx/html/set-env.sh
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
