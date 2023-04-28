@@ -18,8 +18,11 @@ func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSim
 	insertEvent := dbCtx.PreparedStmts[fmcommon.InsertMatchEventStmt]
 	for _, e := range *match.Events {
 		teamOwnerPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
+		teamOwnerPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
 		otherTeamOwnerPlayersJson, _ := json.Marshal(e.OtherTeamPlayers)
-		_, err := insertEvent.Exec(match.Id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamOwnerPlayersJson, otherTeamOwnerPlayersJson)
+		otherTeamOwnerPlayerNamesJson, _ := json.Marshal(e.OtherTeamPlayersNames)
+		_, err := insertEvent.Exec(match.Id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamOwnerPlayersJson,
+			teamOwnerPlayerNamesJson, otherTeamOwnerPlayersJson, otherTeamOwnerPlayerNamesJson, e.HomeGoals, e.AwayGoals)
 		if err != nil {
 			log.Errorf("error inserting event: %s", err)
 		}

@@ -12,6 +12,7 @@ const CurrentSeasonKey = "currentSeason_key_"
 const FullTeamDetailsKey = "fullTeamDet_key_"
 const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
+const PlayerNameKey = "playerName_key_"
 const TeamDetailsKey = "teamDet_key_"
 const TeamOwnerKey = "teamOwner_key_"
 
@@ -43,6 +44,20 @@ func GetPlayersFromTeam(dbCtx *fmcommon.DatabaseContext, teamId int64) (*[]*fmco
 	value, _ := json.Marshal(teamDetails)
 	dbCtx.ObjectCache.SetValue(key, string(value))
 	return teamDetails, nil
+}
+
+func GetPlayerFullName(dbCtx *fmcommon.DatabaseContext, playerId int64) (string, error) {
+	key := PlayerNameKey + strconv.FormatInt(playerId, 10)
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	if v != "" {
+		return v, nil
+	}
+	name, e := fmcommon.GetPlayerFullName(dbCtx, playerId)
+	if e != nil {
+		return "", e
+	}
+	dbCtx.ObjectCache.SetValue(key, name)
+	return name, nil
 }
 
 func GetDivisionDetails(dbCtx *fmcommon.DatabaseContext, leagueId int64) (*fmcommon.DivisionDetails, error) {

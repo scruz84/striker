@@ -170,12 +170,16 @@ type MatchInstant struct {
 }
 
 type Event struct {
-	EventType        int     `json:"eventType"`
-	Minute           int     `json:"minute"`
-	TeamOwner        int64   `json:"teamOwner"`
-	TeamOwnerPlayers []int64 `json:"teamOwnerPlayers"`
-	OtherTeam        int64   `json:"otherTeam"`
-	OtherTeamPlayers []int64 `json:"otherTeamPlayers"`
+	EventType             int      `json:"eventType"`
+	Minute                int      `json:"minute"`
+	TeamOwner             int64    `json:"teamOwner"`
+	TeamOwnerPlayers      []int64  `json:"teamOwnerPlayers"`
+	TeamOwnerPlayersNames []string `json:"teamOwnerPlayersNames"`
+	OtherTeam             int64    `json:"otherTeam"`
+	OtherTeamPlayers      []int64  `json:"otherTeamPlayers"`
+	OtherTeamPlayersNames []string `json:"otherTeamPlayersNames"`
+	HomeGoals             int      `json:"homeGoals"`
+	AwayGoals             int      `json:"awayGoals"`
 }
 
 type WeekMatch struct {

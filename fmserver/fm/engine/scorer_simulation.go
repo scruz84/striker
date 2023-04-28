@@ -22,11 +22,11 @@ func NewScorerSimulation() *ScorerSimulation {
 func (s ScorerSimulation) Apply(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
 	if rand.Float32() < ProbChance {
 		teamChance := getTeamChance(s, match)
-		processChance(s, match, teamChance)
+		processChance(s, dbCtx, match, teamChance)
 	}
 }
 
-func processChance(s ScorerSimulation, match *fmcommon.MatchSimulation, teamChance int64) {
+func processChance(s ScorerSimulation, dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation, teamChance int64) {
 	isRight := false
 	isLeft := false
 	//decide if is right, left or center chance
@@ -95,13 +95,18 @@ func processChance(s ScorerSimulation, match *fmcommon.MatchSimulation, teamChan
 		eventType = fmcommon.NO_GOAL
 	}
 
+	attackPlayerName, _ := GetPlayerFullName(dbCtx, attackPlayer)
+
 	*match.Events = append(*match.Events, fmcommon.Event{
-		EventType:        eventType,
-		Minute:           match.Minute,
-		TeamOwner:        teamChance,
-		TeamOwnerPlayers: []int64{attackPlayer},
-		OtherTeam:        otherTeam,
-		OtherTeamPlayers: nil,
+		EventType:             eventType,
+		Minute:                match.Minute,
+		TeamOwner:             teamChance,
+		TeamOwnerPlayers:      []int64{attackPlayer},
+		TeamOwnerPlayersNames: []string{attackPlayerName},
+		OtherTeam:             otherTeam,
+		OtherTeamPlayers:      nil,
+		HomeGoals:             match.HomeGoals,
+		AwayGoals:             match.AwayGoals,
 	})
 }
 

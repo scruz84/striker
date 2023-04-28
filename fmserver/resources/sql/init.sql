@@ -88,7 +88,11 @@ CREATE TABLE match_events (
     other_team bigint references teams(team_id),
     minute int,
     team_players varchar(200),
-    other_team_players varchar(200)
+    team_player_names varchar(1000),
+    other_team_players varchar(200),
+    other_team_player_names varchar(1000),
+    home_goals int default 0,
+    away_goals int default 0
 );
 
 CREATE TABLE match_instants (

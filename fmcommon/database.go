@@ -39,6 +39,10 @@ const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name F
 const GetTeamDetailsStmtSql = "SELECT owner_id, country, league_id, name FROM teams WHERE team_id = $1"
 const GetTeamIdsFromLeagueSql = "SELECT team_id FROM teams where league_id = $1"
 const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
+
+const GetPlayerFullNameStmt = "GetPlayerFullNameStmt"
+const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
+
 const GetPlayersFromTeamStmt = "GetPlayersFromTeamStmt"
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical " +
@@ -90,7 +94,8 @@ const InsertDefaultLineupPositionsStmt = "InsertDefaultLineupPositionsStmt"
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 
 const InsertMatchEventStmt = "InsertMatchEventStmt"
-const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, other_team_players) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
 const InsertMatchInstantStmt = "InsertMatchInstantStmt"
 const InsertMatchInstantStmtSql = "" +
@@ -584,26 +589,43 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var otherTeam int64
 		var minute int
 		var teamPlayers string
+		var teamPlayerNames string
 		var otherTeamPlayers string
-		rows.Scan(&eventId, &matchId, &eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &otherTeamPlayers)
+		var otherTeamPlayerNames string
+		var homeGoals int
+		var awayGoals int
+		rows.Scan(&eventId, &matchId, &eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
+			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals)
 
 		event := Event{
-			EventType:        eventType,
-			Minute:           minute,
-			TeamOwner:        teamOwner,
-			TeamOwnerPlayers: nil,
-			OtherTeam:        otherTeam,
-			OtherTeamPlayers: nil,
+			EventType:             eventType,
+			Minute:                minute,
+			TeamOwner:             teamOwner,
+			TeamOwnerPlayers:      nil,
+			TeamOwnerPlayersNames: nil,
+			OtherTeam:             otherTeam,
+			OtherTeamPlayers:      nil,
+			OtherTeamPlayersNames: nil,
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)
 			_ = json.Unmarshal([]byte(teamPlayers), &players)
 			event.TeamOwnerPlayers = players
 		}
+		if teamPlayerNames != "" {
+			players := make([]string, 0)
+			_ = json.Unmarshal([]byte(teamPlayerNames), &players)
+			event.TeamOwnerPlayersNames = players
+		}
 		if otherTeamPlayers != "" {
 			players := make([]int64, 0)
 			_ = json.Unmarshal([]byte(otherTeamPlayers), &players)
-			event.OtherTeamPlayers = players
+			event.TeamOwnerPlayers = players
+		}
+		if otherTeamPlayerNames != "" {
+			players := make([]string, 0)
+			_ = json.Unmarshal([]byte(otherTeamPlayerNames), &players)
+			event.OtherTeamPlayersNames = players
 		}
 		events = append(events, event)
 	}
@@ -642,6 +664,20 @@ func GetCurrentSeason(dbCtx *DatabaseContext) int {
 	var season int
 	stmt.QueryRow().Scan(&season)
 	return season
+}
+
+func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
+	stmt := dbCtx.PreparedStmts[GetPlayerFullNameStmt]
+	var firstName string
+	var lastName string
+	row, err := stmt.Query(playerId)
+	if err != nil {
+		return "", err
+	}
+	if row.Next() {
+		row.Scan(&firstName, &lastName)
+	}
+	return firstName + " " + lastName, nil
 }
 
 func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, error) {
