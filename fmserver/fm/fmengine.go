@@ -41,8 +41,10 @@ func StartEngine() {
 	initEngineStatements(dbCtx)
 
 	//check actions
-	go longPeriodicTimeTasks(dbCtx)
-	shortPeriodicTimeTasks(dbCtx)
+	engine.StartSimulateMatchesScheduler(engine.NewSimulateMatchesJob(dbCtx))
+	engine.WaitUntilFinish()
+	//go longPeriodicTimeTasks(dbCtx)
+	//shortPeriodicTimeTasks(dbCtx)
 }
 
 // Initialize database statements
