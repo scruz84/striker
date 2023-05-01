@@ -124,13 +124,14 @@ func SimulateMatches(dbCtx *fmcommon.DatabaseContext) {
 	}
 	leagueIds := make(map[int64]bool)
 	for _, match := range *matches {
+		log.Infof("simulating match %d", match.MatchId)
 		matchSimulation, err := simulateMatch(dbCtx, &match)
 		leagueIds[match.DivisionId] = true
 		if err != nil {
 			log.Errorf("error simulating match: %s", err)
 		} else {
-			go UpdatePlayedMatch(dbCtx, matchSimulation)
-			go UpdateClassification(dbCtx, matchSimulation)
+			UpdatePlayedMatch(dbCtx, matchSimulation)
+			UpdateClassification(dbCtx, matchSimulation)
 		}
 	}
 }

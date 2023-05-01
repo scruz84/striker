@@ -10,17 +10,14 @@ import (
 	"time"
 )
 
-const GetCurrentSeasonStmt = "GetCurrentSeasonStmt"
 const GetCurrentSeasonStmtSql = "select current_season from season"
 
 const GetFreeTeamStmtSql = "SELECT team_id FROM teams WHERE owner_id IS NULL and country = $1 limit 1"
 
-const GetLineupsForMatchStmt = "GetLineupsForMatchStmt"
 const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" " +
 	"from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d " +
 	"on (c.lineup_id = d.lineup_id) where team_id in ($1, $2) and match_id = $3) b on (a.team_id = b.team_id) where a.team_id in ($1, $2) "
 
-const GetDivisionDetailsStmt = "GetDivisionDetailsStmt"
 const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
 	" FROM classification a JOIN teams b ON a.team_id = b.team_id " +
 	"WHERE a.league_id = $1 and a.season = $2 ORDER BY a.points DESC, a.goals_scored-a.goals_received DESC, a.goals_scored DESC, a.wins DESC, a.draws DESC"
@@ -28,57 +25,46 @@ const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
-const GetTeamStmtById = "GetTeamStmtById"
 const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name " +
 	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) LEFT JOIN users c " +
 	" ON (a.owner_id = c.user_id ) " +
 	"WHERE a.team_id = $1"
 
-const GetTeamDetailsStmtByOwner = "GetTeamDetailsStmtByOwner"
 const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name FROM teams WHERE owner_id = $1"
 const GetTeamDetailsStmtSql = "SELECT owner_id, country, league_id, name FROM teams WHERE team_id = $1"
 const GetTeamIdsFromLeagueSql = "SELECT team_id FROM teams where league_id = $1"
 const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 
-const GetPlayerFullNameStmt = "GetPlayerFullNameStmt"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
-const GetPlayersFromTeamStmt = "GetPlayersFromTeamStmt"
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
-const GetSimulableMatchesStmt = "GetSimulableMatchesStmt"
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
 	"home_goals, away_goals from matches where season = $1 and match_date > now() and match_date < now()+interval '15 minutes' and played is false order by league_id"
 
-const GetUserIdByEmailStmt = "GetUserIdByEmailStmt"
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
 
-const GetUserStmt = "GetUserStmt"
 const GetUserStmtSql = "SELECT u.name userName, u.country, u.provider, u.email, t.team_id, t.name as teamName, " +
 	"t.league_id from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
 
-const GetWeekMatchesStmt = "GetWeekMatchesStmt"
 const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
 	"FROM (SELECT match_id, league_id, season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 	"FROM matches where league_id = $1 and week_number = $2 and season = $3) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesByIdStmt = "GetWeekMatchesByIdStmt"
 const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
 	"FROM (SELECT match_id, league_id, season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesEventsByIdStmt = "GetWeekMatchesEventsByIdStmt"
 const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, other_team_players " +
 	"FROM match_events WHERE match_id = $1"
 
-const GetWeekMatchesInstantsByIdStmt = "GetWeekMatchesInstantsByIdStmt"
 const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff" +
 	" FROM .match_instants WHERE match_id = $1"
 
@@ -90,35 +76,31 @@ const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_n
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
 	" creative, technical) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
-const InsertDefaultLineupPositionsStmt = "InsertDefaultLineupPositionsStmt"
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 
-const InsertMatchEventStmt = "InsertMatchEventStmt"
 const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals) " +
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
-const InsertMatchInstantStmt = "InsertMatchInstantStmt"
 const InsertMatchInstantStmtSql = "" +
 	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
 
-const RegisterUserStmt = "RegisterUserStmt"
 const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 	"country) VALUES ($1, $2, $3, $4) returning user_id"
 const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id = $1"
 const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2 WHERE team_id = $3	"
 
-const UpdateTeamClassificationStmt = "UpdateTeamClassificationStmt"
 const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = matches+$1, points = points+$2, wins = wins+$3, " +
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
 	"where league_id = $8 and team_id = $9"
 
-const UpdateMatchStmt = "UpdateMatchStmt"
 const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3 WHERE match_id = $4"
 
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
+	defer stmtNames.Close()
 	stmtLastNames, err := dbCtx.Db.Prepare("select lastname from lastnames_es order by random() limit 1")
+	defer stmtLastNames.Close()
 	if err != nil {
 		return "", "", err
 	}
@@ -247,7 +229,6 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 }
 
 func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64) (*map[int64]*Lineup, error) {
-	stmt := dbCtx.PreparedStmts[GetLineupsForMatchStmt]
 	lineups := make(map[int64]*Lineup, 0)
 
 	lineups[(*teamIds)[0]] = &Lineup{
@@ -261,7 +242,7 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 		Positions: make([]LineupPosition, 0),
 	}
 
-	rows, err := stmt.Query((*teamIds)[0], (*teamIds)[1], matchId)
+	rows, err := dbCtx.Db.Query(GetLineupsForMatchStmtSql, (*teamIds)[0], (*teamIds)[1], matchId)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -286,7 +267,6 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 }
 
 func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
-	stmt := dbCtx.PreparedStmts[GetSimulableMatchesStmt]
 	currentSeason := GetCurrentSeason(dbCtx)
 	matches := make([]WeekMatch, 0)
 	var matchId int64
@@ -299,7 +279,7 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	var homeGoals int
 	var awayGoals int
 
-	rows, err := stmt.Query(currentSeason)
+	rows, err := dbCtx.Db.Query(GetSimulableMatchesStmtSql, currentSeason)
 	defer rows.Close()
 	if err != nil {
 		log.Errorf("error getting matches for simulation: %s", err)
@@ -327,7 +307,6 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 }
 
 func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
-	stmt := dbCtx.PreparedStmts[GetUserStmt]
 	var name string
 	var country string
 	var provider string
@@ -335,7 +314,7 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 	var teamId string
 	var teamName string
 	var leagueId string
-	err := stmt.QueryRow(userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId)
+	err := dbCtx.Db.QueryRow(GetUserStmtSql, userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId)
 	if err != nil {
 		return nil, err
 	}
@@ -353,8 +332,7 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 
 func GetUserIdByEmail(email string, dbCtx *DatabaseContext) (int64, error) {
 	var userId = int64(-1)
-	stmt := dbCtx.PreparedStmts[GetUserIdByEmailStmt]
-	err := stmt.QueryRow(&email).Scan(&userId)
+	err := dbCtx.Db.QueryRow(GetUserIdByEmailStmtSql, &email).Scan(&userId)
 	return userId, err
 }
 
@@ -363,8 +341,7 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var country string
 	var leagueId int64
 	var name string
-	stmt := dbCtx.PreparedStmts[GetTeamDetailsStmtByOwner]
-	err := stmt.QueryRow(userId).Scan(&teamId, &country, &leagueId, &name)
+	err := dbCtx.Db.QueryRow(GetTeamDetailsStmtByOwnerSql, userId).Scan(&teamId, &country, &leagueId, &name)
 	if err != nil {
 		return nil, err
 	}
@@ -389,8 +366,7 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var leagueId int64
 	var leagueName string
 	var name string
-	stmt := dbCtx.PreparedStmts[GetTeamStmtById]
-	err := stmt.QueryRow(teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name)
+	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name)
 	if err != nil {
 		return nil, err
 	}
@@ -412,8 +388,8 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 	}
 	currentSeason := GetCurrentSeason(dbCtx)
 
-	stmt := dbCtx.PreparedStmts[GetDivisionDetailsStmt]
-	rows, err := stmt.Query(leagueId, currentSeason)
+	rows, err := dbCtx.Db.Query(GetDivisionDetailsStmtSql, leagueId, currentSeason)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -481,8 +457,7 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 }
 
 func WeekMatches(dbCtx *DatabaseContext, leagueId int64, season int, weekNumber int) (*[]WeekMatch, error) {
-	stmt := dbCtx.PreparedStmts[GetWeekMatchesStmt]
-	rows, err := stmt.Query(leagueId, weekNumber, season)
+	rows, err := dbCtx.Db.Query(GetWeekMatchesStmtSql, leagueId, weekNumber, season)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -559,8 +534,7 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 }
 
 func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
-	stmt := dbCtx.PreparedStmts[GetWeekMatchesByIdStmt]
-	rows, err := stmt.Query(matchId)
+	rows, err := dbCtx.Db.Query(GetWeekMatchesByIdStmtSql, matchId)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -574,8 +548,7 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 }
 
 func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
-	stmt := dbCtx.PreparedStmts[GetWeekMatchesEventsByIdStmt]
-	rows, err := stmt.Query(matchId)
+	rows, err := dbCtx.Db.Query(GetWeekMatchesEventsByIdStmtSql, matchId)
 	defer rows.Close()
 	if err != nil {
 		return nil
@@ -660,17 +633,16 @@ func GetTeamOwner(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 }
 
 func GetCurrentSeason(dbCtx *DatabaseContext) int {
-	stmt := dbCtx.PreparedStmts[GetCurrentSeasonStmt]
 	var season int
-	stmt.QueryRow().Scan(&season)
+	dbCtx.Db.QueryRow(GetCurrentSeasonStmtSql).Scan(&season)
 	return season
 }
 
 func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
-	stmt := dbCtx.PreparedStmts[GetPlayerFullNameStmt]
 	var firstName string
 	var lastName string
-	row, err := stmt.Query(playerId)
+	row, err := dbCtx.Db.Query(GetPlayerFullNameStmtSql, playerId)
+	defer row.Close()
 	if err != nil {
 		return "", err
 	}
@@ -681,12 +653,11 @@ func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
 }
 
 func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, error) {
-	stmt := dbCtx.PreparedStmts[GetPlayersFromTeamStmt]
-	rows, err := stmt.Query(teamId)
+	rows, err := dbCtx.Db.Query(GetPlayersFromTeamStmtSql, teamId)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	players := make([]*Player, 0)
 	var playerId int64
 	var firstName string
@@ -752,6 +723,7 @@ func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {
 
 func InsertLineup(dbCtx *DatabaseContext, teamId int64, lineup map[int][]int64, asDefault bool) error {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertDefaultLineupPositionsStmtSql)
+	defer insertStmt.Close()
 	if errInsert != nil {
 		log.Errorf("error inserting new default lineup %s", errInsert)
 		return errInsert
@@ -764,7 +736,6 @@ func InsertLineup(dbCtx *DatabaseContext, teamId int64, lineup map[int][]int64, 
 			}
 		}
 	}
-	defer insertStmt.Close()
 	return nil
 }
 

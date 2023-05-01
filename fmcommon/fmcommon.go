@@ -29,9 +29,11 @@ type DatabaseContext struct {
 func OpenDatabase(details DatabaseDetails) (*DatabaseContext, error) {
 	conn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", details.Host, details.Port,
 		details.User, details.Password, details.DbName, details.SslMode)
+
 	db, err := sql.Open("pgx", conn)
 	db.SetMaxIdleConns(4)
-	db.SetMaxOpenConns(50)
+	db.SetMaxOpenConns(10)
+
 	return &DatabaseContext{Db: db,
 		PreparedStmts: make(map[string]*sql.Stmt),
 		ObjectCache:   NewRedisCache()}, err
