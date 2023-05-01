@@ -1,6 +1,6 @@
 module footmanager/fmserver
 
-go 1.19
+go 1.20
 
 replace footmanager/fmcommon v1.0.0 => ../fmcommon
 

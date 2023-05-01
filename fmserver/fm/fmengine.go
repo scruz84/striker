@@ -37,36 +37,11 @@ func StartEngine() {
 		log.Panicln("Error opening database: %s", err)
 	}
 
-	//initialize cache of prepared statements
-	initEngineStatements(dbCtx)
-
 	//check actions
 	engine.StartSimulateMatchesScheduler(engine.NewSimulateMatchesJob(dbCtx))
 	engine.WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)
-}
-
-// Initialize database statements
-func initEngineStatements(dbCtx *fmcommon.DatabaseContext) {
-	var preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetSimulableMatchesStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetSimulableMatchesStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetLineupsForMatchStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetLineupsForMatchStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetPlayersFromTeamStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetPlayersFromTeamStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.InsertMatchEventStmtSql)
-	dbCtx.PreparedStmts[fmcommon.InsertMatchEventStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.UpdateMatchStmtSql)
-	dbCtx.PreparedStmts[fmcommon.UpdateMatchStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.UpdateTeamClassificationStmtSql)
-	dbCtx.PreparedStmts[fmcommon.UpdateTeamClassificationStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.InsertMatchInstantStmtSql)
-	dbCtx.PreparedStmts[fmcommon.InsertMatchInstantStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetCurrentSeasonStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetCurrentSeasonStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetPlayerFullNameStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetPlayerFullNameStmt] = preparedStmt
 }
 
 func longPeriodicTimeTasks(dbCtx *fmcommon.DatabaseContext) {

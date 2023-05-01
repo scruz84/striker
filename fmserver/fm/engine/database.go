@@ -7,15 +7,16 @@ import (
 )
 
 func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
-	updateMatchStmt := dbCtx.PreparedStmts[fmcommon.UpdateMatchStmt]
-	_, err := updateMatchStmt.Exec(match.HomeGoals, match.AwayGoals, true, match.Id)
+	log.Infof("Updating played match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
+	_, err := dbCtx.Db.Exec(fmcommon.UpdateMatchStmtSql, match.HomeGoals, match.AwayGoals, true, match.Id)
 	if err != nil {
 		log.Errorf("error updating match: %s", err)
 		return
 	}
 
 	//Match events
-	insertEvent := dbCtx.PreparedStmts[fmcommon.InsertMatchEventStmt]
+	insertEvent, _ := dbCtx.Db.Prepare(fmcommon.InsertMatchEventStmtSql)
+	defer insertEvent.Close()
 	for _, e := range *match.Events {
 		teamOwnerPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
 		teamOwnerPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
@@ -29,7 +30,8 @@ func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSim
 	}
 
 	//Match instants
-	insertInstant := dbCtx.PreparedStmts[fmcommon.InsertMatchInstantStmt]
+	insertInstant, _ := dbCtx.Db.Prepare(fmcommon.InsertMatchInstantStmtSql)
+	defer insertInstant.Close()
 	for _, i := range *match.MatchInstants {
 		homeQuaJson, _ := json.Marshal(i.HomeQua)
 		awayQuaJson, _ := json.Marshal(i.AwayQua)
@@ -44,7 +46,6 @@ func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSim
 
 func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
 	log.Infof("Updating classification for match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
-	stmt := dbCtx.PreparedStmts[fmcommon.UpdateTeamClassificationStmt]
 	points := 0
 	win := 0
 	loss := 1
@@ -66,7 +67,7 @@ func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.Match
 		loss = 0
 		win = 0
 	}
-	_, err := stmt.Exec(1, points, win, loss, draws, match.HomeGoals, match.AwayGoals, match.DivisionId, match.Home)
+	_, err := dbCtx.Db.Exec(fmcommon.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.HomeGoals, match.AwayGoals, match.DivisionId, match.Home)
 	if err != nil {
 		log.Errorf("Error updating classification: %s", err)
 	}
@@ -91,7 +92,8 @@ func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.Match
 		loss = 0
 		win = 0
 	}
-	_, err2 := stmt.Exec(1, points, win, loss, draws, match.AwayGoals, match.HomeGoals, match.DivisionId, match.Away)
+	_, err2 := dbCtx.Db.Exec(fmcommon.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.AwayGoals,
+		match.HomeGoals, match.DivisionId, match.Away)
 	if err2 != nil {
 		log.Errorf("Error updating classification: %s", err2)
 	}

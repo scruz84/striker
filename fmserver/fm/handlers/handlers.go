@@ -26,7 +26,7 @@ func RegisterUser(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 		}
 
 		var user_id = int64(-1)
-		err = dbCtx.PreparedStmts[fmcommon.RegisterUserStmt].QueryRow(user.Name, user.Provider, user.Email, user.Country).Scan(&user_id)
+		err = dbCtx.Db.QueryRow(fmcommon.RegisterUserStmtSql, user.Name, user.Provider, user.Email, user.Country).Scan(&user_id)
 		if err != nil {
 			log.Errorf("[goroutine - %d] - error inserting new user: %s", fmcommon.CurGoroutineID(), err)
 			c.JSON(http.StatusBadRequest, fmcommon.HttpResponse{Message: err.Error()})
@@ -91,7 +91,7 @@ func DoExternalLogin(dbCtx *fmcommon.DatabaseContext, loginRequest *fmcommon.Log
 	var loggedUser *fmcommon.LoggedUser
 	if errUser != nil {
 		//the user does not exist. Register it
-		err = dbCtx.PreparedStmts[fmcommon.RegisterUserStmt].QueryRow((*jwtTokenClaims)["name"], "google", email, "es").Scan(&userId)
+		err = dbCtx.Db.QueryRow(fmcommon.RegisterUserStmtSql, (*jwtTokenClaims)["name"], "google", email, "es").Scan(&userId)
 		if err != nil {
 			log.Errorf("error creating new user: %s", err)
 			return nil, http.StatusInternalServerError, err

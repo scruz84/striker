@@ -156,7 +156,7 @@ function Events(events) {
                     </Grid>
                     <Grid xs={6} sx={{ml: 1}}>
                         <Typography fontSize="small" xs={1}>
-                            {event.teamOwnerPlayers}
+                            {event.teamOwnerPlayerNames}
                         </Typography>
                     </Grid>
                     <Grid xs={1}>

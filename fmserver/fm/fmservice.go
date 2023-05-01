@@ -45,7 +45,6 @@ func StartSvc() {
 
 	router := gin.Default()
 	initRouter(router, dbCtx)
-	initStatements(dbCtx)
 
 	errorListener := router.Run("0.0.0.0:1984")
 	//errorListener := router.Run("localhost:1984")
@@ -106,34 +105,6 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 	v1Group.POST("/login", authMiddleware.LoginHandler)
 	v1Group.POST("/registerUser", handlers.RegisterUser(dbCtx))
 	v1Group.GET("/teams", handlers.Teams(dbCtx))
-}
-
-// Initialize database statements
-func initStatements(dbCtx *fmcommon.DatabaseContext) {
-	var preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.RegisterUserStmtSql)
-	dbCtx.PreparedStmts[fmcommon.RegisterUserStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetUserStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetUserStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetUserIdByEmailStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetUserIdByEmailStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetPlayersFromTeamStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetPlayersFromTeamStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetTeamDetailsStmtByOwnerSql)
-	dbCtx.PreparedStmts[fmcommon.GetTeamDetailsStmtByOwner] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetDivisionDetailsStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetDivisionDetailsStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetTeamStmtByIdSql)
-	dbCtx.PreparedStmts[fmcommon.GetTeamStmtById] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesByIdStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesByIdStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetCurrentSeasonStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetCurrentSeasonStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesEventsByIdStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesEventsByIdStmt] = preparedStmt
-	preparedStmt, _ = dbCtx.Db.Prepare(fmcommon.GetWeekMatchesInstantsByIdStmtSql)
-	dbCtx.PreparedStmts[fmcommon.GetWeekMatchesInstantsByIdStmt] = preparedStmt
 }
 
 // Initializes the authentication middleware

@@ -174,10 +174,10 @@ type Event struct {
 	Minute                int      `json:"minute"`
 	TeamOwner             int64    `json:"teamOwner"`
 	TeamOwnerPlayers      []int64  `json:"teamOwnerPlayers"`
-	TeamOwnerPlayersNames []string `json:"teamOwnerPlayersNames"`
+	TeamOwnerPlayersNames []string `json:"teamOwnerPlayerNames"`
 	OtherTeam             int64    `json:"otherTeam"`
 	OtherTeamPlayers      []int64  `json:"otherTeamPlayers"`
-	OtherTeamPlayersNames []string `json:"otherTeamPlayersNames"`
+	OtherTeamPlayersNames []string `json:"otherTeamPlayerNames"`
 	HomeGoals             int      `json:"homeGoals"`
 	AwayGoals             int      `json:"awayGoals"`
 }

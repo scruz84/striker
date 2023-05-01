@@ -2,6 +2,7 @@
 
 fmserver/.idea
 fmserver/app.env
+fmserver/fmserver
 fmserver/fm-server.iml
 
 fmfrontend/node_modules
