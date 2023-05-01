@@ -130,8 +130,8 @@ func SimulateMatches(dbCtx *fmcommon.DatabaseContext) {
 		if err != nil {
 			log.Errorf("error simulating match: %s", err)
 		} else {
-			UpdatePlayedMatch(dbCtx, matchSimulation)
-			UpdateClassification(dbCtx, matchSimulation)
+			go UpdatePlayedMatch(dbCtx, matchSimulation)
+			go UpdateClassification(dbCtx, matchSimulation)
 		}
 	}
 }
