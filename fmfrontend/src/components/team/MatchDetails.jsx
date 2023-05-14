@@ -8,6 +8,7 @@ import {Divider, Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
+import {MatchPlayersDetails} from "./MatchPlayersDetails";
 
 export function MatchDetails() {
     const routeParams = useParams();
@@ -127,7 +128,7 @@ function PlayedMatchDetails(m) {
                         Calificaciones
                     </TabPanel>
                     <TabPanel value={value} index={3}>
-                        Jugadores...!
+                        <MatchPlayersDetails/>
                     </TabPanel>
                 </Box>
             </Paper>

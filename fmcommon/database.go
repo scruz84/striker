@@ -63,7 +63,7 @@ const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, playe
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
 const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals " +
-	"FROM match_events WHERE match_id = $1"
+	"FROM match_events WHERE match_id = $1 order by minute asc"
 
 const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff" +
 	" FROM .match_instants WHERE match_id = $1"
