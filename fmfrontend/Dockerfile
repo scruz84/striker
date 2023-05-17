@@ -5,7 +5,7 @@ COPY . .
 
 #https://stackoverflow.com/questions/52103155/reading-an-environment-variable-in-react-which-was-set-by-docker
 ENV NODE_ENV production
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 FROM nginx:1.23.4

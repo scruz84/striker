@@ -66,7 +66,7 @@ const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, 
 	"FROM match_events WHERE match_id = $1 order by minute asc"
 
 const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff" +
-	" FROM .match_instants WHERE match_id = $1"
+	" FROM match_instants WHERE match_id = $1 order by minute asc"
 
 const InsertTeamToClassificationStmtSql = "INSERT INTO classification (league_id, season, team_id) values ($1, $2, $3)"
 
@@ -544,6 +544,7 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	}
 	match := readWeekMatch(rows)
 	match.Events = GetMatchEvents(dbCtx, matchId)
+	match.MatchInstants = GetMatchInstants(dbCtx, matchId)
 	return match, nil
 }
 
@@ -605,6 +606,58 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		events = append(events, event)
 	}
 	return &events
+}
+
+func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
+	rows, err := dbCtx.Db.Query(GetWeekMatchesInstantsByIdStmtSql, matchId)
+	defer rows.Close()
+	if err != nil {
+		return nil
+	}
+	instants := make([]MatchInstant, 0)
+	for rows.Next() {
+		var matchId int64
+		var minute int
+		var homeGoals int
+		var awayGoals int
+		var homeQua string
+		var awayQua string
+		var midFieldDiff float32
+		var homeAttackRightDiff float32
+		var homeAttackLeftDiff float32
+		var homeAttackCenterDiff float32
+		var awayAttackRightDiff float32
+		var awayAttackLeftDiff float32
+		var awayAttackCenterDiff float32
+		rows.Scan(&matchId, &minute, &homeGoals, &awayGoals, &homeQua, &awayQua, &midFieldDiff,
+			&homeAttackRightDiff, &homeAttackLeftDiff, &homeAttackCenterDiff,
+			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff)
+
+		homeTeamQua := TeamQualification{}
+		awayTeamQua := TeamQualification{}
+		if homeQua != "" {
+			_ = json.Unmarshal([]byte(homeQua), &homeTeamQua)
+		}
+		if awayQua != "" {
+			_ = json.Unmarshal([]byte(awayQua), &awayTeamQua)
+		}
+		instants = append(instants, MatchInstant{
+			MatchId:              matchId,
+			Minute:               minute,
+			HomeGoals:            homeGoals,
+			AwayGoals:            awayGoals,
+			HomeQua:              homeTeamQua,
+			AwayQua:              awayTeamQua,
+			MidfieldDiff:         midFieldDiff,
+			HomeAttackRightDiff:  homeAttackRightDiff,
+			HomeAttackLeftDiff:   homeAttackLeftDiff,
+			HomeAttackCenterDiff: homeAttackRightDiff,
+			AwayAttackRightDiff:  awayAttackRightDiff,
+			AwayAttackLeftDiff:   awayAttackLeftDiff,
+			AwayAttackCenterDiff: awayAttackCenterDiff,
+		})
+	}
+	return &instants
 }
 
 func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*TeamDetails, error) {

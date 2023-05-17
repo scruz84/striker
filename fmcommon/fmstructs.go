@@ -152,21 +152,21 @@ type TeamQualification struct {
 }
 
 type MatchInstant struct {
-	MatchId   int64
-	Minute    int
-	HomeGoals int
-	AwayGoals int
+	MatchId   int64 `json:"matchId,omitempty"`
+	Minute    int   `json:"minute,omitempty"`
+	HomeGoals int   `json:"homeGoals,omitempty"`
+	AwayGoals int   `json:"awayGoals,omitempty"`
 	//Qualifications
-	HomeQua TeamQualification
-	AwayQua TeamQualification
+	HomeQua TeamQualification `json:"homeQua"`
+	AwayQua TeamQualification `json:"awayQua"`
 	//Calculations
-	MidfieldDiff         float32
-	HomeAttackRightDiff  float32
-	HomeAttackLeftDiff   float32
-	HomeAttackCenterDiff float32
-	AwayAttackRightDiff  float32
-	AwayAttackLeftDiff   float32
-	AwayAttackCenterDiff float32
+	MidfieldDiff         float32 `json:"midfieldDiff,omitempty"`
+	HomeAttackRightDiff  float32 `json:"homeAttackRightDiff,omitempty"`
+	HomeAttackLeftDiff   float32 `json:"homeAttackLeftDiff,omitempty"`
+	HomeAttackCenterDiff float32 `json:"homeAttackCenterDiff,omitempty"`
+	AwayAttackRightDiff  float32 `json:"awayAttackRightDiff,omitempty"`
+	AwayAttackLeftDiff   float32 `json:"awayAttackLeftDiff,omitempty"`
+	AwayAttackCenterDiff float32 `json:"awayAttackCenterDiff,omitempty"`
 }
 
 type Event struct {

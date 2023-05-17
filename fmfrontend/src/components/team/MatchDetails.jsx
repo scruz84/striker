@@ -4,11 +4,12 @@ import React, {useEffect} from "react";
 import {matchDetailsReset} from "../../redux/actions";
 import {GetMatchDetails} from "../user/_teamFunctions";
 import Box from "@mui/material/Box";
-import {Divider, Grid, Paper, Skeleton, Tab, Tabs} from "@mui/material";
+import {Divider, Grid, Paper, Skeleton, Slider, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
 import {MatchPlayersDetails} from "./MatchPlayersDetails";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export function MatchDetails() {
     const routeParams = useParams();
@@ -125,7 +126,7 @@ function PlayedMatchDetails(m) {
                         Resumen
                     </TabPanel>
                     <TabPanel value={value} index={2}>
-                        Calificaciones
+                        <Qualifications instants={m.matchDetails.matchInstants}/>
                     </TabPanel>
                     <TabPanel value={value} index={3}>
                         <MatchPlayersDetails/>
@@ -169,4 +170,89 @@ function Events(events) {
             ))}
         </div>
     )
+}
+
+function Qualifications(props) {
+    const minutes = [];
+    props.instants.map((instant) => {
+        minutes.push({value: instant.minute, label: instant.minute})
+    })
+    return (<QualificationByMinute instants={props.instants} min={minutes[0].value} max={minutes[minutes.length-1].value}/>)
+}
+
+function valuetext(value) {
+    return `${value}  minute`;
+}
+
+
+
+function QualificationByMinute(props) {
+    const [value, setValue] = React.useState(props.max);
+
+    const handleChange = (event, newValue) => {
+        if (typeof newValue === 'number') {
+            setValue(newValue);
+        }
+    };
+
+    const instant = props.instants[value-1];
+
+    return (
+        <Box>
+            <Box>
+                <Typography fontSize="small" xs={2}>Ataque vs Defensa</Typography>
+                <Typography fontSize="small" xs={1}>Central</Typography>
+                <Grid container spacing={1} columns={2}>
+                    <Grid item md={1}>
+                        <CircularProgressWithLabel value={instant.awayAttackCenterDiff} />
+                    </Grid>
+                    <Grid item md={1}>
+                        <CircularProgressWithLabel value={instant.awayAttackCenterDiff} />
+                    </Grid>
+                </Grid>
+            </Box>
+
+            <Typography fontSize="small" xs={1}>
+                Minuto: {value}
+            </Typography>
+            <Slider
+                value={value}
+                getAriaValueText={valuetext}
+                step={1}
+                defaultValue={props.max}
+                min={props.min}
+                max={props.max}
+                valueLabelDisplay="auto"
+                onChange={handleChange}
+            />
+        </Box>
+    );
+}
+
+function CircularProgressWithLabel(props) {
+    return (
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <CircularProgress variant="determinate" {...props} />
+            <Box
+                sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <Typography variant="caption" component="div" color="text.secondary">
+                    {`${Math.round(props.value)}%`}
+                </Typography>
+            </Box>
+        </Box>
+    );
+}
+
+function percentageFromDiff(props) {
+
 }

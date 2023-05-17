@@ -154,6 +154,8 @@ create index classification_idx2 on classification(team_id);
 create index matches_idx1 on matches(match_date desc);
 create index matches_idx2 on matches(league_id, week_number);
 
+create index match_instants_idx1 on match_instants(match_id);
+
 create index teams_idx1 on teams(country);
 create index teams_idx2 on teams(owner_id);
 
