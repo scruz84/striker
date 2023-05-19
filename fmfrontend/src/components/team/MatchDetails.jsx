@@ -9,7 +9,8 @@ import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
 import {MatchPlayersDetails} from "./MatchPlayersDetails";
-import CircularProgress from "@mui/material/CircularProgress";
+import {CircularDeterminateWithLabel} from "../common/_common";
+import Stack from "@mui/material/Stack";
 
 export function MatchDetails() {
     const routeParams = useParams();
@@ -82,32 +83,35 @@ function PlayedMatchDetails(m) {
     return (
         <div>
             <Paper>
-                <Grid container spacing={0}>
-                    <Grid item xs={2} />
-                    <Grid item xs={8}>
-                        <Moment format="DD/MM/YYYY HH:mm">
-                            {m.matchDetails.matchDate}
-                        </Moment>
-                    </Grid>
-                    <Grid item xs={2} />
+                <Box sx={{p:'20px'}}>
+                    <Grid container spacing={0}>
+                        <Grid item xs={0} />
+                        <Grid item xs={8}>
+                            <Typography fontSize="title" xs={1}>
+                                <Moment format="DD/MM/YYYY HH:mm">
+                                    {m.matchDetails.matchDate}
+                                </Moment>
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={4} />
+                        <Grid item xs={5} >
+                            <Typography fontSize="title" xs={1}>
+                                {m.matchDetails.homeName}
+                            </Typography>
+                        </Grid>
 
-                    <Grid item xs={5} >
-                        <Typography fontSize="small" xs={1}>
-                            {m.matchDetails.homeName}
-                        </Typography>
+                        <Grid item xs={2}>
+                            <Typography fontSize="title" xs={1}>
+                                {m.matchDetails.homeGoals} - {m.matchDetails.awayGoals}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={5} >
+                            <Typography fontSize="title" xs={1}>
+                                {m.matchDetails.awayName}
+                            </Typography>
+                        </Grid>
                     </Grid>
-
-                    <Grid item xs={2}>
-                        <Typography fontSize="small" xs={1}>
-                            {m.matchDetails.homeGoals} - {m.matchDetails.awayGoals}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={5} >
-                        <Typography fontSize="small" xs={1}>
-                            {m.matchDetails.awayName}
-                        </Typography>
-                    </Grid>
-                </Grid>
+                </Box>
             </Paper>
             <Paper>
                 <Box sx={{ width: '100%' }}>
@@ -200,59 +204,98 @@ function QualificationByMinute(props) {
     return (
         <Box>
             <Box>
-                <Typography fontSize="small" xs={2}>Ataque vs Defensa</Typography>
-                <Typography fontSize="small" xs={1}>Central</Typography>
-                <Grid container spacing={1} columns={2}>
-                    <Grid item md={1}>
-                        <CircularProgressWithLabel value={instant.awayAttackCenterDiff} />
+                <Box  sx={{ mb: '10px' }}>
+                    <Typography fontSize="subtitle2" xs={2}>Ataque vs Defensa (local)</Typography>
+                    <Grid container spacing={1} columns={3}>
+                        <Grid item xs={1}>
+                            <Typography fontSize="small" xs={1}>Izquierdo</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackLeftDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackLeftDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <Typography fontSize="subtitle2" xs={1}>Central</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackCenterDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackCenterDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <Typography fontSize="small" xs={1}>Derecho</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackRightDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackRightDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
                     </Grid>
-                    <Grid item md={1}>
-                        <CircularProgressWithLabel value={instant.awayAttackCenterDiff} />
+                </Box>
+
+                <Box  sx={{ mb: '10px' }}>
+                    <Typography fontSize="subtitle2" xs={2}>Mediocampo</Typography>
+                    <Grid item xs={1}>
                     </Grid>
-                </Grid>
+                    <Grid container spacing={1} columns={3}>
+                        <Grid item xs={1}/>
+                        <Grid item xs={1}>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.midfieldDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.midfieldDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={1}/>
+                    </Grid>
+
+                </Box>
+
+                <Box sx={{ mb: '10px' }}>
+                    <Typography fontSize="subtitle2" xs={2}>Ataque vs Defensa (visitante)</Typography>
+                    <Grid container spacing={1} columns={3}>
+                        <Grid item xs={1}>
+                            <Typography fontSize="small" xs={1}>Izquierdo</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackLeftDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackLeftDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <Typography fontSize="small" xs={1}>Central</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackCenterDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackCenterDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <Typography fontSize="small" xs={1}>Derecho</Typography>
+                            <Stack direction="row" spacing={1}>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackRightDiff, true)} sx={{color: 'red'}}/>
+                                <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackRightDiff, false)} sx={{color: 'blue'}}/>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                </Box>
             </Box>
 
-            <Typography fontSize="small" xs={1}>
-                Minuto: {value}
-            </Typography>
-            <Slider
-                value={value}
-                getAriaValueText={valuetext}
-                step={1}
-                defaultValue={props.max}
-                min={props.min}
-                max={props.max}
-                valueLabelDisplay="auto"
-                onChange={handleChange}
-            />
-        </Box>
-    );
-}
-
-function CircularProgressWithLabel(props) {
-    return (
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress variant="determinate" {...props} />
-            <Box
-                sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <Typography variant="caption" component="div" color="text.secondary">
-                    {`${Math.round(props.value)}%`}
+            <Box sx={{ mt: '20px' }}>
+                <Typography fontSize="small" xs={1}>
+                    Minuto: {value}
                 </Typography>
+                <Slider
+                    value={value}
+                    getAriaValueText={valuetext}
+                    step={1}
+                    defaultValue={props.max}
+                    min={props.min}
+                    max={props.max}
+                    valueLabelDisplay="auto"
+                    onChange={handleChange}
+                />
             </Box>
         </Box>
     );
 }
 
-function percentageFromDiff(props) {
-
+function percentageFromDiff(inputValue, inFavor) {
+    const value =  Math.round((Math.abs(inputValue)/2)* ((inFavor?1:-1)));
+    return 50 + value
 }

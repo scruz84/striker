@@ -651,7 +651,7 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 			MidfieldDiff:         midFieldDiff,
 			HomeAttackRightDiff:  homeAttackRightDiff,
 			HomeAttackLeftDiff:   homeAttackLeftDiff,
-			HomeAttackCenterDiff: homeAttackRightDiff,
+			HomeAttackCenterDiff: homeAttackCenterDiff,
 			AwayAttackRightDiff:  awayAttackRightDiff,
 			AwayAttackLeftDiff:   awayAttackLeftDiff,
 			AwayAttackCenterDiff: awayAttackCenterDiff,

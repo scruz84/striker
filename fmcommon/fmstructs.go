@@ -152,21 +152,21 @@ type TeamQualification struct {
 }
 
 type MatchInstant struct {
-	MatchId   int64 `json:"matchId,omitempty"`
-	Minute    int   `json:"minute,omitempty"`
-	HomeGoals int   `json:"homeGoals,omitempty"`
-	AwayGoals int   `json:"awayGoals,omitempty"`
+	MatchId   int64 `json:"matchId"`
+	Minute    int   `json:"minute"`
+	HomeGoals int   `json:"homeGoals"`
+	AwayGoals int   `json:"awayGoals"`
 	//Qualifications
 	HomeQua TeamQualification `json:"homeQua"`
 	AwayQua TeamQualification `json:"awayQua"`
 	//Calculations
-	MidfieldDiff         float32 `json:"midfieldDiff,omitempty"`
-	HomeAttackRightDiff  float32 `json:"homeAttackRightDiff,omitempty"`
-	HomeAttackLeftDiff   float32 `json:"homeAttackLeftDiff,omitempty"`
-	HomeAttackCenterDiff float32 `json:"homeAttackCenterDiff,omitempty"`
-	AwayAttackRightDiff  float32 `json:"awayAttackRightDiff,omitempty"`
-	AwayAttackLeftDiff   float32 `json:"awayAttackLeftDiff,omitempty"`
-	AwayAttackCenterDiff float32 `json:"awayAttackCenterDiff,omitempty"`
+	MidfieldDiff         float32 `json:"midfieldDiff"`
+	HomeAttackRightDiff  float32 `json:"homeAttackRightDiff"`
+	HomeAttackLeftDiff   float32 `json:"homeAttackLeftDiff"`
+	HomeAttackCenterDiff float32 `json:"homeAttackCenterDiff"`
+	AwayAttackRightDiff  float32 `json:"awayAttackRightDiff"`
+	AwayAttackLeftDiff   float32 `json:"awayAttackLeftDiff"`
+	AwayAttackCenterDiff float32 `json:"awayAttackCenterDiff"`
 }
 
 type Event struct {

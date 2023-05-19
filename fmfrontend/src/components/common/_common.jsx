@@ -21,7 +21,7 @@ export function CircularDeterminateWithLabel(props) {
                 }}
             >
                 <Typography variant="caption" component="div" color="text.secondary">
-                    {`${props.value}`}
+                    {`${Math.round(props.value)}%`}
                 </Typography>
             </Box>
         </Box>
