@@ -1,9 +1,8 @@
-package fm
+package engine
 
 import (
-	"footmanager/fmcommon"
-	"footmanager/fmserver/fm/engine"
 	"github.com/joho/godotenv"
+	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
@@ -21,7 +20,7 @@ func StartEngine() {
 	}
 
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	databaseDetails := fmcommon.DatabaseDetails{
+	databaseDetails := common.DatabaseDetails{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     port,
 		User:     os.Getenv("DB_USER"),
@@ -30,7 +29,7 @@ func StartEngine() {
 		SslMode:  "disable",
 	}
 
-	dbCtx, err := fmcommon.OpenDatabase(databaseDetails)
+	dbCtx, err := common.OpenDatabase(databaseDetails)
 
 	err = dbCtx.Db.Ping()
 	if err != nil {
@@ -38,24 +37,24 @@ func StartEngine() {
 	}
 
 	//check actions
-	engine.StartSimulateMatchesScheduler(engine.NewSimulateMatchesJob(dbCtx))
-	engine.WaitUntilFinish()
+	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
+	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)
 }
 
-func longPeriodicTimeTasks(dbCtx *fmcommon.DatabaseContext) {
+func longPeriodicTimeTasks(dbCtx *common.DatabaseContext) {
 	for {
 		log.Info("Checking long periodic actions...")
-		//engine.GenerateMatches(dbCtx)
+		//GenerateMatches(dbCtx)
 		time.Sleep(30 * time.Second)
 	}
 }
 
-func shortPeriodicTimeTasks(dbCtx *fmcommon.DatabaseContext) {
+func shortPeriodicTimeTasks(dbCtx *common.DatabaseContext) {
 	for {
 		log.Info("Checking short periodic actions...")
-		engine.SimulateMatches(dbCtx)
+		SimulateMatches(dbCtx)
 		time.Sleep(10 * time.Second)
 	}
 }

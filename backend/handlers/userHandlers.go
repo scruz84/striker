@@ -1,19 +1,19 @@
 package handlers
 
 import (
-	"footmanager/fmcommon"
-	"footmanager/fmserver/fm/engine"
 	"github.com/gin-gonic/gin"
+	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-func UserTeam(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
+func UserTeam(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
 		log.Infof("Starting to get team details of user %d", userId)
 
-		teamDetails, err := fmcommon.GetFullTeamDetailsByUser(*userId, true, dbCtx)
+		teamDetails, err := common.GetFullTeamDetailsByUser(*userId, true, dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
@@ -23,11 +23,11 @@ func UserTeam(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-func Team(dbCtx *fmcommon.DatabaseContext) gin.HandlerFunc {
+func Team(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		teamIdStr := c.Param(ID)
 		log.Infof("Starting to get team details from %s", teamIdStr)
-		teamId, err := fmcommon.StringToInt64(teamIdStr)
+		teamId, err := common.StringToInt64(teamIdStr)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, nil)
 			return

@@ -1,16 +1,16 @@
-package fm
+package service
 
 import (
 	"errors"
 	"fmt"
-	"footmanager/fmcommon"
-	"footmanager/fmserver/fm/handlers"
 	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/handlers"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -29,7 +29,7 @@ func StartSvc() {
 	}
 
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	databaseDetails := fmcommon.DatabaseDetails{
+	databaseDetails := common.DatabaseDetails{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     port,
 		User:     os.Getenv("DB_USER"),
@@ -37,7 +37,7 @@ func StartSvc() {
 		DbName:   os.Getenv("DB_DATABASE"),
 		SslMode:  "disable",
 	}
-	dbCtx, err := fmcommon.OpenDatabase(databaseDetails)
+	dbCtx, err := common.OpenDatabase(databaseDetails)
 	err = dbCtx.Db.Ping()
 	if err != nil {
 		log.Panicln("Error opening database: %s", err)
@@ -56,7 +56,7 @@ func StartSvc() {
 }
 
 // Http router initializer
-func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
+func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//CORS
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"https://api.striker.example.com",
@@ -96,7 +96,7 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")
 	v1AuthGroup.Use(authMiddleware.MiddlewareFunc())
-	v1AuthGroup.GET("/me", handlers.Me(dbCtx, fmcommon.UserId))
+	v1AuthGroup.GET("/me", handlers.Me(dbCtx, common.UserId))
 	v1AuthGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
 	v1AuthGroup.POST("/logout", authMiddleware.LogoutHandler)
 
@@ -108,7 +108,7 @@ func initRouter(router *gin.Engine, dbCtx *fmcommon.DatabaseContext) {
 }
 
 // Initializes the authentication middleware
-func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware {
+func initJWTMiddleware(dbCtx *common.DatabaseContext) *ginjwt.GinJWTMiddleware {
 	var timeout string
 	timeout = os.Getenv("SESSION_TIMEOUT")
 	if timeout == "" {
@@ -120,7 +120,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		Key:            []byte(os.Getenv("SECRET_JWT")),
 		Timeout:        sessionTimeout,
 		MaxRefresh:     time.Hour,
-		IdentityKey:    fmcommon.UserId,
+		IdentityKey:    common.UserId,
 		SendCookie:     true,
 		SecureCookie:   true, //non HTTPS dev environments
 		TokenLookup:    "cookie:jwt",
@@ -128,10 +128,10 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 		CookieName:     "jwt",
 		CookieSameSite: http.SameSiteNoneMode, //SameSiteDefaultMode, SameSiteLaxMode, SameSiteStrictMode, SameSiteNoneMode
 		PayloadFunc: func(data interface{}) ginjwt.MapClaims {
-			if u, ok := data.(*fmcommon.LoggedUser); ok {
+			if u, ok := data.(*common.LoggedUser); ok {
 				return ginjwt.MapClaims{
-					fmcommon.UserId:     u.Id,
-					fmcommon.PictureUrl: u.PictureUrl,
+					common.UserId:     u.Id,
+					common.PictureUrl: u.PictureUrl,
 				}
 			}
 			return ginjwt.MapClaims{}
@@ -147,7 +147,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			//log.Infof("Authorizator ... %s", c)
-			var loginRequest fmcommon.LoginRequest
+			var loginRequest common.LoginRequest
 			if err := c.ShouldBind(&loginRequest); err != nil {
 				return "", ginjwt.ErrMissingLoginValues
 			}
@@ -156,7 +156,7 @@ func initJWTMiddleware(dbCtx *fmcommon.DatabaseContext) *ginjwt.GinJWTMiddleware
 				return "", errors.New(fmt.Sprint(err))
 			}
 			session := sessions.Default(c)
-			session.Set(fmcommon.UserId, loggedUser.Id)
+			session.Set(common.UserId, loggedUser.Id)
 			err = session.Save()
 			if err != nil {
 				log.Errorf("error storing session: %s", err)

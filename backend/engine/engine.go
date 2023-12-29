@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"footmanager/fmcommon"
+	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
@@ -9,7 +9,7 @@ import (
 )
 
 // GenerateMatches Generates the matches for the leagues
-func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
+func GenerateMatches(dbCtx *common.DatabaseContext) {
 	season, err := GetCurrentSeason(dbCtx)
 	if err != nil {
 		log.Errorf("error checking for upcoming matches: %s", err)
@@ -31,7 +31,7 @@ func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
 		for rows.Next() {
 			var leagueId int64
 			_ = rows.Scan(&leagueId)
-			teams, err := dbCtx.Db.Query(fmcommon.GetTeamIdsFromLeagueSql, leagueId)
+			teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
 			if err != nil {
 				log.Errorf("error finding teams from league %d: %s", err)
 			}
@@ -47,13 +47,13 @@ func GenerateMatches(dbCtx *fmcommon.DatabaseContext) {
 
 			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds)
 			//Insert the matches
-			_ = fmcommon.InsertMatches(dbCtx, weekMatches)
+			_ = common.InsertMatches(dbCtx, weekMatches)
 		}
 	}
 }
 
 // Algorithm from: https://www.competize.com/blog/hacer-fixture-crear-calendario-liga-excel/
-func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*fmcommon.WeekMatch {
+func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*common.WeekMatch {
 	// Here we have a random sort for the teams
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	rand.Shuffle(len(*teamIds), func(i, j int) {
@@ -62,18 +62,18 @@ func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*fmco
 
 	nWeeks := (len(*teamIds) - 1) * 2
 	nMatchesPerWeek := len(*teamIds) / 2
-	weeksMatches := make([][]*fmcommon.WeekMatch, nWeeks)
+	weeksMatches := make([][]*common.WeekMatch, nWeeks)
 
 	teamIdxForMatchFromWeek := 0
 	teamIdxForRestMatchesFromWeek := len(*teamIds) - 2
 	latestTeamId := &(*teamIds)[len(*teamIds)-1]
 	now := time.Now()
 	for weekIdx := 0; weekIdx < nWeeks; weekIdx++ {
-		weeksMatches[weekIdx] = make([]*fmcommon.WeekMatch, nMatchesPerWeek)
+		weeksMatches[weekIdx] = make([]*common.WeekMatch, nMatchesPerWeek)
 		for weekIndex := 0; weekIndex < nMatchesPerWeek; weekIndex++ {
 			idx := weekIdx + 1
 			home := (*teamIds)[teamIdxForMatchFromWeek]
-			weeksMatches[weekIdx][weekIndex] = &fmcommon.WeekMatch{
+			weeksMatches[weekIdx][weekIndex] = &common.WeekMatch{
 				DivisionId: *leagueId,
 				Season:     season,
 				WeekNumber: idx,
@@ -116,8 +116,8 @@ func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*fmco
 }
 
 // SimulateMatches simulate matches which has a match date 15 minutes prior current time.
-func SimulateMatches(dbCtx *fmcommon.DatabaseContext) {
-	matches, err := fmcommon.GetSimulableMatches(dbCtx)
+func SimulateMatches(dbCtx *common.DatabaseContext) {
+	matches, err := common.GetSimulableMatches(dbCtx)
 	if err != nil {
 		log.Errorf("error getting matches to simulate: %s", err)
 		return

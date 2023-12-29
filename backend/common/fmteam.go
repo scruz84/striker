@@ -1,4 +1,4 @@
-package fmcommon
+package common
 
 func GetLateralDefenseValue(player Player) int {
 	return (player.Lateral + player.Defense) / 2

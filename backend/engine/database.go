@@ -2,20 +2,20 @@ package engine
 
 import (
 	"encoding/json"
-	"footmanager/fmcommon"
+	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 )
 
-func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
+func UpdatePlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	log.Infof("Updating played match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
-	_, err := dbCtx.Db.Exec(fmcommon.UpdateMatchStmtSql, match.HomeGoals, match.AwayGoals, true, match.Id)
+	_, err := dbCtx.Db.Exec(common.UpdateMatchStmtSql, match.HomeGoals, match.AwayGoals, true, match.Id)
 	if err != nil {
 		log.Errorf("error updating match: %s", err)
 		return
 	}
 
 	//Match events
-	insertEvent, _ := dbCtx.Db.Prepare(fmcommon.InsertMatchEventStmtSql)
+	insertEvent, _ := dbCtx.Db.Prepare(common.InsertMatchEventStmtSql)
 	defer insertEvent.Close()
 	for _, e := range *match.Events {
 		teamOwnerPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
@@ -30,7 +30,7 @@ func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSim
 	}
 
 	//Match instants
-	insertInstant, _ := dbCtx.Db.Prepare(fmcommon.InsertMatchInstantStmtSql)
+	insertInstant, _ := dbCtx.Db.Prepare(common.InsertMatchInstantStmtSql)
 	defer insertInstant.Close()
 	for _, i := range *match.MatchInstants {
 		homeQuaJson, _ := json.Marshal(i.HomeQua)
@@ -44,7 +44,7 @@ func UpdatePlayedMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSim
 	}
 }
 
-func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.MatchSimulation) {
+func UpdateClassification(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	log.Infof("Updating classification for match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
 	points := 0
 	win := 0
@@ -67,7 +67,7 @@ func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.Match
 		loss = 0
 		win = 0
 	}
-	_, err := dbCtx.Db.Exec(fmcommon.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.HomeGoals, match.AwayGoals, match.DivisionId, match.Home)
+	_, err := dbCtx.Db.Exec(common.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.HomeGoals, match.AwayGoals, match.DivisionId, match.Home)
 	if err != nil {
 		log.Errorf("Error updating classification: %s", err)
 	}
@@ -92,7 +92,7 @@ func UpdateClassification(dbCtx *fmcommon.DatabaseContext, match *fmcommon.Match
 		loss = 0
 		win = 0
 	}
-	_, err2 := dbCtx.Db.Exec(fmcommon.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.AwayGoals,
+	_, err2 := dbCtx.Db.Exec(common.UpdateTeamClassificationStmtSql, 1, points, win, loss, draws, match.AwayGoals,
 		match.HomeGoals, match.DivisionId, match.Away)
 	if err2 != nil {
 		log.Errorf("Error updating classification: %s", err2)

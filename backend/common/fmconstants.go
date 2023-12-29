@@ -1,4 +1,4 @@
-package fmcommon
+package common
 
 const COOKIE = "jwt"
 const UserId = "id"

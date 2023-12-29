@@ -1,4 +1,4 @@
-package fmcommon
+package common
 
 import (
 	"context"

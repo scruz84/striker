@@ -1,12 +1,10 @@
 package engine
 
-import (
-	"footmanager/fmcommon"
-)
+import "github.com/scruz84/striker/common"
 
-func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (*fmcommon.MatchSimulation, error) {
+func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
 	// get the teams lineups
-	lineups, err := fmcommon.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
+	lineups, err := common.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
 	if err != nil {
 		return nil, err
 	}
@@ -20,9 +18,9 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 	if err != nil {
 		return nil, err
 	}
-	events := make([]fmcommon.Event, 0)
-	matchInstants := make([]fmcommon.MatchInstant, 0)
-	matchSimulation := &fmcommon.MatchSimulation{
+	events := make([]common.Event, 0)
+	matchInstants := make([]common.MatchInstant, 0)
+	matchSimulation := &common.MatchSimulation{
 		Id:                    match.MatchId,
 		DivisionId:            match.DivisionId,
 		Home:                  match.Home,
@@ -32,8 +30,8 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 		AwayLineup:            (*lineups)[match.Away],
 		HomeGoals:             0,
 		AwayGoals:             0,
-		HomeQua:               &fmcommon.TeamQualification{},
-		AwayQua:               &fmcommon.TeamQualification{},
+		HomeQua:               &common.TeamQualification{},
+		AwayQua:               &common.TeamQualification{},
 		HomePlayers:           playersToMapById(homePlayers),
 		AwayPlayers:           playersToMapById(awayPlayers),
 		HomePlayersByPosition: playersByPosition((*lineups)[match.Home]),
@@ -60,15 +58,15 @@ func simulateMatch(dbCtx *fmcommon.DatabaseContext, match *fmcommon.WeekMatch) (
 	return matchSimulation, nil
 }
 
-func playersToMapById(players *[]*fmcommon.Player) *map[int64]fmcommon.Player {
-	playersMap := make(map[int64]fmcommon.Player)
+func playersToMapById(players *[]*common.Player) *map[int64]common.Player {
+	playersMap := make(map[int64]common.Player)
 	for _, p := range *players {
 		playersMap[p.Id] = *p
 	}
 	return &playersMap
 }
 
-func playersByPosition(lineup *fmcommon.Lineup) *map[int][]int64 {
+func playersByPosition(lineup *common.Lineup) *map[int][]int64 {
 	players := make(map[int][]int64)
 	for _, position := range lineup.Positions {
 		currentPlayers := players[position.Position]

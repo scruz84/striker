@@ -2,15 +2,15 @@ package engine
 
 import (
 	"context"
-	"footmanager/fmcommon"
 	"github.com/reugn/go-quartz/quartz"
+	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 )
 
 // SimulateMatchesJob implements the quartz.Job interface.
 type SimulateMatchesJob struct {
 	desc  string
-	dbCtx *fmcommon.DatabaseContext
+	dbCtx *common.DatabaseContext
 }
 
 func (pj *SimulateMatchesJob) Description() string {
@@ -28,6 +28,6 @@ func (pj *SimulateMatchesJob) Execute(_ context.Context) {
 	SimulateMatches(pj.dbCtx)
 }
 
-func NewSimulateMatchesJob(dbCtx *fmcommon.DatabaseContext) *SimulateMatchesJob {
+func NewSimulateMatchesJob(dbCtx *common.DatabaseContext) *SimulateMatchesJob {
 	return &SimulateMatchesJob{desc: "matches simulation job", dbCtx: dbCtx}
 }
