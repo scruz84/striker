@@ -7,3 +7,4 @@ fmserver/fm-server.iml
 
 fmfrontend/node_modules
 fmfrontend/.env.development.local
+/backend/app.env
