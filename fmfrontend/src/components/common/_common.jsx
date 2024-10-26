@@ -31,10 +31,10 @@ export function CircularDeterminateWithLabel(props) {
 export function LinearDeterminateWithLabel(props) {
     return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: '100%', mr: 1 }}>
+            <Box sx={{ width: '100%', mr: 1, ml: 10 }}>
                 <LinearProgress variant="determinate" {...props} />
             </Box>
-            <Box sx={{ minWidth: 35 }}>
+            <Box sx={{ minWidth: 10 }}>
                 <Typography variant="body2" color="text.secondary">{`${props.value}`}</Typography>
             </Box>
         </Box>
