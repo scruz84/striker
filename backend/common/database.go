@@ -61,9 +61,9 @@ const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, i
 	"FROM matches where league_id = $1 and week_number = $2 and season = $3) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
-	"FROM (SELECT match_id, league_id, season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
