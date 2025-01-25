@@ -15,7 +15,10 @@ func StartSimulateMatchesScheduler(simulateMatchesJob quartz.Job) {
 	if err != nil {
 		log.Panic(err)
 	}
-	errJob := sched.ScheduleJob(ctx, simulateMatchesJob, cronTrigger)
+	jobKey := quartz.NewJobKey(simulateMatchesJob.Description())
+	jobDetail := quartz.NewJobDetail(simulateMatchesJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	//errJob := sched.ScheduleJob(ctx, simulateMatchesJob, cronTrigger)
 	if errJob != nil {
 		log.Panic(errJob)
 	}
