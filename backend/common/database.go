@@ -6,9 +6,12 @@ import (
 	"errors"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
+
+const ForUpdate = "FOR UPDATE"
 
 const GetCurrentSeasonStmtSql = "select current_season from season"
 
@@ -43,16 +46,18 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 	"WHERE t.team_id = $1"
 
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
-	"home_goals, away_goals from matches where season = $1 and match_date > now() and match_date < now()+interval '15 minutes' and played is false order by league_id"
+	"home_goals, away_goals from matches where season = $1 and match_date > now() and match_date < now()+interval '15 minutes' and played is false and in_simulation is false order by league_id"
+
+const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + ForUpdate
 
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
 
 const GetUserStmtSql = "SELECT u.name userName, u.country, u.provider, u.email, t.team_id, t.name as teamName, " +
 	"t.league_id from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
 
-const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
-	"FROM (SELECT match_id, league_id, season, played, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 	"FROM matches where league_id = $1 and week_number = $2 and season = $3) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
@@ -94,7 +99,8 @@ const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = mat
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
 	"where league_id = $8 and team_id = $9"
 
-const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3 WHERE match_id = $4"
+const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3, in_simulation = $4 WHERE match_id = $5"
+const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1 WHERE "
 
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
@@ -279,10 +285,12 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	var homeGoals int
 	var awayGoals int
 
-	rows, err := dbCtx.Db.Query(GetSimulableMatchesStmtSql, currentSeason)
+	tx, _ := dbCtx.Db.Begin()
+	rows, err := tx.Query(GetSimulableMatchesStmtForUpdateSql, currentSeason)
 	defer rows.Close()
 	if err != nil {
 		log.Errorf("error getting matches for simulation: %s", err)
+		_ = tx.Rollback()
 		return nil, err
 	}
 	for rows.Next() {
@@ -303,6 +311,22 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 			})
 		}
 	}
+	if len(matches) > 0 {
+		var updateMatches = UpdateMatchSimulateStmtSql
+		var inClause = "match_id in ("
+		var first = true
+		for _, m := range matches {
+			if !first {
+				inClause += ", "
+			}
+			inClause += strconv.FormatInt(m.MatchId, 10)
+			first = false
+		}
+		inClause += ")"
+		updateMatches += inClause
+		tx.Exec(updateMatches, true)
+	}
+	tx.Commit()
 	return &matches, nil
 }
 
@@ -474,6 +498,7 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 	var leagueId int64
 	var season int
 	var played bool
+	var inSimulation bool
 	var weekNumber int
 	var matchDate time.Time
 	var homeTeamId int64
@@ -482,21 +507,22 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 	var awayGoals int
 	var homeTeamName string
 	var awayTeamName string
-	rows.Scan(&matchId, &leagueId, &season, &played, &weekNumber, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
+	rows.Scan(&matchId, &leagueId, &season, &played, &inSimulation, &weekNumber, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
 		&homeTeamName, &awayTeamName)
 	return &WeekMatch{
-		MatchId:    matchId,
-		DivisionId: leagueId,
-		Season:     season,
-		WeekNumber: weekNumber,
-		MatchDate:  matchDate,
-		Played:     played,
-		Home:       homeTeamId,
-		HomeName:   homeTeamName,
-		Away:       awayTeamId,
-		AwayName:   awayTeamName,
-		HomeGoals:  homeGoals,
-		AwayGoals:  awayGoals,
+		MatchId:      matchId,
+		DivisionId:   leagueId,
+		Season:       season,
+		WeekNumber:   weekNumber,
+		MatchDate:    matchDate,
+		Played:       played,
+		InSimulation: inSimulation,
+		Home:         homeTeamId,
+		HomeName:     homeTeamName,
+		Away:         awayTeamId,
+		AwayName:     awayTeamName,
+		HomeGoals:    homeGoals,
+		AwayGoals:    awayGoals,
 	}
 }
 
@@ -812,4 +838,19 @@ func GetDivisionTeams(dbCtx *DatabaseContext, leagueId int64) []int64 {
 		teams = append(teams, t)
 	}
 	return teams
+}
+
+func CreateDatabaseContext() (*DatabaseContext, error) {
+	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
+	databaseDetails := DatabaseDetails{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     port,
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DbName:   os.Getenv("DB_DATABASE"),
+		SslMode:  "disable",
+	}
+
+	dbCtx, err := OpenDatabase(databaseDetails)
+	return dbCtx, err
 }

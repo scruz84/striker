@@ -55,6 +55,9 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 		pipeline.Simulate(dbCtx, matchSimulation)
 	}
 
+	UpdatePlayedMatch(dbCtx, matchSimulation)
+	UpdateClassification(dbCtx, matchSimulation)
+
 	return matchSimulation, nil
 }
 

@@ -8,7 +8,7 @@ import (
 
 func UpdatePlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	log.Infof("Updating played match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
-	_, err := dbCtx.Db.Exec(common.UpdateMatchStmtSql, match.HomeGoals, match.AwayGoals, true, match.Id)
+	_, err := dbCtx.Db.Exec(common.UpdateMatchStmtSql, match.HomeGoals, match.AwayGoals, true, false, match.Id)
 	if err != nil {
 		log.Errorf("error updating match: %s", err)
 		return

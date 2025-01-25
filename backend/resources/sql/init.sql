@@ -1,9 +1,11 @@
-CREATE TABLE public.lastnames_es (
+CREATE TABLE lastnames_es
+(
      lastname varchar(100) NULL,
      freq float8 NULL
 );
 
-CREATE TABLE public.names_es (
+CREATE TABLE names_es
+(
      "name" varchar(100) NULL,
      freq float8 NULL
 );
@@ -72,6 +74,7 @@ CREATE TABLE matches (
      league_id int8 NOT NULL REFERENCES leagues(league_id),
      season int not null,
      played bool default false,
+     in_simulation bool default false,
      week_number int default 0,
      match_date timestamptz NOT NULL,
      home_team_id int8 NOT NULL REFERENCES teams(team_id),
@@ -158,5 +161,3 @@ create index match_instants_idx1 on match_instants(match_id);
 
 create index teams_idx1 on teams(country);
 create index teams_idx2 on teams(owner_id);
-
-

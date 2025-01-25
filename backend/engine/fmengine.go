@@ -5,7 +5,6 @@ import (
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -19,17 +18,7 @@ func StartEngine() {
 		log.Fatalf("error reading app.env file: %s", err.Error())
 	}
 
-	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	databaseDetails := common.DatabaseDetails{
-		Host:     os.Getenv("DB_HOST"),
-		Port:     port,
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DbName:   os.Getenv("DB_DATABASE"),
-		SslMode:  "disable",
-	}
-
-	dbCtx, err := common.OpenDatabase(databaseDetails)
+	dbCtx, err := common.CreateDatabaseContext()
 
 	err = dbCtx.Db.Ping()
 	if err != nil {

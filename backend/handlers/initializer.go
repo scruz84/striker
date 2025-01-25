@@ -17,35 +17,39 @@ func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("[goroutine - %d] - Starting to initialize the database", common.CurGoroutineID())
 
-		//remove content
-		deleteTable(dbCtx, "lineup_positions")
-		deleteTable(dbCtx, "lineup")
-		deleteTable(dbCtx, "default_lineup_positions")
-		deleteTable(dbCtx, "match_instants")
-		deleteTable(dbCtx, "match_events")
-		deleteTable(dbCtx, "matches")
-		deleteTable(dbCtx, "classification")
-		deleteTable(dbCtx, "players")
-		deleteTable(dbCtx, "teams")
-		deleteTable(dbCtx, "leagues")
-		deleteTable(dbCtx, "users")
-		deleteTable(dbCtx, "countries")
-		deleteTable(dbCtx, "season")
-
-		//season
-		createSeason(dbCtx)
-
-		//countries
-		countries := createCountries(dbCtx)
-
-		//create teams and leagues
-		createTeams(dbCtx, countries)
-
-		//create matches
-		engine.GenerateMatches(dbCtx)
+		InitializeGame(dbCtx)
 
 		c.JSON(http.StatusOK, &ActionResult{"Initialized!"})
 	}
+}
+
+func InitializeGame(dbCtx *common.DatabaseContext) {
+	//remove content
+	deleteTable(dbCtx, "lineup_positions")
+	deleteTable(dbCtx, "lineup")
+	deleteTable(dbCtx, "default_lineup_positions")
+	deleteTable(dbCtx, "match_instants")
+	deleteTable(dbCtx, "match_events")
+	deleteTable(dbCtx, "matches")
+	deleteTable(dbCtx, "classification")
+	deleteTable(dbCtx, "players")
+	deleteTable(dbCtx, "teams")
+	deleteTable(dbCtx, "leagues")
+	deleteTable(dbCtx, "users")
+	deleteTable(dbCtx, "countries")
+	deleteTable(dbCtx, "season")
+
+	//season
+	createSeason(dbCtx)
+
+	//countries
+	countries := createCountries(dbCtx)
+
+	//create teams and leagues
+	createTeams(dbCtx, countries)
+
+	//create matches
+	engine.GenerateMatches(dbCtx)
 }
 
 func createCountries(dbCtx *common.DatabaseContext) []string {
@@ -211,4 +215,12 @@ func deleteTable(dbCtx *common.DatabaseContext, tableName string) {
 		rows, _ := result.RowsAffected()
 		log.Printf("removed %d tuples from %s", rows, tableName)
 	}
+}
+
+func InitializeDatabase() {
+	dbCtx, err := common.CreateDatabaseContext()
+	if err != nil {
+		log.Panicln("Error opening database: %s", err)
+	}
+	InitializeGame(dbCtx)
 }
