@@ -183,21 +183,23 @@ type Event struct {
 }
 
 type WeekMatch struct {
-	MatchId      int64     `json:"matchId"`
-	DivisionId   int64     `json:"divisionId"`
-	Season       int       `json:"season"`
-	WeekNumber   int       `json:"weekNumber"`
-	MatchDate    time.Time `json:"matchDate"`
-	Played       bool      `json:"played"`
-	InSimulation bool      `json:"inSimulation"`
-	Home         int64     `json:"home"`
-	HomeName     string    `json:"homeName"`
-	Away         int64     `json:"away"`
-	AwayName     string    `json:"awayName"`
-	HomeGoals    int       `json:"homeGoals"`
-	AwayGoals    int       `json:"awayGoals"`
-	//Events
-	Events *[]Event `json:"events"`
-	//Instants
-	MatchInstants *[]MatchInstant `json:"matchInstants"`
+	MatchId       int64             `json:"matchId"`
+	DivisionId    int64             `json:"divisionId"`
+	Season        int               `json:"season"`
+	WeekNumber    int               `json:"weekNumber"`
+	MatchDate     time.Time         `json:"matchDate"`
+	Played        bool              `json:"played"`
+	InSimulation  bool              `json:"inSimulation"`
+	Home          int64             `json:"home"`
+	HomeName      string            `json:"homeName"`
+	Away          int64             `json:"away"`
+	AwayName      string            `json:"awayName"`
+	HomeGoals     int               `json:"homeGoals"`
+	AwayGoals     int               `json:"awayGoals"`
+	Events        *[]Event          `json:"events"`
+	MatchInstants *[]MatchInstant   `json:"matchInstants"`
+	HomeLineup    *Lineup           `json:"homeLineup"`
+	AwayLineup    *Lineup           `json:"awayLineup"`
+	HomePlayers   *map[int64]Player `json:"homePlayers"`
+	AwayPlayers   *map[int64]Player `json:"awayPlayers"`
 }

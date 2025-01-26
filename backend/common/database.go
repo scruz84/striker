@@ -571,7 +571,37 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	match := readWeekMatch(rows)
 	match.Events = GetMatchEvents(dbCtx, matchId)
 	match.MatchInstants = GetMatchInstants(dbCtx, matchId)
+	lineups, err := GetLineupsForMatch(dbCtx, matchId, &[]int64{match.Home, match.Away})
+	if err != nil {
+		log.Errorf("error getting line ups for match: %v", err)
+	} else {
+		match.HomeLineup = (*lineups)[match.Home]
+		match.AwayLineup = (*lineups)[match.Away]
+	}
+	homePlayers, err := GetPlayersFromTeamId(dbCtx, match.Home)
+	if err != nil {
+		log.Errorf("error getting home team players: %v", err)
+	} else {
+		pl := playerListToMap(homePlayers)
+		match.HomePlayers = &pl
+	}
+	awayPlayers, err := GetPlayersFromTeamId(dbCtx, match.Away)
+	if err != nil {
+		log.Errorf("error getting away team players: %v", err)
+	} else {
+		pl := playerListToMap(awayPlayers)
+		match.AwayPlayers = &pl
+	}
+
 	return match, nil
+}
+
+func playerListToMap(players *[]*Player) map[int64]Player {
+	m := make(map[int64]Player)
+	for _, player := range *players {
+		m[player.Id] = *player
+	}
+	return m
 }
 
 func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {

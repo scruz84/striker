@@ -4,7 +4,7 @@ import React, {useEffect} from "react";
 import {matchDetailsReset} from "../../redux/actions";
 import {GetMatchDetails} from "../user/_teamFunctions";
 import Box from "@mui/material/Box";
-import {Divider, Grid, Paper, Skeleton, Slider, Tab, Tabs} from "@mui/material";
+import {Divider, Grid2, Paper, Skeleton, Slider, Tab, Tabs} from "@mui/material";
 import Moment from "react-moment";
 import Typography from "@mui/material/Typography";
 import PropTypes from 'prop-types';
@@ -79,38 +79,37 @@ function PlayedMatchDetails(m) {
         setValue(newValue);
     };
 
-    console.log(m.matchDetails)
     return (
         <div>
             <Paper>
                 <Box sx={{p:'20px'}}>
-                    <Grid container spacing={0}>
-                        <Grid item xs={0} />
-                        <Grid item xs={8}>
+                    <Grid2 container spacing={0}>
+                        <Grid2 item xs={0}/>
+                        <Grid2 item xs={8}>
                             <Typography fontSize="title" xs={1}>
                                 <Moment format="DD/MM/YYYY HH:mm">
                                     {m.matchDetails.matchDate}
                                 </Moment>
                             </Typography>
-                        </Grid>
-                        <Grid item xs={4} />
-                        <Grid item xs={5} >
+                        </Grid2>
+                        <Grid2 item xs={4}/>
+                        <Grid2 item xs={5}>
                             <Typography fontSize="title" xs={1}>
                                 {m.matchDetails.homeName}
                             </Typography>
-                        </Grid>
+                        </Grid2>
 
-                        <Grid item xs={2}>
+                        <Grid2 item xs={2}>
                             <Typography fontSize="title" xs={1}>
                                 {m.matchDetails.homeGoals} - {m.matchDetails.awayGoals}
                             </Typography>
-                        </Grid>
-                        <Grid item xs={5} >
+                        </Grid2>
+                        <Grid2 item xs={5}>
                             <Typography fontSize="title" xs={1}>
                                 {m.matchDetails.awayName}
                             </Typography>
-                        </Grid>
-                    </Grid>
+                        </Grid2>
+                    </Grid2>
                 </Box>
             </Paper>
             <Paper>
@@ -133,7 +132,7 @@ function PlayedMatchDetails(m) {
                         <Qualifications instants={m.matchDetails.matchInstants}/>
                     </TabPanel>
                     <TabPanel value={value} index={3}>
-                        <MatchPlayersDetails/>
+                        <MatchPlayersDetails matchDetails={m.matchDetails}/>
                     </TabPanel>
                 </Box>
             </Paper>
@@ -151,26 +150,26 @@ function Events(events) {
     return (
         <div>
             {events.events.filter(event => event.eventType === 0).map((event) => (
-                <Grid container spacing={0} columns={10}>
-                    <Grid xs={1}>
+                <Grid2 container spacing={0} columns={10}>
+                    <Grid2 xs={1}>
                         <Typography fontSize="small" xs={1}>
                             {event.homeGoals} - {event.awayGoals}
                         </Typography>
-                    </Grid>
-                    <Grid xs={1}>
+                    </Grid2>
+                    <Grid2 xs={1}>
                         <Divider orientation="vertical" />
-                    </Grid>
-                    <Grid xs={6} sx={{ml: 1}}>
+                    </Grid2>
+                    <Grid2 xs={6} sx={{ml: 1}}>
                         <Typography fontSize="small" xs={1}>
                             {event.teamOwnerPlayerNames}
                         </Typography>
-                    </Grid>
-                    <Grid xs={1}>
+                    </Grid2>
+                    <Grid2 xs={1}>
                         <Typography fontSize="small" xs={1}>
                             {event.minute}'
                         </Typography>
-                    </Grid>
-                </Grid>
+                    </Grid2>
+                </Grid2>
             ))}
         </div>
     )
@@ -206,73 +205,73 @@ function QualificationByMinute(props) {
             <Box>
                 <Box  sx={{ mb: '10px' }}>
                     <Typography fontSize="subtitle2" xs={2}>Ataque vs Defensa (local)</Typography>
-                    <Grid container spacing={1} columns={3}>
-                        <Grid item xs={1}>
+                    <Grid2 container spacing={1} columns={3}>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="small" xs={1}>Izquierdo</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackLeftDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackLeftDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={1}>
+                        </Grid2>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="subtitle2" xs={1}>Central</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackCenterDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackCenterDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={1}>
+                        </Grid2>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="small" xs={1}>Derecho</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackRightDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.homeAttackRightDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                    </Grid>
+                        </Grid2>
+                    </Grid2>
                 </Box>
 
                 <Box  sx={{ mb: '10px' }}>
                     <Typography fontSize="subtitle2" xs={2}>Mediocampo</Typography>
-                    <Grid item xs={1}>
-                    </Grid>
-                    <Grid container spacing={1} columns={3}>
-                        <Grid item xs={1}/>
-                        <Grid item xs={1}>
+                    <Grid2 item xs={1}>
+                    </Grid2>
+                    <Grid2 container spacing={1} columns={3}>
+                        <Grid2 item xs={1}/>
+                        <Grid2 item xs={1}>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.midfieldDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.midfieldDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={1}/>
-                    </Grid>
+                        </Grid2>
+                        <Grid2 item xs={1}/>
+                    </Grid2>
 
                 </Box>
 
                 <Box sx={{ mb: '10px' }}>
                     <Typography fontSize="subtitle2" xs={2}>Ataque vs Defensa (visitante)</Typography>
-                    <Grid container spacing={1} columns={3}>
-                        <Grid item xs={1}>
+                    <Grid2 container spacing={1} columns={3}>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="small" xs={1}>Izquierdo</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackLeftDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackLeftDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={1}>
+                        </Grid2>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="small" xs={1}>Central</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackCenterDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackCenterDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                        <Grid item xs={1}>
+                        </Grid2>
+                        <Grid2 item xs={1}>
                             <Typography fontSize="small" xs={1}>Derecho</Typography>
                             <Stack direction="row" spacing={1}>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackRightDiff, true)} sx={{color: 'red'}}/>
                                 <CircularDeterminateWithLabel value={percentageFromDiff(instant.awayAttackRightDiff, false)} sx={{color: 'blue'}}/>
                             </Stack>
-                        </Grid>
-                    </Grid>
+                        </Grid2>
+                    </Grid2>
                 </Box>
             </Box>
 
