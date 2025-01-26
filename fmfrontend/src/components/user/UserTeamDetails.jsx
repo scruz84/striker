@@ -1,8 +1,8 @@
 import React from "react";
-import {Card, CardContent, Grid} from "@mui/material";
+import {Card, CardContent, Grid2} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import {CircularDeterminateWithLabel, LinearDeterminateWithLabel} from "../common/_common";
+import {LinearDeterminateWithLabel} from "../common/_common";
 import PropTypes from 'prop-types';
 
 export function UserTeamDetails({userTeam}) {
@@ -26,18 +26,18 @@ function PlayerDetails({player}) {
     return (
         <Card sx={{ minWidth: 275,  maxHeight: 300 }}>
             <CardContent >
-                <Grid container spacing={2}>
-                    <Grid item xs={4} md={2} >
+                <Grid2 container spacing={2}>
+                    <Grid2 item xs={4} md={2}>
                         <img height="100" src="avatars/player.svg" loading="lazy" alt={player.firstName}/>
-                    </Grid>
+                    </Grid2>
 
-                    <Grid item xs={6} md={12}>
+                    <Grid2 item xs={6} md={12}>
                         <Typography variant="body2">
                             {player.firstName} {player.lastName}
                         </Typography>
-                    </Grid>
-                </Grid>
-                <Grid item xs={6} md={4}>
+                    </Grid2>
+                </Grid2>
+                <Grid2 item xs={6} md={4}>
                     <SkillValue name="Goalkeeper" value={player.goalKeeper} />
                     <SkillValue name="Defense" value={player.defense} />
                     <SkillValue name="Lateral" value={player.lateral} />
@@ -45,7 +45,7 @@ function PlayerDetails({player}) {
                     <SkillValue name="Midfield" value={player.midfield} />
                     <SkillValue name="Dribbling" value={player.dribbling} />
                     <SkillValue name="Shot" value={player.shot} />
-                </Grid>
+                </Grid2>
             </CardContent>
         </Card>
     );
@@ -58,15 +58,15 @@ SkillValue.propTypes = {
 
 function SkillValue(props) {
     return (
-        <Grid container spacing={1} sx={{ml:2}}>
-            <Grid item xs={2} md={2}>
+        <Grid2 container spacing={1} sx={{ml: 2}}>
+            <Grid2 item xs={2} md={2}>
                 <Typography variant="body2">
                     {props.name}
                 </Typography>
-            </Grid>
-            <Grid item xs={9} md={6}>
+            </Grid2>
+            <Grid2 item xs={9} md={6}>
                 <LinearDeterminateWithLabel value={props.value} />
-            </Grid>
-        </Grid>
+            </Grid2>
+        </Grid2>
     );
 }

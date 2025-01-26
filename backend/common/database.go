@@ -158,18 +158,17 @@ func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team
 
 func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt) {
 	for i := 0; i < 18; i++ {
-		rand.Seed(time.Now().UnixNano())
-		min := 30
-		max := 60
+		minValue := 30
+		maxValue := 60
 		firstName, lastName, _ := GetRandomName(dbCtx)
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
-			rand.Intn(max-min+1)+min,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
+			rand.Intn(maxValue-minValue+1)+minValue,
 			false,
 			false,
 			false,

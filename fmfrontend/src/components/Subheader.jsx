@@ -11,7 +11,10 @@ export default function Subheader() {
     if (userReducer.userTeam) {
         const breadcrumbs = [
             <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>{userReducer.userTeam.team.name}</Link>,
-            <Link to={`/division/${userReducer.userTeam.team.divisionId}`} style={{ textDecoration: 'none', color: 'inherit' }}>{userReducer.userTeam.team.divisionName}</Link>
+            <Link to={`/division/${userReducer.userTeam.team.divisionId}`}
+                  style={{textDecoration: 'none', color: 'inherit'}}>
+                {userReducer.userTeam.team.divisionName}
+            </Link>
         ];
 
         return (
