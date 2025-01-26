@@ -74,22 +74,40 @@ type Team struct {
 }
 
 type Player struct {
-	Id         int64     `json:"id"`
-	TeamId     int64     `json:"teamId"`
-	FirstName  string    `json:"firstName"`
-	LastName   string    `json:"lastName"`
-	BirthDay   time.Time `json:"birthDay"`
-	GoalKeeper int       `json:"goalKeeper"`
-	Defense    int       `json:"defense"`
-	Lateral    int       `json:"lateral"`
-	Pass       int       `json:"pass"`
-	Midfield   int       `json:"midfield"`
-	Dribbling  int       `json:"dribbling"`
-	Shot       int       `json:"shot"`
-	Header     bool      `json:"header"`
-	Quick      bool      `json:"quick"`
-	Creative   bool      `json:"creative"`
-	Technical  bool      `json:"technical"`
+	Id         int64        `json:"id"`
+	TeamId     int64        `json:"teamId"`
+	FirstName  string       `json:"firstName"`
+	LastName   string       `json:"lastName"`
+	BirthDay   time.Time    `json:"birthDay"`
+	GoalKeeper int          `json:"goalKeeper"`
+	Defense    int          `json:"defense"`
+	Lateral    int          `json:"lateral"`
+	Pass       int          `json:"pass"`
+	Midfield   int          `json:"midfield"`
+	Dribbling  int          `json:"dribbling"`
+	Shot       int          `json:"shot"`
+	Header     bool         `json:"header"`
+	Quick      bool         `json:"quick"`
+	Creative   bool         `json:"creative"`
+	Technical  bool         `json:"technical"`
+	Avatar     PlayerAvatar `json:"avatar"`
+}
+
+type PlayerAvatar struct {
+	AccessoriesType string `json:"accessoriesType"`
+	AvatarStyle     string `json:"avatarStyle"`
+	ClotheColor     string `json:"clotheColor"`
+	ClotheType      string `json:"clotheType"`
+	EyeType         string `json:"eyeType"`
+	EyebrowType     string `json:"eyebrowType"`
+	FacialHairColor string `json:"facialHairColor"`
+	FacialHairType  string `json:"facialHairType"`
+	GraphicType     string `json:"graphicType"`
+	HairColor       string `json:"hairColor"`
+	HatColor        string `json:"hatColor"`
+	MouthType       string `json:"mouthType"`
+	SkinColor       string `json:"skinColor"`
+	TopType         string `json:"topType"`
 }
 
 type RegisterUser struct {
