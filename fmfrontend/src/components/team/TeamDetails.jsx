@@ -24,7 +24,6 @@ export function TeamDetails() {
     }, [])
 
     if (teamReducer.teamDetails) {
-        console.log(teamReducer.teamDetails)
         return ( _teamDetails(teamReducer.teamDetails) );
     } else {
         return ( <div>loading...</div> );

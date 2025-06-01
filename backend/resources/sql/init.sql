@@ -16,7 +16,6 @@ CREATE TABLE countries (
     PRIMARY KEY (country_id)
 );
 
-
 create table users (
    user_id 	bigserial NOT NULL,
    name 		varchar(200) not null,
@@ -25,7 +24,6 @@ create table users (
    country	varchar(4) references countries(name),
    PRIMARY KEY (user_id)
 );
-
 
 CREATE TABLE teams (
    team_id 	bigserial NOT NULL,
@@ -66,6 +64,7 @@ create table players (
      Quick      bool,
      Creative   bool,
      Technical  bool,
+     avatar  varchar(1000),
      PRIMARY KEY (player_id)
 );
 

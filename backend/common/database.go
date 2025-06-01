@@ -41,7 +41,7 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical " +
+	"dribbling, shot, \"header\", quick, creative, technical, avatar " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
@@ -79,7 +79,7 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
+	" creative, technical, avatar) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 
@@ -161,6 +161,7 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt)
 		minValue := 30
 		max := 60
 		firstName, lastName, _ := GetRandomName(dbCtx)
+		avatar := RandomAvatarAsString()
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			rand.Intn(max-minValue+1)+minValue,
 			rand.Intn(max-minValue+1)+minValue,
@@ -172,7 +173,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt)
 			false,
 			false,
 			false,
-			false)
+			false,
+			&avatar)
 	}
 }
 
@@ -784,9 +786,10 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var quick bool
 	var creative bool
 	var technical bool
+	var avatar string
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &avatar)
 		if err != nil {
 			log.Fatal(err)
 		} else {
@@ -807,6 +810,7 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				Quick:      quick,
 				Creative:   creative,
 				Technical:  technical,
+				Avatar:     GetAvatarFromString(avatar),
 			})
 		}
 	}
