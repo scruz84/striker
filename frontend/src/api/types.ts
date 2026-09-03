@@ -268,3 +268,24 @@ export interface CupDetails {
   cup: Cup
   ties: CupTie[]
 }
+
+// notifications.notification_type values from backend/common/fmconstants.go
+export const NOTIFICATION_MATCH_RESULT = 0
+export const NOTIFICATION_PROMOTION = 1
+export const NOTIFICATION_RELEGATION = 2
+export const NOTIFICATION_TRANSFER = 3
+export const NOTIFICATION_CUP = 4
+
+export interface Notification {
+  notificationId: number
+  userId: number
+  notificationType: number
+  message: string
+  read: boolean
+  createdAt: string
+}
+
+export interface NotificationsResponse {
+  unread: number
+  notifications: Notification[]
+}

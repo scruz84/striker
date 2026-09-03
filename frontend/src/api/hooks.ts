@@ -7,6 +7,7 @@ import type {
   Lineup,
   LineupPosition,
   LoggedUser,
+  NotificationsResponse,
   TeamDetails,
   TransferListing,
   WeekMatch,
@@ -23,6 +24,7 @@ export const queryKeys = {
   transfers: ['transfers'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
+  notifications: ['notifications'] as const,
 }
 
 export function useMe() {
@@ -177,5 +179,38 @@ export function useCupDetails(cupId: number | undefined) {
     queryKey: queryKeys.cup(String(cupId ?? '')),
     queryFn: () => api.get<CupDetails>(`/v1/cups/${cupId}`),
     enabled: cupId !== undefined,
+  })
+}
+
+// Polled rather than pushed - there's no live match/event stream yet, so this is the simplest
+// way to keep the unread badge reasonably fresh while a user is on the page.
+const NOTIFICATIONS_POLL_INTERVAL_MS = 30_000
+
+export function useNotifications(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.notifications,
+    queryFn: () => api.get<NotificationsResponse>('/v1/user/notifications'),
+    enabled,
+    refetchInterval: enabled ? NOTIFICATIONS_POLL_INTERVAL_MS : false,
+  })
+}
+
+export function useMarkNotificationRead() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (notificationId: number) => api.post(`/v1/user/notifications/${notificationId}/read`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications })
+    },
+  })
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/user/notifications/read-all'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications })
+    },
   })
 }

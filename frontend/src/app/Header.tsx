@@ -11,6 +11,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useLogout, useMe } from '../api/hooks'
+import { NotificationBell } from './NotificationBell'
 
 export function Header() {
   return (
@@ -22,6 +23,7 @@ export function Header() {
               Striker
             </Link>
           </Typography>
+          <NotificationBell />
           <AvatarOrLogin />
         </Toolbar>
       </AppBar>
