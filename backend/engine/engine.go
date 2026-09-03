@@ -4,9 +4,13 @@ import (
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
-	"strconv"
+	"sync"
 	"time"
 )
+
+// maxConcurrentSimulations bounds how many matches simulate at once, so a burst of
+// simulable matches doesn't spawn unbounded goroutines each holding a DB connection.
+const maxConcurrentSimulations = 8
 
 // GenerateMatches Generates the matches for the leagues
 func GenerateMatches(dbCtx *common.DatabaseContext) {
@@ -15,7 +19,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 		log.Errorf("error checking for upcoming matches: %s", err)
 		return
 	}
-	rows, err := dbCtx.Db.Query("select 1 as c from matches where season = " + strconv.Itoa(season) + " and match_date > now() limit 1")
+	rows, err := dbCtx.Db.Query("select 1 as c from matches where season = $1 and match_date > now() limit 1", season)
 	defer rows.Close()
 	if err != nil {
 		log.Errorf("error checking for upcoming matches: %s", err)
@@ -122,21 +126,24 @@ func SimulateMatches(dbCtx *common.DatabaseContext) {
 		log.Errorf("error getting matches to simulate: %s", err)
 		return
 	}
-	leagueIds := make(map[int64]bool)
+	sem := make(chan struct{}, maxConcurrentSimulations)
+	var wg sync.WaitGroup
 	for _, match := range *matches {
 		log.Infof("simulating match %d", match.MatchId)
-		go func() {
-			_, err := simulateMatch(dbCtx, &match)
-			if err != nil {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(match common.WeekMatch) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			defer func() {
+				if r := recover(); r != nil {
+					log.Errorf("panic simulating match %d: %v", match.MatchId, r)
+				}
+			}()
+			if _, err := simulateMatch(dbCtx, &match); err != nil {
 				log.Errorf("error simulating match %d: %s", match.MatchId, err)
 			}
-		}()
-		leagueIds[match.DivisionId] = true
-		if err != nil {
-			log.Errorf("error simulating match: %s", err)
-		} else {
-			//go UpdatePlayedMatch(dbCtx, matchSimulation)
-			//go UpdateClassification(dbCtx, matchSimulation)
-		}
+		}(match)
 	}
+	wg.Wait()
 }
