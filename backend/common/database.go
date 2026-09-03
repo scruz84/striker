@@ -104,12 +104,15 @@ const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1 WHERE 
 
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
-	defer stmtNames.Close()
-	stmtLastNames, err := dbCtx.Db.Prepare("select lastname from lastnames_es order by random() limit 1")
-	defer stmtLastNames.Close()
 	if err != nil {
 		return "", "", err
 	}
+	defer stmtNames.Close()
+	stmtLastNames, err := dbCtx.Db.Prepare("select lastname from lastnames_es order by random() limit 1")
+	if err != nil {
+		return "", "", err
+	}
+	defer stmtLastNames.Close()
 	nameRow := stmtNames.QueryRow()
 	lastNameRow := stmtLastNames.QueryRow()
 	var name string
@@ -129,10 +132,10 @@ func CreatePlayers(dbCtx *DatabaseContext, teamId int64) {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
 	if errInsert != nil {
 		log.Printf("error inserting new players %s", errInsert)
-	} else {
-		doCreatePlayers(dbCtx, teamId, insertStmt)
+		return
 	}
 	defer insertStmt.Close()
+	doCreatePlayers(dbCtx, teamId, insertStmt)
 }
 
 func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team, error) {
@@ -200,15 +203,17 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 
 	//Create new players
 	insertStmt, err2 := tx.Prepare(InsertNewPlayerStmtSql)
-	defer insertStmt.Close()
 	if err2 != nil {
 		return nil, err2
 	}
+	defer insertStmt.Close()
 	doCreatePlayers(dbCtx, teamId, insertStmt)
 
 	//Update team details
-	var ustmt *sql.Stmt
-	ustmt, err = tx.Prepare(UpdateTeamDetailsStmtSql)
+	ustmt, err := tx.Prepare(UpdateTeamDetailsStmtSql)
+	if err != nil {
+		return nil, err
+	}
 	defer ustmt.Close()
 	tName, _, err := GetRandomName(dbCtx)
 	if err != nil {
@@ -221,13 +226,15 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 	}
 
 	//Get team details
-	var teamStmt *sql.Stmt
-	teamStmt, err = tx.Prepare(GetTeamDetailsStmtSql)
-	defer teamStmt.Close()
+	teamStmt, err := tx.Prepare(GetTeamDetailsStmtSql)
 	if err != nil {
 		return nil, err
 	}
+	defer teamStmt.Close()
 	team, err := GetTeamDetails(dbCtx, teamStmt, teamId)
+	if err != nil {
+		return nil, err
+	}
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -250,10 +257,10 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	}
 
 	rows, err := dbCtx.Db.Query(GetLineupsForMatchStmtSql, (*teamIds)[0], (*teamIds)[1], matchId)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var teamId int64
 	var playerId int64
@@ -286,14 +293,18 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	var homeGoals int
 	var awayGoals int
 
-	tx, _ := dbCtx.Db.Begin()
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		log.Errorf("error starting transaction for simulable matches: %s", err)
+		return nil, err
+	}
 	rows, err := tx.Query(GetSimulableMatchesStmtForUpdateSql, currentSeason)
-	defer rows.Close()
 	if err != nil {
 		log.Errorf("error getting matches for simulation: %s", err)
 		_ = tx.Rollback()
 		return nil, err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&matchId, &divisionId, &season, &weekNumber, &matchDate, &home, &away, &homeGoals, &awayGoals)
 		if err != nil {
@@ -414,10 +425,10 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 	currentSeason := GetCurrentSeason(dbCtx)
 
 	rows, err := dbCtx.Db.Query(GetDivisionDetailsStmtSql, leagueId, currentSeason)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	// Classification
 	positions := make([]ClassificationPosition, TeamsPerLeague)
@@ -483,10 +494,10 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 
 func WeekMatches(dbCtx *DatabaseContext, leagueId int64, season int, weekNumber int) (*[]WeekMatch, error) {
 	rows, err := dbCtx.Db.Query(GetWeekMatchesStmtSql, leagueId, weekNumber, season)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	matches := make([]WeekMatch, 0)
 	for rows.Next() {
 		matches = append(matches, *readWeekMatch(rows))
@@ -529,10 +540,10 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 
 func GetDivisionName(dbCtx *DatabaseContext, leagueId int64) (string, error) {
 	divs, err := dbCtx.Db.Query(GetDivisionNameStmtSql, leagueId)
-	defer divs.Close()
 	if err != nil {
 		return "", err
 	}
+	defer divs.Close()
 	var divisionName string
 	if divs.Next() {
 		divs.Scan(&divisionName)
@@ -562,10 +573,10 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 
 func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	rows, err := dbCtx.Db.Query(GetWeekMatchesByIdStmtSql, matchId)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	if !rows.Next() {
 		return nil, nil
 	}
@@ -607,10 +618,10 @@ func playerListToMap(players *[]*Player) map[int64]Player {
 
 func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 	rows, err := dbCtx.Db.Query(GetWeekMatchesEventsByIdStmtSql, matchId)
-	defer rows.Close()
 	if err != nil {
 		return nil
 	}
+	defer rows.Close()
 	events := make([]Event, 0)
 	for rows.Next() {
 		var eventId int64
@@ -667,10 +678,10 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 
 func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 	rows, err := dbCtx.Db.Query(GetWeekMatchesInstantsByIdStmtSql, matchId)
-	defer rows.Close()
 	if err != nil {
 		return nil
 	}
+	defer rows.Close()
 	instants := make([]MatchInstant, 0)
 	for rows.Next() {
 		var matchId int64
@@ -736,12 +747,15 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 
 func GetTeamOwner(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 	rows, err := dbCtx.Db.Query(GetTeamOwnerStmtSql, teamId)
+	if err != nil {
+		return -1, err
+	}
 	defer rows.Close()
 	var userId = int64(-1)
 	if rows.Next() {
 		rows.Scan(&userId)
 	}
-	return userId, err
+	return userId, nil
 }
 
 func GetCurrentSeason(dbCtx *DatabaseContext) int {
@@ -754,10 +768,10 @@ func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
 	var firstName string
 	var lastName string
 	row, err := dbCtx.Db.Query(GetPlayerFullNameStmtSql, playerId)
-	defer row.Close()
 	if err != nil {
 		return "", err
 	}
+	defer row.Close()
 	if row.Next() {
 		row.Scan(&firstName, &lastName)
 	}
@@ -766,10 +780,10 @@ func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
 
 func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, error) {
 	rows, err := dbCtx.Db.Query(GetPlayersFromTeamStmtSql, teamId)
-	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	players := make([]*Player, 0)
 	var playerId int64
 	var firstName string
@@ -791,7 +805,7 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
 			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &avatar)
 		if err != nil {
-			log.Fatal(err)
+			log.Errorf("error scanning player row: %s", err)
 		} else {
 			players = append(players, &Player{
 				Id:         playerId,
@@ -819,11 +833,11 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 
 func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {
 	stmt, err := dbCtx.Db.Prepare(InsertMatch)
-	defer stmt.Close()
 	if err != nil {
 		log.Errorf("error loading insert match statement: %s", err)
 		return err
 	}
+	defer stmt.Close()
 	for weekIdx, _ := range weekMatches {
 		for _, match := range weekMatches[weekIdx] {
 			_, err := stmt.Exec(match.DivisionId, match.Season, match.WeekNumber, match.MatchDate, match.Home, match.Away)
@@ -837,11 +851,11 @@ func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {
 
 func InsertLineup(dbCtx *DatabaseContext, teamId int64, lineup map[int][]int64, asDefault bool) error {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertDefaultLineupPositionsStmtSql)
-	defer insertStmt.Close()
 	if errInsert != nil {
 		log.Errorf("error inserting new default lineup %s", errInsert)
 		return errInsert
 	}
+	defer insertStmt.Close()
 	for position, players := range lineup {
 		for _, player := range players {
 			_, err := insertStmt.Exec(teamId, player, position)
@@ -854,16 +868,26 @@ func InsertLineup(dbCtx *DatabaseContext, teamId int64, lineup map[int][]int64, 
 }
 
 func InsertTeamsToClassification(dbCtx *DatabaseContext, leagueId int64, season int, teams []int64) {
-	stmt, _ := dbCtx.Db.Prepare(InsertTeamToClassificationStmtSql)
+	stmt, err := dbCtx.Db.Prepare(InsertTeamToClassificationStmtSql)
+	if err != nil {
+		log.Errorf("error preparing insert team to classification: %s", err)
+		return
+	}
 	defer stmt.Close()
 	for _, t := range teams {
-		stmt.Exec(leagueId, season, t)
+		if _, err := stmt.Exec(leagueId, season, t); err != nil {
+			log.Errorf("error inserting team %d to classification: %s", t, err)
+		}
 	}
 }
 
 func GetDivisionTeams(dbCtx *DatabaseContext, leagueId int64) []int64 {
 	teams := make([]int64, 0)
-	rows, _ := dbCtx.Db.Query(GetDivisionTeamsStmtSql, leagueId)
+	rows, err := dbCtx.Db.Query(GetDivisionTeamsStmtSql, leagueId)
+	if err != nil {
+		log.Errorf("error getting division teams for league %d: %s", leagueId, err)
+		return teams
+	}
 	defer rows.Close()
 	for rows.Next() {
 		var t int64

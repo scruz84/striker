@@ -71,7 +71,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	router.Use(cors.New(corsConfig))
 
 	//Init session management
-	store, err := postgres.NewStore(dbCtx.Db, []byte("sessions secret"))
+	store, err := postgres.NewStore(dbCtx.Db, []byte(os.Getenv("SESSION_SECRET")))
 	if err != nil {
 		log.Panicln("Error accessing database for session management: %s", err)
 	}

@@ -55,10 +55,12 @@ func Me(dbCtx *common.DatabaseContext, idKey string) gin.HandlerFunc {
 		}
 		//Get user details
 		loggedUser, err := common.GetUserDetails(*id, dbCtx)
-		loggedUser.PictureUrl = *GetPictureUrlFromCookie(c)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, nil)
 			return
+		}
+		if pictureUrl := GetPictureUrlFromCookie(c); pictureUrl != nil {
+			loggedUser.PictureUrl = *pictureUrl
 		}
 		c.JSON(http.StatusOK, loggedUser)
 		return
@@ -124,7 +126,7 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 
 func Teams(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		teams := make([]common.Team, 1)
+		teams := make([]common.Team, 0)
 		teams = append(teams, common.Team{Id: 12, TeamName: "Irizar", OwnerId: 1111, Country: "es", DivisionId: 222})
 		c.JSON(http.StatusOK, teams)
 	}
