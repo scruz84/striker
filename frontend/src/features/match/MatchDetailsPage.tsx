@@ -1,5 +1,6 @@
-import { useState, type SyntheticEvent } from 'react'
+import { useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -7,8 +8,9 @@ import Skeleton from '@mui/material/Skeleton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
+import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
-import { useMatchDetails } from '../../api/hooks'
+import { queryKeys, useMatchDetails } from '../../api/hooks'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
@@ -20,6 +22,7 @@ import {
   type Player,
   type WeekMatch,
 } from '../../api/types'
+import { useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function MatchDetailsPage() {
@@ -31,10 +34,56 @@ export function MatchDetailsPage() {
   }
 
   if (!match.played) {
-    return <Typography>This match hasn't been played yet.</Typography>
+    return <LiveMatch key={id} matchId={id} homeName={match.homeName} awayName={match.awayName} />
   }
 
   return <PlayedMatch match={match} />
+}
+
+function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefined; homeName: string; awayName: string }) {
+  const queryClient = useQueryClient()
+  const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
+
+  useEffect(() => {
+    if (live.complete && matchId) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.match(matchId) })
+    }
+  }, [live.complete, matchId, queryClient])
+
+  if (live.complete) {
+    return <Typography color="text.secondary">Match finished - loading the result...</Typography>
+  }
+
+  return (
+    <Box>
+      <Paper sx={{ p: 2, mb: 2 }}>
+        <Chip size="small" color={live.connected ? 'error' : 'default'} label={live.connected ? 'LIVE' : 'Connecting...'} sx={{ mb: 1 }} />
+        <Grid container sx={{ mt: 1, alignItems: 'center' }}>
+          <Grid size={5}>
+            <Typography variant="h6">{homeName}</Typography>
+          </Grid>
+          <Grid size={2}>
+            <Typography variant="h6" align="center">
+              {live.homeGoals} - {live.awayGoals}
+            </Typography>
+          </Grid>
+          <Grid size={5}>
+            <Typography variant="h6" align="right">
+              {awayName}
+            </Typography>
+          </Grid>
+        </Grid>
+        {live.minute > 0 && (
+          <Typography variant="caption" color="text.secondary">
+            {live.minute}&apos;
+          </Typography>
+        )}
+      </Paper>
+      <Paper sx={{ p: 2 }}>
+        <Events events={live.events} />
+      </Paper>
+    </Box>
+  )
 }
 
 function PlayedMatch({ match }: { match: WeekMatch }) {

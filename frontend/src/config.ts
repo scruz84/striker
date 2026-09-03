@@ -33,6 +33,13 @@ export function getApiEndpoint(path: string): string {
   return getApiBaseUrl() + path
 }
 
+// Live match streaming (see api/useLiveMatch.ts) connects directly to the API's WebSocket
+// endpoints, so the http(s) base URL needs the equivalent ws(s) one.
+export function getWsEndpoint(path: string): string {
+  const base = getApiBaseUrl()
+  return base.replace(/^http/, 'ws') + path
+}
+
 export function getGoogleOAuthClientId(): string {
   return runtimeValue('GOOGLE_OAUTH_CLIENT_ID', 'VITE_GOOGLE_OAUTH_CLIENT_ID')
 }
