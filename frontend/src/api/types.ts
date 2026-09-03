@@ -226,3 +226,12 @@ export interface FinancesResponse {
   budget: number
   transactions: TeamTransaction[]
 }
+
+export interface TransferListing {
+  listingId: number
+  player: Player
+  sellingTeamId: number
+  sellingTeamName: string
+  askingPrice: number
+  listedAt: string
+}

@@ -14,6 +14,7 @@ import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
+import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
 import { lightTheme } from '../theme'
 import { Layout } from './Layout'
 import { queryClient } from './queryClient'
@@ -34,6 +35,7 @@ function App() {
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
                   <Route path="/dashboard/finances" element={<FinancesPage />} />
+                  <Route path="/transfers" element={<TransferMarketPage />} />
                   <Route path="/division/:id" element={<DivisionDetailsPage />} />
                   <Route path="/match/:id" element={<MatchDetailsPage />} />
                   <Route path="/team/:id" element={<TeamDetailsPage />} />

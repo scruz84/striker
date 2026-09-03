@@ -7,6 +7,7 @@ import type {
   LineupPosition,
   LoggedUser,
   TeamDetails,
+  TransferListing,
   WeekMatch,
 } from './types'
 
@@ -18,6 +19,7 @@ export const queryKeys = {
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
+  transfers: ['transfers'] as const,
 }
 
 export function useMe() {
@@ -114,5 +116,47 @@ export function useFinances(enabled: boolean) {
     queryKey: queryKeys.finances,
     queryFn: () => api.get<FinancesResponse>('/v1/user/team/finances'),
     enabled,
+  })
+}
+
+export function useTransferListings(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.transfers,
+    queryFn: () => api.get<TransferListing[]>('/v1/transfers'),
+    enabled,
+  })
+}
+
+export function useListPlayer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ playerId, askingPrice }: { playerId: number; askingPrice: number }) =>
+      api.post(`/v1/user/team/players/${playerId}/list`, { askingPrice }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+export function useUnlistPlayer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.delete(`/v1/user/team/players/${playerId}/list`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
+    },
+  })
+}
+
+export function useBuyListing() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (listingId: number) => api.post(`/v1/transfers/${listingId}/buy`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
   })
 }

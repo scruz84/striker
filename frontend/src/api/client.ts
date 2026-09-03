@@ -38,6 +38,7 @@ export const api = {
     request<T>(path, { method: 'POST', body: body !== undefined ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body?: unknown): Promise<T> =>
     request<T>(path, { method: 'PUT', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  delete: <T>(path: string): Promise<T> => request<T>(path, { method: 'DELETE' }),
 }
 
 export function isUnauthorized(error: unknown): boolean {
