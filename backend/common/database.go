@@ -49,7 +49,7 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, avatar " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
@@ -87,7 +87,7 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)"
+	" creative, technical, avatar, wage, age) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -168,6 +168,15 @@ func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	return name, lastName, nil
 }
 
+// SquadSize is how many players a freshly created team starts with.
+const SquadSize = 18
+
+// SeniorSkillMin/Max and SeniorAgeMin/Max are the ranges used for a new team's starting
+// squad. AcademySkillMin/Max and AcademyAgeMin/Max (see CreateAcademyPlayers) are deliberately
+// lower/younger - raw prospects, not the finished article.
+const SeniorSkillMin, SeniorSkillMax = 30, 60
+const SeniorAgeMin, SeniorAgeMax = 18, 32
+
 func CreatePlayers(dbCtx *DatabaseContext, teamId int64) {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
 	if errInsert != nil {
@@ -175,7 +184,7 @@ func CreatePlayers(dbCtx *DatabaseContext, teamId int64) {
 		return
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax)
 }
 
 func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team, error) {
@@ -199,19 +208,22 @@ func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team
 		DivisionName: divName}, nil
 }
 
-func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt) {
-	for i := 0; i < 18; i++ {
-		minValue := 30
-		max := 60
+// doCreatePlayers inserts `count` random players for a team, with skills uniformly drawn from
+// [minSkill, maxSkill] and age from [minAge, maxAge]. Used both for a new team's starting
+// squad and for youth academy backfills (see CreateAcademyPlayers), which use lower/younger
+// ranges.
+func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int) {
+	for i := 0; i < count; i++ {
 		firstName, lastName, _ := GetRandomName(dbCtx)
 		avatar := RandomAvatarAsString()
-		goalKeeper := rand.Intn(max-minValue+1) + minValue
-		defense := rand.Intn(max-minValue+1) + minValue
-		lateral := rand.Intn(max-minValue+1) + minValue
-		pass := rand.Intn(max-minValue+1) + minValue
-		midfield := rand.Intn(max-minValue+1) + minValue
-		dribbling := rand.Intn(max-minValue+1) + minValue
-		shot := rand.Intn(max-minValue+1) + minValue
+		goalKeeper := minSkill + rand.Intn(maxSkill-minSkill+1)
+		defense := minSkill + rand.Intn(maxSkill-minSkill+1)
+		lateral := minSkill + rand.Intn(maxSkill-minSkill+1)
+		pass := minSkill + rand.Intn(maxSkill-minSkill+1)
+		midfield := minSkill + rand.Intn(maxSkill-minSkill+1)
+		dribbling := minSkill + rand.Intn(maxSkill-minSkill+1)
+		shot := minSkill + rand.Intn(maxSkill-minSkill+1)
+		age := minAge + rand.Intn(maxAge-minAge+1)
 		wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
@@ -226,7 +238,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt)
 			false,
 			false,
 			&avatar,
-			wage)
+			wage,
+			age)
 	}
 }
 
@@ -256,7 +269,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err2
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax)
 
 	//Update team details
 	ustmt, err := tx.Prepare(UpdateTeamDetailsStmtSql)
@@ -1035,10 +1048,11 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var creative bool
 	var technical bool
 	var wage int
+	var age int
 	var avatar string
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &avatar)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
@@ -1060,11 +1074,83 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				Creative:   creative,
 				Technical:  technical,
 				Wage:       wage,
+				Age:        age,
 				Avatar:     GetAvatarFromString(avatar),
 			})
 		}
 	}
 	return &players, nil
+}
+
+const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams"
+const CountTeamPlayersStmtSql = "SELECT count(*) FROM players WHERE team_id = $1"
+const UpdatePlayerProgressionStmtSql = "UPDATE players SET age = $1, goal_keeper = $2, defense = $3, \"lateral\" = $4, " +
+	"pass = $5, midfield = $6, dribbling = $7, shot = $8, wage = $9 WHERE player_id = $10"
+const DeletePlayerStmtSql = "DELETE FROM players WHERE player_id = $1"
+
+const AcademySkillMin, AcademySkillMax = 15, 40
+const AcademyAgeMin, AcademyAgeMax = 17, 19
+
+func GetAllTeamIds(dbCtx *DatabaseContext) ([]int64, error) {
+	rows, err := dbCtx.Db.Query(GetAllTeamIdsStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	teamIds := make([]int64, 0)
+	for rows.Next() {
+		var teamId int64
+		if err := rows.Scan(&teamId); err != nil {
+			return nil, err
+		}
+		teamIds = append(teamIds, teamId)
+	}
+	return teamIds, nil
+}
+
+func CountTeamPlayers(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	var count int
+	err := dbCtx.Db.QueryRow(CountTeamPlayersStmtSql, teamId).Scan(&count)
+	return count, err
+}
+
+// UpdatePlayerProgression persists a player's new age and skills after a season's aging/
+// attribute drift (see engine/progression.go), recomputing wage from the new skills.
+func UpdatePlayerProgression(dbCtx *DatabaseContext, playerId int64, age, goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) error {
+	wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
+	_, err := dbCtx.Db.Exec(UpdatePlayerProgressionStmtSql, age, goalKeeper, defense, lateral, pass, midfield, dribbling, shot, wage, playerId)
+	return err
+}
+
+// RetirePlayer removes a player from the game. player_unavailability and transfer_listings
+// both cascade-delete on the player_id FK, so those clean up automatically. But
+// default_lineup_positions.player_id only goes to NULL on delete (see init.sql) - leaving that
+// row behind would break GetDefaultLineup, which scans player_id into a non-nullable int64 -
+// so that one is deleted explicitly first, the same way the transfer market already does for a
+// sold player (see DeletePlayerLineupPositionsStmtSql).
+func RetirePlayer(dbCtx *DatabaseContext, playerId int64) error {
+	if _, err := dbCtx.Db.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+		return err
+	}
+	_, err := dbCtx.Db.Exec(DeletePlayerStmtSql, playerId)
+	return err
+}
+
+// CreateAcademyPlayers generates `count` young prospects (lower skills, younger age than a
+// starting senior squad - see AcademySkillMin/Max, AcademyAgeMin/Max) directly onto a team's
+// roster, to backfill a squad thinned out by retirements.
+func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int) error {
+	if count <= 0 {
+		return nil
+	}
+	insertStmt, err := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, AcademySkillMax, AcademyAgeMin, AcademyAgeMax)
+	return nil
 }
 
 func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {

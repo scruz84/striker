@@ -7,10 +7,11 @@ import (
 )
 
 // AdvanceSeasonIfComplete checks whether every match of the current season has been played
-// and, if so, rolls the game forward: it promotes/relegates teams based on the season's final
-// standings, resets each league's classification for the new season, bumps the season
-// counter, and regenerates fixtures. See ResetClassificationForSeason for why classification
-// is reset in place rather than archived per season.
+// and, if so, rolls the game forward: it ages every player a year (see ProgressPlayers),
+// promotes/relegates teams based on the season's final standings, resets each league's
+// classification for the new season, bumps the season counter, and regenerates fixtures. See
+// ResetClassificationForSeason for why classification is reset in place rather than archived
+// per season.
 func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	currentSeason := common.GetCurrentSeason(dbCtx)
 
@@ -27,6 +28,7 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	newSeason := currentSeason + 1
 	log.Infof("season %d complete (%d matches played), advancing to season %d", currentSeason, total, newSeason)
 
+	ProgressPlayers(dbCtx)
 	applyPromotionRelegation(dbCtx)
 
 	leagueIds, err := common.GetAllLeagueIds(dbCtx)

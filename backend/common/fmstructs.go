@@ -108,6 +108,7 @@ type Player struct {
 	Creative   bool         `json:"creative"`
 	Technical  bool         `json:"technical"`
 	Wage       int          `json:"wage"`
+	Age        int          `json:"age"`
 	Avatar     PlayerAvatar `json:"avatar"`
 }
 

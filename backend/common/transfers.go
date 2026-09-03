@@ -8,7 +8,7 @@ import (
 )
 
 const GetPlayerByIdStmtSql = "SELECT player_id, team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, avatar FROM players WHERE player_id = $1"
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar FROM players WHERE player_id = $1"
 
 const InsertTransferListingStmtSql = "INSERT INTO transfer_listings (player_id, selling_team_id, asking_price) VALUES ($1, $2, $3)"
 
@@ -38,7 +38,7 @@ func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
 	var avatar string
 	err := dbCtx.Db.QueryRow(GetPlayerByIdStmtSql, playerId).Scan(&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
 		&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
-		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &avatar)
+		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar)
 	if err != nil {
 		return nil, err
 	}
