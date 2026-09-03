@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useMe, useUserTeam } from '../../api/hooks'
 import { PlayerCard } from '../../components/PlayerCard'
+import { SeasonRecap } from './SeasonRecap'
 
 export function DashboardPage() {
   const { data: loggedUser } = useMe()
@@ -19,6 +20,7 @@ export function DashboardPage() {
 
   return (
     <Box>
+      <SeasonRecap enabled={!!loggedUser} />
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
