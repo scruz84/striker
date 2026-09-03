@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom'
 import { useMatchDetails } from '../../api/hooks'
 import {
   EVENT_TYPE_GOAL,
+  EVENT_TYPE_INJURY,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_YELLOW_CARD,
   POSITION_LABELS,
@@ -86,7 +87,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
   )
 }
 
-const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD]
+const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY]
 
 function Events({ events }: { events: WeekMatch['events'] }) {
   const notable = (events ?? [])
@@ -139,6 +140,12 @@ function EventMarker({ event }: { event: MatchEvent }) {
       return (
         <Typography variant="body2" component="span" aria-label="Red card" title="Red card">
           🟥
+        </Typography>
+      )
+    case EVENT_TYPE_INJURY:
+      return (
+        <Typography variant="body2" component="span" aria-label="Injury" title="Injury">
+          🚑
         </Typography>
       )
     default:
