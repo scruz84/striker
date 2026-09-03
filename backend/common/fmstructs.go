@@ -121,6 +121,16 @@ type TeamTransaction struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
+// TransferListing is a player up for transfer, bought instantly at AskingPrice (no bidding).
+type TransferListing struct {
+	ListingId       int64     `json:"listingId"`
+	Player          Player    `json:"player"`
+	SellingTeamId   int64     `json:"sellingTeamId"`
+	SellingTeamName string    `json:"sellingTeamName"`
+	AskingPrice     int64     `json:"askingPrice"`
+	ListedAt        time.Time `json:"listedAt"`
+}
+
 type PlayerAvatar struct {
 	AccessoriesType string `json:"accessoriesType"`
 	AvatarStyle     string `json:"avatarStyle"`

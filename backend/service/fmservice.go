@@ -88,6 +88,13 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.GET("/team/lineup", handlers.GetLineupHandler(dbCtx))
 	v1UserGroup.PUT("/team/lineup", handlers.SetLineupHandler(dbCtx))
 	v1UserGroup.GET("/team/finances", handlers.GetFinancesHandler(dbCtx))
+	v1UserGroup.POST("/team/players/:"+handlers.ID+"/list", handlers.ListPlayerHandler(dbCtx))
+	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/list", handlers.UnlistPlayerHandler(dbCtx))
+
+	v1TransferGroup := v1Group.Group("/transfers")
+	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TransferGroup.GET("", handlers.BrowseTransfersHandler(dbCtx))
+	v1TransferGroup.POST("/:"+handlers.ID+"/buy", handlers.BuyTransferHandler(dbCtx))
 
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
