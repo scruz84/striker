@@ -236,3 +236,35 @@ export interface TransferListing {
   askingPrice: number
   listedAt: string
 }
+
+export interface Cup {
+  cupId: number
+  country: string
+  season: number
+  name: string
+  completed: boolean
+  championTeamId: number | null
+  championTeamName: string
+}
+
+export interface CupTie {
+  tieId: number
+  cupId: number
+  round: number
+  slotNumber: number
+  homeTeamId: number | null
+  homeTeamName: string
+  awayTeamId: number | null
+  awayTeamName: string
+  matchDate: string | null
+  played: boolean
+  homeGoals: number
+  awayGoals: number
+  wentToPenalties: boolean
+  winnerTeamId: number | null
+}
+
+export interface CupDetails {
+  cup: Cup
+  ties: CupTie[]
+}

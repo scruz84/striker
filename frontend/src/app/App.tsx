@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { getGoogleOAuthClientId } from '../config'
 import { LoginPage } from '../features/auth/LoginPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { CupPage } from '../features/cup/CupPage'
 import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
 import { FinancesPage } from '../features/finances/FinancesPage'
 import { HomePage } from '../features/home/HomePage'
@@ -36,6 +37,7 @@ function App() {
                   <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
                   <Route path="/dashboard/finances" element={<FinancesPage />} />
                   <Route path="/transfers" element={<TransferMarketPage />} />
+                  <Route path="/cup" element={<CupPage />} />
                   <Route path="/division/:id" element={<DivisionDetailsPage />} />
                   <Route path="/match/:id" element={<MatchDetailsPage />} />
                   <Route path="/team/:id" element={<TeamDetailsPage />} />

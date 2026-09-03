@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
 import type {
+  CupDetails,
   DivisionDetails,
   FinancesResponse,
   Lineup,
@@ -20,6 +21,8 @@ export const queryKeys = {
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
+  latestCup: (country: string) => ['latestCup', country] as const,
+  cup: (id: string) => ['cup', id] as const,
 }
 
 export function useMe() {
@@ -158,5 +161,21 @@ export function useBuyListing() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
     },
+  })
+}
+
+export function useLatestCupId(country: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.latestCup(country ?? ''),
+    queryFn: () => api.get<{ cupId: number }>(`/v1/cups/latest/${country}`),
+    enabled: !!country,
+  })
+}
+
+export function useCupDetails(cupId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.cup(String(cupId ?? '')),
+    queryFn: () => api.get<CupDetails>(`/v1/cups/${cupId}`),
+    enabled: cupId !== undefined,
   })
 }

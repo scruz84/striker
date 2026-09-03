@@ -77,6 +77,9 @@ function AvatarOrLogin() {
         <MenuItem component={RouterLink} to="/transfers" onClick={() => setAnchorEl(null)}>
           Transfer market
         </MenuItem>
+        <MenuItem component={RouterLink} to="/cup" onClick={() => setAnchorEl(null)}>
+          Cup
+        </MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </Box>
