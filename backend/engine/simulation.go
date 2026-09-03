@@ -38,12 +38,14 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 		AwayPlayersByPosition: playersByPosition((*lineups)[match.Away]),
 		Events:                &events,
 		MatchInstants:         &matchInstants,
+		YellowCards:           make(map[int64]bool),
+		SentOff:               make(map[int64]bool),
 	}
 	events = nil
 	matchInstants = nil
 
 	simulations := make([]Simulation, 0)
-	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation())
+	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation())
 	pipeline := SimulationPipelineImpl{
 		simulations: simulations,
 	}

@@ -72,6 +72,10 @@ func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, play
 }
 
 func calculateLateralDefense(def []int64, mid []int64, players *map[int64]common.Player) float32 {
+	if len(def) == 0 {
+		// the lateral defender was sent off (see DisciplineSimulation) - nobody covers that flank
+		return 0
+	}
 	value := float32((*players)[def[0]].Lateral)*0.5 + float32((*players)[def[0]].Defense)*0.5
 	return value
 }
@@ -85,6 +89,9 @@ func calculateDefense(def []int64, mid []int64, players *map[int64]common.Player
 }
 
 func calculateLateralMidfield(def []int64, mid []int64, players *map[int64]common.Player) float32 {
+	if len(def) == 0 {
+		return 0
+	}
 	value := float32((*players)[def[0]].Lateral)*0.5 + float32((*players)[def[0]].Midfield)*0.5
 	return value
 }
@@ -98,6 +105,9 @@ func calculateMidfield(def []int64, mid []int64, players *map[int64]common.Playe
 }
 
 func calculateLateralAttack(striker []int64, mid []int64, players *map[int64]common.Player) float32 {
+	if len(striker) == 0 {
+		return 0
+	}
 	value := float32((*players)[striker[0]].Lateral)*0.5 + float32((*players)[striker[0]].Shot)*0.5
 	return value
 }

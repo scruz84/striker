@@ -154,6 +154,10 @@ type MatchSimulation struct {
 	Events *[]Event
 	//Instants
 	MatchInstants *[]MatchInstant
+	//Discipline: players with a yellow card this match (to detect a second yellow -> red),
+	//and players sent off (red card or second yellow), already removed from *PlayersByPosition.
+	YellowCards map[int64]bool
+	SentOff     map[int64]bool
 }
 
 type TeamQualification struct {

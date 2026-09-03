@@ -94,6 +94,10 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 	}
 	//probability of success chance
 	attackPlayer := getPlayerForChance(s.r, attackPlayers)
+	if attackPlayer == -1 {
+		// no eligible outfield player left on this team (heavily reduced by red cards)
+		return
+	}
 	attackPlayerValue := getPlayerScorerValue(isLeft || isRight, (*players)[attackPlayer])
 	probSuccess := (attack + attackPlayerValue) / (defense + float32(goalKeeperValue) + attack + attackPlayerValue)
 	//calculates if the chance was a success!
@@ -147,12 +151,19 @@ func getPlayerForChance(r *rand.Rand, playersByPosition *map[int][]int64) int64 
 	} else {
 		playersToSelect = (*playersByPosition)[common.DEFENSE]
 	}
-	//Next two if for cases when there are no more players on the positions
+	//Next fallbacks are for cases when there are no more players on the positions
+	//(e.g. a red card emptied that group - see DisciplineSimulation).
 	if len(playersToSelect) == 0 {
 		playersToSelect = (*playersByPosition)[common.STRIKER]
 	}
 	if len(playersToSelect) == 0 {
 		playersToSelect = (*playersByPosition)[common.MIDFIELD]
+	}
+	if len(playersToSelect) == 0 {
+		playersToSelect = (*playersByPosition)[common.DEFENSE]
+	}
+	if len(playersToSelect) == 0 {
+		return -1
 	}
 	return playersToSelect[r.Int()%len(playersToSelect)]
 }
