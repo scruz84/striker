@@ -140,9 +140,9 @@ func getPlayerForChance(r *rand.Rand, playersByPosition *map[int][]int64) int64 
 	//10% defense
 	v := r.Float32()
 	var playersToSelect []int64
-	if v <= 70 {
+	if v <= 0.70 {
 		playersToSelect = (*playersByPosition)[common.STRIKER]
-	} else if v > 70 && v <= 90 {
+	} else if v <= 0.90 {
 		playersToSelect = (*playersByPosition)[common.MIDFIELD]
 	} else {
 		playersToSelect = (*playersByPosition)[common.DEFENSE]
