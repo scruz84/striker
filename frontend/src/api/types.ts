@@ -96,6 +96,8 @@ export interface MatchEvent {
 // EventType values from backend/common/fmconstants.go
 export const EVENT_TYPE_GOAL = 0
 export const EVENT_TYPE_NO_GOAL = 1
+export const EVENT_TYPE_YELLOW_CARD = 2
+export const EVENT_TYPE_RED_CARD = 3
 
 export interface MatchInstant {
   matchId: number

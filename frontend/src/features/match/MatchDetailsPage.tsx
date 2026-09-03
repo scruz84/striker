@@ -9,7 +9,16 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useParams } from 'react-router-dom'
 import { useMatchDetails } from '../../api/hooks'
-import { EVENT_TYPE_GOAL, POSITION_LABELS, type Lineup, type Player, type WeekMatch } from '../../api/types'
+import {
+  EVENT_TYPE_GOAL,
+  EVENT_TYPE_RED_CARD,
+  EVENT_TYPE_YELLOW_CARD,
+  POSITION_LABELS,
+  type Lineup,
+  type MatchEvent,
+  type Player,
+  type WeekMatch,
+} from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function MatchDetailsPage() {
@@ -77,21 +86,23 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
   )
 }
 
-function Events({ events }: { events: WeekMatch['events'] }) {
-  const goals = (events ?? []).filter((event) => event.eventType === EVENT_TYPE_GOAL)
+const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD]
 
-  if (goals.length === 0) {
-    return <Typography color="text.secondary">No goals in this match.</Typography>
+function Events({ events }: { events: WeekMatch['events'] }) {
+  const notable = (events ?? [])
+    .filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType))
+    .sort((a, b) => a.minute - b.minute)
+
+  if (notable.length === 0) {
+    return <Typography color="text.secondary">No notable events in this match.</Typography>
   }
 
   return (
     <Box>
-      {goals.map((event, idx) => (
+      {notable.map((event, idx) => (
         <Grid container key={idx} spacing={1} sx={{ py: 0.5, alignItems: 'center' }}>
           <Grid size={2}>
-            <Typography variant="body2">
-              {event.homeGoals} - {event.awayGoals}
-            </Typography>
+            <EventMarker event={event} />
           </Grid>
           <Grid size={1}>
             <Divider orientation="vertical" />
@@ -108,6 +119,31 @@ function Events({ events }: { events: WeekMatch['events'] }) {
       ))}
     </Box>
   )
+}
+
+function EventMarker({ event }: { event: MatchEvent }) {
+  switch (event.eventType) {
+    case EVENT_TYPE_GOAL:
+      return (
+        <Typography variant="body2">
+          {event.homeGoals} - {event.awayGoals}
+        </Typography>
+      )
+    case EVENT_TYPE_YELLOW_CARD:
+      return (
+        <Typography variant="body2" component="span" aria-label="Yellow card" title="Yellow card">
+          🟨
+        </Typography>
+      )
+    case EVENT_TYPE_RED_CARD:
+      return (
+        <Typography variant="body2" component="span" aria-label="Red card" title="Red card">
+          🟥
+        </Typography>
+      )
+    default:
+      return null
+  }
 }
 
 interface LineupsProps {
