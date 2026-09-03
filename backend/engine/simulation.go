@@ -3,39 +3,61 @@ package engine
 import "github.com/scruz84/striker/common"
 
 func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
-	// get the teams lineups
-	lineups, err := common.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away)
 	if err != nil {
 		return nil, err
 	}
 
-	// initializes the simulation data
-	homePlayers, err := GetPlayersFromTeam(dbCtx, match.Home)
+	UpdatePlayedMatch(dbCtx, matchSimulation)
+	UpdateClassification(dbCtx, matchSimulation)
+	UpdatePlayerAvailability(dbCtx, matchSimulation)
+	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+
+	return matchSimulation, nil
+}
+
+// runMatchSimulation builds both teams' lineups/qualifications and runs the full 90-minute
+// simulation pipeline (goals, cards, injuries). It does NOT persist anything - callers decide
+// what to do with the result, since a league match updates classification differently than a
+// cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
+//
+// matchId is used to look up a match-specific lineup override (see common.GetLineupsForMatch)
+// before falling back to the team's default lineup. Nothing in this codebase currently ever
+// sets such an override (InsertLineup always targets default_lineup_positions regardless of
+// its asDefault parameter), so passing a cup tie's id here - drawn from a different id
+// sequence than real matches - is safe today, but would stop being safe if that ever changes.
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64) (*common.MatchSimulation, error) {
+	lineups, err := common.GetLineupsForMatch(dbCtx, matchId, &[]int64{homeTeamId, awayTeamId})
 	if err != nil {
 		return nil, err
 	}
-	awayPlayers, err := GetPlayersFromTeam(dbCtx, match.Away)
+
+	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
+	if err != nil {
+		return nil, err
+	}
+	awayPlayers, err := GetPlayersFromTeam(dbCtx, awayTeamId)
 	if err != nil {
 		return nil, err
 	}
 	events := make([]common.Event, 0)
 	matchInstants := make([]common.MatchInstant, 0)
 	matchSimulation := &common.MatchSimulation{
-		Id:                    match.MatchId,
-		DivisionId:            match.DivisionId,
-		Home:                  match.Home,
-		Away:                  match.Away,
+		Id:                    matchId,
+		DivisionId:            divisionId,
+		Home:                  homeTeamId,
+		Away:                  awayTeamId,
 		Minute:                0,
-		HomeLineup:            (*lineups)[match.Home],
-		AwayLineup:            (*lineups)[match.Away],
+		HomeLineup:            (*lineups)[homeTeamId],
+		AwayLineup:            (*lineups)[awayTeamId],
 		HomeGoals:             0,
 		AwayGoals:             0,
 		HomeQua:               &common.TeamQualification{},
 		AwayQua:               &common.TeamQualification{},
 		HomePlayers:           playersToMapById(homePlayers),
 		AwayPlayers:           playersToMapById(awayPlayers),
-		HomePlayersByPosition: playersByPosition((*lineups)[match.Home]),
-		AwayPlayersByPosition: playersByPosition((*lineups)[match.Away]),
+		HomePlayersByPosition: playersByPosition((*lineups)[homeTeamId]),
+		AwayPlayersByPosition: playersByPosition((*lineups)[awayTeamId]),
 		Events:                &events,
 		MatchInstants:         &matchInstants,
 		YellowCards:           make(map[int64]bool),
@@ -46,10 +68,10 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 
 	// Suspended/injured players must not play even if they're still in the saved lineup -
 	// the manager is expected to work around it, but the simulation itself must not field them.
-	if err := excludeUnavailablePlayers(dbCtx, match.Home, matchSimulation.HomePlayersByPosition); err != nil {
+	if err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition); err != nil {
 		return nil, err
 	}
-	if err := excludeUnavailablePlayers(dbCtx, match.Away, matchSimulation.AwayPlayersByPosition); err != nil {
+	if err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition); err != nil {
 		return nil, err
 	}
 
@@ -65,11 +87,6 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 		matchSimulation.Minute = min
 		pipeline.Simulate(dbCtx, matchSimulation)
 	}
-
-	UpdatePlayedMatch(dbCtx, matchSimulation)
-	UpdateClassification(dbCtx, matchSimulation)
-	UpdatePlayerAvailability(dbCtx, matchSimulation)
-	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
 
 	return matchSimulation, nil
 }

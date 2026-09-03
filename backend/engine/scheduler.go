@@ -40,6 +40,23 @@ func StartAdvanceSeasonScheduler(advanceSeasonJob quartz.Job) {
 	}
 }
 
+func StartCupScheduler(cupJob quartz.Job) {
+	sched.Start(ctx)
+	// Same cadence as match simulation - cup ties are scheduled the same way league matches
+	// are (a fixed delay after being paired), so they need the same per-minute granularity to
+	// fire close to on time.
+	cronTrigger, err := quartz.NewCronTrigger("* 1/1 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(cupJob.Description())
+	jobDetail := quartz.NewJobDetail(cupJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

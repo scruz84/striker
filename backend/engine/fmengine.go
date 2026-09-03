@@ -27,6 +27,7 @@ func StartEngine() {
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
+	StartCupScheduler(NewCupJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

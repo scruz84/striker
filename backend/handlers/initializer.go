@@ -24,7 +24,15 @@ func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 }
 
 func InitializeGame(dbCtx *common.DatabaseContext) {
-	//remove content
+	//remove content - tables added after the original set (cups/finances/transfers) reference
+	//teams/players without ON DELETE CASCADE, so they must be cleared first or the later
+	//deleteTable(dbCtx, "teams") call fails on a foreign key violation.
+	deleteTable(dbCtx, "cup_tie_events")
+	deleteTable(dbCtx, "cup_ties")
+	deleteTable(dbCtx, "cups")
+	deleteTable(dbCtx, "team_transactions")
+	deleteTable(dbCtx, "transfer_listings")
+	deleteTable(dbCtx, "player_unavailability")
 	deleteTable(dbCtx, "lineup_positions")
 	deleteTable(dbCtx, "lineup")
 	deleteTable(dbCtx, "default_lineup_positions")
@@ -50,6 +58,9 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 
 	//create matches
 	engine.GenerateMatches(dbCtx)
+
+	//create the first season's cups
+	engine.StartCupsForNewSeason(dbCtx, 1)
 }
 
 func createCountries(dbCtx *common.DatabaseContext) []string {
