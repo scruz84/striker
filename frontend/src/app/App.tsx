@@ -9,6 +9,7 @@ import { getGoogleOAuthClientId } from '../config'
 import { LoginPage } from '../features/auth/LoginPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
+import { FinancesPage } from '../features/finances/FinancesPage'
 import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
@@ -32,6 +33,7 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
+                  <Route path="/dashboard/finances" element={<FinancesPage />} />
                   <Route path="/division/:id" element={<DivisionDetailsPage />} />
                   <Route path="/match/:id" element={<MatchDetailsPage />} />
                   <Route path="/team/:id" element={<TeamDetailsPage />} />

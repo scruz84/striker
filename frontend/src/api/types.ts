@@ -48,6 +48,7 @@ export interface Player {
   quick: boolean
   creative: boolean
   technical: boolean
+  wage: number
   avatar: PlayerAvatar
 }
 
@@ -200,3 +201,28 @@ export const ALL_POSITIONS = [
   POSITION_LATERAL_STRIKER_LEFT,
   POSITION_LATERAL_STRIKER_RIGHT,
 ]
+
+// team_transactions.reason values from backend/common/fmconstants.go
+export const TRANSACTION_TRANSFER_IN = 0
+export const TRANSACTION_TRANSFER_OUT = 1
+export const TRANSACTION_WAGES = 2
+
+export const TRANSACTION_LABELS: Record<number, string> = {
+  [TRANSACTION_TRANSFER_IN]: 'Player sold',
+  [TRANSACTION_TRANSFER_OUT]: 'Player bought',
+  [TRANSACTION_WAGES]: 'Wages',
+}
+
+export interface TeamTransaction {
+  id: number
+  teamId: number
+  amount: number
+  reason: number
+  description: string
+  createdAt: string
+}
+
+export interface FinancesResponse {
+  budget: number
+  transactions: TeamTransaction[]
+}

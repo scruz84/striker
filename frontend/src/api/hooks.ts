@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
-import type { DivisionDetails, Lineup, LineupPosition, LoggedUser, TeamDetails, WeekMatch } from './types'
+import type {
+  DivisionDetails,
+  FinancesResponse,
+  Lineup,
+  LineupPosition,
+  LoggedUser,
+  TeamDetails,
+  WeekMatch,
+} from './types'
 
 export const queryKeys = {
   me: ['me'] as const,
@@ -9,6 +17,7 @@ export const queryKeys = {
   division: (id: string) => ['division', id] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
+  finances: ['finances'] as const,
 }
 
 export function useMe() {
@@ -97,5 +106,13 @@ export function useSetLineup() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
     },
+  })
+}
+
+export function useFinances(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.finances,
+    queryFn: () => api.get<FinancesResponse>('/v1/user/team/finances'),
+    enabled,
   })
 }
