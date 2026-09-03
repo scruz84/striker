@@ -1,0 +1,38 @@
+declare global {
+  interface Window {
+    extended?: {
+      API_ENDPOINT?: string
+      GOOGLE_OAUTH_CLIENT_ID?: string
+    }
+  }
+}
+
+// Vite dev server / `npm run build` uses import.meta.env (see .env.development / .env.production.local).
+// A container build instead bakes a placeholder into public/config.js, which set-env.sh rewrites at
+// container start time from real environment variables - see Dockerfile/nginx.conf/set-env.sh.
+function isDevelopment(): boolean {
+  return import.meta.env.DEV
+}
+
+function runtimeValue(key: 'API_ENDPOINT' | 'GOOGLE_OAUTH_CLIENT_ID', envKey: string): string {
+  if (isDevelopment()) {
+    return import.meta.env[envKey] ?? ''
+  }
+  const value = window.extended?.[key]
+  if (!value || value.startsWith('REPLACE_')) {
+    return ''
+  }
+  return value
+}
+
+export function getApiBaseUrl(): string {
+  return runtimeValue('API_ENDPOINT', 'VITE_API_ENDPOINT')
+}
+
+export function getApiEndpoint(path: string): string {
+  return getApiBaseUrl() + path
+}
+
+export function getGoogleOAuthClientId(): string {
+  return runtimeValue('GOOGLE_OAUTH_CLIENT_ID', 'VITE_GOOGLE_OAUTH_CLIENT_ID')
+}

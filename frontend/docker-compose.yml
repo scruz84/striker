@@ -1,0 +1,15 @@
+name: striker-frontend
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # The browser calls this URL directly, so it must be reachable from wherever the user's
+      # browser runs - typically the backend's published host port (see backend/docker-compose.yml).
+      API_URI: ${API_URI:-http://localhost:1984}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
