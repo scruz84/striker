@@ -112,6 +112,15 @@ const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = mat
 const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3, in_simulation = $4 WHERE match_id = $5"
 const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1 WHERE "
 
+const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues ORDER BY country, tier, group_number"
+
+const GetRankedClassificationStmtSql = "SELECT team_id, points, goals_scored - goals_received, goals_scored " +
+	"FROM classification WHERE league_id = $1 ORDER BY points DESC, (goals_scored - goals_received) DESC, goals_scored DESC"
+
+const UpdateTeamLeagueStmtSql = "UPDATE teams SET league_id = $1 WHERE team_id = $2"
+
+const UpdateClassificationLeagueStmtSql = "UPDATE classification SET league_id = $1 WHERE team_id = $2"
+
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
 	if err != nil {
@@ -812,6 +821,60 @@ func GetSeasonMatchCounts(dbCtx *DatabaseContext, season int) (total int, unplay
 // a new row per season) is what that constraint allows without a schema migration.
 func ResetClassificationForSeason(dbCtx *DatabaseContext, leagueId int64, season int) error {
 	_, err := dbCtx.Db.Exec(ResetClassificationForSeasonStmtSql, season, leagueId)
+	return err
+}
+
+// GetLeaguesWithTier lists every league's country and tier (1 = top division), used to build
+// each country's promotion/relegation pyramid.
+func GetLeaguesWithTier(dbCtx *DatabaseContext) ([]LeagueTierInfo, error) {
+	rows, err := dbCtx.Db.Query(GetLeaguesWithTierStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	leagues := make([]LeagueTierInfo, 0)
+	for rows.Next() {
+		var info LeagueTierInfo
+		if err := rows.Scan(&info.LeagueId, &info.Country, &info.Tier); err != nil {
+			return nil, err
+		}
+		leagues = append(leagues, info)
+	}
+	return leagues, nil
+}
+
+// GetRankedClassification returns a league's teams ordered best to worst (points, then goal
+// difference, then goals scored - same tiebreak GetDivisionDetailsStmtSql uses).
+func GetRankedClassification(dbCtx *DatabaseContext, leagueId int64) ([]TeamStanding, error) {
+	rows, err := dbCtx.Db.Query(GetRankedClassificationStmtSql, leagueId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	standings := make([]TeamStanding, 0)
+	for rows.Next() {
+		var s TeamStanding
+		if err := rows.Scan(&s.TeamId, &s.Points, &s.GoalDiff, &s.GoalsScored); err != nil {
+			return nil, err
+		}
+		standings = append(standings, s)
+	}
+	return standings, nil
+}
+
+// UpdateTeamLeague reassigns a team to a different league (promotion/relegation).
+func UpdateTeamLeague(dbCtx *DatabaseContext, teamId int64, newLeagueId int64) error {
+	_, err := dbCtx.Db.Exec(UpdateTeamLeagueStmtSql, newLeagueId, teamId)
+	return err
+}
+
+// UpdateClassificationLeague repoints a team's existing classification row at its new league
+// after a promotion/relegation move, so the season reset that follows (which operates
+// per-league) picks it up correctly.
+func UpdateClassificationLeague(dbCtx *DatabaseContext, teamId int64, newLeagueId int64) error {
+	_, err := dbCtx.Db.Exec(UpdateClassificationLeagueStmtSql, newLeagueId, teamId)
 	return err
 }
 

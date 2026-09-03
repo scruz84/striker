@@ -21,6 +21,23 @@ type Classification struct {
 	Positions []ClassificationPosition `json:"positions"`
 }
 
+// TeamStanding is a team's rank-relevant classification data, used by the promotion/
+// relegation algorithm (see engine.ComputePromotionRelegation). Not JSON-exposed.
+type TeamStanding struct {
+	TeamId      int64
+	Points      int
+	GoalDiff    int
+	GoalsScored int
+}
+
+// LeagueTierInfo identifies which country and tier a league sits at in its promotion/
+// relegation pyramid (1 = top division). Not JSON-exposed.
+type LeagueTierInfo struct {
+	LeagueId int64
+	Country  string
+	Tier     int
+}
+
 type DivisionDetails struct {
 	Id                  int64          `json:"id"`
 	Season              int            `json:"season"`

@@ -25,6 +25,17 @@ Override any setting via a `.env` file in this directory (see `docker-compose.ym
 list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The
 defaults are dev-only placeholders - set real secrets for anything beyond local development.
 
+### Schema changes on an already-running database
+
+`resources/sql/*.sql` only auto-applies on a **fresh** Postgres data volume (that's how the
+official Postgres image's `docker-entrypoint-initdb.d` works). If you already have a running
+database and pull in a change that adds a new `resources/sql/init*.sql` file (e.g.
+`init2_league_tier.sql`, adding promotion/relegation), apply it manually once:
+
+```bash
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init2_league_tier.sql
+```
+
 ## Local development (without Docker)
 
 ```bash

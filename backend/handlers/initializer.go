@@ -73,19 +73,19 @@ func createSeason(dbCtx *common.DatabaseContext) {
 	defer insertStmt.Close()
 }
 
-func createLeague(dbCtx *common.DatabaseContext, country string, name string, groups int) []int64 {
-	log.Debugf("initializing country %s league %s with groups %d", country, name, groups)
+func createLeague(dbCtx *common.DatabaseContext, country string, name string, tier int, groups int) []int64 {
+	log.Debugf("initializing country %s league %s tier %d with groups %d", country, name, tier, groups)
 
 	leagues := make([]int64, 0)
-	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name) " +
-		"values ($1, $2, $3) returning league_id")
+	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name, tier) " +
+		"values ($1, $2, $3, $4) returning league_id")
 	if errInsert != nil {
 		log.Printf("error inserting new league %s", errInsert)
 	} else {
 		for g := 1; g <= groups; g++ {
 			leagueId := int64(-1)
 			tName := name + "." + strconv.Itoa(g)
-			_ = insertStmt.QueryRow(&country, &g, &tName).Scan(&leagueId)
+			_ = insertStmt.QueryRow(&country, &g, &tName, &tier).Scan(&leagueId)
 			leagues = append(leagues, leagueId)
 		}
 	}
@@ -97,13 +97,14 @@ func createTeams(dbCtx *common.DatabaseContext, countries []string) {
 	log.Debug("initializing teams")
 	leagues := make([]int64, 0)
 	for _, country := range countries {
-		//create leagues
-		leagues = append(leagues, createLeague(dbCtx, country, "I", 1)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "II", 4)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "III", 16)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "IV", 64)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "V", 256)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "VI", 512)...)
+		//create leagues - tier 1 is the top division, each tier below it splits into more
+		//groups; see engine.ComputePromotionRelegation for how teams move between them.
+		leagues = append(leagues, createLeague(dbCtx, country, "I", 1, 1)...)
+		leagues = append(leagues, createLeague(dbCtx, country, "II", 2, 4)...)
+		leagues = append(leagues, createLeague(dbCtx, country, "III", 3, 16)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "IV", 4, 64)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "V", 5, 256)...)
+		//leagues = append(leagues, createLeague(dbCtx, country, "VI", 6, 512)...)
 
 		//create the teams
 		for _, leagueId := range leagues {
