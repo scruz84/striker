@@ -35,6 +35,7 @@ database and pull in a change that adds a new `resources/sql/init*.sql` file (e.
 ```bash
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init2_league_tier.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init3_player_unavailability.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init4_finances.sql
 ```
 
 ## Local development (without Docker)

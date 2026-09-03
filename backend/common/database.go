@@ -49,7 +49,7 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, avatar " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, avatar " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
@@ -87,7 +87,7 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)"
+	" creative, technical, avatar, wage) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -134,6 +134,13 @@ const DecrementUnavailabilityForTeamStmtSql = "UPDATE player_unavailability pu S
 	"FROM players p WHERE p.player_id = pu.player_id AND p.team_id = $1"
 
 const DeleteExpiredUnavailabilityStmtSql = "DELETE FROM player_unavailability WHERE matches_remaining <= 0"
+
+const GetTeamBudgetStmtSql = "SELECT budget FROM teams WHERE team_id = $1"
+const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE team_id = $2"
+const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description) VALUES ($1, $2, $3, $4)"
+const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at " +
+	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
+const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1"
 
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
@@ -198,19 +205,28 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt)
 		max := 60
 		firstName, lastName, _ := GetRandomName(dbCtx)
 		avatar := RandomAvatarAsString()
+		goalKeeper := rand.Intn(max-minValue+1) + minValue
+		defense := rand.Intn(max-minValue+1) + minValue
+		lateral := rand.Intn(max-minValue+1) + minValue
+		pass := rand.Intn(max-minValue+1) + minValue
+		midfield := rand.Intn(max-minValue+1) + minValue
+		dribbling := rand.Intn(max-minValue+1) + minValue
+		shot := rand.Intn(max-minValue+1) + minValue
+		wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
-			rand.Intn(max-minValue+1)+minValue,
+			goalKeeper,
+			defense,
+			lateral,
+			pass,
+			midfield,
+			dribbling,
+			shot,
 			false,
 			false,
 			false,
 			false,
-			&avatar)
+			&avatar,
+			wage)
 	}
 }
 
@@ -931,6 +947,57 @@ func DecrementUnavailabilityForTeam(dbCtx *DatabaseContext, teamId int64) error 
 	return err
 }
 
+func GetTeamBudget(dbCtx *DatabaseContext, teamId int64) (int64, error) {
+	var budget int64
+	err := dbCtx.Db.QueryRow(GetTeamBudgetStmtSql, teamId).Scan(&budget)
+	return budget, err
+}
+
+// AdjustTeamBudget changes a team's budget by `amount` (negative for an expense) and records
+// it in the ledger, atomically.
+func AdjustTeamBudget(dbCtx *DatabaseContext, teamId int64, amount int64, reason int, description string) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, amount, teamId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, amount, reason, description); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func GetTeamTransactions(dbCtx *DatabaseContext, teamId int64, limit int) ([]TeamTransaction, error) {
+	rows, err := dbCtx.Db.Query(GetTeamTransactionsStmtSql, teamId, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	transactions := make([]TeamTransaction, 0)
+	for rows.Next() {
+		var t TeamTransaction
+		var description sql.NullString
+		if err := rows.Scan(&t.Id, &t.TeamId, &t.Amount, &t.Reason, &description, &t.CreatedAt); err != nil {
+			return nil, err
+		}
+		t.Description = description.String
+		transactions = append(transactions, t)
+	}
+	return transactions, nil
+}
+
+// GetTeamWageBill returns the combined wage of every player currently on a team's roster.
+func GetTeamWageBill(dbCtx *DatabaseContext, teamId int64) (int64, error) {
+	var total int64
+	err := dbCtx.Db.QueryRow(GetTeamWageBillStmtSql, teamId).Scan(&total)
+	return total, err
+}
+
 func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
 	var firstName string
 	var lastName string
@@ -967,10 +1034,11 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var quick bool
 	var creative bool
 	var technical bool
+	var wage int
 	var avatar string
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &avatar)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &avatar)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
@@ -991,6 +1059,7 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				Quick:      quick,
 				Creative:   creative,
 				Technical:  technical,
+				Wage:       wage,
 				Avatar:     GetAvatarFromString(avatar),
 			})
 		}

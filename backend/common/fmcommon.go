@@ -43,6 +43,15 @@ func StringToInt64(val string) (int64, error) {
 	return strconv.ParseInt(val, 10, 64)
 }
 
+// PlayerWageFromSkills derives a per-match wage from a player's core skills - higher-rated
+// players cost more to keep. Used both at squad creation and when player progression
+// (see engine season rollover) drifts a player's attributes.
+const WagePerSkillPoint = 5
+
+func PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) int {
+	return (goalKeeper + defense + lateral + pass + midfield + dribbling + shot) * WagePerSkillPoint
+}
+
 func RemoveIndexFromSlice[T interface{}](slice *[]T, index int) *[]T {
 	(*slice)[index] = (*slice)[len(*slice)-1]
 	newSlice := (*slice)[:len(*slice)-1]

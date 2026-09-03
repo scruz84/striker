@@ -63,6 +63,28 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 	}
 }
 
+// UpdateTeamFinancesAfterMatch charges both teams their current wage bill for having played
+// this match - the closest thing this game has to a "week" of wages, since matches are what
+// actually advance game time.
+func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+	deductWages(dbCtx, match.Home)
+	deductWages(dbCtx, match.Away)
+}
+
+func deductWages(dbCtx *common.DatabaseContext, teamId int64) {
+	wageBill, err := common.GetTeamWageBill(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting wage bill for team %d: %s", teamId, err)
+		return
+	}
+	if wageBill == 0 {
+		return
+	}
+	if err := common.AdjustTeamBudget(dbCtx, teamId, -wageBill, common.TRANSACTION_WAGES, "match wages"); err != nil {
+		log.Errorf("error deducting wages for team %d: %s", teamId, err)
+	}
+}
+
 func UpdateClassification(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	log.Infof("Updating classification for match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
 	points := 0

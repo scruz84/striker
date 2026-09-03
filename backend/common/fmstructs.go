@@ -107,7 +107,18 @@ type Player struct {
 	Quick      bool         `json:"quick"`
 	Creative   bool         `json:"creative"`
 	Technical  bool         `json:"technical"`
+	Wage       int          `json:"wage"`
 	Avatar     PlayerAvatar `json:"avatar"`
+}
+
+// TeamTransaction is one entry in a team's financial ledger.
+type TeamTransaction struct {
+	Id          int64     `json:"id"`
+	TeamId      int64     `json:"teamId"`
+	Amount      int64     `json:"amount"` // positive = income, negative = expense
+	Reason      int       `json:"reason"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 type PlayerAvatar struct {
