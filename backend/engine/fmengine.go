@@ -13,20 +13,20 @@ func StartEngine() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
 
-	err := godotenv.Load("app.env")
-	if err != nil {
-		log.Fatalf("error reading app.env file: %s", err.Error())
+	if err := godotenv.Load("app.env"); err != nil {
+		log.Warnf("no app.env file loaded, relying on environment variables: %s", err.Error())
 	}
 
 	dbCtx, err := common.CreateDatabaseContext()
 
 	err = dbCtx.Db.Ping()
 	if err != nil {
-		log.Panicln("Error opening database: %s", err)
+		log.Panicf("Error opening database: %s", err)
 	}
 
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
+	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

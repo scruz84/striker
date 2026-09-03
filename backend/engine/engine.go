@@ -37,7 +37,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 			_ = rows.Scan(&leagueId)
 			teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
 			if err != nil {
-				log.Errorf("error finding teams from league %d: %s", err)
+				log.Errorf("error finding teams from league %d: %s", leagueId, err)
 			}
 			teamIds := make([]int64, 0)
 			for teams.Next() {
@@ -47,7 +47,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 			}
 			defer teams.Close()
 
-			log.Infof("Team ids: %s", teamIds)
+			log.Infof("Team ids: %v", teamIds)
 
 			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds)
 			//Insert the matches

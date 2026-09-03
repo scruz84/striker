@@ -1,0 +1,90 @@
+name: striker-backend
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-striker}
+      POSTGRES_USER: ${DB_USER:-striker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-striker}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./resources/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  svc:
+    build:
+      context: .
+      dockerfile: resources/Dockerfile
+    command: ["--svc"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: &backend-env
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: ${DB_DATABASE:-striker}
+      DB_USER: ${DB_USER:-striker}
+      DB_PASSWORD: ${DB_PASSWORD:-striker}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      SECRET_JWT: ${SECRET_JWT:-dev-only-change-me}
+      SESSION_SECRET: ${SESSION_SECRET:-dev-only-change-me}
+      REALM: ${REALM:-Striker Manager}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT:-30m}
+    ports:
+      - "${SVC_PORT:-1984}:1984"
+
+  engine:
+    build:
+      context: .
+      dockerfile: resources/Dockerfile
+    command: ["--engine"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *backend-env
+
+  # One-off, destructive DB seed/reset job. Wipes and recreates all game data (countries,
+  # leagues, teams, players, season), so it's excluded from a plain `docker compose up`.
+  # Run explicitly and deliberately with:
+  #   docker compose --profile init run --rm init
+  init:
+    build:
+      context: .
+      dockerfile: resources/Dockerfile
+    command: ["--initialize"]
+    profiles: ["init"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment: *backend-env
+
+volumes:
+  postgres-data:

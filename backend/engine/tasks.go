@@ -26,3 +26,24 @@ func (pj *SimulateMatchesJob) Execute(context.Context) error {
 func NewSimulateMatchesJob(dbCtx *common.DatabaseContext) *SimulateMatchesJob {
 	return &SimulateMatchesJob{desc: "matches simulation job", dbCtx: dbCtx}
 }
+
+// AdvanceSeasonJob implements the quartz.Job interface.
+type AdvanceSeasonJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *AdvanceSeasonJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *AdvanceSeasonJob) Execute(context.Context) error {
+	log.Info("Checking season completion job")
+	AdvanceSeasonIfComplete(pj.dbCtx)
+	return nil
+}
+
+func NewAdvanceSeasonJob(dbCtx *common.DatabaseContext) *AdvanceSeasonJob {
+	return &AdvanceSeasonJob{desc: "season rollover job", dbCtx: dbCtx}
+}

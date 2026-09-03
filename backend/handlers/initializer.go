@@ -74,7 +74,7 @@ func createSeason(dbCtx *common.DatabaseContext) {
 }
 
 func createLeague(dbCtx *common.DatabaseContext, country string, name string, groups int) []int64 {
-	log.Debug("initializing country %s league %s with groups %d", country, name, groups)
+	log.Debugf("initializing country %s league %s with groups %d", country, name, groups)
 
 	leagues := make([]int64, 0)
 	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name) " +
@@ -220,7 +220,7 @@ func deleteTable(dbCtx *common.DatabaseContext, tableName string) {
 func InitializeDatabase() {
 	dbCtx, err := common.CreateDatabaseContext()
 	if err != nil {
-		log.Panicln("Error opening database: %s", err)
+		log.Panicf("Error opening database: %s", err)
 	}
 	InitializeGame(dbCtx)
 }

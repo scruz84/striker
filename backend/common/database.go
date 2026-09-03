@@ -14,6 +14,14 @@ import (
 const ForUpdate = "FOR UPDATE"
 
 const GetCurrentSeasonStmtSql = "select current_season from season"
+const UpdateCurrentSeasonStmtSql = "UPDATE season SET current_season = $1"
+
+const GetAllLeagueIdsStmtSql = "SELECT league_id FROM leagues"
+
+const GetSeasonMatchCountsStmtSql = "SELECT count(*) FILTER (WHERE played = false), count(*) FROM matches WHERE season = $1"
+
+const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = $1, matches = 0, points = 0, wins = 0, " +
+	"losses = 0, draws = 0, goals_scored = 0, goals_received = 0 WHERE league_id = $2"
 
 const GetFreeTeamStmtSql = "SELECT team_id FROM teams WHERE owner_id IS NULL and country = $1 limit 1"
 
@@ -82,6 +90,8 @@ const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_n
 	" creative, technical, avatar) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
+const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
+const DeleteDefaultLineupPositionsStmtSql = "DELETE FROM default_lineup_positions WHERE team_id = $1"
 
 const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals) " +
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
@@ -764,6 +774,47 @@ func GetCurrentSeason(dbCtx *DatabaseContext) int {
 	return season
 }
 
+func SetCurrentSeason(dbCtx *DatabaseContext, season int) error {
+	_, err := dbCtx.Db.Exec(UpdateCurrentSeasonStmtSql, season)
+	return err
+}
+
+func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {
+	rows, err := dbCtx.Db.Query(GetAllLeagueIdsStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	leagueIds := make([]int64, 0)
+	for rows.Next() {
+		var leagueId int64
+		if err := rows.Scan(&leagueId); err != nil {
+			return nil, err
+		}
+		leagueIds = append(leagueIds, leagueId)
+	}
+	return leagueIds, nil
+}
+
+// GetSeasonMatchCounts returns how many matches exist for a season and how many of those
+// are still unplayed, so callers can tell "season complete" (total > 0, unplayed == 0) apart
+// from "season never started" (total == 0).
+func GetSeasonMatchCounts(dbCtx *DatabaseContext, season int) (total int, unplayed int, err error) {
+	err = dbCtx.Db.QueryRow(GetSeasonMatchCountsStmtSql, season).Scan(&unplayed, &total)
+	return total, unplayed, err
+}
+
+// ResetClassificationForSeason rolls a league's existing classification rows into a new
+// season. Note: the classification table's primary key is (league_id, team_id) - it has no
+// season column in its key, so only the *current* season's standings can ever be stored per
+// team; there is no historical per-season archive. Resetting in place (rather than inserting
+// a new row per season) is what that constraint allows without a schema migration.
+func ResetClassificationForSeason(dbCtx *DatabaseContext, leagueId int64, season int) error {
+	_, err := dbCtx.Db.Exec(ResetClassificationForSeasonStmtSql, season, leagueId)
+	return err
+}
+
 func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
 	var firstName string
 	var lastName string
@@ -847,6 +898,55 @@ func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {
 		}
 	}
 	return nil
+}
+
+// GetDefaultLineup returns a team's standing lineup (used for any match without a
+// match-specific override, see GetLineupsForMatch).
+func GetDefaultLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
+	rows, err := dbCtx.Db.Query(GetDefaultLineupStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	positions := make([]LineupPosition, 0)
+	for rows.Next() {
+		var playerId int64
+		var position int
+		if err := rows.Scan(&playerId, &position); err != nil {
+			return nil, err
+		}
+		positions = append(positions, LineupPosition{PlayerId: playerId, Position: position})
+	}
+	return &Lineup{TeamId: teamId, Positions: positions}, nil
+}
+
+// SetDefaultLineup atomically replaces a team's default lineup. Callers must have already
+// validated that every position is filled exactly once and every player belongs to the team.
+func SetDefaultLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPosition) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(DeleteDefaultLineupPositionsStmtSql, teamId); err != nil {
+		return err
+	}
+
+	insertStmt, err := tx.Prepare(InsertDefaultLineupPositionsStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+
+	for _, p := range positions {
+		if _, err := insertStmt.Exec(teamId, p.PlayerId, p.Position); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func InsertLineup(dbCtx *DatabaseContext, teamId int64, lineup map[int][]int64, asDefault bool) error {

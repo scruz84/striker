@@ -38,9 +38,9 @@ func (r RedisCache) GetValue(key string) (string, error) {
 }
 
 func (r RedisCache) SetValue(key string, value string) {
-	r.client.SetNX(*r.ctx, key, value, time.Minute)
+	r.client.Set(*r.ctx, key, value, time.Minute)
 }
 
 func (r RedisCache) SetValueLongDuration(key string, value string) {
-	r.client.SetNX(*r.ctx, key, value, time.Minute*30)
+	r.client.Set(*r.ctx, key, value, time.Minute*30)
 }

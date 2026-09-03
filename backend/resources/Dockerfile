@@ -1,28 +1,30 @@
 # syntax=docker/dockerfile:1
+#
+# Build context for this Dockerfile is the backend/ directory (see docker-compose.yml).
 
 ## Build
-FROM golang:1.21.5-alpine AS build
+FROM golang:1.23-alpine AS build
 
 RUN apk --no-cache add ca-certificates
 
-WORKDIR /app/
+WORKDIR /app
 
-COPY fmcommon/ /app/fmcommon/
-COPY ../backend/ /app/striker-backend/
-
-WORKDIR /app/striker-backend/cmd
+COPY go.mod go.sum ./
 RUN go mod download
 
-RUN CGO_ENABLED=0 go build -o /striker
+COPY . .
+RUN CGO_ENABLED=0 go build -o /striker ./cmd
 
 ## Deploy
-FROM debian:stable
+FROM debian:stable-slim
 
-RUN apt-get update && apt-get install -y ca-certificates openssl
-RUN update-ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
 WORKDIR /app
-COPY --from=build /striker /app/striker/
+COPY --from=build /striker /app/striker
+
 EXPOSE 1984
 
 ENTRYPOINT ["/app/striker"]

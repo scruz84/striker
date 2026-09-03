@@ -11,9 +11,8 @@ import (
 
 func main() {
 	args := os.Args[1:]
-	err := godotenv.Load("app.env")
-	if err != nil {
-		log.Panicf("error reading app.env file: %s", err.Error())
+	if err := godotenv.Load("app.env"); err != nil {
+		log.Warnf("no app.env file loaded, relying on environment variables: %s", err.Error())
 	}
 
 	if args[0] == "--svc" {

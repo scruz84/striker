@@ -23,9 +23,8 @@ func StartSvc() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
 
-	err := godotenv.Load("app.env")
-	if err != nil {
-		log.Fatalf("error reading app.env file: %s", err.Error())
+	if err := godotenv.Load("app.env"); err != nil {
+		log.Warnf("no app.env file loaded, relying on environment variables: %s", err.Error())
 	}
 
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
@@ -40,7 +39,7 @@ func StartSvc() {
 	dbCtx, err := common.OpenDatabase(databaseDetails)
 	err = dbCtx.Db.Ping()
 	if err != nil {
-		log.Panicln("Error opening database: %s", err)
+		log.Panicf("Error opening database: %s", err)
 	}
 
 	router := gin.Default()
@@ -73,7 +72,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//Init session management
 	store, err := postgres.NewStore(dbCtx.Db, []byte(os.Getenv("SESSION_SECRET")))
 	if err != nil {
-		log.Panicln("Error accessing database for session management: %s", err)
+		log.Panicf("Error accessing database for session management: %s", err)
 	}
 	router.Use(sessions.Sessions("footballManager", store))
 
@@ -86,6 +85,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup := v1Group.Group("/user")
 	v1UserGroup.Use(authMiddleware.MiddlewareFunc())
 	v1UserGroup.GET("/team", handlers.UserTeam(dbCtx))
+	v1UserGroup.GET("/team/lineup", handlers.GetLineupHandler(dbCtx))
+	v1UserGroup.PUT("/team/lineup", handlers.SetLineupHandler(dbCtx))
 
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())

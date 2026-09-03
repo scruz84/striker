@@ -19,8 +19,7 @@ func RegisterUser(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		var user common.RegisterUser
 		var err error
 		if err = c.BindJSON(&user); err != nil {
-			log.Errorf("[goroutine - %d] - error reading user to register %s: %s", common.CurGoroutineID(),
-				c, err)
+			log.Errorf("[goroutine - %d] - error reading user to register: %s", common.CurGoroutineID(), err)
 			c.JSON(http.StatusBadRequest, &err)
 			return
 		}

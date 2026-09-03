@@ -24,6 +24,22 @@ func StartSimulateMatchesScheduler(simulateMatchesJob quartz.Job) {
 	}
 }
 
+func StartAdvanceSeasonScheduler(advanceSeasonJob quartz.Job) {
+	sched.Start(ctx)
+	// Checking season completion is much cheaper and lower-stakes than match simulation, so
+	// it doesn't need per-minute granularity - every 5 minutes is plenty.
+	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(advanceSeasonJob.Description())
+	jobDetail := quartz.NewJobDetail(advanceSeasonJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }
