@@ -102,7 +102,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
                     value={player.id}
                     disabled={usedPlayerIds.has(player.id) && selections[position] !== player.id}
                   >
-                    {player.firstName} {player.lastName}
+                    {player.firstName} {player.lastName} ({player.age})
                   </MenuItem>
                 ))}
               </Select>

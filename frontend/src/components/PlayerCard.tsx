@@ -17,6 +17,9 @@ export function PlayerCard({ player }: { player: Player }) {
             <Typography variant="subtitle1">
               {player.firstName} {player.lastName}
             </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Age {player.age}
+            </Typography>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <SkillBar label="Goalkeeper" value={player.goalKeeper} />

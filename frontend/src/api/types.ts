@@ -49,6 +49,7 @@ export interface Player {
   creative: boolean
   technical: boolean
   wage: number
+  age: number
   avatar: PlayerAvatar
 }
 
