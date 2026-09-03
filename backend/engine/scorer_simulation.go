@@ -7,6 +7,7 @@ import (
 )
 
 const ProbChance = 0.14
+const ProbChanceDominanceBonus = 0.10 // extra per-minute chance probability at maximum midfield dominance
 const ProbCenterChance = 0.50
 const ProbLateralChance = 0.25
 
@@ -20,10 +21,25 @@ func NewScorerSimulation() *ScorerSimulation {
 }
 
 func (s ScorerSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	if rand.Float32() < ProbChance {
+	if rand.Float32() < chanceProbability(match) {
 		teamChance := getTeamChance(s, match)
 		processChance(s, dbCtx, match, teamChance)
 	}
+}
+
+// chanceProbability returns the probability of an attacking chance occurring this minute.
+// A more lopsided midfield battle raises the odds, so a dominant team generates more chances
+// over the course of a match rather than just converting a fixed share of chances more often.
+func chanceProbability(match *common.MatchSimulation) float32 {
+	totalMidfield := match.HomeQua.Midfield + match.AwayQua.Midfield
+	if totalMidfield <= 0 {
+		return ProbChance
+	}
+	dominance := (match.HomeQua.Midfield - match.AwayQua.Midfield) / totalMidfield
+	if dominance < 0 {
+		dominance = -dominance
+	}
+	return ProbChance + dominance*ProbChanceDominanceBonus
 }
 
 func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *common.MatchSimulation, teamChance int64) {
