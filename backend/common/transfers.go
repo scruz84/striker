@@ -183,7 +183,16 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// Best-effort, after the money has actually moved - a notification failure must never
+	// undo a completed transfer.
+	_ = NotifyTeamOwner(dbCtx, sellingTeamId, NOTIFICATION_TRANSFER, "Sold "+playerName+" to "+buyerTeam.TeamName)
+	_ = NotifyTeamOwner(dbCtx, buyerTeamId, NOTIFICATION_TRANSFER, "Bought "+playerName+" from "+sellerTeam.TeamName)
+
+	return nil
 }
 
 func isUniqueViolation(err error) bool {

@@ -26,6 +26,7 @@ type LeagueStandings struct {
 type LeagueMove struct {
 	TeamId      int64
 	NewLeagueId int64
+	Promoted    bool // true if this move is a promotion, false if a relegation
 }
 
 type tierCandidate struct {
@@ -102,8 +103,8 @@ func swapAdjacentTiers(upperLeagues []LeagueStandings, lowerLeagues []LeagueStan
 		promoted, relegated := promotionCandidates[i], relegationSlots[i]
 		// each pair trades places: the promoted team takes over the relegated team's league,
 		// and vice versa, so both leagues keep exactly the same number of teams.
-		moves = append(moves, LeagueMove{TeamId: promoted.team.TeamId, NewLeagueId: relegated.leagueId})
-		moves = append(moves, LeagueMove{TeamId: relegated.team.TeamId, NewLeagueId: promoted.leagueId})
+		moves = append(moves, LeagueMove{TeamId: promoted.team.TeamId, NewLeagueId: relegated.leagueId, Promoted: true})
+		moves = append(moves, LeagueMove{TeamId: relegated.team.TeamId, NewLeagueId: promoted.leagueId, Promoted: false})
 	}
 	return moves
 }

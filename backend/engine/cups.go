@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
@@ -121,7 +122,15 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64) error {
 
 	if len(winners) == 1 {
 		log.Infof("cup %d complete, champion is team %d", cupId, winners[0])
-		return common.SetCupCompleted(dbCtx, cupId, winners[0])
+		if err := common.SetCupCompleted(dbCtx, cupId, winners[0]); err != nil {
+			return err
+		}
+		if team, err := common.GetTeamById(winners[0], dbCtx); err == nil {
+			if err := common.NotifyTeamOwner(dbCtx, winners[0], common.NOTIFICATION_CUP, team.TeamName+" won the cup!"); err != nil {
+				log.Errorf("error notifying cup champion team %d: %s", winners[0], err)
+			}
+		}
+		return nil
 	}
 
 	pairs := BuildNextRoundPairings(winners)
@@ -189,5 +198,25 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)
 	return nil
+}
+
+func notifyCupTieResult(dbCtx *common.DatabaseContext, match *common.MatchSimulation, wentToPenalties bool) {
+	homeTeam, errHome := common.GetTeamById(match.Home, dbCtx)
+	awayTeam, errAway := common.GetTeamById(match.Away, dbCtx)
+	if errHome != nil || errAway != nil {
+		log.Errorf("error getting team names for cup tie notification: %v / %v", errHome, errAway)
+		return
+	}
+	message := fmt.Sprintf("Cup: %s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName)
+	if wentToPenalties {
+		message += " (penalties)"
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_CUP, message); err != nil {
+		log.Errorf("error notifying home team owner of cup tie result: %s", err)
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_CUP, message); err != nil {
+		log.Errorf("error notifying away team owner of cup tie result: %s", err)
+	}
 }

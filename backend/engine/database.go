@@ -2,6 +2,7 @@ package engine
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 )
@@ -69,6 +70,23 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	deductWages(dbCtx, match.Home)
 	deductWages(dbCtx, match.Away)
+}
+
+// NotifyMatchResult tells both teams' owners how their league match went.
+func NotifyMatchResult(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+	homeTeam, errHome := common.GetTeamById(match.Home, dbCtx)
+	awayTeam, errAway := common.GetTeamById(match.Away, dbCtx)
+	if errHome != nil || errAway != nil {
+		log.Errorf("error getting team names for match result notification: %v / %v", errHome, errAway)
+		return
+	}
+	message := fmt.Sprintf("%s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName)
+	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_MATCH_RESULT, message); err != nil {
+		log.Errorf("error notifying home team owner of match result: %s", err)
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_MATCH_RESULT, message); err != nil {
+		log.Errorf("error notifying away team owner of match result: %s", err)
+	}
 }
 
 func deductWages(dbCtx *common.DatabaseContext, teamId int64) {

@@ -12,6 +12,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdateClassification(dbCtx, matchSimulation)
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	NotifyMatchResult(dbCtx, matchSimulation)
 
 	return matchSimulation, nil
 }

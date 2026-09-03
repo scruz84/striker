@@ -40,3 +40,10 @@ const UNAVAILABLE_INJURY = 1
 const TRANSACTION_TRANSFER_IN = 0  // sold a player - income
 const TRANSACTION_TRANSFER_OUT = 1 // bought a player - expense
 const TRANSACTION_WAGES = 2        // wage bill for a played match - expense
+
+// notifications.notification_type
+const NOTIFICATION_MATCH_RESULT = 0
+const NOTIFICATION_PROMOTION = 1
+const NOTIFICATION_RELEGATION = 2
+const NOTIFICATION_TRANSFER = 3
+const NOTIFICATION_CUP = 4

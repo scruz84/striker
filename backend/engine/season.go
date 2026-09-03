@@ -98,6 +98,24 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext) {
 			if err := common.UpdateClassificationLeague(dbCtx, move.TeamId, move.NewLeagueId); err != nil {
 				log.Errorf("error repointing classification for team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
 			}
+			notifyPromotionRelegation(dbCtx, move)
 		}
+	}
+}
+
+func notifyPromotionRelegation(dbCtx *common.DatabaseContext, move LeagueMove) {
+	team, err := common.GetTeamById(move.TeamId, dbCtx)
+	if err != nil {
+		log.Errorf("error getting team %d for promotion/relegation notification: %s", move.TeamId, err)
+		return
+	}
+	notificationType := common.NOTIFICATION_RELEGATION
+	verb := "relegated"
+	if move.Promoted {
+		notificationType = common.NOTIFICATION_PROMOTION
+		verb = "promoted"
+	}
+	if err := common.NotifyTeamOwner(dbCtx, move.TeamId, notificationType, team.TeamName+" was "+verb+"!"); err != nil {
+		log.Errorf("error notifying team %d of promotion/relegation: %s", move.TeamId, err)
 	}
 }
