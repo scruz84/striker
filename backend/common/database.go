@@ -121,6 +121,20 @@ const UpdateTeamLeagueStmtSql = "UPDATE teams SET league_id = $1 WHERE team_id =
 
 const UpdateClassificationLeagueStmtSql = "UPDATE classification SET league_id = $1 WHERE team_id = $2"
 
+const UpsertPlayerUnavailabilityStmtSql = "INSERT INTO player_unavailability (player_id, reason, matches_remaining) " +
+	"VALUES ($1, $2, $3) " +
+	"ON CONFLICT (player_id) DO UPDATE SET " +
+	"reason = CASE WHEN EXCLUDED.matches_remaining > player_unavailability.matches_remaining THEN EXCLUDED.reason ELSE player_unavailability.reason END, " +
+	"matches_remaining = GREATEST(player_unavailability.matches_remaining, EXCLUDED.matches_remaining)"
+
+const GetUnavailablePlayerIdsStmtSql = "SELECT pu.player_id FROM player_unavailability pu " +
+	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0"
+
+const DecrementUnavailabilityForTeamStmtSql = "UPDATE player_unavailability pu SET matches_remaining = matches_remaining - 1 " +
+	"FROM players p WHERE p.player_id = pu.player_id AND p.team_id = $1"
+
+const DeleteExpiredUnavailabilityStmtSql = "DELETE FROM player_unavailability WHERE matches_remaining <= 0"
+
 func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
 	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
 	if err != nil {
@@ -875,6 +889,45 @@ func UpdateTeamLeague(dbCtx *DatabaseContext, teamId int64, newLeagueId int64) e
 // per-league) picks it up correctly.
 func UpdateClassificationLeague(dbCtx *DatabaseContext, teamId int64, newLeagueId int64) error {
 	_, err := dbCtx.Db.Exec(UpdateClassificationLeagueStmtSql, newLeagueId, teamId)
+	return err
+}
+
+// AddPlayerUnavailability records a player as unavailable (suspended or injured) for their
+// next `matches` matches. If the player is already unavailable, this only ever extends the
+// duration (never shortens an existing suspension/injury) and keeps whichever reason belongs
+// to the longer outstanding duration.
+func AddPlayerUnavailability(dbCtx *DatabaseContext, playerId int64, reason int, matches int) error {
+	_, err := dbCtx.Db.Exec(UpsertPlayerUnavailabilityStmtSql, playerId, reason, matches)
+	return err
+}
+
+// GetUnavailablePlayerIds returns the set of a team's players currently serving a suspension
+// or injury.
+func GetUnavailablePlayerIds(dbCtx *DatabaseContext, teamId int64) (map[int64]bool, error) {
+	rows, err := dbCtx.Db.Query(GetUnavailablePlayerIdsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	unavailable := make(map[int64]bool)
+	for rows.Next() {
+		var playerId int64
+		if err := rows.Scan(&playerId); err != nil {
+			return nil, err
+		}
+		unavailable[playerId] = true
+	}
+	return unavailable, nil
+}
+
+// DecrementUnavailabilityForTeam counts a played match against every currently-unavailable
+// player on a team, and clears anyone whose suspension/injury has now run out.
+func DecrementUnavailabilityForTeam(dbCtx *DatabaseContext, teamId int64) error {
+	if _, err := dbCtx.Db.Exec(DecrementUnavailabilityForTeamStmtSql, teamId); err != nil {
+		return err
+	}
+	_, err := dbCtx.Db.Exec(DeleteExpiredUnavailabilityStmtSql)
 	return err
 }
 

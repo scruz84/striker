@@ -8,6 +8,8 @@ import (
 
 const ProbCardIncident = 0.03
 const ProbStraightRed = 0.15
+const StraightRedSuspensionMatches = 2
+const SecondYellowSuspensionMatches = 1
 
 // DisciplineSimulation generates yellow/red card events. A red card - straight, or a second
 // yellow - sends the player off: they're removed from their team's active position groups,
@@ -45,11 +47,22 @@ func (s DisciplineSimulation) Apply(dbCtx *common.DatabaseContext, match *common
 	}
 
 	eventType := common.YELLOW_CARD
-	isRed := match.YellowCards[player] || s.r.Float32() < ProbStraightRed
-	if isRed {
+	wasSecondYellow := match.YellowCards[player]
+	isStraightRed := !wasSecondYellow && s.r.Float32() < ProbStraightRed
+	if wasSecondYellow || isStraightRed {
 		eventType = common.RED_CARD
 		match.SentOff[player] = true
 		removePlayerFromPosition(playersByPosition, position, player)
+
+		suspensionMatches := SecondYellowSuspensionMatches
+		if isStraightRed {
+			suspensionMatches = StraightRedSuspensionMatches
+		}
+		match.PendingUnavailabilities = append(match.PendingUnavailabilities, common.PendingUnavailability{
+			PlayerId: player,
+			Reason:   common.UNAVAILABLE_SUSPENSION,
+			Matches:  suspensionMatches,
+		})
 	} else {
 		match.YellowCards[player] = true
 	}

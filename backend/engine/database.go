@@ -44,6 +44,25 @@ func UpdatePlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulat
 	}
 }
 
+// UpdatePlayerAvailability counts this match against every already-unavailable player on
+// both teams (clearing anyone whose suspension/injury has now run out), then records any new
+// suspensions/injuries picked up during this match - in that order, so a player booked in
+// this match doesn't have their brand-new unavailability immediately decremented by the same
+// match that caused it.
+func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+	if err := common.DecrementUnavailabilityForTeam(dbCtx, match.Home); err != nil {
+		log.Errorf("error decrementing unavailability for team %d: %s", match.Home, err)
+	}
+	if err := common.DecrementUnavailabilityForTeam(dbCtx, match.Away); err != nil {
+		log.Errorf("error decrementing unavailability for team %d: %s", match.Away, err)
+	}
+	for _, u := range match.PendingUnavailabilities {
+		if err := common.AddPlayerUnavailability(dbCtx, u.PlayerId, u.Reason, u.Matches); err != nil {
+			log.Errorf("error recording unavailability for player %d: %s", u.PlayerId, err)
+		}
+	}
+}
+
 func UpdateClassification(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	log.Infof("Updating classification for match %d home team %d from division %d", match.Id, match.Home, match.DivisionId)
 	points := 0

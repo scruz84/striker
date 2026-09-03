@@ -65,7 +65,14 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := validateLineup(req.Positions, players); err != nil {
+		unavailable, err := common.GetUnavailablePlayerIds(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting unavailable players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		if err := validateLineup(req.Positions, players, unavailable); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
@@ -84,8 +91,11 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 // (see common/fmconstants.go) exactly once with distinct players that actually belong to
 // the team - without this, a manager could otherwise field an empty position, duplicate a
 // player, or field an opponent's player, since the DB foreign key alone doesn't enforce
-// team ownership.
-func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Player) error {
+// team ownership. It also rejects any player currently suspended or injured (see
+// common.GetUnavailablePlayerIds) - the simulation itself would exclude them anyway (see
+// engine.excludeUnavailablePlayers), but rejecting it here gives the manager a clear reason
+// instead of a lineup that quietly plays short.
+func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
 	const numPositions = 10
 
 	if len(positions) != numPositions {
@@ -115,6 +125,10 @@ func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Pl
 
 		if !rosterIds[pos.PlayerId] {
 			return fmt.Errorf("player %d does not belong to this team", pos.PlayerId)
+		}
+
+		if unavailable[pos.PlayerId] {
+			return fmt.Errorf("player %d is suspended or injured and unavailable", pos.PlayerId)
 		}
 	}
 

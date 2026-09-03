@@ -44,8 +44,17 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	events = nil
 	matchInstants = nil
 
+	// Suspended/injured players must not play even if they're still in the saved lineup -
+	// the manager is expected to work around it, but the simulation itself must not field them.
+	if err := excludeUnavailablePlayers(dbCtx, match.Home, matchSimulation.HomePlayersByPosition); err != nil {
+		return nil, err
+	}
+	if err := excludeUnavailablePlayers(dbCtx, match.Away, matchSimulation.AwayPlayersByPosition); err != nil {
+		return nil, err
+	}
+
 	simulations := make([]Simulation, 0)
-	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation())
+	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
 	pipeline := SimulationPipelineImpl{
 		simulations: simulations,
 	}
@@ -59,8 +68,41 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 
 	UpdatePlayedMatch(dbCtx, matchSimulation)
 	UpdateClassification(dbCtx, matchSimulation)
+	UpdatePlayerAvailability(dbCtx, matchSimulation)
 
 	return matchSimulation, nil
+}
+
+// excludeUnavailablePlayers removes suspended/injured players from a team's active position
+// groups before kickoff. Goalkeepers are exempt even if the data somehow flags one - nothing
+// in this codebase currently can (see DisciplineSimulation/InjurySimulation), but if it ever
+// did, an empty GOALKEEPER slice would panic elsewhere (e.g. ScorerSimulation's goalkeeper
+// value lookup), so this is cheap, deliberate insurance.
+func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64) error {
+	unavailable, err := common.GetUnavailablePlayerIds(dbCtx, teamId)
+	if err != nil {
+		return err
+	}
+	filterOutfieldPlayers(playersByPosition, unavailable)
+	return nil
+}
+
+// filterOutfieldPlayers removes every player in `exclude` from a team's non-goalkeeper
+// position groups, in place.
+func filterOutfieldPlayers(playersByPosition *map[int][]int64, exclude map[int64]bool) {
+	if len(exclude) == 0 {
+		return
+	}
+	for _, position := range common.ALL_OUTFIELD_POSITIONS {
+		ids := (*playersByPosition)[position]
+		kept := ids[:0]
+		for _, id := range ids {
+			if !exclude[id] {
+				kept = append(kept, id)
+			}
+		}
+		(*playersByPosition)[position] = kept
+	}
 }
 
 func playersToMapById(players *[]*common.Player) *map[int64]common.Player {

@@ -175,6 +175,17 @@ type MatchSimulation struct {
 	//and players sent off (red card or second yellow), already removed from *PlayersByPosition.
 	YellowCards map[int64]bool
 	SentOff     map[int64]bool
+	//Unavailability: suspensions/injuries picked up this match, to persist once it's over
+	//(see engine.UpdatePlayedMatch) so they carry into the player's next matches.
+	PendingUnavailabilities []PendingUnavailability
+}
+
+// PendingUnavailability is a suspension or injury picked up during a match, not yet
+// persisted to the player_unavailability table.
+type PendingUnavailability struct {
+	PlayerId int64
+	Reason   int
+	Matches  int
 }
 
 type TeamQualification struct {
