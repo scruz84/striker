@@ -61,7 +61,11 @@ const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + F
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
 
 const GetUserStmtSql = "SELECT u.name userName, u.country, u.provider, u.email, t.team_id, t.name as teamName, " +
-	"t.league_id from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
+	"t.league_id, u.is_admin from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
+
+const GetUserIsAdminStmtSql = "SELECT is_admin FROM users WHERE user_id = $1"
+
+const SetUserAdminStmtSql = "UPDATE users SET is_admin = $1 WHERE user_id = $2"
 
 const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
@@ -412,7 +416,8 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 	var teamId string
 	var teamName string
 	var leagueId string
-	err := dbCtx.Db.QueryRow(GetUserStmtSql, userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId)
+	var isAdmin bool
+	err := dbCtx.Db.QueryRow(GetUserStmtSql, userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId, &isAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -425,7 +430,23 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 		TeamId:     teamId,
 		TeamName:   teamName,
 		TeamLeague: leagueId,
+		IsAdmin:    isAdmin,
 	}, nil
+}
+
+// IsUserAdmin is a lightweight admin check (no join) for the RequireAdmin middleware - it's on
+// the hot path of every admin request, so it skips GetUserDetails' team join entirely.
+func IsUserAdmin(dbCtx *DatabaseContext, userId int64) (bool, error) {
+	var isAdmin bool
+	err := dbCtx.Db.QueryRow(GetUserIsAdminStmtSql, userId).Scan(&isAdmin)
+	return isAdmin, err
+}
+
+// SetUserAdmin grants or revokes admin access - see IsConfiguredAdminEmail for the only way
+// it's currently called (auto-promotion at login time; there's no admin-managing-admins UI).
+func SetUserAdmin(dbCtx *DatabaseContext, userId int64, isAdmin bool) error {
+	_, err := dbCtx.Db.Exec(SetUserAdminStmtSql, isAdmin, userId)
+	return err
 }
 
 func GetUserIdByEmail(email string, dbCtx *DatabaseContext) (int64, error) {

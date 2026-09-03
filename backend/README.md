@@ -25,6 +25,25 @@ Override any setting via a `.env` file in this directory (see `docker-compose.ym
 list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The
 defaults are dev-only placeholders - set real secrets for anything beyond local development.
 
+Set `ADMIN_EMAILS` (comma-separated) to grant commissioner/admin access - see "Admin tooling"
+below - to those Google accounts. It's checked on every login, so adding an email takes effect
+the next time that person logs in; no manual DB edit needed.
+
+### Admin tooling
+
+Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints under
+`/v1/admin/*`: `GET overview` (season/user/team/match counts), `GET users` (every registered
+user and their team), `POST simulate` (force a manual simulation pass instead of waiting for
+the scheduler's next tick), `POST advance-season` (force a season-completion check), and
+`POST teams/:id/budget` (a manual budget correction, logged to that team's ledger like any
+other transaction).
+
+The old unauthenticated `GET /v1/initData` reset endpoint now requires an authenticated admin
+**once any user is registered** - before that (a genuinely fresh deployment, nobody to protect
+yet) it still works with no login, so bootstrapping isn't broken. This only affects that HTTP
+route; `docker compose --profile init run --rm init` (above) calls the same reset logic
+directly via the CLI and was never affected either way.
+
 ### Schema changes on an already-running database
 
 `resources/sql/*.sql` only auto-applies on a **fresh** Postgres data volume (that's how the
@@ -40,6 +59,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init6_player_age.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init7_cups.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init8_notifications.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init9_admin.sql
 ```
 
 ## Local development (without Docker)

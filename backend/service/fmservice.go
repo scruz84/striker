@@ -120,6 +120,16 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AuthGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
 	v1AuthGroup.POST("/logout", authMiddleware.LogoutHandler)
 
+	//Commissioner/admin tooling - requires is_admin, see handlers.RequireAdmin
+	v1AdminGroup := v1Group.Group("/admin")
+	v1AdminGroup.Use(authMiddleware.MiddlewareFunc())
+	v1AdminGroup.Use(handlers.RequireAdmin(dbCtx))
+	v1AdminGroup.GET("/overview", handlers.AdminOverviewHandler(dbCtx))
+	v1AdminGroup.GET("/users", handlers.AdminListUsersHandler(dbCtx))
+	v1AdminGroup.POST("/simulate", handlers.AdminSimulateNowHandler(dbCtx))
+	v1AdminGroup.POST("/advance-season", handlers.AdminAdvanceSeasonHandler(dbCtx))
+	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
+
 	//Others V1
 	v1Group.GET("/initData", handlers.Initialize(dbCtx))
 	v1Group.POST("/login", authMiddleware.LoginHandler)

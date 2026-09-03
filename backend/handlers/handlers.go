@@ -119,6 +119,18 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 			return nil, http.StatusInternalServerError, err
 		}
 	}
+
+	// Admin access is granted purely by config (ADMIN_EMAILS) - there's no admin-managing-admins
+	// UI, so this re-checks and persists the promotion on every login rather than only at
+	// registration, letting an operator add someone to the list without a manual DB edit.
+	if common.IsConfiguredAdminEmail(email) && !loggedUser.IsAdmin {
+		if err := common.SetUserAdmin(dbCtx, userId, true); err != nil {
+			log.Errorf("error promoting user %d to admin: %s", userId, err)
+		} else {
+			loggedUser.IsAdmin = true
+		}
+	}
+
 	loggedUser.PictureUrl = fmt.Sprint((*jwtTokenClaims)["picture"])
 	return loggedUser, http.StatusOK, nil
 }

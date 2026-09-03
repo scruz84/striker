@@ -13,8 +13,32 @@ type ActionResult struct {
 	Result string `json:"result"`
 }
 
+// Initialize wipes and reseeds the entire game (see InitializeGame) - destructive to every
+// team any real user has built. It stays reachable with no login at all only for a genuinely
+// fresh deployment (zero registered users: there's nobody to be an admin for yet, and nothing
+// of value to destroy) - the moment a first user exists, this requires an authenticated admin,
+// checked here rather than via a route-group middleware so the bootstrap case can still work
+// with nobody logged in.
 func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		userCount, err := common.CountUsers(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if userCount > 0 {
+			userId := GetUserIdFromCookie(c)
+			isAdmin := userId != nil
+			if isAdmin {
+				isAdmin, err = common.IsUserAdmin(dbCtx, *userId)
+				isAdmin = isAdmin && err == nil
+			}
+			if !isAdmin {
+				c.JSON(http.StatusForbidden, GetError(0, "admin access required"))
+				return
+			}
+		}
+
 		log.Infof("[goroutine - %d] - Starting to initialize the database", common.CurGoroutineID())
 
 		InitializeGame(dbCtx)

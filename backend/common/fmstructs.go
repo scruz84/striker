@@ -62,6 +62,7 @@ type LoggedUser struct {
 	TeamName   string `json:"teamName"`
 	TeamLeague string `json:"teamLeague"`
 	PictureUrl string `json:"pictureUrl"`
+	IsAdmin    bool   `json:"isAdmin"`
 }
 
 type HttpResponse struct {
