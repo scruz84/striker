@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
 import type {
+  AdminOverview,
+  AdminUserSummary,
   CupDetails,
   DivisionDetails,
   FinancesResponse,
@@ -25,6 +27,8 @@ export const queryKeys = {
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
   notifications: ['notifications'] as const,
+  adminOverview: ['adminOverview'] as const,
+  adminUsers: ['adminUsers'] as const,
 }
 
 export function useMe() {
@@ -212,5 +216,48 @@ export function useMarkAllNotificationsRead() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notifications })
     },
+  })
+}
+
+export function useAdminOverview(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.adminOverview,
+    queryFn: () => api.get<AdminOverview>('/v1/admin/overview'),
+    enabled,
+  })
+}
+
+export function useAdminUsers(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.adminUsers,
+    queryFn: () => api.get<AdminUserSummary[]>('/v1/admin/users'),
+    enabled,
+  })
+}
+
+export function useAdminSimulateNow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/admin/simulate'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+export function useAdminAdvanceSeason() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/admin/advance-season'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+export function useAdminAdjustBudget() {
+  return useMutation({
+    mutationFn: ({ teamId, amount, description }: { teamId: number; amount: number; description: string }) =>
+      api.post(`/v1/admin/teams/${teamId}/budget`, { amount, description }),
   })
 }

@@ -12,6 +12,7 @@ export interface LoggedUser {
   teamName: string
   teamLeague: string
   pictureUrl: string
+  isAdmin: boolean
 }
 
 export interface PlayerAvatar {
@@ -207,11 +208,13 @@ export const ALL_POSITIONS = [
 export const TRANSACTION_TRANSFER_IN = 0
 export const TRANSACTION_TRANSFER_OUT = 1
 export const TRANSACTION_WAGES = 2
+export const TRANSACTION_ADMIN_ADJUSTMENT = 3
 
 export const TRANSACTION_LABELS: Record<number, string> = {
   [TRANSACTION_TRANSFER_IN]: 'Player sold',
   [TRANSACTION_TRANSFER_OUT]: 'Player bought',
   [TRANSACTION_WAGES]: 'Wages',
+  [TRANSACTION_ADMIN_ADJUSTMENT]: 'Admin adjustment',
 }
 
 export interface TeamTransaction {
@@ -288,4 +291,24 @@ export interface Notification {
 export interface NotificationsResponse {
   unread: number
   notifications: Notification[]
+}
+
+export interface AdminOverview {
+  season: number
+  userCount: number
+  teamCount: number
+  leagueCount: number
+  matchesTotal: number
+  matchesUnplayed: number
+  activeCups: number
+}
+
+export interface AdminUserSummary {
+  userId: number
+  name: string
+  email: string
+  country: string
+  teamId: number | null
+  teamName: string
+  isAdmin: boolean
 }
