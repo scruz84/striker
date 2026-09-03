@@ -53,6 +53,11 @@ const GetCupTiesStmtSql = "SELECT ct.tie_id, ct.cup_id, ct.round, ct.slot_number
 	"FROM cup_ties ct LEFT JOIN teams th ON th.team_id = ct.home_team_id LEFT JOIN teams ta ON ta.team_id = ct.away_team_id " +
 	"WHERE ct.cup_id = $1 ORDER BY ct.round, ct.slot_number"
 
+const GetCupTieByIdStmtSql = "SELECT ct.tie_id, ct.cup_id, ct.round, ct.slot_number, ct.home_team_id, th.name, " +
+	"ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals, ct.went_to_penalties, ct.winner_team_id " +
+	"FROM cup_ties ct LEFT JOIN teams th ON th.team_id = ct.home_team_id LEFT JOIN teams ta ON ta.team_id = ct.away_team_id " +
+	"WHERE ct.tie_id = $1"
+
 const GetMaxCupRoundStmtSql = "SELECT COALESCE(MAX(round), 0) FROM cup_ties WHERE cup_id = $1"
 
 const GetUnresolvedCupTieCountStmtSql = "SELECT count(*) FROM cup_ties WHERE cup_id = $1 AND round = $2 AND winner_team_id IS NULL"
@@ -154,6 +159,11 @@ func GetCupTies(dbCtx *DatabaseContext, cupId int64) ([]CupTie, error) {
 		ties = append(ties, *tie)
 	}
 	return ties, nil
+}
+
+// GetCupTieById fetches a single tie, or sql.ErrNoRows if tieId doesn't exist.
+func GetCupTieById(dbCtx *DatabaseContext, tieId int64) (*CupTie, error) {
+	return scanCupTie(dbCtx.Db.QueryRow(GetCupTieByIdStmtSql, tieId))
 }
 
 type rowScanner interface {

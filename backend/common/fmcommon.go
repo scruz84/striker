@@ -24,6 +24,7 @@ type DatabaseContext struct {
 	Db            *sql.DB
 	PreparedStmts map[string]*sql.Stmt
 	ObjectCache   Cache
+	LiveHub       *LiveMatchHub
 }
 
 func OpenDatabase(details DatabaseDetails) (*DatabaseContext, error) {
@@ -36,7 +37,8 @@ func OpenDatabase(details DatabaseDetails) (*DatabaseContext, error) {
 
 	return &DatabaseContext{Db: db,
 		PreparedStmts: make(map[string]*sql.Stmt),
-		ObjectCache:   NewRedisCache()}, err
+		ObjectCache:   NewRedisCache(),
+		LiveHub:       NewLiveMatchHub()}, err
 }
 
 func StringToInt64(val string) (int64, error) {
