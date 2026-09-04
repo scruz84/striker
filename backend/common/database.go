@@ -865,6 +865,27 @@ func SetCurrentSeason(dbCtx *DatabaseContext, season int) error {
 	return err
 }
 
+const GetTransferWindowOpenStmtSql = "SELECT transfer_window_open FROM season"
+const SetTransferWindowOpenStmtSql = "UPDATE season SET transfer_window_open = $1"
+
+// IsTransferWindowOpen reports whether the transfer/loan markets are currently open - a single
+// global, admin-toggled flag (see handlers.SetTransferWindowHandler) rather than anything
+// derived from the season schedule, since fixtures are generated per-league on independent
+// clocks and there's no single "week of the season" to hang an automatic window on. Fails open
+// (returns true) on a lookup error, so a DB hiccup can't silently freeze the whole market.
+func IsTransferWindowOpen(dbCtx *DatabaseContext) bool {
+	var open bool
+	if err := dbCtx.Db.QueryRow(GetTransferWindowOpenStmtSql).Scan(&open); err != nil {
+		return true
+	}
+	return open
+}
+
+func SetTransferWindowOpen(dbCtx *DatabaseContext, open bool) error {
+	_, err := dbCtx.Db.Exec(SetTransferWindowOpenStmtSql, open)
+	return err
+}
+
 func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {
 	rows, err := dbCtx.Db.Query(GetAllLeagueIdsStmtSql)
 	if err != nil {

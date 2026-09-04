@@ -34,15 +34,25 @@ the next time that person logs in; no manual DB edit needed.
 Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints under
 `/v1/admin/*`: `GET overview` (season/user/team/match counts), `GET users` (every registered
 user and their team), `POST simulate` (force a manual simulation pass instead of waiting for
-the scheduler's next tick), `POST advance-season` (force a season-completion check), and
+the scheduler's next tick), `POST advance-season` (force a season-completion check),
 `POST teams/:id/budget` (a manual budget correction, logged to that team's ledger like any
-other transaction).
+other transaction), and `PUT transfer-window` (open/close the transfer and loan markets
+globally - see "Transfer window" below).
 
 The old unauthenticated `GET /v1/initData` reset endpoint now requires an authenticated admin
 **once any user is registered** - before that (a genuinely fresh deployment, nobody to protect
 yet) it still works with no login, so bootstrapping isn't broken. This only affects that HTTP
 route; `docker compose --profile init run --rm init` (above) calls the same reset logic
 directly via the CLI and was never affected either way.
+
+### Transfer window
+
+The transfer and loan markets share one global open/closed flag (`season.transfer_window_open`,
+defaults to open) - listing, buying, and accepting a loan are all blocked while it's closed;
+cancelling your own listing never is. There's no automatic schedule behind it (fixtures run on
+independent per-league clocks, so there's no single "week of the season" to derive it from) -
+an admin toggles it with `PUT /v1/admin/transfer-window` (`{"open": true|false}`), and
+`GET /v1/transfers/window` reports the current state to anyone.
 
 ### Schema changes on an already-running database
 
@@ -62,6 +72,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init9_admin.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init10_stadium.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init11_loans.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init12_transfer_window.sql
 ```
 
 ## Local development (without Docker)

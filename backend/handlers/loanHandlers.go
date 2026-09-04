@@ -56,7 +56,8 @@ func ListPlayerForLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			case errors.Is(err, common.ErrInvalidLoanDuration),
 				errors.Is(err, common.ErrPlayerOnLoan),
 				errors.Is(err, common.ErrPlayerAlreadyListed),
-				errors.Is(err, common.ErrPlayerAlreadyLoanListed):
+				errors.Is(err, common.ErrPlayerAlreadyLoanListed),
+				errors.Is(err, common.ErrTransferWindowClosed):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))
 				return
 			}
@@ -146,6 +147,8 @@ func AcceptLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrCannotAcceptOwnLoan):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		case errors.Is(err, common.ErrTransferWindowClosed):
+			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting loan listing %d for team %d: %s", listingId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))

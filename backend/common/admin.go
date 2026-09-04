@@ -67,13 +67,14 @@ func GetAllUsersWithTeams(dbCtx *DatabaseContext) ([]AdminUserSummary, error) {
 // AdminOverview is a snapshot of the game's overall state for the commissioner dashboard - see
 // handlers.AdminOverviewHandler for how it's assembled.
 type AdminOverview struct {
-	Season          int `json:"season"`
-	UserCount       int `json:"userCount"`
-	TeamCount       int `json:"teamCount"`
-	LeagueCount     int `json:"leagueCount"`
-	MatchesTotal    int `json:"matchesTotal"`
-	MatchesUnplayed int `json:"matchesUnplayed"`
-	ActiveCups      int `json:"activeCups"`
+	Season             int  `json:"season"`
+	UserCount          int  `json:"userCount"`
+	TeamCount          int  `json:"teamCount"`
+	LeagueCount        int  `json:"leagueCount"`
+	MatchesTotal       int  `json:"matchesTotal"`
+	MatchesUnplayed    int  `json:"matchesUnplayed"`
+	ActiveCups         int  `json:"activeCups"`
+	TransferWindowOpen bool `json:"transferWindowOpen"`
 }
 
 func CountUsers(dbCtx *DatabaseContext) (int, error) {

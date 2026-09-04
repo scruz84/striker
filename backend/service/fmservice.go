@@ -102,6 +102,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())
 	v1TransferGroup.GET("", handlers.BrowseTransfersHandler(dbCtx))
 	v1TransferGroup.POST("/:"+handlers.ID+"/buy", handlers.BuyTransferHandler(dbCtx))
+	v1TransferGroup.GET("/window", handlers.TransferWindowStatusHandler(dbCtx))
 
 	v1LoanGroup := v1Group.Group("/loans")
 	v1LoanGroup.Use(authMiddleware.MiddlewareFunc())
@@ -138,6 +139,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.POST("/simulate", handlers.AdminSimulateNowHandler(dbCtx))
 	v1AdminGroup.POST("/advance-season", handlers.AdminAdvanceSeasonHandler(dbCtx))
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
+	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 
 	//Others V1
 	v1Group.GET("/initData", handlers.Initialize(dbCtx))

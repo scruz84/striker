@@ -79,6 +79,9 @@ func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int
 	if durationSeasons < MinLoanDurationSeasons || durationSeasons > MaxLoanDurationSeasons {
 		return ErrInvalidLoanDuration
 	}
+	if !IsTransferWindowOpen(dbCtx) {
+		return ErrTransferWindowClosed
+	}
 	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
 	if err != nil {
 		return err
@@ -158,6 +161,9 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 // owed back to and when), and drops the listing - all atomically. The listing row is locked
 // (SELECT ... FOR UPDATE) so two simultaneous accepts of the same listing can't both succeed.
 func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) error {
+	if !IsTransferWindowOpen(dbCtx) {
+		return ErrTransferWindowClosed
+	}
 	currentSeason := GetCurrentSeason(dbCtx)
 
 	tx, err := dbCtx.Db.Begin()

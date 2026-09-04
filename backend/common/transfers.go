@@ -31,6 +31,12 @@ var ErrInsufficientBudget = errors.New("insufficient budget")
 var ErrPlayerAlreadyListed = errors.New("player is already listed for transfer")
 var ErrPlayerNotListedByTeam = errors.New("player is not listed for transfer by your team")
 
+// ErrTransferWindowClosed is returned by anything that moves a player between teams (listing,
+// buying, loan-listing, accepting a loan) while common.IsTransferWindowOpen is false - see
+// handlers.SetTransferWindowHandler for the admin toggle. Cancelling an existing listing is
+// never blocked by it - getting your own player off the market isn't transfer activity.
+var ErrTransferWindowClosed = errors.New("transfer window is closed")
+
 // GetPlayerById fetches a single player by id, regardless of which team they belong to.
 func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
 	var p Player
@@ -66,6 +72,9 @@ func IsPlayerTransferListed(dbCtx *DatabaseContext, playerId int64) (bool, error
 // constraint on transfer_listings.player_id) or is already loan-listed, and ErrPlayerOnLoan if
 // the player is currently out on loan - a borrowing team doesn't get to sell what isn't theirs.
 func CreateTransferListing(dbCtx *DatabaseContext, playerId int64, sellingTeamId int64, askingPrice int64) error {
+	if !IsTransferWindowOpen(dbCtx) {
+		return ErrTransferWindowClosed
+	}
 	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
 	if err != nil {
 		return err
@@ -147,6 +156,10 @@ func GetActiveTransferListings(dbCtx *DatabaseContext) ([]TransferListing, error
 // (SELECT ... FOR UPDATE) for the duration, so two simultaneous buys of the same listing, or a
 // buy racing a budget-changing operation, can't both succeed.
 func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64) error {
+	if !IsTransferWindowOpen(dbCtx) {
+		return ErrTransferWindowClosed
+	}
+
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err

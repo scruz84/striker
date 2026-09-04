@@ -53,7 +53,8 @@ func ListPlayerHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			switch {
 			case errors.Is(err, common.ErrPlayerAlreadyListed),
 				errors.Is(err, common.ErrPlayerOnLoan),
-				errors.Is(err, common.ErrPlayerAlreadyLoanListed):
+				errors.Is(err, common.ErrPlayerAlreadyLoanListed),
+				errors.Is(err, common.ErrTransferWindowClosed):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))
 				return
 			}
@@ -114,6 +115,18 @@ func BrowseTransfersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type transferWindowStatusResponse struct {
+	Open bool `json:"open"`
+}
+
+// TransferWindowStatusHandler reports whether the market is currently open - any authenticated
+// user can check this (unlike toggling it, which is admin-only), so the market UI can show it.
+func TransferWindowStatusHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, transferWindowStatusResponse{Open: common.IsTransferWindowOpen(dbCtx)})
+	}
+}
+
 // BuyTransferHandler buys a listed player at its asking price for the caller's team.
 func BuyTransferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -143,6 +156,8 @@ func BuyTransferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrCannotBuyOwnPlayer), errors.Is(err, common.ErrInsufficientBudget):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		case errors.Is(err, common.ErrTransferWindowClosed):
+			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error executing transfer of listing %d to team %d: %s", listingId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))

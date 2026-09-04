@@ -45,13 +45,14 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, common.AdminOverview{
-			Season:          season,
-			UserCount:       userCount,
-			TeamCount:       teamCount,
-			LeagueCount:     leagueCount,
-			MatchesTotal:    matchesTotal,
-			MatchesUnplayed: matchesUnplayed,
-			ActiveCups:      len(activeCups),
+			Season:             season,
+			UserCount:          userCount,
+			TeamCount:          teamCount,
+			LeagueCount:        leagueCount,
+			MatchesTotal:       matchesTotal,
+			MatchesUnplayed:    matchesUnplayed,
+			ActiveCups:         len(activeCups),
+			TransferWindowOpen: common.IsTransferWindowOpen(dbCtx),
 		})
 	}
 }
@@ -121,5 +122,29 @@ func AdminAdjustBudgetHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "budget adjusted"})
+	}
+}
+
+type setTransferWindowRequest struct {
+	Open bool `json:"open"`
+}
+
+// AdminSetTransferWindowHandler opens or closes the global transfer/loan market - see
+// common.IsTransferWindowOpen for how every listing/buy/accept endpoint checks it.
+func AdminSetTransferWindowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setTransferWindowRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "open is required"))
+			return
+		}
+
+		if err := common.SetTransferWindowOpen(dbCtx, req.Open); err != nil {
+			log.Errorf("error setting transfer window open=%v: %s", req.Open, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "transfer window updated"})
 	}
 }
