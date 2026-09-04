@@ -88,3 +88,27 @@ func TestFlattenLineup(t *testing.T) {
 		t.Fatalf("unexpected flattened positions: %v", positions)
 	}
 }
+
+func TestPositionValue_CoversEveryPosition(t *testing.T) {
+	p := Player{GoalKeeper: 10, Defense: 20, Lateral: 30, Pass: 40, Midfield: 50, Dribbling: 60, Shot: 70}
+
+	allPositions := []int{
+		GOALKEEPER, DEFENSE, LATERAL_DEFENSE_LEFT, LATERAL_DEFENSE_RIGHT,
+		MIDFIELD, LATERAL_MIDFIELD_LEFT, LATERAL_MIDFIELD_RIGHT,
+		STRIKER, LATERAL_STRIKER_LEFT, LATERAL_STRIKER_RIGHT,
+	}
+	for _, position := range allPositions {
+		if PositionValue(position, p) <= 0 {
+			t.Errorf("expected a positive value for position %d, got %d", position, PositionValue(position, p))
+		}
+	}
+}
+
+func TestPositionValue_HigherSkillScoresHigher(t *testing.T) {
+	weak := Player{GoalKeeper: 10, Defense: 10, Lateral: 10, Pass: 10, Midfield: 10, Dribbling: 10, Shot: 10}
+	strong := Player{GoalKeeper: 90, Defense: 90, Lateral: 90, Pass: 90, Midfield: 90, Dribbling: 90, Shot: 90}
+
+	if PositionValue(STRIKER, strong) <= PositionValue(STRIKER, weak) {
+		t.Fatal("expected the stronger player to score higher at striker")
+	}
+}

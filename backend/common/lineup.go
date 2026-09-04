@@ -55,6 +55,34 @@ func SelectBestLineup(players []*Player) map[int][]int64 {
 	return lineup
 }
 
+// PositionValue scores how good a player is for one tactical position. Used both to build a
+// team's best-XI lineup (see bestLineupSlots/SelectBestLineup, which only ever fills GOALKEEPER,
+// DEFENSE, MIDFIELD, STRIKER, and the four LATERAL_* positions except the lateral strikers) and,
+// unlike that fixed slot list, covers every position constant including LATERAL_STRIKER_LEFT/
+// RIGHT - a human-edited lineup (see handlers.validateLineup) can use those, so the match-day
+// backfill that finds a replacement for a suspended/injured starter (see engine's
+// excludeUnavailablePlayers/backfillEmptyPositions) needs a value function for them too.
+func PositionValue(position int, p Player) int {
+	switch position {
+	case GOALKEEPER:
+		return p.GoalKeeper
+	case DEFENSE:
+		return p.Defense
+	case LATERAL_DEFENSE_LEFT, LATERAL_DEFENSE_RIGHT:
+		return GetLateralDefenseValue(p)
+	case MIDFIELD:
+		return GetMidfieldValue(p)
+	case LATERAL_MIDFIELD_LEFT, LATERAL_MIDFIELD_RIGHT:
+		return GetLateralMidfieldValue(p)
+	case STRIKER:
+		return GetStrikerValue(p)
+	case LATERAL_STRIKER_LEFT, LATERAL_STRIKER_RIGHT:
+		return GetLateralStrikerValue(p)
+	default:
+		return 0
+	}
+}
+
 // FlattenLineup converts a position->players map (as returned by SelectBestLineup) into the
 // flat slice SetDefaultLineup expects.
 func FlattenLineup(lineup map[int][]int64) []LineupPosition {
