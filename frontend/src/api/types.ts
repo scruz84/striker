@@ -262,6 +262,17 @@ export interface LoanListing {
   listedAt: string
 }
 
+export interface TransferOffer {
+  offerId: number
+  player: Player
+  fromTeamId: number
+  fromTeamName: string
+  toTeamId: number
+  toTeamName: string
+  amount: number
+  createdAt: string
+}
+
 export interface Cup {
   cupId: number
   country: string

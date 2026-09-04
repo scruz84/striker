@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
+import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -21,18 +22,23 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import {
   useAcceptLoan,
+  useAcceptOffer,
   useBuyListing,
   useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
   useMe,
+  useOffersReceived,
+  useOffersSent,
+  useRejectOffer,
   useTransferListings,
   useTransferWindowStatus,
   useUnlistPlayer,
   useUnlistPlayerForLoan,
   useUserTeam,
+  useWithdrawOffer,
 } from '../../api/hooks'
-import type { LoanListing, Player, TransferListing } from '../../api/types'
+import type { LoanListing, Player, TransferListing, TransferOffer } from '../../api/types'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -49,16 +55,18 @@ export function TransferMarketPage() {
       </Typography>
       {windowStatus && !windowStatus.open && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          The transfer window is closed - listing, buying, and accepting loans are unavailable
-          until it reopens.
+          The transfer window is closed - listing, buying, and accepting loans and offers are
+          unavailable until it reopens.
         </Alert>
       )}
       <Tabs value={tab} onChange={handleChange} sx={{ mb: 2 }}>
         <Tab label="Transfers" />
         <Tab label="Loans" />
+        <Tab label="Offers" />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
+      {tab === 2 && <OffersTab />}
     </Box>
   )
 }
@@ -391,6 +399,112 @@ function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
                 {listing.durationSeasons} season{listing.durationSeasons > 1 ? 's' : ''}
               </TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
+}
+
+function OffersTab() {
+  const { data: loggedUser } = useMe()
+  const { data: received, isLoading: receivedLoading } = useOffersReceived(!!loggedUser)
+  const { data: sent, isLoading: sentLoading } = useOffersSent(!!loggedUser)
+
+  const acceptOffer = useAcceptOffer()
+  const rejectOffer = useRejectOffer()
+  const withdrawOffer = useWithdrawOffer()
+
+  if (receivedLoading || sentLoading || !received || !sent) {
+    return <Skeleton variant="rectangular" height={300} />
+  }
+
+  return (
+    <Box>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Offers are made directly on a player from their team page - listed or not.
+      </Typography>
+
+      <Paper sx={{ mb: 3 }}>
+        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
+          Offers on your players
+        </Typography>
+        {received.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+            No pending offers.
+          </Typography>
+        ) : (
+          <OffersTable
+            offers={received}
+            teamColumn="from"
+            renderAction={(offer) => (
+              <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                <Button size="small" variant="contained" onClick={() => acceptOffer.mutate(offer.offerId)} disabled={acceptOffer.isPending}>
+                  Accept
+                </Button>
+                <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending}>
+                  Reject
+                </Button>
+              </Stack>
+            )}
+          />
+        )}
+      </Paper>
+
+      <Paper>
+        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
+          Your offers
+        </Typography>
+        {sent.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+            You haven't made any offers.
+          </Typography>
+        ) : (
+          <OffersTable
+            offers={sent}
+            teamColumn="to"
+            renderAction={(offer) => (
+              <Button size="small" color="secondary" onClick={() => withdrawOffer.mutate(offer.offerId)} disabled={withdrawOffer.isPending}>
+                Withdraw
+              </Button>
+            )}
+          />
+        )}
+      </Paper>
+    </Box>
+  )
+}
+
+interface OffersTableProps {
+  offers: TransferOffer[]
+  teamColumn: 'from' | 'to'
+  renderAction: (offer: TransferOffer) => React.ReactNode
+}
+
+function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
+  return (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Player</TableCell>
+            <TableCell>{teamColumn === 'from' ? 'From' : 'To'}</TableCell>
+            <TableCell>Made</TableCell>
+            <TableCell align="right">Amount</TableCell>
+            <TableCell align="right" />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {offers.map((offer) => (
+            <TableRow key={offer.offerId}>
+              <TableCell>
+                {offer.player.firstName} {offer.player.lastName}
+              </TableCell>
+              <TableCell>{teamColumn === 'from' ? offer.fromTeamName : offer.toTeamName}</TableCell>
+              <TableCell>{formatDateTime(offer.createdAt)}</TableCell>
+              <TableCell align="right">{formatCurrency(offer.amount)}</TableCell>
+              <TableCell align="right">{renderAction(offer)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

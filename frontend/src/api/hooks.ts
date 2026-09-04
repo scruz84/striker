@@ -13,6 +13,7 @@ import type {
   NotificationsResponse,
   TeamDetails,
   TransferListing,
+  TransferOffer,
   WeekMatch,
 } from './types'
 
@@ -26,6 +27,8 @@ export const queryKeys = {
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
   transferWindow: ['transferWindow'] as const,
+  offersReceived: ['offersReceived'] as const,
+  offersSent: ['offersSent'] as const,
   loans: ['loans'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
@@ -331,6 +334,64 @@ export function useTransferWindowStatus(enabled: boolean) {
     queryKey: queryKeys.transferWindow,
     queryFn: () => api.get<{ open: boolean }>('/v1/transfers/window'),
     enabled,
+  })
+}
+
+export function useOffersReceived(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.offersReceived,
+    queryFn: () => api.get<TransferOffer[]>('/v1/offers/received'),
+    enabled,
+  })
+}
+
+export function useOffersSent(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.offersSent,
+    queryFn: () => api.get<TransferOffer[]>('/v1/offers/sent'),
+    enabled,
+  })
+}
+
+export function useMakeOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ playerId, amount }: { playerId: number; amount: number }) => api.post('/v1/offers', { playerId, amount }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+    },
+  })
+}
+
+export function useWithdrawOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.delete(`/v1/offers/${offerId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+    },
+  })
+}
+
+export function useRejectOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.post(`/v1/offers/${offerId}/reject`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersReceived })
+    },
+  })
+}
+
+export function useAcceptOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.post(`/v1/offers/${offerId}/accept`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersReceived })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
   })
 }
 
