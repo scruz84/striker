@@ -80,6 +80,7 @@ export interface LineupPosition {
 export interface Lineup {
   matchId: number
   teamId: number
+  formation: number
   positions: LineupPosition[]
 }
 
@@ -203,6 +204,53 @@ export const ALL_POSITIONS = [
   POSITION_LATERAL_STRIKER_LEFT,
   POSITION_LATERAL_STRIKER_RIGHT,
 ]
+
+// Formation ids and per-position headcounts from backend/common/formation.go - every formation
+// totals 11 players (goalkeeper included). Only the eight positions any formation actually uses
+// appear here; the lateral strikers are never assigned by any formation, so the lineup editor
+// never shows them.
+export const FORMATION_BALANCED = 0
+export const FORMATION_DEFENSIVE = 1
+export const FORMATION_ATTACKING = 2
+
+export const FORMATION_LABELS: Record<number, string> = {
+  [FORMATION_BALANCED]: 'Balanced (4-4-2)',
+  [FORMATION_DEFENSIVE]: 'Defensive (5-3-2)',
+  [FORMATION_ATTACKING]: 'Attacking (3-4-3)',
+}
+
+export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, number>>> = {
+  [FORMATION_BALANCED]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 2,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 2,
+    [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
+    [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
+    [POSITION_STRIKER]: 2,
+  },
+  [FORMATION_DEFENSIVE]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 3,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 1,
+    [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
+    [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
+    [POSITION_STRIKER]: 2,
+  },
+  [FORMATION_ATTACKING]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 1,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 2,
+    [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
+    [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
+    [POSITION_STRIKER]: 3,
+  },
+}
 
 // team_transactions.reason values from backend/common/fmconstants.go
 export const TRANSACTION_TRANSFER_IN = 0

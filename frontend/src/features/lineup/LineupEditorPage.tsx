@@ -10,16 +10,20 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
 import { useLineup, useMe, useSetLineup, useUserTeam } from '../../api/hooks'
-import { ALL_POSITIONS, POSITION_LABELS } from '../../api/types'
+import { FORMATION_BALANCED, FORMATION_LABELS, FORMATION_POSITION_COUNTS, POSITION_LABELS } from '../../api/types'
 import type { Lineup, Player, Team } from '../../api/types'
 
-type Selections = Record<number, number | ''>
+// Slots per position, keyed the same way FORMATION_POSITION_COUNTS is: a position not present
+// for a formation simply isn't used by it.
+type Selections = Record<number, (number | '')[]>
 
 function initialSelections(lineup: Lineup): Selections {
   const next: Selections = {}
-  for (const position of ALL_POSITIONS) {
-    const existing = lineup.positions.find((p) => p.position === position)
-    next[position] = existing ? existing.playerId : ''
+  for (const pos of lineup.positions) {
+    if (!next[pos.position]) {
+      next[pos.position] = []
+    }
+    next[pos.position].push(pos.playerId)
   }
   return next
 }
@@ -37,27 +41,55 @@ export function LineupEditorPage() {
 }
 
 function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
-  // Lazy initializer runs once on mount, seeded from the lineup already loaded by the parent -
-  // no effect needed to sync it in after the fact.
+  // Lazy initializers run once on mount, seeded from the lineup already loaded by the parent -
+  // no effect needed to sync them in after the fact. Switching formations doesn't reset
+  // selections: it just changes how many slots per position are shown/required, so a player
+  // picked under one formation stays picked if you switch back to it.
+  const [formation, setFormation] = useState(lineup.formation)
   const [selections, setSelections] = useState<Selections>(() => initialSelections(lineup))
   const setLineup = useSetLineup()
 
-  const usedPlayerIds = useMemo(() => new Set(Object.values(selections).filter((v) => v !== '')), [selections])
+  const counts = FORMATION_POSITION_COUNTS[formation] ?? FORMATION_POSITION_COUNTS[FORMATION_BALANCED]
+  const positionsToShow = Object.keys(counts).map(Number)
 
-  const isComplete = ALL_POSITIONS.every((p) => selections[p] !== '' && selections[p] !== undefined)
-  const selectedIds = Object.values(selections).filter((v) => v !== '')
+  const visibleSelections = useMemo(() => {
+    const flat: { position: number; playerId: number | '' }[] = []
+    for (const position of positionsToShow) {
+      const count = counts[position] ?? 0
+      for (let i = 0; i < count; i++) {
+        flat.push({ position, playerId: selections[position]?.[i] ?? '' })
+      }
+    }
+    return flat
+  }, [selections, counts, positionsToShow])
+
+  const usedPlayerIds = useMemo(
+    () => new Set(visibleSelections.map((s) => s.playerId).filter((v) => v !== '')),
+    [visibleSelections],
+  )
+  const isComplete = visibleSelections.every((s) => s.playerId !== '')
+  const selectedIds = visibleSelections.map((s) => s.playerId).filter((v) => v !== '')
   const hasDuplicates = new Set(selectedIds).size !== selectedIds.length
 
-  const handleChange = (position: number) => (event: SelectChangeEvent<number | ''>) => {
+  const handleFormationChange = (event: SelectChangeEvent<number>) => {
+    setFormation(Number(event.target.value))
+  }
+
+  const handleSlotChange = (position: number, slotIndex: number) => (event: SelectChangeEvent<number | ''>) => {
     const value = event.target.value
-    setSelections((prev) => ({ ...prev, [position]: value === '' ? '' : Number(value) }))
+    setSelections((prev) => {
+      const arr = [...(prev[position] ?? [])]
+      arr[slotIndex] = value === '' ? '' : Number(value)
+      return { ...prev, [position]: arr }
+    })
   }
 
   const handleSubmit = () => {
     if (!isComplete || hasDuplicates) {
       return
     }
-    setLineup.mutate(ALL_POSITIONS.map((position) => ({ position, playerId: selections[position] as number })))
+    const positions = visibleSelections.map((s) => ({ position: s.position, playerId: s.playerId as number }))
+    setLineup.mutate({ formation, positions })
   }
 
   return (
@@ -65,6 +97,17 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       <Typography variant="h5" gutterBottom>
         Lineup - {team.name}
       </Typography>
+
+      <FormControl sx={{ mb: 2, minWidth: 220 }}>
+        <InputLabel id="formation-label">Formation</InputLabel>
+        <Select labelId="formation-label" label="Formation" value={formation} onChange={handleFormationChange}>
+          {Object.entries(FORMATION_LABELS).map(([value, label]) => (
+            <MenuItem key={value} value={Number(value)}>
+              {label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       {hasDuplicates && (
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -83,32 +126,30 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       )}
 
       <Grid container spacing={2}>
-        {ALL_POSITIONS.map((position) => (
-          <Grid size={{ xs: 12, sm: 6 }} key={position}>
-            <FormControl fullWidth>
-              <InputLabel id={`position-${position}-label`}>{POSITION_LABELS[position]}</InputLabel>
-              <Select
-                labelId={`position-${position}-label`}
-                label={POSITION_LABELS[position]}
-                value={selections[position] ?? ''}
-                onChange={handleChange(position)}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {players.map((player) => (
-                  <MenuItem
-                    key={player.id}
-                    value={player.id}
-                    disabled={usedPlayerIds.has(player.id) && selections[position] !== player.id}
-                  >
-                    {player.firstName} {player.lastName} ({player.age})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        ))}
+        {positionsToShow.map((position) =>
+          Array.from({ length: counts[position] ?? 0 }, (_, slotIndex) => {
+            const label = (counts[position] ?? 0) > 1 ? `${POSITION_LABELS[position]} #${slotIndex + 1}` : POSITION_LABELS[position]
+            const value = selections[position]?.[slotIndex] ?? ''
+            const labelId = `position-${position}-${slotIndex}-label`
+            return (
+              <Grid size={{ xs: 12, sm: 6 }} key={`${position}-${slotIndex}`}>
+                <FormControl fullWidth>
+                  <InputLabel id={labelId}>{label}</InputLabel>
+                  <Select labelId={labelId} label={label} value={value} onChange={handleSlotChange(position, slotIndex)}>
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    {players.map((player) => (
+                      <MenuItem key={player.id} value={player.id} disabled={usedPlayerIds.has(player.id) && value !== player.id}>
+                        {player.firstName} {player.lastName} ({player.age})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            )
+          }),
+        )}
       </Grid>
 
       <Button

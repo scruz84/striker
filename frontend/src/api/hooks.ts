@@ -119,7 +119,8 @@ export function useLineup(enabled: boolean) {
 export function useSetLineup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (positions: LineupPosition[]) => api.put('/v1/user/team/lineup', { positions }),
+    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
+      api.put('/v1/user/team/lineup', { formation, positions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
     },
