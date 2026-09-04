@@ -27,6 +27,7 @@ import {
   useLoanListings,
   useMe,
   useTransferListings,
+  useTransferWindowStatus,
   useUnlistPlayer,
   useUnlistPlayerForLoan,
   useUserTeam,
@@ -36,6 +37,8 @@ import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function TransferMarketPage() {
+  const { data: loggedUser } = useMe()
+  const { data: windowStatus } = useTransferWindowStatus(!!loggedUser)
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
 
@@ -44,6 +47,12 @@ export function TransferMarketPage() {
       <Typography variant="h5" gutterBottom>
         Transfer market
       </Typography>
+      {windowStatus && !windowStatus.open && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          The transfer window is closed - listing, buying, and accepting loans are unavailable
+          until it reopens.
+        </Alert>
+      )}
       <Tabs value={tab} onChange={handleChange} sx={{ mb: 2 }}>
         <Tab label="Transfers" />
         <Tab label="Loans" />

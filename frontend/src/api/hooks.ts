@@ -25,6 +25,7 @@ export const queryKeys = {
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
+  transferWindow: ['transferWindow'] as const,
   loans: ['loans'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
@@ -322,5 +323,24 @@ export function useAdminAdjustBudget() {
   return useMutation({
     mutationFn: ({ teamId, amount, description }: { teamId: number; amount: number; description: string }) =>
       api.post(`/v1/admin/teams/${teamId}/budget`, { amount, description }),
+  })
+}
+
+export function useTransferWindowStatus(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.transferWindow,
+    queryFn: () => api.get<{ open: boolean }>('/v1/transfers/window'),
+    enabled,
+  })
+}
+
+export function useSetTransferWindow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (open: boolean) => api.put('/v1/admin/transfer-window', { open }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.transferWindow })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
   })
 }

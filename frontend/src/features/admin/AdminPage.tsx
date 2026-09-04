@@ -24,6 +24,7 @@ import {
   useAdminSimulateNow,
   useAdminUsers,
   useMe,
+  useSetTransferWindow,
 } from '../../api/hooks'
 
 export function AdminPage() {
@@ -48,10 +49,11 @@ export function AdminPage() {
       {overviewLoading || !overview ? (
         <Skeleton variant="rectangular" height={100} sx={{ mb: 2 }} />
       ) : (
-        <Overview overview={overview} />
+        <>
+          <Overview overview={overview} />
+          <Actions transferWindowOpen={overview.transferWindowOpen} />
+        </>
       )}
-
-      <Actions />
 
       <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
         Users
@@ -90,14 +92,31 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
           </Card>
         </Grid>
       ))}
+      <Grid size={{ xs: 6, sm: 4, md: 3 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="overline" color="text.secondary">
+              Transfer window
+            </Typography>
+            <Box>
+              <Chip
+                size="small"
+                color={overview.transferWindowOpen ? 'success' : 'default'}
+                label={overview.transferWindowOpen ? 'Open' : 'Closed'}
+              />
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
     </Grid>
   )
 }
 
-function Actions() {
+function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
   const adjustBudget = useAdminAdjustBudget()
+  const setTransferWindow = useSetTransferWindow()
   const [teamId, setTeamId] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -129,9 +148,18 @@ function Actions() {
             <Button variant="outlined" onClick={() => advanceSeason.mutate()} disabled={advanceSeason.isPending}>
               Check season advance
             </Button>
+            <Button
+              variant="outlined"
+              color={transferWindowOpen ? 'warning' : 'success'}
+              onClick={() => setTransferWindow.mutate(!transferWindowOpen)}
+              disabled={setTransferWindow.isPending}
+            >
+              {transferWindowOpen ? 'Close transfer window' : 'Open transfer window'}
+            </Button>
           </Stack>
           {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Simulation pass triggered.</Alert>}
           {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Season advance check triggered.</Alert>}
+          {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Transfer window updated.</Alert>}
         </Box>
 
         <Box component="form" onSubmit={handleAdjustBudget}>

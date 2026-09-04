@@ -323,6 +323,7 @@ export interface AdminOverview {
   matchesTotal: number
   matchesUnplayed: number
   activeCups: number
+  transferWindowOpen: boolean
 }
 
 export interface AdminUserSummary {
