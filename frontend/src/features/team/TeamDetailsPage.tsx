@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
+import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -13,14 +15,15 @@ import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
-import { useMakeOffer, useMe, useTeamDetails, useUserTeam } from '../../api/hooks'
-import type { Player } from '../../api/types'
+import { useMakeOffer, useMe, useTeamDetails, useTeamHistory, useUserTeam } from '../../api/hooks'
+import type { Player, SeasonHistoryEntry } from '../../api/types'
 
 export function TeamDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const { data: loggedUser } = useMe()
   const { data: teamDetails, isLoading } = useTeamDetails(id)
   const { data: userTeam } = useUserTeam(!!loggedUser)
+  const { data: history, isLoading: historyLoading } = useTeamHistory(id)
 
   if (isLoading || !teamDetails) {
     return <div>Loading...</div>
@@ -57,7 +60,57 @@ export function TeamDetailsPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Typography variant="h6" sx={{ mt: 2 }}>
+        Trophy cabinet
+      </Typography>
+      {historyLoading || !history ? (
+        <Skeleton variant="rectangular" height={100} />
+      ) : (
+        <TrophyCabinet history={history} />
+      )}
     </Stack>
+  )
+}
+
+function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
+  if (history.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        No completed seasons yet.
+      </Typography>
+    )
+  }
+
+  return (
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Season</TableCell>
+            <TableCell>League</TableCell>
+            <TableCell align="right">Final position</TableCell>
+            <TableCell>Outcome</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {history.map((entry) => (
+            <TableRow key={entry.season}>
+              <TableCell>{entry.season}</TableCell>
+              <TableCell>{entry.leagueName ?? '-'}</TableCell>
+              <TableCell align="right">{entry.finalPosition ?? '-'}</TableCell>
+              <TableCell>
+                <Stack direction="row" spacing={1}>
+                  {entry.promoted && <Chip size="small" color="success" label="Promoted" />}
+                  {entry.relegated && <Chip size="small" color="warning" label="Relegated" />}
+                  {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
+                </Stack>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

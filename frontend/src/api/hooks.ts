@@ -11,6 +11,7 @@ import type {
   LoanListing,
   LoggedUser,
   NotificationsResponse,
+  SeasonHistoryEntry,
   TeamDetails,
   TransferListing,
   TransferOffer,
@@ -21,6 +22,7 @@ export const queryKeys = {
   me: ['me'] as const,
   userTeam: ['userTeam'] as const,
   team: (id: string) => ['team', id] as const,
+  teamHistory: (id: string) => ['teamHistory', id] as const,
   division: (id: string) => ['division', id] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
@@ -88,6 +90,14 @@ export function useTeamDetails(teamId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.team(teamId ?? ''),
     queryFn: () => api.get<TeamDetails>(`/v1/teams/team/${teamId}/`),
+    enabled: !!teamId,
+  })
+}
+
+export function useTeamHistory(teamId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.teamHistory(teamId ?? ''),
+    queryFn: () => api.get<SeasonHistoryEntry[]>(`/v1/teams/team/${teamId}/history`),
     enabled: !!teamId,
   })
 }

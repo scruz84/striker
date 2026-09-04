@@ -310,6 +310,16 @@ export interface LoanListing {
   listedAt: string
 }
 
+export interface SeasonHistoryEntry {
+  teamId: number
+  season: number
+  leagueName: string | null
+  finalPosition: number | null
+  promoted: boolean
+  relegated: boolean
+  cupResult: string | null
+}
+
 export interface TransferOffer {
   offerId: number
   player: Player
