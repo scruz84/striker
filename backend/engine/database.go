@@ -70,6 +70,7 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	deductWages(dbCtx, match.Home)
 	deductWages(dbCtx, match.Away)
+	creditTicketRevenue(dbCtx, match.Home)
 }
 
 // NotifyMatchResult tells both teams' owners how their league match went.

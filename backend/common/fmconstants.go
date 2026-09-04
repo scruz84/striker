@@ -41,6 +41,23 @@ const TRANSACTION_TRANSFER_IN = 0      // sold a player - income
 const TRANSACTION_TRANSFER_OUT = 1     // bought a player - expense
 const TRANSACTION_WAGES = 2            // wage bill for a played match - expense
 const TRANSACTION_ADMIN_ADJUSTMENT = 3 // a commissioner's manual budget correction
+const TRANSACTION_TICKET_REVENUE = 4   // matchday ticket sales for a home match - income
+
+// Stadium capacity is picked once at team creation, scaled by the league tier it starts in
+// (see the initializer's createTeam and common.RandomStadiumCapacity) - bigger clubs get
+// bigger stadiums, and promotion/relegation carries a real financial stake beyond prestige.
+const StadiumCapacityTier1Min = 3000
+const StadiumCapacityTier1Max = 6000
+const StadiumCapacityTier2Min = 1500
+const StadiumCapacityTier2Max = 3500
+const StadiumCapacityTier3Min = 500
+const StadiumCapacityTier3Max = 2000
+
+// DefaultTicketPrice is what a new team starts charging per seat; MinTicketPrice/MaxTicketPrice
+// bound what an owner can set it to (see handlers.SetTicketPriceHandler).
+const DefaultTicketPrice = 10
+const MinTicketPrice = 1
+const MaxTicketPrice = 100
 
 // notifications.notification_type
 const NOTIFICATION_MATCH_RESULT = 0

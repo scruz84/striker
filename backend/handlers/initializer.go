@@ -5,8 +5,10 @@ import (
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type ActionResult struct {
@@ -131,36 +133,39 @@ func createLeague(dbCtx *common.DatabaseContext, country string, name string, ti
 
 func createTeams(dbCtx *common.DatabaseContext, countries []string) {
 	log.Debug("initializing teams")
-	leagues := make([]int64, 0)
 	for _, country := range countries {
 		//create leagues - tier 1 is the top division, each tier below it splits into more
-		//groups; see engine.ComputePromotionRelegation for how teams move between them.
-		leagues = append(leagues, createLeague(dbCtx, country, "I", 1, 1)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "II", 2, 4)...)
-		leagues = append(leagues, createLeague(dbCtx, country, "III", 3, 16)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "IV", 4, 64)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "V", 5, 256)...)
-		//leagues = append(leagues, createLeague(dbCtx, country, "VI", 6, 512)...)
-
-		//create the teams
-		for _, leagueId := range leagues {
-			for i := 0; i < common.TeamsPerLeague; i++ {
-				createTeam(dbCtx, country, leagueId)
-			}
-			createClassification(dbCtx, leagueId)
-		}
+		//groups; see engine.ComputePromotionRelegation for how teams move between them. Tier is
+		//threaded through so each team's starting stadium can be scaled by it - see createTeam.
+		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "I", 1, 1), 1)
+		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "II", 2, 4), 2)
+		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "III", 3, 16), 3)
+		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "IV", 4, 64), 4)
+		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "V", 5, 256), 5)
+		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "VI", 6, 512), 6)
 	}
 }
 
-func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64) {
+func createTeamsForTier(dbCtx *common.DatabaseContext, country string, leagueIds []int64, tier int) {
+	for _, leagueId := range leagueIds {
+		for i := 0; i < common.TeamsPerLeague; i++ {
+			createTeam(dbCtx, country, leagueId, tier)
+		}
+		createClassification(dbCtx, leagueId)
+	}
+}
+
+func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, tier int) {
 	teamId := int64(-1)
-	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO teams (country, league_id, name) values ($1, $2, $3) returning team_id")
+	insertStmt, errInsert := dbCtx.Db.Prepare(
+		"INSERT INTO teams (country, league_id, name, stadium_capacity) values ($1, $2, $3, $4) returning team_id")
 	name, _, _ := common.GetRandomName(dbCtx)
 	teamName := name + " Team"
 	if errInsert != nil {
 		log.Printf("error inserting new teams %s", errInsert)
 	}
-	_ = insertStmt.QueryRow(&country, &leagueId, &teamName).Scan(&teamId)
+	capacity := common.RandomStadiumCapacity(tier, rand.New(rand.NewSource(time.Now().UnixNano())))
+	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &capacity).Scan(&teamId)
 	common.CreatePlayers(dbCtx, teamId)
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
