@@ -98,13 +98,13 @@ func AdvanceCups(dbCtx *common.DatabaseContext) {
 	}
 
 	for _, cup := range cups {
-		if err := advanceCup(dbCtx, cup.CupId); err != nil {
+		if err := advanceCup(dbCtx, cup.CupId, cup.Season); err != nil {
 			log.Errorf("error advancing cup %d: %s", cup.CupId, err)
 		}
 	}
 }
 
-func advanceCup(dbCtx *common.DatabaseContext, cupId int64) error {
+func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
 	round, err := common.GetMaxCupRound(dbCtx, cupId)
 	if err != nil || round == 0 {
 		return err
@@ -126,6 +126,9 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64) error {
 			return err
 		}
 		awardCupChampionBonus(dbCtx, winners[0])
+		if err := common.RecordSeasonHistoryCupResult(dbCtx, winners[0], season, "Champion"); err != nil {
+			log.Errorf("error recording cup champion history for team %d season %d: %s", winners[0], season, err)
+		}
 		if team, err := common.GetTeamById(winners[0], dbCtx); err == nil {
 			if err := common.NotifyTeamOwner(dbCtx, winners[0], common.NOTIFICATION_CUP, team.TeamName+" won the cup!"); err != nil {
 				log.Errorf("error notifying cup champion team %d: %s", winners[0], err)

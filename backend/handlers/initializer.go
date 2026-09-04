@@ -53,6 +53,7 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 	//remove content - tables added after the original set (cups/finances/transfers) reference
 	//teams/players without ON DELETE CASCADE, so they must be cleared first or the later
 	//deleteTable(dbCtx, "teams") call fails on a foreign key violation.
+	deleteTable(dbCtx, "season_history")
 	deleteTable(dbCtx, "notifications")
 	deleteTable(dbCtx, "cup_tie_events")
 	deleteTable(dbCtx, "cup_ties")
