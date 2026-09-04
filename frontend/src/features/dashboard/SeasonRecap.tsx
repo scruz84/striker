@@ -1,6 +1,7 @@
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import Stack from '@mui/material/Stack'
+import { useTranslation } from 'react-i18next'
 import { useMarkNotificationRead, useNotifications } from '../../api/hooks'
 import { NOTIFICATION_CUP, NOTIFICATION_PROMOTION, NOTIFICATION_RELEGATION, type Notification } from '../../api/types'
 
@@ -18,13 +19,14 @@ function severityFor(notificationType: number): 'success' | 'warning' | 'info' {
   return 'info'
 }
 
-function titleFor(notificationType: number): string {
-  if (notificationType === NOTIFICATION_PROMOTION) return 'Promoted!'
-  if (notificationType === NOTIFICATION_RELEGATION) return 'Relegated'
-  return 'Cup'
+function titleKeyFor(notificationType: number): string {
+  if (notificationType === NOTIFICATION_PROMOTION) return 'seasonRecap.promoted'
+  if (notificationType === NOTIFICATION_RELEGATION) return 'seasonRecap.relegated'
+  return 'seasonRecap.cup'
 }
 
 export function SeasonRecap({ enabled }: { enabled: boolean }) {
+  const { t } = useTranslation()
   const { data } = useNotifications(enabled)
   const markRead = useMarkNotificationRead()
 
@@ -44,7 +46,7 @@ export function SeasonRecap({ enabled }: { enabled: boolean }) {
           severity={severityFor(notification.notificationType)}
           onClose={() => markRead.mutate(notification.notificationId)}
         >
-          <AlertTitle>{titleFor(notification.notificationType)}</AlertTitle>
+          <AlertTitle>{t(titleKeyFor(notification.notificationType))}</AlertTitle>
           {notification.message}
         </Alert>
       ))}

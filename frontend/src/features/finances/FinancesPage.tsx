@@ -16,12 +16,14 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
-import { TRANSACTION_LABELS, type Stadium } from '../../api/types'
+import { TRANSACTION_REASON_KEYS, type Stadium } from '../../api/types'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function FinancesPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: finances, isLoading } = useFinances(!!loggedUser)
 
@@ -32,7 +34,7 @@ export function FinancesPage() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Finances
+        {t('finances.title')}
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -40,7 +42,7 @@ export function FinancesPage() {
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="overline" color="text.secondary">
-                Budget
+                {t('finances.budget')}
               </Typography>
               <Typography variant="h4" color={finances.budget < 0 ? 'error' : 'text.primary'}>
                 {formatCurrency(finances.budget)}
@@ -55,10 +57,10 @@ export function FinancesPage() {
         <Table size="small" aria-label="Transactions">
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Reason</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell align="right">Amount</TableCell>
+              <TableCell>{t('finances.table.date')}</TableCell>
+              <TableCell>{t('finances.table.reason')}</TableCell>
+              <TableCell>{t('finances.table.description')}</TableCell>
+              <TableCell align="right">{t('finances.table.amount')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -66,7 +68,7 @@ export function FinancesPage() {
               <TableRow>
                 <TableCell colSpan={4}>
                   <Typography variant="body2" color="text.secondary">
-                    No transactions yet.
+                    {t('finances.noTransactions')}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -74,7 +76,7 @@ export function FinancesPage() {
             {finances.transactions.map((tx) => (
               <TableRow key={tx.id}>
                 <TableCell>{formatDateTime(tx.createdAt)}</TableCell>
-                <TableCell>{TRANSACTION_LABELS[tx.reason] ?? 'Other'}</TableCell>
+                <TableCell>{t(TRANSACTION_REASON_KEYS[tx.reason] ?? 'finances.reasons.other')}</TableCell>
                 <TableCell>{tx.description}</TableCell>
                 <TableCell align="right" sx={{ color: tx.amount < 0 ? 'error.main' : 'success.main' }}>
                   {formatCurrency(tx.amount)}
@@ -89,6 +91,7 @@ export function FinancesPage() {
 }
 
 function StadiumCard({ stadium }: { stadium: Stadium }) {
+  const { t } = useTranslation()
   const setTicketPrice = useSetTicketPrice()
   const upgradeStadium = useUpgradeStadium()
   const [price, setPrice] = useState(String(stadium.ticketPrice))
@@ -106,12 +109,12 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
     <Card sx={{ height: '100%' }}>
       <CardContent>
         <Typography variant="overline" color="text.secondary">
-          Stadium
+          {t('finances.stadium')}
         </Typography>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
           <Typography variant="h4">{stadium.capacity.toLocaleString()}</Typography>
           <Typography variant="caption" color="text.secondary">
-            seats
+            {t('finances.seats')}
           </Typography>
         </Stack>
         <Button
@@ -121,26 +124,26 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
           onClick={() => upgradeStadium.mutate()}
           disabled={upgradeStadium.isPending}
         >
-          Expand (+500 seats)
+          {t('finances.expand')}
         </Button>
-        {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>Stadium expanded.</Alert>}
-        {upgradeStadium.isError && <Alert severity="error" sx={{ mb: 1 }}>Not enough budget to expand.</Alert>}
+        {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>{t('finances.expandSuccess')}</Alert>}
+        {upgradeStadium.isError && <Alert severity="error" sx={{ mb: 1 }}>{t('finances.expandError')}</Alert>}
 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <TextField
-              label="Ticket price"
+              label={t('finances.ticketPrice')}
               size="small"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               sx={{ width: 140 }}
             />
             <Button type="submit" size="small" variant="outlined" disabled={setTicketPrice.isPending}>
-              Save
+              {t('common.save')}
             </Button>
           </Stack>
-          {setTicketPrice.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Ticket price updated.</Alert>}
-          {setTicketPrice.isError && <Alert severity="error" sx={{ mt: 1 }}>Failed to update ticket price.</Alert>}
+          {setTicketPrice.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('finances.ticketPriceSuccess')}</Alert>}
+          {setTicketPrice.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('finances.ticketPriceError')}</Alert>}
         </Box>
       </CardContent>
     </Card>

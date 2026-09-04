@@ -6,11 +6,13 @@ import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useMe, useUserTeam } from '../../api/hooks'
 import { PlayerCard } from '../../components/PlayerCard'
 import { SeasonRecap } from './SeasonRecap'
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading } = useUserTeam(!!loggedUser)
 
@@ -26,7 +28,7 @@ export function DashboardPage() {
           <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h6">{userTeam.team.name}</Typography>
             <Button component={RouterLink} to="/dashboard/lineup" variant="outlined" size="small">
-              Edit lineup
+              {t('dashboard.editLineup')}
             </Button>
           </Stack>
         </CardContent>

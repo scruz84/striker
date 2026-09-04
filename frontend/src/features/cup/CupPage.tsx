@@ -4,11 +4,13 @@ import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
 import type { CupTie } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function CupPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: latestCup, isLoading: cupIdLoading } = useLatestCupId(loggedUser?.country)
   const { data: cupDetails, isLoading: detailsLoading } = useCupDetails(latestCup?.cupId)
@@ -18,7 +20,7 @@ export function CupPage() {
   }
 
   if (!cupDetails) {
-    return <Typography color="text.secondary">No cup found for your country yet.</Typography>
+    return <Typography color="text.secondary">{t('cup.noCup')}</Typography>
   }
 
   const { cup, ties } = cupDetails
@@ -27,16 +29,16 @@ export function CupPage() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        {cup.name} - Season {cup.season}
+        {t('cup.titleWithSeason', { name: cup.name, season: cup.season })}
       </Typography>
       {cup.completed && (
-        <Chip color="success" label={`Champion: ${cup.championTeamName}`} sx={{ mb: 2 }} />
+        <Chip color="success" label={t('cup.champion', { name: cup.championTeamName })} sx={{ mb: 2 }} />
       )}
 
       {rounds.map(({ round, ties: roundTies }) => (
         <Paper key={round} sx={{ mb: 2, p: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
-            {roundName(round, rounds.length)}
+            {roundName(t, round, rounds.length)}
           </Typography>
           <Stack spacing={1}>
             {roundTies.map((tie) => (
@@ -50,21 +52,22 @@ export function CupPage() {
 }
 
 function TieRow({ tie }: { tie: CupTie }) {
+  const { t } = useTranslation()
   const isBye = tie.awayTeamId === null
   return (
     <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center' }}>
       <Typography variant="body2" sx={{ flex: 1 }}>
-        {tie.homeTeamName || 'TBD'}
+        {tie.homeTeamName || t('cup.tbd')}
       </Typography>
       <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
-        {isBye ? 'Bye' : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
+        {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
       </Typography>
       <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-        {tie.awayTeamName || (isBye ? '' : 'TBD')}
+        {tie.awayTeamName || (isBye ? '' : t('cup.tbd'))}
       </Typography>
       {tie.wentToPenalties && (
         <Typography variant="caption" color="text.secondary">
-          (pens)
+          {t('cup.pens')}
         </Typography>
       )}
     </Stack>
@@ -86,10 +89,10 @@ function groupByRound(ties: CupTie[]): { round: number; ties: CupTie[] }[] {
     }))
 }
 
-function roundName(round: number, totalRounds: number): string {
+function roundName(t: (key: string, options?: Record<string, unknown>) => string, round: number, totalRounds: number): string {
   const roundsFromEnd = totalRounds - round
-  if (roundsFromEnd === 0) return 'Final'
-  if (roundsFromEnd === 1) return 'Semifinal'
-  if (roundsFromEnd === 2) return 'Quarterfinal'
-  return `Round ${round}`
+  if (roundsFromEnd === 0) return t('cup.final')
+  if (roundsFromEnd === 1) return t('cup.semifinal')
+  if (roundsFromEnd === 2) return t('cup.quarterfinal')
+  return t('cup.round', { round })
 }

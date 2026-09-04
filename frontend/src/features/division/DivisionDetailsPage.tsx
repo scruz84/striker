@@ -12,16 +12,18 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useDivisionDetails } from '../../api/hooks'
 import type { WeekMatch } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function DivisionDetailsPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const { data: divisionDetails, isLoading } = useDivisionDetails(id)
 
   if (isLoading || !divisionDetails) {
-    return <div>Loading...</div>
+    return <div>{t('common.loading')}</div>
   }
 
   const currentWeek = divisionDetails.classification.positions[0]?.matches ?? 0
@@ -29,22 +31,22 @@ export function DivisionDetailsPage() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        {divisionDetails.name} - Week {currentWeek}
+        {t('division.titleWithWeek', { name: divisionDetails.name, week: currentWeek })}
       </Typography>
 
       <TableContainer component={Paper} sx={{ mb: 2 }}>
         <Table size="small" aria-label="Classification">
           <TableHead>
             <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Team</TableCell>
-              <TableCell align="center">P</TableCell>
-              <TableCell align="center">Avg</TableCell>
-              <TableCell align="center">W</TableCell>
-              <TableCell align="center">D</TableCell>
-              <TableCell align="center">L</TableCell>
-              <TableCell align="center">+</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell>{t('division.table.position')}</TableCell>
+              <TableCell>{t('division.table.team')}</TableCell>
+              <TableCell align="center">{t('division.table.points')}</TableCell>
+              <TableCell align="center">{t('division.table.average')}</TableCell>
+              <TableCell align="center">{t('division.table.wins')}</TableCell>
+              <TableCell align="center">{t('division.table.draws')}</TableCell>
+              <TableCell align="center">{t('division.table.losses')}</TableCell>
+              <TableCell align="center">{t('division.table.goalsFor')}</TableCell>
+              <TableCell align="center">{t('division.table.goalsAgainst')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -73,13 +75,13 @@ export function DivisionDetailsPage() {
 
       <Paper sx={{ mb: 2, p: 1 }}>
         <Typography variant="subtitle1" sx={{ px: 1, pt: 1 }}>
-          Last week
+          {t('division.lastWeek')}
         </Typography>
         <WeekMatchesList weekMatches={divisionDetails.previousWeekMatches} />
       </Paper>
       <Paper sx={{ p: 1 }}>
         <Typography variant="subtitle1" sx={{ px: 1, pt: 1 }}>
-          Next week
+          {t('division.nextWeek')}
         </Typography>
         <WeekMatchesList weekMatches={divisionDetails.nextWeekMatches} />
       </Paper>
@@ -88,10 +90,11 @@ export function DivisionDetailsPage() {
 }
 
 function WeekMatchesList({ weekMatches }: { weekMatches: WeekMatch[] }) {
+  const { t } = useTranslation()
   if (weekMatches.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ px: 1, pb: 1 }}>
-        No matches
+        {t('division.noMatches')}
       </Typography>
     )
   }

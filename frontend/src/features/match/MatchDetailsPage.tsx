@@ -10,13 +10,14 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { queryKeys, useMatchDetails } from '../../api/hooks'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_YELLOW_CARD,
-  POSITION_LABELS,
+  POSITION_LABEL_KEYS,
   type Lineup,
   type MatchEvent,
   type Player,
@@ -41,6 +42,7 @@ export function MatchDetailsPage() {
 }
 
 function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefined; homeName: string; awayName: string }) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
 
@@ -51,13 +53,18 @@ function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefine
   }, [live.complete, matchId, queryClient])
 
   if (live.complete) {
-    return <Typography color="text.secondary">Match finished - loading the result...</Typography>
+    return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
   }
 
   return (
     <Box>
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Chip size="small" color={live.connected ? 'error' : 'default'} label={live.connected ? 'LIVE' : 'Connecting...'} sx={{ mb: 1 }} />
+        <Chip
+          size="small"
+          color={live.connected ? 'error' : 'default'}
+          label={live.connected ? t('match.live') : t('match.connecting')}
+          sx={{ mb: 1 }}
+        />
         <Grid container sx={{ mt: 1, alignItems: 'center' }}>
           <Grid size={5}>
             <Typography variant="h6">{homeName}</Typography>
@@ -87,6 +94,7 @@ function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefine
 }
 
 function PlayedMatch({ match }: { match: WeekMatch }) {
+  const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
 
@@ -115,8 +123,8 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 
       <Paper>
         <Tabs value={tab} onChange={handleChange}>
-          <Tab label="Events" />
-          <Tab label="Lineups" />
+          <Tab label={t('match.tabs.events')} />
+          <Tab label={t('match.tabs.lineups')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <Events events={match.events ?? []} />}
@@ -139,12 +147,13 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY]
 
 function Events({ events }: { events: WeekMatch['events'] }) {
+  const { t } = useTranslation()
   const notable = (events ?? [])
     .filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType))
     .sort((a, b) => a.minute - b.minute)
 
   if (notable.length === 0) {
-    return <Typography color="text.secondary">No notable events in this match.</Typography>
+    return <Typography color="text.secondary">{t('match.noNotableEvents')}</Typography>
   }
 
   return (
@@ -172,6 +181,7 @@ function Events({ events }: { events: WeekMatch['events'] }) {
 }
 
 function EventMarker({ event }: { event: MatchEvent }) {
+  const { t } = useTranslation()
   switch (event.eventType) {
     case EVENT_TYPE_GOAL:
       return (
@@ -181,19 +191,19 @@ function EventMarker({ event }: { event: MatchEvent }) {
       )
     case EVENT_TYPE_YELLOW_CARD:
       return (
-        <Typography variant="body2" component="span" aria-label="Yellow card" title="Yellow card">
+        <Typography variant="body2" component="span" aria-label={t('match.yellowCard')} title={t('match.yellowCard')}>
           🟨
         </Typography>
       )
     case EVENT_TYPE_RED_CARD:
       return (
-        <Typography variant="body2" component="span" aria-label="Red card" title="Red card">
+        <Typography variant="body2" component="span" aria-label={t('match.redCard')} title={t('match.redCard')}>
           🟥
         </Typography>
       )
     case EVENT_TYPE_INJURY:
       return (
-        <Typography variant="body2" component="span" aria-label="Injury" title="Injury">
+        <Typography variant="body2" component="span" aria-label={t('match.injury')} title={t('match.injury')}>
           🚑
         </Typography>
       )
@@ -231,8 +241,9 @@ function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, away
 }
 
 function TeamLineup({ lineup, players }: { lineup: Lineup | null; players: Record<string, Player> | null }) {
+  const { t } = useTranslation()
   if (!lineup || !players || lineup.positions.length === 0) {
-    return <Typography color="text.secondary">No lineup data.</Typography>
+    return <Typography color="text.secondary">{t('match.noLineupData')}</Typography>
   }
 
   const sorted = [...lineup.positions].sort((a, b) => a.position - b.position)
@@ -241,9 +252,10 @@ function TeamLineup({ lineup, players }: { lineup: Lineup | null; players: Recor
     <Box>
       {sorted.map((pos) => {
         const player = players[String(pos.playerId)]
+        const positionKey = POSITION_LABEL_KEYS[pos.position]
         return (
           <Typography variant="body2" key={pos.playerId}>
-            {POSITION_LABELS[pos.position] ?? pos.position}:{' '}
+            {positionKey ? t(positionKey) : pos.position}:{' '}
             {player ? `${player.firstName} ${player.lastName}` : `#${pos.playerId}`}
           </Typography>
         )

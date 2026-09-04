@@ -20,6 +20,7 @@ import TableRow from '@mui/material/TableRow'
 import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import {
   useAcceptLoan,
   useAcceptOffer,
@@ -43,6 +44,7 @@ import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function TransferMarketPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: windowStatus } = useTransferWindowStatus(!!loggedUser)
   const [tab, setTab] = useState(0)
@@ -51,18 +53,17 @@ export function TransferMarketPage() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Transfer market
+        {t('transfers.title')}
       </Typography>
       {windowStatus && !windowStatus.open && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          The transfer window is closed - listing, buying, and accepting loans and offers are
-          unavailable until it reopens.
+          {t('transfers.windowClosed')}
         </Alert>
       )}
       <Tabs value={tab} onChange={handleChange} sx={{ mb: 2 }}>
-        <Tab label="Transfers" />
-        <Tab label="Loans" />
-        <Tab label="Offers" />
+        <Tab label={t('transfers.tabs.transfers')} />
+        <Tab label={t('transfers.tabs.loans')} />
+        <Tab label={t('transfers.tabs.offers')} />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
@@ -72,6 +73,7 @@ export function TransferMarketPage() {
 }
 
 function TransfersTab() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useTransferListings(!!loggedUser)
@@ -113,20 +115,20 @@ function TransfersTab() {
     <Box>
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" gutterBottom>
-          List a player
+          {t('transfers.listPlayer.title')}
         </Typography>
         {listPlayer.isError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            Could not list that player.
+            {t('transfers.listPlayer.error')}
           </Alert>
         )}
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="list-player-label">Player</InputLabel>
+              <InputLabel id="list-player-label">{t('transfers.player')}</InputLabel>
               <Select
                 labelId="list-player-label"
-                label="Player"
+                label={t('transfers.player')}
                 value={selectedPlayerId}
                 onChange={(event: SelectChangeEvent<number | ''>) =>
                   setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))
@@ -143,7 +145,7 @@ function TransfersTab() {
           <Grid size={{ xs: 8, sm: 4 }}>
             <TextField
               fullWidth
-              label="Asking price"
+              label={t('transfers.askingPrice')}
               type="number"
               value={askingPrice}
               onChange={(event) => setAskingPrice(event.target.value)}
@@ -156,7 +158,7 @@ function TransfersTab() {
               disabled={selectedPlayerId === '' || !askingPrice || listPlayer.isPending}
               onClick={handleList}
             >
-              List
+              {t('transfers.list')}
             </Button>
           </Grid>
         </Grid>
@@ -165,13 +167,13 @@ function TransfersTab() {
       {myListings.length > 0 && (
         <Paper sx={{ mb: 3 }}>
           <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-            Your listings
+            {t('transfers.yourListings')}
           </Typography>
           <ListingsTable
             listings={myListings}
             renderAction={(listing) => (
               <Button size="small" color="secondary" onClick={() => unlistPlayer.mutate(listing.player.id)}>
-                Unlist
+                {t('transfers.unlist')}
               </Button>
             )}
           />
@@ -180,18 +182,18 @@ function TransfersTab() {
 
       <Paper>
         <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          Market
+          {t('transfers.market')}
         </Typography>
         {marketListings.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            No players listed right now.
+            {t('transfers.noMarketListings')}
           </Typography>
         ) : (
           <ListingsTable
             listings={marketListings}
             renderAction={(listing) => (
               <Button size="small" variant="contained" onClick={() => buyListing.mutate(listing.listingId)} disabled={buyListing.isPending}>
-                Buy
+                {t('transfers.buy')}
               </Button>
             )}
           />
@@ -207,15 +209,16 @@ interface ListingsTableProps {
 }
 
 function ListingsTable({ listings, renderAction }: ListingsTableProps) {
+  const { t } = useTranslation()
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Player</TableCell>
-            <TableCell>Team</TableCell>
-            <TableCell>Listed</TableCell>
-            <TableCell align="right">Price</TableCell>
+            <TableCell>{t('transfers.table.player')}</TableCell>
+            <TableCell>{t('transfers.table.team')}</TableCell>
+            <TableCell>{t('transfers.table.listed')}</TableCell>
+            <TableCell align="right">{t('transfers.table.price')}</TableCell>
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -240,6 +243,7 @@ function ListingsTable({ listings, renderAction }: ListingsTableProps) {
 const LOAN_DURATION_OPTIONS = [1, 2, 3]
 
 function LoansTab() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useLoanListings(!!loggedUser)
@@ -275,23 +279,23 @@ function LoansTab() {
     <Box>
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="subtitle1" gutterBottom>
-          Offer a player on loan
+          {t('transfers.offerLoan.title')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Free, no fee - the player returns automatically once the duration elapses.
+          {t('transfers.offerLoan.subtitle')}
         </Typography>
         {listForLoan.isError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            Could not list that player for loan.
+            {t('transfers.offerLoan.error')}
           </Alert>
         )}
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormControl fullWidth>
-              <InputLabel id="loan-player-label">Player</InputLabel>
+              <InputLabel id="loan-player-label">{t('transfers.player')}</InputLabel>
               <Select
                 labelId="loan-player-label"
-                label="Player"
+                label={t('transfers.player')}
                 value={selectedPlayerId}
                 onChange={(event: SelectChangeEvent<number | ''>) =>
                   setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))
@@ -307,16 +311,16 @@ function LoansTab() {
           </Grid>
           <Grid size={{ xs: 8, sm: 4 }}>
             <FormControl fullWidth>
-              <InputLabel id="loan-duration-label">Duration</InputLabel>
+              <InputLabel id="loan-duration-label">{t('transfers.duration')}</InputLabel>
               <Select
                 labelId="loan-duration-label"
-                label="Duration"
+                label={t('transfers.duration')}
                 value={duration}
                 onChange={(event: SelectChangeEvent<number>) => setDuration(Number(event.target.value))}
               >
                 {LOAN_DURATION_OPTIONS.map((seasons) => (
                   <MenuItem key={seasons} value={seasons}>
-                    {seasons} season{seasons > 1 ? 's' : ''}
+                    {t('transfers.seasonCount', { count: seasons })}
                   </MenuItem>
                 ))}
               </Select>
@@ -324,7 +328,7 @@ function LoansTab() {
           </Grid>
           <Grid size={{ xs: 4, sm: 2 }}>
             <Button fullWidth variant="contained" disabled={selectedPlayerId === '' || listForLoan.isPending} onClick={handleList}>
-              List
+              {t('transfers.list')}
             </Button>
           </Grid>
         </Grid>
@@ -333,13 +337,13 @@ function LoansTab() {
       {myListings.length > 0 && (
         <Paper sx={{ mb: 3 }}>
           <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-            Your loan listings
+            {t('transfers.yourLoanListings')}
           </Typography>
           <LoanListingsTable
             listings={myListings}
             renderAction={(listing) => (
               <Button size="small" color="secondary" onClick={() => unlistFromLoan.mutate(listing.player.id)}>
-                Unlist
+                {t('transfers.unlist')}
               </Button>
             )}
           />
@@ -348,18 +352,18 @@ function LoansTab() {
 
       <Paper>
         <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          Loan market
+          {t('transfers.loanMarket')}
         </Typography>
         {marketListings.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            No players available on loan right now.
+            {t('transfers.noLoanListings')}
           </Typography>
         ) : (
           <LoanListingsTable
             listings={marketListings}
             renderAction={(listing) => (
               <Button size="small" variant="contained" onClick={() => acceptLoan.mutate(listing.listingId)} disabled={acceptLoan.isPending}>
-                Accept
+                {t('transfers.accept')}
               </Button>
             )}
           />
@@ -375,15 +379,16 @@ interface LoanListingsTableProps {
 }
 
 function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
+  const { t } = useTranslation()
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Player</TableCell>
-            <TableCell>Team</TableCell>
-            <TableCell>Listed</TableCell>
-            <TableCell align="right">Duration</TableCell>
+            <TableCell>{t('transfers.table.player')}</TableCell>
+            <TableCell>{t('transfers.table.team')}</TableCell>
+            <TableCell>{t('transfers.table.listed')}</TableCell>
+            <TableCell align="right">{t('transfers.table.duration')}</TableCell>
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -395,9 +400,7 @@ function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
               </TableCell>
               <TableCell>{listing.lendingTeamName}</TableCell>
               <TableCell>{formatDateTime(listing.listedAt)}</TableCell>
-              <TableCell align="right">
-                {listing.durationSeasons} season{listing.durationSeasons > 1 ? 's' : ''}
-              </TableCell>
+              <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>
             </TableRow>
           ))}
@@ -408,6 +411,7 @@ function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
 }
 
 function OffersTab() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: received, isLoading: receivedLoading } = useOffersReceived(!!loggedUser)
   const { data: sent, isLoading: sentLoading } = useOffersSent(!!loggedUser)
@@ -423,16 +427,16 @@ function OffersTab() {
   return (
     <Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Offers are made directly on a player from their team page - listed or not.
+        {t('transfers.offers.intro')}
       </Typography>
 
       <Paper sx={{ mb: 3 }}>
         <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          Offers on your players
+          {t('transfers.offers.onYourPlayers')}
         </Typography>
         {received.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            No pending offers.
+            {t('transfers.offers.noPending')}
           </Typography>
         ) : (
           <OffersTable
@@ -441,10 +445,10 @@ function OffersTab() {
             renderAction={(offer) => (
               <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
                 <Button size="small" variant="contained" onClick={() => acceptOffer.mutate(offer.offerId)} disabled={acceptOffer.isPending}>
-                  Accept
+                  {t('transfers.accept')}
                 </Button>
                 <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending}>
-                  Reject
+                  {t('transfers.reject')}
                 </Button>
               </Stack>
             )}
@@ -454,11 +458,11 @@ function OffersTab() {
 
       <Paper>
         <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          Your offers
+          {t('transfers.offers.yourOffers')}
         </Typography>
         {sent.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            You haven't made any offers.
+            {t('transfers.offers.noneSent')}
           </Typography>
         ) : (
           <OffersTable
@@ -466,7 +470,7 @@ function OffersTab() {
             teamColumn="to"
             renderAction={(offer) => (
               <Button size="small" color="secondary" onClick={() => withdrawOffer.mutate(offer.offerId)} disabled={withdrawOffer.isPending}>
-                Withdraw
+                {t('transfers.withdraw')}
               </Button>
             )}
           />
@@ -483,15 +487,16 @@ interface OffersTableProps {
 }
 
 function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
+  const { t } = useTranslation()
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Player</TableCell>
-            <TableCell>{teamColumn === 'from' ? 'From' : 'To'}</TableCell>
-            <TableCell>Made</TableCell>
-            <TableCell align="right">Amount</TableCell>
+            <TableCell>{t('transfers.table.player')}</TableCell>
+            <TableCell>{teamColumn === 'from' ? t('transfers.table.from') : t('transfers.table.to')}</TableCell>
+            <TableCell>{t('transfers.table.made')}</TableCell>
+            <TableCell align="right">{t('transfers.table.amount')}</TableCell>
             <TableCell align="right" />
           </TableRow>
         </TableHead>

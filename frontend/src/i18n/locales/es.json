@@ -1,0 +1,309 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "header": {
+    "login": "Iniciar sesión",
+    "account": "Cuenta",
+    "language": "Idioma",
+    "nav": {
+      "dashboard": "Panel",
+      "lineup": "Alineación",
+      "finances": "Finanzas",
+      "transferMarket": "Mercado de fichajes",
+      "cup": "Copa",
+      "friendGroups": "Grupos de amigos",
+      "admin": "Administración",
+      "logout": "Cerrar sesión"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "deliveryPreferences": "Preferencias de entrega",
+    "deliverBy": "Enviar notificaciones también por:",
+    "email": "Correo electrónico",
+    "push": "Push",
+    "empty": "Aún no hay notificaciones."
+  },
+  "home": {
+    "hero": {
+      "title": "Construye tu club. Decide cada detalle.",
+      "subtitle": "Striker es un manager de fútbol gratuito en el navegador - reclama un equipo, define tu táctica, opera en el mercado de fichajes y abre camino desde las divisiones inferiores hasta el título.",
+      "getStarted": "Empezar",
+      "signIn": "Iniciar sesión"
+    },
+    "features": {
+      "title": "Todo lo que necesita un manager",
+      "subtitle": "Una temporada completa, simulándose de forma continua en segundo plano.",
+      "matchSimulation": {
+        "title": "Simulación de partidos en vivo",
+        "description": "Define tu alineación y formación, y sigue cada partido minuto a minuto mientras se disputa."
+      },
+      "transfersLoans": {
+        "title": "Fichajes y cesiones",
+        "description": "Compra, vende, capta talento y negocia ofertas directas - o cede jugadores entre clubes."
+      },
+      "leaguesCups": {
+        "title": "Ligas y copas",
+        "description": "Lucha por el ascenso y evita el descenso entre categorías, y persigue títulos en competiciones de eliminatoria."
+      },
+      "clubFinances": {
+        "title": "Finanzas del club",
+        "description": "Equilibra los salarios con la venta de entradas, el patrocinio y los premios - y reinvierte en tu estadio."
+      },
+      "squadDevelopment": {
+        "title": "Desarrollo de la plantilla",
+        "description": "Observa cómo progresan tus canteranos y gestiona a los veteranos a medida que se acercan al retiro."
+      },
+      "friendGroups": {
+        "title": "Grupos de amigos",
+        "description": "Crea una clasificación privada con tus amigos y comprueba quién construye el club más valioso."
+      }
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "steps": {
+        "claim": { "title": "Reclama un club", "description": "Elige un equipo sin dueño de cualquier liga y toma las riendas." },
+        "manage": { "title": "Gestiona cada detalle", "description": "Define tu alineación, opera en el mercado de fichajes y haz crecer tus finanzas." },
+        "climb": { "title": "Escala la clasificación", "description": "Gana partidos, logra el ascenso y levanta la copa." }
+      }
+    },
+    "readyTitle": "¿Listo para tomar el mando?",
+    "claimClub": "Reclama tu club"
+  },
+  "login": {
+    "welcomeBack": "Bienvenido de nuevo, {{name}}",
+    "alreadySignedIn": "Ya has iniciado sesión.",
+    "goToDashboard": "Ir al panel",
+    "title": "Inicia sesión en Striker",
+    "subtitle": "Usa tu cuenta de Google para reclamar un club y empezar a gestionarlo.",
+    "signInFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    "backToHome": "Volver al inicio"
+  },
+  "dashboard": {
+    "editLineup": "Editar alineación"
+  },
+  "seasonRecap": {
+    "promoted": "¡Ascenso!",
+    "relegated": "Descenso",
+    "cup": "Copa"
+  },
+  "lineup": {
+    "title": "Alineación - {{teamName}}",
+    "formation": "Formación",
+    "duplicateWarning": "Cada jugador solo puede seleccionarse una vez.",
+    "saveError": "No se pudo guardar la alineación. Revisa tus selecciones.",
+    "saveSuccess": "Alineación guardada.",
+    "none": "Ninguno",
+    "slotLabel": "{{position}} #{{index}}",
+    "save": "Guardar alineación"
+  },
+  "positions": {
+    "goalkeeper": "Portero",
+    "defense": "Defensa",
+    "leftBack": "Lateral izquierdo",
+    "rightBack": "Lateral derecho",
+    "midfield": "Centrocampista",
+    "leftMidfield": "Interior izquierdo",
+    "rightMidfield": "Interior derecho",
+    "striker": "Delantero",
+    "leftStriker": "Extremo izquierdo",
+    "rightStriker": "Extremo derecho"
+  },
+  "formations": {
+    "balanced": "Equilibrada (4-4-2)",
+    "defensive": "Defensiva (5-3-2)",
+    "attacking": "Ofensiva (3-4-3)"
+  },
+  "finances": {
+    "title": "Finanzas",
+    "budget": "Presupuesto",
+    "stadium": "Estadio",
+    "seats": "asientos",
+    "expand": "Ampliar (+500 asientos)",
+    "expandSuccess": "Estadio ampliado.",
+    "expandError": "Presupuesto insuficiente para ampliar.",
+    "ticketPrice": "Precio de la entrada",
+    "ticketPriceSuccess": "Precio de la entrada actualizado.",
+    "ticketPriceError": "No se pudo actualizar el precio de la entrada.",
+    "table": { "date": "Fecha", "reason": "Motivo", "description": "Descripción", "amount": "Importe" },
+    "noTransactions": "Aún no hay transacciones.",
+    "reasons": {
+      "transferIn": "Jugador vendido",
+      "transferOut": "Jugador comprado",
+      "wages": "Salarios",
+      "adminAdjustment": "Ajuste administrativo",
+      "ticketRevenue": "Venta de entradas",
+      "prizeMoney": "Premio en metálico",
+      "sponsorship": "Patrocinio",
+      "other": "Otro"
+    }
+  },
+  "transfers": {
+    "title": "Mercado de fichajes",
+    "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
+    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas" },
+    "listPlayer": { "title": "Poner en venta a un jugador", "error": "No se pudo listar a ese jugador." },
+    "player": "Jugador",
+    "askingPrice": "Precio de venta",
+    "list": "Listar",
+    "yourListings": "Tus jugadores en venta",
+    "unlist": "Quitar de la venta",
+    "market": "Mercado",
+    "noMarketListings": "No hay jugadores en venta en este momento.",
+    "table": {
+      "player": "Jugador",
+      "team": "Equipo",
+      "listed": "Listado",
+      "price": "Precio",
+      "duration": "Duración",
+      "from": "De",
+      "to": "Para",
+      "made": "Hecha",
+      "amount": "Importe"
+    },
+    "buy": "Comprar",
+    "offerLoan": {
+      "title": "Ceder un jugador",
+      "subtitle": "Gratis, sin comisión - el jugador vuelve automáticamente al terminar la cesión.",
+      "error": "No se pudo listar a ese jugador para cesión."
+    },
+    "duration": "Duración",
+    "seasonCount_one": "{{count}} temporada",
+    "seasonCount_other": "{{count}} temporadas",
+    "yourLoanListings": "Tus jugadores cedibles",
+    "loanMarket": "Mercado de cesiones",
+    "noLoanListings": "No hay jugadores disponibles en cesión en este momento.",
+    "accept": "Aceptar",
+    "offers": {
+      "intro": "Las ofertas se hacen directamente sobre un jugador desde la página de su equipo - esté listado o no.",
+      "onYourPlayers": "Ofertas por tus jugadores",
+      "noPending": "No hay ofertas pendientes.",
+      "yourOffers": "Tus ofertas",
+      "noneSent": "Aún no has hecho ninguna oferta."
+    },
+    "reject": "Rechazar",
+    "withdraw": "Retirar"
+  },
+  "cup": {
+    "titleWithSeason": "{{name}} - Temporada {{season}}",
+    "champion": "Campeón: {{name}}",
+    "noCup": "Aún no hay copa para tu país.",
+    "round": "Ronda {{round}}",
+    "final": "Final",
+    "semifinal": "Semifinal",
+    "quarterfinal": "Cuartos de final",
+    "bye": "Exento",
+    "pens": "(pens)",
+    "tbd": "Por determinar"
+  },
+  "division": {
+    "titleWithWeek": "{{name}} - Jornada {{week}}",
+    "table": {
+      "position": "#",
+      "team": "Equipo",
+      "points": "Pts",
+      "average": "Prom",
+      "wins": "G",
+      "draws": "E",
+      "losses": "P",
+      "goalsFor": "+",
+      "goalsAgainst": "-"
+    },
+    "lastWeek": "Jornada anterior",
+    "nextWeek": "Próxima jornada",
+    "noMatches": "Sin partidos"
+  },
+  "team": {
+    "competitions": "Competiciones:",
+    "squad": "Plantilla",
+    "player": "Jugador",
+    "age": "Edad",
+    "trophyCabinet": "Vitrina de trofeos",
+    "noSeasons": "Aún no hay temporadas completadas.",
+    "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },
+    "promoted": "Ascendido",
+    "relegated": "Descendido",
+    "makeOffer": "Hacer oferta",
+    "amount": "Importe",
+    "send": "Enviar",
+    "offerError": "No se pudo hacer esa oferta."
+  },
+  "match": {
+    "matchFinished": "Partido finalizado - cargando el resultado...",
+    "live": "EN VIVO",
+    "connecting": "Conectando...",
+    "tabs": { "events": "Eventos", "lineups": "Alineaciones" },
+    "noNotableEvents": "No hay eventos destacados en este partido.",
+    "noLineupData": "No hay datos de alineación.",
+    "yellowCard": "Tarjeta amarilla",
+    "redCard": "Tarjeta roja",
+    "injury": "Lesión"
+  },
+  "groups": {
+    "title": "Grupos de amigos",
+    "subtitle": "Una clasificación entre tú y los equipos de tus amigos, ordenada por presupuesto - no es una liga aislada, solo presumir sobre los equipos que ya gestionáis.",
+    "create": { "title": "Crear un grupo", "name": "Nombre", "button": "Crear" },
+    "join": { "title": "Unirse a un grupo", "code": "Código de invitación", "button": "Unirse", "error": "No se pudo unir - comprueba el código de invitación." },
+    "yourGroups": "Tus grupos",
+    "noGroups": "Aún no perteneces a ningún grupo.",
+    "code": "Código: {{code}}",
+    "leave": "Abandonar",
+    "deleteGroup": "Eliminar grupo",
+    "table": { "manager": "Manager", "team": "Equipo", "league": "Liga", "budget": "Presupuesto" },
+    "you": "Tú"
+  },
+  "admin": {
+    "title": "Administración",
+    "noAccess": "No tienes acceso de administrador.",
+    "overview": {
+      "season": "Temporada",
+      "users": "Usuarios",
+      "teams": "Equipos",
+      "leagues": "Ligas",
+      "matchesTotal": "Partidos esta temporada",
+      "matchesUnplayed": "Partidos sin jugar",
+      "activeCups": "Copas activas",
+      "transferWindow": "Mercado de fichajes",
+      "open": "Abierto",
+      "closed": "Cerrado"
+    },
+    "actions": {
+      "title": "Acciones manuales",
+      "runSimulation": "Ejecutar simulación ahora",
+      "checkSeasonAdvance": "Comprobar avance de temporada",
+      "closeWindow": "Cerrar mercado de fichajes",
+      "openWindow": "Abrir mercado de fichajes",
+      "simSuccess": "Simulación ejecutada.",
+      "seasonSuccess": "Comprobación de avance de temporada ejecutada.",
+      "windowSuccess": "Mercado de fichajes actualizado."
+    },
+    "adjustBudget": {
+      "title": "Ajustar presupuesto de equipo",
+      "teamId": "Id de equipo",
+      "amount": "Importe",
+      "amountHelper": "negativo para restar",
+      "description": "Descripción",
+      "apply": "Aplicar",
+      "success": "Presupuesto ajustado.",
+      "error": "No se pudo ajustar el presupuesto."
+    },
+    "usersTitle": "Usuarios",
+    "usersTable": { "id": "Id", "name": "Nombre", "email": "Correo electrónico", "country": "País", "team": "Equipo", "admin": "Admin" }
+  },
+  "playerCard": {
+    "age": "Edad {{age}}",
+    "skills": {
+      "goalkeeper": "Portero",
+      "defense": "Defensa",
+      "lateral": "Lateral",
+      "pass": "Pase",
+      "midfield": "Medio",
+      "dribbling": "Regate",
+      "shot": "Disparo"
+    }
+  }
+}

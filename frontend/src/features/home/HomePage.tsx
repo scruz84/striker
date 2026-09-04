@@ -13,48 +13,22 @@ import StadiumIcon from '@mui/icons-material/Stadium'
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
+import { useTranslation } from 'react-i18next'
 import { useMe } from '../../api/hooks'
 
 const FEATURES = [
-  {
-    icon: SportsSoccerIcon,
-    title: 'Live match simulation',
-    description: 'Set your lineup and formation, then follow every match minute-by-minute as it plays out.',
-  },
-  {
-    icon: SwapHorizIcon,
-    title: 'Transfers & loans',
-    description: 'Buy, sell, scout, and negotiate direct offers - or loan players in and out between clubs.',
-  },
-  {
-    icon: EmojiEventsIcon,
-    title: 'Leagues & cups',
-    description: 'Battle promotion and relegation across tiers, and chase silverware in knockout cup competitions.',
-  },
-  {
-    icon: StadiumIcon,
-    title: 'Club finances',
-    description: 'Balance wages against ticket revenue, sponsorship, and prize money - then reinvest in your stadium.',
-  },
-  {
-    icon: TrendingUpIcon,
-    title: 'Squad development',
-    description: 'Watch your academy prospects progress, and manage aging veterans as they approach retirement.',
-  },
-  {
-    icon: GroupsIcon,
-    title: 'Friend groups',
-    description: 'Create a private leaderboard with friends and see who builds the most valuable club.',
-  },
-]
+  { icon: SportsSoccerIcon, key: 'matchSimulation' },
+  { icon: SwapHorizIcon, key: 'transfersLoans' },
+  { icon: EmojiEventsIcon, key: 'leaguesCups' },
+  { icon: StadiumIcon, key: 'clubFinances' },
+  { icon: TrendingUpIcon, key: 'squadDevelopment' },
+  { icon: GroupsIcon, key: 'friendGroups' },
+] as const
 
-const STEPS = [
-  { step: '1', title: 'Claim a club', description: 'Pick an unowned team from any league and take the reins.' },
-  { step: '2', title: 'Manage every detail', description: 'Set your lineup, work the transfer market, and grow your finances.' },
-  { step: '3', title: 'Climb the table', description: 'Win matches, earn promotion, and lift the cup.' },
-]
+const STEPS = ['claim', 'manage', 'climb'] as const
 
 export function HomePage() {
+  const { t } = useTranslation()
   const { data: loggedUser, isLoading } = useMe()
   const navigate = useNavigate()
 
@@ -79,15 +53,14 @@ export function HomePage() {
       >
         <Container maxWidth="md" sx={{ py: { xs: 8, sm: 12 }, textAlign: 'center' }}>
           <Typography variant="h2" component="h1" sx={{ fontWeight: 700, mb: 2, fontSize: { xs: '2.25rem', sm: '3rem' } }}>
-            Build your club. Own every decision.
+            {t('home.hero.title')}
           </Typography>
           <Typography variant="h6" component="p" sx={{ mb: 4, opacity: 0.92, fontWeight: 400 }}>
-            Striker is a free browser football manager - claim a team, set your tactics, work the transfer
-            market, and simulate your way from the lower divisions to the title.
+            {t('home.hero.subtitle')}
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ justifyContent: 'center' }}>
             <Button component={RouterLink} to="/login" variant="contained" color="secondary" size="large">
-              Get started
+              {t('home.hero.getStarted')}
             </Button>
             <Button
               component={RouterLink}
@@ -96,7 +69,7 @@ export function HomePage() {
               size="large"
               sx={{ color: 'inherit', borderColor: 'currentColor' }}
             >
-              Sign in
+              {t('home.hero.signIn')}
             </Button>
           </Stack>
         </Container>
@@ -104,21 +77,21 @@ export function HomePage() {
 
       <Container maxWidth="lg" sx={{ py: { xs: 6, sm: 8 } }}>
         <Typography variant="h4" component="h2" sx={{ textAlign: 'center', fontWeight: 600, mb: 1 }}>
-          Everything a manager needs
+          {t('home.features.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', mb: 5 }}>
-          A full season-long game, running continuously in the background.
+          {t('home.features.subtitle')}
         </Typography>
         <Grid container spacing={3}>
-          {FEATURES.map(({ icon: Icon, title, description }) => (
-            <Grid key={title} size={{ xs: 12, sm: 6, md: 4 }}>
+          {FEATURES.map(({ icon: Icon, key }) => (
+            <Grid key={key} size={{ xs: 12, sm: 6, md: 4 }}>
               <Paper variant="outlined" sx={{ p: 3, height: '100%' }}>
                 <Icon color="primary" sx={{ fontSize: 36, mb: 1.5 }} />
                 <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 1 }}>
-                  {title}
+                  {t(`home.features.${key}.title`)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {description}
+                  {t(`home.features.${key}.description`)}
                 </Typography>
               </Paper>
             </Grid>
@@ -129,11 +102,11 @@ export function HomePage() {
       <Box sx={{ bgcolor: 'action.hover', py: { xs: 6, sm: 8 } }}>
         <Container maxWidth="md">
           <Typography variant="h4" component="h2" sx={{ textAlign: 'center', fontWeight: 600, mb: 5 }}>
-            How it works
+            {t('home.howItWorks.title')}
           </Typography>
           <Grid container spacing={4}>
-            {STEPS.map(({ step, title, description }) => (
-              <Grid key={step} size={{ xs: 12, sm: 4 }}>
+            {STEPS.map((key, index) => (
+              <Grid key={key} size={{ xs: 12, sm: 4 }}>
                 <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
                   <Box
                     sx={{
@@ -148,13 +121,13 @@ export function HomePage() {
                       fontWeight: 700,
                     }}
                   >
-                    {step}
+                    {index + 1}
                   </Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {title}
+                    {t(`home.howItWorks.steps.${key}.title`)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {description}
+                    {t(`home.howItWorks.steps.${key}.description`)}
                   </Typography>
                 </Stack>
               </Grid>
@@ -165,10 +138,10 @@ export function HomePage() {
 
       <Container maxWidth="md" sx={{ py: { xs: 6, sm: 8 }, textAlign: 'center' }}>
         <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 2 }}>
-          Ready to take charge?
+          {t('home.readyTitle')}
         </Typography>
         <Button component={RouterLink} to="/login" variant="contained" size="large">
-          Claim your club
+          {t('home.claimClub')}
         </Button>
       </Container>
     </Box>

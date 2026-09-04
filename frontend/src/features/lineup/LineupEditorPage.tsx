@@ -9,8 +9,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { useLineup, useMe, useSetLineup, useUserTeam } from '../../api/hooks'
-import { FORMATION_BALANCED, FORMATION_LABELS, FORMATION_POSITION_COUNTS, POSITION_LABELS } from '../../api/types'
+import { FORMATION_BALANCED, FORMATION_LABEL_KEYS, FORMATION_POSITION_COUNTS, POSITION_LABEL_KEYS } from '../../api/types'
 import type { Lineup, Player, Team } from '../../api/types'
 
 // Slots per position, keyed the same way FORMATION_POSITION_COUNTS is: a position not present
@@ -41,6 +42,7 @@ export function LineupEditorPage() {
 }
 
 function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
+  const { t } = useTranslation()
   // Lazy initializers run once on mount, seeded from the lineup already loaded by the parent -
   // no effect needed to sync them in after the fact. Switching formations doesn't reset
   // selections: it just changes how many slots per position are shown/required, so a player
@@ -95,15 +97,15 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Lineup - {team.name}
+        {t('lineup.title', { teamName: team.name })}
       </Typography>
 
       <FormControl sx={{ mb: 2, minWidth: 220 }}>
-        <InputLabel id="formation-label">Formation</InputLabel>
-        <Select labelId="formation-label" label="Formation" value={formation} onChange={handleFormationChange}>
-          {Object.entries(FORMATION_LABELS).map(([value, label]) => (
+        <InputLabel id="formation-label">{t('lineup.formation')}</InputLabel>
+        <Select labelId="formation-label" label={t('lineup.formation')} value={formation} onChange={handleFormationChange}>
+          {Object.keys(FORMATION_LABEL_KEYS).map((value) => (
             <MenuItem key={value} value={Number(value)}>
-              {label}
+              {t(FORMATION_LABEL_KEYS[Number(value)])}
             </MenuItem>
           ))}
         </Select>
@@ -111,24 +113,28 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
 
       {hasDuplicates && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Each player can only be selected once.
+          {t('lineup.duplicateWarning')}
         </Alert>
       )}
       {setLineup.isError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Could not save the lineup. Check your selections.
+          {t('lineup.saveError')}
         </Alert>
       )}
       {setLineup.isSuccess && (
         <Alert severity="success" sx={{ mb: 2 }}>
-          Lineup saved.
+          {t('lineup.saveSuccess')}
         </Alert>
       )}
 
       <Grid container spacing={2}>
         {positionsToShow.map((position) =>
           Array.from({ length: counts[position] ?? 0 }, (_, slotIndex) => {
-            const label = (counts[position] ?? 0) > 1 ? `${POSITION_LABELS[position]} #${slotIndex + 1}` : POSITION_LABELS[position]
+            const positionLabel = t(POSITION_LABEL_KEYS[position])
+            const label =
+              (counts[position] ?? 0) > 1
+                ? t('lineup.slotLabel', { position: positionLabel, index: slotIndex + 1 })
+                : positionLabel
             const value = selections[position]?.[slotIndex] ?? ''
             const labelId = `position-${position}-${slotIndex}-label`
             return (
@@ -137,7 +143,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
                   <InputLabel id={labelId}>{label}</InputLabel>
                   <Select labelId={labelId} label={label} value={value} onChange={handleSlotChange(position, slotIndex)}>
                     <MenuItem value="">
-                      <em>None</em>
+                      <em>{t('lineup.none')}</em>
                     </MenuItem>
                     {players.map((player) => (
                       <MenuItem key={player.id} value={player.id} disabled={usedPlayerIds.has(player.id) && value !== player.id}>
@@ -158,7 +164,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         disabled={!isComplete || hasDuplicates || setLineup.isPending}
         onClick={handleSubmit}
       >
-        Save lineup
+        {t('lineup.save')}
       </Button>
     </Box>
   )

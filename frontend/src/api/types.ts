@@ -179,17 +179,19 @@ export const POSITION_STRIKER = 7
 export const POSITION_LATERAL_STRIKER_LEFT = 8
 export const POSITION_LATERAL_STRIKER_RIGHT = 9
 
-export const POSITION_LABELS: Record<number, string> = {
-  [POSITION_GOALKEEPER]: 'Goalkeeper',
-  [POSITION_DEFENSE]: 'Defense',
-  [POSITION_LATERAL_DEFENSE_LEFT]: 'Left back',
-  [POSITION_LATERAL_DEFENSE_RIGHT]: 'Right back',
-  [POSITION_MIDFIELD]: 'Midfield',
-  [POSITION_LATERAL_MIDFIELD_LEFT]: 'Left midfield',
-  [POSITION_LATERAL_MIDFIELD_RIGHT]: 'Right midfield',
-  [POSITION_STRIKER]: 'Striker',
-  [POSITION_LATERAL_STRIKER_LEFT]: 'Left striker',
-  [POSITION_LATERAL_STRIKER_RIGHT]: 'Right striker',
+// Values are i18n keys under "positions.*" (see src/i18n/locales) rather than literal labels -
+// look them up with t(POSITION_LABEL_KEYS[position]).
+export const POSITION_LABEL_KEYS: Record<number, string> = {
+  [POSITION_GOALKEEPER]: 'positions.goalkeeper',
+  [POSITION_DEFENSE]: 'positions.defense',
+  [POSITION_LATERAL_DEFENSE_LEFT]: 'positions.leftBack',
+  [POSITION_LATERAL_DEFENSE_RIGHT]: 'positions.rightBack',
+  [POSITION_MIDFIELD]: 'positions.midfield',
+  [POSITION_LATERAL_MIDFIELD_LEFT]: 'positions.leftMidfield',
+  [POSITION_LATERAL_MIDFIELD_RIGHT]: 'positions.rightMidfield',
+  [POSITION_STRIKER]: 'positions.striker',
+  [POSITION_LATERAL_STRIKER_LEFT]: 'positions.leftStriker',
+  [POSITION_LATERAL_STRIKER_RIGHT]: 'positions.rightStriker',
 }
 
 export const ALL_POSITIONS = [
@@ -213,10 +215,11 @@ export const FORMATION_BALANCED = 0
 export const FORMATION_DEFENSIVE = 1
 export const FORMATION_ATTACKING = 2
 
-export const FORMATION_LABELS: Record<number, string> = {
-  [FORMATION_BALANCED]: 'Balanced (4-4-2)',
-  [FORMATION_DEFENSIVE]: 'Defensive (5-3-2)',
-  [FORMATION_ATTACKING]: 'Attacking (3-4-3)',
+// Values are i18n keys under "formations.*" - look them up with t(FORMATION_LABEL_KEYS[formation]).
+export const FORMATION_LABEL_KEYS: Record<number, string> = {
+  [FORMATION_BALANCED]: 'formations.balanced',
+  [FORMATION_DEFENSIVE]: 'formations.defensive',
+  [FORMATION_ATTACKING]: 'formations.attacking',
 }
 
 export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, number>>> = {
@@ -262,14 +265,16 @@ export const TRANSACTION_TICKET_REVENUE = 4
 export const TRANSACTION_PRIZE_MONEY = 5
 export const TRANSACTION_SPONSORSHIP = 6
 
-export const TRANSACTION_LABELS: Record<number, string> = {
-  [TRANSACTION_TRANSFER_IN]: 'Player sold',
-  [TRANSACTION_TRANSFER_OUT]: 'Player bought',
-  [TRANSACTION_WAGES]: 'Wages',
-  [TRANSACTION_ADMIN_ADJUSTMENT]: 'Admin adjustment',
-  [TRANSACTION_TICKET_REVENUE]: 'Ticket revenue',
-  [TRANSACTION_PRIZE_MONEY]: 'Prize money',
-  [TRANSACTION_SPONSORSHIP]: 'Sponsorship',
+// Values are i18n keys under "finances.reasons.*" - look them up with
+// t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
+export const TRANSACTION_REASON_KEYS: Record<number, string> = {
+  [TRANSACTION_TRANSFER_IN]: 'finances.reasons.transferIn',
+  [TRANSACTION_TRANSFER_OUT]: 'finances.reasons.transferOut',
+  [TRANSACTION_WAGES]: 'finances.reasons.wages',
+  [TRANSACTION_ADMIN_ADJUSTMENT]: 'finances.reasons.adminAdjustment',
+  [TRANSACTION_TICKET_REVENUE]: 'finances.reasons.ticketRevenue',
+  [TRANSACTION_PRIZE_MONEY]: 'finances.reasons.prizeMoney',
+  [TRANSACTION_SPONSORSHIP]: 'finances.reasons.sponsorship',
 }
 
 export interface TeamTransaction {

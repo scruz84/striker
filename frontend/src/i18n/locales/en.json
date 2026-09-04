@@ -1,0 +1,309 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "header": {
+    "login": "Login",
+    "account": "Account",
+    "language": "Language",
+    "nav": {
+      "dashboard": "Dashboard",
+      "lineup": "Lineup",
+      "finances": "Finances",
+      "transferMarket": "Transfer market",
+      "cup": "Cup",
+      "friendGroups": "Friend groups",
+      "admin": "Admin",
+      "logout": "Logout"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "deliveryPreferences": "Delivery preferences",
+    "deliverBy": "Also deliver notifications by:",
+    "email": "Email",
+    "push": "Push",
+    "empty": "No notifications yet."
+  },
+  "home": {
+    "hero": {
+      "title": "Build your club. Own every decision.",
+      "subtitle": "Striker is a free browser football manager - claim a team, set your tactics, work the transfer market, and simulate your way from the lower divisions to the title.",
+      "getStarted": "Get started",
+      "signIn": "Sign in"
+    },
+    "features": {
+      "title": "Everything a manager needs",
+      "subtitle": "A full season-long game, running continuously in the background.",
+      "matchSimulation": {
+        "title": "Live match simulation",
+        "description": "Set your lineup and formation, then follow every match minute-by-minute as it plays out."
+      },
+      "transfersLoans": {
+        "title": "Transfers & loans",
+        "description": "Buy, sell, scout, and negotiate direct offers - or loan players in and out between clubs."
+      },
+      "leaguesCups": {
+        "title": "Leagues & cups",
+        "description": "Battle promotion and relegation across tiers, and chase silverware in knockout cup competitions."
+      },
+      "clubFinances": {
+        "title": "Club finances",
+        "description": "Balance wages against ticket revenue, sponsorship, and prize money - then reinvest in your stadium."
+      },
+      "squadDevelopment": {
+        "title": "Squad development",
+        "description": "Watch your academy prospects progress, and manage aging veterans as they approach retirement."
+      },
+      "friendGroups": {
+        "title": "Friend groups",
+        "description": "Create a private leaderboard with friends and see who builds the most valuable club."
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": {
+        "claim": { "title": "Claim a club", "description": "Pick an unowned team from any league and take the reins." },
+        "manage": { "title": "Manage every detail", "description": "Set your lineup, work the transfer market, and grow your finances." },
+        "climb": { "title": "Climb the table", "description": "Win matches, earn promotion, and lift the cup." }
+      }
+    },
+    "readyTitle": "Ready to take charge?",
+    "claimClub": "Claim your club"
+  },
+  "login": {
+    "welcomeBack": "Welcome back, {{name}}",
+    "alreadySignedIn": "You're already signed in.",
+    "goToDashboard": "Go to dashboard",
+    "title": "Sign in to Striker",
+    "subtitle": "Use your Google account to claim a club and start managing.",
+    "signInFailed": "Sign-in failed. Please try again.",
+    "backToHome": "Back to home"
+  },
+  "dashboard": {
+    "editLineup": "Edit lineup"
+  },
+  "seasonRecap": {
+    "promoted": "Promoted!",
+    "relegated": "Relegated",
+    "cup": "Cup"
+  },
+  "lineup": {
+    "title": "Lineup - {{teamName}}",
+    "formation": "Formation",
+    "duplicateWarning": "Each player can only be selected once.",
+    "saveError": "Could not save the lineup. Check your selections.",
+    "saveSuccess": "Lineup saved.",
+    "none": "None",
+    "slotLabel": "{{position}} #{{index}}",
+    "save": "Save lineup"
+  },
+  "positions": {
+    "goalkeeper": "Goalkeeper",
+    "defense": "Defense",
+    "leftBack": "Left back",
+    "rightBack": "Right back",
+    "midfield": "Midfield",
+    "leftMidfield": "Left midfield",
+    "rightMidfield": "Right midfield",
+    "striker": "Striker",
+    "leftStriker": "Left striker",
+    "rightStriker": "Right striker"
+  },
+  "formations": {
+    "balanced": "Balanced (4-4-2)",
+    "defensive": "Defensive (5-3-2)",
+    "attacking": "Attacking (3-4-3)"
+  },
+  "finances": {
+    "title": "Finances",
+    "budget": "Budget",
+    "stadium": "Stadium",
+    "seats": "seats",
+    "expand": "Expand (+500 seats)",
+    "expandSuccess": "Stadium expanded.",
+    "expandError": "Not enough budget to expand.",
+    "ticketPrice": "Ticket price",
+    "ticketPriceSuccess": "Ticket price updated.",
+    "ticketPriceError": "Failed to update ticket price.",
+    "table": { "date": "Date", "reason": "Reason", "description": "Description", "amount": "Amount" },
+    "noTransactions": "No transactions yet.",
+    "reasons": {
+      "transferIn": "Player sold",
+      "transferOut": "Player bought",
+      "wages": "Wages",
+      "adminAdjustment": "Admin adjustment",
+      "ticketRevenue": "Ticket revenue",
+      "prizeMoney": "Prize money",
+      "sponsorship": "Sponsorship",
+      "other": "Other"
+    }
+  },
+  "transfers": {
+    "title": "Transfer market",
+    "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
+    "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers" },
+    "listPlayer": { "title": "List a player", "error": "Could not list that player." },
+    "player": "Player",
+    "askingPrice": "Asking price",
+    "list": "List",
+    "yourListings": "Your listings",
+    "unlist": "Unlist",
+    "market": "Market",
+    "noMarketListings": "No players listed right now.",
+    "table": {
+      "player": "Player",
+      "team": "Team",
+      "listed": "Listed",
+      "price": "Price",
+      "duration": "Duration",
+      "from": "From",
+      "to": "To",
+      "made": "Made",
+      "amount": "Amount"
+    },
+    "buy": "Buy",
+    "offerLoan": {
+      "title": "Offer a player on loan",
+      "subtitle": "Free, no fee - the player returns automatically once the duration elapses.",
+      "error": "Could not list that player for loan."
+    },
+    "duration": "Duration",
+    "seasonCount_one": "{{count}} season",
+    "seasonCount_other": "{{count}} seasons",
+    "yourLoanListings": "Your loan listings",
+    "loanMarket": "Loan market",
+    "noLoanListings": "No players available on loan right now.",
+    "accept": "Accept",
+    "offers": {
+      "intro": "Offers are made directly on a player from their team page - listed or not.",
+      "onYourPlayers": "Offers on your players",
+      "noPending": "No pending offers.",
+      "yourOffers": "Your offers",
+      "noneSent": "You haven't made any offers."
+    },
+    "reject": "Reject",
+    "withdraw": "Withdraw"
+  },
+  "cup": {
+    "titleWithSeason": "{{name}} - Season {{season}}",
+    "champion": "Champion: {{name}}",
+    "noCup": "No cup found for your country yet.",
+    "round": "Round {{round}}",
+    "final": "Final",
+    "semifinal": "Semifinal",
+    "quarterfinal": "Quarterfinal",
+    "bye": "Bye",
+    "pens": "(pens)",
+    "tbd": "TBD"
+  },
+  "division": {
+    "titleWithWeek": "{{name}} - Week {{week}}",
+    "table": {
+      "position": "#",
+      "team": "Team",
+      "points": "P",
+      "average": "Avg",
+      "wins": "W",
+      "draws": "D",
+      "losses": "L",
+      "goalsFor": "+",
+      "goalsAgainst": "-"
+    },
+    "lastWeek": "Last week",
+    "nextWeek": "Next week",
+    "noMatches": "No matches"
+  },
+  "team": {
+    "competitions": "Competitions:",
+    "squad": "Squad",
+    "player": "Player",
+    "age": "Age",
+    "trophyCabinet": "Trophy cabinet",
+    "noSeasons": "No completed seasons yet.",
+    "table": { "season": "Season", "league": "League", "finalPosition": "Final position", "outcome": "Outcome" },
+    "promoted": "Promoted",
+    "relegated": "Relegated",
+    "makeOffer": "Make offer",
+    "amount": "Amount",
+    "send": "Send",
+    "offerError": "Could not make that offer."
+  },
+  "match": {
+    "matchFinished": "Match finished - loading the result...",
+    "live": "LIVE",
+    "connecting": "Connecting...",
+    "tabs": { "events": "Events", "lineups": "Lineups" },
+    "noNotableEvents": "No notable events in this match.",
+    "noLineupData": "No lineup data.",
+    "yellowCard": "Yellow card",
+    "redCard": "Red card",
+    "injury": "Injury"
+  },
+  "groups": {
+    "title": "Friend groups",
+    "subtitle": "A leaderboard among you and your friends' teams, ranked by budget - not an isolated league, just bragging rights over the teams you already manage.",
+    "create": { "title": "Create a group", "name": "Name", "button": "Create" },
+    "join": { "title": "Join a group", "code": "Invite code", "button": "Join", "error": "Could not join - check the invite code." },
+    "yourGroups": "Your groups",
+    "noGroups": "You're not in any groups yet.",
+    "code": "Code: {{code}}",
+    "leave": "Leave",
+    "deleteGroup": "Delete group",
+    "table": { "manager": "Manager", "team": "Team", "league": "League", "budget": "Budget" },
+    "you": "You"
+  },
+  "admin": {
+    "title": "Admin",
+    "noAccess": "You don't have admin access.",
+    "overview": {
+      "season": "Season",
+      "users": "Users",
+      "teams": "Teams",
+      "leagues": "Leagues",
+      "matchesTotal": "Matches this season",
+      "matchesUnplayed": "Matches unplayed",
+      "activeCups": "Active cups",
+      "transferWindow": "Transfer window",
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "actions": {
+      "title": "Manual triggers",
+      "runSimulation": "Run simulation now",
+      "checkSeasonAdvance": "Check season advance",
+      "closeWindow": "Close transfer window",
+      "openWindow": "Open transfer window",
+      "simSuccess": "Simulation pass triggered.",
+      "seasonSuccess": "Season advance check triggered.",
+      "windowSuccess": "Transfer window updated."
+    },
+    "adjustBudget": {
+      "title": "Adjust team budget",
+      "teamId": "Team id",
+      "amount": "Amount",
+      "amountHelper": "negative to deduct",
+      "description": "Description",
+      "apply": "Apply",
+      "success": "Budget adjusted.",
+      "error": "Failed to adjust budget."
+    },
+    "usersTitle": "Users",
+    "usersTable": { "id": "Id", "name": "Name", "email": "Email", "country": "Country", "team": "Team", "admin": "Admin" }
+  },
+  "playerCard": {
+    "age": "Age {{age}}",
+    "skills": {
+      "goalkeeper": "Goalkeeper",
+      "defense": "Defense",
+      "lateral": "Lateral",
+      "pass": "Pass",
+      "midfield": "Midfield",
+      "dribbling": "Dribbling",
+      "shot": "Shot"
+    }
+  }
+}

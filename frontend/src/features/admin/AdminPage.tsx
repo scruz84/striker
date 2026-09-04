@@ -17,6 +17,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import {
   useAdminAdjustBudget,
   useAdminAdvanceSeason,
@@ -28,6 +29,7 @@ import {
 } from '../../api/hooks'
 
 export function AdminPage() {
+  const { t } = useTranslation()
   const { data: loggedUser, isLoading: meLoading } = useMe()
   const { data: overview, isLoading: overviewLoading } = useAdminOverview(!!loggedUser)
   const { data: users, isLoading: usersLoading } = useAdminUsers(!!loggedUser)
@@ -37,13 +39,13 @@ export function AdminPage() {
   }
 
   if (!loggedUser?.isAdmin) {
-    return <Typography color="text.secondary">You don't have admin access.</Typography>
+    return <Typography color="text.secondary">{t('admin.noAccess')}</Typography>
   }
 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Admin
+        {t('admin.title')}
       </Typography>
 
       {overviewLoading || !overview ? (
@@ -56,7 +58,7 @@ export function AdminPage() {
       )}
 
       <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-        Users
+        {t('admin.usersTitle')}
       </Typography>
       {usersLoading || !users ? (
         <Skeleton variant="rectangular" height={200} />
@@ -68,24 +70,25 @@ export function AdminPage() {
 }
 
 function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
-  const stats: { label: string; value: number }[] = [
-    { label: 'Season', value: overview.season },
-    { label: 'Users', value: overview.userCount },
-    { label: 'Teams', value: overview.teamCount },
-    { label: 'Leagues', value: overview.leagueCount },
-    { label: 'Matches this season', value: overview.matchesTotal },
-    { label: 'Matches unplayed', value: overview.matchesUnplayed },
-    { label: 'Active cups', value: overview.activeCups },
+  const { t } = useTranslation()
+  const stats: { key: string; value: number }[] = [
+    { key: 'season', value: overview.season },
+    { key: 'users', value: overview.userCount },
+    { key: 'teams', value: overview.teamCount },
+    { key: 'leagues', value: overview.leagueCount },
+    { key: 'matchesTotal', value: overview.matchesTotal },
+    { key: 'matchesUnplayed', value: overview.matchesUnplayed },
+    { key: 'activeCups', value: overview.activeCups },
   ]
 
   return (
     <Grid container spacing={2} sx={{ mb: 2 }}>
       {stats.map((stat) => (
-        <Grid key={stat.label} size={{ xs: 6, sm: 4, md: 3 }}>
+        <Grid key={stat.key} size={{ xs: 6, sm: 4, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">
-                {stat.label}
+                {t(`admin.overview.${stat.key}`)}
               </Typography>
               <Typography variant="h5">{stat.value}</Typography>
             </CardContent>
@@ -96,13 +99,13 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
         <Card>
           <CardContent>
             <Typography variant="overline" color="text.secondary">
-              Transfer window
+              {t('admin.overview.transferWindow')}
             </Typography>
             <Box>
               <Chip
                 size="small"
                 color={overview.transferWindowOpen ? 'success' : 'default'}
-                label={overview.transferWindowOpen ? 'Open' : 'Closed'}
+                label={overview.transferWindowOpen ? t('admin.overview.open') : t('admin.overview.closed')}
               />
             </Box>
           </CardContent>
@@ -113,6 +116,7 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
 }
 
 function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
+  const { t } = useTranslation()
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
   const adjustBudget = useAdminAdjustBudget()
@@ -139,14 +143,14 @@ function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
       <Stack spacing={2}>
         <Box>
           <Typography variant="subtitle1" gutterBottom>
-            Manual triggers
+            {t('admin.actions.title')}
           </Typography>
           <Stack direction="row" spacing={1}>
             <Button variant="outlined" onClick={() => simulateNow.mutate()} disabled={simulateNow.isPending}>
-              Run simulation now
+              {t('admin.actions.runSimulation')}
             </Button>
             <Button variant="outlined" onClick={() => advanceSeason.mutate()} disabled={advanceSeason.isPending}>
-              Check season advance
+              {t('admin.actions.checkSeasonAdvance')}
             </Button>
             <Button
               variant="outlined"
@@ -154,47 +158,47 @@ function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
               onClick={() => setTransferWindow.mutate(!transferWindowOpen)}
               disabled={setTransferWindow.isPending}
             >
-              {transferWindowOpen ? 'Close transfer window' : 'Open transfer window'}
+              {transferWindowOpen ? t('admin.actions.closeWindow') : t('admin.actions.openWindow')}
             </Button>
           </Stack>
-          {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Simulation pass triggered.</Alert>}
-          {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Season advance check triggered.</Alert>}
-          {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Transfer window updated.</Alert>}
+          {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.simSuccess')}</Alert>}
+          {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.seasonSuccess')}</Alert>}
+          {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.windowSuccess')}</Alert>}
         </Box>
 
         <Box component="form" onSubmit={handleAdjustBudget}>
           <Typography variant="subtitle1" gutterBottom>
-            Adjust team budget
+            {t('admin.adjustBudget.title')}
           </Typography>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
-              label="Team id"
+              label={t('admin.adjustBudget.teamId')}
               size="small"
               value={teamId}
               onChange={(e) => setTeamId(e.target.value)}
               sx={{ width: 100 }}
             />
             <TextField
-              label="Amount"
+              label={t('admin.adjustBudget.amount')}
               size="small"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              helperText="negative to deduct"
+              helperText={t('admin.adjustBudget.amountHelper')}
               sx={{ width: 140 }}
             />
             <TextField
-              label="Description"
+              label={t('admin.adjustBudget.description')}
               size="small"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               sx={{ width: 260 }}
             />
             <Button type="submit" variant="contained" disabled={adjustBudget.isPending}>
-              Apply
+              {t('admin.adjustBudget.apply')}
             </Button>
           </Stack>
-          {adjustBudget.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>Budget adjusted.</Alert>}
-          {adjustBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>Failed to adjust budget.</Alert>}
+          {adjustBudget.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.adjustBudget.success')}</Alert>}
+          {adjustBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.adjustBudget.error')}</Alert>}
         </Box>
       </Stack>
     </Paper>
@@ -202,17 +206,18 @@ function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
 }
 
 function UsersTable({ users }: { users: NonNullable<ReturnType<typeof useAdminUsers>['data']> }) {
+  const { t } = useTranslation()
   return (
     <TableContainer component={Paper}>
       <Table size="small" aria-label="Users">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Country</TableCell>
-            <TableCell>Team</TableCell>
-            <TableCell>Admin</TableCell>
+            <TableCell>{t('admin.usersTable.id')}</TableCell>
+            <TableCell>{t('admin.usersTable.name')}</TableCell>
+            <TableCell>{t('admin.usersTable.email')}</TableCell>
+            <TableCell>{t('admin.usersTable.country')}</TableCell>
+            <TableCell>{t('admin.usersTable.team')}</TableCell>
+            <TableCell>{t('admin.usersTable.admin')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -223,7 +228,7 @@ function UsersTable({ users }: { users: NonNullable<ReturnType<typeof useAdminUs
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.country}</TableCell>
               <TableCell>{user.teamName || '-'}</TableCell>
-              <TableCell>{user.isAdmin && <Chip size="small" color="primary" label="Admin" />}</TableCell>
+              <TableCell>{user.isAdmin && <Chip size="small" color="primary" label={t('admin.usersTable.admin')} />}</TableCell>
             </TableRow>
           ))}
         </TableBody>

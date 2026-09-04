@@ -7,9 +7,11 @@ import Paper from '@mui/material/Paper'
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { useLogin, useMe } from '../../api/hooks'
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const login = useLogin()
   const navigate = useNavigate()
@@ -22,22 +24,22 @@ export function LoginPage() {
           {loggedUser ? (
             <>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Welcome back, {loggedUser.name}
+                {t('login.welcomeBack', { name: loggedUser.name })}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                You're already signed in.
+                {t('login.alreadySignedIn')}
               </Typography>
               <Button variant="contained" onClick={() => navigate('/dashboard')}>
-                Go to dashboard
+                {t('login.goToDashboard')}
               </Button>
             </>
           ) : (
             <>
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Sign in to Striker
+                {t('login.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Use your Google account to claim a club and start managing.
+                {t('login.subtitle')}
               </Typography>
               <Box>
                 <GoogleLogin
@@ -56,13 +58,13 @@ export function LoginPage() {
               </Box>
               {login.isError && (
                 <Typography variant="body2" color="error">
-                  Sign-in failed. Please try again.
+                  {t('login.signInFailed')}
                 </Typography>
               )}
             </>
           )}
           <Typography variant="body2">
-            <RouterLink to="/">Back to home</RouterLink>
+            <RouterLink to="/">{t('login.backToHome')}</RouterLink>
           </Typography>
         </Stack>
       </Paper>

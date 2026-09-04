@@ -18,6 +18,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import {
   useCreateGroup,
   useDeleteGroup,
@@ -30,6 +31,7 @@ import {
 import { formatCurrency } from '../../utils/formatCurrency'
 
 export function GroupsPage() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: groups, isLoading } = useMyGroups(!!loggedUser)
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
@@ -54,23 +56,22 @@ export function GroupsPage() {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Friend groups
+        {t('groups.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        A leaderboard among you and your friends' teams, ranked by budget - not an isolated
-        league, just bragging rights over the teams you already manage.
+        {t('groups.subtitle')}
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6 }}>
           <Paper sx={{ p: 2 }} component="form" onSubmit={handleCreate}>
             <Typography variant="subtitle1" gutterBottom>
-              Create a group
+              {t('groups.create.title')}
             </Typography>
             <Stack direction="row" spacing={1}>
-              <TextField size="small" label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+              <TextField size="small" label={t('groups.create.name')} value={name} onChange={(e) => setName(e.target.value)} fullWidth />
               <Button type="submit" variant="contained" disabled={createGroup.isPending}>
-                Create
+                {t('groups.create.button')}
               </Button>
             </Stack>
           </Paper>
@@ -78,17 +79,17 @@ export function GroupsPage() {
         <Grid size={{ xs: 12, sm: 6 }}>
           <Paper sx={{ p: 2 }} component="form" onSubmit={handleJoin}>
             <Typography variant="subtitle1" gutterBottom>
-              Join a group
+              {t('groups.join.title')}
             </Typography>
             <Stack direction="row" spacing={1}>
-              <TextField size="small" label="Invite code" value={code} onChange={(e) => setCode(e.target.value)} fullWidth />
+              <TextField size="small" label={t('groups.join.code')} value={code} onChange={(e) => setCode(e.target.value)} fullWidth />
               <Button type="submit" variant="outlined" disabled={joinGroup.isPending}>
-                Join
+                {t('groups.join.button')}
               </Button>
             </Stack>
             {joinGroup.isError && (
               <Alert severity="error" sx={{ mt: 1 }}>
-                Could not join - check the invite code.
+                {t('groups.join.error')}
               </Alert>
             )}
           </Paper>
@@ -99,13 +100,13 @@ export function GroupsPage() {
         <Grid size={{ xs: 12, sm: 4 }}>
           <Paper>
             <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-              Your groups
+              {t('groups.yourGroups')}
             </Typography>
             {isLoading || !groups ? (
               <Skeleton variant="rectangular" height={100} />
             ) : groups.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                You're not in any groups yet.
+                {t('groups.noGroups')}
               </Typography>
             ) : (
               <List>
@@ -115,7 +116,7 @@ export function GroupsPage() {
                     selected={selectedGroupId === group.groupId}
                     onClick={() => setSelectedGroupId(group.groupId)}
                   >
-                    <ListItemText primary={group.name} secondary={`Code: ${group.inviteCode}`} />
+                    <ListItemText primary={group.name} secondary={t('groups.code', { code: group.inviteCode })} />
                   </ListItemButton>
                 ))}
               </List>
@@ -131,6 +132,7 @@ export function GroupsPage() {
 }
 
 function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () => void }) {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data, isLoading } = useGroupDetails(String(groupId), true)
   const leaveGroup = useLeaveGroup()
@@ -153,7 +155,7 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
             onClick={() => leaveGroup.mutate(groupId, { onSuccess: onLeave })}
             disabled={leaveGroup.isPending}
           >
-            Leave
+            {t('groups.leave')}
           </Button>
           {isOwner && (
             <Button
@@ -162,7 +164,7 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
               onClick={() => deleteGroup.mutate(groupId, { onSuccess: onLeave })}
               disabled={deleteGroup.isPending}
             >
-              Delete group
+              {t('groups.deleteGroup')}
             </Button>
           )}
         </Stack>
@@ -171,10 +173,10 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Manager</TableCell>
-              <TableCell>Team</TableCell>
-              <TableCell>League</TableCell>
-              <TableCell align="right">Budget</TableCell>
+              <TableCell>{t('groups.table.manager')}</TableCell>
+              <TableCell>{t('groups.table.team')}</TableCell>
+              <TableCell>{t('groups.table.league')}</TableCell>
+              <TableCell align="right">{t('groups.table.budget')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -183,7 +185,7 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
                 <TableCell>
                   {member.userName}
                   {loggedUser && member.userId === Number(loggedUser.id) && (
-                    <Chip size="small" label="You" sx={{ ml: 1 }} />
+                    <Chip size="small" label={t('groups.you')} sx={{ ml: 1 }} />
                   )}
                 </TableCell>
                 <TableCell>{member.teamName || '-'}</TableCell>

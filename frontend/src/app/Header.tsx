@@ -10,7 +10,9 @@ import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useLogout, useMe } from '../api/hooks'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { NotificationBell } from './NotificationBell'
 
 export function Header() {
@@ -23,6 +25,7 @@ export function Header() {
               Striker
             </Link>
           </Typography>
+          <LanguageSwitcher />
           <NotificationBell />
           <AvatarOrLogin />
         </Toolbar>
@@ -32,6 +35,7 @@ export function Header() {
 }
 
 function AvatarOrLogin() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const logout = useLogout()
   const navigate = useNavigate()
@@ -40,7 +44,7 @@ function AvatarOrLogin() {
   if (!loggedUser) {
     return (
       <Link component={RouterLink} to="/login" underline="hover" color="inherit">
-        Login
+        {t('header.login')}
       </Link>
     )
   }
@@ -54,7 +58,7 @@ function AvatarOrLogin() {
 
   return (
     <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title="Account">
+      <Tooltip title={t('header.account')}>
         <IconButton onClick={(event) => setAnchorEl(event.currentTarget)} sx={{ p: 0 }}>
           <Avatar src={loggedUser.pictureUrl} slotProps={{ img: { referrerPolicy: 'no-referrer' } }} />
         </IconButton>
@@ -68,29 +72,29 @@ function AvatarOrLogin() {
         onClose={() => setAnchorEl(null)}
       >
         <MenuItem component={RouterLink} to="/dashboard" onClick={() => setAnchorEl(null)}>
-          Dashboard
+          {t('header.nav.dashboard')}
         </MenuItem>
         <MenuItem component={RouterLink} to="/dashboard/lineup" onClick={() => setAnchorEl(null)}>
-          Lineup
+          {t('header.nav.lineup')}
         </MenuItem>
         <MenuItem component={RouterLink} to="/dashboard/finances" onClick={() => setAnchorEl(null)}>
-          Finances
+          {t('header.nav.finances')}
         </MenuItem>
         <MenuItem component={RouterLink} to="/transfers" onClick={() => setAnchorEl(null)}>
-          Transfer market
+          {t('header.nav.transferMarket')}
         </MenuItem>
         <MenuItem component={RouterLink} to="/cup" onClick={() => setAnchorEl(null)}>
-          Cup
+          {t('header.nav.cup')}
         </MenuItem>
         <MenuItem component={RouterLink} to="/groups" onClick={() => setAnchorEl(null)}>
-          Friend groups
+          {t('header.nav.friendGroups')}
         </MenuItem>
         {loggedUser.isAdmin && (
           <MenuItem component={RouterLink} to="/admin" onClick={() => setAnchorEl(null)}>
-            Admin
+            {t('header.nav.admin')}
           </MenuItem>
         )}
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        <MenuItem onClick={handleLogout}>{t('header.nav.logout')}</MenuItem>
       </Menu>
     </Box>
   )

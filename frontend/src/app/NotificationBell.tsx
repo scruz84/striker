@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SettingsIcon from '@mui/icons-material/Settings'
+import { useTranslation } from 'react-i18next'
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
@@ -25,6 +26,7 @@ import type { Notification } from '../api/types'
 import { formatDateTime } from '../utils/formatDate'
 
 export function NotificationBell() {
+  const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data } = useNotifications(!!loggedUser)
   const markRead = useMarkNotificationRead()
@@ -49,7 +51,7 @@ export function NotificationBell() {
 
   return (
     <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title="Notifications">
+      <Tooltip title={t('notifications.title')}>
         <IconButton onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit">
           <Badge badgeContent={unread} color="error">
             <NotificationsIcon />
@@ -66,14 +68,14 @@ export function NotificationBell() {
         onClose={() => setAnchorEl(null)}
       >
         <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="subtitle2">Notifications</Typography>
+          <Typography variant="subtitle2">{t('notifications.title')}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {unread > 0 && (
               <Button size="small" onClick={() => markAllRead.mutate()}>
-                Mark all read
+                {t('notifications.markAllRead')}
               </Button>
             )}
-            <Tooltip title="Delivery preferences">
+            <Tooltip title={t('notifications.deliveryPreferences')}>
               <IconButton size="small" onClick={() => setSettingsOpen((open) => !open)}>
                 <SettingsIcon fontSize="small" />
               </IconButton>
@@ -85,7 +87,7 @@ export function NotificationBell() {
             <Divider />
             <Box sx={{ px: 2, py: 1 }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                Also deliver notifications by:
+                {t('notifications.deliverBy')}
               </Typography>
               <FormControlLabel
                 control={
@@ -98,7 +100,7 @@ export function NotificationBell() {
                     }
                   />
                 }
-                label={<Typography variant="body2">Email</Typography>}
+                label={<Typography variant="body2">{t('notifications.email')}</Typography>}
               />
               <FormControlLabel
                 sx={{ display: 'block' }}
@@ -112,7 +114,7 @@ export function NotificationBell() {
                     }
                   />
                 }
-                label={<Typography variant="body2">Push</Typography>}
+                label={<Typography variant="body2">{t('notifications.push')}</Typography>}
               />
             </Box>
           </>
@@ -121,7 +123,7 @@ export function NotificationBell() {
         {notifications.length === 0 && (
           <MenuItem disabled>
             <Typography variant="body2" color="text.secondary">
-              No notifications yet.
+              {t('notifications.empty')}
             </Typography>
           </MenuItem>
         )}
