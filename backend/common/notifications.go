@@ -32,13 +32,35 @@ func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType i
 // NotifyTeamOwner is CreateNotification for a team's current owner, best-effort: an unowned
 // team (nobody has claimed it yet) or a lookup error simply results in no notification, since
 // notifications are a side effect that must never block or fail the gameplay event that
-// triggered them (a match result, a transfer, ...).
+// triggered them (a match result, a transfer, ...). Also delivers through email/push (see
+// Notifier) if the owner has enabled either - itself best-effort, on top of the in-app entry
+// which always gets written regardless of these preferences.
 func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int, message string) error {
 	userId, err := GetTeamOwner(dbCtx, teamId)
 	if err != nil || userId <= 0 {
 		return nil
 	}
-	return CreateNotification(dbCtx, userId, notificationType, message)
+	if err := CreateNotification(dbCtx, userId, notificationType, message); err != nil {
+		return err
+	}
+	deliverExternalNotifications(dbCtx, userId, message)
+	return nil
+}
+
+// deliverExternalNotifications is best-effort by design: a lookup failure or a Notifier error
+// here must never fail NotifyTeamOwner - the in-app notification, the part that actually works,
+// has already been written by the time this runs.
+func deliverExternalNotifications(dbCtx *DatabaseContext, userId int64, message string) {
+	prefs, err := GetNotificationPreferences(dbCtx, userId)
+	if err != nil {
+		return
+	}
+	if prefs.EmailEnabled {
+		_ = DefaultNotifier.Send(userId, "email", message)
+	}
+	if prefs.PushEnabled {
+		_ = DefaultNotifier.Send(userId, "push", message)
+	}
 }
 
 func GetNotifications(dbCtx *DatabaseContext, userId int64, limit int) ([]Notification, error) {

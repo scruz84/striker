@@ -84,3 +84,49 @@ func MarkAllNotificationsReadHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "all notifications marked as read"})
 	}
 }
+
+// GetNotificationPreferencesHandler returns the caller's email/push notification preferences -
+// both default false if they've never set any (see common.GetNotificationPreferences).
+func GetNotificationPreferencesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		prefs, err := common.GetNotificationPreferences(dbCtx, *userId)
+		if err != nil {
+			log.Errorf("error getting notification preferences for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, prefs)
+	}
+}
+
+// SetNotificationPreferencesHandler updates the caller's email/push notification preferences.
+func SetNotificationPreferencesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var prefs common.NotificationPreferences
+		if err := c.BindJSON(&prefs); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid preferences payload"))
+			return
+		}
+
+		if err := common.SetNotificationPreferences(dbCtx, *userId, prefs); err != nil {
+			log.Errorf("error setting notification preferences for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "notification preferences updated"})
+	}
+}

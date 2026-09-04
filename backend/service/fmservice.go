@@ -97,6 +97,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.GET("/notifications", handlers.GetNotificationsHandler(dbCtx))
 	v1UserGroup.POST("/notifications/:"+handlers.ID+"/read", handlers.MarkNotificationReadHandler(dbCtx))
 	v1UserGroup.POST("/notifications/read-all", handlers.MarkAllNotificationsReadHandler(dbCtx))
+	v1UserGroup.GET("/notification-preferences", handlers.GetNotificationPreferencesHandler(dbCtx))
+	v1UserGroup.PUT("/notification-preferences", handlers.SetNotificationPreferencesHandler(dbCtx))
 
 	v1TransferGroup := v1Group.Group("/transfers")
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())
