@@ -10,6 +10,8 @@ import type {
   LineupPosition,
   LoanListing,
   LoggedUser,
+  Group,
+  GroupDetails,
   NotificationsResponse,
   SeasonHistoryEntry,
   TeamDetails,
@@ -31,6 +33,8 @@ export const queryKeys = {
   transferWindow: ['transferWindow'] as const,
   offersReceived: ['offersReceived'] as const,
   offersSent: ['offersSent'] as const,
+  myGroups: ['myGroups'] as const,
+  group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
@@ -413,6 +417,62 @@ export function useSetTransferWindow() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.transferWindow })
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+export function useMyGroups(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.myGroups,
+    queryFn: () => api.get<Group[]>('/v1/groups/mine'),
+    enabled,
+  })
+}
+
+export function useGroupDetails(groupId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.group(groupId ?? ''),
+    queryFn: () => api.get<GroupDetails>(`/v1/groups/${groupId}`),
+    enabled: enabled && !!groupId,
+  })
+}
+
+export function useCreateGroup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (name: string) => api.post<Group>('/v1/groups', { name }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.myGroups })
+    },
+  })
+}
+
+export function useJoinGroup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (inviteCode: string) => api.post<Group>('/v1/groups/join', { inviteCode }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.myGroups })
+    },
+  })
+}
+
+export function useLeaveGroup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (groupId: number) => api.post(`/v1/groups/${groupId}/leave`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.myGroups })
+    },
+  })
+}
+
+export function useDeleteGroup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (groupId: number) => api.delete(`/v1/groups/${groupId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.myGroups })
     },
   })
 }

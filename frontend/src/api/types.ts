@@ -310,6 +310,29 @@ export interface LoanListing {
   listedAt: string
 }
 
+export interface Group {
+  groupId: number
+  name: string
+  ownerId: number
+  inviteCode: string
+  createdAt: string
+}
+
+export interface GroupMember {
+  userId: number
+  userName: string
+  teamId: number | null
+  teamName: string
+  country: string
+  leagueName: string
+  budget: number | null
+}
+
+export interface GroupDetails {
+  group: Group
+  leaderboard: GroupMember[]
+}
+
 export interface SeasonHistoryEntry {
   teamId: number
   season: number

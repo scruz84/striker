@@ -82,6 +82,9 @@ function AvatarOrLogin() {
         <MenuItem component={RouterLink} to="/cup" onClick={() => setAnchorEl(null)}>
           Cup
         </MenuItem>
+        <MenuItem component={RouterLink} to="/groups" onClick={() => setAnchorEl(null)}>
+          Friend groups
+        </MenuItem>
         {loggedUser.isAdmin && (
           <MenuItem component={RouterLink} to="/admin" onClick={() => setAnchorEl(null)}>
             Admin

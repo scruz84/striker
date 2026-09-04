@@ -12,6 +12,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { CupPage } from '../features/cup/CupPage'
 import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
 import { FinancesPage } from '../features/finances/FinancesPage'
+import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
@@ -39,6 +40,7 @@ function App() {
                   <Route path="/dashboard/finances" element={<FinancesPage />} />
                   <Route path="/transfers" element={<TransferMarketPage />} />
                   <Route path="/cup" element={<CupPage />} />
+                  <Route path="/groups" element={<GroupsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
                   <Route path="/division/:id" element={<DivisionDetailsPage />} />
                   <Route path="/match/:id" element={<MatchDetailsPage />} />
