@@ -109,6 +109,15 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1LoanGroup.GET("", handlers.BrowseLoansHandler(dbCtx))
 	v1LoanGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptLoanHandler(dbCtx))
 
+	v1OfferGroup := v1Group.Group("/offers")
+	v1OfferGroup.Use(authMiddleware.MiddlewareFunc())
+	v1OfferGroup.POST("", handlers.MakeOfferHandler(dbCtx))
+	v1OfferGroup.GET("/received", handlers.OffersReceivedHandler(dbCtx))
+	v1OfferGroup.GET("/sent", handlers.OffersSentHandler(dbCtx))
+	v1OfferGroup.DELETE("/:"+handlers.ID, handlers.WithdrawOfferHandler(dbCtx))
+	v1OfferGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptOfferHandler(dbCtx))
+	v1OfferGroup.POST("/:"+handlers.ID+"/reject", handlers.RejectOfferHandler(dbCtx))
+
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
 	v1TeamGroup.GET("/match/:"+handlers.ID+"/", handlers.MatchDetailsHandler(dbCtx))
