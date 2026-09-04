@@ -72,6 +72,7 @@ type HttpResponse struct {
 type Lineup struct {
 	MatchId   int64            `json:"matchId"`
 	TeamId    int64            `json:"teamId"`
+	Formation int              `json:"formation"`
 	Positions []LineupPosition `json:"positions"`
 }
 

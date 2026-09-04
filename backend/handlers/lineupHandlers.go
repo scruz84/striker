@@ -9,6 +9,7 @@ import (
 )
 
 type SetLineupRequest struct {
+	Formation int                     `json:"formation"`
 	Positions []common.LineupPosition `json:"positions"`
 }
 
@@ -72,11 +73,16 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := validateLineup(req.Positions, players, unavailable); err != nil {
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
 
+		if err := common.SetTeamFormation(dbCtx, team.Id, req.Formation); err != nil {
+			log.Errorf("error setting formation for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		if err := common.SetDefaultLineup(dbCtx, team.Id, req.Positions); err != nil {
 			log.Errorf("error setting lineup for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -87,19 +93,27 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// validateLineup ensures the submitted lineup fills each of the 10 tactical positions
-// (see common/fmconstants.go) exactly once with distinct players that actually belong to
-// the team - without this, a manager could otherwise field an empty position, duplicate a
-// player, or field an opponent's player, since the DB foreign key alone doesn't enforce
-// team ownership. It also rejects any player currently suspended or injured (see
-// common.GetUnavailablePlayerIds) - the simulation itself would exclude them anyway (see
-// engine.excludeUnavailablePlayers), but rejecting it here gives the manager a clear reason
-// instead of a lineup that quietly plays short.
-func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
-	const numPositions = 10
+// validateLineup ensures the submitted lineup matches the chosen formation's required headcount
+// at every tactical position (see common.FormationPositionCounts - always 11 players total,
+// goalkeeper included) with distinct players that actually belong to the team - without this, a
+// manager could otherwise field an empty/understaffed position, duplicate a player, or field an
+// opponent's player, since the DB foreign key alone doesn't enforce team ownership. It also
+// rejects any player currently suspended or injured (see common.GetUnavailablePlayerIds) - the
+// simulation itself would exclude them anyway (see engine.excludeUnavailablePlayers), but
+// rejecting it here gives the manager a clear reason instead of a lineup that quietly plays
+// short.
+func validateLineup(formation int, positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
+	if !common.IsValidFormation(formation) {
+		return fmt.Errorf("invalid formation %d", formation)
+	}
+	wantCounts := common.FormationPositionCounts(formation)
 
-	if len(positions) != numPositions {
-		return fmt.Errorf("lineup must have exactly %d positions, got %d", numPositions, len(positions))
+	wantTotal := 0
+	for _, count := range wantCounts {
+		wantTotal += count
+	}
+	if len(positions) != wantTotal {
+		return fmt.Errorf("lineup must have exactly %d positions for this formation, got %d", wantTotal, len(positions))
 	}
 
 	rosterIds := make(map[int64]bool, len(*teamPlayers))
@@ -107,16 +121,13 @@ func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Pl
 		rosterIds[p.Id] = true
 	}
 
-	seenPositions := make(map[int]bool, numPositions)
-	seenPlayers := make(map[int64]bool, numPositions)
+	gotCounts := make(map[int]int, len(wantCounts))
+	seenPlayers := make(map[int64]bool, len(positions))
 	for _, pos := range positions {
 		if pos.Position < common.GOALKEEPER || pos.Position > common.LATERAL_STRIKER_RIGHT {
 			return fmt.Errorf("invalid position %d", pos.Position)
 		}
-		if seenPositions[pos.Position] {
-			return fmt.Errorf("position %d assigned more than once", pos.Position)
-		}
-		seenPositions[pos.Position] = true
+		gotCounts[pos.Position]++
 
 		if seenPlayers[pos.PlayerId] {
 			return fmt.Errorf("player %d assigned to more than one position", pos.PlayerId)
@@ -129,6 +140,12 @@ func validateLineup(positions []common.LineupPosition, teamPlayers *[]*common.Pl
 
 		if unavailable[pos.PlayerId] {
 			return fmt.Errorf("player %d is suspended or injured and unavailable", pos.PlayerId)
+		}
+	}
+
+	for position, want := range wantCounts {
+		if gotCounts[position] != want {
+			return fmt.Errorf("formation requires %d players at position %d, got %d", want, position, gotCounts[position])
 		}
 	}
 

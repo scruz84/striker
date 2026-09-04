@@ -74,6 +74,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init11_loans.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init12_transfer_window.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init13_transfer_offers.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init14_formation.sql
 ```
 
 ## Local development (without Docker)

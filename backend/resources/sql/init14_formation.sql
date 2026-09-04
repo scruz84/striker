@@ -1,0 +1,1 @@
+ALTER TABLE teams ADD COLUMN IF NOT EXISTS formation smallint NOT NULL DEFAULT 0;

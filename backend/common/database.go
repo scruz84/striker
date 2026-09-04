@@ -1254,7 +1254,13 @@ func GetDefaultLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
 		}
 		positions = append(positions, LineupPosition{PlayerId: playerId, Position: position})
 	}
-	return &Lineup{TeamId: teamId, Positions: positions}, nil
+
+	formation, err := GetTeamFormation(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions}, nil
 }
 
 // SetDefaultLineup atomically replaces a team's default lineup. Callers must have already
