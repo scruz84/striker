@@ -54,12 +54,6 @@ func PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribblin
 	return (goalKeeper + defense + lateral + pass + midfield + dribbling + shot) * WagePerSkillPoint
 }
 
-func RemoveIndexFromSlice[T interface{}](slice *[]T, index int) *[]T {
-	(*slice)[index] = (*slice)[len(*slice)-1]
-	newSlice := (*slice)[:len(*slice)-1]
-	return &newSlice
-}
-
 // https://github.com/golang/net/blob/6fe76317780b8d2ed1fdd43e5fb8eaf5c584f5d2/gotrack.go
 var goroutineSpace = []byte("goroutine ")
 

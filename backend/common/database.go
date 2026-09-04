@@ -305,6 +305,19 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err
 	}
 
+	// The squad just created above is brand new, but any default lineup this team already had
+	// (from whoever/whatever fielded it before - a CPU-managed team, or a previous owner) still
+	// points at the players just orphaned by UnAssignPlayersStmtSql, not this one. Seed a
+	// sensible lineup now rather than leaving the new owner's first matches fielding
+	// stale/missing players (silently resolved to zero-skill ghosts by the simulation) until
+	// they visit the lineup editor themselves. Best-effort: the team and its players already
+	// exist regardless of whether this succeeds.
+	if players, err := GetPlayersFromTeamId(dbCtx, teamId); err != nil {
+		log.Errorf("error fetching new squad for team %d to seed its lineup: %s", teamId, err)
+	} else if err := SetDefaultLineup(dbCtx, teamId, FlattenLineup(SelectBestLineup(*players))); err != nil {
+		log.Errorf("error seeding default lineup for team %d: %s", teamId, err)
+	}
+
 	return team, nil
 }
 

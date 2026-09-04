@@ -162,80 +162,18 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64) {
 	}
 	_ = insertStmt.QueryRow(&country, &leagueId, &teamName).Scan(&teamId)
 	common.CreatePlayers(dbCtx, teamId)
-	lineup := generateLineup(dbCtx, teamId)
-	_ = common.InsertLineup(dbCtx, teamId, *lineup, true)
+	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching newly created squad for team %d: %s", teamId, err)
+	} else if err := common.InsertLineup(dbCtx, teamId, common.SelectBestLineup(*players), true); err != nil {
+		log.Errorf("error seeding default lineup for team %d: %s", teamId, err)
+	}
 	defer insertStmt.Close()
 }
 
 func createClassification(dbCtx *common.DatabaseContext, leagueId int64) {
 	teamIds := common.GetDivisionTeams(dbCtx, leagueId)
 	common.InsertTeamsToClassification(dbCtx, leagueId, 1, teamIds)
-}
-
-func generateLineup(dbCtx *common.DatabaseContext, teamId int64) *map[int][]int64 {
-	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
-	if err != nil {
-		log.Errorf("error retrieving players from team %d: %s", teamId, err)
-		return nil
-	}
-
-	lineup := make(map[int][]int64)
-	lineup[common.GOALKEEPER] = make([]int64, 0)
-	lineup[common.LATERAL_DEFENSE_LEFT] = make([]int64, 0)
-	lineup[common.LATERAL_DEFENSE_RIGHT] = make([]int64, 0)
-	lineup[common.DEFENSE] = make([]int64, 0)
-	lineup[common.LATERAL_MIDFIELD_LEFT] = make([]int64, 0)
-	lineup[common.LATERAL_MIDFIELD_RIGHT] = make([]int64, 0)
-	lineup[common.MIDFIELD] = make([]int64, 0)
-	lineup[common.LATERAL_STRIKER_LEFT] = make([]int64, 0)
-	lineup[common.LATERAL_STRIKER_RIGHT] = make([]int64, 0)
-	lineup[common.STRIKER] = make([]int64, 0)
-
-	var playerSelectedIdx int
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.GOALKEEPER, func(player common.Player) int { return player.GoalKeeper })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_DEFENSE_LEFT, func(player common.Player) int { return common.GetLateralDefenseValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.DEFENSE, func(player common.Player) int { return player.Defense })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.DEFENSE, func(player common.Player) int { return player.Defense })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_DEFENSE_RIGHT, func(player common.Player) int { return common.GetLateralDefenseValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_MIDFIELD_LEFT, func(player common.Player) int { return common.GetLateralMidfieldValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.MIDFIELD, func(player common.Player) int { return common.GetMidfieldValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.MIDFIELD, func(player common.Player) int { return common.GetMidfieldValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_MIDFIELD_RIGHT, func(player common.Player) int { return common.GetLateralMidfieldValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-
-	/*	playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_STRIKER_LEFT, func(player common.Player) int { return common.GetLateralStrikerValue(player) })
-		players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-		playerSelectedIdx = getBetterPlayer(players, &lineup, common.LATERAL_STRIKER_RIGHT, func(player common.Player) int { return common.GetLateralStrikerValue(player) })
-		players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	*/
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.STRIKER, func(player common.Player) int { return common.GetStrikerValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	playerSelectedIdx = getBetterPlayer(players, &lineup, common.STRIKER, func(player common.Player) int { return common.GetStrikerValue(player) })
-	players = common.RemoveIndexFromSlice(players, playerSelectedIdx)
-	return &lineup
-}
-
-func getBetterPlayer(players *[]*common.Player, lineup *map[int][]int64, key int, keyValue func(common.Player) int) int {
-	currentLevel := 0
-	currentPlayerIdx := -1
-	for idx, player := range *players {
-		if currentLevel < keyValue(*player) {
-			currentPlayerIdx = idx
-			currentLevel = keyValue(*player)
-		}
-	}
-	(*lineup)[key] = append((*lineup)[key], (*players)[currentPlayerIdx].Id)
-	//players = common.RemoveIndexFromSlice(players, currentPlayerIdx)
-	//players = newPlayers
-	return currentPlayerIdx
 }
 
 func deleteTable(dbCtx *common.DatabaseContext, tableName string) {

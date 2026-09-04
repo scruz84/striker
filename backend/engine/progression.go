@@ -98,6 +98,29 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 		}
 
 		topUpAcademy(dbCtx, teamId)
+		autoManageLineupIfUnowned(dbCtx, teamId)
+	}
+}
+
+// autoManageLineupIfUnowned keeps a team nobody manages (no owner) fielding its current best XI
+// every season - the only "intelligence" it has is always picking its best available players
+// (see common.SelectBestLineup), same as at team creation. Without this, an unowned team's
+// lineup would go stale as retirees and academy arrivals (both just above) change its squad:
+// retirees are already dropped from default_lineup_positions (see RetirePlayer), leaving the
+// team fielding fewer than 11 players, and new academy players would never be selected at all.
+func autoManageLineupIfUnowned(dbCtx *common.DatabaseContext, teamId int64) {
+	owner, err := common.GetTeamOwner(dbCtx, teamId)
+	if err != nil || owner > 0 {
+		return
+	}
+
+	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching squad for unowned team %d lineup refresh: %s", teamId, err)
+		return
+	}
+	if err := common.SetDefaultLineup(dbCtx, teamId, common.FlattenLineup(common.SelectBestLineup(*players))); err != nil {
+		log.Errorf("error refreshing lineup for unowned team %d: %s", teamId, err)
 	}
 }
 
