@@ -16,7 +16,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { useFinances, useMe, useSetTicketPrice } from '../../api/hooks'
+import { useFinances, useMe, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import { TRANSACTION_LABELS, type Stadium } from '../../api/types'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
@@ -90,6 +90,7 @@ export function FinancesPage() {
 
 function StadiumCard({ stadium }: { stadium: Stadium }) {
   const setTicketPrice = useSetTicketPrice()
+  const upgradeStadium = useUpgradeStadium()
   const [price, setPrice] = useState(String(stadium.ticketPrice))
 
   const handleSubmit = (event: FormEvent) => {
@@ -107,10 +108,24 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
         <Typography variant="overline" color="text.secondary">
           Stadium
         </Typography>
-        <Typography variant="h4">{stadium.capacity.toLocaleString()}</Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-          seats
-        </Typography>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="h4">{stadium.capacity.toLocaleString()}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            seats
+          </Typography>
+        </Stack>
+        <Button
+          size="small"
+          variant="text"
+          sx={{ mb: 1, px: 0 }}
+          onClick={() => upgradeStadium.mutate()}
+          disabled={upgradeStadium.isPending}
+        >
+          Expand (+500 seats)
+        </Button>
+        {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>Stadium expanded.</Alert>}
+        {upgradeStadium.isError && <Alert severity="error" sx={{ mb: 1 }}>Not enough budget to expand.</Alert>}
+
         <Box component="form" onSubmit={handleSubmit}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <TextField

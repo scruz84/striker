@@ -138,6 +138,16 @@ export function useSetTicketPrice() {
   })
 }
 
+export function useUpgradeStadium() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post<{ capacity: number }>('/v1/user/team/stadium/upgrade'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
 export function useTransferListings(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.transfers,

@@ -211,6 +211,8 @@ export const TRANSACTION_WAGES = 2
 export const TRANSACTION_ADMIN_ADJUSTMENT = 3
 
 export const TRANSACTION_TICKET_REVENUE = 4
+export const TRANSACTION_PRIZE_MONEY = 5
+export const TRANSACTION_SPONSORSHIP = 6
 
 export const TRANSACTION_LABELS: Record<number, string> = {
   [TRANSACTION_TRANSFER_IN]: 'Player sold',
@@ -218,6 +220,8 @@ export const TRANSACTION_LABELS: Record<number, string> = {
   [TRANSACTION_WAGES]: 'Wages',
   [TRANSACTION_ADMIN_ADJUSTMENT]: 'Admin adjustment',
   [TRANSACTION_TICKET_REVENUE]: 'Ticket revenue',
+  [TRANSACTION_PRIZE_MONEY]: 'Prize money',
+  [TRANSACTION_SPONSORSHIP]: 'Sponsorship',
 }
 
 export interface TeamTransaction {
