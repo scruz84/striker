@@ -8,6 +8,7 @@ import type {
   FinancesResponse,
   Lineup,
   LineupPosition,
+  LoanListing,
   LoggedUser,
   NotificationsResponse,
   TeamDetails,
@@ -24,6 +25,7 @@ export const queryKeys = {
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
+  loans: ['loans'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
   notifications: ['notifications'] as const,
@@ -186,6 +188,47 @@ export function useBuyListing() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
+export function useLoanListings(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.loans,
+    queryFn: () => api.get<LoanListing[]>('/v1/loans'),
+    enabled,
+  })
+}
+
+export function useListPlayerForLoan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ playerId, durationSeasons }: { playerId: number; durationSeasons: number }) =>
+      api.post(`/v1/user/team/players/${playerId}/loan-list`, { durationSeasons }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+export function useUnlistPlayerForLoan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.delete(`/v1/user/team/players/${playerId}/loan-list`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
+    },
+  })
+}
+
+export function useAcceptLoan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (listingId: number) => api.post(`/v1/loans/${listingId}/accept`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
     },
   })
 }
