@@ -128,6 +128,16 @@ export function useFinances(enabled: boolean) {
   })
 }
 
+export function useSetTicketPrice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (price: number) => api.put('/v1/user/team/stadium/ticket-price', { price }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
 export function useTransferListings(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.transfers,

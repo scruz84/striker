@@ -210,11 +210,14 @@ export const TRANSACTION_TRANSFER_OUT = 1
 export const TRANSACTION_WAGES = 2
 export const TRANSACTION_ADMIN_ADJUSTMENT = 3
 
+export const TRANSACTION_TICKET_REVENUE = 4
+
 export const TRANSACTION_LABELS: Record<number, string> = {
   [TRANSACTION_TRANSFER_IN]: 'Player sold',
   [TRANSACTION_TRANSFER_OUT]: 'Player bought',
   [TRANSACTION_WAGES]: 'Wages',
   [TRANSACTION_ADMIN_ADJUSTMENT]: 'Admin adjustment',
+  [TRANSACTION_TICKET_REVENUE]: 'Ticket revenue',
 }
 
 export interface TeamTransaction {
@@ -226,9 +229,15 @@ export interface TeamTransaction {
   createdAt: string
 }
 
+export interface Stadium {
+  capacity: number
+  ticketPrice: number
+}
+
 export interface FinancesResponse {
   budget: number
   transactions: TeamTransaction[]
+  stadium: Stadium | null
 }
 
 export interface TransferListing {
