@@ -50,7 +50,10 @@ func ListPlayerHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		if err := common.CreateTransferListing(dbCtx, playerId, team.Id, req.AskingPrice); err != nil {
-			if errors.Is(err, common.ErrPlayerAlreadyListed) {
+			switch {
+			case errors.Is(err, common.ErrPlayerAlreadyListed),
+				errors.Is(err, common.ErrPlayerOnLoan),
+				errors.Is(err, common.ErrPlayerAlreadyLoanListed):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))
 				return
 			}

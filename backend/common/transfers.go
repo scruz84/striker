@@ -47,12 +47,41 @@ func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
 	return &p, nil
 }
 
+const IsPlayerTransferListedStmtSql = "SELECT 1 FROM transfer_listings WHERE player_id = $1"
+
+// IsPlayerTransferListed reports whether playerId already has an open transfer listing - used
+// by the loan market (see common.CreateLoanListing) to keep the two markets mutually exclusive.
+func IsPlayerTransferListed(dbCtx *DatabaseContext, playerId int64) (bool, error) {
+	var exists int
+	err := dbCtx.Db.QueryRow(IsPlayerTransferListedStmtSql, playerId).Scan(&exists)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+	return err == nil, err
+}
+
 // CreateTransferListing lists a player for transfer at a fixed asking price - there's no
 // bidding/offer negotiation, any other team can buy it outright. Returns
 // ErrPlayerAlreadyListed if the player already has an active listing (enforced by a unique
-// constraint on transfer_listings.player_id).
+// constraint on transfer_listings.player_id) or is already loan-listed, and ErrPlayerOnLoan if
+// the player is currently out on loan - a borrowing team doesn't get to sell what isn't theirs.
 func CreateTransferListing(dbCtx *DatabaseContext, playerId int64, sellingTeamId int64, askingPrice int64) error {
-	_, err := dbCtx.Db.Exec(InsertTransferListingStmtSql, playerId, sellingTeamId, askingPrice)
+	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
+	if err != nil {
+		return err
+	}
+	if onLoan {
+		return ErrPlayerOnLoan
+	}
+	loanListed, err := IsPlayerLoanListed(dbCtx, playerId)
+	if err != nil {
+		return err
+	}
+	if loanListed {
+		return ErrPlayerAlreadyLoanListed
+	}
+
+	_, err = dbCtx.Db.Exec(InsertTransferListingStmtSql, playerId, sellingTeamId, askingPrice)
 	if err != nil && isUniqueViolation(err) {
 		return ErrPlayerAlreadyListed
 	}

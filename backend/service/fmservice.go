@@ -92,6 +92,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.POST("/team/stadium/upgrade", handlers.UpgradeStadiumHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/list", handlers.ListPlayerHandler(dbCtx))
 	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/list", handlers.UnlistPlayerHandler(dbCtx))
+	v1UserGroup.POST("/team/players/:"+handlers.ID+"/loan-list", handlers.ListPlayerForLoanHandler(dbCtx))
+	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/loan-list", handlers.UnlistPlayerForLoanHandler(dbCtx))
 	v1UserGroup.GET("/notifications", handlers.GetNotificationsHandler(dbCtx))
 	v1UserGroup.POST("/notifications/:"+handlers.ID+"/read", handlers.MarkNotificationReadHandler(dbCtx))
 	v1UserGroup.POST("/notifications/read-all", handlers.MarkAllNotificationsReadHandler(dbCtx))
@@ -100,6 +102,11 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())
 	v1TransferGroup.GET("", handlers.BrowseTransfersHandler(dbCtx))
 	v1TransferGroup.POST("/:"+handlers.ID+"/buy", handlers.BuyTransferHandler(dbCtx))
+
+	v1LoanGroup := v1Group.Group("/loans")
+	v1LoanGroup.Use(authMiddleware.MiddlewareFunc())
+	v1LoanGroup.GET("", handlers.BrowseLoansHandler(dbCtx))
+	v1LoanGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptLoanHandler(dbCtx))
 
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())

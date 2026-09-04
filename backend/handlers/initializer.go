@@ -59,6 +59,8 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 	deleteTable(dbCtx, "cups")
 	deleteTable(dbCtx, "team_transactions")
 	deleteTable(dbCtx, "transfer_listings")
+	deleteTable(dbCtx, "loan_listings")
+	deleteTable(dbCtx, "player_loans")
 	deleteTable(dbCtx, "player_unavailability")
 	deleteTable(dbCtx, "lineup_positions")
 	deleteTable(dbCtx, "lineup")
