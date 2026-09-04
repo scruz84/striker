@@ -99,3 +99,38 @@ func SetTicketPriceHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "ticket price updated"})
 	}
 }
+
+type upgradeStadiumResponse struct {
+	Capacity int `json:"capacity"`
+}
+
+// UpgradeStadiumHandler spends the caller's team's budget to expand its own stadium by a fixed
+// increment - see common.UpgradeStadium for the cost formula.
+func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		capacity, err := common.UpgradeStadium(dbCtx, team.Id)
+		if err != nil {
+			if errors.Is(err, common.ErrInsufficientBudget) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error upgrading stadium for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, upgradeStadiumResponse{Capacity: capacity})
+	}
+}

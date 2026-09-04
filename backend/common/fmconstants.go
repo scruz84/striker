@@ -42,6 +42,9 @@ const TRANSACTION_TRANSFER_OUT = 1     // bought a player - expense
 const TRANSACTION_WAGES = 2            // wage bill for a played match - expense
 const TRANSACTION_ADMIN_ADJUSTMENT = 3 // a commissioner's manual budget correction
 const TRANSACTION_TICKET_REVENUE = 4   // matchday ticket sales for a home match - income
+const TRANSACTION_PRIZE_MONEY = 5      // season league-position or cup prize money - income
+const TRANSACTION_SPONSORSHIP = 6      // per-match sponsorship income - income
+const TRANSACTION_STADIUM_UPGRADE = 7  // capacity expansion - expense
 
 // Stadium capacity is picked once at team creation, scaled by the league tier it starts in
 // (see the initializer's createTeam and common.RandomStadiumCapacity) - bigger clubs get
@@ -58,6 +61,12 @@ const StadiumCapacityTier3Max = 2000
 const DefaultTicketPrice = 10
 const MinTicketPrice = 1
 const MaxTicketPrice = 100
+
+// A stadium upgrade adds a fixed number of seats at a cost proportional to the *current*
+// capacity, so expanding an already-big stadium costs more in absolute terms each time -
+// see UpgradeStadium.
+const StadiumUpgradeSeats = 500
+const StadiumUpgradeCostPerCurrentSeat = 10
 
 // notifications.notification_type
 const NOTIFICATION_MATCH_RESULT = 0

@@ -75,6 +75,7 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext) {
 			log.Errorf("error getting standings for league %d: %s", league.LeagueId, err)
 			continue
 		}
+		awardLeaguePrizeMoney(dbCtx, league.Tier, standings)
 		if leaguesByCountryAndTier[league.Country] == nil {
 			leaguesByCountryAndTier[league.Country] = make(map[int][]LeagueStandings)
 		}

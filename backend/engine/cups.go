@@ -125,6 +125,7 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64) error {
 		if err := common.SetCupCompleted(dbCtx, cupId, winners[0]); err != nil {
 			return err
 		}
+		awardCupChampionBonus(dbCtx, winners[0])
 		if team, err := common.GetTeamById(winners[0], dbCtx); err == nil {
 			if err := common.NotifyTeamOwner(dbCtx, winners[0], common.NOTIFICATION_CUP, team.TeamName+" won the cup!"); err != nil {
 				log.Errorf("error notifying cup champion team %d: %s", winners[0], err)
@@ -198,6 +199,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
 	notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)
 	BroadcastMatchLive(dbCtx, common.CupTieChannel(matchSimulation.Id), matchSimulation)
 	return nil

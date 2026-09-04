@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 )
 
@@ -48,4 +49,53 @@ func SetTicketPrice(dbCtx *DatabaseContext, teamId int64, price int) error {
 	}
 	_, err := dbCtx.Db.Exec(SetTicketPriceStmtSql, price, teamId)
 	return err
+}
+
+const GetStadiumCapacityForUpdateStmtSql = "SELECT stadium_capacity FROM teams WHERE team_id = $1 " + ForUpdate
+const UpdateStadiumCapacityStmtSql = "UPDATE teams SET stadium_capacity = $1 WHERE team_id = $2"
+
+// UpgradeStadium adds StadiumUpgradeSeats to a team's capacity, charging its budget
+// StadiumUpgradeCostPerCurrentSeat times the *current* capacity - so the same fixed expansion
+// costs more in absolute terms each time the stadium grows. Both the capacity and budget rows
+// are locked for the duration (SELECT ... FOR UPDATE), so two upgrades racing each other can't
+// both succeed off the same starting capacity/budget. Returns the new capacity on success, or
+// ErrInsufficientBudget if the team can't afford it.
+func UpgradeStadium(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	var capacity int
+	if err := tx.QueryRow(GetStadiumCapacityForUpdateStmtSql, teamId).Scan(&capacity); err != nil {
+		return 0, err
+	}
+
+	cost := int64(capacity) * StadiumUpgradeCostPerCurrentSeat
+
+	var budget int64
+	if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, teamId).Scan(&budget); err != nil {
+		return 0, err
+	}
+	if budget < cost {
+		return 0, ErrInsufficientBudget
+	}
+
+	newCapacity := capacity + StadiumUpgradeSeats
+	if _, err := tx.Exec(UpdateStadiumCapacityStmtSql, newCapacity, teamId); err != nil {
+		return 0, err
+	}
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -cost, teamId); err != nil {
+		return 0, err
+	}
+	description := fmt.Sprintf("Stadium expanded to %d seats", newCapacity)
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -cost, TRANSACTION_STADIUM_UPGRADE, description); err != nil {
+		return 0, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return newCapacity, nil
 }

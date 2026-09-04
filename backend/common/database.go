@@ -921,6 +921,16 @@ func GetLeaguesWithTier(dbCtx *DatabaseContext) ([]LeagueTierInfo, error) {
 	return leagues, nil
 }
 
+const GetTeamTierStmtSql = "SELECT l.tier FROM teams t JOIN leagues l ON l.league_id = t.league_id WHERE t.team_id = $1"
+
+// GetTeamTier returns the tier (1 = top division) of the league a team currently plays in -
+// used to scale tier-dependent per-match income like sponsorship (see engine.creditSponsorship).
+func GetTeamTier(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	var tier int
+	err := dbCtx.Db.QueryRow(GetTeamTierStmtSql, teamId).Scan(&tier)
+	return tier, err
+}
+
 // GetRankedClassification returns a league's teams ordered best to worst (points, then goal
 // difference, then goals scored - same tiebreak GetDivisionDetailsStmtSql uses).
 func GetRankedClassification(dbCtx *DatabaseContext, leagueId int64) ([]TeamStanding, error) {

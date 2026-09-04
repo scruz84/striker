@@ -71,6 +71,8 @@ func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 	deductWages(dbCtx, match.Home)
 	deductWages(dbCtx, match.Away)
 	creditTicketRevenue(dbCtx, match.Home)
+	creditSponsorship(dbCtx, match.Home)
+	creditSponsorship(dbCtx, match.Away)
 }
 
 // NotifyMatchResult tells both teams' owners how their league match went.
