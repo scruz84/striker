@@ -12,6 +12,7 @@ import type {
   LoggedUser,
   Group,
   GroupDetails,
+  NotificationPreferences,
   NotificationsResponse,
   SeasonHistoryEntry,
   TeamDetails,
@@ -39,6 +40,7 @@ export const queryKeys = {
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
   notifications: ['notifications'] as const,
+  notificationPreferences: ['notificationPreferences'] as const,
   adminOverview: ['adminOverview'] as const,
   adminUsers: ['adminUsers'] as const,
 }
@@ -297,6 +299,24 @@ export function useMarkAllNotificationsRead() {
     mutationFn: () => api.post('/v1/user/notifications/read-all'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notifications })
+    },
+  })
+}
+
+export function useNotificationPreferences(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.notificationPreferences,
+    queryFn: () => api.get<NotificationPreferences>('/v1/user/notification-preferences'),
+    enabled,
+  })
+}
+
+export function useSetNotificationPreferences() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (prefs: NotificationPreferences) => api.put('/v1/user/notification-preferences', prefs),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notificationPreferences })
     },
   })
 }

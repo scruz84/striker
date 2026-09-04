@@ -407,6 +407,11 @@ export interface NotificationsResponse {
   notifications: Notification[]
 }
 
+export interface NotificationPreferences {
+  emailEnabled: boolean
+  pushEnabled: boolean
+}
+
 export interface AdminOverview {
   season: number
   userCount: number
