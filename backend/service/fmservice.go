@@ -118,6 +118,15 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1OfferGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptOfferHandler(dbCtx))
 	v1OfferGroup.POST("/:"+handlers.ID+"/reject", handlers.RejectOfferHandler(dbCtx))
 
+	v1FriendGroup := v1Group.Group("/groups")
+	v1FriendGroup.Use(authMiddleware.MiddlewareFunc())
+	v1FriendGroup.POST("", handlers.CreateGroupHandler(dbCtx))
+	v1FriendGroup.POST("/join", handlers.JoinGroupHandler(dbCtx))
+	v1FriendGroup.GET("/mine", handlers.MyGroupsHandler(dbCtx))
+	v1FriendGroup.GET("/:"+handlers.ID, handlers.GroupDetailsHandler(dbCtx))
+	v1FriendGroup.POST("/:"+handlers.ID+"/leave", handlers.LeaveGroupHandler(dbCtx))
+	v1FriendGroup.DELETE("/:"+handlers.ID, handlers.DeleteGroupHandler(dbCtx))
+
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
 	v1TeamGroup.GET("/match/:"+handlers.ID+"/", handlers.MatchDetailsHandler(dbCtx))
