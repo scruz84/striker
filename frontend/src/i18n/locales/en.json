@@ -257,7 +257,12 @@
     "makeOffer": "Make offer",
     "amount": "Amount",
     "send": "Send",
-    "offerError": "Could not make that offer."
+    "offerError": "Could not make that offer.",
+    "chart": {
+      "title": "Final league position by season",
+      "ariaLabel": "Line chart of final league position by season, lower is better",
+      "tooltipSeason": "Season {{season}} - position {{position}}"
+    }
   },
   "match": {
     "matchFinished": "Match finished - loading the result...",

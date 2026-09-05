@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import { useMakeOffer, useMe, useTeamDetails, useTeamHistory, useUserTeam } from '../../api/hooks'
 import type { Player, SeasonHistoryEntry } from '../../api/types'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
+import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
@@ -71,7 +72,10 @@ export function TeamDetailsPage() {
       {historyLoading || !history ? (
         <Skeleton variant="rectangular" height={100} />
       ) : (
-        <TrophyCabinet history={history} />
+        <>
+          <SeasonPositionChart history={history} />
+          <TrophyCabinet history={history} />
+        </>
       )}
 
       {!isOwnTeam && userTeam && (

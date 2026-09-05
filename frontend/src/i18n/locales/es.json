@@ -257,7 +257,12 @@
     "makeOffer": "Hacer oferta",
     "amount": "Importe",
     "send": "Enviar",
-    "offerError": "No se pudo hacer esa oferta."
+    "offerError": "No se pudo hacer esa oferta.",
+    "chart": {
+      "title": "Posición final en liga por temporada",
+      "ariaLabel": "Gráfico de líneas de la posición final en liga por temporada, cuanto más bajo mejor",
+      "tooltipSeason": "Temporada {{season}} - posición {{position}}"
+    }
   },
   "match": {
     "matchFinished": "Partido finalizado - cargando el resultado...",
