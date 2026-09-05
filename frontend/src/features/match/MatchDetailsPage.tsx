@@ -25,6 +25,7 @@ import {
 } from '../../api/types'
 import { useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
+import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 
 export function MatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -35,13 +36,34 @@ export function MatchDetailsPage() {
   }
 
   if (!match.played) {
-    return <LiveMatch key={id} matchId={id} homeName={match.homeName} awayName={match.awayName} />
+    return (
+      <LiveMatch
+        key={id}
+        matchId={id}
+        homeId={match.home}
+        homeName={match.homeName}
+        awayId={match.away}
+        awayName={match.awayName}
+      />
+    )
   }
 
   return <PlayedMatch match={match} />
 }
 
-function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefined; homeName: string; awayName: string }) {
+function LiveMatch({
+  matchId,
+  homeId,
+  homeName,
+  awayId,
+  awayName,
+}: {
+  matchId: string | undefined
+  homeId: number
+  homeName: string
+  awayId: number
+  awayName: string
+}) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
@@ -86,9 +108,10 @@ function LiveMatch({ matchId, homeName, awayName }: { matchId: string | undefine
           </Typography>
         )}
       </Paper>
-      <Paper sx={{ p: 2 }}>
+      <Paper sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} />
       </Paper>
+      <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
   )
 }
@@ -121,7 +144,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
         </Grid>
       </Paper>
 
-      <Paper>
+      <Paper sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange}>
           <Tab label={t('match.tabs.events')} />
           <Tab label={t('match.tabs.lineups')} />
@@ -140,6 +163,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
           )}
         </Box>
       </Paper>
+      <HeadToHeadCard teamAId={match.home} teamAName={match.homeName} teamBId={match.away} teamBName={match.awayName} />
     </Box>
   )
 }

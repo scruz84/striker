@@ -266,6 +266,12 @@
     "redCard": "Tarjeta roja",
     "injury": "Lesión"
   },
+  "headToHead": {
+    "title": "Enfrentamientos directos",
+    "noMeetings": "Estos equipos aún no se han enfrentado.",
+    "record": "Victorias de {{teamA}} - empates - victorias de {{teamB}}",
+    "goals": "Goles: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
+  },
   "groups": {
     "title": "Grupos de amigos",
     "subtitle": "Una clasificación entre tú y los equipos de tus amigos, ordenada por presupuesto - no es una liga aislada, solo presumir sobre los equipos que ya gestionáis.",

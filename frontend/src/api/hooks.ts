@@ -12,6 +12,7 @@ import type {
   LoggedUser,
   Group,
   GroupDetails,
+  HeadToHead,
   NotificationPreferences,
   NotificationsResponse,
   SeasonHistoryEntry,
@@ -26,6 +27,7 @@ export const queryKeys = {
   userTeam: ['userTeam'] as const,
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
+  headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
@@ -105,6 +107,16 @@ export function useTeamHistory(teamId: string | undefined) {
     queryKey: queryKeys.teamHistory(teamId ?? ''),
     queryFn: () => api.get<SeasonHistoryEntry[]>(`/v1/teams/team/${teamId}/history`),
     enabled: !!teamId,
+  })
+}
+
+// Order-independent - the backend reports wins/goals from whichever id you pass as teamAId, so
+// passing (a,b) vs (b,a) just flips which side of the result is "yours."
+export function useHeadToHead(teamAId: number | undefined, teamBId: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.headToHead(teamAId ?? 0, teamBId ?? 0),
+    queryFn: () => api.get<HeadToHead>(`/v1/teams/head-to-head/${teamAId}/${teamBId}`),
+    enabled: !!teamAId && !!teamBId && teamAId !== teamBId,
   })
 }
 

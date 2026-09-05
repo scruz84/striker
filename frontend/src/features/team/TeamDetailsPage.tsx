@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Link from '@mui/material/Link'
@@ -18,6 +19,7 @@ import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMakeOffer, useMe, useTeamDetails, useTeamHistory, useUserTeam } from '../../api/hooks'
 import type { Player, SeasonHistoryEntry } from '../../api/types'
+import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
@@ -70,6 +72,17 @@ export function TeamDetailsPage() {
         <Skeleton variant="rectangular" height={100} />
       ) : (
         <TrophyCabinet history={history} />
+      )}
+
+      {!isOwnTeam && userTeam && (
+        <Box sx={{ mt: 2 }}>
+          <HeadToHeadCard
+            teamAId={userTeam.team.id}
+            teamAName={userTeam.team.name}
+            teamBId={teamDetails.team.id}
+            teamBName={teamDetails.team.name}
+          />
+        </Box>
       )}
     </Stack>
   )

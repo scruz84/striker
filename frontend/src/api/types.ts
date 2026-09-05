@@ -348,6 +348,30 @@ export interface SeasonHistoryEntry {
   cupResult: string | null
 }
 
+export interface HeadToHeadMeeting {
+  matchId: number
+  season: number
+  matchDate: string
+  homeTeamId: number
+  awayTeamId: number
+  homeGoals: number
+  awayGoals: number
+}
+
+// Wins/goals are reported from teamAId's perspective - teamBWins/teamBGoals are the complement,
+// so which team you pass as A vs B only matters for how you read the result, not what it means.
+export interface HeadToHead {
+  teamAId: number
+  teamBId: number
+  totalMatches: number
+  teamAWins: number
+  teamBWins: number
+  draws: number
+  teamAGoals: number
+  teamBGoals: number
+  meetings: HeadToHeadMeeting[]
+}
+
 export interface TransferOffer {
   offerId: number
   player: Player

@@ -266,6 +266,12 @@
     "redCard": "Red card",
     "injury": "Injury"
   },
+  "headToHead": {
+    "title": "Head to head",
+    "noMeetings": "These teams haven't played each other yet.",
+    "record": "{{teamA}} wins - draws - {{teamB}} wins",
+    "goals": "Goals: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
+  },
   "groups": {
     "title": "Friend groups",
     "subtitle": "A leaderboard among you and your friends' teams, ranked by budget - not an isolated league, just bragging rights over the teams you already manage.",
