@@ -17,6 +17,8 @@
     "login": "Login",
     "account": "Account",
     "language": "Language",
+    "darkMode": "Switch to dark mode",
+    "lightMode": "Switch to light mode",
     "nav": {
       "dashboard": "Dashboard",
       "lineup": "Lineup",

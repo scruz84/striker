@@ -17,6 +17,8 @@
     "login": "Iniciar sesión",
     "account": "Cuenta",
     "language": "Idioma",
+    "darkMode": "Cambiar a modo oscuro",
+    "lightMode": "Cambiar a modo claro",
     "nav": {
       "dashboard": "Panel",
       "lineup": "Alineación",

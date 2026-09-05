@@ -1,7 +1,5 @@
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
-import CssBaseline from '@mui/material/CssBaseline'
-import { ThemeProvider } from '@mui/material/styles'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
@@ -18,9 +16,9 @@ import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
 import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
-import { lightTheme } from '../theme'
 import { Layout } from './Layout'
 import { queryClient } from './queryClient'
+import { ThemeModeProvider } from './ThemeModeProvider'
 
 const emotionCache = createCache({ key: 'css' })
 
@@ -29,8 +27,7 @@ function App() {
     <GoogleOAuthProvider clientId={getGoogleOAuthClientId()}>
       <QueryClientProvider client={queryClient}>
         <CacheProvider value={emotionCache}>
-          <ThemeProvider theme={lightTheme}>
-            <CssBaseline enableColorScheme />
+          <ThemeModeProvider>
             <BrowserRouter>
               <Routes>
                 <Route element={<Layout />}>
@@ -50,7 +47,7 @@ function App() {
                 </Route>
               </Routes>
             </BrowserRouter>
-          </ThemeProvider>
+          </ThemeModeProvider>
         </CacheProvider>
       </QueryClientProvider>
     </GoogleOAuthProvider>

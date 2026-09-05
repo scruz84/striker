@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useLogout, useMe } from '../api/hooks'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { NotificationBell } from './NotificationBell'
+import { ThemeModeToggle } from './ThemeModeToggle'
 
 export function Header() {
   return (
@@ -25,6 +26,7 @@ export function Header() {
               Striker
             </Link>
           </Typography>
+          <ThemeModeToggle />
           <LanguageSwitcher />
           <NotificationBell />
           <AvatarOrLogin />
