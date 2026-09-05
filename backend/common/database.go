@@ -146,13 +146,32 @@ const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reas
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
 const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1"
 
-func GetRandomName(dbCtx *DatabaseContext) (string, string, error) {
-	stmtNames, err := dbCtx.Db.Prepare("select name from names_es order by random() limit 1")
+// nameTableSuffixByCountry maps a seeded country code to its names_<suffix>/lastnames_<suffix>
+// table pair (see resources/sql/init.sql and init19_multi_country_names.sql). Table names can't
+// be parameterized like ordinary values, so GetRandomName looks the suffix up here - an
+// allowlist of the game's own seeded countries - rather than ever building SQL from the country
+// string directly.
+var nameTableSuffixByCountry = map[string]string{
+	"es": "es",
+	"en": "en",
+	"fr": "fr",
+	"de": "de",
+}
+
+// GetRandomName picks a random first/last name from the given country's name pool. Falls back
+// to Spanish ("es") names for an unrecognized country code rather than failing - a missing/typo'd
+// country should never block player generation.
+func GetRandomName(dbCtx *DatabaseContext, country string) (string, string, error) {
+	suffix, ok := nameTableSuffixByCountry[country]
+	if !ok {
+		suffix = "es"
+	}
+	stmtNames, err := dbCtx.Db.Prepare("select name from names_" + suffix + " order by random() limit 1")
 	if err != nil {
 		return "", "", err
 	}
 	defer stmtNames.Close()
-	stmtLastNames, err := dbCtx.Db.Prepare("select lastname from lastnames_es order by random() limit 1")
+	stmtLastNames, err := dbCtx.Db.Prepare("select lastname from lastnames_" + suffix + " order by random() limit 1")
 	if err != nil {
 		return "", "", err
 	}
@@ -181,14 +200,14 @@ const SquadSize = 18
 const SeniorSkillMin, SeniorSkillMax = 30, 60
 const SeniorAgeMin, SeniorAgeMax = 18, 32
 
-func CreatePlayers(dbCtx *DatabaseContext, teamId int64) {
+func CreatePlayers(dbCtx *DatabaseContext, teamId int64, country string) {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
 	if errInsert != nil {
 		log.Printf("error inserting new players %s", errInsert)
 		return
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country)
 }
 
 func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team, error) {
@@ -216,9 +235,9 @@ func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team
 // [minSkill, maxSkill] and age from [minAge, maxAge]. Used both for a new team's starting
 // squad and for youth academy backfills (see CreateAcademyPlayers), which use lower/younger
 // ranges.
-func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int) {
+func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string) {
 	for i := 0; i < count; i++ {
-		firstName, lastName, _ := GetRandomName(dbCtx)
+		firstName, lastName, _ := GetRandomName(dbCtx, country)
 		avatar := RandomAvatarAsString()
 		goalKeeper := minSkill + rand.Intn(maxSkill-minSkill+1)
 		defense := minSkill + rand.Intn(maxSkill-minSkill+1)
@@ -273,7 +292,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err2
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country)
 
 	//Update team details
 	ustmt, err := tx.Prepare(UpdateTeamDetailsStmtSql)
@@ -281,7 +300,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err
 	}
 	defer ustmt.Close()
-	tName, _, err := GetRandomName(dbCtx)
+	tName, _, err := GetRandomName(dbCtx, country)
 	if err != nil {
 		return nil, err
 	}
@@ -1209,13 +1228,27 @@ func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int) error
 	if count <= 0 {
 		return nil
 	}
+	country, err := GetTeamCountry(dbCtx, teamId)
+	if err != nil {
+		return err
+	}
 	insertStmt, err := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
 	if err != nil {
 		return err
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, AcademySkillMax, AcademyAgeMin, AcademyAgeMax)
+	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, AcademySkillMax, AcademyAgeMin, AcademyAgeMax, country)
 	return nil
+}
+
+const GetTeamCountryStmtSql = "SELECT country FROM teams WHERE team_id = $1"
+
+// GetTeamCountry looks up which country a team belongs to - needed wherever player/team name
+// generation (see GetRandomName) has only a team id in scope, not the country itself.
+func GetTeamCountry(dbCtx *DatabaseContext, teamId int64) (string, error) {
+	var country string
+	err := dbCtx.Db.QueryRow(GetTeamCountryStmtSql, teamId).Scan(&country)
+	return country, err
 }
 
 func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {

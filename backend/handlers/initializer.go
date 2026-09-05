@@ -94,18 +94,36 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 	engine.StartCupsForNewSeason(dbCtx, 1)
 }
 
+// seededCountries lists every country the game world is generated for - each needs a matching
+// names_<code>/lastnames_<code> table pair (see common.GetRandomName and
+// resources/sql/init19_multi_country_names.sql).
+var seededCountries = []string{"es", "en", "fr", "de"}
+
+// randomSeededCountry picks one of seededCountries at random - used to assign a new Google
+// sign-in (see DoExternalLogin) to one of the game's countries, since there's no sign-up step
+// where a new user picks one themselves.
+func randomSeededCountry() string {
+	return seededCountries[rand.Intn(len(seededCountries))]
+}
+
 func createCountries(dbCtx *common.DatabaseContext) []string {
 	log.Debug("initializing countries")
 	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO countries (name) values ($1) returning country_id")
-	countryId := int64(-1)
-	countries := make([]string, 0)
 	if errInsert != nil {
 		log.Printf("error inserting new countries %s", errInsert)
-	} else {
-		_ = insertStmt.QueryRow("es").Scan(&countryId)
-		countries = append(countries, "es")
+		return nil
 	}
 	defer insertStmt.Close()
+
+	countries := make([]string, 0, len(seededCountries))
+	for _, country := range seededCountries {
+		countryId := int64(-1)
+		if err := insertStmt.QueryRow(country).Scan(&countryId); err != nil {
+			log.Printf("error inserting country %s: %s", country, err)
+			continue
+		}
+		countries = append(countries, country)
+	}
 	return countries
 }
 
@@ -163,14 +181,14 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, t
 	teamId := int64(-1)
 	insertStmt, errInsert := dbCtx.Db.Prepare(
 		"INSERT INTO teams (country, league_id, name, stadium_capacity) values ($1, $2, $3, $4) returning team_id")
-	name, _, _ := common.GetRandomName(dbCtx)
+	name, _, _ := common.GetRandomName(dbCtx, country)
 	teamName := name + " Team"
 	if errInsert != nil {
 		log.Printf("error inserting new teams %s", errInsert)
 	}
 	capacity := common.RandomStadiumCapacity(tier, rand.New(rand.NewSource(time.Now().UnixNano())))
 	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &capacity).Scan(&teamId)
-	common.CreatePlayers(dbCtx, teamId)
+	common.CreatePlayers(dbCtx, teamId, country)
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching newly created squad for team %d: %s", teamId, err)

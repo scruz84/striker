@@ -21,6 +21,15 @@ has no countries/leagues/teams/players yet. Seed (or reset) the game world expli
 docker compose --profile init run --rm init
 ```
 
+The seeded world spans four countries (`seededCountries` in `handlers/initializer.go`): Spain
+(`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own three-tier league
+structure and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
+`resources/sql/init.sql` and `init19_multi_country_names.sql`). Spain's pool is a real ~29k-name
+dump; the other three are curated common-name lists of about 60 first/last names each - real
+names, just a much smaller pool, so expect more repetition across a large league than Spain's
+teams see. A new Google sign-in is assigned to one of the four at random
+(`randomSeededCountry`) - there's no sign-up step for a new user to pick one themselves.
+
 Override any setting via a `.env` file in this directory (see `docker-compose.yml` for the full
 list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The
 defaults are dev-only placeholders - set real secrets for anything beyond local development.
@@ -99,7 +108,12 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init16_groups.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init17_notification_prefs.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init18_match_schedule.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init19_multi_country_names.sql
 ```
+
+**Note:** init19 only adds the name-pool tables for the new countries (en/fr/de) - it doesn't
+retroactively add their leagues/teams/players to a world that's already been seeded. Adding those
+requires a full reseed (`docker compose --profile init run --rm init`, destructive - see above).
 
 ## Local development (without Docker)
 

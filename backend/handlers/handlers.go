@@ -91,13 +91,16 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 	userId, errUser := common.GetUserIdByEmail(email, dbCtx)
 	var loggedUser *common.LoggedUser
 	if errUser != nil {
-		//the user does not exist. Register it
-		err = dbCtx.Db.QueryRow(common.RegisterUserStmtSql, (*jwtTokenClaims)["name"], "google", email, "es").Scan(&userId)
+		//the user does not exist. Register it - assigned to a random one of the game's seeded
+		//countries (see seededCountries), since there's no sign-up step for a new Google user to
+		//pick one themselves.
+		country := randomSeededCountry()
+		err = dbCtx.Db.QueryRow(common.RegisterUserStmtSql, (*jwtTokenClaims)["name"], "google", email, country).Scan(&userId)
 		if err != nil {
 			log.Errorf("error creating new user: %s", err)
 			return nil, http.StatusInternalServerError, err
 		}
-		team, err := common.AssignTeam(dbCtx, userId, "es")
+		team, err := common.AssignTeam(dbCtx, userId, country)
 		if err != nil {
 			log.Errorf("error assigning new team to user: %s", err)
 			return nil, http.StatusInternalServerError, err
@@ -107,7 +110,7 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 			Name:       fmt.Sprint((*jwtTokenClaims)["name"]),
 			Provider:   "google",
 			Email:      email,
-			Country:    "es",
+			Country:    country,
 			TeamId:     strconv.FormatInt(team.Id, 10),
 			TeamName:   team.TeamName,
 			TeamLeague: strconv.FormatInt(team.DivisionId, 10),
