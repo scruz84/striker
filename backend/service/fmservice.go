@@ -58,9 +58,7 @@ func StartSvc() {
 func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//CORS
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"https://api.striker.example.com",
-		"https://striker.example.com",
-		"http://localhost:3000"}
+	corsConfig.AllowOrigins = common.CorsAllowedOrigins()
 	corsConfig.AllowCredentials = true
 	corsConfig.AddAllowMethods("OPTIONS")
 	corsConfig.AddAllowHeaders("Access-Control-Allow-Origin")

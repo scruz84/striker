@@ -38,6 +38,17 @@ Set `ADMIN_EMAILS` (comma-separated) to grant commissioner/admin access - see "A
 below - to those Google accounts. It's checked on every login, so adding an email takes effect
 the next time that person logs in; no manual DB edit needed.
 
+### CORS
+
+The API only accepts cross-origin requests (including the OAuth login call) from an allowlisted
+set of origins - `common.CorsAllowedOrigins`, always including the two deployed frontend domains
+plus `http://localhost:3000` (the Docker/nginx-served frontend) and `http://localhost:5173`
+(Vite's default `npm run dev` port). Running the frontend on a different port, or from a
+different host entirely, needs `CORS_ALLOWED_ORIGINS` (comma-separated) set to that origin - e.g.
+`CORS_ALLOWED_ORIGINS=http://localhost:4000`. Without it, the browser's preflight `OPTIONS`
+request gets rejected (visible in this service's logs as a `403` on `OPTIONS`), and every API
+call - login included - fails with a CORS error before it ever reaches a handler.
+
 ### Admin tooling
 
 Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints under
