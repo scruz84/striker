@@ -17,6 +17,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
 import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -42,6 +43,10 @@ import {
 import type { LoanListing, Player, TransferListing, TransferOffer } from '../../api/types'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+
+type SortDirection = 'asc' | 'desc'
+type TransferSortField = 'age' | 'price' | 'listed'
+type LoanSortField = 'age' | 'duration' | 'listed'
 
 export function TransferMarketPage() {
   const { t } = useTranslation()
@@ -85,6 +90,14 @@ function TransfersTab() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
   const [askingPrice, setAskingPrice] = useState('')
 
+  const [search, setSearch] = useState('')
+  const [minAge, setMinAge] = useState('')
+  const [maxAge, setMaxAge] = useState('')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [sortField, setSortField] = useState<TransferSortField>('listed')
+  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+
   if (teamLoading || listingsLoading || !userTeam || !listings) {
     return <Skeleton variant="rectangular" height={300} />
   }
@@ -94,6 +107,44 @@ function TransfersTab() {
   const listablePlayers = userTeam.players.filter((p) => !listedPlayerIds.has(p.id))
   const myListings = listings.filter((l) => l.sellingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.sellingTeamId !== myTeamId)
+
+  const hasActiveFilters = !!(search || minAge || maxAge || minPrice || maxPrice)
+  const clearFilters = () => {
+    setSearch('')
+    setMinAge('')
+    setMaxAge('')
+    setMinPrice('')
+    setMaxPrice('')
+  }
+
+  const filteredMarketListings = marketListings
+    .filter((l) => {
+      const term = search.trim().toLowerCase()
+      if (term && !`${l.player.firstName} ${l.player.lastName}`.toLowerCase().includes(term)) return false
+      if (minAge && l.player.age < Number(minAge)) return false
+      if (maxAge && l.player.age > Number(maxAge)) return false
+      if (minPrice && l.askingPrice < Number(minPrice)) return false
+      if (maxPrice && l.askingPrice > Number(maxPrice)) return false
+      return true
+    })
+    .sort((a, b) => {
+      const cmp =
+        sortField === 'price'
+          ? a.askingPrice - b.askingPrice
+          : sortField === 'age'
+            ? a.player.age - b.player.age
+            : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
+  const handleSort = (field: TransferSortField) => {
+    if (field === sortField) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir('asc')
+    }
+  }
 
   const handleList = () => {
     const price = Number(askingPrice)
@@ -189,14 +240,76 @@ function TransfersTab() {
             {t('transfers.noMarketListings')}
           </Typography>
         ) : (
-          <ListingsTable
-            listings={marketListings}
-            renderAction={(listing) => (
-              <Button size="small" variant="contained" onClick={() => buyListing.mutate(listing.listingId)} disabled={buyListing.isPending}>
-                {t('transfers.buy')}
-              </Button>
+          <>
+            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+              <TextField
+                size="small"
+                label={t('transfers.filters.search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ minWidth: 160 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minAge')}
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.maxAge')}
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minPrice')}
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                sx={{ width: 120 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.maxPrice')}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                sx={{ width: 120 }}
+              />
+              {hasActiveFilters && (
+                <Button size="small" onClick={clearFilters}>
+                  {t('transfers.filters.clear')}
+                </Button>
+              )}
+            </Stack>
+            {filteredMarketListings.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                {t('transfers.filters.noResults')}
+              </Typography>
+            ) : (
+              <ListingsTable
+                listings={filteredMarketListings}
+                sortField={sortField}
+                sortDir={sortDir}
+                onSort={handleSort}
+                renderAction={(listing) => (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => buyListing.mutate(listing.listingId)}
+                    disabled={buyListing.isPending}
+                  >
+                    {t('transfers.buy')}
+                  </Button>
+                )}
+              />
             )}
-          />
+          </>
         )}
       </Paper>
     </Box>
@@ -206,10 +319,14 @@ function TransfersTab() {
 interface ListingsTableProps {
   listings: TransferListing[]
   renderAction: (listing: TransferListing) => React.ReactNode
+  sortField?: TransferSortField
+  sortDir?: SortDirection
+  onSort?: (field: TransferSortField) => void
 }
 
-function ListingsTable({ listings, renderAction }: ListingsTableProps) {
+function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: ListingsTableProps) {
   const { t } = useTranslation()
+  const sortable = !!onSort
   return (
     <TableContainer>
       <Table size="small">
@@ -217,8 +334,41 @@ function ListingsTable({ listings, renderAction }: ListingsTableProps) {
           <TableRow>
             <TableCell>{t('transfers.table.player')}</TableCell>
             <TableCell>{t('transfers.table.team')}</TableCell>
-            <TableCell>{t('transfers.table.listed')}</TableCell>
-            <TableCell align="right">{t('transfers.table.price')}</TableCell>
+            {sortable ? (
+              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
+                  {t('transfers.table.age')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right">{t('transfers.table.age')}</TableCell>
+            )}
+            {sortable ? (
+              <TableCell sortDirection={sortField === 'listed' ? sortDir : false}>
+                <TableSortLabel
+                  active={sortField === 'listed'}
+                  direction={sortField === 'listed' ? sortDir : 'asc'}
+                  onClick={() => onSort('listed')}
+                >
+                  {t('transfers.table.listed')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell>{t('transfers.table.listed')}</TableCell>
+            )}
+            {sortable ? (
+              <TableCell align="right" sortDirection={sortField === 'price' ? sortDir : false}>
+                <TableSortLabel
+                  active={sortField === 'price'}
+                  direction={sortField === 'price' ? sortDir : 'asc'}
+                  onClick={() => onSort('price')}
+                >
+                  {t('transfers.table.price')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right">{t('transfers.table.price')}</TableCell>
+            )}
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -229,6 +379,7 @@ function ListingsTable({ listings, renderAction }: ListingsTableProps) {
                 {listing.player.firstName} {listing.player.lastName}
               </TableCell>
               <TableCell>{listing.sellingTeamName}</TableCell>
+              <TableCell align="right">{listing.player.age}</TableCell>
               <TableCell>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{formatCurrency(listing.askingPrice)}</TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>
@@ -255,6 +406,13 @@ function LoansTab() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
   const [duration, setDuration] = useState<number>(1)
 
+  const [search, setSearch] = useState('')
+  const [minAge, setMinAge] = useState('')
+  const [maxAge, setMaxAge] = useState('')
+  const [maxDuration, setMaxDuration] = useState<number | ''>('')
+  const [sortField, setSortField] = useState<LoanSortField>('listed')
+  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+
   if (teamLoading || listingsLoading || !userTeam || !listings) {
     return <Skeleton variant="rectangular" height={300} />
   }
@@ -264,6 +422,42 @@ function LoansTab() {
   const loanablePlayers: Player[] = userTeam.players.filter((p) => !loanListedPlayerIds.has(p.id))
   const myListings = listings.filter((l) => l.lendingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.lendingTeamId !== myTeamId)
+
+  const hasActiveFilters = !!(search || minAge || maxAge || maxDuration)
+  const clearFilters = () => {
+    setSearch('')
+    setMinAge('')
+    setMaxAge('')
+    setMaxDuration('')
+  }
+
+  const filteredMarketListings = marketListings
+    .filter((l) => {
+      const term = search.trim().toLowerCase()
+      if (term && !`${l.player.firstName} ${l.player.lastName}`.toLowerCase().includes(term)) return false
+      if (minAge && l.player.age < Number(minAge)) return false
+      if (maxAge && l.player.age > Number(maxAge)) return false
+      if (maxDuration && l.durationSeasons > Number(maxDuration)) return false
+      return true
+    })
+    .sort((a, b) => {
+      const cmp =
+        sortField === 'duration'
+          ? a.durationSeasons - b.durationSeasons
+          : sortField === 'age'
+            ? a.player.age - b.player.age
+            : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
+  const handleSort = (field: LoanSortField) => {
+    if (field === sortField) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir('asc')
+    }
+  }
 
   const handleList = () => {
     if (selectedPlayerId === '') {
@@ -359,14 +553,80 @@ function LoansTab() {
             {t('transfers.noLoanListings')}
           </Typography>
         ) : (
-          <LoanListingsTable
-            listings={marketListings}
-            renderAction={(listing) => (
-              <Button size="small" variant="contained" onClick={() => acceptLoan.mutate(listing.listingId)} disabled={acceptLoan.isPending}>
-                {t('transfers.accept')}
-              </Button>
+          <>
+            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+              <TextField
+                size="small"
+                label={t('transfers.filters.search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ minWidth: 160 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minAge')}
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.maxAge')}
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <FormControl size="small" sx={{ width: 160 }}>
+                <InputLabel id="loan-max-duration-label">{t('transfers.filters.maxDuration')}</InputLabel>
+                <Select
+                  labelId="loan-max-duration-label"
+                  label={t('transfers.filters.maxDuration')}
+                  value={maxDuration}
+                  onChange={(event: SelectChangeEvent<number | ''>) =>
+                    setMaxDuration(event.target.value === '' ? '' : Number(event.target.value))
+                  }
+                >
+                  <MenuItem value="">
+                    <em>{t('transfers.filters.any')}</em>
+                  </MenuItem>
+                  {LOAN_DURATION_OPTIONS.map((seasons) => (
+                    <MenuItem key={seasons} value={seasons}>
+                      {t('transfers.seasonCount', { count: seasons })}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {hasActiveFilters && (
+                <Button size="small" onClick={clearFilters}>
+                  {t('transfers.filters.clear')}
+                </Button>
+              )}
+            </Stack>
+            {filteredMarketListings.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                {t('transfers.filters.noResults')}
+              </Typography>
+            ) : (
+              <LoanListingsTable
+                listings={filteredMarketListings}
+                sortField={sortField}
+                sortDir={sortDir}
+                onSort={handleSort}
+                renderAction={(listing) => (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => acceptLoan.mutate(listing.listingId)}
+                    disabled={acceptLoan.isPending}
+                  >
+                    {t('transfers.accept')}
+                  </Button>
+                )}
+              />
             )}
-          />
+          </>
         )}
       </Paper>
     </Box>
@@ -376,10 +636,14 @@ function LoansTab() {
 interface LoanListingsTableProps {
   listings: LoanListing[]
   renderAction: (listing: LoanListing) => React.ReactNode
+  sortField?: LoanSortField
+  sortDir?: SortDirection
+  onSort?: (field: LoanSortField) => void
 }
 
-function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
+function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort }: LoanListingsTableProps) {
   const { t } = useTranslation()
+  const sortable = !!onSort
   return (
     <TableContainer>
       <Table size="small">
@@ -387,8 +651,41 @@ function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
           <TableRow>
             <TableCell>{t('transfers.table.player')}</TableCell>
             <TableCell>{t('transfers.table.team')}</TableCell>
-            <TableCell>{t('transfers.table.listed')}</TableCell>
-            <TableCell align="right">{t('transfers.table.duration')}</TableCell>
+            {sortable ? (
+              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
+                  {t('transfers.table.age')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right">{t('transfers.table.age')}</TableCell>
+            )}
+            {sortable ? (
+              <TableCell sortDirection={sortField === 'listed' ? sortDir : false}>
+                <TableSortLabel
+                  active={sortField === 'listed'}
+                  direction={sortField === 'listed' ? sortDir : 'asc'}
+                  onClick={() => onSort('listed')}
+                >
+                  {t('transfers.table.listed')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell>{t('transfers.table.listed')}</TableCell>
+            )}
+            {sortable ? (
+              <TableCell align="right" sortDirection={sortField === 'duration' ? sortDir : false}>
+                <TableSortLabel
+                  active={sortField === 'duration'}
+                  direction={sortField === 'duration' ? sortDir : 'asc'}
+                  onClick={() => onSort('duration')}
+                >
+                  {t('transfers.table.duration')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right">{t('transfers.table.duration')}</TableCell>
+            )}
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -399,6 +696,7 @@ function LoanListingsTable({ listings, renderAction }: LoanListingsTableProps) {
                 {listing.player.firstName} {listing.player.lastName}
               </TableCell>
               <TableCell>{listing.lendingTeamName}</TableCell>
+              <TableCell align="right">{listing.player.age}</TableCell>
               <TableCell>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>

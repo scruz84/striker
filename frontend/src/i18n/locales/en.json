@@ -168,6 +168,7 @@
     "table": {
       "player": "Player",
       "team": "Team",
+      "age": "Age",
       "listed": "Listed",
       "price": "Price",
       "duration": "Duration",
@@ -175,6 +176,17 @@
       "to": "To",
       "made": "Made",
       "amount": "Amount"
+    },
+    "filters": {
+      "search": "Search player",
+      "minAge": "Min age",
+      "maxAge": "Max age",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "maxDuration": "Max duration",
+      "any": "Any",
+      "clear": "Clear filters",
+      "noResults": "No players match your filters."
     },
     "buy": "Buy",
     "offerLoan": {

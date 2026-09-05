@@ -168,6 +168,7 @@
     "table": {
       "player": "Jugador",
       "team": "Equipo",
+      "age": "Edad",
       "listed": "Listado",
       "price": "Precio",
       "duration": "Duración",
@@ -175,6 +176,17 @@
       "to": "Para",
       "made": "Hecha",
       "amount": "Importe"
+    },
+    "filters": {
+      "search": "Buscar jugador",
+      "minAge": "Edad mín.",
+      "maxAge": "Edad máx.",
+      "minPrice": "Precio mín.",
+      "maxPrice": "Precio máx.",
+      "maxDuration": "Duración máx.",
+      "any": "Cualquiera",
+      "clear": "Borrar filtros",
+      "noResults": "Ningún jugador coincide con tus filtros."
     },
     "buy": "Comprar",
     "offerLoan": {
