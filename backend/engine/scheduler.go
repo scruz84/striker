@@ -2,12 +2,13 @@ package engine
 
 import (
 	"context"
-	"github.com/reugn/go-quartz/quartz"
 	"log"
+
+	"github.com/reugn/go-quartz/quartz"
 )
 
 var ctx = context.Background()
-var sched = quartz.NewStdScheduler()
+var sched, _ = quartz.NewStdScheduler()
 
 func StartSimulateMatchesScheduler(simulateMatchesJob quartz.Job) {
 	sched.Start(ctx)
