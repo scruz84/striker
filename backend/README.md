@@ -36,8 +36,9 @@ Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints und
 user and their team), `POST simulate` (force a manual simulation pass instead of waiting for
 the scheduler's next tick), `POST advance-season` (force a season-completion check),
 `POST teams/:id/budget` (a manual budget correction, logged to that team's ledger like any
-other transaction), and `PUT transfer-window` (open/close the transfer and loan markets
-globally - see "Transfer window" below).
+other transaction), `PUT transfer-window` (open/close the transfer and loan markets
+globally - see "Transfer window" below), and `PUT match-schedule` (set the recurring
+weekday/time-of-day fixtures are generated on - see "Match schedule" below).
 
 The old unauthenticated `GET /v1/initData` reset endpoint now requires an authenticated admin
 **once any user is registered** - before that (a genuinely fresh deployment, nobody to protect
@@ -53,6 +54,25 @@ cancelling your own listing never is. There's no automatic schedule behind it (f
 independent per-league clocks, so there's no single "week of the season" to derive it from) -
 an admin toggles it with `PUT /v1/admin/transfer-window` (`{"open": true|false}`), and
 `GET /v1/transfers/window` reports the current state to anyone.
+
+### Match schedule
+
+New league fixtures (a full season's worth, generated in one batch at world init or season
+rollover - see `engine.GenerateMatches`) are dated according to one global recurring schedule:
+a set of weekdays plus a time of day, e.g. "Saturdays at 14:00" or "every day at 16:00". An
+admin sets it with `PUT /v1/admin/match-schedule`:
+
+```json
+{"weekdaysMask": 64, "hour": 14, "minute": 0}
+```
+
+`weekdaysMask` is a bitmask over the seven weekdays, bit 0 = Sunday through bit 6 = Saturday
+(so Saturday alone is `1<<6 = 64`; every day is `127`); at least one bit must be set. The
+current value comes back on `GET /v1/admin/overview` as `matchScheduleWeekdaysMask`/
+`matchScheduleHour`/`matchScheduleMinute`. A single selected weekday gives one match round per
+week; selecting every weekday gives one round per day. Changing the schedule only affects
+fixtures generated **after** the change - it never reschedules matches that already have a
+date (see `engine.ComputeFixtureDates`).
 
 ### Schema changes on an already-running database
 
@@ -78,6 +98,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init15_season_history.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init16_groups.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init17_notification_prefs.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init18_match_schedule.sql
 ```
 
 ## Local development (without Docker)

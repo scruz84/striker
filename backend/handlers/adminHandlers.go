@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/engine"
@@ -44,15 +45,19 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		schedule := common.GetMatchSchedule(dbCtx)
 		c.JSON(http.StatusOK, common.AdminOverview{
-			Season:             season,
-			UserCount:          userCount,
-			TeamCount:          teamCount,
-			LeagueCount:        leagueCount,
-			MatchesTotal:       matchesTotal,
-			MatchesUnplayed:    matchesUnplayed,
-			ActiveCups:         len(activeCups),
-			TransferWindowOpen: common.IsTransferWindowOpen(dbCtx),
+			Season:                    season,
+			UserCount:                 userCount,
+			TeamCount:                 teamCount,
+			LeagueCount:               leagueCount,
+			MatchesTotal:              matchesTotal,
+			MatchesUnplayed:           matchesUnplayed,
+			ActiveCups:                len(activeCups),
+			TransferWindowOpen:        common.IsTransferWindowOpen(dbCtx),
+			MatchScheduleWeekdaysMask: schedule.WeekdaysMask,
+			MatchScheduleHour:         schedule.Hour,
+			MatchScheduleMinute:       schedule.Minute,
 		})
 	}
 }
@@ -146,5 +151,38 @@ func AdminSetTransferWindowHandler(dbCtx *common.DatabaseContext) gin.HandlerFun
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "transfer window updated"})
+	}
+}
+
+type setMatchScheduleRequest struct {
+	WeekdaysMask int `json:"weekdaysMask"`
+	Hour         int `json:"hour"`
+	Minute       int `json:"minute"`
+}
+
+// AdminSetMatchScheduleHandler updates the recurring weekday/time-of-day schedule used to date
+// newly generated league fixtures (see engine.ComputeFixtureDates) - e.g. "Saturdays at 14:00"
+// or "every day at 16:00". It only takes effect the next time fixtures are generated (the next
+// season rollover, or a fresh world init) - matches already dated keep their existing date.
+func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setMatchScheduleRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "weekdaysMask, hour and minute are required"))
+			return
+		}
+
+		schedule := common.MatchSchedule{WeekdaysMask: req.WeekdaysMask, Hour: req.Hour, Minute: req.Minute}
+		if err := common.SetMatchSchedule(dbCtx, schedule); err != nil {
+			if errors.Is(err, common.ErrInvalidMatchSchedule) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting match schedule: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "match schedule updated"})
 	}
 }

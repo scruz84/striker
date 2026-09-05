@@ -28,6 +28,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 
 	if !rows.Next() {
 		//there are no upcoming matches, so we have to generate new ones
+		schedule := common.GetMatchSchedule(dbCtx)
 		rows, err := dbCtx.Db.Query("select league_id from leagues")
 		if err != nil {
 			log.Errorf("error finding leagues: %s", err)
@@ -49,7 +50,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 
 			log.Infof("Team ids: %v", teamIds)
 
-			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds)
+			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule)
 			//Insert the matches
 			_ = common.InsertMatches(dbCtx, weekMatches)
 		}
@@ -57,7 +58,7 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 }
 
 // Algorithm from: https://www.competize.com/blog/hacer-fixture-crear-calendario-liga-excel/
-func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*common.WeekMatch {
+func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64, schedule common.MatchSchedule) [][]*common.WeekMatch {
 	// Here we have a random sort for the teams
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	rand.Shuffle(len(*teamIds), func(i, j int) {
@@ -108,12 +109,10 @@ func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64) [][]*comm
 			teamIdxForMatchFromWeek = (teamIdxForMatchFromWeek + 1) % (len(*teamIds) - 1)
 		}
 	}
+	roundDates := ComputeFixtureDates(now, schedule, nWeeks)
 	for weekIdx, matches := range weeksMatches {
-		weekDate := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()+2, 0, 0, now.Location())
-		//weekDate = weekDate.Add(time.Duration(weekIdx+1) * time.Hour * 24)
-		weekDate = weekDate.Add(time.Duration(weekIdx+1) * time.Minute * 15)
 		for _, match := range matches {
-			match.MatchDate = weekDate
+			match.MatchDate = roundDates[weekIdx]
 		}
 	}
 	return weeksMatches
