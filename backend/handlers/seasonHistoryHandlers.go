@@ -28,3 +28,29 @@ func TeamHistoryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		c.JSON(http.StatusOK, history)
 	}
 }
+
+// HeadToHeadHandler returns the aggregate record and recent meetings between two teams. Public,
+// same reasoning as TeamHistoryHandler above.
+func HeadToHeadHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		teamAId, err := common.StringToInt64(c.Param("teamA"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid team id"))
+			return
+		}
+		teamBId, err := common.StringToInt64(c.Param("teamB"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid team id"))
+			return
+		}
+
+		headToHead, err := common.GetHeadToHead(dbCtx, teamAId, teamBId)
+		if err != nil {
+			log.Errorf("error getting head-to-head for teams %d/%d: %s", teamAId, teamBId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, headToHead)
+	}
+}
