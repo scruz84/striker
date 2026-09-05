@@ -238,7 +238,11 @@
     },
     "lastWeek": "Last week",
     "nextWeek": "Next week",
-    "noMatches": "No matches"
+    "noMatches": "No matches",
+    "topScorers": {
+      "title": "Top scorers",
+      "noGoals": "No goals scored yet this season."
+    }
   },
   "team": {
     "competitions": "Competitions:",

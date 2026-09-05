@@ -348,6 +348,15 @@ export interface SeasonHistoryEntry {
   cupResult: string | null
 }
 
+export interface ScorerStanding {
+  playerId: number
+  firstName: string
+  lastName: string
+  teamId: number
+  teamName: string
+  goals: number
+}
+
 export interface HeadToHeadMeeting {
   matchId: number
   season: number

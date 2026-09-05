@@ -15,6 +15,7 @@ import type {
   HeadToHead,
   NotificationPreferences,
   NotificationsResponse,
+  ScorerStanding,
   SeasonHistoryEntry,
   TeamDetails,
   TransferListing,
@@ -29,6 +30,7 @@ export const queryKeys = {
   teamHistory: (id: string) => ['teamHistory', id] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
+  topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
@@ -125,6 +127,14 @@ export function useDivisionDetails(divisionId: string | undefined) {
     queryKey: queryKeys.division(divisionId ?? ''),
     queryFn: () => api.get<DivisionDetails>(`/v1/teams/division/${divisionId}/`),
     enabled: !!divisionId,
+  })
+}
+
+export function useTopScorers(leagueId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.topScorers(leagueId ?? ''),
+    queryFn: () => api.get<ScorerStanding[]>(`/v1/teams/division/${leagueId}/top-scorers`),
+    enabled: !!leagueId,
   })
 }
 

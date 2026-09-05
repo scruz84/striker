@@ -238,7 +238,11 @@
     },
     "lastWeek": "Jornada anterior",
     "nextWeek": "Próxima jornada",
-    "noMatches": "Sin partidos"
+    "noMatches": "Sin partidos",
+    "topScorers": {
+      "title": "Máximos goleadores",
+      "noGoals": "Todavía no se han marcado goles esta temporada."
+    }
   },
   "team": {
     "competitions": "Competiciones:",
