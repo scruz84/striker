@@ -1,5 +1,3 @@
 .idea/
 
-fmfrontend/node_modules
-fmfrontend/.env.development.local
 /backend/app.env
