@@ -426,7 +426,34 @@ export interface AdminOverview {
   matchesUnplayed: number
   activeCups: number
   transferWindowOpen: boolean
+  matchScheduleWeekdaysMask: number
+  matchScheduleHour: number
+  matchScheduleMinute: number
 }
+
+// Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and
+// useSetMatchSchedule's weekdaysMask - matches backend/common/matchschedule.go, bit i
+// corresponds to JS Date.getDay() (0 = Sunday ... 6 = Saturday).
+export const WEEKDAY_SUNDAY = 1 << 0
+export const WEEKDAY_MONDAY = 1 << 1
+export const WEEKDAY_TUESDAY = 1 << 2
+export const WEEKDAY_WEDNESDAY = 1 << 3
+export const WEEKDAY_THURSDAY = 1 << 4
+export const WEEKDAY_FRIDAY = 1 << 5
+export const WEEKDAY_SATURDAY = 1 << 6
+export const ALL_WEEKDAYS_MASK =
+  WEEKDAY_SUNDAY | WEEKDAY_MONDAY | WEEKDAY_TUESDAY | WEEKDAY_WEDNESDAY | WEEKDAY_THURSDAY | WEEKDAY_FRIDAY | WEEKDAY_SATURDAY
+
+// Displayed Monday-first regardless of the Sunday-first bit numbering above.
+export const WEEKDAY_OPTIONS: { bit: number; key: string }[] = [
+  { bit: WEEKDAY_MONDAY, key: 'mon' },
+  { bit: WEEKDAY_TUESDAY, key: 'tue' },
+  { bit: WEEKDAY_WEDNESDAY, key: 'wed' },
+  { bit: WEEKDAY_THURSDAY, key: 'thu' },
+  { bit: WEEKDAY_FRIDAY, key: 'fri' },
+  { bit: WEEKDAY_SATURDAY, key: 'sat' },
+  { bit: WEEKDAY_SUNDAY, key: 'sun' },
+]
 
 export interface AdminUserSummary {
   userId: number

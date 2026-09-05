@@ -16,6 +16,8 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import {
@@ -25,8 +27,10 @@ import {
   useAdminSimulateNow,
   useAdminUsers,
   useMe,
+  useSetMatchSchedule,
   useSetTransferWindow,
 } from '../../api/hooks'
+import { WEEKDAY_OPTIONS } from '../../api/types'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -53,7 +57,7 @@ export function AdminPage() {
       ) : (
         <>
           <Overview overview={overview} />
-          <Actions transferWindowOpen={overview.transferWindowOpen} />
+          <Actions overview={overview} />
         </>
       )}
 
@@ -115,8 +119,9 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
   )
 }
 
-function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
+function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
   const { t } = useTranslation()
+  const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
   const adjustBudget = useAdminAdjustBudget()
@@ -200,8 +205,71 @@ function Actions({ transferWindowOpen }: { transferWindowOpen: boolean }) {
           {adjustBudget.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.adjustBudget.success')}</Alert>}
           {adjustBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.adjustBudget.error')}</Alert>}
         </Box>
+
+        <MatchScheduleForm overview={overview} />
       </Stack>
     </Paper>
+  )
+}
+
+function MatchScheduleForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setMatchSchedule = useSetMatchSchedule()
+  const [weekdaysMask, setWeekdaysMask] = useState(overview.matchScheduleWeekdaysMask)
+  const [time, setTime] = useState(
+    `${String(overview.matchScheduleHour).padStart(2, '0')}:${String(overview.matchScheduleMinute).padStart(2, '0')}`,
+  )
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    if (weekdaysMask === 0 || !time) {
+      return
+    }
+    const [hourStr, minuteStr] = time.split(':')
+    setMatchSchedule.mutate({ weekdaysMask, hour: Number(hourStr), minute: Number(minuteStr) })
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.matchSchedule.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.matchSchedule.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <ToggleButtonGroup
+          size="small"
+          value={WEEKDAY_OPTIONS.filter((d) => (weekdaysMask & d.bit) !== 0).map((d) => d.bit)}
+          onChange={(_event, newBits: number[]) => setWeekdaysMask(newBits.reduce((mask, bit) => mask | bit, 0))}
+        >
+          {WEEKDAY_OPTIONS.map((d) => (
+            <ToggleButton key={d.bit} value={d.bit}>
+              {t(`common.weekdaysShort.${d.key}`)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+        <TextField
+          label={t('admin.matchSchedule.time')}
+          type="time"
+          size="small"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          sx={{ width: 140 }}
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+        <Button type="submit" variant="contained" disabled={weekdaysMask === 0 || setMatchSchedule.isPending}>
+          {t('admin.matchSchedule.save')}
+        </Button>
+      </Stack>
+      {weekdaysMask === 0 && (
+        <Typography variant="caption" color="error">
+          {t('admin.matchSchedule.noWeekdaysError')}
+        </Typography>
+      )}
+      {setMatchSchedule.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.matchSchedule.success')}</Alert>}
+      {setMatchSchedule.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.matchSchedule.error')}</Alert>}
+    </Box>
   )
 }
 

@@ -2,7 +2,16 @@
   "common": {
     "loading": "Cargando...",
     "cancel": "Cancelar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "weekdaysShort": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
+    }
   },
   "header": {
     "login": "Iniciar sesión",
@@ -290,6 +299,15 @@
       "apply": "Aplicar",
       "success": "Presupuesto ajustado.",
       "error": "No se pudo ajustar el presupuesto."
+    },
+    "matchSchedule": {
+      "title": "Calendario de partidos",
+      "description": "Define en qué días y a qué hora se programan los nuevos partidos de liga - por ejemplo, sábados a las 14:00, o todos los días a las 16:00. Solo afecta a los partidos generados después de guardar (el próximo cambio de temporada); los partidos ya programados mantienen su fecha.",
+      "time": "Hora de inicio",
+      "save": "Guardar calendario",
+      "noWeekdaysError": "Selecciona al menos un día.",
+      "success": "Calendario de partidos actualizado.",
+      "error": "No se pudo actualizar el calendario de partidos."
     },
     "usersTitle": "Usuarios",
     "usersTable": { "id": "Id", "name": "Nombre", "email": "Correo electrónico", "country": "País", "team": "Equipo", "admin": "Admin" }

@@ -441,6 +441,17 @@ export function useSetTransferWindow() {
   })
 }
 
+export function useSetMatchSchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (schedule: { weekdaysMask: number; hour: number; minute: number }) =>
+      api.put('/v1/admin/match-schedule', schedule),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useMyGroups(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.myGroups,

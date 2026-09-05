@@ -2,7 +2,16 @@
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "weekdaysShort": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
   },
   "header": {
     "login": "Login",
@@ -290,6 +299,15 @@
       "apply": "Apply",
       "success": "Budget adjusted.",
       "error": "Failed to adjust budget."
+    },
+    "matchSchedule": {
+      "title": "Match schedule",
+      "description": "Sets which days and what time new league fixtures are dated on - e.g. Saturdays at 14:00, or every day at 16:00. Only affects fixtures generated after saving (the next season rollover); already-scheduled matches keep their date.",
+      "time": "Kickoff time",
+      "save": "Save schedule",
+      "noWeekdaysError": "Select at least one day.",
+      "success": "Match schedule updated.",
+      "error": "Failed to update match schedule."
     },
     "usersTitle": "Users",
     "usersTable": { "id": "Id", "name": "Name", "email": "Email", "country": "Country", "team": "Team", "admin": "Admin" }
