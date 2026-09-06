@@ -7,15 +7,9 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import type { Player } from '../api/types'
+import { overallRating, SKILL_FIELDS } from '../utils/playerRating'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { SkillBar } from './SkillBar'
-
-const SKILL_FIELDS = ['goalKeeper', 'defense', 'lateral', 'pass', 'midfield', 'dribbling', 'shot'] as const
-
-function overallRating(player: Player): number {
-  const total = SKILL_FIELDS.reduce((sum, field) => sum + player[field], 0)
-  return Math.round(total / SKILL_FIELDS.length)
-}
 
 export function PlayerCard({ player }: { player: Player }) {
   const { t } = useTranslation()

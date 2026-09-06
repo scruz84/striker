@@ -12,6 +12,14 @@ import {
 export const PITCH_WIDTH = 300
 export const PITCH_HEIGHT = 460
 
+// A full pitch has a lot of empty opponent-half space above the strikers (nothing is ever drawn
+// there - a lineup only ever occupies the own half plus a bit past the halfway line). The
+// interactive lineup editor uses this shorter "half pitch" instead, showing just that occupied
+// half so the same formation takes noticeably less vertical space - see PitchField's `half` prop
+// and layoutPitchSlots' `half` option below. Read-only lineup views (match details) keep using
+// the full-height layout, unaffected by any of this.
+export const PITCH_HEIGHT_HALF = 260
+
 // Row depth (y) per position, own goal at the bottom (like the classic formation-sheet view).
 const ROW_Y: Record<number, number> = {
   [POSITION_GOALKEEPER]: 430,
@@ -22,6 +30,18 @@ const ROW_Y: Record<number, number> = {
   [POSITION_LATERAL_MIDFIELD_LEFT]: 240,
   [POSITION_LATERAL_MIDFIELD_RIGHT]: 240,
   [POSITION_STRIKER]: 110,
+}
+
+// Same rows, compressed into PITCH_HEIGHT_HALF for the half-pitch layout.
+const ROW_Y_HALF: Record<number, number> = {
+  [POSITION_GOALKEEPER]: 235,
+  [POSITION_DEFENSE]: 178,
+  [POSITION_LATERAL_DEFENSE_LEFT]: 178,
+  [POSITION_LATERAL_DEFENSE_RIGHT]: 178,
+  [POSITION_MIDFIELD]: 112,
+  [POSITION_LATERAL_MIDFIELD_LEFT]: 112,
+  [POSITION_LATERAL_MIDFIELD_RIGHT]: 112,
+  [POSITION_STRIKER]: 45,
 }
 
 // Fixed x for the wide (touchline-hugging) slots - always exactly one of each per formation.
@@ -52,13 +72,16 @@ export interface PitchSlot {
   y: number
 }
 
-/** Computes a pitch coordinate for every slot a formation's position counts call for. */
-export function layoutPitchSlots(counts: Partial<Record<number, number>>): PitchSlot[] {
+/** Computes a pitch coordinate for every slot a formation's position counts call for. Pass
+ * `half: true` to lay out against PITCH_HEIGHT_HALF instead (see its comment above). */
+export function layoutPitchSlots(counts: Partial<Record<number, number>>, half = false): PitchSlot[] {
+  const rowY = half ? ROW_Y_HALF : ROW_Y
+  const fallbackY = (half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT) / 2
   const slots: PitchSlot[] = []
   for (const [positionStr, count] of Object.entries(counts)) {
     const position = Number(positionStr)
     if (!count) continue
-    const y = ROW_Y[position] ?? PITCH_HEIGHT / 2
+    const y = rowY[position] ?? fallbackY
     if (position in WIDE_X) {
       slots.push({ position, slotIndex: 0, x: WIDE_X[position], y })
       continue

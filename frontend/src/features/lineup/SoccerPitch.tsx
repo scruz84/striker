@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import type { Player } from '../../api/types'
 import { POSITION_LABEL_KEYS } from '../../api/types'
 import { PitchField, PitchSlotPosition } from '../../components/pitch/PitchField'
-import { layoutPitchSlots, type PitchSlot } from '../../components/pitch/pitchLayout'
+import { layoutPitchSlots, PITCH_HEIGHT_HALF, type PitchSlot } from '../../components/pitch/pitchLayout'
 import { DraggablePlayerChip } from './DraggablePlayerChip'
 
 interface SoccerPitchProps {
@@ -14,9 +14,12 @@ interface SoccerPitchProps {
 }
 
 export function SoccerPitch({ counts, getPlayer }: SoccerPitchProps) {
-  const slots = layoutPitchSlots(counts)
+  // Only the half of the pitch a lineup ever actually occupies is shown here - see
+  // PITCH_HEIGHT_HALF's comment in pitchLayout.ts - so editing a lineup takes noticeably less
+  // vertical space than the full-pitch view used for read-only match lineups.
+  const slots = layoutPitchSlots(counts, true)
   return (
-    <PitchField>
+    <PitchField half>
       {slots.map((slot, index) => (
         <PitchSlotView
           key={`${slot.position}-${slot.slotIndex}`}
@@ -37,7 +40,7 @@ function PitchSlotView({ slot, player, shirtNumber }: { slot: PitchSlot; player?
   })
 
   return (
-    <PitchSlotPosition ref={setNodeRef} x={slot.x} y={slot.y}>
+    <PitchSlotPosition ref={setNodeRef} x={slot.x} y={slot.y} pitchHeight={PITCH_HEIGHT_HALF}>
       {player ? (
         <DraggablePlayerChip player={player} variant="field" shirtNumber={shirtNumber} />
       ) : (

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -5,6 +6,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import type { Player } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
+import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
 
 interface DraggablePlayerChipProps {
   player: Player
@@ -24,6 +26,12 @@ export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: 
     id: `player-${player.id}`,
     data: { playerId: player.id },
   })
+  // A click that doesn't move far enough to clear the DndContext's activation distance never
+  // starts a drag, so it still reaches this onClick normally - that's what lets a plain tap open
+  // stats instead of always picking the player up.
+  const [statsAnchor, setStatsAnchor] = useState<HTMLElement | null>(null)
+  const openStats = (event: React.MouseEvent<HTMLElement>) => setStatsAnchor(event.currentTarget)
+  const closeStats = () => setStatsAnchor(null)
 
   const style = {
     cursor: 'grab',
@@ -36,67 +44,75 @@ export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: 
 
   if (variant === 'field') {
     return (
-      <Tooltip title={label}>
-        <Box
-          ref={setNodeRef}
-          {...listeners}
-          {...attributes}
-          sx={{ ...style, display: 'flex', flexDirection: 'column', alignItems: 'center', width: 68 }}
-        >
-          <Box sx={{ position: 'relative', lineHeight: 0 }}>
-            <CartoonAvatar seed={player.id} size={44} />
-            {shirtNumber !== undefined && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: -4,
-                  right: -4,
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  bgcolor: 'rgba(20,20,20,0.85)',
-                  border: '1px solid rgba(255,255,255,0.85)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+      <>
+        <Tooltip title={label}>
+          <Box
+            ref={setNodeRef}
+            {...listeners}
+            {...attributes}
+            onClick={openStats}
+            sx={{ ...style, display: 'flex', flexDirection: 'column', alignItems: 'center', width: 68 }}
+          >
+            <Box sx={{ position: 'relative', lineHeight: 0 }}>
+              <CartoonAvatar seed={player.id} size={44} />
+              {shirtNumber !== undefined && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    bgcolor: 'rgba(20,20,20,0.85)',
+                    border: '1px solid rgba(255,255,255,0.85)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1 }}>
+                    {shirtNumber}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+            <Box sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
+              <Typography
+                noWrap
+                sx={{ color: '#fff', fontSize: '0.62rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}
               >
-                <Typography sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1 }}>
-                  {shirtNumber}
-                </Typography>
-              </Box>
-            )}
+                {player.lastName}
+              </Typography>
+            </Box>
           </Box>
-          <Box sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
-            <Typography
-              noWrap
-              sx={{ color: '#fff', fontSize: '0.62rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}
-            >
-              {player.lastName}
-            </Typography>
-          </Box>
-        </Box>
-      </Tooltip>
+        </Tooltip>
+        <PlayerStatsPopover player={player} anchorEl={statsAnchor} onClose={closeStats} />
+      </>
     )
   }
 
   return (
-    <Paper
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      elevation={isDragging ? 6 : 1}
-      sx={{ ...style, display: 'flex', alignItems: 'center', gap: 1, p: 0.75, width: '100%' }}
-    >
-      <CartoonAvatar seed={player.id} size={36} />
-      <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-          {player.firstName} {player.lastName}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {player.age}
-        </Typography>
-      </Box>
-    </Paper>
+    <>
+      <Paper
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        onClick={openStats}
+        elevation={isDragging ? 6 : 1}
+        sx={{ ...style, display: 'flex', alignItems: 'center', gap: 1, p: 0.75, width: '100%' }}
+      >
+        <CartoonAvatar seed={player.id} size={36} />
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+            {player.firstName} {player.lastName}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {player.age}
+          </Typography>
+        </Box>
+      </Paper>
+      <PlayerStatsPopover player={player} anchorEl={statsAnchor} onClose={closeStats} />
+    </>
   )
 }
