@@ -231,7 +231,9 @@
     "tbd": "TBD"
   },
   "division": {
-    "titleWithWeek": "{{name}} - Week {{week}}",
+    "season": "Season {{season}}",
+    "weekChip": "Week {{week}}",
+    "vs": "-",
     "table": {
       "position": "#",
       "team": "Team",
@@ -241,7 +243,8 @@
       "draws": "D",
       "losses": "L",
       "goalsFor": "+",
-      "goalsAgainst": "-"
+      "goalsAgainst": "-",
+      "you": "You"
     },
     "lastWeek": "Last week",
     "nextWeek": "Next week",

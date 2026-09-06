@@ -231,7 +231,9 @@
     "tbd": "Por determinar"
   },
   "division": {
-    "titleWithWeek": "{{name}} - Jornada {{week}}",
+    "season": "Temporada {{season}}",
+    "weekChip": "Jornada {{week}}",
+    "vs": "-",
     "table": {
       "position": "#",
       "team": "Equipo",
@@ -241,7 +243,8 @@
       "draws": "E",
       "losses": "P",
       "goalsFor": "+",
-      "goalsAgainst": "-"
+      "goalsAgainst": "-",
+      "you": "Tú"
     },
     "lastWeek": "Jornada anterior",
     "nextWeek": "Próxima jornada",
