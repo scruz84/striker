@@ -15,6 +15,14 @@ export interface LoggedUser {
   isAdmin: boolean
 }
 
+// Mirrors backend/common.DevUser - only ever non-empty when the backend has DEV_LOGIN_ENABLED
+// set, see useDevLoginUsers.
+export interface DevUser {
+  email: string
+  name: string
+  isAdmin: boolean
+}
+
 export interface PlayerAvatar {
   accessoriesType: string
   avatarStyle: string

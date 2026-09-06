@@ -50,6 +50,9 @@ type DivisionDetails struct {
 type LoginRequest struct {
 	Provider string `json:"provider"`
 	Jwt      string `json:"jwt"`
+	// DevEmail selects a common.DevUsers entry to sign in as, bypassing Google entirely - only
+	// honored when common.DevLoginEnabled() is true. See handlers.DoDevLogin.
+	DevEmail string `json:"devEmail"`
 }
 
 type LoggedUser struct {

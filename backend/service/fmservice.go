@@ -166,6 +166,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//Others V1
 	v1Group.GET("/initData", handlers.Initialize(dbCtx))
 	v1Group.POST("/login", authMiddleware.LoginHandler)
+	v1Group.GET("/dev-login/users", handlers.DevLoginUsersHandler())
 	v1Group.POST("/registerUser", handlers.RegisterUser(dbCtx))
 	v1Group.GET("/teams", handlers.Teams(dbCtx))
 }
@@ -214,7 +215,14 @@ func initJWTMiddleware(dbCtx *common.DatabaseContext) *ginjwt.GinJWTMiddleware {
 			if err := c.ShouldBind(&loginRequest); err != nil {
 				return "", ginjwt.ErrMissingLoginValues
 			}
-			loggedUser, _, err := handlers.DoExternalLogin(dbCtx, &loginRequest)
+
+			var loggedUser *common.LoggedUser
+			var err error
+			if loginRequest.DevEmail != "" && common.DevLoginEnabled() {
+				loggedUser, _, err = handlers.DoDevLogin(dbCtx, loginRequest.DevEmail)
+			} else {
+				loggedUser, _, err = handlers.DoExternalLogin(dbCtx, &loginRequest)
+			}
 			if err != nil {
 				return "", errors.New(fmt.Sprint(err))
 			}

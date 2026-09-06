@@ -92,7 +92,11 @@
     "title": "Sign in to Striker",
     "subtitle": "Use your Google account to claim a club and start managing.",
     "signInFailed": "Sign-in failed. Please try again.",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "devLogin": {
+      "divider": "Dev login",
+      "admin": "admin"
+    }
   },
   "dashboard": {
     "editLineup": "Edit lineup"

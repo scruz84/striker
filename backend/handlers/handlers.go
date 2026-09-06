@@ -138,6 +138,72 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 	return loggedUser, http.StatusOK, nil
 }
 
+// DoDevLogin signs in as one of common.DevUsers with no credential check at all - callers must
+// check common.DevLoginEnabled() before calling this (see the Authenticator wiring in
+// service.initJWTMiddleware). Auto-registers the account on first use, the same way a
+// first-time Google sign-in is registered in DoExternalLogin.
+func DoDevLogin(dbCtx *common.DatabaseContext, email string) (*common.LoggedUser, int, error) {
+	devUser := common.FindDevUser(email)
+	if devUser == nil {
+		return nil, http.StatusForbidden, fmt.Errorf("unknown dev user: %s", email)
+	}
+
+	userId, errUser := common.GetUserIdByEmail(devUser.Email, dbCtx)
+	var loggedUser *common.LoggedUser
+	if errUser != nil {
+		country := randomSeededCountry()
+		if err := dbCtx.Db.QueryRow(common.RegisterUserStmtSql, devUser.Name, "dev", devUser.Email, country).
+			Scan(&userId); err != nil {
+			log.Errorf("error creating dev user: %s", err)
+			return nil, http.StatusInternalServerError, err
+		}
+		team, err := common.AssignTeam(dbCtx, userId, country)
+		if err != nil {
+			log.Errorf("error assigning team to dev user: %s", err)
+			return nil, http.StatusInternalServerError, err
+		}
+		loggedUser = &common.LoggedUser{
+			Id:         strconv.FormatInt(userId, 10),
+			Name:       devUser.Name,
+			Provider:   "dev",
+			Email:      devUser.Email,
+			Country:    country,
+			TeamId:     strconv.FormatInt(team.Id, 10),
+			TeamName:   team.TeamName,
+			TeamLeague: strconv.FormatInt(team.DivisionId, 10),
+		}
+	} else {
+		var err error
+		loggedUser, err = common.GetUserDetails(userId, dbCtx)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+	}
+
+	if (devUser.IsAdmin || common.IsConfiguredAdminEmail(devUser.Email)) && !loggedUser.IsAdmin {
+		if err := common.SetUserAdmin(dbCtx, userId, true); err != nil {
+			log.Errorf("error promoting dev user %d to admin: %s", userId, err)
+		} else {
+			loggedUser.IsAdmin = true
+		}
+	}
+
+	return loggedUser, http.StatusOK, nil
+}
+
+// DevLoginUsersHandler lists the dev-login roster for the frontend to offer as sign-in
+// shortcuts - an empty list (rather than an error) when common.DevLoginEnabled() is false, so
+// the frontend can simply hide the section without a special case.
+func DevLoginUsersHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !common.DevLoginEnabled() {
+			c.JSON(http.StatusOK, []common.DevUser{})
+			return
+		}
+		c.JSON(http.StatusOK, common.DevUsers)
+	}
+}
+
 func Teams(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		teams := make([]common.Team, 0)

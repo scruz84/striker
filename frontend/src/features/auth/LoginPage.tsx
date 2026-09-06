@@ -3,17 +3,20 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
+import Divider from '@mui/material/Divider'
 import Paper from '@mui/material/Paper'
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useLogin, useMe } from '../../api/hooks'
+import { useDevLogin, useDevLoginUsers, useLogin, useMe } from '../../api/hooks'
 
 export function LoginPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const login = useLogin()
+  const devLogin = useDevLogin()
+  const { data: devUsers } = useDevLoginUsers()
   const navigate = useNavigate()
 
   return (
@@ -60,6 +63,34 @@ export function LoginPage() {
                 <Typography variant="body2" color="error">
                   {t('login.signInFailed')}
                 </Typography>
+              )}
+              {!!devUsers?.length && (
+                <>
+                  <Divider flexItem sx={{ width: '100%' }}>
+                    {t('login.devLogin.divider')}
+                  </Divider>
+                  <Stack spacing={1} sx={{ width: '100%' }}>
+                    {devUsers.map((devUser) => (
+                      <Button
+                        key={devUser.email}
+                        variant="outlined"
+                        size="small"
+                        disabled={devLogin.isPending}
+                        onClick={() =>
+                          devLogin.mutate(devUser.email, { onSuccess: () => navigate('/dashboard') })
+                        }
+                      >
+                        {devUser.name}
+                        {devUser.isAdmin ? ` (${t('login.devLogin.admin')})` : ''}
+                      </Button>
+                    ))}
+                  </Stack>
+                  {devLogin.isError && (
+                    <Typography variant="body2" color="error">
+                      {t('login.signInFailed')}
+                    </Typography>
+                  )}
+                </>
               )}
             </>
           )}

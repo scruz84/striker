@@ -49,6 +49,21 @@ different host entirely, needs `CORS_ALLOWED_ORIGINS` (comma-separated) set to t
 request gets rejected (visible in this service's logs as a `403` on `OPTIONS`), and every API
 call - login included - fails with a CORS error before it ever reaches a handler.
 
+### Dev login
+
+Signing in normally requires a real Google OAuth app (client ID/secret, a verified redirect
+URL) - unavailable in most local/CI setups. Set `DEV_LOGIN_ENABLED=true` to open a shortcut:
+`GET /v1/dev-login/users` lists a fixed roster (`common.DevUsers` - one admin plus a few plain
+users) and `POST /v1/login` accepts `{"devEmail": "<one of those emails>", "provider": "dev"}`
+in place of a Google `jwt`, signing in with **no credential check at all**. Each account is
+auto-registered and assigned a team on first use, exactly like a first-time Google sign-in.
+The frontend's login page shows a "Dev login" button per roster entry whenever the list comes
+back non-empty, so it needs no separate frontend flag.
+
+**Never set `DEV_LOGIN_ENABLED` on a real deployment** - anyone who can reach the API could sign
+in as any of `common.DevUsers`, including the admin account. It's off by default and meant only
+for local development and automated testing where a Google OAuth setup isn't available.
+
 ### Admin tooling
 
 Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints under

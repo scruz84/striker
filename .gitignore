@@ -1,3 +1,4 @@
 .idea/
 
 /backend/app.env
+/backend/dump.rdb

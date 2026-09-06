@@ -4,6 +4,7 @@ import type {
   AdminOverview,
   AdminUserSummary,
   CupDetails,
+  DevUser,
   DivisionDetails,
   FinancesResponse,
   Lineup,
@@ -47,6 +48,7 @@ export const queryKeys = {
   notificationPreferences: ['notificationPreferences'] as const,
   adminOverview: ['adminOverview'] as const,
   adminUsers: ['adminUsers'] as const,
+  devLoginUsers: ['devLoginUsers'] as const,
 }
 
 export function useMe() {
@@ -71,6 +73,27 @@ export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (jwt: string) => api.post('/v1/login', { jwt, provider: 'google' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    },
+  })
+}
+
+// useDevLoginUsers lists the dev-login roster - always an empty array unless the backend has
+// DEV_LOGIN_ENABLED set, so callers can just check for a non-empty list rather than a separate
+// "is dev login on" flag.
+export function useDevLoginUsers() {
+  return useQuery({
+    queryKey: queryKeys.devLoginUsers,
+    queryFn: () => api.get<DevUser[]>('/v1/dev-login/users'),
+    staleTime: Infinity,
+  })
+}
+
+export function useDevLogin() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (email: string) => api.post('/v1/login', { devEmail: email, provider: 'dev' }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.me })
     },

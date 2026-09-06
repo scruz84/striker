@@ -92,7 +92,11 @@
     "title": "Inicia sesión en Striker",
     "subtitle": "Usa tu cuenta de Google para reclamar un club y empezar a gestionarlo.",
     "signInFailed": "No se pudo iniciar sesión. Inténtalo de nuevo.",
-    "backToHome": "Volver al inicio"
+    "backToHome": "Volver al inicio",
+    "devLogin": {
+      "divider": "Acceso de desarrollo",
+      "admin": "admin"
+    }
   },
   "dashboard": {
     "editLineup": "Editar alineación"
