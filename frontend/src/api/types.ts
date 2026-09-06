@@ -42,6 +42,7 @@ export interface Player {
   technical: boolean
   wage: number
   age: number
+  contractYearsRemaining: number
 }
 
 export interface Team {
@@ -257,6 +258,8 @@ export const TRANSACTION_ADMIN_ADJUSTMENT = 3
 export const TRANSACTION_TICKET_REVENUE = 4
 export const TRANSACTION_PRIZE_MONEY = 5
 export const TRANSACTION_SPONSORSHIP = 6
+export const TRANSACTION_STADIUM_UPGRADE = 7
+export const TRANSACTION_CONTRACT_RELEASE = 8
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
 // t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
@@ -268,6 +271,8 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_TICKET_REVENUE]: 'finances.reasons.ticketRevenue',
   [TRANSACTION_PRIZE_MONEY]: 'finances.reasons.prizeMoney',
   [TRANSACTION_SPONSORSHIP]: 'finances.reasons.sponsorship',
+  [TRANSACTION_STADIUM_UPGRADE]: 'finances.reasons.stadiumUpgrade',
+  [TRANSACTION_CONTRACT_RELEASE]: 'finances.reasons.contractRelease',
 }
 
 export interface TeamTransaction {

@@ -49,7 +49,7 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
@@ -91,7 +91,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)"
+	" creative, technical, avatar, wage, age, contract_years_remaining) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -251,6 +252,7 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		shot := minSkill + rand.Intn(maxSkill-minSkill+1)
 		age := minAge + rand.Intn(maxAge-minAge+1)
 		wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
+		contractYears := RandomContractYears()
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
 			defense,
@@ -265,7 +267,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			false,
 			&avatar,
 			wage,
-			age)
+			age,
+			contractYears)
 	}
 }
 
@@ -1135,32 +1138,34 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var wage int
 	var age int
 	var avatar string
+	var contractYearsRemaining int
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
 			players = append(players, &Player{
-				Id:         playerId,
-				TeamId:     teamId,
-				FirstName:  firstName,
-				LastName:   lastName,
-				BirthDay:   time.UnixMilli(birthDay),
-				GoalKeeper: goalKeeper,
-				Defense:    defense,
-				Lateral:    lateral,
-				Pass:       pass,
-				Midfield:   midfield,
-				Dribbling:  dribbling,
-				Shot:       shot,
-				Header:     header,
-				Quick:      quick,
-				Creative:   creative,
-				Technical:  technical,
-				Wage:       wage,
-				Age:        age,
-				Avatar:     GetAvatarFromString(avatar),
+				Id:                     playerId,
+				TeamId:                 teamId,
+				FirstName:              firstName,
+				LastName:               lastName,
+				BirthDay:               time.UnixMilli(birthDay),
+				GoalKeeper:             goalKeeper,
+				Defense:                defense,
+				Lateral:                lateral,
+				Pass:                   pass,
+				Midfield:               midfield,
+				Dribbling:              dribbling,
+				Shot:                   shot,
+				Header:                 header,
+				Quick:                  quick,
+				Creative:               creative,
+				Technical:              technical,
+				Wage:                   wage,
+				Age:                    age,
+				Avatar:                 GetAvatarFromString(avatar),
+				ContractYearsRemaining: contractYearsRemaining,
 			})
 		}
 	}

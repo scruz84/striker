@@ -39,6 +39,7 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			switch {
 			case errors.Is(err, common.ErrInvalidOfferAmount),
 				errors.Is(err, common.ErrCannotOfferOnOwnPlayer),
+				errors.Is(err, common.ErrPlayerIsFreeAgent),
 				errors.Is(err, common.ErrOfferAlreadyExists),
 				errors.Is(err, common.ErrPlayerOnLoan),
 				errors.Is(err, common.ErrTransferWindowClosed):

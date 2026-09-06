@@ -56,7 +56,9 @@ func driftSkill(value int, age int, r *rand.Rand) int {
 }
 
 // ProgressPlayers ages every player on every team by one season: retirees are removed, the
-// rest have their skills drift per ageTrendFor, and any team left short of a full squad is
+// rest have their skills drift per ageTrendFor and their contract ticks down by one season (see
+// common.AdvancePlayerContract - a contract reaching zero releases the player to free agency),
+// and any team left short of a full squad (by either retirement or an expired contract) is
 // topped back up from the youth academy (see common.CreateAcademyPlayers). Meant to run once
 // per season, from AdvanceSeasonIfComplete.
 func ProgressPlayers(dbCtx *common.DatabaseContext) {
@@ -94,6 +96,13 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 			if err := common.UpdatePlayerProgression(dbCtx, player.Id, newAge,
 				goalKeeper, defense, lateral, pass, midfield, dribbling, shot); err != nil {
 				log.Errorf("error updating progression for player %d: %s", player.Id, err)
+			}
+
+			released, err := common.AdvancePlayerContract(dbCtx, player.Id)
+			if err != nil {
+				log.Errorf("error advancing contract for player %d: %s", player.Id, err)
+			} else if released {
+				log.Infof("player %d (%s %s) released to free agency: contract expired", player.Id, player.FirstName, player.LastName)
 			}
 		}
 

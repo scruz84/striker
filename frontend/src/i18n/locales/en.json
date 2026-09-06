@@ -157,13 +157,15 @@
       "ticketRevenue": "Ticket revenue",
       "prizeMoney": "Prize money",
       "sponsorship": "Sponsorship",
+      "stadiumUpgrade": "Stadium upgrade",
+      "contractRelease": "Contract release",
       "other": "Other"
     }
   },
   "transfers": {
     "title": "Transfer market",
     "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
-    "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers" },
+    "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers", "freeAgents": "Free agents" },
     "listPlayer": { "title": "List a player", "error": "Could not list that player." },
     "player": "Player",
     "askingPrice": "Asking price",
@@ -216,7 +218,13 @@
       "noneSent": "You haven't made any offers."
     },
     "reject": "Reject",
-    "withdraw": "Withdraw"
+    "withdraw": "Withdraw",
+    "freeAgents": {
+      "intro": "Unowned players, free to sign - no fee, just their wage.",
+      "none": "No free agents available right now.",
+      "wage": "Wage",
+      "sign": "Sign"
+    }
   },
   "cup": {
     "titleWithSeason": "{{name}} - Season {{season}}",
@@ -259,6 +267,12 @@
     "squad": "Squad",
     "player": "Player",
     "age": "Age",
+    "contract": "Contract",
+    "contractSeasons_one": "{{count}} season left",
+    "contractSeasons_other": "{{count}} seasons left",
+    "renewContract": "Renew",
+    "releasePlayer": "Release",
+    "releaseError": "Could not release that player - check your budget.",
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
     "table": { "season": "Season", "league": "League", "finalPosition": "Final position", "outcome": "Outcome" },

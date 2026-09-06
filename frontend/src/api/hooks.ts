@@ -16,6 +16,7 @@ import type {
   HeadToHead,
   NotificationPreferences,
   NotificationsResponse,
+  Player,
   ScorerStanding,
   SeasonHistoryEntry,
   TeamDetails,
@@ -42,6 +43,7 @@ export const queryKeys = {
   myGroups: ['myGroups'] as const,
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
+  freeAgents: ['freeAgents'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
   notifications: ['notifications'] as const,
@@ -305,6 +307,47 @@ export function useAcceptLoan() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+export function useFreeAgents(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.freeAgents,
+    queryFn: () => api.get<Player[]>('/v1/free-agents'),
+    enabled,
+  })
+}
+
+export function useSignFreeAgent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.post(`/v1/free-agents/${playerId}/sign`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+export function useRenewContract() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.post(`/v1/user/team/players/${playerId}/renew-contract`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+export function useReleasePlayer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.post(`/v1/user/team/players/${playerId}/release`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
     },
   })
 }

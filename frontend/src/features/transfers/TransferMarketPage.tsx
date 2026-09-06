@@ -26,6 +26,7 @@ import {
   useAcceptLoan,
   useAcceptOffer,
   useBuyListing,
+  useFreeAgents,
   useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
@@ -33,6 +34,7 @@ import {
   useOffersReceived,
   useOffersSent,
   useRejectOffer,
+  useSignFreeAgent,
   useTransferListings,
   useTransferWindowStatus,
   useUnlistPlayer,
@@ -47,6 +49,7 @@ import { formatDateTime } from '../../utils/formatDate'
 type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed'
 type LoanSortField = 'age' | 'duration' | 'listed'
+type FreeAgentSortField = 'age' | 'wage'
 
 export function TransferMarketPage() {
   const { t } = useTranslation()
@@ -69,10 +72,12 @@ export function TransferMarketPage() {
         <Tab label={t('transfers.tabs.transfers')} />
         <Tab label={t('transfers.tabs.loans')} />
         <Tab label={t('transfers.tabs.offers')} />
+        <Tab label={t('transfers.tabs.freeAgents')} />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
       {tab === 2 && <OffersTab />}
+      {tab === 3 && <FreeAgentsTab />}
     </Box>
   )
 }
@@ -813,5 +818,146 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
         </TableBody>
       </Table>
     </TableContainer>
+  )
+}
+
+function FreeAgentsTab() {
+  const { t } = useTranslation()
+  const { data: loggedUser } = useMe()
+  const { data: freeAgents, isLoading } = useFreeAgents(!!loggedUser)
+  const signFreeAgent = useSignFreeAgent()
+
+  const [search, setSearch] = useState('')
+  const [minAge, setMinAge] = useState('')
+  const [maxAge, setMaxAge] = useState('')
+  const [sortField, setSortField] = useState<FreeAgentSortField>('wage')
+  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+
+  if (isLoading || !freeAgents) {
+    return <Skeleton variant="rectangular" height={300} />
+  }
+
+  const hasActiveFilters = !!(search || minAge || maxAge)
+  const clearFilters = () => {
+    setSearch('')
+    setMinAge('')
+    setMaxAge('')
+  }
+
+  const filteredFreeAgents = freeAgents
+    .filter((p) => {
+      const term = search.trim().toLowerCase()
+      if (term && !`${p.firstName} ${p.lastName}`.toLowerCase().includes(term)) return false
+      if (minAge && p.age < Number(minAge)) return false
+      if (maxAge && p.age > Number(maxAge)) return false
+      return true
+    })
+    .sort((a, b) => {
+      const cmp = sortField === 'age' ? a.age - b.age : a.wage - b.wage
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+
+  const handleSort = (field: FreeAgentSortField) => {
+    if (field === sortField) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir('desc')
+    }
+  }
+
+  return (
+    <Box>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        {t('transfers.freeAgents.intro')}
+      </Typography>
+      <Paper>
+        {freeAgents.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+            {t('transfers.freeAgents.none')}
+          </Typography>
+        ) : (
+          <>
+            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+              <TextField
+                size="small"
+                label={t('transfers.filters.search')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ minWidth: 160 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minAge')}
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.maxAge')}
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                sx={{ width: 100 }}
+              />
+              {hasActiveFilters && (
+                <Button size="small" onClick={clearFilters}>
+                  {t('transfers.filters.clear')}
+                </Button>
+              )}
+            </Stack>
+            {filteredFreeAgents.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                {t('transfers.filters.noResults')}
+              </Typography>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('transfers.table.player')}</TableCell>
+                      <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+                        <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
+                          {t('transfers.table.age')}
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell align="right" sortDirection={sortField === 'wage' ? sortDir : false}>
+                        <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
+                          {t('transfers.freeAgents.wage')}
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell align="right" />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredFreeAgents.map((player) => (
+                      <TableRow key={player.id}>
+                        <TableCell>
+                          {player.firstName} {player.lastName}
+                        </TableCell>
+                        <TableCell align="right">{player.age}</TableCell>
+                        <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => signFreeAgent.mutate(player.id)}
+                            disabled={signFreeAgent.isPending}
+                          >
+                            {t('transfers.freeAgents.sign')}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </>
+        )}
+      </Paper>
+    </Box>
   )
 }

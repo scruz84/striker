@@ -45,6 +45,7 @@ const TRANSACTION_TICKET_REVENUE = 4   // matchday ticket sales for a home match
 const TRANSACTION_PRIZE_MONEY = 5      // season league-position or cup prize money - income
 const TRANSACTION_SPONSORSHIP = 6      // per-match sponsorship income - income
 const TRANSACTION_STADIUM_UPGRADE = 7  // capacity expansion - expense
+const TRANSACTION_CONTRACT_RELEASE = 8 // severance paid to release a player early - expense
 
 // Stadium capacity is picked once at team creation, scaled by the league tier it starts in
 // (see the initializer's createTeam and common.RandomStadiumCapacity) - bigger clubs get

@@ -13,6 +13,7 @@ var ErrOfferNotFound = errors.New("offer not found")
 var ErrNotOfferSender = errors.New("you did not make this offer")
 var ErrNotOfferRecipient = errors.New("this offer is not for one of your players")
 var ErrOfferNoLongerValid = errors.New("the player no longer belongs to the team this offer was made to")
+var ErrPlayerIsFreeAgent = errors.New("player is a free agent - sign them instead of making an offer")
 
 // TransferOffer is a pending "scouting" offer - a buyer's proposed price for a specific player,
 // made directly to whoever currently owns them, independent of whether that player is listed
@@ -42,14 +43,19 @@ const GetOfferOwnersStmtSql = "SELECT from_team_id, to_team_id FROM transfer_off
 const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
-const GetPlayerTeamForUpdateStmtSql = "SELECT team_id FROM players WHERE player_id = $1 " + ForUpdate
+// team_id is coalesced to 0 - a player can go from owned to a free agent (team_id NULL) while an
+// offer on them sits pending (contract expiry, an early release, or AssignTeam reassigning their
+// squad), and toTeamId is always a real (non-zero) team id, so the mismatch check below still
+// correctly falls through to ErrOfferNoLongerValid instead of crashing on the NULL.
+const GetPlayerTeamForUpdateStmtSql = "SELECT COALESCE(team_id, 0) FROM players WHERE player_id = $1 " + ForUpdate
 
 // MakeTransferOffer proposes amount for playerId, wherever they currently play - the offer goes
 // to whoever owns them right now (their team_id at the time the offer is made). Rejects an
-// offer on your own player, on a player currently out on loan (a borrowing team doesn't get to
-// sell what isn't theirs - same rule as CreateTransferListing), a duplicate offer from the same
-// team on the same player (enforced by a unique constraint), or anything while the transfer
-// window is closed.
+// offer on your own player, on a free agent (see SignFreeAgent - there's nobody to pay, and no
+// team would ever see the offer to accept it), on a player currently out on loan (a borrowing
+// team doesn't get to sell what isn't theirs - same rule as CreateTransferListing), a duplicate
+// offer from the same team on the same player (enforced by a unique constraint), or anything
+// while the transfer window is closed.
 func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64, amount int64) error {
 	if amount <= 0 {
 		return ErrInvalidOfferAmount
@@ -61,6 +67,9 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {
 		return err
+	}
+	if player.TeamId == 0 {
+		return ErrPlayerIsFreeAgent
 	}
 	if player.TeamId == fromTeamId {
 		return ErrCannotOfferOnOwnPlayer

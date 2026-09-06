@@ -99,7 +99,10 @@ type Team struct {
 }
 
 type Player struct {
-	Id         int64        `json:"id"`
+	Id int64 `json:"id"`
+	// TeamId is 0 for a free agent (team_id IS NULL in the database - see GetFreeAgents):
+	// GetPlayerById coalesces the NULL to 0 rather than requiring every caller to know whether
+	// the player it looked up happens to be currently unowned.
 	TeamId     int64        `json:"teamId"`
 	FirstName  string       `json:"firstName"`
 	LastName   string       `json:"lastName"`
@@ -118,6 +121,10 @@ type Player struct {
 	Wage       int          `json:"wage"`
 	Age        int          `json:"age"`
 	Avatar     PlayerAvatar `json:"avatar"`
+	// ContractYearsRemaining counts down by one every season (see AdvancePlayerContract) - once
+	// it hits zero the player is released to free agency (TeamId becomes unset - see
+	// GetFreeAgents) rather than staying with their club forever.
+	ContractYearsRemaining int `json:"contractYearsRemaining"`
 }
 
 // TeamTransaction is one entry in a team's financial ledger.

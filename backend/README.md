@@ -136,6 +136,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init18_match_schedule.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init19_multi_country_names.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init20_team_rename.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init21_contracts.sql
 ```
 
 **Note:** init19 only adds the name-pool tables for the new countries (en/fr/de) - it doesn't
@@ -150,6 +151,22 @@ An owner can rename their own team exactly once, ever, via `PUT /v1/user/team/na
 (`{"name": "..."}`) - `common.RenameTeam` flips `teams.name_changed` atomically on the same
 update, so a second attempt (or two racing attempts) fails with a 400. There's no admin reset
 for that flag; it's a one-shot deal by design.
+
+### Player contracts & free agency
+
+Every player has a contract (`players.contract_years_remaining`) that counts down by one every
+season (`common.AdvancePlayerContract`, run from `engine.ProgressPlayers` alongside aging). A
+contract reaching zero releases the player to free agency - `team_id` goes to `NULL` - rather
+than keeping them with their club forever; this is skipped for a player currently out on loan, so
+the parent club's contract keeps ticking but doesn't lapse mid-loan. Any team can sign a free
+agent for free (`GET /v1/free-agents`, `POST /v1/free-agents/:id/sign`) - no transfer fee, just
+their wage, freshly negotiated from their current skills - and gets a new randomly-lengthed
+contract (2-4 seasons). An owner can also manage their own players' contracts directly:
+`POST /v1/user/team/players/:id/renew-contract` extends the contract by two seasons (capped at
+five, no cost), and `POST /v1/user/team/players/:id/release` terminates it early for a severance
+payment (ten times the player's wage, debited from the team's budget and logged to the ledger).
+Both reject a player currently out on loan - the borrowing team holds `team_id` for the loan's
+duration, but the contract belongs to the parent club, not them.
 
 ## Local development (without Docker)
 

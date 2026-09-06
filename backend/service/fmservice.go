@@ -93,6 +93,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/list", handlers.UnlistPlayerHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/loan-list", handlers.ListPlayerForLoanHandler(dbCtx))
 	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/loan-list", handlers.UnlistPlayerForLoanHandler(dbCtx))
+	v1UserGroup.POST("/team/players/:"+handlers.ID+"/renew-contract", handlers.RenewContractHandler(dbCtx))
+	v1UserGroup.POST("/team/players/:"+handlers.ID+"/release", handlers.ReleasePlayerHandler(dbCtx))
 	v1UserGroup.GET("/notifications", handlers.GetNotificationsHandler(dbCtx))
 	v1UserGroup.POST("/notifications/:"+handlers.ID+"/read", handlers.MarkNotificationReadHandler(dbCtx))
 	v1UserGroup.POST("/notifications/read-all", handlers.MarkAllNotificationsReadHandler(dbCtx))
@@ -109,6 +111,11 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1LoanGroup.Use(authMiddleware.MiddlewareFunc())
 	v1LoanGroup.GET("", handlers.BrowseLoansHandler(dbCtx))
 	v1LoanGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptLoanHandler(dbCtx))
+
+	v1FreeAgentGroup := v1Group.Group("/free-agents")
+	v1FreeAgentGroup.Use(authMiddleware.MiddlewareFunc())
+	v1FreeAgentGroup.GET("", handlers.BrowseFreeAgentsHandler(dbCtx))
+	v1FreeAgentGroup.POST("/:"+handlers.ID+"/sign", handlers.SignFreeAgentHandler(dbCtx))
 
 	v1OfferGroup := v1Group.Group("/offers")
 	v1OfferGroup.Use(authMiddleware.MiddlewareFunc())

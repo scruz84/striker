@@ -157,13 +157,15 @@
       "ticketRevenue": "Venta de entradas",
       "prizeMoney": "Premio en metálico",
       "sponsorship": "Patrocinio",
+      "stadiumUpgrade": "Ampliación de estadio",
+      "contractRelease": "Rescisión de contrato",
       "other": "Otro"
     }
   },
   "transfers": {
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
-    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas" },
+    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres" },
     "listPlayer": { "title": "Poner en venta a un jugador", "error": "No se pudo listar a ese jugador." },
     "player": "Jugador",
     "askingPrice": "Precio de venta",
@@ -216,7 +218,13 @@
       "noneSent": "Aún no has hecho ninguna oferta."
     },
     "reject": "Rechazar",
-    "withdraw": "Retirar"
+    "withdraw": "Retirar",
+    "freeAgents": {
+      "intro": "Jugadores libres, sin coste de traspaso - solo su salario.",
+      "none": "No hay agentes libres disponibles ahora mismo.",
+      "wage": "Salario",
+      "sign": "Fichar"
+    }
   },
   "cup": {
     "titleWithSeason": "{{name}} - Temporada {{season}}",
@@ -259,6 +267,12 @@
     "squad": "Plantilla",
     "player": "Jugador",
     "age": "Edad",
+    "contract": "Contrato",
+    "contractSeasons_one": "{{count}} temporada restante",
+    "contractSeasons_other": "{{count}} temporadas restantes",
+    "renewContract": "Renovar",
+    "releasePlayer": "Rescindir",
+    "releaseError": "No se pudo rescindir el contrato - revisa tu presupuesto.",
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
     "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },

@@ -17,7 +17,15 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMakeOffer, useMe, useTeamDetails, useTeamHistory, useUserTeam } from '../../api/hooks'
+import {
+  useMakeOffer,
+  useMe,
+  useReleasePlayer,
+  useRenewContract,
+  useTeamDetails,
+  useTeamHistory,
+  useUserTeam,
+} from '../../api/hooks'
 import type { Player, SeasonHistoryEntry } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
@@ -56,12 +64,13 @@ export function TeamDetailsPage() {
             <TableRow>
               <TableCell>{t('team.player')}</TableCell>
               <TableCell align="right">{t('team.age')}</TableCell>
-              {!isOwnTeam && <TableCell align="right" />}
+              <TableCell align="right">{t('team.contract')}</TableCell>
+              <TableCell align="right" />
             </TableRow>
           </TableHead>
           <TableBody>
             {teamDetails.players.map((player) => (
-              <PlayerRow key={player.id} player={player} showOfferAction={!isOwnTeam} />
+              <PlayerRow key={player.id} player={player} isOwnTeam={isOwnTeam} />
             ))}
           </TableBody>
         </Table>
@@ -135,9 +144,15 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   )
 }
 
-function PlayerRow({ player, showOfferAction }: { player: Player; showOfferAction: boolean }) {
+// Mirrors backend/common/contracts.go's MaxContractYearsRemaining - the server enforces the real
+// cap, this just disables the button early instead of letting a renewal request fail.
+const MAX_CONTRACT_YEARS_REMAINING = 5
+
+function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }) {
   const { t } = useTranslation()
   const makeOffer = useMakeOffer()
+  const renewContract = useRenewContract()
+  const releasePlayer = useReleasePlayer()
   const [amount, setAmount] = useState('')
   const [showForm, setShowForm] = useState(false)
 
@@ -160,7 +175,33 @@ function PlayerRow({ player, showOfferAction }: { player: Player; showOfferActio
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
-      {showOfferAction && (
+      <TableCell align="right">{t('team.contractSeasons', { count: player.contractYearsRemaining })}</TableCell>
+      {isOwnTeam ? (
+        <TableCell align="right">
+          <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+            <Button
+              size="small"
+              onClick={() => renewContract.mutate(player.id)}
+              disabled={renewContract.isPending || player.contractYearsRemaining >= MAX_CONTRACT_YEARS_REMAINING}
+            >
+              {t('team.renewContract')}
+            </Button>
+            <Button
+              size="small"
+              color="secondary"
+              onClick={() => releasePlayer.mutate(player.id)}
+              disabled={releasePlayer.isPending}
+            >
+              {t('team.releasePlayer')}
+            </Button>
+          </Stack>
+          {releasePlayer.isError && (
+            <Alert severity="error" sx={{ mt: 1 }}>
+              {t('team.releaseError')}
+            </Alert>
+          )}
+        </TableCell>
+      ) : (
         <TableCell align="right">
           {showForm ? (
             <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
