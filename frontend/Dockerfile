@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ## Build
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 ## Deploy
-FROM nginx:1.27-alpine
+FROM nginx:1.30-alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY --from=builder /app/set-env.sh /usr/share/nginx/html/set-env.sh
