@@ -5,10 +5,13 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
 import Menu from '@mui/material/Menu'
+import MenuIcon from '@mui/icons-material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLogout, useMe } from '../api/hooks'
@@ -16,11 +19,27 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { NotificationBell } from './NotificationBell'
 import { ThemeModeToggle } from './ThemeModeToggle'
 
-export function Header() {
+export function Header({ onMenuClick }: { onMenuClick: () => void }) {
+  const { t } = useTranslation()
+  const { data: loggedUser } = useMe()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
+          {loggedUser && !isDesktop && (
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={onMenuClick}
+              sx={{ mr: 1 }}
+              aria-label={t('header.openMenu')}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <Link component={RouterLink} to="/" underline="none" color="inherit">
               Striker
@@ -73,29 +92,6 @@ function AvatarOrLogin() {
         open={Boolean(anchorEl)}
         onClose={() => setAnchorEl(null)}
       >
-        <MenuItem component={RouterLink} to="/dashboard" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.dashboard')}
-        </MenuItem>
-        <MenuItem component={RouterLink} to="/dashboard/lineup" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.lineup')}
-        </MenuItem>
-        <MenuItem component={RouterLink} to="/dashboard/finances" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.finances')}
-        </MenuItem>
-        <MenuItem component={RouterLink} to="/transfers" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.transferMarket')}
-        </MenuItem>
-        <MenuItem component={RouterLink} to="/cup" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.cup')}
-        </MenuItem>
-        <MenuItem component={RouterLink} to="/groups" onClick={() => setAnchorEl(null)}>
-          {t('header.nav.friendGroups')}
-        </MenuItem>
-        {loggedUser.isAdmin && (
-          <MenuItem component={RouterLink} to="/admin" onClick={() => setAnchorEl(null)}>
-            {t('header.nav.admin')}
-          </MenuItem>
-        )}
         <MenuItem onClick={handleLogout}>{t('header.nav.logout')}</MenuItem>
       </Menu>
     </Box>

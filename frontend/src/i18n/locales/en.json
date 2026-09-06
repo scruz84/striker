@@ -19,8 +19,10 @@
     "language": "Language",
     "darkMode": "Switch to dark mode",
     "lightMode": "Switch to light mode",
+    "openMenu": "Open navigation menu",
     "nav": {
       "dashboard": "Dashboard",
+      "squad": "Squad",
       "lineup": "Lineup",
       "finances": "Finances",
       "transferMarket": "Transfer market",
@@ -102,7 +104,19 @@
     "editLineup": "Edit lineup",
     "renameTeam": "Rename team (one-time)",
     "renameSave": "Save",
-    "renameError": "Could not rename the team. Names must be 2-50 characters."
+    "renameError": "Could not rename the team. Names must be 2-50 characters.",
+    "leaguePosition": "#{{position}}",
+    "nextMatch": "Next match",
+    "lastResult": "Last result",
+    "noUpcomingMatch": "No upcoming match scheduled.",
+    "noRecentMatch": "No matches played yet.",
+    "viewMatch": "View match",
+    "viewFinances": "View finances",
+    "viewSquad": "View squad",
+    "players": "Players",
+    "home": "Home",
+    "away": "Away",
+    "result": { "win": "W", "draw": "D", "loss": "L" }
   },
   "seasonRecap": {
     "promoted": "Promoted!",

@@ -19,8 +19,10 @@
     "language": "Idioma",
     "darkMode": "Cambiar a modo oscuro",
     "lightMode": "Cambiar a modo claro",
+    "openMenu": "Abrir menú de navegación",
     "nav": {
       "dashboard": "Panel",
+      "squad": "Plantilla",
       "lineup": "Alineación",
       "finances": "Finanzas",
       "transferMarket": "Mercado de fichajes",
@@ -102,7 +104,19 @@
     "editLineup": "Editar alineación",
     "renameTeam": "Renombrar equipo (solo una vez)",
     "renameSave": "Guardar",
-    "renameError": "No se pudo renombrar el equipo. El nombre debe tener entre 2 y 50 caracteres."
+    "renameError": "No se pudo renombrar el equipo. El nombre debe tener entre 2 y 50 caracteres.",
+    "leaguePosition": "#{{position}}",
+    "nextMatch": "Próximo partido",
+    "lastResult": "Último resultado",
+    "noUpcomingMatch": "No hay ningún partido programado.",
+    "noRecentMatch": "Todavía no se han jugado partidos.",
+    "viewMatch": "Ver partido",
+    "viewFinances": "Ver finanzas",
+    "viewSquad": "Ver plantilla",
+    "players": "Jugadores",
+    "home": "Local",
+    "away": "Visitante",
+    "result": { "win": "V", "draw": "E", "loss": "D" }
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",
