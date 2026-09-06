@@ -26,8 +26,13 @@ export function SoccerPitch({ counts, getPlayer }: SoccerPitchProps) {
       }}
     >
       <PitchMarkings />
-      {slots.map((slot) => (
-        <PitchSlotView key={`${slot.position}-${slot.slotIndex}`} slot={slot} player={getPlayer(slot.position, slot.slotIndex)} />
+      {slots.map((slot, index) => (
+        <PitchSlotView
+          key={`${slot.position}-${slot.slotIndex}`}
+          slot={slot}
+          shirtNumber={index + 1}
+          player={getPlayer(slot.position, slot.slotIndex)}
+        />
       ))}
     </Box>
   )
@@ -55,7 +60,7 @@ function PitchMarkings() {
   )
 }
 
-function PitchSlotView({ slot, player }: { slot: PitchSlot; player?: Player }) {
+function PitchSlotView({ slot, player, shirtNumber }: { slot: PitchSlot; player?: Player; shirtNumber: number }) {
   const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({
     id: `slot-${slot.position}-${slot.slotIndex}`,
@@ -69,11 +74,14 @@ function PitchSlotView({ slot, player }: { slot: PitchSlot; player?: Player }) {
         position: 'absolute',
         left: `${(slot.x / PITCH_WIDTH) * 100}%`,
         top: `${(slot.y / PITCH_HEIGHT) * 100}%`,
-        transform: 'translate(-50%, -50%)',
+        // Anchor to the avatar's own center (half its 44px height), not the whole chip's center,
+        // so the avatar lines up with the slot point the same way whether or not the name label
+        // below it is present.
+        transform: 'translate(-50%, -22px)',
       }}
     >
       {player ? (
-        <DraggablePlayerChip player={player} variant="field" />
+        <DraggablePlayerChip player={player} variant="field" shirtNumber={shirtNumber} />
       ) : (
         <Box
           sx={{

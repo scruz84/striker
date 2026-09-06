@@ -8,11 +8,14 @@ import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 
 interface DraggablePlayerChipProps {
   player: Player
-  /** "field" shows just the avatar (name on hover) to fit a crowded pitch; "bench" shows name inline. */
+  /** "field" shows the avatar with a name label and squad number underneath, sized to fit a
+   * crowded pitch; "bench" shows the full name inline in a wider card. */
   variant?: 'field' | 'bench'
+  /** Squad number shown on the field variant - derived from slot order, see SoccerPitch. */
+  shirtNumber?: number
 }
 
-export function DraggablePlayerChip({ player, variant = 'bench' }: DraggablePlayerChipProps) {
+export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: DraggablePlayerChipProps) {
   // The moving drag visual is a DragOverlay in LineupEditorPage (a fixed-size ghost, so a
   // dropped-onto pitch slot always sees a consistently small hit target regardless of whether
   // the drag started from this compact field chip or the much wider bench card) - this element
@@ -34,8 +37,44 @@ export function DraggablePlayerChip({ player, variant = 'bench' }: DraggablePlay
   if (variant === 'field') {
     return (
       <Tooltip title={label}>
-        <Box ref={setNodeRef} {...listeners} {...attributes} sx={{ ...style, lineHeight: 0 }}>
-          <CartoonAvatar seed={player.id} size={44} />
+        <Box
+          ref={setNodeRef}
+          {...listeners}
+          {...attributes}
+          sx={{ ...style, display: 'flex', flexDirection: 'column', alignItems: 'center', width: 68 }}
+        >
+          <Box sx={{ position: 'relative', lineHeight: 0 }}>
+            <CartoonAvatar seed={player.id} size={44} />
+            {shirtNumber !== undefined && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(20,20,20,0.85)',
+                  border: '1px solid rgba(255,255,255,0.85)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1 }}>
+                  {shirtNumber}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          <Box sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
+            <Typography
+              noWrap
+              sx={{ color: '#fff', fontSize: '0.62rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}
+            >
+              {player.lastName}
+            </Typography>
+          </Box>
         </Box>
       </Tooltip>
     )
