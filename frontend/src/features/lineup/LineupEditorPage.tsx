@@ -1,4 +1,15 @@
 import { useMemo, useState } from 'react'
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -8,13 +19,14 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useLineup, useMe, useSetLineup, useUserTeam } from '../../api/hooks'
-import { FORMATION_BALANCED, FORMATION_LABEL_KEYS, FORMATION_POSITION_COUNTS, POSITION_LABEL_KEYS } from '../../api/types'
+import { FORMATION_BALANCED, FORMATION_LABEL_KEYS, FORMATION_POSITION_COUNTS } from '../../api/types'
 import type { Lineup, Player, Team } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
+import { PlayerBench } from './PlayerBench'
+import { SoccerPitch } from './SoccerPitch'
 
 // Slots per position, keyed the same way FORMATION_POSITION_COUNTS is: a position not present
 // for a formation simply isn't used by it.
@@ -48,13 +60,19 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
   // Lazy initializers run once on mount, seeded from the lineup already loaded by the parent -
   // no effect needed to sync them in after the fact. Switching formations doesn't reset
   // selections: it just changes how many slots per position are shown/required, so a player
-  // picked under one formation stays picked if you switch back to it.
+  // picked under one formation stays picked (just off-pitch, back on the bench) if you switch
+  // away and later switch back to it.
   const [formation, setFormation] = useState(lineup.formation)
   const [selections, setSelections] = useState<Selections>(() => initialSelections(lineup))
+  const [activePlayerId, setActivePlayerId] = useState<number | null>(null)
   const setLineup = useSetLineup()
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor))
 
   const counts = FORMATION_POSITION_COUNTS[formation] ?? FORMATION_POSITION_COUNTS[FORMATION_BALANCED]
   const positionsToShow = Object.keys(counts).map(Number)
+
+  const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players])
 
   const visibleSelections = useMemo(() => {
     const flat: { position: number; playerId: number | '' }[] = []
@@ -72,24 +90,77 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
     [visibleSelections],
   )
   const isComplete = visibleSelections.every((s) => s.playerId !== '')
-  const selectedIds = visibleSelections.map((s) => s.playerId).filter((v) => v !== '')
-  const hasDuplicates = new Set(selectedIds).size !== selectedIds.length
+  const benchPlayers = players.filter((p) => !usedPlayerIds.has(p.id))
+
+  const getPlayer = (position: number, slotIndex: number): Player | undefined => {
+    const id = selections[position]?.[slotIndex]
+    return id === undefined || id === '' ? undefined : playersById.get(id)
+  }
+
+  function findSlotForPlayer(playerId: number): { position: number; slotIndex: number } | null {
+    for (const position of positionsToShow) {
+      const count = counts[position] ?? 0
+      const arr = selections[position] ?? []
+      for (let i = 0; i < count; i++) {
+        if (arr[i] === playerId) {
+          return { position, slotIndex: i }
+        }
+      }
+    }
+    return null
+  }
 
   const handleFormationChange = (event: SelectChangeEvent<number>) => {
     setFormation(Number(event.target.value))
   }
 
-  const handleSlotChange = (position: number, slotIndex: number) => (event: SelectChangeEvent<number | ''>) => {
-    const value = event.target.value
+  const handleDragStart = (event: DragStartEvent) => {
+    const playerId = event.active.data.current?.playerId as number | undefined
+    setActivePlayerId(playerId ?? null)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActivePlayerId(null)
+    const { active, over } = event
+    if (!over) return
+    const playerId = active.data.current?.playerId as number | undefined
+    if (playerId === undefined) return
+
+    const source = findSlotForPlayer(playerId)
+
+    if (over.id === 'bench') {
+      if (!source) return
+      setSelections((prev) => {
+        const arr = [...(prev[source.position] ?? [])]
+        arr[source.slotIndex] = ''
+        return { ...prev, [source.position]: arr }
+      })
+      return
+    }
+
+    const targetPosition = over.data.current?.position as number | undefined
+    const targetSlotIndex = over.data.current?.slotIndex as number | undefined
+    if (targetPosition === undefined || targetSlotIndex === undefined) return
+    if (source && source.position === targetPosition && source.slotIndex === targetSlotIndex) return
+
     setSelections((prev) => {
-      const arr = [...(prev[position] ?? [])]
-      arr[slotIndex] = value === '' ? '' : Number(value)
-      return { ...prev, [position]: arr }
+      const next = { ...prev }
+      const targetArr = [...(next[targetPosition] ?? [])]
+      const displaced = targetArr[targetSlotIndex] ?? ''
+      targetArr[targetSlotIndex] = playerId
+      next[targetPosition] = targetArr
+
+      if (source) {
+        const sourceArr = source.position === targetPosition ? targetArr : [...(next[source.position] ?? [])]
+        sourceArr[source.slotIndex] = displaced
+        next[source.position] = sourceArr
+      }
+      return next
     })
   }
 
   const handleSubmit = () => {
-    if (!isComplete || hasDuplicates) {
+    if (!isComplete) {
       return
     }
     const positions = visibleSelections.map((s) => ({ position: s.position, playerId: s.playerId as number }))
@@ -113,9 +184,9 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         </Select>
       </FormControl>
 
-      {hasDuplicates && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {t('lineup.duplicateWarning')}
+      {!isComplete && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('lineup.incompleteWarning')}
         </Alert>
       )}
       {setLineup.isError && (
@@ -129,46 +200,33 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         </Alert>
       )}
 
-      <Grid container spacing={2}>
-        {positionsToShow.map((position) =>
-          Array.from({ length: counts[position] ?? 0 }, (_, slotIndex) => {
-            const positionLabel = t(POSITION_LABEL_KEYS[position])
-            const label =
-              (counts[position] ?? 0) > 1
-                ? t('lineup.slotLabel', { position: positionLabel, index: slotIndex + 1 })
-                : positionLabel
-            const value = selections[position]?.[slotIndex] ?? ''
-            const labelId = `position-${position}-${slotIndex}-label`
-            return (
-              <Grid size={{ xs: 12, sm: 6 }} key={`${position}-${slotIndex}`}>
-                <FormControl fullWidth>
-                  <InputLabel id={labelId}>{label}</InputLabel>
-                  <Select labelId={labelId} label={label} value={value} onChange={handleSlotChange(position, slotIndex)}>
-                    <MenuItem value="">
-                      <em>{t('lineup.none')}</em>
-                    </MenuItem>
-                    {players.map((player) => (
-                      <MenuItem key={player.id} value={player.id} disabled={usedPlayerIds.has(player.id) && value !== player.id}>
-                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                          <CartoonAvatar seed={player.id} size={28} />
-                          <span>
-                            {player.firstName} {player.lastName} ({player.age})
-                          </span>
-                        </Stack>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            )
-          }),
-        )}
-      </Grid>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 8 }}>
+            <SoccerPitch counts={counts} getPlayer={getPlayer} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <PlayerBench players={benchPlayers} />
+          </Grid>
+        </Grid>
+        <DragOverlay dropAnimation={null}>
+          {activePlayerId !== null && (
+            <Box sx={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))', cursor: 'grabbing' }}>
+              <CartoonAvatar seed={activePlayerId} size={48} />
+            </Box>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       <Button
         variant="contained"
         sx={{ mt: 3 }}
-        disabled={!isComplete || hasDuplicates || setLineup.isPending}
+        disabled={!isComplete || setLineup.isPending}
         onClick={handleSubmit}
       >
         {t('lineup.save')}

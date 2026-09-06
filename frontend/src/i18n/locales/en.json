@@ -109,11 +109,11 @@
   "lineup": {
     "title": "Lineup - {{teamName}}",
     "formation": "Formation",
-    "duplicateWarning": "Each player can only be selected once.",
     "saveError": "Could not save the lineup. Check your selections.",
     "saveSuccess": "Lineup saved.",
-    "none": "None",
-    "slotLabel": "{{position}} #{{index}}",
+    "incompleteWarning": "Drag a player onto every empty slot before saving.",
+    "bench": "Bench",
+    "benchEmpty": "Every squad player is on the pitch.",
     "save": "Save lineup"
   },
   "positions": {

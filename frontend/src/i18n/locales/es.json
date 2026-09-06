@@ -109,11 +109,11 @@
   "lineup": {
     "title": "Alineación - {{teamName}}",
     "formation": "Formación",
-    "duplicateWarning": "Cada jugador solo puede seleccionarse una vez.",
     "saveError": "No se pudo guardar la alineación. Revisa tus selecciones.",
     "saveSuccess": "Alineación guardada.",
-    "none": "Ninguno",
-    "slotLabel": "{{position}} #{{index}}",
+    "incompleteWarning": "Arrastra un jugador a cada hueco vacío antes de guardar.",
+    "bench": "Banquillo",
+    "benchEmpty": "Todo el plantel está en el campo.",
     "save": "Guardar alineación"
   },
   "positions": {
