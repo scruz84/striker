@@ -2,6 +2,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -33,9 +34,13 @@ export function DashboardPage() {
           </Stack>
         </CardContent>
       </Card>
-      {userTeam.players.map((player) => (
-        <PlayerCard key={player.id} player={player} />
-      ))}
+      <Grid container spacing={2}>
+        {userTeam.players.map((player) => (
+          <Grid key={player.id} size={{ xs: 12, lg: 6 }}>
+            <PlayerCard player={player} />
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   )
 }

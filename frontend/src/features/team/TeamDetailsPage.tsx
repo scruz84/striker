@@ -19,6 +19,7 @@ import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMakeOffer, useMe, useTeamDetails, useTeamHistory, useUserTeam } from '../../api/hooks'
 import type { Player, SeasonHistoryEntry } from '../../api/types'
+import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 
@@ -151,7 +152,12 @@ function PlayerRow({ player, showOfferAction }: { player: Player; showOfferActio
   return (
     <TableRow>
       <TableCell>
-        {player.firstName} {player.lastName}
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+          <CartoonAvatar seed={player.id} size={32} />
+          <span>
+            {player.firstName} {player.lastName}
+          </span>
+        </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
       {showOfferAction && (

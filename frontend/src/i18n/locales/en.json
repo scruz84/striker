@@ -347,6 +347,7 @@
   },
   "playerCard": {
     "age": "Age {{age}}",
+    "overall": "Overall rating",
     "skills": {
       "goalkeeper": "Goalkeeper",
       "defense": "Defense",
@@ -355,6 +356,12 @@
       "midfield": "Midfield",
       "dribbling": "Dribbling",
       "shot": "Shot"
+    },
+    "traits": {
+      "aerial": "Aerial",
+      "pace": "Pace",
+      "creative": "Creative",
+      "technical": "Technical"
     }
   }
 }

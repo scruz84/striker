@@ -1,39 +1,91 @@
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import type { Player } from '../api/types'
+import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { SkillBar } from './SkillBar'
+
+const SKILL_FIELDS = ['goalKeeper', 'defense', 'lateral', 'pass', 'midfield', 'dribbling', 'shot'] as const
+
+function overallRating(player: Player): number {
+  const total = SKILL_FIELDS.reduce((sum, field) => sum + player[field], 0)
+  return Math.round(total / SKILL_FIELDS.length)
+}
 
 export function PlayerCard({ player }: { player: Player }) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const overall = overallRating(player)
+  const ratingColor =
+    overall >= 65 ? theme.palette.success.main : overall >= 45 ? theme.palette.warning.main : theme.palette.error.main
+
+  const traits: Array<{ key: string; label: string }> = [
+    player.header && { key: 'header', label: t('playerCard.traits.aerial') },
+    player.quick && { key: 'quick', label: t('playerCard.traits.pace') },
+    player.creative && { key: 'creative', label: t('playerCard.traits.creative') },
+    player.technical && { key: 'technical', label: t('playerCard.traits.technical') },
+  ].filter((trait): trait is { key: string; label: string } => !!trait)
+
   return (
-    <Card sx={{ mb: 1 }}>
-      <CardContent>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 3, sm: 2 }}>
-            <img src="/avatars/player.svg" height="80" loading="lazy" alt={player.firstName} />
-          </Grid>
-          <Grid size={{ xs: 9, sm: 4 }}>
-            <Typography variant="subtitle1">
-              {player.firstName} {player.lastName}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {t('playerCard.age', { age: player.age })}
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <SkillBar label={t('playerCard.skills.goalkeeper')} value={player.goalKeeper} />
-            <SkillBar label={t('playerCard.skills.defense')} value={player.defense} />
-            <SkillBar label={t('playerCard.skills.lateral')} value={player.lateral} />
-            <SkillBar label={t('playerCard.skills.pass')} value={player.pass} />
-            <SkillBar label={t('playerCard.skills.midfield')} value={player.midfield} />
-            <SkillBar label={t('playerCard.skills.dribbling')} value={player.dribbling} />
-            <SkillBar label={t('playerCard.skills.shot')} value={player.shot} />
+    <Card variant="outlined" sx={{ p: 2, height: '100%', position: 'relative', overflow: 'visible' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          width: 34,
+          height: 34,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: ratingColor,
+          color: theme.palette.getContrastText(ratingColor),
+          fontWeight: 700,
+          fontSize: '0.85rem',
+        }}
+        title={t('playerCard.overall')}
+      >
+        {overall}
+      </Box>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 3 }}>
+          <Stack spacing={1} sx={{ alignItems: { xs: 'flex-start', sm: 'center' } }}>
+            <Box sx={{ flexShrink: 0 }}>
+              <CartoonAvatar seed={player.id} size={72} />
+            </Box>
+            <Box sx={{ textAlign: { xs: 'left', sm: 'center' } }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                {player.firstName} {player.lastName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {t('playerCard.age', { age: player.age })}
+              </Typography>
+            </Box>
+            {traits.length > 0 && (
+              <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', justifyContent: { xs: 'flex-start', sm: 'center' } }}>
+                {traits.map((trait) => (
+                  <Chip key={trait.key} label={trait.label} size="small" variant="outlined" />
+                ))}
+              </Stack>
+            )}
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 9 }}>
+          <Grid container columnSpacing={3}>
+            {SKILL_FIELDS.map((field) => (
+              <Grid key={field} size={{ xs: 12, sm: 6 }}>
+                <SkillBar label={t(`playerCard.skills.${field === 'goalKeeper' ? 'goalkeeper' : field}`)} value={player[field]} />
+              </Grid>
+            ))}
           </Grid>
         </Grid>
-      </CardContent>
+      </Grid>
     </Card>
   )
 }

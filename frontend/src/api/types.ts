@@ -23,23 +23,6 @@ export interface DevUser {
   isAdmin: boolean
 }
 
-export interface PlayerAvatar {
-  accessoriesType: string
-  avatarStyle: string
-  clotheColor: string
-  clotheType: string
-  eyeType: string
-  eyebrowType: string
-  facialHairColor: string
-  facialHairType: string
-  graphicType: string
-  hairColor: string
-  hatColor: string
-  mouthType: string
-  skinColor: string
-  topType: string
-}
-
 export interface Player {
   id: number
   teamId: number
@@ -59,7 +42,6 @@ export interface Player {
   technical: boolean
   wage: number
   age: number
-  avatar: PlayerAvatar
 }
 
 export interface Team {

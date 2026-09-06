@@ -347,6 +347,7 @@
   },
   "playerCard": {
     "age": "Edad {{age}}",
+    "overall": "Valoración general",
     "skills": {
       "goalkeeper": "Portero",
       "defense": "Defensa",
@@ -355,6 +356,12 @@
       "midfield": "Medio",
       "dribbling": "Regate",
       "shot": "Disparo"
+    },
+    "traits": {
+      "aerial": "Aéreo",
+      "pace": "Velocidad",
+      "creative": "Creativo",
+      "technical": "Técnico"
     }
   }
 }
