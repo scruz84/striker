@@ -392,8 +392,62 @@
       "success": "Match schedule updated.",
       "error": "Failed to update match schedule."
     },
+    "worldStructure": {
+      "title": "World structure",
+      "description": "Tiers, groups per tier, and teams per league used the next time leagues are (re)created. Saving this alone doesn't change anything that already exists - use \"Recreate all leagues now\" below to apply it.",
+      "tier": "Tier",
+      "tierName": "Name",
+      "groups": "Groups",
+      "teamsPerLeague": "Teams per league",
+      "addTier": "Add tier",
+      "removeTier": "Remove",
+      "save": "Save structure",
+      "saveSuccess": "World structure saved.",
+      "saveError": "Failed to save world structure - check the tier, group and team-count limits.",
+      "recreateTitle": "Danger zone",
+      "recreateButton": "Recreate all leagues now",
+      "confirmRecreate": "Recreate every league and team using this structure? Every existing team, squad and match is rebuilt from scratch and everyone gets a brand new team - user accounts, admin access and the match schedule are kept. This can take a little while.",
+      "recreateSuccess": "Leagues recreated.",
+      "recreateError": "Failed to recreate leagues."
+    },
+    "countries": {
+      "title": "Countries",
+      "description": "Countries the game can generate a world for. Adding one creates its leagues and teams right away, without touching any other country.",
+      "active": "Active",
+      "add": "Add",
+      "confirmAdd": "Add {{name}} as a new country? This creates its leagues and teams right away.",
+      "addError": "Failed to add that country."
+    },
+    "leagueSchedules": {
+      "title": "Per-league match schedule",
+      "description": "Overrides the default schedule above for one league at a time - e.g. Spain's top division on Sunday afternoons, England's on Saturday mornings.",
+      "filterCountry": "Country",
+      "allCountries": "All countries",
+      "league": "League",
+      "tier": "Tier",
+      "schedule": "Schedule",
+      "everyDay": "Every day",
+      "override": "Custom",
+      "edit": "Edit",
+      "reset": "Reset",
+      "dialogTitle": "Edit schedule - {{league}}",
+      "save": "Save",
+      "saveError": "Failed to update that league's schedule.",
+      "resetError": "Failed to reset that league's schedule."
+    },
     "usersTitle": "Users",
-    "usersTable": { "id": "Id", "name": "Name", "email": "Email", "country": "Country", "team": "Team", "admin": "Admin" }
+    "usersTable": {
+      "id": "Id",
+      "name": "Name",
+      "email": "Email",
+      "country": "Country",
+      "team": "Team",
+      "admin": "Admin",
+      "grantAdmin": "Grant admin",
+      "revokeAdmin": "Revoke admin",
+      "confirmGrantAdmin": "Grant admin access to {{name}}?",
+      "confirmRevokeAdmin": "Revoke admin access from {{name}}?"
+    }
   },
   "playerCard": {
     "age": "Age {{age}}",

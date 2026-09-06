@@ -160,6 +160,8 @@ var nameTableSuffixByCountry = map[string]string{
 	"en": "en",
 	"fr": "fr",
 	"de": "de",
+	"it": "it",
+	"pt": "pt",
 }
 
 // GetRandomName picks a random first/last name from the given country's name pool. Falls back

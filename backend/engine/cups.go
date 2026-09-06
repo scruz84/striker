@@ -36,6 +36,14 @@ func StartCupsForNewSeason(dbCtx *common.DatabaseContext, season int) {
 	}
 }
 
+// StartCupForCountry starts this season's cup for exactly one country - used when a country is
+// activated mid-season (see handlers.AdminAddCountryHandler), where calling
+// StartCupsForNewSeason again would duplicate every other country's already-started cup (cups
+// has no unique constraint on (country, season) to stop that).
+func StartCupForCountry(dbCtx *common.DatabaseContext, country string, season int) error {
+	return startCupForCountry(dbCtx, country, season)
+}
+
 func startCupForCountry(dbCtx *common.DatabaseContext, country string, season int) error {
 	leagues, err := common.GetLeaguesWithTier(dbCtx)
 	if err != nil {

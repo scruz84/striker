@@ -82,16 +82,79 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 	createSeason(dbCtx)
 
 	//countries
-	countries := createCountries(dbCtx)
+	countries := createCountriesList(dbCtx, seededCountries)
 
 	//create teams and leagues
-	createTeams(dbCtx, countries)
+	createTeams(dbCtx, countries, common.GetWorldConfig(dbCtx))
 
 	//create matches
 	engine.GenerateMatches(dbCtx)
 
 	//create the first season's cups
 	engine.StartCupsForNewSeason(dbCtx, 1)
+}
+
+// RecreateLeaguesKeepingUsers wipes and regenerates every league/team/match (using the current
+// world config - see common.GetWorldConfig - for whichever countries are currently active) the
+// same way InitializeGame does, but preserves registered logins: each existing user is handed a
+// fresh team afterward via common.AssignTeam, in their existing country. Team history, trophies
+// and squads are still lost - only the login/account itself survives. Unlike InitializeGame this
+// updates the season row in place (see common.ResetCurrentSeason) rather than deleting it, so an
+// admin-configured global match schedule (see common.GetMatchSchedule) isn't silently reset to
+// its default.
+func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
+	activeCountries, err := common.GetActiveCountries(dbCtx)
+	if err != nil {
+		return err
+	}
+	if len(activeCountries) == 0 {
+		activeCountries = seededCountries
+	}
+
+	users, err := common.ListUsersWithCountry(dbCtx)
+	if err != nil {
+		return err
+	}
+
+	deleteTable(dbCtx, "season_history")
+	deleteTable(dbCtx, "cup_tie_events")
+	deleteTable(dbCtx, "cup_ties")
+	deleteTable(dbCtx, "cups")
+	deleteTable(dbCtx, "team_transactions")
+	deleteTable(dbCtx, "transfer_offers")
+	deleteTable(dbCtx, "transfer_listings")
+	deleteTable(dbCtx, "loan_listings")
+	deleteTable(dbCtx, "player_loans")
+	deleteTable(dbCtx, "player_unavailability")
+	deleteTable(dbCtx, "lineup_positions")
+	deleteTable(dbCtx, "lineup")
+	deleteTable(dbCtx, "default_lineup_positions")
+	deleteTable(dbCtx, "match_instants")
+	deleteTable(dbCtx, "match_events")
+	deleteTable(dbCtx, "matches")
+	deleteTable(dbCtx, "classification")
+	deleteTable(dbCtx, "players")
+	deleteTable(dbCtx, "teams")
+	deleteTable(dbCtx, "leagues")
+	// countries is NOT wiped here - users.country references it (ON DELETE unset), and users are
+	// kept, so the existing country rows must stay in place; activeCountries (read above, before
+	// any of this deletion) is reused as-is for createTeams below.
+
+	if err := common.ResetCurrentSeason(dbCtx); err != nil {
+		return err
+	}
+
+	createTeams(dbCtx, activeCountries, common.GetWorldConfig(dbCtx))
+
+	engine.GenerateMatches(dbCtx)
+	engine.StartCupsForNewSeason(dbCtx, 1)
+
+	for _, u := range users {
+		if _, err := common.AssignTeam(dbCtx, u.UserId, u.Country); err != nil {
+			log.Errorf("recreate-leagues: failed to assign a fresh team to user %d (%s): %s", u.UserId, u.Country, err)
+		}
+	}
+	return nil
 }
 
 // seededCountries lists every country the game world is generated for - each needs a matching
@@ -106,7 +169,11 @@ func randomSeededCountry() string {
 	return seededCountries[rand.Intn(len(seededCountries))]
 }
 
-func createCountries(dbCtx *common.DatabaseContext) []string {
+// createCountriesList inserts each of the given country codes into the countries table,
+// returning the ones that succeeded - used both for a full init (seededCountries) and a
+// leagues recreate that keeps whichever countries were already active (see
+// RecreateLeaguesKeepingUsers).
+func createCountriesList(dbCtx *common.DatabaseContext, codes []string) []string {
 	log.Debug("initializing countries")
 	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO countries (name) values ($1) returning country_id")
 	if errInsert != nil {
@@ -115,8 +182,8 @@ func createCountries(dbCtx *common.DatabaseContext) []string {
 	}
 	defer insertStmt.Close()
 
-	countries := make([]string, 0, len(seededCountries))
-	for _, country := range seededCountries {
+	countries := make([]string, 0, len(codes))
+	for _, country := range codes {
 		countryId := int64(-1)
 		if err := insertStmt.QueryRow(country).Scan(&countryId); err != nil {
 			log.Printf("error inserting country %s: %s", country, err)
@@ -153,24 +220,29 @@ func createLeague(dbCtx *common.DatabaseContext, country string, name string, ti
 	return leagues
 }
 
-func createTeams(dbCtx *common.DatabaseContext, countries []string) {
+// createTeams creates leagues and teams for every country, shaped by tiers (see
+// common.GetWorldConfig) - tier 1 is the top division, each tier below it splits into more
+// groups; see engine.ComputePromotionRelegation for how teams move between them.
+func createTeams(dbCtx *common.DatabaseContext, countries []string, tiers []common.TierConfig) {
 	log.Debug("initializing teams")
 	for _, country := range countries {
-		//create leagues - tier 1 is the top division, each tier below it splits into more
-		//groups; see engine.ComputePromotionRelegation for how teams move between them. Tier is
-		//threaded through so each team's starting stadium can be scaled by it - see createTeam.
-		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "I", 1, 1), 1)
-		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "II", 2, 4), 2)
-		createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "III", 3, 16), 3)
-		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "IV", 4, 64), 4)
-		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "V", 5, 256), 5)
-		//createTeamsForTier(dbCtx, country, createLeague(dbCtx, country, "VI", 6, 512), 6)
+		createCountryLeagues(dbCtx, country, tiers)
 	}
 }
 
-func createTeamsForTier(dbCtx *common.DatabaseContext, country string, leagueIds []int64, tier int) {
+// createCountryLeagues creates one country's leagues and teams, shaped by tiers - the
+// incremental counterpart to createTeams' full loop, used to activate a single new country
+// mid-season without touching any other country (see handlers.AdminAddCountryHandler).
+func createCountryLeagues(dbCtx *common.DatabaseContext, country string, tiers []common.TierConfig) {
+	for _, tierConfig := range tiers {
+		leagueIds := createLeague(dbCtx, country, tierConfig.Name, tierConfig.Tier, tierConfig.Groups)
+		createTeamsForTier(dbCtx, country, leagueIds, tierConfig.Tier, tierConfig.TeamsPerLeague)
+	}
+}
+
+func createTeamsForTier(dbCtx *common.DatabaseContext, country string, leagueIds []int64, tier int, teamsPerLeague int) {
 	for _, leagueId := range leagueIds {
-		for i := 0; i < common.TeamsPerLeague; i++ {
+		for i := 0; i < teamsPerLeague; i++ {
 			createTeam(dbCtx, country, leagueId, tier)
 		}
 		createClassification(dbCtx, leagueId)

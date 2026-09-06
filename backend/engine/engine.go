@@ -28,32 +28,71 @@ func GenerateMatches(dbCtx *common.DatabaseContext) {
 
 	if !rows.Next() {
 		//there are no upcoming matches, so we have to generate new ones
-		schedule := common.GetMatchSchedule(dbCtx)
-		rows, err := dbCtx.Db.Query("select league_id from leagues")
+		leagueRows, err := dbCtx.Db.Query("select league_id from leagues")
 		if err != nil {
 			log.Errorf("error finding leagues: %s", err)
+			return
 		}
-		for rows.Next() {
+		defer leagueRows.Close()
+		leagueIds := make([]int64, 0)
+		for leagueRows.Next() {
 			var leagueId int64
-			_ = rows.Scan(&leagueId)
-			teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
-			if err != nil {
-				log.Errorf("error finding teams from league %d: %s", leagueId, err)
-			}
-			teamIds := make([]int64, 0)
-			for teams.Next() {
-				var teamId int64
-				_ = teams.Scan(&teamId)
-				teamIds = append(teamIds, teamId)
-			}
-			defer teams.Close()
-
-			log.Infof("Team ids: %v", teamIds)
-
-			weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule)
-			//Insert the matches
-			_ = common.InsertMatches(dbCtx, weekMatches)
+			_ = leagueRows.Scan(&leagueId)
+			leagueIds = append(leagueIds, leagueId)
 		}
+		generateMatchesForLeagueIds(dbCtx, leagueIds, season)
+	}
+}
+
+// GenerateMatchesForLeagues generates the current season's fixtures for exactly the given
+// leagues, bypassing GenerateMatches' "does ANY league already have upcoming matches" guard -
+// needed when a league is added mid-season (see handlers.AdminAddCountryHandler), where every
+// other league already having fixtures scheduled would otherwise make GenerateMatches skip
+// straight past the new one.
+func GenerateMatchesForLeagues(dbCtx *common.DatabaseContext, leagueIds []int64) error {
+	season, err := GetCurrentSeason(dbCtx)
+	if err != nil {
+		return err
+	}
+	generateMatchesForLeagueIds(dbCtx, leagueIds, season)
+	return nil
+}
+
+// generateMatchesForLeagueIds dates each league's fixtures on its own schedule override if it
+// has one (see common.GetLeagueScheduleOverrides), falling back to the app-wide default (see
+// common.GetMatchSchedule) otherwise.
+func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int64, season int) {
+	defaultSchedule := common.GetMatchSchedule(dbCtx)
+	overrides, err := common.GetLeagueScheduleOverrides(dbCtx)
+	if err != nil {
+		log.Errorf("error loading per-league schedule overrides, using the default for every league: %s", err)
+		overrides = nil
+	}
+
+	for _, leagueId := range leagueIds {
+		teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
+		if err != nil {
+			log.Errorf("error finding teams from league %d: %s", leagueId, err)
+			continue
+		}
+		teamIds := make([]int64, 0)
+		for teams.Next() {
+			var teamId int64
+			_ = teams.Scan(&teamId)
+			teamIds = append(teamIds, teamId)
+		}
+		teams.Close()
+
+		log.Infof("Team ids: %v", teamIds)
+
+		schedule := defaultSchedule
+		if override, ok := overrides[leagueId]; ok {
+			schedule = override
+		}
+
+		weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule)
+		//Insert the matches
+		_ = common.InsertMatches(dbCtx, weekMatches)
 	}
 }
 

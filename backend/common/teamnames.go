@@ -29,6 +29,16 @@ var placeNamesByCountry = map[string][]string{
 		"Belrive", "Fontenay", "Lauris", "Valcourt", "Aubignac", "Montrose",
 		"Rochebrune", "Grandchamp", "Servignac", "Aiglemont",
 	},
+	"it": {
+		"Montefiore", "Vallescura", "Torrenova", "Campolungo", "Riobianco", "Castelmare",
+		"Pratolungo", "Collegrande", "Fontanalta", "Serrapiana", "Piandoro", "Montesanto",
+		"Casalvento", "Bellaripa",
+	},
+	"pt": {
+		"Vilanova", "Montesinho", "Ribalonga", "Casaltorto", "Fontelas", "Serracosta",
+		"Valmonte", "Pedraverde", "Riodouro", "Montebranco", "Campolide", "Alvorada",
+		"Bragamonte", "Ponteverde",
+	},
 }
 
 // %s is replaced with a place name from placeNamesByCountry.
@@ -37,6 +47,8 @@ var teamNamePatternsByCountry = map[string][]string{
 	"en": {"%s United", "%s City", "%s Town", "%s Rovers", "%s Wanderers", "%s Athletic", "%s Rangers"},
 	"de": {"%s FC", "SV %s", "TSV %s", "FC %s", "%s Sportfreunde", "Borussia %s"},
 	"fr": {"%s FC", "AS %s", "Olympique %s", "Racing %s", "Stade %s", "%s United"},
+	"it": {"%s FC", "AC %s", "AS %s", "US %s", "%s Calcio", "Virtus %s", "Polisportiva %s"},
+	"pt": {"%s FC", "Sporting %s", "%s SC", "Uniao %s", "Atletico %s", "%s Futebol Clube", "Vitoria %s"},
 }
 
 // RandomTeamName generates a realistic-sounding club name for country - an invented place name

@@ -495,3 +495,32 @@ export interface AdminUserSummary {
   teamName: string
   isAdmin: boolean
 }
+
+// One league tier's shape - see backend/common/worldconfig.go's TierConfig.
+export interface TierConfig {
+  tier: number
+  name: string
+  groups: number
+  teamsPerLeague: number
+}
+
+export interface CountryStatus {
+  code: string
+  name: string
+  active: boolean
+}
+
+export interface MatchSchedule {
+  weekdaysMask: number
+  hour: number
+  minute: number
+}
+
+export interface AdminLeagueInfo {
+  leagueId: number
+  country: string
+  name: string
+  tier: number
+  schedule: MatchSchedule
+  hasOverride: boolean
+}

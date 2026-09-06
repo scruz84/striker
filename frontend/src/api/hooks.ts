@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
 import type {
+  AdminLeagueInfo,
   AdminOverview,
   AdminUserSummary,
+  CountryStatus,
   CupDetails,
   DevUser,
   DivisionDetails,
@@ -14,12 +16,14 @@ import type {
   Group,
   GroupDetails,
   HeadToHead,
+  MatchSchedule,
   NotificationPreferences,
   NotificationsResponse,
   Player,
   ScorerStanding,
   SeasonHistoryEntry,
   TeamDetails,
+  TierConfig,
   TransferListing,
   TransferOffer,
   WeekMatch,
@@ -50,6 +54,9 @@ export const queryKeys = {
   notificationPreferences: ['notificationPreferences'] as const,
   adminOverview: ['adminOverview'] as const,
   adminUsers: ['adminUsers'] as const,
+  adminWorldConfig: ['adminWorldConfig'] as const,
+  adminCountries: ['adminCountries'] as const,
+  adminLeagues: ['adminLeagues'] as const,
   devLoginUsers: ['devLoginUsers'] as const,
 }
 
@@ -438,6 +445,97 @@ export function useAdminUsers(enabled: boolean) {
     queryKey: queryKeys.adminUsers,
     queryFn: () => api.get<AdminUserSummary[]>('/v1/admin/users'),
     enabled,
+  })
+}
+
+export function useSetUserAdmin() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, isAdmin }: { userId: number; isAdmin: boolean }) =>
+      api.put(`/v1/admin/users/${userId}/admin`, { isAdmin }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers })
+    },
+  })
+}
+
+export function useAdminWorldConfig(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.adminWorldConfig,
+    queryFn: () => api.get<{ tiers: TierConfig[] }>('/v1/admin/world-config'),
+    enabled,
+  })
+}
+
+export function useSetWorldConfig() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (tiers: TierConfig[]) => api.put('/v1/admin/world-config', { tiers }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminWorldConfig })
+    },
+  })
+}
+
+export function useAdminRecreateLeagues() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/admin/recreate-leagues'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+    },
+  })
+}
+
+export function useAdminCountries(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.adminCountries,
+    queryFn: () => api.get<CountryStatus[]>('/v1/admin/countries'),
+    enabled,
+  })
+}
+
+export function useAdminAddCountry() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (code: string) => api.post('/v1/admin/countries', { code }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+    },
+  })
+}
+
+export function useAdminLeagues(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.adminLeagues,
+    queryFn: () => api.get<AdminLeagueInfo[]>('/v1/admin/leagues'),
+    enabled,
+  })
+}
+
+export function useSetLeagueSchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ leagueId, schedule }: { leagueId: number; schedule: MatchSchedule }) =>
+      api.put(`/v1/admin/leagues/${leagueId}/schedule`, schedule),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+    },
+  })
+}
+
+export function useClearLeagueSchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (leagueId: number) => api.delete(`/v1/admin/leagues/${leagueId}/schedule`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+    },
   })
 }
 

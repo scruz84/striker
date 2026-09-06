@@ -392,8 +392,62 @@
       "success": "Calendario de partidos actualizado.",
       "error": "No se pudo actualizar el calendario de partidos."
     },
+    "worldStructure": {
+      "title": "Estructura del mundo",
+      "description": "Categorías, grupos por categoría y equipos por liga usados la próxima vez que se (re)creen las ligas. Guardar esto por sí solo no cambia nada existente - usa \"Recrear todas las ligas ahora\" más abajo para aplicarlo.",
+      "tier": "Categoría",
+      "tierName": "Nombre",
+      "groups": "Grupos",
+      "teamsPerLeague": "Equipos por liga",
+      "addTier": "Añadir categoría",
+      "removeTier": "Quitar",
+      "save": "Guardar estructura",
+      "saveSuccess": "Estructura del mundo guardada.",
+      "saveError": "No se pudo guardar la estructura del mundo - revisa los límites de categorías, grupos y equipos.",
+      "recreateTitle": "Zona de peligro",
+      "recreateButton": "Recrear todas las ligas ahora",
+      "confirmRecreate": "¿Recrear todas las ligas y equipos con esta estructura? Cada equipo, plantilla y partido existente se reconstruye desde cero y todos reciben un equipo nuevo - las cuentas de usuario, el acceso de administrador y el calendario de partidos se conservan. Esto puede tardar un poco.",
+      "recreateSuccess": "Ligas recreadas.",
+      "recreateError": "No se pudieron recrear las ligas."
+    },
+    "countries": {
+      "title": "Países",
+      "description": "Países para los que el juego puede generar un mundo. Añadir uno crea sus ligas y equipos de inmediato, sin afectar a ningún otro país.",
+      "active": "Activo",
+      "add": "Añadir",
+      "confirmAdd": "¿Añadir {{name}} como nuevo país? Esto crea sus ligas y equipos de inmediato.",
+      "addError": "No se pudo añadir ese país."
+    },
+    "leagueSchedules": {
+      "title": "Calendario por liga",
+      "description": "Sustituye el calendario predeterminado de arriba para una liga concreta - por ejemplo, la primera división de España los domingos por la tarde, la de Inglaterra los sábados por la mañana.",
+      "filterCountry": "País",
+      "allCountries": "Todos los países",
+      "league": "Liga",
+      "tier": "Categoría",
+      "schedule": "Calendario",
+      "everyDay": "Todos los días",
+      "override": "Personalizado",
+      "edit": "Editar",
+      "reset": "Restablecer",
+      "dialogTitle": "Editar calendario - {{league}}",
+      "save": "Guardar",
+      "saveError": "No se pudo actualizar el calendario de esa liga.",
+      "resetError": "No se pudo restablecer el calendario de esa liga."
+    },
     "usersTitle": "Usuarios",
-    "usersTable": { "id": "Id", "name": "Nombre", "email": "Correo electrónico", "country": "País", "team": "Equipo", "admin": "Admin" }
+    "usersTable": {
+      "id": "Id",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "country": "País",
+      "team": "Equipo",
+      "admin": "Admin",
+      "grantAdmin": "Dar admin",
+      "revokeAdmin": "Quitar admin",
+      "confirmGrantAdmin": "¿Dar acceso de administrador a {{name}}?",
+      "confirmRevokeAdmin": "¿Quitar el acceso de administrador a {{name}}?"
+    }
   },
   "playerCard": {
     "age": "Edad {{age}}",

@@ -170,6 +170,15 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
 	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 	v1AdminGroup.PUT("/match-schedule", handlers.AdminSetMatchScheduleHandler(dbCtx))
+	v1AdminGroup.PUT("/users/:"+handlers.ID+"/admin", handlers.AdminSetUserAdminHandler(dbCtx))
+	v1AdminGroup.GET("/world-config", handlers.AdminGetWorldConfigHandler(dbCtx))
+	v1AdminGroup.PUT("/world-config", handlers.AdminSetWorldConfigHandler(dbCtx))
+	v1AdminGroup.POST("/recreate-leagues", handlers.AdminRecreateLeaguesHandler(dbCtx))
+	v1AdminGroup.GET("/countries", handlers.AdminListCountriesHandler(dbCtx))
+	v1AdminGroup.POST("/countries", handlers.AdminAddCountryHandler(dbCtx))
+	v1AdminGroup.GET("/leagues", handlers.AdminListLeaguesHandler(dbCtx))
+	v1AdminGroup.PUT("/leagues/:"+handlers.ID+"/schedule", handlers.AdminSetLeagueScheduleHandler(dbCtx))
+	v1AdminGroup.DELETE("/leagues/:"+handlers.ID+"/schedule", handlers.AdminClearLeagueScheduleHandler(dbCtx))
 
 	//Others V1
 	v1Group.GET("/initData", handlers.Initialize(dbCtx))

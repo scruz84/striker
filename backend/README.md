@@ -68,12 +68,15 @@ for local development and automated testing where a Google OAuth setup isn't ava
 
 Anyone whose email is in `ADMIN_EMAILS` gets a set of commissioner endpoints under
 `/v1/admin/*`: `GET overview` (season/user/team/match counts), `GET users` (every registered
-user and their team), `POST simulate` (force a manual simulation pass instead of waiting for
+user and their team), `PUT users/:id/admin` (grant/revoke another user's admin access - a user
+can't revoke their own), `POST simulate` (force a manual simulation pass instead of waiting for
 the scheduler's next tick), `POST advance-season` (force a season-completion check),
 `POST teams/:id/budget` (a manual budget correction, logged to that team's ledger like any
 other transaction), `PUT transfer-window` (open/close the transfer and loan markets
-globally - see "Transfer window" below), and `PUT match-schedule` (set the recurring
-weekday/time-of-day fixtures are generated on - see "Match schedule" below).
+globally - see "Transfer window" below), `PUT match-schedule` (set the recurring
+weekday/time-of-day fixtures are generated on - see "Match schedule" below), and the world
+management endpoints (world structure, recreating leagues, adding a country, per-league
+schedules - see "World management" below).
 
 The old unauthenticated `GET /v1/initData` reset endpoint now requires an authenticated admin
 **once any user is registered** - before that (a genuinely fresh deployment, nobody to protect
@@ -125,6 +128,52 @@ week; selecting every weekday gives one round per day. Changing the schedule onl
 fixtures generated **after** the change - it never reschedules matches that already have a
 date (see `engine.ComputeFixtureDates`).
 
+A single league can override that global default with its own weekday/time via
+`PUT /v1/admin/leagues/:id/schedule` (same body shape as above) and go back to the default via
+`DELETE /v1/admin/leagues/:id/schedule`. `GET /v1/admin/leagues` lists every league with its
+effective schedule (the override if it has one, otherwise the global default) - see
+`common.GetLeagueScheduleOverrides`, consulted by `engine.GenerateMatches` for every league's
+fixtures independently.
+
+### World management
+
+Three more admin surfaces let a commissioner reshape the game world without a redeploy:
+
+**World structure** (`GET`/`PUT /v1/admin/world-config`) is the tier/group/teams-per-league
+shape used the next time leagues are (re)created for a country - see `common.TierConfig` and
+`common.GetWorldConfig`/`SetWorldConfig`. It's just saved settings; on its own it doesn't touch
+any league or team that already exists.
+
+```json
+{"tiers": [{"tier": 1, "name": "I", "groups": 1, "teamsPerLeague": 10},
+           {"tier": 2, "name": "II", "groups": 4, "teamsPerLeague": 10}]}
+```
+
+`teamsPerLeague` must be even (`engine.randomWeekMatches2`'s round-robin fixture algorithm has
+no bye slot for an odd team out) - see `common.ValidateWorldConfig` for the full bounds.
+
+**Recreating leagues** (`POST /v1/admin/recreate-leagues`) applies the saved structure right
+now: it wipes and regenerates every league, team, player and match for whichever countries are
+currently active, the same way a fresh `--initialize` seeds the world, but **keeps every
+registered login** - each existing user is handed a brand new team afterward
+(`common.AssignTeam`), in their existing country. Team history, trophies and squads are still
+lost; only the account itself (and its admin flag, and the app-wide match schedule) survives -
+see `handlers.RecreateLeaguesKeepingUsers`. Creating hundreds of teams synchronously takes a
+noticeable amount of time (tens of seconds for the default structure across every active
+country) - the request blocks until it's done rather than returning early.
+
+**Countries** (`GET /v1/admin/countries`, `POST /v1/admin/countries {"code": "it"}`) lists every
+country the game engine knows how to generate a world for (`common.KnownCountries` - a
+`names_<code>`/`lastnames_<code>` table pair plus team-naming data in `teamnames.go`), marking
+which ones are already active, and activates one of the inactive ones: creates its leagues and
+teams per the current world structure, generates this season's fixtures for just those new
+leagues (`engine.GenerateMatchesForLeagues` - `engine.GenerateMatches` itself only fires when
+*no* league anywhere has upcoming matches, which is never true once the world already exists),
+and starts its cup (`engine.StartCupForCountry`) - all without touching any other country's
+data. `es`/`en`/`fr`/`de` are active from a fresh `--initialize`; `it`/`pt` ship with their name
+pools already loaded (see `resources/sql/init22_world_admin.sql`) but stay inactive until an
+admin adds one.
+
 ### Schema changes on an already-running database
 
 `resources/sql/*.sql` auto-applies on a **fresh** Postgres data volume (that's how the official
@@ -164,6 +213,7 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init19_multi_country_names.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init20_team_rename.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init21_contracts.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init22_world_admin.sql
 ```
 
 **Note:** init19 only adds the name-pool tables for the new countries (en/fr/de) - it doesn't
