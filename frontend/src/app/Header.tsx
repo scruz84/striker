@@ -9,13 +9,13 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLogout, useMe } from '../api/hooks'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { Logo } from './Logo'
 import { NotificationBell } from './NotificationBell'
 import { ThemeModeToggle } from './ThemeModeToggle'
 
@@ -40,11 +40,11 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link component={RouterLink} to="/" underline="none" color="inherit">
-              Striker
+          <Box sx={{ flexGrow: 1 }}>
+            <Link component={RouterLink} to="/" underline="none" color="inherit" sx={{ display: 'inline-flex' }}>
+              <Logo />
             </Link>
-          </Typography>
+          </Box>
           <ThemeModeToggle />
           <LanguageSwitcher />
           <NotificationBell />
