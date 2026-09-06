@@ -8,11 +8,13 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useLineup, useMe, useSetLineup, useUserTeam } from '../../api/hooks'
 import { FORMATION_BALANCED, FORMATION_LABEL_KEYS, FORMATION_POSITION_COUNTS, POSITION_LABEL_KEYS } from '../../api/types'
 import type { Lineup, Player, Team } from '../../api/types'
+import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 
 // Slots per position, keyed the same way FORMATION_POSITION_COUNTS is: a position not present
 // for a formation simply isn't used by it.
@@ -147,7 +149,12 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
                     </MenuItem>
                     {players.map((player) => (
                       <MenuItem key={player.id} value={player.id} disabled={usedPlayerIds.has(player.id) && value !== player.id}>
-                        {player.firstName} {player.lastName} ({player.age})
+                        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                          <CartoonAvatar seed={player.id} size={28} />
+                          <span>
+                            {player.firstName} {player.lastName} ({player.age})
+                          </span>
+                        </Stack>
                       </MenuItem>
                     ))}
                   </Select>
