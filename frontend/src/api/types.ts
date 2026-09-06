@@ -53,6 +53,9 @@ export interface Team {
   divisionId: number
   divisionName: string
   classificationPosition: number
+  // Only meaningfully populated on the caller's own team (GET /v1/user/team) - see
+  // useRenameTeam. Elsewhere it's just the zero value, false.
+  nameChanged: boolean
 }
 
 export interface TeamDetails {

@@ -93,6 +93,9 @@ type Team struct {
 	DivisionId             int64  `json:"divisionId"`
 	DivisionName           string `json:"divisionName"`
 	ClassificationPosition int    `json:"classificationPosition"`
+	// NameChanged is only populated by GetTeamByOwner (the one place the rename UI reads it
+	// from) - other lookups leave it at the zero value, since nothing else consumes it.
+	NameChanged bool `json:"nameChanged"`
 }
 
 type Player struct {

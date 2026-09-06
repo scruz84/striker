@@ -181,8 +181,7 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, t
 	teamId := int64(-1)
 	insertStmt, errInsert := dbCtx.Db.Prepare(
 		"INSERT INTO teams (country, league_id, name, stadium_capacity) values ($1, $2, $3, $4) returning team_id")
-	name, _, _ := common.GetRandomName(dbCtx, country)
-	teamName := name + " Team"
+	teamName := common.RandomTeamName(country)
 	if errInsert != nil {
 		log.Printf("error inserting new teams %s", errInsert)
 	}

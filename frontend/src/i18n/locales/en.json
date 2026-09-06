@@ -99,7 +99,10 @@
     }
   },
   "dashboard": {
-    "editLineup": "Edit lineup"
+    "editLineup": "Edit lineup",
+    "renameTeam": "Rename team (one-time)",
+    "renameSave": "Save",
+    "renameError": "Could not rename the team. Names must be 2-50 characters."
   },
   "seasonRecap": {
     "promoted": "Promoted!",

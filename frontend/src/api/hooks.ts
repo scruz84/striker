@@ -119,6 +119,16 @@ export function useUserTeam(enabled: boolean) {
   })
 }
 
+export function useRenameTeam() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (name: string) => api.put('/v1/user/team/name', { name }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
 export function useTeamDetails(teamId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.team(teamId ?? ''),

@@ -41,7 +41,7 @@ const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.
 	" ON (a.owner_id = c.user_id ) " +
 	"WHERE a.team_id = $1"
 
-const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name FROM teams WHERE owner_id = $1"
+const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name, name_changed FROM teams WHERE owner_id = $1"
 const GetTeamDetailsStmtSql = "SELECT owner_id, country, league_id, name FROM teams WHERE team_id = $1"
 const GetTeamIdsFromLeagueSql = "SELECT team_id FROM teams where league_id = $1"
 const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
@@ -107,7 +107,10 @@ const InsertMatchInstantStmtSql = "" +
 const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 	"country) VALUES ($1, $2, $3, $4) returning user_id"
 const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id = $1"
-const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2 WHERE team_id = $3	"
+
+// Resets name_changed to false alongside the fresh name - a newly assigned owner gets their own
+// one-time rename, regardless of whether a previous owner had already used theirs.
+const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2, name_changed = false WHERE team_id = $3"
 
 const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = matches+$1, points = points+$2, wins = wins+$3, " +
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
@@ -300,11 +303,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err
 	}
 	defer ustmt.Close()
-	tName, _, err := GetRandomName(dbCtx, country)
-	if err != nil {
-		return nil, err
-	}
-	teamName := tName + " Team"
+	teamName := RandomTeamName(country)
 	_, err = ustmt.Exec(teamName, userId, teamId)
 	if err != nil {
 		return nil, err
@@ -492,7 +491,8 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var country string
 	var leagueId int64
 	var name string
-	err := dbCtx.Db.QueryRow(GetTeamDetailsStmtByOwnerSql, userId).Scan(&teamId, &country, &leagueId, &name)
+	var nameChanged bool
+	err := dbCtx.Db.QueryRow(GetTeamDetailsStmtByOwnerSql, userId).Scan(&teamId, &country, &leagueId, &name, &nameChanged)
 	if err != nil {
 		return nil, err
 	}
@@ -507,6 +507,7 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 		TeamName:     name,
 		DivisionId:   leagueId,
 		DivisionName: divisionName,
+		NameChanged:  nameChanged,
 	}, nil
 }
 

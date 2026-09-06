@@ -99,7 +99,10 @@
     }
   },
   "dashboard": {
-    "editLineup": "Editar alineación"
+    "editLineup": "Editar alineación",
+    "renameTeam": "Renombrar equipo (solo una vez)",
+    "renameSave": "Guardar",
+    "renameError": "No se pudo renombrar el equipo. El nombre debe tener entre 2 y 50 caracteres."
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",

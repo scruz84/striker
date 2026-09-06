@@ -135,11 +135,21 @@ docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-st
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init17_notification_prefs.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init18_match_schedule.sql
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init19_multi_country_names.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init20_team_rename.sql
 ```
 
 **Note:** init19 only adds the name-pool tables for the new countries (en/fr/de) - it doesn't
 retroactively add their leagues/teams/players to a world that's already been seeded. Adding those
 requires a full reseed (`docker compose --profile init run --rm init`, destructive - see above).
+
+### Team names
+
+New teams get a randomly generated, realistic-sounding club name (`common.RandomTeamName`,
+e.g. "Ashford United", "Real Villanueva") rather than a plain "<player name> Team" placeholder.
+An owner can rename their own team exactly once, ever, via `PUT /v1/user/team/name`
+(`{"name": "..."}`) - `common.RenameTeam` flips `teams.name_changed` atomically on the same
+update, so a second attempt (or two racing attempts) fails with a 400. There's no admin reset
+for that flag; it's a one-shot deal by design.
 
 ## Local development (without Docker)
 

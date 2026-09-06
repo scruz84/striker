@@ -83,6 +83,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup := v1Group.Group("/user")
 	v1UserGroup.Use(authMiddleware.MiddlewareFunc())
 	v1UserGroup.GET("/team", handlers.UserTeam(dbCtx))
+	v1UserGroup.PUT("/team/name", handlers.RenameTeamHandler(dbCtx))
 	v1UserGroup.GET("/team/lineup", handlers.GetLineupHandler(dbCtx))
 	v1UserGroup.PUT("/team/lineup", handlers.SetLineupHandler(dbCtx))
 	v1UserGroup.GET("/team/finances", handlers.GetFinancesHandler(dbCtx))
