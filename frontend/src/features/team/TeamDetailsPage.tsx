@@ -28,6 +28,7 @@ import {
 } from '../../api/hooks'
 import type { Player, SeasonHistoryEntry } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
+import { useConfirm } from '../../components/confirmDialogContext'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 
@@ -150,6 +151,7 @@ const MAX_CONTRACT_YEARS_REMAINING = 5
 
 function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }) {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const makeOffer = useMakeOffer()
   const renewContract = useRenewContract()
   const releasePlayer = useReleasePlayer()
@@ -162,6 +164,17 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
       return
     }
     makeOffer.mutate({ playerId: player.id, amount: amountNum }, { onSuccess: () => setShowForm(false) })
+  }
+
+  const handleRelease = async () => {
+    const ok = await confirm({
+      message: t('team.confirmRelease', { name: `${player.firstName} ${player.lastName}` }),
+      confirmLabel: t('team.releasePlayer'),
+      destructive: true,
+    })
+    if (ok) {
+      releasePlayer.mutate(player.id)
+    }
   }
 
   return (
@@ -186,12 +199,7 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
             >
               {t('team.renewContract')}
             </Button>
-            <Button
-              size="small"
-              color="secondary"
-              onClick={() => releasePlayer.mutate(player.id)}
-              disabled={releasePlayer.isPending}
-            >
+            <Button size="small" color="secondary" onClick={handleRelease} disabled={releasePlayer.isPending}>
               {t('team.releasePlayer')}
             </Button>
           </Stack>

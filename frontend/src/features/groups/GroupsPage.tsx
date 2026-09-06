@@ -28,6 +28,7 @@ import {
   useMe,
   useMyGroups,
 } from '../../api/hooks'
+import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 
 export function GroupsPage() {
@@ -133,6 +134,7 @@ export function GroupsPage() {
 
 function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () => void }) {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data, isLoading } = useGroupDetails(String(groupId), true)
   const leaveGroup = useLeaveGroup()
@@ -144,26 +146,38 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
 
   const isOwner = loggedUser && data.group.ownerId === Number(loggedUser.id)
 
+  const handleLeave = async () => {
+    const ok = await confirm({
+      message: t('groups.confirmLeave', { name: data.group.name }),
+      confirmLabel: t('groups.leave'),
+      destructive: true,
+    })
+    if (ok) {
+      leaveGroup.mutate(groupId, { onSuccess: onLeave })
+    }
+  }
+
+  const handleDelete = async () => {
+    const ok = await confirm({
+      message: t('groups.confirmDelete', { name: data.group.name }),
+      confirmLabel: t('groups.deleteGroup'),
+      destructive: true,
+    })
+    if (ok) {
+      deleteGroup.mutate(groupId, { onSuccess: onLeave })
+    }
+  }
+
   return (
     <Paper>
       <Stack direction="row" sx={{ p: 2, justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="subtitle1">{data.group.name}</Typography>
         <Stack direction="row" spacing={1}>
-          <Button
-            size="small"
-            color="secondary"
-            onClick={() => leaveGroup.mutate(groupId, { onSuccess: onLeave })}
-            disabled={leaveGroup.isPending}
-          >
+          <Button size="small" color="secondary" onClick={handleLeave} disabled={leaveGroup.isPending}>
             {t('groups.leave')}
           </Button>
           {isOwner && (
-            <Button
-              size="small"
-              color="error"
-              onClick={() => deleteGroup.mutate(groupId, { onSuccess: onLeave })}
-              disabled={deleteGroup.isPending}
-            >
+            <Button size="small" color="error" onClick={handleDelete} disabled={deleteGroup.isPending}>
               {t('groups.deleteGroup')}
             </Button>
           )}

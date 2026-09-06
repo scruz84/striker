@@ -31,6 +31,8 @@ import {
   useSetTransferWindow,
 } from '../../api/hooks'
 import { WEEKDAY_OPTIONS } from '../../api/types'
+import { useConfirm } from '../../components/confirmDialogContext'
+import { formatCurrency } from '../../utils/formatCurrency'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -121,6 +123,7 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
 
 function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
@@ -130,11 +133,45 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
 
-  const handleAdjustBudget = (event: FormEvent) => {
+  const handleSimulateNow = async () => {
+    const ok = await confirm({ message: t('admin.actions.confirmRunSimulation'), destructive: true })
+    if (ok) {
+      simulateNow.mutate()
+    }
+  }
+
+  const handleAdvanceSeason = async () => {
+    const ok = await confirm({ message: t('admin.actions.confirmCheckSeasonAdvance'), destructive: true })
+    if (ok) {
+      advanceSeason.mutate()
+    }
+  }
+
+  const handleToggleTransferWindow = async () => {
+    const ok = await confirm({
+      message: transferWindowOpen
+        ? t('admin.actions.confirmCloseWindow')
+        : t('admin.actions.confirmOpenWindow'),
+      destructive: transferWindowOpen,
+    })
+    if (ok) {
+      setTransferWindow.mutate(!transferWindowOpen)
+    }
+  }
+
+  const handleAdjustBudget = async (event: FormEvent) => {
     event.preventDefault()
     const teamIdNum = Number(teamId)
     const amountNum = Number(amount)
     if (!teamIdNum || !amountNum || !description) {
+      return
+    }
+    const ok = await confirm({
+      message: t('admin.adjustBudget.confirm', { teamId: teamIdNum, amount: formatCurrency(amountNum) }),
+      confirmLabel: t('admin.adjustBudget.apply'),
+      destructive: true,
+    })
+    if (!ok) {
       return
     }
     adjustBudget.mutate(
@@ -151,16 +188,16 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
             {t('admin.actions.title')}
           </Typography>
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" onClick={() => simulateNow.mutate()} disabled={simulateNow.isPending}>
+            <Button variant="outlined" onClick={handleSimulateNow} disabled={simulateNow.isPending}>
               {t('admin.actions.runSimulation')}
             </Button>
-            <Button variant="outlined" onClick={() => advanceSeason.mutate()} disabled={advanceSeason.isPending}>
+            <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
               {t('admin.actions.checkSeasonAdvance')}
             </Button>
             <Button
               variant="outlined"
               color={transferWindowOpen ? 'warning' : 'success'}
-              onClick={() => setTransferWindow.mutate(!transferWindowOpen)}
+              onClick={handleToggleTransferWindow}
               disabled={setTransferWindow.isPending}
             >
               {transferWindowOpen ? t('admin.actions.closeWindow') : t('admin.actions.openWindow')}

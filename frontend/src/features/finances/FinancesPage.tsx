@@ -19,6 +19,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import { TRANSACTION_REASON_KEYS, type Stadium } from '../../api/types'
+import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -92,6 +93,7 @@ export function FinancesPage() {
 
 function StadiumCard({ stadium }: { stadium: Stadium }) {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const setTicketPrice = useSetTicketPrice()
   const upgradeStadium = useUpgradeStadium()
   const [price, setPrice] = useState(String(stadium.ticketPrice))
@@ -103,6 +105,13 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
       return
     }
     setTicketPrice.mutate(priceNum)
+  }
+
+  const handleUpgrade = async () => {
+    const ok = await confirm({ message: t('finances.confirmExpand'), confirmLabel: t('finances.expand') })
+    if (ok) {
+      upgradeStadium.mutate()
+    }
   }
 
   return (
@@ -117,13 +126,7 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
             {t('finances.seats')}
           </Typography>
         </Stack>
-        <Button
-          size="small"
-          variant="text"
-          sx={{ mb: 1, px: 0 }}
-          onClick={() => upgradeStadium.mutate()}
-          disabled={upgradeStadium.isPending}
-        >
+        <Button size="small" variant="text" sx={{ mb: 1, px: 0 }} onClick={handleUpgrade} disabled={upgradeStadium.isPending}>
           {t('finances.expand')}
         </Button>
         {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>{t('finances.expandSuccess')}</Alert>}

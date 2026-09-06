@@ -2,6 +2,8 @@
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
+    "confirm": "Confirm",
+    "confirmTitle": "Are you sure?",
     "save": "Save",
     "weekdaysShort": {
       "mon": "Mon",
@@ -156,6 +158,7 @@
     "stadium": "Stadium",
     "seats": "seats",
     "expand": "Expand (+500 seats)",
+    "confirmExpand": "Expand your stadium by 500 seats? The cost is deducted from your budget immediately.",
     "expandSuccess": "Stadium expanded.",
     "expandError": "Not enough budget to expand.",
     "ticketPrice": "Ticket price",
@@ -177,6 +180,9 @@
     }
   },
   "transfers": {
+    "confirmBuy": "Buy {{name}} for {{price}}? This is deducted from your budget immediately.",
+    "confirmAcceptLoan": "Take {{name}} on loan for {{seasons}} season(s)?",
+    "confirmAcceptOffer": "Accept {{team}}'s offer of {{amount}} for {{name}}? They'll leave your squad immediately.",
     "title": "Transfer market",
     "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
     "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers", "freeAgents": "Free agents" },
@@ -237,7 +243,8 @@
       "intro": "Unowned players, free to sign - no fee, just their wage.",
       "none": "No free agents available right now.",
       "wage": "Wage",
-      "sign": "Sign"
+      "sign": "Sign",
+      "confirmSign": "Sign {{name}} on a wage of {{wage}}?"
     }
   },
   "cup": {
@@ -286,6 +293,7 @@
     "contractSeasons_other": "{{count}} seasons left",
     "renewContract": "Renew",
     "releasePlayer": "Release",
+    "confirmRelease": "Release {{name}}? They'll leave your squad immediately and can't be brought back.",
     "releaseError": "Could not release that player - check your budget.",
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
@@ -329,7 +337,9 @@
     "noGroups": "You're not in any groups yet.",
     "code": "Code: {{code}}",
     "leave": "Leave",
+    "confirmLeave": "Leave \"{{name}}\"? You'll need a new invite code to rejoin.",
     "deleteGroup": "Delete group",
+    "confirmDelete": "Delete \"{{name}}\"? This removes the group for every member and can't be undone.",
     "table": { "manager": "Manager", "team": "Team", "league": "League", "budget": "Budget" },
     "you": "You"
   },
@@ -351,9 +361,13 @@
     "actions": {
       "title": "Manual triggers",
       "runSimulation": "Run simulation now",
+      "confirmRunSimulation": "Run the simulation pass now? This immediately simulates every due match for all users.",
       "checkSeasonAdvance": "Check season advance",
+      "confirmCheckSeasonAdvance": "Check for season advance now? If the season is ready, this immediately rolls it over for every user.",
       "closeWindow": "Close transfer window",
+      "confirmCloseWindow": "Close the transfer window? Listing, buying, and accepting loans and offers become unavailable for every user until it reopens.",
       "openWindow": "Open transfer window",
+      "confirmOpenWindow": "Open the transfer window for every user?",
       "simSuccess": "Simulation pass triggered.",
       "seasonSuccess": "Season advance check triggered.",
       "windowSuccess": "Transfer window updated."
@@ -364,6 +378,7 @@
       "amount": "Amount",
       "amountHelper": "negative to deduct",
       "description": "Description",
+      "confirm": "Adjust team {{teamId}}'s budget by {{amount}}?",
       "apply": "Apply",
       "success": "Budget adjusted.",
       "error": "Failed to adjust budget."

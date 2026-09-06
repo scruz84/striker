@@ -43,6 +43,7 @@ import {
   useWithdrawOffer,
 } from '../../api/hooks'
 import type { LoanListing, Player, TransferListing, TransferOffer } from '../../api/types'
+import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -84,6 +85,7 @@ export function TransferMarketPage() {
 
 function TransfersTab() {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useTransferListings(!!loggedUser)
@@ -165,6 +167,20 @@ function TransfersTab() {
         },
       },
     )
+  }
+
+  const handleBuy = async (listing: TransferListing) => {
+    const ok = await confirm({
+      message: t('transfers.confirmBuy', {
+        name: `${listing.player.firstName} ${listing.player.lastName}`,
+        price: formatCurrency(listing.askingPrice),
+      }),
+      confirmLabel: t('transfers.buy'),
+      destructive: true,
+    })
+    if (ok) {
+      buyListing.mutate(listing.listingId)
+    }
   }
 
   return (
@@ -306,7 +322,7 @@ function TransfersTab() {
                   <Button
                     size="small"
                     variant="contained"
-                    onClick={() => buyListing.mutate(listing.listingId)}
+                    onClick={() => handleBuy(listing)}
                     disabled={buyListing.isPending}
                   >
                     {t('transfers.buy')}
@@ -400,6 +416,7 @@ const LOAN_DURATION_OPTIONS = [1, 2, 3]
 
 function LoansTab() {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useLoanListings(!!loggedUser)
@@ -472,6 +489,19 @@ function LoansTab() {
       { playerId: selectedPlayerId, durationSeasons: duration },
       { onSuccess: () => setSelectedPlayerId('') },
     )
+  }
+
+  const handleAcceptLoan = async (listing: LoanListing) => {
+    const ok = await confirm({
+      message: t('transfers.confirmAcceptLoan', {
+        name: `${listing.player.firstName} ${listing.player.lastName}`,
+        seasons: listing.durationSeasons,
+      }),
+      confirmLabel: t('transfers.accept'),
+    })
+    if (ok) {
+      acceptLoan.mutate(listing.listingId)
+    }
   }
 
   return (
@@ -623,7 +653,7 @@ function LoansTab() {
                   <Button
                     size="small"
                     variant="contained"
-                    onClick={() => acceptLoan.mutate(listing.listingId)}
+                    onClick={() => handleAcceptLoan(listing)}
                     disabled={acceptLoan.isPending}
                   >
                     {t('transfers.accept')}
@@ -715,6 +745,7 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
 
 function OffersTab() {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data: received, isLoading: receivedLoading } = useOffersReceived(!!loggedUser)
   const { data: sent, isLoading: sentLoading } = useOffersSent(!!loggedUser)
@@ -725,6 +756,21 @@ function OffersTab() {
 
   if (receivedLoading || sentLoading || !received || !sent) {
     return <Skeleton variant="rectangular" height={300} />
+  }
+
+  const handleAccept = async (offer: TransferOffer) => {
+    const ok = await confirm({
+      message: t('transfers.confirmAcceptOffer', {
+        name: `${offer.player.firstName} ${offer.player.lastName}`,
+        team: offer.fromTeamName,
+        amount: formatCurrency(offer.amount),
+      }),
+      confirmLabel: t('transfers.accept'),
+      destructive: true,
+    })
+    if (ok) {
+      acceptOffer.mutate(offer.offerId)
+    }
   }
 
   return (
@@ -747,7 +793,7 @@ function OffersTab() {
             teamColumn="from"
             renderAction={(offer) => (
               <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
-                <Button size="small" variant="contained" onClick={() => acceptOffer.mutate(offer.offerId)} disabled={acceptOffer.isPending}>
+                <Button size="small" variant="contained" onClick={() => handleAccept(offer)} disabled={acceptOffer.isPending}>
                   {t('transfers.accept')}
                 </Button>
                 <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending}>
@@ -823,9 +869,23 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
 
 function FreeAgentsTab() {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data: freeAgents, isLoading } = useFreeAgents(!!loggedUser)
   const signFreeAgent = useSignFreeAgent()
+
+  const handleSign = async (player: Player) => {
+    const ok = await confirm({
+      message: t('transfers.freeAgents.confirmSign', {
+        name: `${player.firstName} ${player.lastName}`,
+        wage: formatCurrency(player.wage),
+      }),
+      confirmLabel: t('transfers.freeAgents.sign'),
+    })
+    if (ok) {
+      signFreeAgent.mutate(player.id)
+    }
+  }
 
   const [search, setSearch] = useState('')
   const [minAge, setMinAge] = useState('')
@@ -943,7 +1003,7 @@ function FreeAgentsTab() {
                           <Button
                             size="small"
                             variant="contained"
-                            onClick={() => signFreeAgent.mutate(player.id)}
+                            onClick={() => handleSign(player)}
                             disabled={signFreeAgent.isPending}
                           >
                             {t('transfers.freeAgents.sign')}

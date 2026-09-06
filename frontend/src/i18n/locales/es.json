@@ -2,6 +2,8 @@
   "common": {
     "loading": "Cargando...",
     "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "confirmTitle": "¿Estás seguro?",
     "save": "Guardar",
     "weekdaysShort": {
       "mon": "Lun",
@@ -156,6 +158,7 @@
     "stadium": "Estadio",
     "seats": "asientos",
     "expand": "Ampliar (+500 asientos)",
+    "confirmExpand": "¿Ampliar tu estadio en 500 asientos? El coste se descuenta de tu presupuesto de inmediato.",
     "expandSuccess": "Estadio ampliado.",
     "expandError": "Presupuesto insuficiente para ampliar.",
     "ticketPrice": "Precio de la entrada",
@@ -177,6 +180,9 @@
     }
   },
   "transfers": {
+    "confirmBuy": "¿Comprar a {{name}} por {{price}}? Se descuenta de tu presupuesto de inmediato.",
+    "confirmAcceptLoan": "¿Fichar a {{name}} cedido durante {{seasons}} temporada(s)?",
+    "confirmAcceptOffer": "¿Aceptar la oferta de {{team}} de {{amount}} por {{name}}? Saldrá de tu plantilla de inmediato.",
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
     "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres" },
@@ -237,7 +243,8 @@
       "intro": "Jugadores libres, sin coste de traspaso - solo su salario.",
       "none": "No hay agentes libres disponibles ahora mismo.",
       "wage": "Salario",
-      "sign": "Fichar"
+      "sign": "Fichar",
+      "confirmSign": "¿Fichar a {{name}} con un salario de {{wage}}?"
     }
   },
   "cup": {
@@ -286,6 +293,7 @@
     "contractSeasons_other": "{{count}} temporadas restantes",
     "renewContract": "Renovar",
     "releasePlayer": "Rescindir",
+    "confirmRelease": "¿Rescindir el contrato de {{name}}? Saldrá de tu plantilla de inmediato y no podrá volver.",
     "releaseError": "No se pudo rescindir el contrato - revisa tu presupuesto.",
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
@@ -329,7 +337,9 @@
     "noGroups": "Aún no perteneces a ningún grupo.",
     "code": "Código: {{code}}",
     "leave": "Abandonar",
+    "confirmLeave": "¿Abandonar \"{{name}}\"? Necesitarás un nuevo código de invitación para volver a entrar.",
     "deleteGroup": "Eliminar grupo",
+    "confirmDelete": "¿Eliminar \"{{name}}\"? Esto elimina el grupo para todos los miembros y no se puede deshacer.",
     "table": { "manager": "Manager", "team": "Equipo", "league": "Liga", "budget": "Presupuesto" },
     "you": "Tú"
   },
@@ -351,9 +361,13 @@
     "actions": {
       "title": "Acciones manuales",
       "runSimulation": "Ejecutar simulación ahora",
+      "confirmRunSimulation": "¿Ejecutar la simulación ahora? Esto simula de inmediato todos los partidos pendientes de todos los usuarios.",
       "checkSeasonAdvance": "Comprobar avance de temporada",
+      "confirmCheckSeasonAdvance": "¿Comprobar el avance de temporada ahora? Si la temporada está lista, esto la avanza de inmediato para todos los usuarios.",
       "closeWindow": "Cerrar mercado de fichajes",
+      "confirmCloseWindow": "¿Cerrar el mercado de fichajes? Listar, comprar y aceptar cesiones u ofertas dejarán de estar disponibles para todos los usuarios hasta que reabra.",
       "openWindow": "Abrir mercado de fichajes",
+      "confirmOpenWindow": "¿Abrir el mercado de fichajes para todos los usuarios?",
       "simSuccess": "Simulación ejecutada.",
       "seasonSuccess": "Comprobación de avance de temporada ejecutada.",
       "windowSuccess": "Mercado de fichajes actualizado."
@@ -364,6 +378,7 @@
       "amount": "Importe",
       "amountHelper": "negativo para restar",
       "description": "Descripción",
+      "confirm": "¿Ajustar el presupuesto del equipo {{teamId}} en {{amount}}?",
       "apply": "Aplicar",
       "success": "Presupuesto ajustado.",
       "error": "No se pudo ajustar el presupuesto."

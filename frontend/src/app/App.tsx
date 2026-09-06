@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { getGoogleOAuthClientId } from '../config'
+import { ConfirmProvider } from '../components/ConfirmDialog'
 import { AdminPage } from '../features/admin/AdminPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
@@ -28,25 +29,27 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <CacheProvider value={emotionCache}>
           <ThemeModeProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route element={<Layout />}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
-                  <Route path="/dashboard/finances" element={<FinancesPage />} />
-                  <Route path="/transfers" element={<TransferMarketPage />} />
-                  <Route path="/cup" element={<CupPage />} />
-                  <Route path="/groups" element={<GroupsPage />} />
-                  <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/division/:id" element={<DivisionDetailsPage />} />
-                  <Route path="/match/:id" element={<MatchDetailsPage />} />
-                  <Route path="/team/:id" element={<TeamDetailsPage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="*" element={<HomePage />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
+            <ConfirmProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route element={<Layout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
+                    <Route path="/dashboard/finances" element={<FinancesPage />} />
+                    <Route path="/transfers" element={<TransferMarketPage />} />
+                    <Route path="/cup" element={<CupPage />} />
+                    <Route path="/groups" element={<GroupsPage />} />
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/division/:id" element={<DivisionDetailsPage />} />
+                    <Route path="/match/:id" element={<MatchDetailsPage />} />
+                    <Route path="/team/:id" element={<TeamDetailsPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="*" element={<HomePage />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </ConfirmProvider>
           </ThemeModeProvider>
         </CacheProvider>
       </QueryClientProvider>
