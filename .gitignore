@@ -1,4 +1,7 @@
 .idea/
 
 /backend/app.env
+fmfrontend/node_modules/.bin
+fmfrontend/node_modules/.cache
 dump.rdb
+/fmfrontend/node_modules/
