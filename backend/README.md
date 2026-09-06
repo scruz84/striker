@@ -81,6 +81,22 @@ yet) it still works with no login, so bootstrapping isn't broken. This only affe
 route; `docker compose --profile init run --rm init` (above) calls the same reset logic
 directly via the CLI and was never affected either way.
 
+### Live matches
+
+Watching a not-yet-played match's page opens a WebSocket (`GET /v1/teams/match/:id/live`,
+`.../cups/ties/:id/live`) that streams its result out minute by minute once the engine actually
+simulates it (`engine.BroadcastMatchLive`) - the simulation itself is instant, computed and
+persisted to Postgres in one go; the ~22-second "live" pacing is purely a cosmetic replay of an
+already-known result for anyone watching. That replay is published over Redis pub/sub
+(`common.LiveMatchHub`), not an in-process channel - the API server and the simulation engine are
+separate processes (separate containers in `docker-compose.yml`, and still separate
+`DatabaseContext`/hub instances even when both run together via `--svc --engine` in one process,
+per "Local development" below), so only a hub both of them actually connect to can deliver a
+message from one to the other. The frontend's `useMatchDetails` also polls every 5 seconds while
+a match isn't played yet, as a backstop in case a socket message is ever missed (a dropped
+connection, a missed reconnect) - it stops as soon as the match shows played, from whichever
+source noticed first.
+
 ### Transfer window
 
 The transfer and loan markets share one global open/closed flag (`season.transfer_window_open`,

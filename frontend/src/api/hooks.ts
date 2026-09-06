@@ -178,6 +178,12 @@ export function useMatchDetails(matchId: string | undefined) {
     queryKey: queryKeys.match(matchId ?? ''),
     queryFn: () => api.get<WeekMatch>(`/v1/teams/match/${matchId}/`),
     enabled: !!matchId,
+    // Backstops the live WebSocket (useLiveMatch): if it never delivers a "complete" message -
+    // dropped connection, a missed reconnect, anything - this still notices the match finished
+    // and flips MatchDetailsPage over to the played view within one poll, instead of leaving the
+    // page stuck on a frozen "LIVE" scoreboard forever. Stops polling once played, and while a
+    // played match's data is already in hand there's nothing left that could change.
+    refetchInterval: (query) => (query.state.data?.played ? false : 5000),
   })
 }
 

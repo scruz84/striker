@@ -1,8 +1,13 @@
 package common
 
 import (
+	"context"
+	"encoding/json"
+	"os"
 	"strconv"
-	"sync"
+
+	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
 )
 
 // LiveMatchMessage is one message of a live match's broadcast stream - see engine's
@@ -17,23 +22,37 @@ type LiveMatchMessage struct {
 }
 
 // liveMatchChannelBuffer is generous enough that a momentarily slow consumer (a WS write in
-// progress) doesn't lose a message to the non-blocking send in Publish.
+// progress) doesn't lose a message forwarded from Redis.
 const liveMatchChannelBuffer = 8
 
+// liveMatchKeyPrefix namespaces every live-match Redis pub/sub channel from anything else that
+// might use this same Redis instance.
+const liveMatchKeyPrefix = "livematch:"
+
 // LiveMatchHub fans out a match's live messages to every WebSocket client currently watching
-// it. It's created once per DatabaseContext and is safe for concurrent use.
-//
-// Subscriptions are keyed by an opaque string channel, not a bare id: league match ids and cup
-// tie ids are drawn from independent Postgres sequences (see runMatchSimulation's id-space
-// warning) and can collide, so callers must namespace their ids - see LeagueMatchChannel and
-// CupTieChannel below - rather than passing one in directly.
+// it. Backed by Redis pub/sub rather than an in-process map: the API server (svc, where clients
+// subscribe - see handlers.LiveMatchHandler) and the simulation engine (engine, where
+// BroadcastMatchLive publishes) run as separate processes - separate containers in
+// docker-compose, and still separate *DatabaseContext/*LiveMatchHub instances even when both
+// modes run in one combined process (see cmd/striker.go) - so a plain in-memory hub local to
+// one process could never be reached by a subscriber registered in the other. Redis is already
+// a shared dependency both processes connect to (see NewRedisCache), so publishing through it
+// instead makes delivery actually work regardless of which process does which job.
 type LiveMatchHub struct {
-	mu   sync.Mutex
-	subs map[string]map[chan LiveMatchMessage]bool
+	client *redis.Client
 }
 
 func NewLiveMatchHub() *LiveMatchHub {
-	return &LiveMatchHub{subs: make(map[string]map[chan LiveMatchMessage]bool)}
+	host := os.Getenv("REDIS_HOST")
+	port := os.Getenv("REDIS_PORT")
+	pwd := os.Getenv("REDIS_PASSWORD")
+	db, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+	client := redis.NewClient(&redis.Options{
+		Addr:     host + ":" + port,
+		Password: pwd,
+		DB:       db,
+	})
+	return &LiveMatchHub{client: client}
 }
 
 // LeagueMatchChannel and CupTieChannel are the two id namespaces a live channel key can come
@@ -44,45 +63,53 @@ func CupTieChannel(tieId int64) string        { return "cup:" + strconv.FormatIn
 // Subscribe registers a new listener for channel and returns its message channel plus an
 // unsubscribe function the caller must run (typically deferred) once it's done reading.
 func (h *LiveMatchHub) Subscribe(channel string) (chan LiveMatchMessage, func()) {
-	ch := make(chan LiveMatchMessage, liveMatchChannelBuffer)
+	pubsub := h.client.Subscribe(context.Background(), liveMatchKeyPrefix+channel)
+	out := make(chan LiveMatchMessage, liveMatchChannelBuffer)
 
-	h.mu.Lock()
-	if h.subs[channel] == nil {
-		h.subs[channel] = make(map[chan LiveMatchMessage]bool)
-	}
-	h.subs[channel][ch] = true
-	h.mu.Unlock()
+	go func() {
+		defer close(out)
+		for redisMsg := range pubsub.Channel() {
+			var msg LiveMatchMessage
+			if err := json.Unmarshal([]byte(redisMsg.Payload), &msg); err != nil {
+				log.Errorf("error decoding live match message on %s: %s", channel, err)
+				continue
+			}
+			select {
+			case out <- msg:
+			default:
+			}
+		}
+	}()
 
 	unsubscribe := func() {
-		h.mu.Lock()
-		delete(h.subs[channel], ch)
-		if len(h.subs[channel]) == 0 {
-			delete(h.subs, channel)
-		}
-		h.mu.Unlock()
+		_ = pubsub.Close()
 	}
-	return ch, unsubscribe
+	return out, unsubscribe
 }
 
-// HasSubscribers reports whether anyone is currently watching channel - used to skip the
-// broadcast pacing loop entirely when nobody is listening.
+// HasSubscribers reports whether anyone is currently watching channel, on any process connected
+// to this Redis instance. Not used to gate BroadcastMatchLive (see its comment for why a
+// snapshot-then-decide check like this one would race a subscriber arriving right after it),
+// but kept as a small, independently useful/testable piece of the hub's API.
 func (h *LiveMatchHub) HasSubscribers(channel string) bool {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	return len(h.subs[channel]) > 0
+	key := liveMatchKeyPrefix + channel
+	counts, err := h.client.PubSubNumSub(context.Background(), key).Result()
+	if err != nil {
+		log.Errorf("error checking live match subscribers for %s: %s", channel, err)
+		return false
+	}
+	return counts[key] > 0
 }
 
-// Publish sends msg to every current subscriber of channel. Sends are non-blocking and best
-// effort: a full channel (a stalled consumer) drops the message rather than stalling the
-// broadcast for everyone else - the client can always fall back to the REST match/cup tie
-// details endpoint for the final result.
+// Publish sends msg to every current subscriber of channel, on any process connected to this
+// Redis instance.
 func (h *LiveMatchHub) Publish(channel string, msg LiveMatchMessage) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	for ch := range h.subs[channel] {
-		select {
-		case ch <- msg:
-		default:
-		}
+	payload, err := json.Marshal(msg)
+	if err != nil {
+		log.Errorf("error encoding live match message for %s: %s", channel, err)
+		return
+	}
+	if err := h.client.Publish(context.Background(), liveMatchKeyPrefix+channel, payload).Err(); err != nil {
+		log.Errorf("error publishing live match message for %s: %s", channel, err)
 	}
 }

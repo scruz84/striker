@@ -13,18 +13,21 @@ const liveMatchMinuteDelay = 250 * time.Millisecond
 
 // BroadcastMatchLive replays a just-simulated match's events/instants, minute by minute, to
 // any WebSocket clients currently subscribed to channel (see common.LeagueMatchChannel /
-// common.CupTieChannel, common.LiveMatchHub, and handlers.LiveMatchHandler). It's a no-op, and
-// returns immediately, when nobody is watching - the common case, since most matches simulate
-// with no live viewer at all.
+// common.CupTieChannel, common.LiveMatchHub, and handlers.LiveMatchHandler).
+//
+// This always runs, even when nobody is watching (the common case) - Publish-ing to a Redis
+// channel with zero subscribers is a harmless no-op, and skipping the whole thing on an upfront
+// "does anyone have this channel open right now" check would race a viewer who opens the match
+// page a moment later: once that check said no, nothing would ever get published for this match
+// again, even though the check and the viewer's page load could easily land within the same
+// handful of milliseconds. A few hundred lightweight Redis publishes over ~22 seconds per match
+// is cheap enough at this app's scale (see maxConcurrentSimulations) that there's no real
+// efficiency case for that risk.
 //
 // This runs in its own goroutine so it never delays the caller (simulateMatch/simulateCupTie):
 // the match is already fully computed and persisted by this point, so pacing its broadcast out
 // over ~22 seconds is purely cosmetic for live viewers and must not hold up match processing.
 func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation) {
-	if !dbCtx.LiveHub.HasSubscribers(channel) {
-		return
-	}
-
 	instants := append([]common.MatchInstant(nil), *match.MatchInstants...)
 	eventsByMinute := make(map[int][]common.Event)
 	for _, event := range *match.Events {
