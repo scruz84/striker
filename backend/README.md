@@ -111,10 +111,21 @@ date (see `engine.ComputeFixtureDates`).
 
 ### Schema changes on an already-running database
 
-`resources/sql/*.sql` only auto-applies on a **fresh** Postgres data volume (that's how the
-official Postgres image's `docker-entrypoint-initdb.d` works). If you already have a running
-database and pull in a change that adds a new `resources/sql/init*.sql` file (e.g.
-`init2_league_tier.sql`, adding promotion/relegation), apply it manually once:
+`resources/sql/*.sql` auto-applies on a **fresh** Postgres data volume (that's how the official
+Postgres image's `docker-entrypoint-initdb.d` works), and `--initialize` (see `handlers.
+InitializeDatabase`/`common.EnsureSchema`) also applies every one of those files itself, in the
+same order, the first time it's pointed at a database with no schema yet - so seeding a brand
+new, genuinely empty database needs nothing beyond running `--initialize` (or the `init`
+profile below); this doesn't require Docker's own auto-init to have run first. Either way, this
+only ever happens **once**: these files aren't written to be safely re-run (the base `CREATE
+TABLE` statements in `init.sql` have no `IF NOT EXISTS`, and the name-pool dumps have no
+uniqueness constraint stopping a second run from duplicating every row), so both mechanisms only
+apply them when the schema doesn't already exist.
+
+If instead you already have a running, already-initialized database and pull in a change that
+adds a new `resources/sql/init*.sql` file (e.g. `init2_league_tier.sql`, adding
+promotion/relegation), apply just that new file manually once - `EnsureSchema` won't do this for
+you, since the schema already exists as far as it's concerned:
 
 ```bash
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init2_league_tier.sql

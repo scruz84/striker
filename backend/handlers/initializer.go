@@ -223,5 +223,8 @@ func InitializeDatabase() {
 	if err != nil {
 		log.Panicf("Error opening database: %s", err)
 	}
+	if err := common.EnsureSchema(dbCtx); err != nil {
+		log.Panicf("Error creating schema: %s", err)
+	}
 	InitializeGame(dbCtx)
 }
