@@ -172,5 +172,10 @@ duration, but the contract belongs to the parent club, not them.
 
 ```bash
 cp app.env.sample app.env   # fill in real values
-go run ./cmd --svc          # or --engine / --initialize
+go run ./cmd --svc          # or --engine / --initialize / --svc --engine
 ```
+
+`--svc` and `--engine` can be combined to run the API server and the match-simulation/season-
+rollover scheduler in one process - handy for local development so you don't need two terminals.
+Docker Compose still runs them as separate containers (see `docker-compose.yml`), which works
+exactly the same way.
