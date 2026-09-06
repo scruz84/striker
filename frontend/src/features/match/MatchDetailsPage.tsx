@@ -1,13 +1,14 @@
 import { useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
+import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -17,15 +18,14 @@ import {
   EVENT_TYPE_INJURY,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_YELLOW_CARD,
-  POSITION_LABEL_KEYS,
-  type Lineup,
   type MatchEvent,
-  type Player,
   type WeekMatch,
 } from '../../api/types'
 import { useLiveMatch } from '../../api/useLiveMatch'
+import { TeamBadge } from '../../components/TeamBadge'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
+import { MatchLineupPitch } from './MatchLineupPitch'
 
 export function MatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -49,6 +49,88 @@ export function MatchDetailsPage() {
   }
 
   return <PlayedMatch match={match} />
+}
+
+interface ScoreboardProps {
+  homeId: number
+  homeName: string
+  awayId: number
+  awayName: string
+  homeGoals: number
+  awayGoals: number
+  status: 'live' | 'connecting' | 'played'
+  minute?: number
+  subtitle?: string
+}
+
+function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, awayGoals, status, minute, subtitle }: ScoreboardProps) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+
+  return (
+    <Paper variant="outlined" sx={{ overflow: 'hidden', mb: 2 }}>
+      <Box
+        sx={{
+          height: 4,
+          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+        }}
+      />
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
+        <Stack direction="row" sx={{ justifyContent: 'center', mb: 1.5 }}>
+          {status === 'live' && (
+            <Chip
+              size="small"
+              color="error"
+              label={t('match.live')}
+              sx={{
+                fontWeight: 700,
+                animation: 'pulse 1.6s ease-in-out infinite',
+                '@keyframes pulse': {
+                  '0%, 100%': { opacity: 1 },
+                  '50%': { opacity: 0.55 },
+                },
+              }}
+            />
+          )}
+          {status === 'connecting' && <Chip size="small" label={t('match.connecting')} />}
+          {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}
+        </Stack>
+        <Grid container sx={{ alignItems: 'center' }}>
+          <Grid size={5}>
+            <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
+              <TeamBadge teamId={homeId} teamName={homeName} size={56} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {homeName}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid size={2}>
+            <Typography variant="h3" align="center" sx={{ fontWeight: 700 }}>
+              {homeGoals} - {awayGoals}
+            </Typography>
+            {typeof minute === 'number' && minute > 0 && (
+              <Typography variant="body2" align="center" color="text.secondary">
+                {minute}&apos;
+              </Typography>
+            )}
+          </Grid>
+          <Grid size={5}>
+            <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
+              <TeamBadge teamId={awayId} teamName={awayName} size={56} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {awayName}
+              </Typography>
+            </Stack>
+          </Grid>
+        </Grid>
+        {subtitle && (
+          <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mt: 1.5 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
+    </Paper>
+  )
 }
 
 function LiveMatch({
@@ -80,36 +162,18 @@ function LiveMatch({
 
   return (
     <Box>
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Chip
-          size="small"
-          color={live.connected ? 'error' : 'default'}
-          label={live.connected ? t('match.live') : t('match.connecting')}
-          sx={{ mb: 1 }}
-        />
-        <Grid container sx={{ mt: 1, alignItems: 'center' }}>
-          <Grid size={5}>
-            <Typography variant="h6">{homeName}</Typography>
-          </Grid>
-          <Grid size={2}>
-            <Typography variant="h6" align="center">
-              {live.homeGoals} - {live.awayGoals}
-            </Typography>
-          </Grid>
-          <Grid size={5}>
-            <Typography variant="h6" align="right">
-              {awayName}
-            </Typography>
-          </Grid>
-        </Grid>
-        {live.minute > 0 && (
-          <Typography variant="caption" color="text.secondary">
-            {live.minute}&apos;
-          </Typography>
-        )}
-      </Paper>
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Events events={live.events} />
+      <Scoreboard
+        homeId={homeId}
+        homeName={homeName}
+        awayId={awayId}
+        awayName={awayName}
+        homeGoals={live.homeGoals}
+        awayGoals={live.awayGoals}
+        status={live.connected ? 'live' : 'connecting'}
+        minute={live.minute}
+      />
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Events events={live.events} homeId={homeId} />
       </Paper>
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
@@ -123,34 +187,24 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 
   return (
     <Box>
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="caption" color="text.secondary">
-          {formatDateTime(match.matchDate)}
-        </Typography>
-        <Grid container sx={{ mt: 1, alignItems: 'center' }}>
-          <Grid size={5}>
-            <Typography variant="h6">{match.homeName}</Typography>
-          </Grid>
-          <Grid size={2}>
-            <Typography variant="h6" align="center">
-              {match.homeGoals} - {match.awayGoals}
-            </Typography>
-          </Grid>
-          <Grid size={5}>
-            <Typography variant="h6" align="right">
-              {match.awayName}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
+      <Scoreboard
+        homeId={match.home}
+        homeName={match.homeName}
+        awayId={match.away}
+        awayName={match.awayName}
+        homeGoals={match.homeGoals}
+        awayGoals={match.awayGoals}
+        status="played"
+        subtitle={formatDateTime(match.matchDate)}
+      />
 
-      <Paper sx={{ mb: 2 }}>
+      <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange}>
           <Tab label={t('match.tabs.events')} />
           <Tab label={t('match.tabs.lineups')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
-          {tab === 0 && <Events events={match.events ?? []} />}
+          {tab === 0 && <Events events={match.events ?? []} homeId={match.home} />}
           {tab === 1 && (
             <Lineups
               homeName={match.homeName}
@@ -170,7 +224,9 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 
 const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY]
 
-function Events({ events }: { events: WeekMatch['events'] }) {
+/** A vertical timeline with home-team events on the left, away-team events on the right, and
+ * a minute marker down the center - the layout real match-center timelines use. */
+function Events({ events, homeId }: { events: WeekMatch['events']; homeId: number }) {
   const { t } = useTranslation()
   const notable = (events ?? [])
     .filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType))
@@ -181,109 +237,119 @@ function Events({ events }: { events: WeekMatch['events'] }) {
   }
 
   return (
-    <Box>
-      {notable.map((event, idx) => (
-        <Grid container key={idx} spacing={1} sx={{ py: 0.5, alignItems: 'center' }}>
-          <Grid size={2}>
-            <EventMarker event={event} />
-          </Grid>
-          <Grid size={1}>
-            <Divider orientation="vertical" />
-          </Grid>
-          <Grid size={7}>
-            <Typography variant="body2">{(event.teamOwnerPlayerNames ?? []).join(', ')}</Typography>
-          </Grid>
-          <Grid size={2}>
-            <Typography variant="body2" align="right">
-              {event.minute}&apos;
-            </Typography>
-          </Grid>
-        </Grid>
-      ))}
+    <Box sx={{ position: 'relative' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          left: '50%',
+          top: 0,
+          bottom: 0,
+          width: '2px',
+          bgcolor: 'divider',
+          transform: 'translateX(-50%)',
+        }}
+      />
+      <Stack spacing={1.5}>
+        {notable.map((event, idx) => {
+          const isHome = event.teamOwner === homeId
+          return (
+            <Grid container key={idx} sx={{ alignItems: 'center' }}>
+              <Grid size={5.5} sx={{ textAlign: 'right' }}>
+                {isHome && <EventContent event={event} align="right" />}
+              </Grid>
+              <Grid size={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Chip size="small" label={`${event.minute}'`} sx={{ position: 'relative', zIndex: 1 }} />
+              </Grid>
+              <Grid size={5.5}>{!isHome && <EventContent event={event} align="left" />}</Grid>
+            </Grid>
+          )
+        })}
+      </Stack>
     </Box>
   )
 }
 
-function EventMarker({ event }: { event: MatchEvent }) {
+function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'right' }) {
   const { t } = useTranslation()
-  switch (event.eventType) {
-    case EVENT_TYPE_GOAL:
-      return (
-        <Typography variant="body2">
-          {event.homeGoals} - {event.awayGoals}
-        </Typography>
-      )
-    case EVENT_TYPE_YELLOW_CARD:
-      return (
-        <Typography variant="body2" component="span" aria-label={t('match.yellowCard')} title={t('match.yellowCard')}>
-          🟨
-        </Typography>
-      )
-    case EVENT_TYPE_RED_CARD:
-      return (
-        <Typography variant="body2" component="span" aria-label={t('match.redCard')} title={t('match.redCard')}>
-          🟥
-        </Typography>
-      )
-    case EVENT_TYPE_INJURY:
-      return (
-        <Typography variant="body2" component="span" aria-label={t('match.injury')} title={t('match.injury')}>
-          🚑
-        </Typography>
-      )
-    default:
-      return null
-  }
+  const names = (event.teamOwnerPlayerNames ?? []).join(', ')
+
+  const icon = (() => {
+    switch (event.eventType) {
+      case EVENT_TYPE_GOAL:
+        return '⚽'
+      case EVENT_TYPE_YELLOW_CARD:
+        return '🟨'
+      case EVENT_TYPE_RED_CARD:
+        return '🟥'
+      case EVENT_TYPE_INJURY:
+        return '🚑'
+      default:
+        return null
+    }
+  })()
+
+  const label = (() => {
+    switch (event.eventType) {
+      case EVENT_TYPE_YELLOW_CARD:
+        return t('match.yellowCard')
+      case EVENT_TYPE_RED_CARD:
+        return t('match.redCard')
+      case EVENT_TYPE_INJURY:
+        return t('match.injury')
+      default:
+        return undefined
+    }
+  })()
+
+  return (
+    <Stack
+      direction={align === 'right' ? 'row-reverse' : 'row'}
+      spacing={1}
+      sx={{ alignItems: 'center', justifyContent: align === 'right' ? 'flex-start' : 'flex-start' }}
+    >
+      <Typography component="span" aria-label={label} title={label} sx={{ fontSize: '1.1rem', lineHeight: 1 }}>
+        {icon}
+      </Typography>
+      <Box sx={{ textAlign: align }}>
+        {event.eventType === EVENT_TYPE_GOAL && (
+          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            {event.homeGoals} - {event.awayGoals}
+          </Typography>
+        )}
+        {names && (
+          <Typography variant="body2" color="text.secondary">
+            {names}
+          </Typography>
+        )}
+      </Box>
+    </Stack>
+  )
 }
 
 interface LineupsProps {
   homeName: string
   awayName: string
-  homeLineup: Lineup | null
-  awayLineup: Lineup | null
-  homePlayers: Record<string, Player> | null
-  awayPlayers: Record<string, Player> | null
+  homeLineup: WeekMatch['homeLineup']
+  awayLineup: WeekMatch['awayLineup']
+  homePlayers: WeekMatch['homePlayers']
+  awayPlayers: WeekMatch['awayPlayers']
 }
 
 function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers }: LineupsProps) {
   return (
     <Grid container spacing={2}>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
           {homeName}
         </Typography>
-        <TeamLineup lineup={homeLineup} players={homePlayers} />
+        <MatchLineupPitch lineup={homeLineup} players={homePlayers} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
           {awayName}
         </Typography>
-        <TeamLineup lineup={awayLineup} players={awayPlayers} />
+        <MatchLineupPitch lineup={awayLineup} players={awayPlayers} />
       </Grid>
     </Grid>
-  )
-}
-
-function TeamLineup({ lineup, players }: { lineup: Lineup | null; players: Record<string, Player> | null }) {
-  const { t } = useTranslation()
-  if (!lineup || !players || lineup.positions.length === 0) {
-    return <Typography color="text.secondary">{t('match.noLineupData')}</Typography>
-  }
-
-  const sorted = [...lineup.positions].sort((a, b) => a.position - b.position)
-
-  return (
-    <Box>
-      {sorted.map((pos) => {
-        const player = players[String(pos.playerId)]
-        const positionKey = POSITION_LABEL_KEYS[pos.position]
-        return (
-          <Typography variant="body2" key={pos.playerId}>
-            {positionKey ? t(positionKey) : pos.position}:{' '}
-            {player ? `${player.firstName} ${player.lastName}` : `#${pos.playerId}`}
-          </Typography>
-        )
-      })}
-    </Box>
   )
 }

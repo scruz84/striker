@@ -274,6 +274,7 @@
   "match": {
     "matchFinished": "Partido finalizado - cargando el resultado...",
     "live": "EN VIVO",
+    "fullTime": "FINAL DEL PARTIDO",
     "connecting": "Conectando...",
     "tabs": { "events": "Eventos", "lineups": "Alineaciones" },
     "noNotableEvents": "No hay eventos destacados en este partido.",

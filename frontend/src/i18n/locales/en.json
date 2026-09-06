@@ -274,6 +274,7 @@
   "match": {
     "matchFinished": "Match finished - loading the result...",
     "live": "LIVE",
+    "fullTime": "FULL TIME",
     "connecting": "Connecting...",
     "tabs": { "events": "Events", "lineups": "Lineups" },
     "noNotableEvents": "No notable events in this match.",
