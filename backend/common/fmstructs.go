@@ -135,6 +135,10 @@ type TeamTransaction struct {
 	Reason      int       `json:"reason"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
+	// PlayerId is nil for a team-level transaction (wages, ticket revenue, prize money,
+	// sponsorship, stadium upgrades, admin adjustments) - only set for one about a specific
+	// player (a transfer, a release). See GetPlayerTransactions.
+	PlayerId *int64 `json:"playerId,omitempty"`
 }
 
 // TransferListing is a player up for transfer, bought instantly at AskingPrice (no bidding).

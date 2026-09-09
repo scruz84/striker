@@ -43,6 +43,7 @@ const GetOfferOwnersStmtSql = "SELECT from_team_id, to_team_id FROM transfer_off
 const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
+
 // team_id is coalesced to 0 - a player can go from owned to a free agent (team_id NULL) while an
 // offer on them sits pending (contract expiry, an early release, or AssignTeam reassigning their
 // squad), and toTeamId is always a real (non-zero) team id, so the mismatch check below still
@@ -258,11 +259,11 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 
 	playerName := player.FirstName + " " + player.LastName
 	if _, err := tx.Exec(InsertTeamTransactionStmtSql, fromTeamId, -amount, TRANSACTION_TRANSFER_OUT,
-		"Bought "+playerName+" from "+sellerTeam.TeamName); err != nil {
+		"Bought "+playerName+" from "+sellerTeam.TeamName, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(InsertTeamTransactionStmtSql, toTeamId, amount, TRANSACTION_TRANSFER_IN,
-		"Sold "+playerName+" to "+buyerTeam.TeamName); err != nil {
+		"Sold "+playerName+" to "+buyerTeam.TeamName, playerId); err != nil {
 		return err
 	}
 

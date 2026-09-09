@@ -219,11 +219,11 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 
 	playerName := player.FirstName + " " + player.LastName
 	if _, err := tx.Exec(InsertTeamTransactionStmtSql, buyerTeamId, -askingPrice, TRANSACTION_TRANSFER_OUT,
-		"Bought "+playerName+" from "+sellerTeam.TeamName); err != nil {
+		"Bought "+playerName+" from "+sellerTeam.TeamName, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(InsertTeamTransactionStmtSql, sellingTeamId, askingPrice, TRANSACTION_TRANSFER_IN,
-		"Sold "+playerName+" to "+buyerTeam.TeamName); err != nil {
+		"Sold "+playerName+" to "+buyerTeam.TeamName, playerId); err != nil {
 		return err
 	}
 

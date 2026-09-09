@@ -466,6 +466,31 @@
       "pace": "Velocidad",
       "creative": "Creativo",
       "technical": "Técnico"
+    },
+    "viewProfile": "Ver perfil completo"
+  },
+  "playerPage": {
+    "freeAgent": "Agente libre",
+    "stats": {
+      "goals": "Goles",
+      "yellowCards": "Tarjetas amarillas",
+      "redCards": "Tarjetas rojas",
+      "contract": "Contrato",
+      "wage": "Salario"
+    },
+    "status": {
+      "injured_one": "Lesionado - baja para {{count}} partido más",
+      "injured_other": "Lesionado - baja para {{count}} partidos más",
+      "suspended_one": "Sancionado - baja para {{count}} partido más",
+      "suspended_other": "Sancionado - baja para {{count}} partidos más",
+      "onLoan": "Cedido por {{team}} - vuelve en la temporada {{season}}",
+      "listedForTransfer": "En venta - precio de venta {{price}}",
+      "listedForLoan_one": "Disponible en cesión - {{count}} temporada",
+      "listedForLoan_other": "Disponible en cesión - {{count}} temporadas"
+    },
+    "history": {
+      "title": "Historial de traspasos",
+      "none": "Aún no hay historial de traspasos."
     }
   }
 }

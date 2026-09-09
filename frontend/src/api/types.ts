@@ -282,6 +282,10 @@ export interface TeamTransaction {
   reason: number
   description: string
   createdAt: string
+  // Set only for a transaction about one specific player (a transfer, a release) - undefined
+  // for team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
+  // upgrades, admin adjustments).
+  playerId?: number
 }
 
 export interface Stadium {
@@ -353,6 +357,31 @@ export interface ScorerStanding {
   teamId: number
   teamName: string
   goals: number
+}
+
+// UnavailableReason values from backend/common/fmconstants.go.
+export const UNAVAILABLE_SUSPENSION = 0
+export const UNAVAILABLE_INJURY = 1
+
+// PlayerDetails is the full profile shown on a player's page - see
+// backend/common/playerdetails.go's PlayerDetails and handlers.PlayerDetailsHandler.
+export interface PlayerDetails extends Player {
+  teamName: string
+  divisionId: number
+  divisionName: string
+  country: string
+  bestPosition: number
+  goals: number
+  yellowCards: number
+  redCards: number
+  unavailableReason?: number
+  unavailableMatchesRemaining?: number
+  onLoanFromTeamId?: number
+  onLoanFromTeamName?: string
+  onLoanReturnSeason?: number
+  transferListingAskingPrice?: number
+  loanListingDurationSeasons?: number
+  history: TeamTransaction[]
 }
 
 export interface HeadToHeadMeeting {

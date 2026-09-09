@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import InputLabel from '@mui/material/InputLabel'
+import Link from '@mui/material/Link'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
@@ -21,6 +22,7 @@ import TableSortLabel from '@mui/material/TableSortLabel'
 import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcceptLoan,
@@ -397,7 +399,9 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
           {listings.map((listing) => (
             <TableRow key={listing.listingId}>
               <TableCell>
-                {listing.player.firstName} {listing.player.lastName}
+                <Link component={RouterLink} to={`/player/${listing.player.id}`} underline="hover" color="inherit">
+                  {listing.player.firstName} {listing.player.lastName}
+                </Link>
               </TableCell>
               <TableCell>{listing.sellingTeamName}</TableCell>
               <TableCell align="right">{listing.player.age}</TableCell>
@@ -728,7 +732,9 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
           {listings.map((listing) => (
             <TableRow key={listing.listingId}>
               <TableCell>
-                {listing.player.firstName} {listing.player.lastName}
+                <Link component={RouterLink} to={`/player/${listing.player.id}`} underline="hover" color="inherit">
+                  {listing.player.firstName} {listing.player.lastName}
+                </Link>
               </TableCell>
               <TableCell>{listing.lendingTeamName}</TableCell>
               <TableCell align="right">{listing.player.age}</TableCell>
@@ -853,7 +859,9 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
           {offers.map((offer) => (
             <TableRow key={offer.offerId}>
               <TableCell>
-                {offer.player.firstName} {offer.player.lastName}
+                <Link component={RouterLink} to={`/player/${offer.player.id}`} underline="hover" color="inherit">
+                  {offer.player.firstName} {offer.player.lastName}
+                </Link>
               </TableCell>
               <TableCell>{teamColumn === 'from' ? offer.fromTeamName : offer.toTeamName}</TableCell>
               <TableCell>{formatDateTime(offer.createdAt)}</TableCell>
@@ -995,7 +1003,9 @@ function FreeAgentsTab() {
                     {filteredFreeAgents.map((player) => (
                       <TableRow key={player.id}>
                         <TableCell>
-                          {player.firstName} {player.lastName}
+                          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
+                            {player.firstName} {player.lastName}
+                          </Link>
                         </TableCell>
                         <TableCell align="right">{player.age}</TableCell>
                         <TableCell align="right">{formatCurrency(player.wage)}</TableCell>

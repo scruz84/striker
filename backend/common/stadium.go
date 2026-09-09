@@ -90,7 +90,7 @@ func UpgradeStadium(dbCtx *DatabaseContext, teamId int64) (int, error) {
 		return 0, err
 	}
 	description := fmt.Sprintf("Stadium expanded to %d seats", newCapacity)
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -cost, TRANSACTION_STADIUM_UPGRADE, description); err != nil {
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -cost, TRANSACTION_STADIUM_UPGRADE, description, nil); err != nil {
 		return 0, err
 	}
 

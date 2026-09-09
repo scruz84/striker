@@ -466,6 +466,31 @@
       "pace": "Pace",
       "creative": "Creative",
       "technical": "Technical"
+    },
+    "viewProfile": "View full profile"
+  },
+  "playerPage": {
+    "freeAgent": "Free agent",
+    "stats": {
+      "goals": "Goals",
+      "yellowCards": "Yellow cards",
+      "redCards": "Red cards",
+      "contract": "Contract",
+      "wage": "Wage"
+    },
+    "status": {
+      "injured_one": "Injured - out for {{count}} more match",
+      "injured_other": "Injured - out for {{count}} more matches",
+      "suspended_one": "Suspended - out for {{count}} more match",
+      "suspended_other": "Suspended - out for {{count}} more matches",
+      "onLoan": "On loan from {{team}} - returns for season {{season}}",
+      "listedForTransfer": "Listed for transfer - asking price {{price}}",
+      "listedForLoan_one": "Listed for loan - {{count}} season",
+      "listedForLoan_other": "Listed for loan - {{count}} seasons"
+    },
+    "history": {
+      "title": "Transfer history",
+      "none": "No transfer history yet."
     }
   }
 }

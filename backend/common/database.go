@@ -145,8 +145,12 @@ const DeleteExpiredUnavailabilityStmtSql = "DELETE FROM player_unavailability WH
 
 const GetTeamBudgetStmtSql = "SELECT budget FROM teams WHERE team_id = $1"
 const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE team_id = $2"
-const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description) VALUES ($1, $2, $3, $4)"
-const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at " +
+
+// player_id is nullable - only a transaction about one specific player (a transfer, a release)
+// sets it; team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
+// upgrades, admin adjustments) pass nil. See GetPlayerTransactions.
+const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) VALUES ($1, $2, $3, $4, $5)"
+const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at, player_id " +
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
 const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1"
 
@@ -785,7 +789,7 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		if otherTeamPlayers != "" {
 			players := make([]int64, 0)
 			_ = json.Unmarshal([]byte(otherTeamPlayers), &players)
-			event.TeamOwnerPlayers = players
+			event.OtherTeamPlayers = players
 		}
 		if otherTeamPlayerNames != "" {
 			players := make([]string, 0)
@@ -1068,7 +1072,7 @@ func AdjustTeamBudget(dbCtx *DatabaseContext, teamId int64, amount int64, reason
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, amount, teamId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, amount, reason, description); err != nil {
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, amount, reason, description, nil); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -1085,10 +1089,14 @@ func GetTeamTransactions(dbCtx *DatabaseContext, teamId int64, limit int) ([]Tea
 	for rows.Next() {
 		var t TeamTransaction
 		var description sql.NullString
-		if err := rows.Scan(&t.Id, &t.TeamId, &t.Amount, &t.Reason, &description, &t.CreatedAt); err != nil {
+		var playerId sql.NullInt64
+		if err := rows.Scan(&t.Id, &t.TeamId, &t.Amount, &t.Reason, &description, &t.CreatedAt, &playerId); err != nil {
 			return nil, err
 		}
 		t.Description = description.String
+		if playerId.Valid {
+			t.PlayerId = &playerId.Int64
+		}
 		transactions = append(transactions, t)
 	}
 	return transactions, nil

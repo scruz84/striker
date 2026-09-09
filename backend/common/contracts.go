@@ -226,7 +226,7 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 		return err
 	}
 	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -severance, TRANSACTION_CONTRACT_RELEASE,
-		"Released "+player.FirstName+" "+player.LastName); err != nil {
+		"Released "+player.FirstName+" "+player.LastName, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {

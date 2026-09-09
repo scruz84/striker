@@ -20,6 +20,7 @@ import type {
   NotificationPreferences,
   NotificationsResponse,
   Player,
+  PlayerDetails,
   ScorerStanding,
   SeasonHistoryEntry,
   TeamDetails,
@@ -34,6 +35,7 @@ export const queryKeys = {
   userTeam: ['userTeam'] as const,
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
+  player: (id: string) => ['player', id] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
@@ -151,6 +153,14 @@ export function useTeamHistory(teamId: string | undefined) {
     queryKey: queryKeys.teamHistory(teamId ?? ''),
     queryFn: () => api.get<SeasonHistoryEntry[]>(`/v1/teams/team/${teamId}/history`),
     enabled: !!teamId,
+  })
+}
+
+export function usePlayerDetails(playerId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.player(playerId ?? ''),
+    queryFn: () => api.get<PlayerDetails>(`/v1/teams/player/${playerId}/`),
+    enabled: !!playerId,
   })
 }
 

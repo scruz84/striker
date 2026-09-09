@@ -1,9 +1,11 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import Link from '@mui/material/Link'
 import Popover from '@mui/material/Popover'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { Player } from '../api/types'
 import { overallRating, SKILL_FIELDS } from '../utils/playerRating'
@@ -87,6 +89,9 @@ export function PlayerStatsPopover({
           value={player[field]}
         />
       ))}
+      <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" variant="body2" sx={{ display: 'block', mt: 1.5 }}>
+        {t('playerCard.viewProfile')}
+      </Link>
     </Popover>
   )
 }

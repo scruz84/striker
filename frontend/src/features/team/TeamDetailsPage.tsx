@@ -182,9 +182,9 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
       <TableCell>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <CartoonAvatar seed={player.id} size={32} />
-          <span>
+          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
             {player.firstName} {player.lastName}
-          </span>
+          </Link>
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>

@@ -1,7 +1,8 @@
-import { useEffect, useState, type SyntheticEvent } from 'react'
+import { Fragment, useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
@@ -10,7 +11,7 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useMatchDetails } from '../../api/hooks'
 import {
@@ -271,7 +272,8 @@ function Events({ events, homeId }: { events: WeekMatch['events']; homeId: numbe
 
 function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'right' }) {
   const { t } = useTranslation()
-  const names = (event.teamOwnerPlayerNames ?? []).join(', ')
+  const playerIds = event.teamOwnerPlayers ?? []
+  const playerNames = event.teamOwnerPlayerNames ?? []
 
   const icon = (() => {
     switch (event.eventType) {
@@ -316,9 +318,23 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
             {event.homeGoals} - {event.awayGoals}
           </Typography>
         )}
-        {names && (
+        {playerNames.length > 0 && (
           <Typography variant="body2" color="text.secondary">
-            {names}
+            {playerNames.map((name, i) =>
+              playerIds[i] !== undefined ? (
+                <Fragment key={playerIds[i]}>
+                  {i > 0 && ', '}
+                  <Link component={RouterLink} to={`/player/${playerIds[i]}`} underline="hover" color="inherit">
+                    {name}
+                  </Link>
+                </Fragment>
+              ) : (
+                <Fragment key={name}>
+                  {i > 0 && ', '}
+                  {name}
+                </Fragment>
+              ),
+            )}
           </Typography>
         )}
       </Box>

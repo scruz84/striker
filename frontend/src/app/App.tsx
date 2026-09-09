@@ -15,6 +15,7 @@ import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
+import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
 import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
 import { Layout } from './Layout'
@@ -44,6 +45,7 @@ function App() {
                     <Route path="/division/:id" element={<DivisionDetailsPage />} />
                     <Route path="/match/:id" element={<MatchDetailsPage />} />
                     <Route path="/team/:id" element={<TeamDetailsPage />} />
+                    <Route path="/player/:id" element={<PlayerDetailsPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="*" element={<HomePage />} />
                   </Route>

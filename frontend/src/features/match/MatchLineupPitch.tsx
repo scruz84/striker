@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { Lineup, Player } from '../../api/types'
 import { FORMATION_POSITION_COUNTS, FORMATION_BALANCED, POSITION_LABEL_KEYS } from '../../api/types'
@@ -82,7 +83,18 @@ function MatchPitchChip({ player, shirtNumber }: { player: Player; shirtNumber: 
   const label = `${player.firstName} ${player.lastName} (${player.age})`
   return (
     <Tooltip title={label}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 68 }}>
+      <Box
+        component={RouterLink}
+        to={`/player/${player.id}`}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: 68,
+          textDecoration: 'none',
+          color: 'inherit',
+        }}
+      >
         <Box sx={{ position: 'relative', lineHeight: 0 }}>
           <CartoonAvatar seed={player.id} size={40} />
           <Box
