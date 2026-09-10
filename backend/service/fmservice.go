@@ -47,6 +47,11 @@ func StartSvc() {
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {
 		log.Errorf("error topping up trainer market at startup: %s", err)
 	}
+	// Assigns an AI level to any unowned team that existed before the AI-teams feature shipped -
+	// see common.BackfillAiLevels.
+	if err := common.BackfillAiLevels(dbCtx); err != nil {
+		log.Errorf("error backfilling AI levels at startup: %s", err)
+	}
 
 	router := gin.Default()
 	initRouter(router, dbCtx)
@@ -182,6 +187,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.POST("/simulate", handlers.AdminSimulateNowHandler(dbCtx))
 	v1AdminGroup.POST("/advance-season", handlers.AdminAdvanceSeasonHandler(dbCtx))
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
+	v1AdminGroup.PUT("/teams/:"+handlers.ID+"/ai-level", handlers.AdminSetTeamAiLevelHandler(dbCtx))
 	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 	v1AdminGroup.PUT("/match-schedule", handlers.AdminSetMatchScheduleHandler(dbCtx))
 	v1AdminGroup.PUT("/users/:"+handlers.ID+"/admin", handlers.AdminSetUserAdminHandler(dbCtx))

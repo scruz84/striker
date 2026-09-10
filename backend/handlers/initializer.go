@@ -252,13 +252,16 @@ func createTeamsForTier(dbCtx *common.DatabaseContext, country string, leagueIds
 func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, tier int) {
 	teamId := int64(-1)
 	insertStmt, errInsert := dbCtx.Db.Prepare(
-		"INSERT INTO teams (country, league_id, name, stadium_capacity) values ($1, $2, $3, $4) returning team_id")
+		"INSERT INTO teams (country, league_id, name, stadium_capacity, ai_level) values ($1, $2, $3, $4, $5) returning team_id")
 	teamName := common.RandomTeamName(country)
 	if errInsert != nil {
 		log.Printf("error inserting new teams %s", errInsert)
 	}
 	capacity := common.RandomStadiumCapacity(tier, rand.New(rand.NewSource(time.Now().UnixNano())))
-	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &capacity).Scan(&teamId)
+	// Every team starts unowned (see common.AssignTeam for how a human later claims one), so it
+	// gets an AI level right away - see common.RandomAiLevel.
+	aiLevel := common.RandomAiLevel(tier)
+	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &capacity, &aiLevel).Scan(&teamId)
 	common.CreatePlayers(dbCtx, teamId, country)
 	if err := common.GenerateTrainerCandidates(dbCtx, country, common.TrainerCandidatesPerTeam); err != nil {
 		log.Errorf("error generating trainer candidates for team %d: %s", teamId, err)

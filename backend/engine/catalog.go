@@ -16,6 +16,15 @@ const PlayerNameKey = "playerName_key_"
 const TeamDetailsKey = "teamDet_key_"
 const TeamOwnerKey = "teamOwner_key_"
 
+// InvalidateTeamDetailsCache drops both the owner and non-owner cached views of a team (see
+// GetTeamDetails) so a direct DB write - e.g. an admin override - is reflected on the next read
+// instead of waiting out the cache's TTL.
+func InvalidateTeamDetailsCache(dbCtx *common.DatabaseContext, teamId int64) {
+	idStr := strconv.FormatInt(teamId, 10)
+	dbCtx.ObjectCache.DeleteValue(FullTeamDetailsKey + idStr)
+	dbCtx.ObjectCache.DeleteValue(TeamDetailsKey + idStr)
+}
+
 func GetCurrentSeason(dbCtx *common.DatabaseContext) (int, error) {
 	key := CurrentSeasonKey
 	v, _ := dbCtx.ObjectCache.GetValue(key)

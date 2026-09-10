@@ -96,6 +96,9 @@ type Team struct {
 	// NameChanged is only populated by GetTeamByOwner (the one place the rename UI reads it
 	// from) - other lookups leave it at the zero value, since nothing else consumes it.
 	NameChanged bool `json:"nameChanged"`
+	// AiLevel is only populated by GetTeamById - 0 for an owned team (meaningless there), or
+	// 1-3 for an unowned one (see AiLevelCaretaker/AiLevelManager/AiLevelDirector).
+	AiLevel int `json:"aiLevel,omitempty"`
 }
 
 type Player struct {

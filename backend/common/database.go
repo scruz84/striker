@@ -36,7 +36,7 @@ const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
-const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name " +
+const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level " +
 	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) LEFT JOIN users c " +
 	" ON (a.owner_id = c.user_id ) " +
 	"WHERE a.team_id = $1"
@@ -527,7 +527,8 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var leagueId int64
 	var leagueName string
 	var name string
-	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name)
+	var aiLevel int
+	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name, &aiLevel)
 	if err != nil {
 		return nil, err
 	}
@@ -539,6 +540,7 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 		TeamName:     name,
 		DivisionId:   leagueId,
 		DivisionName: leagueName,
+		AiLevel:      aiLevel,
 	}, nil
 }
 

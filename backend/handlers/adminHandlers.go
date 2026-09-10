@@ -130,6 +130,38 @@ func AdminAdjustBudgetHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type setTeamAiLevelRequest struct {
+	AiLevel int `json:"aiLevel" binding:"required,min=1,max=3"`
+}
+
+// AdminSetTeamAiLevelHandler hand-tunes one CPU team's AI difficulty (see
+// common.AiLevelCaretaker/Manager/Director) - has no effect once a team has a real owner, since
+// every AI action is gated on owner_id being unset regardless of this value.
+func AdminSetTeamAiLevelHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		teamId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid team id"))
+			return
+		}
+
+		var req setTeamAiLevelRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "aiLevel is required and must be 1-3"))
+			return
+		}
+
+		if err := common.SetTeamAiLevel(dbCtx, teamId, req.AiLevel); err != nil {
+			log.Errorf("error setting AI level for team %d: %s", teamId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		engine.InvalidateTeamDetailsCache(dbCtx, teamId)
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "AI level updated"})
+	}
+}
+
 type setTransferWindowRequest struct {
 	Open bool `json:"open"`
 }
