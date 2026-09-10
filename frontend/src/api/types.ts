@@ -57,7 +57,14 @@ export interface Team {
   // Only meaningfully populated on the caller's own team (GET /v1/user/team) - see
   // useRenameTeam. Elsewhere it's just the zero value, false.
   nameChanged: boolean
+  // Only populated by GET /v1/teams/team/:id/ - 0/undefined for an owned team (meaningless
+  // there), or 1-3 for an unowned one. See AI_LEVEL_* constants.
+  aiLevel?: number
 }
+
+export const AI_LEVEL_CARETAKER = 1
+export const AI_LEVEL_MANAGER = 2
+export const AI_LEVEL_DIRECTOR = 3
 
 export interface TeamDetails {
   team: Team

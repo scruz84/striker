@@ -307,6 +307,12 @@
     "releasePlayer": "Release",
     "confirmRelease": "Release {{name}}? They'll leave your squad immediately and can't be brought back.",
     "releaseError": "Could not release that player - check your budget.",
+    "aiLevel": {
+      "caretaker": "AI: Caretaker",
+      "manager": "AI: Manager",
+      "director": "AI: Director",
+      "unknown": "AI-managed"
+    },
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
     "table": { "season": "Season", "league": "League", "finalPosition": "Final position", "outcome": "Outcome" },
@@ -394,6 +400,19 @@
       "apply": "Apply",
       "success": "Budget adjusted.",
       "error": "Failed to adjust budget."
+    },
+    "setAiLevel": {
+      "title": "Set team AI level",
+      "description": "Only affects unowned teams - has no effect once a team has a real owner.",
+      "teamId": "Team id",
+      "level": "AI level",
+      "caretaker": "1 - Caretaker",
+      "manager": "2 - Manager",
+      "director": "3 - Director",
+      "confirm": "Set team {{teamId}}'s AI level to {{level}}?",
+      "apply": "Apply",
+      "success": "AI level updated.",
+      "error": "Failed to update AI level."
     },
     "matchSchedule": {
       "title": "Match schedule",

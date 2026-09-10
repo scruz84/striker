@@ -307,6 +307,12 @@
     "releasePlayer": "Rescindir",
     "confirmRelease": "¿Rescindir el contrato de {{name}}? Saldrá de tu plantilla de inmediato y no podrá volver.",
     "releaseError": "No se pudo rescindir el contrato - revisa tu presupuesto.",
+    "aiLevel": {
+      "caretaker": "IA: Cuidador",
+      "manager": "IA: Gerente",
+      "director": "IA: Director",
+      "unknown": "Gestionado por IA"
+    },
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
     "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },
@@ -394,6 +400,19 @@
       "apply": "Aplicar",
       "success": "Presupuesto ajustado.",
       "error": "No se pudo ajustar el presupuesto."
+    },
+    "setAiLevel": {
+      "title": "Establecer nivel de IA del equipo",
+      "description": "Solo afecta a equipos sin dueño - no tiene efecto una vez que un equipo tiene un dueño real.",
+      "teamId": "Id de equipo",
+      "level": "Nivel de IA",
+      "caretaker": "1 - Cuidador",
+      "manager": "2 - Gerente",
+      "director": "3 - Director",
+      "confirm": "¿Establecer el nivel de IA del equipo {{teamId}} en {{level}}?",
+      "apply": "Aplicar",
+      "success": "Nivel de IA actualizado.",
+      "error": "No se pudo actualizar el nivel de IA."
     },
     "matchSchedule": {
       "title": "Calendario de partidos",

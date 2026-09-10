@@ -36,6 +36,7 @@ import {
   useAdminLeagues,
   useAdminOverview,
   useAdminRecreateLeagues,
+  useAdminSetAiLevel,
   useAdminSimulateNow,
   useAdminUsers,
   useAdminWorldConfig,
@@ -47,7 +48,16 @@ import {
   useSetUserAdmin,
   useSetWorldConfig,
 } from '../../api/hooks'
-import { ALL_WEEKDAYS_MASK, WEEKDAY_OPTIONS, type AdminLeagueInfo, type CountryStatus, type TierConfig } from '../../api/types'
+import {
+  AI_LEVEL_CARETAKER,
+  AI_LEVEL_DIRECTOR,
+  AI_LEVEL_MANAGER,
+  ALL_WEEKDAYS_MASK,
+  WEEKDAY_OPTIONS,
+  type AdminLeagueInfo,
+  type CountryStatus,
+  type TierConfig,
+} from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 
@@ -271,9 +281,81 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
           {adjustBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.adjustBudget.error')}</Alert>}
         </Box>
 
+        <SetAiLevelForm />
+
         <MatchScheduleForm overview={overview} />
       </Stack>
     </Paper>
+  )
+}
+
+const AI_LEVEL_OPTIONS = [
+  { value: AI_LEVEL_CARETAKER, labelKey: 'admin.setAiLevel.caretaker' },
+  { value: AI_LEVEL_MANAGER, labelKey: 'admin.setAiLevel.manager' },
+  { value: AI_LEVEL_DIRECTOR, labelKey: 'admin.setAiLevel.director' },
+]
+
+function SetAiLevelForm() {
+  const { t } = useTranslation()
+  const confirm = useConfirm()
+  const setAiLevel = useAdminSetAiLevel()
+  const [teamId, setTeamId] = useState('')
+  const [aiLevel, setAiLevelValue] = useState<number>(AI_LEVEL_CARETAKER)
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    const teamIdNum = Number(teamId)
+    if (!teamIdNum) {
+      return
+    }
+    const ok = await confirm({
+      message: t('admin.setAiLevel.confirm', { teamId: teamIdNum, level: aiLevel }),
+      confirmLabel: t('admin.setAiLevel.apply'),
+    })
+    if (!ok) {
+      return
+    }
+    setAiLevel.mutate({ teamId: teamIdNum, aiLevel })
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.setAiLevel.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.setAiLevel.description')}
+      </Typography>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <TextField
+          label={t('admin.setAiLevel.teamId')}
+          size="small"
+          value={teamId}
+          onChange={(e) => setTeamId(e.target.value)}
+          sx={{ width: 100 }}
+        />
+        <FormControl size="small" sx={{ width: 160 }}>
+          <InputLabel id="ai-level-select-label">{t('admin.setAiLevel.level')}</InputLabel>
+          <Select
+            labelId="ai-level-select-label"
+            label={t('admin.setAiLevel.level')}
+            value={aiLevel}
+            onChange={(e) => setAiLevelValue(Number(e.target.value))}
+          >
+            {AI_LEVEL_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {t(option.labelKey)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button type="submit" variant="contained" disabled={setAiLevel.isPending}>
+          {t('admin.setAiLevel.apply')}
+        </Button>
+      </Stack>
+      {setAiLevel.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.setAiLevel.success')}</Alert>}
+      {setAiLevel.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.setAiLevel.error')}</Alert>}
+    </Box>
   )
 }
 

@@ -617,6 +617,13 @@ export function useAdminAdjustBudget() {
   })
 }
 
+export function useAdminSetAiLevel() {
+  return useMutation({
+    mutationFn: ({ teamId, aiLevel }: { teamId: number; aiLevel: number }) =>
+      api.put(`/v1/admin/teams/${teamId}/ai-level`, { aiLevel }),
+  })
+}
+
 export function useTransferWindowStatus(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.transferWindow,
