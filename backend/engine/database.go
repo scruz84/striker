@@ -66,7 +66,9 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 
 // UpdateTeamFinancesAfterMatch charges both teams their current wage bill for having played
 // this match - the closest thing this game has to a "week" of wages, since matches are what
-// actually advance game time.
+// actually advance game time. It's also the once-per-match hook point for any unowned team's AI
+// upkeep (see RunAITeamManagement) - matches are the natural cadence for that too, and reusing
+// this call site avoids a separate scheduler job.
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	deductWages(dbCtx, match.Home)
 	deductWages(dbCtx, match.Away)
@@ -75,6 +77,8 @@ func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 	creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Away)
+	RunAITeamManagement(dbCtx, match.Home)
+	RunAITeamManagement(dbCtx, match.Away)
 }
 
 // NotifyMatchResult tells both teams' owners how their league match went.
