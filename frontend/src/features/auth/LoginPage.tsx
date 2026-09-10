@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Divider from '@mui/material/Divider'
+import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
@@ -95,7 +96,9 @@ export function LoginPage() {
             </>
           )}
           <Typography variant="body2">
-            <RouterLink to="/">{t('login.backToHome')}</RouterLink>
+            <Link component={RouterLink} to="/" underline="hover">
+              {t('login.backToHome')}
+            </Link>
           </Typography>
         </Stack>
       </Paper>

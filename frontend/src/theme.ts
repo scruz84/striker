@@ -1,24 +1,178 @@
+import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities'
 import { createTheme } from '@mui/material/styles'
-import { green } from '@mui/material/colors'
+import type { PaletteColorOptions, Theme } from '@mui/material/styles'
+import type { Scheme } from '@material/material-color-utilities'
+
+// Material 3's color system starts from one seed color and derives every role (primary,
+// secondary, tertiary, error, surface, outline, and their "container"/"on" pairs) from its hue -
+// see https://m3.material.io/styles/color/system/how-the-system-works. The seed below is the
+// app's existing brand green, so this is a restyle of the established identity onto real M3
+// tonal-palette tokens, not a rebrand.
+const SEED_COLOR = '#4CAF50'
+const m3 = themeFromSourceColor(argbFromHex(SEED_COLOR))
+
+function hex(argb: number): string {
+  return hexFromArgb(argb)
+}
+
+// Blends `amount` of `tint` into `base` - used to approximate M3's tonal elevation (elevated
+// surfaces take on a whisper of the primary color instead of relying on shadow alone).
+function mixHex(base: string, tint: string, amount: number): string {
+  const b = parseInt(base.slice(1), 16)
+  const t = parseInt(tint.slice(1), 16)
+  const br = (b >> 16) & 0xff
+  const bg = (b >> 8) & 0xff
+  const bb = b & 0xff
+  const tr = (t >> 16) & 0xff
+  const tg = (t >> 8) & 0xff
+  const tb = t & 0xff
+  const mix = (from: number, to: number) => Math.round(from + (to - from) * amount)
+  return `#${[mix(br, tr), mix(bg, tg), mix(bb, tb)].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+}
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    tertiary: Palette['primary']
+    primaryContainer: string
+    onPrimaryContainer: string
+    secondaryContainer: string
+    onSecondaryContainer: string
+    tertiaryContainer: string
+    onTertiaryContainer: string
+    surfaceVariant: string
+    onSurfaceVariant: string
+    outline: string
+    outlineVariant: string
+    inverseSurface: string
+    inverseOnSurface: string
+    inversePrimary: string
+  }
+  interface PaletteOptions {
+    tertiary?: PaletteColorOptions
+    primaryContainer?: string
+    onPrimaryContainer?: string
+    secondaryContainer?: string
+    onSecondaryContainer?: string
+    tertiaryContainer?: string
+    onTertiaryContainer?: string
+    surfaceVariant?: string
+    onSurfaceVariant?: string
+    outline?: string
+    outlineVariant?: string
+    inverseSurface?: string
+    inverseOnSurface?: string
+    inversePrimary?: string
+  }
+}
+
+function buildPalette(scheme: Scheme, mode: 'light' | 'dark') {
+  return {
+    mode,
+    primary: { main: hex(scheme.primary), contrastText: hex(scheme.onPrimary) },
+    secondary: { main: hex(scheme.secondary), contrastText: hex(scheme.onSecondary) },
+    tertiary: { main: hex(scheme.tertiary), contrastText: hex(scheme.onTertiary) },
+    error: { main: hex(scheme.error), contrastText: hex(scheme.onError) },
+    background: { default: hex(scheme.background), paper: hex(scheme.surface) },
+    text: { primary: hex(scheme.onBackground), secondary: hex(scheme.onSurfaceVariant) },
+    divider: hex(scheme.outlineVariant),
+    primaryContainer: hex(scheme.primaryContainer),
+    onPrimaryContainer: hex(scheme.onPrimaryContainer),
+    secondaryContainer: hex(scheme.secondaryContainer),
+    onSecondaryContainer: hex(scheme.onSecondaryContainer),
+    tertiaryContainer: hex(scheme.tertiaryContainer),
+    onTertiaryContainer: hex(scheme.onTertiaryContainer),
+    surfaceVariant: hex(scheme.surfaceVariant),
+    onSurfaceVariant: hex(scheme.onSurfaceVariant),
+    outline: hex(scheme.outline),
+    outlineVariant: hex(scheme.outlineVariant),
+    inverseSurface: hex(scheme.inverseSurface),
+    inverseOnSurface: hex(scheme.inverseOnSurface),
+    inversePrimary: hex(scheme.inversePrimary),
+  }
+}
+
+// The M3 type scale (Display/Headline/Title/Body/Label, each Large/Medium/Small) mapped onto
+// MUI's variant names - see https://m3.material.io/styles/typography/type-scale-tokens. Sizes,
+// line heights and tracking are M3's spec values; textTransform: 'none' on button/tab labels
+// replaces MUI's default all-caps with M3's sentence case.
+const typography = {
+  fontFamily: '"Roboto", "Helvetica Neue", Arial, sans-serif',
+  h1: { fontSize: '3.5625rem', lineHeight: '4rem', fontWeight: 400, letterSpacing: '-0.015625rem' },
+  h2: { fontSize: '2.8125rem', lineHeight: '3.25rem', fontWeight: 400 },
+  h3: { fontSize: '2.25rem', lineHeight: '2.75rem', fontWeight: 400 },
+  h4: { fontSize: '1.75rem', lineHeight: '2.25rem', fontWeight: 400 },
+  h5: { fontSize: '1.5rem', lineHeight: '2rem', fontWeight: 400 },
+  h6: { fontSize: '1.375rem', lineHeight: '1.75rem', fontWeight: 400 },
+  subtitle1: { fontSize: '1rem', lineHeight: '1.5rem', fontWeight: 500, letterSpacing: '0.009375rem' },
+  subtitle2: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, letterSpacing: '0.00625rem' },
+  body1: { fontSize: '1rem', lineHeight: '1.5rem', fontWeight: 400, letterSpacing: '0.03125rem' },
+  body2: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 400, letterSpacing: '0.015625rem' },
+  button: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, letterSpacing: '0.00625rem', textTransform: 'none' as const },
+  caption: { fontSize: '0.75rem', lineHeight: '1rem', fontWeight: 400, letterSpacing: '0.025rem' },
+  overline: { fontSize: '0.6875rem', lineHeight: '1rem', fontWeight: 500, letterSpacing: '0.03125rem' },
+}
+
+// M3's shape scale, applied per-component below: pill-shaped buttons/chips ("full"), medium
+// (12dp) cards and menus, extra-large (28dp) dialogs - see
+// https://m3.material.io/styles/shape/shape-scale-tokens.
+function buildComponents(mode: 'light' | 'dark') {
+  const tintAmount = mode === 'light' ? 0.05 : 0.1
+  return {
+    MuiCssBaseline: { styleOverrides: {} },
+    MuiButton: {
+      defaultProps: { disableElevation: true },
+      styleOverrides: {
+        root: { borderRadius: 9999, paddingLeft: 24, paddingRight: 24 },
+        sizeSmall: { paddingLeft: 16, paddingRight: 16 },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: { borderRadius: 9999 },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: { backgroundImage: 'none' },
+        rounded: { borderRadius: 12 },
+        outlined: ({ theme }: { theme: Theme }) => ({
+          borderColor: theme.palette.outlineVariant,
+          boxShadow: 'none',
+        }),
+        elevation1: ({ theme }: { theme: Theme }) => ({
+          boxShadow: 'none',
+          backgroundColor: mixHex(theme.palette.background.paper, theme.palette.primary.main, tintAmount),
+        }),
+      },
+    },
+    MuiDialog: {
+      styleOverrides: { paper: { borderRadius: 28 } },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: { root: { borderRadius: 4 } },
+    },
+    MuiAppBar: {
+      styleOverrides: { root: { boxShadow: 'none' } },
+    },
+    MuiTableContainer: {
+      styleOverrides: { root: { borderRadius: 12 } },
+    },
+    MuiAlert: {
+      styleOverrides: { root: { borderRadius: 12 } },
+    },
+  }
+}
 
 export const lightTheme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: green[500],
-    },
-  },
+  palette: buildPalette(m3.schemes.light, 'light'),
+  shape: { borderRadius: 12 },
+  typography,
+  components: buildComponents('light'),
 })
 
 export const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: green[400],
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-  },
+  palette: buildPalette(m3.schemes.dark, 'dark'),
+  shape: { borderRadius: 12 },
+  typography,
+  components: buildComponents('dark'),
 })
