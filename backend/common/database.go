@@ -1332,6 +1332,21 @@ func SetDefaultLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPo
 	}
 	defer tx.Rollback()
 
+	// Guards against two concurrent calls for the same team racing the delete-then-insert below
+	// into a duplicate-key violation on default_lineup_positions_pkey (e.g. a league match and a
+	// cup tie for the same AI-managed team landing in the same simulation pass - see
+	// engine.RunAITeamManagement). Deliberately non-blocking (pg_try_, not pg_advisory_xact_lock)
+	// so a losing caller never ties up a pooled connection waiting - if another call for this
+	// team is already in flight, this one simply no-ops, since both would compute the identical
+	// deterministic lineup from the same squad anyway.
+	var acquiredLock bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1)", teamId).Scan(&acquiredLock); err != nil {
+		return err
+	}
+	if !acquiredLock {
+		return nil
+	}
+
 	if _, err := tx.Exec(DeleteDefaultLineupPositionsStmtSql, teamId); err != nil {
 		return err
 	}

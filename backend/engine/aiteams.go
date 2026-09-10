@@ -297,11 +297,14 @@ func upgradeTrainerIfBetterAvailable(dbCtx *common.DatabaseContext, teamId int64
 
 	if current != nil {
 		if err := common.FireTrainer(dbCtx, current.Id, teamId); err != nil {
-			log.Errorf("error firing trainer %d for AI-managed team %d: %s", current.Id, teamId, err)
+			if !errors.Is(err, common.ErrTrainerNotOwnedByTeam) {
+				log.Errorf("error firing trainer %d for AI-managed team %d: %s", current.Id, teamId, err)
+			}
 			return
 		}
 	}
-	if err := common.HireTrainer(dbCtx, best.Id, teamId); err != nil {
+	if err := common.HireTrainer(dbCtx, best.Id, teamId); err != nil &&
+		!errors.Is(err, common.ErrTeamAlreadyHasTrainer) && !errors.Is(err, common.ErrTrainerNotAvailable) {
 		log.Errorf("error hiring trainer %d for AI-managed team %d: %s", best.Id, teamId, err)
 	}
 }

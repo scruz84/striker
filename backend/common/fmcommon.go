@@ -32,8 +32,8 @@ func OpenDatabase(details DatabaseDetails) (*DatabaseContext, error) {
 		details.User, details.Password, details.DbName, details.SslMode)
 
 	db, err := sql.Open("pgx", conn)
-	db.SetMaxIdleConns(4)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(20)
+	db.SetMaxOpenConns(50)
 
 	return &DatabaseContext{Db: db,
 		PreparedStmts: make(map[string]*sql.Stmt),
