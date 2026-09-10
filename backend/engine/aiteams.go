@@ -23,8 +23,7 @@ func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 
 	refreshAiTeamLineup(dbCtx, teamId)
 	manageRosterIfManager(dbCtx, team)
-	// Level 3 (transfer shopping/stadium/trainer) actions are added in a later phase, gated on
-	// team.AiLevel >= common.AiLevelDirector.
+	manageMarketIfDirector(dbCtx, team)
 }
 
 // contractRenewalThresholdYears is how few seasons a Manager-level AI team lets a player's
@@ -172,12 +171,147 @@ func maximizeTicketPrice(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 }
 
+// stadiumUpgradeBudgetCushionMultiplier is how large a Director-level team's budget must be
+// relative to one stadium upgrade's cost (see common.StadiumUpgradeCostPerCurrentSeat) before
+// upgradeStadiumIfAffordable will spend on it - keeps a working cash reserve afterward instead of
+// spending down to the wire the moment it can technically afford one.
+const stadiumUpgradeBudgetCushionMultiplier = 3
+
+// trainerUpgradeMinSkillMargin is how much better the best available trainer's skill must be
+// than a Director-level team's current one (see common.Trainer.Skill) before
+// upgradeTrainerIfBetterAvailable will fire the incumbent and hire them - swapping trainers has
+// no severance cost, but this still avoids constant churn over a marginal, noise-level difference.
+const trainerUpgradeMinSkillMargin = 10
+
+// manageMarketIfDirector runs every Director-level (see common.AiLevelDirector) active-market
+// action for an unowned team: shop the transfer list for a genuine upgrade at its neediest core
+// position, expand the stadium once it can comfortably afford to, and move to a clearly better
+// trainer when one's on the open market. A no-op below Director level - see
+// RunAITeamManagement, the only caller.
+func manageMarketIfDirector(dbCtx *common.DatabaseContext, team *common.Team) {
+	if team.AiLevel < common.AiLevelDirector {
+		return
+	}
+
+	players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error fetching squad for AI-managed team %d market management: %s", team.Id, err)
+		return
+	}
+
+	buyTransferListedPlayerForWeakestPosition(dbCtx, team.Id, *players)
+	upgradeStadiumIfAffordable(dbCtx, team.Id)
+	upgradeTrainerIfBetterAvailable(dbCtx, team.Id)
+}
+
+// buyTransferListedPlayerForWeakestPosition spends money on the single best transfer-listed
+// upgrade available at a team's neediest core position (see common.WeakestPositionNeed) - but
+// only a genuine upgrade over that position's current average quality (PositionNeed.AvgValue),
+// unlike signFreeAgentForWeakestPosition which will take any free agent to fill a thin spot since
+// that costs nothing. ErrTransferWindowClosed, ErrInsufficientBudget, ErrListingNotFound (someone
+// else bought them first) and ErrCannotBuyOwnPlayer are expected outcomes, not failures.
+func buyTransferListedPlayerForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
+	weakest := common.WeakestPositionNeed(players)
+	if weakest == nil {
+		return
+	}
+
+	listings, err := common.GetActiveTransferListings(dbCtx)
+	if err != nil {
+		log.Errorf("error fetching transfer listings for AI-managed team %d: %s", teamId, err)
+		return
+	}
+
+	var target *common.TransferListing
+	bestValue := weakest.AvgValue
+	for i := range listings {
+		listing := &listings[i]
+		if listing.SellingTeamId == teamId || common.BestCorePosition(listing.Player) != weakest.Position {
+			continue
+		}
+		if v := common.PositionValue(weakest.Position, listing.Player); v > bestValue {
+			target, bestValue = listing, v
+		}
+	}
+	if target == nil {
+		return
+	}
+
+	if err := common.ExecuteTransfer(dbCtx, target.ListingId, teamId); err != nil &&
+		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
+		!errors.Is(err, common.ErrListingNotFound) && !errors.Is(err, common.ErrCannotBuyOwnPlayer) {
+		log.Errorf("error buying transfer-listed player for AI-managed team %d: %s", teamId, err)
+	}
+}
+
+// upgradeStadiumIfAffordable expands a team's stadium (see common.UpgradeStadium) once its
+// budget comfortably covers the cost - see stadiumUpgradeBudgetCushionMultiplier.
+// ErrInsufficientBudget is an expected outcome (the cushion check is a stricter version of the
+// same one UpgradeStadium itself makes), not a failure.
+func upgradeStadiumIfAffordable(dbCtx *common.DatabaseContext, teamId int64) {
+	stadium, err := common.GetStadium(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching stadium for AI-managed team %d stadium upgrade: %s", teamId, err)
+		return
+	}
+	cost := int64(stadium.Capacity) * common.StadiumUpgradeCostPerCurrentSeat
+
+	budget, err := common.GetTeamBudget(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching budget for AI-managed team %d stadium upgrade: %s", teamId, err)
+		return
+	}
+	if budget < cost*stadiumUpgradeBudgetCushionMultiplier {
+		return
+	}
+
+	if _, err := common.UpgradeStadium(dbCtx, teamId); err != nil && !errors.Is(err, common.ErrInsufficientBudget) {
+		log.Errorf("error upgrading stadium for AI-managed team %d: %s", teamId, err)
+	}
+}
+
+// upgradeTrainerIfBetterAvailable hires the best available trainer (see
+// common.GetAvailableTrainers, best-skilled first) when the team has none yet, or fires its
+// current one to hire a clearly better one - see trainerUpgradeMinSkillMargin. Trainers have no
+// signing fee (same convention as a free agent - see common.HireTrainer), so the only thing
+// gating a swap is that margin, not budget.
+func upgradeTrainerIfBetterAvailable(dbCtx *common.DatabaseContext, teamId int64) {
+	current, err := common.GetTeamTrainer(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching trainer for AI-managed team %d: %s", teamId, err)
+		return
+	}
+	available, err := common.GetAvailableTrainers(dbCtx)
+	if err != nil {
+		log.Errorf("error fetching available trainers for AI-managed team %d: %s", teamId, err)
+		return
+	}
+	if len(available) == 0 {
+		return
+	}
+
+	best := available[0]
+	if current != nil && best.Skill < current.Skill+trainerUpgradeMinSkillMargin {
+		return
+	}
+
+	if current != nil {
+		if err := common.FireTrainer(dbCtx, current.Id, teamId); err != nil {
+			log.Errorf("error firing trainer %d for AI-managed team %d: %s", current.Id, teamId, err)
+			return
+		}
+	}
+	if err := common.HireTrainer(dbCtx, best.Id, teamId); err != nil {
+		log.Errorf("error hiring trainer %d for AI-managed team %d: %s", best.Id, teamId, err)
+	}
+}
+
 // refreshAiTeamLineup re-picks and persists an unowned team's best-XI default lineup from its
 // current squad - the Caretaker-level baseline every AI-managed team gets, every AI level and up.
 // Runs every match rather than only at season rollover (see autoManageLineupIfUnowned in
 // progression.go, which still covers the retirement/academy-intake refresh at season end) so a
-// mid-season squad change - a Level 2/3 signing or release, once those phases land - shows up in
-// the default lineup right away instead of waiting for the next season.
+// mid-season squad change - a Level 2/3 signing, release or transfer buy - shows up in the
+// default lineup right away instead of waiting for the next season.
 func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64) {
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
