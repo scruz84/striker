@@ -176,6 +176,7 @@
       "sponsorship": "Patrocinio",
       "stadiumUpgrade": "Ampliación de estadio",
       "contractRelease": "Rescisión de contrato",
+      "trainerWages": "Salario del entrenador",
       "other": "Otro"
     }
   },
@@ -185,7 +186,7 @@
     "confirmAcceptOffer": "¿Aceptar la oferta de {{team}} de {{amount}} por {{name}}? Saldrá de tu plantilla de inmediato.",
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
-    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres" },
+    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres", "coaching": "Cuerpo técnico" },
     "listPlayer": { "title": "Poner en venta a un jugador", "error": "No se pudo listar a ese jugador." },
     "player": "Jugador",
     "askingPrice": "Precio de venta",
@@ -245,6 +246,17 @@
       "wage": "Salario",
       "sign": "Fichar",
       "confirmSign": "¿Fichar a {{name}} con un salario de {{wage}}?"
+    },
+    "coaching": {
+      "intro": "Un entrenador acelera el desarrollo de los jugadores y mejora la calidad de la cantera - sin coste de fichaje, solo su salario.",
+      "none": "No hay entrenadores disponibles ahora mismo.",
+      "skill": "Nivel",
+      "wage": "Salario",
+      "hire": "Contratar",
+      "fire": "Despedir",
+      "confirmHire": "¿Contratar a {{name}} como entrenador con un salario de {{wage}}?",
+      "confirmFire": "¿Despedir a {{name}}? Volverá al mercado.",
+      "table": { "name": "Nombre" }
     }
   },
   "cup": {

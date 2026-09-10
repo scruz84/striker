@@ -260,6 +260,9 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, t
 	capacity := common.RandomStadiumCapacity(tier, rand.New(rand.NewSource(time.Now().UnixNano())))
 	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &capacity).Scan(&teamId)
 	common.CreatePlayers(dbCtx, teamId, country)
+	if err := common.GenerateTrainerCandidates(dbCtx, country, common.TrainerCandidatesPerTeam); err != nil {
+		log.Errorf("error generating trainer candidates for team %d: %s", teamId, err)
+	}
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching newly created squad for team %d: %s", teamId, err)

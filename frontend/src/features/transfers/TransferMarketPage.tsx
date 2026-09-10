@@ -27,8 +27,11 @@ import { useTranslation } from 'react-i18next'
 import {
   useAcceptLoan,
   useAcceptOffer,
+  useAvailableTrainers,
   useBuyListing,
+  useFireTrainer,
   useFreeAgents,
+  useHireTrainer,
   useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
@@ -37,6 +40,7 @@ import {
   useOffersSent,
   useRejectOffer,
   useSignFreeAgent,
+  useTeamTrainer,
   useTransferListings,
   useTransferWindowStatus,
   useUnlistPlayer,
@@ -44,7 +48,7 @@ import {
   useUserTeam,
   useWithdrawOffer,
 } from '../../api/hooks'
-import type { LoanListing, Player, TransferListing, TransferOffer } from '../../api/types'
+import type { LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
@@ -53,6 +57,7 @@ type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed'
 type LoanSortField = 'age' | 'duration' | 'listed'
 type FreeAgentSortField = 'age' | 'wage'
+type TrainerSortField = 'skill' | 'wage'
 
 export function TransferMarketPage() {
   const { t } = useTranslation()
@@ -76,11 +81,13 @@ export function TransferMarketPage() {
         <Tab label={t('transfers.tabs.loans')} />
         <Tab label={t('transfers.tabs.offers')} />
         <Tab label={t('transfers.tabs.freeAgents')} />
+        <Tab label={t('transfers.tabs.coaching')} />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
       {tab === 2 && <OffersTab />}
       {tab === 3 && <FreeAgentsTab />}
+      {tab === 4 && <CoachingTab />}
     </Box>
   )
 }
@@ -1026,6 +1033,153 @@ function FreeAgentsTab() {
               </TableContainer>
             )}
           </>
+        )}
+      </Paper>
+    </Box>
+  )
+}
+
+// A team can only employ one trainer at a time (see common.ErrTeamAlreadyHasTrainer on the
+// backend), so this tab shows either the current head coach - with a fire action - or, once
+// there isn't one, the open market to hire from. Never both at once.
+function CoachingTab() {
+  const { t } = useTranslation()
+  const confirm = useConfirm()
+  const { data: loggedUser } = useMe()
+  const { data: trainer, isLoading: trainerLoading } = useTeamTrainer(!!loggedUser)
+  const { data: available, isLoading: availableLoading } = useAvailableTrainers(!!loggedUser && !trainerLoading && !trainer)
+  const hireTrainer = useHireTrainer()
+  const fireTrainer = useFireTrainer()
+
+  const [sortField, setSortField] = useState<TrainerSortField>('skill')
+  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+
+  const handleHire = async (candidate: Trainer) => {
+    const ok = await confirm({
+      message: t('transfers.coaching.confirmHire', {
+        name: `${candidate.firstName} ${candidate.lastName}`,
+        wage: formatCurrency(candidate.wage),
+      }),
+      confirmLabel: t('transfers.coaching.hire'),
+    })
+    if (ok) {
+      hireTrainer.mutate(candidate.id)
+    }
+  }
+
+  const handleFire = async () => {
+    if (!trainer) return
+    const ok = await confirm({
+      message: t('transfers.coaching.confirmFire', { name: `${trainer.firstName} ${trainer.lastName}` }),
+      confirmLabel: t('transfers.coaching.fire'),
+      destructive: true,
+    })
+    if (ok) {
+      fireTrainer.mutate(trainer.id)
+    }
+  }
+
+  if (trainerLoading) {
+    return <Skeleton variant="rectangular" height={300} />
+  }
+
+  if (trainer) {
+    return (
+      <Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {t('transfers.coaching.intro')}
+        </Typography>
+        <Paper sx={{ p: 3, maxWidth: 420 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {trainer.firstName} {trainer.lastName}
+          </Typography>
+          <Stack direction="row" spacing={4} sx={{ mt: 1.5, mb: 2.5 }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" component="div">
+                {t('transfers.coaching.skill')}
+              </Typography>
+              <Typography variant="h6">{trainer.skill}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary" component="div">
+                {t('transfers.coaching.wage')}
+              </Typography>
+              <Typography variant="h6">{formatCurrency(trainer.wage)}</Typography>
+            </Box>
+          </Stack>
+          <Button color="secondary" variant="outlined" onClick={handleFire} disabled={fireTrainer.isPending}>
+            {t('transfers.coaching.fire')}
+          </Button>
+        </Paper>
+      </Box>
+    )
+  }
+
+  if (availableLoading || !available) {
+    return <Skeleton variant="rectangular" height={300} />
+  }
+
+  const sorted = [...available].sort((a, b) => {
+    const cmp = sortField === 'skill' ? a.skill - b.skill : a.wage - b.wage
+    return sortDir === 'asc' ? cmp : -cmp
+  })
+
+  const handleSort = (field: TrainerSortField) => {
+    if (field === sortField) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir('desc')
+    }
+  }
+
+  return (
+    <Box>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        {t('transfers.coaching.intro')}
+      </Typography>
+      <Paper>
+        {available.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+            {t('transfers.coaching.none')}
+          </Typography>
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('transfers.coaching.table.name')}</TableCell>
+                  <TableCell align="right" sortDirection={sortField === 'skill' ? sortDir : false}>
+                    <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
+                      {t('transfers.coaching.skill')}
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="right" sortDirection={sortField === 'wage' ? sortDir : false}>
+                    <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
+                      {t('transfers.coaching.wage')}
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="right" />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sorted.map((candidate) => (
+                  <TableRow key={candidate.id}>
+                    <TableCell>
+                      {candidate.firstName} {candidate.lastName}
+                    </TableCell>
+                    <TableCell align="right">{candidate.skill}</TableCell>
+                    <TableCell align="right">{formatCurrency(candidate.wage)}</TableCell>
+                    <TableCell align="right">
+                      <Button size="small" variant="contained" onClick={() => handleHire(candidate)} disabled={hireTrainer.isPending}>
+                        {t('transfers.coaching.hire')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Paper>
     </Box>

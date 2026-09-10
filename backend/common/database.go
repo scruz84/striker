@@ -1239,8 +1239,10 @@ func RetirePlayer(dbCtx *DatabaseContext, playerId int64) error {
 
 // CreateAcademyPlayers generates `count` young prospects (lower skills, younger age than a
 // starting senior squad - see AcademySkillMin/Max, AcademyAgeMin/Max) directly onto a team's
-// roster, to backfill a squad thinned out by retirements.
-func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int) error {
+// roster, to backfill a squad thinned out by retirements. trainerSkill (0 if the team has no
+// head coach) raises the top of the prospect skill range - see academySkillMax - so investing
+// in coaching pays off in the pipeline too, not just in match-ready squad development.
+func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int, trainerSkill int) error {
 	if count <= 0 {
 		return nil
 	}
@@ -1253,8 +1255,15 @@ func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int) error
 		return err
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, AcademySkillMax, AcademyAgeMin, AcademyAgeMax, country)
+	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country)
 	return nil
+}
+
+// academySkillMax raises the top of the academy prospect range by up to a quarter of a hired
+// trainer's skill (0-99 -> +0-24), leaving the floor untouched - a team with no trainer (skill
+// 0) gets exactly the historical AcademySkillMax.
+func academySkillMax(trainerSkill int) int {
+	return AcademySkillMax + trainerSkill/4
 }
 
 const GetTeamCountryStmtSql = "SELECT country FROM teams WHERE team_id = $1"

@@ -46,6 +46,7 @@ const TRANSACTION_PRIZE_MONEY = 5      // season league-position or cup prize mo
 const TRANSACTION_SPONSORSHIP = 6      // per-match sponsorship income - income
 const TRANSACTION_STADIUM_UPGRADE = 7  // capacity expansion - expense
 const TRANSACTION_CONTRACT_RELEASE = 8 // severance paid to release a player early - expense
+const TRANSACTION_TRAINER_WAGES = 9    // wage bill for an employed head coach, paid alongside player wages - expense
 
 // Stadium capacity is picked once at team creation, scaled by the league tier it starts in
 // (see the initializer's createTeam and common.RandomStadiumCapacity) - bigger clubs get
@@ -75,3 +76,4 @@ const NOTIFICATION_PROMOTION = 1
 const NOTIFICATION_RELEGATION = 2
 const NOTIFICATION_TRANSFER = 3
 const NOTIFICATION_CUP = 4
+const NOTIFICATION_TRAINER = 5

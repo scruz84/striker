@@ -176,6 +176,7 @@
       "sponsorship": "Sponsorship",
       "stadiumUpgrade": "Stadium upgrade",
       "contractRelease": "Contract release",
+      "trainerWages": "Trainer wages",
       "other": "Other"
     }
   },
@@ -185,7 +186,7 @@
     "confirmAcceptOffer": "Accept {{team}}'s offer of {{amount}} for {{name}}? They'll leave your squad immediately.",
     "title": "Transfer market",
     "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
-    "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers", "freeAgents": "Free agents" },
+    "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers", "freeAgents": "Free agents", "coaching": "Coaching" },
     "listPlayer": { "title": "List a player", "error": "Could not list that player." },
     "player": "Player",
     "askingPrice": "Asking price",
@@ -245,6 +246,17 @@
       "wage": "Wage",
       "sign": "Sign",
       "confirmSign": "Sign {{name}} on a wage of {{wage}}?"
+    },
+    "coaching": {
+      "intro": "A head coach speeds up player development and raises your youth academy's prospect quality - no signing fee, just their wage.",
+      "none": "No trainers available right now.",
+      "skill": "Skill",
+      "wage": "Wage",
+      "hire": "Hire",
+      "fire": "Fire",
+      "confirmHire": "Hire {{name}} as head coach on a wage of {{wage}}?",
+      "confirmFire": "Fire {{name}}? They'll return to the open market.",
+      "table": { "name": "Name" }
     }
   },
   "cup": {

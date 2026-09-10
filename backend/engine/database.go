@@ -70,6 +70,8 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	deductWages(dbCtx, match.Home)
 	deductWages(dbCtx, match.Away)
+	deductTrainerWage(dbCtx, match.Home)
+	deductTrainerWage(dbCtx, match.Away)
 	creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Away)
@@ -103,6 +105,24 @@ func deductWages(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 	if err := common.AdjustTeamBudget(dbCtx, teamId, -wageBill, common.TRANSACTION_WAGES, "match wages"); err != nil {
 		log.Errorf("error deducting wages for team %d: %s", teamId, err)
+	}
+}
+
+// deductTrainerWage charges a team its head coach's wage for having played this match, the
+// same "wages ride along with matches" convention deductWages uses for players - a no-op for a
+// team that hasn't hired one.
+func deductTrainerWage(dbCtx *common.DatabaseContext, teamId int64) {
+	trainer, err := common.GetTeamTrainer(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting trainer for team %d: %s", teamId, err)
+		return
+	}
+	if trainer == nil {
+		return
+	}
+	description := "trainer wages: " + trainer.FirstName + " " + trainer.LastName
+	if err := common.AdjustTeamBudget(dbCtx, teamId, -int64(trainer.Wage), common.TRANSACTION_TRAINER_WAGES, description); err != nil {
+		log.Errorf("error deducting trainer wage for team %d: %s", teamId, err)
 	}
 }
 

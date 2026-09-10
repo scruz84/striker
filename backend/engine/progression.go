@@ -42,10 +42,25 @@ func ageTrendFor(age int) int {
 	}
 }
 
-// driftSkill applies a player's age trend plus a little noise (-1..+1) to one skill value,
-// clamped to a sane [1, 99] range.
-func driftSkill(value int, age int, r *rand.Rand) int {
-	value += ageTrendFor(age) + r.Intn(3) - 1
+// trainerBonus converts a hired head coach's skill rating into a flat per-season attribute-
+// growth bonus, on top of ageTrendFor: nothing below TrainerSkillMin (so a mediocre trainer is
+// no better than having none), +1 for a solid one, +2 for an elite one. A team with no trainer
+// passes skill 0 here, so this is fully backward compatible with the pre-trainer behavior.
+func trainerBonus(trainerSkill int) int {
+	switch {
+	case trainerSkill >= 80:
+		return 2
+	case trainerSkill >= common.TrainerSkillMin:
+		return 1
+	default:
+		return 0
+	}
+}
+
+// driftSkill applies a player's age trend, a hired trainer's bonus (0 with no trainer), and a
+// little noise (-1..+1) to one skill value, clamped to a sane [1, 99] range.
+func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
+	value += ageTrendFor(age) + trainerBonus(trainerSkill) + r.Intn(3) - 1
 	if value < 1 {
 		value = 1
 	}
@@ -56,11 +71,13 @@ func driftSkill(value int, age int, r *rand.Rand) int {
 }
 
 // ProgressPlayers ages every player on every team by one season: retirees are removed, the
-// rest have their skills drift per ageTrendFor and their contract ticks down by one season (see
+// rest have their skills drift per ageTrendFor plus a hired head coach's trainerBonus (see
+// common.GetTeamTrainer) and their contract ticks down by one season (see
 // common.AdvancePlayerContract - a contract reaching zero releases the player to free agency),
 // and any team left short of a full squad (by either retirement or an expired contract) is
-// topped back up from the youth academy (see common.CreateAcademyPlayers). Meant to run once
-// per season, from AdvanceSeasonIfComplete.
+// topped back up from the youth academy (see common.CreateAcademyPlayers, also trainer-boosted).
+// Also tops up the open trainer market (see common.TopUpTrainerMarket). Meant to run once per
+// season, from AdvanceSeasonIfComplete.
 func ProgressPlayers(dbCtx *common.DatabaseContext) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
@@ -77,6 +94,13 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 			continue
 		}
 
+		trainerSkill := 0
+		if trainer, err := common.GetTeamTrainer(dbCtx, teamId); err != nil {
+			log.Errorf("error getting trainer for team %d progression: %s", teamId, err)
+		} else if trainer != nil {
+			trainerSkill = trainer.Skill
+		}
+
 		for _, player := range *players {
 			newAge := player.Age + 1
 			if ShouldRetire(newAge, r) {
@@ -86,13 +110,13 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 				continue
 			}
 
-			goalKeeper := driftSkill(player.GoalKeeper, newAge, r)
-			defense := driftSkill(player.Defense, newAge, r)
-			lateral := driftSkill(player.Lateral, newAge, r)
-			pass := driftSkill(player.Pass, newAge, r)
-			midfield := driftSkill(player.Midfield, newAge, r)
-			dribbling := driftSkill(player.Dribbling, newAge, r)
-			shot := driftSkill(player.Shot, newAge, r)
+			goalKeeper := driftSkill(player.GoalKeeper, newAge, trainerSkill, r)
+			defense := driftSkill(player.Defense, newAge, trainerSkill, r)
+			lateral := driftSkill(player.Lateral, newAge, trainerSkill, r)
+			pass := driftSkill(player.Pass, newAge, trainerSkill, r)
+			midfield := driftSkill(player.Midfield, newAge, trainerSkill, r)
+			dribbling := driftSkill(player.Dribbling, newAge, trainerSkill, r)
+			shot := driftSkill(player.Shot, newAge, trainerSkill, r)
 			if err := common.UpdatePlayerProgression(dbCtx, player.Id, newAge,
 				goalKeeper, defense, lateral, pass, midfield, dribbling, shot); err != nil {
 				log.Errorf("error updating progression for player %d: %s", player.Id, err)
@@ -106,8 +130,12 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 			}
 		}
 
-		topUpAcademy(dbCtx, teamId)
+		topUpAcademy(dbCtx, teamId, trainerSkill)
 		autoManageLineupIfUnowned(dbCtx, teamId)
+	}
+
+	if err := common.TopUpTrainerMarket(dbCtx); err != nil {
+		log.Errorf("error topping up trainer market: %s", err)
 	}
 }
 
@@ -133,7 +161,7 @@ func autoManageLineupIfUnowned(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 }
 
-func topUpAcademy(dbCtx *common.DatabaseContext, teamId int64) {
+func topUpAcademy(dbCtx *common.DatabaseContext, teamId int64, trainerSkill int) {
 	count, err := common.CountTeamPlayers(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error counting players for team %d: %s", teamId, err)
@@ -144,7 +172,7 @@ func topUpAcademy(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 	needed := common.SquadSize - count
 	log.Infof("team %d down to %d players, generating %d academy prospects", teamId, count, needed)
-	if err := common.CreateAcademyPlayers(dbCtx, teamId, needed); err != nil {
+	if err := common.CreateAcademyPlayers(dbCtx, teamId, needed, trainerSkill); err != nil {
 		log.Errorf("error generating academy players for team %d: %s", teamId, err)
 	}
 }

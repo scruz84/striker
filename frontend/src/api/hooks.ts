@@ -25,6 +25,7 @@ import type {
   SeasonHistoryEntry,
   TeamDetails,
   TierConfig,
+  Trainer,
   TransferListing,
   TransferOffer,
   WeekMatch,
@@ -50,6 +51,8 @@ export const queryKeys = {
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
   freeAgents: ['freeAgents'] as const,
+  availableTrainers: ['availableTrainers'] as const,
+  teamTrainer: ['teamTrainer'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
   notifications: ['notifications'] as const,
@@ -371,6 +374,44 @@ export function useReleasePlayer() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
       void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
+    },
+  })
+}
+
+export function useAvailableTrainers(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.availableTrainers,
+    queryFn: () => api.get<Trainer[]>('/v1/trainers'),
+    enabled,
+  })
+}
+
+export function useTeamTrainer(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.teamTrainer,
+    queryFn: () => api.get<Trainer | null>('/v1/trainers/mine'),
+    enabled,
+  })
+}
+
+export function useHireTrainer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (trainerId: number) => api.post(`/v1/trainers/${trainerId}/hire`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.availableTrainers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.teamTrainer })
+    },
+  })
+}
+
+export function useFireTrainer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (trainerId: number) => api.post(`/v1/trainers/${trainerId}/fire`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.availableTrainers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.teamTrainer })
     },
   })
 }

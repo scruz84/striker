@@ -260,6 +260,7 @@ export const TRANSACTION_PRIZE_MONEY = 5
 export const TRANSACTION_SPONSORSHIP = 6
 export const TRANSACTION_STADIUM_UPGRADE = 7
 export const TRANSACTION_CONTRACT_RELEASE = 8
+export const TRANSACTION_TRAINER_WAGES = 9
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
 // t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
@@ -273,6 +274,7 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_SPONSORSHIP]: 'finances.reasons.sponsorship',
   [TRANSACTION_STADIUM_UPGRADE]: 'finances.reasons.stadiumUpgrade',
   [TRANSACTION_CONTRACT_RELEASE]: 'finances.reasons.contractRelease',
+  [TRANSACTION_TRAINER_WAGES]: 'finances.reasons.trainerWages',
 }
 
 export interface TeamTransaction {
@@ -286,6 +288,17 @@ export interface TeamTransaction {
   // for team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
   // upgrades, admin adjustments).
   playerId?: number
+}
+
+// A team's head coach - hired from the open market (see useAvailableTrainers/useHireTrainer). A
+// hired trainer's skill accelerates player attribute growth each season and raises the youth
+// academy's prospect ceiling; a team with none simply gets today's baseline rates.
+export interface Trainer {
+  id: number
+  firstName: string
+  lastName: string
+  skill: number
+  wage: number
 }
 
 export interface Stadium {
@@ -457,6 +470,7 @@ export const NOTIFICATION_PROMOTION = 1
 export const NOTIFICATION_RELEGATION = 2
 export const NOTIFICATION_TRANSFER = 3
 export const NOTIFICATION_CUP = 4
+export const NOTIFICATION_TRAINER = 5
 
 export interface Notification {
   notificationId: number

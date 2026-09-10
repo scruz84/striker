@@ -42,6 +42,12 @@ func StartSvc() {
 		log.Panicf("Error opening database: %s", err)
 	}
 
+	// Backfills the trainer market for a world that existed before the trainer feature shipped -
+	// see common.TopUpTrainerMarket.
+	if err := common.TopUpTrainerMarket(dbCtx); err != nil {
+		log.Errorf("error topping up trainer market at startup: %s", err)
+	}
+
 	router := gin.Default()
 	initRouter(router, dbCtx)
 
@@ -116,6 +122,13 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1FreeAgentGroup.Use(authMiddleware.MiddlewareFunc())
 	v1FreeAgentGroup.GET("", handlers.BrowseFreeAgentsHandler(dbCtx))
 	v1FreeAgentGroup.POST("/:"+handlers.ID+"/sign", handlers.SignFreeAgentHandler(dbCtx))
+
+	v1TrainerGroup := v1Group.Group("/trainers")
+	v1TrainerGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TrainerGroup.GET("", handlers.BrowseTrainersHandler(dbCtx))
+	v1TrainerGroup.GET("/mine", handlers.TeamTrainerHandler(dbCtx))
+	v1TrainerGroup.POST("/:"+handlers.ID+"/hire", handlers.HireTrainerHandler(dbCtx))
+	v1TrainerGroup.POST("/:"+handlers.ID+"/fire", handlers.FireTrainerHandler(dbCtx))
 
 	v1OfferGroup := v1Group.Group("/offers")
 	v1OfferGroup.Use(authMiddleware.MiddlewareFunc())
