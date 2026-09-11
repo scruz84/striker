@@ -612,6 +612,14 @@
   },
   "playerPage": {
     "freeAgent": "Agente libre",
+    "profile": {
+      "team": "Equipo",
+      "division": "División",
+      "age": "Edad"
+    },
+    "attributes": {
+      "title": "Atributos"
+    },
     "stats": {
       "goals": "Goles",
       "yellowCards": "Tarjetas amarillas",

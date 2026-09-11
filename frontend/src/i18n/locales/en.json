@@ -612,6 +612,14 @@
   },
   "playerPage": {
     "freeAgent": "Free agent",
+    "profile": {
+      "team": "Team",
+      "division": "Division",
+      "age": "Age"
+    },
+    "attributes": {
+      "title": "Attributes"
+    },
     "stats": {
       "goals": "Goals",
       "yellowCards": "Yellow cards",
