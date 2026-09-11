@@ -12,6 +12,10 @@ of a season.
 Each half has its own `docker-compose.yml` and can be run independently; point the frontend's
 `VITE_API_ENDPOINT` (or `API_URI` in its Docker build) at wherever the backend ends up running.
 
+See `HOWTO_RUN.md` for concrete run instructions (Docker quick start, env vars, local dev without
+Docker, and pointing at a Postgres/Redis that already run elsewhere), and `ARCHITECTURE.md` for
+an orientation to how the codebase is put together.
+
 ## What's implemented
 
 - Match simulation: minute-by-minute engine covering goals, yellow/red cards, and injuries, run
