@@ -110,7 +110,7 @@ const getPlayerTransactionsStmtSql = "SELECT transaction_id, team_id, amount, re
 	"FROM team_transactions WHERE player_id = $1 ORDER BY created_at DESC LIMIT $2"
 
 // GetPlayerTransactions returns this player's transfer/release history - see
-// resources/sql/init23_player_history.sql. Contract renewals and loan moves aren't logged here
+// resources/sql/init.sql's team_transactions.player_id column. Contract renewals and loan moves aren't logged here
 // (no money changes hands for either, so nothing ever wrote a team_transactions row for them);
 // GetPlayerStatus covers "currently on loan" as live state instead.
 func GetPlayerTransactions(dbCtx *DatabaseContext, playerId int64, limit int) ([]TeamTransaction, error) {

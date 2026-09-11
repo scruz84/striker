@@ -172,7 +172,7 @@ const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reas
 const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1"
 
 // nameTableSuffixByCountry maps a seeded country code to its names_<suffix>/lastnames_<suffix>
-// table pair (see resources/sql/init.sql and init19_multi_country_names.sql). Table names can't
+// table pair (see resources/sql/init.sql). Table names can't
 // be parameterized like ordinary values, so GetRandomName looks the suffix up here - an
 // allowlist of the game's own seeded countries - rather than ever building SQL from the country
 // string directly.

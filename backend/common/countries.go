@@ -13,8 +13,8 @@ type CountryInfo struct {
 // of these are necessarily active - es/en/fr/de are seeded by a fresh --initialize (see
 // handlers.seededCountries), while it/pt stay inactive until an admin activates one via
 // POST /v1/admin/countries (see handlers.AdminAddCountryHandler) - adding a new entry here still
-// requires its own names_<code>/lastnames_<code> table pair (see
-// resources/sql/init22_world_admin.sql) and teamnames.go entries first.
+// requires its own names_<code>/lastnames_<code> table pair (see resources/sql/init.sql) and
+// teamnames.go entries first.
 var KnownCountries = []CountryInfo{
 	{Code: "es", Name: "Spain"},
 	{Code: "en", Name: "England"},

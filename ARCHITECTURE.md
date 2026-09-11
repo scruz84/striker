@@ -48,9 +48,11 @@ runs them as separate containers/processes regardless.
   that drive all of it from `StartEngine`.
 - `service/` - Gin router wiring (`fmservice.go`): route groups, middleware (JWT auth, CORS,
   admin gate), one file.
-- `resources/sql/` - schema as an ordered sequence of `init*.sql` files (`init.sql` is the base
-  schema; every `initN_*.sql` after it is one incremental migration, numbered in apply order).
-  See "Schema changes" below.
+- `resources/sql/` - `init.sql` is the full consolidated baseline schema, applied on a fresh
+  database; `resources/sql/history/` holds every already-shipped `initN_*.sql` migration that
+  was folded into it, kept only for the manual-upgrade path on an already-running database (see
+  backend/README.md) - `common.EnsureSchema`'s directory listing is non-recursive, so files under
+  `history/` are never auto-applied. See "Schema evolution" below.
 
 ### Data access pattern
 
@@ -62,21 +64,34 @@ query builder or ORM for new work.
 
 ### Schema evolution
 
-`resources/sql/init.sql` is the base schema. Everything after it (`init2_league_tier.sql`,
-`init3_player_unavailability.sql`, ... up through whatever the highest-numbered file is) is one
-additive migration, applied **in filename order** by two independent mechanisms:
+`resources/sql/init.sql` is the full baseline schema for a brand-new database - every table and
+column, including everything that used to ship as a separate `initN_*.sql` migration. Those
+superseded migration files still exist, unchanged, under `resources/sql/history/`, purely as a
+record and for the manual-upgrade path described below; they are never auto-applied (see the
+directory-skipping behavior noted above).
+
+`init.sql` is applied by two independent mechanisms:
 
 1. Postgres's own `docker-entrypoint-initdb.d` auto-init, when the container starts against a
-   **fresh, empty** data volume (see `backend/docker-compose.yml`'s postgres service).
-2. `common.EnsureSchema`, called by `--initialize`, which applies every file itself the first
-   time it's pointed at a database with no schema yet.
+   **fresh, empty** data volume (see `backend/docker-compose.yml`'s postgres service) - it globs
+   `resources/sql/*.sql` non-recursively, so `history/` is skipped the same way.
+2. `common.EnsureSchema`, called by `--initialize`, which applies every file in `resources/sql/`
+   (again non-recursive) itself the first time it's pointed at a database with no schema yet, in
+   `schemaFileSortKey` order: `init.sql` first, then any numbered `initN_*.sql` files in true
+   numeric order, then anything else lexicographically (the `names_*_.../lastnames_*_...` data
+   dumps).
 
 Either path only ever runs **once** - these files have no `IF NOT EXISTS`/idempotency guards, so
-re-running them against an already-seeded database duplicates data or errors outright. Adding a
-new `initN_whatever.sql` file to an **already-running** database (the common case once the app
-is live) means applying just that one file manually - see backend/README.md's "Schema changes on
-an already-running database" section for the exact `psql` commands. Keep this pattern for any
-new schema change: one new numbered file, additive only.
+re-running them against an already-seeded database duplicates data or errors outright.
+
+**Going forward**, keep making schema changes as additive migrations on top of this baseline:
+add one new `resources/sql/initN_whatever.sql` file (picking up numbering after the last one
+folded into the baseline - check `history/` for the highest existing number), never edit
+`init.sql` itself. On an **already-running** database (the common case once the app is live),
+that new file needs applying by hand once - see backend/README.md's "Schema changes on an
+already-running database" section for the exact `psql` command. Once enough of these accumulate,
+they can be folded into `init.sql` and moved to `history/` again, exactly as this consolidation
+did - but that's a deliberate, occasional cleanup, not something to do per-change.
 
 ### Auth
 

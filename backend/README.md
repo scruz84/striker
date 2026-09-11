@@ -24,7 +24,7 @@ docker compose --profile init run --rm init
 The seeded world spans four countries (`seededCountries` in `handlers/initializer.go`): Spain
 (`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own three-tier league
 structure and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
-`resources/sql/init.sql` and `init19_multi_country_names.sql`). Spain's pool is a real ~29k-name
+`resources/sql/init.sql`). Spain's pool is a real ~29k-name
 dump; the other three are curated common-name lists of about 60 first/last names each - real
 names, just a much smaller pool, so expect more repetition across a large league than Spain's
 teams see. A new Google sign-in is assigned to one of the four at random
@@ -171,56 +171,47 @@ leagues (`engine.GenerateMatchesForLeagues` - `engine.GenerateMatches` itself on
 *no* league anywhere has upcoming matches, which is never true once the world already exists),
 and starts its cup (`engine.StartCupForCountry`) - all without touching any other country's
 data. `es`/`en`/`fr`/`de` are active from a fresh `--initialize`; `it`/`pt` ship with their name
-pools already loaded (see `resources/sql/init22_world_admin.sql`) but stay inactive until an
-admin adds one.
+pools already loaded (see `resources/sql/init.sql`) but stay inactive until an admin adds one.
 
 ### Schema changes on an already-running database
 
-`resources/sql/*.sql` auto-applies on a **fresh** Postgres data volume (that's how the official
-Postgres image's `docker-entrypoint-initdb.d` works), and `--initialize` (see `handlers.
-InitializeDatabase`/`common.EnsureSchema`) also applies every one of those files itself, in the
-same order, the first time it's pointed at a database with no schema yet - so seeding a brand
-new, genuinely empty database needs nothing beyond running `--initialize` (or the `init`
-profile below); this doesn't require Docker's own auto-init to have run first. Either way, this
-only ever happens **once**: these files aren't written to be safely re-run (the base `CREATE
-TABLE` statements in `init.sql` have no `IF NOT EXISTS`, and the name-pool dumps have no
-uniqueness constraint stopping a second run from duplicating every row), so both mechanisms only
-apply them when the schema doesn't already exist.
+`resources/sql/init.sql` is the full, consolidated schema for a brand-new database - it auto-
+applies on a **fresh** Postgres data volume (that's how the official Postgres image's
+`docker-entrypoint-initdb.d` works), and `--initialize` (see `handlers.
+InitializeDatabase`/`common.EnsureSchema`) also applies it itself the first time it's pointed at
+a database with no schema yet - so seeding a brand new, genuinely empty database needs nothing
+beyond running `--initialize` (or the `init` profile below); this doesn't require Docker's own
+auto-init to have run first. Either way, this only ever happens **once**: `init.sql` isn't
+written to be safely re-run (its `CREATE TABLE` statements have no `IF NOT EXISTS`, and the
+name-pool inserts have no uniqueness constraint stopping a second run from duplicating every
+row), so both mechanisms only apply it when the schema doesn't already exist.
 
-If instead you already have a running, already-initialized database and pull in a change that
-adds a new `resources/sql/init*.sql` file (e.g. `init2_league_tier.sql`, adding
-promotion/relegation), apply just that new file manually once - `EnsureSchema` won't do this for
-you, since the schema already exists as far as it's concerned:
+Every schema change that shipped before this file was consolidated is preserved, unchanged,
+under `resources/sql/history/` (`init2_league_tier.sql` through
+`init29_player_position_minutes.sql` at the time of writing) - kept for the record and for
+upgrading a database that predates one of them, but never auto-applied (`EnsureSchema` only
+lists the top-level `resources/sql/` directory, not `history/`).
+
+If you already have a running, already-initialized database and pull in a change that adds a new
+`resources/sql/initN_*.sql` file (numbered to continue after the highest one in `history/`),
+apply just that new file manually once - `EnsureSchema` won't do this for you, since the schema
+already exists as far as it's concerned:
 
 ```bash
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init2_league_tier.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init3_player_unavailability.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init4_finances.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init5_transfers.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init6_player_age.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init7_cups.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init8_notifications.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init9_admin.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init10_stadium.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init11_loans.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init12_transfer_window.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init13_transfer_offers.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init14_formation.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init15_season_history.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init16_groups.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init17_notification_prefs.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init18_match_schedule.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init19_multi_country_names.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init20_team_rename.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init21_contracts.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init22_world_admin.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init23_player_history.sql
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/init24_trainers.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/initN_whatever.sql
 ```
 
-**Note:** init19 only adds the name-pool tables for the new countries (en/fr/de) - it doesn't
-retroactively add their leagues/teams/players to a world that's already been seeded. Adding those
-requires a full reseed (`docker compose --profile init run --rm init`, destructive - see above).
+If instead your database predates one of the migrations already folded into `init.sql`, apply the
+matching file from `resources/sql/history/` the same way, e.g.:
+
+```bash
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/history/init2_league_tier.sql
+```
+
+**Note:** the multi-country migration only adds the name-pool tables for the new countries
+(en/fr/de/it/pt) - it doesn't retroactively add their leagues/teams/players to a world that's
+already been seeded. Adding those requires a full reseed (`docker compose --profile init run --rm
+init`, destructive - see above).
 
 ### Team names
 

@@ -158,8 +158,7 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 }
 
 // seededCountries lists every country the game world is generated for - each needs a matching
-// names_<code>/lastnames_<code> table pair (see common.GetRandomName and
-// resources/sql/init19_multi_country_names.sql).
+// names_<code>/lastnames_<code> table pair (see common.GetRandomName and resources/sql/init.sql).
 var seededCountries = []string{"es", "en", "fr", "de"}
 
 // randomSeededCountry picks one of seededCountries at random - used to assign a new Google
