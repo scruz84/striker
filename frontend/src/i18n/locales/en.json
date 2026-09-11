@@ -232,7 +232,7 @@
     "noLoanListings": "No players available on loan right now.",
     "accept": "Accept",
     "offers": {
-      "intro": "Offers are made directly on a player from their team page - listed or not.",
+      "intro": "Make an offer on any player from their team page, or propose a different price on a market listing - listed or not, the seller can accept or reject it.",
       "onYourPlayers": "Offers on your players",
       "noPending": "No pending offers.",
       "yourOffers": "Your offers",

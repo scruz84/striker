@@ -35,6 +35,7 @@ import {
   useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
+  useMakeOffer,
   useMe,
   useOffersReceived,
   useOffersSent,
@@ -327,21 +328,81 @@ function TransfersTab() {
                 sortField={sortField}
                 sortDir={sortDir}
                 onSort={handleSort}
-                renderAction={(listing) => (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={() => handleBuy(listing)}
-                    disabled={buyListing.isPending}
-                  >
-                    {t('transfers.buy')}
-                  </Button>
-                )}
+                renderAction={(listing) => <MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
               />
             )}
           </>
         )}
       </Paper>
+    </Box>
+  )
+}
+
+// MarketListingActions lets a browser either buy a listing outright at its asking price, or
+// propose a different amount instead - reuses the same MakeTransferOffer flow as offering on an
+// unlisted player (see TeamDetailsPage's PlayerRow), which the seller then accepts/rejects from
+// the Offers tab. The listing itself is untouched by an offer; only accepting one removes it.
+function MarketListingActions({
+  listing,
+  onBuy,
+  buyPending,
+}: {
+  listing: TransferListing
+  onBuy: (listing: TransferListing) => void
+  buyPending: boolean
+}) {
+  const { t } = useTranslation()
+  const makeOffer = useMakeOffer()
+  const [showOfferForm, setShowOfferForm] = useState(false)
+  const [amount, setAmount] = useState('')
+
+  const handleSendOffer = () => {
+    const amountNum = Number(amount)
+    if (!amountNum || amountNum <= 0) {
+      return
+    }
+    makeOffer.mutate(
+      { playerId: listing.player.id, amount: amountNum },
+      { onSuccess: () => { setShowOfferForm(false); setAmount('') } },
+    )
+  }
+
+  return (
+    <Box>
+      <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+        {showOfferForm ? (
+          <>
+            <TextField
+              size="small"
+              type="number"
+              label={t('team.amount')}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              sx={{ width: 110 }}
+            />
+            <Button size="small" variant="contained" onClick={handleSendOffer} disabled={makeOffer.isPending}>
+              {t('team.send')}
+            </Button>
+            <Button size="small" onClick={() => setShowOfferForm(false)}>
+              {t('common.cancel')}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button size="small" onClick={() => setShowOfferForm(true)}>
+              {t('team.makeOffer')}
+            </Button>
+            <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending}>
+              {t('transfers.buy')}
+            </Button>
+          </>
+        )}
+      </Stack>
+      {makeOffer.isError && (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {t('team.offerError')}
+        </Alert>
+      )}
     </Box>
   )
 }
