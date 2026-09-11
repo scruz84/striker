@@ -91,3 +91,29 @@ export function layoutPitchSlots(counts: Partial<Record<number, number>>, half =
   }
   return slots
 }
+
+// Total canvas height for the head-to-head pitch - two occupied halves back to back, meeting at
+// a shared halfway line (see layoutHeadToHeadSlots below).
+export const PITCH_HEIGHT_HEAD_TO_HEAD = PITCH_HEIGHT_HALF * 2
+
+export interface HeadToHeadSlots {
+  home: PitchSlot[]
+  away: PitchSlot[]
+}
+
+/** Lays out both teams' formations on one shared pitch, facing each other, instead of each team
+ * getting its own separate pitch - home occupies the bottom half (own goal at the bottom, same
+ * orientation as layoutPitchSlots' `half` layout), away is mirrored into the top half (own goal
+ * at the top, formation approaching the halfway line from the other side). Left/right x
+ * coordinates are NOT mirrored between the two - a team's own left back is drawn on the same
+ * side of the pitch for both teams, matching how broadcast head-to-head graphics do it, rather
+ * than physically mirroring by pitch geometry (which would make "left vs left" battles harder
+ * to read at a glance). */
+export function layoutHeadToHeadSlots(
+  homeCounts: Partial<Record<number, number>>,
+  awayCounts: Partial<Record<number, number>>,
+): HeadToHeadSlots {
+  const home = layoutPitchSlots(homeCounts, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_HALF + slot.y }))
+  const away = layoutPitchSlots(awayCounts, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_HALF - slot.y }))
+  return { home, away }
+}

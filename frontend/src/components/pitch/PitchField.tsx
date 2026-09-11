@@ -4,11 +4,22 @@ import { PITCH_HEIGHT, PITCH_HEIGHT_HALF, PITCH_WIDTH } from './pitchLayout'
 
 /** The striped-grass backdrop and line markings shared by every pitch view in the app. Children
  * are absolutely positioned slot contents laid out in the same coordinate space as
- * pitchLayout.layoutPitchSlots - pass the same `half` value to both. `half` shows only the
+ * pitchLayout.layoutPitchSlots - pass the same `half`/`height` to both. `half` shows only the
  * occupied own-half-plus-halfway-line (PITCH_HEIGHT_HALF tall) instead of the full pitch - see
- * PITCH_HEIGHT_HALF's comment in pitchLayout.ts. */
-export function PitchField({ children, half = false }: { children: ReactNode; half?: boolean }) {
-  const height = half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT
+ * PITCH_HEIGHT_HALF's comment in pitchLayout.ts. Pass `height` to override the canvas height
+ * used for both the aspect ratio and the markings (still drawn in full - both goal boxes, center
+ * circle - just scaled to that height) - see PITCH_HEIGHT_HEAD_TO_HEAD's own two-teams-on-one-
+ * pitch view, which needs a taller canvas than the single-team default. */
+export function PitchField({
+  children,
+  half = false,
+  height: heightOverride,
+}: {
+  children: ReactNode
+  half?: boolean
+  height?: number
+}) {
+  const height = heightOverride ?? (half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT)
   return (
     <Box
       sx={{
@@ -20,15 +31,14 @@ export function PitchField({ children, half = false }: { children: ReactNode; ha
         background: 'repeating-linear-gradient(180deg, #3f8f46 0px, #3f8f46 40px, #388240 40px, #388240 80px)',
       }}
     >
-      <PitchMarkings half={half} />
+      <PitchMarkings half={half} height={height} />
       {children}
     </Box>
   )
 }
 
-function PitchMarkings({ half }: { half: boolean }) {
+function PitchMarkings({ half, height }: { half: boolean; height: number }) {
   const line = 'rgba(255,255,255,0.7)'
-  const height = half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT
   const centerX = PITCH_WIDTH / 2
 
   return (

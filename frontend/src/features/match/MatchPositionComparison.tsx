@@ -80,10 +80,13 @@ export function MatchPositionComparison({
 
 function ZoneBar({ label, home, away }: { label: string; home: number; away: number }) {
   const total = home + away
-  // Each side's share of a fixed-width bar, capped at 50% so a side never overruns the center
-  // divider even when the opponent's value is 0.
-  const homePct = total > 0 ? (home / total) * 50 : 0
-  const awayPct = total > 0 ? (away / total) * 50 : 0
+  // Each side's share of the zone, as a 0-100 pair summing to 100 (split evenly when neither team
+  // has anything here). The bar itself halves that share again so a side never overruns the
+  // center divider even when the opponent's value is 0.
+  const homeShare = total > 0 ? (home / total) * 100 : 50
+  const awayShare = 100 - homeShare
+  const homePct = homeShare / 2
+  const awayPct = awayShare / 2
   const homeStronger = home > away
   const awayStronger = away > home
 
@@ -93,7 +96,7 @@ function ZoneBar({ label, home, away }: { label: string; home: number; away: num
         variant="body2"
         sx={{ flex: 1, textAlign: 'right', pr: 1, fontWeight: homeStronger ? 700 : 400 }}
       >
-        {home.toFixed(1)}
+        {Math.round(homeShare)}%
       </Typography>
       <Box sx={{ width: { xs: 90, sm: 160 } }}>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mb: 0.25 }}>
@@ -126,7 +129,7 @@ function ZoneBar({ label, home, away }: { label: string; home: number; away: num
         </Box>
       </Box>
       <Typography variant="body2" sx={{ flex: 1, pl: 1, fontWeight: awayStronger ? 700 : 400 }}>
-        {away.toFixed(1)}
+        {Math.round(awayShare)}%
       </Typography>
     </Stack>
   )

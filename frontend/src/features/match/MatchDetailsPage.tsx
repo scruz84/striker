@@ -29,7 +29,7 @@ import { TeamBadge } from '../../components/TeamBadge'
 import { formatDateTime } from '../../utils/formatDate'
 import { commentaryFor } from '../../utils/matchCommentary'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
-import { MatchLineupPitch } from './MatchLineupPitch'
+import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
 
 export function MatchDetailsPage() {
@@ -412,20 +412,18 @@ function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, away
           awayName={awayName}
         />
       )}
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-            {homeName}
-          </Typography>
-          <MatchLineupPitch lineup={homeLineup} players={homePlayers} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-            {awayName}
-          </Typography>
-          <MatchLineupPitch lineup={awayLineup} players={awayPlayers} />
-        </Grid>
-      </Grid>
+      <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
+        {awayName}
+      </Typography>
+      <MatchHeadToHeadPitch
+        homeLineup={homeLineup}
+        homePlayers={homePlayers}
+        awayLineup={awayLineup}
+        awayPlayers={awayPlayers}
+      />
+      <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+        {homeName}
+      </Typography>
     </Box>
   )
 }
