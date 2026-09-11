@@ -1,6 +1,9 @@
 package engine
 
-import "github.com/scruz84/striker/common"
+import (
+	"github.com/scruz84/striker/common"
+	log "github.com/sirupsen/logrus"
+)
 
 func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
 	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away)
@@ -12,10 +15,26 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdateClassification(dbCtx, matchSimulation)
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	recordPlayerMinutes(dbCtx, matchSimulation)
 	NotifyMatchResult(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation)
 
 	return matchSimulation, nil
+}
+
+// recordPlayerMinutes persists a just-simulated competitive match's per-player-per-position
+// minutes into the season-long accumulator engine.ProgressPlayers reads at season rollover (see
+// common.RecordPlayerPositionMinutes) - shared by league matches (here) and cup ties (see
+// engine/cups.go's simulateCupTie). Deliberately NOT called for friendly matches - see
+// engine/friendlies.go's simulateFriendly and init26_friendlies.sql's own rationale for why
+// friendlies have no effect beyond the match itself.
+func recordPlayerMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+	if err := common.RecordPlayerPositionMinutes(dbCtx, match.HomeMinutesByPosition); err != nil {
+		log.Errorf("error recording home player minutes for match %d: %s", match.Id, err)
+	}
+	if err := common.RecordPlayerPositionMinutes(dbCtx, match.AwayMinutesByPosition); err != nil {
+		log.Errorf("error recording away player minutes for match %d: %s", match.Id, err)
+	}
 }
 
 // runMatchSimulation builds both teams' lineups/qualifications and runs the full 90-minute
@@ -74,6 +93,8 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		SentOff:               make(map[int64]bool),
 		HomeSubstitutions:     homeSubstitutions,
 		AwaySubstitutions:     awaySubstitutions,
+		HomeMinutesByPosition: make(map[int64]map[int]int),
+		AwayMinutesByPosition: make(map[int64]map[int]int),
 	}
 	events = nil
 	matchInstants = nil
@@ -99,9 +120,31 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	for min := 1; min <= endMinute; min++ {
 		matchSimulation.Minute = min
 		pipeline.Simulate(dbCtx, matchSimulation)
+		// Tallied after this minute's stages have run, so a player substituted/sent off/injured
+		// this exact minute doesn't get it counted, and whoever replaced them does - see
+		// SubstitutionSimulation, DisciplineSimulation, InjurySimulation, all of which mutate
+		// *PlayersByPosition before this point in the same minute.
+		trackMinutesByPosition(matchSimulation.HomePlayersByPosition, matchSimulation.HomeMinutesByPosition)
+		trackMinutesByPosition(matchSimulation.AwayPlayersByPosition, matchSimulation.AwayMinutesByPosition)
 	}
 
 	return matchSimulation, nil
+}
+
+// trackMinutesByPosition credits every player currently occupying a position slot with one more
+// minute played at that exact position - called once per simulated minute (see
+// runMatchSimulation). A player only ever appears in one position's slice at a time (kickoff
+// lineup, or wherever a later substitution places them - see SubstitutionSimulation), so this
+// naturally accumulates correct per-position minutes even across a mid-match position change.
+func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPosition map[int64]map[int]int) {
+	for position, ids := range *playersByPosition {
+		for _, id := range ids {
+			if minutesByPosition[id] == nil {
+				minutesByPosition[id] = make(map[int]int)
+			}
+			minutesByPosition[id][position]++
+		}
+	}
 }
 
 // excludeUnavailablePlayers removes suspended/injured players from a team's active position

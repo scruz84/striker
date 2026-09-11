@@ -5,6 +5,46 @@ import (
 	"testing"
 )
 
+func TestTrackMinutesByPosition_CreditsEveryOnPitchPlayer(t *testing.T) {
+	positions := map[int][]int64{
+		common.GOALKEEPER: {1},
+		common.DEFENSE:    {10, 20},
+		common.STRIKER:    {30},
+	}
+	minutes := make(map[int64]map[int]int)
+
+	trackMinutesByPosition(&positions, minutes)
+	trackMinutesByPosition(&positions, minutes)
+
+	if minutes[1][common.GOALKEEPER] != 2 {
+		t.Fatalf("expected goalkeeper credited 2 minutes, got %d", minutes[1][common.GOALKEEPER])
+	}
+	if minutes[10][common.DEFENSE] != 2 || minutes[20][common.DEFENSE] != 2 {
+		t.Fatalf("expected both defenders credited 2 minutes each, got %d and %d", minutes[10][common.DEFENSE], minutes[20][common.DEFENSE])
+	}
+	if minutes[30][common.STRIKER] != 2 {
+		t.Fatalf("expected striker credited 2 minutes, got %d", minutes[30][common.STRIKER])
+	}
+}
+
+func TestTrackMinutesByPosition_SubstitutedPlayerKeepsPriorMinutesAtNewPositionSeparate(t *testing.T) {
+	// Simulates a substitution mid-match: player 10 plays DEFENSE for one tick, then is swapped
+	// out for player 99 in the same slot (as SubstitutionSimulation does) for a second tick.
+	positions := map[int][]int64{common.DEFENSE: {10}}
+	minutes := make(map[int64]map[int]int)
+	trackMinutesByPosition(&positions, minutes)
+
+	positions[common.DEFENSE] = []int64{99}
+	trackMinutesByPosition(&positions, minutes)
+
+	if minutes[10][common.DEFENSE] != 1 {
+		t.Fatalf("expected the outgoing player credited exactly 1 minute, got %d", minutes[10][common.DEFENSE])
+	}
+	if minutes[99][common.DEFENSE] != 1 {
+		t.Fatalf("expected the incoming player credited exactly 1 minute, got %d", minutes[99][common.DEFENSE])
+	}
+}
+
 func TestFilterOutfieldPlayers_RemovesExcludedIds(t *testing.T) {
 	positions := map[int][]int64{
 		common.GOALKEEPER: {1},
