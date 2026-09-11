@@ -35,6 +35,7 @@ import {
   useAdminCountries,
   useAdminLeagues,
   useAdminOverview,
+  useAdminPayWagesNow,
   useAdminRecreateLeagues,
   useAdminSetAiLevel,
   useAdminSimulateNow,
@@ -165,6 +166,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
   const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
+  const payWagesNow = useAdminPayWagesNow()
   const adjustBudget = useAdminAdjustBudget()
   const setTransferWindow = useSetTransferWindow()
   const [teamId, setTeamId] = useState('')
@@ -182,6 +184,13 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
     const ok = await confirm({ message: t('admin.actions.confirmCheckSeasonAdvance'), destructive: true })
     if (ok) {
       advanceSeason.mutate()
+    }
+  }
+
+  const handlePayWagesNow = async () => {
+    const ok = await confirm({ message: t('admin.actions.confirmPayWages'), destructive: true })
+    if (ok) {
+      payWagesNow.mutate()
     }
   }
 
@@ -232,6 +241,9 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
             <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
               {t('admin.actions.checkSeasonAdvance')}
             </Button>
+            <Button variant="outlined" onClick={handlePayWagesNow} disabled={payWagesNow.isPending}>
+              {t('admin.actions.payWagesNow')}
+            </Button>
             <Button
               variant="outlined"
               color={transferWindowOpen ? 'warning' : 'success'}
@@ -243,6 +255,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
           </Stack>
           {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.simSuccess')}</Alert>}
           {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.seasonSuccess')}</Alert>}
+          {payWagesNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.payWagesSuccess')}</Alert>}
           {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.windowSuccess')}</Alert>}
         </Box>
 

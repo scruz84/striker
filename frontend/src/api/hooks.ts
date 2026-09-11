@@ -610,6 +610,16 @@ export function useAdminAdvanceSeason() {
   })
 }
 
+export function useAdminPayWagesNow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/admin/pay-wages'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useAdminAdjustBudget() {
   return useMutation({
     mutationFn: ({ teamId, amount, description }: { teamId: number; amount: number; description: string }) =>

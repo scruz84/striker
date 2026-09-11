@@ -87,6 +87,18 @@ func AdminSimulateNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// AdminPayWagesNowHandler force-runs the same weekly wage payment the scheduler already runs
+// every Monday (see engine/scheduler.go) - a manual override/testing convenience, useful since
+// unlike match simulation there's otherwise no way to see this fire without waiting for the
+// real calendar week to turn over.
+func AdminPayWagesNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Infof("admin-triggered manual wage payment")
+		engine.PayWeeklyWages(dbCtx)
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "weekly wages paid"})
+	}
+}
+
 // AdminAdvanceSeasonHandler force-checks whether the current season is complete and, if so,
 // rolls it over immediately instead of waiting for the scheduler's next tick (every 5 minutes -
 // see engine/scheduler.go). It's a no-op if matches remain unplayed.

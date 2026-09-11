@@ -185,6 +185,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.GET("/overview", handlers.AdminOverviewHandler(dbCtx))
 	v1AdminGroup.GET("/users", handlers.AdminListUsersHandler(dbCtx))
 	v1AdminGroup.POST("/simulate", handlers.AdminSimulateNowHandler(dbCtx))
+	v1AdminGroup.POST("/pay-wages", handlers.AdminPayWagesNowHandler(dbCtx))
 	v1AdminGroup.POST("/advance-season", handlers.AdminAdvanceSeasonHandler(dbCtx))
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
 	v1AdminGroup.PUT("/teams/:"+handlers.ID+"/ai-level", handlers.AdminSetTeamAiLevelHandler(dbCtx))

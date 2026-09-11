@@ -382,12 +382,15 @@
       "confirmRunSimulation": "Run the simulation pass now? This immediately simulates every due match for all users.",
       "checkSeasonAdvance": "Check season advance",
       "confirmCheckSeasonAdvance": "Check for season advance now? If the season is ready, this immediately rolls it over for every user.",
+      "payWagesNow": "Pay wages now",
+      "confirmPayWages": "Pay this week's wages now? This immediately charges every team its player and trainer wage bill, the same as the weekly payroll run.",
       "closeWindow": "Close transfer window",
       "confirmCloseWindow": "Close the transfer window? Listing, buying, and accepting loans and offers become unavailable for every user until it reopens.",
       "openWindow": "Open transfer window",
       "confirmOpenWindow": "Open the transfer window for every user?",
       "simSuccess": "Simulation pass triggered.",
       "seasonSuccess": "Season advance check triggered.",
+      "payWagesSuccess": "Weekly wages paid.",
       "windowSuccess": "Transfer window updated."
     },
     "adjustBudget": {

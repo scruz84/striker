@@ -382,12 +382,15 @@
       "confirmRunSimulation": "¿Ejecutar la simulación ahora? Esto simula de inmediato todos los partidos pendientes de todos los usuarios.",
       "checkSeasonAdvance": "Comprobar avance de temporada",
       "confirmCheckSeasonAdvance": "¿Comprobar el avance de temporada ahora? Si la temporada está lista, esto la avanza de inmediato para todos los usuarios.",
+      "payWagesNow": "Pagar salarios ahora",
+      "confirmPayWages": "¿Pagar los salarios de esta semana ahora? Esto cobra de inmediato a cada equipo su nómina de jugadores y entrenador, igual que la ejecución semanal.",
       "closeWindow": "Cerrar mercado de fichajes",
       "confirmCloseWindow": "¿Cerrar el mercado de fichajes? Listar, comprar y aceptar cesiones u ofertas dejarán de estar disponibles para todos los usuarios hasta que reabra.",
       "openWindow": "Abrir mercado de fichajes",
       "confirmOpenWindow": "¿Abrir el mercado de fichajes para todos los usuarios?",
       "simSuccess": "Simulación ejecutada.",
       "seasonSuccess": "Comprobación de avance de temporada ejecutada.",
+      "payWagesSuccess": "Salarios semanales pagados.",
       "windowSuccess": "Mercado de fichajes actualizado."
     },
     "adjustBudget": {

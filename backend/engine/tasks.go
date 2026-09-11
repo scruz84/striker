@@ -70,3 +70,26 @@ func (pj *CupJob) Execute(context.Context) error {
 func NewCupJob(dbCtx *common.DatabaseContext) *CupJob {
 	return &CupJob{desc: "cup progression job", dbCtx: dbCtx}
 }
+
+// WeeklyWagesJob implements the quartz.Job interface: pays every team's player and trainer
+// wage bill, on a real-calendar-time schedule independent of match simulation - see
+// engine.PayWeeklyWages.
+type WeeklyWagesJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *WeeklyWagesJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *WeeklyWagesJob) Execute(context.Context) error {
+	log.Info("Weekly wages job")
+	PayWeeklyWages(pj.dbCtx)
+	return nil
+}
+
+func NewWeeklyWagesJob(dbCtx *common.DatabaseContext) *WeeklyWagesJob {
+	return &WeeklyWagesJob{desc: "weekly wages job", dbCtx: dbCtx}
+}

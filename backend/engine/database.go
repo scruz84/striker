@@ -64,16 +64,14 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 	}
 }
 
-// UpdateTeamFinancesAfterMatch charges both teams their current wage bill for having played
-// this match - the closest thing this game has to a "week" of wages, since matches are what
-// actually advance game time. It's also the once-per-match hook point for any unowned team's AI
-// upkeep (see RunAITeamManagement) - matches are the natural cadence for that too, and reusing
-// this call site avoids a separate scheduler job.
+// UpdateTeamFinancesAfterMatch credits both teams their matchday income - gate receipts for the
+// home side, sponsorship for both - since that's genuinely event-driven, tied to actually
+// playing. Wages are not: see PayWeeklyWages, which runs on a real-calendar-time schedule
+// independent of who played, the same way a real club's payroll doesn't pause between fixtures.
+// This is also the once-per-match hook point for any unowned team's AI upkeep (see
+// RunAITeamManagement) - matches are the natural cadence for that, and reusing this call site
+// avoids a separate scheduler job for it.
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	deductWages(dbCtx, match.Home)
-	deductWages(dbCtx, match.Away)
-	deductTrainerWage(dbCtx, match.Home)
-	deductTrainerWage(dbCtx, match.Away)
 	creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Away)
@@ -95,38 +93,6 @@ func NotifyMatchResult(dbCtx *common.DatabaseContext, match *common.MatchSimulat
 	}
 	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_MATCH_RESULT, message); err != nil {
 		log.Errorf("error notifying away team owner of match result: %s", err)
-	}
-}
-
-func deductWages(dbCtx *common.DatabaseContext, teamId int64) {
-	wageBill, err := common.GetTeamWageBill(dbCtx, teamId)
-	if err != nil {
-		log.Errorf("error getting wage bill for team %d: %s", teamId, err)
-		return
-	}
-	if wageBill == 0 {
-		return
-	}
-	if err := common.AdjustTeamBudget(dbCtx, teamId, -wageBill, common.TRANSACTION_WAGES, "match wages"); err != nil {
-		log.Errorf("error deducting wages for team %d: %s", teamId, err)
-	}
-}
-
-// deductTrainerWage charges a team its head coach's wage for having played this match, the
-// same "wages ride along with matches" convention deductWages uses for players - a no-op for a
-// team that hasn't hired one.
-func deductTrainerWage(dbCtx *common.DatabaseContext, teamId int64) {
-	trainer, err := common.GetTeamTrainer(dbCtx, teamId)
-	if err != nil {
-		log.Errorf("error getting trainer for team %d: %s", teamId, err)
-		return
-	}
-	if trainer == nil {
-		return
-	}
-	description := "trainer wages: " + trainer.FirstName + " " + trainer.LastName
-	if err := common.AdjustTeamBudget(dbCtx, teamId, -int64(trainer.Wage), common.TRANSACTION_TRAINER_WAGES, description); err != nil {
-		log.Errorf("error deducting trainer wage for team %d: %s", teamId, err)
 	}
 }
 
