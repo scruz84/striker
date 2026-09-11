@@ -23,7 +23,12 @@ const GetSeasonMatchCountsStmtSql = "SELECT count(*) FILTER (WHERE played = fals
 const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = $1, matches = 0, points = 0, wins = 0, " +
 	"losses = 0, draws = 0, goals_scored = 0, goals_received = 0 WHERE league_id = $2"
 
-const GetFreeTeamStmtSql = "SELECT team_id FROM teams WHERE owner_id IS NULL and country = $1 limit 1"
+// Prefers the highest division (lowest tier number) that still has an unclaimed team, only
+// spilling into the next division down once the current one is full of human owners - a new
+// manager should land in the top flight while there's room, not in a random division. Within
+// whichever tier ends up supplying the pick, the specific team is still random.
+const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.league_id = l.league_id " +
+	"WHERE t.owner_id IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
 
 const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" " +
 	"from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d " +
@@ -60,8 +65,13 @@ const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + F
 
 const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
 
-const GetUserStmtSql = "SELECT u.name userName, u.country, u.provider, u.email, t.team_id, t.name as teamName, " +
-	"t.league_id, u.is_admin from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
+// COALESCEd because a user who hasn't picked a country yet (see RegisterPendingUserStmtSql) has
+// no row in `teams` to join and a NULL country - scanning those straight into Go's non-nullable
+// string fields would error, where the empty-string/'0' sentinels let GetUserDetails represent
+// "no team assigned yet" instead.
+const GetUserStmtSql = "SELECT u.name userName, COALESCE(u.country, '') as country, u.provider, u.email, " +
+	"COALESCE(t.team_id::text, '0') as teamId, COALESCE(t.name, '') as teamName, COALESCE(t.league_id::text, '0') as leagueId, u.is_admin " +
+	"from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
 
 const GetUserIsAdminStmtSql = "SELECT is_admin FROM users WHERE user_id = $1"
 
@@ -107,6 +117,13 @@ const InsertMatchInstantStmtSql = "" +
 
 const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 	"country) VALUES ($1, $2, $3, $4) returning user_id"
+
+// RegisterPendingUserStmtSql registers a brand-new sign-in without a country - used the first
+// time someone logs in (Google or dev), before they've picked which country to play in (see
+// handlers.SelectCountryHandler). Leaves `country` NULL (the column allows it) rather than
+// guessing one, and deliberately doesn't touch `teams` at all - AssignTeam only runs once a
+// country is chosen.
+const RegisterPendingUserStmtSql = "INSERT INTO users (name, provider, email) VALUES ($1, $2, $3) returning user_id"
 const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id = $1"
 
 // Resets name_changed to false alongside the fresh name - a newly assigned owner gets their own
@@ -462,16 +479,25 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 		return nil, err
 	}
 	return &LoggedUser{
-		Id:         strconv.FormatInt(userId, 10),
-		Name:       name,
-		Provider:   provider,
-		Email:      email,
-		Country:    country,
-		TeamId:     teamId,
-		TeamName:   teamName,
-		TeamLeague: leagueId,
-		IsAdmin:    isAdmin,
+		Id:                      strconv.FormatInt(userId, 10),
+		Name:                    name,
+		Provider:                provider,
+		Email:                   email,
+		Country:                 country,
+		TeamId:                  teamId,
+		TeamName:                teamName,
+		TeamLeague:              leagueId,
+		IsAdmin:                 isAdmin,
+		PendingCountrySelection: teamId == "0",
 	}, nil
+}
+
+// SetUserCountry records the country a user picked during onboarding (see
+// handlers.SelectCountryHandler) - called once, right before AssignTeam hands them a team in
+// that country.
+func SetUserCountry(dbCtx *DatabaseContext, userId int64, country string) error {
+	_, err := dbCtx.Db.Exec("UPDATE users SET country = $1 WHERE user_id = $2", country, userId)
+	return err
 }
 
 // IsUserAdmin is a lightweight admin check (no join) for the RequireAdmin middleware - it's on

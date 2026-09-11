@@ -4,6 +4,7 @@ import type {
   AdminLeagueInfo,
   AdminOverview,
   AdminUserSummary,
+  CountryInfo,
   CountryStatus,
   CupDetails,
   DevUser,
@@ -68,6 +69,7 @@ export const queryKeys = {
   adminUsers: ['adminUsers'] as const,
   adminWorldConfig: ['adminWorldConfig'] as const,
   adminCountries: ['adminCountries'] as const,
+  onboardingCountries: ['onboardingCountries'] as const,
   adminLeagues: ['adminLeagues'] as const,
   devLoginUsers: ['devLoginUsers'] as const,
 }
@@ -90,12 +92,18 @@ export function useMe() {
   })
 }
 
+// Both login mutations resolve with the freshly-fetched LoggedUser (not just the bare JWT the
+// login endpoint itself returns) so the caller can route a first-time sign-in straight to the
+// onboarding country picker (loggedUser.pendingCountrySelection) instead of the dashboard -
+// see LoginPage.
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (jwt: string) => api.post('/v1/login', { jwt, provider: 'google' }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    mutationFn: async (jwt: string) => {
+      await api.post('/v1/login', { jwt, provider: 'google' })
+      const loggedUser = await api.get<LoggedUser>('/v1/auth/me')
+      queryClient.setQueryData(queryKeys.me, loggedUser)
+      return loggedUser
     },
   })
 }
@@ -114,9 +122,32 @@ export function useDevLoginUsers() {
 export function useDevLogin() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (email: string) => api.post('/v1/login', { devEmail: email, provider: 'dev' }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    mutationFn: async (email: string) => {
+      await api.post('/v1/login', { devEmail: email, provider: 'dev' })
+      const loggedUser = await api.get<LoggedUser>('/v1/auth/me')
+      queryClient.setQueryData(queryKeys.me, loggedUser)
+      return loggedUser
+    },
+  })
+}
+
+// The countries a newly signed-in, not-yet-assigned user can start their team in - only the
+// ones a world has actually been generated for (see backend's GetActiveCountries), not the
+// full admin-facing KnownCountries list.
+export function useOnboardingCountries() {
+  return useQuery({
+    queryKey: queryKeys.onboardingCountries,
+    queryFn: () => api.get<CountryInfo[]>('/v1/auth/onboarding/countries'),
+    staleTime: Infinity,
+  })
+}
+
+export function useSelectCountry() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (country: string) => api.post<LoggedUser>('/v1/auth/onboarding/country', { country }),
+    onSuccess: (loggedUser) => {
+      queryClient.setQueryData(queryKeys.me, loggedUser)
     },
   })
 }

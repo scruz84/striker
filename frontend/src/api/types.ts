@@ -13,6 +13,17 @@ export interface LoggedUser {
   teamLeague: string
   pictureUrl: string
   isAdmin: boolean
+  // True right after a first-time sign-in, before the onboarding country picker has run - every
+  // other field involving a team is meaningless until this is false (teamId is "0").
+  pendingCountrySelection: boolean
+}
+
+// A country the engine can generate a world for (see backend common.KnownCountries) - used by
+// the onboarding country picker (only ever the currently-active ones, see
+// useOnboardingCountries) and reused as the base shape of admin's CountryStatus below.
+export interface CountryInfo {
+  code: string
+  name: string
 }
 
 // Mirrors backend/common.DevUser - only ever non-empty when the backend has DEV_LOGIN_ENABLED
@@ -615,9 +626,7 @@ export interface TierConfig {
   teamsPerLeague: number
 }
 
-export interface CountryStatus {
-  code: string
-  name: string
+export interface CountryStatus extends CountryInfo {
   active: boolean
 }
 

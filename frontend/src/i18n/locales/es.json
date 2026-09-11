@@ -103,6 +103,13 @@
       "admin": "admin"
     }
   },
+  "onboarding": {
+    "title": "Elige tu país",
+    "subtitle": "Elige el país en el que quieres dirigir un club - se te asignará un equipo libre, empezando por la máxima división.",
+    "confirm": "Confirmar",
+    "noCountries": "Ahora mismo no hay países disponibles para unirse.",
+    "selectError": "No se pudo asignar un equipo. Inténtalo de nuevo."
+  },
   "dashboard": {
     "editLineup": "Editar alineación",
     "renameTeam": "Renombrar equipo (solo una vez)",

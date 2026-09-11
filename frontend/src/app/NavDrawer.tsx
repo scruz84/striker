@@ -39,7 +39,9 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
   const { data: loggedUser } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
 
-  if (!loggedUser) {
+  // Nothing here applies before a team exists - a pending user only ever sees the onboarding
+  // country picker itself (see Layout's redirect), so the site nav would just be dead weight.
+  if (!loggedUser || loggedUser.pendingCountrySelection) {
     return null
   }
 

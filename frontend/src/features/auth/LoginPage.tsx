@@ -52,7 +52,7 @@ export function LoginPage() {
                       return
                     }
                     login.mutate(credentialResponse.credential, {
-                      onSuccess: () => navigate('/dashboard'),
+                      onSuccess: (loggedUser) => navigate(loggedUser.pendingCountrySelection ? '/onboarding' : '/dashboard'),
                     })
                   }}
                   onError={() => {
@@ -78,7 +78,9 @@ export function LoginPage() {
                         size="small"
                         disabled={devLogin.isPending}
                         onClick={() =>
-                          devLogin.mutate(devUser.email, { onSuccess: () => navigate('/dashboard') })
+                          devLogin.mutate(devUser.email, {
+                            onSuccess: (loggedUser) => navigate(loggedUser.pendingCountrySelection ? '/onboarding' : '/dashboard'),
+                          })
                         }
                       >
                         {devUser.name}

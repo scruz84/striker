@@ -103,6 +103,13 @@
       "admin": "admin"
     }
   },
+  "onboarding": {
+    "title": "Choose your country",
+    "subtitle": "Pick the country you want to manage a club in - you'll get an open team, starting from the top division down.",
+    "confirm": "Confirm",
+    "noCountries": "No countries are available to join right now.",
+    "selectError": "Couldn't assign a team. Please try again."
+  },
   "dashboard": {
     "editLineup": "Edit lineup",
     "renameTeam": "Rename team (one-time)",

@@ -91,29 +91,21 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 	userId, errUser := common.GetUserIdByEmail(email, dbCtx)
 	var loggedUser *common.LoggedUser
 	if errUser != nil {
-		//the user does not exist. Register it - assigned to a random one of the game's seeded
-		//countries (see seededCountries), since there's no sign-up step for a new Google user to
-		//pick one themselves.
-		country := randomSeededCountry()
-		err = dbCtx.Db.QueryRow(common.RegisterUserStmtSql, (*jwtTokenClaims)["name"], "google", email, country).Scan(&userId)
+		//the user does not exist. Register it without a country or team yet - the frontend sends
+		//them to the onboarding country picker (see handlers.SelectCountryHandler) right after
+		//this login completes, and AssignTeam only runs once they've chosen one.
+		err = dbCtx.Db.QueryRow(common.RegisterPendingUserStmtSql, (*jwtTokenClaims)["name"], "google", email).Scan(&userId)
 		if err != nil {
 			log.Errorf("error creating new user: %s", err)
 			return nil, http.StatusInternalServerError, err
 		}
-		team, err := common.AssignTeam(dbCtx, userId, country)
-		if err != nil {
-			log.Errorf("error assigning new team to user: %s", err)
-			return nil, http.StatusInternalServerError, err
-		}
 		loggedUser = &common.LoggedUser{
-			Id:         strconv.FormatInt(userId, 10),
-			Name:       fmt.Sprint((*jwtTokenClaims)["name"]),
-			Provider:   "google",
-			Email:      email,
-			Country:    country,
-			TeamId:     strconv.FormatInt(team.Id, 10),
-			TeamName:   team.TeamName,
-			TeamLeague: strconv.FormatInt(team.DivisionId, 10),
+			Id:                      strconv.FormatInt(userId, 10),
+			Name:                    fmt.Sprint((*jwtTokenClaims)["name"]),
+			Provider:                "google",
+			Email:                   email,
+			TeamId:                  "0",
+			PendingCountrySelection: true,
 		}
 	} else {
 		//Get user details
@@ -151,26 +143,21 @@ func DoDevLogin(dbCtx *common.DatabaseContext, email string) (*common.LoggedUser
 	userId, errUser := common.GetUserIdByEmail(devUser.Email, dbCtx)
 	var loggedUser *common.LoggedUser
 	if errUser != nil {
-		country := randomSeededCountry()
-		if err := dbCtx.Db.QueryRow(common.RegisterUserStmtSql, devUser.Name, "dev", devUser.Email, country).
+		// Registered without a country/team yet, same as a first-time Google sign-in - the
+		// frontend routes them to the onboarding country picker next (see
+		// handlers.SelectCountryHandler).
+		if err := dbCtx.Db.QueryRow(common.RegisterPendingUserStmtSql, devUser.Name, "dev", devUser.Email).
 			Scan(&userId); err != nil {
 			log.Errorf("error creating dev user: %s", err)
 			return nil, http.StatusInternalServerError, err
 		}
-		team, err := common.AssignTeam(dbCtx, userId, country)
-		if err != nil {
-			log.Errorf("error assigning team to dev user: %s", err)
-			return nil, http.StatusInternalServerError, err
-		}
 		loggedUser = &common.LoggedUser{
-			Id:         strconv.FormatInt(userId, 10),
-			Name:       devUser.Name,
-			Provider:   "dev",
-			Email:      devUser.Email,
-			Country:    country,
-			TeamId:     strconv.FormatInt(team.Id, 10),
-			TeamName:   team.TeamName,
-			TeamLeague: strconv.FormatInt(team.DivisionId, 10),
+			Id:                      strconv.FormatInt(userId, 10),
+			Name:                    devUser.Name,
+			Provider:                "dev",
+			Email:                   devUser.Email,
+			TeamId:                  "0",
+			PendingCountrySelection: true,
 		}
 	} else {
 		var err error
@@ -201,6 +188,103 @@ func DevLoginUsersHandler() gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, common.DevUsers)
+	}
+}
+
+// OnboardingCountriesHandler lists the countries a newly signed-in, not-yet-assigned user can
+// pick from - only the ones a world has actually been generated for (common.GetActiveCountries),
+// not every country the engine knows how to generate (common.KnownCountries also includes
+// admin-activatable ones with no teams yet).
+func OnboardingCountriesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		active, err := common.GetActiveCountries(dbCtx)
+		if err != nil {
+			log.Errorf("error listing active countries: %s", err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+		activeSet := make(map[string]bool, len(active))
+		for _, code := range active {
+			activeSet[code] = true
+		}
+		countries := make([]common.CountryInfo, 0, len(active))
+		for _, info := range common.KnownCountries {
+			if activeSet[info.Code] {
+				countries = append(countries, info)
+			}
+		}
+		c.JSON(http.StatusOK, countries)
+	}
+}
+
+// SelectCountryHandler completes onboarding for a user who registered without a country (see
+// RegisterPendingUserStmtSql) - records the country they picked and hands them their first team
+// in it (common.AssignTeam), which is what actually decides which division they land in (see
+// GetFreeTeamStmtSql). A no-op returning the user's current state if they've already been
+// assigned a team, so a retried/duplicate request can't hand someone a second team.
+func SelectCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var body struct {
+			Country string `json:"country"`
+		}
+		if err := c.BindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, common.HttpResponse{Message: err.Error()})
+			return
+		}
+
+		existing, err := common.GetUserDetails(*userId, dbCtx)
+		if err != nil {
+			log.Errorf("error loading user %d for onboarding: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+		if !existing.PendingCountrySelection {
+			c.JSON(http.StatusOK, existing)
+			return
+		}
+
+		active, err := common.GetActiveCountries(dbCtx)
+		if err != nil {
+			log.Errorf("error listing active countries: %s", err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+		valid := false
+		for _, code := range active {
+			if code == body.Country {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			c.JSON(http.StatusBadRequest, common.HttpResponse{Message: "unknown or inactive country"})
+			return
+		}
+
+		if err := common.SetUserCountry(dbCtx, *userId, body.Country); err != nil {
+			log.Errorf("error setting country for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+		if _, err := common.AssignTeam(dbCtx, *userId, body.Country); err != nil {
+			log.Errorf("error assigning team to user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+
+		loggedUser, err := common.GetUserDetails(*userId, dbCtx)
+		if err != nil {
+			log.Errorf("error reloading user %d after onboarding: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, loggedUser)
 	}
 }
 

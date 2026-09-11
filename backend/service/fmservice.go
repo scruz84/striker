@@ -188,6 +188,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AuthGroup.GET("/me", handlers.Me(dbCtx, common.UserId))
 	v1AuthGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
 	v1AuthGroup.POST("/logout", authMiddleware.LogoutHandler)
+	v1AuthGroup.GET("/onboarding/countries", handlers.OnboardingCountriesHandler(dbCtx))
+	v1AuthGroup.POST("/onboarding/country", handlers.SelectCountryHandler(dbCtx))
 
 	//Commissioner/admin tooling - requires is_admin, see handlers.RequireAdmin
 	v1AdminGroup := v1Group.Group("/admin")

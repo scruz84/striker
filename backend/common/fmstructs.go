@@ -66,6 +66,10 @@ type LoggedUser struct {
 	TeamLeague string `json:"teamLeague"`
 	PictureUrl string `json:"pictureUrl"`
 	IsAdmin    bool   `json:"isAdmin"`
+	// True for a signed-in user who hasn't picked a country yet (TeamId == "0") - the frontend
+	// gates every other route behind the onboarding country picker while this is true. See
+	// handlers.SelectCountryHandler.
+	PendingCountrySelection bool `json:"pendingCountrySelection"`
 }
 
 type HttpResponse struct {

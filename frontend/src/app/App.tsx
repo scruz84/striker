@@ -16,6 +16,7 @@ import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
+import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
 import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
 import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
@@ -49,6 +50,7 @@ function App() {
                     <Route path="/team/:id" element={<TeamDetailsPage />} />
                     <Route path="/player/:id" element={<PlayerDetailsPage />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/onboarding" element={<SelectCountryPage />} />
                     <Route path="*" element={<HomePage />} />
                   </Route>
                 </Routes>
