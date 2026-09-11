@@ -1,8 +1,7 @@
-import { Fragment, useEffect, useState, type SyntheticEvent } from 'react'
+import { useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
@@ -11,12 +10,13 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { useQueryClient } from '@tanstack/react-query'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useMatchDetails } from '../../api/hooks'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
+  EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
@@ -26,6 +26,7 @@ import {
 import { useLiveMatch } from '../../api/useLiveMatch'
 import { TeamBadge } from '../../components/TeamBadge'
 import { formatDateTime } from '../../utils/formatDate'
+import { commentaryFor } from '../../utils/matchCommentary'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { MatchLineupPitch } from './MatchLineupPitch'
 
@@ -175,7 +176,7 @@ function LiveMatch({
         minute={live.minute}
       />
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <Events events={live.events} homeId={homeId} />
+        <Events events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
       </Paper>
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
@@ -206,7 +207,9 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
           <Tab label={t('match.tabs.lineups')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
-          {tab === 0 && <Events events={match.events ?? []} homeId={match.home} />}
+          {tab === 0 && (
+            <Events events={match.events ?? []} homeId={match.home} homeName={match.homeName} awayName={match.awayName} />
+          )}
           {tab === 1 && (
             <Lineups
               homeName={match.homeName}
@@ -226,6 +229,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 
 const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_GOAL,
+  EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_YELLOW_CARD,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_INJURY,
@@ -234,7 +238,17 @@ const NOTABLE_EVENT_TYPES: number[] = [
 
 /** A vertical timeline with home-team events on the left, away-team events on the right, and
  * a minute marker down the center - the layout real match-center timelines use. */
-function Events({ events, homeId }: { events: WeekMatch['events']; homeId: number }) {
+function Events({
+  events,
+  homeId,
+  homeName,
+  awayName,
+}: {
+  events: WeekMatch['events']
+  homeId: number
+  homeName: string
+  awayName: string
+}) {
   const { t } = useTranslation()
   const notable = (events ?? [])
     .filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType))
@@ -260,15 +274,19 @@ function Events({ events, homeId }: { events: WeekMatch['events']; homeId: numbe
       <Stack spacing={1.5}>
         {notable.map((event, idx) => {
           const isHome = event.teamOwner === homeId
+          const teamName = isHome ? homeName : awayName
+          const opponentName = isHome ? awayName : homeName
           return (
             <Grid container key={idx} sx={{ alignItems: 'center' }}>
               <Grid size={5.5} sx={{ textAlign: 'right' }}>
-                {isHome && <EventContent event={event} align="right" />}
+                {isHome && <EventContent event={event} align="right" teamName={teamName} opponentName={opponentName} />}
               </Grid>
               <Grid size={1} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Chip size="small" label={`${event.minute}'`} sx={{ position: 'relative', zIndex: 1 }} />
               </Grid>
-              <Grid size={5.5}>{!isHome && <EventContent event={event} align="left" />}</Grid>
+              <Grid size={5.5}>
+                {!isHome && <EventContent event={event} align="left" teamName={teamName} opponentName={opponentName} />}
+              </Grid>
             </Grid>
           )
         })}
@@ -277,15 +295,25 @@ function Events({ events, homeId }: { events: WeekMatch['events']; homeId: numbe
   )
 }
 
-function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'right' }) {
+function EventContent({
+  event,
+  align,
+  teamName,
+  opponentName,
+}: {
+  event: MatchEvent
+  align: 'left' | 'right'
+  teamName: string
+  opponentName: string
+}) {
   const { t } = useTranslation()
-  const playerIds = event.teamOwnerPlayers ?? []
-  const playerNames = event.teamOwnerPlayerNames ?? []
 
   const icon = (() => {
     switch (event.eventType) {
       case EVENT_TYPE_GOAL:
         return '⚽'
+      case EVENT_TYPE_NO_GOAL:
+        return '🚫'
       case EVENT_TYPE_YELLOW_CARD:
         return '🟨'
       case EVENT_TYPE_RED_CARD:
@@ -301,6 +329,8 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
 
   const label = (() => {
     switch (event.eventType) {
+      case EVENT_TYPE_NO_GOAL:
+        return t('match.missedChance')
       case EVENT_TYPE_YELLOW_CARD:
         return t('match.yellowCard')
       case EVENT_TYPE_RED_CARD:
@@ -313,6 +343,11 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
         return undefined
     }
   })()
+
+  // Radio-commentator-style narration, one of several phrasings per event type (see
+  // match.commentary.* in the locale files) - the same event always picks the same variant, so
+  // it stays put across re-renders rather than re-rolling on every refetch.
+  const commentary = commentaryFor(event, t, teamName, opponentName)
 
   return (
     <Stack
@@ -329,37 +364,10 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
             {event.homeGoals} - {event.awayGoals}
           </Typography>
         )}
-        {event.eventType === EVENT_TYPE_SUBSTITUTION && playerNames.length === 2 ? (
+        {commentary && (
           <Typography variant="body2" color="text.secondary">
-            <Link component={RouterLink} to={`/player/${playerIds[0]}`} underline="hover" color="inherit">
-              {playerNames[0]}
-            </Link>
-            {' ↓  '}
-            <Link component={RouterLink} to={`/player/${playerIds[1]}`} underline="hover" color="inherit">
-              {playerNames[1]}
-            </Link>
-            {' ↑'}
+            {commentary}
           </Typography>
-        ) : (
-          playerNames.length > 0 && (
-            <Typography variant="body2" color="text.secondary">
-              {playerNames.map((name, i) =>
-                playerIds[i] !== undefined ? (
-                  <Fragment key={playerIds[i]}>
-                    {i > 0 && ', '}
-                    <Link component={RouterLink} to={`/player/${playerIds[i]}`} underline="hover" color="inherit">
-                      {name}
-                    </Link>
-                  </Fragment>
-                ) : (
-                  <Fragment key={name}>
-                    {i > 0 && ', '}
-                    {name}
-                  </Fragment>
-                ),
-              )}
-            </Typography>
-          )
         )}
       </Box>
     </Stack>

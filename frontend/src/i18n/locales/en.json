@@ -380,7 +380,42 @@
     "yellowCard": "Yellow card",
     "redCard": "Red card",
     "injury": "Injury",
-    "substitution": "Substitution"
+    "substitution": "Substitution",
+    "missedChance": "Missed chance",
+    "commentary": {
+      "goal": [
+        "GOAL! {{player}} finds the net for {{team}}!",
+        "{{player}} scores for {{team}} - what a finish!",
+        "It's in! {{player}} beats the goalkeeper for {{team}}!",
+        "GOOOAL! {{player}} gets {{team}} on the scoresheet!"
+      ],
+      "noGoal": [
+        "{{player}} goes close for {{team}}, but it's off target!",
+        "Chance for {{team}}! {{player}}'s effort is saved!",
+        "So close! {{player}} can't quite find the corner for {{team}}.",
+        "{{player}} tries their luck for {{team}} - denied by the keeper!"
+      ],
+      "yellowCard": [
+        "{{player}} goes into the book for {{team}}.",
+        "Yellow card shown to {{player}} of {{team}}.",
+        "The referee cautions {{player}} ({{team}})."
+      ],
+      "redCard": [
+        "{{player}} is sent off! {{team}} down to ten men.",
+        "Red card! {{player}}'s night is over for {{team}}.",
+        "Straight red for {{player}} - {{team}} in trouble now."
+      ],
+      "injury": [
+        "{{player}} is down and looks in trouble for {{team}}.",
+        "Concern for {{team}} as {{player}} can't continue.",
+        "{{player}} has to be withdrawn injured."
+      ],
+      "substitution": [
+        "{{team}} make a change: {{outPlayer}} makes way for {{inPlayer}}.",
+        "Substitution for {{team}} - {{inPlayer}} replaces {{outPlayer}}.",
+        "{{outPlayer}} comes off, {{inPlayer}} comes on for {{team}}."
+      ]
+    }
   },
   "headToHead": {
     "title": "Head to head",

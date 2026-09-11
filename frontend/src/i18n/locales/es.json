@@ -380,7 +380,42 @@
     "yellowCard": "Tarjeta amarilla",
     "redCard": "Tarjeta roja",
     "injury": "Lesión",
-    "substitution": "Sustitución"
+    "substitution": "Sustitución",
+    "missedChance": "Ocasión fallada",
+    "commentary": {
+      "goal": [
+        "¡GOL! ¡{{player}} manda el balón a la red para {{team}}!",
+        "¡{{player}} marca para {{team}} - qué gran definición!",
+        "¡La mete dentro! {{player}} bate al portero para {{team}}.",
+        "¡GOOOL! {{player}} pone a {{team}} en el marcador."
+      ],
+      "noGoal": [
+        "{{player}} lo intenta para {{team}}, ¡pero se va fuera!",
+        "¡Ocasión para {{team}}! El disparo de {{player}} es atajado.",
+        "¡Qué cerca! {{player}} no encuentra la escuadra para {{team}}.",
+        "{{player}} prueba fortuna con {{team}} - ¡el portero lo evita!"
+      ],
+      "yellowCard": [
+        "{{player}} se lleva la amarilla en {{team}}.",
+        "Tarjeta amarilla para {{player}} de {{team}}.",
+        "El árbitro amonesta a {{player}} ({{team}})."
+      ],
+      "redCard": [
+        "¡{{player}} es expulsado! {{team}} se queda con diez.",
+        "¡Tarjeta roja! El partido de {{player}} termina para {{team}}.",
+        "Roja directa para {{player}} - problemas para {{team}}."
+      ],
+      "injury": [
+        "{{player}} está en el suelo y parece dolorido en {{team}}.",
+        "Preocupación en {{team}}: {{player}} no puede continuar.",
+        "{{player}} tiene que retirarse lesionado."
+      ],
+      "substitution": [
+        "Cambio en {{team}}: {{outPlayer}} deja su lugar a {{inPlayer}}.",
+        "Sustitución en {{team}} - {{inPlayer}} entra por {{outPlayer}}.",
+        "{{outPlayer}} sale, {{inPlayer}} entra en {{team}}."
+      ]
+    }
   },
   "headToHead": {
     "title": "Enfrentamientos directos",
