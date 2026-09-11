@@ -21,3 +21,24 @@ func TestEarlyReleaseWageMultiplier_ScalesWithWage(t *testing.T) {
 		t.Fatal("expected releasing a higher-waged player to cost more severance")
 	}
 }
+
+func TestMaxAcceptableRenewalYears_NeverExceedsMax(t *testing.T) {
+	for age := 16; age <= 45; age++ {
+		years := MaxAcceptableRenewalYears(age)
+		if years < 1 || years > MaxContractYearsRemaining {
+			t.Fatalf("age %d: MaxAcceptableRenewalYears returned %d, out of [1, %d]", age, years, MaxContractYearsRemaining)
+		}
+	}
+}
+
+func TestMaxAcceptableRenewalYears_ShrinksTowardRetirement(t *testing.T) {
+	young := MaxAcceptableRenewalYears(24)
+	prime := MaxAcceptableRenewalYears(31)
+	veteran := MaxAcceptableRenewalYears(35)
+	if !(young >= prime && prime >= veteran) {
+		t.Fatalf("expected the acceptable term to shrink with age, got young=%d prime=%d veteran=%d", young, prime, veteran)
+	}
+	if young != MaxContractYearsRemaining {
+		t.Fatalf("expected a young player to accept up to the full %d-season cap, got %d", MaxContractYearsRemaining, young)
+	}
+}

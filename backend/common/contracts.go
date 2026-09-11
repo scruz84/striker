@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -12,14 +13,17 @@ import (
 // player's first contract (see doCreatePlayers) and a free agent's fresh deal on signing (see
 // SignFreeAgent).
 const InitialContractMinYears = 2
-const InitialContractMaxYears = 4
+const InitialContractMaxYears = 3
 
-// RenewalContractYears is how many seasons a contract renewal adds (see RenewPlayerContract).
-const RenewalContractYears = 2
+// MaxContractYearsRemaining is the longest a contract can ever run, initial signing or renewal
+// alike - a team can't lock a player up for more than three seasons at a time.
+const MaxContractYearsRemaining = 3
 
-// MaxContractYearsRemaining caps how far a contract can be extended by renewal, so a team can't
-// stack years of renewals in advance of ever needing them.
-const MaxContractYearsRemaining = 5
+// renewalMaxYearsRetirementAge mirrors engine.RetirementEligibleAge - kept as its own constant
+// rather than importing the engine package from here (which already imports common) to avoid a
+// cycle. A player this age or older won't agree to a renewal offer longer than one season; see
+// MaxAcceptableRenewalYears.
+const renewalMaxYearsRetirementAge = 33
 
 // EarlyReleaseWageMultiplier sets the severance cost of releasing a player before their
 // contract expires (see ReleasePlayer): a flat multiple of their current wage figure, standing
@@ -35,21 +39,20 @@ func RandomContractYears() int {
 var ErrPlayerNotFound = errors.New("player not found")
 var ErrPlayerNotFree = errors.New("player is not a free agent")
 var ErrPlayerNotOwnedByTeam = errors.New("player does not belong to your team")
-var ErrContractAtMax = errors.New("contract is already at its maximum length")
+var ErrInvalidRenewalOffer = errors.New("renewal offer must be a positive wage for 1 to " + strconv.Itoa(MaxContractYearsRemaining) + " seasons")
 
 const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining " +
 	"FROM players WHERE team_id IS NULL " +
 	"ORDER BY (goal_keeper + defense + \"lateral\" + pass + midfield + dribbling + shot) DESC"
 
-// GetPlayerOwnershipForUpdateStmtSql locks a player row and returns just enough to validate and
-// carry out a contract action: who (if anyone) currently employs them, their wage (needed for
-// ReleasePlayer's severance), and how much contract they have left (needed for
-// RenewPlayerContract's cap). team_id comes back NULL for a free agent.
+// GetPlayerOwnershipForUpdateStmtSql locks a player row and returns just enough to validate a
+// contract action: who (if anyone) currently employs them and their wage (needed for
+// ReleasePlayer's severance). team_id comes back NULL for a free agent.
 const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years_remaining FROM players WHERE player_id = $1 " + ForUpdate
 
 const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3 WHERE player_id = $4"
-const RenewContractStmtSql = "UPDATE players SET contract_years_remaining = $1 WHERE player_id = $2"
+const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
 const ReleaseFromTeamStmtSql = "UPDATE players SET team_id = NULL, contract_years_remaining = 0 WHERE player_id = $1"
 
 // GetFreeAgents returns every unowned player, best-skilled first - both those released after
@@ -131,48 +134,114 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	return nil
 }
 
-// RenewPlayerContract extends playerId's contract by RenewalContractYears, capped at
-// MaxContractYearsRemaining. No money changes hands - renewing just means agreeing to keep
-// paying the existing wage for longer, unlike signing a free agent or buying a transfer.
-// Rejects a player currently out on loan (ErrPlayerOnLoan): team_id points at the borrowing
-// team for the loan's duration, but the contract belongs to the parent club, not them - same
-// rule as CreateTransferListing/MakeTransferOffer for the same reason.
-func RenewPlayerContract(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
+// ContractRenewalOffer is the outcome of a team proposing new terms to one of its own players
+// (see MakeContractRenewalOffer). The player decides on the spot rather than an offer sitting
+// pending for a human to answer, so the response always carries a final verdict - plus, either
+// way, the player's actual expectations (ExpectedWage/MaxAcceptableYears) so the team can
+// immediately try again with better terms if declined. That retry loop is the "negotiation" -
+// there's no separate counter-offer step modeled server-side.
+type ContractRenewalOffer struct {
+	Accepted bool   `json:"accepted"`
+	Reason   string `json:"reason,omitempty"`
+	// What this player actually wants - present on every response, accepted or not, so the
+	// frontend can show it even on a first, successful offer.
+	ExpectedWage       int `json:"expectedWage"`
+	MaxAcceptableYears int `json:"maxAcceptableYears"`
+	// Only meaningful when Accepted is true.
+	NewContractYears int `json:"contractYearsRemaining,omitempty"`
+	NewWage          int `json:"wage,omitempty"`
+}
+
+// MaxAcceptableRenewalYears is the longest contract a player of this age will agree to in a
+// renewal offer - the closer to retirement (see renewalMaxYearsRetirementAge, mirroring
+// engine.RetirementEligibleAge), the less willing they are to commit years in advance.
+func MaxAcceptableRenewalYears(age int) int {
+	switch {
+	case age < 30:
+		return MaxContractYearsRemaining
+	case age < renewalMaxYearsRetirementAge:
+		return 2
+	default:
+		return 1
+	}
+}
+
+// MakeContractRenewalOffer proposes offeredWage/offeredYears to one of the team's own players.
+// The player judges it against their own market wage (PlayerWageFromSkills - what a
+// similarly-skilled player earns) and their age-appropriate maximum term
+// (MaxAcceptableRenewalYears); there's no other condition, no fee, and no cost to the team
+// beyond the wage itself once accepted. A declined offer changes nothing in the database and
+// reports the player's real expectations, so the team can immediately retry with better terms.
+// Rejects a player currently out on loan (ErrPlayerOnLoan) for the same reason as
+// ReleasePlayer - team_id belongs to the borrower for the loan's duration, but the contract
+// belongs to the parent club, not them.
+func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int) (*ContractRenewalOffer, error) {
+	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
+		return nil, ErrInvalidRenewalOffer
+	}
+
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer tx.Rollback()
 
-	currentTeamId, _, remaining, err := lockPlayerOwnership(tx, playerId)
+	currentTeamId, _, _, err := lockPlayerOwnership(tx, playerId)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrPlayerNotFound
+		return nil, ErrPlayerNotFound
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !currentTeamId.Valid || currentTeamId.Int64 != teamId {
-		return ErrPlayerNotOwnedByTeam
+		return nil, ErrPlayerNotOwnedByTeam
 	}
 	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if onLoan {
-		return ErrPlayerOnLoan
-	}
-	if remaining >= MaxContractYearsRemaining {
-		return ErrContractAtMax
+		return nil, ErrPlayerOnLoan
 	}
 
-	newRemaining := remaining + RenewalContractYears
-	if newRemaining > MaxContractYearsRemaining {
-		newRemaining = MaxContractYearsRemaining
+	player, err := GetPlayerById(dbCtx, playerId)
+	if err != nil {
+		return nil, err
 	}
-	if _, err := tx.Exec(RenewContractStmtSql, newRemaining, playerId); err != nil {
-		return err
+	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot)
+	maxYears := MaxAcceptableRenewalYears(player.Age)
+
+	result := &ContractRenewalOffer{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
+
+	var reasons []string
+	if offeredWage < expectedWage {
+		reasons = append(reasons, "wage below what they expect")
 	}
-	return tx.Commit()
+	if offeredYears > maxYears {
+		reasons = append(reasons, "too many seasons for their age")
+	}
+	if len(reasons) > 0 {
+		result.Reason = strings.Join(reasons, "; ")
+		return result, nil
+	}
+
+	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offeredYears, offeredWage, playerId); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	result.Accepted = true
+	result.NewContractYears = offeredYears
+	result.NewWage = offeredWage
+
+	playerName := player.FirstName + " " + player.LastName
+	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER,
+		playerName+" accepted a "+strconv.Itoa(offeredYears)+"-season contract renewal")
+
+	return result, nil
 }
 
 // ReleasePlayer terminates playerId's contract with teamId before it expires, paying a
@@ -180,8 +249,8 @@ func RenewPlayerContract(dbCtx *DatabaseContext, playerId int64, teamId int64) e
 // agency immediately - the same team_id/lineup mechanics AdvancePlayerContract uses for a
 // contract that expires naturally at season end, just paid for and team-initiated rather than
 // automatic. Rejects a player currently out on loan (ErrPlayerOnLoan) for the same reason as
-// RenewPlayerContract - team_id belongs to the borrower for the loan's duration, not the club
-// that actually holds the contract.
+// MakeContractRenewalOffer - team_id belongs to the borrower for the loan's duration, not the
+// club that actually holds the contract.
 func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {

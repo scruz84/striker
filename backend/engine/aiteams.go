@@ -59,17 +59,21 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 }
 
 // renewExpiringContracts extends every squad player's contract once it's down to
-// contractRenewalThresholdYears seasons or fewer remaining - unconditionally, since a Manager
-// tier team always prefers keeping a player on the books over losing them to free agency for
-// nothing. ErrPlayerOnLoan (the parent club's contract, not this team's to renew) and
-// ErrContractAtMax are expected outcomes, not failures, and are silently skipped.
+// contractRenewalThresholdYears seasons or fewer remaining - a Manager tier team always prefers
+// keeping a player on the books over losing them to free agency for nothing, so it offers
+// exactly what the player is guaranteed to accept (their own market wage and their own
+// age-appropriate maximum term - see common.PlayerWageFromSkills/MaxAcceptableRenewalYears)
+// rather than lowballing and risking a decline. ErrPlayerOnLoan (the parent club's contract, not
+// this team's to renew) is an expected outcome, not a failure, and is silently skipped.
 func renewExpiringContracts(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
 	for _, p := range players {
 		if p.ContractYearsRemaining > contractRenewalThresholdYears {
 			continue
 		}
-		if err := common.RenewPlayerContract(dbCtx, p.Id, teamId); err != nil &&
-			!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrContractAtMax) {
+		wage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
+		years := common.MaxAcceptableRenewalYears(p.Age)
+		if _, err := common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, wage, years); err != nil &&
+			!errors.Is(err, common.ErrPlayerOnLoan) {
 			log.Errorf("error renewing contract for AI-managed team %d player %d: %s", teamId, p.Id, err)
 		}
 	}

@@ -21,14 +21,21 @@ import {
   useMakeOffer,
   useMe,
   useReleasePlayer,
-  useRenewContract,
   useTeamDetails,
   useTeamHistory,
   useUserTeam,
 } from '../../api/hooks'
-import { AI_LEVEL_CARETAKER, AI_LEVEL_DIRECTOR, AI_LEVEL_MANAGER, type Player, type SeasonHistoryEntry } from '../../api/types'
+import {
+  AI_LEVEL_CARETAKER,
+  AI_LEVEL_DIRECTOR,
+  AI_LEVEL_MANAGER,
+  MAX_CONTRACT_YEARS_REMAINING,
+  type Player,
+  type SeasonHistoryEntry,
+} from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 
@@ -169,18 +176,14 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   )
 }
 
-// Mirrors backend/common/contracts.go's MaxContractYearsRemaining - the server enforces the real
-// cap, this just disables the button early instead of letting a renewal request fail.
-const MAX_CONTRACT_YEARS_REMAINING = 5
-
 function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }) {
   const { t } = useTranslation()
   const confirm = useConfirm()
   const makeOffer = useMakeOffer()
-  const renewContract = useRenewContract()
   const releasePlayer = useReleasePlayer()
   const [amount, setAmount] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [renewalOpen, setRenewalOpen] = useState(false)
 
   const handleSubmit = () => {
     const amountNum = Number(amount)
@@ -218,8 +221,8 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
           <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
             <Button
               size="small"
-              onClick={() => renewContract.mutate(player.id)}
-              disabled={renewContract.isPending || player.contractYearsRemaining >= MAX_CONTRACT_YEARS_REMAINING}
+              onClick={() => setRenewalOpen(true)}
+              disabled={player.contractYearsRemaining >= MAX_CONTRACT_YEARS_REMAINING}
             >
               {t('team.renewContract')}
             </Button>
@@ -232,6 +235,7 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
               {t('team.releaseError')}
             </Alert>
           )}
+          <ContractRenewalDialog player={player} open={renewalOpen} onClose={() => setRenewalOpen(false)} />
         </TableCell>
       ) : (
         <TableCell align="right">

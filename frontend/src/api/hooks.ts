@@ -4,6 +4,7 @@ import type {
   AdminLeagueInfo,
   AdminOverview,
   AdminUserSummary,
+  ContractRenewalOffer,
   CountryInfo,
   CountryStatus,
   CupDetails,
@@ -401,12 +402,19 @@ export function useSignFreeAgent() {
   })
 }
 
+// The player evaluates the offer immediately (see backend's MakeContractRenewalOffer) and the
+// response always carries a verdict, accepted or not - a decline isn't a mutation error, it's a
+// normal 200 with accepted: false, so the caller can show the player's actual expectations and
+// let the team retry with different terms.
 export function useRenewContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (playerId: number) => api.post(`/v1/user/team/players/${playerId}/renew-contract`),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    mutationFn: ({ playerId, wage, years }: { playerId: number; wage: number; years: number }) =>
+      api.post<ContractRenewalOffer>(`/v1/user/team/players/${playerId}/renew-contract`, { wage, years }),
+    onSuccess: (offer) => {
+      if (offer.accepted) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      }
     },
   })
 }

@@ -237,15 +237,37 @@ Every player has a contract (`players.contract_years_remaining`) that counts dow
 season (`common.AdvancePlayerContract`, run from `engine.ProgressPlayers` alongside aging). A
 contract reaching zero releases the player to free agency - `team_id` goes to `NULL` - rather
 than keeping them with their club forever; this is skipped for a player currently out on loan, so
-the parent club's contract keeps ticking but doesn't lapse mid-loan. Any team can sign a free
-agent for free (`GET /v1/free-agents`, `POST /v1/free-agents/:id/sign`) - no transfer fee, just
-their wage, freshly negotiated from their current skills - and gets a new randomly-lengthed
-contract (2-4 seasons). An owner can also manage their own players' contracts directly:
-`POST /v1/user/team/players/:id/renew-contract` extends the contract by two seasons (capped at
-five, no cost), and `POST /v1/user/team/players/:id/release` terminates it early for a severance
-payment (ten times the player's wage, debited from the team's budget and logged to the ledger).
-Both reject a player currently out on loan - the borrowing team holds `team_id` for the loan's
-duration, but the contract belongs to the parent club, not them.
+the parent club's contract keeps ticking but doesn't lapse mid-loan. No contract, initial or
+renewed, ever runs longer than `common.MaxContractYearsRemaining` (3 seasons). Any team can sign
+a free agent for free (`GET /v1/free-agents`, `POST /v1/free-agents/:id/sign`) - no transfer fee,
+just their wage, freshly negotiated from their current skills - and gets a new randomly-lengthed
+contract (2-3 seasons, `common.RandomContractYears`).
+
+An owner renews one of their own players' contracts by making them an offer
+(`POST /v1/user/team/players/:id/renew-contract`, `{"wage": ..., "years": ...}`) rather than a
+guaranteed instant action - the player evaluates it on the spot
+(`common.MakeContractRenewalOffer`) against two expectations, both driven purely by their own
+attributes, nothing else:
+
+- **Wage**: at least their market rate (`common.PlayerWageFromSkills` - the same formula used to
+  price a free agent's fresh contract), i.e. what a similarly-skilled player earns.
+- **Duration**: at most `common.MaxAcceptableRenewalYears(age)` - the full 3-season cap under
+  30, 2 seasons from 30 up to (not including) 33, 1 season at 33+ (mirroring
+  `engine.RetirementEligibleAge`) - a player closer to retirement won't commit years in advance.
+
+The response (`common.ContractRenewalOffer`) is a normal 200 either way and always reports the
+player's actual `expectedWage`/`maxAcceptableYears`, whether the offer was accepted or not - a
+decline changes nothing in the database, so the team can immediately submit a better offer
+informed by those numbers. That retry loop is the "negotiation"; there's no separate
+counter-offer step modeled server-side, no fee for making an offer, and no other condition
+beyond the player's own acceptance. A Manager-tier AI team (see "AI teams" below) always offers
+exactly what its own player is guaranteed to accept, so it never fails to retain someone it's
+trying to keep.
+
+`POST /v1/user/team/players/:id/release` terminates a contract early for a severance payment (ten
+times the player's wage, debited from the team's budget and logged to the ledger). Both the
+renewal offer and release endpoints reject a player currently out on loan - the borrowing team
+holds `team_id` for the loan's duration, but the contract belongs to the parent club, not them.
 
 ## Local development (without Docker)
 

@@ -2,6 +2,7 @@
   "common": {
     "loading": "Cargando...",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "confirm": "Confirmar",
     "confirmTitle": "¿Estás seguro?",
     "save": "Guardar",
@@ -355,6 +356,19 @@
     "releasePlayer": "Rescindir",
     "confirmRelease": "¿Rescindir el contrato de {{name}}? Saldrá de tu plantilla de inmediato y no podrá volver.",
     "releaseError": "No se pudo rescindir el contrato - revisa tu presupuesto.",
+    "contractDialog": {
+      "title": "Oferta de renovación - {{name}}",
+      "subtitle": "Propón un salario y una duración. El jugador decidirá al momento según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse.",
+      "wage": "Salario por partido",
+      "years": "Duración",
+      "yearsOption_one": "{{count}} temporada",
+      "yearsOption_other": "{{count}} temporadas",
+      "accepted": "¡Oferta aceptada! Nuevo contrato: {{years}} a {{wage}}/partido.",
+      "declined": "Rechazada. Quiere al menos {{wage}}/partido, y no se comprometerá a más de {{years}}.",
+      "useExpectations": "Ofrecer lo que pide",
+      "submit": "Enviar oferta",
+      "error": "No se pudo enviar la oferta. Inténtalo de nuevo."
+    },
     "aiLevel": {
       "caretaker": "IA: Cuidador",
       "manager": "IA: Gerente",

@@ -56,8 +56,17 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// RenewContractHandler extends one of the caller's own players' contracts by
-// common.RenewalContractYears.
+// RenewalOfferRequest is RenewContractHandler's request body - the wage and duration the team
+// is proposing. The player decides on the spot (see common.MakeContractRenewalOffer); a decline
+// is a normal 200 response (common.ContractRenewalOffer.Accepted == false), not an error, since
+// the team is expected to see why and try again with different terms.
+type RenewalOfferRequest struct {
+	Wage  int `json:"wage"`
+	Years int `json:"years"`
+}
+
+// RenewContractHandler proposes new terms for one of the caller's own players' contracts. The
+// response is always a common.ContractRenewalOffer, whether the player accepted or not.
 func RenewContractHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -70,24 +79,31 @@ func RenewContractHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, "invalid player id"))
 			return
 		}
+		var body RenewalOfferRequest
+		if err := c.BindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid renewal offer"))
+			return
+		}
 		team, err := common.GetTeamByOwner(*userId, dbCtx)
 		if err != nil {
 			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
 			return
 		}
 
-		err = common.RenewPlayerContract(dbCtx, playerId, team.Id)
+		offer, err := common.MakeContractRenewalOffer(dbCtx, playerId, team.Id, body.Wage, body.Years)
 		switch {
 		case err == nil:
-			c.JSON(http.StatusOK, common.HttpResponse{Message: "contract renewed"})
+			c.JSON(http.StatusOK, offer)
+		case errors.Is(err, common.ErrInvalidRenewalOffer):
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotOwnedByTeam):
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrContractAtMax), errors.Is(err, common.ErrPlayerOnLoan):
+		case errors.Is(err, common.ErrPlayerOnLoan):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
-			log.Errorf("error renewing contract for player %d, team %d: %s", playerId, team.Id, err)
+			log.Errorf("error making renewal offer for player %d, team %d: %s", playerId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 		}
 	}

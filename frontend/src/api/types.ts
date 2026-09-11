@@ -56,6 +56,22 @@ export interface Player {
   contractYearsRemaining: number
 }
 
+// Mirrors backend/common.ContractRenewalOffer - the outcome of proposing new contract terms to
+// one of the team's own players (see useRenewContract). expectedWage/maxAcceptableYears are
+// always present, accepted or not, so the UI can guide a retry after a decline.
+export interface ContractRenewalOffer {
+  accepted: boolean
+  reason?: string
+  expectedWage: number
+  maxAcceptableYears: number
+  contractYearsRemaining?: number
+  wage?: number
+}
+
+// Mirrors backend/common.MaxContractYearsRemaining - the server enforces the real cap, this
+// just keeps the UI (renewal offer years, the renew button's disabled state) in step with it.
+export const MAX_CONTRACT_YEARS_REMAINING = 3
+
 export interface Team {
   id: number
   ownerId: number

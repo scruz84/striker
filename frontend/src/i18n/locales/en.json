@@ -2,6 +2,7 @@
   "common": {
     "loading": "Loading...",
     "cancel": "Cancel",
+    "close": "Close",
     "confirm": "Confirm",
     "confirmTitle": "Are you sure?",
     "save": "Save",
@@ -355,6 +356,19 @@
     "releasePlayer": "Release",
     "confirmRelease": "Release {{name}}? They'll leave your squad immediately and can't be brought back.",
     "releaseError": "Could not release that player - check your budget.",
+    "contractDialog": {
+      "title": "Renewal offer - {{name}}",
+      "subtitle": "Propose a wage and duration. They'll decide on the spot based on what they think they're worth and how many seasons they're willing to commit to.",
+      "wage": "Wage per match",
+      "years": "Duration",
+      "yearsOption_one": "{{count}} season",
+      "yearsOption_other": "{{count}} seasons",
+      "accepted": "Offer accepted! New deal: {{years}} at {{wage}}/match.",
+      "declined": "Declined. They want at least {{wage}}/match, and won't commit to more than {{years}}.",
+      "useExpectations": "Offer what they want",
+      "submit": "Send offer",
+      "error": "Could not send that offer. Please try again."
+    },
     "aiLevel": {
       "caretaker": "AI: Caretaker",
       "manager": "AI: Manager",
