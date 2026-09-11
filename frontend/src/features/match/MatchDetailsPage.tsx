@@ -401,29 +401,35 @@ function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, away
   const kickoff = matchInstants?.[0]
 
   return (
-    <Box>
+    <Grid container spacing={3}>
       {kickoff && (
-        <MatchPositionComparison
-          homeQua={kickoff.homeQua}
-          awayQua={kickoff.awayQua}
-          homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
-          awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
-          homeName={homeName}
-          awayName={awayName}
-        />
+        <Grid size={{ xs: 12, md: 5 }}>
+          <MatchPositionComparison
+            homeQua={kickoff.homeQua}
+            awayQua={kickoff.awayQua}
+            homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
+            awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
+            homeName={homeName}
+            awayName={awayName}
+          />
+        </Grid>
       )}
-      <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-        {awayName}
-      </Typography>
-      <MatchHeadToHeadPitch
-        homeLineup={homeLineup}
-        homePlayers={homePlayers}
-        awayLineup={awayLineup}
-        awayPlayers={awayPlayers}
-      />
-      <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
-        {homeName}
-      </Typography>
-    </Box>
+      <Grid size={{ xs: 12, md: kickoff ? 7 : 12 }}>
+        <Box sx={{ maxWidth: 380, mx: 'auto' }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
+            {awayName}
+          </Typography>
+          <MatchHeadToHeadPitch
+            homeLineup={homeLineup}
+            homePlayers={homePlayers}
+            awayLineup={awayLineup}
+            awayPlayers={awayPlayers}
+          />
+          <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+            {homeName}
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
   )
 }

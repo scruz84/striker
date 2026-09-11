@@ -64,7 +64,7 @@ export function MatchPositionComparison({
         <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, textAlign: 'right', pr: 1 }} noWrap>
           {homeName}
         </Typography>
-        <Box sx={{ width: { xs: 90, sm: 160 } }} />
+        <Box sx={{ width: { xs: 90, sm: 120 } }} />
         <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, pl: 1 }} noWrap>
           {awayName}
         </Typography>
@@ -98,7 +98,7 @@ function ZoneBar({ label, home, away }: { label: string; home: number; away: num
       >
         {Math.round(homeShare)}%
       </Typography>
-      <Box sx={{ width: { xs: 90, sm: 160 } }}>
+      <Box sx={{ width: { xs: 90, sm: 120 } }}>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mb: 0.25 }}>
           {label}
         </Typography>
