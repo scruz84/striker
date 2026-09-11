@@ -29,6 +29,7 @@
       "finances": "Finances",
       "transferMarket": "Transfer market",
       "cup": "Cup",
+      "friendlies": "Friendlies",
       "friendGroups": "Friend groups",
       "admin": "Admin",
       "logout": "Logout"
@@ -271,6 +272,37 @@
     "pens": "(pens)",
     "tbd": "TBD"
   },
+  "friendlies": {
+    "title": "Friendlies",
+    "subtitle": "Challenge another team to a non-competitive match - it has no effect on your league position and pays no ticket revenue. The other team must agree to play, and there's a weekly limit set by the admin.",
+    "challenge": {
+      "title": "Challenge a team",
+      "opponentTeamId": "Opponent team id",
+      "button": "Send challenge",
+      "success": "Challenge sent.",
+      "error": "Could not send that challenge."
+    },
+    "received": {
+      "title": "Challenges received",
+      "empty": "No pending challenges.",
+      "accept": "Accept",
+      "reject": "Decline",
+      "acceptError": "Could not accept that challenge - you may be at your weekly limit."
+    },
+    "sent": {
+      "title": "Challenges sent",
+      "empty": "No pending challenges.",
+      "withdraw": "Withdraw"
+    },
+    "upcoming": {
+      "title": "Upcoming friendlies",
+      "empty": "No friendlies scheduled."
+    },
+    "recent": {
+      "title": "Recent friendlies",
+      "empty": "No friendlies played yet."
+    }
+  },
   "division": {
     "season": "Season {{season}}",
     "weekChip": "Week {{week}}",
@@ -425,6 +457,14 @@
       "noWeekdaysError": "Select at least one day.",
       "success": "Match schedule updated.",
       "error": "Failed to update match schedule."
+    },
+    "maxFriendlies": {
+      "title": "Friendly matches",
+      "description": "Maximum friendly matches a team may accept per calendar week (Monday to Sunday). Set to 0 to turn friendlies off entirely.",
+      "perWeek": "Max per week",
+      "save": "Save limit",
+      "success": "Friendly match limit updated.",
+      "error": "Failed to update friendly match limit."
     },
     "worldStructure": {
       "title": "World structure",

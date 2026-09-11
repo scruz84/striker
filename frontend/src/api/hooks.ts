@@ -9,6 +9,8 @@ import type {
   DevUser,
   DivisionDetails,
   FinancesResponse,
+  FriendlyChallenge,
+  FriendlyMatch,
   Lineup,
   LineupPosition,
   LoanListing,
@@ -47,6 +49,10 @@ export const queryKeys = {
   transferWindow: ['transferWindow'] as const,
   offersReceived: ['offersReceived'] as const,
   offersSent: ['offersSent'] as const,
+  friendlyChallengesReceived: ['friendlyChallengesReceived'] as const,
+  friendlyChallengesSent: ['friendlyChallengesSent'] as const,
+  upcomingFriendlies: ['upcomingFriendlies'] as const,
+  recentFriendlies: ['recentFriendlies'] as const,
   myGroups: ['myGroups'] as const,
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
@@ -696,6 +702,89 @@ export function useAcceptOffer() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.offersReceived })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
+export function useFriendlyChallengesReceived(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.friendlyChallengesReceived,
+    queryFn: () => api.get<FriendlyChallenge[]>('/v1/friendlies/challenges/received'),
+    enabled,
+  })
+}
+
+export function useFriendlyChallengesSent(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.friendlyChallengesSent,
+    queryFn: () => api.get<FriendlyChallenge[]>('/v1/friendlies/challenges/sent'),
+    enabled,
+  })
+}
+
+export function useUpcomingFriendlies(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.upcomingFriendlies,
+    queryFn: () => api.get<FriendlyMatch[]>('/v1/friendlies/upcoming'),
+    enabled,
+  })
+}
+
+export function useRecentFriendlies(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.recentFriendlies,
+    queryFn: () => api.get<FriendlyMatch[]>('/v1/friendlies/recent'),
+    enabled,
+  })
+}
+
+export function useChallengeToFriendly() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (opponentTeamId: number) => api.post('/v1/friendlies/challenges', { opponentTeamId }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesSent })
+    },
+  })
+}
+
+export function useAcceptFriendlyChallenge() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (challengeId: number) => api.post(`/v1/friendlies/challenges/${challengeId}/accept`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesReceived })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.upcomingFriendlies })
+    },
+  })
+}
+
+export function useRejectFriendlyChallenge() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (challengeId: number) => api.post(`/v1/friendlies/challenges/${challengeId}/reject`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesReceived })
+    },
+  })
+}
+
+export function useWithdrawFriendlyChallenge() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (challengeId: number) => api.delete(`/v1/friendlies/challenges/${challengeId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesSent })
+    },
+  })
+}
+
+export function useAdminSetMaxFriendliesPerWeek() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (maxFriendliesPerWeek: number) => api.put('/v1/admin/max-friendlies-per-week', { maxFriendliesPerWeek }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
     },
   })
 }

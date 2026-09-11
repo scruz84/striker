@@ -93,3 +93,25 @@ func (pj *WeeklyWagesJob) Execute(context.Context) error {
 func NewWeeklyWagesJob(dbCtx *common.DatabaseContext) *WeeklyWagesJob {
 	return &WeeklyWagesJob{desc: "weekly wages job", dbCtx: dbCtx}
 }
+
+// FriendlyJob implements the quartz.Job interface: each tick, it simulates any friendly matches
+// whose kickoff has arrived.
+type FriendlyJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *FriendlyJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *FriendlyJob) Execute(context.Context) error {
+	log.Info("Friendly matches job")
+	SimulateFriendlies(pj.dbCtx)
+	return nil
+}
+
+func NewFriendlyJob(dbCtx *common.DatabaseContext) *FriendlyJob {
+	return &FriendlyJob{desc: "friendly matches job", dbCtx: dbCtx}
+}

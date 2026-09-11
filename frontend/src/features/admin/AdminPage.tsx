@@ -38,6 +38,7 @@ import {
   useAdminPayWagesNow,
   useAdminRecreateLeagues,
   useAdminSetAiLevel,
+  useAdminSetMaxFriendliesPerWeek,
   useAdminSimulateNow,
   useAdminUsers,
   useAdminWorldConfig,
@@ -297,6 +298,8 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
         <SetAiLevelForm />
 
         <MatchScheduleForm overview={overview} />
+
+        <MaxFriendliesPerWeekForm overview={overview} />
       </Stack>
     </Paper>
   )
@@ -429,6 +432,46 @@ function MatchScheduleForm({ overview }: { overview: NonNullable<ReturnType<type
       )}
       {setMatchSchedule.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.matchSchedule.success')}</Alert>}
       {setMatchSchedule.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.matchSchedule.error')}</Alert>}
+    </Box>
+  )
+}
+
+function MaxFriendliesPerWeekForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setMaxFriendliesPerWeek = useAdminSetMaxFriendliesPerWeek()
+  const [maxFriendliesPerWeek, setMaxFriendliesPerWeekValue] = useState(String(overview.maxFriendliesPerWeek))
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    const value = Number(maxFriendliesPerWeek)
+    if (Number.isNaN(value) || value < 0) return
+    setMaxFriendliesPerWeek.mutate(value)
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.maxFriendlies.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.maxFriendlies.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <TextField
+          label={t('admin.maxFriendlies.perWeek')}
+          type="number"
+          size="small"
+          value={maxFriendliesPerWeek}
+          onChange={(e) => setMaxFriendliesPerWeekValue(e.target.value)}
+          sx={{ width: 140 }}
+          slotProps={{ htmlInput: { min: 0 } }}
+        />
+        <Button type="submit" variant="contained" disabled={setMaxFriendliesPerWeek.isPending}>
+          {t('admin.maxFriendlies.save')}
+        </Button>
+      </Stack>
+      {setMaxFriendliesPerWeek.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.maxFriendlies.success')}</Alert>}
+      {setMaxFriendliesPerWeek.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.maxFriendlies.error')}</Alert>}
     </Box>
   )
 }

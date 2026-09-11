@@ -439,6 +439,27 @@ export interface TransferOffer {
   createdAt: string
 }
 
+export interface FriendlyChallenge {
+  challengeId: number
+  challengerTeamId: number
+  challengerTeamName: string
+  opponentTeamId: number
+  opponentTeamName: string
+  createdAt: string
+}
+
+export interface FriendlyMatch {
+  matchId: number
+  homeTeamId: number
+  homeTeamName: string
+  awayTeamId: number
+  awayTeamName: string
+  matchDate: string
+  played: boolean
+  homeGoals: number
+  awayGoals: number
+}
+
 export interface Cup {
   cupId: number
   country: string
@@ -510,6 +531,7 @@ export interface AdminOverview {
   matchScheduleWeekdaysMask: number
   matchScheduleHour: number
   matchScheduleMinute: number
+  maxFriendliesPerWeek: number
 }
 
 // Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and

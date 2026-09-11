@@ -11,6 +11,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { CupPage } from '../features/cup/CupPage'
 import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
 import { FinancesPage } from '../features/finances/FinancesPage'
+import { FriendliesPage } from '../features/friendlies/FriendliesPage'
 import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
@@ -40,6 +41,7 @@ function App() {
                     <Route path="/dashboard/finances" element={<FinancesPage />} />
                     <Route path="/transfers" element={<TransferMarketPage />} />
                     <Route path="/cup" element={<CupPage />} />
+                    <Route path="/friendlies" element={<FriendliesPage />} />
                     <Route path="/groups" element={<GroupsPage />} />
                     <Route path="/admin" element={<AdminPage />} />
                     <Route path="/division/:id" element={<DivisionDetailsPage />} />

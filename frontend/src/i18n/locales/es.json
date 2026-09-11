@@ -29,6 +29,7 @@
       "finances": "Finanzas",
       "transferMarket": "Mercado de fichajes",
       "cup": "Copa",
+      "friendlies": "Amistosos",
       "friendGroups": "Grupos de amigos",
       "admin": "Administración",
       "logout": "Cerrar sesión"
@@ -271,6 +272,37 @@
     "pens": "(pens)",
     "tbd": "Por determinar"
   },
+  "friendlies": {
+    "title": "Amistosos",
+    "subtitle": "Reta a otro equipo a un partido no competitivo - no afecta a tu posición en la liga ni genera ingresos por entradas. El otro equipo debe aceptar jugarlo, y hay un límite semanal que fija el administrador.",
+    "challenge": {
+      "title": "Retar a un equipo",
+      "opponentTeamId": "Id del equipo rival",
+      "button": "Enviar reto",
+      "success": "Reto enviado.",
+      "error": "No se pudo enviar ese reto."
+    },
+    "received": {
+      "title": "Retos recibidos",
+      "empty": "No hay retos pendientes.",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal."
+    },
+    "sent": {
+      "title": "Retos enviados",
+      "empty": "No hay retos pendientes.",
+      "withdraw": "Retirar"
+    },
+    "upcoming": {
+      "title": "Próximos amistosos",
+      "empty": "No hay amistosos programados."
+    },
+    "recent": {
+      "title": "Amistosos recientes",
+      "empty": "Aún no se ha jugado ningún amistoso."
+    }
+  },
   "division": {
     "season": "Temporada {{season}}",
     "weekChip": "Jornada {{week}}",
@@ -425,6 +457,14 @@
       "noWeekdaysError": "Selecciona al menos un día.",
       "success": "Calendario de partidos actualizado.",
       "error": "No se pudo actualizar el calendario de partidos."
+    },
+    "maxFriendlies": {
+      "title": "Partidos amistosos",
+      "description": "Número máximo de amistosos que un equipo puede aceptar por semana natural (de lunes a domingo). Pon 0 para desactivar los amistosos por completo.",
+      "perWeek": "Máximo semanal",
+      "save": "Guardar límite",
+      "success": "Límite de amistosos actualizado.",
+      "error": "No se pudo actualizar el límite de amistosos."
     },
     "worldStructure": {
       "title": "Estructura del mundo",

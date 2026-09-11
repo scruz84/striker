@@ -78,6 +78,7 @@ type AdminOverview struct {
 	MatchScheduleWeekdaysMask int  `json:"matchScheduleWeekdaysMask"`
 	MatchScheduleHour         int  `json:"matchScheduleHour"`
 	MatchScheduleMinute       int  `json:"matchScheduleMinute"`
+	MaxFriendliesPerWeek      int  `json:"maxFriendliesPerWeek"`
 }
 
 func CountUsers(dbCtx *DatabaseContext) (int, error) {

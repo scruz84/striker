@@ -75,6 +75,23 @@ func StartWeeklyWagesScheduler(weeklyWagesJob quartz.Job) {
 	}
 }
 
+func StartFriendlyScheduler(friendlyJob quartz.Job) {
+	sched.Start(ctx)
+	// Same per-minute cadence as cup ties - friendlies are scheduled a fixed delay after
+	// acceptance (see common.friendlyScheduleDelay), so they need the same granularity to fire
+	// close to on time.
+	cronTrigger, err := quartz.NewCronTrigger("* 1/1 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(friendlyJob.Description())
+	jobDetail := quartz.NewJobDetail(friendlyJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

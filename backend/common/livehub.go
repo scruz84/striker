@@ -55,10 +55,12 @@ func NewLiveMatchHub() *LiveMatchHub {
 	return &LiveMatchHub{client: client}
 }
 
-// LeagueMatchChannel and CupTieChannel are the two id namespaces a live channel key can come
-// from - use these rather than formatting the string inline, so every caller stays consistent.
-func LeagueMatchChannel(matchId int64) string { return "match:" + strconv.FormatInt(matchId, 10) }
-func CupTieChannel(tieId int64) string        { return "cup:" + strconv.FormatInt(tieId, 10) }
+// LeagueMatchChannel, CupTieChannel and FriendlyMatchChannel are the id namespaces a live
+// channel key can come from - use these rather than formatting the string inline, so every
+// caller stays consistent.
+func LeagueMatchChannel(matchId int64) string   { return "match:" + strconv.FormatInt(matchId, 10) }
+func CupTieChannel(tieId int64) string          { return "cup:" + strconv.FormatInt(tieId, 10) }
+func FriendlyMatchChannel(matchId int64) string { return "friendly:" + strconv.FormatInt(matchId, 10) }
 
 // Subscribe registers a new listener for channel and returns its message channel plus an
 // unsubscribe function the caller must run (typically deferred) once it's done reading.

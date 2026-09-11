@@ -46,6 +46,11 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		schedule := common.GetMatchSchedule(dbCtx)
+		maxFriendliesPerWeek, err := common.GetMaxFriendliesPerWeek(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		c.JSON(http.StatusOK, common.AdminOverview{
 			Season:                    season,
 			UserCount:                 userCount,
@@ -58,6 +63,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			MatchScheduleWeekdaysMask: schedule.WeekdaysMask,
 			MatchScheduleHour:         schedule.Hour,
 			MatchScheduleMinute:       schedule.Minute,
+			MaxFriendliesPerWeek:      maxFriendliesPerWeek,
 		})
 	}
 }
