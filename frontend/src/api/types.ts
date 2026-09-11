@@ -117,12 +117,38 @@ export const EVENT_TYPE_RED_CARD = 3
 export const EVENT_TYPE_INJURY = 4
 export const EVENT_TYPE_SUBSTITUTION = 5
 
+// TeamQualification is a team's per-zone strength for one minute of simulation - see
+// backend/common/fmstructs.go. These are the actual numbers the simulation compares (a team's
+// attack on one flank against the opponent's defense on the mirrored flank) to decide whether a
+// scoring chance becomes a goal - not a display-only summary. `goalkeeper` is always 0
+// (goalkeeping strength is read from the starting keeper's own rating instead, not tracked here).
+export interface TeamQualification {
+  goalkeeper: number
+  leftDefense: number
+  rightDefense: number
+  defense: number
+  leftMidfield: number
+  rightMidfield: number
+  midfield: number
+  leftAttack: number
+  // Spelled to match the backend's own historical (typo'd) field name - see
+  // backend/common/fmstructs.go's TeamQualification for why the JSON key stays this way.
+  rightAttach: number
+  attack: number
+}
+
 export interface MatchInstant {
   matchId: number
   minute: number
   homeGoals: number
   awayGoals: number
+  homeQua: TeamQualification
+  awayQua: TeamQualification
   midfieldDiff: number
+  // The four *Left/Right*Diff fields below are always 0 - the backend never actually computes
+  // them (only the Center variants and midfieldDiff are real) - see homeAttackCenterDiff/
+  // awayAttackCenterDiff instead, or better, homeQua/awayQua directly for the real per-zone
+  // numbers used in goal-probability calculations.
   homeAttackRightDiff: number
   homeAttackLeftDiff: number
   homeAttackCenterDiff: number

@@ -245,17 +245,31 @@ type PendingUnavailability struct {
 	Matches  int
 }
 
+// TeamQualification is a team's per-zone strength for one minute of simulation - the same
+// numbers engine.processChance reads directly (attack on one flank vs the opponent's mirrored
+// defense on the other, see its own comment) to decide whether a chance becomes a goal, so this
+// is genuinely what's "used for calculating the probability of goal", not a display-only
+// summary. Goalkeeper is declared but never populated (goalkeeping strength is read live from
+// the starting keeper's own Player.GoalKeeper instead - see processChance) - left here rather
+// than removed since MatchInstant already persists this shape to the database.
 type TeamQualification struct {
-	Goalkeeper    float32
-	LeftDefense   float32
-	RightDefense  float32
-	Defense       float32
-	LeftMidfield  float32
-	RightMidfield float32
-	Midfield      float32
-	LeftAttack    float32
-	RightAttach   float32
-	Attack        float32
+	Goalkeeper    float32 `json:"goalkeeper"`
+	LeftDefense   float32 `json:"leftDefense"`
+	RightDefense  float32 `json:"rightDefense"`
+	Defense       float32 `json:"defense"`
+	LeftMidfield  float32 `json:"leftMidfield"`
+	RightMidfield float32 `json:"rightMidfield"`
+	Midfield      float32 `json:"midfield"`
+	LeftAttack    float32 `json:"leftAttack"`
+	// Tag deliberately matches the field's own historical (typo'd) spelling rather than
+	// correcting it to "rightAttack" - this struct is stored as JSON in match_instants, and
+	// already-simulated matches' stored rows use this exact key (from Go's untagged default
+	// marshaling before this struct had tags at all); a differently-spelled tag would silently
+	// fail to unmarshal that old data back into this field (Go's case-insensitive JSON matching
+	// bridges a casing difference, not a spelling one), leaving it looking like a real zero
+	// instead of missing data.
+	RightAttach float32 `json:"rightAttach"`
+	Attack      float32 `json:"attack"`
 }
 
 type MatchInstant struct {

@@ -20,6 +20,7 @@ import {
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
+  POSITION_GOALKEEPER,
   type MatchEvent,
   type WeekMatch,
 } from '../../api/types'
@@ -29,6 +30,7 @@ import { formatDateTime } from '../../utils/formatDate'
 import { commentaryFor } from '../../utils/matchCommentary'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { MatchLineupPitch } from './MatchLineupPitch'
+import { MatchPositionComparison } from './MatchPositionComparison'
 
 export function MatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -218,6 +220,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
               awayLineup={match.awayLineup}
               homePlayers={match.homePlayers}
               awayPlayers={match.awayPlayers}
+              matchInstants={match.matchInstants}
             />
           )}
         </Box>
@@ -381,23 +384,48 @@ interface LineupsProps {
   awayLineup: WeekMatch['awayLineup']
   homePlayers: WeekMatch['homePlayers']
   awayPlayers: WeekMatch['awayPlayers']
+  matchInstants: WeekMatch['matchInstants']
 }
 
-function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers }: LineupsProps) {
+// The starting goalkeeper's own rating - not part of TeamQualification (see its own comment),
+// but this is exactly what engine.processChance reads live for goalkeeping strength.
+function goalkeeperRating(lineup: WeekMatch['homeLineup'], players: WeekMatch['homePlayers']): number {
+  const gk = lineup?.positions.find((p) => p.position === POSITION_GOALKEEPER)
+  if (!gk || !players) return 0
+  return players[String(gk.playerId)]?.goalKeeper ?? 0
+}
+
+function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
+  // The kickoff instant (minute 1) reflects the same starting XI the pitch below shows - later
+  // instants would drift as the match itself changes who's on the pitch (cards, injuries, subs).
+  const kickoff = matchInstants?.[0]
+
   return (
-    <Grid container spacing={2}>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-          {homeName}
-        </Typography>
-        <MatchLineupPitch lineup={homeLineup} players={homePlayers} />
+    <Box>
+      {kickoff && (
+        <MatchPositionComparison
+          homeQua={kickoff.homeQua}
+          awayQua={kickoff.awayQua}
+          homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
+          awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
+          homeName={homeName}
+          awayName={awayName}
+        />
+      )}
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
+            {homeName}
+          </Typography>
+          <MatchLineupPitch lineup={homeLineup} players={homePlayers} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
+            {awayName}
+          </Typography>
+          <MatchLineupPitch lineup={awayLineup} players={awayPlayers} />
+        </Grid>
       </Grid>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-          {awayName}
-        </Typography>
-        <MatchLineupPitch lineup={awayLineup} players={awayPlayers} />
-      </Grid>
-    </Grid>
+    </Box>
   )
 }

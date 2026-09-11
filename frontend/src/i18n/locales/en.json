@@ -415,6 +415,20 @@
         "Substitution for {{team}} - {{inPlayer}} replaces {{outPlayer}}.",
         "{{outPlayer}} comes off, {{inPlayer}} comes on for {{team}}."
       ]
+    },
+    "positionBattle": {
+      "title": "Position battle",
+      "description": "Each zone's starting strength for both teams - this is what the simulation compares (a team's attack against the opponent's defense on the same flank) to decide the probability of a goal.",
+      "leftAttack": "Left attack",
+      "centerAttack": "Attack",
+      "rightAttack": "Right attack",
+      "leftMidfield": "Left midfield",
+      "centerMidfield": "Midfield",
+      "rightMidfield": "Right midfield",
+      "leftDefense": "Left defense",
+      "centerDefense": "Defense",
+      "rightDefense": "Right defense",
+      "goalkeeping": "Goalkeeping"
     }
   },
   "headToHead": {
