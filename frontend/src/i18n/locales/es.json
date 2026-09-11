@@ -466,6 +466,14 @@
       "success": "Límite de amistosos actualizado.",
       "error": "No se pudo actualizar el límite de amistosos."
     },
+    "friendlySchedule": {
+      "title": "Días de amistosos",
+      "description": "En qué días de la semana puede empezar un amistoso ya aceptado. Un amistoso sigue jugándose lo antes posible tras ser aceptado - si eso cae en un día no seleccionado aquí, se adelanta al siguiente día permitido.",
+      "save": "Guardar días",
+      "noWeekdaysError": "Selecciona al menos un día.",
+      "success": "Días de amistosos actualizados.",
+      "error": "No se pudieron actualizar los días de amistosos."
+    },
     "worldStructure": {
       "title": "Estructura del mundo",
       "description": "Categorías, grupos por categoría y equipos por liga usados la próxima vez que se (re)creen las ligas. Guardar esto por sí solo no cambia nada existente - usa \"Recrear todas las ligas ahora\" más abajo para aplicarlo.",

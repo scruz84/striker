@@ -254,6 +254,34 @@ func RecentFriendliesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type setFriendlyScheduleRequest struct {
+	WeekdaysMask int `json:"weekdaysMask"`
+}
+
+// AdminSetFriendlyScheduleHandler updates which weekdays a friendly may kick off on (see
+// common.SetFriendlyScheduleWeekdays) - e.g. weekends only.
+func AdminSetFriendlyScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setFriendlyScheduleRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "weekdaysMask is required"))
+			return
+		}
+
+		if err := common.SetFriendlyScheduleWeekdays(dbCtx, req.WeekdaysMask); err != nil {
+			if errors.Is(err, common.ErrInvalidFriendlySchedule) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting friendly schedule: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "friendly schedule updated"})
+	}
+}
+
 type setMaxFriendliesPerWeekRequest struct {
 	MaxFriendliesPerWeek int `json:"maxFriendliesPerWeek"`
 }

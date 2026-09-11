@@ -532,6 +532,7 @@ export interface AdminOverview {
   matchScheduleHour: number
   matchScheduleMinute: number
   maxFriendliesPerWeek: number
+  friendlyScheduleWeekdays: number
 }
 
 // Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and

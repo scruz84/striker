@@ -466,6 +466,14 @@
       "success": "Friendly match limit updated.",
       "error": "Failed to update friendly match limit."
     },
+    "friendlySchedule": {
+      "title": "Friendly match days",
+      "description": "Which days of the week an accepted friendly challenge is allowed to kick off on. A friendly still kicks off as soon as possible after being accepted - if that falls on a day not selected here, it's pushed forward to the next allowed day.",
+      "save": "Save days",
+      "noWeekdaysError": "Select at least one day.",
+      "success": "Friendly match days updated.",
+      "error": "Failed to update friendly match days."
+    },
     "worldStructure": {
       "title": "World structure",
       "description": "Tiers, groups per tier, and teams per league used the next time leagues are (re)created. Saving this alone doesn't change anything that already exists - use \"Recreate all leagues now\" below to apply it.",

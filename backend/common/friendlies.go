@@ -15,6 +15,7 @@ var ErrFriendlyChallengeNotFound = errors.New("friendly challenge not found")
 var ErrNotChallengeSender = errors.New("you did not send this friendly challenge")
 var ErrNotChallengeRecipient = errors.New("this friendly challenge is not for your team")
 var ErrInvalidFriendlyLimit = errors.New("max friendlies per week must be zero or greater")
+var ErrInvalidFriendlySchedule = errors.New("friendly schedule must select at least one weekday")
 
 // FriendlyChallenge is a pending invite from one team to another - see ChallengeToFriendly.
 type FriendlyChallenge struct {
@@ -49,6 +50,48 @@ func StartOfWeek(t time.Time) time.Time {
 	daysSinceMonday := (int(t.Weekday()) + 6) % 7 // Monday=0, Tuesday=1, ..., Sunday=6
 	monday := t.AddDate(0, 0, -daysSinceMonday)
 	return time.Date(monday.Year(), monday.Month(), monday.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+const GetFriendlyScheduleWeekdaysStmtSql = "SELECT friendly_schedule_weekdays FROM season"
+const SetFriendlyScheduleWeekdaysStmtSql = "UPDATE season SET friendly_schedule_weekdays = $1"
+
+// GetFriendlyScheduleWeekdays returns the admin-configured bitmask of weekdays a friendly may
+// kick off on (bit i = time.Weekday(i), same convention as MatchSchedule.WeekdaysMask), falling
+// back to every day on a lookup error - same "never block on a settings-row hiccup" convention
+// as GetMatchSchedule.
+func GetFriendlyScheduleWeekdays(dbCtx *DatabaseContext) int {
+	var mask int
+	if err := dbCtx.Db.QueryRow(GetFriendlyScheduleWeekdaysStmtSql).Scan(&mask); err != nil {
+		return AllWeekdaysMask
+	}
+	return mask
+}
+
+// SetFriendlyScheduleWeekdays updates which weekdays a friendly may be scheduled on - e.g.
+// weekends only. It only affects challenges accepted after this call; already-scheduled
+// friendlies keep their date.
+func SetFriendlyScheduleWeekdays(dbCtx *DatabaseContext, weekdaysMask int) error {
+	if weekdaysMask&AllWeekdaysMask == 0 {
+		return ErrInvalidFriendlySchedule
+	}
+	_, err := dbCtx.Db.Exec(SetFriendlyScheduleWeekdaysStmtSql, weekdaysMask)
+	return err
+}
+
+// nextAllowedFriendlyDate walks forward from candidate, one day at a time, to the first day
+// whose weekday bit is set in weekdaysMask - preserving candidate's own time-of-day, since a
+// friendly should still kick off as soon as the schedule allows rather than at some fixed hour.
+// If candidate's own weekday is already allowed, candidate is returned unchanged. Bounded to 8
+// iterations (one full week plus one) so it always terminates given a validated, non-zero mask.
+func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
+	for offset := 0; offset < 8; offset++ {
+		day := candidate.AddDate(0, 0, offset)
+		bit := 1 << int(day.Weekday())
+		if weekdaysMask&bit != 0 {
+			return day
+		}
+	}
+	return candidate // unreachable given a validated (non-zero) mask
 }
 
 const GetMaxFriendliesPerWeekStmtSql = "SELECT max_friendlies_per_week FROM season"
@@ -180,7 +223,7 @@ func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 		return ErrFriendlyLimitReached
 	}
 
-	kickoff := time.Now().Add(friendlyScheduleDelay)
+	kickoff := nextAllowedFriendlyDate(time.Now().Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
 	if _, err := tx.Exec(InsertFriendlyMatchStmtSql, challengerTeamId, opponentTeamId, kickoff); err != nil {
 		return err
 	}

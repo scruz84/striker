@@ -38,6 +38,7 @@ import {
   useAdminPayWagesNow,
   useAdminRecreateLeagues,
   useAdminSetAiLevel,
+  useAdminSetFriendlySchedule,
   useAdminSetMaxFriendliesPerWeek,
   useAdminSimulateNow,
   useAdminUsers,
@@ -300,6 +301,8 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
         <MatchScheduleForm overview={overview} />
 
         <MaxFriendliesPerWeekForm overview={overview} />
+
+        <FriendlyScheduleForm overview={overview} />
       </Stack>
     </Paper>
   )
@@ -472,6 +475,52 @@ function MaxFriendliesPerWeekForm({ overview }: { overview: NonNullable<ReturnTy
       </Stack>
       {setMaxFriendliesPerWeek.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.maxFriendlies.success')}</Alert>}
       {setMaxFriendliesPerWeek.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.maxFriendlies.error')}</Alert>}
+    </Box>
+  )
+}
+
+function FriendlyScheduleForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setFriendlySchedule = useAdminSetFriendlySchedule()
+  const [weekdaysMask, setWeekdaysMask] = useState(overview.friendlyScheduleWeekdays)
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    if (weekdaysMask === 0) return
+    setFriendlySchedule.mutate(weekdaysMask)
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.friendlySchedule.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.friendlySchedule.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <ToggleButtonGroup
+          size="small"
+          value={WEEKDAY_OPTIONS.filter((d) => (weekdaysMask & d.bit) !== 0).map((d) => d.bit)}
+          onChange={(_event, newBits: number[]) => setWeekdaysMask(newBits.reduce((mask, bit) => mask | bit, 0))}
+        >
+          {WEEKDAY_OPTIONS.map((d) => (
+            <ToggleButton key={d.bit} value={d.bit}>
+              {t(`common.weekdaysShort.${d.key}`)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+        <Button type="submit" variant="contained" disabled={weekdaysMask === 0 || setFriendlySchedule.isPending}>
+          {t('admin.friendlySchedule.save')}
+        </Button>
+      </Stack>
+      {weekdaysMask === 0 && (
+        <Typography variant="caption" color="error">
+          {t('admin.friendlySchedule.noWeekdaysError')}
+        </Typography>
+      )}
+      {setFriendlySchedule.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.friendlySchedule.success')}</Alert>}
+      {setFriendlySchedule.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.friendlySchedule.error')}</Alert>}
     </Box>
   )
 }

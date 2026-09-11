@@ -203,6 +203,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 	v1AdminGroup.PUT("/match-schedule", handlers.AdminSetMatchScheduleHandler(dbCtx))
 	v1AdminGroup.PUT("/max-friendlies-per-week", handlers.AdminSetMaxFriendliesPerWeekHandler(dbCtx))
+	v1AdminGroup.PUT("/friendly-schedule", handlers.AdminSetFriendlyScheduleHandler(dbCtx))
 	v1AdminGroup.PUT("/users/:"+handlers.ID+"/admin", handlers.AdminSetUserAdminHandler(dbCtx))
 	v1AdminGroup.GET("/world-config", handlers.AdminGetWorldConfigHandler(dbCtx))
 	v1AdminGroup.PUT("/world-config", handlers.AdminSetWorldConfigHandler(dbCtx))

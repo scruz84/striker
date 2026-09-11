@@ -789,6 +789,16 @@ export function useAdminSetMaxFriendliesPerWeek() {
   })
 }
 
+export function useAdminSetFriendlySchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (weekdaysMask: number) => api.put('/v1/admin/friendly-schedule', { weekdaysMask }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useSetTransferWindow() {
   const queryClient = useQueryClient()
   return useMutation({
