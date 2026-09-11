@@ -132,3 +132,98 @@ func TestValidateLineup_UnavailablePlayerRejected(t *testing.T) {
 		t.Fatal("expected error for a suspended/injured player")
 	}
 }
+
+// squadWithBench is fullRoster() (players 1-11, the starting XI in balancedLineup()) plus
+// players 12+ available on the bench for substitution tests.
+func squadWithBench(benchIds ...int64) *[]*common.Player {
+	ids := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	ids = append(ids, benchIds...)
+	return rosterOf(ids...)
+}
+
+func TestValidateSubstitutions_Valid(t *testing.T) {
+	subs := []common.LineupSubstitution{
+		{PlayerOutId: 1, PlayerInId: 12, Minute: 46},
+		{PlayerOutId: 2, PlayerInId: 13, Minute: 60},
+		{PlayerOutId: 3, PlayerInId: 14, Minute: 75},
+	}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12, 13, 14), nil); err != nil {
+		t.Fatalf("expected valid substitutions to pass, got error: %s", err)
+	}
+}
+
+func TestValidateSubstitutions_EmptyIsValid(t *testing.T) {
+	if err := validateSubstitutions(balancedLineup(), nil, squadWithBench(), nil); err != nil {
+		t.Fatalf("expected no scheduled substitutions to be valid, got error: %s", err)
+	}
+}
+
+func TestValidateSubstitutions_RejectsMoreThanMax(t *testing.T) {
+	subs := []common.LineupSubstitution{
+		{PlayerOutId: 1, PlayerInId: 12, Minute: 46},
+		{PlayerOutId: 2, PlayerInId: 13, Minute: 50},
+		{PlayerOutId: 3, PlayerInId: 14, Minute: 60},
+		{PlayerOutId: 4, PlayerInId: 15, Minute: 70},
+	}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12, 13, 14, 15), nil); err == nil {
+		t.Fatal("expected error for more than the maximum allowed substitutions")
+	}
+}
+
+func TestValidateSubstitutions_RejectsMinuteOutOfRange(t *testing.T) {
+	for _, minute := range []int{0, 91, -1} {
+		subs := []common.LineupSubstitution{{PlayerOutId: 1, PlayerInId: 12, Minute: minute}}
+		if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12), nil); err == nil {
+			t.Fatalf("expected error for out-of-range minute %d", minute)
+		}
+	}
+}
+
+func TestValidateSubstitutions_RejectsOutgoingPlayerNotInLineup(t *testing.T) {
+	subs := []common.LineupSubstitution{{PlayerOutId: 999, PlayerInId: 12, Minute: 46}}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12), nil); err == nil {
+		t.Fatal("expected error when the outgoing player isn't a starter")
+	}
+}
+
+func TestValidateSubstitutions_RejectsIncomingPlayerAlreadyStarting(t *testing.T) {
+	subs := []common.LineupSubstitution{{PlayerOutId: 1, PlayerInId: 2, Minute: 46}}
+	if err := validateSubstitutions(balancedLineup(), subs, fullRoster(), nil); err == nil {
+		t.Fatal("expected error when the incoming player is already in the starting lineup")
+	}
+}
+
+func TestValidateSubstitutions_RejectsIncomingPlayerNotOnRoster(t *testing.T) {
+	subs := []common.LineupSubstitution{{PlayerOutId: 1, PlayerInId: 999, Minute: 46}}
+	if err := validateSubstitutions(balancedLineup(), subs, fullRoster(), nil); err == nil {
+		t.Fatal("expected error when the incoming player doesn't belong to the team")
+	}
+}
+
+func TestValidateSubstitutions_RejectsUnavailableIncomingPlayer(t *testing.T) {
+	subs := []common.LineupSubstitution{{PlayerOutId: 1, PlayerInId: 12, Minute: 46}}
+	unavailable := map[int64]bool{12: true}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12), unavailable); err == nil {
+		t.Fatal("expected error for a suspended/injured incoming player")
+	}
+}
+
+func TestValidateSubstitutions_RejectsSamePlayerSubbedOutTwice(t *testing.T) {
+	subs := []common.LineupSubstitution{
+		{PlayerOutId: 1, PlayerInId: 12, Minute: 46},
+		{PlayerOutId: 1, PlayerInId: 13, Minute: 60},
+	}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12, 13), nil); err == nil {
+		t.Fatal("expected error when the same player is scheduled to be substituted out twice")
+	}
+}
+
+func TestValidateSubstitutions_RejectsSamePlayerSubbedInTwice(t *testing.T) {
+	subs := []common.LineupSubstitution{
+		{PlayerOutId: 1, PlayerInId: 12, Minute: 46},
+		{PlayerOutId: 2, PlayerInId: 12, Minute: 60},
+	}
+	if err := validateSubstitutions(balancedLineup(), subs, squadWithBench(12), nil); err == nil {
+		t.Fatal("expected error when the same player is scheduled to be substituted in twice")
+	}
+}

@@ -134,7 +134,16 @@
     "incompleteWarning": "Arrastra un jugador a cada hueco vacío antes de guardar.",
     "bench": "Banquillo",
     "benchEmpty": "Todo el plantel está en el campo.",
-    "save": "Guardar alineación"
+    "save": "Guardar alineación",
+    "substitutions": {
+      "title": "Sustituciones programadas",
+      "description": "Programa hasta {{max}} sustituciones para que ocurran automáticamente durante el partido - elige quién sale, quién entra y en qué minuto.",
+      "playerOut": "Jugador que sale",
+      "playerIn": "Jugador que entra",
+      "minute": "Minuto",
+      "add": "Añadir sustitución",
+      "remove": "Quitar"
+    }
   },
   "positions": {
     "goalkeeper": "Portero",
@@ -370,7 +379,8 @@
     "noLineupData": "No hay datos de alineación.",
     "yellowCard": "Tarjeta amarilla",
     "redCard": "Tarjeta roja",
-    "injury": "Lesión"
+    "injury": "Lesión",
+    "substitution": "Sustitución"
   },
   "headToHead": {
     "title": "Enfrentamientos directos",

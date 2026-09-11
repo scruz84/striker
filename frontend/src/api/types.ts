@@ -78,11 +78,22 @@ export interface LineupPosition {
   position: number
 }
 
+// LineupSubstitution is one planned in-match change to a team's default lineup: bring
+// playerInId on for playerOutId at minute. At most MAX_SCHEDULED_SUBSTITUTIONS may be set.
+export interface LineupSubstitution {
+  playerOutId: number
+  playerInId: number
+  minute: number
+}
+
+export const MAX_SCHEDULED_SUBSTITUTIONS = 3
+
 export interface Lineup {
   matchId: number
   teamId: number
   formation: number
   positions: LineupPosition[]
+  substitutions: LineupSubstitution[]
 }
 
 export interface MatchEvent {
@@ -104,6 +115,7 @@ export const EVENT_TYPE_NO_GOAL = 1
 export const EVENT_TYPE_YELLOW_CARD = 2
 export const EVENT_TYPE_RED_CARD = 3
 export const EVENT_TYPE_INJURY = 4
+export const EVENT_TYPE_SUBSTITUTION = 5
 
 export interface MatchInstant {
   matchId: number

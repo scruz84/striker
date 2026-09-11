@@ -73,10 +73,11 @@ type HttpResponse struct {
 }
 
 type Lineup struct {
-	MatchId   int64            `json:"matchId"`
-	TeamId    int64            `json:"teamId"`
-	Formation int              `json:"formation"`
-	Positions []LineupPosition `json:"positions"`
+	MatchId       int64                `json:"matchId"`
+	TeamId        int64                `json:"teamId"`
+	Formation     int                  `json:"formation"`
+	Positions     []LineupPosition     `json:"positions"`
+	Substitutions []LineupSubstitution `json:"substitutions"`
 }
 
 type LineupPosition struct {
@@ -222,6 +223,12 @@ type MatchSimulation struct {
 	//Unavailability: suspensions/injuries picked up this match, to persist once it's over
 	//(see engine.UpdatePlayedMatch) so they carry into the player's next matches.
 	PendingUnavailabilities []PendingUnavailability
+	//Substitutions: each team's manager-scheduled in-match changes (see
+	//GetDefaultLineupSubstitutions), applied at their chosen minute by
+	//engine.SubstitutionSimulation and then left in place - already-applied entries aren't
+	//removed, since each minute of the simulation loop runs exactly once.
+	HomeSubstitutions []LineupSubstitution
+	AwaySubstitutions []LineupSubstitution
 }
 
 // PendingUnavailability is a suspension or injury picked up during a match, not yet

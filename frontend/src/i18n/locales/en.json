@@ -134,7 +134,16 @@
     "incompleteWarning": "Drag a player onto every empty slot before saving.",
     "bench": "Bench",
     "benchEmpty": "Every squad player is on the pitch.",
-    "save": "Save lineup"
+    "save": "Save lineup",
+    "substitutions": {
+      "title": "Planned substitutions",
+      "description": "Schedule up to {{max}} substitutions to happen automatically during the match - pick who comes off, who comes on, and at what minute.",
+      "playerOut": "Player out",
+      "playerIn": "Player in",
+      "minute": "Minute",
+      "add": "Add substitution",
+      "remove": "Remove"
+    }
   },
   "positions": {
     "goalkeeper": "Goalkeeper",
@@ -370,7 +379,8 @@
     "noLineupData": "No lineup data.",
     "yellowCard": "Yellow card",
     "redCard": "Red card",
-    "injury": "Injury"
+    "injury": "Injury",
+    "substitution": "Substitution"
   },
   "headToHead": {
     "title": "Head to head",

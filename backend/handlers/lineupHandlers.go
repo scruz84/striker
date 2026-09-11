@@ -9,8 +9,9 @@ import (
 )
 
 type SetLineupRequest struct {
-	Formation int                     `json:"formation"`
-	Positions []common.LineupPosition `json:"positions"`
+	Formation     int                         `json:"formation"`
+	Positions     []common.LineupPosition     `json:"positions"`
+	Substitutions []common.LineupSubstitution `json:"substitutions"`
 }
 
 // GetLineupHandler returns the caller's team's default lineup.
@@ -78,6 +79,11 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		if err := validateSubstitutions(req.Positions, req.Substitutions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+
 		if err := common.SetTeamFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting formation for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -85,6 +91,11 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if err := common.SetDefaultLineup(dbCtx, team.Id, req.Positions); err != nil {
 			log.Errorf("error setting lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultLineupSubstitutions(dbCtx, team.Id, req.Substitutions); err != nil {
+			log.Errorf("error setting substitutions for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
@@ -147,6 +158,60 @@ func validateLineup(formation int, positions []common.LineupPosition, teamPlayer
 		if gotCounts[position] != want {
 			return fmt.Errorf("formation requires %d players at position %d, got %d", want, position, gotCounts[position])
 		}
+	}
+
+	return nil
+}
+
+// validateSubstitutions ensures a manager's planned in-match substitutions (see
+// common.LineupSubstitution) are all sound before they're saved: at most
+// common.MaxScheduledSubstitutions of them, each swapping out a player who's actually in the
+// submitted starting lineup for a fit bench player who isn't, at a minute between 1 and 90 -
+// with no player subbed out twice or brought on twice. positions is the lineup being saved in
+// the same request, not the team's previous lineup, since a substitution only makes sense
+// against the XI it's paired with.
+func validateSubstitutions(positions []common.LineupPosition, subs []common.LineupSubstitution, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
+	if len(subs) > common.MaxScheduledSubstitutions {
+		return fmt.Errorf("at most %d substitutions may be scheduled, got %d", common.MaxScheduledSubstitutions, len(subs))
+	}
+
+	starters := make(map[int64]bool, len(positions))
+	for _, pos := range positions {
+		starters[pos.PlayerId] = true
+	}
+
+	rosterIds := make(map[int64]bool, len(*teamPlayers))
+	for _, p := range *teamPlayers {
+		rosterIds[p.Id] = true
+	}
+
+	usedOut := make(map[int64]bool, len(subs))
+	usedIn := make(map[int64]bool, len(subs))
+	for _, sub := range subs {
+		if sub.Minute < 1 || sub.Minute > 90 {
+			return fmt.Errorf("substitution minute must be between 1 and 90, got %d", sub.Minute)
+		}
+		if !starters[sub.PlayerOutId] {
+			return fmt.Errorf("player %d being substituted out is not in the starting lineup", sub.PlayerOutId)
+		}
+		if usedOut[sub.PlayerOutId] {
+			return fmt.Errorf("player %d is scheduled to be substituted out more than once", sub.PlayerOutId)
+		}
+		usedOut[sub.PlayerOutId] = true
+
+		if !rosterIds[sub.PlayerInId] {
+			return fmt.Errorf("player %d does not belong to this team", sub.PlayerInId)
+		}
+		if starters[sub.PlayerInId] {
+			return fmt.Errorf("player %d being substituted in is already in the starting lineup", sub.PlayerInId)
+		}
+		if unavailable[sub.PlayerInId] {
+			return fmt.Errorf("player %d is suspended or injured and unavailable", sub.PlayerInId)
+		}
+		if usedIn[sub.PlayerInId] {
+			return fmt.Errorf("player %d is scheduled to be substituted in more than once", sub.PlayerInId)
+		}
+		usedIn[sub.PlayerInId] = true
 	}
 
 	return nil

@@ -31,6 +31,7 @@ const NO_GOAL = 1
 const YELLOW_CARD = 2
 const RED_CARD = 3
 const INJURY = 4
+const SUBSTITUTION = 5
 
 // player_unavailability.reason
 const UNAVAILABLE_SUSPENSION = 0

@@ -13,6 +13,7 @@ import type {
   FriendlyMatch,
   Lineup,
   LineupPosition,
+  LineupSubstitution,
   LoanListing,
   LoggedUser,
   Group,
@@ -224,8 +225,15 @@ export function useLineup(enabled: boolean) {
 export function useSetLineup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
-      api.put('/v1/user/team/lineup', { formation, positions }),
+    mutationFn: ({
+      formation,
+      positions,
+      substitutions,
+    }: {
+      formation: number
+      positions: LineupPosition[]
+      substitutions: LineupSubstitution[]
+    }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
     },

@@ -42,6 +42,14 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	if err != nil {
 		return nil, err
 	}
+	homeSubstitutions, err := common.GetDefaultLineupSubstitutions(dbCtx, homeTeamId)
+	if err != nil {
+		return nil, err
+	}
+	awaySubstitutions, err := common.GetDefaultLineupSubstitutions(dbCtx, awayTeamId)
+	if err != nil {
+		return nil, err
+	}
 	events := make([]common.Event, 0)
 	matchInstants := make([]common.MatchInstant, 0)
 	matchSimulation := &common.MatchSimulation{
@@ -64,6 +72,8 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		MatchInstants:         &matchInstants,
 		YellowCards:           make(map[int64]bool),
 		SentOff:               make(map[int64]bool),
+		HomeSubstitutions:     homeSubstitutions,
+		AwaySubstitutions:     awaySubstitutions,
 	}
 	events = nil
 	matchInstants = nil
@@ -79,7 +89,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	}
 
 	simulations := make([]Simulation, 0)
-	simulations = append(simulations, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
+	simulations = append(simulations, SubstitutionSimulation{}, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
 	pipeline := SimulationPipelineImpl{
 		simulations: simulations,
 	}

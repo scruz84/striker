@@ -18,6 +18,7 @@ import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_RED_CARD,
+  EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
   type MatchEvent,
   type WeekMatch,
@@ -223,7 +224,13 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
   )
 }
 
-const NOTABLE_EVENT_TYPES: number[] = [EVENT_TYPE_GOAL, EVENT_TYPE_YELLOW_CARD, EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY]
+const NOTABLE_EVENT_TYPES: number[] = [
+  EVENT_TYPE_GOAL,
+  EVENT_TYPE_YELLOW_CARD,
+  EVENT_TYPE_RED_CARD,
+  EVENT_TYPE_INJURY,
+  EVENT_TYPE_SUBSTITUTION,
+]
 
 /** A vertical timeline with home-team events on the left, away-team events on the right, and
  * a minute marker down the center - the layout real match-center timelines use. */
@@ -285,6 +292,8 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
         return '🟥'
       case EVENT_TYPE_INJURY:
         return '🚑'
+      case EVENT_TYPE_SUBSTITUTION:
+        return '🔄'
       default:
         return null
     }
@@ -298,6 +307,8 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
         return t('match.redCard')
       case EVENT_TYPE_INJURY:
         return t('match.injury')
+      case EVENT_TYPE_SUBSTITUTION:
+        return t('match.substitution')
       default:
         return undefined
     }
@@ -318,24 +329,37 @@ function EventContent({ event, align }: { event: MatchEvent; align: 'left' | 'ri
             {event.homeGoals} - {event.awayGoals}
           </Typography>
         )}
-        {playerNames.length > 0 && (
+        {event.eventType === EVENT_TYPE_SUBSTITUTION && playerNames.length === 2 ? (
           <Typography variant="body2" color="text.secondary">
-            {playerNames.map((name, i) =>
-              playerIds[i] !== undefined ? (
-                <Fragment key={playerIds[i]}>
-                  {i > 0 && ', '}
-                  <Link component={RouterLink} to={`/player/${playerIds[i]}`} underline="hover" color="inherit">
-                    {name}
-                  </Link>
-                </Fragment>
-              ) : (
-                <Fragment key={name}>
-                  {i > 0 && ', '}
-                  {name}
-                </Fragment>
-              ),
-            )}
+            <Link component={RouterLink} to={`/player/${playerIds[0]}`} underline="hover" color="inherit">
+              {playerNames[0]}
+            </Link>
+            {' ↓  '}
+            <Link component={RouterLink} to={`/player/${playerIds[1]}`} underline="hover" color="inherit">
+              {playerNames[1]}
+            </Link>
+            {' ↑'}
           </Typography>
+        ) : (
+          playerNames.length > 0 && (
+            <Typography variant="body2" color="text.secondary">
+              {playerNames.map((name, i) =>
+                playerIds[i] !== undefined ? (
+                  <Fragment key={playerIds[i]}>
+                    {i > 0 && ', '}
+                    <Link component={RouterLink} to={`/player/${playerIds[i]}`} underline="hover" color="inherit">
+                      {name}
+                    </Link>
+                  </Fragment>
+                ) : (
+                  <Fragment key={name}>
+                    {i > 0 && ', '}
+                    {name}
+                  </Fragment>
+                ),
+              )}
+            </Typography>
+          )
         )}
       </Box>
     </Stack>
