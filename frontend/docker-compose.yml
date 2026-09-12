@@ -1,5 +1,9 @@
 name: striker-frontend
 
+networks:
+  striker-net:
+    driver: bridge
+
 services:
   frontend:
     build:
@@ -13,3 +17,5 @@ services:
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
     ports:
       - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - striker-net
