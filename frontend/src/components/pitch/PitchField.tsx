@@ -25,6 +25,10 @@ export function PitchField({
       sx={{
         position: 'relative',
         width: '100%',
+        // Without a cap, a wide layout column (e.g. the lineup editor's 8/12 grid span) blows
+        // this up far larger than a formation diagram needs to be.
+        maxWidth: 420,
+        mx: 'auto',
         aspectRatio: `${PITCH_WIDTH} / ${height}`,
         borderRadius: 2,
         overflow: 'hidden',
