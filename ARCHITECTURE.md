@@ -85,9 +85,12 @@ Either path only ever runs **once** - these files have no `IF NOT EXISTS`/idempo
 re-running them against an already-seeded database duplicates data or errors outright.
 
 **Going forward**, keep making schema changes as additive migrations on top of this baseline:
-add one new `resources/sql/initN_whatever.sql` file (picking up numbering after the last one
-folded into the baseline - check `history/` for the highest existing number), never edit
-`init.sql` itself. On an **already-running** database (the common case once the app is live),
+add one new `resources/sql/initN_whatever.sql` file (picking up numbering after the highest
+existing `initN_*.sql` - check **both** `resources/sql/` itself, which accumulates new,
+not-yet-folded migrations as the app evolves, and `resources/sql/history/` for older ones already
+folded into the baseline; as of this writing the highest is `init33_free_agent_retirement.sql`,
+sitting unfolded at the top level, not in `history/`), never edit `init.sql` itself. On an
+**already-running** database (the common case once the app is live),
 that new file needs applying by hand once - see backend/README.md's "Schema changes on an
 already-running database" section for the exact `psql` command. Once enough of these accumulate,
 they can be folded into `init.sql` and moved to `history/` again, exactly as this consolidation
@@ -128,6 +131,36 @@ once they're already an admin themselves.
   only spilling into lower tiers once it's full of human owners.
 - `teams.ai_level` - unclaimed teams still "play" a season; higher AI levels take more actions
   (lineup freshness, contract renewals, transfer shopping - see backend/README.md's "AI teams").
+- Promotion/relegation slot counts (how many teams move between adjacent tiers each season) are
+  admin-configurable per-world (`season.promotion_slots_per_group`/`relegation_slots_per_group`,
+  `common.PromotionRelegationConfig`), not hardcoded - see backend/README.md's "Promotion and
+  relegation".
+
+### Player lifecycle
+
+All of this runs from `engine.ProgressPlayers`/`engine.ProgressFreeAgents`, called once per
+season from `engine.AdvanceSeasonIfComplete` - see backend/README.md's "Player aging and decline",
+"Free agency has a time limit", and "Youth academy (cantera)" sections for the full detail; the
+short version, since it's easy to get wrong when touching any one piece in isolation:
+
+- **Skills drift with age**, not indefinitely: young players trend up, prime-age players hold
+  flat, and past age 30 they trend down (`engine.ageTrendFor`). A hired trainer's growth bonus
+  (`engine.trainerBonus`) only applies while that trend is still flat-or-rising - it cannot
+  reverse a veteran's decline, only fail to slow it, so skill growth is never truly infinite.
+- **Retirement** (`engine.ShouldRetire`) is age-based (rising odds from 33, forced at 40) and
+  applies to rostered players and free agents alike.
+- **A free agent's clock is separate from age**: `engine.ProgressFreeAgents` ages unowned players
+  (who `ProgressPlayers` skips entirely, since it only iterates players belonging to a team) and
+  forces retirement after `engine.FreeAgencyRetirementSeasons` (2) consecutive seasons unsigned,
+  tracked by `players.free_agent_seasons` (reset to 0 on signing).
+- **Retirement isn't always the end**: whether triggered by age or by the free-agency clock,
+  `common.RetireFreeAgentAsTrainer` converts an unowned player into a fresh trainer candidate on
+  the open market (skill = average of their playing attributes) instead of deleting them outright.
+  A rostered player who retires by age alone (`common.RetirePlayer`) is not converted this way.
+- **The youth academy ("cantera")** is a separate concept from all of the above: a small
+  per-team pool of unsigned prospects (`players.in_academy`) a manager can promote from manually,
+  at most one per real calendar week - unrelated to the automatic squad-backfill mechanism
+  (`common.CreateAcademyPlayers`) that tops up a team's senior squad size directly.
 
 ### Redis usage
 
