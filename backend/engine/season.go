@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"context"
+
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"strconv"
@@ -28,6 +30,7 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 
 	newSeason := currentSeason + 1
 	log.Infof("season %d complete (%d matches played), advancing to season %d", currentSeason, total, newSeason)
+	common.SeasonRolloversCounter.Add(context.Background(), 1)
 
 	ProgressPlayers(dbCtx)
 	ReturnExpiredLoans(dbCtx, newSeason)

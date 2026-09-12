@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"context"
 	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -214,6 +215,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
 	notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)
 	BroadcastMatchLive(dbCtx, common.CupTieChannel(matchSimulation.Id), matchSimulation)
+	common.RecordMatchSimulated(context.Background(), "cup", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 	return nil
 }
 

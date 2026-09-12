@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"math/rand"
@@ -129,6 +130,8 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	FreeAgentSigningsCounter.Add(context.Background(), 1)
 
 	playerName := player.FirstName + " " + player.LastName
 	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER,

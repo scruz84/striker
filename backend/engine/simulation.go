@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"context"
+
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,6 +20,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	recordPlayerMinutes(dbCtx, matchSimulation)
 	NotifyMatchResult(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation)
+	common.RecordMatchSimulated(context.Background(), "league", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 
 	return matchSimulation, nil
 }

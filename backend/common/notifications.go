@@ -1,6 +1,11 @@
 package common
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"go.opentelemetry.io/otel/metric"
+)
 
 // Notification is one entry in a user's notification feed (match results, promotion/
 // relegation, transfers, cup results - see the NOTIFICATION_* constants).
@@ -26,6 +31,9 @@ const MarkAllNotificationsReadStmtSql = "UPDATE notifications SET read = true WH
 // CreateNotification adds one entry to a user's feed.
 func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType int, message string) error {
 	_, err := dbCtx.Db.Exec(InsertNotificationStmtSql, userId, notificationType, message)
+	if err == nil {
+		NotificationsSentCounter.Add(context.Background(), 1, metric.WithAttributes(NotificationTypeAttribute(notificationType)))
+	}
 	return err
 }
 

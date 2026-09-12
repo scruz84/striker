@@ -99,6 +99,7 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 			log.Errorf("error creating new user: %s", err)
 			return nil, http.StatusInternalServerError, err
 		}
+		common.UserRegistrationsCounter.Add(context.Background(), 1)
 		loggedUser = &common.LoggedUser{
 			Id:                      strconv.FormatInt(userId, 10),
 			Name:                    fmt.Sprint((*jwtTokenClaims)["name"]),

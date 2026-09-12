@@ -305,6 +305,56 @@ country restriction, so a player can end up playing anywhere regardless of where
 it isn't knowable for anyone created before `resources/sql/init30_player_birth_country.sql` (those
 rows were backfilled with their then-current team's country as the best available guess).
 
+### OpenTelemetry metrics
+
+Both `svc` and `engine` can export runtime metrics via OpenTelemetry - **off by default**, so
+nothing changes for anyone who doesn't set it up. Turn it on with two environment variables:
+
+```bash
+OTEL_METRICS_ENABLED=true
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318   # your OTel Collector, Grafana Agent, etc.
+```
+
+See `common.InitMetrics` for the full mechanism. A few notes:
+
+- The exporter is OTLP/HTTP and otherwise follows the [standard OpenTelemetry environment
+  variables](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) -
+  `OTEL_EXPORTER_OTLP_HEADERS` for auth, `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` to target metrics
+  at a different endpoint than traces/logs, etc. There's no code to change for any of that; the
+  exporter library reads them itself.
+- `OTEL_SERVICE_NAME` overrides the `service.name` resource attribute this process reports
+  (default: `striker-svc`, `striker-engine`, or `striker-combined` for `--svc --engine` in one
+  process - see `cmd/striker.go`). Set it if you're running `svc` and `engine` as separate
+  containers (the normal Docker Compose setup) exporting to the same collector, so their metrics
+  don't get attributed to the same series.
+- Metrics export on a periodic timer (the SDK default is every 60 seconds) and flush once more
+  on a clean shutdown (SIGINT/SIGTERM).
+- Every instrument is a package-level var in `common/telemetry.go` (`common.Meter`,
+  `common.HTTPRequestsCounter`, etc.) - safe to call from anywhere in the codebase whether or not
+  export is actually enabled, since otel's default global MeterProvider is a documented no-op
+  until `InitMetrics` installs a real one.
+
+What's actually instrumented, chosen for being the handful of numbers most worth watching in
+production rather than exhaustive coverage of every code path:
+
+- **HTTP requests** (`striker.http.requests`, `striker.http.request.duration`) - every request
+  `svc` handles, labeled by method, matched route (not the raw path, so `/v1/teams/player/:id/`
+  stays one series regardless of which id), and status code. See the `metricsMiddleware` in
+  `service/fmservice.go`.
+- **Matches simulated** (`striker.matches.simulated`) and **goals scored**
+  (`striker.goals.scored`) - every league match, cup tie, and friendly the engine finishes
+  simulating, labeled by `type`. The core signal that the simulated world is actually moving.
+- **Season rollovers** (`striker.season.rollovers`) - a rare, high-significance event (aging,
+  promotion/relegation, new fixtures) worth seeing happen in a dashboard, not just in logs.
+- **Transfers** (`striker.transfers.completed`, `striker.transfers.volume`) and **free agent
+  signings** (`striker.free_agents.signed`) - the in-game economy's activity and the money moving
+  through it.
+- **Logins** (`striker.logins`, labeled by `provider`) and **new user registrations**
+  (`striker.users.registered`) - the simplest signal of how much the game is actually being
+  played.
+- **Notifications sent** (`striker.notifications.sent`, labeled by `type`) - a proxy for how much
+  is happening across every user's game at once.
+
 ## Local development (without Docker)
 
 ```bash

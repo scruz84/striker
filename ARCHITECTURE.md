@@ -142,6 +142,16 @@ Two independent uses, both optional-but-expected in production, both configured 
    in-process channel, even when both run combined via `--svc --engine` in one process for local
    dev (still separate `DatabaseContext`/hub instances internally).
 
+### Observability
+
+`common/telemetry.go` defines package-level OpenTelemetry metric instruments (`common.Meter`,
+`common.HTTPRequestsCounter`, `common.MatchesSimulatedCounter`, ...) used from `service/`,
+`engine/`, and `common/` alike - safe to call unconditionally anywhere, since otel's default
+global MeterProvider is a no-op until `common.InitMetrics` installs a real one. Export is
+**off by default**; set `OTEL_METRICS_ENABLED=true` (plus the standard `OTEL_EXPORTER_OTLP_*`
+env vars) to send metrics to a collector - see backend/README.md's "OpenTelemetry metrics"
+section for the full list of what's instrumented and how to configure it.
+
 ### Live match streaming
 
 A match's simulation is instant and fully computed/persisted to Postgres in one go - there's no

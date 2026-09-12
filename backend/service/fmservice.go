@@ -12,6 +12,8 @@ import (
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/handlers"
 	log "github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"net/http"
 	"os"
 	"strconv"
@@ -54,6 +56,7 @@ func StartSvc() {
 	}
 
 	router := gin.Default()
+	router.Use(metricsMiddleware())
 	initRouter(router, dbCtx)
 
 	errorListener := router.Run("0.0.0.0:1984")
@@ -63,6 +66,32 @@ func StartSvc() {
 	}
 
 	defer dbCtx.Db.Close()
+}
+
+// metricsMiddleware records every request's count and duration (see
+// common.HTTPRequestsCounter/HTTPRequestDuration) - a no-op unless OpenTelemetry metrics export
+// is enabled (common.InitMetrics). Uses c.FullPath() rather than c.Request.URL.Path so a
+// parameterized route (e.g. /v1/teams/player/:id/) stays one series regardless of which id was
+// requested - an unmatched route (404) has no full path, labeled "unmatched" instead of leaving
+// the attribute empty.
+func metricsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+
+		route := c.FullPath()
+		if route == "" {
+			route = "unmatched"
+		}
+		attrs := metric.WithAttributes(
+			attribute.String("method", c.Request.Method),
+			attribute.String("route", route),
+			attribute.Int("status", c.Writer.Status()),
+		)
+		ctx := c.Request.Context()
+		common.HTTPRequestsCounter.Add(ctx, 1, attrs)
+		common.HTTPRequestDuration.Record(ctx, float64(time.Since(start).Microseconds())/1000, attrs)
+	}
 }
 
 // Http router initializer
@@ -281,6 +310,7 @@ func initJWTMiddleware(dbCtx *common.DatabaseContext) *ginjwt.GinJWTMiddleware {
 			if err != nil {
 				return "", errors.New(fmt.Sprint(err))
 			}
+			common.LoginsCounter.Add(c.Request.Context(), 1, metric.WithAttributes(common.LoginProviderAttribute(loggedUser.Provider)))
 			session := sessions.Default(c)
 			session.Set(common.UserId, loggedUser.Id)
 			err = session.Save()
