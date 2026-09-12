@@ -169,7 +169,9 @@
   "formations": {
     "balanced": "Balanced (4-4-2)",
     "defensive": "Defensive (5-3-2)",
-    "attacking": "Attacking (3-4-3)"
+    "attacking": "Attacking (3-4-3)",
+    "fourThreeThree": "Wingers (4-3-3)",
+    "fourFiveOne": "Packed midfield (4-5-1)"
   },
   "finances": {
     "title": "Finances",

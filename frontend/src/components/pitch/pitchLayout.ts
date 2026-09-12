@@ -5,6 +5,8 @@ import {
   POSITION_LATERAL_DEFENSE_RIGHT,
   POSITION_LATERAL_MIDFIELD_LEFT,
   POSITION_LATERAL_MIDFIELD_RIGHT,
+  POSITION_LATERAL_STRIKER_LEFT,
+  POSITION_LATERAL_STRIKER_RIGHT,
   POSITION_MIDFIELD,
   POSITION_STRIKER,
 } from '../../api/types'
@@ -30,6 +32,8 @@ const ROW_Y: Record<number, number> = {
   [POSITION_LATERAL_MIDFIELD_LEFT]: 240,
   [POSITION_LATERAL_MIDFIELD_RIGHT]: 240,
   [POSITION_STRIKER]: 110,
+  [POSITION_LATERAL_STRIKER_LEFT]: 110,
+  [POSITION_LATERAL_STRIKER_RIGHT]: 110,
 }
 
 // Same rows, compressed into PITCH_HEIGHT_HALF for the half-pitch layout.
@@ -42,6 +46,8 @@ const ROW_Y_HALF: Record<number, number> = {
   [POSITION_LATERAL_MIDFIELD_LEFT]: 112,
   [POSITION_LATERAL_MIDFIELD_RIGHT]: 112,
   [POSITION_STRIKER]: 45,
+  [POSITION_LATERAL_STRIKER_LEFT]: 45,
+  [POSITION_LATERAL_STRIKER_RIGHT]: 45,
 }
 
 // Fixed x for the wide (touchline-hugging) slots - always exactly one of each per formation.
@@ -50,6 +56,8 @@ const WIDE_X: Record<number, number> = {
   [POSITION_LATERAL_DEFENSE_RIGHT]: 270,
   [POSITION_LATERAL_MIDFIELD_LEFT]: 22,
   [POSITION_LATERAL_MIDFIELD_RIGHT]: 278,
+  [POSITION_LATERAL_STRIKER_LEFT]: 55,
+  [POSITION_LATERAL_STRIKER_RIGHT]: 245,
 }
 
 // Horizontal band the central (count-variable) slots at each row spread across, evenly spaced.

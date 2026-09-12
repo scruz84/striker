@@ -314,18 +314,20 @@ export const ALL_POSITIONS = [
 ]
 
 // Formation ids and per-position headcounts from backend/common/formation.go - every formation
-// totals 11 players (goalkeeper included). Only the eight positions any formation actually uses
-// appear here; the lateral strikers are never assigned by any formation, so the lineup editor
-// never shows them.
+// totals 11 players (goalkeeper included).
 export const FORMATION_BALANCED = 0
 export const FORMATION_DEFENSIVE = 1
 export const FORMATION_ATTACKING = 2
+export const FORMATION_FOUR_THREE_THREE = 3
+export const FORMATION_FOUR_FIVE_ONE = 4
 
 // Values are i18n keys under "formations.*" - look them up with t(FORMATION_LABEL_KEYS[formation]).
 export const FORMATION_LABEL_KEYS: Record<number, string> = {
   [FORMATION_BALANCED]: 'formations.balanced',
   [FORMATION_DEFENSIVE]: 'formations.defensive',
   [FORMATION_ATTACKING]: 'formations.attacking',
+  [FORMATION_FOUR_THREE_THREE]: 'formations.fourThreeThree',
+  [FORMATION_FOUR_FIVE_ONE]: 'formations.fourFiveOne',
 }
 
 export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, number>>> = {
@@ -358,6 +360,26 @@ export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, nu
     [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
     [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
     [POSITION_STRIKER]: 3,
+  },
+  [FORMATION_FOUR_THREE_THREE]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 2,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 3,
+    [POSITION_STRIKER]: 1,
+    [POSITION_LATERAL_STRIKER_LEFT]: 1,
+    [POSITION_LATERAL_STRIKER_RIGHT]: 1,
+  },
+  [FORMATION_FOUR_FIVE_ONE]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 2,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 3,
+    [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
+    [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
+    [POSITION_STRIKER]: 1,
   },
 }
 

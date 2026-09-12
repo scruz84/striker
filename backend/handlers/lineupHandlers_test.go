@@ -49,11 +49,16 @@ func TestValidateLineup_InvalidFormation(t *testing.T) {
 }
 
 func TestValidateLineup_EveryFormationAccepts11DistinctPlayers(t *testing.T) {
-	for _, formation := range []int{common.FormationBalanced, common.FormationDefensive, common.FormationAttacking} {
+	allFormations := []int{
+		common.FormationBalanced, common.FormationDefensive, common.FormationAttacking,
+		common.FormationFourThreeThree, common.FormationFourFiveOne,
+	}
+	for _, formation := range allFormations {
 		counts := common.FormationPositionCounts(formation)
 		order := []int{
 			common.GOALKEEPER, common.DEFENSE, common.LATERAL_DEFENSE_LEFT, common.LATERAL_DEFENSE_RIGHT,
 			common.MIDFIELD, common.LATERAL_MIDFIELD_LEFT, common.LATERAL_MIDFIELD_RIGHT, common.STRIKER,
+			common.LATERAL_STRIKER_LEFT, common.LATERAL_STRIKER_RIGHT,
 		}
 		positions := make([]common.LineupPosition, 0, 11)
 		nextPlayerId := int64(1)
