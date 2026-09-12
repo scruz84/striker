@@ -40,6 +40,7 @@ import {
   useAdminSetAiLevel,
   useAdminSetFriendlySchedule,
   useAdminSetMaxFriendliesPerWeek,
+  useAdminSetPromotionRelegation,
   useAdminSimulateNow,
   useAdminUsers,
   useAdminWorldConfig,
@@ -300,6 +301,8 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
 
         <MatchScheduleForm overview={overview} />
 
+        <PromotionRelegationForm overview={overview} />
+
         <MaxFriendliesPerWeekForm overview={overview} />
 
         <FriendlyScheduleForm overview={overview} />
@@ -435,6 +438,66 @@ function MatchScheduleForm({ overview }: { overview: NonNullable<ReturnType<type
       )}
       {setMatchSchedule.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.matchSchedule.success')}</Alert>}
       {setMatchSchedule.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.matchSchedule.error')}</Alert>}
+    </Box>
+  )
+}
+
+function PromotionRelegationForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setPromotionRelegation = useAdminSetPromotionRelegation()
+  const [promotionSlots, setPromotionSlots] = useState(String(overview.promotionSlotsPerGroup))
+  const [relegationSlots, setRelegationSlots] = useState(String(overview.relegationSlotsPerGroup))
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    const promotionSlotsPerGroup = Number(promotionSlots)
+    const relegationSlotsPerGroup = Number(relegationSlots)
+    if (Number.isNaN(promotionSlotsPerGroup) || promotionSlotsPerGroup < 0) return
+    if (Number.isNaN(relegationSlotsPerGroup) || relegationSlotsPerGroup < 0) return
+    setPromotionRelegation.mutate({ promotionSlotsPerGroup, relegationSlotsPerGroup })
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.promotionRelegation.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.promotionRelegation.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <TextField
+          label={t('admin.promotionRelegation.promoted')}
+          type="number"
+          size="small"
+          value={promotionSlots}
+          onChange={(e) => setPromotionSlots(e.target.value)}
+          sx={{ width: 160 }}
+          slotProps={{ htmlInput: { min: 0, max: 10 } }}
+        />
+        <TextField
+          label={t('admin.promotionRelegation.relegated')}
+          type="number"
+          size="small"
+          value={relegationSlots}
+          onChange={(e) => setRelegationSlots(e.target.value)}
+          sx={{ width: 160 }}
+          slotProps={{ htmlInput: { min: 0, max: 10 } }}
+        />
+        <Button type="submit" variant="contained" disabled={setPromotionRelegation.isPending}>
+          {t('admin.promotionRelegation.save')}
+        </Button>
+      </Stack>
+      {setPromotionRelegation.isSuccess && (
+        <Alert severity="success" sx={{ mt: 1 }}>
+          {t('admin.promotionRelegation.success')}
+        </Alert>
+      )}
+      {setPromotionRelegation.isError && (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {t('admin.promotionRelegation.error')}
+        </Alert>
+      )}
     </Box>
   )
 }

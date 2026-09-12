@@ -104,9 +104,10 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, season int) {
 		)
 	}
 
+	config := common.GetPromotionRelegationConfig(dbCtx)
 	promotedByTeam := make(map[int64]bool)
 	for country, leaguesByTier := range leaguesByCountryAndTier {
-		moves := ComputePromotionRelegation(leaguesByTier)
+		moves := ComputePromotionRelegation(leaguesByTier, config)
 		for _, move := range moves {
 			promotedByTeam[move.TeamId] = move.Promoted
 		}

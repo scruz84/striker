@@ -135,6 +135,26 @@ effective schedule (the override if it has one, otherwise the global default) - 
 `common.GetLeagueScheduleOverrides`, consulted by `engine.GenerateMatches` for every league's
 fixtures independently.
 
+### Promotion and relegation
+
+How many teams move between each pair of adjacent tiers at season rollover
+(`engine.ComputePromotionRelegation`) is admin-configurable via `PUT /v1/admin/promotion-relegation`:
+
+```json
+{"promotionSlotsPerGroup": 1, "relegationSlotsPerGroup": 2}
+```
+
+`promotionSlotsPerGroup` is how many of each lower-tier group's top teams are promotion
+candidates; `relegationSlotsPerGroup` is how many of each upper-tier league's bottom teams drop.
+Defaults (1 promoted, 2 relegated per group) match the values this was hardcoded to before it
+became configurable, so an existing world sees no behavior change until an admin touches this.
+Either can be set to 0 to turn that direction off entirely; both are capped at 10 (a league only
+ever has a handful of teams). The current values come back on `GET /v1/admin/overview` as
+`promotionSlotsPerGroup`/`relegationSlotsPerGroup`. It's still a straight swap with no play-off
+model - when a tier has more relegation slots open than promotion candidates available (fewer
+groups below than above), the extra bottom teams simply stay put. Only affects a season rollover
+that hasn't happened yet; one already applied doesn't get undone.
+
 ### World management
 
 Three more admin surfaces let a commissioner reshape the game world without a redeploy:

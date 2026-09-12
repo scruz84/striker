@@ -5,17 +5,6 @@ import (
 	"sort"
 )
 
-// RelegationSlotsPerGroup is how many of a league's bottom teams are candidates to drop to
-// the tier below at the end of a season.
-const RelegationSlotsPerGroup = 2
-
-// PromotionCandidatesPerGroup is how many of a league's top teams are candidates to move up
-// to the tier above. When the tier below has more groups than the tier above has vacancies
-// (as in this game's seed data: tier 2 has 4 groups feeding a single tier-1 group), only the
-// best-ranked candidates across all of that tier's groups actually get promoted - there is no
-// play-off model, so the rest simply stay put for another season.
-const PromotionCandidatesPerGroup = 1
-
 // LeagueStandings is one league's teams, already ranked best to worst.
 type LeagueStandings struct {
 	LeagueId  int64
@@ -35,11 +24,11 @@ type tierCandidate struct {
 }
 
 // ComputePromotionRelegation walks a country's tiers from the top down and, for every pair of
-// adjacent tiers, swaps the bottom RelegationSlotsPerGroup of each upper-tier league with the
-// best-ranked promotion candidates from the tier below - matched one-for-one so no league's
+// adjacent tiers, swaps the bottom config.RelegationSlotsPerGroup of each upper-tier league with
+// the best-ranked promotion candidates from the tier below - matched one-for-one so no league's
 // team count ever changes. leaguesByTier must be keyed by tier number (1 = top division);
 // only tiers that are actually adjacent (e.g. 1 and 2, not 1 and 3) form a pair.
-func ComputePromotionRelegation(leaguesByTier map[int][]LeagueStandings) []LeagueMove {
+func ComputePromotionRelegation(leaguesByTier map[int][]LeagueStandings, config common.PromotionRelegationConfig) []LeagueMove {
 	tiers := make([]int, 0, len(leaguesByTier))
 	for tier := range leaguesByTier {
 		tiers = append(tiers, tier)
@@ -52,15 +41,15 @@ func ComputePromotionRelegation(leaguesByTier map[int][]LeagueStandings) []Leagu
 		if lowerTier != upperTier+1 {
 			continue
 		}
-		moves = append(moves, swapAdjacentTiers(leaguesByTier[upperTier], leaguesByTier[lowerTier])...)
+		moves = append(moves, swapAdjacentTiers(leaguesByTier[upperTier], leaguesByTier[lowerTier], config)...)
 	}
 	return moves
 }
 
-func swapAdjacentTiers(upperLeagues []LeagueStandings, lowerLeagues []LeagueStandings) []LeagueMove {
+func swapAdjacentTiers(upperLeagues []LeagueStandings, lowerLeagues []LeagueStandings, config common.PromotionRelegationConfig) []LeagueMove {
 	relegationSlots := make([]tierCandidate, 0)
 	for _, league := range upperLeagues {
-		n := RelegationSlotsPerGroup
+		n := config.RelegationSlotsPerGroup
 		if n > len(league.Standings) {
 			n = len(league.Standings)
 		}
@@ -74,7 +63,7 @@ func swapAdjacentTiers(upperLeagues []LeagueStandings, lowerLeagues []LeagueStan
 
 	promotionCandidates := make([]tierCandidate, 0)
 	for _, league := range lowerLeagues {
-		n := PromotionCandidatesPerGroup
+		n := config.PromotionSlotsPerGroup
 		if n > len(league.Standings) {
 			n = len(league.Standings)
 		}

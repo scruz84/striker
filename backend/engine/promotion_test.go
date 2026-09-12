@@ -9,6 +9,10 @@ func standing(teamId int64, points, goalDiff, goalsScored int) common.TeamStandi
 	return common.TeamStanding{TeamId: teamId, Points: points, GoalDiff: goalDiff, GoalsScored: goalsScored}
 }
 
+// defaultConfig matches the historical hardcoded constants these tests were written against
+// (RelegationSlotsPerGroup=2, PromotionCandidatesPerGroup=1), before both became admin-configurable.
+var defaultConfig = common.PromotionRelegationConfig{PromotionSlotsPerGroup: 1, RelegationSlotsPerGroup: 2}
+
 // rankedGroup builds a LeagueStandings already sorted best to worst by descending points,
 // matching what GetRankedClassification returns - team ids are assigned 1..n in rank order.
 func rankedGroup(leagueId int64, pointsBestToWorst ...int) LeagueStandings {
@@ -24,7 +28,7 @@ func TestComputePromotionRelegation_SingleTierNoMoves(t *testing.T) {
 		1: {rankedGroup(1, 30, 25, 20, 15, 10)},
 	}
 
-	moves := ComputePromotionRelegation(leaguesByTier)
+	moves := ComputePromotionRelegation(leaguesByTier, defaultConfig)
 	if len(moves) != 0 {
 		t.Fatalf("expected no moves with a single tier, got %v", moves)
 	}
@@ -36,7 +40,7 @@ func TestComputePromotionRelegation_NonAdjacentTiersDoNotSwap(t *testing.T) {
 		3: {rankedGroup(3, 30, 25, 20)},
 	}
 
-	moves := ComputePromotionRelegation(leaguesByTier)
+	moves := ComputePromotionRelegation(leaguesByTier, defaultConfig)
 	if len(moves) != 0 {
 		t.Fatalf("expected no moves between non-adjacent tiers, got %v", moves)
 	}
@@ -50,7 +54,7 @@ func TestComputePromotionRelegation_OneToOneGroupSwapsTwo(t *testing.T) {
 		2: {rankedGroup(2, 40, 35, 30, 25, 20)}, // best team: league 2, id 200
 	}
 
-	moves := ComputePromotionRelegation(leaguesByTier)
+	moves := ComputePromotionRelegation(leaguesByTier, defaultConfig)
 	if len(moves) != 2 {
 		t.Fatalf("expected exactly one swap (2 moves), got %d: %v", len(moves), moves)
 	}
@@ -77,7 +81,7 @@ func TestComputePromotionRelegation_MultipleGroupsRankGlobally(t *testing.T) {
 		},
 	}
 
-	moves := ComputePromotionRelegation(leaguesByTier)
+	moves := ComputePromotionRelegation(leaguesByTier, defaultConfig)
 	if len(moves) != 4 {
 		t.Fatalf("expected 2 swaps (4 moves), got %d: %v", len(moves), moves)
 	}
@@ -119,13 +123,44 @@ func TestComputePromotionRelegation_TieBreaksByGoalDiffThenGoalsScored(t *testin
 		},
 	}
 
-	moves := ComputePromotionRelegation(leaguesByTier)
+	moves := ComputePromotionRelegation(leaguesByTier, defaultConfig)
 	movesByTeam := movesByTeamId(moves)
 
 	// Both promotion candidates get in here (2 slots, 2 candidates), so just confirm both
 	// moved and the swap is internally consistent (each landed in the other's old league).
 	if movesByTeam[2100] == 0 || movesByTeam[2200] == 0 {
 		t.Fatalf("expected both tied-on-points candidates to be promoted, got %v", movesByTeam)
+	}
+}
+
+func TestComputePromotionRelegation_ZeroSlotsDisablesMovement(t *testing.T) {
+	leaguesByTier := map[int][]LeagueStandings{
+		1: {rankedGroup(1, 30, 25, 20)},
+		2: {rankedGroup(2, 40, 35, 30)},
+	}
+
+	moves := ComputePromotionRelegation(leaguesByTier, common.PromotionRelegationConfig{})
+	if len(moves) != 0 {
+		t.Fatalf("expected no moves with zero configured slots, got %v", moves)
+	}
+}
+
+func TestComputePromotionRelegation_ConfiguredSlotsMoveMoreThanOnePerGroup(t *testing.T) {
+	leaguesByTier := map[int][]LeagueStandings{
+		1: {rankedGroup(1, 30, 25, 20, 15, 10)},
+		2: {rankedGroup(2, 40, 35, 30, 25, 20)},
+	}
+
+	moves := ComputePromotionRelegation(leaguesByTier, common.PromotionRelegationConfig{PromotionSlotsPerGroup: 2, RelegationSlotsPerGroup: 2})
+	if len(moves) != 4 {
+		t.Fatalf("expected 2 swaps (4 moves) with 2 promotion slots configured, got %d: %v", len(moves), moves)
+	}
+	movesByTeam := movesByTeamId(moves)
+	if _, ok := movesByTeam[200]; !ok {
+		t.Error("expected the best lower-tier team (200) to be promoted")
+	}
+	if _, ok := movesByTeam[201]; !ok {
+		t.Error("expected the second-best lower-tier team (201) to be promoted with 2 slots configured")
 	}
 }
 

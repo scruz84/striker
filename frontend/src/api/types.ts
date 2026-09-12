@@ -629,6 +629,8 @@ export interface AdminOverview {
   matchScheduleMinute: number
   maxFriendliesPerWeek: number
   friendlyScheduleWeekdays: number
+  promotionSlotsPerGroup: number
+  relegationSlotsPerGroup: number
 }
 
 // Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and

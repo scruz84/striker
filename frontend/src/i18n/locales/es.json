@@ -539,6 +539,15 @@
       "success": "Calendario de partidos actualizado.",
       "error": "No se pudo actualizar el calendario de partidos."
     },
+    "promotionRelegation": {
+      "title": "Ascensos y descensos",
+      "description": "Cuántos equipos suben y bajan entre niveles adyacentes al final de cada temporada. Pon cualquiera de los dos a 0 para desactivar ese movimiento por completo. Solo afecta al próximo cambio de temporada que aún no haya ocurrido.",
+      "promoted": "Ascensos por grupo",
+      "relegated": "Descensos por grupo",
+      "save": "Guardar cifras",
+      "success": "Cifras de ascensos/descensos actualizadas.",
+      "error": "No se pudieron actualizar las cifras de ascensos/descensos."
+    },
     "maxFriendlies": {
       "title": "Partidos amistosos",
       "description": "Número máximo de amistosos que un equipo puede aceptar por semana natural (de lunes a domingo). Pon 0 para desactivar los amistosos por completo.",

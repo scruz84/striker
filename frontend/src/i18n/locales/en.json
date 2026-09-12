@@ -539,6 +539,15 @@
       "success": "Match schedule updated.",
       "error": "Failed to update match schedule."
     },
+    "promotionRelegation": {
+      "title": "Promotion & relegation",
+      "description": "How many teams move between adjacent tiers at the end of each season. Set either to 0 to turn that direction off entirely. Only affects a season rollover that hasn't happened yet.",
+      "promoted": "Promoted per group",
+      "relegated": "Relegated per group",
+      "save": "Save slots",
+      "success": "Promotion/relegation slots updated.",
+      "error": "Failed to update promotion/relegation slots."
+    },
     "maxFriendlies": {
       "title": "Friendly matches",
       "description": "Maximum friendly matches a team may accept per calendar week (Monday to Sunday). Set to 0 to turn friendlies off entirely.",

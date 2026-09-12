@@ -52,6 +52,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		friendlyScheduleWeekdays := common.GetFriendlyScheduleWeekdays(dbCtx)
+		promotionRelegationConfig := common.GetPromotionRelegationConfig(dbCtx)
 		c.JSON(http.StatusOK, common.AdminOverview{
 			Season:                    season,
 			UserCount:                 userCount,
@@ -66,6 +67,8 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			MatchScheduleMinute:       schedule.Minute,
 			MaxFriendliesPerWeek:      maxFriendliesPerWeek,
 			FriendlyScheduleWeekdays:  friendlyScheduleWeekdays,
+			PromotionSlotsPerGroup:    promotionRelegationConfig.PromotionSlotsPerGroup,
+			RelegationSlotsPerGroup:   promotionRelegationConfig.RelegationSlotsPerGroup,
 		})
 	}
 }
@@ -236,5 +239,40 @@ func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "match schedule updated"})
+	}
+}
+
+type setPromotionRelegationRequest struct {
+	PromotionSlotsPerGroup  int `json:"promotionSlotsPerGroup"`
+	RelegationSlotsPerGroup int `json:"relegationSlotsPerGroup"`
+}
+
+// AdminSetPromotionRelegationHandler updates how many teams move between adjacent tiers at the
+// next season rollover (see engine.ComputePromotionRelegation,
+// common.SetPromotionRelegationConfig). Only affects a rollover that hasn't happened yet - one
+// already applied doesn't get undone.
+func AdminSetPromotionRelegationHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setPromotionRelegationRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "promotionSlotsPerGroup and relegationSlotsPerGroup are required"))
+			return
+		}
+
+		config := common.PromotionRelegationConfig{
+			PromotionSlotsPerGroup:  req.PromotionSlotsPerGroup,
+			RelegationSlotsPerGroup: req.RelegationSlotsPerGroup,
+		}
+		if err := common.SetPromotionRelegationConfig(dbCtx, config); err != nil {
+			if errors.Is(err, common.ErrInvalidPromotionRelegationConfig) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting promotion/relegation config: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "promotion/relegation slots updated"})
 	}
 }

@@ -205,6 +205,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.PUT("/teams/:"+handlers.ID+"/ai-level", handlers.AdminSetTeamAiLevelHandler(dbCtx))
 	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 	v1AdminGroup.PUT("/match-schedule", handlers.AdminSetMatchScheduleHandler(dbCtx))
+	v1AdminGroup.PUT("/promotion-relegation", handlers.AdminSetPromotionRelegationHandler(dbCtx))
 	v1AdminGroup.PUT("/max-friendlies-per-week", handlers.AdminSetMaxFriendliesPerWeekHandler(dbCtx))
 	v1AdminGroup.PUT("/friendly-schedule", handlers.AdminSetFriendlyScheduleHandler(dbCtx))
 	v1AdminGroup.PUT("/users/:"+handlers.ID+"/admin", handlers.AdminSetUserAdminHandler(dbCtx))

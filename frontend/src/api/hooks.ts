@@ -857,6 +857,17 @@ export function useAdminSetFriendlySchedule() {
   })
 }
 
+export function useAdminSetPromotionRelegation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (config: { promotionSlotsPerGroup: number; relegationSlotsPerGroup: number }) =>
+      api.put('/v1/admin/promotion-relegation', config),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useSetTransferWindow() {
   const queryClient = useQueryClient()
   return useMutation({
