@@ -15,6 +15,12 @@ const RetirementForcedAge = 40
 const RetirementEligibleAge = 33
 const RetirementChancePerYear = 0.15
 
+// FreeAgencyRetirementSeasons is how many consecutive seasons a player can go unsigned before
+// they're forced into retirement regardless of age (see ProgressFreeAgents) - long enough that a
+// released player has a real chance to find a new club, short enough that free agency doesn't
+// become a de facto permanent parking spot for players nobody wants.
+const FreeAgencyRetirementSeasons = 2
+
 // ShouldRetire decides whether a player calls it a career this season, given their age
 // *after* this season's aging. Below RetirementEligibleAge it's never; at/after
 // RetirementForcedAge it's always; in between, the chance rises 15 percentage points per year.
@@ -57,10 +63,19 @@ func trainerBonus(trainerSkill int) int {
 	}
 }
 
-// driftSkill applies a player's age trend, a hired trainer's bonus (0 with no trainer), and a
-// little noise (-1..+1) to one skill value, clamped to a sane [1, 99] range.
+// driftSkill applies a player's age trend, a hired trainer's bonus, and a little noise (-1..+1)
+// to one skill value, clamped to a sane [1, 99] range. The trainer's bonus (0 with no trainer)
+// only applies while the age trend is still flat or rising (ageTrendFor(age) >= 0) - a coach
+// accelerates a player's development, but can't reverse the physical decline of someone already
+// past their prime, so a veteran's skills merely hold steady at best rather than climbing
+// indefinitely no matter how good their coach is.
 func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
-	value += ageTrendFor(age) + trainerBonus(trainerSkill) + r.Intn(3) - 1
+	trend := ageTrendFor(age)
+	bonus := 0
+	if trend >= 0 {
+		bonus = trainerBonus(trainerSkill)
+	}
+	value += trend + bonus + r.Intn(3) - 1
 	if value < 1 {
 		value = 1
 	}
@@ -210,6 +225,53 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 
 	if err := common.ClearPlayerPositionMinutes(dbCtx); err != nil {
 		log.Errorf("error clearing player position minutes after progression: %s", err)
+	}
+}
+
+// ProgressFreeAgents ages every currently-unowned player by one season - ProgressPlayers only
+// iterates players belonging to a team, so without this a free agent would never age, retire, or
+// otherwise change at all no matter how long they sat unsigned. Skills are never drifted here: a
+// free agent has no club, no matches, and no coach to develop (or decline) them, so only age and
+// the free-agency clock (see common.AdvanceFreeAgencyClock) advance.
+//
+// A free agent retires exactly like a rostered player (see ShouldRetire) if their new age calls
+// for it, and also, regardless of age, once they've now gone FreeAgencyRetirementSeasons
+// consecutive seasons without a club - nobody stays a free agent forever. Either way they don't
+// simply vanish: common.RetireFreeAgentAsTrainer converts them into a fresh, unemployed trainer
+// candidate on the open market first, the same way a long, unresolved job search might end in a
+// career change rather than nothing at all. Meant to run once per season from
+// AdvanceSeasonIfComplete, alongside ProgressPlayers.
+func ProgressFreeAgents(dbCtx *common.DatabaseContext) {
+	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+
+	freeAgents, err := common.GetFreeAgents(dbCtx)
+	if err != nil {
+		log.Errorf("error listing free agents for progression: %s", err)
+		return
+	}
+
+	for _, player := range freeAgents {
+		newAge := player.Age + 1
+
+		if ShouldRetire(newAge, r) {
+			if err := common.RetireFreeAgentAsTrainer(dbCtx, player); err != nil {
+				log.Errorf("error retiring free agent %d as a trainer: %s", player.Id, err)
+			}
+			continue
+		}
+
+		seasonsUnsigned, err := common.AdvanceFreeAgencyClock(dbCtx, player.Id, newAge)
+		if err != nil {
+			log.Errorf("error advancing free agency clock for player %d: %s", player.Id, err)
+			continue
+		}
+		if seasonsUnsigned >= FreeAgencyRetirementSeasons {
+			log.Infof("player %d (%s %s) retiring after %d seasons unsigned",
+				player.Id, player.FirstName, player.LastName, seasonsUnsigned)
+			if err := common.RetireFreeAgentAsTrainer(dbCtx, player); err != nil {
+				log.Errorf("error retiring free agent %d as a trainer: %s", player.Id, err)
+			}
+		}
 	}
 }
 

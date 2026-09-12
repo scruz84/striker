@@ -52,7 +52,9 @@ const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day
 // ReleasePlayer's severance). team_id comes back NULL for a free agent.
 const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years_remaining FROM players WHERE player_id = $1 " + ForUpdate
 
-const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3 WHERE player_id = $4"
+// free_agent_seasons resets to 0 on signing - see engine.ProgressFreeAgents, which increments it
+// once per season a player stays unsigned, and AdvanceFreeAgencyClock's doc comment.
+const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0 WHERE player_id = $4"
 const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
 const ReleaseFromTeamStmtSql = "UPDATE players SET team_id = NULL, contract_years_remaining = 0 WHERE player_id = $1"
 
@@ -349,4 +351,20 @@ func AdvancePlayerContract(dbCtx *DatabaseContext, playerId int64) (bool, error)
 		return false, err
 	}
 	return true, nil
+}
+
+// AdvanceFreeAgencyClockStmtSql ages a free agent by one season and extends their unbroken spell
+// of free agency by one, returning the new total so the caller can decide whether it's crossed
+// engine.FreeAgencyRetirementSeasons.
+const AdvanceFreeAgencyClockStmtSql = "UPDATE players SET age = $1, free_agent_seasons = free_agent_seasons + 1 " +
+	"WHERE player_id = $2 RETURNING free_agent_seasons"
+
+// AdvanceFreeAgencyClock ages a free agent by one season and increments how many consecutive
+// seasons they've now gone unsigned, returning that new count. Only ever called for a player
+// who is actually still a free agent this season (see engine.ProgressFreeAgents, the only
+// caller) - signing resets the counter to 0 (see SignFreeAgentStmtSql), so it only ever measures
+// time since their most recent release to free agency.
+func AdvanceFreeAgencyClock(dbCtx *DatabaseContext, playerId int64, newAge int) (seasonsUnsigned int, err error) {
+	err = dbCtx.Db.QueryRow(AdvanceFreeAgencyClockStmtSql, newAge, playerId).Scan(&seasonsUnsigned)
+	return seasonsUnsigned, err
 }

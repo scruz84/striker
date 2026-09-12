@@ -296,6 +296,37 @@ for anyone else, the same way `GET /v1/teams/team/:id/` only shows a squad's rea
 to its own owner. A free agent's wage stays visible to everyone, same as today, since it's exactly
 the figure a prospective signer needs to see.
 
+### Player aging and decline
+
+A rostered player's core skills only drift for whichever attributes are relevant to the position
+they actually played the most minutes at that season (`engine.driftSkillsForPosition`), by an
+amount that trends with age (`engine.ageTrendFor`): upward below 24, flat in their prime (24-29),
+downward from 30 on. A hired trainer's growth bonus (`engine.trainerBonus`) only ever applies
+while that trend is still flat or rising - once a player is past 30, a great coach can no longer
+reverse the decline, only fail to slow it down, so a veteran's skills merely hold steady at best
+each season rather than climbing indefinitely no matter how good their coaching is
+(`engine.driftSkill`). On top of that, `engine.ShouldRetire` forces every player out of the game
+eventually regardless of skill: never below 33, a rising chance each year after that, and always
+by 40.
+
+### Free agency has a time limit
+
+`engine.ProgressPlayers` only iterates players who belong to a team, so a free agent (an
+unowned player - see "Player contracts & free agency" above) would otherwise never age or retire
+at all. `engine.ProgressFreeAgents`, run at the same point in the season rollover, closes that
+gap: every free agent still ages a year and can retire on the same age-based odds as anyone
+else, and separately, `players.free_agent_seasons` counts how many consecutive seasons they've
+now gone without a club - reset to 0 the moment they're signed (see `SignFreeAgent`) - forcing
+retirement once it reaches `engine.FreeAgencyRetirementSeasons` (2) even for a player who's
+otherwise still young. Free agents don't have their skills drift at all while unsigned - no club
+means no matches and no coach to develop or decline them, only the clock ticking.
+
+Either way, a free agent forced out by this doesn't just vanish: `common.RetireFreeAgentAsTrainer`
+converts them into a fresh, unemployed trainer candidate on the open market first, keeping their
+own name - their playing career becomes a coaching one instead. The candidate's skill is the
+average of their seven core attributes (`trainerSkillFromPlayerSkills`), clamped to the normal
+`TrainerSkillMin`/`TrainerSkillMax` range.
+
 ### Youth academy (cantera)
 
 Every team also holds a small pool of unsigned young prospects (`common.CanteraSize`, currently

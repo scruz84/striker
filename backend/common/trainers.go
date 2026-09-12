@@ -204,3 +204,49 @@ func FireTrainer(dbCtx *DatabaseContext, trainerId int64, teamId int64) error {
 	}
 	return tx.Commit()
 }
+
+// trainerSkillFromPlayerSkills converts a retiring player's seven core attributes into a
+// trainer candidate's skill rating (see RetireFreeAgentAsTrainer): the plain average, clamped
+// to the normal TrainerSkillMin/TrainerSkillMax range so neither a legendary player nor a weak
+// one ends up with an implausible coaching rating.
+func trainerSkillFromPlayerSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) int {
+	avg := (goalKeeper + defense + lateral + pass + midfield + dribbling + shot) / 7
+	switch {
+	case avg < TrainerSkillMin:
+		return TrainerSkillMin
+	case avg > TrainerSkillMax:
+		return TrainerSkillMax
+	default:
+		return avg
+	}
+}
+
+// RetireFreeAgentAsTrainer removes player from the game the same way RetirePlayer does (their
+// lineup positions, if any, are cleared first, then the row itself deleted), but not without a
+// trace - their playing career becomes a fresh, unemployed trainer candidate on the open market
+// first, keeping their own name (see trainerSkillFromPlayerSkills for how their skill rating is
+// derived). The only caller is engine.ProgressFreeAgents, for a player who has either aged out
+// or gone too long without a club - conceptually, someone who can no longer get a playing
+// contract moving into coaching instead of vanishing outright.
+func RetireFreeAgentAsTrainer(dbCtx *DatabaseContext, player *Player) error {
+	skill := trainerSkillFromPlayerSkills(player.GoalKeeper, player.Defense, player.Lateral,
+		player.Pass, player.Midfield, player.Dribbling, player.Shot)
+	wage := TrainerWageFromSkill(skill)
+
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(InsertTrainerStmtSql, player.FirstName, player.LastName, skill, wage); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, player.Id); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeletePlayerStmtSql, player.Id); err != nil {
+		return err
+	}
+	return tx.Commit()
+}

@@ -9,12 +9,13 @@ import (
 )
 
 // AdvanceSeasonIfComplete checks whether every match of the current season has been played
-// and, if so, rolls the game forward: it ages every player a year (see ProgressPlayers), returns
-// any loan whose duration has elapsed, promotes/relegates teams based on the season's final
-// standings, starts a new cup for each country from the post-promotion tier-1 teams, resets each
-// league's classification for the new season, bumps the season counter, and regenerates
-// fixtures. See ResetClassificationForSeason for why classification is reset in place rather
-// than archived per season.
+// and, if so, rolls the game forward: it ages every rostered player a year (see ProgressPlayers)
+// and every unowned one too (see ProgressFreeAgents), returns any loan whose duration has
+// elapsed, promotes/relegates teams based on the season's final standings, starts a new cup for
+// each country from the post-promotion tier-1 teams, resets each league's classification for the
+// new season, bumps the season counter, and regenerates fixtures. See
+// ResetClassificationForSeason for why classification is reset in place rather than archived per
+// season.
 func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	currentSeason := common.GetCurrentSeason(dbCtx)
 
@@ -33,6 +34,7 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	common.SeasonRolloversCounter.Add(context.Background(), 1)
 
 	ProgressPlayers(dbCtx)
+	ProgressFreeAgents(dbCtx)
 	ReturnExpiredLoans(dbCtx, newSeason)
 	applyPromotionRelegation(dbCtx, currentSeason)
 	StartCupsForNewSeason(dbCtx, newSeason)

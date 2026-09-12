@@ -72,6 +72,31 @@ func TestDriftSkill_StaysWithinBounds(t *testing.T) {
 	}
 }
 
+func TestDriftSkill_TrainerBonusDoesNotApplyPastPrime(t *testing.T) {
+	r := rand.New(rand.NewSource(9))
+	const trials = 5000
+	const startValue = 50
+	const age = 34 // ageTrendFor(34) < 0: already in the decline phase
+
+	sumNoTrainer, sumEliteTrainer := 0, 0
+	for i := 0; i < trials; i++ {
+		sumNoTrainer += driftSkill(startValue, age, 0, r)
+		sumEliteTrainer += driftSkill(startValue, age, common.TrainerSkillMax, r)
+	}
+
+	avgNoTrainer := float64(sumNoTrainer) / trials
+	avgEliteTrainer := float64(sumEliteTrainer) / trials
+
+	if avgEliteTrainer > avgNoTrainer+0.5 {
+		t.Fatalf("expected an elite trainer to give no growth bonus past a player's prime: no-trainer avg=%.2f, elite-trainer avg=%.2f",
+			avgNoTrainer, avgEliteTrainer)
+	}
+	if avgEliteTrainer > startValue {
+		t.Fatalf("expected a past-prime player's skill to never climb above its starting value on average even with an elite trainer, got avg=%.2f (start=%d)",
+			avgEliteTrainer, startValue)
+	}
+}
+
 func TestTrainerBonus(t *testing.T) {
 	if b := trainerBonus(0); b != 0 {
 		t.Errorf("no trainer (skill 0) should give no bonus, got %d", b)
