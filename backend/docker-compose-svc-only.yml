@@ -27,6 +27,7 @@ services:
       SESSION_TIMEOUT: ${SESSION_TIMEOUT:-30m}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
       DEV_LOGIN_ENABLED: ${DEV_LOGIN_ENABLED:-false}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       # OpenTelemetry metrics export - off by default, see backend/README.md's "OpenTelemetry
       # metrics" section. OTEL_EXPORTER_OTLP_ENDPOINT and the rest of the standard OTLP env vars
       # pass through as-is when set, no explicit default needed here.
