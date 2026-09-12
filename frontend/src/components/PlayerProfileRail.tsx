@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
+import { COUNTRY_NAME_KEYS, POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
 import { overallRating, ratingTierColor } from '../utils/playerRating'
 import { formatCurrency } from '../utils/formatCurrency'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
@@ -23,7 +23,16 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 /** The player details page's bio column - portrait with a rating ring, status alerts, and a
  * spec-sheet of team/division/contract/stats. Sits beside PlayerAttributesPanel instead of the
  * page spreading the same facts across a header, a banner list and five separate stat tiles. */
-export function PlayerProfileRail({ player }: { player: PlayerDetails }) {
+export function PlayerProfileRail({
+  player,
+  canSeeFinancials = true,
+}: {
+  player: PlayerDetails
+  /** Whether the viewer may see this player's wage and contract length - false when someone else
+   * owns this player's team (see PlayerDetailsPage). Defaults true for other callers (e.g. the
+   * squad page's own PlayerRow, which already gates the whole component by team ownership). */
+  canSeeFinancials?: boolean
+}) {
   const { t } = useTranslation()
   const theme = useTheme()
   const isFreeAgent = player.teamId === 0
@@ -138,8 +147,13 @@ export function PlayerProfileRail({ player }: { player: PlayerDetails }) {
             />
           )}
           <SpecRow label={t('playerPage.profile.age')} value={player.age} />
-          <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
-          <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />
+          {player.birthCountry && (
+            <SpecRow label={t('playerPage.profile.birthCountry')} value={t(COUNTRY_NAME_KEYS[player.birthCountry] ?? player.birthCountry)} />
+          )}
+          {canSeeFinancials && (
+            <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
+          )}
+          {canSeeFinancials && <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />}
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />
           <SpecRow label={t('playerPage.stats.redCards')} value={player.redCards} />

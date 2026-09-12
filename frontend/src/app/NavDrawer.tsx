@@ -6,6 +6,7 @@ import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
+import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
 import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone'
 import Box from '@mui/material/Box'
@@ -53,6 +54,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
     { to: '/dashboard/lineup', label: t('header.nav.lineup'), icon: <SportsSoccerTwoToneIcon /> },
     { to: '/transfers', label: t('header.nav.transferMarket'), icon: <SwapHorizTwoToneIcon /> },
     { to: '/dashboard/finances', label: t('header.nav.finances'), icon: <AccountBalanceWalletTwoToneIcon /> },
+    { to: '/leagues', label: t('header.nav.leagues'), icon: <PublicTwoToneIcon /> },
     { to: '/cup', label: t('header.nav.cup'), icon: <EmojiEventsTwoToneIcon /> },
     { to: '/friendlies', label: t('header.nav.friendlies'), icon: <HandshakeTwoToneIcon /> },
     { to: '/groups', label: t('header.nav.friendGroups'), icon: <GroupsTwoToneIcon /> },

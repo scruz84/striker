@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,7 +61,20 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.PlayerStatus = status
 		}
 
-		if history, err := common.GetPlayerTransactions(dbCtx, playerId, PlayerHistoryLimit); err != nil {
+		// A rostered player's wage, contract, and financial transaction history are the owning
+		// team's business, not any visitor's - see common.Player.RedactFinancials. A free agent
+		// (TeamId == 0) has no current team to protect that information for, so it stays visible
+		// to everyone, same as on the transfer market's free agent listing.
+		isOwner := true
+		if player.TeamId != 0 {
+			userId := GetUserIdFromCookie(c)
+			teamOwner, _ := engine.GetUserOfTeamId(dbCtx, player.TeamId)
+			isOwner = userId != nil && teamOwner >= 0 && *userId == teamOwner
+		}
+		if !isOwner {
+			details.RedactFinancials()
+			details.History = []common.TeamTransaction{}
+		} else if history, err := common.GetPlayerTransactions(dbCtx, playerId, PlayerHistoryLimit); err != nil {
 			log.Errorf("error loading transaction history for player %d: %s", playerId, err)
 		} else {
 			details.History = history

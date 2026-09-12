@@ -29,6 +29,7 @@
       "lineup": "Lineup",
       "finances": "Finances",
       "transferMarket": "Transfer market",
+      "leagues": "Leagues",
       "cup": "Cup",
       "friendlies": "Friendlies",
       "friendGroups": "Friend groups",
@@ -636,7 +637,8 @@
     "profile": {
       "team": "Team",
       "division": "Division",
-      "age": "Age"
+      "age": "Age",
+      "birthCountry": "Born in"
     },
     "attributes": {
       "title": "Attributes"
@@ -662,5 +664,19 @@
       "title": "Transfer history",
       "none": "No transfer history yet."
     }
+  },
+  "countries": {
+    "es": "Spain",
+    "en": "England",
+    "fr": "France",
+    "de": "Germany",
+    "it": "Italy",
+    "pt": "Portugal"
+  },
+  "leagues": {
+    "title": "Leagues",
+    "subtitle": "Browse every league in the game world and see its standings and squads - not just your own.",
+    "tier": "Tier {{tier}}",
+    "none": "No leagues have been generated yet."
   }
 }

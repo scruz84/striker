@@ -6,6 +6,7 @@ import type {
   AdminUserSummary,
   ContractRenewalOffer,
   CountryInfo,
+  CountryLeagueDirectory,
   CountryStatus,
   CupDetails,
   DevUser,
@@ -45,6 +46,7 @@ export const queryKeys = {
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
+  leagueDirectory: ['leagueDirectory'] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
   finances: ['finances'] as const,
@@ -229,6 +231,15 @@ export function useTopScorers(leagueId: string | undefined) {
     queryKey: queryKeys.topScorers(leagueId ?? ''),
     queryFn: () => api.get<ScorerStanding[]>(`/v1/teams/division/${leagueId}/top-scorers`),
     enabled: !!leagueId,
+  })
+}
+
+// Every league in the game world, grouped by country - lets a user browse into one they don't
+// play in (see LeaguesPage) via the same DivisionDetails page their own division link uses.
+export function useLeagueDirectory() {
+  return useQuery({
+    queryKey: queryKeys.leagueDirectory,
+    queryFn: () => api.get<CountryLeagueDirectory[]>('/v1/teams/leagues'),
   })
 }
 

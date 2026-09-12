@@ -75,7 +75,7 @@ export function TeamDetailsPage() {
             <TableRow>
               <TableCell>{t('team.player')}</TableCell>
               <TableCell align="right">{t('team.age')}</TableCell>
-              <TableCell align="right">{t('team.contract')}</TableCell>
+              {isOwnTeam && <TableCell align="right">{t('team.contract')}</TableCell>}
               <TableCell align="right" />
             </TableRow>
           </TableHead>
@@ -215,7 +215,9 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
-      <TableCell align="right">{t('team.contractSeasons', { count: player.contractYearsRemaining })}</TableCell>
+      {isOwnTeam && (
+        <TableCell align="right">{t('team.contractSeasons', { count: player.contractYearsRemaining })}</TableCell>
+      )}
       {isOwnTeam ? (
         <TableCell align="right">
           <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>

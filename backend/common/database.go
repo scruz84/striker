@@ -54,7 +54,7 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1"
 
@@ -101,8 +101,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age, contract_years_remaining) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)"
+	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -291,7 +291,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			&avatar,
 			wage,
 			age,
-			contractYears)
+			contractYears,
+			&country)
 	}
 }
 
@@ -892,6 +893,15 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 		return nil, err
 	}
 
+	// A squad's wages and contract terms are the owning manager's business, not any visitor's -
+	// see Player.RedactFinancials. Only reached for someone else's team; GetFullTeamDetailsByUser
+	// (the caller's own team) always passes isOwner true.
+	if !isOwner {
+		for _, p := range *players {
+			p.RedactFinancials()
+		}
+	}
+
 	return &TeamDetails{
 		Team:    team,
 		Players: *players,
@@ -1177,9 +1187,10 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var age int
 	var avatar string
 	var contractYearsRemaining int
+	var birthCountry sql.NullString
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining, &birthCountry)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
@@ -1204,6 +1215,7 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				Age:                    age,
 				Avatar:                 GetAvatarFromString(avatar),
 				ContractYearsRemaining: contractYearsRemaining,
+				BirthCountry:           birthCountry.String,
 			})
 		}
 	}

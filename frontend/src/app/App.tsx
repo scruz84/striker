@@ -14,6 +14,7 @@ import { FinancesPage } from '../features/finances/FinancesPage'
 import { FriendliesPage } from '../features/friendlies/FriendliesPage'
 import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
+import { LeaguesPage } from '../features/leagues/LeaguesPage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
 import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
@@ -45,6 +46,7 @@ function App() {
                     <Route path="/friendlies" element={<FriendliesPage />} />
                     <Route path="/groups" element={<GroupsPage />} />
                     <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/leagues" element={<LeaguesPage />} />
                     <Route path="/division/:id" element={<DivisionDetailsPage />} />
                     <Route path="/match/:id" element={<MatchDetailsPage />} />
                     <Route path="/team/:id" element={<TeamDetailsPage />} />

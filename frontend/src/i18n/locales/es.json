@@ -29,6 +29,7 @@
       "lineup": "Alineación",
       "finances": "Finanzas",
       "transferMarket": "Mercado de fichajes",
+      "leagues": "Ligas",
       "cup": "Copa",
       "friendlies": "Amistosos",
       "friendGroups": "Grupos de amigos",
@@ -636,7 +637,8 @@
     "profile": {
       "team": "Equipo",
       "division": "División",
-      "age": "Edad"
+      "age": "Edad",
+      "birthCountry": "Nacido en"
     },
     "attributes": {
       "title": "Atributos"
@@ -662,5 +664,19 @@
       "title": "Historial de traspasos",
       "none": "Aún no hay historial de traspasos."
     }
+  },
+  "countries": {
+    "es": "España",
+    "en": "Inglaterra",
+    "fr": "Francia",
+    "de": "Alemania",
+    "it": "Italia",
+    "pt": "Portugal"
+  },
+  "leagues": {
+    "title": "Ligas",
+    "subtitle": "Explora todas las ligas del mundo del juego y consulta su clasificación y plantillas, no solo la tuya.",
+    "tier": "Nivel {{tier}}",
+    "none": "Todavía no se ha generado ninguna liga."
   }
 }

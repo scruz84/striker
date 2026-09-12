@@ -133,6 +133,23 @@ type Player struct {
 	// it hits zero the player is released to free agency (TeamId becomes unset - see
 	// GetFreeAgents) rather than staying with their club forever.
 	ContractYearsRemaining int `json:"contractYearsRemaining"`
+	// BirthCountry is the country whose name pool generated this player (see doCreatePlayers) -
+	// independent of TeamId's current country, since the transfer market has no country
+	// restriction and a player can end up anywhere. Empty for anyone created before
+	// resources/sql/init30_player_birth_country.sql, whose birth country isn't recorded.
+	BirthCountry string `json:"birthCountry,omitempty"`
+}
+
+// RedactFinancials zeroes the wage and contract terms of a player who currently belongs to a
+// team - a rostered player's finances are only the owning team's business (see
+// GetTeamDetailsById and handlers.PlayerDetailsHandler), unlike a free agent's wage, which stays
+// visible everywhere since it's exactly the figure a prospective signer needs to see.
+func (p *Player) RedactFinancials() {
+	if p.TeamId == 0 {
+		return
+	}
+	p.Wage = 0
+	p.ContractYearsRemaining = 0
 }
 
 // TeamTransaction is one entry in a team's financial ledger.

@@ -54,6 +54,22 @@ export interface Player {
   wage: number
   age: number
   contractYearsRemaining: number
+  // The country whose name pool generated this player - independent of which team/country they
+  // currently play for, since the transfer market has no country restriction. Empty for anyone
+  // created before this field existed. See COUNTRY_NAME_KEYS.
+  birthCountry?: string
+}
+
+// Every country code the game can generate players/teams for (mirrors backend
+// common.KnownCountries) - maps to an i18n key rather than a hardcoded name so a player's birth
+// country renders in whichever language the UI is already in.
+export const COUNTRY_NAME_KEYS: Record<string, string> = {
+  es: 'countries.es',
+  en: 'countries.en',
+  fr: 'countries.fr',
+  de: 'countries.de',
+  it: 'countries.it',
+  pt: 'countries.pt',
 }
 
 // Mirrors backend/common.ContractRenewalOffer - the outcome of proposing new contract terms to
@@ -230,6 +246,21 @@ export interface DivisionDetails {
   classification: Classification
   previousWeekMatches: WeekMatch[]
   nextWeekMatches: WeekMatch[]
+}
+
+// Mirrors backend/common.LeagueDirectoryEntry/CountryLeagueDirectory - the browsable list of
+// every league in the game world, grouped by country (see useLeagueDirectory). Each entry links
+// into DivisionDetails via /division/:leagueId, same as a team's own competitions link.
+export interface LeagueDirectoryEntry {
+  leagueId: number
+  name: string
+  tier: number
+  groupNumber: number
+}
+
+export interface CountryLeagueDirectory {
+  country: string
+  leagues: LeagueDirectoryEntry[]
 }
 
 // Tactical position ids from backend/common/fmconstants.go - shared by Lineup and

@@ -173,6 +173,15 @@ and starts its cup (`engine.StartCupForCountry`) - all without touching any othe
 data. `es`/`en`/`fr`/`de` are active from a fresh `--initialize`; `it`/`pt` ship with their name
 pools already loaded (see `resources/sql/init.sql`) but stay inactive until an admin adds one.
 
+### League directory
+
+`GET /v1/teams/leagues` lists every league in the game world, grouped by country - see
+`common.GetLeagueDirectory`. It's how the frontend's Leagues page lets any signed-in manager
+browse into a league they don't play in (via the existing `GET /v1/teams/division/:id/`, unchanged)
+and see its standings and squads, not just their own division. Purely public information, same as
+real football league tables - unlike a team's finances or a player's wage/contract, which stay
+owner-only (see "Player contracts & free agency" below).
+
 ### Schema changes on an already-running database
 
 `resources/sql/init.sql` is the full, consolidated schema for a brand-new database - it auto-
@@ -259,6 +268,22 @@ trying to keep.
 times the player's wage, debited from the team's budget and logged to the ledger). Both the
 renewal offer and release endpoints reject a player currently out on loan - the borrowing team
 holds `team_id` for the loan's duration, but the contract belongs to the parent club, not them.
+
+A player's wage, contract length, and financial transfer history (`GET /v1/teams/player/:id/`'s
+`history`) are only ever visible in full to the team that currently owns them -
+`common.Player.RedactFinancials` zeroes them out (and the response's `history` comes back empty)
+for anyone else, the same way `GET /v1/teams/team/:id/` only shows a squad's real wages/contracts
+to its own owner. A free agent's wage stays visible to everyone, same as today, since it's exactly
+the figure a prospective signer needs to see.
+
+### Player birth country
+
+`players.birth_country` records the country whose name pool generated the player (see
+`common.doCreatePlayers`), independent of `team_id`'s current country - the transfer market has no
+country restriction, so a player can end up playing anywhere regardless of where they were
+"born". Set once at creation, never touched again by a transfer, loan, or release. Nullable, since
+it isn't knowable for anyone created before `resources/sql/init30_player_birth_country.sql` (those
+rows were backfilled with their then-current team's country as the best available guess).
 
 ## Local development (without Docker)
 
