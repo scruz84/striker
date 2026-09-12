@@ -53,10 +53,13 @@ const GetTeamOwnerStmtSql = "SELECT owner_id FROM teams WHERE team_id = $1"
 
 const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHERE player_id = $1"
 
+// Excludes academy prospects (p.in_academy) - a team's fieldable squad is only ever its senior
+// players; a prospect only joins this list once actually promoted (see PromoteFromAcademy). See
+// GetCantera for the separate query that lists a team's current academy pool instead.
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
-	"WHERE t.team_id = $1"
+	"WHERE t.team_id = $1 AND p.in_academy = false"
 
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
 	"home_goals, away_goals from matches where season = $1 and match_date > now() and match_date < now()+interval '15 minutes' and played is false and in_simulation is false order by league_id"
@@ -101,8 +104,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)"
+	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -169,7 +172,9 @@ const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE tea
 const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) VALUES ($1, $2, $3, $4, $5)"
 const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at, player_id " +
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
-const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1"
+// Academy prospects are excluded - they draw no wage until actually promoted (see
+// PromoteFromAcademy), same reasoning as GetPlayersFromTeamStmtSql.
+const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1 AND in_academy = false"
 
 // nameTableSuffixByCountry maps a seeded country code to its names_<suffix>/lastnames_<suffix>
 // table pair (see resources/sql/init.sql). Table names can't
@@ -234,7 +239,7 @@ func CreatePlayers(dbCtx *DatabaseContext, teamId int64, country string) {
 		return
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
 }
 
 func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team, error) {
@@ -259,10 +264,13 @@ func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team
 }
 
 // doCreatePlayers inserts `count` random players for a team, with skills uniformly drawn from
-// [minSkill, maxSkill] and age from [minAge, maxAge]. Used both for a new team's starting
-// squad and for youth academy backfills (see CreateAcademyPlayers), which use lower/younger
-// ranges.
-func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string) {
+// [minSkill, maxSkill] and age from [minAge, maxAge]. Used for a new team's starting squad, for
+// automatic youth academy backfills (see CreateAcademyPlayers), and for cantera prospects (see
+// createCanteraProspects in academy.go) - all three just vary the ranges and inAcademy. An
+// academy prospect (inAcademy true) draws no wage and has no contract yet - both are only
+// assigned once actually promoted (see PromoteFromAcademy), the same way a free agent's are only
+// assigned once signed.
+func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string, inAcademy bool) {
 	for i := 0; i < count; i++ {
 		firstName, lastName, _ := GetRandomName(dbCtx, country)
 		avatar := RandomAvatarAsString()
@@ -274,8 +282,12 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		dribbling := minSkill + rand.Intn(maxSkill-minSkill+1)
 		shot := minSkill + rand.Intn(maxSkill-minSkill+1)
 		age := minAge + rand.Intn(maxAge-minAge+1)
-		wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
-		contractYears := RandomContractYears()
+		wage := 0
+		contractYears := 0
+		if !inAcademy {
+			wage = PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
+			contractYears = RandomContractYears()
+		}
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
 			defense,
@@ -292,7 +304,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			wage,
 			age,
 			contractYears,
-			&country)
+			&country,
+			inAcademy)
 	}
 }
 
@@ -322,7 +335,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err2
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country)
+	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
 
 	//Update team details
 	ustmt, err := tx.Prepare(UpdateTeamDetailsStmtSql)
@@ -1223,7 +1236,11 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 }
 
 const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams"
-const CountTeamPlayersStmtSql = "SELECT count(*) FROM players WHERE team_id = $1"
+
+// Excludes academy prospects - topUpAcademy uses this to decide how far below SquadSize a
+// team's senior squad has fallen, and a prospect sitting unpromoted in the cantera shouldn't
+// count toward that floor (see GetPlayersFromTeamStmtSql for the same reasoning).
+const CountTeamPlayersStmtSql = "SELECT count(*) FROM players WHERE team_id = $1 AND in_academy = false"
 const UpdatePlayerProgressionStmtSql = "UPDATE players SET age = $1, goal_keeper = $2, defense = $3, \"lateral\" = $4, " +
 	"pass = $5, midfield = $6, dribbling = $7, shot = $8, wage = $9 WHERE player_id = $10"
 const DeletePlayerStmtSql = "DELETE FROM players WHERE player_id = $1"
@@ -1295,7 +1312,7 @@ func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int, train
 		return err
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country)
+	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country, false)
 	return nil
 }
 

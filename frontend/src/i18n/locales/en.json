@@ -376,6 +376,13 @@
       "director": "AI: Director",
       "unknown": "AI-managed"
     },
+    "academy": {
+      "title": "Youth academy",
+      "available": "A prospect is ready to be promoted to the first team this week.",
+      "nextAvailable": "Next promotion available from {{date}}.",
+      "promote": "Promote",
+      "promoteError": "Could not promote that player."
+    },
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
     "table": { "season": "Season", "league": "League", "finalPosition": "Final position", "outcome": "Outcome" },

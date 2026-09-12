@@ -18,8 +18,10 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
+  useAcademy,
   useMakeOffer,
   useMe,
+  usePromoteFromAcademy,
   useReleasePlayer,
   useTeamDetails,
   useTeamHistory,
@@ -38,6 +40,7 @@ import { useConfirm } from '../../components/confirmDialogContext'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
+import { formatDateTime } from '../../utils/formatDate'
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
@@ -86,6 +89,13 @@ export function TeamDetailsPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {isOwnTeam && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h6">{t('team.academy.title')}</Typography>
+          <AcademySection />
+        </Box>
+      )}
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.trophyCabinet')}
@@ -173,6 +183,70 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
         </TableBody>
       </Table>
     </TableContainer>
+  )
+}
+
+// AcademySection shows the caller's own team's youth academy ("cantera") pool - up to a few
+// young prospects, one of which can be promoted to the senior squad at most once per real
+// calendar week (see backend common.PromoteFromAcademy).
+function AcademySection() {
+  const { t } = useTranslation()
+  const { data: academy, isLoading } = useAcademy()
+  const promote = usePromoteFromAcademy()
+
+  if (isLoading || !academy) {
+    return <Skeleton variant="rectangular" height={100} />
+  }
+
+  return (
+    <Stack spacing={1}>
+      <Typography variant="body2" color="text.secondary">
+        {academy.canPromote
+          ? t('team.academy.available')
+          : t('team.academy.nextAvailable', {
+              date: academy.nextAvailableAt ? formatDateTime(new Date(academy.nextAvailableAt).toISOString()) : '',
+            })}
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>{t('team.player')}</TableCell>
+              <TableCell align="right">{t('team.age')}</TableCell>
+              <TableCell align="right" />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {academy.players.map((prospect) => (
+              <TableRow key={prospect.id}>
+                <TableCell>
+                  <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                    <CartoonAvatar seed={prospect.id} size={32} />
+                    {prospect.firstName} {prospect.lastName}
+                  </Stack>
+                </TableCell>
+                <TableCell align="right">{prospect.age}</TableCell>
+                <TableCell align="right">
+                  <Button
+                    size="small"
+                    variant="contained"
+                    disabled={!academy.canPromote || promote.isPending}
+                    onClick={() => promote.mutate(prospect.id)}
+                  >
+                    {t('team.academy.promote')}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {promote.isError && (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          {t('team.academy.promoteError')}
+        </Alert>
+      )}
+    </Stack>
   )
 }
 

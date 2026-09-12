@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
 import type {
+  AcademyOverview,
   AdminLeagueInfo,
   AdminOverview,
   AdminUserSummary,
@@ -62,6 +63,7 @@ export const queryKeys = {
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
   freeAgents: ['freeAgents'] as const,
+  academy: ['academy'] as const,
   availableTrainers: ['availableTrainers'] as const,
   teamTrainer: ['teamTrainer'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
@@ -438,6 +440,27 @@ export function useReleasePlayer() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
       void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
+    },
+  })
+}
+
+// The caller's own team's youth academy ("cantera") pool - a manager may promote at most one
+// prospect per real calendar week (see usePromoteFromAcademy and backend common.PromoteFromAcademy).
+export function useAcademy() {
+  return useQuery({
+    queryKey: queryKeys.academy,
+    queryFn: () => api.get<AcademyOverview>('/v1/user/team/academy'),
+  })
+}
+
+export function usePromoteFromAcademy() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.post(`/v1/user/team/academy/${playerId}/promote`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.academy })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
     },
   })
 }

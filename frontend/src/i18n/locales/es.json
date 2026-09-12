@@ -376,6 +376,13 @@
       "director": "IA: Director",
       "unknown": "Gestionado por IA"
     },
+    "academy": {
+      "title": "Cantera",
+      "available": "Hay un jugador listo para ser promovido al primer equipo esta semana.",
+      "nextAvailable": "Próxima promoción disponible a partir del {{date}}.",
+      "promote": "Promocionar",
+      "promoteError": "No se pudo promocionar a ese jugador."
+    },
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
     "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },

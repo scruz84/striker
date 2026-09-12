@@ -88,6 +88,15 @@ export interface ContractRenewalOffer {
 // just keeps the UI (renewal offer years, the renew button's disabled state) in step with it.
 export const MAX_CONTRACT_YEARS_REMAINING = 3
 
+// Mirrors backend/handlers.AcademyOverview - the caller's own team's youth academy ("cantera")
+// pool, plus whether a promotion is available right now (see useAcademy). nextAvailableAt is a
+// unix-millis timestamp, only present while canPromote is false.
+export interface AcademyOverview {
+  players: Player[]
+  canPromote: boolean
+  nextAvailableAt?: number
+}
+
 export interface Team {
   id: number
   ownerId: number

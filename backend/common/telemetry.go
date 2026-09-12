@@ -89,6 +89,11 @@ var (
 	// across every user's game at once (results, transfers, promotions, ...).
 	NotificationsSentCounter, _ = Meter.Int64Counter("striker.notifications.sent",
 		metric.WithDescription("Notifications written, by notification type"))
+
+	// AcademyPromotionsCounter counts youth academy ("cantera") prospects promoted to the
+	// senior squad - see PromoteFromAcademy in academy.go.
+	AcademyPromotionsCounter, _ = Meter.Int64Counter("striker.academy.promotions",
+		metric.WithDescription("Youth academy prospects promoted to the senior squad"))
 )
 
 // notificationTypeLabel maps a NOTIFICATION_* constant to a short, stable metric label - the
