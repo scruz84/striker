@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/engine"
@@ -43,40 +44,50 @@ func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		log.Infof("[goroutine - %d] - Starting to initialize the database", common.CurGoroutineID())
 
-		InitializeGame(dbCtx)
+		if err := InitializeGame(dbCtx); err != nil {
+			log.Errorf("error initializing game: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 
 		c.JSON(http.StatusOK, &ActionResult{"Initialized!"})
 	}
 }
 
-func InitializeGame(dbCtx *common.DatabaseContext) {
-	//remove content - tables added after the original set (cups/finances/transfers) reference
-	//teams/players without ON DELETE CASCADE, so they must be cleared first or the later
-	//deleteTable(dbCtx, "teams") call fails on a foreign key violation.
-	deleteTable(dbCtx, "season_history")
-	deleteTable(dbCtx, "notifications")
-	deleteTable(dbCtx, "cup_tie_events")
-	deleteTable(dbCtx, "cup_ties")
-	deleteTable(dbCtx, "cups")
-	deleteTable(dbCtx, "team_transactions")
-	deleteTable(dbCtx, "transfer_offers")
-	deleteTable(dbCtx, "transfer_listings")
-	deleteTable(dbCtx, "loan_listings")
-	deleteTable(dbCtx, "player_loans")
-	deleteTable(dbCtx, "player_unavailability")
-	deleteTable(dbCtx, "lineup_positions")
-	deleteTable(dbCtx, "lineup")
-	deleteTable(dbCtx, "default_lineup_positions")
-	deleteTable(dbCtx, "match_instants")
-	deleteTable(dbCtx, "match_events")
-	deleteTable(dbCtx, "matches")
-	deleteTable(dbCtx, "classification")
-	deleteTable(dbCtx, "players")
-	deleteTable(dbCtx, "teams")
-	deleteTable(dbCtx, "leagues")
-	deleteTable(dbCtx, "users")
-	deleteTable(dbCtx, "countries")
-	deleteTable(dbCtx, "season")
+func InitializeGame(dbCtx *common.DatabaseContext) error {
+	// tables added after the original set (cups/finances/transfers/friendlies) reference
+	// teams/players without ON DELETE CASCADE, so they must be cleared first or the "teams"
+	// delete fails on a foreign key violation - see deleteTables.
+	if err := deleteTables(dbCtx, []string{
+		"season_history",
+		"notifications",
+		"cup_tie_events",
+		"cup_ties",
+		"cups",
+		"team_transactions",
+		"transfer_offers",
+		"transfer_listings",
+		"loan_listings",
+		"player_loans",
+		"player_unavailability",
+		"lineup_positions",
+		"lineup",
+		"default_lineup_positions",
+		"match_instants",
+		"match_events",
+		"matches",
+		"classification",
+		"friendly_matches",
+		"friendly_challenges",
+		"players",
+		"teams",
+		"leagues",
+		"users",
+		"countries",
+		"season",
+	}); err != nil {
+		return err
+	}
 
 	//season
 	createSeason(dbCtx)
@@ -92,6 +103,7 @@ func InitializeGame(dbCtx *common.DatabaseContext) {
 
 	//create the first season's cups
 	engine.StartCupsForNewSeason(dbCtx, 1)
+	return nil
 }
 
 // RecreateLeaguesKeepingUsers wipes and regenerates every league/team/match (using the current
@@ -116,29 +128,38 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 		return err
 	}
 
-	deleteTable(dbCtx, "season_history")
-	deleteTable(dbCtx, "cup_tie_events")
-	deleteTable(dbCtx, "cup_ties")
-	deleteTable(dbCtx, "cups")
-	deleteTable(dbCtx, "team_transactions")
-	deleteTable(dbCtx, "transfer_offers")
-	deleteTable(dbCtx, "transfer_listings")
-	deleteTable(dbCtx, "loan_listings")
-	deleteTable(dbCtx, "player_loans")
-	deleteTable(dbCtx, "player_unavailability")
-	deleteTable(dbCtx, "lineup_positions")
-	deleteTable(dbCtx, "lineup")
-	deleteTable(dbCtx, "default_lineup_positions")
-	deleteTable(dbCtx, "match_instants")
-	deleteTable(dbCtx, "match_events")
-	deleteTable(dbCtx, "matches")
-	deleteTable(dbCtx, "classification")
-	deleteTable(dbCtx, "players")
-	deleteTable(dbCtx, "teams")
-	deleteTable(dbCtx, "leagues")
-	// countries is NOT wiped here - users.country references it (ON DELETE unset), and users are
-	// kept, so the existing country rows must stay in place; activeCountries (read above, before
-	// any of this deletion) is reused as-is for createTeams below.
+	// friendly_matches/friendly_challenges must be cleared before teams - see InitializeGame's
+	// deleteTables comment; this is exactly the foreign key violation that used to abort the
+	// "teams" delete partway through, silently leaving a half-wiped world (issue #7).
+	if err := deleteTables(dbCtx, []string{
+		"season_history",
+		"cup_tie_events",
+		"cup_ties",
+		"cups",
+		"team_transactions",
+		"transfer_offers",
+		"transfer_listings",
+		"loan_listings",
+		"player_loans",
+		"player_unavailability",
+		"lineup_positions",
+		"lineup",
+		"default_lineup_positions",
+		"match_instants",
+		"match_events",
+		"matches",
+		"classification",
+		"friendly_matches",
+		"friendly_challenges",
+		"players",
+		"teams",
+		"leagues",
+		// countries is NOT wiped here - users.country references it (ON DELETE unset), and users
+		// are kept, so the existing country rows must stay in place; activeCountries (read above,
+		// before any of this deletion) is reused as-is for createTeams below.
+	}); err != nil {
+		return err
+	}
 
 	if err := common.ResetCurrentSeason(dbCtx); err != nil {
 		return err
@@ -279,20 +300,35 @@ func createClassification(dbCtx *common.DatabaseContext, leagueId int64) {
 	common.InsertTeamsToClassification(dbCtx, leagueId, 1, teamIds)
 }
 
-func deleteTable(dbCtx *common.DatabaseContext, tableName string) {
+// deleteTable wipes one table, returning an error rather than just logging it - a caller
+// deleting several FK-related tables in dependency order needs to know a delete failed (e.g. a
+// referencing table missing from the list) instead of silently ploughing on into a half-wiped
+// state, which is exactly how a missing entry here previously went unnoticed.
+func deleteTable(dbCtx *common.DatabaseContext, tableName string) error {
 	log.Tracef("deleting table %s", tableName)
 	stmt, err := dbCtx.Db.Prepare("DELETE FROM " + tableName)
 	if err != nil {
-		log.Printf("error removing data from %s table. %s", tableName, err)
+		return fmt.Errorf("preparing delete for table %s: %w", tableName, err)
 	}
-	result, err := stmt.Exec()
 	defer stmt.Close()
+	result, err := stmt.Exec()
 	if err != nil {
-		log.Printf("error removing data from %s table. %s", tableName, err)
-	} else {
-		rows, _ := result.RowsAffected()
-		log.Printf("removed %d tuples from %s", rows, tableName)
+		return fmt.Errorf("deleting from table %s: %w", tableName, err)
 	}
+	rows, _ := result.RowsAffected()
+	log.Printf("removed %d tuples from %s", rows, tableName)
+	return nil
+}
+
+// deleteTables wipes each table in order, stopping at the first failure - order matters here
+// since a table with a foreign key to one later in the list must be cleared first.
+func deleteTables(dbCtx *common.DatabaseContext, tableNames []string) error {
+	for _, tableName := range tableNames {
+		if err := deleteTable(dbCtx, tableName); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func InitializeDatabase() {
@@ -303,5 +339,7 @@ func InitializeDatabase() {
 	if err := common.EnsureSchema(dbCtx); err != nil {
 		log.Panicf("Error creating schema: %s", err)
 	}
-	InitializeGame(dbCtx)
+	if err := InitializeGame(dbCtx); err != nil {
+		log.Panicf("Error initializing game: %s", err)
+	}
 }
