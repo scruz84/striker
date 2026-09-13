@@ -217,7 +217,7 @@ row), so both mechanisms only apply it when the schema doesn't already exist.
 
 Every schema change that shipped before this file was consolidated is preserved, unchanged,
 under `resources/sql/history/` (`init2_league_tier.sql` through
-`init29_player_position_minutes.sql` at the time of writing) - kept for the record and for
+`init36_transfer_offer_terms.sql` at the time of writing) - kept for the record and for
 upgrading a database that predates one of them, but never auto-applied (`EnsureSchema` only
 lists the top-level `resources/sql/` directory, not `history/`).
 
@@ -369,9 +369,7 @@ unaffected by it.
 `players.birth_country` records the country whose name pool generated the player (see
 `common.doCreatePlayers`), independent of `team_id`'s current country - the transfer market has no
 country restriction, so a player can end up playing anywhere regardless of where they were
-"born". Set once at creation, never touched again by a transfer, loan, or release. Nullable, since
-it isn't knowable for anyone created before `resources/sql/init30_player_birth_country.sql` (those
-rows were backfilled with their then-current team's country as the best available guess).
+"born". Set once at creation, never touched again by a transfer, loan, or release.
 
 ### OpenTelemetry metrics
 

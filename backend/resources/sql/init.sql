@@ -1,14 +1,21 @@
 -- Full baseline schema for a fresh database. This file used to be just the original tables,
 -- with every later change shipped as its own resources/sql/initN_*.sql migration; those have
--- since been folded in here so a new database only needs to run this one file (plus the
+-- since been folded in here (most recently init30_player_birth_country.sql through
+-- init36_transfer_offer_terms.sql) so a new database only needs to run this one file (plus the
 -- names_*/lastnames_* name-pool data dumps, which stay separate as bulk data). The superseded
--- migration files still exist under resources/sql/history/ for reference and for the manual
--- upgrade path documented in backend/README.md - see common.EnsureSchema for how the two
--- directories are treated differently (only this directory's *.sql files auto-apply).
+-- migration files still exist under resources/sql/history/ for reference - see
+-- common.EnsureSchema for how the two directories are treated differently (only this directory's
+-- *.sql files auto-apply).
 --
 -- Going forward, keep ARCHITECTURE.md's convention: new schema changes are additive
 -- resources/sql/initN_*.sql migration files on top of this baseline, never edits to already-
--- shipped history and never edits to this file itself once it has shipped.
+-- shipped history and never edits to this file itself once it has shipped. This project isn't in
+-- production yet, so an occasional flatten like this one (fold every current initN_*.sql into
+-- this file, archive them to history/) is fine whenever it's convenient - once real deployments
+-- exist, folding must stop being retroactive: existing databases would already have applied the
+-- separate migration files via common.EnsureSchema's auto-apply, and re-running the same change
+-- baked into init.sql would either no-op (idempotent DDL) or, for init.sql itself, error/duplicate
+-- data, since it only ever runs against a genuinely empty database.
 
 CREATE TABLE lastnames_es
 (
@@ -50,6 +57,10 @@ CREATE TABLE teams (
    formation smallint NOT NULL DEFAULT 0,
    name_changed boolean NOT NULL DEFAULT false,
    ai_level smallint NOT NULL DEFAULT 0,
+   -- Enforces the one-promotion-per-real-calendar-week cap on academy promotions (see
+   -- common.CanPromoteFromAcademy) - a single timestamp is enough since at most one promotion can
+   -- ever be "the most recent" for a team.
+   last_academy_promotion_at timestamptz,
    PRIMARY KEY (team_id)
 );
 
@@ -65,7 +76,13 @@ CREATE TABLE season (
     match_schedule_weekdays smallint NOT NULL DEFAULT 127,
     match_schedule_minute_of_day smallint NOT NULL DEFAULT 960,
     max_friendlies_per_week smallint NOT NULL DEFAULT 1,
-    friendly_schedule_weekdays smallint NOT NULL DEFAULT 127
+    friendly_schedule_weekdays smallint NOT NULL DEFAULT 127,
+    -- Admin-configurable promotion/relegation slot counts (see
+    -- common.GetPromotionRelegationConfig/SetPromotionRelegationConfig and
+    -- engine.ComputePromotionRelegation). Defaults match the constants these replaced
+    -- (engine.PromotionCandidatesPerGroup=1, RelegationSlotsPerGroup=2).
+    promotion_slots_per_group smallint NOT NULL DEFAULT 1,
+    relegation_slots_per_group smallint NOT NULL DEFAULT 2
 );
 
 CREATE TABLE leagues (
@@ -103,6 +120,27 @@ create table players (
      wage int NOT NULL DEFAULT 0,
      age int NOT NULL DEFAULT 22,
      contract_years_remaining int NOT NULL DEFAULT 0,
+     -- The country whose name pool generated this player (see common.doCreatePlayers), independent
+     -- of team_id's current country - the transfer market has no country restriction, so a player
+     -- can end up playing anywhere regardless of where they were "born". Set once at creation,
+     -- never touched again by a transfer, loan, or release.
+     birth_country varchar(4) REFERENCES countries(name),
+     -- Whether this player sits in the youth academy pool ("cantera") rather than the fieldable
+     -- senior squad - see common.PromoteFromAcademy. A cantera prospect never counts toward
+     -- common.SquadSize's automatic backfill floor, and only joins the senior squad, with a real
+     -- wage and contract, once promoted.
+     in_academy boolean NOT NULL DEFAULT false,
+     -- How many consecutive seasons this player has gone unsigned (team_id IS NULL) - see
+     -- engine.ProgressFreeAgents, the only writer, which increments this once per season and
+     -- forces a free agent's retirement once it reaches engine.FreeAgencyRetirementSeasons. Reset
+     -- to 0 the moment a player is signed (see common.SignFreeAgent).
+     free_agent_seasons integer NOT NULL DEFAULT 0,
+     -- Which club this free agent most recently played for, so signing them within their first
+     -- season of free agency can charge a transfer premium to that club - see common.SignFreeAgent
+     -- and common.FreeAgentPremiumWageMultiplier. NULL means either the player has never been
+     -- released, or was unassigned by common.AssignTeam reassigning a CPU squad rather than a real
+     -- release - neither case owes anyone a premium.
+     last_team_id bigint REFERENCES teams(team_id),
      PRIMARY KEY (player_id)
 );
 
@@ -306,6 +344,10 @@ CREATE TABLE transfer_offers (
     from_team_id  bigint NOT NULL REFERENCES teams(team_id),
     to_team_id    bigint NOT NULL REFERENCES teams(team_id),
     amount        bigint NOT NULL,
+    -- The personal terms (wage/contract length) the buyer is proposing to the player, alongside
+    -- the fee proposed to the selling club - see common.MakeTransferOffer/AcceptOffer.
+    offered_wage  integer NOT NULL DEFAULT 0,
+    offered_years integer NOT NULL DEFAULT 0,
     created_at    timestamptz NOT NULL DEFAULT now(),
     UNIQUE (player_id, from_team_id)
 );
@@ -556,6 +598,32 @@ CREATE TABLE friendly_events (
     away_goals          int DEFAULT 0
 );
 
+-- Per-match lineup override for a friendly, so a manager can set a different XI for each
+-- upcoming friendly instead of always playing their team's standing default lineup - see
+-- common.GetLineupsForFriendly, common.SetFriendlyLineup, handlers.SetFriendlyLineupHandler.
+--
+-- Deliberately NOT built on `lineup`/`lineup_positions`: those are keyed by `match_id` with a
+-- foreign key to `matches(match_id)` (competitive league matches only) - friendly_matches has its
+-- own id sequence, so writing a friendly's override there would either violate that foreign key
+-- or, worse, silently collide with an unrelated competitive match that happens to share the same
+-- id. A friendly gets its own, identically-shaped pair of tables instead, so this can never
+-- happen. formation is stored per friendly (rather than always reusing the team's standing
+-- formation - see teams.formation) so a manager can pick a different shape for one friendly
+-- without changing anything about their competitive lineup.
+CREATE TABLE friendly_lineup (
+    lineup_id bigserial PRIMARY KEY,
+    match_id  bigint NOT NULL REFERENCES friendly_matches(match_id),
+    team_id   bigint NOT NULL REFERENCES teams(team_id),
+    formation smallint NOT NULL DEFAULT 0,
+    UNIQUE (match_id, team_id)
+);
+
+CREATE TABLE friendly_lineup_positions (
+    lineup_id bigint NOT NULL REFERENCES friendly_lineup(lineup_id),
+    player_id bigint REFERENCES players(player_id) ON DELETE SET NULL,
+    position  smallint NOT NULL
+);
+
 -- A manager's planned in-match substitutions for their default lineup - up to 3, each swapping
 -- out a current starter for a bench player at a chosen minute (see
 -- common.SetDefaultLineupSubstitutions, engine.SubstitutionSimulation). slot is 1-3, assigned by
@@ -623,6 +691,7 @@ CREATE INDEX friendly_challenges_opponent_idx ON friendly_challenges(opponent_te
 CREATE INDEX friendly_matches_home_idx ON friendly_matches(home_team_id, match_date);
 CREATE INDEX friendly_matches_away_idx ON friendly_matches(away_team_id, match_date);
 CREATE INDEX friendly_events_idx ON friendly_events(match_id);
+CREATE INDEX friendly_lineup_positions_idx1 ON friendly_lineup_positions(lineup_id);
 
 -- New indexes added by this consolidation, identified by cross-referencing every *StmtSql query
 -- in backend/common and backend/handlers against the indexes above - each of these backs a real,

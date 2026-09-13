@@ -81,20 +81,27 @@ directory-skipping behavior noted above).
    numeric order, then anything else lexicographically (the `names_*_.../lastnames_*_...` data
    dumps).
 
-Either path only ever runs **once** - these files have no `IF NOT EXISTS`/idempotency guards, so
-re-running them against an already-seeded database duplicates data or errors outright.
+`init.sql` and the name-pool dumps only ever run **once** each - they have no `IF NOT
+EXISTS`/idempotency guards, so re-running them against an already-seeded database duplicates data
+or errors outright; both mechanisms above only apply them when the schema doesn't already exist.
 
-**Going forward**, keep making schema changes as additive migrations on top of this baseline:
-add one new `resources/sql/initN_whatever.sql` file (picking up numbering after the highest
-existing `initN_*.sql` - check **both** `resources/sql/` itself, which accumulates new,
-not-yet-folded migrations as the app evolves, and `resources/sql/history/` for older ones already
-folded into the baseline; as of this writing the highest is `init33_free_agent_retirement.sql`,
-sitting unfolded at the top level, not in `history/`), never edit `init.sql` itself. On an
-**already-running** database (the common case once the app is live),
-that new file needs applying by hand once - see backend/README.md's "Schema changes on an
-already-running database" section for the exact `psql` command. Once enough of these accumulate,
-they can be folded into `init.sql` and moved to `history/` again, exactly as this consolidation
-did - but that's a deliberate, occasional cleanup, not something to do per-change.
+**Going forward**, keep making schema changes as additive migrations on top of this baseline: add
+one new `resources/sql/initN_whatever.sql` file (picking up numbering after the highest existing
+`initN_*.sql` - check **both** `resources/sql/` itself, which accumulates new, not-yet-folded
+migrations as the app evolves, and `resources/sql/history/` for older ones already folded into the
+baseline), never edit `init.sql` itself, and write it to be safely re-run (`CREATE TABLE`/`ADD
+COLUMN`/`CREATE INDEX ... IF NOT EXISTS`, `UPDATE ... WHERE x IS NULL`) - unlike `init.sql`, these
+files are expected to run more than once. On an **already-running** database (the common case once
+the app is live), nothing needs doing by hand: `--svc` and `--engine` both call `EnsureSchema` on
+every startup, and against a database that already has a schema it re-applies every numbered
+`initN_*.sql` file, so restarting the containers after pulling a branch update is enough to pick
+up a new one (see backend/README.md's "Schema changes on an already-running database" section).
+Once enough of these accumulate, they can be folded into `init.sql` and moved to `history/`, as
+this consolidation did - fine to do opportunistically while the project isn't in production yet
+(no existing deployments to preserve incremental migrations for), but once real deployments exist
+it can no longer be retroactive: an already-running database will have applied the separate files
+directly, and folding them into `init.sql` at that point would only affect brand-new databases,
+never change what history/ documents for existing ones.
 
 ### Auth
 

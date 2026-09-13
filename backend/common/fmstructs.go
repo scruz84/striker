@@ -135,8 +135,7 @@ type Player struct {
 	ContractYearsRemaining int `json:"contractYearsRemaining"`
 	// BirthCountry is the country whose name pool generated this player (see doCreatePlayers) -
 	// independent of TeamId's current country, since the transfer market has no country
-	// restriction and a player can end up anywhere. Empty for anyone created before
-	// resources/sql/init30_player_birth_country.sql, whose birth country isn't recorded.
+	// restriction and a player can end up anywhere.
 	BirthCountry string `json:"birthCountry,omitempty"`
 	// FreeAgentSeasons and LastTeamId are only meaningful for a free agent (TeamId == 0) - see
 	// SignFreeAgent, which charges LastTeamId a transfer premium when FreeAgentSeasons is still 0

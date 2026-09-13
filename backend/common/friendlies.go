@@ -520,8 +520,8 @@ func GetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lin
 // GetLineupsForFriendly resolves both teams' lineups for one friendly: a team's saved override
 // (see SetFriendlyLineup) if it has one, falling back to its standing default lineup otherwise -
 // the friendly equivalent of GetLineupsForMatch, kept entirely separate (its own tables) so a
-// friendly's override can never collide with a competitive match's id space - see
-// init34_friendly_lineup.sql for why that matters.
+// friendly's override can never collide with a competitive match's id space - see the
+// friendly_lineup table comment in resources/sql/init.sql for why that matters.
 func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int64) (*map[int64]*Lineup, error) {
 	lineups := make(map[int64]*Lineup, len(teamIds))
 	for _, teamId := range teamIds {
