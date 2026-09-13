@@ -98,11 +98,16 @@ func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
 }
 
 // isAllowedFriendlyKickoff reports whether kickoff clears the simulation scheduler's polling
-// window (see friendlyScheduleDelay) and falls on a weekday GetFriendlyScheduleWeekdays allows -
-// the same two constraints the auto-accept path (an unowned opponent) already satisfies by
-// construction via nextAllowedFriendlyDate, now enforced on a human-chosen kickoff too.
-func isAllowedFriendlyKickoff(dbCtx *DatabaseContext, kickoff time.Time) bool {
-	if kickoff.Before(time.Now().Add(friendlyScheduleDelay)) {
+// window (see friendlyScheduleDelay) and falls on a weekday GetFriendlyScheduleWeekdays allows.
+// now is the reference instant the "far enough ahead" check is measured from - a human-chosen
+// kickoff is checked against the actual current time, while the auto-accept path (see
+// ChallengeToFriendly) passes the same now it used to derive kickoff via nextAllowedFriendlyDate,
+// so a kickoff that was correct by construction can't be judged "too soon" purely because some
+// processing time (a DB round trip or two) has elapsed since it was computed - using a fresh
+// time.Now() here for that path made this fail on every call, since real time only ever advances
+// between the two.
+func isAllowedFriendlyKickoff(dbCtx *DatabaseContext, kickoff time.Time, now time.Time) bool {
+	if kickoff.Before(now.Add(friendlyScheduleDelay)) {
 		return false
 	}
 	bit := 1 << int(kickoff.Weekday())
@@ -195,9 +200,12 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	// revisit this challenge. If the AI opponent is itself already at its weekly cap, surface
 	// that to the challenger now rather than leave an orphaned challenge nothing can resolve.
 	// There's nobody to pick a kickoff, so it gets the same "as soon as allowed" default a
-	// human accepting could also choose.
-	defaultKickoff := nextAllowedFriendlyDate(time.Now().Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
-	if err := AcceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, defaultKickoff); err != nil {
+	// human accepting could also choose. now is captured once and threaded through to
+	// acceptFriendlyChallenge's validation below - see its own comment on why a second,
+	// independently-captured time.Now() there made this fail on every call.
+	now := time.Now()
+	defaultKickoff := nextAllowedFriendlyDate(now.Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
+	if err := acceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, defaultKickoff, now); err != nil {
 		_, _ = dbCtx.Db.Exec(DeleteFriendlyChallengeStmtSql, challengeId)
 		return err
 	}
@@ -209,11 +217,22 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 // double-accept can't create two fixtures from the same challenge. Re-checks the accepting
 // team's weekly limit now, since time may have passed (and other friendlies accepted) since the
 // challenge was sent - the same "re-validate at accept time" convention AcceptOffer uses for
-// budget. kickoff must be far enough ahead to clear the simulation scheduler's polling window
-// and fall on a weekday the friendly schedule allows (see isAllowedFriendlyKickoff) - callers
-// with nobody to ask (see ChallengeToFriendly's auto-accept path) pass nextAllowedFriendlyDate's
-// own output, which always satisfies both.
+// budget. kickoff must be far enough ahead of the current moment to clear the simulation
+// scheduler's polling window and fall on a weekday the friendly schedule allows (see
+// isAllowedFriendlyKickoff) - this is the human-accept entry point, so "the current moment" is
+// the real wall clock time right now.
 func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponentTeamId int64, kickoff time.Time) error {
+	return acceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, kickoff, time.Now())
+}
+
+// acceptFriendlyChallenge is AcceptFriendlyChallenge's implementation, parameterized on now so
+// ChallengeToFriendly's auto-accept path (an unowned opponent, nobody to ask) can pass the exact
+// instant it used to derive kickoff via nextAllowedFriendlyDate, rather than this function
+// capturing its own later time.Now() - kickoff is only ever "far enough ahead of now" at the
+// moment it was computed; using this function's own subsequently-later now to judge it would
+// reject an at-construction-valid kickoff purely because some processing time (a couple of DB
+// round trips) elapsed in between, which is guaranteed to happen on every real call.
+func acceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponentTeamId int64, kickoff time.Time, now time.Time) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
@@ -243,7 +262,7 @@ func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 	if opponentCount >= maxPerWeek {
 		return ErrFriendlyLimitReached
 	}
-	if !isAllowedFriendlyKickoff(dbCtx, kickoff) {
+	if !isAllowedFriendlyKickoff(dbCtx, kickoff, now) {
 		return ErrInvalidFriendlyKickoff
 	}
 

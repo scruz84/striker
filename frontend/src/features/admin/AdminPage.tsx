@@ -64,6 +64,7 @@ import {
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
+import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -385,9 +386,8 @@ function MatchScheduleForm({ overview }: { overview: NonNullable<ReturnType<type
   const { t } = useTranslation()
   const setMatchSchedule = useSetMatchSchedule()
   const [weekdaysMask, setWeekdaysMask] = useState(overview.matchScheduleWeekdaysMask)
-  const [time, setTime] = useState(
-    `${String(overview.matchScheduleHour).padStart(2, '0')}:${String(overview.matchScheduleMinute).padStart(2, '0')}`,
-  )
+  const localTime = scheduleHourMinuteToLocal(overview.matchScheduleHour, overview.matchScheduleMinute)
+  const [time, setTime] = useState(`${String(localTime.hour).padStart(2, '0')}:${String(localTime.minute).padStart(2, '0')}`)
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -395,7 +395,8 @@ function MatchScheduleForm({ overview }: { overview: NonNullable<ReturnType<type
       return
     }
     const [hourStr, minuteStr] = time.split(':')
-    setMatchSchedule.mutate({ weekdaysMask, hour: Number(hourStr), minute: Number(minuteStr) })
+    const { hour, minute } = localHourMinuteToSchedule(Number(hourStr), Number(minuteStr))
+    setMatchSchedule.mutate({ weekdaysMask, hour, minute })
   }
 
   return (
@@ -756,7 +757,8 @@ function describeSchedule(t: ReturnType<typeof useTranslation>['t'], schedule: {
       : WEEKDAY_OPTIONS.filter((d) => (schedule.weekdaysMask & d.bit) !== 0)
           .map((d) => t(`common.weekdaysShort.${d.key}`))
           .join(', ')
-  const time = `${String(schedule.hour).padStart(2, '0')}:${String(schedule.minute).padStart(2, '0')}`
+  const local = scheduleHourMinuteToLocal(schedule.hour, schedule.minute)
+  const time = `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`
   return `${dayLabel} ${time}`
 }
 
@@ -840,8 +842,9 @@ function LeagueScheduleDialog({ league, onClose }: { league: AdminLeagueInfo; on
   const setLeagueSchedule = useSetLeagueSchedule()
   const clearLeagueSchedule = useClearLeagueSchedule()
   const [weekdaysMask, setWeekdaysMask] = useState(league.schedule.weekdaysMask)
+  const initialLocalTime = scheduleHourMinuteToLocal(league.schedule.hour, league.schedule.minute)
   const [time, setTime] = useState(
-    `${String(league.schedule.hour).padStart(2, '0')}:${String(league.schedule.minute).padStart(2, '0')}`,
+    `${String(initialLocalTime.hour).padStart(2, '0')}:${String(initialLocalTime.minute).padStart(2, '0')}`,
   )
 
   const handleSave = () => {
@@ -849,8 +852,9 @@ function LeagueScheduleDialog({ league, onClose }: { league: AdminLeagueInfo; on
       return
     }
     const [hourStr, minuteStr] = time.split(':')
+    const { hour, minute } = localHourMinuteToSchedule(Number(hourStr), Number(minuteStr))
     setLeagueSchedule.mutate(
-      { leagueId: league.leagueId, schedule: { weekdaysMask, hour: Number(hourStr), minute: Number(minuteStr) } },
+      { leagueId: league.leagueId, schedule: { weekdaysMask, hour, minute } },
       { onSuccess: onClose },
     )
   }

@@ -6,6 +6,9 @@
     "confirm": "Confirmar",
     "confirmTitle": "¿Estás seguro?",
     "save": "Guardar",
+    "somethingWentWrong": "Algo salió mal",
+    "somethingWentWrongDetail": "Esta página tuvo un problema. Inténtalo de nuevo o vuelve al panel principal.",
+    "tryAgain": "Intentar de nuevo",
     "weekdaysShort": {
       "mon": "Lun",
       "tue": "Mar",

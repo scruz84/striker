@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useMe } from '../api/hooks'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 import { Header } from './Header'
 import { NavDrawer } from './NavDrawer'
 import { Subheader } from './Subheader'
@@ -28,7 +29,11 @@ export function Layout() {
         <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
           <Subheader />
           <Container maxWidth="lg" sx={{ py: 3 }}>
-            <Outlet />
+            {/* Keyed by path so navigating to a different page always gets a fresh boundary
+                instead of staying stuck on a previous page's error fallback. */}
+            <ErrorBoundary key={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </Container>
         </Box>
       </Box>

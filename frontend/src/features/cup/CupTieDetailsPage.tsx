@@ -1,14 +1,16 @@
-import { type SyntheticEvent, useState } from 'react'
+import { type SyntheticEvent, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
+import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
+import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team } from '../../api/types'
+import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
@@ -31,7 +33,8 @@ export function CupTieDetailsPage() {
   if (!tie.played) {
     const isParticipant = userTeam?.team.id === tie.homeTeamId || userTeam?.team.id === tie.awayTeamId
     return (
-      <UnplayedTie
+      <LiveTie
+        key={id}
         id={id}
         tie={tie}
         team={isParticipant ? userTeam?.team : undefined}
@@ -53,7 +56,11 @@ function ByeTie({ tie }: { tie: CupTieDetails }) {
   )
 }
 
-function UnplayedTie({
+// LiveTie mirrors MatchDetailsPage's LiveMatch / FriendlyMatchPage's LiveFriendly - a cup tie
+// gets the same live-websocket treatment as a league match or friendly (see
+// handlers.LiveCupTieHandler, which broadcasts to the same per-match channel shape), so a tie in
+// progress isn't stuck showing a static "Scheduled" scoreboard until the page is reloaded.
+function LiveTie({
   id,
   tie,
   team,
@@ -64,18 +71,62 @@ function UnplayedTie({
   team?: Team
   players?: Player[]
 }) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const homeId = tie.homeTeamId ?? 0
+  const awayId = tie.awayTeamId ?? 0
+  // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
+  // already subscribed and ready the moment the tie actually goes live, with no reconnect needed
+  // (see useLiveMatch's own comment on backend/handlers/liveMatchHandlers.go subscribing a viewer
+  // regardless of how far off matchDate is).
+  const live = useLiveMatch(id ? `/v1/cups/ties/${id}/live` : undefined, !!id)
+  const isDue = useIsDue(tie.matchDate ?? '')
+
+  useEffect(() => {
+    if (live.complete && id) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.cupTie(id) })
+    }
+  }, [live.complete, id, queryClient])
+
+  if (live.complete) {
+    return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
+  }
+
+  // Before kickoff, show the scheduled date instead of a premature "Live" label (same reasoning
+  // as MatchDetailsPage/FriendlyMatchPage) - the WebSocket above is already connected regardless.
+  if (!isDue) {
+    return (
+      <Box>
+        <Scoreboard
+          homeId={homeId}
+          homeName={tie.homeTeamName}
+          awayId={awayId}
+          awayName={tie.awayTeamName}
+          homeGoals={0}
+          awayGoals={0}
+          status="scheduled"
+          subtitle={tie.matchDate ? formatDateTime(tie.matchDate) : undefined}
+        />
+        {id && team && players && <CupTieLineupSection tieId={id} team={team} players={players} />}
+      </Box>
+    )
+  }
+
   return (
     <Box>
       <Scoreboard
-        homeId={tie.homeTeamId ?? 0}
+        homeId={homeId}
         homeName={tie.homeTeamName}
-        awayId={tie.awayTeamId ?? 0}
+        awayId={awayId}
         awayName={tie.awayTeamName}
-        homeGoals={0}
-        awayGoals={0}
-        status="scheduled"
-        subtitle={tie.matchDate ? formatDateTime(tie.matchDate) : undefined}
+        homeGoals={live.homeGoals}
+        awayGoals={live.awayGoals}
+        status={live.connected ? 'live' : 'connecting'}
+        minute={live.minute}
       />
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
+      </Paper>
       {id && team && players && <CupTieLineupSection tieId={id} team={team} players={players} />}
     </Box>
   )

@@ -6,6 +6,9 @@
     "confirm": "Confirm",
     "confirmTitle": "Are you sure?",
     "save": "Save",
+    "somethingWentWrong": "Something went wrong",
+    "somethingWentWrongDetail": "This page ran into a problem. Try again, or head back to the dashboard.",
+    "tryAgain": "Try again",
     "weekdaysShort": {
       "mon": "Mon",
       "tue": "Tue",
