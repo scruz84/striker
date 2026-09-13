@@ -651,6 +651,40 @@ export interface CupDetails {
   ties: CupTie[]
 }
 
+// CupTieDetails is a single cup tie's full profile - the tie itself plus its event timeline and
+// both teams' lineups/rosters, the cup equivalent of WeekMatch. Only populated (lineups/players)
+// once the tie has two real teams - see backend/common.GetCupTieDetails.
+export interface CupTieDetails extends CupTie {
+  events: MatchEvent[] | null
+  homeLineup: Lineup | null
+  awayLineup: Lineup | null
+  homePlayers: Record<string, Player> | null
+  awayPlayers: Record<string, Player> | null
+}
+
+// Match kind discriminators for TeamMatchSummary.kind - see backend/common/teammatches.go.
+export const MATCH_KIND_LEAGUE = 'league'
+export const MATCH_KIND_CUP = 'cup'
+export const MATCH_KIND_FRIENDLY = 'friendly'
+
+// TeamMatchSummary is one row in a team's combined fixture/results list (see useTeamMatches) -
+// enough to render a list entry and route a click to the right detail/lineup page, since
+// matchId's meaning depends on kind (a league match, cup tie, and friendly each draw their id
+// from an independent sequence).
+export interface TeamMatchSummary {
+  kind: 'league' | 'cup' | 'friendly'
+  matchId: number
+  opponentId: number
+  opponentName: string
+  isHome: boolean
+  matchDate: string
+  played: boolean
+  homeGoals: number
+  awayGoals: number
+  // Only meaningful for a cup tie - the round number within that cup's bracket.
+  round?: number
+}
+
 // notifications.notification_type values from backend/common/fmconstants.go
 export const NOTIFICATION_MATCH_RESULT = 0
 export const NOTIFICATION_PROMOTION = 1

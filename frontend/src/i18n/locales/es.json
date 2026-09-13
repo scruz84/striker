@@ -309,7 +309,8 @@
     "quarterfinal": "Cuartos de final",
     "bye": "Exento",
     "pens": "(pens)",
-    "tbd": "Por determinar"
+    "tbd": "Por determinar",
+    "lineup": { "title": "Alineación de {{teamName}} para esta eliminatoria" }
   },
   "friendlies": {
     "title": "Amistosos",
@@ -405,6 +406,22 @@
       "promote": "Promocionar",
       "promoteError": "No se pudo promocionar a ese jugador."
     },
+    "matches": {
+      "title": "Partidos",
+      "upcoming": "Próximos",
+      "played": "Jugados",
+      "noUpcoming": "No hay partidos programados.",
+      "noPlayed": "Aún no se ha jugado ningún partido.",
+      "kind": "Competición",
+      "opponent": "Rival",
+      "date": "Fecha",
+      "result": "Resultado",
+      "kindLeague": "Liga",
+      "kindCup": "Copa",
+      "kindFriendly": "Amistoso",
+      "vsHome": "vs {{name}} (L)",
+      "vsAway": "vs {{name}} (V)"
+    },
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
     "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },
@@ -429,6 +446,7 @@
     "tabs": { "events": "Eventos", "lineups": "Alineaciones" },
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",
+    "lineup": { "title": "Alineación de {{teamName}} para este partido" },
     "yellowCard": "Tarjeta amarilla",
     "redCard": "Tarjeta roja",
     "injury": "Lesión",

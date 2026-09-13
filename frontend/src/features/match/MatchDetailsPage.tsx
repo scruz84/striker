@@ -9,11 +9,12 @@ import Typography from '@mui/material/Typography'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { queryKeys, useMatchDetails } from '../../api/hooks'
-import { POSITION_GOALKEEPER, type WeekMatch } from '../../api/types'
+import { queryKeys, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
+import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
 import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
+import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
 import { Events, Scoreboard } from './MatchScoreboard'
@@ -21,12 +22,15 @@ import { Events, Scoreboard } from './MatchScoreboard'
 export function MatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const { data: match, isLoading } = useMatchDetails(id)
+  const { data: loggedUser } = useMe()
+  const { data: userTeam } = useUserTeam(!!loggedUser)
 
   if (isLoading || !match) {
     return <Skeleton variant="rectangular" height={200} />
   }
 
   if (!match.played) {
+    const isParticipant = userTeam?.team.id === match.home || userTeam?.team.id === match.away
     return (
       <LiveMatch
         key={id}
@@ -36,6 +40,8 @@ export function MatchDetailsPage() {
         awayId={match.away}
         awayName={match.awayName}
         matchDate={match.matchDate}
+        team={isParticipant ? userTeam?.team : undefined}
+        players={isParticipant ? userTeam?.players : undefined}
       />
     )
   }
@@ -50,6 +56,8 @@ function LiveMatch({
   awayId,
   awayName,
   matchDate,
+  team,
+  players,
 }: {
   matchId: string | undefined
   homeId: number
@@ -57,6 +65,8 @@ function LiveMatch({
   awayId: number
   awayName: string
   matchDate: string
+  team?: Team
+  players?: Player[]
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -82,16 +92,19 @@ function LiveMatch({
   // straight into the live view with no gap.
   if (!isDue) {
     return (
-      <Scoreboard
-        homeId={homeId}
-        homeName={homeName}
-        awayId={awayId}
-        awayName={awayName}
-        homeGoals={0}
-        awayGoals={0}
-        status="scheduled"
-        subtitle={formatDateTime(matchDate)}
-      />
+      <Box>
+        <Scoreboard
+          homeId={homeId}
+          homeName={homeName}
+          awayId={awayId}
+          awayName={awayName}
+          homeGoals={0}
+          awayGoals={0}
+          status="scheduled"
+          subtitle={formatDateTime(matchDate)}
+        />
+        {matchId && team && players && <MatchLineupSection matchId={matchId} team={team} players={players} />}
+      </Box>
     )
   }
 
@@ -112,6 +125,26 @@ function LiveMatch({
       </Paper>
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
+  )
+}
+
+function MatchLineupSection({ matchId, team, players }: { matchId: string; team: Team; players: Player[] }) {
+  const { data: lineup, isLoading } = useMatchLineup(matchId, true)
+  const setLineup = useSetMatchLineup(matchId)
+  if (isLoading || !lineup) {
+    return <Skeleton variant="rectangular" height={300} />
+  }
+  return (
+    <MatchLineupForm
+      titleKey="match.lineup.title"
+      titleValues={{ teamName: team.name }}
+      players={players}
+      lineup={lineup}
+      onSave={(formation, positions) => setLineup.mutate({ formation, positions })}
+      isSaving={setLineup.isPending}
+      isError={setLineup.isError}
+      isSuccess={setLineup.isSuccess}
+    />
   )
 }
 
@@ -160,7 +193,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
   )
 }
 
-interface LineupsProps {
+export interface LineupsProps {
   homeName: string
   awayName: string
   homeLineup: WeekMatch['homeLineup']
@@ -171,14 +204,18 @@ interface LineupsProps {
 }
 
 // The starting goalkeeper's own rating - not part of TeamQualification (see its own comment),
-// but this is exactly what engine.processChance reads live for goalkeeping strength.
-function goalkeeperRating(lineup: WeekMatch['homeLineup'], players: WeekMatch['homePlayers']): number {
+// but this is exactly what engine.processChance reads live for goalkeeping strength. Exported for
+// reuse by CupTieDetailsPage's own played-tie lineups tab.
+export function goalkeeperRating(lineup: WeekMatch['homeLineup'], players: WeekMatch['homePlayers']): number {
   const gk = lineup?.positions.find((p) => p.position === POSITION_GOALKEEPER)
   if (!gk || !players) return 0
   return players[String(gk.playerId)]?.goalKeeper ?? 0
 }
 
-function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
+// Exported for reuse by CupTieDetailsPage - a cup tie's lineups tab is otherwise identical, minus
+// per-minute instants (cup ties don't record those - see backend/common.CupTieDetails), so
+// callers there simply pass matchInstants={null}.
+export function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
   // The kickoff instant (minute 1) reflects the same starting XI the pitch below shows - later
   // instants would drift as the match itself changes who's on the pitch (cards, injuries, subs).
   const kickoff = matchInstants?.[0]

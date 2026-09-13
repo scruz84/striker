@@ -1,9 +1,11 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import ButtonBase from '@mui/material/ButtonBase'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
 import type { CupTie } from '../../api/types'
@@ -53,24 +55,32 @@ export function CupPage() {
 
 function TieRow({ tie }: { tie: CupTie }) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const isBye = tie.awayTeamId === null
+
   return (
-    <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center' }}>
-      <Typography variant="body2" sx={{ flex: 1 }}>
-        {tie.homeTeamName || t('cup.tbd')}
-      </Typography>
-      <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
-        {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
-      </Typography>
-      <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-        {tie.awayTeamName || (isBye ? '' : t('cup.tbd'))}
-      </Typography>
-      {tie.wentToPenalties && (
-        <Typography variant="caption" color="text.secondary">
-          {t('cup.pens')}
+    <ButtonBase
+      disabled={isBye}
+      onClick={() => navigate(`/cup/ties/${tie.tieId}`)}
+      sx={{ width: '100%', justifyContent: 'stretch', borderRadius: 1 }}
+    >
+      <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center', width: '100%' }}>
+        <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
+          {tie.homeTeamName || t('cup.tbd')}
         </Typography>
-      )}
-    </Stack>
+        <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
+          {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
+        </Typography>
+        <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
+          {tie.awayTeamName || (isBye ? '' : t('cup.tbd'))}
+        </Typography>
+        {tie.wentToPenalties && (
+          <Typography variant="caption" color="text.secondary">
+            {t('cup.pens')}
+          </Typography>
+        )}
+      </Stack>
+    </ButtonBase>
   )
 }
 

@@ -3,6 +3,7 @@ package common
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -284,6 +285,164 @@ func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoa
 		}
 	}
 	return nil
+}
+
+const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation) VALUES ($1, $2, $3) " +
+	"ON CONFLICT (tie_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
+const DeleteCupTieLineupPositionsStmtSql = "DELETE FROM cup_tie_lineup_positions WHERE lineup_id = $1"
+const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
+
+// SetCupTieLineup replaces teamId's lineup override for one cup tie - identical shape to
+// SetFriendlyLineup/SetLineupForMatch (upsert the (tie_id, team_id) row, replace its positions
+// outright, guarded by a non-blocking advisory lock scoped to this tie), but against
+// cup_tie_lineup/cup_tie_lineup_positions rather than lineup/lineup_positions - cup_ties.tie_id
+// is its own id sequence, independent of matches.match_id, so a tie can never safely share the
+// league-match-keyed tables (see resources/sql/init38_match_lineup_overrides.sql).
+func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, positions []LineupPosition) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var acquiredLock bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1, $2)", tieId, teamId).Scan(&acquiredLock); err != nil {
+		return err
+	}
+	if !acquiredLock {
+		return nil
+	}
+
+	var lineupId int64
+	if err := tx.QueryRow(InsertCupTieLineupStmtSql, tieId, teamId, formation).Scan(&lineupId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeleteCupTieLineupPositionsStmtSql, lineupId); err != nil {
+		return err
+	}
+
+	insertStmt, err := tx.Prepare(InsertCupTieLineupPositionStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+	for _, p := range positions {
+		if _, err := insertStmt.Exec(lineupId, p.PlayerId, p.Position); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+const GetCupTieLineupStmtSql = "SELECT lineup_id, formation FROM cup_tie_lineup WHERE tie_id = $1 AND team_id = $2"
+const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie_lineup_positions WHERE lineup_id = $1"
+
+// GetCupTieLineup returns teamId's saved override for one cup tie. hasOverride is false (with a
+// zero Lineup) when the team hasn't saved one for this tie yet.
+func GetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64) (Lineup, bool, error) {
+	lineup := Lineup{MatchId: tieId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+
+	var lineupId int64
+	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(&lineupId, &lineup.Formation)
+	if errors.Is(err, sql.ErrNoRows) {
+		return lineup, false, nil
+	}
+	if err != nil {
+		return Lineup{}, false, err
+	}
+
+	rows, err := dbCtx.Db.Query(GetCupTieLineupPositionsStmtSql, lineupId)
+	if err != nil {
+		return Lineup{}, false, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p LineupPosition
+		if err := rows.Scan(&p.PlayerId, &p.Position); err != nil {
+			return Lineup{}, false, err
+		}
+		lineup.Positions = append(lineup.Positions, p)
+	}
+	return lineup, true, nil
+}
+
+// GetLineupsForCupTie resolves both teams' lineups for one cup tie: a team's saved override (see
+// SetCupTieLineup) if it has one, falling back to its standing default lineup otherwise - the cup
+// equivalent of GetLineupsForFriendly. Used by both simulateCupTie (engine/cups.go) and
+// GetCupTieDetails (the played-tie "Lineups" view) - replaces the previous simulateCupTie call to
+// GetLineupsForMatch(dbCtx, tie.TieId, ...), which was only ever safe while nothing wrote to
+// lineup/lineup_positions (see this file's SetCupTieLineup doc comment).
+func GetLineupsForCupTie(dbCtx *DatabaseContext, tieId int64, teamIds []int64) (*map[int64]*Lineup, error) {
+	lineups := make(map[int64]*Lineup, len(teamIds))
+	for _, teamId := range teamIds {
+		override, hasOverride, err := GetCupTieLineup(dbCtx, tieId, teamId)
+		if err != nil {
+			return nil, err
+		}
+		if hasOverride && len(override.Positions) > 0 {
+			lineups[teamId] = &override
+			continue
+		}
+		defaultLineup, err := GetDefaultLineup(dbCtx, teamId)
+		if err != nil {
+			return nil, err
+		}
+		defaultLineup.MatchId = tieId
+		lineups[teamId] = defaultLineup
+	}
+	return &lineups, nil
+}
+
+// CupTieDetails is the full profile shown on a cup tie's page - the tie itself, its event
+// timeline, and both teams' lineups/rosters, the cup equivalent of WeekMatch. Only meaningful
+// once the tie has two real teams (not a bye) - see handlers.CupTieDetailsHandler.
+type CupTieDetails struct {
+	CupTie
+	Events      []Event          `json:"events"`
+	HomeLineup  *Lineup          `json:"homeLineup"`
+	AwayLineup  *Lineup          `json:"awayLineup"`
+	HomePlayers map[int64]Player `json:"homePlayers"`
+	AwayPlayers map[int64]Player `json:"awayPlayers"`
+}
+
+// GetCupTieDetails assembles one cup tie's full detail view - see CupTieDetails.
+func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, error) {
+	tie, err := GetCupTieById(dbCtx, tieId)
+	if err != nil {
+		return nil, err
+	}
+	details := &CupTieDetails{CupTie: *tie}
+
+	events, err := GetCupTieEvents(dbCtx, tieId)
+	if err != nil {
+		return nil, err
+	}
+	details.Events = events
+
+	if tie.HomeTeamId == nil || tie.AwayTeamId == nil {
+		return details, nil
+	}
+
+	lineups, err := GetLineupsForCupTie(dbCtx, tieId, []int64{*tie.HomeTeamId, *tie.AwayTeamId})
+	if err != nil {
+		return nil, err
+	}
+	details.HomeLineup = (*lineups)[*tie.HomeTeamId]
+	details.AwayLineup = (*lineups)[*tie.AwayTeamId]
+
+	homePlayers, err := GetPlayersFromTeamId(dbCtx, *tie.HomeTeamId)
+	if err != nil {
+		return nil, err
+	}
+	details.HomePlayers = playerListToMap(homePlayers)
+
+	awayPlayers, err := GetPlayersFromTeamId(dbCtx, *tie.AwayTeamId)
+	if err != nil {
+		return nil, err
+	}
+	details.AwayPlayers = playerListToMap(awayPlayers)
+
+	return details, nil
 }
 
 func GetCupTieEvents(dbCtx *DatabaseContext, tieId int64) ([]Event, error) {

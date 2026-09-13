@@ -30,9 +30,22 @@ const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = 
 const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.league_id = l.league_id " +
 	"WHERE t.owner_id IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
 
-const GetLineupsForMatchStmtSql = "select a.team_id, coalesce(b.player_id, a.player_id) player_id, coalesce(b.\"position\", a.\"position\") \"position\" " +
-	"from default_lineup_positions a left join (select c.team_id, d.* from lineup c join lineup_positions d " +
-	"on (c.lineup_id = d.lineup_id) where team_id in ($1, $2) and match_id = $3) b on (a.team_id = b.team_id) where a.team_id in ($1, $2) "
+// For each of the two teams, returns EITHER all of that team's saved override rows for this match
+// (lineup/lineup_positions) OR, if it has none, all of its default rows (default_lineup_positions
+// joined to teams for the standing formation) - never a mix of the two. This has to pick one side
+// wholesale rather than coalescing row-by-row: a naive per-team LEFT JOIN between the two position
+// sets (matched only on team_id, since neither side aligns row-for-row with the other) would be a
+// cross join once a team actually has 11 override rows alongside its 11 default rows - 121
+// results instead of 11, each position duplicated against every other. That was never triggered
+// before this override existed (lineup/lineup_positions were always empty for a real match), so
+// this UNION ALL form (mirroring the Go-level hasOverride fallback GetFriendlyLineup/
+// GetCupTieLineup already use) is required now that SetLineupForMatch actually writes rows here.
+const GetLineupsForMatchStmtSql = "select c.team_id, d.player_id, d.\"position\", c.formation " +
+	"from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where c.team_id in ($1, $2) and c.match_id = $3 " +
+	"union all " +
+	"select a.team_id, a.player_id, a.\"position\", t.formation " +
+	"from default_lineup_positions a join teams t on t.team_id = a.team_id " +
+	"where a.team_id in ($1, $2) and a.team_id not in (select c.team_id from lineup c where c.team_id in ($1, $2) and c.match_id = $3)"
 
 const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
 	" FROM classification a JOIN teams b ON a.team_id = b.team_id " +
@@ -393,7 +406,7 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	}
 	lineups[(*teamIds)[1]] = &Lineup{
 		MatchId:   matchId,
-		TeamId:    (*teamIds)[0],
+		TeamId:    (*teamIds)[1],
 		Positions: make([]LineupPosition, 0),
 	}
 
@@ -406,12 +419,14 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	var teamId int64
 	var playerId int64
 	var position int
+	var formation int
 	for rows.Next() {
-		err := rows.Scan(&teamId, &playerId, &position)
+		err := rows.Scan(&teamId, &playerId, &position, &formation)
 		if err != nil {
 			return nil, err
 		}
 		lineup := lineups[teamId]
+		lineup.Formation = formation
 		lineup.Positions = append(lineup.Positions, LineupPosition{
 			PlayerId: playerId,
 			Position: position,
@@ -419,6 +434,87 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	}
 
 	return &lineups, nil
+}
+
+const InsertMatchLineupStmtSql = "INSERT INTO lineup (match_id, team_id, formation) VALUES ($1, $2, $3) " +
+	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
+const DeleteMatchLineupPositionsStmtSql = "DELETE FROM lineup_positions WHERE lineup_id = $1"
+const InsertMatchLineupPositionStmtSql = "INSERT INTO lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
+
+// SetLineupForMatch replaces teamId's lineup override for one league match - the same
+// upsert-then-replace-positions shape as SetFriendlyLineup, guarded by the same non-blocking
+// per-(matchId, teamId) advisory lock. This is what finally puts the lineup/lineup_positions
+// tables to use: GetLineupsForMatch already reads them with a fallback to
+// default_lineup_positions, so a row inserted here is picked up by both simulation and the
+// played-match "Lineups" tab (WeekMatchById) with no further changes needed anywhere else.
+func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var acquiredLock bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1, $2)", matchId, teamId).Scan(&acquiredLock); err != nil {
+		return err
+	}
+	if !acquiredLock {
+		return nil
+	}
+
+	var lineupId int64
+	if err := tx.QueryRow(InsertMatchLineupStmtSql, matchId, teamId, formation).Scan(&lineupId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeleteMatchLineupPositionsStmtSql, lineupId); err != nil {
+		return err
+	}
+
+	insertStmt, err := tx.Prepare(InsertMatchLineupPositionStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+	for _, p := range positions {
+		if _, err := insertStmt.Exec(lineupId, p.PlayerId, p.Position); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+const GetMatchLineupOverrideStmtSql = "SELECT lineup_id, formation FROM lineup WHERE match_id = $1 AND team_id = $2"
+const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM lineup_positions WHERE lineup_id = $1"
+
+// GetMatchLineupOverride returns teamId's saved lineup override for one league match, the
+// GetFriendlyLineup equivalent for lineup/lineup_positions. hasOverride is false (with a zero
+// Lineup) when the team hasn't saved one for this match yet, so callers like the lineup editor
+// can fall back to showing the team's current default lineup as a starting point.
+func GetMatchLineupOverride(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lineup, bool, error) {
+	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+
+	var lineupId int64
+	err := dbCtx.Db.QueryRow(GetMatchLineupOverrideStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation)
+	if errors.Is(err, sql.ErrNoRows) {
+		return lineup, false, nil
+	}
+	if err != nil {
+		return Lineup{}, false, err
+	}
+
+	rows, err := dbCtx.Db.Query(GetMatchLineupOverridePositionsStmtSql, lineupId)
+	if err != nil {
+		return Lineup{}, false, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p LineupPosition
+		if err := rows.Scan(&p.PlayerId, &p.Position); err != nil {
+			return Lineup{}, false, err
+		}
+		lineup.Positions = append(lineup.Positions, p)
+	}
+	return lineup, true, nil
 }
 
 func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {

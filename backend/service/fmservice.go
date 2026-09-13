@@ -203,8 +203,11 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TeamGroup.GET("/leagues", handlers.LeagueDirectoryHandler(dbCtx))
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/history", handlers.TeamHistoryHandler(dbCtx))
+	v1TeamGroup.GET("/team/:"+handlers.ID+"/matches", handlers.TeamMatchesHandler(dbCtx))
 	v1TeamGroup.GET("/player/:"+handlers.ID+"/", handlers.PlayerDetailsHandler(dbCtx))
 	v1TeamGroup.GET("/head-to-head/:teamA/:teamB", handlers.HeadToHeadHandler(dbCtx))
+	v1TeamGroup.PUT("/match/:"+handlers.ID+"/lineup", handlers.SetMatchLineupHandler(dbCtx))
+	v1TeamGroup.GET("/match/:"+handlers.ID+"/lineup", handlers.GetMatchLineupHandler(dbCtx))
 
 	v1FriendlyGroup := v1Group.Group("/friendlies")
 	v1FriendlyGroup.Use(authMiddleware.MiddlewareFunc())
@@ -228,6 +231,9 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1CupGroup.GET("/:"+handlers.ID, handlers.CupDetailsHandler(dbCtx))
 	v1CupGroup.GET("/ties/:"+handlers.ID+"/events", handlers.CupTieEventsHandler(dbCtx))
 	v1CupGroup.GET("/ties/:"+handlers.ID+"/live", handlers.LiveCupTieHandler(dbCtx))
+	v1CupGroup.GET("/ties/:"+handlers.ID, handlers.CupTieDetailsHandler(dbCtx))
+	v1CupGroup.PUT("/ties/:"+handlers.ID+"/lineup", handlers.SetCupTieLineupHandler(dbCtx))
+	v1CupGroup.GET("/ties/:"+handlers.ID+"/lineup", handlers.GetCupTieLineupHandler(dbCtx))
 
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")

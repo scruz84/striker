@@ -55,7 +55,8 @@ func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 }
 
 // teamPlayerDependentTables lists, in dependency order, every non-user-scoped table that
-// references teams/players/matches/friendly_matches/friendly_lineup without ON DELETE CASCADE -
+// references teams/players/matches/cup_ties/friendly_matches/friendly_lineup without ON DELETE
+// CASCADE -
 // each must be cleared before whatever it references, or that delete fails on a foreign key
 // violation (see deleteTables). Returned fresh on every call (rather than a shared package-level
 // slice) so InitializeGame/RecreateLeaguesKeepingUsers can each safely append their own extra
@@ -71,6 +72,8 @@ func teamPlayerDependentTables() []string {
 	return []string{
 		"season_history",
 		"cup_tie_events",
+		"cup_tie_lineup_positions",
+		"cup_tie_lineup",
 		"cup_ties",
 		"cups",
 		"team_transactions",

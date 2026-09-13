@@ -370,6 +370,22 @@ func GetRecentFriendlies(dbCtx *DatabaseContext, teamId int64, limit int) ([]Fri
 	return scanFriendlyMatches(rows)
 }
 
+const GetTeamFriendlyMatchesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
+	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE fm.home_team_id = $1 OR fm.away_team_id = $1 ORDER BY fm.match_date"
+
+// GetTeamFriendlyMatches lists every one of teamId's friendlies, played or not, oldest first -
+// unlike GetUpcomingFriendlies/GetRecentFriendlies (which serve the friendlies page's separate
+// "upcoming"/"recent" sections), this is for GetTeamMatches, which needs one combined
+// past-and-future list to merge alongside a team's league matches and cup ties.
+func GetTeamFriendlyMatches(dbCtx *DatabaseContext, teamId int64) ([]FriendlyMatch, error) {
+	rows, err := dbCtx.Db.Query(GetTeamFriendlyMatchesStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return scanFriendlyMatches(rows)
+}
+
 const GetFriendlyMatchByIdStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
 	"WHERE fm.match_id = $1"

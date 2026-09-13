@@ -50,12 +50,14 @@ func recordPlayerMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimul
 // than a cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
 //
 // lineups is resolved by the caller rather than looked up here, so each match kind can use its
-// own resolution: simulateMatch/simulateCupTie both use common.GetLineupsForMatch (a
-// match-specific override, keyed to matches(match_id), falling back to the team's default
-// lineup - nothing currently ever sets such an override, so a cup tie's id here, drawn from a
-// different id sequence than real matches, is safe today but would stop being safe if that ever
-// changed), while simulateFriendly uses common.GetLineupsForFriendly - its own tables, entirely
-// separate from the competitive-match id space.
+// own resolution: simulateMatch uses common.GetLineupsForMatch (a per-match override, keyed to
+// matches(match_id), falling back to the team's default lineup), simulateCupTie uses the
+// equivalent common.GetLineupsForCupTie (its own cup_tie_lineup/cup_tie_lineup_positions tables,
+// keyed to cup_ties(tie_id) - a cup tie's id is drawn from a different, independent sequence than
+// a real match's, so it could never safely share matches-keyed override rows), and
+// simulateFriendly uses common.GetLineupsForFriendly (friendly_lineup/friendly_lineup_positions,
+// keyed to friendly_matches(match_id)) - three parallel, deliberately separate override
+// mechanisms, one per competitive-match id space.
 func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup) (*common.MatchSimulation, error) {
 	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
 	if err != nil {

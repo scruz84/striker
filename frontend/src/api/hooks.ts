@@ -10,6 +10,7 @@ import type {
   CountryLeagueDirectory,
   CountryStatus,
   CupDetails,
+  CupTieDetails,
   DevUser,
   DivisionDetails,
   FinancesResponse,
@@ -33,6 +34,7 @@ import type {
   ScorerStanding,
   SeasonHistoryEntry,
   TeamDetails,
+  TeamMatchSummary,
   TierConfig,
   Trainer,
   TransferListing,
@@ -74,6 +76,10 @@ export const queryKeys = {
   teamTrainer: ['teamTrainer'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
   cup: (id: string) => ['cup', id] as const,
+  cupTie: (id: string) => ['cupTie', id] as const,
+  cupTieLineup: (id: string) => ['cupTieLineup', id] as const,
+  teamMatches: (teamId: string) => ['teamMatches', teamId] as const,
+  matchLineup: (id: string) => ['matchLineup', id] as const,
   notifications: ['notifications'] as const,
   notificationPreferences: ['notificationPreferences'] as const,
   adminOverview: ['adminOverview'] as const,
@@ -529,6 +535,64 @@ export function useCupDetails(cupId: number | undefined) {
     queryKey: queryKeys.cup(String(cupId ?? '')),
     queryFn: () => api.get<CupDetails>(`/v1/cups/${cupId}`),
     enabled: cupId !== undefined,
+  })
+}
+
+export function useCupTieDetails(tieId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.cupTie(tieId ?? ''),
+    queryFn: () => api.get<CupTieDetails>(`/v1/cups/ties/${tieId}`),
+    enabled: !!tieId,
+    // Same backstop reasoning as useMatchDetails - stop polling once played.
+    refetchInterval: (query) => (query.state.data?.played ? false : 5000),
+  })
+}
+
+export function useCupTieLineup(tieId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.cupTieLineup(tieId ?? ''),
+    queryFn: () => api.get<Lineup>(`/v1/cups/ties/${tieId}/lineup`),
+    enabled: enabled && !!tieId,
+  })
+}
+
+export function useSetCupTieLineup(tieId: string | undefined) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
+      api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions: [] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.cupTieLineup(tieId ?? '') })
+    },
+  })
+}
+
+// useTeamMatches lists a team's full fixture/results history across league, cup, and friendly
+// matches, marked by kind - see backend/common.GetTeamMatches.
+export function useTeamMatches(teamId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.teamMatches(teamId ?? ''),
+    queryFn: () => api.get<TeamMatchSummary[]>(`/v1/teams/team/${teamId}/matches`),
+    enabled: !!teamId,
+  })
+}
+
+export function useMatchLineup(matchId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.matchLineup(matchId ?? ''),
+    queryFn: () => api.get<Lineup>(`/v1/teams/match/${matchId}/lineup`),
+    enabled: enabled && !!matchId,
+  })
+}
+
+export function useSetMatchLineup(matchId: string | undefined) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
+      api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions: [] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.matchLineup(matchId ?? '') })
+    },
   })
 }
 

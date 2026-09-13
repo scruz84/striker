@@ -309,7 +309,8 @@
     "quarterfinal": "Quarterfinal",
     "bye": "Bye",
     "pens": "(pens)",
-    "tbd": "TBD"
+    "tbd": "TBD",
+    "lineup": { "title": "{{teamName}}'s lineup for this cup tie" }
   },
   "friendlies": {
     "title": "Friendlies",
@@ -405,6 +406,22 @@
       "promote": "Promote",
       "promoteError": "Could not promote that player."
     },
+    "matches": {
+      "title": "Matches",
+      "upcoming": "Upcoming",
+      "played": "Played",
+      "noUpcoming": "No upcoming matches scheduled.",
+      "noPlayed": "No matches played yet.",
+      "kind": "Competition",
+      "opponent": "Opponent",
+      "date": "Date",
+      "result": "Result",
+      "kindLeague": "League",
+      "kindCup": "Cup",
+      "kindFriendly": "Friendly",
+      "vsHome": "vs {{name}} (H)",
+      "vsAway": "vs {{name}} (A)"
+    },
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
     "table": { "season": "Season", "league": "League", "finalPosition": "Final position", "outcome": "Outcome" },
@@ -429,6 +446,7 @@
     "tabs": { "events": "Events", "lineups": "Lineups" },
     "noNotableEvents": "No notable events in this match.",
     "noLineupData": "No lineup data.",
+    "lineup": { "title": "{{teamName}}'s lineup for this match" },
     "yellowCard": "Yellow card",
     "redCard": "Red card",
     "injury": "Injury",
