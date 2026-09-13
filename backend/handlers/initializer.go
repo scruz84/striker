@@ -54,13 +54,22 @@ func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-func InitializeGame(dbCtx *common.DatabaseContext) error {
-	// tables added after the original set (cups/finances/transfers/friendlies) reference
-	// teams/players without ON DELETE CASCADE, so they must be cleared first or the "teams"
-	// delete fails on a foreign key violation - see deleteTables.
-	if err := deleteTables(dbCtx, []string{
+// teamPlayerDependentTables lists, in dependency order, every non-user-scoped table that
+// references teams/players/matches/friendly_matches/friendly_lineup without ON DELETE CASCADE -
+// each must be cleared before whatever it references, or that delete fails on a foreign key
+// violation (see deleteTables). Returned fresh on every call (rather than a shared package-level
+// slice) so InitializeGame/RecreateLeaguesKeepingUsers can each safely append their own extra
+// table names onto the result without risking one call's append corrupting a shared backing
+// array.
+//
+// This one list is deliberately shared by both callers so they can't drift out of sync again the
+// way they did for issue #7 and issue #26: both independently hit the same "friendly_matches
+// (or friendly_lineup/default_lineup_substitutions) still referenced by teams" violation after a
+// later feature added a new dependent table that only one of the two hand-maintained lists ever
+// got updated for.
+func teamPlayerDependentTables() []string {
+	return []string{
 		"season_history",
-		"notifications",
 		"cup_tie_events",
 		"cup_ties",
 		"cups",
@@ -73,19 +82,24 @@ func InitializeGame(dbCtx *common.DatabaseContext) error {
 		"lineup_positions",
 		"lineup",
 		"default_lineup_positions",
+		"default_lineup_substitutions",
 		"match_instants",
 		"match_events",
 		"matches",
 		"classification",
+		"friendly_lineup_positions",
+		"friendly_lineup",
+		"friendly_events",
 		"friendly_matches",
 		"friendly_challenges",
 		"players",
-		"teams",
-		"leagues",
-		"users",
-		"countries",
-		"season",
-	}); err != nil {
+	}
+}
+
+func InitializeGame(dbCtx *common.DatabaseContext) error {
+	tables := append([]string{"notifications"}, teamPlayerDependentTables()...)
+	tables = append(tables, "teams", "leagues", "users", "countries", "season")
+	if err := deleteTables(dbCtx, tables); err != nil {
 		return err
 	}
 
@@ -132,36 +146,15 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 		return err
 	}
 
-	// friendly_matches/friendly_challenges must be cleared before teams - see InitializeGame's
-	// deleteTables comment; this is exactly the foreign key violation that used to abort the
-	// "teams" delete partway through, silently leaving a half-wiped world (issue #7).
-	if err := deleteTables(dbCtx, []string{
-		"season_history",
-		"cup_tie_events",
-		"cup_ties",
-		"cups",
-		"team_transactions",
-		"transfer_offers",
-		"transfer_listings",
-		"loan_listings",
-		"player_loans",
-		"player_unavailability",
-		"lineup_positions",
-		"lineup",
-		"default_lineup_positions",
-		"match_instants",
-		"match_events",
-		"matches",
-		"classification",
-		"friendly_matches",
-		"friendly_challenges",
-		"players",
-		"teams",
-		"leagues",
-		// countries is NOT wiped here - users.country references it (ON DELETE unset), and users
-		// are kept, so the existing country rows must stay in place; activeCountries (read above,
-		// before any of this deletion) is reused as-is for createTeams below.
-	}); err != nil {
+	// See InitializeGame's teamPlayerDependentTables doc comment - this is exactly the foreign
+	// key violation that used to abort the "teams" delete partway through, silently leaving a
+	// half-wiped world (issue #7, and again as issue #26 once newer tables joined the dependency
+	// chain without this list being updated to match).
+	tables := append(teamPlayerDependentTables(), "teams", "leagues")
+	// countries is NOT wiped here - users.country references it (ON DELETE unset), and users are
+	// kept, so the existing country rows must stay in place; activeCountries (read above, before
+	// any of this deletion) is reused as-is for createTeams below.
+	if err := deleteTables(dbCtx, tables); err != nil {
 		return err
 	}
 
