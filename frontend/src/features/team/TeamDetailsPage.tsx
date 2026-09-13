@@ -25,14 +25,7 @@ import {
   useTeamHistory,
   useUserTeam,
 } from '../../api/hooks'
-import {
-  AI_LEVEL_CARETAKER,
-  AI_LEVEL_DIRECTOR,
-  AI_LEVEL_MANAGER,
-  MAX_CONTRACT_YEARS_REMAINING,
-  type Player,
-  type SeasonHistoryEntry,
-} from '../../api/types'
+import { MAX_CONTRACT_YEARS_REMAINING, type Player, type SeasonHistoryEntry } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
@@ -57,12 +50,9 @@ export function TeamDetailsPage() {
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom>
-          {teamDetails.team.name} ({teamDetails.team.id})
-        </Typography>
-        <AiLevelBadge aiLevel={teamDetails.team.aiLevel} />
-      </Stack>
+      <Typography variant="h4" gutterBottom>
+        {teamDetails.team.name} ({teamDetails.team.id})
+      </Typography>
       <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
       <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
         {teamDetails.team.divisionName}
@@ -120,27 +110,6 @@ export function TeamDetailsPage() {
       )}
     </Stack>
   )
-}
-
-// AiLevelBadge shows an unowned team's AI difficulty tier - undefined/0 (an owned team, or one
-// GET /v1/teams/team/:id/ simply didn't populate) renders nothing at all, since the value is
-// meaningless there.
-function AiLevelBadge({ aiLevel }: { aiLevel: number | undefined }) {
-  const { t } = useTranslation()
-  if (!aiLevel) {
-    return null
-  }
-  const labels: Record<number, string> = {
-    [AI_LEVEL_CARETAKER]: t('team.aiLevel.caretaker'),
-    [AI_LEVEL_MANAGER]: t('team.aiLevel.manager'),
-    [AI_LEVEL_DIRECTOR]: t('team.aiLevel.director'),
-  }
-  const colors: Record<number, 'default' | 'info' | 'success'> = {
-    [AI_LEVEL_CARETAKER]: 'default',
-    [AI_LEVEL_MANAGER]: 'info',
-    [AI_LEVEL_DIRECTOR]: 'success',
-  }
-  return <Chip size="small" color={colors[aiLevel] ?? 'default'} label={labels[aiLevel] ?? t('team.aiLevel.unknown')} />
 }
 
 function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {

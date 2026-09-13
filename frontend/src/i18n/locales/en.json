@@ -398,12 +398,6 @@
       "submit": "Send offer",
       "error": "Could not send that offer. Please try again."
     },
-    "aiLevel": {
-      "caretaker": "AI: Caretaker",
-      "manager": "AI: Manager",
-      "director": "AI: Director",
-      "unknown": "AI-managed"
-    },
     "academy": {
       "title": "Youth academy",
       "available": "A prospect is ready to be promoted to the first team this week.",

@@ -398,12 +398,6 @@
       "submit": "Enviar oferta",
       "error": "No se pudo enviar la oferta. Inténtalo de nuevo."
     },
-    "aiLevel": {
-      "caretaker": "IA: Cuidador",
-      "manager": "IA: Gerente",
-      "director": "IA: Director",
-      "unknown": "Gestionado por IA"
-    },
     "academy": {
       "title": "Cantera",
       "available": "Hay un jugador listo para ser promovido al primer equipo esta semana.",

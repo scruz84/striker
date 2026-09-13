@@ -904,6 +904,11 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	if errTeam != nil {
 		return nil, errTeam
 	}
+	// AiLevel is an internal difficulty parameter for engine.RunAITeamManagement (see
+	// engine/aiteams.go), never a manager-facing fact about any team, owned or not (#19) - clear
+	// it here rather than in GetTeamById itself, since that function is also how the engine reads
+	// a team's real level to decide how to manage it.
+	team.AiLevel = 0
 
 	players, err := GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {

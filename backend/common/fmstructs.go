@@ -101,8 +101,11 @@ type Team struct {
 	// NameChanged is only populated by GetTeamByOwner (the one place the rename UI reads it
 	// from) - other lookups leave it at the zero value, since nothing else consumes it.
 	NameChanged bool `json:"nameChanged"`
-	// AiLevel is only populated by GetTeamById - 0 for an owned team (meaningless there), or
-	// 1-3 for an unowned one (see AiLevelCaretaker/AiLevelManager/AiLevelDirector).
+	// AiLevel is an internal difficulty parameter engine.RunAITeamManagement reads to decide how
+	// to manage an unowned team (see AiLevelCaretaker/AiLevelManager/AiLevelDirector) - not a fact
+	// any manager, owned team or not, is meant to see (#19), so GetTeamById is the only thing that
+	// ever populates it; GetTeamDetailsById (every manager-facing team lookup) clears it back to
+	// 0 before it can reach a JSON response.
 	AiLevel int `json:"aiLevel,omitempty"`
 }
 
