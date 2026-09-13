@@ -39,6 +39,22 @@ func GetCurrentSeason(dbCtx *common.DatabaseContext) (int, error) {
 	return vint, nil
 }
 
+// ResetCurrentSeasonCache overwrites the cached "current season" (see GetCurrentSeason above)
+// with the value a caller just wrote straight to the database - the same "refresh the cache
+// immediately after a direct write" pattern AdvanceSeasonIfComplete already uses after a normal
+// season rollover. handlers.InitializeGame and handlers.RecreateLeaguesKeepingUsers both reset
+// the season to 1 directly in Postgres; without this, a season number cached from a previous run
+// (most plausible with an external Redis instance kept across a database reset - see issue #8)
+// would silently outlive the reset for up to the cache's own TTL. Worse than a transient
+// mismatch: GenerateMatches (called once, synchronously, right after) would tag the freshly
+// generated fixtures with that stale season number, while every other read gets the correct one
+// straight from the database - and nothing ever revisits "zero matches for the season the
+// database says it is" as a bug needing recovery, so the fixtures stay permanently orphaned
+// rather than the mismatch resolving itself once the cache entry expires.
+func ResetCurrentSeasonCache(dbCtx *common.DatabaseContext, season int) {
+	dbCtx.ObjectCache.SetValueLongDuration(CurrentSeasonKey, strconv.Itoa(season))
+}
+
 func GetPlayersFromTeam(dbCtx *common.DatabaseContext, teamId int64) (*[]*common.Player, error) {
 	key := PlayersFromTeamKey + strconv.FormatInt(teamId, 10)
 	v, _ := dbCtx.ObjectCache.GetValue(key)

@@ -91,6 +91,10 @@ func InitializeGame(dbCtx *common.DatabaseContext) error {
 
 	//season
 	createSeason(dbCtx)
+	// See engine.ResetCurrentSeasonCache - without this, a season number cached from a previous
+	// run (most plausible with an external Redis instance kept across a database reset) would
+	// silently outlive the reset, and GenerateMatches below would tag fresh fixtures with it.
+	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
 	//countries
 	countries := createCountriesList(dbCtx, seededCountries)
@@ -164,6 +168,8 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 	if err := common.ResetCurrentSeason(dbCtx); err != nil {
 		return err
 	}
+	// See engine.ResetCurrentSeasonCache and InitializeGame's own call to it above.
+	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
 	createTeams(dbCtx, activeCountries, common.GetWorldConfig(dbCtx))
 
