@@ -13,6 +13,7 @@ import type {
   DevUser,
   DivisionDetails,
   FinancesResponse,
+  FreeAgentSigningResult,
   FriendlyChallenge,
   FriendlyMatch,
   FriendlySchedule,
@@ -36,6 +37,7 @@ import type {
   Trainer,
   TransferListing,
   TransferOffer,
+  TransferOfferResult,
   WeekMatch,
 } from './types'
 
@@ -408,13 +410,20 @@ export function useFreeAgents(enabled: boolean) {
   })
 }
 
+// The player evaluates the offered wage/years immediately (see backend's SignFreeAgent) and the
+// response always carries a verdict, accepted or not - a decline isn't a mutation error, it's a
+// normal 200 with accepted: false, so the caller can show the player's actual expectations and
+// let the team retry with different terms. A transfer premium (if any) is included when accepted.
 export function useSignFreeAgent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (playerId: number) => api.post(`/v1/free-agents/${playerId}/sign`),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    mutationFn: ({ playerId, wage, years }: { playerId: number; wage: number; years: number }) =>
+      api.post<FreeAgentSigningResult>(`/v1/free-agents/${playerId}/sign`, { wage, years }),
+    onSuccess: (result) => {
+      if (result.accepted) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
+        void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      }
     },
   })
 }
@@ -749,12 +758,19 @@ export function useOffersSent(enabled: boolean) {
   })
 }
 
+// The player evaluates the offered personal terms (wage/years) immediately, before the offer
+// ever reaches the selling club (see backend's MakeTransferOffer) - a decline isn't a mutation
+// error, it's a normal 200 with accepted: false, so the caller can show the player's actual
+// expectations and let the buyer retry with better terms.
 export function useMakeOffer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ playerId, amount }: { playerId: number; amount: number }) => api.post('/v1/offers', { playerId, amount }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+    mutationFn: ({ playerId, amount, wage, years }: { playerId: number; amount: number; wage: number; years: number }) =>
+      api.post<TransferOfferResult>('/v1/offers', { playerId, amount, wage, years }),
+    onSuccess: (result) => {
+      if (result.accepted) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+      }
     },
   })
 }

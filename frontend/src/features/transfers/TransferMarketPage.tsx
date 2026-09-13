@@ -2,6 +2,7 @@ import { useState, type SyntheticEvent } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import InputLabel from '@mui/material/InputLabel'
@@ -35,12 +36,10 @@ import {
   useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
-  useMakeOffer,
   useMe,
   useOffersReceived,
   useOffersSent,
   useRejectOffer,
-  useSignFreeAgent,
   useTeamTrainer,
   useTransferListings,
   useTransferWindowStatus,
@@ -51,6 +50,8 @@ import {
 } from '../../api/hooks'
 import type { LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
+import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -339,9 +340,9 @@ function TransfersTab() {
 }
 
 // MarketListingActions lets a browser either buy a listing outright at its asking price, or
-// propose a different amount instead - reuses the same MakeTransferOffer flow as offering on an
-// unlisted player (see TeamDetailsPage's PlayerRow), which the seller then accepts/rejects from
-// the Offers tab. The listing itself is untouched by an offer; only accepting one removes it.
+// open the same negotiation dialog as offering on an unlisted player (see TeamDetailsPage's
+// PlayerRow) instead - the seller then accepts/rejects the resulting offer from the Offers tab.
+// The listing itself is untouched by an offer; only accepting one removes it.
 function MarketListingActions({
   listing,
   onBuy,
@@ -352,58 +353,18 @@ function MarketListingActions({
   buyPending: boolean
 }) {
   const { t } = useTranslation()
-  const makeOffer = useMakeOffer()
-  const [showOfferForm, setShowOfferForm] = useState(false)
-  const [amount, setAmount] = useState('')
-
-  const handleSendOffer = () => {
-    const amountNum = Number(amount)
-    if (!amountNum || amountNum <= 0) {
-      return
-    }
-    makeOffer.mutate(
-      { playerId: listing.player.id, amount: amountNum },
-      { onSuccess: () => { setShowOfferForm(false); setAmount('') } },
-    )
-  }
+  const [offerOpen, setOfferOpen] = useState(false)
 
   return (
-    <Box>
-      <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-        {showOfferForm ? (
-          <>
-            <TextField
-              size="small"
-              type="number"
-              label={t('team.amount')}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              sx={{ width: 110 }}
-            />
-            <Button size="small" variant="contained" onClick={handleSendOffer} disabled={makeOffer.isPending}>
-              {t('team.send')}
-            </Button>
-            <Button size="small" onClick={() => setShowOfferForm(false)}>
-              {t('common.cancel')}
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button size="small" onClick={() => setShowOfferForm(true)}>
-              {t('team.makeOffer')}
-            </Button>
-            <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending}>
-              {t('transfers.buy')}
-            </Button>
-          </>
-        )}
-      </Stack>
-      {makeOffer.isError && (
-        <Alert severity="error" sx={{ mt: 1 }}>
-          {t('team.offerError')}
-        </Alert>
-      )}
-    </Box>
+    <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+      <Button size="small" onClick={() => setOfferOpen(true)}>
+        {t('team.makeOffer')}
+      </Button>
+      <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending}>
+        {t('transfers.buy')}
+      </Button>
+      <TransferOfferDialog player={listing.player} open={offerOpen} onClose={() => setOfferOpen(false)} />
+    </Stack>
   )
 }
 
@@ -920,6 +881,7 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
             <TableCell>{teamColumn === 'from' ? t('transfers.table.from') : t('transfers.table.to')}</TableCell>
             <TableCell>{t('transfers.table.made')}</TableCell>
             <TableCell align="right">{t('transfers.table.amount')}</TableCell>
+            <TableCell align="right">{t('transfers.table.terms')}</TableCell>
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -934,6 +896,9 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
               <TableCell>{teamColumn === 'from' ? offer.fromTeamName : offer.toTeamName}</TableCell>
               <TableCell>{formatDateTime(offer.createdAt)}</TableCell>
               <TableCell align="right">{formatCurrency(offer.amount)}</TableCell>
+              <TableCell align="right">
+                {formatCurrency(offer.offeredWage)} · {t('team.contractDialog.yearsOption', { count: offer.offeredYears })}
+              </TableCell>
               <TableCell align="right">{renderAction(offer)}</TableCell>
             </TableRow>
           ))}
@@ -945,23 +910,9 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
 
 function FreeAgentsTab() {
   const { t } = useTranslation()
-  const confirm = useConfirm()
   const { data: loggedUser } = useMe()
   const { data: freeAgents, isLoading } = useFreeAgents(!!loggedUser)
-  const signFreeAgent = useSignFreeAgent()
-
-  const handleSign = async (player: Player) => {
-    const ok = await confirm({
-      message: t('transfers.freeAgents.confirmSign', {
-        name: `${player.firstName} ${player.lastName}`,
-        wage: formatCurrency(player.wage),
-      }),
-      confirmLabel: t('transfers.freeAgents.sign'),
-    })
-    if (ok) {
-      signFreeAgent.mutate(player.id)
-    }
-  }
+  const [signingPlayer, setSigningPlayer] = useState<Player | null>(null)
 
   const [search, setSearch] = useState('')
   const [minAge, setMinAge] = useState('')
@@ -1074,16 +1025,14 @@ function FreeAgentsTab() {
                           <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
                             {player.firstName} {player.lastName}
                           </Link>
+                          {player.freeAgentSeasons === 0 && !!player.lastTeamId && (
+                            <Chip size="small" label={t('transfers.freeAgents.premiumChip')} sx={{ ml: 1 }} />
+                          )}
                         </TableCell>
                         <TableCell align="right">{player.age}</TableCell>
                         <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
                         <TableCell align="right">
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => handleSign(player)}
-                            disabled={signFreeAgent.isPending}
-                          >
+                          <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)}>
                             {t('transfers.freeAgents.sign')}
                           </Button>
                         </TableCell>
@@ -1096,6 +1045,9 @@ function FreeAgentsTab() {
           </>
         )}
       </Paper>
+      {signingPlayer && (
+        <FreeAgentSigningDialog player={signingPlayer} open={!!signingPlayer} onClose={() => setSigningPlayer(null)} />
+      )}
     </Box>
   )
 }

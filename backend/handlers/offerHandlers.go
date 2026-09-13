@@ -11,10 +11,15 @@ import (
 type MakeOfferRequest struct {
 	PlayerId int64 `json:"playerId"`
 	Amount   int64 `json:"amount"`
+	Wage     int   `json:"wage"`
+	Years    int   `json:"years"`
 }
 
-// MakeOfferHandler proposes a price for any player, listed or not, on behalf of the caller's
-// team - the "scouting" counterpart to the flat-price transfer market.
+// MakeOfferHandler proposes a price plus personal terms (wage/contract length) for any player,
+// listed or not, on behalf of the caller's team - the "scouting" counterpart to the flat-price
+// transfer market. The response is always a common.TransferOfferResult: the player judges the
+// personal terms immediately (see common.MakeTransferOffer), so a decline is a normal 200
+// (Accepted == false), not an error.
 func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -25,7 +30,7 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		var req MakeOfferRequest
 		if err := c.BindJSON(&req); err != nil || req.PlayerId <= 0 {
-			c.JSON(http.StatusBadRequest, GetError(0, "playerId and amount are required"))
+			c.JSON(http.StatusBadRequest, GetError(0, "playerId, amount, wage and years are required"))
 			return
 		}
 
@@ -35,23 +40,23 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := common.MakeTransferOffer(dbCtx, req.PlayerId, team.Id, req.Amount); err != nil {
-			switch {
-			case errors.Is(err, common.ErrInvalidOfferAmount),
-				errors.Is(err, common.ErrCannotOfferOnOwnPlayer),
-				errors.Is(err, common.ErrPlayerIsFreeAgent),
-				errors.Is(err, common.ErrOfferAlreadyExists),
-				errors.Is(err, common.ErrPlayerOnLoan),
-				errors.Is(err, common.ErrTransferWindowClosed):
-				c.JSON(http.StatusConflict, GetError(0, err.Error()))
-				return
-			}
-			log.Errorf("error making offer on player %d: %s", req.PlayerId, err)
-			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		result, err := common.MakeTransferOffer(dbCtx, req.PlayerId, team.Id, req.Amount, req.Wage, req.Years)
+		switch {
+		case err == nil:
+			c.JSON(http.StatusOK, result)
+			return
+		case errors.Is(err, common.ErrInvalidOfferAmount),
+			errors.Is(err, common.ErrInvalidPersonalTerms),
+			errors.Is(err, common.ErrCannotOfferOnOwnPlayer),
+			errors.Is(err, common.ErrPlayerIsFreeAgent),
+			errors.Is(err, common.ErrOfferAlreadyExists),
+			errors.Is(err, common.ErrPlayerOnLoan),
+			errors.Is(err, common.ErrTransferWindowClosed):
+			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 			return
 		}
-
-		c.JSON(http.StatusOK, common.HttpResponse{Message: "offer made"})
+		log.Errorf("error making offer on player %d: %s", req.PlayerId, err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 	}
 }
 

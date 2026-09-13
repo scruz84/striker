@@ -58,6 +58,11 @@ export interface Player {
   // currently play for, since the transfer market has no country restriction. Empty for anyone
   // created before this field existed. See COUNTRY_NAME_KEYS.
   birthCountry?: string
+  // Only meaningful for a free agent (teamId === 0) - see backend Player.FreeAgentSeasons/
+  // LastTeamId. freeAgentSeasons === 0 and lastTeamId set means signing them owes lastTeamId a
+  // transfer premium (see backend common.FreeAgentPremiumWageMultiplier).
+  freeAgentSeasons?: number
+  lastTeamId?: number
 }
 
 // Every country code the game can generate players/teams for (mirrors backend
@@ -82,6 +87,28 @@ export interface ContractRenewalOffer {
   maxAcceptableYears: number
   contractYearsRemaining?: number
   wage?: number
+}
+
+// Mirrors backend/common.FreeAgentSigningResult - same "player judges on the spot" shape as
+// ContractRenewalOffer, plus the transfer premium (if any) once accepted.
+export interface FreeAgentSigningResult {
+  accepted: boolean
+  reason?: string
+  expectedWage: number
+  maxAcceptableYears: number
+  contractYearsRemaining?: number
+  wage?: number
+  premium?: number
+}
+
+// Mirrors backend/common.TransferOfferResult - the player judges the personal terms (wage/years)
+// before the offer ever reaches the selling club; offerId is only set once actually created.
+export interface TransferOfferResult {
+  accepted: boolean
+  reason?: string
+  expectedWage: number
+  maxAcceptableYears: number
+  offerId?: number
 }
 
 // Mirrors backend/common.MaxContractYearsRemaining - the server enforces the real cap, this
@@ -563,6 +590,8 @@ export interface TransferOffer {
   toTeamId: number
   toTeamName: string
   amount: number
+  offeredWage: number
+  offeredYears: number
   createdAt: string
 }
 

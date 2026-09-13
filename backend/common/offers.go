@@ -3,10 +3,13 @@ package common
 import (
 	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 	"time"
 )
 
 var ErrInvalidOfferAmount = errors.New("offer amount must be positive")
+var ErrInvalidPersonalTerms = errors.New("personal terms must include a positive wage for 1 to " + strconv.Itoa(MaxContractYearsRemaining) + " seasons")
 var ErrCannotOfferOnOwnPlayer = errors.New("cannot make an offer on your own player")
 var ErrOfferAlreadyExists = errors.New("you already have a pending offer on this player")
 var ErrOfferNotFound = errors.New("offer not found")
@@ -16,8 +19,9 @@ var ErrOfferNoLongerValid = errors.New("the player no longer belongs to the team
 var ErrPlayerIsFreeAgent = errors.New("player is a free agent - sign them instead of making an offer")
 
 // TransferOffer is a pending "scouting" offer - a buyer's proposed price for a specific player,
-// made directly to whoever currently owns them, independent of whether that player is listed
-// on the open market at all. See MakeTransferOffer/AcceptOffer/RejectOffer/WithdrawOffer.
+// plus the personal terms (wage/contract length) they're proposing to the player, made directly
+// to whoever currently owns them, independent of whether that player is listed on the open
+// market at all. See MakeTransferOffer/AcceptOffer/RejectOffer/WithdrawOffer.
 type TransferOffer struct {
 	OfferId      int64     `json:"offerId"`
 	Player       Player    `json:"player"`
@@ -26,21 +30,37 @@ type TransferOffer struct {
 	ToTeamId     int64     `json:"toTeamId"`
 	ToTeamName   string    `json:"toTeamName"`
 	Amount       int64     `json:"amount"`
+	OfferedWage  int       `json:"offeredWage"`
+	OfferedYears int       `json:"offeredYears"`
 	CreatedAt    time.Time `json:"createdAt"`
 }
 
-const InsertTransferOfferStmtSql = "INSERT INTO transfer_offers (player_id, from_team_id, to_team_id, amount) VALUES ($1, $2, $3, $4)"
+// TransferOfferResult mirrors ContractRenewalOffer/FreeAgentSigningResult's shape - the player
+// judges the personal terms (wage/years) on the spot, before the offer ever reaches the selling
+// club, so a rejection here costs nothing and reports the player's real expectations immediately
+// rather than leaving a doomed offer sitting pending for someone else to eventually decline.
+type TransferOfferResult struct {
+	Accepted           bool   `json:"accepted"`
+	Reason             string `json:"reason,omitempty"`
+	ExpectedWage       int    `json:"expectedWage"`
+	MaxAcceptableYears int    `json:"maxAcceptableYears"`
+	// Only meaningful when Accepted is true - the offer that was actually created.
+	OfferId int64 `json:"offerId,omitempty"`
+}
 
-const GetOffersReceivedStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.created_at " +
+const InsertTransferOfferStmtSql = "INSERT INTO transfer_offers (player_id, from_team_id, to_team_id, amount, offered_wage, offered_years) " +
+	"VALUES ($1, $2, $3, $4, $5, $6) RETURNING offer_id"
+
+const GetOffersReceivedStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at " +
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
 	"WHERE o.to_team_id = $1 ORDER BY o.created_at DESC"
 
-const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.created_at " +
+const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at " +
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
 	"WHERE o.from_team_id = $1 ORDER BY o.created_at DESC"
 
 const GetOfferOwnersStmtSql = "SELECT from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
-const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
+const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
 
@@ -50,44 +70,75 @@ const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_i
 // correctly falls through to ErrOfferNoLongerValid instead of crashing on the NULL.
 const GetPlayerTeamForUpdateStmtSql = "SELECT COALESCE(team_id, 0) FROM players WHERE player_id = $1 " + ForUpdate
 
-// MakeTransferOffer proposes amount for playerId, wherever they currently play - the offer goes
-// to whoever owns them right now (their team_id at the time the offer is made). Rejects an
-// offer on your own player, on a free agent (see SignFreeAgent - there's nobody to pay, and no
-// team would ever see the offer to accept it), on a player currently out on loan (a borrowing
-// team doesn't get to sell what isn't theirs - same rule as CreateTransferListing), a duplicate
-// offer from the same team on the same player (enforced by a unique constraint), or anything
-// while the transfer window is closed.
-func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64, amount int64) error {
+// MakeTransferOffer proposes amount (a fee to the selling club) plus offeredWage/offeredYears (a
+// contract to the player) for playerId, wherever they currently play - the offer goes to
+// whoever owns them right now (their team_id at the time the offer is made). The player judges
+// the personal terms immediately, exactly like MakeContractRenewalOffer's expected-wage/
+// age-based-max-years check: if they wouldn't accept, no offer is created at all - there's no
+// point spending a transfer fee negotiating with a club over terms the player will never sign.
+// Rejects an offer on your own player, on a free agent (see SignFreeAgent - there's nobody to
+// pay a fee to, and no team would ever see the offer to accept it), on a player currently out on
+// loan (a borrowing team doesn't get to sell what isn't theirs - same rule as
+// CreateTransferListing), a duplicate offer from the same team on the same player (enforced by a
+// unique constraint), or anything while the transfer window is closed.
+func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64, amount int64, offeredWage int, offeredYears int) (*TransferOfferResult, error) {
 	if amount <= 0 {
-		return ErrInvalidOfferAmount
+		return nil, ErrInvalidOfferAmount
+	}
+	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
+		return nil, ErrInvalidPersonalTerms
 	}
 	if !IsTransferWindowOpen(dbCtx) {
-		return ErrTransferWindowClosed
+		return nil, ErrTransferWindowClosed
 	}
 
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if player.TeamId == 0 {
-		return ErrPlayerIsFreeAgent
+		return nil, ErrPlayerIsFreeAgent
 	}
 	if player.TeamId == fromTeamId {
-		return ErrCannotOfferOnOwnPlayer
+		return nil, ErrCannotOfferOnOwnPlayer
 	}
 	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if onLoan {
-		return ErrPlayerOnLoan
+		return nil, ErrPlayerOnLoan
 	}
 
-	_, err = dbCtx.Db.Exec(InsertTransferOfferStmtSql, playerId, fromTeamId, player.TeamId, amount)
-	if err != nil && isUniqueViolation(err) {
-		return ErrOfferAlreadyExists
+	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot)
+	maxYears := MaxAcceptableRenewalYears(player.Age)
+	result := &TransferOfferResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
+
+	var reasons []string
+	if offeredWage < expectedWage {
+		reasons = append(reasons, "wage below what they expect")
 	}
-	return err
+	if offeredYears > maxYears {
+		reasons = append(reasons, "too many seasons for their age")
+	}
+	if len(reasons) > 0 {
+		result.Reason = strings.Join(reasons, "; ")
+		return result, nil
+	}
+
+	var offerId int64
+	err = dbCtx.Db.QueryRow(InsertTransferOfferStmtSql, playerId, fromTeamId, player.TeamId, amount, offeredWage, offeredYears).Scan(&offerId)
+	if err != nil {
+		if isUniqueViolation(err) {
+			return nil, ErrOfferAlreadyExists
+		}
+		return nil, err
+	}
+
+	result.Accepted = true
+	result.OfferId = offerId
+	return result, nil
 }
 
 // scanTransferOffers reads every row from a GetOffersReceivedStmtSql/GetOffersSentStmtSql query
@@ -104,7 +155,7 @@ func scanTransferOffers(dbCtx *DatabaseContext, rows *sql.Rows) ([]TransferOffer
 	for rows.Next() {
 		var r row
 		if err := rows.Scan(&r.offer.OfferId, &r.playerId, &r.offer.FromTeamId, &r.offer.FromTeamName,
-			&r.offer.ToTeamId, &r.offer.ToTeamName, &r.offer.Amount, &r.offer.CreatedAt); err != nil {
+			&r.offer.ToTeamId, &r.offer.ToTeamName, &r.offer.Amount, &r.offer.OfferedWage, &r.offer.OfferedYears, &r.offer.CreatedAt); err != nil {
 			return nil, err
 		}
 		pending = append(pending, r)
@@ -195,7 +246,8 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	defer tx.Rollback()
 
 	var playerId, fromTeamId, actualToTeamId, amount int64
-	err = tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&playerId, &fromTeamId, &actualToTeamId, &amount)
+	var offeredWage, offeredYears int
+	err = tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&playerId, &fromTeamId, &actualToTeamId, &amount, &offeredWage, &offeredYears)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrOfferNotFound
 	}
@@ -242,6 +294,12 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 		return err
 	}
 	if _, err := tx.Exec(UpdatePlayerTeamStmtSql, fromTeamId, playerId); err != nil {
+		return err
+	}
+	// Applies the personal terms the player already agreed to when this offer was made (see
+	// MakeTransferOffer) - not re-judged against their expectations here, the same way an
+	// accepted contract renewal offer's terms aren't re-litigated later.
+	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offeredYears, offeredWage, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {

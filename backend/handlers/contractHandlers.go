@@ -22,7 +22,18 @@ func BrowseFreeAgentsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// SignFreeAgentHandler signs a free agent to the caller's team on a fresh contract, at no fee.
+// SignFreeAgentRequest is SignFreeAgentHandler's request body - the wage and contract length the
+// team is offering. The player decides on the spot (see common.SignFreeAgent), same as a
+// contract renewal offer; a decline is a normal 200 response (Accepted == false), not an error.
+type SignFreeAgentRequest struct {
+	Wage  int `json:"wage"`
+	Years int `json:"years"`
+}
+
+// SignFreeAgentHandler proposes wage/contract-length terms to sign a free agent to the caller's
+// team - see common.SignFreeAgent for the transfer premium a recently-released player's last
+// club may be owed. The response is always a common.FreeAgentSigningResult, whether the player
+// accepted or not.
 func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -35,19 +46,26 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, "invalid player id"))
 			return
 		}
+		var body SignFreeAgentRequest
+		if err := c.BindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid signing offer"))
+			return
+		}
 		team, err := common.GetTeamByOwner(*userId, dbCtx)
 		if err != nil {
 			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
 			return
 		}
 
-		err = common.SignFreeAgent(dbCtx, playerId, team.Id)
+		result, err := common.SignFreeAgent(dbCtx, playerId, team.Id, body.Wage, body.Years)
 		switch {
 		case err == nil:
-			c.JSON(http.StatusOK, common.HttpResponse{Message: "free agent signed"})
+			c.JSON(http.StatusOK, result)
+		case errors.Is(err, common.ErrInvalidFreeAgentOffer):
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrPlayerNotFree), errors.Is(err, common.ErrTransferWindowClosed):
+		case errors.Is(err, common.ErrPlayerNotFree), errors.Is(err, common.ErrTransferWindowClosed), errors.Is(err, common.ErrInsufficientBudget):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error signing free agent %d for team %d: %s", playerId, team.Id, err)

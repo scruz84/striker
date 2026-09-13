@@ -138,6 +138,13 @@ type Player struct {
 	// restriction and a player can end up anywhere. Empty for anyone created before
 	// resources/sql/init30_player_birth_country.sql, whose birth country isn't recorded.
 	BirthCountry string `json:"birthCountry,omitempty"`
+	// FreeAgentSeasons and LastTeamId are only meaningful for a free agent (TeamId == 0) - see
+	// SignFreeAgent, which charges LastTeamId a transfer premium when FreeAgentSeasons is still 0
+	// (still within the player's first season of free agency). LastTeamId is 0 (coalesced, like
+	// TeamId) when the player has never been released - e.g. still on their original team, or
+	// unassigned by AssignTeam reassigning a CPU squad rather than a real release.
+	FreeAgentSeasons int   `json:"freeAgentSeasons,omitempty"`
+	LastTeamId       int64 `json:"lastTeamId,omitempty"`
 }
 
 // RedactFinancials zeroes the wage and contract terms of a player who currently belongs to a

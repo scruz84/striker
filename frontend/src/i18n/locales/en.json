@@ -226,7 +226,8 @@
       "from": "From",
       "to": "To",
       "made": "Made",
-      "amount": "Amount"
+      "amount": "Amount",
+      "terms": "Personal terms"
     },
     "filters": {
       "search": "Search player",
@@ -261,12 +262,30 @@
     },
     "reject": "Reject",
     "withdraw": "Withdraw",
+    "offerDialog": {
+      "title": "Transfer offer - {{name}}",
+      "subtitle": "Propose a fee to their club, plus the wage and contract length you're offering the player. They'll judge the personal terms on the spot, before their club ever sees the fee.",
+      "amount": "Transfer fee",
+      "sent": "Offer sent to their club.",
+      "declined": "They wouldn't sign on those terms. They want at least {{wage}}/match, and won't commit to more than {{years}}.",
+      "submit": "Send offer"
+    },
+    "signDialog": {
+      "title": "Sign {{name}}",
+      "subtitle": "Propose a wage and contract length. They'll decide on the spot based on what they think they're worth and how many seasons they're willing to commit to.",
+      "premiumWarning": "This player was released recently - their former club is owed a transfer premium if you sign them.",
+      "accepted": "Signed! New deal: {{years}} at {{wage}}/match.",
+      "declined": "They want at least {{wage}}/match, and won't commit to more than {{years}}.",
+      "premiumCharged": "A transfer premium of {{amount}} was paid to their former club.",
+      "submit": "Sign",
+      "error": "Could not sign that player. Please try again."
+    },
     "freeAgents": {
-      "intro": "Unowned players, free to sign - no fee, just their wage.",
+      "intro": "Unowned players, free to sign - propose a wage and contract length; a recently released player's former club may be owed a transfer premium.",
       "none": "No free agents available right now.",
       "wage": "Wage",
       "sign": "Sign",
-      "confirmSign": "Sign {{name}} on a wage of {{wage}}?"
+      "premiumChip": "Premium applies"
     },
     "coaching": {
       "intro": "A head coach speeds up player development and raises your youth academy's prospect quality - no signing fee, just their wage.",

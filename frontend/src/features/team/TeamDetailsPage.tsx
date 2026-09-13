@@ -13,13 +13,11 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcademy,
-  useMakeOffer,
   useMe,
   usePromoteFromAcademy,
   useReleasePlayer,
@@ -38,6 +36,7 @@ import {
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
+import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 import { formatDateTime } from '../../utils/formatDate'
@@ -253,19 +252,9 @@ function AcademySection() {
 function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }) {
   const { t } = useTranslation()
   const confirm = useConfirm()
-  const makeOffer = useMakeOffer()
   const releasePlayer = useReleasePlayer()
-  const [amount, setAmount] = useState('')
-  const [showForm, setShowForm] = useState(false)
   const [renewalOpen, setRenewalOpen] = useState(false)
-
-  const handleSubmit = () => {
-    const amountNum = Number(amount)
-    if (!amountNum || amountNum <= 0) {
-      return
-    }
-    makeOffer.mutate({ playerId: player.id, amount: amountNum }, { onSuccess: () => setShowForm(false) })
-  }
+  const [offerOpen, setOfferOpen] = useState(false)
 
   const handleRelease = async () => {
     const ok = await confirm({
@@ -315,32 +304,10 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
         </TableCell>
       ) : (
         <TableCell align="right">
-          {showForm ? (
-            <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-              <TextField
-                size="small"
-                label={t('team.amount')}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                sx={{ width: 120 }}
-              />
-              <Button size="small" variant="contained" onClick={handleSubmit} disabled={makeOffer.isPending}>
-                {t('team.send')}
-              </Button>
-              <Button size="small" onClick={() => setShowForm(false)}>
-                {t('common.cancel')}
-              </Button>
-            </Stack>
-          ) : (
-            <Button size="small" onClick={() => setShowForm(true)}>
-              {t('team.makeOffer')}
-            </Button>
-          )}
-          {makeOffer.isError && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {t('team.offerError')}
-            </Alert>
-          )}
+          <Button size="small" onClick={() => setOfferOpen(true)}>
+            {t('team.makeOffer')}
+          </Button>
+          <TransferOfferDialog player={player} open={offerOpen} onClose={() => setOfferOpen(false)} />
         </TableCell>
       )}
     </TableRow>

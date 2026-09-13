@@ -152,8 +152,9 @@ func signFreeAgentForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64
 		return
 	}
 
-	if err := common.SignFreeAgent(dbCtx, best.Id, teamId); err != nil &&
-		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrPlayerNotFree) {
+	if _, err := common.SignFreeAgentAtMarketRate(dbCtx, best.Id, teamId); err != nil &&
+		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrPlayerNotFree) &&
+		!errors.Is(err, common.ErrInsufficientBudget) {
 		log.Errorf("error signing free agent %d for AI-managed team %d: %s", best.Id, teamId, err)
 	}
 }

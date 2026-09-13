@@ -226,7 +226,8 @@
       "from": "De",
       "to": "Para",
       "made": "Hecha",
-      "amount": "Importe"
+      "amount": "Importe",
+      "terms": "Condiciones personales"
     },
     "filters": {
       "search": "Buscar jugador",
@@ -261,12 +262,30 @@
     },
     "reject": "Rechazar",
     "withdraw": "Retirar",
+    "offerDialog": {
+      "title": "Oferta de traspaso - {{name}}",
+      "subtitle": "Propón un traspaso a su club, además del salario y la duración del contrato que le ofreces al jugador. Él juzgará las condiciones personales al momento, antes de que su club llegue a ver el traspaso.",
+      "amount": "Traspaso",
+      "sent": "Oferta enviada a su club.",
+      "declined": "No firmaría con esas condiciones. Quiere al menos {{wage}}/partido, y no se compromete a más de {{years}}.",
+      "submit": "Enviar oferta"
+    },
+    "signDialog": {
+      "title": "Fichar a {{name}}",
+      "subtitle": "Propón un salario y una duración de contrato. Decidirá al momento según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse.",
+      "premiumWarning": "Este jugador quedó libre recientemente - si lo fichas, su antiguo club tiene derecho a una prima de traspaso.",
+      "accepted": "¡Fichado! Nuevo contrato: {{years}} a {{wage}}/partido.",
+      "declined": "Quiere al menos {{wage}}/partido, y no se compromete a más de {{years}}.",
+      "premiumCharged": "Se pagó una prima de traspaso de {{amount}} a su antiguo club.",
+      "submit": "Fichar",
+      "error": "No se pudo fichar a ese jugador. Inténtalo de nuevo."
+    },
     "freeAgents": {
-      "intro": "Jugadores libres, sin coste de traspaso - solo su salario.",
+      "intro": "Jugadores libres - propón un salario y una duración de contrato; si quedó libre recientemente, su antiguo club puede tener derecho a una prima de traspaso.",
       "none": "No hay agentes libres disponibles ahora mismo.",
       "wage": "Salario",
       "sign": "Fichar",
-      "confirmSign": "¿Fichar a {{name}} con un salario de {{wage}}?"
+      "premiumChip": "Con prima"
     },
     "coaching": {
       "intro": "Un entrenador acelera el desarrollo de los jugadores y mejora la calidad de la cantera - sin coste de fichaje, solo su salario.",

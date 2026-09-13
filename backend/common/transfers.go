@@ -10,8 +10,10 @@ import (
 
 // team_id is coalesced to 0 - GetPlayerById is also used to look up a free agent (e.g. from
 // SignFreeAgent), whose team_id is NULL, and Player.TeamId is a plain non-nullable int64.
+// last_team_id is coalesced the same way, for the same reason (see Player.LastTeamId).
 const GetPlayerByIdStmtSql = "SELECT player_id, COALESCE(team_id, 0), first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country FROM players WHERE player_id = $1"
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
+	"free_agent_seasons, COALESCE(last_team_id, 0) FROM players WHERE player_id = $1"
 
 const InsertTransferListingStmtSql = "INSERT INTO transfer_listings (player_id, selling_team_id, asking_price) VALUES ($1, $2, $3)"
 
@@ -48,7 +50,8 @@ func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
 	var birthCountry sql.NullString
 	err := dbCtx.Db.QueryRow(GetPlayerByIdStmtSql, playerId).Scan(&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
 		&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
-		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry)
+		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
+		&p.FreeAgentSeasons, &p.LastTeamId)
 	if err != nil {
 		return nil, err
 	}

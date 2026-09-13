@@ -43,7 +43,8 @@ var ErrPlayerNotOwnedByTeam = errors.New("player does not belong to your team")
 var ErrInvalidRenewalOffer = errors.New("renewal offer must be a positive wage for 1 to " + strconv.Itoa(MaxContractYearsRemaining) + " seasons")
 
 const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
+	"free_agent_seasons, COALESCE(last_team_id, 0) " +
 	"FROM players WHERE team_id IS NULL " +
 	"ORDER BY (goal_keeper + defense + \"lateral\" + pass + midfield + dribbling + shot) DESC"
 
@@ -56,7 +57,11 @@ const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years
 // once per season a player stays unsigned, and AdvanceFreeAgencyClock's doc comment.
 const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0 WHERE player_id = $4"
 const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
-const ReleaseFromTeamStmtSql = "UPDATE players SET team_id = NULL, contract_years_remaining = 0 WHERE player_id = $1"
+
+// ReleaseFromTeamStmtSql captures the releasing club into last_team_id before clearing team_id -
+// see SignFreeAgent, which charges that club a transfer premium if this player is re-signed
+// within their first season of free agency.
+const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0 WHERE player_id = $1"
 
 // GetFreeAgents returns every unowned player, best-skilled first - both those released after
 // their contract expired (see AdvancePlayerContract) and any player orphaned by
@@ -76,7 +81,8 @@ func GetFreeAgents(dbCtx *DatabaseContext) ([]*Player, error) {
 		var birthCountry sql.NullString
 		if err := rows.Scan(&p.Id, &p.FirstName, &p.LastName, &birthDay,
 			&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
-			&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry); err != nil {
+			&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
+			&p.FreeAgentSeasons, &p.LastTeamId); err != nil {
 			return nil, err
 		}
 		p.BirthDay = time.UnixMilli(birthDay)
@@ -92,53 +98,158 @@ func lockPlayerOwnership(tx *sql.Tx, playerId int64) (teamId sql.NullInt64, wage
 	return
 }
 
-// SignFreeAgent signs an unowned player to teamId on a fresh contract, at a freshly negotiated
-// market wage (see PlayerWageFromSkills) - there's no signing fee, the same way player loans
-// already move for free; only the wage a team takes on is the cost. The player row is locked
-// for the duration so two teams can't both sign the same free agent.
-func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
+// FreeAgentPremiumWageMultiplier sets the transfer premium a team pays a free agent's most
+// recent club (see players.last_team_id) when signing them within their first season of free
+// agency (free_agent_seasons == 0) - a flat multiple of the newly agreed wage, smaller than
+// EarlyReleaseWageMultiplier's full severance since this only compensates that club for losing
+// the player to someone else, not for tearing up a contract early. No premium is owed once a
+// player has gone a full season unsigned (nobody "poached" them from anywhere current), or if
+// they have no recorded last club at all (see Player.LastTeamId).
+const FreeAgentPremiumWageMultiplier = 4
+
+var ErrInvalidFreeAgentOffer = errors.New("free agent offer must be a positive wage for 1 to " + strconv.Itoa(MaxContractYearsRemaining) + " seasons")
+
+// FreeAgentSigningResult mirrors ContractRenewalOffer's shape - the player judges the offered
+// terms on the spot (same expected-wage/age-based-max-years logic), so the response always
+// carries a final verdict plus their real expectations, accepted or not, so the team can
+// immediately retry with better terms.
+type FreeAgentSigningResult struct {
+	Accepted           bool   `json:"accepted"`
+	Reason             string `json:"reason,omitempty"`
+	ExpectedWage       int    `json:"expectedWage"`
+	MaxAcceptableYears int    `json:"maxAcceptableYears"`
+	// Only meaningful when Accepted is true.
+	ContractYears int   `json:"contractYearsRemaining,omitempty"`
+	Wage          int   `json:"wage,omitempty"`
+	Premium       int64 `json:"premium,omitempty"`
+}
+
+// SignFreeAgent signs an unowned player to teamId on offeredWage/offeredYears, judged against the
+// player's own expectations exactly like MakeContractRenewalOffer - if they wouldn't accept,
+// nothing is charged or changed. If they would, and they're still within their first season of
+// free agency (free_agent_seasons == 0) with a recorded last club, that club is paid a transfer
+// premium (see FreeAgentPremiumWageMultiplier) - the signing team must be able to afford it, on
+// top of the wage they're now taking on. The player row is locked for the duration so two teams
+// can't both sign the same free agent.
+func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int) (*FreeAgentSigningResult, error) {
+	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
+		return nil, ErrInvalidFreeAgentOffer
+	}
 	if !IsTransferWindowOpen(dbCtx) {
-		return ErrTransferWindowClosed
+		return nil, ErrTransferWindowClosed
 	}
 
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer tx.Rollback()
 
 	currentTeamId, _, _, err := lockPlayerOwnership(tx, playerId)
 	if errors.Is(err, sql.ErrNoRows) {
-		return ErrPlayerNotFound
+		return nil, ErrPlayerNotFound
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if currentTeamId.Valid {
-		return ErrPlayerNotFree
+		return nil, ErrPlayerNotFree
 	}
 
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	wage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
 		player.Midfield, player.Dribbling, player.Shot)
-	contractYears := RandomContractYears()
+	maxYears := MaxAcceptableRenewalYears(player.Age)
 
-	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, contractYears, wage, playerId); err != nil {
-		return err
+	result := &FreeAgentSigningResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
+
+	var reasons []string
+	if offeredWage < expectedWage {
+		reasons = append(reasons, "wage below what they expect")
 	}
+	if offeredYears > maxYears {
+		reasons = append(reasons, "too many seasons for their age")
+	}
+	if len(reasons) > 0 {
+		result.Reason = strings.Join(reasons, "; ")
+		return result, nil
+	}
+
+	var premium int64
+	if player.FreeAgentSeasons == 0 && player.LastTeamId != 0 {
+		premium = int64(offeredWage) * FreeAgentPremiumWageMultiplier
+
+		var buyerBudget int64
+		if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, teamId).Scan(&buyerBudget); err != nil {
+			return nil, err
+		}
+		if buyerBudget < premium {
+			return nil, ErrInsufficientBudget
+		}
+		if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -premium, teamId); err != nil {
+			return nil, err
+		}
+		if _, err := tx.Exec(UpdateTeamBudgetStmtSql, premium, player.LastTeamId); err != nil {
+			return nil, err
+		}
+	}
+
+	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, playerId); err != nil {
+		return nil, err
+	}
+
+	playerName := player.FirstName + " " + player.LastName
+	if premium > 0 {
+		if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -premium, TRANSACTION_TRANSFER_OUT,
+			"Paid free agent transfer premium for "+playerName, playerId); err != nil {
+			return nil, err
+		}
+		if _, err := tx.Exec(InsertTeamTransactionStmtSql, player.LastTeamId, premium, TRANSACTION_TRANSFER_IN,
+			"Received free agent transfer premium for "+playerName, playerId); err != nil {
+			return nil, err
+		}
+	}
+
 	if err := tx.Commit(); err != nil {
-		return err
+		return nil, err
 	}
 
 	FreeAgentSigningsCounter.Add(context.Background(), 1)
 
-	playerName := player.FirstName + " " + player.LastName
+	result.Accepted = true
+	result.ContractYears = offeredYears
+	result.Wage = offeredWage
+	result.Premium = premium
+
 	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER,
-		"Signed free agent "+playerName+" to a "+strconv.Itoa(contractYears)+"-season contract")
-	return nil
+		"Signed free agent "+playerName+" to a "+strconv.Itoa(offeredYears)+"-season contract")
+	if premium > 0 {
+		_ = NotifyTeamOwner(dbCtx, player.LastTeamId, NOTIFICATION_TRANSFER,
+			playerName+" was signed by another club - transfer premium received")
+	}
+	return result, nil
+}
+
+// SignFreeAgentAtMarketRate offers a free agent exactly their expected market wage (see
+// PlayerWageFromSkills) for the longest contract their age allows - the terms an AI-managed team
+// always offers (see engine.RunAITeamManagement), guaranteed to be accepted on personal terms
+// since they match what SignFreeAgent itself computes as "expected". Still subject to the same
+// transfer premium and budget checks as any human-negotiated signing.
+func SignFreeAgentAtMarketRate(dbCtx *DatabaseContext, playerId int64, teamId int64) (*FreeAgentSigningResult, error) {
+	player, err := GetPlayerById(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	wage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot)
+	years := RandomContractYears()
+	if maxYears := MaxAcceptableRenewalYears(player.Age); years > maxYears {
+		years = maxYears
+	}
+	return SignFreeAgent(dbCtx, playerId, teamId, wage, years)
 }
 
 // ContractRenewalOffer is the outcome of a team proposing new terms to one of its own players
