@@ -425,6 +425,7 @@
     "live": "EN VIVO",
     "fullTime": "FINAL DEL PARTIDO",
     "connecting": "Conectando...",
+    "scheduled": "Programado",
     "tabs": { "events": "Eventos", "lineups": "Alineaciones" },
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",

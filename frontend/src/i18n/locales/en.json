@@ -425,6 +425,7 @@
     "live": "LIVE",
     "fullTime": "FULL TIME",
     "connecting": "Connecting...",
+    "scheduled": "Scheduled",
     "tabs": { "events": "Events", "lineups": "Lineups" },
     "noNotableEvents": "No notable events in this match.",
     "noLineupData": "No lineup data.",

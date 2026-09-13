@@ -41,7 +41,7 @@ import {
   type Player,
   type Team,
 } from '../../api/types'
-import { useLiveMatch } from '../../api/useLiveMatch'
+import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerBench } from '../lineup/PlayerBench'
 import { SoccerPitch } from '../lineup/SoccerPitch'
@@ -89,7 +89,12 @@ function LiveFriendly({
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
+  // already subscribed and ready the moment the match actually goes live, with no reconnect
+  // needed (see useLiveMatch's own comment on backend/handlers/liveMatchHandlers.go subscribing a
+  // viewer regardless of how far off matchDate is).
   const live = useLiveMatch(id ? `/v1/friendlies/${id}/live` : undefined, !!id)
+  const isDue = useIsDue(match.matchDate)
 
   useEffect(() => {
     if (live.complete && id) {
@@ -108,15 +113,19 @@ function LiveFriendly({
         homeName={match.homeTeamName}
         awayId={match.awayTeamId}
         awayName={match.awayTeamName}
-        homeGoals={live.homeGoals}
-        awayGoals={live.awayGoals}
-        status={live.connected ? 'live' : 'connecting'}
-        minute={live.minute}
+        homeGoals={isDue ? live.homeGoals : 0}
+        awayGoals={isDue ? live.awayGoals : 0}
+        // Before kickoff, show "scheduled" rather than a premature "Live" label (issue #31) - the
+        // lineup editor below still renders either way, so a manager can set it up ahead of time.
+        status={isDue ? (live.connected ? 'live' : 'connecting') : 'scheduled'}
+        minute={isDue ? live.minute : undefined}
         subtitle={formatDateTime(match.matchDate)}
       />
-      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
-      </Paper>
+      {isDue && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
+        </Paper>
+      )}
       {id && team && players && <FriendlyLineupEditor matchId={id} team={team} players={players} />}
     </Box>
   )

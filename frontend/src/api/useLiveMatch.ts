@@ -44,6 +44,29 @@ const reconnectDelayMs = 3000
 // State is not reset when `path` changes - callers that render this for different matches over
 // the lifetime of one component (there are none in this app today) should mount it under a
 // `key={path}` so a path change gets a genuinely fresh instance instead.
+// useIsDue reports whether matchDate has already arrived, and flips from false to true exactly
+// once, right when it does - a single scheduled timeout rather than a repeating poll. Callers
+// combine this with useLiveMatch's `connected` to decide when to actually claim a match is
+// "live": a WebSocket connects (and starts receiving messages) the instant the component mounts,
+// regardless of how far in the future matchDate is - see backend/handlers/liveMatchHandlers.go,
+// which happily subscribes a viewer to a match days before kickoff - so `connected` alone isn't
+// enough to distinguish "watching a match in progress" from "sitting on a page for a match that
+// hasn't started yet" (issue #31).
+export function useIsDue(matchDate: string): boolean {
+  const [isDue, setIsDue] = useState(() => new Date(matchDate).getTime() <= Date.now())
+
+  useEffect(() => {
+    if (isDue) {
+      return
+    }
+    const delay = new Date(matchDate).getTime() - Date.now()
+    const timer = setTimeout(() => setIsDue(true), Math.max(delay, 0))
+    return () => clearTimeout(timer)
+  }, [matchDate, isDue])
+
+  return isDue
+}
+
 export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMatchState {
   const [state, setState] = useState<LiveMatchState>(initialState)
 

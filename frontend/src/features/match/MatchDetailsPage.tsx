@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useMatchDetails } from '../../api/hooks'
 import { POSITION_GOALKEEPER, type WeekMatch } from '../../api/types'
-import { useLiveMatch } from '../../api/useLiveMatch'
+import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
@@ -35,6 +35,7 @@ export function MatchDetailsPage() {
         homeName={match.homeName}
         awayId={match.away}
         awayName={match.awayName}
+        matchDate={match.matchDate}
       />
     )
   }
@@ -48,16 +49,23 @@ function LiveMatch({
   homeName,
   awayId,
   awayName,
+  matchDate,
 }: {
   matchId: string | undefined
   homeId: number
   homeName: string
   awayId: number
   awayName: string
+  matchDate: string
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
+  // already subscribed and ready the moment the match actually goes live, with no reconnect
+  // needed (see useLiveMatch's own comment on backend/handlers/liveMatchHandlers.go subscribing a
+  // viewer regardless of how far off matchDate is).
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
+  const isDue = useIsDue(matchDate)
 
   useEffect(() => {
     if (live.complete && matchId) {
@@ -67,6 +75,24 @@ function LiveMatch({
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
+  }
+
+  // Before kickoff, show the scheduled date instead of a premature "Live" label (issue #31) -
+  // the WebSocket above is already connected regardless, so once isDue flips true this switches
+  // straight into the live view with no gap.
+  if (!isDue) {
+    return (
+      <Scoreboard
+        homeId={homeId}
+        homeName={homeName}
+        awayId={awayId}
+        awayName={awayName}
+        homeGoals={0}
+        awayGoals={0}
+        status="scheduled"
+        subtitle={formatDateTime(matchDate)}
+      />
+    )
   }
 
   return (

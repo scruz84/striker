@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import {
   EVENT_TYPE_GOAL,
@@ -28,7 +28,7 @@ export interface ScoreboardProps {
   awayName: string
   homeGoals: number
   awayGoals: number
-  status: 'live' | 'connecting' | 'played'
+  status: 'scheduled' | 'live' | 'connecting' | 'played'
   minute?: number
   subtitle?: string
 }
@@ -36,6 +36,8 @@ export interface ScoreboardProps {
 export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, awayGoals, status, minute, subtitle }: ScoreboardProps) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const badgeSize = isMobile ? 40 : 56
 
   return (
     <Paper variant="outlined" sx={{ overflow: 'hidden', mb: 2 }}>
@@ -45,7 +47,7 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
           background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
         }}
       />
-      <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
         <Stack direction="row" sx={{ justifyContent: 'center', mb: 1.5 }}>
           {status === 'live' && (
             <Chip
@@ -63,19 +65,25 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
             />
           )}
           {status === 'connecting' && <Chip size="small" label={t('match.connecting')} />}
+          {status === 'scheduled' && <Chip size="small" variant="outlined" label={t('match.scheduled')} />}
           {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}
         </Stack>
-        <Grid container sx={{ alignItems: 'center' }}>
-          <Grid size={5}>
-            <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
-              <TeamBadge teamId={homeId} teamName={homeName} size={56} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+        {/* Flexbox rather than a 12-column Grid split - the center score needs a
+            width that fits "88 - 3" without wrapping (see issue report: a fractional
+            Grid column was too narrow on a phone screen and wrapped the score onto two
+            lines), so it gets a fixed min-width and the two team columns share whatever
+            space is left instead of a fixed fraction each. */}
+        <Stack direction="row" spacing={{ xs: 0.5, sm: 2 }} sx={{ alignItems: 'center' }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
+              <TeamBadge teamId={homeId} teamName={homeName} size={badgeSize} />
+              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
                 {homeName}
               </Typography>
             </Stack>
-          </Grid>
-          <Grid size={2}>
-            <Typography variant="h3" align="center" sx={{ fontWeight: 700 }}>
+          </Box>
+          <Box sx={{ flex: '0 0 auto', minWidth: { xs: 64, sm: 96 }, textAlign: 'center' }}>
+            <Typography sx={{ fontWeight: 700, fontSize: { xs: '1.5rem', sm: '3rem' }, whiteSpace: 'nowrap' }}>
               {homeGoals} - {awayGoals}
             </Typography>
             {typeof minute === 'number' && minute > 0 && (
@@ -83,16 +91,16 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
                 {minute}&apos;
               </Typography>
             )}
-          </Grid>
-          <Grid size={5}>
-            <Stack spacing={1} sx={{ alignItems: 'center', textAlign: 'center' }}>
-              <TeamBadge teamId={awayId} teamName={awayName} size={56} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
+              <TeamBadge teamId={awayId} teamName={awayName} size={badgeSize} />
+              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
                 {awayName}
               </Typography>
             </Stack>
-          </Grid>
-        </Grid>
+          </Box>
+        </Stack>
         {subtitle && (
           <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mt: 1.5 }}>
             {subtitle}
@@ -153,17 +161,22 @@ export function Events({
           const teamName = isHome ? homeName : awayName
           const opponentName = isHome ? awayName : homeName
           return (
-            <Grid container key={idx} sx={{ alignItems: 'center' }}>
-              <Grid size={5.5} sx={{ textAlign: 'right' }}>
+            // Flexbox rather than a 12-column Grid split - a fractional column (1/12) for the
+            // minute chip was too narrow on a phone screen and truncated it (e.g. "23'" showing
+            // as "2..."). A fixed-width center compartment never shrinks below what the chip
+            // needs; the two text compartments share whatever space is left and wrap normally
+            // instead of overflowing.
+            <Stack direction="row" key={idx} sx={{ alignItems: 'center' }}>
+              <Box sx={{ flex: 1, minWidth: 0, textAlign: 'right' }}>
                 {isHome && <EventContent event={event} align="right" teamName={teamName} opponentName={opponentName} />}
-              </Grid>
-              <Grid size={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+              </Box>
+              <Box sx={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center', px: { xs: 0.5, sm: 1 } }}>
                 <Chip size="small" label={`${event.minute}'`} sx={{ position: 'relative', zIndex: 1 }} />
-              </Grid>
-              <Grid size={5.5}>
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
                 {!isHome && <EventContent event={event} align="left" teamName={teamName} opponentName={opponentName} />}
-              </Grid>
-            </Grid>
+              </Box>
+            </Stack>
           )
         })}
       </Stack>
