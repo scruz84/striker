@@ -131,7 +131,11 @@ const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id 
 
 // Resets name_changed to false alongside the fresh name - a newly assigned owner gets their own
 // one-time rename, regardless of whether a previous owner had already used theirs.
-const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2, name_changed = false WHERE team_id = $3"
+// ai_level = 0 clears whatever CPU difficulty tier this team carried while unowned (see
+// common.AiLevelCaretaker/Manager/Director) - Team.AiLevel's own doc comment already promises 0
+// for an owned team, but leaving the old value in place here let it leak back out via GetTeamById
+// as soon as the new owner viewed their own squad page (see AssignTeam).
+const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2, name_changed = false, ai_level = 0 WHERE team_id = $3"
 
 const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = matches+$1, points = points+$2, wins = wins+$3, " +
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +

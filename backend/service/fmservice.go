@@ -59,6 +59,11 @@ func StartSvc() {
 	if err := common.BackfillAiLevels(dbCtx); err != nil {
 		log.Errorf("error backfilling AI levels at startup: %s", err)
 	}
+	// Clears a leftover CPU AI level on any team a user already claimed before AssignTeam started
+	// resetting it itself - see common.ClearOwnedTeamAiLevels.
+	if err := common.ClearOwnedTeamAiLevels(dbCtx); err != nil {
+		log.Errorf("error clearing owned team AI levels at startup: %s", err)
+	}
 
 	router := gin.Default()
 	router.Use(metricsMiddleware())

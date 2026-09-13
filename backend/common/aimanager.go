@@ -87,3 +87,16 @@ func BackfillAiLevels(dbCtx *DatabaseContext) error {
 	}
 	return nil
 }
+
+const ClearOwnedTeamAiLevelsStmtSql = "UPDATE teams SET ai_level = 0 WHERE owner_id IS NOT NULL AND ai_level != 0"
+
+// ClearOwnedTeamAiLevels zeroes ai_level on every currently-owned team that still carries a
+// leftover value from before AssignTeam's own UPDATE was fixed to reset it at claim time - a
+// stale nonzero value there was otherwise indistinguishable from a real CPU team's difficulty
+// tier, showing e.g. "AI Director" on a manager's own squad page even though Team.AiLevel's doc
+// comment already promises 0 for an owned team. Called once at service startup, same as
+// BackfillAiLevels, so an already-affected database heals itself without a manual fix.
+func ClearOwnedTeamAiLevels(dbCtx *DatabaseContext) error {
+	_, err := dbCtx.Db.Exec(ClearOwnedTeamAiLevelsStmtSql)
+	return err
+}
