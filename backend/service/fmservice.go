@@ -44,6 +44,11 @@ func StartSvc() {
 		log.Panicf("Error opening database: %s", err)
 	}
 
+	// Applies any migration added since this database was last started - see common.EnsureSchema.
+	if err := common.EnsureSchema(dbCtx); err != nil {
+		log.Panicf("Error ensuring schema is up to date: %s", err)
+	}
+
 	// Backfills the trainer market for a world that existed before the trainer feature shipped -
 	// see common.TopUpTrainerMarket.
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {

@@ -222,9 +222,15 @@ upgrading a database that predates one of them, but never auto-applied (`EnsureS
 lists the top-level `resources/sql/` directory, not `history/`).
 
 If you already have a running, already-initialized database and pull in a change that adds a new
-`resources/sql/initN_*.sql` file (numbered to continue after the highest one in `history/`),
-apply just that new file manually once - `EnsureSchema` won't do this for you, since the schema
-already exists as far as it's concerned:
+`resources/sql/initN_*.sql` file (numbered to continue after the highest one in `history/`), you
+don't need to do anything: both `--svc` and `--engine` call `EnsureSchema` on every startup, and
+against a database that already has a schema it re-applies just the numbered `initN_*.sql`
+migrations (skipping `init.sql` itself and the name-pool dumps, which are only safe to run once -
+see the doc comment on `EnsureSchema`). Every migration file is written to be safely re-run
+(`CREATE TABLE`/`ADD COLUMN`/`CREATE INDEX ... IF NOT EXISTS`, `UPDATE ... WHERE x IS NULL`), so
+restarting the containers after pulling a branch update (`docker compose up -d --build`) is
+enough to pick up a new one - no manual `psql` step required. If you'd rather apply it yourself
+without restarting anything, that still works too:
 
 ```bash
 docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/initN_whatever.sql

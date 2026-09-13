@@ -24,6 +24,11 @@ func StartEngine() {
 		log.Panicf("Error opening database: %s", err)
 	}
 
+	// Applies any migration added since this database was last started - see common.EnsureSchema.
+	if err := common.EnsureSchema(dbCtx); err != nil {
+		log.Panicf("Error ensuring schema is up to date: %s", err)
+	}
+
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))

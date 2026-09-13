@@ -6,6 +6,36 @@ import (
 	"testing"
 )
 
+// TestApplyPendingMigrations_SkipsNonNumberedFiles guards the exclusion list in
+// applyPendingMigrations's doc comment: on a database that already has a schema, only numbered
+// "initN_*.sql" migrations may be re-applied - never init.sql (non-idempotent CREATE TABLE) or
+// the name-pool dumps (plain INSERTs with no uniqueness constraint), both of which are only safe
+// to run once against a genuinely empty database.
+func TestApplyPendingMigrations_SkipsNonNumberedFiles(t *testing.T) {
+	names := []string{
+		"init.sql",
+		"init2_league_tier.sql",
+		"init30_player_birth_country.sql",
+		"names_es_202304022215.sql",
+		"lastnames_es_202304022215.sql",
+	}
+	var applied []string
+	for _, name := range names {
+		if initFileNumberPattern.MatchString(name) {
+			applied = append(applied, name)
+		}
+	}
+	want := []string{"init2_league_tier.sql", "init30_player_birth_country.sql"}
+	if len(applied) != len(want) {
+		t.Fatalf("got %v, want %v", applied, want)
+	}
+	for i := range want {
+		if applied[i] != want[i] {
+			t.Fatalf("got %v, want %v", applied, want)
+		}
+	}
+}
+
 func TestSchemaFileSortKey_NumericNotLexical(t *testing.T) {
 	names := []string{
 		"names_es_202304022215.sql",
