@@ -51,7 +51,13 @@ CREATE TABLE teams (
    country		varchar(4) references countries(name),
    league_id	bigint default -1,
    name varchar(200) NULL,
-   budget bigint NOT NULL DEFAULT 1000000,
+   -- Calibrated against common.PlayerWageFromSkills/common.SquadSize: an average-skill 18-player
+   -- squad's wage bill alone runs ~28,350/week, so 400000 covers ~2 weeks shy of a full season
+   -- (~18-20 match weeks) of wages even before any ticket/sponsorship/prize income - enough
+   -- runway that a new manager isn't punished by early bad luck, but still low enough that squad
+   -- and wage decisions matter well within the first season. The previous 1000000 covered ~35
+   -- weeks (8+ months) of an average squad's wages on its own, before any income at all.
+   budget bigint NOT NULL DEFAULT 400000,
    stadium_capacity integer NOT NULL DEFAULT 2000,
    ticket_price integer NOT NULL DEFAULT 10,
    formation smallint NOT NULL DEFAULT 0,
