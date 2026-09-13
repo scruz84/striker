@@ -15,6 +15,7 @@ import type {
   FinancesResponse,
   FriendlyChallenge,
   FriendlyMatch,
+  FriendlySchedule,
   Lineup,
   LineupPosition,
   LineupSubstitution,
@@ -59,6 +60,9 @@ export const queryKeys = {
   friendlyChallengesSent: ['friendlyChallengesSent'] as const,
   upcomingFriendlies: ['upcomingFriendlies'] as const,
   recentFriendlies: ['recentFriendlies'] as const,
+  friendlySchedule: ['friendlySchedule'] as const,
+  friendlyMatch: (id: string) => ['friendlyMatch', id] as const,
+  friendlyLineup: (id: string) => ['friendlyLineup', id] as const,
   myGroups: ['myGroups'] as const,
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
@@ -832,10 +836,46 @@ export function useChallengeToFriendly() {
 export function useAcceptFriendlyChallenge() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (challengeId: number) => api.post(`/v1/friendlies/challenges/${challengeId}/accept`),
+    mutationFn: ({ challengeId, kickoff }: { challengeId: number; kickoff: string }) =>
+      api.post(`/v1/friendlies/challenges/${challengeId}/accept`, { kickoff }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesReceived })
       void queryClient.invalidateQueries({ queryKey: queryKeys.upcomingFriendlies })
+    },
+  })
+}
+
+export function useFriendlySchedule(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.friendlySchedule,
+    queryFn: () => api.get<FriendlySchedule>('/v1/friendlies/schedule'),
+    enabled,
+  })
+}
+
+export function useFriendlyMatch(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.friendlyMatch(id ?? ''),
+    queryFn: () => api.get<FriendlyMatch>(`/v1/friendlies/${id}`),
+    enabled: !!id,
+  })
+}
+
+export function useFriendlyLineup(id: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.friendlyLineup(id ?? ''),
+    queryFn: () => api.get<Lineup>(`/v1/friendlies/${id}/lineup`),
+    enabled: enabled && !!id,
+  })
+}
+
+export function useSetFriendlyLineup(id: string | undefined) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
+      api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions: [] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyLineup(id ?? '') })
     },
   })
 }

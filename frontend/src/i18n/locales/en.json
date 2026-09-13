@@ -307,6 +307,10 @@
       "empty": "No pending challenges.",
       "accept": "Accept",
       "reject": "Decline",
+      "kickoff": "Kickoff",
+      "kickoffNotAllowed": "That day isn't open for friendlies - pick another.",
+      "confirmKickoff": "Confirm",
+      "cancel": "Cancel",
       "acceptError": "Could not accept that challenge - you may be at your weekly limit."
     },
     "sent": {
@@ -321,6 +325,9 @@
     "recent": {
       "title": "Recent friendlies",
       "empty": "No friendlies played yet."
+    },
+    "lineup": {
+      "title": "{{teamName}}'s lineup for this friendly"
     }
   },
   "division": {

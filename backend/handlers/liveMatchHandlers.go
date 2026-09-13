@@ -71,6 +71,30 @@ func LiveCupTieHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// LiveFriendlyHandler is the friendly-match equivalent of LiveMatchHandler - see
+// common.FriendlyMatchChannel, which engine.simulateFriendly already broadcasts to.
+func LiveFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		matchId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid match id"))
+			return
+		}
+
+		match, err := common.GetFriendlyMatchById(dbCtx, matchId)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				c.JSON(http.StatusNotFound, GetError(0, "friendly not found"))
+				return
+			}
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		serveLiveMatch(c, dbCtx, common.FriendlyMatchChannel(matchId), match.Played, match.HomeGoals, match.AwayGoals)
+	}
+}
+
 // serveLiveMatch upgrades the connection and either immediately reports the final score (the
 // match/tie was already played by the time the client connected) or streams live messages from
 // channel until the broadcast completes or the client disconnects.

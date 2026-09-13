@@ -206,6 +206,11 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1FriendlyGroup.DELETE("/challenges/:"+handlers.ID, handlers.WithdrawFriendlyChallengeHandler(dbCtx))
 	v1FriendlyGroup.GET("/upcoming", handlers.UpcomingFriendliesHandler(dbCtx))
 	v1FriendlyGroup.GET("/recent", handlers.RecentFriendliesHandler(dbCtx))
+	v1FriendlyGroup.GET("/schedule", handlers.FriendlyScheduleHandler(dbCtx))
+	v1FriendlyGroup.GET("/:"+handlers.ID, handlers.FriendlyMatchHandler(dbCtx))
+	v1FriendlyGroup.GET("/:"+handlers.ID+"/live", handlers.LiveFriendlyHandler(dbCtx))
+	v1FriendlyGroup.PUT("/:"+handlers.ID+"/lineup", handlers.SetFriendlyLineupHandler(dbCtx))
+	v1FriendlyGroup.GET("/:"+handlers.ID+"/lineup", handlers.GetFriendlyLineupHandler(dbCtx))
 
 	v1CupGroup := v1Group.Group("/cups")
 	v1CupGroup.Use(authMiddleware.MiddlewareFunc())

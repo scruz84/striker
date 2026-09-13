@@ -16,6 +16,9 @@ var ErrNotChallengeSender = errors.New("you did not send this friendly challenge
 var ErrNotChallengeRecipient = errors.New("this friendly challenge is not for your team")
 var ErrInvalidFriendlyLimit = errors.New("max friendlies per week must be zero or greater")
 var ErrInvalidFriendlySchedule = errors.New("friendly schedule must select at least one weekday")
+var ErrInvalidFriendlyKickoff = errors.New("kickoff must be far enough in the future and fall on a day the friendly schedule allows")
+var ErrNotFriendlyParticipant = errors.New("your team is not part of this friendly")
+var ErrFriendlyAlreadyPlayed = errors.New("this friendly has already been played")
 
 // FriendlyChallenge is a pending invite from one team to another - see ChallengeToFriendly.
 type FriendlyChallenge struct {
@@ -92,6 +95,18 @@ func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
 		}
 	}
 	return candidate // unreachable given a validated (non-zero) mask
+}
+
+// isAllowedFriendlyKickoff reports whether kickoff clears the simulation scheduler's polling
+// window (see friendlyScheduleDelay) and falls on a weekday GetFriendlyScheduleWeekdays allows -
+// the same two constraints the auto-accept path (an unowned opponent) already satisfies by
+// construction via nextAllowedFriendlyDate, now enforced on a human-chosen kickoff too.
+func isAllowedFriendlyKickoff(dbCtx *DatabaseContext, kickoff time.Time) bool {
+	if kickoff.Before(time.Now().Add(friendlyScheduleDelay)) {
+		return false
+	}
+	bit := 1 << int(kickoff.Weekday())
+	return GetFriendlyScheduleWeekdays(dbCtx)&bit != 0
 }
 
 const GetMaxFriendliesPerWeekStmtSql = "SELECT max_friendlies_per_week FROM season"
@@ -179,7 +194,10 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	// Unowned - accept on the opponent's behalf right away, since nothing else will ever
 	// revisit this challenge. If the AI opponent is itself already at its weekly cap, surface
 	// that to the challenger now rather than leave an orphaned challenge nothing can resolve.
-	if err := AcceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId); err != nil {
+	// There's nobody to pick a kickoff, so it gets the same "as soon as allowed" default a
+	// human accepting could also choose.
+	defaultKickoff := nextAllowedFriendlyDate(time.Now().Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
+	if err := AcceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, defaultKickoff); err != nil {
 		_, _ = dbCtx.Db.Exec(DeleteFriendlyChallengeStmtSql, challengeId)
 		return err
 	}
@@ -187,12 +205,15 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 }
 
 // AcceptFriendlyChallenge agrees to play a pending challenge: creates the actual fixture (see
-// friendly_matches) at a near-future kickoff and removes the challenge, atomically so a
+// friendly_matches) at the given kickoff and removes the challenge, atomically so a
 // double-accept can't create two fixtures from the same challenge. Re-checks the accepting
 // team's weekly limit now, since time may have passed (and other friendlies accepted) since the
 // challenge was sent - the same "re-validate at accept time" convention AcceptOffer uses for
-// budget.
-func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponentTeamId int64) error {
+// budget. kickoff must be far enough ahead to clear the simulation scheduler's polling window
+// and fall on a weekday the friendly schedule allows (see isAllowedFriendlyKickoff) - callers
+// with nobody to ask (see ChallengeToFriendly's auto-accept path) pass nextAllowedFriendlyDate's
+// own output, which always satisfies both.
+func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponentTeamId int64, kickoff time.Time) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
@@ -222,8 +243,10 @@ func AcceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 	if opponentCount >= maxPerWeek {
 		return ErrFriendlyLimitReached
 	}
+	if !isAllowedFriendlyKickoff(dbCtx, kickoff) {
+		return ErrInvalidFriendlyKickoff
+	}
 
-	kickoff := nextAllowedFriendlyDate(time.Now().Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
 	if _, err := tx.Exec(InsertFriendlyMatchStmtSql, challengerTeamId, opponentTeamId, kickoff); err != nil {
 		return err
 	}
@@ -347,6 +370,23 @@ func GetRecentFriendlies(dbCtx *DatabaseContext, teamId int64, limit int) ([]Fri
 	return scanFriendlyMatches(rows)
 }
 
+const GetFriendlyMatchByIdStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
+	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE fm.match_id = $1"
+
+// GetFriendlyMatchById looks up one friendly by id - used by the lineup and live-view handlers,
+// which need the match itself (and to check the caller owns one of its teams) rather than a
+// per-team list.
+func GetFriendlyMatchById(dbCtx *DatabaseContext, matchId int64) (*FriendlyMatch, error) {
+	var m FriendlyMatch
+	err := dbCtx.Db.QueryRow(GetFriendlyMatchByIdStmtSql, matchId).Scan(&m.MatchId, &m.HomeTeamId, &m.HomeTeamName,
+		&m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &m.Played, &m.HomeGoals, &m.AwayGoals)
+	if err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
 const GetSimulableFriendliesStmtSql = "SELECT match_id, home_team_id, away_team_id, match_date FROM friendly_matches " +
 	"WHERE match_date > now() AND match_date < now() + interval '15 minutes' AND played = false AND in_simulation = false " + ForUpdate
 
@@ -397,6 +437,111 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 const SetFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 WHERE match_id = $3"
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+
+const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team_id, formation) VALUES ($1, $2, $3) " +
+	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
+const DeleteFriendlyLineupPositionsStmtSql = "DELETE FROM friendly_lineup_positions WHERE lineup_id = $1"
+const InsertFriendlyLineupPositionStmtSql = "INSERT INTO friendly_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
+
+// SetFriendlyLineup replaces teamId's lineup override for one friendly - upserting the
+// (match_id, team_id) row (so re-saving doesn't need its own delete-then-insert) and always
+// replacing its positions outright. Guarded by a non-blocking advisory lock keyed on
+// (matchId, teamId), the same race-avoidance convention as SetDefaultLineup, scoped to just
+// this match so editing one friendly never blocks editing another for the same team.
+func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var acquiredLock bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1, $2)", matchId, teamId).Scan(&acquiredLock); err != nil {
+		return err
+	}
+	if !acquiredLock {
+		return nil
+	}
+
+	var lineupId int64
+	if err := tx.QueryRow(InsertFriendlyLineupStmtSql, matchId, teamId, formation).Scan(&lineupId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeleteFriendlyLineupPositionsStmtSql, lineupId); err != nil {
+		return err
+	}
+
+	insertStmt, err := tx.Prepare(InsertFriendlyLineupPositionStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+	for _, p := range positions {
+		if _, err := insertStmt.Exec(lineupId, p.PlayerId, p.Position); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+const GetFriendlyLineupStmtSql = "SELECT lineup_id, formation FROM friendly_lineup WHERE match_id = $1 AND team_id = $2"
+const GetFriendlyLineupPositionsStmtSql = "SELECT player_id, position FROM friendly_lineup_positions WHERE lineup_id = $1"
+
+// GetFriendlyLineup returns teamId's saved override for one friendly. hasOverride is false (with
+// a zero Lineup) when the team hasn't saved one for this match yet, so callers like the lineup
+// editor can fall back to showing the team's current default lineup as a starting point.
+func GetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lineup, bool, error) {
+	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+
+	var lineupId int64
+	err := dbCtx.Db.QueryRow(GetFriendlyLineupStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation)
+	if errors.Is(err, sql.ErrNoRows) {
+		return lineup, false, nil
+	}
+	if err != nil {
+		return Lineup{}, false, err
+	}
+
+	rows, err := dbCtx.Db.Query(GetFriendlyLineupPositionsStmtSql, lineupId)
+	if err != nil {
+		return Lineup{}, false, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var p LineupPosition
+		if err := rows.Scan(&p.PlayerId, &p.Position); err != nil {
+			return Lineup{}, false, err
+		}
+		lineup.Positions = append(lineup.Positions, p)
+	}
+	return lineup, true, nil
+}
+
+// GetLineupsForFriendly resolves both teams' lineups for one friendly: a team's saved override
+// (see SetFriendlyLineup) if it has one, falling back to its standing default lineup otherwise -
+// the friendly equivalent of GetLineupsForMatch, kept entirely separate (its own tables) so a
+// friendly's override can never collide with a competitive match's id space - see
+// init34_friendly_lineup.sql for why that matters.
+func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int64) (*map[int64]*Lineup, error) {
+	lineups := make(map[int64]*Lineup, len(teamIds))
+	for _, teamId := range teamIds {
+		override, hasOverride, err := GetFriendlyLineup(dbCtx, matchId, teamId)
+		if err != nil {
+			return nil, err
+		}
+		if hasOverride && len(override.Positions) > 0 {
+			lineups[teamId] = &override
+			continue
+		}
+		defaultLineup, err := GetDefaultLineup(dbCtx, teamId)
+		if err != nil {
+			return nil, err
+		}
+		defaultLineup.MatchId = matchId
+		lineups[teamId] = defaultLineup
+	}
+	return &lineups, nil
+}
 
 // SetFriendlyPlayed records a simulated friendly's result and its events - same shape as
 // SetCupTiePlayed, minus the cup-specific penalty-shootout/winner bookkeeping a friendly has no

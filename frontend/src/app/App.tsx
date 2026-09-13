@@ -12,6 +12,7 @@ import { CupPage } from '../features/cup/CupPage'
 import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
 import { FinancesPage } from '../features/finances/FinancesPage'
 import { FriendliesPage } from '../features/friendlies/FriendliesPage'
+import { FriendlyMatchPage } from '../features/friendlies/FriendlyMatchPage'
 import { GroupsPage } from '../features/groups/GroupsPage'
 import { HomePage } from '../features/home/HomePage'
 import { LeaguesPage } from '../features/leagues/LeaguesPage'
@@ -44,6 +45,7 @@ function App() {
                     <Route path="/transfers" element={<TransferMarketPage />} />
                     <Route path="/cup" element={<CupPage />} />
                     <Route path="/friendlies" element={<FriendliesPage />} />
+                    <Route path="/friendlies/:id" element={<FriendlyMatchPage />} />
                     <Route path="/groups" element={<GroupsPage />} />
                     <Route path="/admin" element={<AdminPage />} />
                     <Route path="/leagues" element={<LeaguesPage />} />

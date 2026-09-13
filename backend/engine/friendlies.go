@@ -45,7 +45,11 @@ func SimulateFriendlies(dbCtx *common.DatabaseContext) {
 // result an AI manager needs to react to). Injuries/suspensions still apply via
 // UpdatePlayerAvailability, same as any other simulated match.
 func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMatch) error {
-	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId)
+	lineups, err := common.GetLineupsForFriendly(dbCtx, friendly.MatchId, []int64{friendly.HomeTeamId, friendly.AwayTeamId})
+	if err != nil {
+		return err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups)
 	if err != nil {
 		return err
 	}

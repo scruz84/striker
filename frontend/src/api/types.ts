@@ -587,6 +587,12 @@ export interface FriendlyMatch {
   awayGoals: number
 }
 
+// The admin-configured weekdays a friendly may kick off on (see backend
+// common.GetFriendlyScheduleWeekdays) - same bitmask convention as MatchSchedule.weekdaysMask.
+export interface FriendlySchedule {
+  weekdaysMask: number
+}
+
 export interface Cup {
   cupId: number
   country: string

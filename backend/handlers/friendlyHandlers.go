@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 type ChallengeToFriendlyRequest struct {
@@ -98,7 +100,13 @@ func FriendlyChallengesSentHandler(dbCtx *common.DatabaseContext) gin.HandlerFun
 	}
 }
 
-// AcceptFriendlyChallengeHandler agrees to play a pending challenge made to the caller's team.
+type AcceptFriendlyChallengeRequest struct {
+	Kickoff time.Time `json:"kickoff" binding:"required"`
+}
+
+// AcceptFriendlyChallengeHandler agrees to play a pending challenge made to the caller's team,
+// at the kickoff date/time the accepting manager chose (see common.AcceptFriendlyChallenge for
+// the constraints it must satisfy - far enough ahead, on an allowed weekday).
 func AcceptFriendlyChallengeHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -111,13 +119,18 @@ func AcceptFriendlyChallengeHandler(dbCtx *common.DatabaseContext) gin.HandlerFu
 			c.JSON(http.StatusBadRequest, GetError(0, "invalid challenge id"))
 			return
 		}
+		var req AcceptFriendlyChallengeRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "kickoff is required"))
+			return
+		}
 		team, err := common.GetTeamByOwner(*userId, dbCtx)
 		if err != nil {
 			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
 			return
 		}
 
-		err = common.AcceptFriendlyChallenge(dbCtx, challengeId, team.Id)
+		err = common.AcceptFriendlyChallenge(dbCtx, challengeId, team.Id, req.Kickoff)
 		switch {
 		case err == nil:
 			c.JSON(http.StatusOK, common.HttpResponse{Message: "friendly challenge accepted"})
@@ -125,12 +138,21 @@ func AcceptFriendlyChallengeHandler(dbCtx *common.DatabaseContext) gin.HandlerFu
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrNotChallengeRecipient):
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrFriendlyLimitReached):
+		case errors.Is(err, common.ErrFriendlyLimitReached), errors.Is(err, common.ErrInvalidFriendlyKickoff):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting friendly challenge %d for team %d: %s", challengeId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 		}
+	}
+}
+
+// FriendlyScheduleHandler returns the admin-configured allowed-weekdays bitmask for friendly
+// kickoffs, so the accept-challenge UI can restrict the date/time picker to days that will
+// actually be accepted (see common.GetFriendlyScheduleWeekdays).
+func FriendlyScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"weekdaysMask": common.GetFriendlyScheduleWeekdays(dbCtx)})
 	}
 }
 
@@ -307,5 +329,175 @@ func AdminSetMaxFriendliesPerWeekHandler(dbCtx *common.DatabaseContext) gin.Hand
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "max friendlies per week updated"})
+	}
+}
+
+// errFriendlyTeamNotFound distinguishes "caller has no team" from a real lookup failure below -
+// see writeFriendlyLookupError.
+var errFriendlyTeamNotFound = errors.New("team not found for user")
+
+// loadFriendlyForParticipant fetches one friendly and confirms the caller's team is one of its
+// two teams - shared by the match-detail and lineup handlers, which all need this same check
+// before letting the caller see or change anything about it.
+func loadFriendlyForParticipant(dbCtx *common.DatabaseContext, userId int64, matchId int64) (*common.FriendlyMatch, *common.Team, error) {
+	team, err := common.GetTeamByOwner(userId, dbCtx)
+	if err != nil {
+		return nil, nil, errFriendlyTeamNotFound
+	}
+	match, err := common.GetFriendlyMatchById(dbCtx, matchId)
+	if err != nil {
+		return nil, nil, err
+	}
+	if team.Id != match.HomeTeamId && team.Id != match.AwayTeamId {
+		return nil, nil, common.ErrNotFriendlyParticipant
+	}
+	return match, team, nil
+}
+
+// writeFriendlyLookupError renders the errors loadFriendlyForParticipant can return - shared so
+// the three handlers that call it respond the same way to the same failures.
+func writeFriendlyLookupError(c *gin.Context, matchId int64, err error) {
+	switch {
+	case errors.Is(err, errFriendlyTeamNotFound):
+		c.JSON(http.StatusNotFound, GetError(0, err.Error()))
+	case errors.Is(err, sql.ErrNoRows):
+		c.JSON(http.StatusNotFound, GetError(0, "friendly not found"))
+	case errors.Is(err, common.ErrNotFriendlyParticipant):
+		c.JSON(http.StatusForbidden, GetError(0, err.Error()))
+	default:
+		log.Errorf("error loading friendly %d: %s", matchId, err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+	}
+}
+
+// FriendlyMatchHandler returns one friendly, provided the caller's team is one of its two teams.
+func FriendlyMatchHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+		matchId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid match id"))
+			return
+		}
+		match, _, err := loadFriendlyForParticipant(dbCtx, *userId, matchId)
+		if err != nil {
+			writeFriendlyLookupError(c, matchId, err)
+			return
+		}
+		c.JSON(http.StatusOK, match)
+	}
+}
+
+// GetFriendlyLineupHandler returns the caller's team's saved lineup override for one friendly
+// (see common.GetFriendlyLineup), or its current default lineup if it hasn't saved one yet - the
+// same starting point the editor would show either way.
+func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+		matchId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid match id"))
+			return
+		}
+		_, team, err := loadFriendlyForParticipant(dbCtx, *userId, matchId)
+		if err != nil {
+			writeFriendlyLookupError(c, matchId, err)
+			return
+		}
+
+		lineup, hasOverride, err := common.GetFriendlyLineup(dbCtx, matchId, team.Id)
+		if err != nil {
+			log.Errorf("error getting friendly lineup for match %d team %d: %s", matchId, team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if hasOverride {
+			c.JSON(http.StatusOK, lineup)
+			return
+		}
+
+		// No override saved yet - hand back the team's current default lineup/formation as the
+		// editor's starting point, same shape as the override so the frontend doesn't need to
+		// know which one it got.
+		formation, err := common.GetTeamFormation(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting formation for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		defaultLineup, err := common.GetDefaultLineup(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting default lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		defaultLineup.MatchId = matchId
+		defaultLineup.Formation = formation
+		c.JSON(http.StatusOK, defaultLineup)
+	}
+}
+
+// SetFriendlyLineupHandler saves the caller's team's lineup override for one friendly, after the
+// same formation/roster/availability validation SetLineupHandler applies to the default lineup.
+func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+		matchId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid match id"))
+			return
+		}
+		var req SetLineupRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid lineup payload"))
+			return
+		}
+
+		match, team, err := loadFriendlyForParticipant(dbCtx, *userId, matchId)
+		if err != nil {
+			writeFriendlyLookupError(c, matchId, err)
+			return
+		}
+		if match.Played {
+			c.JSON(http.StatusConflict, GetError(0, common.ErrFriendlyAlreadyPlayed.Error()))
+			return
+		}
+
+		players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		unavailable, err := common.GetUnavailablePlayerIds(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting unavailable players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+
+		if err := common.SetFriendlyLineup(dbCtx, matchId, team.Id, req.Formation, req.Positions); err != nil {
+			log.Errorf("error setting friendly lineup for match %d team %d: %s", matchId, team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "friendly lineup updated"})
 	}
 }

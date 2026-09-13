@@ -15,6 +15,7 @@ import {
   useChallengeToFriendly,
   useFriendlyChallengesReceived,
   useFriendlyChallengesSent,
+  useFriendlySchedule,
   useMe,
   useRecentFriendlies,
   useRejectFriendlyChallenge,
@@ -24,6 +25,17 @@ import {
 } from '../../api/hooks'
 import type { FriendlyChallenge, FriendlyMatch } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
+
+// The minimum lead time backend.AcceptFriendlyChallenge enforces (friendlyScheduleDelay) -
+// mirrored here only to seed a sensible default kickoff value and a client-side `min` on the
+// picker; the backend re-validates regardless.
+const MIN_KICKOFF_LEAD_MINUTES = 5
+
+function defaultKickoffValue(minutesFromNow: number): string {
+  const d = new Date(Date.now() + minutesFromNow * 60 * 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
 
 export function FriendliesPage() {
   const { t } = useTranslation()
@@ -116,6 +128,28 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
   const { t } = useTranslation()
   const acceptChallenge = useAcceptFriendlyChallenge()
   const rejectChallenge = useRejectFriendlyChallenge()
+  const { data: schedule } = useFriendlySchedule(true)
+  const [pickingId, setPickingId] = useState<number | null>(null)
+  const [kickoff, setKickoff] = useState('')
+
+  const startPicking = (challengeId: number) => {
+    setPickingId(challengeId)
+    setKickoff(defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES * 2))
+  }
+
+  const weekdayAllowed = (value: string) => {
+    if (!schedule || !value) return true
+    const day = new Date(value).getDay()
+    return (schedule.weekdaysMask & (1 << day)) !== 0
+  }
+
+  const handleConfirm = (challengeId: number) => {
+    if (!kickoff || !weekdayAllowed(kickoff)) return
+    acceptChallenge.mutate(
+      { challengeId, kickoff: new Date(kickoff).toISOString() },
+      { onSuccess: () => setPickingId(null) },
+    )
+  }
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -129,30 +163,54 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
           {t('friendlies.received.empty')}
         </Typography>
       ) : (
-        <Stack spacing={1}>
+        <Stack spacing={1.5}>
           {challenges.map((c) => (
-            <Stack key={c.challengeId} direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="body2" component={RouterLink} to={`/team/${c.challengerTeamId}`}>
-                {c.challengerTeamName}
-              </Typography>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={() => acceptChallenge.mutate(c.challengeId)}
-                  disabled={acceptChallenge.isPending}
-                >
-                  {t('friendlies.received.accept')}
-                </Button>
-                <Button
-                  size="small"
-                  color="secondary"
-                  onClick={() => rejectChallenge.mutate(c.challengeId)}
-                  disabled={rejectChallenge.isPending}
-                >
-                  {t('friendlies.received.reject')}
-                </Button>
+            <Stack key={c.challengeId} spacing={1}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="body2" component={RouterLink} to={`/team/${c.challengerTeamId}`}>
+                  {c.challengerTeamName}
+                </Typography>
+                {pickingId !== c.challengeId && (
+                  <Stack direction="row" spacing={1}>
+                    <Button size="small" variant="contained" onClick={() => startPicking(c.challengeId)}>
+                      {t('friendlies.received.accept')}
+                    </Button>
+                    <Button
+                      size="small"
+                      color="secondary"
+                      onClick={() => rejectChallenge.mutate(c.challengeId)}
+                      disabled={rejectChallenge.isPending}
+                    >
+                      {t('friendlies.received.reject')}
+                    </Button>
+                  </Stack>
+                )}
               </Stack>
+              {pickingId === c.challengeId && (
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <TextField
+                    size="small"
+                    type="datetime-local"
+                    label={t('friendlies.received.kickoff')}
+                    value={kickoff}
+                    onChange={(e) => setKickoff(e.target.value)}
+                    error={!weekdayAllowed(kickoff)}
+                    helperText={!weekdayAllowed(kickoff) ? t('friendlies.received.kickoffNotAllowed') : ' '}
+                    slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+                  />
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => handleConfirm(c.challengeId)}
+                    disabled={acceptChallenge.isPending || !kickoff || !weekdayAllowed(kickoff)}
+                  >
+                    {t('friendlies.received.confirmKickoff')}
+                  </Button>
+                  <Button size="small" onClick={() => setPickingId(null)}>
+                    {t('friendlies.received.cancel')}
+                  </Button>
+                </Stack>
+              )}
             </Stack>
           ))}
         </Stack>
@@ -231,7 +289,14 @@ function MatchList({
           {matches.map((m) => {
             const isHome = m.homeTeamId === myTeamId
             return (
-              <Stack key={m.matchId} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <Stack
+                key={m.matchId}
+                component={RouterLink}
+                to={`/friendlies/${m.matchId}`}
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+              >
                 <Typography variant="body2" sx={{ flex: 1, fontWeight: isHome ? 600 : 400 }}>
                   {m.homeTeamName}
                 </Typography>

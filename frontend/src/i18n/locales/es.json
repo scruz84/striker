@@ -307,6 +307,10 @@
       "empty": "No hay retos pendientes.",
       "accept": "Aceptar",
       "reject": "Rechazar",
+      "kickoff": "Fecha y hora",
+      "kickoffNotAllowed": "Ese día no está habilitado para amistosos - elige otro.",
+      "confirmKickoff": "Confirmar",
+      "cancel": "Cancelar",
       "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal."
     },
     "sent": {
@@ -321,6 +325,9 @@
     "recent": {
       "title": "Amistosos recientes",
       "empty": "Aún no se ha jugado ningún amistoso."
+    },
+    "lineup": {
+      "title": "Alineación de {{teamName}} para este amistoso"
     }
   },
   "division": {

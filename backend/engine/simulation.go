@@ -8,7 +8,11 @@ import (
 )
 
 func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away)
+	lineups, err := common.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
+	if err != nil {
+		return nil, err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups)
 	if err != nil {
 		return nil, err
 	}
@@ -40,22 +44,19 @@ func recordPlayerMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimul
 	}
 }
 
-// runMatchSimulation builds both teams' lineups/qualifications and runs the full 90-minute
-// simulation pipeline (goals, cards, injuries). It does NOT persist anything - callers decide
-// what to do with the result, since a league match updates classification differently than a
-// cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
+// runMatchSimulation builds both teams' qualifications from the given lineups and runs the full
+// 90-minute simulation pipeline (goals, cards, injuries). It does NOT persist anything - callers
+// decide what to do with the result, since a league match updates classification differently
+// than a cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
 //
-// matchId is used to look up a match-specific lineup override (see common.GetLineupsForMatch)
-// before falling back to the team's default lineup. Nothing in this codebase currently ever
-// sets such an override (InsertLineup always targets default_lineup_positions regardless of
-// its asDefault parameter), so passing a cup tie's id here - drawn from a different id
-// sequence than real matches - is safe today, but would stop being safe if that ever changes.
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64) (*common.MatchSimulation, error) {
-	lineups, err := common.GetLineupsForMatch(dbCtx, matchId, &[]int64{homeTeamId, awayTeamId})
-	if err != nil {
-		return nil, err
-	}
-
+// lineups is resolved by the caller rather than looked up here, so each match kind can use its
+// own resolution: simulateMatch/simulateCupTie both use common.GetLineupsForMatch (a
+// match-specific override, keyed to matches(match_id), falling back to the team's default
+// lineup - nothing currently ever sets such an override, so a cup tie's id here, drawn from a
+// different id sequence than real matches, is safe today but would stop being safe if that ever
+// changed), while simulateFriendly uses common.GetLineupsForFriendly - its own tables, entirely
+// separate from the competitive-match id space.
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup) (*common.MatchSimulation, error) {
 	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
 	if err != nil {
 		return nil, err

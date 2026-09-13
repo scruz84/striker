@@ -185,7 +185,11 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 }
 
 func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
-	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId)
+	lineups, err := common.GetLineupsForMatch(dbCtx, tie.TieId, &[]int64{*tie.HomeTeamId, *tie.AwayTeamId})
+	if err != nil {
+		return err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups)
 	if err != nil {
 		return err
 	}
