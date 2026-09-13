@@ -1,0 +1,13 @@
+-- Lowers the starting budget for newly created teams from 1000000 to 400000 (see PR #25's commit
+-- message for the full calibration study). Editing init.sql's CREATE TABLE text only affects a
+-- brand-new database - an already-existing teams table keeps whatever DEFAULT it was created
+-- with regardless, since a column default is fixed in the catalog at creation time, not re-read
+-- from the script (issue #28: InitializeGame only deletes and recreates rows, never re-runs
+-- table DDL, so every "freshly reinitialized" team on an existing database kept getting the old
+-- 1000000 default no matter how many times the game was reset). Naturally idempotent - re-running
+-- this just reasserts the same default - so safe for EnsureSchema to reapply on every startup
+-- along with every other numbered migration.
+--
+-- Existing teams' current budgets are deliberately left untouched: this only changes what a
+-- newly inserted team gets from here on.
+ALTER TABLE teams ALTER COLUMN budget SET DEFAULT 400000;
