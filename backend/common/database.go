@@ -906,12 +906,20 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 		return nil, err
 	}
 
-	// A squad's wages and contract terms are the owning manager's business, not any visitor's -
-	// see Player.RedactFinancials. Only reached for someone else's team; GetFullTeamDetailsByUser
-	// (the caller's own team) always passes isOwner true.
+	// A squad's wages, contract terms, and skill ratings are the owning manager's business, not
+	// any visitor's - see Player.RedactFinancials/RedactSkills. Only reached for someone else's
+	// team; GetFullTeamDetailsByUser (the caller's own team) always passes isOwner true. A player
+	// this team has put up for transfer is the one exception to the skill redaction - a
+	// prospective buyer needs to see what they'd actually be signing (a rostered player is never
+	// a free agent, so that exemption never applies here, unlike in RedactSkills' other callers).
 	if !isOwner {
+		listedPlayerIds, err := GetTransferListedPlayerIdsForTeam(dbCtx, teamId)
+		if err != nil {
+			return nil, err
+		}
 		for _, p := range *players {
 			p.RedactFinancials()
+			p.RedactSkills(listedPlayerIds[p.Id])
 		}
 	}
 

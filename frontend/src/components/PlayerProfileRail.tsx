@@ -26,12 +26,19 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 export function PlayerProfileRail({
   player,
   canSeeFinancials = true,
+  canSeeSkills = true,
 }: {
   player: PlayerDetails
   /** Whether the viewer may see this player's wage and contract length - false when someone else
    * owns this player's team (see PlayerDetailsPage). Defaults true for other callers (e.g. the
    * squad page's own PlayerRow, which already gates the whole component by team ownership). */
   canSeeFinancials?: boolean
+  /** Whether the viewer may see this player's skill ratings/traits/best position - false when
+   * someone else owns this player's team and hasn't listed them for transfer (see
+   * PlayerDetailsPage and the backend's common.Player.RedactSkills, which zeroes the underlying
+   * fields for the same case, so this only decides whether to render them). Defaults true for
+   * other callers, same reasoning as canSeeFinancials. */
+  canSeeSkills?: boolean
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -39,75 +46,83 @@ export function PlayerProfileRail({
   const overall = overallRating(player)
   const ringColor = ratingTierColor(overall, theme.palette)
 
-  const traits: Array<{ key: string; label: string }> = [
-    player.header && { key: 'header', label: t('playerCard.traits.aerial') },
-    player.quick && { key: 'quick', label: t('playerCard.traits.pace') },
-    player.creative && { key: 'creative', label: t('playerCard.traits.creative') },
-    player.technical && { key: 'technical', label: t('playerCard.traits.technical') },
-  ].filter((trait): trait is { key: string; label: string } => !!trait)
+  const traits: Array<{ key: string; label: string }> = canSeeSkills
+    ? [
+        player.header && { key: 'header', label: t('playerCard.traits.aerial') },
+        player.quick && { key: 'quick', label: t('playerCard.traits.pace') },
+        player.creative && { key: 'creative', label: t('playerCard.traits.creative') },
+        player.technical && { key: 'technical', label: t('playerCard.traits.technical') },
+      ].filter((trait): trait is { key: string; label: string } => !!trait)
+    : []
 
   return (
     <Paper variant="outlined" sx={{ p: 2.5 }}>
       <Stack spacing={1.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
         <Box sx={{ position: 'relative', width: RING_SIZE, height: RING_SIZE }}>
-          <svg
-            width={RING_SIZE}
-            height={RING_SIZE}
-            style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
-          >
-            <circle
-              cx={RING_SIZE / 2}
-              cy={RING_SIZE / 2}
-              r={RING_RADIUS}
-              fill="none"
-              stroke={theme.palette.action.hover}
-              strokeWidth={RING_STROKE}
-            />
-            <circle
-              cx={RING_SIZE / 2}
-              cy={RING_SIZE / 2}
-              r={RING_RADIUS}
-              fill="none"
-              stroke={ringColor}
-              strokeWidth={RING_STROKE}
-              strokeLinecap="round"
-              strokeDasharray={RING_CIRCUMFERENCE}
-              strokeDashoffset={RING_CIRCUMFERENCE * (1 - overall / 100)}
-            />
-          </svg>
+          {canSeeSkills && (
+            <svg
+              width={RING_SIZE}
+              height={RING_SIZE}
+              style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
+            >
+              <circle
+                cx={RING_SIZE / 2}
+                cy={RING_SIZE / 2}
+                r={RING_RADIUS}
+                fill="none"
+                stroke={theme.palette.action.hover}
+                strokeWidth={RING_STROKE}
+              />
+              <circle
+                cx={RING_SIZE / 2}
+                cy={RING_SIZE / 2}
+                r={RING_RADIUS}
+                fill="none"
+                stroke={ringColor}
+                strokeWidth={RING_STROKE}
+                strokeLinecap="round"
+                strokeDasharray={RING_CIRCUMFERENCE}
+                strokeDashoffset={RING_CIRCUMFERENCE * (1 - overall / 100)}
+              />
+            </svg>
+          )}
           <Box sx={{ position: 'absolute', inset: 0, borderRadius: '50%', overflow: 'hidden' }}>
             <CartoonAvatar seed={player.id} size={RING_SIZE} />
           </Box>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: -4,
-              right: -4,
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              bgcolor: ringColor,
-              color: theme.palette.getContrastText(ringColor),
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              border: `2px solid ${theme.palette.background.paper}`,
-            }}
-            title={t('playerCard.overall')}
-          >
-            {overall}
-          </Box>
+          {canSeeSkills && (
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: -4,
+                right: -4,
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: ringColor,
+                color: theme.palette.getContrastText(ringColor),
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                border: `2px solid ${theme.palette.background.paper}`,
+              }}
+              title={t('playerCard.overall')}
+            >
+              {overall}
+            </Box>
+          )}
         </Box>
 
         <Box>
           <Typography variant="h6" component="h1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
             {player.firstName} {player.lastName}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {t(POSITION_LABEL_KEYS[player.bestPosition])}
-          </Typography>
+          {canSeeSkills && (
+            <Typography variant="body2" color="text.secondary">
+              {t(POSITION_LABEL_KEYS[player.bestPosition])}
+            </Typography>
+          )}
         </Box>
 
         {isFreeAgent && <Chip size="small" label={t('playerPage.freeAgent')} />}

@@ -80,6 +80,19 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.History = history
 		}
 
+		// A rostered player's skill ratings are likewise only the owning team's business, unless
+		// this specific player has been put on the transfer market (details.PlayerStatus was
+		// already populated above, so TransferListingAskingPrice reflects that without another
+		// query) - a prospective buyer needs to see what they'd be signing. Free agents are exempt
+		// too, but RedactSkills already handles that case itself.
+		if !isOwner {
+			transferListed := details.TransferListingAskingPrice != nil
+			details.RedactSkills(transferListed)
+			if player.TeamId != 0 && !transferListed {
+				details.BestPosition = 0
+			}
+		}
+
 		c.JSON(http.StatusOK, details)
 	}
 }

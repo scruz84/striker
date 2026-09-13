@@ -158,6 +158,31 @@ func (p *Player) RedactFinancials() {
 	p.ContractYearsRemaining = 0
 }
 
+// RedactSkills zeroes every attribute that reveals a player's quality (the seven core ratings
+// plus the four boolean traits) unless at least one of three things is true: the player is a
+// free agent (TeamId == 0 - a prospective signer needs to see exactly what they'd be getting),
+// transferListed is true (the selling club put this specific player up for transfer, so a buyer
+// needs the same information), or the caller already knows the viewer owns this player's team and
+// simply never calls RedactSkills at all (see GetTeamDetailsById and handlers.
+// PlayerDetailsHandler, both of which skip this call entirely for isOwner - RedactSkills only
+// ever runs on the "someone else's rostered player" path).
+func (p *Player) RedactSkills(transferListed bool) {
+	if p.TeamId == 0 || transferListed {
+		return
+	}
+	p.GoalKeeper = 0
+	p.Defense = 0
+	p.Lateral = 0
+	p.Pass = 0
+	p.Midfield = 0
+	p.Dribbling = 0
+	p.Shot = 0
+	p.Header = false
+	p.Quick = false
+	p.Creative = false
+	p.Technical = false
+}
+
 // TeamTransaction is one entry in a team's financial ledger.
 type TeamTransaction struct {
 	Id          int64     `json:"id"`

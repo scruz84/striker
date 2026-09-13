@@ -33,16 +33,23 @@ export function PlayerDetailsPage() {
   // this only decides whether to render the sections at all. A free agent (teamId 0) has no
   // current team to protect that information for, same reasoning as the transfer market listing.
   const canSeeFinancials = player.teamId === 0 || userTeam?.team.id === player.teamId
+  // A rostered player's skill ratings are likewise the owning manager's business, unless this
+  // specific player is listed on the transfer market - the backend already zeroes the underlying
+  // fields for anyone else (see common.Player.RedactSkills), so this just decides whether the
+  // attribute panel/traits are worth rendering at all rather than showing an all-zero radar chart.
+  const canSeeSkills = canSeeFinancials || player.transferListingAskingPrice !== undefined
 
   return (
     <Stack spacing={2}>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <PlayerProfileRail player={player} canSeeFinancials={canSeeFinancials} />
+          <PlayerProfileRail player={player} canSeeFinancials={canSeeFinancials} canSeeSkills={canSeeSkills} />
         </Grid>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <PlayerAttributesPanel player={player} />
-        </Grid>
+        {canSeeSkills && (
+          <Grid size={{ xs: 12, md: 8 }}>
+            <PlayerAttributesPanel player={player} />
+          </Grid>
+        )}
       </Grid>
 
       {canSeeFinancials && (

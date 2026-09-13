@@ -74,6 +74,30 @@ func IsPlayerTransferListed(dbCtx *DatabaseContext, playerId int64) (bool, error
 	return err == nil, err
 }
 
+const GetTransferListedPlayerIdsForTeamStmtSql = "SELECT player_id FROM transfer_listings WHERE selling_team_id = $1"
+
+// GetTransferListedPlayerIdsForTeam returns the set of teamId's own players currently listed for
+// transfer, keyed by player_id - one query to check an entire squad at once (see
+// GetTeamDetailsById's per-player skill redaction) instead of the N+1 that IsPlayerTransferListed
+// would need called once per player.
+func GetTransferListedPlayerIdsForTeam(dbCtx *DatabaseContext, teamId int64) (map[int64]bool, error) {
+	rows, err := dbCtx.Db.Query(GetTransferListedPlayerIdsForTeamStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	listed := make(map[int64]bool)
+	for rows.Next() {
+		var playerId int64
+		if err := rows.Scan(&playerId); err != nil {
+			return nil, err
+		}
+		listed[playerId] = true
+	}
+	return listed, rows.Err()
+}
+
 // CreateTransferListing lists a player for transfer at a fixed asking price - there's no
 // bidding/offer negotiation, any other team can buy it outright. Returns
 // ErrPlayerAlreadyListed if the player already has an active listing (enforced by a unique
