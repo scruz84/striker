@@ -97,30 +97,33 @@ func teamPlayerDependentTables() []string {
 }
 
 func InitializeGame(dbCtx *common.DatabaseContext) error {
+	log.Info("initialize: wiping existing game data")
 	tables := append([]string{"notifications"}, teamPlayerDependentTables()...)
 	tables = append(tables, "teams", "leagues", "users", "countries", "season")
 	if err := deleteTables(dbCtx, tables); err != nil {
 		return err
 	}
 
-	//season
+	log.Info("initialize: creating season")
 	createSeason(dbCtx)
 	// See engine.ResetCurrentSeasonCache - without this, a season number cached from a previous
 	// run (most plausible with an external Redis instance kept across a database reset) would
 	// silently outlive the reset, and GenerateMatches below would tag fresh fixtures with it.
 	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
-	//countries
+	log.Info("initialize: creating countries")
 	countries := createCountriesList(dbCtx, seededCountries)
 
-	//create teams and leagues
+	log.Info("initialize: creating leagues, teams, and players - this is the slow part, one country at a time")
 	createTeams(dbCtx, countries, common.GetWorldConfig(dbCtx))
 
-	//create matches
+	log.Info("initialize: generating this season's match fixtures")
 	engine.GenerateMatches(dbCtx)
 
-	//create the first season's cups
+	log.Info("initialize: starting this season's cups")
 	engine.StartCupsForNewSeason(dbCtx, 1)
+
+	log.Info("initialize: done")
 	return nil
 }
 
@@ -146,6 +149,7 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 		return err
 	}
 
+	log.Info("recreate-leagues: wiping existing leagues/teams/players/matches")
 	// See InitializeGame's teamPlayerDependentTables doc comment - this is exactly the foreign
 	// key violation that used to abort the "teams" delete partway through, silently leaving a
 	// half-wiped world (issue #7, and again as issue #26 once newer tables joined the dependency
@@ -164,16 +168,21 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 	// See engine.ResetCurrentSeasonCache and InitializeGame's own call to it above.
 	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
+	log.Info("recreate-leagues: creating leagues, teams, and players - this is the slow part, one country at a time")
 	createTeams(dbCtx, activeCountries, common.GetWorldConfig(dbCtx))
 
+	log.Info("recreate-leagues: generating this season's match fixtures")
 	engine.GenerateMatches(dbCtx)
+	log.Info("recreate-leagues: starting this season's cups")
 	engine.StartCupsForNewSeason(dbCtx, 1)
 
+	log.Infof("recreate-leagues: assigning fresh teams to %d existing user(s)", len(users))
 	for _, u := range users {
 		if _, err := common.AssignTeam(dbCtx, u.UserId, u.Country); err != nil {
 			log.Errorf("recreate-leagues: failed to assign a fresh team to user %d (%s): %s", u.UserId, u.Country, err)
 		}
 	}
+	log.Info("recreate-leagues: done")
 	return nil
 }
 
@@ -193,7 +202,7 @@ func randomSeededCountry() string {
 // leagues recreate that keeps whichever countries were already active (see
 // RecreateLeaguesKeepingUsers).
 func createCountriesList(dbCtx *common.DatabaseContext, codes []string) []string {
-	log.Debug("initializing countries")
+	log.Infof("initializing %d countries: %v", len(codes), codes)
 	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO countries (name) values ($1) returning country_id")
 	if errInsert != nil {
 		log.Printf("error inserting new countries %s", errInsert)
@@ -220,7 +229,7 @@ func createSeason(dbCtx *common.DatabaseContext) {
 }
 
 func createLeague(dbCtx *common.DatabaseContext, country string, name string, tier int, groups int) []int64 {
-	log.Debugf("initializing country %s league %s tier %d with groups %d", country, name, tier, groups)
+	log.Infof("initializing country %s league %s tier %d with %d group(s)", country, name, tier, groups)
 
 	leagues := make([]int64, 0)
 	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name, tier) " +
@@ -243,8 +252,8 @@ func createLeague(dbCtx *common.DatabaseContext, country string, name string, ti
 // common.GetWorldConfig) - tier 1 is the top division, each tier below it splits into more
 // groups; see engine.ComputePromotionRelegation for how teams move between them.
 func createTeams(dbCtx *common.DatabaseContext, countries []string, tiers []common.TierConfig) {
-	log.Debug("initializing teams")
-	for _, country := range countries {
+	for i, country := range countries {
+		log.Infof("creating leagues and teams for country %s (%d/%d)", country, i+1, len(countries))
 		createCountryLeagues(dbCtx, country, tiers)
 	}
 }
