@@ -20,11 +20,10 @@ export function SoccerPitch({ counts, getPlayer }: SoccerPitchProps) {
   const slots = layoutPitchSlots(counts, true)
   return (
     <PitchField half>
-      {slots.map((slot, index) => (
+      {slots.map((slot) => (
         <PitchSlotView
           key={`${slot.position}-${slot.slotIndex}`}
           slot={slot}
-          shirtNumber={index + 1}
           player={getPlayer(slot.position, slot.slotIndex)}
         />
       ))}
@@ -32,7 +31,7 @@ export function SoccerPitch({ counts, getPlayer }: SoccerPitchProps) {
   )
 }
 
-function PitchSlotView({ slot, player, shirtNumber }: { slot: PitchSlot; player?: Player; shirtNumber: number }) {
+function PitchSlotView({ slot, player }: { slot: PitchSlot; player?: Player }) {
   const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({
     id: `slot-${slot.position}-${slot.slotIndex}`,
@@ -42,7 +41,7 @@ function PitchSlotView({ slot, player, shirtNumber }: { slot: PitchSlot; player?
   return (
     <PitchSlotPosition ref={setNodeRef} x={slot.x} y={slot.y} pitchHeight={PITCH_HEIGHT_HALF}>
       {player ? (
-        <DraggablePlayerChip player={player} variant="field" shirtNumber={shirtNumber} />
+        <DraggablePlayerChip player={player} variant="field" />
       ) : (
         <Box
           sx={{

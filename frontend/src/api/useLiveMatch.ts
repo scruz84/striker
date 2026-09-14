@@ -35,11 +35,28 @@ const initialState: LiveMatchState = {
 const maxReconnectAttempts = 5
 const reconnectDelayMs = 3000
 
+// maxLiveBroadcastWindowMs generously bounds how long after kickoff a match's live broadcast
+// (~90 real minutes - see liveMatchMinuteDelay in backend/engine/livematch.go - plus whatever lag
+// the scheduler has before it even starts simulating) could still be in progress. Callers use
+// this to decide whether it's worth opening a live connection at all for a match the REST data
+// already reports as played: `played` flips true in the DB the instant the match is simulated,
+// well before its broadcast finishes pacing out to viewers, so a viewer checking in any time in
+// that window still needs the live view, not the long-finished-match view (issue #37) - but a
+// match played hours or days ago has certainly finished broadcasting, so there's no point
+// connecting a websocket just to be told "complete" immediately (which the backend does handle
+// correctly either way - see serveLiveMatch - this is purely to skip the pointless round trip).
+const maxLiveBroadcastWindowMs = 2 * 60 * 60 * 1000
+
+export function mightStillBeLive(matchDate: string): boolean {
+  return Date.now() - new Date(matchDate).getTime() < maxLiveBroadcastWindowMs
+}
+
 // useLiveMatch opens a WebSocket to one of the backend's live match/cup-tie endpoints (see
 // backend/handlers/liveMatchHandlers.go) and accumulates its messages into a running score,
-// minute, and event list. Connecting to a match that's already finished gets a single
-// "complete" message back with the final score - `complete` flips true either way, so callers
-// can use it as the signal to switch over to the regular (REST) match details view.
+// minute, and event list. Connecting to a match whose broadcast has already finished gets caught
+// up on everything published so far in one quick burst, ending in a "complete" message with the
+// final score - `complete` flips true either way, so callers can use it as the signal to switch
+// over to the regular (REST) match details view.
 //
 // State is not reset when `path` changes - callers that render this for different matches over
 // the lifetime of one component (there are none in this app today) should mount it under a

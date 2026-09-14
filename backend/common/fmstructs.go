@@ -147,6 +147,10 @@ type Player struct {
 	// unassigned by AssignTeam reassigning a CPU squad rather than a real release.
 	FreeAgentSeasons int   `json:"freeAgentSeasons,omitempty"`
 	LastTeamId       int64 `json:"lastTeamId,omitempty"`
+	// ShirtNumber is 0 for a player with none assigned yet (an academy prospect not yet promoted,
+	// or a free agent - see common.nextFreeShirtNumber, assigned whenever a player joins a team's
+	// senior roster and cleared whenever they leave it).
+	ShirtNumber int `json:"shirtNumber,omitempty"`
 }
 
 // RedactFinancials zeroes the wage and contract terms of a player who currently belongs to a

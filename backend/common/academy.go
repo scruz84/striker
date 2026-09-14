@@ -101,7 +101,7 @@ func createCanteraProspects(dbCtx *DatabaseContext, teamId int64, count int, tra
 
 const GetLastAcademyPromotionStmtSql = "SELECT last_academy_promotion_at FROM teams WHERE team_id = $1"
 const SetLastAcademyPromotionStmtSql = "UPDATE teams SET last_academy_promotion_at = $1 WHERE team_id = $2"
-const PromotePlayerFromAcademyStmtSql = "UPDATE players SET in_academy = false, wage = $1, contract_years_remaining = $2 WHERE player_id = $3"
+const PromotePlayerFromAcademyStmtSql = "UPDATE players SET in_academy = false, wage = $1, contract_years_remaining = $2, shirt_number = $3 WHERE player_id = $4"
 const GetPlayerAcademyOwnershipForUpdateStmtSql = "SELECT team_id, in_academy FROM players WHERE player_id = $1 " + ForUpdate
 
 // CanPromoteFromAcademy reports whether teamId's weekly academy promotion is still available,
@@ -168,7 +168,11 @@ func PromoteFromAcademy(dbCtx *DatabaseContext, playerId int64, teamId int64) er
 		player.Midfield, player.Dribbling, player.Shot)
 	contractYears := RandomContractYears()
 
-	if _, err := tx.Exec(PromotePlayerFromAcademyStmtSql, wage, contractYears, playerId); err != nil {
+	shirtNumber, err := nextFreeShirtNumber(tx, teamId)
+	if err != nil {
+		return err
+	}
+	if _, err := tx.Exec(PromotePlayerFromAcademyStmtSql, wage, contractYears, shirtNumber, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(SetLastAcademyPromotionStmtSql, time.Now(), teamId); err != nil {

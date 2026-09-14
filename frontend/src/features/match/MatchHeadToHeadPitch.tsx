@@ -52,7 +52,7 @@ function renderTeamSlots(
     playerIdBySlot.set(`${pos.position}-${slotIndexWithinPosition(lineup, pos)}`, pos.playerId)
   }
 
-  return slots.map((slot, index) => {
+  return slots.map((slot) => {
     const playerId = playerIdBySlot.get(`${slot.position}-${slot.slotIndex}`)
     const player = playerId !== undefined ? players[String(playerId)] : undefined
     return (
@@ -63,7 +63,7 @@ function renderTeamSlots(
         pitchHeight={PITCH_HEIGHT_HEAD_TO_HEAD}
       >
         {player ? (
-          <MatchPitchChip player={player} shirtNumber={index + 1} />
+          <MatchPitchChip player={player} />
         ) : (
           <Box
             sx={{

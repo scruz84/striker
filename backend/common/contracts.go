@@ -42,6 +42,8 @@ var ErrPlayerNotFree = errors.New("player is not a free agent")
 var ErrPlayerNotOwnedByTeam = errors.New("player does not belong to your team")
 var ErrInvalidRenewalOffer = errors.New("renewal offer must be a positive wage for 1 to " + strconv.Itoa(MaxContractYearsRemaining) + " seasons")
 
+// shirt_number isn't selected here - a free agent has none (team_id IS NULL implies it), so
+// Player.ShirtNumber's zero value is already the right answer.
 const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
 	"free_agent_seasons, COALESCE(last_team_id, 0) " +
@@ -54,14 +56,16 @@ const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day
 const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years_remaining FROM players WHERE player_id = $1 " + ForUpdate
 
 // free_agent_seasons resets to 0 on signing - see engine.ProgressFreeAgents, which increments it
-// once per season a player stays unsigned, and AdvanceFreeAgencyClock's doc comment.
-const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0 WHERE player_id = $4"
+// once per season a player stays unsigned, and AdvanceFreeAgencyClock's doc comment. shirt_number
+// is assigned by the caller (see nextFreeShirtNumber) - a free agent has none to carry over.
+const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0, shirt_number = $4 WHERE player_id = $5"
 const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
 
 // ReleaseFromTeamStmtSql captures the releasing club into last_team_id before clearing team_id -
 // see SignFreeAgent, which charges that club a transfer premium if this player is re-signed
-// within their first season of free agency.
-const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0 WHERE player_id = $1"
+// within their first season of free agency. shirt_number is cleared too - it belonged to the
+// team the player is leaving, not to them (issue #42).
+const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0, shirt_number = NULL WHERE player_id = $1"
 
 // GetFreeAgents returns every unowned player, best-skilled first - both those released after
 // their contract expired (see AdvancePlayerContract) and any player orphaned by
@@ -197,7 +201,11 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 		}
 	}
 
-	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, playerId); err != nil {
+	shirtNumber, err := nextFreeShirtNumber(tx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, shirtNumber, playerId); err != nil {
 		return nil, err
 	}
 

@@ -29,6 +29,7 @@
     "nav": {
       "dashboard": "Panel",
       "squad": "Plantilla",
+      "matches": "Partidos",
       "lineup": "Alineación",
       "finances": "Finanzas",
       "transferMarket": "Mercado de fichajes",

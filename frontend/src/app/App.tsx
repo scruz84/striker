@@ -22,6 +22,7 @@ import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
 import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
 import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
+import { TeamMatchesPage } from '../features/team/TeamMatchesPage'
 import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
 import { Layout } from './Layout'
 import { queryClient } from './queryClient'
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/division/:id" element={<DivisionDetailsPage />} />
                     <Route path="/match/:id" element={<MatchDetailsPage />} />
                     <Route path="/team/:id" element={<TeamDetailsPage />} />
+                    <Route path="/team/:id/matches" element={<TeamMatchesPage />} />
                     <Route path="/player/:id" element={<PlayerDetailsPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/onboarding" element={<SelectCountryPage />} />

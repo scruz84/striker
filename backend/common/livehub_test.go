@@ -151,6 +151,45 @@ func TestLiveMatchHub_MultipleSubscribersAllReceive(t *testing.T) {
 	}
 }
 
+func TestLiveMatchHub_HistoryReturnsPublishedMessagesInOrder(t *testing.T) {
+	hub := liveHubForTest(t)
+	channel := LeagueMatchChannel(3)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel)) })
+
+	hub.Publish(channel, LiveMatchMessage{Type: "instant", HomeGoals: 0, AwayGoals: 0})
+	hub.Publish(channel, LiveMatchMessage{Type: "event", Event: &Event{Minute: 5}})
+	hub.Publish(channel, LiveMatchMessage{Type: "complete", HomeGoals: 1, AwayGoals: 0})
+
+	history := hub.History(channel)
+	if len(history) != 3 {
+		t.Fatalf("expected 3 history messages, got %d: %+v", len(history), history)
+	}
+	if history[0].Type != "instant" || history[1].Type != "event" || history[2].Type != "complete" {
+		t.Fatalf("history messages out of order: %+v", history)
+	}
+}
+
+func TestLiveMatchHub_HistoryCatchesUpALateSubscriber(t *testing.T) {
+	hub := liveHubForTest(t)
+	channel := LeagueMatchChannel(4)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel)) })
+
+	// Published before anyone ever subscribes - a plain pub/sub subscriber would never see this,
+	// but History must still surface it so a late-connecting viewer can be caught up (see
+	// handlers.serveLiveMatch).
+	hub.Publish(channel, LiveMatchMessage{Type: "instant", HomeGoals: 3})
+
+	ch, unsubscribe := hub.Subscribe(channel)
+	defer unsubscribe()
+	time.Sleep(100 * time.Millisecond)
+	assertNoMessage(t, ch)
+
+	history := hub.History(channel)
+	if len(history) != 1 || history[0].HomeGoals != 3 {
+		t.Fatalf("expected history to contain the earlier publish, got: %+v", history)
+	}
+}
+
 func TestLiveMatchHub_HasSubscribersReflectsSubscriptionState(t *testing.T) {
 	hub := liveHubForTest(t)
 	channel := LeagueMatchChannel(2)

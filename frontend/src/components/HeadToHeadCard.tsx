@@ -5,6 +5,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useHeadToHead } from '../api/hooks'
+import { TeamNameLink } from './TeamNameLink'
 import { formatDateTime } from '../utils/formatDate'
 
 interface HeadToHeadCardProps {
@@ -54,12 +55,15 @@ export function HeadToHeadCard({ teamAId, teamAName, teamBId, teamBName }: HeadT
       <Stack spacing={0.5}>
         {data.meetings.map((meeting) => {
           const homeIsTeamA = meeting.homeTeamId === teamAId
+          const homeId = homeIsTeamA ? teamAId : teamBId
           const homeName = homeIsTeamA ? teamAName : teamBName
+          const awayId = homeIsTeamA ? teamBId : teamAId
           const awayName = homeIsTeamA ? teamBName : teamAName
           return (
             <Box key={meeting.matchId} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
               <Typography variant="body2">
-                {homeName} {meeting.homeGoals} - {meeting.awayGoals} {awayName}
+                <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink> {meeting.homeGoals} - {meeting.awayGoals}{' '}
+                <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {formatDateTime(meeting.matchDate)}

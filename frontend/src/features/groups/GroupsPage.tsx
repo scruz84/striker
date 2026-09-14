@@ -29,6 +29,7 @@ import {
   useMyGroups,
 } from '../../api/hooks'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 
 export function GroupsPage() {
@@ -202,7 +203,9 @@ function GroupLeaderboard({ groupId, onLeave }: { groupId: number; onLeave: () =
                     <Chip size="small" label={t('groups.you')} sx={{ ml: 1 }} />
                   )}
                 </TableCell>
-                <TableCell>{member.teamName || '-'}</TableCell>
+                <TableCell>
+                  {member.teamId !== null ? <TeamNameLink teamId={member.teamId}>{member.teamName}</TeamNameLink> : '-'}
+                </TableCell>
                 <TableCell>{member.leagueName || '-'}</TableCell>
                 <TableCell align="right">{member.budget !== null ? formatCurrency(member.budget) : '-'}</TableCell>
               </TableRow>

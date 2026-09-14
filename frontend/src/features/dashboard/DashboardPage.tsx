@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { useDivisionDetails, useFinances, useMe, useRenameTeam, useUserTeam } from '../../api/hooks'
 import type { ClassificationPosition, Team, WeekMatch } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { SeasonRecap } from './SeasonRecap'
@@ -146,7 +147,7 @@ function OpponentLine({ match, teamId }: { match: WeekMatch; teamId: number }) {
       <TeamBadge teamId={opponentId} teamName={opponentName} size={32} />
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-          {opponentName}
+          <TeamNameLink teamId={opponentId}>{opponentName}</TeamNameLink>
         </Typography>
         <Typography variant="caption" color="text.secondary">
           {isHome ? t('dashboard.home') : t('dashboard.away')}

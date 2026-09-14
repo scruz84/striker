@@ -16,6 +16,7 @@ import {
   type MatchEvent,
 } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { commentaryFor } from '../../utils/matchCommentary'
 
 // Shared by the league match details page and the friendly match page - a live or played
@@ -78,7 +79,7 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
             <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <TeamBadge teamId={homeId} teamName={homeName} size={badgeSize} />
               <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
-                {homeName}
+                <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
               </Typography>
             </Stack>
           </Box>
@@ -96,7 +97,7 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
             <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <TeamBadge teamId={awayId} teamName={awayName} size={badgeSize} />
               <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
-                {awayName}
+                <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
               </Typography>
             </Stack>
           </Box>

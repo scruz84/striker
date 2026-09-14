@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
 import type { FriendlyMatch, Player, Team } from '../../api/types'
-import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { formatDateTime } from '../../utils/formatDate'
@@ -18,13 +18,26 @@ export function FriendlyMatchPage() {
   const { data: match, isLoading } = useFriendlyMatch(id)
   const { data: loggedUser } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
+  const [liveComplete, setLiveComplete] = useState(false)
+  const handleLiveComplete = useCallback(() => setLiveComplete(true), [])
 
   if (isLoading || !match) {
     return <Skeleton variant="rectangular" height={200} />
   }
 
-  if (!match.played) {
-    return <LiveFriendly id={id} match={match} team={userTeam?.team} players={userTeam?.players} />
+  // Show the live view whenever the broadcast might still be going, and stick with it until the
+  // broadcast itself reports completion via onComplete - see MatchDetailsPage's identical
+  // reasoning (issue #37).
+  if ((!match.played || mightStillBeLive(match.matchDate)) && !liveComplete) {
+    return (
+      <LiveFriendly
+        id={id}
+        match={match}
+        team={userTeam?.team}
+        players={userTeam?.players}
+        onComplete={handleLiveComplete}
+      />
+    )
   }
 
   return (
@@ -46,11 +59,13 @@ function LiveFriendly({
   match,
   team,
   players,
+  onComplete,
 }: {
   id: string | undefined
   match: FriendlyMatch
   team?: Team
   players?: Player[]
+  onComplete: () => void
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -64,8 +79,9 @@ function LiveFriendly({
   useEffect(() => {
     if (live.complete && id) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyMatch(id) })
+      onComplete()
     }
-  }, [live.complete, id, queryClient])
+  }, [live.complete, id, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

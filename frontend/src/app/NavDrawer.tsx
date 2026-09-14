@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
 import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone'
+import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone'
 import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
@@ -49,7 +50,14 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
   const items: NavItem[] = [
     { to: '/dashboard', label: t('header.nav.dashboard'), icon: <DashboardTwoToneIcon /> },
     ...(userTeam
-      ? [{ to: `/team/${userTeam.team.id}`, label: t('header.nav.squad'), icon: <PersonTwoToneIcon /> }]
+      ? [
+          { to: `/team/${userTeam.team.id}`, label: t('header.nav.squad'), icon: <PersonTwoToneIcon /> },
+          {
+            to: `/team/${userTeam.team.id}/matches`,
+            label: t('header.nav.matches'),
+            icon: <CalendarMonthTwoToneIcon />,
+          },
+        ]
       : []),
     { to: '/dashboard/lineup', label: t('header.nav.lineup'), icon: <SportsSoccerTwoToneIcon /> },
     { to: '/transfers', label: t('header.nav.transferMarket'), icon: <SwapHorizTwoToneIcon /> },

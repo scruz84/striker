@@ -70,7 +70,8 @@ const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHER
 // players; a prospect only joins this list once actually promoted (see PromoteFromAcademy). See
 // GetCantera for the separate query that lists a team's current academy pool instead.
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
+	"COALESCE(shirt_number, 0) " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1 AND p.in_academy = false"
 
@@ -117,8 +118,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)"
+	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -140,7 +141,7 @@ const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 // guessing one, and deliberately doesn't touch `teams` at all - AssignTeam only runs once a
 // country is chosen.
 const RegisterPendingUserStmtSql = "INSERT INTO users (name, provider, email) VALUES ($1, $2, $3) returning user_id"
-const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL WHERE team_id = $1"
+const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL, shirt_number = NULL WHERE team_id = $1"
 
 // Resets name_changed to false alongside the fresh name - a newly assigned owner gets their own
 // one-time rename, regardless of whether a previous owner had already used theirs.
@@ -280,14 +281,78 @@ func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team
 		DivisionName: divName}, nil
 }
 
+// shirtNumberQueryer is satisfied by both *sql.DB and *sql.Tx, so nextFreeShirtNumber(s) work
+// either standalone or as part of a caller's larger transaction.
+type shirtNumberQueryer interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+}
+
+// NextFreeShirtNumbersStmtSql finds the `count` lowest positive integers not already assigned to
+// one of $1's players - generate_series only needs to run up to (players already numbered) +
+// count, since among that many consecutive candidates at most (players already numbered) can be
+// taken, guaranteeing at least `count` free ones turn up.
+const NextFreeShirtNumbersStmtSql = "SELECT n FROM generate_series(1, " +
+	"(SELECT COUNT(*) FROM players WHERE team_id = $1 AND shirt_number IS NOT NULL) + $2) AS n " +
+	"WHERE n NOT IN (SELECT shirt_number FROM players WHERE team_id = $1 AND shirt_number IS NOT NULL) " +
+	"ORDER BY n LIMIT $2"
+
+// nextFreeShirtNumbers returns the `count` lowest shirt numbers not currently used by any of
+// teamId's players (issue #42) - every code path that adds one or more players to a team's
+// fieldable senior roster (initial squad creation, an academy backfill, an academy promotion,
+// signing a free agent, a transfer or loan taking effect) uses this so numbers stay gap-free
+// within a squad and never collide with a teammate's. The unique (team_id, shirt_number) index
+// (see resources/sql/init39_player_shirt_number.sql) is the backstop against two concurrent
+// callers computing the same number for the same team before either commits - a real
+// possibility this doesn't itself guard against, but one this app's usage pattern (one manager
+// acting on their own team at a time) makes rare enough not to warrant an explicit lock for a
+// "fixed for now" feature.
+func nextFreeShirtNumbers(q shirtNumberQueryer, teamId int64, count int) ([]int, error) {
+	rows, err := q.Query(NextFreeShirtNumbersStmtSql, teamId, count)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	numbers := make([]int, 0, count)
+	for rows.Next() {
+		var n int
+		if err := rows.Scan(&n); err != nil {
+			return nil, err
+		}
+		numbers = append(numbers, n)
+	}
+	return numbers, rows.Err()
+}
+
+// nextFreeShirtNumber is nextFreeShirtNumbers for the single-player case (signing, a promotion, a
+// transfer or loan taking effect).
+func nextFreeShirtNumber(q shirtNumberQueryer, teamId int64) (int, error) {
+	numbers, err := nextFreeShirtNumbers(q, teamId, 1)
+	if err != nil {
+		return 0, err
+	}
+	if len(numbers) == 0 {
+		return 0, errors.New("no free shirt number found")
+	}
+	return numbers[0], nil
+}
+
 // doCreatePlayers inserts `count` random players for a team, with skills uniformly drawn from
 // [minSkill, maxSkill] and age from [minAge, maxAge]. Used for a new team's starting squad, for
 // automatic youth academy backfills (see CreateAcademyPlayers), and for cantera prospects (see
 // createCanteraProspects in academy.go) - all three just vary the ranges and inAcademy. An
 // academy prospect (inAcademy true) draws no wage and has no contract yet - both are only
 // assigned once actually promoted (see PromoteFromAcademy), the same way a free agent's are only
-// assigned once signed.
+// assigned once signed; shirt numbers follow the same rule; inAcademy players are created with
+// none.
 func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string, inAcademy bool) {
+	var shirtNumbers []int
+	if !inAcademy {
+		var err error
+		shirtNumbers, err = nextFreeShirtNumbers(dbCtx.Db, teamId, count)
+		if err != nil {
+			log.Errorf("error assigning shirt numbers for team %d: %s", teamId, err)
+		}
+	}
 	for i := 0; i < count; i++ {
 		firstName, lastName, _ := GetRandomName(dbCtx, country)
 		avatar := RandomAvatarAsString()
@@ -304,6 +369,10 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		if !inAcademy {
 			wage = PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
 			contractYears = RandomContractYears()
+		}
+		var shirtNumber sql.NullInt64
+		if i < len(shirtNumbers) {
+			shirtNumber = sql.NullInt64{Int64: int64(shirtNumbers[i]), Valid: true}
 		}
 		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
@@ -322,7 +391,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			age,
 			contractYears,
 			&country,
-			inAcademy)
+			inAcademy,
+			shirtNumber)
 	}
 }
 
@@ -732,7 +802,7 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 	//Last week matches
 	var previousWeekMatches *[]WeekMatch
 	var nextWeekMatches *[]WeekMatch
-	if currentWeek > 1 {
+	if currentWeek >= 1 {
 		previousWeekMatches, err = WeekMatches(dbCtx, leagueId, currentSeason, currentWeek)
 	}
 	//Next week matches
@@ -1314,9 +1384,10 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var avatar string
 	var contractYearsRemaining int
 	var birthCountry sql.NullString
+	var shirtNumber int
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining, &birthCountry)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining, &birthCountry, &shirtNumber)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
@@ -1342,6 +1413,7 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				Avatar:                 GetAvatarFromString(avatar),
 				ContractYearsRemaining: contractYearsRemaining,
 				BirthCountry:           birthCountry.String,
+				ShirtNumber:            shirtNumber,
 			})
 		}
 	}

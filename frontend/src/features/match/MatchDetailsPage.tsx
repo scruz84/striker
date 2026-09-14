@@ -1,4 +1,4 @@
-import { useEffect, useState, type SyntheticEvent } from 'react'
+import { useCallback, useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
 import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
-import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
@@ -24,12 +24,22 @@ export function MatchDetailsPage() {
   const { data: match, isLoading } = useMatchDetails(id)
   const { data: loggedUser } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
+  const [liveComplete, setLiveComplete] = useState(false)
+  const handleLiveComplete = useCallback(() => setLiveComplete(true), [])
 
   if (isLoading || !match) {
     return <Skeleton variant="rectangular" height={200} />
   }
 
-  if (!match.played) {
+  // Show the live view whenever the broadcast might still be going, not only while `match.played`
+  // is still false: that flag flips true in the DB the instant the match is simulated, well
+  // before the live broadcast finishes pacing its minutes out to a viewer (see
+  // liveMatchMinuteDelay in backend/engine/livematch.go) - a viewer who opens this page any time
+  // in that window still needs the live view (backend/handlers/liveMatchHandlers.go now catches
+  // them up on everything already broadcast), not the long-finished-match view (issue #37). Once
+  // shown, stick with the live view until the broadcast itself reports completion via onComplete,
+  // rather than switching the moment the next REST poll notices `played`.
+  if ((!match.played || mightStillBeLive(match.matchDate)) && !liveComplete) {
     const isParticipant = userTeam?.team.id === match.home || userTeam?.team.id === match.away
     return (
       <LiveMatch
@@ -42,6 +52,7 @@ export function MatchDetailsPage() {
         matchDate={match.matchDate}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
+        onComplete={handleLiveComplete}
       />
     )
   }
@@ -58,6 +69,7 @@ function LiveMatch({
   matchDate,
   team,
   players,
+  onComplete,
 }: {
   matchId: string | undefined
   homeId: number
@@ -67,6 +79,7 @@ function LiveMatch({
   matchDate: string
   team?: Team
   players?: Player[]
+  onComplete: () => void
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -80,8 +93,9 @@ function LiveMatch({
   useEffect(() => {
     if (live.complete && matchId) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.match(matchId) })
+      onComplete()
     }
-  }, [live.complete, matchId, queryClient])
+  }, [live.complete, matchId, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

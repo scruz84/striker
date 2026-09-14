@@ -29,6 +29,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "squad": "Squad",
+      "matches": "Matches",
       "lineup": "Lineup",
       "finances": "Finances",
       "transferMarket": "Transfer market",

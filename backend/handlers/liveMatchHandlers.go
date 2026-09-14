@@ -95,9 +95,14 @@ func LiveFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// serveLiveMatch upgrades the connection and either immediately reports the final score (the
-// match/tie was already played by the time the client connected) or streams live messages from
-// channel until the broadcast completes or the client disconnects.
+// serveLiveMatch upgrades the connection and streams a match/tie's live broadcast (see
+// engine.BroadcastMatchLive) to it, catching the client up on anything already published before
+// it connected rather than deciding purely from the played flag whether there's anything left to
+// show it - `played` flips true in the DB the instant the match is simulated, well before its
+// ~90-real-minute broadcast finishes pacing out to viewers, so a client connecting any time after
+// that (the common case - see issue #37) would otherwise be told the match is already "complete"
+// with no events at all, even while the broadcast is still very much in progress for everyone
+// else watching.
 func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel string, played bool, homeGoals int, awayGoals int) {
 	conn, err := liveMatchUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -106,13 +111,36 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 	}
 	defer conn.Close()
 
-	if played {
+	// Subscribed before reading history so nothing published in between the two calls can be
+	// missed (see LiveMatchHub.History's own comment on this ordering requirement).
+	ch, unsubscribe := dbCtx.LiveHub.Subscribe(channel)
+	defer unsubscribe()
+
+	history := dbCtx.LiveHub.History(channel)
+	lastMinute := -1
+	for _, msg := range history {
+		if msg.Type == "complete" {
+			_ = conn.WriteJSON(msg)
+			return
+		}
+		_ = conn.SetWriteDeadline(time.Now().Add(liveMatchWriteTimeout))
+		if err := conn.WriteJSON(msg); err != nil {
+			return
+		}
+		if minute := messageMinute(msg); minute > lastMinute {
+			lastMinute = minute
+		}
+	}
+
+	// No broadcast history at all and the match is already played: either its broadcast finished
+	// and its history has since expired out of Redis (see liveMatchHistoryTTL), or it was
+	// simulated before this ever broadcasts (shouldn't normally happen, but fail safe) - either
+	// way there's nothing left to stream, so report the final score directly rather than waiting
+	// forever on a channel nobody will ever publish to again.
+	if len(history) == 0 && played {
 		_ = conn.WriteJSON(common.LiveMatchMessage{Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals})
 		return
 	}
-
-	ch, unsubscribe := dbCtx.LiveHub.Subscribe(channel)
-	defer unsubscribe()
 
 	// The client never sends application messages on this connection - this goroutine only
 	// exists to notice when it disconnects (a read error, including the close frame a browser
@@ -133,6 +161,12 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 			if !ok {
 				return
 			}
+			// Already delivered as part of the history catch-up above - skip the duplicate that
+			// arrives here whenever it was published in the small window between subscribing and
+			// reading history.
+			if minute := messageMinute(msg); minute >= 0 && minute <= lastMinute {
+				continue
+			}
 			_ = conn.SetWriteDeadline(time.Now().Add(liveMatchWriteTimeout))
 			if err := conn.WriteJSON(msg); err != nil {
 				return
@@ -143,5 +177,19 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 		case <-done:
 			return
 		}
+	}
+}
+
+// messageMinute returns msg's match minute, or -1 for a message type that doesn't carry one (eg.
+// "complete") - used by serveLiveMatch to avoid re-delivering a message live that was already
+// sent as part of the history catch-up.
+func messageMinute(msg common.LiveMatchMessage) int {
+	switch {
+	case msg.Instant != nil:
+		return msg.Instant.Minute
+	case msg.Event != nil:
+		return msg.Event.Minute
+	default:
+		return -1
 	}
 }

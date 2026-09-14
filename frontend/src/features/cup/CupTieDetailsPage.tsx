@@ -1,4 +1,4 @@
-import { type SyntheticEvent, useEffect, useState } from 'react'
+import { type SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team } from '../../api/types'
-import { useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
@@ -21,6 +21,8 @@ export function CupTieDetailsPage() {
   const { data: tie, isLoading } = useCupTieDetails(id)
   const { data: loggedUser } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
+  const [liveComplete, setLiveComplete] = useState(false)
+  const handleLiveComplete = useCallback(() => setLiveComplete(true), [])
 
   if (isLoading || !tie) {
     return <Skeleton variant="rectangular" height={200} />
@@ -30,7 +32,10 @@ export function CupTieDetailsPage() {
     return <ByeTie tie={tie} />
   }
 
-  if (!tie.played) {
+  // Show the live view whenever the broadcast might still be going, and stick with it until the
+  // broadcast itself reports completion via onComplete - see MatchDetailsPage's identical
+  // reasoning (issue #37).
+  if ((!tie.played || mightStillBeLive(tie.matchDate ?? '')) && !liveComplete) {
     const isParticipant = userTeam?.team.id === tie.homeTeamId || userTeam?.team.id === tie.awayTeamId
     return (
       <LiveTie
@@ -39,6 +44,7 @@ export function CupTieDetailsPage() {
         tie={tie}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
+        onComplete={handleLiveComplete}
       />
     )
   }
@@ -65,11 +71,13 @@ function LiveTie({
   tie,
   team,
   players,
+  onComplete,
 }: {
   id: string | undefined
   tie: CupTieDetails
   team?: Team
   players?: Player[]
+  onComplete: () => void
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -85,8 +93,9 @@ function LiveTie({
   useEffect(() => {
     if (live.complete && id) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTie(id) })
+      onComplete()
     }
-  }, [live.complete, id, queryClient])
+  }, [live.complete, id, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

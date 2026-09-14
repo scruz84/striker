@@ -63,6 +63,7 @@ import {
   type TierConfig,
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 
@@ -957,7 +958,7 @@ function UsersTable({
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.country}</TableCell>
-              <TableCell>{user.teamName || '-'}</TableCell>
+              <TableCell>{user.teamId !== null ? <TeamNameLink teamId={user.teamId}>{user.teamName}</TeamNameLink> : '-'}</TableCell>
               <TableCell>{user.isAdmin && <Chip size="small" color="primary" label={t('admin.usersTable.admin')} />}</TableCell>
               <TableCell align="right">
                 <Button

@@ -185,7 +185,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		return ErrCannotAcceptOwnLoan
 	}
 
-	if _, err := tx.Exec(UpdatePlayerTeamStmtSql, borrowingTeamId, playerId); err != nil {
+	if err := movePlayerToTeam(tx, borrowingTeamId, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
@@ -251,7 +251,7 @@ func ReturnLoan(dbCtx *DatabaseContext, loan PlayerLoan) error {
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.Exec(UpdatePlayerTeamStmtSql, loan.FromTeamId, loan.PlayerId); err != nil {
+	if err := movePlayerToTeam(tx, loan.FromTeamId, loan.PlayerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, loan.PlayerId); err != nil {

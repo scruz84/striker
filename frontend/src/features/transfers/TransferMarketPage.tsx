@@ -51,6 +51,7 @@ import {
 import type { LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
@@ -432,7 +433,9 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
                   {listing.player.firstName} {listing.player.lastName}
                 </Link>
               </TableCell>
-              <TableCell>{listing.sellingTeamName}</TableCell>
+              <TableCell>
+                <TeamNameLink teamId={listing.sellingTeamId}>{listing.sellingTeamName}</TeamNameLink>
+              </TableCell>
               <TableCell align="right">{listing.player.age}</TableCell>
               <TableCell>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{formatCurrency(listing.askingPrice)}</TableCell>
@@ -765,7 +768,9 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                   {listing.player.firstName} {listing.player.lastName}
                 </Link>
               </TableCell>
-              <TableCell>{listing.lendingTeamName}</TableCell>
+              <TableCell>
+                <TeamNameLink teamId={listing.lendingTeamId}>{listing.lendingTeamName}</TeamNameLink>
+              </TableCell>
               <TableCell align="right">{listing.player.age}</TableCell>
               <TableCell>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
@@ -893,7 +898,13 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
                   {offer.player.firstName} {offer.player.lastName}
                 </Link>
               </TableCell>
-              <TableCell>{teamColumn === 'from' ? offer.fromTeamName : offer.toTeamName}</TableCell>
+              <TableCell>
+                {teamColumn === 'from' ? (
+                  <TeamNameLink teamId={offer.fromTeamId}>{offer.fromTeamName}</TeamNameLink>
+                ) : (
+                  <TeamNameLink teamId={offer.toTeamId}>{offer.toTeamName}</TeamNameLink>
+                )}
+              </TableCell>
               <TableCell>{formatDateTime(offer.createdAt)}</TableCell>
               <TableCell align="right">{formatCurrency(offer.amount)}</TableCell>
               <TableCell align="right">

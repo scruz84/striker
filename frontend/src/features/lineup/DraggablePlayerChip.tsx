@@ -13,11 +13,9 @@ interface DraggablePlayerChipProps {
   /** "field" shows the avatar with a name label and squad number underneath, sized to fit a
    * crowded pitch; "bench" shows the full name inline in a wider card. */
   variant?: 'field' | 'bench'
-  /** Squad number shown on the field variant - derived from slot order, see SoccerPitch. */
-  shirtNumber?: number
 }
 
-export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: DraggablePlayerChipProps) {
+export function DraggablePlayerChip({ player, variant = 'bench' }: DraggablePlayerChipProps) {
   // The moving drag visual is a DragOverlay in LineupEditorPage (a fixed-size ghost, so a
   // dropped-onto pitch slot always sees a consistently small hit target regardless of whether
   // the drag started from this compact field chip or the much wider bench card) - this element
@@ -55,7 +53,7 @@ export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: 
           >
             <Box sx={{ position: 'relative', lineHeight: 0 }}>
               <CartoonAvatar seed={player.id} size={44} />
-              {shirtNumber !== undefined && (
+              {!!player.shirtNumber && (
                 <Box
                   sx={{
                     position: 'absolute',
@@ -72,7 +70,7 @@ export function DraggablePlayerChip({ player, variant = 'bench', shirtNumber }: 
                   }}
                 >
                   <Typography sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1 }}>
-                    {shirtNumber}
+                    {player.shirtNumber}
                   </Typography>
                 </Box>
               )}

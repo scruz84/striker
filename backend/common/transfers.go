@@ -13,7 +13,7 @@ import (
 // last_team_id is coalesced the same way, for the same reason (see Player.LastTeamId).
 const GetPlayerByIdStmtSql = "SELECT player_id, COALESCE(team_id, 0), first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
-	"free_agent_seasons, COALESCE(last_team_id, 0) FROM players WHERE player_id = $1"
+	"free_agent_seasons, COALESCE(last_team_id, 0), COALESCE(shirt_number, 0) FROM players WHERE player_id = $1"
 
 const InsertTransferListingStmtSql = "INSERT INTO transfer_listings (player_id, selling_team_id, asking_price) VALUES ($1, $2, $3)"
 
@@ -28,7 +28,21 @@ const DeleteTransferListingStmtSql = "DELETE FROM transfer_listings WHERE listin
 
 const DeletePlayerLineupPositionsStmtSql = "DELETE FROM default_lineup_positions WHERE player_id = $1"
 
-const UpdatePlayerTeamStmtSql = "UPDATE players SET team_id = $1 WHERE player_id = $2"
+const UpdatePlayerTeamStmtSql = "UPDATE players SET team_id = $1, shirt_number = $2 WHERE player_id = $3"
+
+// movePlayerToTeam moves playerId onto teamId's roster, assigning them teamId's lowest free
+// shirt number in the same statement (see nextFreeShirtNumber) - used by every path that hands a
+// player straight to a new team (a transfer, a loan taking effect or ending, an accepted
+// transfer offer), as opposed to SignFreeAgent/PromoteFromAcademy, which fold the same idea into
+// their own more specific UPDATE statements.
+func movePlayerToTeam(tx *sql.Tx, teamId int64, playerId int64) error {
+	shirtNumber, err := nextFreeShirtNumber(tx, teamId)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(UpdatePlayerTeamStmtSql, teamId, shirtNumber, playerId)
+	return err
+}
 
 var ErrListingNotFound = errors.New("listing not found")
 var ErrCannotBuyOwnPlayer = errors.New("cannot buy your own listed player")
@@ -51,7 +65,7 @@ func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
 	err := dbCtx.Db.QueryRow(GetPlayerByIdStmtSql, playerId).Scan(&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
 		&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
 		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
-		&p.FreeAgentSeasons, &p.LastTeamId)
+		&p.FreeAgentSeasons, &p.LastTeamId, &p.ShirtNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +251,7 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, askingPrice, sellingTeamId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(UpdatePlayerTeamStmtSql, buyerTeamId, playerId); err != nil {
+	if err := movePlayerToTeam(tx, buyerTeamId, playerId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {

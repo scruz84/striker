@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next'
 import { useDivisionDetails, useTopScorers, useUserTeam } from '../../api/hooks'
 import type { ClassificationPosition, ScorerStanding, WeekMatch } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
+import { PlayerNameLink } from '../../components/PlayerNameLink'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
@@ -237,10 +239,12 @@ function TopScorers({ leagueId }: { leagueId: string | undefined }) {
                 </Box>
                 <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                   <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-                    {scorer.firstName} {scorer.lastName}
+                    <PlayerNameLink playerId={scorer.playerId}>
+                      {scorer.firstName} {scorer.lastName}
+                    </PlayerNameLink>
                   </Typography>
                   <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
-                    {scorer.teamName}
+                    <TeamNameLink teamId={scorer.teamId}>{scorer.teamName}</TeamNameLink>
                   </Typography>
                 </Box>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>

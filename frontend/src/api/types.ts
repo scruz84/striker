@@ -63,6 +63,9 @@ export interface Player {
   // transfer premium (see backend common.FreeAgentPremiumWageMultiplier).
   freeAgentSeasons?: number
   lastTeamId?: number
+  // 0/absent for a player with none assigned yet (an academy prospect not yet promoted, or a
+  // free agent) - see backend common.nextFreeShirtNumber.
+  shirtNumber?: number
 }
 
 // Every country code the game can generate players/teams for (mirrors backend

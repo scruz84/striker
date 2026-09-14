@@ -32,7 +32,6 @@ import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
-import { TeamMatchesSection } from './TeamMatchesSection'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function TeamDetailsPage() {
@@ -86,11 +85,6 @@ export function TeamDetailsPage() {
           <AcademySection />
         </Box>
       )}
-
-      <Typography variant="h6" sx={{ mt: 2 }}>
-        {t('team.matches.title')}
-      </Typography>
-      {id && <TeamMatchesSection teamId={id} />}
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.trophyCabinet')}
@@ -196,7 +190,9 @@ function AcademySection() {
                 <TableCell>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                     <CartoonAvatar seed={prospect.id} size={32} />
-                    {prospect.firstName} {prospect.lastName}
+                    <Link component={RouterLink} to={`/player/${prospect.id}`} underline="hover" color="inherit">
+                      {prospect.firstName} {prospect.lastName}
+                    </Link>
                   </Stack>
                 </TableCell>
                 <TableCell align="right">{prospect.age}</TableCell>
