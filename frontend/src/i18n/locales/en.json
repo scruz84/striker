@@ -447,7 +447,29 @@
     "fullTime": "FULL TIME",
     "connecting": "Connecting...",
     "scheduled": "Scheduled",
-    "tabs": { "events": "Events", "lineups": "Lineups" },
+    "tabs": {
+      "events": "Events",
+      "lineups": "Lineups",
+      "report": "Report",
+      "summary": "Summary",
+      "ratings": "Ratings",
+      "players": "Players"
+    },
+    "matchday": "Matchday {{week}} of {{total}}",
+    "weather": {
+      "sunny": "sunny",
+      "cloudy": "cloudy",
+      "rain": "rainy",
+      "windy": "windy"
+    },
+    "report": {
+      "intro": "Thanks to the {{weather}} weather, a crowd of {{attendance}} gathered to watch the match. {{referee}} was the referee, assisted by {{assistant1}} and {{assistant2}}.",
+      "kickoff": "Everyone is ready - the match is about to begin!",
+      "fullTime": "The referee blows the whistle for full time."
+    },
+    "ratings": {
+      "title": "Player ratings"
+    },
     "noNotableEvents": "No notable events in this match.",
     "noLineupData": "No lineup data.",
     "lineup": { "title": "{{teamName}}'s lineup for this match" },

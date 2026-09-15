@@ -20,7 +20,8 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdatePlayedMatch(dbCtx, matchSimulation)
 	UpdateClassification(dbCtx, matchSimulation)
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
-	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
 	recordPlayerMinutes(dbCtx, matchSimulation)
 	NotifyMatchResult(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation)
@@ -238,6 +239,32 @@ func playersToMapById(players *[]*common.Player) *map[int64]common.Player {
 		playersMap[p.Id] = *p
 	}
 	return &playersMap
+}
+
+// updateMatchReportFlavor generates and persists a league match's report flavor (weather,
+// referee, two assistant referees) plus the attendance already computed for ticket revenue (see
+// UpdateTeamFinancesAfterMatch) - purely cosmetic, for the Hattrick-style match report. Errors
+// are logged, not propagated: the match itself is already fully simulated and persisted by this
+// point, so a failure here should never be treated as the match having failed to process.
+func updateMatchReportFlavor(dbCtx *common.DatabaseContext, matchId int64, attendance int) {
+	referee, err := common.RandomPersonName(dbCtx)
+	if err != nil {
+		log.Errorf("error generating referee name for match %d: %s", matchId, err)
+		return
+	}
+	assistant1, err := common.RandomPersonName(dbCtx)
+	if err != nil {
+		log.Errorf("error generating first assistant referee name for match %d: %s", matchId, err)
+		return
+	}
+	assistant2, err := common.RandomPersonName(dbCtx)
+	if err != nil {
+		log.Errorf("error generating second assistant referee name for match %d: %s", matchId, err)
+		return
+	}
+	if err := common.UpdateMatchFlavor(dbCtx, matchId, common.RandomWeather(), attendance, referee, assistant1, assistant2); err != nil {
+		log.Errorf("error updating match report flavor for match %d: %s", matchId, err)
+	}
 }
 
 func playersByPosition(lineup *common.Lineup) *map[int][]int64 {

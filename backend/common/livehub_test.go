@@ -153,7 +153,12 @@ func TestLiveMatchHub_MultipleSubscribersAllReceive(t *testing.T) {
 
 func TestLiveMatchHub_HistoryReturnsPublishedMessagesInOrder(t *testing.T) {
 	hub := liveHubForTest(t)
-	channel := LeagueMatchChannel(3)
+	// A fresh, unique channel id per run - a fixed one (as the other tests in this file use for
+	// their pure pub/sub checks) is fine there since nothing persists past the test, but History
+	// writes to Redis with a multi-hour TTL (see liveMatchHistoryTTL), so reusing a fixed id here
+	// risks reading a stale entry left behind by an earlier run that never reached its own
+	// t.Cleanup (a killed process, a hard timeout).
+	channel := LeagueMatchChannel(time.Now().UnixNano())
 	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel)) })
 
 	hub.Publish(channel, LiveMatchMessage{Type: "instant", HomeGoals: 0, AwayGoals: 0})
@@ -171,7 +176,9 @@ func TestLiveMatchHub_HistoryReturnsPublishedMessagesInOrder(t *testing.T) {
 
 func TestLiveMatchHub_HistoryCatchesUpALateSubscriber(t *testing.T) {
 	hub := liveHubForTest(t)
-	channel := LeagueMatchChannel(4)
+	// See TestLiveMatchHub_HistoryReturnsPublishedMessagesInOrder's comment on why History's
+	// tests use a unique channel id per run rather than a fixed one.
+	channel := LeagueMatchChannel(time.Now().UnixNano() + 1)
 	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel)) })
 
 	// Published before anyone ever subscribes - a plain pub/sub subscriber would never see this,

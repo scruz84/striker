@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { queryKeys, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
+import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
 import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
 import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
@@ -17,6 +17,9 @@ import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
+import { MatchRatingsTab } from './MatchRatingsTab'
+import { MatchReportHeader } from './MatchReportHeader'
+import { MatchReportTab } from './MatchReportTab'
 import { Events, Scoreboard } from './MatchScoreboard'
 
 export function MatchDetailsPage() {
@@ -52,6 +55,7 @@ export function MatchDetailsPage() {
         matchDate={match.matchDate}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
+        played={match.played}
         onComplete={handleLiveComplete}
       />
     )
@@ -69,6 +73,7 @@ function LiveMatch({
   matchDate,
   team,
   players,
+  played,
   onComplete,
 }: {
   matchId: string | undefined
@@ -79,6 +84,7 @@ function LiveMatch({
   matchDate: string
   team?: Team
   players?: Player[]
+  played: boolean
   onComplete: () => void
 }) {
   const { t } = useTranslation()
@@ -91,11 +97,16 @@ function LiveMatch({
   const isDue = useIsDue(matchDate)
 
   useEffect(() => {
-    if (live.complete && matchId) {
+    // live.giveUp alone isn't enough - the socket can be entirely unreachable (a downed Redis,
+    // a persistent network problem) while the match is still genuinely in progress, and there's
+    // nothing useful to fall back to yet in that case. Only bail out once the REST side also
+    // confirms the match is actually over, restoring the pre-#37-fix resilience where a broken
+    // socket never stranded a viewer once the match had genuinely finished.
+    if ((live.complete || (live.giveUp && played)) && matchId) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.match(matchId) })
       onComplete()
     }
-  }, [live.complete, matchId, queryClient, onComplete])
+  }, [live.complete, live.giveUp, played, matchId, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
@@ -162,13 +173,25 @@ function MatchLineupSection({ matchId, team, players }: { matchId: string; team:
   )
 }
 
+// weeksInASeason derives how many matchdays a division's season runs for from its team count -
+// a standard full-season double round robin (see backend engine.randomWeekMatches2, the only
+// place this figure is actually computed server-side; there's no dedicated "total weeks" field
+// to fetch instead, so this mirrors that same formula from the team count MatchReportHeader
+// already needs division details for anyway).
+function weeksInASeason(teamCount: number): number {
+  return (teamCount - 1) * 2
+}
+
 function PlayedMatch({ match }: { match: WeekMatch }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
+  const { data: division } = useDivisionDetails(String(match.divisionId))
+  const weekTotal = division ? weeksInASeason(division.classification.positions.length) : undefined
 
   return (
     <Box>
+      <MatchReportHeader match={match} weekTotal={weekTotal} />
       <Scoreboard
         homeId={match.home}
         homeName={match.homeName}
@@ -177,19 +200,22 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
         homeGoals={match.homeGoals}
         awayGoals={match.awayGoals}
         status="played"
-        subtitle={formatDateTime(match.matchDate)}
       />
 
       <Paper variant="outlined" sx={{ mb: 2 }}>
-        <Tabs value={tab} onChange={handleChange}>
-          <Tab label={t('match.tabs.events')} />
-          <Tab label={t('match.tabs.lineups')} />
+        <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
+          <Tab label={t('match.tabs.report')} />
+          <Tab label={t('match.tabs.summary')} />
+          <Tab label={t('match.tabs.ratings')} />
+          <Tab label={t('match.tabs.players')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
-          {tab === 0 && (
+          {tab === 0 && <MatchReportTab match={match} />}
+          {tab === 1 && (
             <Events events={match.events ?? []} homeId={match.home} homeName={match.homeName} awayName={match.awayName} />
           )}
-          {tab === 1 && (
+          {tab === 2 && <MatchRatingsTab match={match} />}
+          {tab === 3 && (
             <Lineups
               homeName={match.homeName}
               awayName={match.awayName}

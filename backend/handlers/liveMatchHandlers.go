@@ -22,6 +22,17 @@ var liveMatchUpgrader = websocket.Upgrader{
 
 const liveMatchWriteTimeout = 10 * time.Second
 
+// liveMatchMaxConnectionLifetime caps how long serveLiveMatch will hold a connection open
+// waiting for messages that may never come - comfortably above the ~90-real-minute broadcast
+// itself (see engine.liveMatchMinuteDelay) plus scheduler lag, so it never cuts off a genuinely
+// in-progress match, but still bounds the damage of a channel that's stuck for any reason (a
+// downed Redis, a bug, a match that somehow never gets a "complete" published) - without this, a
+// stuck connection's goroutines and file descriptor stay held indefinitely, and enough of those
+// accumulating under real traffic can degrade the rest of the service, not just this one match's
+// viewers. The client-side reconnect/give-up logic (useLiveMatch) treats a close here exactly
+// like any other dropped connection, so this is a safe, ordinary case for it to handle.
+const liveMatchMaxConnectionLifetime = 3 * time.Hour
+
 // LiveMatchHandler streams a league match's events live over a WebSocket - see
 // engine.BroadcastMatchLive, which is what actually paces the messages out once the match
 // finishes simulating.
@@ -155,6 +166,9 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 		}
 	}()
 
+	maxLifetime := time.NewTimer(liveMatchMaxConnectionLifetime)
+	defer maxLifetime.Stop()
+
 	for {
 		select {
 		case msg, ok := <-ch:
@@ -175,6 +189,9 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 				return
 			}
 		case <-done:
+			return
+		case <-maxLifetime.C:
+			log.Warnf("live match connection for %s exceeded max lifetime without completing - closing", channel)
 			return
 		}
 	}

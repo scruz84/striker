@@ -17,6 +17,15 @@ export interface LiveMatchState {
   minute: number
   events: MatchEvent[]
   complete: boolean
+  // True once reconnection has been exhausted without ever seeing a "complete" message - the
+  // live channel itself is unreachable (a downed Redis, a persistent proxy/network problem),
+  // not just between messages. Callers combine this with the REST-polled `played` flag as a
+  // fallback: if the match is already known to be over, there's nothing more the socket could
+  // tell them anyway, so it's safe to fall back to the plain REST view instead of leaving the
+  // viewer stuck on a "connecting" state that will never resolve (see MatchDetailsPage and
+  // siblings, and issue #37's own regression - the socket used to be a nice-to-have rather than
+  // the only path out of the live view).
+  giveUp: boolean
 }
 
 const initialState: LiveMatchState = {
@@ -26,6 +35,7 @@ const initialState: LiveMatchState = {
   minute: 0,
   events: [],
   complete: false,
+  giveUp: false,
 }
 
 // A dropped connection before the match finishes (a proxy timeout, a backend restart, a network
@@ -123,16 +133,22 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
           minute: msg.instant?.minute ?? prev.minute,
           events: msg.event ? [...prev.events, msg.event] : prev.events,
           complete: msg.type === 'complete',
+          giveUp: false,
         }))
       }
 
       socket.onerror = () => setState((prev) => ({ ...prev, connected: false }))
 
       socket.onclose = () => {
-        setState((prev) => ({ ...prev, connected: false }))
-        if (cancelled || isComplete || attempt >= maxReconnectAttempts) {
+        if (cancelled || isComplete) {
+          setState((prev) => ({ ...prev, connected: false }))
           return
         }
+        if (attempt >= maxReconnectAttempts) {
+          setState((prev) => ({ ...prev, connected: false, giveUp: true }))
+          return
+        }
+        setState((prev) => ({ ...prev, connected: false }))
         attempt += 1
         reconnectTimer = setTimeout(connect, reconnectDelayMs)
       }

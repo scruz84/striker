@@ -44,6 +44,7 @@ export function CupTieDetailsPage() {
         tie={tie}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
+        played={tie.played}
         onComplete={handleLiveComplete}
       />
     )
@@ -71,12 +72,14 @@ function LiveTie({
   tie,
   team,
   players,
+  played,
   onComplete,
 }: {
   id: string | undefined
   tie: CupTieDetails
   team?: Team
   players?: Player[]
+  played: boolean
   onComplete: () => void
 }) {
   const { t } = useTranslation()
@@ -91,11 +94,13 @@ function LiveTie({
   const isDue = useIsDue(tie.matchDate ?? '')
 
   useEffect(() => {
-    if (live.complete && id) {
+    // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
+    // while the tie might still genuinely be in progress - only once REST also confirms it's over.
+    if ((live.complete || (live.giveUp && played)) && id) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTie(id) })
       onComplete()
     }
-  }, [live.complete, id, queryClient, onComplete])
+  }, [live.complete, live.giveUp, played, id, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

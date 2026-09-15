@@ -71,12 +71,16 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 // This is also the once-per-match hook point for any unowned team's AI upkeep (see
 // RunAITeamManagement) - matches are the natural cadence for that, and reusing this call site
 // avoids a separate scheduler job for it.
-func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	creditTicketRevenue(dbCtx, match.Home)
+//
+// Returns the home side's computed attendance (see creditTicketRevenue) - simulateMatch reuses
+// this exact figure for the match's report flavor rather than drawing a second, independent one.
+func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) int {
+	attendance := creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Away)
 	RunAITeamManagement(dbCtx, match.Home)
 	RunAITeamManagement(dbCtx, match.Away)
+	return attendance
 }
 
 // NotifyMatchResult tells both teams' owners how their league match went.

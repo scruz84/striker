@@ -256,6 +256,17 @@ export interface WeekMatch {
   awayLineup: Lineup | null
   homePlayers: Record<string, Player> | null
   awayPlayers: Record<string, Player> | null
+  // Match-report flavor (issue: Hattrick-style match report) - absent for a match not yet
+  // simulated, or one simulated before this existed.
+  weather?: string
+  attendance?: number
+  refereeName?: string
+  assistant1Name?: string
+  assistant2Name?: string
+  // Per-player match rating (1-10), keyed by player id as a string (JSON object keys are always
+  // strings) - only present for a played match with lineup data (see backend
+  // common.ComputeMatchRatings).
+  ratings?: Record<string, number>
 }
 
 export interface ClassificationPosition {

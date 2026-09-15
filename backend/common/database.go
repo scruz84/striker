@@ -95,14 +95,18 @@ const GetUserIsAdminStmtSql = "SELECT is_admin FROM users WHERE user_id = $1"
 const SetUserAdminStmtSql = "UPDATE users SET is_admin = $1 WHERE user_id = $2"
 
 const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+	" w.weather, w.attendance, w.referee_name, w.assistant1_name, w.assistant2_name," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
-	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+	" weather, attendance, referee_name, assistant1_name, assistant2_name " +
 	"FROM matches where league_id = $1 and week_number = $2 and season = $3) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
 const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+	" w.weather, w.attendance, w.referee_name, w.assistant1_name, w.assistant2_name," +
 	" t0.name as home_team_name, t1.name as away_team_name " +
-	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
+	" weather, attendance, referee_name, assistant1_name, assistant2_name " +
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
@@ -190,6 +194,7 @@ const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE tea
 const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) VALUES ($1, $2, $3, $4, $5)"
 const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at, player_id " +
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
+
 // Academy prospects are excluded - they draw no wage until actually promoted (see
 // PromoteFromAcademy), same reasoning as GetPlayersFromTeamStmtSql.
 const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1 AND in_academy = false"
@@ -856,22 +861,33 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 	var awayGoals int
 	var homeTeamName string
 	var awayTeamName string
+	var weather sql.NullString
+	var attendance sql.NullInt64
+	var refereeName sql.NullString
+	var assistant1Name sql.NullString
+	var assistant2Name sql.NullString
 	rows.Scan(&matchId, &leagueId, &season, &played, &inSimulation, &weekNumber, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
+		&weather, &attendance, &refereeName, &assistant1Name, &assistant2Name,
 		&homeTeamName, &awayTeamName)
 	return &WeekMatch{
-		MatchId:      matchId,
-		DivisionId:   leagueId,
-		Season:       season,
-		WeekNumber:   weekNumber,
-		MatchDate:    matchDate,
-		Played:       played,
-		InSimulation: inSimulation,
-		Home:         homeTeamId,
-		HomeName:     homeTeamName,
-		Away:         awayTeamId,
-		AwayName:     awayTeamName,
-		HomeGoals:    homeGoals,
-		AwayGoals:    awayGoals,
+		MatchId:        matchId,
+		DivisionId:     leagueId,
+		Season:         season,
+		WeekNumber:     weekNumber,
+		MatchDate:      matchDate,
+		Played:         played,
+		InSimulation:   inSimulation,
+		Home:           homeTeamId,
+		HomeName:       homeTeamName,
+		Away:           awayTeamId,
+		AwayName:       awayTeamName,
+		HomeGoals:      homeGoals,
+		AwayGoals:      awayGoals,
+		Weather:        weather.String,
+		Attendance:     int(attendance.Int64),
+		RefereeName:    refereeName.String,
+		Assistant1Name: assistant1Name.String,
+		Assistant2Name: assistant2Name.String,
 	}
 }
 
@@ -940,6 +956,12 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	} else {
 		pl := playerListToMap(awayPlayers)
 		match.AwayPlayers = &pl
+	}
+	// Only meaningful once the match has actually happened - GetLineupsForMatch above can return
+	// a not-yet-played match's default/pre-selected lineup too (see its own doc comment), which
+	// ComputeMatchRatings alone can't tell apart from a genuinely played one.
+	if match.Played {
+		match.Ratings = ComputeMatchRatings(match)
 	}
 
 	return match, nil

@@ -382,4 +382,18 @@ type WeekMatch struct {
 	AwayLineup    *Lineup           `json:"awayLineup"`
 	HomePlayers   *map[int64]Player `json:"homePlayers"`
 	AwayPlayers   *map[int64]Player `json:"awayPlayers"`
+	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the match report's cosmetic
+	// flavor (issue: Hattrick-style match report) - empty/0 for a match not yet simulated, or one
+	// simulated before this existed (see resources/sql/init40_match_flavor.sql). Generated once at
+	// simulation time (common.UpdateMatchFlavor) rather than per-request, so the report is stable.
+	Weather        string `json:"weather,omitempty"`
+	Attendance     int    `json:"attendance,omitempty"`
+	RefereeName    string `json:"refereeName,omitempty"`
+	Assistant1Name string `json:"assistant1Name,omitempty"`
+	Assistant2Name string `json:"assistant2Name,omitempty"`
+	// Ratings is computed on read (see ComputeMatchRatings), not stored - a deterministic
+	// per-player match rating (1-10) derived from the match's own events and result, only
+	// populated for a played match. Keyed by player id (encoding/json marshals an integer-keyed
+	// map as a string-keyed JSON object, same as HomePlayers/AwayPlayers above).
+	Ratings *map[int64]float64 `json:"ratings,omitempty"`
 }

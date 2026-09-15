@@ -447,7 +447,29 @@
     "fullTime": "FINAL DEL PARTIDO",
     "connecting": "Conectando...",
     "scheduled": "Programado",
-    "tabs": { "events": "Eventos", "lineups": "Alineaciones" },
+    "tabs": {
+      "events": "Eventos",
+      "lineups": "Alineaciones",
+      "report": "Reporte",
+      "summary": "Resumen",
+      "ratings": "Calificaciones",
+      "players": "Jugadores"
+    },
+    "matchday": "Jornada {{week}} de {{total}}",
+    "weather": {
+      "sunny": "soleado",
+      "cloudy": "nublado",
+      "rain": "lluvioso",
+      "windy": "ventoso"
+    },
+    "report": {
+      "intro": "Gracias al tiempo {{weather}}, un total de {{attendance}} aficionados se reunieron para presenciar el partido. {{referee}} fue el árbitro designado, junto a los asistentes {{assistant1}} y {{assistant2}}.",
+      "kickoff": "¡Todo está listo, el partido está a punto de comenzar!",
+      "fullTime": "El árbitro pita el final del partido."
+    },
+    "ratings": {
+      "title": "Calificaciones de los jugadores"
+    },
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",
     "lineup": { "title": "Alineación de {{teamName}} para este partido" },

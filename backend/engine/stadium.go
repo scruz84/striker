@@ -40,23 +40,27 @@ func TicketRevenue(attendance int, ticketPrice int) int64 {
 
 // creditTicketRevenue pays the home team its matchday gate receipts - see
 // UpdateTeamFinancesAfterMatch, which is the only caller (both league matches and cup ties route
-// through it, so both generate ticket revenue for the home side).
-func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) {
+// through it, so both generate ticket revenue for the home side). Returns the attendance figure
+// it computed (0 if the stadium lookup failed or the stadium is empty) so a league match's report
+// (see common.UpdateMatchFlavor) can show the exact same crowd size rather than drawing its own,
+// independent random attendance that could disagree with this transaction's own description.
+func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
 	stadium, err := common.GetStadium(dbCtx, homeTeamId)
 	if err != nil {
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
-		return
+		return 0
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	attendance := CalculateAttendance(stadium.Capacity, r)
 	revenue := TicketRevenue(attendance, stadium.TicketPrice)
 	if revenue == 0 {
-		return
+		return attendance
 	}
 
 	description := fmt.Sprintf("Matchday ticket revenue (%d attendance)", attendance)
 	if err := common.AdjustTeamBudget(dbCtx, homeTeamId, revenue, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
 		log.Errorf("error crediting ticket revenue for team %d: %s", homeTeamId, err)
 	}
+	return attendance
 }

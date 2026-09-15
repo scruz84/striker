@@ -35,6 +35,7 @@ export function FriendlyMatchPage() {
         match={match}
         team={userTeam?.team}
         players={userTeam?.players}
+        played={match.played}
         onComplete={handleLiveComplete}
       />
     )
@@ -59,12 +60,14 @@ function LiveFriendly({
   match,
   team,
   players,
+  played,
   onComplete,
 }: {
   id: string | undefined
   match: FriendlyMatch
   team?: Team
   players?: Player[]
+  played: boolean
   onComplete: () => void
 }) {
   const { t } = useTranslation()
@@ -77,11 +80,13 @@ function LiveFriendly({
   const isDue = useIsDue(match.matchDate)
 
   useEffect(() => {
-    if (live.complete && id) {
+    // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
+    // while the match might still genuinely be in progress - only once REST also confirms it's over.
+    if ((live.complete || (live.giveUp && played)) && id) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyMatch(id) })
       onComplete()
     }
-  }, [live.complete, id, queryClient, onComplete])
+  }, [live.complete, live.giveUp, played, id, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
