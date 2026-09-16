@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io/fs"
 	"math"
+	"path"
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/scruz84/striker/resources"
 	log "github.com/sirupsen/logrus"
@@ -26,12 +28,15 @@ var initFileNumberPattern = regexp.MustCompile(`^init(\d+)_`)
 // true numeric order, then anything else (the names_es_*/lastnames_es_* data dumps)
 // lexicographically after all of those - matching the dependency order these files are written
 // to require (each migration only ever references tables/columns created by init.sql or an
-// earlier-numbered migration).
+// earlier-numbered migration). name may include a subdirectory prefix (see collectSchemaFiles -
+// old migrations get archived under history/ once every currently-supported database has already
+// applied them), so the pattern match itself always runs against the base filename alone.
 func schemaFileSortKey(name string) (int, string) {
-	if name == "init.sql" {
+	base := path.Base(name)
+	if base == "init.sql" {
 		return 0, name
 	}
-	if m := initFileNumberPattern.FindStringSubmatch(name); m != nil {
+	if m := initFileNumberPattern.FindStringSubmatch(base); m != nil {
 		if n, err := strconv.Atoi(m[1]); err == nil {
 			return n, name
 		}
@@ -55,15 +60,9 @@ func EnsureSchema(dbCtx *DatabaseContext) error {
 		return fmt.Errorf("checking whether the schema already exists: %w", err)
 	}
 
-	entries, err := fs.ReadDir(resources.SQLFiles, "sql")
+	names, err := collectSchemaFiles()
 	if err != nil {
-		return fmt.Errorf("reading embedded sql files: %w", err)
-	}
-	names := make([]string, 0, len(entries))
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			names = append(names, entry.Name())
-		}
+		return err
 	}
 	sort.Slice(names, func(i, j int) bool {
 		ri, ni := schemaFileSortKey(names[i])
@@ -87,6 +86,35 @@ func EnsureSchema(dbCtx *DatabaseContext) error {
 	return nil
 }
 
+// collectSchemaFiles lists every embedded resources/sql/*.sql file, including ones tucked away in
+// subdirectories such as sql/history (old migrations get archived there once every
+// currently-supported database has already applied them - see the package doc comment on that
+// directory) - a plain fs.ReadDir only sees sql/'s immediate entries, which would silently drop
+// every archived migration from both EnsureSchema's fresh-database path and
+// applyPendingMigrations's incremental one, permanently starving any database that hasn't already
+// applied one of them (see resources/sql/history/init34_friendly_lineup.sql and
+// init35_free_agent_premium.sql, which is exactly what happened here: a database whose schema
+// predates their archival never got `friendly_lineup` or `players.last_team_id` at all). Returned
+// names are relative to sql/ itself (no leading "sql/"), matching applySchemaFile's own
+// convention.
+func collectSchemaFiles() ([]string, error) {
+	var names []string
+	err := fs.WalkDir(resources.SQLFiles, "sql", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		names = append(names, strings.TrimPrefix(p, "sql/"))
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("reading embedded sql files: %w", err)
+	}
+	return names, nil
+}
+
 // applyPendingMigrations re-applies every numbered "initN_*.sql" migration (see
 // initFileNumberPattern) against a database that already has a schema, so a new migration file
 // added on a branch gets picked up automatically on the next startup instead of needing the
@@ -102,7 +130,7 @@ func EnsureSchema(dbCtx *DatabaseContext) error {
 func applyPendingMigrations(dbCtx *DatabaseContext, names []string) error {
 	log.Info("schema already exists - checking for pending incremental migrations")
 	for _, name := range names {
-		if !initFileNumberPattern.MatchString(name) {
+		if !initFileNumberPattern.MatchString(path.Base(name)) {
 			continue
 		}
 		if err := applySchemaFile(dbCtx, name); err != nil {
