@@ -6,6 +6,7 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -15,10 +16,9 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { TeamBadge } from './TeamBadge'
 
-const RING_SIZE = 96
+const RING_SIZE_MOBILE = 64
+const RING_SIZE_DESKTOP = 96
 const RING_STROKE = 6
-const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
 
 /** The player details page's bio column - portrait with a rating ring, status alerts, and a
  * spec-sheet of team/division/contract/stats. Sits beside PlayerAttributesPanel instead of the
@@ -42,6 +42,11 @@ export function PlayerProfileRail({
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const ringSize = isMobile ? RING_SIZE_MOBILE : RING_SIZE_DESKTOP
+  const ringRadius = (ringSize - RING_STROKE) / 2
+  const ringCircumference = 2 * Math.PI * ringRadius
+  const badgeSize = isMobile ? 24 : 32
   const isFreeAgent = player.teamId === 0
   const overall = overallRating(player)
   const ringColor = ratingTierColor(overall, theme.palette)
@@ -56,38 +61,38 @@ export function PlayerProfileRail({
     : []
 
   return (
-    <Paper variant="outlined" sx={{ p: 2.5 }}>
-      <Stack spacing={1.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
-        <Box sx={{ position: 'relative', width: RING_SIZE, height: RING_SIZE }}>
+    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+      <Stack spacing={{ xs: 1, sm: 1.5 }} sx={{ alignItems: 'center', textAlign: 'center' }}>
+        <Box sx={{ position: 'relative', width: ringSize, height: ringSize }}>
           {canSeeSkills && (
             <svg
-              width={RING_SIZE}
-              height={RING_SIZE}
+              width={ringSize}
+              height={ringSize}
               style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
             >
               <circle
-                cx={RING_SIZE / 2}
-                cy={RING_SIZE / 2}
-                r={RING_RADIUS}
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={ringRadius}
                 fill="none"
                 stroke={theme.palette.action.hover}
                 strokeWidth={RING_STROKE}
               />
               <circle
-                cx={RING_SIZE / 2}
-                cy={RING_SIZE / 2}
-                r={RING_RADIUS}
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={ringRadius}
                 fill="none"
                 stroke={ringColor}
                 strokeWidth={RING_STROKE}
                 strokeLinecap="round"
-                strokeDasharray={RING_CIRCUMFERENCE}
-                strokeDashoffset={RING_CIRCUMFERENCE * (1 - overall / 100)}
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringCircumference * (1 - overall / 100)}
               />
             </svg>
           )}
           <Box sx={{ position: 'absolute', inset: 0, borderRadius: '50%', overflow: 'hidden' }}>
-            <CartoonAvatar seed={player.id} size={RING_SIZE} />
+            <CartoonAvatar seed={player.id} size={ringSize} />
           </Box>
           {canSeeSkills && (
             <Box
@@ -95,8 +100,8 @@ export function PlayerProfileRail({
                 position: 'absolute',
                 bottom: -4,
                 right: -4,
-                width: 32,
-                height: 32,
+                width: badgeSize,
+                height: badgeSize,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -104,7 +109,7 @@ export function PlayerProfileRail({
                 bgcolor: ringColor,
                 color: theme.palette.getContrastText(ringColor),
                 fontWeight: 700,
-                fontSize: '0.8rem',
+                fontSize: isMobile ? '0.7rem' : '0.8rem',
                 border: `2px solid ${theme.palette.background.paper}`,
               }}
               title={t('playerCard.overall')}
@@ -137,7 +142,7 @@ export function PlayerProfileRail({
 
         <PlayerStatusAlerts player={player} />
 
-        <Stack spacing={0.75} sx={{ width: '100%', textAlign: 'left', borderTop: 1, borderColor: 'divider', pt: 1.5, mt: 0.5 }}>
+        <Stack spacing={0.5} sx={{ width: '100%', textAlign: 'left', borderTop: 1, borderColor: 'divider', pt: 1, mt: 0.25 }}>
           {!isFreeAgent && (
             <SpecRow
               label={t('playerPage.profile.team')}

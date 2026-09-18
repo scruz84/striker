@@ -40,15 +40,19 @@ export function PlayerAttributesPanel({ player }: { player: Player }) {
   const shapePoints = skills.map((s, i) => polarPoint(i, n, s.value / 100).join(',')).join(' ')
 
   return (
-    <Paper variant="outlined" sx={{ p: 2.5 }}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: { xs: 1, sm: 2 } }}>
         {t('playerPage.attributes.title')}
       </Typography>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ alignItems: 'center' }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1, md: 3 }} sx={{ alignItems: 'center' }}>
+        {/* The radar chart repeats exactly what the bars below it already show, just less legibly
+            at phone width - dropping it there (bars alone, as a compact list) keeps the same
+            information in a fraction of the vertical space; there's room for both side by side
+            from md up. */}
         <Box
           component="svg"
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          sx={{ width: '100%', maxWidth: 300, flexShrink: 0 }}
+          sx={{ display: { xs: 'none', md: 'block' }, width: '100%', maxWidth: 300, flexShrink: 0 }}
         >
           {GRID_RINGS.map((frac) => (
             <polygon
@@ -86,7 +90,7 @@ export function PlayerAttributesPanel({ player }: { player: Player }) {
           })}
         </Box>
 
-        <Stack spacing={1.25} sx={{ flex: 1, width: '100%' }}>
+        <Stack spacing={{ xs: 0.75, sm: 1.25 }} sx={{ flex: 1, width: '100%' }}>
           {skills.map((s) => (
             <SkillTierBar key={s.field} label={s.label} value={s.value} color={ratingTierColor(s.value, theme.palette)} />
           ))}
@@ -98,14 +102,14 @@ export function PlayerAttributesPanel({ player }: { player: Player }) {
 
 function SkillTierBar({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5 }}>
-      <Typography variant="body2" sx={{ width: 100, flexShrink: 0 }}>
+    <Stack direction="row" sx={{ alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+      <Typography variant="body2" noWrap sx={{ width: { xs: 76, sm: 100 }, flexShrink: 0 }}>
         {label}
       </Typography>
-      <Box sx={{ flex: 1, height: 8, borderRadius: 1, bgcolor: 'action.hover', overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, height: 6, borderRadius: 1, bgcolor: 'action.hover', overflow: 'hidden' }}>
         <Box sx={{ display: 'block', width: `${Math.min(value, 100)}%`, height: '100%', bgcolor: color, borderRadius: 1 }} />
       </Box>
-      <Typography variant="body2" color="text.secondary" sx={{ width: 28, textAlign: 'right', flexShrink: 0, fontWeight: 600 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ width: 24, textAlign: 'right', flexShrink: 0, fontWeight: 600 }}>
         {value}
       </Typography>
     </Stack>

@@ -40,8 +40,8 @@ export function PlayerDetailsPage() {
   const canSeeSkills = canSeeFinancials || player.transferListingAskingPrice !== undefined
 
   return (
-    <Stack spacing={2}>
-      <Grid container spacing={2}>
+    <Stack spacing={{ xs: 1.5, sm: 2 }}>
+      <Grid container spacing={{ xs: 1.5, sm: 2 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerProfileRail player={player} canSeeFinancials={canSeeFinancials} canSeeSkills={canSeeSkills} />
         </Grid>
