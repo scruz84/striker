@@ -14,6 +14,7 @@ import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../
 import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
@@ -217,7 +218,9 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
           {tab === 2 && <MatchRatingsTab match={match} />}
           {tab === 3 && (
             <Lineups
+              homeId={match.home}
               homeName={match.homeName}
+              awayId={match.away}
               awayName={match.awayName}
               homeLineup={match.homeLineup}
               awayLineup={match.awayLineup}
@@ -234,7 +237,9 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
 }
 
 export interface LineupsProps {
+  homeId: number
   homeName: string
+  awayId: number
   awayName: string
   homeLineup: WeekMatch['homeLineup']
   awayLineup: WeekMatch['awayLineup']
@@ -255,7 +260,7 @@ export function goalkeeperRating(lineup: WeekMatch['homeLineup'], players: WeekM
 // Exported for reuse by CupTieDetailsPage - a cup tie's lineups tab is otherwise identical, minus
 // per-minute instants (cup ties don't record those - see backend/common.CupTieDetails), so
 // callers there simply pass matchInstants={null}.
-export function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
+export function Lineups({ homeId, homeName, awayId, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
   // The kickoff instant (minute 1) reflects the same starting XI the pitch below shows - later
   // instants would drift as the match itself changes who's on the pitch (cards, injuries, subs).
   const kickoff = matchInstants?.[0]
@@ -277,7 +282,7 @@ export function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayer
       <Grid size={{ xs: 12, md: kickoff ? 7 : 12 }}>
         <Box sx={{ maxWidth: 380, mx: 'auto' }}>
           <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
-            {awayName}
+            <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
           </Typography>
           <MatchHeadToHeadPitch
             homeLineup={homeLineup}
@@ -286,7 +291,7 @@ export function Lineups({ homeName, awayName, homeLineup, awayLineup, homePlayer
             awayPlayers={awayPlayers}
           />
           <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
-            {homeName}
+            <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
           </Typography>
         </Box>
       </Grid>

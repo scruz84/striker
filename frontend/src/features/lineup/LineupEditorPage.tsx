@@ -4,7 +4,8 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -83,7 +84,16 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
   const [substitutionDrafts, setSubstitutionDrafts] = useState<SubstitutionDraft[]>(() => initialSubstitutionDrafts(lineup))
   const setLineup = useSetLineup()
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor))
+  // Split by input type rather than one shared PointerSensor: a mouse can start a drag on the
+  // slightest move (distance: 4) since there's no competing scroll gesture, but touch needs a
+  // short press-and-hold (delay: 200ms, tolerance: 8px of wiggle during that hold) so a quick
+  // swipe to scroll the page passes through as a scroll instead of picking the player up - see
+  // DraggablePlayerChip's touchAction comment for the other half of this fix.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  )
 
   const counts = FORMATION_POSITION_COUNTS[formation] ?? FORMATION_POSITION_COUNTS[FORMATION_BALANCED]
   const positionsToShow = Object.keys(counts).map(Number)
@@ -213,11 +223,11 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" sx={{ mb: { xs: 1, sm: 2 } }}>
         {t('lineup.title', { teamName: team.name })}
       </Typography>
 
-      <FormControl sx={{ mb: 2, minWidth: 220 }}>
+      <FormControl size="small" sx={{ mb: { xs: 1, sm: 2 }, minWidth: { xs: '100%', sm: 220 } }}>
         <InputLabel id="formation-label">{t('lineup.formation')}</InputLabel>
         <Select labelId="formation-label" label={t('lineup.formation')} value={formation} onChange={handleFormationChange}>
           {Object.keys(FORMATION_LABEL_KEYS).map((value) => (
@@ -229,17 +239,17 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       </FormControl>
 
       {!isComplete && (
-        <Alert severity="info" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}
         </Alert>
       )}
       {setLineup.isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.saveError')}
         </Alert>
       )}
       {setLineup.isSuccess && (
-        <Alert severity="success" sx={{ mb: 2 }}>
+        <Alert severity="success" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.saveSuccess')}
         </Alert>
       )}
@@ -250,7 +260,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <Grid container spacing={2}>
+        <Grid container spacing={{ xs: 1, sm: 2 }}>
           <Grid size={{ xs: 12, md: 8 }}>
             <SoccerPitch counts={counts} getPlayer={getPlayer} />
           </Grid>
@@ -267,7 +277,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         </DragOverlay>
       </DndContext>
 
-      <Paper variant="outlined" sx={{ p: 2, mt: 3 }}>
+      <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, mt: { xs: 2, sm: 3 } }}>
         <Typography variant="subtitle1" gutterBottom>
           {t('lineup.substitutions.title')}
         </Typography>
@@ -277,7 +287,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         <Stack spacing={2}>
           {substitutionDrafts.map((draft, index) => (
             <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-              <FormControl size="small" sx={{ minWidth: 180 }}>
+              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 } }}>
                 <InputLabel id={`sub-out-label-${index}`}>{t('lineup.substitutions.playerOut')}</InputLabel>
                 <Select
                   labelId={`sub-out-label-${index}`}
@@ -294,7 +304,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
                     ))}
                 </Select>
               </FormControl>
-              <FormControl size="small" sx={{ minWidth: 180 }}>
+              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 } }}>
                 <InputLabel id={`sub-in-label-${index}`}>{t('lineup.substitutions.playerIn')}</InputLabel>
                 <Select
                   labelId={`sub-in-label-${index}`}
@@ -342,7 +352,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
 
       <Button
         variant="contained"
-        sx={{ mt: 3 }}
+        sx={{ mt: { xs: 2, sm: 3 } }}
         disabled={!isComplete || setLineup.isPending}
         onClick={handleSubmit}
       >

@@ -168,7 +168,13 @@
     "rightMidfield": "Right midfield",
     "striker": "Striker",
     "leftStriker": "Left striker",
-    "rightStriker": "Right striker"
+    "rightStriker": "Right striker",
+    "short": {
+      "goalkeeper": "GK",
+      "defense": "DEF",
+      "midfield": "MID",
+      "striker": "ST"
+    }
   },
   "formations": {
     "balanced": "Balanced (4-4-2)",
@@ -231,7 +237,9 @@
       "to": "To",
       "made": "Made",
       "amount": "Amount",
-      "terms": "Personal terms"
+      "terms": "Personal terms",
+      "rating": "Rating",
+      "position": "Pos"
     },
     "filters": {
       "search": "Search player",
@@ -240,6 +248,8 @@
       "minPrice": "Min price",
       "maxPrice": "Max price",
       "maxDuration": "Max duration",
+      "position": "Position",
+      "allPositions": "All positions",
       "any": "Any",
       "clear": "Clear filters",
       "noResults": "No players match your filters."
@@ -289,7 +299,8 @@
       "none": "No free agents available right now.",
       "wage": "Wage",
       "sign": "Sign",
-      "premiumChip": "Premium applies"
+      "premiumChip": "Premium applies",
+      "formerClub": "Ex-{{team}}"
     },
     "coaching": {
       "intro": "A head coach speeds up player development and raises your youth academy's prospect quality - no signing fee, just their wage.",
@@ -416,15 +427,11 @@
       "played": "Played",
       "noUpcoming": "No upcoming matches scheduled.",
       "noPlayed": "No matches played yet.",
-      "kind": "Competition",
-      "opponent": "Opponent",
-      "date": "Date",
-      "result": "Result",
       "kindLeague": "League",
       "kindCup": "Cup",
       "kindFriendly": "Friendly",
-      "vsHome": "vs {{name}} (H)",
-      "vsAway": "vs {{name}} (A)"
+      "homeTag": "H",
+      "awayTag": "A"
     },
     "trophyCabinet": "Trophy cabinet",
     "noSeasons": "No completed seasons yet.",
@@ -530,7 +537,7 @@
   "headToHead": {
     "title": "Head to head",
     "noMeetings": "These teams haven't played each other yet.",
-    "record": "{{teamA}} wins - draws - {{teamB}} wins",
+    "draws": "Draws",
     "goals": "Goals: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
   },
   "groups": {
@@ -694,6 +701,14 @@
       "confirmGrantAdmin": "Grant admin access to {{name}}?",
       "confirmRevokeAdmin": "Revoke admin access from {{name}}?"
     }
+  },
+  "evolution": {
+    "title": "Latest evolution - Season {{season}}",
+    "pageTitle": "Latest player evolutions",
+    "season": "Season {{season}}",
+    "age": "Age",
+    "noChange": "No skill changes this season.",
+    "none": "No players have gone through a season progression yet."
   },
   "playerCard": {
     "age": "Age {{age}}",

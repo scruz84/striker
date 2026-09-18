@@ -55,7 +55,52 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	renewExpiringContracts(dbCtx, team.Id, *players)
 	releaseSurplusPlayer(dbCtx, team.Id, *players)
 	signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
+	respondToReceivedOffers(dbCtx, team.Id)
 	maximizeTicketPrice(dbCtx, team.Id)
+}
+
+// minAcceptableTransferFeeWageMultiplier is how many times a player's own market-rate wage (see
+// common.PlayerWageFromSkills) an incoming transfer offer's fee must be worth before a
+// Manager-level AI team accepts it - low enough that a genuinely competitive offer for a squad
+// player gets taken, high enough that a lowball offer aimed at poaching a good player for next to
+// nothing gets rejected instead. Mirrors EarlyReleaseWageMultiplier's use of wage as this file's
+// common yardstick for a player's worth. A sale thinning the squad below common.SquadSize is not
+// specially guarded against here: signFreeAgentForWeakestPosition (run just before this, every
+// time) reactively refills whichever position ends up thinnest, the same way it already covers a
+// retirement or an expired contract - there's nothing about a sale that needs different handling.
+const minAcceptableTransferFeeWageMultiplier = 20
+
+// respondToReceivedOffers judges every pending offer on a Manager-level AI team's own players:
+// accept a fee that clears minAcceptableTransferFeeWageMultiplier (the personal terms are already
+// settled - see MakeTransferOffer, which never even creates an offer the player themself wouldn't
+// accept), reject anything less. Before this, a human's offer on an AI-managed team's player had
+// no automated response at all and would sit pending forever - only interacting with the open
+// market as a buyer/lister was covered.
+func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
+	offers, err := common.GetOffersReceived(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching received offers for AI-managed team %d: %s", teamId, err)
+		return
+	}
+
+	for _, offer := range offers {
+		p := offer.Player
+		expectedWage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
+		goodOffer := offer.Amount >= int64(expectedWage*minAcceptableTransferFeeWageMultiplier)
+
+		if !goodOffer {
+			if err := common.RejectOffer(dbCtx, offer.OfferId, teamId); err != nil {
+				log.Errorf("error rejecting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
+			}
+			continue
+		}
+
+		if err := common.AcceptOffer(dbCtx, offer.OfferId, teamId); err != nil &&
+			!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrOfferNoLongerValid) &&
+			!errors.Is(err, common.ErrInsufficientBudget) {
+			log.Errorf("error accepting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
+		}
+	}
 }
 
 // renewExpiringContracts extends every squad player's contract once it's down to

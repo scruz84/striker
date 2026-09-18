@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SettingsIcon from '@mui/icons-material/Settings'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useMarkAllNotificationsRead,
@@ -27,6 +28,7 @@ import { formatDateTime } from '../utils/formatDate'
 
 export function NotificationBell() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { data: loggedUser } = useMe()
   const { data } = useNotifications(!!loggedUser)
   const markRead = useMarkNotificationRead()
@@ -46,6 +48,10 @@ export function NotificationBell() {
   const handleItemClick = (notification: Notification) => {
     if (!notification.read) {
       markRead.mutate(notification.notificationId)
+    }
+    if (notification.link) {
+      setAnchorEl(null)
+      navigate(notification.link)
     }
   }
 

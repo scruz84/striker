@@ -22,10 +22,10 @@ export function PlayerBench({ players }: PlayerBenchProps) {
       </Typography>
       <Stack
         ref={setNodeRef}
-        spacing={1}
+        spacing={0.5}
         sx={{
           minHeight: 120,
-          p: 1,
+          p: 0.75,
           borderRadius: 1,
           bgcolor: isOver ? 'action.hover' : 'action.selected',
           border: '1px dashed',

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
@@ -151,8 +152,10 @@ func driftSkillsForPosition(p common.Player, position int, playChance float32, a
 // full squad (by either retirement or an expired contract) is topped back up from the youth
 // academy (see common.CreateAcademyPlayers, also trainer-boosted). Also tops up the open trainer
 // market (see common.TopUpTrainerMarket) and clears the season's minutes accumulator once it's
-// been read. Meant to run once per season, from AdvanceSeasonIfComplete.
-func ProgressPlayers(dbCtx *common.DatabaseContext) {
+// been read. Meant to run once per season, from AdvanceSeasonIfComplete. season is the one that
+// just completed - stamped on each common.LogPlayerProgression row and named in the resulting
+// NOTIFICATION_PROGRESSION notification.
+func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
 	teamIds, err := common.GetAllTeamIds(dbCtx)
@@ -181,6 +184,8 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 			minutesByPlayer = nil // treat as "nobody played" rather than block the season rollover
 		}
 
+		evolvedCount := 0
+
 		for _, player := range *players {
 			newAge := player.Age + 1
 			if ShouldRetire(newAge, r) {
@@ -207,11 +212,29 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 				log.Errorf("error updating progression for player %d: %s", player.Id, err)
 			}
 
+			if err := common.LogPlayerProgression(dbCtx, player.Id, season, player.Age, newAge,
+				player.GoalKeeper, goalKeeper, player.Defense, defense, player.Lateral, lateral,
+				player.Pass, pass, player.Midfield, midfield, player.Dribbling, dribbling,
+				player.Shot, shot); err != nil {
+				log.Errorf("error logging progression for player %d: %s", player.Id, err)
+			}
+			if goalKeeper != player.GoalKeeper || defense != player.Defense || lateral != player.Lateral ||
+				pass != player.Pass || midfield != player.Midfield || dribbling != player.Dribbling || shot != player.Shot {
+				evolvedCount++
+			}
+
 			released, err := common.AdvancePlayerContract(dbCtx, player.Id)
 			if err != nil {
 				log.Errorf("error advancing contract for player %d: %s", player.Id, err)
 			} else if released {
 				log.Infof("player %d (%s %s) released to free agency: contract expired", player.Id, player.FirstName, player.LastName)
+			}
+		}
+
+		if evolvedCount > 0 {
+			message := fmt.Sprintf("%d of your players developed this season - check their latest evolutions", evolvedCount)
+			if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, message, "/players/evolutions"); err != nil {
+				log.Errorf("error notifying team %d of player evolutions: %s", teamId, err)
 			}
 		}
 

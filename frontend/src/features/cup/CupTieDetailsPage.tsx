@@ -200,7 +200,9 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
           )}
           {tab === 1 && (
             <Lineups
+              homeId={tie.homeTeamId ?? 0}
               homeName={tie.homeTeamName}
+              awayId={tie.awayTeamId ?? 0}
               awayName={tie.awayTeamName}
               homeLineup={tie.homeLineup}
               awayLineup={tie.awayLineup}

@@ -204,6 +204,14 @@ type TeamTransaction struct {
 	PlayerId *int64 `json:"playerId,omitempty"`
 }
 
+// FreeAgentListing is a free agent as shown on the transfer market's free agents tab - the bare
+// Player plus their last club's name (if any), resolved once here rather than making the
+// frontend look it up per row. See GetFreeAgentListings.
+type FreeAgentListing struct {
+	Player
+	LastTeamName string `json:"lastTeamName,omitempty"`
+}
+
 // TransferListing is a player up for transfer, bought instantly at AskingPrice (no bidding).
 type TransferListing struct {
 	ListingId       int64     `json:"listingId"`

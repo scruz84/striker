@@ -1,6 +1,8 @@
 package common
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"io/fs"
 	"math"
@@ -13,6 +15,18 @@ import (
 	"github.com/scruz84/striker/resources"
 	log "github.com/sirupsen/logrus"
 )
+
+// schemaMigrationLockKey is an arbitrary Postgres advisory lock key (see pg_advisory_lock),
+// unique only in the sense that nothing else in this app uses it. EnsureSchema is called
+// independently by both service.StartSvc and engine.StartEngine at startup - running --svc
+// --engine together in one process (see cmd/striker.go) starts them as concurrent goroutines
+// against the same database, and running them as separate containers started at the same time
+// (see docker-compose.yml) races the same way across processes. Without this lock, two callers
+// can both pass a `CREATE TABLE IF NOT EXISTS`'s existence check before either commits, then both
+// attempt the literal CREATE - the loser gets a duplicate-key error on Postgres's internal
+// pg_type catalog, since IF NOT EXISTS alone isn't safe against concurrent DDL (a documented
+// Postgres limitation, not a bug in any individual migration file).
+const schemaMigrationLockKey = 8817224
 
 // SchemaExistsStmtSql checks for the "teams" table - created by the very first schema file
 // (resources/sql/init.sql) and never dropped - as a cheap proxy for "has the schema already
@@ -55,8 +69,28 @@ func schemaFileSortKey(name string) (int, string) {
 // engine.StartEngine) so pulling a branch that adds a new migration file is picked up on the next
 // restart, with no manual psql step required.
 func EnsureSchema(dbCtx *DatabaseContext) error {
+	ctx := context.Background()
+	// A session-level advisory lock is tied to the connection that acquired it, not to dbCtx.Db
+	// as a whole (a *sql.DB is a pool - a bare dbCtx.Db.Exec for the unlock could run on a
+	// different underlying connection than the lock did) - so this dedicated connection carries
+	// every statement EnsureSchema runs, lock through unlock.
+	conn, err := dbCtx.Db.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("acquiring a dedicated connection for schema migration: %w", err)
+	}
+	defer conn.Close()
+
+	if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_lock($1)", schemaMigrationLockKey); err != nil {
+		return fmt.Errorf("acquiring schema migration lock: %w", err)
+	}
+	defer func() {
+		if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_unlock($1)", schemaMigrationLockKey); err != nil {
+			log.Errorf("error releasing schema migration lock: %s", err)
+		}
+	}()
+
 	var exists bool
-	if err := dbCtx.Db.QueryRow(SchemaExistsStmtSql).Scan(&exists); err != nil {
+	if err := conn.QueryRowContext(ctx, SchemaExistsStmtSql).Scan(&exists); err != nil {
 		return fmt.Errorf("checking whether the schema already exists: %w", err)
 	}
 
@@ -74,12 +108,12 @@ func EnsureSchema(dbCtx *DatabaseContext) error {
 	})
 
 	if exists {
-		return applyPendingMigrations(dbCtx, names)
+		return applyPendingMigrations(ctx, conn, names)
 	}
 
 	log.Info("schema not found - applying resources/sql/*.sql before seeding the game")
 	for _, name := range names {
-		if err := applySchemaFile(dbCtx, name); err != nil {
+		if err := applySchemaFile(ctx, conn, name); err != nil {
 			return err
 		}
 	}
@@ -127,26 +161,26 @@ func collectSchemaFiles() ([]string, error) {
 // have no IF NOT EXISTS, and the dumps have no uniqueness constraint stopping a second INSERT
 // from duplicating every row, so both are only ever safe to apply once, against a genuinely empty
 // database.
-func applyPendingMigrations(dbCtx *DatabaseContext, names []string) error {
+func applyPendingMigrations(ctx context.Context, conn *sql.Conn, names []string) error {
 	log.Info("schema already exists - checking for pending incremental migrations")
 	for _, name := range names {
 		if !initFileNumberPattern.MatchString(path.Base(name)) {
 			continue
 		}
-		if err := applySchemaFile(dbCtx, name); err != nil {
+		if err := applySchemaFile(ctx, conn, name); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func applySchemaFile(dbCtx *DatabaseContext, name string) error {
+func applySchemaFile(ctx context.Context, conn *sql.Conn, name string) error {
 	contents, err := resources.SQLFiles.ReadFile("sql/" + name)
 	if err != nil {
 		return fmt.Errorf("reading %s: %w", name, err)
 	}
 	log.Infof("applying schema file %s", name)
-	if _, err := dbCtx.Db.Exec(string(contents)); err != nil {
+	if _, err := conn.ExecContext(ctx, string(contents)); err != nil {
 		return fmt.Errorf("applying %s: %w", name, err)
 	}
 	return nil

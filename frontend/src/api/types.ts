@@ -68,6 +68,13 @@ export interface Player {
   shirtNumber?: number
 }
 
+// FreeAgentListing is what the free agents tab of the transfer market actually gets back - a
+// Player plus their last club's name (see backend common.FreeAgentListing), resolved server-side
+// so the market page doesn't have to look up lastTeamId one team at a time.
+export interface FreeAgentListing extends Player {
+  lastTeamName?: string
+}
+
 // Every country code the game can generate players/teams for (mirrors backend
 // common.KnownCountries) - maps to an i18n key rather than a hardcoded name so a player's birth
 // country renders in whichever language the UI is already in.
@@ -338,6 +345,17 @@ export const POSITION_LABEL_KEYS: Record<number, string> = {
   [POSITION_LATERAL_STRIKER_RIGHT]: 'positions.rightStriker',
 }
 
+// Short (2-3 letter) labels for just the four core positions bestCorePosition (see
+// utils/playerRating) ever returns - used wherever a player's suggested position needs to fit
+// next to their name in a compact chip (transfer market rows, lineup editor cards) rather than
+// the full POSITION_LABEL_KEYS word.
+export const POSITION_SHORT_LABEL_KEYS: Record<number, string> = {
+  [POSITION_GOALKEEPER]: 'positions.short.goalkeeper',
+  [POSITION_DEFENSE]: 'positions.short.defense',
+  [POSITION_MIDFIELD]: 'positions.short.midfield',
+  [POSITION_STRIKER]: 'positions.short.striker',
+}
+
 export const ALL_POSITIONS = [
   POSITION_GOALKEEPER,
   POSITION_DEFENSE,
@@ -567,6 +585,38 @@ export interface PlayerDetails extends Player {
   transferListingAskingPrice?: number
   loanListingDurationSeasons?: number
   history: TeamTransaction[]
+  latestEvolution?: PlayerEvolution
+}
+
+// One attribute's value before and after a season-end progression run - see backend
+// common.SkillDelta. after === before means that attribute held steady this season, which is
+// itself meaningful to show (not every skill drifts every season - see engine.driftSkillsForPosition).
+export interface SkillDelta {
+  before: number
+  after: number
+}
+
+// Mirrors backend common.PlayerEvolution - one player's captured skill/age change from a single
+// season-end progression run (see engine.ProgressPlayers). Shown on the player's own details page
+// and, as TeamPlayerEvolution, in the squad-wide list a NOTIFICATION_PROGRESSION notification
+// links to.
+export interface PlayerEvolution {
+  playerId: number
+  season: number
+  age: SkillDelta
+  goalKeeper: SkillDelta
+  defense: SkillDelta
+  lateral: SkillDelta
+  pass: SkillDelta
+  midfield: SkillDelta
+  dribbling: SkillDelta
+  shot: SkillDelta
+  createdAt: string
+}
+
+export interface TeamPlayerEvolution extends PlayerEvolution {
+  firstName: string
+  lastName: string
 }
 
 export interface HeadToHeadMeeting {
@@ -706,12 +756,17 @@ export const NOTIFICATION_RELEGATION = 2
 export const NOTIFICATION_TRANSFER = 3
 export const NOTIFICATION_CUP = 4
 export const NOTIFICATION_TRAINER = 5
+export const NOTIFICATION_FRIENDLY = 6
+export const NOTIFICATION_ACADEMY_PROMOTION = 7
+export const NOTIFICATION_PROGRESSION = 8
 
 export interface Notification {
   notificationId: number
-  userId: number
   notificationType: number
   message: string
+  // In-app route to navigate to on click (e.g. "/players/evolutions") - absent for every
+  // notification type whose message alone already says everything relevant.
+  link?: string
   read: boolean
   createdAt: string
 }

@@ -20,6 +20,7 @@ import { LeaguesPage } from '../features/leagues/LeaguesPage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
 import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
+import { LatestEvolutionsPage } from '../features/player/LatestEvolutionsPage'
 import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
 import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
 import { TeamMatchesPage } from '../features/team/TeamMatchesPage'
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/team/:id" element={<TeamDetailsPage />} />
                     <Route path="/team/:id/matches" element={<TeamMatchesPage />} />
                     <Route path="/player/:id" element={<PlayerDetailsPage />} />
+                    <Route path="/players/evolutions" element={<LatestEvolutionsPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/onboarding" element={<SelectCountryPage />} />
                     <Route path="*" element={<HomePage />} />

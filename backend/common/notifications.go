@@ -8,18 +8,23 @@ import (
 )
 
 // Notification is one entry in a user's notification feed (match results, promotion/
-// relegation, transfers, cup results - see the NOTIFICATION_* constants).
+// relegation, transfers, cup results - see the NOTIFICATION_* constants). Link is an optional
+// in-app route the frontend navigates to on click (see NotifyTeamOwnerWithLink) - empty for
+// every notification type that existed before it (their message already says everything
+// relevant), so the frontend only needs to treat it as clickable when non-empty.
 type Notification struct {
-	Id        int64     `json:"id"`
-	Type      int       `json:"type"`
+	Id        int64     `json:"notificationId"`
+	Type      int       `json:"notificationType"`
 	Message   string    `json:"message"`
+	Link      string    `json:"link,omitempty"`
 	Read      bool      `json:"read"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 const InsertNotificationStmtSql = "INSERT INTO notifications (user_id, notification_type, message) VALUES ($1, $2, $3)"
+const InsertNotificationWithLinkStmtSql = "INSERT INTO notifications (user_id, notification_type, message, link) VALUES ($1, $2, $3, $4)"
 
-const GetNotificationsStmtSql = "SELECT notification_id, notification_type, message, read, created_at " +
+const GetNotificationsStmtSql = "SELECT notification_id, notification_type, message, COALESCE(link, ''), read, created_at " +
 	"FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2"
 
 const GetUnreadNotificationCountStmtSql = "SELECT count(*) FROM notifications WHERE user_id = $1 AND read = false"
@@ -31,6 +36,17 @@ const MarkAllNotificationsReadStmtSql = "UPDATE notifications SET read = true WH
 // CreateNotification adds one entry to a user's feed.
 func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType int, message string) error {
 	_, err := dbCtx.Db.Exec(InsertNotificationStmtSql, userId, notificationType, message)
+	if err == nil {
+		NotificationsSentCounter.Add(context.Background(), 1, metric.WithAttributes(NotificationTypeAttribute(notificationType)))
+	}
+	return err
+}
+
+// CreateNotificationWithLink is CreateNotification plus an in-app route the frontend navigates to
+// on click (see Notification.Link) - for a notification type whose message alone can't point a
+// viewer at the right page (e.g. NOTIFICATION_PROGRESSION's squad-wide evolutions view).
+func CreateNotificationWithLink(dbCtx *DatabaseContext, userId int64, notificationType int, message string, link string) error {
+	_, err := dbCtx.Db.Exec(InsertNotificationWithLinkStmtSql, userId, notificationType, message, link)
 	if err == nil {
 		NotificationsSentCounter.Add(context.Background(), 1, metric.WithAttributes(NotificationTypeAttribute(notificationType)))
 	}
@@ -49,6 +65,19 @@ func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int,
 		return nil
 	}
 	if err := CreateNotification(dbCtx, userId, notificationType, message); err != nil {
+		return err
+	}
+	deliverExternalNotifications(dbCtx, userId, message)
+	return nil
+}
+
+// NotifyTeamOwnerWithLink is NotifyTeamOwner plus an in-app route (see CreateNotificationWithLink).
+func NotifyTeamOwnerWithLink(dbCtx *DatabaseContext, teamId int64, notificationType int, message string, link string) error {
+	userId, err := GetTeamOwner(dbCtx, teamId)
+	if err != nil || userId <= 0 {
+		return nil
+	}
+	if err := CreateNotificationWithLink(dbCtx, userId, notificationType, message, link); err != nil {
 		return err
 	}
 	deliverExternalNotifications(dbCtx, userId, message)
@@ -81,7 +110,7 @@ func GetNotifications(dbCtx *DatabaseContext, userId int64, limit int) ([]Notifi
 	notifications := make([]Notification, 0)
 	for rows.Next() {
 		var n Notification
-		if err := rows.Scan(&n.Id, &n.Type, &n.Message, &n.Read, &n.CreatedAt); err != nil {
+		if err := rows.Scan(&n.Id, &n.Type, &n.Message, &n.Link, &n.Read, &n.CreatedAt); err != nil {
 			return nil, err
 		}
 		notifications = append(notifications, n)

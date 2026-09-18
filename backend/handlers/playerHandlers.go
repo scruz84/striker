@@ -61,6 +61,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.PlayerStatus = status
 		}
 
+		if evolution, err := common.GetLatestPlayerEvolution(dbCtx, playerId); err != nil {
+			log.Errorf("error loading latest evolution for player %d: %s", playerId, err)
+		} else {
+			details.LatestEvolution = evolution
+		}
+
 		// A rostered player's wage, contract, and financial transaction history are the owning
 		// team's business, not any visitor's - see common.Player.RedactFinancials. A free agent
 		// (TeamId == 0) has no current team to protect that information for, so it stays visible
@@ -90,9 +96,36 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.RedactSkills(transferListed)
 			if player.TeamId != 0 && !transferListed {
 				details.BestPosition = 0
+				details.LatestEvolution = nil
 			}
 		}
 
 		c.JSON(http.StatusOK, details)
+	}
+}
+
+// TeamLatestEvolutionsHandler lists the caller's own squad's most recent season-end progression
+// results (see common.GetLatestPlayerEvolutionsForTeam) - the page a NOTIFICATION_PROGRESSION
+// notification links to. Always scoped to the caller's own team; there's no equivalent for
+// browsing another team's evolutions.
+func TeamLatestEvolutionsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+		evolutions, err := common.GetLatestPlayerEvolutionsForTeam(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error loading latest evolutions for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, evolutions)
 	}
 }

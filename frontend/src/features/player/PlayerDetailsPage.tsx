@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
 import { TRANSACTION_REASON_KEYS } from '../../api/types'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
+import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
@@ -51,6 +52,8 @@ export function PlayerDetailsPage() {
           </Grid>
         )}
       </Grid>
+
+      {canSeeSkills && player.latestEvolution && <PlayerEvolutionCard evolution={player.latestEvolution} />}
 
       {canSeeFinancials && (
         <Stack spacing={1}>

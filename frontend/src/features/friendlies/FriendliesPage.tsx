@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
@@ -10,6 +11,8 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
+import { mightStillBeLive } from '../../api/useLiveMatch'
+import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import {
   useAcceptFriendlyChallenge,
   useChallengeToFriendly,
@@ -273,6 +276,7 @@ function MatchList({
   myTeamId?: number
   showResult: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <Paper sx={{ p: 2 }}>
       <Typography variant="subtitle1" gutterBottom>
@@ -288,6 +292,9 @@ function MatchList({
         <Stack spacing={1}>
           {matches.map((m) => {
             const isHome = m.homeTeamId === myTeamId
+            // See DivisionDetailsPage's identical mightStillBeLive check - played flips true well
+            // before the match's result finishes broadcasting live.
+            const stillLive = showResult && m.played && mightStillBeLive(m.matchDate)
             return (
               <Stack
                 key={m.matchId}
@@ -298,13 +305,17 @@ function MatchList({
                 sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
               >
                 <Typography variant="body2" sx={{ flex: 1, fontWeight: isHome ? 600 : 400 }}>
-                  {m.homeTeamName}
+                  <NestedTeamNameLink teamId={m.homeTeamId}>{m.homeTeamName}</NestedTeamNameLink>
                 </Typography>
-                <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
-                  {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
-                </Typography>
+                {stillLive ? (
+                  <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+                ) : (
+                  <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
+                    {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
+                  </Typography>
+                )}
                 <Typography variant="body2" sx={{ flex: 1, textAlign: 'right', fontWeight: !isHome ? 600 : 400 }}>
-                  {m.awayTeamName}
+                  <NestedTeamNameLink teamId={m.awayTeamId}>{m.awayTeamName}</NestedTeamNameLink>
                 </Typography>
               </Stack>
             )

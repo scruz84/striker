@@ -12,13 +12,13 @@ import (
 // via SignFreeAgentHandler.
 func BrowseFreeAgentsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		players, err := common.GetFreeAgents(dbCtx)
+		listings, err := common.GetFreeAgentListings(dbCtx)
 		if err != nil {
 			log.Errorf("error listing free agents: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		c.JSON(http.StatusOK, players)
+		c.JSON(http.StatusOK, listings)
 	}
 }
 

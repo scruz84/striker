@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
 import type { CupTie } from '../../api/types'
+import { mightStillBeLive } from '../../api/useLiveMatch'
+import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function CupPage() {
@@ -57,6 +59,9 @@ function TieRow({ tie }: { tie: CupTie }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isBye = tie.awayTeamId === null
+  // See DivisionDetailsPage's identical mightStillBeLive check - a tie flips played=true the
+  // instant it's simulated, well before its result finishes broadcasting live.
+  const stillLive = tie.played && mightStillBeLive(tie.matchDate ?? '')
 
   return (
     <ButtonBase
@@ -66,13 +71,17 @@ function TieRow({ tie }: { tie: CupTie }) {
     >
       <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center', width: '100%' }}>
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
-          {tie.homeTeamName || t('cup.tbd')}
+          {tie.homeTeamId ? <NestedTeamNameLink teamId={tie.homeTeamId}>{tie.homeTeamName}</NestedTeamNameLink> : t('cup.tbd')}
         </Typography>
-        <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
-          {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
-        </Typography>
+        {stillLive ? (
+          <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+        ) : (
+          <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
+            {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
+          </Typography>
+        )}
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-          {tie.awayTeamName || (isBye ? '' : t('cup.tbd'))}
+          {tie.awayTeamId ? <NestedTeamNameLink teamId={tie.awayTeamId}>{tie.awayTeamName}</NestedTeamNameLink> : isBye ? '' : t('cup.tbd')}
         </Typography>
         {tie.wentToPenalties && (
           <Typography variant="caption" color="text.secondary">

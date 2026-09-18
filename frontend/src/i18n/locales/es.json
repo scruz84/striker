@@ -168,7 +168,13 @@
     "rightMidfield": "Interior derecho",
     "striker": "Delantero",
     "leftStriker": "Extremo izquierdo",
-    "rightStriker": "Extremo derecho"
+    "rightStriker": "Extremo derecho",
+    "short": {
+      "goalkeeper": "POR",
+      "defense": "DEF",
+      "midfield": "MED",
+      "striker": "DEL"
+    }
   },
   "formations": {
     "balanced": "Equilibrada (4-4-2)",
@@ -231,7 +237,9 @@
       "to": "Para",
       "made": "Hecha",
       "amount": "Importe",
-      "terms": "Condiciones personales"
+      "terms": "Condiciones personales",
+      "rating": "Valoración",
+      "position": "Pos"
     },
     "filters": {
       "search": "Buscar jugador",
@@ -240,6 +248,8 @@
       "minPrice": "Precio mín.",
       "maxPrice": "Precio máx.",
       "maxDuration": "Duración máx.",
+      "position": "Posición",
+      "allPositions": "Todas las posiciones",
       "any": "Cualquiera",
       "clear": "Borrar filtros",
       "noResults": "Ningún jugador coincide con tus filtros."
@@ -289,7 +299,8 @@
       "none": "No hay agentes libres disponibles ahora mismo.",
       "wage": "Salario",
       "sign": "Fichar",
-      "premiumChip": "Con prima"
+      "premiumChip": "Con prima",
+      "formerClub": "Ex-{{team}}"
     },
     "coaching": {
       "intro": "Un entrenador acelera el desarrollo de los jugadores y mejora la calidad de la cantera - sin coste de fichaje, solo su salario.",
@@ -416,15 +427,11 @@
       "played": "Jugados",
       "noUpcoming": "No hay partidos programados.",
       "noPlayed": "Aún no se ha jugado ningún partido.",
-      "kind": "Competición",
-      "opponent": "Rival",
-      "date": "Fecha",
-      "result": "Resultado",
       "kindLeague": "Liga",
       "kindCup": "Copa",
       "kindFriendly": "Amistoso",
-      "vsHome": "vs {{name}} (L)",
-      "vsAway": "vs {{name}} (V)"
+      "homeTag": "L",
+      "awayTag": "V"
     },
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
@@ -530,7 +537,7 @@
   "headToHead": {
     "title": "Enfrentamientos directos",
     "noMeetings": "Estos equipos aún no se han enfrentado.",
-    "record": "Victorias de {{teamA}} - empates - victorias de {{teamB}}",
+    "draws": "Empates",
     "goals": "Goles: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
   },
   "groups": {
@@ -694,6 +701,14 @@
       "confirmGrantAdmin": "¿Dar acceso de administrador a {{name}}?",
       "confirmRevokeAdmin": "¿Quitar el acceso de administrador a {{name}}?"
     }
+  },
+  "evolution": {
+    "title": "Última evolución - Temporada {{season}}",
+    "pageTitle": "Últimas evoluciones de jugadores",
+    "season": "Temporada {{season}}",
+    "age": "Edad",
+    "noChange": "Sin cambios de habilidad esta temporada.",
+    "none": "Ningún jugador ha pasado aún por una progresión de temporada."
   },
   "playerCard": {
     "age": "Edad {{age}}",

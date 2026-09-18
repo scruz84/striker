@@ -21,7 +21,8 @@ import { useDivisionDetails, useTopScorers, useUserTeam } from '../../api/hooks'
 import type { ClassificationPosition, ScorerStanding, WeekMatch } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
-import { TeamNameLink } from '../../components/TeamNameLink'
+import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
+import { mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
@@ -273,51 +274,63 @@ function FixturesCard({ title, matches }: { title: string; matches: WeekMatch[] 
         </Typography>
       ) : (
         <Stack divider={<Box sx={{ borderBottom: '1px solid', borderColor: 'divider' }} />}>
-          {matches.map((match) => (
-            <Box
-              key={match.matchId}
-              component={RouterLink}
-              to={`/match/${match.matchId}`}
-              sx={{
-                display: 'block',
-                textDecoration: 'none',
-                color: 'inherit',
-                px: 2,
-                py: 1.25,
-                '&:hover': { bgcolor: 'action.hover' },
-              }}
-            >
-              <Grid container sx={{ alignItems: 'center' }}>
-                <Grid size={5}>
-                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <Typography variant="body2" align="right" noWrap sx={{ fontWeight: 500 }}>
-                      {match.homeName}
-                    </Typography>
-                    <TeamBadge teamId={match.home} teamName={match.homeName} size={22} />
-                  </Stack>
+          {matches.map((match) => {
+            // played flips true in the DB the instant a match is simulated, well before its
+            // result finishes broadcasting to viewers in real time (~90 minutes, see
+            // mightStillBeLive's comment) - showing the final score here immediately would spoil
+            // a match that still looks "live" everywhere else (the match details page, the team
+            // matches list). Show a LIVE chip instead until that window has elapsed.
+            const stillLive = match.played && mightStillBeLive(match.matchDate)
+            return (
+              <Box
+                key={match.matchId}
+                component={RouterLink}
+                to={`/match/${match.matchId}`}
+                sx={{
+                  display: 'block',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  px: 2,
+                  py: 1.25,
+                  '&:hover': { bgcolor: 'action.hover' },
+                }}
+              >
+                <Grid container sx={{ alignItems: 'center' }}>
+                  <Grid size={5}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+                      <NestedTeamNameLink teamId={match.home} variant="body2" align="right" noWrap sx={{ fontWeight: 500 }}>
+                        {match.homeName}
+                      </NestedTeamNameLink>
+                      <TeamBadge teamId={match.home} teamName={match.homeName} size={22} />
+                    </Stack>
+                  </Grid>
+                  <Grid size={2}>
+                    {stillLive ? (
+                      <Chip label={t('match.live')} color="error" size="small" sx={{ display: 'flex', mx: 'auto', width: 'fit-content', fontWeight: 700 }} />
+                    ) : (
+                      <Typography variant="body2" align="center" sx={{ fontWeight: 700 }}>
+                        {match.played ? `${match.homeGoals} - ${match.awayGoals}` : t('division.vs')}
+                      </Typography>
+                    )}
+                  </Grid>
+                  <Grid size={5}>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                      <TeamBadge teamId={match.away} teamName={match.awayName} size={22} />
+                      <NestedTeamNameLink teamId={match.away} variant="body2" noWrap sx={{ fontWeight: 500 }}>
+                        {match.awayName}
+                      </NestedTeamNameLink>
+                    </Stack>
+                  </Grid>
                 </Grid>
-                <Grid size={2}>
-                  <Typography variant="body2" align="center" sx={{ fontWeight: 700 }}>
-                    {match.played ? `${match.homeGoals} - ${match.awayGoals}` : t('division.vs')}
+                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'center', mt: 0.5 }}>
+                  <CalendarTodayTwoToneIcon sx={{ fontSize: 12 }} color="disabled" />
+                  <Typography variant="caption" color="text.secondary">
+                    {formatDateTime(match.matchDate)}
                   </Typography>
-                </Grid>
-                <Grid size={5}>
-                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                    <TeamBadge teamId={match.away} teamName={match.awayName} size={22} />
-                    <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>
-                      {match.awayName}
-                    </Typography>
-                  </Stack>
-                </Grid>
-              </Grid>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'center', mt: 0.5 }}>
-                <CalendarTodayTwoToneIcon sx={{ fontSize: 12 }} color="disabled" />
-                <Typography variant="caption" color="text.secondary">
-                  {formatDateTime(match.matchDate)}
-                </Typography>
-              </Stack>
-            </Box>
-          ))}
+                </Stack>
+              </Box>
+            )
+          })}
         </Stack>
       )}
     </Paper>

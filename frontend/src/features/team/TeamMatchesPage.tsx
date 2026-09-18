@@ -19,7 +19,7 @@ export function TeamMatchesPage() {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h5">
         {t('team.matches.title')} - {teamDetails.team.name}
       </Typography>
       <TeamMatchesSection teamId={id} />

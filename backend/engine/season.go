@@ -33,7 +33,7 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	log.Infof("season %d complete (%d matches played), advancing to season %d", currentSeason, total, newSeason)
 	common.SeasonRolloversCounter.Add(context.Background(), 1)
 
-	ProgressPlayers(dbCtx)
+	ProgressPlayers(dbCtx, currentSeason)
 	ProgressFreeAgents(dbCtx)
 	ReturnExpiredLoans(dbCtx, newSeason)
 	applyPromotionRelegation(dbCtx, currentSeason)

@@ -153,6 +153,11 @@ type PlayerDetails struct {
 	PlayerCareerStats
 	PlayerStatus
 	History []TeamTransaction `json:"history"`
+	// LatestEvolution is this player's most recent season-end progression run (see
+	// GetLatestPlayerEvolution) - nil if they've never been through one, or (like skills
+	// generally, see RedactSkills) if the viewer isn't the owning team and this player isn't a
+	// free agent or transfer-listed.
+	LatestEvolution *PlayerEvolution `json:"latestEvolution,omitempty"`
 }
 
 // BestCorePosition reports which of the four non-lateral tactical positions

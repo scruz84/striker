@@ -67,6 +67,45 @@ const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = 
 // team the player is leaving, not to them (issue #42).
 const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0, shirt_number = NULL WHERE player_id = $1"
 
+// GetFreeAgentListingsStmtSql mirrors GetFreeAgentsStmtSql but left-joins in the last club's name
+// for display on the transfer market's free agents tab (see GetFreeAgentListings) - a free agent
+// with no last_team_id (never released) gets a NULL/empty name, same as LastTeamId being 0.
+const GetFreeAgentListingsStmtSql = "SELECT p.player_id, p.first_name, p.last_name, p.birth_day, p.goal_keeper, p.defense, p.\"lateral\", p.pass, p.midfield, " +
+	"p.dribbling, p.shot, p.\"header\", p.quick, p.creative, p.technical, p.wage, p.age, p.avatar, p.contract_years_remaining, p.birth_country, " +
+	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(t.name, '') " +
+	"FROM players p LEFT JOIN teams t ON t.team_id = p.last_team_id " +
+	"WHERE p.team_id IS NULL " +
+	"ORDER BY (p.goal_keeper + p.defense + p.\"lateral\" + p.pass + p.midfield + p.dribbling + p.shot) DESC"
+
+// GetFreeAgentListings returns every unowned player, best-skilled first, same as GetFreeAgents,
+// but with each one's last club's name resolved for the transfer market's free agents tab.
+func GetFreeAgentListings(dbCtx *DatabaseContext) ([]*FreeAgentListing, error) {
+	rows, err := dbCtx.Db.Query(GetFreeAgentListingsStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	listings := make([]*FreeAgentListing, 0)
+	for rows.Next() {
+		var l FreeAgentListing
+		var birthDay int64
+		var avatar string
+		var birthCountry sql.NullString
+		if err := rows.Scan(&l.Id, &l.FirstName, &l.LastName, &birthDay,
+			&l.GoalKeeper, &l.Defense, &l.Lateral, &l.Pass, &l.Midfield, &l.Dribbling, &l.Shot,
+			&l.Header, &l.Quick, &l.Creative, &l.Technical, &l.Wage, &l.Age, &avatar, &l.ContractYearsRemaining, &birthCountry,
+			&l.FreeAgentSeasons, &l.LastTeamId, &l.LastTeamName); err != nil {
+			return nil, err
+		}
+		l.BirthDay = time.UnixMilli(birthDay)
+		l.Avatar = GetAvatarFromString(avatar)
+		l.BirthCountry = birthCountry.String
+		listings = append(listings, &l)
+	}
+	return listings, nil
+}
+
 // GetFreeAgents returns every unowned player, best-skilled first - both those released after
 // their contract expired (see AdvancePlayerContract) and any player orphaned by
 // common.AssignTeam reassigning a CPU team's squad to a new human owner.

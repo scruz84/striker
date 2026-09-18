@@ -14,6 +14,7 @@ import type {
   DevUser,
   DivisionDetails,
   FinancesResponse,
+  FreeAgentListing,
   FreeAgentSigningResult,
   FriendlyChallenge,
   FriendlyMatch,
@@ -29,7 +30,6 @@ import type {
   MatchSchedule,
   NotificationPreferences,
   NotificationsResponse,
-  Player,
   PlayerDetails,
   ScorerStanding,
   SeasonHistoryEntry,
@@ -37,6 +37,7 @@ import type {
   TeamMatchSummary,
   TierConfig,
   Trainer,
+  TeamPlayerEvolution,
   TransferListing,
   TransferOffer,
   TransferOfferResult,
@@ -49,6 +50,7 @@ export const queryKeys = {
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
   player: (id: string) => ['player', id] as const,
+  teamEvolutions: ['teamEvolutions'] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
@@ -219,6 +221,16 @@ export function usePlayerDetails(playerId: string | undefined) {
     queryKey: queryKeys.player(playerId ?? ''),
     queryFn: () => api.get<PlayerDetails>(`/v1/teams/player/${playerId}/`),
     enabled: !!playerId,
+  })
+}
+
+// The caller's own squad's most recent season-end progression results - the page a
+// NOTIFICATION_PROGRESSION notification links to.
+export function useTeamLatestEvolutions(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.teamEvolutions,
+    queryFn: () => api.get<TeamPlayerEvolution[]>('/v1/teams/team/evolutions'),
+    enabled,
   })
 }
 
@@ -411,7 +423,7 @@ export function useAcceptLoan() {
 export function useFreeAgents(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.freeAgents,
-    queryFn: () => api.get<Player[]>('/v1/free-agents'),
+    queryFn: () => api.get<FreeAgentListing[]>('/v1/free-agents'),
     enabled,
   })
 }

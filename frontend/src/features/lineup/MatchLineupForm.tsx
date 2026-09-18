@@ -4,7 +4,8 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -66,7 +67,14 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
   const [selections, setSelections] = useState<Selections>(() => initialSelections(lineup))
   const [activePlayerId, setActivePlayerId] = useState<number | null>(null)
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor))
+  // See LineupEditorPage's identical sensors line for why touch and mouse need different
+  // activation constraints (a short press-and-hold for touch, so a scroll swipe isn't mistaken
+  // for a drag).
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  )
 
   const counts = FORMATION_POSITION_COUNTS[formation] ?? FORMATION_POSITION_COUNTS[FORMATION_BALANCED]
   const positionsToShow = Object.keys(counts).map(Number)
@@ -165,12 +173,12 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
   }
 
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 } }}>
+      <Typography variant="h6" sx={{ mb: { xs: 1, sm: 2 } }}>
         {t(titleKey, titleValues)}
       </Typography>
 
-      <FormControl sx={{ mb: 2, minWidth: 220 }}>
+      <FormControl size="small" sx={{ mb: { xs: 1, sm: 2 }, minWidth: { xs: '100%', sm: 220 } }}>
         <InputLabel id="match-formation-label">{t('lineup.formation')}</InputLabel>
         <Select labelId="match-formation-label" label={t('lineup.formation')} value={formation} onChange={handleFormationChange}>
           {Object.keys(FORMATION_LABEL_KEYS).map((value) => (
@@ -182,23 +190,23 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
       </FormControl>
 
       {!isComplete && (
-        <Alert severity="info" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}
         </Alert>
       )}
       {isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.saveError')}
         </Alert>
       )}
       {isSuccess && (
-        <Alert severity="success" sx={{ mb: 2 }}>
+        <Alert severity="success" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.saveSuccess')}
         </Alert>
       )}
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <Grid container spacing={2}>
+        <Grid container spacing={{ xs: 1, sm: 2 }}>
           <Grid size={{ xs: 12, md: 8 }}>
             <SoccerPitch counts={counts} getPlayer={getPlayer} />
           </Grid>
@@ -215,7 +223,7 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
         </DragOverlay>
       </DndContext>
 
-      <Button variant="contained" sx={{ mt: 3 }} disabled={!isComplete || isSaving} onClick={handleSubmit}>
+      <Button variant="contained" sx={{ mt: { xs: 2, sm: 3 } }} disabled={!isComplete || isSaving} onClick={handleSubmit}>
         {t('lineup.save')}
       </Button>
     </Paper>
