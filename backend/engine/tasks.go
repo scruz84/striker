@@ -115,3 +115,26 @@ func (pj *FriendlyJob) Execute(context.Context) error {
 func NewFriendlyJob(dbCtx *common.DatabaseContext) *FriendlyJob {
 	return &FriendlyJob{desc: "friendly matches job", dbCtx: dbCtx}
 }
+
+// OfferResponseJob implements the quartz.Job interface: sweeps every unowned team's pending
+// incoming transfer offers, on a real-calendar-time schedule independent of match simulation -
+// see engine.RespondToAllPendingOffers.
+type OfferResponseJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *OfferResponseJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *OfferResponseJob) Execute(context.Context) error {
+	log.Info("Offer response sweep job")
+	RespondToAllPendingOffers(pj.dbCtx)
+	return nil
+}
+
+func NewOfferResponseJob(dbCtx *common.DatabaseContext) *OfferResponseJob {
+	return &OfferResponseJob{desc: "offer response sweep job", dbCtx: dbCtx}
+}

@@ -284,11 +284,22 @@ a strict superset of the one below it. All of this is driven from `RunAITeamMana
 `UpdateTeamFinancesAfterMatch` above) - there's no separate scheduler job for it, so AI upkeep
 happens exactly as often as that team actually plays.
 
-- **Caretaker** (tier 1, the baseline every level gets): just keeps the default lineup fresh
-  (`refreshAiTeamLineup` re-picks the current best XI from the squad every match, so retirements,
-  academy call-ups, and signings show up in the lineup immediately rather than waiting for season
-  end).
-- **Manager** (tier 2) adds roster/business upkeep, in this order every match
+- **Caretaker** (tier 1, the baseline every level gets):
+  1. **Keeps the default lineup fresh** (`refreshAiTeamLineup` re-picks the current best XI from
+     the squad every match, so retirements, academy call-ups, and signings show up in the lineup
+     immediately rather than waiting for season end).
+  2. **Resolves every pending transfer offer on its own players** - this is the direct answer to
+     "how does the CPU decide on a transfer offer": accept if the fee is at least
+     `minAcceptableTransferFeeWageMultiplier` (20) × the player's own market-rate wage, otherwise
+     reject. The player's personal terms are never in question here - `MakeTransferOffer` never
+     even lets a human create an offer the player themself wouldn't accept - so this check is
+     purely about whether the fee is good enough for the selling club. This runs at every AI
+     level (not gated behind Manager) since it's baseline business any unowned team should
+     handle; it's also swept independently once or twice a day by a dedicated scheduler
+     (`RespondToAllPendingOffers`/`StartOfferResponseScheduler`), so an offer on a team that
+     hasn't played a match in a while still gets answered within a day or two rather than sitting
+     pending indefinitely (issue #61).
+- **Manager** (tier 2) adds roster/business upkeep on top, in this order every match
   (`manageRosterIfManager`):
   1. **Renew expiring contracts** - any squad player down to 1 season or fewer remaining gets
      offered a renewal at exactly their own market wage and their own age-appropriate maximum term
@@ -300,15 +311,7 @@ happens exactly as often as that team actually plays.
   3. **Sign a free agent for the weakest position** - only when `WeakestPositionNeed` flags a core
      position as genuinely thin, not merely below-average; picks whichever available free agent
      rates highest there.
-  4. **Resolve every pending transfer offer on its own players** - this is the direct answer to
-     "how does the CPU decide on a transfer offer": accept if the fee is at least
-     `minAcceptableTransferFeeWageMultiplier` (20) × the player's own market-rate wage, otherwise
-     reject. The player's personal terms are never in question here - `MakeTransferOffer` never
-     even lets a human create an offer the player themself wouldn't accept - so this check is
-     purely about whether the fee is good enough for the selling club. Before this existed, an
-     offer made to an AI-managed team's player had no automated response at all and just sat
-     pending forever.
-  5. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
+  4. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
      above) - this used to simply be `MaxTicketPrice`, back when attendance never fell as price
      rose, but now that it does, always maxing out would just as often cost revenue as earn it.
 - **Director** (tier 3) adds active market participation on top (`manageMarketIfDirector`):

@@ -22,8 +22,40 @@ func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 
 	refreshAiTeamLineup(dbCtx, teamId)
+	// Responding to incoming offers is baseline Caretaker-level behavior (see
+	// AiLevelCaretaker/Manager/Director's own doc comment: "Caretaker only reacts ... accepts
+	// clearly-good incoming offers") - it belongs here, unconditional at every AI level, not
+	// gated behind Manager inside manageRosterIfManager the way it used to be. Before this, a
+	// human's offer on a Caretaker-level AI team's player got no automated response at all and
+	// sat pending forever (issue #61).
+	respondToReceivedOffers(dbCtx, team.Id)
 	manageRosterIfManager(dbCtx, team)
 	manageMarketIfDirector(dbCtx, team)
+}
+
+// RespondToAllPendingOffers sweeps every unowned team's pending incoming transfer offers once or
+// twice a day (see engine.StartOfferResponseScheduler), independent of match activity.
+// RunAITeamManagement above only fires when that team's own match is simulated, which could
+// otherwise leave a human's offer on an AI-managed team unanswered for as long as that team goes
+// between matches - issue #61 ("no news from the CPU team ... the offer can remain one or two
+// days, then the club must respond").
+func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
+	teamIds, err := common.GetAllTeamIds(dbCtx)
+	if err != nil {
+		log.Errorf("error fetching team ids for offer response sweep: %s", err)
+		return
+	}
+	for _, teamId := range teamIds {
+		team, err := common.GetTeamById(teamId, dbCtx)
+		if err != nil {
+			log.Errorf("error fetching team %d for offer response sweep: %s", teamId, err)
+			continue
+		}
+		if team.OwnerId > 0 || team.AiLevel < common.AiLevelCaretaker {
+			continue
+		}
+		respondToReceivedOffers(dbCtx, teamId)
+	}
 }
 
 // contractRenewalThresholdYears is how few seasons a Manager-level AI team lets a player's
@@ -40,7 +72,8 @@ const surplusDepthMargin = 1
 // manageRosterIfManager runs every Manager-level (see common.AiLevelManager) roster/business
 // action for an unowned team: keep valuable players under contract, trim genuinely surplus
 // depth, fill a thin position from the free-agent market, and charge what the gate will bear.
-// A no-op below Manager level - see RunAITeamManagement, the only caller.
+// A no-op below Manager level - see RunAITeamManagement, the only caller. Responding to incoming
+// offers is handled a level below this, in RunAITeamManagement itself, not here - see its comment.
 func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	if team.AiLevel < common.AiLevelManager {
 		return
@@ -55,13 +88,12 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	renewExpiringContracts(dbCtx, team.Id, *players)
 	releaseSurplusPlayer(dbCtx, team.Id, *players)
 	signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
-	respondToReceivedOffers(dbCtx, team.Id)
 	maximizeTicketPrice(dbCtx, team.Id)
 }
 
 // minAcceptableTransferFeeWageMultiplier is how many times a player's own market-rate wage (see
-// common.PlayerWageFromSkills) an incoming transfer offer's fee must be worth before a
-// Manager-level AI team accepts it - low enough that a genuinely competitive offer for a squad
+// common.PlayerWageFromSkills) an incoming transfer offer's fee must be worth before an
+// AI-managed team accepts it - low enough that a genuinely competitive offer for a squad
 // player gets taken, high enough that a lowball offer aimed at poaching a good player for next to
 // nothing gets rejected instead. Mirrors EarlyReleaseWageMultiplier's use of wage as this file's
 // common yardstick for a player's worth. A sale thinning the squad below common.SquadSize is not
@@ -70,12 +102,11 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 // retirement or an expired contract - there's nothing about a sale that needs different handling.
 const minAcceptableTransferFeeWageMultiplier = 20
 
-// respondToReceivedOffers judges every pending offer on a Manager-level AI team's own players:
+// respondToReceivedOffers judges every pending offer on an AI-managed team's own players (any AI
+// level, Caretaker and up - see RunAITeamManagement/RespondToAllPendingOffers, its two callers):
 // accept a fee that clears minAcceptableTransferFeeWageMultiplier (the personal terms are already
 // settled - see MakeTransferOffer, which never even creates an offer the player themself wouldn't
-// accept), reject anything less. Before this, a human's offer on an AI-managed team's player had
-// no automated response at all and would sit pending forever - only interacting with the open
-// market as a buyer/lister was covered.
+// accept), reject anything less.
 func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 	offers, err := common.GetOffersReceived(dbCtx, teamId)
 	if err != nil {

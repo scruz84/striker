@@ -92,6 +92,23 @@ func StartFriendlyScheduler(friendlyJob quartz.Job) {
 	}
 }
 
+func StartOfferResponseScheduler(offerResponseJob quartz.Job) {
+	sched.Start(ctx)
+	// Twice a day (midnight and noon UTC) is enough to keep the "the club must respond within a
+	// day or two" promise (issue #61) without needing per-minute granularity - unlike match/cup/
+	// friendly simulation, nothing about this is time-critical to the minute.
+	cronTrigger, err := quartz.NewCronTrigger("0 0 0,12 * * ?")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(offerResponseJob.Description())
+	jobDetail := quartz.NewJobDetail(offerResponseJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

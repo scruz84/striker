@@ -37,6 +37,7 @@ func StartEngine() {
 	StartCupScheduler(NewCupJob(dbCtx))
 	StartWeeklyWagesScheduler(NewWeeklyWagesJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
+	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)
