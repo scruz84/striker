@@ -428,6 +428,7 @@
     "squad": "Squad",
     "player": "Player",
     "age": "Age",
+    "wage": "Wage",
     "contract": "Contract",
     "contractSeasons_one": "{{count}} season left",
     "contractSeasons_other": "{{count}} seasons left",

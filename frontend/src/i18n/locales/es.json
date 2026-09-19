@@ -428,6 +428,7 @@
     "squad": "Plantilla",
     "player": "Jugador",
     "age": "Edad",
+    "wage": "Salario",
     "contract": "Contrato",
     "contractSeasons_one": "{{count}} temporada restante",
     "contractSeasons_other": "{{count}} temporadas restantes",

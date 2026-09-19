@@ -13,6 +13,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -36,6 +37,22 @@ import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
+type SortDirection = 'asc' | 'desc'
+type SquadSortField = 'name' | 'age' | 'wage' | 'contract'
+
+function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): number {
+  switch (field) {
+    case 'age':
+      return a.age - b.age
+    case 'wage':
+      return a.wage - b.wage
+    case 'contract':
+      return a.contractYearsRemaining - b.contractYearsRemaining
+    default:
+      return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
+  }
+}
+
 export function TeamDetailsPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
@@ -43,12 +60,27 @@ export function TeamDetailsPage() {
   const { data: teamDetails, isLoading } = useTeamDetails(id)
   const { data: userTeam } = useUserTeam(!!loggedUser)
   const { data: history, isLoading: historyLoading } = useTeamHistory(id)
+  const [sortField, setSortField] = useState<SquadSortField | null>(null)
+  const [sortDir, setSortDir] = useState<SortDirection>('asc')
 
   if (isLoading || !teamDetails) {
     return <div>{t('common.loading')}</div>
   }
 
   const isOwnTeam = userTeam?.team.id === teamDetails.team.id
+
+  const handleSort = (field: SquadSortField) => {
+    if (field === sortField) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortField(field)
+      setSortDir('asc')
+    }
+  }
+
+  const players = sortField
+    ? [...teamDetails.players].sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField))
+    : teamDetails.players
 
   return (
     <Stack spacing={1}>
@@ -67,14 +99,33 @@ export function TeamDetailsPage() {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>{t('team.player')}</TableCell>
-              <TableCell align="right">{t('team.age')}</TableCell>
-              {isOwnTeam && <TableCell align="right">{t('team.contract')}</TableCell>}
+              <TableCell sortDirection={sortField === 'name' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'name'} direction={sortField === 'name' ? sortDir : 'asc'} onClick={() => handleSort('name')}>
+                  {t('team.player')}
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
+                  {t('team.age')}
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'wage' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
+                  {t('team.wage')}
+                </TableSortLabel>
+              </TableCell>
+              {isOwnTeam && (
+                <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'contract' ? sortDir : false}>
+                  <TableSortLabel active={sortField === 'contract'} direction={sortField === 'contract' ? sortDir : 'asc'} onClick={() => handleSort('contract')}>
+                    {t('team.contract')}
+                  </TableSortLabel>
+                </TableCell>
+              )}
               <TableCell align="right" />
             </TableRow>
           </TableHead>
           <TableBody>
-            {teamDetails.players.map((player) => (
+            {players.map((player) => (
               <PlayerRow key={player.id} player={player} isOwnTeam={isOwnTeam} />
             ))}
           </TableBody>
@@ -310,8 +361,13 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
+      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+        {formatCurrency(player.wage)}
+      </TableCell>
       {isOwnTeam && (
-        <TableCell align="right">{t('team.contractSeasons', { count: player.contractYearsRemaining })}</TableCell>
+        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+          {t('team.contractSeasons', { count: player.contractYearsRemaining })}
+        </TableCell>
       )}
       {isOwnTeam ? (
         <TableCell align="right">
