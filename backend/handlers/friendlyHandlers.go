@@ -474,6 +474,10 @@ func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusConflict, GetError(0, common.ErrFriendlyAlreadyPlayed.Error()))
 			return
 		}
+		if common.IsLineupLocked(match.MatchDate) {
+			c.JSON(http.StatusConflict, GetError(0, common.ErrLineupLocked.Error()))
+			return
+		}
 
 		players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
 		if err != nil {

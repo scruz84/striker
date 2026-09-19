@@ -11,10 +11,11 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
 import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
-import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
@@ -96,6 +97,7 @@ function LiveMatch({
   // viewer regardless of how far off matchDate is).
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
   const isDue = useIsDue(matchDate)
+  const isLineupLocked = useIsLineupLocked(matchDate)
 
   useEffect(() => {
     // live.giveUp alone isn't enough - the socket can be entirely unreachable (a downed Redis,
@@ -129,7 +131,10 @@ function LiveMatch({
           status="scheduled"
           subtitle={formatDateTime(matchDate)}
         />
-        {matchId && team && players && <MatchLineupSection matchId={matchId} team={team} players={players} />}
+        {matchId &&
+          team &&
+          players &&
+          (isLineupLocked ? <LineupLockedNotice /> : <MatchLineupSection matchId={matchId} team={team} players={players} />)}
       </Box>
     )
   }

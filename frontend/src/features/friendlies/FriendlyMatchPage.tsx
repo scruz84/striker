@@ -8,7 +8,8 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
 import type { FriendlyMatch, Player, Team } from '../../api/types'
-import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { formatDateTime } from '../../utils/formatDate'
@@ -78,6 +79,7 @@ function LiveFriendly({
   // viewer regardless of how far off matchDate is).
   const live = useLiveMatch(id ? `/v1/friendlies/${id}/live` : undefined, !!id)
   const isDue = useIsDue(match.matchDate)
+  const isLineupLocked = useIsLineupLocked(match.matchDate)
 
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
@@ -102,7 +104,8 @@ function LiveFriendly({
         homeGoals={isDue ? live.homeGoals : 0}
         awayGoals={isDue ? live.awayGoals : 0}
         // Before kickoff, show "scheduled" rather than a premature "Live" label (issue #31) - the
-        // lineup editor below still renders either way, so a manager can set it up ahead of time.
+        // lineup editor below still renders either way (until it locks near kickoff, see
+        // isLineupLocked below), so a manager can set it up ahead of time.
         status={isDue ? (live.connected ? 'live' : 'connecting') : 'scheduled'}
         minute={isDue ? live.minute : undefined}
         subtitle={formatDateTime(match.matchDate)}
@@ -112,7 +115,10 @@ function LiveFriendly({
           <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
         </Paper>
       )}
-      {id && team && players && <FriendlyLineupEditor matchId={id} team={team} players={players} />}
+      {id &&
+        team &&
+        players &&
+        (isLineupLocked ? <LineupLockedNotice /> : <FriendlyLineupEditor matchId={id} team={team} players={players} />)}
     </Box>
   )
 }

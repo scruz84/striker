@@ -10,7 +10,8 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team } from '../../api/types'
-import { mightStillBeLive, useIsDue, useLiveMatch } from '../../api/useLiveMatch'
+import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
@@ -92,6 +93,7 @@ function LiveTie({
   // regardless of how far off matchDate is).
   const live = useLiveMatch(id ? `/v1/cups/ties/${id}/live` : undefined, !!id)
   const isDue = useIsDue(tie.matchDate ?? '')
+  const isLineupLocked = useIsLineupLocked(tie.matchDate ?? '')
 
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
@@ -121,7 +123,10 @@ function LiveTie({
           status="scheduled"
           subtitle={tie.matchDate ? formatDateTime(tie.matchDate) : undefined}
         />
-        {id && team && players && <CupTieLineupSection tieId={id} team={team} players={players} />}
+        {id &&
+          team &&
+          players &&
+          (isLineupLocked ? <LineupLockedNotice /> : <CupTieLineupSection tieId={id} team={team} players={players} />)}
       </Box>
     )
   }
@@ -141,7 +146,10 @@ function LiveTie({
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
       </Paper>
-      {id && team && players && <CupTieLineupSection tieId={id} team={team} players={players} />}
+      {id &&
+        team &&
+        players &&
+        (isLineupLocked ? <LineupLockedNotice /> : <CupTieLineupSection tieId={id} team={team} players={players} />)}
     </Box>
   )
 }

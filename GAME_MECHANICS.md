@@ -44,6 +44,18 @@ Up to `maxConcurrentSimulations` (8, `engine/engine.go`) matches are simulated c
 buffered channel + `sync.WaitGroup`, each in its own goroutine with a `recover()` so one panic
 can't take down the rest of that tick's batch.
 
+**Lineup lock:** since a league match/friendly's lineup is already being read into simulation from
+T-15 onward, `SetMatchLineupHandler`/`SetCupTieLineupHandler`/`SetFriendlyLineupHandler`
+(`backend/handlers`) all reject a lineup change once `common.IsLineupLocked` reports true - within
+`common.LineupLockMinutes` (20, `backend/common/lineuplock.go`) of kickoff, or any time after it -
+returning `common.ErrLineupLocked`. This gives a 5-minute margin over the actual T-15 read for
+league matches/friendlies; for cup ties (which simulate at kickoff itself, with no early read) it's
+simply a flat 20-minute cutoff. The frontend mirrors this with its own `useIsLineupLocked` hook
+(`frontend/src/api/useLiveMatch.ts`), swapping each per-match lineup editor for a
+`LineupLockedNotice` once locked, so a save is never attempted only to be rejected. The team-wide
+default lineup (`SetLineupHandler`, no specific match) is unaffected - it isn't tied to any one
+kickoff.
+
 A league's kickoff day/time is admin-configured per league (`common.MatchSchedule` -
 `WeekdaysMask`/`Hour`/`Minute`, see `common/leagueschedule.go` and `common/matchschedule.go`) and
 fixtures are generated a season at a time (`GenerateMatches`, `engine/engine.go`). A cup tie or

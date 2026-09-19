@@ -148,6 +148,7 @@
     "formation": "Formation",
     "saveError": "Could not save the lineup. Check your selections.",
     "saveSuccess": "Lineup saved.",
+    "locked": "The lineup is locked - kickoff is too close for changes to still make it into the match.",
     "tapHint": "Tap a player to pick them up, then tap a spot on the pitch (or the bench) to put them there.",
     "incompleteWarning": "Fill every empty slot before saving.",
     "bench": "Bench",

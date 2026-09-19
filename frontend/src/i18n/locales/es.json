@@ -148,6 +148,7 @@
     "formation": "Formación",
     "saveError": "No se pudo guardar la alineación. Revisa tus selecciones.",
     "saveSuccess": "Alineación guardada.",
+    "locked": "La alineación está bloqueada - el partido está a punto de empezar y ya no hay tiempo para hacer cambios.",
     "tapHint": "Toca un jugador para cogerlo y luego toca un puesto del campo (o el banquillo) para colocarlo ahí.",
     "incompleteWarning": "Rellena cada hueco vacío antes de guardar.",
     "bench": "Banquillo",

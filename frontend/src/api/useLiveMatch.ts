@@ -79,19 +79,36 @@ export function mightStillBeLive(matchDate: string): boolean {
 // which happily subscribes a viewer to a match days before kickoff - so `connected` alone isn't
 // enough to distinguish "watching a match in progress" from "sitting on a page for a match that
 // hasn't started yet" (issue #31).
-export function useIsDue(matchDate: string): boolean {
-  const [isDue, setIsDue] = useState(() => new Date(matchDate).getTime() <= Date.now())
+function useDueAt(targetTime: number): boolean {
+  const [isDue, setIsDue] = useState(() => targetTime <= Date.now())
 
   useEffect(() => {
     if (isDue) {
       return
     }
-    const delay = new Date(matchDate).getTime() - Date.now()
+    const delay = targetTime - Date.now()
     const timer = setTimeout(() => setIsDue(true), Math.max(delay, 0))
     return () => clearTimeout(timer)
-  }, [matchDate, isDue])
+  }, [targetTime, isDue])
 
   return isDue
+}
+
+export function useIsDue(matchDate: string): boolean {
+  return useDueAt(new Date(matchDate).getTime())
+}
+
+// LINEUP_LOCK_MINUTES mirrors the backend's own common.LineupLockMinutes
+// (backend/common/lineuplock.go) - kept in sync manually since the two run in separate
+// deployments with no shared config today.
+export const LINEUP_LOCK_MINUTES = 20
+
+// useIsLineupLocked reports whether matchDate is within LINEUP_LOCK_MINUTES of kickoff, or has
+// already passed - the same instant a Set*LineupHandler call would itself start rejecting (see
+// common.IsLineupLocked). Callers use this to stop offering the lineup editor before the save
+// would fail anyway, not just to react to a failed save.
+export function useIsLineupLocked(matchDate: string): boolean {
+  return useDueAt(new Date(matchDate).getTime() - LINEUP_LOCK_MINUTES * 60 * 1000)
 }
 
 export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMatchState {

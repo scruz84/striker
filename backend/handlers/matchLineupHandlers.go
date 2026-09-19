@@ -156,6 +156,10 @@ func SetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusConflict, GetError(0, ErrMatchAlreadyPlayed.Error()))
 			return
 		}
+		if common.IsLineupLocked(match.MatchDate) {
+			c.JSON(http.StatusConflict, GetError(0, common.ErrLineupLocked.Error()))
+			return
+		}
 
 		players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
 		if err != nil {
@@ -329,6 +333,10 @@ func SetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if tie.Played {
 			c.JSON(http.StatusConflict, GetError(0, ErrCupTieAlreadyPlayed.Error()))
+			return
+		}
+		if tie.MatchDate != nil && common.IsLineupLocked(*tie.MatchDate) {
+			c.JSON(http.StatusConflict, GetError(0, common.ErrLineupLocked.Error()))
 			return
 		}
 
