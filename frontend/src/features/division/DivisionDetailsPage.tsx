@@ -72,7 +72,10 @@ export function DivisionDetailsPage() {
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <ClassificationTable positions={divisionDetails.classification.positions} myTeamId={myTeamId} />
+          <ClassificationTable
+            positions={hideStillLiveResults(divisionDetails.classification.positions, divisionDetails.previousWeekMatches)}
+            myTeamId={myTeamId}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <TopScorers leagueId={id} />
@@ -89,6 +92,64 @@ export function DivisionDetailsPage() {
       </Grid>
     </Box>
   )
+}
+
+// hideStillLiveResults reverts each team's classification row to how it looked just before any
+// match of theirs that's still within its live-broadcast window (see mightStillBeLive) - the
+// same "don't spoil a match that still looks live everywhere else" reasoning FixturesCard's own
+// stillLive check already applies to the score column (issue #37), extended here to the
+// classification table itself (issue #82): points/wins/draws/losses/goals otherwise update the
+// instant a match is simulated, well before its result finishes broadcasting to viewers, which
+// leaks the outcome indirectly even with the fixture's own score hidden. previousWeekMatches is
+// the only week recent enough to still be within that window - anything older has certainly
+// finished broadcasting.
+export function hideStillLiveResults(positions: ClassificationPosition[], previousWeekMatches: WeekMatch[]): ClassificationPosition[] {
+  const stillLiveMatchByTeam = new Map<number, WeekMatch>()
+  for (const match of previousWeekMatches) {
+    if (match.played && mightStillBeLive(match.matchDate)) {
+      stillLiveMatchByTeam.set(match.home, match)
+      stillLiveMatchByTeam.set(match.away, match)
+    }
+  }
+  if (stillLiveMatchByTeam.size === 0) {
+    return positions
+  }
+
+  const reverted = positions.map((row) => {
+    const match = stillLiveMatchByTeam.get(row.teamId)
+    if (!match) {
+      return row
+    }
+    const isHome = match.home === row.teamId
+    const goalsFor = isHome ? match.homeGoals : match.awayGoals
+    const goalsAgainst = isHome ? match.awayGoals : match.homeGoals
+    const won = goalsFor > goalsAgainst
+    const drawn = goalsFor === goalsAgainst
+    return {
+      ...row,
+      points: row.points - (won ? 3 : drawn ? 1 : 0),
+      matches: row.matches - 1,
+      wins: row.wins - (won ? 1 : 0),
+      draws: row.draws - (drawn ? 1 : 0),
+      losses: row.losses - (!won && !drawn ? 1 : 0),
+      goalsScored: row.goalsScored - goalsFor,
+      goalsReceived: row.goalsReceived - goalsAgainst,
+    }
+  })
+
+  // Re-sort by the same ordering the backend itself uses (see GetDivisionDetailsStmtSql), then
+  // reassign positions - a team whose still-live match briefly overstated its points would
+  // otherwise keep its post-match rank until the broadcast catches up.
+  reverted.sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points
+    const diffA = a.goalsScored - a.goalsReceived
+    const diffB = b.goalsScored - b.goalsReceived
+    if (diffB !== diffA) return diffB - diffA
+    if (b.goalsScored !== a.goalsScored) return b.goalsScored - a.goalsScored
+    if (b.wins !== a.wins) return b.wins - a.wins
+    return b.draws - a.draws
+  })
+  return reverted.map((row, index) => ({ ...row, position: index + 1 }))
 }
 
 function ClassificationTable({
