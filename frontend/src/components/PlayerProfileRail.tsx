@@ -112,7 +112,7 @@ export function PlayerProfileRail({
             </svg>
           )}
           <Box sx={{ position: 'absolute', inset: 0, borderRadius: '50%', overflow: 'hidden' }}>
-            <CartoonAvatar seed={player.id} size={ringSize} />
+            <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={ringSize} />
           </Box>
           {canSeeSkills && (
             <Box

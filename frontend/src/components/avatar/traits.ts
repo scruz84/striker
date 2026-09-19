@@ -1,4 +1,4 @@
-import { chance, createRng, pick } from './random'
+import { chance, createRng, pick, pickWeighted } from './random'
 
 export type HairStyle = 'bald' | 'short' | 'side' | 'curly' | 'mohawk'
 export type BrowAngle = 'flat' | 'leftRaised' | 'rightRaised'
@@ -24,10 +24,48 @@ const HAIR_STYLES: readonly HairStyle[] = ['bald', 'short', 'side', 'curly', 'mo
 const BROW_ANGLES: readonly BrowAngle[] = ['flat', 'leftRaised', 'rightRaised']
 const MOUTH_STYLES: readonly MouthStyle[] = ['flat', 'smallSmile', 'frown', 'open']
 
+// A player's face should skew toward what's common for their birth region while still leaving
+// every skin tone reachable (issue #71) - nobody's excluded, but the odds aren't uniform either.
+// Regions beyond 'europe' aren't reachable yet since every backend common.KnownCountries entry
+// is European today, but the weight tables are filled in now so the moment a non-European
+// country is added (issue #63) its players immediately look the part with no further changes
+// here.
+export type Region = 'europe' | 'africa' | 'asia' | 'americas'
+
+// Mirrors backend common.KnownCountries - every country code the game can currently generate a
+// world for maps to 'europe'. An unrecognized/missing code (legacy players created before
+// birthCountry existed) also falls back to 'europe', today's only real region.
+const COUNTRY_REGIONS: Record<string, Region> = {
+  es: 'europe',
+  en: 'europe',
+  fr: 'europe',
+  de: 'europe',
+  it: 'europe',
+  pt: 'europe',
+}
+
+export function regionForCountry(countryCode?: string): Region {
+  if (!countryCode) return 'europe'
+  return COUNTRY_REGIONS[countryCode] ?? 'europe'
+}
+
+// Weights are parallel to SKIN_TONES above (light -> dark, with one extra light tone at the
+// end). Each region has a clear majority complexion but a nonzero chance of every tone - a
+// country's population is never actually uniform.
+const SKIN_TONE_WEIGHTS: Record<Region, readonly number[]> = {
+  europe: [30, 22, 8, 4, 3, 30],
+  africa: [3, 4, 10, 25, 40, 3],
+  asia: [10, 30, 30, 10, 5, 10],
+  americas: [16, 18, 18, 18, 16, 16],
+}
+
 // derivePlayerFace is pure: the same seed (a player id works well) always yields the same
 // face, so no backend storage is needed and the look survives re-renders and reloads.
-export function derivePlayerFace(seed: number | string): FaceTraits {
+// birthCountry (see Player.birthCountry) skews the skin tone toward that region's majority
+// complexion - see SKIN_TONE_WEIGHTS.
+export function derivePlayerFace(seed: number | string, birthCountry?: string): FaceTraits {
   const rng = createRng(seed)
+  const region = regionForCountry(birthCountry)
 
   let facialHair: FacialHair = 'none'
   if (chance(rng, 0.38)) {
@@ -35,7 +73,7 @@ export function derivePlayerFace(seed: number | string): FaceTraits {
   }
 
   return {
-    skin: pick(rng, SKIN_TONES),
+    skin: pickWeighted(rng, SKIN_TONES, SKIN_TONE_WEIGHTS[region]),
     hairStyle: pick(rng, HAIR_STYLES),
     hairColor: pick(rng, HAIR_COLORS),
     browAngle: pick(rng, BROW_ANGLES),

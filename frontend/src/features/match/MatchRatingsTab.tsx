@@ -60,7 +60,7 @@ function TeamRatingsColumn({
         }
         return (
           <Stack key={pos.playerId} direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            <CartoonAvatar seed={pos.playerId} size={32} />
+            <CartoonAvatar seed={pos.playerId} birthCountry={player.birthCountry} size={32} />
             <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
               <PlayerNameLink playerId={pos.playerId}>
                 {player.firstName} {player.lastName}

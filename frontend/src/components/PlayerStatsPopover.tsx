@@ -47,7 +47,7 @@ export function PlayerStatsPopover({
       slotProps={{ paper: { sx: { p: 2, width: 260 } } }}
     >
       <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
-        <CartoonAvatar seed={player.id} size={48} />
+        <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={48} />
         <Box sx={{ minWidth: 0, flexGrow: 1 }}>
           <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
             {player.firstName} {player.lastName}

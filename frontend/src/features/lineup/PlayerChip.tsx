@@ -80,7 +80,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
               aria-label={label}
             >
               <Box sx={{ position: 'relative', lineHeight: 0, borderRadius: '50%', transition: 'box-shadow 150ms ease', ...ringSx }}>
-                <CartoonAvatar seed={player.id} size={44} />
+                <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={44} />
                 {!!player.shirtNumber && (
                   <Box
                     sx={{
@@ -146,7 +146,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
       <Paper elevation={selected ? 4 : 1} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.5, width: '100%' }}>
         <ButtonBase onClick={onSelect} sx={{ borderRadius: '50%' }} aria-pressed={selected} aria-label={label}>
           <Box sx={{ lineHeight: 0, borderRadius: '50%', transition: 'box-shadow 150ms ease', ...ringSx }}>
-            <CartoonAvatar seed={player.id} size={32} />
+            <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
           </Box>
         </ButtonBase>
         <ButtonBase onClick={openStats} sx={{ minWidth: 0, flex: 1, justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 0.5 }}>

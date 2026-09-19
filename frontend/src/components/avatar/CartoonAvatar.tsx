@@ -5,6 +5,8 @@ import type { FaceTraits } from './traits'
 interface CartoonAvatarProps {
   /** Anything stable and unique per player - the player id is the usual choice. */
   seed: number | string
+  /** Player.birthCountry - skews skin tone toward that region's majority complexion (issue #71). */
+  birthCountry?: string
   size?: number
   className?: string
 }
@@ -158,8 +160,8 @@ function Hair({ style, color, skin }: { style: FaceTraits['hairStyle']; color: s
 /** An original, deterministic "classic manager sim" cartoon face - blunt ink outlines, a
  * visible nose, no background ring, sitting directly on whatever surface it's placed on. See
  * traits.ts for how the look is derived. */
-export function CartoonAvatar({ seed, size = 56, className }: CartoonAvatarProps) {
-  const traits = useMemo(() => derivePlayerFace(seed), [seed])
+export function CartoonAvatar({ seed, birthCountry, size = 56, className }: CartoonAvatarProps) {
+  const traits = useMemo(() => derivePlayerFace(seed, birthCountry), [seed, birthCountry])
 
   return (
     <svg viewBox="0 0 100 100" width={size} height={size} className={className} role="img" aria-hidden="true">

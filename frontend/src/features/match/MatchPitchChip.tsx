@@ -33,7 +33,7 @@ export function MatchPitchChip({ player }: { player: Player }) {
         }}
       >
         <Box sx={{ position: 'relative', lineHeight: 0 }}>
-          <CartoonAvatar seed={player.id} size={40} />
+          <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={40} />
           {!!player.shirtNumber && (
             <Box
               sx={{

@@ -301,7 +301,7 @@ function AcademySection() {
               <TableRow key={prospect.id}>
                 <TableCell>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-                    <CartoonAvatar seed={prospect.id} size={32} />
+                    <CartoonAvatar seed={prospect.id} birthCountry={prospect.birthCountry} size={32} />
                     <Link component={RouterLink} to={`/player/${prospect.id}`} underline="hover" color="inherit">
                       {prospect.firstName} {prospect.lastName}
                     </Link>
@@ -354,7 +354,7 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
     <TableRow>
       <TableCell>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <CartoonAvatar seed={player.id} size={32} />
+          <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
           <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
             {player.firstName} {player.lastName}
           </Link>

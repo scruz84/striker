@@ -33,6 +33,20 @@ export function pick<T>(rng: Rng, options: readonly T[]): T {
   return options[Math.floor(rng() * options.length) % options.length]
 }
 
+// pickWeighted chooses among options using parallel weights (higher = more likely) rather than
+// a uniform distribution - used to skew cosmetic traits toward what's common for a region while
+// still leaving every option reachable. Falls back to the last option if weights are malformed
+// (all zero/negative), which never happens with the tables this is actually called with.
+export function pickWeighted<T>(rng: Rng, options: readonly T[], weights: readonly number[]): T {
+  const total = weights.reduce((sum, w) => sum + w, 0)
+  let roll = rng() * total
+  for (let i = 0; i < options.length; i++) {
+    roll -= weights[i]
+    if (roll < 0) return options[i]
+  }
+  return options[options.length - 1]
+}
+
 export function chance(rng: Rng, probability: number): boolean {
   return rng() < probability
 }
