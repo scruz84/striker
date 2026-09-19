@@ -195,9 +195,22 @@ every spend-side action - `ExecuteTransfer` (buying a listed player), `MakeTrans
 through, so this covers Director-tier AI buying too) - returns `ErrTeamInsolvent` instead of going
 through. Selling, releasing, or cancelling a listing are never gated by this: those are exactly
 how a team is meant to dig back out, so blocking them would make a debt spiral impossible to
-escape rather than just painful. `GetFinancesHandler` exposes this as `insolvent` on the finances
-response so the frontend can show a standing warning rather than the player only discovering it
-from a failed action.
+escape rather than just painful. `GetFinancesHandler` exposes this as `insolvent` (and the
+threshold itself as `maxDebt`) on the finances response so the frontend can show a standing
+warning rather than the player only discovering it from a failed action.
+
+**Financial planning tools:** `FinancesPage.tsx` also renders a cash-flow forecast card and two
+charts, all computed client-side from the same `transactions` list the finances table already
+uses - no separate backend endpoint. `cashFlowForecast.ts`'s `computeCashFlowForecast` reads the
+current weekly wage bill directly off the most recent `TRANSACTION_WAGES`/`TRANSACTION_TRAINER_WAGES`
+transactions (wages are a fixed weekly debit, not something to average) and averages
+`TRANSACTION_TICKET_REVENUE`/`TRANSACTION_SPONSORSHIP` transactions per week they actually span
+(deliberately excluding once-a-season lumps and transfers, which would otherwise wildly skew a
+"weekly" figure) - if the resulting net is negative and the team isn't already insolvent, it
+projects how many weeks until budget hits `-maxDebt`. `BudgetOverTimeChart` reconstructs a running
+balance backward from the current budget across the visible transaction window (a hand-rolled SVG
+line chart, the same convention `SeasonPositionChart` already established) and `IncomeBreakdownChart`
+sums every positive transaction by reason into horizontal bars.
 
 `common/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
 ties route through after a result: it credits the home side's ticket revenue, credits sponsorship

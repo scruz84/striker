@@ -203,6 +203,19 @@
     "ticketPriceError": "No se pudo actualizar el precio de la entrada.",
     "table": { "date": "Fecha", "reason": "Motivo", "description": "Descripción", "amount": "Importe" },
     "noTransactions": "Aún no hay transacciones.",
+    "chart": {
+      "budgetTitle": "Presupuesto a lo largo del tiempo",
+      "budgetAriaLabel": "Gráfico de líneas del saldo del presupuesto durante el historial reciente de transacciones",
+      "incomeTitle": "Desglose de ingresos"
+    },
+    "forecast": {
+      "title": "Previsión de flujo de caja",
+      "weeklyIncome": "Ingresos semanales est.",
+      "weeklyWages": "Salarios semanales",
+      "netWeekly": "Neto semanal",
+      "weeksUntilInsolvent_one": "A este ritmo, tu presupuesto alcanzará el límite de deuda en aproximadamente {{count}} semana.",
+      "weeksUntilInsolvent_other": "A este ritmo, tu presupuesto alcanzará el límite de deuda en aproximadamente {{count}} semanas."
+    },
     "reasons": {
       "transferIn": "Jugador vendido",
       "transferOut": "Jugador comprado",

@@ -19,6 +19,9 @@ type FinancesResponse struct {
 	// Computed here rather than duplicating MaxDebt as a frontend constant, so the two can never
 	// drift out of sync.
 	Insolvent bool `json:"insolvent"`
+	// MaxDebt mirrors common.MaxDebt - exposed so the frontend's cash-flow forecast can compute
+	// how far budget can still fall (to -MaxDebt) without hardcoding the ceiling a second time.
+	MaxDebt int64 `json:"maxDebt"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and
@@ -64,6 +67,7 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
 			Insolvent: budget < -common.MaxDebt,
+			MaxDebt:   common.MaxDebt,
 		})
 	}
 }

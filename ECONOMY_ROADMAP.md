@@ -19,7 +19,18 @@ start reading in the code.
   `ErrTeamInsolvent`, exposed to the frontend as `insolvent` on the finances response. The
   "optional harsher tier" (forced sale / points penalty) below was deliberately skipped - the
   spend-side lockout alone was judged enough teeth for now.
-- Phases 3-5 below are proposed, not started.
+- **Phase 3 - Richer income streams: PARTIALLY DONE.** Season tickets and merchandising shipped
+  (`engine/seasonincome.go`, PR mentioned in git history as "Add season tickets and merchandising
+  income (Economy Phase 3)") - see the "Season tickets and merchandising" paragraph in
+  `GAME_MECHANICS.md`'s Economy section. Sponsor tiers (the third Phase 3 item, a bigger schema +
+  UI change) was not built - see Phase 3 below.
+- **Phase 5 - Planning tools: DONE.** `FinancesPage.tsx` now has a cash-flow forecast card
+  (`features/finances/CashFlowForecastCard.tsx`/`cashFlowForecast.ts`), an income-breakdown chart
+  (`IncomeBreakdownChart.tsx`), and a budget-over-time chart (`BudgetOverTimeChart.tsx`), all pure
+  frontend computation from the existing transactions list - plus a small backend addition
+  (`FinancesResponse.maxDebt`) so the forecast doesn't have to hardcode the debt ceiling a second
+  time.
+- Phase 4, and the sponsor-tiers part of Phase 3, are proposed, not started.
 
 ## Existing economy building blocks (for context)
 
@@ -50,17 +61,7 @@ shows the debt ceiling alone isn't enough friction.
 
 Adds variety without new failure states - safe to build without touching Phase 2.
 
-- **Season tickets**: a lump sum credited once per season (at rollover, in
-  `engine/season.go`/`AdvanceSeasonIfComplete`), based on stadium capacity - independent of the
-  existing per-match attendance-driven ticket revenue in `engine/stadium.go`. New reason code
-  `TRANSACTION_SEASON_TICKETS` in `fmconstants.go` (next free value after
-  `TRANSACTION_CONTRACT_RELEASE = 8`, so `9`) - remember to add the matching frontend
-  `TRANSACTION_REASON_KEYS` entry and i18n string in both `en.json`/`es.json`, the same way
-  `TRANSACTION_CONTRACT_RELEASE` was wired up in this last phase (a gap existed for
-  `TRANSACTION_STADIUM_UPGRADE` for months because someone forgot this step - don't repeat it).
-- **Merchandising**: small steady income tied to league position/results streak - a good fit
-  inside `engine/prizemoney.go` or a new `engine/merchandising.go` alongside it, run at the same
-  point in the season-rollover sequence as `awardLeaguePrizeMoney`.
+- **Season tickets and merchandising: DONE, see Status above.**
 - **Sponsor tiers**: replace the flat `SponsorshipPerMatchTier1/2/3` constants in
   `engine/sponsorship.go` with a per-team choice between 2-3 sponsor deals (higher guaranteed pay
   vs. performance bonuses), re-offered each season. Needs a new `teams.sponsor_tier` column (or
@@ -85,20 +86,10 @@ Adds variety without new failure states - safe to build without touching Phase 2
   without schema changes; this is mostly a frontend grouping/comparison change in
   `TransferMarketPage.tsx`'s `OffersTab`.
 
-## Phase 5 - Planning tools (frontend-heavy)
-
-- **Cash-flow forecast**: on `FinancesPage.tsx`, project income (ticket revenue estimate from
-  current attendance trend, sponsorship, upcoming prize money) against the current wage bill
-  (`GetTeamWageBill`) for the next few match weeks, so a crunch is visible before it happens. Pure
-  frontend computation from data already available via `useFinances`/`useUserTeam` - no new
-  backend endpoint needed unless historical attendance isn't exposed yet.
-- **Income-breakdown chart**: group `TeamTransaction.reason` values from the existing
-  transactions list into a pie/bar chart (ticket/sponsorship/prize money/wages/etc.) - use the
-  `dataviz` skill for chart styling/palette when building this.
-- **Budget-over-time line chart**: cumulative running balance from the same transactions list,
-  same skill guidance applies.
+## Phase 5 - Planning tools (frontend-heavy) - DONE, see Status above
 
 ## Suggested order
 
-Phases 1-2 are done. Phases 3-5 are additive and can be done in any order from here, or skipped if the user
-prefers to prioritize non-economy features instead.
+Phases 1, 2, 3 (season tickets/merchandising), and 5 are done. What's left: Phase 3's sponsor
+tiers and all of Phase 4 (transfer economics depth) - independent of each other, take in any
+order, or skip if the user prefers to prioritize non-economy features instead.

@@ -203,6 +203,19 @@
     "ticketPriceError": "Failed to update ticket price.",
     "table": { "date": "Date", "reason": "Reason", "description": "Description", "amount": "Amount" },
     "noTransactions": "No transactions yet.",
+    "chart": {
+      "budgetTitle": "Budget over time",
+      "budgetAriaLabel": "Line chart of budget balance over the recent transaction history",
+      "incomeTitle": "Income breakdown"
+    },
+    "forecast": {
+      "title": "Cash-flow forecast",
+      "weeklyIncome": "Est. weekly income",
+      "weeklyWages": "Weekly wage bill",
+      "netWeekly": "Net per week",
+      "weeksUntilInsolvent_one": "At this rate, your budget will hit the debt ceiling in about {{count}} week.",
+      "weeksUntilInsolvent_other": "At this rate, your budget will hit the debt ceiling in about {{count}} weeks."
+    },
     "reasons": {
       "transferIn": "Player sold",
       "transferOut": "Player bought",

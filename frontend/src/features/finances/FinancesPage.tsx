@@ -22,6 +22,9 @@ import { TRANSACTION_REASON_KEYS, type Stadium } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { BudgetOverTimeChart } from './BudgetOverTimeChart'
+import { CashFlowForecastCard } from './CashFlowForecastCard'
+import { IncomeBreakdownChart } from './IncomeBreakdownChart'
 
 export function FinancesPage() {
   const { t } = useTranslation()
@@ -58,6 +61,17 @@ export function FinancesPage() {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
+      </Grid>
+
+      <CashFlowForecastCard transactions={finances.transactions} budget={finances.budget} maxDebt={finances.maxDebt} />
+
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <BudgetOverTimeChart transactions={finances.transactions} budget={finances.budget} />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <IncomeBreakdownChart transactions={finances.transactions} />
+        </Grid>
       </Grid>
 
       <TableContainer component={Paper}>

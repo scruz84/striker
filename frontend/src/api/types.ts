@@ -507,6 +507,9 @@ export interface FinancesResponse {
   // True once the budget has crossed the backend's debt ceiling - buying, signing, and borrowing
   // on loan are all blocked while this is true (see backend common.ErrTeamInsolvent).
   insolvent: boolean
+  // How far budget may go negative before insolvent flips true (see backend common.MaxDebt) -
+  // used by the cash-flow forecast to project weeks until that point on the current trend.
+  maxDebt: number
 }
 
 export interface TransferListing {
