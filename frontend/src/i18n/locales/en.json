@@ -214,6 +214,8 @@
       "stadiumUpgrade": "Stadium upgrade",
       "contractRelease": "Contract release",
       "trainerWages": "Trainer wages",
+      "seasonTickets": "Season ticket sales",
+      "merchandising": "Merchandising revenue",
       "other": "Other"
     }
   },

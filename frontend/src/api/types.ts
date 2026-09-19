@@ -451,6 +451,8 @@ export const TRANSACTION_SPONSORSHIP = 6
 export const TRANSACTION_STADIUM_UPGRADE = 7
 export const TRANSACTION_CONTRACT_RELEASE = 8
 export const TRANSACTION_TRAINER_WAGES = 9
+export const TRANSACTION_SEASON_TICKETS = 10
+export const TRANSACTION_MERCHANDISING = 11
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
 // t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
@@ -465,6 +467,8 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_STADIUM_UPGRADE]: 'finances.reasons.stadiumUpgrade',
   [TRANSACTION_CONTRACT_RELEASE]: 'finances.reasons.contractRelease',
   [TRANSACTION_TRAINER_WAGES]: 'finances.reasons.trainerWages',
+  [TRANSACTION_SEASON_TICKETS]: 'finances.reasons.seasonTickets',
+  [TRANSACTION_MERCHANDISING]: 'finances.reasons.merchandising',
 }
 
 export interface TeamTransaction {

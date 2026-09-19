@@ -159,6 +159,14 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   position, roughly linearly from ~2× the per-team average share for 1st down to ~0 for last
   (`prizeMoneyForPosition`). Cup ties pay `CupPrizePerRound` (5,000) × the round number to the
   winner of each tie, plus a one-off `CupChampionBonus` (100,000) to the eventual champion.
+- **Season tickets and merchandising** (`engine/seasonincome.go`) - two more once-a-season lump
+  sums, paid at the same rollover point as prize money (`awardSeasonTicketsAndMerchandising`,
+  called alongside `awardLeaguePrizeMoney`). Season tickets are stadium capacity ×
+  `SeasonTicketRevenuePerSeat` (5) - independent of the per-match attendance-driven ticket revenue
+  above, so a big stadium earns more here even if rarely full on a given matchday. Merchandising
+  is a much flatter, smaller pool than prize money (100,000/40,000/10,000 for tiers 1/2/3) split
+  1.5× the per-team average for 1st down to 0.5× for last (`merchandisingForPosition`) - a
+  struggling team's shirts still sell, unlike prize money's 2×-to-0 spread.
 
 **Expenses:**
 

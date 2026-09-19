@@ -214,6 +214,8 @@
       "stadiumUpgrade": "Ampliación de estadio",
       "contractRelease": "Rescisión de contrato",
       "trainerWages": "Salario del entrenador",
+      "seasonTickets": "Venta de abonos",
+      "merchandising": "Ingresos por merchandising",
       "other": "Otro"
     }
   },
