@@ -9,6 +9,9 @@ import '@fontsource/roboto/700.css'
 import './i18n'
 import './index.css'
 import App from './app/App.tsx'
+import { registerServiceWorker } from './registerServiceWorker'
+
+registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
