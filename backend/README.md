@@ -432,3 +432,11 @@ go run ./cmd --svc          # or --engine / --initialize / --svc --engine
 rollover scheduler in one process - handy for local development so you don't need two terminals.
 Docker Compose still runs them as separate containers (see `docker-compose.yml`), which works
 exactly the same way.
+
+## CI
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request: `go build`/`go
+vet`/`go test` for the backend, and `tsc --noEmit`/`oxlint`/`vitest run`/`npm run build` for the
+frontend - the same checks expected before opening or merging a PR, just automated. Neither job
+needs Postgres/Redis running, since backend tests only ever cover pure formulas, never DB
+round-trips (no DB is available in CI to round-trip against).
