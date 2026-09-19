@@ -34,6 +34,7 @@ import type {
   PlayerDetails,
   ScorerStanding,
   SeasonHistoryEntry,
+  Stadium,
   TeamDetails,
   TeamMatchSummary,
   TierConfig,
@@ -341,7 +342,7 @@ export function useSetSponsorDeal() {
 export function useUpgradeStadium() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: () => api.post<{ capacity: number }>('/v1/user/team/stadium/upgrade'),
+    mutationFn: () => api.post<Stadium>('/v1/user/team/stadium/upgrade'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
     },

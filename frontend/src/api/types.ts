@@ -496,8 +496,13 @@ export interface Trainer {
 }
 
 export interface Stadium {
+  name: string
   capacity: number
   ticketPrice: number
+  // Set while a paid-for capacity expansion is still under construction (see the backend's
+  // common.UpgradeStadium) - both undefined when there's no upgrade in progress.
+  pendingCapacity?: number
+  upgradeCompletesAt?: string
 }
 
 export interface FinancesResponse {

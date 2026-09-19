@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 const COOKIE = "jwt"
 const UserId = "id"
 const PictureUrl = "pictureUrl"
@@ -72,6 +74,11 @@ const MaxTicketPrice = 100
 // see UpgradeStadium.
 const StadiumUpgradeSeats = 500
 const StadiumUpgradeCostPerCurrentSeat = 10
+
+// StadiumUpgradeDuration is how long a paid-for stadium upgrade takes to finish construction
+// before UpgradeStadium's extra seats actually become usable - a real week, not tied to match
+// simulation, the same way weekly wages are (see engine.PayWeeklyWages).
+const StadiumUpgradeDuration = 7 * 24 * time.Hour
 
 // MaxDebt is how far a team's budget may go negative before IsTeamSolvent starts blocking new
 // spending (buying, signing, borrowing on loan) - half the 400,000 a team starts with, generous

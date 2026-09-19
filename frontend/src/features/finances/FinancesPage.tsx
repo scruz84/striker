@@ -193,21 +193,33 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
     }
   }
 
+  const upgradePending = stadium.pendingCapacity != null && stadium.upgradeCompletesAt != null
+
   return (
     <Card sx={{ height: '100%' }}>
       <CardContent>
         <Typography variant="overline" color="text.secondary">
           {t('finances.stadium')}
         </Typography>
+        <Typography variant="subtitle1">{stadium.name}</Typography>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
           <Typography variant="h4">{stadium.capacity.toLocaleString()}</Typography>
           <Typography variant="caption" color="text.secondary">
             {t('finances.seats')}
           </Typography>
         </Stack>
-        <Button size="small" variant="text" sx={{ mb: 1, px: 0 }} onClick={handleUpgrade} disabled={upgradeStadium.isPending}>
-          {t('finances.expand')}
-        </Button>
+        {upgradePending ? (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+            {t('finances.expandInProgress', {
+              capacity: stadium.pendingCapacity?.toLocaleString(),
+              date: formatDateTime(stadium.upgradeCompletesAt ?? ''),
+            })}
+          </Typography>
+        ) : (
+          <Button size="small" variant="text" sx={{ mb: 1, px: 0 }} onClick={handleUpgrade} disabled={upgradeStadium.isPending}>
+            {t('finances.expand')}
+          </Button>
+        )}
         {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>{t('finances.expandSuccess')}</Alert>}
         {upgradeStadium.isError && <Alert severity="error" sx={{ mb: 1 }}>{t('finances.expandError')}</Alert>}
 

@@ -163,12 +163,9 @@ func SetSponsorDealHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-type upgradeStadiumResponse struct {
-	Capacity int `json:"capacity"`
-}
-
-// UpgradeStadiumHandler spends the caller's team's budget to expand its own stadium by a fixed
-// increment - see common.UpgradeStadium for the cost formula.
+// UpgradeStadiumHandler spends the caller's team's budget to schedule an expansion of its own
+// stadium by a fixed increment - see common.UpgradeStadium for the cost formula and construction
+// delay.
 func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -183,9 +180,9 @@ func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		capacity, err := common.UpgradeStadium(dbCtx, team.Id)
+		stadium, err := common.UpgradeStadium(dbCtx, team.Id)
 		if err != nil {
-			if errors.Is(err, common.ErrInsufficientBudget) {
+			if errors.Is(err, common.ErrInsufficientBudget) || errors.Is(err, common.ErrStadiumUpgradeInProgress) {
 				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 				return
 			}
@@ -194,6 +191,6 @@ func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, upgradeStadiumResponse{Capacity: capacity})
+		c.JSON(http.StatusOK, stadium)
 	}
 }
