@@ -44,6 +44,8 @@
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
+    "delete": "Delete notification",
     "deliveryPreferences": "Delivery preferences",
     "deliverBy": "Also deliver notifications by:",
     "email": "Email",

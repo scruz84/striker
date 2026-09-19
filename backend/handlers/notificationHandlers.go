@@ -85,6 +85,50 @@ func MarkAllNotificationsReadHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 	}
 }
 
+// DeleteNotificationHandler removes one of the caller's own notifications.
+func DeleteNotificationHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		notificationId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid notification id"))
+			return
+		}
+
+		if err := common.DeleteNotification(dbCtx, notificationId, *userId); err != nil {
+			log.Errorf("error deleting notification %d: %s", notificationId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "notification deleted"})
+	}
+}
+
+// DeleteAllNotificationsHandler clears the caller's entire notification feed.
+func DeleteAllNotificationsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		if err := common.DeleteAllNotifications(dbCtx, *userId); err != nil {
+			log.Errorf("error deleting all notifications for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "all notifications deleted"})
+	}
+}
+
 // GetNotificationPreferencesHandler returns the caller's email/push notification preferences -
 // both default false if they've never set any (see common.GetNotificationPreferences).
 func GetNotificationPreferencesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {

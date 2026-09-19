@@ -33,6 +33,10 @@ const MarkNotificationReadStmtSql = "UPDATE notifications SET read = true WHERE 
 
 const MarkAllNotificationsReadStmtSql = "UPDATE notifications SET read = true WHERE user_id = $1 AND read = false"
 
+const DeleteNotificationStmtSql = "DELETE FROM notifications WHERE notification_id = $1 AND user_id = $2"
+
+const DeleteAllNotificationsStmtSql = "DELETE FROM notifications WHERE user_id = $1"
+
 // CreateNotification adds one entry to a user's feed.
 func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType int, message string) error {
 	_, err := dbCtx.Db.Exec(InsertNotificationStmtSql, userId, notificationType, message)
@@ -131,5 +135,18 @@ func MarkNotificationRead(dbCtx *DatabaseContext, notificationId int64, userId i
 
 func MarkAllNotificationsRead(dbCtx *DatabaseContext, userId int64) error {
 	_, err := dbCtx.Db.Exec(MarkAllNotificationsReadStmtSql, userId)
+	return err
+}
+
+// DeleteNotification removes one of userId's own notifications - scoped by user_id the same way
+// MarkNotificationRead is, so one user can never delete another's row just by guessing an id.
+func DeleteNotification(dbCtx *DatabaseContext, notificationId int64, userId int64) error {
+	_, err := dbCtx.Db.Exec(DeleteNotificationStmtSql, notificationId, userId)
+	return err
+}
+
+// DeleteAllNotifications clears userId's entire notification feed, read and unread alike.
+func DeleteAllNotifications(dbCtx *DatabaseContext, userId int64) error {
+	_, err := dbCtx.Db.Exec(DeleteAllNotificationsStmtSql, userId)
 	return err
 }

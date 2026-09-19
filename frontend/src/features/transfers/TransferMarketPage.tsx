@@ -22,6 +22,7 @@ import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
@@ -49,12 +50,13 @@ import {
   useUserTeam,
   useWithdrawOffer,
 } from '../../api/hooks'
-import { POSITION_DEFENSE, POSITION_GOALKEEPER, POSITION_MIDFIELD, POSITION_STRIKER, POSITION_SHORT_LABEL_KEYS } from '../../api/types'
+import { COUNTRY_NAME_KEYS, POSITION_DEFENSE, POSITION_GOALKEEPER, POSITION_MIDFIELD, POSITION_STRIKER, POSITION_SHORT_LABEL_KEYS } from '../../api/types'
 import type { FreeAgentListing, LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
+import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
@@ -69,22 +71,62 @@ type TrainerSortField = 'skill' | 'wage'
 // market's "search by suggested position" filter on every browsable listing tab.
 const CORE_POSITIONS = [POSITION_GOALKEEPER, POSITION_DEFENSE, POSITION_MIDFIELD, POSITION_STRIKER]
 
+// Shared pill styling for every filter TextField/Select across the market's three search bars
+// (transfers/loans/free agents) - a rounded, filled field with no visible border until focused,
+// replacing the boxy default outlined look. Targets .MuiOutlinedInput-root as a plain CSS
+// descendant selector, so it applies equally whether it's spread on the TextField/Select itself
+// or on the FormControl wrapping one (see PositionFilterSelect and the loan duration filter).
+const pillFilterSx = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 999,
+    backgroundColor: 'action.hover',
+    transition: 'background-color 150ms ease',
+    '& fieldset': { border: 'none' },
+    '&:hover': { backgroundColor: 'action.selected' },
+    '&.Mui-focused': {
+      backgroundColor: 'background.paper',
+      '& fieldset': { border: '2px solid', borderColor: 'primary.main' },
+    },
+  },
+} as const
+
 // A player's name plus two quick-reference badges - their suggested position (see
 // bestCorePosition) and average skill rating - so browsing a listings table doesn't require
 // opening each player's profile just to see roughly what they're worth. formerClub renders as a
-// caption underneath, for a free agent who was recently released (see FreeAgentListing).
+// caption underneath, for a free agent who was recently released (see FreeAgentListing). The name
+// stays on a single line and truncates instead of wrapping, since these compound names (often two
+// first/last names) would otherwise push every row on mobile to three lines just for the name.
 function PlayerCell({ player, formerClub }: { player: Player; formerClub?: string }) {
   const { t } = useTranslation()
   const theme = useTheme()
   const rating = overallRating(player)
+  const flag = countryFlag(player.birthCountry)
   return (
-    <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
+    <Stack spacing={0.125} sx={{ minWidth: 0 }}>
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+        {flag && (
+          <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
+            <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
+              {flag}
+            </Typography>
+          </Tooltip>
+        )}
+        <Link
+          component={RouterLink}
+          to={`/player/${player.id}`}
+          underline="hover"
+          color="inherit"
+          sx={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        >
           {player.firstName} {player.lastName}
         </Link>
-        <Chip size="small" variant="outlined" label={t(POSITION_SHORT_LABEL_KEYS[bestCorePosition(player)])} sx={{ height: 18, fontSize: '0.65rem' }} />
-        <Typography variant="caption" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
+        <Chip
+          size="small"
+          variant="outlined"
+          label={t(POSITION_SHORT_LABEL_KEYS[bestCorePosition(player)])}
+          sx={{ height: 18, fontSize: '0.65rem', flexShrink: 0 }}
+        />
+        <Typography variant="caption" sx={{ fontWeight: 700, flexShrink: 0, color: ratingTierColor(rating, theme.palette) }}>
           {rating}
         </Typography>
       </Stack>
@@ -103,7 +145,7 @@ function PlayerCell({ player, formerClub }: { player: Player; formerClub?: strin
 function PositionFilterSelect({ value, onChange }: { value: number | ''; onChange: (value: number | '') => void }) {
   const { t } = useTranslation()
   return (
-    <FormControl size="small" sx={{ width: 150 }}>
+    <FormControl size="small" sx={[pillFilterSx, { width: 150 }]}>
       <InputLabel id="position-filter-label">{t('transfers.filters.position')}</InputLabel>
       <Select
         labelId="position-filter-label"
@@ -345,7 +387,7 @@ function TransfersTab() {
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ minWidth: 160 }}
+                sx={[pillFilterSx, { minWidth: 160 }]}
               />
               <TextField
                 size="small"
@@ -353,7 +395,7 @@ function TransfersTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
               <TextField
                 size="small"
@@ -361,7 +403,7 @@ function TransfersTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
               <TextField
                 size="small"
@@ -369,7 +411,7 @@ function TransfersTab() {
                 label={t('transfers.filters.minPrice')}
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                sx={{ width: 120 }}
+                sx={[pillFilterSx, { width: 120 }]}
               />
               <TextField
                 size="small"
@@ -377,7 +419,7 @@ function TransfersTab() {
                 label={t('transfers.filters.maxPrice')}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                sx={{ width: 120 }}
+                sx={[pillFilterSx, { width: 120 }]}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
@@ -423,11 +465,11 @@ function MarketListingActions({
   const [offerOpen, setOfferOpen] = useState(false)
 
   return (
-    <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
-      <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending} sx={{ minWidth: 0, px: 1.25 }}>
+    <Stack spacing={0.25} sx={{ alignItems: 'flex-end' }}>
+      <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
         {t('transfers.buy')}
       </Button>
-      <Button size="small" onClick={() => setOfferOpen(true)} sx={{ minWidth: 0, px: 1.25 }}>
+      <Button size="small" onClick={() => setOfferOpen(true)} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
         {t('team.makeOffer')}
       </Button>
       <TransferOfferDialog player={listing.player} open={offerOpen} onClose={() => setOfferOpen(false)} />
@@ -448,22 +490,27 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
   const sortable = !!onSort
   return (
     <TableContainer>
-      <Table size="small">
+      <Table size="small" sx={{ tableLayout: 'fixed' }}>
         <TableHead>
           <TableRow>
             <TableCell>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{t('transfers.table.team')}</TableCell>
+            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%' }}>{t('transfers.table.team')}</TableCell>
             {sortable ? (
-              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+              <TableCell align="right" sx={{ width: 44 }} sortDirection={sortField === 'age' ? sortDir : false}>
                 <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
                   {t('transfers.table.age')}
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right">{t('transfers.table.age')}</TableCell>
+              <TableCell align="right" sx={{ width: 44 }}>
+                {t('transfers.table.age')}
+              </TableCell>
             )}
             {sortable ? (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'listed' ? sortDir : false}>
+              <TableCell
+                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}
+                sortDirection={sortField === 'listed' ? sortDir : false}
+              >
                 <TableSortLabel
                   active={sortField === 'listed'}
                   direction={sortField === 'listed' ? sortDir : 'asc'}
@@ -473,10 +520,10 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{t('transfers.table.listed')}</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.listed')}</TableCell>
             )}
             {sortable ? (
-              <TableCell align="right" sortDirection={sortField === 'price' ? sortDir : false}>
+              <TableCell align="right" sx={{ width: 84 }} sortDirection={sortField === 'price' ? sortDir : false}>
                 <TableSortLabel
                   active={sortField === 'price'}
                   direction={sortField === 'price' ? sortDir : 'asc'}
@@ -486,9 +533,11 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right">{t('transfers.table.price')}</TableCell>
+              <TableCell align="right" sx={{ width: 84 }}>
+                {t('transfers.table.price')}
+              </TableCell>
             )}
-            <TableCell align="right" />
+            <TableCell align="right" sx={{ width: 76 }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -698,7 +747,7 @@ function LoansTab() {
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ minWidth: 160 }}
+                sx={[pillFilterSx, { minWidth: 160 }]}
               />
               <TextField
                 size="small"
@@ -706,7 +755,7 @@ function LoansTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
               <TextField
                 size="small"
@@ -714,9 +763,9 @@ function LoansTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
-              <FormControl size="small" sx={{ width: 160 }}>
+              <FormControl size="small" sx={[pillFilterSx, { width: 160 }]}>
                 <InputLabel id="loan-max-duration-label">{t('transfers.filters.maxDuration')}</InputLabel>
                 <Select
                   labelId="loan-max-duration-label"
@@ -785,22 +834,27 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
   const sortable = !!onSort
   return (
     <TableContainer>
-      <Table size="small">
+      <Table size="small" sx={{ tableLayout: 'fixed' }}>
         <TableHead>
           <TableRow>
             <TableCell>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{t('transfers.table.team')}</TableCell>
+            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%' }}>{t('transfers.table.team')}</TableCell>
             {sortable ? (
-              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
+              <TableCell align="right" sx={{ width: 44 }} sortDirection={sortField === 'age' ? sortDir : false}>
                 <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
                   {t('transfers.table.age')}
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right">{t('transfers.table.age')}</TableCell>
+              <TableCell align="right" sx={{ width: 44 }}>
+                {t('transfers.table.age')}
+              </TableCell>
             )}
             {sortable ? (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'listed' ? sortDir : false}>
+              <TableCell
+                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}
+                sortDirection={sortField === 'listed' ? sortDir : false}
+              >
                 <TableSortLabel
                   active={sortField === 'listed'}
                   direction={sortField === 'listed' ? sortDir : 'asc'}
@@ -810,10 +864,10 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{t('transfers.table.listed')}</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.listed')}</TableCell>
             )}
             {sortable ? (
-              <TableCell align="right" sortDirection={sortField === 'duration' ? sortDir : false}>
+              <TableCell align="right" sx={{ width: 92 }} sortDirection={sortField === 'duration' ? sortDir : false}>
                 <TableSortLabel
                   active={sortField === 'duration'}
                   direction={sortField === 'duration' ? sortDir : 'asc'}
@@ -823,9 +877,11 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right">{t('transfers.table.duration')}</TableCell>
+              <TableCell align="right" sx={{ width: 92 }}>
+                {t('transfers.table.duration')}
+              </TableCell>
             )}
-            <TableCell align="right" />
+            <TableCell align="right" sx={{ width: 76 }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -1051,7 +1107,7 @@ function FreeAgentsTab() {
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ minWidth: 160 }}
+                sx={[pillFilterSx, { minWidth: 160 }]}
               />
               <TextField
                 size="small"
@@ -1059,7 +1115,7 @@ function FreeAgentsTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
               <TextField
                 size="small"
@@ -1067,7 +1123,7 @@ function FreeAgentsTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={{ width: 100 }}
+                sx={[pillFilterSx, { width: 100 }]}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (

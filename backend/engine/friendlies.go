@@ -60,8 +60,9 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	}
 
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
-	notifyFriendlyResult(dbCtx, matchSimulation)
-	BroadcastMatchLive(dbCtx, common.FriendlyMatchChannel(matchSimulation.Id), matchSimulation)
+	BroadcastMatchLive(dbCtx, common.FriendlyMatchChannel(matchSimulation.Id), matchSimulation, func() {
+		notifyFriendlyResult(dbCtx, matchSimulation)
+	})
 	common.RecordMatchSimulated(context.Background(), "friendly", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 	return nil
 }

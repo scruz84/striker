@@ -23,8 +23,9 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
 	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
 	recordPlayerMinutes(dbCtx, matchSimulation)
-	NotifyMatchResult(dbCtx, matchSimulation)
-	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation)
+	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, func() {
+		NotifyMatchResult(dbCtx, matchSimulation)
+	})
 	common.RecordMatchSimulated(context.Background(), "league", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 
 	return matchSimulation, nil

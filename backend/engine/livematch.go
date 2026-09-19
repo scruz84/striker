@@ -33,7 +33,18 @@ const liveMatchMinuteDelay = 60 * time.Second
 // This runs in its own goroutine so it never delays the caller (simulateMatch/simulateCupTie):
 // the match is already fully computed and persisted by this point, so pacing its broadcast out
 // over ~90 minutes is purely cosmetic for live viewers and must not hold up match processing.
-func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation) {
+//
+// onComplete runs after the final "complete" publish, once the whole broadcast has played out -
+// callers use it to send the result notification (see simulateMatch/simulateCupTie/
+// simulateFriendly) so a team owner never gets a push/in-app notification spelling out the score
+// before their scheduled kickoff has even arrived. Matches are simulated and marked played up to
+// 15 minutes ahead of kickoff (see GetSimulableMatchesStmtSql/GetSimulableFriendliesStmtSql) so
+// the live broadcast has time to actually be "live" at kickoff instead of starting from zero -
+// but a notification fired at that same early instant would spoil a result before the match
+// nominally even started, which is exactly the bug this pattern replaced (the frontend's
+// mightStillBeLive already hides the score everywhere else during this window - a persisted
+// notification has no equivalent per-viewer gating, so it has to not exist yet instead).
+func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation, onComplete func()) {
 	instants := append([]common.MatchInstant(nil), *match.MatchInstants...)
 	eventsByMinute := make(map[int][]common.Event)
 	for _, event := range *match.Events {
@@ -59,5 +70,6 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 		dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 			Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals,
 		})
+		onComplete()
 	}()
 }

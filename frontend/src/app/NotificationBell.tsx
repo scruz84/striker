@@ -8,14 +8,18 @@ import IconButton from '@mui/material/IconButton'
 import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import CloseIcon from '@mui/icons-material/Close'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
+  useDeleteAllNotifications,
+  useDeleteNotification,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useMe,
@@ -33,6 +37,8 @@ export function NotificationBell() {
   const { data } = useNotifications(!!loggedUser)
   const markRead = useMarkNotificationRead()
   const markAllRead = useMarkAllNotificationsRead()
+  const deleteNotification = useDeleteNotification()
+  const deleteAllNotifications = useDeleteAllNotifications()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { data: prefs } = useNotificationPreferences(!!loggedUser && settingsOpen)
@@ -79,6 +85,11 @@ export function NotificationBell() {
             {unread > 0 && (
               <Button size="small" onClick={() => markAllRead.mutate()}>
                 {t('notifications.markAllRead')}
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button size="small" color="inherit" onClick={() => deleteAllNotifications.mutate()}>
+                {t('notifications.clearAll')}
               </Button>
             )}
             <Tooltip title={t('notifications.deliveryPreferences')}>
@@ -139,11 +150,25 @@ export function NotificationBell() {
             onClick={() => handleItemClick(notification)}
             sx={{ whiteSpace: 'normal', backgroundColor: notification.read ? 'transparent' : 'action.hover' }}
           >
-            <ListItemText
-              primary={notification.message}
-              secondary={formatDateTime(notification.createdAt)}
-              slotProps={{ primary: { variant: 'body2' }, secondary: { variant: 'caption' } }}
-            />
+            <Stack direction="row" spacing={0.5} sx={{ width: '100%', alignItems: 'flex-start' }}>
+              <ListItemText
+                primary={notification.message}
+                secondary={formatDateTime(notification.createdAt)}
+                slotProps={{ primary: { variant: 'body2' }, secondary: { variant: 'caption' } }}
+              />
+              <Tooltip title={t('notifications.delete')}>
+                <IconButton
+                  size="small"
+                  edge="end"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    deleteNotification.mutate(notification.notificationId)
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </MenuItem>
         ))}
       </Menu>
