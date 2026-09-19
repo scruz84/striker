@@ -455,6 +455,12 @@
       "promote": "Promocionar",
       "promoteError": "No se pudo promocionar a ese jugador."
     },
+    "coach": {
+      "title": "Entrenador",
+      "none": "No hay entrenador contratado.",
+      "hire": "Contratar entrenador",
+      "manage": "Gestionar"
+    },
     "matches": {
       "title": "Partidos",
       "upcoming": "Próximos",

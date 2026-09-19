@@ -455,6 +455,12 @@
       "promote": "Promote",
       "promoteError": "Could not promote that player."
     },
+    "coach": {
+      "title": "Coach",
+      "none": "No coach hired.",
+      "hire": "Hire a coach",
+      "manage": "Manage"
+    },
     "matches": {
       "title": "Matches",
       "upcoming": "Upcoming",

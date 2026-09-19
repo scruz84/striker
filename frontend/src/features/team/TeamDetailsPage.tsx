@@ -23,6 +23,7 @@ import {
   useReleasePlayer,
   useTeamDetails,
   useTeamHistory,
+  useTeamTrainer,
   useUserTeam,
 } from '../../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player, type SeasonHistoryEntry } from '../../api/types'
@@ -32,6 +33,7 @@ import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
+import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function TeamDetailsPage() {
@@ -78,6 +80,12 @@ export function TeamDetailsPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {isOwnTeam && (
+        <Box sx={{ mt: 2 }}>
+          <CoachCard />
+        </Box>
+      )}
 
       {isOwnTeam && (
         <Box sx={{ mt: 2 }}>
@@ -151,6 +159,59 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
         </TableBody>
       </Table>
     </TableContainer>
+  )
+}
+
+// CoachCard shows the caller's own team's currently employed head coach (if any) right on the
+// team page - hiring/firing itself still only happens from the Coaching tab of the transfer
+// market (see TransferMarketPage.CoachingTab), which this links straight to via `?tab=coaching`
+// rather than duplicating that flow here (issue #58: a hired coach was otherwise only ever
+// visible on the market page, nowhere on the team that actually employs them).
+function CoachCard() {
+  const { t } = useTranslation()
+  const { data: trainer, isLoading } = useTeamTrainer(true)
+
+  if (isLoading) {
+    return <Skeleton variant="rectangular" height={72} />
+  }
+
+  return (
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+        {t('team.coach.title')}
+      </Typography>
+      {trainer ? (
+        <Stack direction="row" spacing={4} sx={{ alignItems: 'center', mt: 0.5, flexWrap: 'wrap' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {trainer.firstName} {trainer.lastName}
+          </Typography>
+          <Box>
+            <Typography variant="caption" color="text.secondary" component="div">
+              {t('transfers.coaching.skill')}
+            </Typography>
+            <Typography variant="body1">{trainer.skill}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary" component="div">
+              {t('transfers.coaching.wage')}
+            </Typography>
+            <Typography variant="body1">{formatCurrency(trainer.wage)}</Typography>
+          </Box>
+          <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
+            {t('team.coach.manage')}
+          </Link>
+        </Stack>
+      ) : (
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mt: 0.5 }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('team.coach.none')}
+          </Typography>
+          <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
+            {t('team.coach.hire')}
+          </Link>
+        </Stack>
+      )}
+    </Paper>
   )
 }
 

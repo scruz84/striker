@@ -25,7 +25,7 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcceptLoan,
@@ -166,11 +166,17 @@ function PositionFilterSelect({ value, onChange }: { value: number | ''; onChang
   )
 }
 
+// Order matches the <Tab> elements below - used to deep-link a specific tab (e.g. `?tab=coaching`
+// from TeamDetailsPage's coach card), rather than always landing on the first one.
+const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching'] as const
+
 export function TransferMarketPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: windowStatus } = useTransferWindowStatus(!!loggedUser)
-  const [tab, setTab] = useState(0)
+  const [searchParams] = useSearchParams()
+  const initialTabIndex = TAB_NAMES.indexOf(searchParams.get('tab') as (typeof TAB_NAMES)[number])
+  const [tab, setTab] = useState(initialTabIndex >= 0 ? initialTabIndex : 0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
 
   return (
