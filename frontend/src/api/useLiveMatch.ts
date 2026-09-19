@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getWsEndpoint } from '../config'
-import type { MatchEvent, MatchInstant } from './types'
+import type { MatchEvent, MatchInstant, TeamQualification } from './types'
 
 interface LiveMatchMessage {
   type: 'instant' | 'event' | 'complete'
@@ -16,6 +16,12 @@ export interface LiveMatchState {
   awayGoals: number
   minute: number
   events: MatchEvent[]
+  // The most recent per-minute zone-by-zone strength snapshot broadcast for this match (see
+  // backend common.MatchInstant) - null until the first "instant" message arrives. Lets a live
+  // viewer see the same zone comparison a played match's report shows (issue #56), fed straight
+  // to MatchPositionComparison.
+  homeQua: TeamQualification | null
+  awayQua: TeamQualification | null
   complete: boolean
   // True once reconnection has been exhausted without ever seeing a "complete" message - the
   // live channel itself is unreachable (a downed Redis, a persistent proxy/network problem),
@@ -34,6 +40,8 @@ const initialState: LiveMatchState = {
   awayGoals: 0,
   minute: 0,
   events: [],
+  homeQua: null,
+  awayQua: null,
   complete: false,
   giveUp: false,
 }
@@ -149,6 +157,8 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
           awayGoals: msg.awayGoals,
           minute: msg.instant?.minute ?? prev.minute,
           events: msg.event ? [...prev.events, msg.event] : prev.events,
+          homeQua: msg.instant?.homeQua ?? prev.homeQua,
+          awayQua: msg.instant?.awayQua ?? prev.awayQua,
           complete: msg.type === 'complete',
           giveUp: false,
         }))

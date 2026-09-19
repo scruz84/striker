@@ -14,6 +14,7 @@ import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchPositionComparison } from '../match/MatchPositionComparison'
 import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
@@ -189,6 +190,17 @@ function LiveFriendly({
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
           <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
         </Paper>
+      )}
+      {isDue && live.homeQua && live.awayQua && (
+        <MatchPositionComparison
+          homeQua={live.homeQua}
+          awayQua={live.awayQua}
+          // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
+          homeGoalkeeperRating={0}
+          awayGoalkeeperRating={0}
+          homeName={match.homeTeamName}
+          awayName={match.awayTeamName}
+        />
       )}
       {id &&
         team &&

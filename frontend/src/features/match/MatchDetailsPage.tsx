@@ -154,6 +154,20 @@ function LiveMatch({
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
       </Paper>
+      {live.homeQua && live.awayQua && (
+        <MatchPositionComparison
+          homeQua={live.homeQua}
+          awayQua={live.awayQua}
+          // Goalkeeper ratings aren't shown live - a non-participant viewer has neither team's
+          // full roster loaded, and even a participant only has their own; 0/0 renders the
+          // goalkeeping row as a neutral 50/50 split rather than misleadingly favoring either
+          // side (see MatchPositionComparison's ZoneBar).
+          homeGoalkeeperRating={0}
+          awayGoalkeeperRating={0}
+          homeName={homeName}
+          awayName={awayName}
+        />
+      )}
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
   )
