@@ -202,6 +202,18 @@
     "ticketPrice": "Precio de la entrada",
     "ticketPriceSuccess": "Precio de la entrada actualizado.",
     "ticketPriceError": "No se pudo actualizar el precio de la entrada.",
+    "sponsorDeal": {
+      "title": "Acuerdo de patrocinio",
+      "error": "No se pudo actualizar el acuerdo de patrocinio.",
+      "options": {
+        "steady": "Estable",
+        "steadyDescription": "El pago garantizado más alto en cada partido, ganes o pierdas - sin bonificación por resultados.",
+        "balanced": "Equilibrado",
+        "balancedDescription": "Un pago garantizado sólido, más una bonificación por victoria o empate.",
+        "performance": "Rendimiento",
+        "performanceDescription": "El pago garantizado más bajo, pero la mayor bonificación por victoria o empate - ideal para un equipo en buena racha."
+      }
+    },
     "table": { "date": "Fecha", "reason": "Motivo", "description": "Descripción", "amount": "Importe" },
     "noTransactions": "Aún no hay transacciones.",
     "chart": {

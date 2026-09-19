@@ -19,18 +19,21 @@ start reading in the code.
   `ErrTeamInsolvent`, exposed to the frontend as `insolvent` on the finances response. The
   "optional harsher tier" (forced sale / points penalty) below was deliberately skipped - the
   spend-side lockout alone was judged enough teeth for now.
-- **Phase 3 - Richer income streams: PARTIALLY DONE.** Season tickets and merchandising shipped
+- **Phase 3 - Richer income streams: DONE.** Season tickets and merchandising shipped
   (`engine/seasonincome.go`, PR mentioned in git history as "Add season tickets and merchandising
-  income (Economy Phase 3)") - see the "Season tickets and merchandising" paragraph in
-  `GAME_MECHANICS.md`'s Economy section. Sponsor tiers (the third Phase 3 item, a bigger schema +
-  UI change) was not built - see Phase 3 below.
+  income (Economy Phase 3)"). Sponsor tiers shipped too: `common.SponsorDeal`
+  (`common/sponsordeal.go`, `teams.sponsor_deal`) lets each team pick between
+  `SponsorDealSteady`/`SponsorDealBalanced`/`SponsorDealPerformance`, applied in
+  `engine.sponsorshipAmount` (`engine/sponsorship.go`) and changeable any time via a
+  `SponsorDealCard` on `FinancesPage.tsx`, the same way ticket price is. See the "Sponsorship"
+  bullet in `GAME_MECHANICS.md`'s Economy section for the exact multipliers.
 - **Phase 5 - Planning tools: DONE.** `FinancesPage.tsx` now has a cash-flow forecast card
   (`features/finances/CashFlowForecastCard.tsx`/`cashFlowForecast.ts`), an income-breakdown chart
   (`IncomeBreakdownChart.tsx`), and a budget-over-time chart (`BudgetOverTimeChart.tsx`), all pure
   frontend computation from the existing transactions list - plus a small backend addition
   (`FinancesResponse.maxDebt`) so the forecast doesn't have to hardcode the debt ceiling a second
   time.
-- Phase 4, and the sponsor-tiers part of Phase 3, are proposed, not started.
+- Phase 4 is proposed, not started.
 
 ## Existing economy building blocks (for context)
 
@@ -44,7 +47,8 @@ start reading in the code.
   `ReleasePlayer` mirror this pattern and are the most recent example to copy from.
 - **Loans**: `backend/common/loans.go` - free, fixed duration, mutually exclusive with an active
   transfer listing.
-- **Sponsorship**: `backend/engine/sponsorship.go` - flat per-match amount by league tier.
+- **Sponsorship**: `backend/engine/sponsorship.go` - per-match amount by league tier, shaped by
+  each team's chosen `common.SponsorDeal` (`common/sponsordeal.go`).
 - **Stadium/tickets**: `backend/common/stadium.go` + `backend/engine/stadium.go` - capacity,
   ticket price, attendance-driven matchday revenue.
 - **Prize money**: `backend/engine/prizemoney.go` - league position + cup round payouts.
@@ -57,15 +61,7 @@ The optional harsher tier (forced-sale flag after N weeks in debt, or a league-p
 rollover) was not built - the spend-side lockout was judged sufficient. Revisit only if playtesting
 shows the debt ceiling alone isn't enough friction.
 
-## Phase 3 - Richer income streams
-
-Adds variety without new failure states - safe to build without touching Phase 2.
-
-- **Season tickets and merchandising: DONE, see Status above.**
-- **Sponsor tiers**: replace the flat `SponsorshipPerMatchTier1/2/3` constants in
-  `engine/sponsorship.go` with a per-team choice between 2-3 sponsor deals (higher guaranteed pay
-  vs. performance bonuses), re-offered each season. Needs a new `teams.sponsor_tier` column (or
-  similar) and a small settings UI, probably on `FinancesPage.tsx` next to the ticket-price form.
+## Phase 3 - Richer income streams - DONE, see Status above
 
 ## Phase 4 - Transfer economics depth
 
@@ -90,6 +86,6 @@ Adds variety without new failure states - safe to build without touching Phase 2
 
 ## Suggested order
 
-Phases 1, 2, 3 (season tickets/merchandising), and 5 are done. What's left: Phase 3's sponsor
-tiers and all of Phase 4 (transfer economics depth) - independent of each other, take in any
-order, or skip if the user prefers to prioritize non-economy features instead.
+Phases 1, 2, 3, and 5 are done. What's left is Phase 4 (transfer economics depth) - its three
+items are independent of each other, take in any order, or skip if the user prefers to prioritize
+non-economy features instead.

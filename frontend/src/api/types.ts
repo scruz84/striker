@@ -510,6 +510,26 @@ export interface FinancesResponse {
   // How far budget may go negative before insolvent flips true (see backend common.MaxDebt) -
   // used by the cash-flow forecast to project weeks until that point on the current trend.
   maxDebt: number
+  // One of SPONSOR_DEAL_* - see SPONSOR_DEAL_LABEL_KEYS.
+  sponsorDeal: number
+}
+
+// teams.sponsor_deal values from backend/common/sponsordeal.go.
+export const SPONSOR_DEAL_STEADY = 0
+export const SPONSOR_DEAL_BALANCED = 1
+export const SPONSOR_DEAL_PERFORMANCE = 2
+
+// Values are i18n keys under "finances.sponsorDeal.options.*".
+export const SPONSOR_DEAL_LABEL_KEYS: Record<number, string> = {
+  [SPONSOR_DEAL_STEADY]: 'finances.sponsorDeal.options.steady',
+  [SPONSOR_DEAL_BALANCED]: 'finances.sponsorDeal.options.balanced',
+  [SPONSOR_DEAL_PERFORMANCE]: 'finances.sponsorDeal.options.performance',
+}
+
+export const SPONSOR_DEAL_DESCRIPTION_KEYS: Record<number, string> = {
+  [SPONSOR_DEAL_STEADY]: 'finances.sponsorDeal.options.steadyDescription',
+  [SPONSOR_DEAL_BALANCED]: 'finances.sponsorDeal.options.balancedDescription',
+  [SPONSOR_DEAL_PERFORMANCE]: 'finances.sponsorDeal.options.performanceDescription',
 }
 
 export interface TransferListing {

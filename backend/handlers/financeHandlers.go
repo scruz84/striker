@@ -22,6 +22,8 @@ type FinancesResponse struct {
 	// MaxDebt mirrors common.MaxDebt - exposed so the frontend's cash-flow forecast can compute
 	// how far budget can still fall (to -MaxDebt) without hardcoding the ceiling a second time.
 	MaxDebt int64 `json:"maxDebt"`
+	// SponsorDeal is one of the common.SponsorDeal* constants - see SetSponsorDealHandler.
+	SponsorDeal common.SponsorDeal `json:"sponsorDeal"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and
@@ -64,10 +66,18 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		sponsorDeal, err := common.GetSponsorDeal(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting sponsor deal for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
-			Insolvent: budget < -common.MaxDebt,
-			MaxDebt:   common.MaxDebt,
+			Insolvent:   budget < -common.MaxDebt,
+			MaxDebt:     common.MaxDebt,
+			SponsorDeal: sponsorDeal,
 		})
 	}
 }
@@ -109,6 +119,47 @@ func SetTicketPriceHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "ticket price updated"})
+	}
+}
+
+type setSponsorDealRequest struct {
+	Deal int `json:"deal"`
+}
+
+// SetSponsorDealHandler lets the caller's team switch between the sponsor deals (see
+// common.SponsorDeal) - the tradeoff between a higher guaranteed per-match payment and a bigger
+// bonus for winning/drawing takes effect from the next match either side plays.
+func SetSponsorDealHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		var req setSponsorDealRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "deal is required"))
+			return
+		}
+
+		if err := common.SetSponsorDeal(dbCtx, team.Id, common.SponsorDeal(req.Deal)); err != nil {
+			if errors.Is(err, common.ErrInvalidSponsorDeal) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting sponsor deal for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "sponsor deal updated"})
 	}
 }
 

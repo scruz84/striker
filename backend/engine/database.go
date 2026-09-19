@@ -76,8 +76,8 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 // this exact figure for the match's report flavor rather than drawing a second, independent one.
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) int {
 	attendance := creditTicketRevenue(dbCtx, match.Home)
-	creditSponsorship(dbCtx, match.Home)
-	creditSponsorship(dbCtx, match.Away)
+	creditSponsorship(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
+	creditSponsorship(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
 	RunAITeamManagement(dbCtx, match.Home)
 	RunAITeamManagement(dbCtx, match.Away)
 	return attendance

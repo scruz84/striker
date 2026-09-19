@@ -4,8 +4,11 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -17,8 +20,16 @@ import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useFinances, useMe, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
-import { TRANSACTION_REASON_KEYS, type Stadium } from '../../api/types'
+import { useFinances, useMe, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
+import {
+  SPONSOR_DEAL_BALANCED,
+  SPONSOR_DEAL_DESCRIPTION_KEYS,
+  SPONSOR_DEAL_LABEL_KEYS,
+  SPONSOR_DEAL_PERFORMANCE,
+  SPONSOR_DEAL_STEADY,
+  TRANSACTION_REASON_KEYS,
+  type Stadium,
+} from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
@@ -62,6 +73,8 @@ export function FinancesPage() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
       </Grid>
+
+      <SponsorDealCard sponsorDeal={finances.sponsorDeal} />
 
       <CashFlowForecastCard transactions={finances.transactions} budget={finances.budget} maxDebt={finances.maxDebt} />
 
@@ -108,6 +121,52 @@ export function FinancesPage() {
         </Table>
       </TableContainer>
     </Box>
+  )
+}
+
+// Lets the owner pick between a higher guaranteed per-match sponsorship payment (Steady) and a
+// lower guaranteed payment made up for by a bigger win/draw bonus (Performance), with Balanced in
+// between - see backend engine.sponsorshipAmount for the actual multipliers. Takes effect from
+// either side's next match, same as ticket price.
+function SponsorDealCard({ sponsorDeal }: { sponsorDeal: number }) {
+  const { t } = useTranslation()
+  const setSponsorDeal = useSetSponsorDeal()
+
+  return (
+    <Card sx={{ mb: 2 }}>
+      <CardContent>
+        <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          {t('finances.sponsorDeal.title')}
+        </Typography>
+        <RadioGroup
+          value={sponsorDeal}
+          onChange={(event) => setSponsorDeal.mutate(Number(event.target.value))}
+        >
+          {[SPONSOR_DEAL_STEADY, SPONSOR_DEAL_BALANCED, SPONSOR_DEAL_PERFORMANCE].map((deal) => (
+            <FormControlLabel
+              key={deal}
+              value={deal}
+              disabled={setSponsorDeal.isPending}
+              sx={{ alignItems: 'flex-start', mb: 0.5 }}
+              control={<Radio size="small" sx={{ pt: 0 }} />}
+              label={
+                <Box>
+                  <Typography variant="body2">{t(SPONSOR_DEAL_LABEL_KEYS[deal])}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {t(SPONSOR_DEAL_DESCRIPTION_KEYS[deal])}
+                  </Typography>
+                </Box>
+              }
+            />
+          ))}
+        </RadioGroup>
+        {setSponsorDeal.isError && (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {t('finances.sponsorDeal.error')}
+          </Alert>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

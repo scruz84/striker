@@ -328,6 +328,16 @@ export function useSetTicketPrice() {
   })
 }
 
+export function useSetSponsorDeal() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (deal: number) => api.put('/v1/user/team/sponsor-deal', { deal }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
 export function useUpgradeStadium() {
   const queryClient = useQueryClient()
   return useMutation({

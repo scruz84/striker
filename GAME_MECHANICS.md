@@ -164,8 +164,14 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   `[MinTicketPrice, MaxTicketPrice]` for whichever maximizes expected `price × demandRate(price)`
   (currently 69, well below the maximum - see the CPU-team section below, which charges exactly
   this rather than simply maxing out).
-- **Sponsorship** (`engine/sponsorship.go`) - a flat per-match payment to *both* sides regardless
-  of result, scaled by the division tier they currently play in: 8,000/4,000/1,500 for tiers 1/2/3.
+- **Sponsorship** (`engine/sponsorship.go`) - a per-match payment to *both* sides regardless of
+  result, scaled by the division tier they currently play in (8,000/4,000/1,500 base for tiers
+  1/2/3, `sponsorshipForTier`) and further shaped by each team's own chosen `common.SponsorDeal`
+  (`sponsorshipAmount`, changeable any time via `FinancesPage.tsx`, same as ticket price):
+  `SponsorDealSteady` always pays 1.3× the base regardless of result; `SponsorDealBalanced` (the
+  default) pays the base amount plus a bonus for a win or draw; `SponsorDealPerformance` pays only
+  0.6× the base guaranteed but the biggest bonus on top - worse than Steady for a team that mostly
+  loses, better for one that mostly wins or draws.
 - **Prize money** (`engine/prizemoney.go`) - at season rollover, each tier's total pool
   (500,000/200,000/50,000 for tiers 1/2/3) is split across that tier's teams by final league
   position, roughly linearly from ~2× the per-team average share for 1st down to ~0 for last
