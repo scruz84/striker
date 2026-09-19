@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
+import { subscribeToPush, unsubscribeFromPush } from '../pushNotifications'
 import type {
   AcademyOverview,
   AdminLeagueInfo,
@@ -676,6 +677,33 @@ export function useSetNotificationPreferences() {
     mutationFn: (prefs: NotificationPreferences) => api.put('/v1/user/notification-preferences', prefs),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notificationPreferences })
+    },
+  })
+}
+
+// Requests notification permission and registers this browser for push (see
+// pushNotifications.subscribeToPush) - the caller (NotificationBell) only flips the pushEnabled
+// preference on once this resolves, so a denied permission or a subscribe failure leaves it off.
+export function useSubscribeToPush() {
+  return useMutation({
+    mutationFn: async () => {
+      const subscription = await subscribeToPush()
+      return api.post('/v1/user/push-subscriptions', subscription)
+    },
+  })
+}
+
+// Unsubscribes this browser from push and tells the backend to drop it (see
+// pushNotifications.unsubscribeFromPush) - a no-op, but not an error, if it was never subscribed
+// in the first place.
+export function useUnsubscribeFromPush() {
+  return useMutation({
+    mutationFn: async () => {
+      const endpoint = await unsubscribeFromPush()
+      if (!endpoint) {
+        return
+      }
+      await api.delete('/v1/user/push-subscriptions', { endpoint })
     },
   })
 }

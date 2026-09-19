@@ -500,6 +500,9 @@ export interface FinancesResponse {
   budget: number
   transactions: TeamTransaction[]
   stadium: Stadium | null
+  // True once the budget has crossed the backend's debt ceiling - buying, signing, and borrowing
+  // on loan are all blocked while this is true (see backend common.ErrTeamInsolvent).
+  insolvent: boolean
 }
 
 export interface TransferListing {

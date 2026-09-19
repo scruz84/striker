@@ -174,3 +174,67 @@ func SetNotificationPreferencesHandler(dbCtx *common.DatabaseContext) gin.Handle
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "notification preferences updated"})
 	}
 }
+
+// PushSubscriptionRequest mirrors the PushSubscription object the browser's own
+// PushManager.subscribe() resolves to - see frontend src/pushNotifications.ts.
+type PushSubscriptionRequest struct {
+	Endpoint string `json:"endpoint"`
+	Keys     struct {
+		P256dh string `json:"p256dh"`
+		Auth   string `json:"auth"`
+	} `json:"keys"`
+}
+
+// SubscribeToPushHandler records (or replaces, if this exact endpoint was already subscribed -
+// see common.SavePushSubscription) one of the caller's devices/browsers as a Web Push target.
+func SubscribeToPushHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var req PushSubscriptionRequest
+		if err := c.BindJSON(&req); err != nil || req.Endpoint == "" || req.Keys.P256dh == "" || req.Keys.Auth == "" {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid push subscription payload"))
+			return
+		}
+
+		if err := common.SavePushSubscription(dbCtx, *userId, req.Endpoint, req.Keys.P256dh, req.Keys.Auth); err != nil {
+			log.Errorf("error saving push subscription for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "push subscription saved"})
+	}
+}
+
+// UnsubscribeFromPushHandler drops one of the caller's own subscriptions - called when the user
+// disables push (see NotificationBell), or the browser itself unsubscribed.
+func UnsubscribeFromPushHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var req struct {
+			Endpoint string `json:"endpoint"`
+		}
+		if err := c.BindJSON(&req); err != nil || req.Endpoint == "" {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid endpoint"))
+			return
+		}
+
+		if err := common.DeletePushSubscriptionByEndpoint(dbCtx, *userId, req.Endpoint); err != nil {
+			log.Errorf("error deleting push subscription for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "push subscription removed"})
+	}
+}

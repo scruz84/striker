@@ -49,6 +49,8 @@ func StartSvc() {
 		log.Panicf("Error ensuring schema is up to date: %s", err)
 	}
 
+	common.ConfigureWebPushNotifier(dbCtx)
+
 	// Backfills the trainer market for a world that existed before the trainer feature shipped -
 	// see common.TopUpTrainerMarket.
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {
@@ -154,6 +156,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.DELETE("/notifications", handlers.DeleteAllNotificationsHandler(dbCtx))
 	v1UserGroup.GET("/notification-preferences", handlers.GetNotificationPreferencesHandler(dbCtx))
 	v1UserGroup.PUT("/notification-preferences", handlers.SetNotificationPreferencesHandler(dbCtx))
+	v1UserGroup.POST("/push-subscriptions", handlers.SubscribeToPushHandler(dbCtx))
+	v1UserGroup.DELETE("/push-subscriptions", handlers.UnsubscribeFromPushHandler(dbCtx))
 
 	v1TransferGroup := v1Group.Group("/transfers")
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())

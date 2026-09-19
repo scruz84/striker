@@ -29,6 +29,8 @@ func StartEngine() {
 		log.Panicf("Error ensuring schema is up to date: %s", err)
 	}
 
+	common.ConfigureWebPushNotifier(dbCtx)
+
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))

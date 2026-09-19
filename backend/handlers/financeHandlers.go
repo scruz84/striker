@@ -14,6 +14,11 @@ type FinancesResponse struct {
 	Budget       int64                    `json:"budget"`
 	Transactions []common.TeamTransaction `json:"transactions"`
 	Stadium      *common.Stadium          `json:"stadium"`
+	// Insolvent mirrors common.IsTeamSolvent - true once the budget has crossed -common.MaxDebt,
+	// at which point buying, signing, and borrowing on loan are all blocked (see ErrTeamInsolvent).
+	// Computed here rather than duplicating MaxDebt as a frontend constant, so the two can never
+	// drift out of sync.
+	Insolvent bool `json:"insolvent"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and
@@ -56,7 +61,10 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, FinancesResponse{Budget: budget, Transactions: transactions, Stadium: stadium})
+		c.JSON(http.StatusOK, FinancesResponse{
+			Budget: budget, Transactions: transactions, Stadium: stadium,
+			Insolvent: budget < -common.MaxDebt,
+		})
 	}
 }
 

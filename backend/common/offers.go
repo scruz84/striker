@@ -91,6 +91,9 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 	if !IsTransferWindowOpen(dbCtx) {
 		return nil, ErrTransferWindowClosed
 	}
+	if !IsTeamSolvent(dbCtx, fromTeamId) {
+		return nil, ErrTeamInsolvent
+	}
 
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {

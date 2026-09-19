@@ -50,6 +50,8 @@
     "deliverBy": "Also deliver notifications by:",
     "email": "Email",
     "push": "Push",
+    "pushUnsupported": "Push notifications aren't available in this browser, or on this deployment.",
+    "pushPermissionDenied": "Notification permission was denied - enable it in your browser's site settings to turn this on.",
     "empty": "No notifications yet."
   },
   "home": {
@@ -189,6 +191,7 @@
   "finances": {
     "title": "Finances",
     "budget": "Budget",
+    "insolvent": "Your budget is too far in debt - buying, signing, and borrowing players on loan are blocked until it recovers. Selling or releasing players is still open.",
     "stadium": "Stadium",
     "seats": "seats",
     "expand": "Expand (+500 seats)",

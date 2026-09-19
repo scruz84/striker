@@ -164,6 +164,9 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
 	}
+	if !IsTeamSolvent(dbCtx, borrowingTeamId) {
+		return ErrTeamInsolvent
+	}
 	currentSeason := GetCurrentSeason(dbCtx)
 
 	tx, err := dbCtx.Db.Begin()

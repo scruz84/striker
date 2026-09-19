@@ -145,7 +145,7 @@ func AcceptLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusOK, common.HttpResponse{Message: "loan accepted"})
 		case errors.Is(err, common.ErrLoanListingNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrCannotAcceptOwnLoan):
+		case errors.Is(err, common.ErrCannotAcceptOwnLoan), errors.Is(err, common.ErrTeamInsolvent):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrTransferWindowClosed):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))

@@ -26,8 +26,11 @@ import {
   useNotificationPreferences,
   useNotifications,
   useSetNotificationPreferences,
+  useSubscribeToPush,
+  useUnsubscribeFromPush,
 } from '../api/hooks'
 import type { Notification } from '../api/types'
+import { isPushSupported } from '../pushNotifications'
 import { formatDateTime } from '../utils/formatDate'
 
 export function NotificationBell() {
@@ -43,6 +46,9 @@ export function NotificationBell() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { data: prefs } = useNotificationPreferences(!!loggedUser && settingsOpen)
   const setPrefs = useSetNotificationPreferences()
+  const subscribeToPush = useSubscribeToPush()
+  const unsubscribeFromPush = useUnsubscribeFromPush()
+  const pushSupported = isPushSupported()
 
   if (!loggedUser) {
     return null
@@ -50,6 +56,24 @@ export function NotificationBell() {
 
   const unread = data?.unread ?? 0
   const notifications = data?.notifications ?? []
+
+  const handlePushToggle = async (enabled: boolean) => {
+    if (!prefs) {
+      return
+    }
+    if (enabled) {
+      try {
+        await subscribeToPush.mutateAsync()
+      } catch {
+        // Permission denied, or the browser/service worker failed to subscribe - leave the
+        // preference off rather than claiming push is on when nothing was actually registered.
+        return
+      }
+    } else {
+      await unsubscribeFromPush.mutateAsync()
+    }
+    setPrefs.mutate({ ...prefs, pushEnabled: enabled })
+  }
 
   const handleItemClick = (notification: Notification) => {
     if (!notification.read) {
@@ -119,20 +143,31 @@ export function NotificationBell() {
                 }
                 label={<Typography variant="body2">{t('notifications.email')}</Typography>}
               />
-              <FormControlLabel
-                sx={{ display: 'block' }}
-                control={
-                  <Switch
-                    size="small"
-                    checked={prefs?.pushEnabled ?? false}
-                    disabled={!prefs || setPrefs.isPending}
-                    onChange={(event) =>
-                      prefs && setPrefs.mutate({ ...prefs, pushEnabled: event.target.checked })
-                    }
-                  />
-                }
-                label={<Typography variant="body2">{t('notifications.push')}</Typography>}
-              />
+              <Tooltip title={pushSupported ? '' : t('notifications.pushUnsupported')}>
+                <FormControlLabel
+                  sx={{ display: 'block' }}
+                  control={
+                    <Switch
+                      size="small"
+                      checked={prefs?.pushEnabled ?? false}
+                      disabled={
+                        !prefs ||
+                        !pushSupported ||
+                        setPrefs.isPending ||
+                        subscribeToPush.isPending ||
+                        unsubscribeFromPush.isPending
+                      }
+                      onChange={(event) => void handlePushToggle(event.target.checked)}
+                    />
+                  }
+                  label={<Typography variant="body2">{t('notifications.push')}</Typography>}
+                />
+              </Tooltip>
+              {subscribeToPush.isError && (
+                <Typography variant="caption" color="error" sx={{ display: 'block' }}>
+                  {t('notifications.pushPermissionDenied')}
+                </Typography>
+              )}
             </Box>
           </>
         )}

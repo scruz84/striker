@@ -205,6 +205,9 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
 	}
+	if !IsTeamSolvent(dbCtx, buyerTeamId) {
+		return ErrTeamInsolvent
+	}
 
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {

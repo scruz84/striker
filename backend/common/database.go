@@ -1316,6 +1316,25 @@ func GetTeamBudget(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 	return budget, err
 }
 
+// ErrTeamInsolvent is returned by any spend-side action (buying, signing, borrowing) a team
+// attempts while IsTeamSolvent reports false - see MaxDebt.
+var ErrTeamInsolvent = errors.New("team budget is too far in debt for new spending")
+
+// IsTeamSolvent reports whether teamId's budget is still above -MaxDebt, i.e. whether it's
+// allowed to take on new spending (a transfer buy, a free-agent signing, borrowing a player on
+// loan) - see the callers of ErrTeamInsolvent for exactly which actions this gates. Selling a
+// player, releasing one, or cancelling a listing are never gated by this: those only ever help a
+// team's budget, and are exactly how an insolvent team is meant to dig back out. Fails open
+// (reports solvent) on a lookup error, the same convention IsTransferWindowOpen uses, so a DB
+// hiccup can't silently freeze the whole market.
+func IsTeamSolvent(dbCtx *DatabaseContext, teamId int64) bool {
+	budget, err := GetTeamBudget(dbCtx, teamId)
+	if err != nil {
+		return true
+	}
+	return budget >= -MaxDebt
+}
+
 // AdjustTeamBudget changes a team's budget by `amount` (negative for an expense) and records
 // it in the ledger, atomically.
 func AdjustTeamBudget(dbCtx *DatabaseContext, teamId int64, amount int64, reason int, description string) error {

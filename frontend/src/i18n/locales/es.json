@@ -50,6 +50,8 @@
     "deliverBy": "Enviar notificaciones también por:",
     "email": "Correo electrónico",
     "push": "Push",
+    "pushUnsupported": "Las notificaciones push no están disponibles en este navegador, o en este despliegue.",
+    "pushPermissionDenied": "Se denegó el permiso de notificaciones - actívalo en la configuración del sitio de tu navegador para poder usarlo.",
     "empty": "Aún no hay notificaciones."
   },
   "home": {
@@ -189,6 +191,7 @@
   "finances": {
     "title": "Finanzas",
     "budget": "Presupuesto",
+    "insolvent": "Tu presupuesto está demasiado en números rojos - fichar, firmar jugadores y pedirlos cedidos está bloqueado hasta que se recupere. Vender o liberar jugadores sigue disponible.",
     "stadium": "Estadio",
     "seats": "asientos",
     "expand": "Ampliar (+500 asientos)",

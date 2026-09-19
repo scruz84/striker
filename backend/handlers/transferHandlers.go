@@ -154,7 +154,7 @@ func BuyTransferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusOK, common.HttpResponse{Message: "transfer completed"})
 		case errors.Is(err, common.ErrListingNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrCannotBuyOwnPlayer), errors.Is(err, common.ErrInsufficientBudget):
+		case errors.Is(err, common.ErrCannotBuyOwnPlayer), errors.Is(err, common.ErrInsufficientBudget), errors.Is(err, common.ErrTeamInsolvent):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrTransferWindowClosed):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))

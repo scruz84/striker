@@ -9,4 +9,7 @@ fi
 if [ -n "$GOOGLE_OAUTH_CLIENT_ID" ]; then
   sed -i -e "s|REPLACE_GOOGLE_OAUTH_CLIENT_ID|$GOOGLE_OAUTH_CLIENT_ID|g" /tmp/config.js
 fi
+if [ -n "$VAPID_PUBLIC_KEY" ]; then
+  sed -i -e "s|REPLACE_VAPID_PUBLIC_KEY|$VAPID_PUBLIC_KEY|g" /tmp/config.js
+fi
 cat /tmp/config.js > /usr/share/nginx/html/config.js

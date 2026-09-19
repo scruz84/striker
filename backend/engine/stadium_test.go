@@ -3,13 +3,15 @@ package engine
 import (
 	"math/rand"
 	"testing"
+
+	"github.com/scruz84/striker/common"
 )
 
 func TestCalculateAttendance_WithinBounds(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	capacity := 10000
 	for i := 0; i < 1000; i++ {
-		attendance := CalculateAttendance(capacity, r)
+		attendance := CalculateAttendance(capacity, common.DefaultTicketPrice, r)
 		if attendance < 0 || attendance > capacity {
 			t.Fatalf("attendance %d out of bounds for capacity %d", attendance, capacity)
 		}
@@ -18,7 +20,7 @@ func TestCalculateAttendance_WithinBounds(t *testing.T) {
 
 func TestCalculateAttendance_ZeroCapacity(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
-	if got := CalculateAttendance(0, r); got != 0 {
+	if got := CalculateAttendance(0, common.DefaultTicketPrice, r); got != 0 {
 		t.Fatalf("expected 0 attendance for 0 capacity, got %d", got)
 	}
 }
@@ -29,7 +31,9 @@ func TestCalculateAttendance_AveragesNearBaseRate(t *testing.T) {
 	total := 0
 	const trials = 5000
 	for i := 0; i < trials; i++ {
-		total += CalculateAttendance(capacity, r)
+		// demandRate(DefaultTicketPrice) == BaseOccupancyRate exactly by construction - this is
+		// the one price at which attendance should still average out to the historical baseline.
+		total += CalculateAttendance(capacity, common.DefaultTicketPrice, r)
 	}
 	average := float64(total) / float64(trials)
 	expected := float64(capacity) * BaseOccupancyRate
@@ -37,6 +41,53 @@ func TestCalculateAttendance_AveragesNearBaseRate(t *testing.T) {
 	// base rate - loose tolerance since this is just a sanity check, not a distribution test.
 	if average < expected*0.9 || average > expected*1.1 {
 		t.Fatalf("average attendance %.0f too far from expected ~%.0f", average, expected)
+	}
+}
+
+// TestCalculateAttendance_HigherPriceReducesAttendance guards the whole point of demandRate:
+// before it existed, attendance was independent of price, making "always charge the maximum" a
+// strictly dominant (and unrealistic) strategy - see maximizeTicketPrice/optimalTicketPrice.
+func TestCalculateAttendance_HigherPriceReducesAttendance(t *testing.T) {
+	capacity := 10000
+	const trials = 5000
+
+	average := func(price int) float64 {
+		r := rand.New(rand.NewSource(7))
+		total := 0
+		for i := 0; i < trials; i++ {
+			total += CalculateAttendance(capacity, price, r)
+		}
+		return float64(total) / float64(trials)
+	}
+
+	cheap := average(common.MinTicketPrice)
+	expensive := average(common.MaxTicketPrice)
+	if expensive >= cheap {
+		t.Fatalf("expected average attendance at max price (%.0f) to be lower than at min price (%.0f)", expensive, cheap)
+	}
+}
+
+func TestOptimalTicketPrice_WithinBounds(t *testing.T) {
+	price := optimalTicketPrice()
+	if price < common.MinTicketPrice || price > common.MaxTicketPrice {
+		t.Fatalf("optimal price %d out of bounds [%d, %d]", price, common.MinTicketPrice, common.MaxTicketPrice)
+	}
+}
+
+// TestOptimalTicketPrice_BeatsChargingTheMaximum pins down the actual bug this whole feature
+// fixes: maximizeTicketPrice used to always charge common.MaxTicketPrice because that was
+// strictly optimal when attendance didn't respond to price - now that it does, that price should
+// no longer win on expected revenue.
+func TestOptimalTicketPrice_BeatsChargingTheMaximum(t *testing.T) {
+	optimal := optimalTicketPrice()
+	optimalRevenue := float64(optimal) * demandRate(optimal)
+	maxRevenue := float64(common.MaxTicketPrice) * demandRate(common.MaxTicketPrice)
+	if optimalRevenue < maxRevenue {
+		t.Fatalf("optimal price %d (revenue %.2f) should be at least as good as charging the maximum (revenue %.2f)",
+			optimal, optimalRevenue, maxRevenue)
+	}
+	if optimal == common.MaxTicketPrice {
+		t.Fatalf("expected the optimal price to no longer be the maximum once attendance responds to price")
 	}
 }
 

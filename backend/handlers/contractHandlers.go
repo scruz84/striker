@@ -65,7 +65,8 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrPlayerNotFree), errors.Is(err, common.ErrTransferWindowClosed), errors.Is(err, common.ErrInsufficientBudget):
+		case errors.Is(err, common.ErrPlayerNotFree), errors.Is(err, common.ErrTransferWindowClosed),
+			errors.Is(err, common.ErrInsufficientBudget), errors.Is(err, common.ErrTeamInsolvent):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error signing free agent %d for team %d: %s", playerId, team.Id, err)

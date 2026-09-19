@@ -51,6 +51,7 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			errors.Is(err, common.ErrPlayerIsFreeAgent),
 			errors.Is(err, common.ErrOfferAlreadyExists),
 			errors.Is(err, common.ErrPlayerOnLoan),
+			errors.Is(err, common.ErrTeamInsolvent),
 			errors.Is(err, common.ErrTransferWindowClosed):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 			return

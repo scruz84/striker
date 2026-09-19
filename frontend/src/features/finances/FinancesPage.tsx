@@ -38,6 +38,12 @@ export function FinancesPage() {
         {t('finances.title')}
       </Typography>
 
+      {finances.insolvent && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {t('finances.insolvent')}
+        </Alert>
+      )}
+
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6 }}>
           <Card sx={{ height: '100%' }}>

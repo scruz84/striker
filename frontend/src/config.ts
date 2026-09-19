@@ -3,6 +3,7 @@ declare global {
     extended?: {
       API_ENDPOINT?: string
       GOOGLE_OAUTH_CLIENT_ID?: string
+      VAPID_PUBLIC_KEY?: string
     }
   }
 }
@@ -14,7 +15,7 @@ function isDevelopment(): boolean {
   return import.meta.env.DEV
 }
 
-function runtimeValue(key: 'API_ENDPOINT' | 'GOOGLE_OAUTH_CLIENT_ID', envKey: string): string {
+function runtimeValue(key: 'API_ENDPOINT' | 'GOOGLE_OAUTH_CLIENT_ID' | 'VAPID_PUBLIC_KEY', envKey: string): string {
   if (isDevelopment()) {
     return import.meta.env[envKey] ?? ''
   }
@@ -42,4 +43,10 @@ export function getWsEndpoint(path: string): string {
 
 export function getGoogleOAuthClientId(): string {
   return runtimeValue('GOOGLE_OAUTH_CLIENT_ID', 'VITE_GOOGLE_OAUTH_CLIENT_ID')
+}
+
+// Empty means no key is configured (see common.ConfigureWebPushNotifier on the backend), in which
+// case push notifications are simply unavailable - see src/pushNotifications.ts.
+export function getVapidPublicKey(): string {
+  return runtimeValue('VAPID_PUBLIC_KEY', 'VITE_VAPID_PUBLIC_KEY')
 }

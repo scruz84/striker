@@ -181,6 +181,9 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if !IsTransferWindowOpen(dbCtx) {
 		return nil, ErrTransferWindowClosed
 	}
+	if !IsTeamSolvent(dbCtx, teamId) {
+		return nil, ErrTeamInsolvent
+	}
 
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {

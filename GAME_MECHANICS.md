@@ -141,12 +141,17 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
 **Income:**
 
 - **Ticket revenue** (`engine/stadium.go`) - paid to the home side only, once per match:
-  attendance × ticket price, nothing more (no concessions, no away allocation). Attendance is a
-  random 30-70% of stadium capacity (`BaseOccupancyRate` 0.5 ± `OccupancyJitter` 0.2, clamped to
-  [10%, 100%]) - there's no model yet for what should actually drive that (form, rivalry,
-  weather). Ticket price is owner-set within `[MinTicketPrice, MaxTicketPrice]` = `[1, 100]`
-  (`common/fmconstants.go`) - since attendance is independent of price, there's no economic
-  tradeoff to charging the maximum (see the CPU-team section below, which does exactly that).
+  attendance × ticket price, nothing more (no concessions, no away allocation). Attendance is
+  capacity × an occupancy rate: a base rate (`demandRate`) that's exactly `BaseOccupancyRate`
+  (0.5) at `DefaultTicketPrice` (10) and slides linearly down toward `MinOccupancyRate` (0.1) as
+  price rises to `MaxTicketPrice` (100, scaled by `PriceSensitivity` = 0.35) - or up, more gently,
+  toward `MaxOccupancyRate` (1.0) as price drops toward `MinTicketPrice` (1) - plus ±`OccupancyJitter`
+  (0.2) random noise on top, clamped to `[MinOccupancyRate, MaxOccupancyRate]`. There's still no
+  model for what else should plausibly drive attendance (form, rivalry, weather), but price itself
+  is now a real tradeoff rather than a free lever: `optimalTicketPrice` scans every price in
+  `[MinTicketPrice, MaxTicketPrice]` for whichever maximizes expected `price × demandRate(price)`
+  (currently 69, well below the maximum - see the CPU-team section below, which charges exactly
+  this rather than simply maxing out).
 - **Sponsorship** (`engine/sponsorship.go`) - a flat per-match payment to *both* sides regardless
   of result, scaled by the division tier they currently play in: 8,000/4,000/1,500 for tiers 1/2/3.
 - **Prize money** (`engine/prizemoney.go`) - at season rollover, each tier's total pool
@@ -175,11 +180,52 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   accepted for free; releasing a player early before their contract expires costs a severance (see
   `common.EarlyReleaseWageMultiplier` in `common/contracts.go`).
 
+**Insolvency:** a team's budget can go negative with no immediate effect, but once it crosses
+`-MaxDebt` (-200,000, `common/fmconstants.go`) `common.IsTeamSolvent` starts reporting false, and
+every spend-side action - `ExecuteTransfer` (buying a listed player), `MakeTransferOffer`,
+`AcceptLoan` (borrowing one), and `SignFreeAgent` (which `SignFreeAgentAtMarketRate` also routes
+through, so this covers Director-tier AI buying too) - returns `ErrTeamInsolvent` instead of going
+through. Selling, releasing, or cancelling a listing are never gated by this: those are exactly
+how a team is meant to dig back out, so blocking them would make a debt spiral impossible to
+escape rather than just painful. `GetFinancesHandler` exposes this as `insolvent` on the finances
+response so the frontend can show a standing warning rather than the player only discovering it
+from a failed action.
+
 `common/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
 ties route through after a result: it credits the home side's ticket revenue, credits sponsorship
 to both sides, and triggers `RunAITeamManagement` for either side that's currently unowned (see
 below). Friendlies deliberately skip all of this - no ticket revenue, no sponsorship, no AI
 upkeep hook - since a friendly isn't a competitive result with financial stakes.
+
+## Notifications
+
+In-game events (a match result, a transfer offer, a player's progression, etc.) are recorded as
+rows via `common.CreateNotification` and shown in the bell menu (`NotificationBell.tsx`), which
+also polls unread count. Separately, each user can opt into having them pushed to them as they
+happen rather than only seen on next visit - `common.NotificationPreferences`
+(`emailEnabled`/`pushEnabled`, both default false) gates a call to `common.DefaultNotifier.Send`,
+a package-level `Notifier` swapped at startup so callers don't need to know which channel(s) are
+actually wired up.
+
+- `LogNotifier` is the fallback: every channel just gets logged, never actually delivered - what
+  runs when nothing else is configured.
+- `WebPushNotifier` (`common/webpushnotifier.go`) is the real implementation for the `push`
+  channel (`email` still falls through to log-only - no email transport exists yet). It sends via
+  the Web Push protocol (VAPID) to every one of a user's subscribed devices/browsers
+  (`push_subscriptions` table, `common/pushsubscriptions.go`; a user can have several - phone,
+  laptop, etc.), dropping a subscription outright once its push service reports it permanently
+  gone (404/410). `common.ConfigureWebPushNotifier`, called once at startup by both
+  `service.StartSvc` and `engine.StartEngine` (either process can trigger a notification), swaps
+  `DefaultNotifier` to this only when `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` are set in the
+  environment - otherwise push notifications are still tracked in-app, just never actually pushed.
+- On the frontend, `src/pushNotifications.ts` handles subscribing/unsubscribing this browser
+  (requesting `Notification` permission, then `PushManager.subscribe` with the VAPID public key -
+  exposed to the browser the same "baked placeholder + `set-env.sh` rewrite" way
+  `GOOGLE_OAUTH_CLIENT_ID` is, via `config.ts`/`public/config.js`), and `public/sw.js`'s `push`/
+  `notificationclick` handlers display the notification and focus/open the app when clicked.
+  Toggling the push switch in `NotificationBell` only flips `pushEnabled` on once the browser
+  subscription actually succeeds - a denied permission leaves it off rather than claiming push is
+  live when nothing was registered.
 
 ## How CPU (unowned) teams resolve the transfer market
 
@@ -215,9 +261,9 @@ happens exactly as often as that team actually plays.
      purely about whether the fee is good enough for the selling club. Before this existed, an
      offer made to an AI-managed team's player had no automated response at all and just sat
      pending forever.
-  5. **Charge the maximum ticket price** - since attendance never falls as price rises in this
-     economy (see above), a rational owner always charges `MaxTicketPrice`, so a Manager-level team
-     does exactly that.
+  5. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
+     above) - this used to simply be `MaxTicketPrice`, back when attendance never fell as price
+     rose, but now that it does, always maxing out would just as often cost revenue as earn it.
 - **Director** (tier 3) adds active market participation on top (`manageMarketIfDirector`):
   1. **Buy a transfer-listed upgrade** for its single neediest core position - but only a listing
      that's a genuine improvement over that position's current average quality

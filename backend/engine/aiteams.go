@@ -199,24 +199,27 @@ func signFreeAgentForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64
 
 	if _, err := common.SignFreeAgentAtMarketRate(dbCtx, best.Id, teamId); err != nil &&
 		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrPlayerNotFree) &&
-		!errors.Is(err, common.ErrInsufficientBudget) {
+		!errors.Is(err, common.ErrInsufficientBudget) && !errors.Is(err, common.ErrTeamInsolvent) {
 		log.Errorf("error signing free agent %d for AI-managed team %d: %s", best.Id, teamId, err)
 	}
 }
 
-// maximizeTicketPrice charges the maximum allowed ticket price - see TicketRevenue's own doc
-// comment: attendance in this game's economy never falls as price rises, so there's no tradeoff
-// for a rational owner to weigh, and a Manager-level AI team should behave like one.
+// maximizeTicketPrice charges whichever price maximizes expected matchday revenue (see
+// optimalTicketPrice) - simply charging the maximum allowed price used to be this same rational
+// move, back when attendance never fell as price rose, but now that demandRate makes attendance
+// genuinely price-sensitive, always maxing out would just as often cost a Manager-level AI team
+// revenue rather than earn it.
 func maximizeTicketPrice(dbCtx *common.DatabaseContext, teamId int64) {
 	stadium, err := common.GetStadium(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching stadium for AI-managed team %d ticket pricing: %s", teamId, err)
 		return
 	}
-	if stadium.TicketPrice >= common.MaxTicketPrice {
+	optimal := optimalTicketPrice()
+	if stadium.TicketPrice == optimal {
 		return
 	}
-	if err := common.SetTicketPrice(dbCtx, teamId, common.MaxTicketPrice); err != nil {
+	if err := common.SetTicketPrice(dbCtx, teamId, optimal); err != nil {
 		log.Errorf("error setting ticket price for AI-managed team %d: %s", teamId, err)
 	}
 }
@@ -289,7 +292,8 @@ func buyTransferListedPlayerForWeakestPosition(dbCtx *common.DatabaseContext, te
 
 	if err := common.ExecuteTransfer(dbCtx, target.ListingId, teamId); err != nil &&
 		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
-		!errors.Is(err, common.ErrListingNotFound) && !errors.Is(err, common.ErrCannotBuyOwnPlayer) {
+		!errors.Is(err, common.ErrListingNotFound) && !errors.Is(err, common.ErrCannotBuyOwnPlayer) &&
+		!errors.Is(err, common.ErrTeamInsolvent) {
 		log.Errorf("error buying transfer-listed player for AI-managed team %d: %s", teamId, err)
 	}
 }

@@ -71,6 +71,14 @@ const MaxTicketPrice = 100
 const StadiumUpgradeSeats = 500
 const StadiumUpgradeCostPerCurrentSeat = 10
 
+// MaxDebt is how far a team's budget may go negative before IsTeamSolvent starts blocking new
+// spending (buying, signing, borrowing on loan) - half the 400,000 a team starts with, generous
+// enough that a genuine cash crunch from a bad transfer window or a run of empty stadiums isn't
+// an immediate hard stop, but real enough that budget mismanagement eventually has a consequence
+// beyond an ever-more-negative number nobody has to answer for. Selling, releasing, and cancelling
+// are never blocked by this - those are exactly how a team digs back out.
+const MaxDebt = 200000
+
 // notifications.notification_type
 const NOTIFICATION_MATCH_RESULT = 0
 const NOTIFICATION_PROMOTION = 1
