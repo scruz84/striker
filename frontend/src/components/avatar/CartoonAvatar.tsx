@@ -149,19 +149,6 @@ function Hair({ style, color, skin }: { style: FaceTraits['hairStyle']; color: s
           />
         </>
       )
-    case 'cap':
-      return (
-        <>
-          <path
-            d="M 19 40 Q 20 18 50 18 Q 80 18 81 40 L 81 30 Q 50 20 19 30 Z"
-            fill={color}
-            stroke={INK}
-            strokeWidth={STROKE}
-            strokeLinejoin="round"
-          />
-          <rect x={19} y={26} width={62} height={6} fill={color} stroke={INK} strokeWidth={2.2} />
-        </>
-      )
     case 'bald':
     default:
       return null

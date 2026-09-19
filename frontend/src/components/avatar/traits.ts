@@ -1,6 +1,6 @@
 import { chance, createRng, pick } from './random'
 
-export type HairStyle = 'bald' | 'short' | 'side' | 'curly' | 'mohawk' | 'cap'
+export type HairStyle = 'bald' | 'short' | 'side' | 'curly' | 'mohawk'
 export type BrowAngle = 'flat' | 'leftRaised' | 'rightRaised'
 export type MouthStyle = 'flat' | 'smallSmile' | 'frown' | 'open'
 export type FacialHair = 'none' | 'mustache' | 'goatee' | 'stubble'
@@ -20,7 +20,7 @@ export interface FaceTraits {
 const SKIN_TONES = ['#F0C49A', '#E3AD7C', '#C98D5C', '#A66F42', '#7A4F30', '#F7DAB6'] as const
 const HAIR_COLORS = ['#2B2320', '#5C3A21', '#8C5A1E', '#7A2E22', '#AFAAA0', '#3A2A1C'] as const
 
-const HAIR_STYLES: readonly HairStyle[] = ['bald', 'short', 'side', 'curly', 'mohawk', 'cap']
+const HAIR_STYLES: readonly HairStyle[] = ['bald', 'short', 'side', 'curly', 'mohawk']
 const BROW_ANGLES: readonly BrowAngle[] = ['flat', 'leftRaised', 'rightRaised']
 const MOUTH_STYLES: readonly MouthStyle[] = ['flat', 'smallSmile', 'frown', 'open']
 
