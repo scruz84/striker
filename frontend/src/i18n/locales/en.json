@@ -146,7 +146,8 @@
     "formation": "Formation",
     "saveError": "Could not save the lineup. Check your selections.",
     "saveSuccess": "Lineup saved.",
-    "incompleteWarning": "Drag a player onto every empty slot before saving.",
+    "tapHint": "Tap a player to pick them up, then tap a spot on the pitch (or the bench) to put them there.",
+    "incompleteWarning": "Fill every empty slot before saving.",
     "bench": "Bench",
     "benchEmpty": "Every squad player is on the pitch.",
     "save": "Save lineup",
@@ -744,11 +745,15 @@
       "title": "Attributes"
     },
     "stats": {
-      "goals": "Goals",
+      "goals": "Career goals",
+      "goalsForTeam": "Goals for this club",
       "yellowCards": "Yellow cards",
       "redCards": "Red cards",
       "contract": "Contract",
       "wage": "Wage"
+    },
+    "listForTransfer": {
+      "button": "List for transfer"
     },
     "status": {
       "injured_one": "Injured - out for {{count}} more match",

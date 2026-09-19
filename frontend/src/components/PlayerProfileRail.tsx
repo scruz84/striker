@@ -1,19 +1,24 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useTransferWindowStatus } from '../api/hooks'
 import { COUNTRY_NAME_KEYS, POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
 import { overallRating, ratingTierColor } from '../utils/playerRating'
+import { countryFlag } from '../utils/countryFlag'
 import { formatCurrency } from '../utils/formatCurrency'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
+import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
 import { TeamBadge } from './TeamBadge'
 
 const RING_SIZE_MOBILE = 64
@@ -50,6 +55,21 @@ export function PlayerProfileRail({
   const isFreeAgent = player.teamId === 0
   const overall = overallRating(player)
   const ringColor = ratingTierColor(overall, theme.palette)
+  const flag = countryFlag(player.birthCountry)
+
+  // Listing straight from this page needs the same eligibility the transfer market's own "List a
+  // player" form already enforces server-side (see backend common.CreateTransferListing) - not
+  // borrowed on loan, not already listed for transfer or loan, and the window open - checked here
+  // too so the button doesn't invite a click that's just going to fail.
+  const { data: windowStatus } = useTransferWindowStatus(canSeeFinancials && !isFreeAgent)
+  const canListForTransfer =
+    canSeeFinancials &&
+    !isFreeAgent &&
+    !player.onLoanFromTeamId &&
+    player.transferListingAskingPrice === undefined &&
+    player.loanListingDurationSeasons === undefined &&
+    !!windowStatus?.open
+  const [listDialogOpen, setListDialogOpen] = useState(false)
 
   const traits: Array<{ key: string; label: string }> = canSeeSkills
     ? [
@@ -121,6 +141,13 @@ export function PlayerProfileRail({
 
         <Box>
           <Typography variant="h6" component="h1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+            {flag && (
+              <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
+                <Box component="span" sx={{ mr: 0.75 }}>
+                  {flag}
+                </Box>
+              </Tooltip>
+            )}
             {player.firstName} {player.lastName}
           </Typography>
           {canSeeSkills && (
@@ -175,10 +202,18 @@ export function PlayerProfileRail({
           )}
           {canSeeFinancials && <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />}
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
+          {!isFreeAgent && <SpecRow label={t('playerPage.stats.goalsForTeam')} value={player.goalsForTeam} />}
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />
           <SpecRow label={t('playerPage.stats.redCards')} value={player.redCards} />
         </Stack>
+
+        {canListForTransfer && (
+          <Button size="small" variant="outlined" fullWidth onClick={() => setListDialogOpen(true)}>
+            {t('playerPage.listForTransfer.button')}
+          </Button>
+        )}
       </Stack>
+      <ListPlayerForTransferDialog player={player} open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
     </Paper>
   )
 }

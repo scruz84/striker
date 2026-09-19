@@ -49,7 +49,7 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			}
 		}
 
-		if stats, err := common.GetPlayerCareerStats(dbCtx, playerId); err != nil {
+		if stats, err := common.GetPlayerCareerStats(dbCtx, playerId, player.TeamId); err != nil {
 			log.Errorf("error computing career stats for player %d: %s", playerId, err)
 		} else {
 			details.PlayerCareerStats = stats

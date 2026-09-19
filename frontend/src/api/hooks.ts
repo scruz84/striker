@@ -350,9 +350,10 @@ export function useListPlayer() {
   return useMutation({
     mutationFn: ({ playerId, askingPrice }: { playerId: number; askingPrice: number }) =>
       api.post(`/v1/user/team/players/${playerId}/list`, { askingPrice }),
-    onSuccess: () => {
+    onSuccess: (_data, { playerId }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.player(String(playerId)) })
     },
   })
 }

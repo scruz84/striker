@@ -20,13 +20,19 @@ type PlayerCareerStats struct {
 	Goals       int `json:"goals"`
 	YellowCards int `json:"yellowCards"`
 	RedCards    int `json:"redCards"`
+	// GoalsForTeam is goals scored while contracted to whichever team currently employs this
+	// player (0 for a free agent, who currently plays for none) - narrower than Goals, which
+	// counts every team a player has ever scored for across their whole career.
+	GoalsForTeam int `json:"goalsForTeam"`
 }
 
 const countPlayerEventStmtSql = "SELECT count(*) FROM match_events WHERE event_type = $1 AND team_players = $2"
+const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events WHERE event_type = $1 AND team_players = $2 AND team_owner = $3"
 
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
-// in, regardless of which team they were on at the time.
-func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64) (PlayerCareerStats, error) {
+// in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
+// player's current team - see PlayerDetails.TeamId).
+func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64, teamId int64) (PlayerCareerStats, error) {
 	var stats PlayerCareerStats
 	marker := fmt.Sprintf("[%d]", playerId)
 	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, GOAL, marker).Scan(&stats.Goals); err != nil {
@@ -36,6 +42,9 @@ func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64) (PlayerCareerS
 		return stats, err
 	}
 	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, RED_CARD, marker).Scan(&stats.RedCards); err != nil {
+		return stats, err
+	}
+	if err := dbCtx.Db.QueryRow(countPlayerEventForTeamStmtSql, GOAL, marker, teamId).Scan(&stats.GoalsForTeam); err != nil {
 		return stats, err
 	}
 	return stats, nil

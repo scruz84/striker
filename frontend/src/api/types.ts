@@ -577,6 +577,7 @@ export interface PlayerDetails extends Player {
   goals: number
   yellowCards: number
   redCards: number
+  goalsForTeam: number
   unavailableReason?: number
   unavailableMatchesRemaining?: number
   onLoanFromTeamId?: number
