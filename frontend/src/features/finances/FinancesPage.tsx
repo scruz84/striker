@@ -28,6 +28,7 @@ import {
   SPONSOR_DEAL_PERFORMANCE,
   SPONSOR_DEAL_STEADY,
   TRANSACTION_REASON_KEYS,
+  type SponsorDealOption,
   type Stadium,
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
@@ -74,7 +75,7 @@ export function FinancesPage() {
         <Grid size={{ xs: 12, sm: 6 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
       </Grid>
 
-      <SponsorDealCard sponsorDeal={finances.sponsorDeal} />
+      <SponsorDealCard sponsorDeal={finances.sponsorDeal} options={finances.sponsorDealOptions} locked={finances.sponsorDealLocked} />
 
       <CashFlowForecastCard transactions={finances.transactions} budget={finances.budget} maxDebt={finances.maxDebt} />
 
@@ -128,9 +129,18 @@ export function FinancesPage() {
 // lower guaranteed payment made up for by a bigger win/draw bonus (Performance), with Balanced in
 // between - see backend engine.sponsorshipAmount for the actual multipliers. Takes effect from
 // either side's next match, same as ticket price.
-function SponsorDealCard({ sponsorDeal }: { sponsorDeal: number }) {
+function SponsorDealCard({
+  sponsorDeal,
+  options,
+  locked,
+}: {
+  sponsorDeal: number
+  options: SponsorDealOption[]
+  locked: boolean
+}) {
   const { t } = useTranslation()
   const setSponsorDeal = useSetSponsorDeal()
+  const amountsByDeal = new Map(options.map((option) => [option.deal, option]))
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -138,27 +148,44 @@ function SponsorDealCard({ sponsorDeal }: { sponsorDeal: number }) {
         <Typography variant="overline" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
           {t('finances.sponsorDeal.title')}
         </Typography>
+        {locked && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+            {t('finances.sponsorDeal.locked')}
+          </Typography>
+        )}
         <RadioGroup
           value={sponsorDeal}
           onChange={(event) => setSponsorDeal.mutate(Number(event.target.value))}
         >
-          {[SPONSOR_DEAL_STEADY, SPONSOR_DEAL_BALANCED, SPONSOR_DEAL_PERFORMANCE].map((deal) => (
-            <FormControlLabel
-              key={deal}
-              value={deal}
-              disabled={setSponsorDeal.isPending}
-              sx={{ alignItems: 'flex-start', mb: 0.5 }}
-              control={<Radio size="small" sx={{ pt: 0 }} />}
-              label={
-                <Box>
-                  <Typography variant="body2">{t(SPONSOR_DEAL_LABEL_KEYS[deal])}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {t(SPONSOR_DEAL_DESCRIPTION_KEYS[deal])}
-                  </Typography>
-                </Box>
-              }
-            />
-          ))}
+          {[SPONSOR_DEAL_STEADY, SPONSOR_DEAL_BALANCED, SPONSOR_DEAL_PERFORMANCE].map((deal) => {
+            const amounts = amountsByDeal.get(deal)
+            return (
+              <FormControlLabel
+                key={deal}
+                value={deal}
+                disabled={setSponsorDeal.isPending || locked}
+                sx={{ alignItems: 'flex-start', mb: 0.5 }}
+                control={<Radio size="small" sx={{ pt: 0 }} />}
+                label={
+                  <Box>
+                    <Typography variant="body2">{t(SPONSOR_DEAL_LABEL_KEYS[deal])}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {t(SPONSOR_DEAL_DESCRIPTION_KEYS[deal])}
+                    </Typography>
+                    {amounts && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                        {t('finances.sponsorDeal.amounts', {
+                          win: formatCurrency(amounts.win),
+                          draw: formatCurrency(amounts.draw),
+                          loss: formatCurrency(amounts.loss),
+                        })}
+                      </Typography>
+                    )}
+                  </Box>
+                }
+              />
+            )
+          })}
         </RadioGroup>
         {setSponsorDeal.isError && (
           <Alert severity="error" sx={{ mt: 1 }}>

@@ -529,6 +529,20 @@ export interface FinancesResponse {
   maxDebt: number
   // One of SPONSOR_DEAL_* - see SPONSOR_DEAL_LABEL_KEYS.
   sponsorDeal: number
+  // What each of the three sponsor deals actually pays per match at this team's current tier -
+  // lets the finance page show real numbers instead of just a label (issue #70).
+  sponsorDealOptions: SponsorDealOption[]
+  // True once this team has already chosen a deal for the current season - see
+  // backend common.SetSponsorDeal, which then rejects any further change until next season.
+  sponsorDealLocked: boolean
+}
+
+// One row of FinancesResponse.sponsorDealOptions - see backend engine.SponsorDealPreview.
+export interface SponsorDealOption {
+  deal: number
+  win: number
+  draw: number
+  loss: number
 }
 
 // teams.sponsor_deal values from backend/common/sponsordeal.go.

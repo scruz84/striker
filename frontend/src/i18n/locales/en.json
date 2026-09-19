@@ -207,6 +207,8 @@
     "sponsorDeal": {
       "title": "Sponsor deal",
       "error": "Failed to update sponsor deal.",
+      "locked": "You've already chosen your sponsor deal for this season - it can be changed again once the season rolls over.",
+      "amounts": "Win {{win}} · Draw {{draw}} · Loss {{loss}}",
       "options": {
         "steady": "Steady",
         "steadyDescription": "Highest guaranteed payment every match, win or lose - no bonus for results.",

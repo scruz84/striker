@@ -207,6 +207,8 @@
     "sponsorDeal": {
       "title": "Acuerdo de patrocinio",
       "error": "No se pudo actualizar el acuerdo de patrocinio.",
+      "locked": "Ya has elegido tu acuerdo de patrocinio para esta temporada - podrás cambiarlo de nuevo cuando comience la siguiente.",
+      "amounts": "Victoria {{win}} · Empate {{draw}} · Derrota {{loss}}",
       "options": {
         "steady": "Estable",
         "steadyDescription": "El pago garantizado más alto en cada partido, ganes o pierdas - sin bonificación por resultados.",

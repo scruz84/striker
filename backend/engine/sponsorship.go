@@ -79,6 +79,34 @@ func sponsorshipAmount(base int64, deal common.SponsorDeal, outcome matchOutcome
 	}
 }
 
+// SponsorDealPreview is what one SponsorDeal option actually pays per match at a given division
+// tier, for each possible result - see SponsorDealPreviews.
+type SponsorDealPreview struct {
+	Deal common.SponsorDeal `json:"deal"`
+	Win  int64              `json:"win"`
+	Draw int64              `json:"draw"`
+	Loss int64              `json:"loss"`
+}
+
+// SponsorDealPreviews computes what each of the three sponsor deals actually pays per match for
+// a team currently playing in tier, one row per deal - lets the finance page show real numbers
+// before a manager commits to one for the season (issue #70), instead of just a label and a
+// one-line description.
+func SponsorDealPreviews(tier int) []SponsorDealPreview {
+	base := sponsorshipForTier(tier)
+	deals := []common.SponsorDeal{common.SponsorDealSteady, common.SponsorDealBalanced, common.SponsorDealPerformance}
+	previews := make([]SponsorDealPreview, len(deals))
+	for i, deal := range deals {
+		previews[i] = SponsorDealPreview{
+			Deal: deal,
+			Win:  sponsorshipAmount(base, deal, outcomeWin),
+			Draw: sponsorshipAmount(base, deal, outcomeDraw),
+			Loss: sponsorshipAmount(base, deal, outcomeLoss),
+		}
+	}
+	return previews
+}
+
 func creditSponsorship(dbCtx *common.DatabaseContext, teamId int64, goalsFor int, goalsAgainst int) {
 	tier, err := common.GetTeamTier(dbCtx, teamId)
 	if err != nil {

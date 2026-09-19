@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -24,6 +25,13 @@ type FinancesResponse struct {
 	MaxDebt int64 `json:"maxDebt"`
 	// SponsorDeal is one of the common.SponsorDeal* constants - see SetSponsorDealHandler.
 	SponsorDeal common.SponsorDeal `json:"sponsorDeal"`
+	// SponsorDealOptions previews what each of the three deals actually pays per match at this
+	// team's current tier, so the finance page can show real numbers instead of just a label -
+	// see engine.SponsorDealPreviews.
+	SponsorDealOptions []engine.SponsorDealPreview `json:"sponsorDealOptions"`
+	// SponsorDealLocked is true once this team has already chosen a deal for the current season -
+	// see common.SetSponsorDeal/IsSponsorDealLocked.
+	SponsorDealLocked bool `json:"sponsorDealLocked"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and
@@ -73,11 +81,27 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		tier, err := common.GetTeamTier(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting tier for team %d sponsor deal preview: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		sponsorDealLocked, err := common.IsSponsorDealLocked(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error checking sponsor deal lock for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
-			Insolvent:   budget < -common.MaxDebt,
-			MaxDebt:     common.MaxDebt,
-			SponsorDeal: sponsorDeal,
+			Insolvent:          budget < -common.MaxDebt,
+			MaxDebt:            common.MaxDebt,
+			SponsorDeal:        sponsorDeal,
+			SponsorDealOptions: engine.SponsorDealPreviews(tier),
+			SponsorDealLocked:  sponsorDealLocked,
 		})
 	}
 }
@@ -150,7 +174,7 @@ func SetSponsorDealHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		if err := common.SetSponsorDeal(dbCtx, team.Id, common.SponsorDeal(req.Deal)); err != nil {
-			if errors.Is(err, common.ErrInvalidSponsorDeal) {
+			if errors.Is(err, common.ErrInvalidSponsorDeal) || errors.Is(err, common.ErrSponsorDealLocked) {
 				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 				return
 			}
