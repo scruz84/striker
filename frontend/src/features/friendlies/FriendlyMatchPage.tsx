@@ -1,16 +1,21 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
-import type { FriendlyMatch, Player, Team } from '../../api/types'
+import type { FriendlyMatch, Player, Team, WeekMatch } from '../../api/types'
 import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
+import { Lineups } from '../match/MatchDetailsPage'
+import { MatchRatingsTab } from '../match/MatchRatingsTab'
+import { MatchReportTab } from '../match/MatchReportTab'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -42,17 +47,87 @@ export function FriendlyMatchPage() {
     )
   }
 
+  return <PlayedFriendly match={match} />
+}
+
+// friendlyToWeekMatch adapts a played FriendlyMatch into the WeekMatch shape MatchReportTab/
+// MatchRatingsTab/Lineups expect, so a friendly's report can reuse the same components a league
+// match's report does (see MatchDetailsPage's PlayedMatch) instead of a separate reimplementation.
+// divisionId/season/weekNumber/inSimulation are meaningless for a friendly and left at their zero
+// values - none of the reused components read them.
+function friendlyToWeekMatch(match: FriendlyMatch): WeekMatch {
+  return {
+    matchId: match.matchId,
+    divisionId: 0,
+    season: 0,
+    weekNumber: 0,
+    matchDate: match.matchDate,
+    played: match.played,
+    inSimulation: false,
+    home: match.homeTeamId,
+    homeName: match.homeTeamName,
+    away: match.awayTeamId,
+    awayName: match.awayTeamName,
+    homeGoals: match.homeGoals,
+    awayGoals: match.awayGoals,
+    events: match.events ?? null,
+    matchInstants: match.matchInstants ?? null,
+    homeLineup: match.homeLineup ?? null,
+    awayLineup: match.awayLineup ?? null,
+    homePlayers: match.homePlayers ?? null,
+    awayPlayers: match.awayPlayers ?? null,
+    ratings: match.ratings,
+  }
+}
+
+function PlayedFriendly({ match }: { match: FriendlyMatch }) {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState(0)
+  const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
+  const weekMatch = friendlyToWeekMatch(match)
+
   return (
-    <Scoreboard
-      homeId={match.homeTeamId}
-      homeName={match.homeTeamName}
-      awayId={match.awayTeamId}
-      awayName={match.awayTeamName}
-      homeGoals={match.homeGoals}
-      awayGoals={match.awayGoals}
-      status="played"
-      subtitle={formatDateTime(match.matchDate)}
-    />
+    <Box>
+      <Scoreboard
+        homeId={match.homeTeamId}
+        homeName={match.homeTeamName}
+        awayId={match.awayTeamId}
+        awayName={match.awayTeamName}
+        homeGoals={match.homeGoals}
+        awayGoals={match.awayGoals}
+        status="played"
+        subtitle={formatDateTime(match.matchDate)}
+      />
+
+      <Paper variant="outlined">
+        <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
+          <Tab label={t('match.tabs.report')} />
+          <Tab label={t('match.tabs.summary')} />
+          <Tab label={t('match.tabs.ratings')} />
+          <Tab label={t('match.tabs.players')} />
+        </Tabs>
+        <Box sx={{ p: 2 }}>
+          {tab === 0 && <MatchReportTab match={weekMatch} />}
+          {tab === 1 && (
+            <Events events={weekMatch.events ?? []} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
+          )}
+          {tab === 2 && <MatchRatingsTab match={weekMatch} />}
+          {tab === 3 && (
+            <Lineups
+              homeId={match.homeTeamId}
+              homeName={match.homeTeamName}
+              awayId={match.awayTeamId}
+              awayName={match.awayTeamName}
+              homeLineup={weekMatch.homeLineup}
+              awayLineup={weekMatch.awayLineup}
+              homePlayers={weekMatch.homePlayers}
+              awayPlayers={weekMatch.awayPlayers}
+              matchInstants={weekMatch.matchInstants}
+            />
+          )}
+        </Box>
+      </Paper>
+    </Box>
   )
 }
 

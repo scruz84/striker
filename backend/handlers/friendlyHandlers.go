@@ -392,6 +392,9 @@ func FriendlyMatchHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			writeFriendlyLookupError(c, matchId, err)
 			return
 		}
+		if err := common.EnrichPlayedFriendly(dbCtx, match); err != nil {
+			log.Errorf("error enriching played friendly %d: %s", matchId, err)
+		}
 		c.JSON(http.StatusOK, match)
 	}
 }

@@ -55,7 +55,7 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	}
 
 	if err := common.SetFriendlyPlayed(dbCtx, friendly.MatchId, matchSimulation.HomeGoals,
-		matchSimulation.AwayGoals, *matchSimulation.Events); err != nil {
+		matchSimulation.AwayGoals, *matchSimulation.Events, *matchSimulation.MatchInstants); err != nil {
 		return err
 	}
 

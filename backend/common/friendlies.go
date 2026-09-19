@@ -46,6 +46,18 @@ type FriendlyMatch struct {
 	Played       bool      `json:"played"`
 	HomeGoals    int       `json:"homeGoals"`
 	AwayGoals    int       `json:"awayGoals"`
+	// Events/MatchInstants/HomeLineup/AwayLineup/HomePlayers/AwayPlayers/Ratings are only
+	// populated for a played friendly (see EnrichPlayedFriendly) - the same match-detail
+	// breakdown a league match's WeekMatch carries (events, zone-by-zone qualifications, the
+	// lineups actually used, and per-player ratings), so the friendly detail page can show the
+	// same report a league match gets.
+	Events        *[]Event          `json:"events,omitempty"`
+	MatchInstants *[]MatchInstant   `json:"matchInstants,omitempty"`
+	HomeLineup    *Lineup           `json:"homeLineup,omitempty"`
+	AwayLineup    *Lineup           `json:"awayLineup,omitempty"`
+	HomePlayers   *map[int64]Player `json:"homePlayers,omitempty"`
+	AwayPlayers   *map[int64]Player `json:"awayPlayers,omitempty"`
+	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
 }
 
 // StartOfWeek returns midnight UTC on the most recent Monday on or before t - the same
@@ -487,6 +499,9 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 const SetFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 WHERE match_id = $3"
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
+	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
 
 const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team_id, formation) VALUES ($1, $2, $3) " +
 	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
@@ -593,10 +608,10 @@ func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int6
 	return &lineups, nil
 }
 
-// SetFriendlyPlayed records a simulated friendly's result and its events - same shape as
-// SetCupTiePlayed, minus the cup-specific penalty-shootout/winner bookkeeping a friendly has no
-// use for.
-func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awayGoals int, events []Event) error {
+// SetFriendlyPlayed records a simulated friendly's result, its events, and its per-minute zone
+// instants (see friendly_instants) - the friendly equivalent of engine.UpdatePlayedMatch, minus
+// the cup-specific penalty-shootout/winner bookkeeping a friendly has no use for.
+func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awayGoals int, events []Event, instants []MatchInstant) error {
 	if _, err := dbCtx.Db.Exec(SetFriendlyPlayedStmtSql, homeGoals, awayGoals, matchId); err != nil {
 		return err
 	}
@@ -615,5 +630,182 @@ func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awa
 			return err
 		}
 	}
+
+	insertInstant, err := dbCtx.Db.Prepare(InsertFriendlyInstantStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertInstant.Close()
+
+	for _, i := range instants {
+		homeQuaJson, _ := json.Marshal(i.HomeQua)
+		awayQuaJson, _ := json.Marshal(i.AwayQua)
+		if _, err := insertInstant.Exec(matchId, i.Minute, i.HomeGoals, i.AwayGoals, homeQuaJson, awayQuaJson, i.MidfieldDiff,
+			i.HomeAttackRightDiff, i.HomeAttackLeftDiff, i.HomeAttackCenterDiff,
+			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals " +
+	"FROM friendly_events WHERE match_id = $1 order by minute asc"
+
+// GetFriendlyEvents reads back a played friendly's events (see SetFriendlyPlayed) - the friendly
+// equivalent of GetMatchEvents. friendly_events has no other_team_players/other_team_player_names
+// columns (nothing in this codebase reads them even for league matches - see Event's own doc
+// comment), so those two fields are always left nil here.
+func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
+	rows, err := dbCtx.Db.Query(GetFriendlyEventsStmtSql, matchId)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	events := make([]Event, 0)
+	for rows.Next() {
+		var eventType int
+		var teamOwner int64
+		var otherTeam int64
+		var minute int
+		var teamPlayers string
+		var teamPlayerNames string
+		var homeGoals int
+		var awayGoals int
+		if err := rows.Scan(&eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
+			&homeGoals, &awayGoals); err != nil {
+			continue
+		}
+
+		event := Event{
+			EventType: eventType,
+			Minute:    minute,
+			TeamOwner: teamOwner,
+			OtherTeam: otherTeam,
+			HomeGoals: homeGoals,
+			AwayGoals: awayGoals,
+		}
+		if teamPlayers != "" {
+			players := make([]int64, 0)
+			_ = json.Unmarshal([]byte(teamPlayers), &players)
+			event.TeamOwnerPlayers = players
+		}
+		if teamPlayerNames != "" {
+			names := make([]string, 0)
+			_ = json.Unmarshal([]byte(teamPlayerNames), &names)
+			event.TeamOwnerPlayersNames = names
+		}
+		events = append(events, event)
+	}
+	return &events
+}
+
+const GetFriendlyInstantsStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, " +
+	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff " +
+	"FROM friendly_instants WHERE match_id = $1 order by minute asc"
+
+// GetFriendlyInstants reads back a played friendly's per-minute zone instants (see
+// SetFriendlyPlayed) - the friendly equivalent of GetMatchInstants.
+func GetFriendlyInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
+	rows, err := dbCtx.Db.Query(GetFriendlyInstantsStmtSql, matchId)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	instants := make([]MatchInstant, 0)
+	for rows.Next() {
+		var instantMatchId int64
+		var minute int
+		var homeGoals int
+		var awayGoals int
+		var homeQua string
+		var awayQua string
+		var midFieldDiff float32
+		var homeAttackRightDiff float32
+		var homeAttackLeftDiff float32
+		var homeAttackCenterDiff float32
+		var awayAttackRightDiff float32
+		var awayAttackLeftDiff float32
+		var awayAttackCenterDiff float32
+		if err := rows.Scan(&instantMatchId, &minute, &homeGoals, &awayGoals, &homeQua, &awayQua, &midFieldDiff,
+			&homeAttackRightDiff, &homeAttackLeftDiff, &homeAttackCenterDiff,
+			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff); err != nil {
+			continue
+		}
+
+		homeTeamQua := TeamQualification{}
+		awayTeamQua := TeamQualification{}
+		if homeQua != "" {
+			_ = json.Unmarshal([]byte(homeQua), &homeTeamQua)
+		}
+		if awayQua != "" {
+			_ = json.Unmarshal([]byte(awayQua), &awayTeamQua)
+		}
+		instants = append(instants, MatchInstant{
+			MatchId:              instantMatchId,
+			Minute:               minute,
+			HomeGoals:            homeGoals,
+			AwayGoals:            awayGoals,
+			HomeQua:              homeTeamQua,
+			AwayQua:              awayTeamQua,
+			MidfieldDiff:         midFieldDiff,
+			HomeAttackRightDiff:  homeAttackRightDiff,
+			HomeAttackLeftDiff:   homeAttackLeftDiff,
+			HomeAttackCenterDiff: homeAttackCenterDiff,
+			AwayAttackRightDiff:  awayAttackRightDiff,
+			AwayAttackLeftDiff:   awayAttackLeftDiff,
+			AwayAttackCenterDiff: awayAttackCenterDiff,
+		})
+	}
+	return &instants
+}
+
+// EnrichPlayedFriendly populates a played friendly's match-detail breakdown - events, per-minute
+// zone instants, the lineups actually used, both squads' players, and per-player ratings - the
+// same shape a league match's WeekMatch carries (see WeekMatchById), so the friendly detail page
+// can show the same report tabs a league match gets. A no-op (returns nil) for a match that
+// hasn't been played yet, since none of this data exists until then.
+func EnrichPlayedFriendly(dbCtx *DatabaseContext, match *FriendlyMatch) error {
+	if !match.Played {
+		return nil
+	}
+
+	match.Events = GetFriendlyEvents(dbCtx, match.MatchId)
+	match.MatchInstants = GetFriendlyInstants(dbCtx, match.MatchId)
+
+	lineups, err := GetLineupsForFriendly(dbCtx, match.MatchId, []int64{match.HomeTeamId, match.AwayTeamId})
+	if err != nil {
+		return err
+	}
+	match.HomeLineup = (*lineups)[match.HomeTeamId]
+	match.AwayLineup = (*lineups)[match.AwayTeamId]
+
+	homePlayers, err := GetPlayersFromTeamId(dbCtx, match.HomeTeamId)
+	if err != nil {
+		return err
+	}
+	homeMap := playerListToMap(homePlayers)
+	match.HomePlayers = &homeMap
+
+	awayPlayers, err := GetPlayersFromTeamId(dbCtx, match.AwayTeamId)
+	if err != nil {
+		return err
+	}
+	awayMap := playerListToMap(awayPlayers)
+	match.AwayPlayers = &awayMap
+
+	if match.HomeLineup != nil && match.AwayLineup != nil && match.Events != nil {
+		match.Ratings = ComputeMatchRatings(&WeekMatch{
+			MatchId:    match.MatchId,
+			HomeGoals:  match.HomeGoals,
+			AwayGoals:  match.AwayGoals,
+			Events:     match.Events,
+			HomeLineup: match.HomeLineup,
+			AwayLineup: match.AwayLineup,
+		})
+	}
+
 	return nil
 }

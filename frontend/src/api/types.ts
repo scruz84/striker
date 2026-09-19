@@ -725,6 +725,16 @@ export interface FriendlyMatch {
   played: boolean
   homeGoals: number
   awayGoals: number
+  // Only present once the friendly has been played (see backend common.EnrichPlayedFriendly) -
+  // the same match-detail breakdown a league match's WeekMatch carries, so a played friendly can
+  // show the same report tabs (events, zone-by-zone comparison, ratings, lineups).
+  events?: MatchEvent[]
+  matchInstants?: MatchInstant[]
+  homeLineup?: Lineup
+  awayLineup?: Lineup
+  homePlayers?: Record<string, Player>
+  awayPlayers?: Record<string, Player>
+  ratings?: Record<string, number>
 }
 
 // The admin-configured weekdays a friendly may kick off on (see backend
