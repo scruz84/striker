@@ -30,6 +30,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import {
   useAdminAddCountry,
+  useAdminAddDivision,
   useAdminAdjustBudget,
   useAdminAdvanceSeason,
   useAdminCountries,
@@ -706,7 +707,10 @@ function CountriesSection() {
   const { t } = useTranslation()
   const confirm = useConfirm()
   const { data: countries, isLoading } = useAdminCountries(true)
+  const { data: worldConfig } = useAdminWorldConfig(true)
+  const { data: leagues } = useAdminLeagues(true)
   const addCountry = useAdminAddCountry()
+  const addDivision = useAdminAddDivision()
 
   const handleAdd = async (country: CountryStatus) => {
     const ok = await confirm({
@@ -718,8 +722,30 @@ function CountriesSection() {
     }
   }
 
+  const handleAddDivision = async (country: CountryStatus, tier: TierConfig, withMatches: boolean) => {
+    const ok = await confirm({
+      message: t(
+        withMatches ? 'admin.countries.confirmAddDivisionWithMatches' : 'admin.countries.confirmAddDivisionTeamsOnly',
+        { country: country.name, division: tier.name },
+      ),
+      confirmLabel: t('admin.countries.addDivision'),
+    })
+    if (ok) {
+      addDivision.mutate({ country: country.code, tier: tier.tier, withMatches })
+    }
+  }
+
   if (isLoading || !countries) {
     return <Skeleton variant="rectangular" height={100} sx={{ mb: 2 }} />
+  }
+
+  // Every tier the country's leagues table doesn't have yet, from the current world structure -
+  // see handlers.AdminAddDivisionHandler (issue #68).
+  const existingTiersByCountry = new Map<string, Set<number>>()
+  for (const league of leagues ?? []) {
+    const tiers = existingTiersByCountry.get(league.country) ?? new Set<number>()
+    tiers.add(league.tier)
+    existingTiersByCountry.set(league.country, tiers)
   }
 
   return (
@@ -730,23 +756,46 @@ function CountriesSection() {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {t('admin.countries.description')}
       </Typography>
-      <Stack spacing={1}>
-        {countries.map((country) => (
-          <Stack key={country.code} direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <Typography sx={{ width: 160 }}>
-              {country.name} ({country.code})
-            </Typography>
-            {country.active ? (
-              <Chip size="small" color="success" label={t('admin.countries.active')} />
-            ) : (
-              <Button size="small" variant="outlined" onClick={() => handleAdd(country)} disabled={addCountry.isPending}>
-                {t('admin.countries.add')}
-              </Button>
-            )}
-          </Stack>
-        ))}
+      <Stack spacing={1.5}>
+        {countries.map((country) => {
+          const missingTiers = (worldConfig?.tiers ?? []).filter(
+            (tier) => !existingTiersByCountry.get(country.code)?.has(tier.tier),
+          )
+          return (
+            <Stack key={country.code} spacing={0.5}>
+              <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+                <Typography sx={{ width: 160 }}>
+                  {country.name} ({country.code})
+                </Typography>
+                {country.active ? (
+                  <Chip size="small" color="success" label={t('admin.countries.active')} />
+                ) : (
+                  <Button size="small" variant="outlined" onClick={() => handleAdd(country)} disabled={addCountry.isPending}>
+                    {t('admin.countries.add')}
+                  </Button>
+                )}
+              </Stack>
+              {country.active &&
+                missingTiers.map((tier) => (
+                  <Stack key={tier.tier} direction="row" spacing={1} sx={{ alignItems: 'center', pl: '176px' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ minWidth: 140 }}>
+                      {t('admin.countries.missingDivision', { name: tier.name })}
+                    </Typography>
+                    <Button size="small" onClick={() => handleAddDivision(country, tier, true)} disabled={addDivision.isPending}>
+                      {t('admin.countries.addDivisionWithMatches')}
+                    </Button>
+                    <Button size="small" onClick={() => handleAddDivision(country, tier, false)} disabled={addDivision.isPending}>
+                      {t('admin.countries.addDivisionTeamsOnly')}
+                    </Button>
+                  </Stack>
+                ))}
+            </Stack>
+          )
+        })}
       </Stack>
       {addCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addError')}</Alert>}
+      {addDivision.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addDivisionError')}</Alert>}
+      {addDivision.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.addDivisionSuccess')}</Alert>}
     </Paper>
   )
 }

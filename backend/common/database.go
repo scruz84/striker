@@ -668,6 +668,98 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	return &matches, nil
 }
 
+// GetElapsedWeeksForCountry returns how many rounds country's existing leagues have already
+// completed this season - the least-advanced league's played-round count. Used when a new
+// division is added to an already-running country mid-season (issue #68) to know how many of its
+// own weeks to immediately simulate so it doesn't lag behind everyone else. A brand new league
+// (no matches yet) never contributes a row here, so it can't skew its own answer. Returns 0 if
+// the country has no other league with a played match yet (e.g. it's the very start of a
+// season) - the natural "nothing to catch up on" case.
+func GetElapsedWeeksForCountry(dbCtx *DatabaseContext, country string, season int) (int, error) {
+	var elapsed sql.NullInt64
+	err := dbCtx.Db.QueryRow(
+		"SELECT MIN(played_weeks) FROM ("+
+			"SELECT l.league_id, COUNT(DISTINCT m.week_number) AS played_weeks "+
+			"FROM leagues l JOIN matches m ON m.league_id = l.league_id AND m.season = $2 AND m.played = true "+
+			"WHERE l.country = $1 GROUP BY l.league_id"+
+			") t", country, season).Scan(&elapsed)
+	if err != nil {
+		return 0, err
+	}
+	if !elapsed.Valid {
+		return 0, nil
+	}
+	return int(elapsed.Int64), nil
+}
+
+// GetMatchesForLeaguesUpToWeek returns every unplayed match among leagueIds in season with
+// week_number <= maxWeek, marking them in_simulation like GetSimulableMatches does - so the
+// regular per-minute scheduler (which only looks at each match's own kickoff window) can't also
+// pick one of these up mid-backfill. Used to catch a newly created division up to what the rest
+// of its country has already played (issue #68) by force-simulating its past-due weeks right
+// away instead of waiting for their (still mostly future-dated) kickoff times.
+func GetMatchesForLeaguesUpToWeek(dbCtx *DatabaseContext, leagueIds []int64, season int, maxWeek int) (*[]WeekMatch, error) {
+	matches := make([]WeekMatch, 0)
+	if len(leagueIds) == 0 || maxWeek <= 0 {
+		return &matches, nil
+	}
+
+	leagueInClause := int64SliceToInClause(leagueIds)
+
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	query := "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+		"from matches where league_id in " + leagueInClause + " and season = $1 and week_number <= $2 " +
+		"and played is false and in_simulation is false order by week_number, league_id"
+	rows, err := tx.Query(query, season, maxWeek)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+	var matchId, divisionId int64
+	var seasonScan, weekNumber int
+	var matchDate time.Time
+	var home, away int64
+	var homeGoals, awayGoals int
+	for rows.Next() {
+		if err := rows.Scan(&matchId, &divisionId, &seasonScan, &weekNumber, &matchDate, &home, &away, &homeGoals, &awayGoals); err != nil {
+			log.Errorf("error scanning backfill match: %s", err)
+			continue
+		}
+		matches = append(matches, WeekMatch{
+			MatchId: matchId, DivisionId: divisionId, Season: seasonScan, WeekNumber: weekNumber,
+			MatchDate: matchDate, Home: home, Away: away, HomeGoals: homeGoals, AwayGoals: awayGoals,
+		})
+	}
+	rows.Close()
+
+	if len(matches) > 0 {
+		matchIds := make([]int64, len(matches))
+		for i, m := range matches {
+			matchIds[i] = m.MatchId
+		}
+		if _, err := tx.Exec("UPDATE matches SET in_simulation = true WHERE match_id IN "+int64SliceToInClause(matchIds)); err != nil {
+			log.Errorf("error marking backfill matches in_simulation: %s", err)
+		}
+	}
+	return &matches, tx.Commit()
+}
+
+// int64SliceToInClause renders ids as a literal "(1, 2, 3)" SQL IN-clause - safe here because
+// every caller passes server-generated ids (league/match primary keys), never user input.
+func int64SliceToInClause(ids []int64) string {
+	clause := "("
+	for i, id := range ids {
+		if i > 0 {
+			clause += ", "
+		}
+		clause += strconv.FormatInt(id, 10)
+	}
+	return clause + ")"
+}
+
 func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 	var name string
 	var country string

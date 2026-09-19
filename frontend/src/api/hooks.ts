@@ -805,6 +805,22 @@ export function useAdminLeagues(enabled: boolean) {
   })
 }
 
+// Adds one world-config tier's division to a country that's already active (issue #68) - either
+// with this season's fixtures generated and backfilled to match the rest of the country
+// (withMatches: true), or as teams only, joining at the next season rollover like every other
+// league does (withMatches: false). See handlers.AdminAddDivisionHandler.
+export function useAdminAddDivision() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ country, tier, withMatches }: { country: string; tier: number; withMatches: boolean }) =>
+      api.post(`/v1/admin/countries/${country}/divisions`, { tier, withMatches }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useSetLeagueSchedule() {
   const queryClient = useQueryClient()
   return useMutation({

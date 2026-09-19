@@ -54,3 +54,24 @@ func GetLeagueIdsForCountry(dbCtx *DatabaseContext, country string) ([]int64, er
 	}
 	return leagueIds, rows.Err()
 }
+
+// GetLeagueIdsForCountryTier returns every league id belonging to country at tier - used to
+// check whether a division already exists before creating it again (see
+// handlers.AdminAddDivisionHandler, issue #68).
+func GetLeagueIdsForCountryTier(dbCtx *DatabaseContext, country string, tier int) ([]int64, error) {
+	rows, err := dbCtx.Db.Query("SELECT league_id FROM leagues WHERE country = $1 AND tier = $2", country, tier)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	leagueIds := make([]int64, 0)
+	for rows.Next() {
+		var leagueId int64
+		if err := rows.Scan(&leagueId); err != nil {
+			return nil, err
+		}
+		leagueIds = append(leagueIds, leagueId)
+	}
+	return leagueIds, rows.Err()
+}

@@ -716,7 +716,15 @@
       "active": "Active",
       "add": "Add",
       "confirmAdd": "Add {{name}} as a new country? This creates its leagues and teams right away.",
-      "addError": "Failed to add that country."
+      "addError": "Failed to add that country.",
+      "missingDivision": "Division {{name}} not created yet",
+      "addDivision": "Add division",
+      "addDivisionWithMatches": "Add with matches",
+      "addDivisionTeamsOnly": "Add teams only",
+      "confirmAddDivisionWithMatches": "Add division {{division}} to {{country}}? This generates its fixtures now and immediately simulates whichever weeks the rest of {{country}} has already played, so it finishes the season alongside everyone else.",
+      "confirmAddDivisionTeamsOnly": "Add division {{division}} to {{country}} as teams only? It won't play any matches this season - it joins in at the next season rollover along with every other league.",
+      "addDivisionError": "Failed to add that division.",
+      "addDivisionSuccess": "Division added."
     },
     "leagueSchedules": {
       "title": "Per-league match schedule",

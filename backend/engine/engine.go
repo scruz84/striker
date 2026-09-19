@@ -164,9 +164,22 @@ func SimulateMatches(dbCtx *common.DatabaseContext) {
 		log.Errorf("error getting matches to simulate: %s", err)
 		return
 	}
+	SimulateMatchesNow(dbCtx, *matches)
+}
+
+// SimulateMatchesNow force-simulates the given matches right away, regardless of their own
+// match_date - unlike SimulateMatches, which only ever picks up whatever GetSimulableMatches'
+// 15-minute kickoff window returns. Used to catch a newly created division up to the rest of its
+// country's already-completed weeks (see handlers.AdminAddDivisionHandler, issue #68): those
+// backfilled matches are dated in the future like any other freshly generated fixture, so they'd
+// otherwise sit unplayed for days/weeks waiting for their own kickoff slot. Simulating several
+// weeks' worth of matches in one batch is safe because classification updates are simple
+// per-match additions (see UpdateClassification) - the order matches within the batch resolve in
+// doesn't change the final standings.
+func SimulateMatchesNow(dbCtx *common.DatabaseContext, matches []common.WeekMatch) {
 	sem := make(chan struct{}, maxConcurrentSimulations)
 	var wg sync.WaitGroup
-	for _, match := range *matches {
+	for _, match := range matches {
 		log.Infof("simulating match %d", match.MatchId)
 		wg.Add(1)
 		sem <- struct{}{}

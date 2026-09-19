@@ -148,6 +148,127 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type addDivisionRequest struct {
+	Tier        int  `json:"tier" binding:"required"`
+	WithMatches bool `json:"withMatches"`
+}
+
+// AdminAddDivisionHandler adds one new tier's division(s) to a country that's already active -
+// the gap issue #68 describes: today, editing world_config to add a tier (see
+// AdminSetWorldConfigHandler) does nothing for any existing country until either a brand new
+// country is activated (AdminAddCountryHandler, which creates every tier from scratch) or every
+// league/team is wiped and recreated (AdminRecreateLeaguesHandler). This adds just the missing
+// tier to an already-running country, without touching anything else, in either of two ways:
+//   - WithMatches=true: generate this season's fixtures for the new division right away, then
+//     immediately force-simulate as many of its own weeks as the rest of the country has already
+//     completed (see common.GetElapsedWeeksForCountry, engine.SimulateMatchesNow) - so it
+//     finishes the season in step with everyone else and takes part in this season's
+//     promotion/relegation.
+//   - WithMatches=false: create the teams only. It sits out this season entirely (no fixtures at
+//     all) and is picked up automatically at the next season rollover, the same moment every
+//     other league gets its fresh fixtures generated (see engine.AdvanceSeasonIfComplete calling
+//     GenerateMatches) - engine.ComputePromotionRelegation already reads tiers straight from the
+//     leagues table, so no further plumbing is needed for it to join the promotion/relegation
+//     pyramid from that season on.
+func AdminAddDivisionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code := strings.ToLower(strings.TrimSpace(c.Param("code")))
+		if !common.IsKnownCountry(code) {
+			c.JSON(http.StatusBadRequest, GetError(0, "unknown country code"))
+			return
+		}
+
+		var req addDivisionRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "tier is required"))
+			return
+		}
+
+		active, err := common.GetActiveCountries(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		isActive := false
+		for _, existing := range active {
+			if existing == code {
+				isActive = true
+				break
+			}
+		}
+		if !isActive {
+			c.JSON(http.StatusBadRequest, GetError(0, "country is not active yet"))
+			return
+		}
+
+		var tierConfig *common.TierConfig
+		for _, tc := range common.GetWorldConfig(dbCtx) {
+			if tc.Tier == req.Tier {
+				found := tc
+				tierConfig = &found
+				break
+			}
+		}
+		if tierConfig == nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "tier not found in the current world structure - add it there first"))
+			return
+		}
+
+		existingLeagues, err := common.GetLeagueIdsForCountryTier(dbCtx, code, req.Tier)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if len(existingLeagues) > 0 {
+			c.JSON(http.StatusConflict, GetError(0, "this division already exists for this country"))
+			return
+		}
+
+		leagueIds := createLeague(dbCtx, code, tierConfig.Name, tierConfig.Tier, tierConfig.Groups)
+		createTeamsForTier(dbCtx, code, leagueIds, tierConfig.Tier, tierConfig.TeamsPerLeague)
+
+		if req.WithMatches {
+			addDivisionMatchesNow(dbCtx, code, req.Tier, leagueIds)
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "division added"})
+	}
+}
+
+// addDivisionMatchesNow generates the new division's fixtures and force-simulates whichever of
+// its own weeks the rest of country has already completed this season - see
+// AdminAddDivisionHandler's WithMatches=true case.
+func addDivisionMatchesNow(dbCtx *common.DatabaseContext, country string, tier int, leagueIds []int64) {
+	if err := engine.GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
+		log.Errorf("error generating fixtures for new division (country %s tier %d): %s", country, tier, err)
+		return
+	}
+
+	season, err := engine.GetCurrentSeason(dbCtx)
+	if err != nil {
+		log.Errorf("error reading current season to backfill new division (country %s tier %d): %s", country, tier, err)
+		return
+	}
+
+	elapsedWeeks, err := common.GetElapsedWeeksForCountry(dbCtx, country, season)
+	if err != nil {
+		log.Errorf("error computing elapsed weeks for country %s: %s", country, err)
+		return
+	}
+	if elapsedWeeks <= 0 {
+		return
+	}
+
+	matches, err := common.GetMatchesForLeaguesUpToWeek(dbCtx, leagueIds, season, elapsedWeeks)
+	if err != nil {
+		log.Errorf("error loading backfill matches for new division (country %s tier %d): %s", country, tier, err)
+		return
+	}
+	log.Infof("backfilling %d week(s) (%d match(es)) for new division (country %s tier %d)",
+		elapsedWeeks, len(*matches), country, tier)
+	engine.SimulateMatchesNow(dbCtx, *matches)
+}
+
 // AdminListLeaguesHandler lists every league with its effective match schedule (a per-league
 // override, or the app-wide default) - see common.ListLeaguesForAdmin.
 func AdminListLeaguesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
