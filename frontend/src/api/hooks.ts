@@ -977,7 +977,8 @@ export function useRecentFriendlies(enabled: boolean) {
 export function useChallengeToFriendly() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (opponentTeamId: number) => api.post('/v1/friendlies/challenges', { opponentTeamId }),
+    mutationFn: ({ opponentTeamId, proposedKickoff }: { opponentTeamId: number; proposedKickoff?: string }) =>
+      api.post('/v1/friendlies/challenges', { opponentTeamId, proposedKickoff }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesSent })
     },

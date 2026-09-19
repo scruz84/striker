@@ -22,12 +22,16 @@ var ErrFriendlyAlreadyPlayed = errors.New("this friendly has already been played
 
 // FriendlyChallenge is a pending invite from one team to another - see ChallengeToFriendly.
 type FriendlyChallenge struct {
-	ChallengeId        int64     `json:"challengeId"`
-	ChallengerTeamId   int64     `json:"challengerTeamId"`
-	ChallengerTeamName string    `json:"challengerTeamName"`
-	OpponentTeamId     int64     `json:"opponentTeamId"`
-	OpponentTeamName   string    `json:"opponentTeamName"`
-	CreatedAt          time.Time `json:"createdAt"`
+	ChallengeId        int64      `json:"challengeId"`
+	ChallengerTeamId   int64      `json:"challengerTeamId"`
+	ChallengerTeamName string     `json:"challengerTeamName"`
+	OpponentTeamId     int64      `json:"opponentTeamId"`
+	OpponentTeamName   string     `json:"opponentTeamName"`
+	CreatedAt          time.Time  `json:"createdAt"`
+	// ProposedKickoff is the kickoff the challenger optionally suggested when sending the
+	// challenge (see ChallengeToFriendly) - nil if they left it up to the opponent. Purely a
+	// suggested default for the opponent's own accept-time kickoff picker; never enforced.
+	ProposedKickoff *time.Time `json:"proposedKickoff,omitempty"`
 }
 
 // FriendlyMatch is an accepted friendly, scheduled or already played - see
@@ -146,7 +150,7 @@ func CountFriendliesThisWeek(dbCtx *DatabaseContext, teamId int64) (int, error) 
 	return count, err
 }
 
-const InsertFriendlyChallengeStmtSql = "INSERT INTO friendly_challenges (challenger_team_id, opponent_team_id) VALUES ($1, $2) RETURNING challenge_id"
+const InsertFriendlyChallengeStmtSql = "INSERT INTO friendly_challenges (challenger_team_id, opponent_team_id, proposed_kickoff) VALUES ($1, $2, $3) RETURNING challenge_id"
 const GetFriendlyChallengeStmtSql = "SELECT challenger_team_id, opponent_team_id FROM friendly_challenges WHERE challenge_id = $1"
 const GetFriendlyChallengeForUpdateStmtSql = GetFriendlyChallengeStmtSql + " " + ForUpdate
 const DeleteFriendlyChallengeStmtSql = "DELETE FROM friendly_challenges WHERE challenge_id = $1"
@@ -157,14 +161,22 @@ const InsertFriendlyMatchStmtSql = "INSERT INTO friendly_matches (home_team_id, 
 // engine.StartFriendlyScheduler).
 const friendlyScheduleDelay = 5 * time.Minute
 
-// ChallengeToFriendly proposes a friendly match to opponentTeamId, on behalf of challengerTeamId.
-// If the opponent is unowned (an AI-managed team - see AiLevelCaretaker/Manager/Director, every
-// tier of which accepts unconditionally, there being no downside to a free match for any of
-// them), the challenge is accepted immediately rather than left pending forever with nobody to
-// act on it; otherwise it waits for the opponent's owner to accept or reject it.
-func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponentTeamId int64) error {
+// ChallengeToFriendly proposes a friendly match to opponentTeamId, on behalf of challengerTeamId,
+// optionally suggesting a kickoff (proposedKickoff may be nil to leave it entirely up to the
+// opponent). A non-nil proposedKickoff must itself be a valid kickoff (see
+// isAllowedFriendlyKickoff) - the challenger doesn't get to suggest something the opponent
+// couldn't have picked themselves anyway. If the opponent is unowned (an AI-managed team - see
+// AiLevelCaretaker/Manager/Director, every tier of which accepts unconditionally, there being no
+// downside to a free match for any of them), the challenge is accepted immediately rather than
+// left pending forever with nobody to act on it, using proposedKickoff if one was given and is
+// still valid by then; otherwise it waits for the opponent's owner to accept or reject it, with
+// proposedKickoff surfaced to them as a suggested default (see FriendlyChallenge.ProposedKickoff).
+func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponentTeamId int64, proposedKickoff *time.Time) error {
 	if challengerTeamId == opponentTeamId {
 		return ErrCannotChallengeOwnTeam
+	}
+	if proposedKickoff != nil && !isAllowedFriendlyKickoff(dbCtx, *proposedKickoff, time.Now()) {
+		return ErrInvalidFriendlyKickoff
 	}
 
 	challengerCount, err := CountFriendliesThisWeek(dbCtx, challengerTeamId)
@@ -180,7 +192,7 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	}
 
 	var challengeId int64
-	err = dbCtx.Db.QueryRow(InsertFriendlyChallengeStmtSql, challengerTeamId, opponentTeamId).Scan(&challengeId)
+	err = dbCtx.Db.QueryRow(InsertFriendlyChallengeStmtSql, challengerTeamId, opponentTeamId, proposedKickoff).Scan(&challengeId)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return ErrFriendlyChallengeAlreadyExists
@@ -199,13 +211,16 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	// Unowned - accept on the opponent's behalf right away, since nothing else will ever
 	// revisit this challenge. If the AI opponent is itself already at its weekly cap, surface
 	// that to the challenger now rather than leave an orphaned challenge nothing can resolve.
-	// There's nobody to pick a kickoff, so it gets the same "as soon as allowed" default a
-	// human accepting could also choose. now is captured once and threaded through to
-	// acceptFriendlyChallenge's validation below - see its own comment on why a second,
-	// independently-captured time.Now() there made this fail on every call.
+	// now is captured once and threaded through to acceptFriendlyChallenge's validation below -
+	// see its own comment on why a second, independently-captured time.Now() there made this
+	// fail on every call.
 	now := time.Now()
 	defaultKickoff := nextAllowedFriendlyDate(now.Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
-	if err := acceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, defaultKickoff, now); err != nil {
+	kickoff := defaultKickoff
+	if proposedKickoff != nil && isAllowedFriendlyKickoff(dbCtx, *proposedKickoff, now) {
+		kickoff = *proposedKickoff
+	}
+	if err := acceptFriendlyChallenge(dbCtx, challengeId, opponentTeamId, kickoff, now); err != nil {
 		_, _ = dbCtx.Db.Exec(DeleteFriendlyChallengeStmtSql, challengeId)
 		return err
 	}
@@ -309,11 +324,11 @@ func WithdrawFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, challe
 	return err
 }
 
-const GetFriendlyChallengesReceivedStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at " +
+const GetFriendlyChallengesReceivedStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff " +
 	"FROM friendly_challenges fc JOIN teams ct ON ct.team_id = fc.challenger_team_id JOIN teams ot ON ot.team_id = fc.opponent_team_id " +
 	"WHERE fc.opponent_team_id = $1 ORDER BY fc.created_at DESC"
 
-const GetFriendlyChallengesSentStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at " +
+const GetFriendlyChallengesSentStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff " +
 	"FROM friendly_challenges fc JOIN teams ct ON ct.team_id = fc.challenger_team_id JOIN teams ot ON ot.team_id = fc.opponent_team_id " +
 	"WHERE fc.challenger_team_id = $1 ORDER BY fc.created_at DESC"
 
@@ -323,7 +338,7 @@ func scanFriendlyChallenges(rows *sql.Rows) ([]FriendlyChallenge, error) {
 	for rows.Next() {
 		var c FriendlyChallenge
 		if err := rows.Scan(&c.ChallengeId, &c.ChallengerTeamId, &c.ChallengerTeamName,
-			&c.OpponentTeamId, &c.OpponentTeamName, &c.CreatedAt); err != nil {
+			&c.OpponentTeamId, &c.OpponentTeamName, &c.CreatedAt, &c.ProposedKickoff); err != nil {
 			return nil, err
 		}
 		challenges = append(challenges, c)

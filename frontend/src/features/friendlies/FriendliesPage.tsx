@@ -26,7 +26,7 @@ import {
   useUserTeam,
   useWithdrawFriendlyChallenge,
 } from '../../api/hooks'
-import type { FriendlyChallenge, FriendlyMatch } from '../../api/types'
+import type { FriendlyChallenge, FriendlyMatch, FriendlySchedule } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
 
 // The minimum lead time backend.AcceptFriendlyChallenge enforces (friendlyScheduleDelay) -
@@ -34,10 +34,22 @@ import { formatDateTime } from '../../utils/formatDate'
 // picker; the backend re-validates regardless.
 const MIN_KICKOFF_LEAD_MINUTES = 5
 
-function defaultKickoffValue(minutesFromNow: number): string {
-  const d = new Date(Date.now() + minutesFromNow * 60 * 1000)
+function toDateTimeLocalValue(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function defaultKickoffValue(minutesFromNow: number): string {
+  return toDateTimeLocalValue(new Date(Date.now() + minutesFromNow * 60 * 1000))
+}
+
+// Shared by the challenge form's optional proposed-kickoff field and the accept dialog's kickoff
+// field - both need to reject a datetime-local value that falls on a day
+// common.GetFriendlyScheduleWeekdays doesn't allow, before the backend gets a chance to.
+function isWeekdayAllowed(schedule: FriendlySchedule | undefined, value: string): boolean {
+  if (!schedule || !value) return true
+  const day = new Date(value).getDay()
+  return (schedule.weekdaysMask & (1 << day)) !== 0
 }
 
 export function FriendliesPage() {
@@ -51,14 +63,27 @@ export function FriendliesPage() {
   const { data: upcoming, isLoading: upcomingLoading } = useUpcomingFriendlies(enabled)
   const { data: recent, isLoading: recentLoading } = useRecentFriendlies(enabled)
 
+  const { data: schedule } = useFriendlySchedule(enabled)
   const challenge = useChallengeToFriendly()
   const [opponentTeamId, setOpponentTeamId] = useState('')
+  const [proposedKickoff, setProposedKickoff] = useState('')
+
+  const proposedKickoffAllowed = isWeekdayAllowed(schedule, proposedKickoff)
 
   const handleChallenge = (event: FormEvent) => {
     event.preventDefault()
     const id = Number(opponentTeamId)
     if (!id || id <= 0) return
-    challenge.mutate(id, { onSuccess: () => setOpponentTeamId('') })
+    if (proposedKickoff && !proposedKickoffAllowed) return
+    challenge.mutate(
+      { opponentTeamId: id, proposedKickoff: proposedKickoff ? new Date(proposedKickoff).toISOString() : undefined },
+      {
+        onSuccess: () => {
+          setOpponentTeamId('')
+          setProposedKickoff('')
+        },
+      },
+    )
   }
 
   const myTeamId = userTeam?.team.id
@@ -76,7 +101,7 @@ export function FriendliesPage() {
         <Typography variant="subtitle1" gutterBottom>
           {t('friendlies.challenge.title')}
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <TextField
             size="small"
             label={t('friendlies.challenge.opponentTeamId')}
@@ -84,7 +109,17 @@ export function FriendliesPage() {
             onChange={(e) => setOpponentTeamId(e.target.value)}
             sx={{ width: 160 }}
           />
-          <Button type="submit" variant="contained" disabled={challenge.isPending}>
+          <TextField
+            size="small"
+            type="datetime-local"
+            label={t('friendlies.challenge.proposedKickoff')}
+            value={proposedKickoff}
+            onChange={(e) => setProposedKickoff(e.target.value)}
+            error={!proposedKickoffAllowed}
+            helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : ' '}
+            slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+          />
+          <Button type="submit" variant="contained" disabled={challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}>
             {t('friendlies.challenge.button')}
           </Button>
         </Stack>
@@ -135,16 +170,14 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
   const [pickingId, setPickingId] = useState<number | null>(null)
   const [kickoff, setKickoff] = useState('')
 
-  const startPicking = (challengeId: number) => {
-    setPickingId(challengeId)
-    setKickoff(defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES * 2))
+  const startPicking = (challenge: FriendlyChallenge) => {
+    setPickingId(challenge.challengeId)
+    setKickoff(
+      challenge.proposedKickoff ? toDateTimeLocalValue(new Date(challenge.proposedKickoff)) : defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES * 2),
+    )
   }
 
-  const weekdayAllowed = (value: string) => {
-    if (!schedule || !value) return true
-    const day = new Date(value).getDay()
-    return (schedule.weekdaysMask & (1 << day)) !== 0
-  }
+  const weekdayAllowed = (value: string) => isWeekdayAllowed(schedule, value)
 
   const handleConfirm = (challengeId: number) => {
     if (!kickoff || !weekdayAllowed(kickoff)) return
@@ -170,12 +203,19 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
           {challenges.map((c) => (
             <Stack key={c.challengeId} spacing={1}>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="body2" component={RouterLink} to={`/team/${c.challengerTeamId}`}>
-                  {c.challengerTeamName}
-                </Typography>
+                <Stack>
+                  <Typography variant="body2" component={RouterLink} to={`/team/${c.challengerTeamId}`}>
+                    {c.challengerTeamName}
+                  </Typography>
+                  {c.proposedKickoff && pickingId !== c.challengeId && (
+                    <Typography variant="caption" color="text.secondary">
+                      {t('friendlies.received.proposedKickoff', { date: formatDateTime(c.proposedKickoff) })}
+                    </Typography>
+                  )}
+                </Stack>
                 {pickingId !== c.challengeId && (
                   <Stack direction="row" spacing={1}>
-                    <Button size="small" variant="contained" onClick={() => startPicking(c.challengeId)}>
+                    <Button size="small" variant="contained" onClick={() => startPicking(c)}>
                       {t('friendlies.received.accept')}
                     </Button>
                     <Button

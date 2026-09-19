@@ -367,6 +367,7 @@
     "challenge": {
       "title": "Challenge a team",
       "opponentTeamId": "Opponent team id",
+      "proposedKickoff": "Proposed kickoff (optional)",
       "button": "Send challenge",
       "success": "Challenge sent.",
       "error": "Could not send that challenge."
@@ -377,6 +378,7 @@
       "accept": "Accept",
       "reject": "Decline",
       "kickoff": "Kickoff",
+      "proposedKickoff": "Proposed: {{date}}",
       "kickoffNotAllowed": "That day isn't open for friendlies - pick another.",
       "confirmKickoff": "Confirm",
       "cancel": "Cancel",

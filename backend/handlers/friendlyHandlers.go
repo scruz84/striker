@@ -12,6 +12,9 @@ import (
 
 type ChallengeToFriendlyRequest struct {
 	OpponentTeamId int64 `json:"opponentTeamId"`
+	// ProposedKickoff optionally suggests when the challenger would like to play - left nil to
+	// leave the decision entirely to the opponent, same as before this field existed.
+	ProposedKickoff *time.Time `json:"proposedKickoff"`
 }
 
 // ChallengeToFriendlyHandler proposes a friendly match to another team on behalf of the
@@ -37,11 +40,12 @@ func ChallengeToFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := common.ChallengeToFriendly(dbCtx, team.Id, req.OpponentTeamId); err != nil {
+		if err := common.ChallengeToFriendly(dbCtx, team.Id, req.OpponentTeamId, req.ProposedKickoff); err != nil {
 			switch {
 			case errors.Is(err, common.ErrCannotChallengeOwnTeam),
 				errors.Is(err, common.ErrFriendlyChallengeAlreadyExists),
-				errors.Is(err, common.ErrFriendlyLimitReached):
+				errors.Is(err, common.ErrFriendlyLimitReached),
+				errors.Is(err, common.ErrInvalidFriendlyKickoff):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))
 				return
 			}

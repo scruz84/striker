@@ -367,6 +367,7 @@
     "challenge": {
       "title": "Retar a un equipo",
       "opponentTeamId": "Id del equipo rival",
+      "proposedKickoff": "Fecha y hora propuesta (opcional)",
       "button": "Enviar reto",
       "success": "Reto enviado.",
       "error": "No se pudo enviar ese reto."
@@ -377,6 +378,7 @@
       "accept": "Aceptar",
       "reject": "Rechazar",
       "kickoff": "Fecha y hora",
+      "proposedKickoff": "Propuesta: {{date}}",
       "kickoffNotAllowed": "Ese día no está habilitado para amistosos - elige otro.",
       "confirmKickoff": "Confirmar",
       "cancel": "Cancelar",

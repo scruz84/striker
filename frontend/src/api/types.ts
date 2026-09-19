@@ -694,6 +694,10 @@ export interface FriendlyChallenge {
   opponentTeamId: number
   opponentTeamName: string
   createdAt: string
+  // The kickoff the challenger optionally suggested when sending the challenge - a suggested
+  // default for the opponent's own accept-time kickoff picker, never enforced. Absent if they
+  // left it up to the opponent.
+  proposedKickoff?: string
 }
 
 export interface FriendlyMatch {
