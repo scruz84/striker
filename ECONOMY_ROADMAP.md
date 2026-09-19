@@ -12,7 +12,14 @@ start reading in the code.
   `claude/repo-overview-4di58f`. Players now have a contract length that expires to free agency;
   any team can sign a free agent for just their wage; owners can renew (free, capped) or release
   early (paid severance) their own players.
-- Phases 2-5 below are proposed, not started.
+- **Phase 2 - Financial consequences (insolvency): DONE.** See the "Insolvency" paragraph in
+  `GAME_MECHANICS.md`'s Economy section, `common.MaxDebt`/`common.IsTeamSolvent` in
+  `common/fmconstants.go`/`common/database.go`, and PR #51. A team crossing `-MaxDebt` (-200,000)
+  is blocked from `ExecuteTransfer`, `MakeTransferOffer`, `AcceptLoan`, and `SignFreeAgent` via
+  `ErrTeamInsolvent`, exposed to the frontend as `insolvent` on the finances response. The
+  "optional harsher tier" (forced sale / points penalty) below was deliberately skipped - the
+  spend-side lockout alone was judged enough teeth for now.
+- Phases 3-5 below are proposed, not started.
 
 ## Existing economy building blocks (for context)
 
@@ -33,24 +40,11 @@ start reading in the code.
 - **Transfer windows**: `backend/common/database.go`'s `IsTransferWindowOpen` - one global flag,
   admin-toggled.
 
-## Phase 2 - Financial consequences (insolvency)
+## Phase 2 - Financial consequences (insolvency) - DONE, see Status above
 
-Today a team's budget can go arbitrarily negative with zero effect - financial mismanagement is
-consequence-free. This phase makes it matter.
-
-- Allow negative budget up to a debt ceiling (new constant, e.g. `MaxDebt`). Crossing it sets a
-  flag (e.g. `teams.transfer_embargo` or derive it live from `budget < -MaxDebt`) that blocks
-  transfer/loan/free-agent buying activity - reuse the `ErrTransferWindowClosed`-style guard
-  pattern already used throughout `transfers.go`/`offers.go`/`contracts.go`.
-  - Where to check it: `IsTransferWindowOpen`-style checks live at the top of
-    `CreateTransferListing`, `ExecuteTransfer`, `MakeTransferOffer`, `AcceptOffer`,
-    `CreateLoanListing`, `AcceptLoan`, `SignFreeAgent` - a new `IsTeamSolvent`/embargo check
-    belongs alongside those, likely only on the *spending* side (buying/signing), not selling or
-    cancelling.
-- Optional harsher tier (pick one, don't need both): forced-sale flag on a player after N weeks
-  in debt, or a small league-points penalty applied during `engine/season.go`'s rollover.
-- Frontend: a debt warning banner (mirroring `transfers.windowClosed`'s `Alert` in
-  `TransferMarketPage.tsx`) and a negative-budget visual treatment on `FinancesPage.tsx`.
+The optional harsher tier (forced-sale flag after N weeks in debt, or a league-points penalty at
+rollover) was not built - the spend-side lockout was judged sufficient. Revisit only if playtesting
+shows the debt ceiling alone isn't enough friction.
 
 ## Phase 3 - Richer income streams
 
@@ -106,6 +100,5 @@ Adds variety without new failure states - safe to build without touching Phase 2
 
 ## Suggested order
 
-Phase 2 first - it's what makes every other economy number actually matter (a debt ceiling with
-teeth). Phases 3-5 are additive and can be done in any order after that, or skipped if the user
+Phases 1-2 are done. Phases 3-5 are additive and can be done in any order from here, or skipped if the user
 prefers to prioritize non-economy features instead.
