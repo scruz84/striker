@@ -16,6 +16,7 @@ import { TRANSACTION_REASON_KEYS } from '../../api/types'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -54,6 +55,32 @@ export function PlayerDetailsPage() {
       </Grid>
 
       {canSeeSkills && player.latestEvolution && <PlayerEvolutionCard evolution={player.latestEvolution} />}
+
+      {player.clubHistory.length > 0 && (
+        <Stack spacing={1}>
+          <Typography variant="h6">{t('playerPage.clubHistory.title')}</Typography>
+          <TableContainer component={Paper}>
+            <Table size="small" aria-label="Club history">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('playerPage.clubHistory.club')}</TableCell>
+                  <TableCell align="right">{t('playerPage.clubHistory.joined')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {player.clubHistory.map((entry) => (
+                  <TableRow key={`${entry.teamId}-${entry.joinedAt}`}>
+                    <TableCell>
+                      <TeamNameLink teamId={entry.teamId}>{entry.teamName}</TeamNameLink>
+                    </TableCell>
+                    <TableCell align="right">{formatDateTime(entry.joinedAt)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Stack>
+      )}
 
       {canSeeFinancials && (
         <Stack spacing={1}>

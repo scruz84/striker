@@ -95,7 +95,7 @@ func createCanteraProspects(dbCtx *DatabaseContext, teamId int64, count int, tra
 		return err
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country, true)
+	doCreatePlayers(dbCtx, teamId, insertStmt, dbCtx.Db, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country, true)
 	return nil
 }
 

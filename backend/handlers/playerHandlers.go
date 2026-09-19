@@ -67,6 +67,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.LatestEvolution = evolution
 		}
 
+		if clubHistory, err := common.GetPlayerClubHistory(dbCtx, playerId); err != nil {
+			log.Errorf("error loading club history for player %d: %s", playerId, err)
+		} else {
+			details.ClubHistory = clubHistory
+		}
+
 		// A rostered player's wage, contract, and financial transaction history are the owning
 		// team's business, not any visitor's - see common.Player.RedactFinancials. A free agent
 		// (TeamId == 0) has no current team to protect that information for, so it stays visible

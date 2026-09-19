@@ -250,6 +250,9 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, shirtNumber, playerId); err != nil {
 		return nil, err
 	}
+	if err := RecordPlayerClubHistory(tx, playerId, teamId); err != nil {
+		return nil, err
+	}
 
 	playerName := player.FirstName + " " + player.LastName
 	if premium > 0 {

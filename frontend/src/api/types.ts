@@ -617,6 +617,16 @@ export interface PlayerDetails extends Player {
   loanListingDurationSeasons?: number
   history: TeamTransaction[]
   latestEvolution?: PlayerEvolution
+  // Every club this player has permanently belonged to, most recent first - unlike `history`,
+  // never redacted for a non-owner viewer (which clubs a player played for is public, the same
+  // way a transfer-market listing is).
+  clubHistory: PlayerClubHistoryEntry[]
+}
+
+export interface PlayerClubHistoryEntry {
+  teamId: number
+  teamName: string
+  joinedAt: string
 }
 
 // One attribute's value before and after a season-end progression run - see backend

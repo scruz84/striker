@@ -162,6 +162,10 @@ type PlayerDetails struct {
 	PlayerCareerStats
 	PlayerStatus
 	History []TeamTransaction `json:"history"`
+	// ClubHistory is every club this player has permanently belonged to, most recent first - see
+	// GetPlayerClubHistory. Unlike History (financial transactions), this is never redacted: which
+	// clubs a player has played for is public the same way their transfer-market listing is.
+	ClubHistory []PlayerClubHistoryEntry `json:"clubHistory"`
 	// LatestEvolution is this player's most recent season-end progression run (see
 	// GetLatestPlayerEvolution) - nil if they've never been through one, or (like skills
 	// generally, see RedactSkills) if the viewer isn't the owning team and this player isn't a

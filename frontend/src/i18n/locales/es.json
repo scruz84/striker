@@ -808,6 +808,11 @@
     "history": {
       "title": "Historial de traspasos",
       "none": "Aún no hay historial de traspasos."
+    },
+    "clubHistory": {
+      "title": "Clubes",
+      "club": "Club",
+      "joined": "Fecha de llegada"
     }
   },
   "countries": {

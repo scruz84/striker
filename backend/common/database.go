@@ -123,7 +123,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
 	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)"
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) " +
+	"RETURNING player_id"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
@@ -262,7 +263,7 @@ func CreatePlayers(dbCtx *DatabaseContext, teamId int64, country string) {
 		return
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
+	doCreatePlayers(dbCtx, teamId, insertStmt, dbCtx.Db, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
 }
 
 func GetTeamDetails(dbCtx *DatabaseContext, stmt *sql.Stmt, teamId int64) (*Team, error) {
@@ -348,8 +349,11 @@ func nextFreeShirtNumber(q shirtNumberQueryer, teamId int64) (int, error) {
 // academy prospect (inAcademy true) draws no wage and has no contract yet - both are only
 // assigned once actually promoted (see PromoteFromAcademy), the same way a free agent's are only
 // assigned once signed; shirt numbers follow the same rule; inAcademy players are created with
-// none.
-func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string, inAcademy bool) {
+// none. historyEx runs on the same connection/transaction as insertStmt (dbCtx.Db or a tx, per
+// caller) - a fresh senior-squad player (inAcademy false) gets a player_club_history row for
+// teamId; a cantera prospect doesn't, since they aren't on the senior squad yet (see
+// RecordPlayerClubHistory).
+func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt, historyEx sqlExecutor, count int, minSkill int, maxSkill int, minAge int, maxAge int, country string, inAcademy bool) {
 	var shirtNumbers []int
 	if !inAcademy {
 		var err error
@@ -379,7 +383,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		if i < len(shirtNumbers) {
 			shirtNumber = sql.NullInt64{Int64: int64(shirtNumbers[i]), Valid: true}
 		}
-		insertStmt.Exec(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
+		var newPlayerId int64
+		err := insertStmt.QueryRow(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
 			defense,
 			lateral,
@@ -397,7 +402,16 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			contractYears,
 			&country,
 			inAcademy,
-			shirtNumber)
+			shirtNumber).Scan(&newPlayerId)
+		if err != nil {
+			log.Errorf("error creating player for team %d: %s", teamId, err)
+			continue
+		}
+		if !inAcademy {
+			if err := RecordPlayerClubHistory(historyEx, newPlayerId, teamId); err != nil {
+				log.Errorf("error recording club history for new player %d team %d: %s", newPlayerId, teamId, err)
+			}
+		}
 	}
 }
 
@@ -427,7 +441,7 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 		return nil, err2
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
+	doCreatePlayers(dbCtx, teamId, insertStmt, tx, SquadSize, SeniorSkillMin, SeniorSkillMax, SeniorAgeMin, SeniorAgeMax, country, false)
 
 	//Update team details
 	ustmt, err := tx.Prepare(UpdateTeamDetailsStmtSql)
@@ -1538,7 +1552,7 @@ func CreateAcademyPlayers(dbCtx *DatabaseContext, teamId int64, count int, train
 		return err
 	}
 	defer insertStmt.Close()
-	doCreatePlayers(dbCtx, teamId, insertStmt, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country, false)
+	doCreatePlayers(dbCtx, teamId, insertStmt, dbCtx.Db, count, AcademySkillMin, academySkillMax(trainerSkill), AcademyAgeMin, AcademyAgeMax, country, false)
 	return nil
 }
 
