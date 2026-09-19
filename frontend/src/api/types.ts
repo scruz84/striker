@@ -376,6 +376,7 @@ export const FORMATION_DEFENSIVE = 1
 export const FORMATION_ATTACKING = 2
 export const FORMATION_FOUR_THREE_THREE = 3
 export const FORMATION_FOUR_FIVE_ONE = 4
+export const FORMATION_THREE_FIVE_TWO = 5
 
 // Values are i18n keys under "formations.*" - look them up with t(FORMATION_LABEL_KEYS[formation]).
 export const FORMATION_LABEL_KEYS: Record<number, string> = {
@@ -384,6 +385,7 @@ export const FORMATION_LABEL_KEYS: Record<number, string> = {
   [FORMATION_ATTACKING]: 'formations.attacking',
   [FORMATION_FOUR_THREE_THREE]: 'formations.fourThreeThree',
   [FORMATION_FOUR_FIVE_ONE]: 'formations.fourFiveOne',
+  [FORMATION_THREE_FIVE_TWO]: 'formations.threeFiveTwo',
 }
 
 export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, number>>> = {
@@ -436,6 +438,16 @@ export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, nu
     [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
     [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
     [POSITION_STRIKER]: 1,
+  },
+  [FORMATION_THREE_FIVE_TWO]: {
+    [POSITION_GOALKEEPER]: 1,
+    [POSITION_DEFENSE]: 1,
+    [POSITION_LATERAL_DEFENSE_LEFT]: 1,
+    [POSITION_LATERAL_DEFENSE_RIGHT]: 1,
+    [POSITION_MIDFIELD]: 3,
+    [POSITION_LATERAL_MIDFIELD_LEFT]: 1,
+    [POSITION_LATERAL_MIDFIELD_RIGHT]: 1,
+    [POSITION_STRIKER]: 2,
   },
 }
 

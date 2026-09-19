@@ -9,10 +9,11 @@ const FormationDefensive = 1      // 5-3-2
 const FormationAttacking = 2      // 3-4-3
 const FormationFourThreeThree = 3 // 4-3-3
 const FormationFourFiveOne = 4    // 4-5-1
+const FormationThreeFiveTwo = 5   // 3-5-2
 
 func IsValidFormation(formation int) bool {
 	switch formation {
-	case FormationBalanced, FormationDefensive, FormationAttacking, FormationFourThreeThree, FormationFourFiveOne:
+	case FormationBalanced, FormationDefensive, FormationAttacking, FormationFourThreeThree, FormationFourFiveOne, FormationThreeFiveTwo:
 		return true
 	default:
 		return false
@@ -68,6 +69,17 @@ func FormationPositionCounts(formation int) map[int]int {
 			LATERAL_MIDFIELD_LEFT:  1,
 			LATERAL_MIDFIELD_RIGHT: 1,
 			STRIKER:                1,
+		}
+	case FormationThreeFiveTwo:
+		return map[int]int{
+			GOALKEEPER:             1,
+			DEFENSE:                1,
+			LATERAL_DEFENSE_LEFT:   1,
+			LATERAL_DEFENSE_RIGHT:  1,
+			MIDFIELD:               3,
+			LATERAL_MIDFIELD_LEFT:  1,
+			LATERAL_MIDFIELD_RIGHT: 1,
+			STRIKER:                2,
 		}
 	default: // FormationBalanced
 		return map[int]int{
