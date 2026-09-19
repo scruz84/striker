@@ -93,6 +93,7 @@ func teamPlayerDependentTables() []string {
 		"friendly_lineup_positions",
 		"friendly_lineup",
 		"friendly_events",
+		"friendly_instants",
 		"friendly_matches",
 		"friendly_challenges",
 		"players",
