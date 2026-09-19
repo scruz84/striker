@@ -51,7 +51,10 @@ const upsertLeagueScheduleStmtSql = "INSERT INTO league_schedule (league_id, wee
 	"ON CONFLICT (league_id) DO UPDATE SET weekdays_mask = EXCLUDED.weekdays_mask, hour = EXCLUDED.hour, minute = EXCLUDED.minute"
 
 // SetLeagueSchedule sets or replaces a per-league match schedule override. Callers must run
-// ValidateMatchSchedule first.
+// ValidateMatchSchedule first, and should also re-date that league's already-generated unplayed
+// matches onto the new schedule (see handlers.AdminSetLeagueScheduleHandler/
+// engine.RescheduleUnplayedMatches, issue #67) - this alone only affects fixtures generated
+// after the call.
 func SetLeagueSchedule(dbCtx *DatabaseContext, leagueId int64, schedule MatchSchedule) error {
 	_, err := dbCtx.Db.Exec(upsertLeagueScheduleStmtSql, leagueId, schedule.WeekdaysMask, schedule.Hour, schedule.Minute)
 	return err

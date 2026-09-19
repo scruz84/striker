@@ -168,8 +168,9 @@ type setLeagueScheduleRequest struct {
 }
 
 // AdminSetLeagueScheduleHandler sets one league's match-day/time override - see
-// common.SetLeagueSchedule. Only affects fixtures generated after this call, same as the
-// app-wide default (see AdminSetMatchScheduleHandler).
+// common.SetLeagueSchedule - and immediately re-dates that league's own unplayed matches onto it
+// (see engine.RescheduleUnplayedMatches), rather than only affecting fixtures generated at the
+// next season rollover (issue #67).
 func AdminSetLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		leagueId, err := common.StringToInt64(c.Param(ID))
@@ -194,12 +195,16 @@ func AdminSetLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFun
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		if err := engine.RescheduleUnplayedMatches(dbCtx, leagueId, schedule); err != nil {
+			log.Errorf("error rescheduling unplayed matches for league %d: %s", leagueId, err)
+		}
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "league schedule updated"})
 	}
 }
 
 // AdminClearLeagueScheduleHandler removes a league's schedule override, reverting it to the
-// app-wide default.
+// app-wide default, and immediately re-dates that league's unplayed matches onto that default
+// (issue #67).
 func AdminClearLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		leagueId, err := common.StringToInt64(c.Param(ID))
@@ -211,6 +216,9 @@ func AdminClearLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			log.Errorf("error clearing schedule for league %d: %s", leagueId, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
+		}
+		if err := engine.RescheduleUnplayedMatches(dbCtx, leagueId, common.GetMatchSchedule(dbCtx)); err != nil {
+			log.Errorf("error rescheduling unplayed matches for league %d: %s", leagueId, err)
 		}
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "league schedule reset to the default"})
 	}

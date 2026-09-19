@@ -66,8 +66,10 @@ func GetMatchSchedule(dbCtx *DatabaseContext) MatchSchedule {
 	return MatchSchedule{WeekdaysMask: mask, Hour: minuteOfDay / 60, Minute: minuteOfDay % 60}
 }
 
-// SetMatchSchedule persists a new schedule. It only affects fixtures generated after this call
-// (season rollover, or a fresh world init) - matches already dated keep their existing date.
+// SetMatchSchedule persists a new schedule, applied to newly generated fixtures (season
+// rollover, or a fresh world init) - callers also re-date already-generated unplayed matches
+// immediately (see handlers.AdminSetMatchScheduleHandler/engine.RescheduleUnplayedMatchesForLeagues,
+// issue #67), so this alone is not the whole picture for an already-running league.
 func SetMatchSchedule(dbCtx *DatabaseContext, s MatchSchedule) error {
 	if err := ValidateMatchSchedule(s); err != nil {
 		return err

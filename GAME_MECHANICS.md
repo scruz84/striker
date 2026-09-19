@@ -62,6 +62,14 @@ fixtures are generated a season at a time (`GenerateMatches`, `engine/engine.go`
 friendly instead kicks off a short fixed delay after being scheduled (accepted challenge, or
 paired into a bracket round) rather than on the league's weekly cadence.
 
+Changing a schedule (a league's own override, or the app-wide default) doesn't just affect
+fixtures generated afterward - `AdminSetLeagueScheduleHandler`/`AdminClearLeagueScheduleHandler`/
+`AdminSetMatchScheduleHandler` (`backend/handlers`) also immediately re-date every currently
+unplayed match onto the new schedule (`engine.RescheduleUnplayedMatches`/
+`RescheduleUnplayedMatchesForLeagues`), preserving each match's week-number ordering the same way
+`ComputeFixtureDates` dates a freshly generated season. A league with its own override is left
+alone by an app-wide default change, same as for new fixtures.
+
 ### How a result is calculated
 
 `runMatchSimulation` (`engine/simulation.go`) builds each team's *qualification* (`TeamQualification`

@@ -217,8 +217,10 @@ type setMatchScheduleRequest struct {
 
 // AdminSetMatchScheduleHandler updates the recurring weekday/time-of-day schedule used to date
 // newly generated league fixtures (see engine.ComputeFixtureDates) - e.g. "Saturdays at 14:00"
-// or "every day at 16:00". It only takes effect the next time fixtures are generated (the next
-// season rollover, or a fresh world init) - matches already dated keep their existing date.
+// or "every day at 16:00" - and immediately re-dates the unplayed matches of every league that
+// doesn't have its own per-league override (see engine.RescheduleUnplayedMatchesForLeagues),
+// rather than only affecting fixtures generated at the next season rollover (issue #67). A
+// league with its own override is left alone, same as it would be for newly generated fixtures.
 func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req setMatchScheduleRequest
@@ -236,6 +238,24 @@ func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc
 			log.Errorf("error setting match schedule: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
+		}
+
+		leagueIds, err := common.GetAllLeagueIds(dbCtx)
+		if err != nil {
+			log.Errorf("error listing leagues to reschedule after a default schedule change: %s", err)
+		} else {
+			overrides, err := common.GetLeagueScheduleOverrides(dbCtx)
+			if err != nil {
+				log.Errorf("error loading league schedule overrides to reschedule after a default schedule change: %s", err)
+				overrides = nil
+			}
+			leaguesWithoutOverride := make([]int64, 0, len(leagueIds))
+			for _, leagueId := range leagueIds {
+				if _, hasOverride := overrides[leagueId]; !hasOverride {
+					leaguesWithoutOverride = append(leaguesWithoutOverride, leagueId)
+				}
+			}
+			engine.RescheduleUnplayedMatchesForLeagues(dbCtx, leaguesWithoutOverride, schedule)
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "match schedule updated"})
