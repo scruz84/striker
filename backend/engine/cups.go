@@ -72,10 +72,20 @@ func startCupForCountry(dbCtx *common.DatabaseContext, country string, season in
 	return createRoundTies(dbCtx, cupId, 1, pairs)
 }
 
+// cupRoundGap is how far ahead of "now" a round's ties are scheduled - both for a fresh cup's
+// first round and for each next round AdvanceCups generates once the previous one resolves. A
+// round only counts as "resolved" once every tie is simulated (see IsCupRoundResolved), which
+// happens well before that tie's live broadcast finishes pacing out to viewers (~90 real minutes,
+// see engine.liveMatchMinuteDelay) - scheduling the next round only 15 minutes later (this file's
+// original delay) meant a manager could still be watching one round's tie live while the next
+// round's was already kicking off (issue #55). A full day comfortably clears that broadcast
+// window and, as a side effect, spreads rounds across different days rather than back-to-back.
+const cupRoundGap = 24 * time.Hour
+
 // createRoundTies persists one round's pairings as cup_ties. A pairing with a bye (one side is
 // ByeTeamId) is recorded as already resolved, with no match_date - see common.CreateCupTie.
 func createRoundTies(dbCtx *common.DatabaseContext, cupId int64, round int, pairs [][2]int64) error {
-	matchDate := time.Now().Add(15 * time.Minute)
+	matchDate := time.Now().Add(cupRoundGap)
 	for i, pair := range pairs {
 		home, away := asTeamIdPtr(pair[0]), asTeamIdPtr(pair[1])
 		var scheduledAt *time.Time
