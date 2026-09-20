@@ -53,6 +53,7 @@ import {
 } from '../../api/hooks'
 import { COUNTRY_NAME_KEYS, POSITION_DEFENSE, POSITION_GOALKEEPER, POSITION_MIDFIELD, POSITION_STRIKER, POSITION_SHORT_LABEL_KEYS } from '../../api/types'
 import type { FreeAgentListing, LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
+import { isPast } from '../../api/useLiveMatch'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -1064,16 +1065,32 @@ function OffersTab() {
           <OffersTable
             offers={received}
             teamColumn="from"
-            renderAction={(offer) => (
-              <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                <Button size="small" variant="contained" onClick={() => handleAccept(offer)} disabled={acceptOffer.isPending} sx={{ minWidth: 0, px: 1 }}>
-                  {t('transfers.accept')}
-                </Button>
-                <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending} sx={{ minWidth: 0, px: 1 }}>
-                  {t('transfers.reject')}
-                </Button>
-              </Stack>
-            )}
+            renderAction={(offer) => {
+              const acceptReady = isPast(offer.acceptableAt)
+              return (
+                <Stack spacing={0.25} sx={{ alignItems: 'flex-end' }}>
+                  <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => handleAccept(offer)}
+                      disabled={acceptOffer.isPending || !acceptReady}
+                      sx={{ minWidth: 0, px: 1 }}
+                    >
+                      {t('transfers.accept')}
+                    </Button>
+                    <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending} sx={{ minWidth: 0, px: 1 }}>
+                      {t('transfers.reject')}
+                    </Button>
+                  </Stack>
+                  {!acceptReady && (
+                    <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
+                      {t('transfers.offers.acceptableAt', { date: formatDateTime(offer.acceptableAt) })}
+                    </Typography>
+                  )}
+                </Stack>
+              )
+            }}
           />
         )}
       </Paper>

@@ -7,15 +7,50 @@ package common
 // weighting) - kept in sync by hand since one is Go and the other TypeScript. Every code in
 // KnownCountries should have an entry here.
 var countryRegions = map[string]string{
+	// Europe
 	"es": "europe",
 	"en": "europe",
 	"fr": "europe",
 	"de": "europe",
 	"it": "europe",
 	"pt": "europe",
+	"nl": "europe",
+	"se": "europe",
+	"pl": "europe",
+	"gr": "europe",
+	// Americas
 	"br": "americas",
+	"ar": "americas",
+	"mx": "americas",
+	"co": "americas",
+	"cl": "americas",
+	"pe": "americas",
+	"uy": "americas",
+	"us": "americas",
+	"ca": "americas",
+	"ec": "americas",
+	// Asia
 	"jp": "asia",
+	"kr": "asia",
+	"cn": "asia",
+	"in": "asia",
+	"th": "asia",
+	"vn": "asia",
+	"id": "asia",
+	"ph": "asia",
+	"sa": "asia",
+	"ir": "asia",
+	// Africa
 	"ng": "africa",
+	"eg": "africa",
+	"gh": "africa",
+	"ci": "africa",
+	"cm": "africa",
+	"sn": "africa",
+	"za": "africa",
+	"ma": "africa",
+	"dz": "africa",
+	"ke": "africa",
 }
 
 // RegionForCountry returns country's region, defaulting to "europe" for an unrecognized code -

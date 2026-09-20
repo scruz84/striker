@@ -17,19 +17,55 @@ type CountryInfo struct {
 // entry in nameTableSuffixByCountry below, and teamnames.go/stadiumnames.go entries first.
 //
 // br/jp/ng (issue #63) are the game's first non-European countries - added specifically so a
-// region grouping (see frontend regionForCountry, and the planned backend counterpart for issue
-// #64's international competition) has more than one continent's worth of countries to actually
-// group.
+// region grouping (see frontend regionForCountry, and the backend counterpart common.RegionForCountry
+// for the international competition) has more than one continent's worth of countries to actually
+// group. The rest below round each of the four regions (see common.RegionForCountry) out to at
+// least ten countries.
 var KnownCountries = []CountryInfo{
+	// Europe
 	{Code: "es", Name: "Spain"},
 	{Code: "en", Name: "England"},
 	{Code: "fr", Name: "France"},
 	{Code: "de", Name: "Germany"},
 	{Code: "it", Name: "Italy"},
 	{Code: "pt", Name: "Portugal"},
+	{Code: "nl", Name: "Netherlands"},
+	{Code: "se", Name: "Sweden"},
+	{Code: "pl", Name: "Poland"},
+	{Code: "gr", Name: "Greece"},
+	// Americas
 	{Code: "br", Name: "Brazil"},
+	{Code: "ar", Name: "Argentina"},
+	{Code: "mx", Name: "Mexico"},
+	{Code: "co", Name: "Colombia"},
+	{Code: "cl", Name: "Chile"},
+	{Code: "pe", Name: "Peru"},
+	{Code: "uy", Name: "Uruguay"},
+	{Code: "us", Name: "United States"},
+	{Code: "ca", Name: "Canada"},
+	{Code: "ec", Name: "Ecuador"},
+	// Asia
 	{Code: "jp", Name: "Japan"},
+	{Code: "kr", Name: "South Korea"},
+	{Code: "cn", Name: "China"},
+	{Code: "in", Name: "India"},
+	{Code: "th", Name: "Thailand"},
+	{Code: "vn", Name: "Vietnam"},
+	{Code: "id", Name: "Indonesia"},
+	{Code: "ph", Name: "Philippines"},
+	{Code: "sa", Name: "Saudi Arabia"},
+	{Code: "ir", Name: "Iran"},
+	// Africa
 	{Code: "ng", Name: "Nigeria"},
+	{Code: "eg", Name: "Egypt"},
+	{Code: "gh", Name: "Ghana"},
+	{Code: "ci", Name: "Ivory Coast"},
+	{Code: "cm", Name: "Cameroon"},
+	{Code: "sn", Name: "Senegal"},
+	{Code: "za", Name: "South Africa"},
+	{Code: "ma", Name: "Morocco"},
+	{Code: "dz", Name: "Algeria"},
+	{Code: "ke", Name: "Kenya"},
 }
 
 // IsKnownCountry reports whether code has the name-pool/team-naming data needed to generate a

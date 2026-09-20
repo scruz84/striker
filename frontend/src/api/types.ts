@@ -85,9 +85,40 @@ export const COUNTRY_NAME_KEYS: Record<string, string> = {
   de: 'countries.de',
   it: 'countries.it',
   pt: 'countries.pt',
+  nl: 'countries.nl',
+  se: 'countries.se',
+  pl: 'countries.pl',
+  gr: 'countries.gr',
   br: 'countries.br',
+  ar: 'countries.ar',
+  mx: 'countries.mx',
+  co: 'countries.co',
+  cl: 'countries.cl',
+  pe: 'countries.pe',
+  uy: 'countries.uy',
+  us: 'countries.us',
+  ca: 'countries.ca',
+  ec: 'countries.ec',
   jp: 'countries.jp',
+  kr: 'countries.kr',
+  cn: 'countries.cn',
+  in: 'countries.in',
+  th: 'countries.th',
+  vn: 'countries.vn',
+  id: 'countries.id',
+  ph: 'countries.ph',
+  sa: 'countries.sa',
+  ir: 'countries.ir',
   ng: 'countries.ng',
+  eg: 'countries.eg',
+  gh: 'countries.gh',
+  ci: 'countries.ci',
+  cm: 'countries.cm',
+  sn: 'countries.sn',
+  za: 'countries.za',
+  ma: 'countries.ma',
+  dz: 'countries.dz',
+  ke: 'countries.ke',
 }
 
 // Mirrors backend/common.ContractRenewalOffer - the outcome of proposing new contract terms to
@@ -729,6 +760,11 @@ export interface TransferOffer {
   offeredWage: number
   offeredYears: number
   createdAt: string
+  // When this offer's two-hour negotiation window elapses and it becomes acceptable (see
+  // backend common.OfferNegotiationWindow) - lets the receiving team keep comparing offers
+  // instead of the first one in winning by default. Rejecting/withdrawing is never gated by
+  // this, only accepting.
+  acceptableAt: string
 }
 
 // Mirrors backend/common.MostViewedPlayer - the currently-listed player whose profile has been

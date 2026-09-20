@@ -206,15 +206,14 @@ const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE
 // allowlist of the game's own seeded countries - rather than ever building SQL from the country
 // string directly.
 var nameTableSuffixByCountry = map[string]string{
-	"es": "es",
-	"en": "en",
-	"fr": "fr",
-	"de": "de",
-	"it": "it",
-	"pt": "pt",
-	"br": "br",
-	"jp": "jp",
-	"ng": "ng",
+	"es": "es", "en": "en", "fr": "fr", "de": "de", "it": "it", "pt": "pt",
+	"nl": "nl", "se": "se", "pl": "pl", "gr": "gr",
+	"br": "br", "ar": "ar", "mx": "mx", "co": "co", "cl": "cl", "pe": "pe",
+	"uy": "uy", "us": "us", "ca": "ca", "ec": "ec",
+	"jp": "jp", "kr": "kr", "cn": "cn", "in": "in", "th": "th", "vn": "vn",
+	"id": "id", "ph": "ph", "sa": "sa", "ir": "ir",
+	"ng": "ng", "eg": "eg", "gh": "gh", "ci": "ci", "cm": "cm", "sn": "sn",
+	"za": "za", "ma": "ma", "dz": "dz", "ke": "ke",
 }
 
 // GetRandomName picks a random first/last name from the given country's name pool. Falls back

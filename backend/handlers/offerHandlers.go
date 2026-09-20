@@ -209,7 +209,8 @@ func AcceptOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrOfferNoLongerValid),
 			errors.Is(err, common.ErrInsufficientBudget),
-			errors.Is(err, common.ErrTransferWindowClosed):
+			errors.Is(err, common.ErrTransferWindowClosed),
+			errors.Is(err, common.ErrOfferNegotiationWindow):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting offer %d for team %d: %s", offerId, team.Id, err)

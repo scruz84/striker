@@ -19,6 +19,28 @@ var ErrNotOfferSender = errors.New("you did not make this offer")
 var ErrNotOfferRecipient = errors.New("this offer is not for one of your players")
 var ErrOfferNoLongerValid = errors.New("the player no longer belongs to the team this offer was made to")
 var ErrPlayerIsFreeAgent = errors.New("player is a free agent - sign them instead of making an offer")
+var ErrOfferNegotiationWindow = errors.New("this offer can't be accepted yet - it stays open for two hours so other offers can still come in")
+
+// OfferNegotiationWindow is how long a transfer offer must sit pending before the receiving
+// team is allowed to accept it (see AcceptOffer) - long enough that a seller who lists a player
+// or otherwise attracts interest has a real chance to compare multiple offers (see
+// GetOffersReceived, which already lists every pending offer on a player from every interested
+// buyer) before locking one in, rather than the first offer received winning by default.
+// Rejecting or withdrawing an offer is never gated by this - only accepting one is.
+const OfferNegotiationWindow = 2 * time.Hour
+
+// offerAcceptableAt is the point in time an offer made at createdAt becomes acceptable - pulled
+// out as a pure function (same reasoning as canPromoteFromAcademyAt in academy.go) so the
+// two-hour rule can be unit tested without a live database, and so the frontend can compute the
+// same "available in Xh Ym" moment from an offer's own createdAt without a dedicated API field.
+func offerAcceptableAt(createdAt time.Time) time.Time {
+	return createdAt.Add(OfferNegotiationWindow)
+}
+
+// canAcceptOfferAt reports whether an offer made at createdAt can be accepted as of now.
+func canAcceptOfferAt(createdAt time.Time, now time.Time) bool {
+	return !now.Before(offerAcceptableAt(createdAt))
+}
 
 // TransferOffer is a pending "scouting" offer - a buyer's proposed price for a specific player,
 // plus the personal terms (wage/contract length) they're proposing to the player, made directly
@@ -35,6 +57,11 @@ type TransferOffer struct {
 	OfferedWage  int       `json:"offeredWage"`
 	OfferedYears int       `json:"offeredYears"`
 	CreatedAt    time.Time `json:"createdAt"`
+	// AcceptableAt is when this offer's OfferNegotiationWindow elapses and the receiving team is
+	// allowed to accept it - computed server-side (see offerAcceptableAt) rather than left for
+	// the frontend to derive from CreatedAt, so the window's length has one source of truth
+	// instead of a duplicated two-hour constant on each side.
+	AcceptableAt time.Time `json:"acceptableAt"`
 }
 
 // TransferOfferResult mirrors ContractRenewalOffer/FreeAgentSigningResult's shape - the player
@@ -62,7 +89,7 @@ const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf
 	"WHERE o.from_team_id = $1 ORDER BY o.created_at DESC"
 
 const GetOfferOwnersStmtSql = "SELECT from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
-const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
+const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
 
@@ -177,6 +204,7 @@ func scanTransferOffers(dbCtx *DatabaseContext, rows *sql.Rows) ([]TransferOffer
 			continue
 		}
 		r.offer.Player = *player
+		r.offer.AcceptableAt = offerAcceptableAt(r.offer.CreatedAt)
 		offers = append(offers, r.offer)
 	}
 	return offers, nil
@@ -241,7 +269,10 @@ func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 // other pending offer on the same player (they're all stale once it's sold) plus any open
 // listing for it - all atomically. Re-checks that the player still belongs to toTeamId (they
 // might have been sold or loaned out since the offer was made) and that the buyer can still
-// afford it, since an offer can sit pending for a while before it's acted on.
+// afford it, since an offer can sit pending for a while before it's acted on. Also refuses an
+// offer still inside its OfferNegotiationWindow (see ErrOfferNegotiationWindow) - rejecting or
+// withdrawing an offer is never gated this way, only accepting one, so a seller comparing offers
+// never risks losing the ones they'd rather keep open.
 func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
@@ -255,7 +286,8 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 
 	var playerId, fromTeamId, actualToTeamId, amount int64
 	var offeredWage, offeredYears int
-	err = tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&playerId, &fromTeamId, &actualToTeamId, &amount, &offeredWage, &offeredYears)
+	var createdAt time.Time
+	err = tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&playerId, &fromTeamId, &actualToTeamId, &amount, &offeredWage, &offeredYears, &createdAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrOfferNotFound
 	}
@@ -264,6 +296,9 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	}
 	if actualToTeamId != toTeamId {
 		return ErrNotOfferRecipient
+	}
+	if !canAcceptOfferAt(createdAt, time.Now()) {
+		return ErrOfferNegotiationWindow
 	}
 
 	var currentOwnerTeamId int64

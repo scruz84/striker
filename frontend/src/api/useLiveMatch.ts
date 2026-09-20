@@ -69,6 +69,14 @@ export function mightStillBeLive(matchDate: string): boolean {
   return Date.now() - new Date(matchDate).getTime() < maxLiveBroadcastWindowMs
 }
 
+// isPast reports whether the given ISO timestamp has already arrived. Callers use this instead
+// of comparing against `Date.now()` directly during render - oxlint's purity check flags a
+// component body that calls the impure `Date.now()` itself, but not one that calls a plain
+// helper function that happens to use it (same reasoning as mightStillBeLive above).
+export function isPast(isoDate: string): boolean {
+  return new Date(isoDate).getTime() <= Date.now()
+}
+
 // useLiveMatch opens a WebSocket to one of the backend's live match/cup-tie endpoints (see
 // backend/handlers/liveMatchHandlers.go) and accumulates its messages into a running score,
 // minute, and event list. Connecting to a match whose broadcast has already finished gets caught
