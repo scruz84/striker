@@ -185,8 +185,11 @@ func PromoteFromAcademy(dbCtx *DatabaseContext, playerId int64, teamId int64) er
 	AcademyPromotionsCounter.Add(context.Background(), 1)
 
 	playerName := player.FirstName + " " + player.LastName
-	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_ACADEMY_PROMOTION,
-		"Promoted "+playerName+" from the academy to the first team")
+	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_ACADEMY_PROMOTION, NotificationMessage{
+		Text:   "Promoted " + playerName + " from the academy to the first team",
+		Key:    "notifications.messages.academyPromotion",
+		Params: map[string]any{"name": playerName},
+	})
 
 	if err := topUpCantera(dbCtx, teamId); err != nil {
 		// Best-effort: the promotion itself already succeeded and committed. GetCantera will

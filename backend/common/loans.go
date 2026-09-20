@@ -221,8 +221,16 @@ func notifyLoanAccepted(dbCtx *DatabaseContext, playerId int64, lendingTeamId in
 	if errLending != nil || errBorrowing != nil {
 		return
 	}
-	_ = NotifyTeamOwner(dbCtx, borrowingTeamId, NOTIFICATION_TRANSFER, "Loaned in "+playerName+" from "+lendingTeam.TeamName)
-	_ = NotifyTeamOwner(dbCtx, lendingTeamId, NOTIFICATION_TRANSFER, "Loaned out "+playerName+" to "+borrowingTeam.TeamName)
+	_ = NotifyTeamOwner(dbCtx, borrowingTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Loaned in " + playerName + " from " + lendingTeam.TeamName,
+		Key:    "notifications.messages.loanedIn",
+		Params: map[string]any{"player": playerName, "team": lendingTeam.TeamName},
+	})
+	_ = NotifyTeamOwner(dbCtx, lendingTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Loaned out " + playerName + " to " + borrowingTeam.TeamName,
+		Key:    "notifications.messages.loanedOut",
+		Params: map[string]any{"player": playerName, "team": borrowingTeam.TeamName},
+	})
 }
 
 // GetExpiredLoans lists every active loan whose return_season has arrived (<= season).

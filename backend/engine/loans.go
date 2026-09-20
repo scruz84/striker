@@ -37,10 +37,20 @@ func notifyLoanReturn(dbCtx *common.DatabaseContext, loan common.PlayerLoan) {
 	}
 
 	playerName := player.FirstName + " " + player.LastName
-	if err := common.NotifyTeamOwner(dbCtx, loan.FromTeamId, common.NOTIFICATION_TRANSFER, playerName+" has returned from loan"); err != nil {
+	homeMsg := common.NotificationMessage{
+		Text:   playerName + " has returned from loan",
+		Key:    "notifications.messages.loanReturnedHome",
+		Params: map[string]any{"name": playerName},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, loan.FromTeamId, common.NOTIFICATION_TRANSFER, homeMsg); err != nil {
 		log.Errorf("error notifying loan return to team %d: %s", loan.FromTeamId, err)
 	}
-	if err := common.NotifyTeamOwner(dbCtx, loan.ToTeamId, common.NOTIFICATION_TRANSFER, playerName+" has returned to "+fromTeam.TeamName); err != nil {
+	awayMsg := common.NotificationMessage{
+		Text:   playerName + " has returned to " + fromTeam.TeamName,
+		Key:    "notifications.messages.loanReturnedAway",
+		Params: map[string]any{"name": playerName, "team": fromTeam.TeamName},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, loan.ToTeamId, common.NOTIFICATION_TRANSFER, awayMsg); err != nil {
 		log.Errorf("error notifying loan return from team %d: %s", loan.ToTeamId, err)
 	}
 }

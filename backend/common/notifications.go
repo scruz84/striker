@@ -2,8 +2,11 @@ package common
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/metric"
 )
 
@@ -11,20 +14,41 @@ import (
 // relegation, transfers, cup results - see the NOTIFICATION_* constants). Link is an optional
 // in-app route the frontend navigates to on click (see NotifyTeamOwnerWithLink) - empty for
 // every notification type that existed before it (their message already says everything
-// relevant), so the frontend only needs to treat it as clickable when non-empty.
+// relevant), so the frontend only needs to treat it as clickable when non-empty. MessageKey/
+// MessageParams (empty for a notification created before they existed) let the frontend render
+// the message in the viewer's own chosen language via i18next - see NotificationMessage; Message
+// itself stays the English text, used for push/email delivery (see deliverExternalNotifications,
+// which has no server-known per-user language to render into) and as the frontend's fallback
+// when MessageKey is empty.
 type Notification struct {
-	Id        int64     `json:"notificationId"`
-	Type      int       `json:"notificationType"`
-	Message   string    `json:"message"`
-	Link      string    `json:"link,omitempty"`
-	Read      bool      `json:"read"`
-	CreatedAt time.Time `json:"createdAt"`
+	Id            int64          `json:"notificationId"`
+	Type          int            `json:"notificationType"`
+	Message       string         `json:"message"`
+	MessageKey    string         `json:"messageKey,omitempty"`
+	MessageParams map[string]any `json:"messageParams,omitempty"`
+	Link          string         `json:"link,omitempty"`
+	Read          bool           `json:"read"`
+	CreatedAt     time.Time      `json:"createdAt"`
 }
 
-const InsertNotificationStmtSql = "INSERT INTO notifications (user_id, notification_type, message) VALUES ($1, $2, $3)"
-const InsertNotificationWithLinkStmtSql = "INSERT INTO notifications (user_id, notification_type, message, link) VALUES ($1, $2, $3, $4)"
+// NotificationMessage is what every notification-generating call site builds, instead of a bare
+// string: Text is the English copy (used for push/email, and as the frontend's fallback if Key
+// is ever empty), Key is the i18n key the notification bell actually renders with, and Params
+// are that key's interpolation values. Splitting these out (rather than just storing Text) is
+// what lets a Spanish-language viewer see cup/transfer/match notifications in Spanish instead of
+// always English.
+type NotificationMessage struct {
+	Text   string
+	Key    string
+	Params map[string]any
+}
 
-const GetNotificationsStmtSql = "SELECT notification_id, notification_type, message, COALESCE(link, ''), read, created_at " +
+const InsertNotificationStmtSql = "INSERT INTO notifications (user_id, notification_type, message, message_key, message_params) " +
+	"VALUES ($1, $2, $3, $4, $5)"
+const InsertNotificationWithLinkStmtSql = "INSERT INTO notifications (user_id, notification_type, message, message_key, message_params, link) " +
+	"VALUES ($1, $2, $3, $4, $5, $6)"
+
+const GetNotificationsStmtSql = "SELECT notification_id, notification_type, message, COALESCE(message_key, ''), message_params, COALESCE(link, ''), read, created_at " +
 	"FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2"
 
 const GetUnreadNotificationCountStmtSql = "SELECT count(*) FROM notifications WHERE user_id = $1 AND read = false"
@@ -38,8 +62,12 @@ const DeleteNotificationStmtSql = "DELETE FROM notifications WHERE notification_
 const DeleteAllNotificationsStmtSql = "DELETE FROM notifications WHERE user_id = $1"
 
 // CreateNotification adds one entry to a user's feed.
-func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType int, message string) error {
-	_, err := dbCtx.Db.Exec(InsertNotificationStmtSql, userId, notificationType, message)
+func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType int, msg NotificationMessage) error {
+	paramsJson, err := marshalNotificationParams(msg.Params)
+	if err != nil {
+		return err
+	}
+	_, err = dbCtx.Db.Exec(InsertNotificationStmtSql, userId, notificationType, msg.Text, nullIfEmpty(msg.Key), paramsJson)
 	if err == nil {
 		NotificationsSentCounter.Add(context.Background(), 1, metric.WithAttributes(NotificationTypeAttribute(notificationType)))
 	}
@@ -49,12 +77,30 @@ func CreateNotification(dbCtx *DatabaseContext, userId int64, notificationType i
 // CreateNotificationWithLink is CreateNotification plus an in-app route the frontend navigates to
 // on click (see Notification.Link) - for a notification type whose message alone can't point a
 // viewer at the right page (e.g. NOTIFICATION_PROGRESSION's squad-wide evolutions view).
-func CreateNotificationWithLink(dbCtx *DatabaseContext, userId int64, notificationType int, message string, link string) error {
-	_, err := dbCtx.Db.Exec(InsertNotificationWithLinkStmtSql, userId, notificationType, message, link)
+func CreateNotificationWithLink(dbCtx *DatabaseContext, userId int64, notificationType int, msg NotificationMessage, link string) error {
+	paramsJson, err := marshalNotificationParams(msg.Params)
+	if err != nil {
+		return err
+	}
+	_, err = dbCtx.Db.Exec(InsertNotificationWithLinkStmtSql, userId, notificationType, msg.Text, nullIfEmpty(msg.Key), paramsJson, link)
 	if err == nil {
 		NotificationsSentCounter.Add(context.Background(), 1, metric.WithAttributes(NotificationTypeAttribute(notificationType)))
 	}
 	return err
+}
+
+// marshalNotificationParams JSON-encodes a message's interpolation params for the
+// message_params jsonb column - nil (not an empty-object literal) for a message with none, so
+// the column stays genuinely NULL rather than "{}".
+func marshalNotificationParams(params map[string]any) ([]byte, error) {
+	if len(params) == 0 {
+		return nil, nil
+	}
+	return json.Marshal(params)
+}
+
+func nullIfEmpty(s string) sql.NullString {
+	return sql.NullString{String: s, Valid: s != ""}
 }
 
 // NotifyTeamOwner is CreateNotification for a team's current owner, best-effort: an unowned
@@ -63,34 +109,35 @@ func CreateNotificationWithLink(dbCtx *DatabaseContext, userId int64, notificati
 // triggered them (a match result, a transfer, ...). Also delivers through email/push (see
 // Notifier) if the owner has enabled either - itself best-effort, on top of the in-app entry
 // which always gets written regardless of these preferences.
-func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int, message string) error {
+func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int, msg NotificationMessage) error {
 	userId, err := GetTeamOwner(dbCtx, teamId)
 	if err != nil || userId <= 0 {
 		return nil
 	}
-	if err := CreateNotification(dbCtx, userId, notificationType, message); err != nil {
+	if err := CreateNotification(dbCtx, userId, notificationType, msg); err != nil {
 		return err
 	}
-	deliverExternalNotifications(dbCtx, userId, message)
+	deliverExternalNotifications(dbCtx, userId, msg.Text)
 	return nil
 }
 
 // NotifyTeamOwnerWithLink is NotifyTeamOwner plus an in-app route (see CreateNotificationWithLink).
-func NotifyTeamOwnerWithLink(dbCtx *DatabaseContext, teamId int64, notificationType int, message string, link string) error {
+func NotifyTeamOwnerWithLink(dbCtx *DatabaseContext, teamId int64, notificationType int, msg NotificationMessage, link string) error {
 	userId, err := GetTeamOwner(dbCtx, teamId)
 	if err != nil || userId <= 0 {
 		return nil
 	}
-	if err := CreateNotificationWithLink(dbCtx, userId, notificationType, message, link); err != nil {
+	if err := CreateNotificationWithLink(dbCtx, userId, notificationType, msg, link); err != nil {
 		return err
 	}
-	deliverExternalNotifications(dbCtx, userId, message)
+	deliverExternalNotifications(dbCtx, userId, msg.Text)
 	return nil
 }
 
 // deliverExternalNotifications is best-effort by design: a lookup failure or a Notifier error
 // here must never fail NotifyTeamOwner - the in-app notification, the part that actually works,
-// has already been written by the time this runs.
+// has already been written by the time this runs. Always sent as English text (see
+// Notification's doc comment) - there's no server-known per-user language to render into.
 func deliverExternalNotifications(dbCtx *DatabaseContext, userId int64, message string) {
 	prefs, err := GetNotificationPreferences(dbCtx, userId)
 	if err != nil {
@@ -114,8 +161,14 @@ func GetNotifications(dbCtx *DatabaseContext, userId int64, limit int) ([]Notifi
 	notifications := make([]Notification, 0)
 	for rows.Next() {
 		var n Notification
-		if err := rows.Scan(&n.Id, &n.Type, &n.Message, &n.Link, &n.Read, &n.CreatedAt); err != nil {
+		var paramsJson []byte
+		if err := rows.Scan(&n.Id, &n.Type, &n.Message, &n.MessageKey, &paramsJson, &n.Link, &n.Read, &n.CreatedAt); err != nil {
 			return nil, err
+		}
+		if len(paramsJson) > 0 {
+			if err := json.Unmarshal(paramsJson, &n.MessageParams); err != nil {
+				log.Errorf("error unmarshalling params for notification %d: %s", n.Id, err)
+			}
 		}
 		notifications = append(notifications, n)
 	}

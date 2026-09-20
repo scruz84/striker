@@ -236,7 +236,12 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
 			log.Errorf("error recording cup champion history for team %d season %d: %s", winners[0], season, err)
 		}
 		if team, err := common.GetTeamById(winners[0], dbCtx); err == nil {
-			if err := common.NotifyTeamOwner(dbCtx, winners[0], common.NOTIFICATION_CUP, team.TeamName+" won the cup!"); err != nil {
+			msg := common.NotificationMessage{
+				Text:   team.TeamName + " won the cup!",
+				Key:    "notifications.messages.cupChampion",
+				Params: map[string]any{"team": team.TeamName},
+			}
+			if err := common.NotifyTeamOwner(dbCtx, winners[0], common.NOTIFICATION_CUP, msg); err != nil {
 				log.Errorf("error notifying cup champion team %d: %s", winners[0], err)
 			}
 		}
@@ -329,13 +334,23 @@ func notifyCupTieResult(dbCtx *common.DatabaseContext, match *common.MatchSimula
 		return
 	}
 	message := fmt.Sprintf("Cup: %s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName)
+	key := "notifications.messages.cupTieResult"
 	if wentToPenalties {
 		message += " (penalties)"
+		key = "notifications.messages.cupTieResultPenalties"
 	}
-	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_CUP, message); err != nil {
+	msg := common.NotificationMessage{
+		Text: message,
+		Key:  key,
+		Params: map[string]any{
+			"home": homeTeam.TeamName, "homeGoals": match.HomeGoals,
+			"away": awayTeam.TeamName, "awayGoals": match.AwayGoals,
+		},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_CUP, msg); err != nil {
 		log.Errorf("error notifying home team owner of cup tie result: %s", err)
 	}
-	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_CUP, message); err != nil {
+	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_CUP, msg); err != nil {
 		log.Errorf("error notifying away team owner of cup tie result: %s", err)
 	}
 }

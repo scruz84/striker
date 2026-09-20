@@ -286,8 +286,16 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 
 	// Best-effort, after the money has actually moved - a notification failure must never
 	// undo a completed transfer.
-	_ = NotifyTeamOwner(dbCtx, sellingTeamId, NOTIFICATION_TRANSFER, "Sold "+playerName+" to "+buyerTeam.TeamName)
-	_ = NotifyTeamOwner(dbCtx, buyerTeamId, NOTIFICATION_TRANSFER, "Bought "+playerName+" from "+sellerTeam.TeamName)
+	_ = NotifyTeamOwner(dbCtx, sellingTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Sold " + playerName + " to " + buyerTeam.TeamName,
+		Key:    "notifications.messages.transferSold",
+		Params: map[string]any{"player": playerName, "team": buyerTeam.TeamName},
+	})
+	_ = NotifyTeamOwner(dbCtx, buyerTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Bought " + playerName + " from " + sellerTeam.TeamName,
+		Key:    "notifications.messages.transferBought",
+		Params: map[string]any{"player": playerName, "team": sellerTeam.TeamName},
+	})
 
 	return nil
 }

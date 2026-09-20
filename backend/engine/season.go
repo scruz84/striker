@@ -165,11 +165,18 @@ func notifyPromotionRelegation(dbCtx *common.DatabaseContext, move LeagueMove) {
 	}
 	notificationType := common.NOTIFICATION_RELEGATION
 	verb := "relegated"
+	key := "notifications.messages.relegated"
 	if move.Promoted {
 		notificationType = common.NOTIFICATION_PROMOTION
 		verb = "promoted"
+		key = "notifications.messages.promoted"
 	}
-	if err := common.NotifyTeamOwner(dbCtx, move.TeamId, notificationType, team.TeamName+" was "+verb+"!"); err != nil {
+	msg := common.NotificationMessage{
+		Text:   team.TeamName + " was " + verb + "!",
+		Key:    key,
+		Params: map[string]any{"team": team.TeamName},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, move.TeamId, notificationType, msg); err != nil {
 		log.Errorf("error notifying team %d of promotion/relegation: %s", move.TeamId, err)
 	}
 }

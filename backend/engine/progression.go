@@ -232,8 +232,12 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 		}
 
 		if evolvedCount > 0 {
-			message := fmt.Sprintf("%d of your players developed this season - check their latest evolutions", evolvedCount)
-			if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, message, "/players/evolutions"); err != nil {
+			msg := common.NotificationMessage{
+				Text:   fmt.Sprintf("%d of your players developed this season - check their latest evolutions", evolvedCount),
+				Key:    "notifications.messages.playerEvolutions",
+				Params: map[string]any{"count": evolvedCount},
+			}
+			if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, msg, "/players/evolutions"); err != nil {
 				log.Errorf("error notifying team %d of player evolutions: %s", teamId, err)
 			}
 		}

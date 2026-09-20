@@ -884,7 +884,12 @@ export const NOTIFICATION_PROGRESSION = 8
 export interface Notification {
   notificationId: number
   notificationType: number
+  // English text - used as the fallback when messageKey is absent (a notification created
+  // before it existed). Prefer messageKey/messageParams (rendered via t()) when present, so the
+  // notification shows in whatever language the viewer has chosen instead of always English.
   message: string
+  messageKey?: string
+  messageParams?: Record<string, unknown>
   // In-app route to navigate to on click (e.g. "/players/evolutions") - absent for every
   // notification type whose message alone already says everything relevant.
   link?: string

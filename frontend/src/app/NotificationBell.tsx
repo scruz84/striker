@@ -187,7 +187,7 @@ export function NotificationBell() {
           >
             <Stack direction="row" spacing={0.5} sx={{ width: '100%', alignItems: 'flex-start' }}>
               <ListItemText
-                primary={notification.message}
+                primary={notification.messageKey ? t(notification.messageKey, notification.messageParams) : notification.message}
                 secondary={formatDateTime(notification.createdAt)}
                 slotProps={{ primary: { variant: 'body2' }, secondary: { variant: 'caption' } }}
               />

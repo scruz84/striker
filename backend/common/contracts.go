@@ -277,11 +277,17 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	result.Wage = offeredWage
 	result.Premium = premium
 
-	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER,
-		"Signed free agent "+playerName+" to a "+strconv.Itoa(offeredYears)+"-season contract")
+	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Signed free agent " + playerName + " to a " + strconv.Itoa(offeredYears) + "-season contract",
+		Key:    "notifications.messages.freeAgentSigned",
+		Params: map[string]any{"name": playerName, "years": offeredYears},
+	})
 	if premium > 0 {
-		_ = NotifyTeamOwner(dbCtx, player.LastTeamId, NOTIFICATION_TRANSFER,
-			playerName+" was signed by another club - transfer premium received")
+		_ = NotifyTeamOwner(dbCtx, player.LastTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+			Text:   playerName + " was signed by another club - transfer premium received",
+			Key:    "notifications.messages.freeAgentPremium",
+			Params: map[string]any{"name": playerName},
+		})
 	}
 	return result, nil
 }
@@ -409,8 +415,11 @@ func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int
 	result.NewWage = offeredWage
 
 	playerName := player.FirstName + " " + player.LastName
-	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER,
-		playerName+" accepted a "+strconv.Itoa(offeredYears)+"-season contract renewal")
+	_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   playerName + " accepted a " + strconv.Itoa(offeredYears) + "-season contract renewal",
+		Key:    "notifications.messages.contractRenewed",
+		Params: map[string]any{"name": playerName, "years": offeredYears},
+	})
 
 	return result, nil
 }

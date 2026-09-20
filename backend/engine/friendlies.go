@@ -74,11 +74,18 @@ func notifyFriendlyResult(dbCtx *common.DatabaseContext, match *common.MatchSimu
 		log.Errorf("error getting team names for friendly notification: %v / %v", errHome, errAway)
 		return
 	}
-	message := fmt.Sprintf("Friendly: %s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName)
-	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_FRIENDLY, message); err != nil {
+	msg := common.NotificationMessage{
+		Text: fmt.Sprintf("Friendly: %s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName),
+		Key:  "notifications.messages.friendlyResult",
+		Params: map[string]any{
+			"home": homeTeam.TeamName, "homeGoals": match.HomeGoals,
+			"away": awayTeam.TeamName, "awayGoals": match.AwayGoals,
+		},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_FRIENDLY, msg); err != nil {
 		log.Errorf("error notifying home team owner of friendly result: %s", err)
 	}
-	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_FRIENDLY, message); err != nil {
+	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_FRIENDLY, msg); err != nil {
 		log.Errorf("error notifying away team owner of friendly result: %s", err)
 	}
 }

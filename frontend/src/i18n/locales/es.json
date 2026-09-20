@@ -53,7 +53,29 @@
     "push": "Push",
     "pushUnsupported": "Las notificaciones push no están disponibles en este navegador, o en este despliegue.",
     "pushPermissionDenied": "Se denegó el permiso de notificaciones - actívalo en la configuración del sitio de tu navegador para poder usarlo.",
-    "empty": "Aún no hay notificaciones."
+    "empty": "Aún no hay notificaciones.",
+    "messages": {
+      "trainerHired": "Fichado {{name}} como entrenador",
+      "academyPromotion": "{{name}} promocionado de la cantera al primer equipo",
+      "transferSold": "Vendido {{player}} a {{team}}",
+      "transferBought": "Comprado {{player}} de {{team}}",
+      "cupChampion": "¡{{team}} ha ganado la copa!",
+      "cupTieResult": "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
+      "cupTieResultPenalties": "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}} (penaltis)",
+      "freeAgentSigned": "Fichado el agente libre {{name}} por {{years}} temporada(s)",
+      "freeAgentPremium": "{{name}} ha sido fichado por otro club - prima de traspaso recibida",
+      "contractRenewed": "{{name}} aceptó una renovación de contrato de {{years}} temporada(s)",
+      "loanedIn": "Cedido {{player}} desde {{team}}",
+      "loanedOut": "Cedido {{player}} a {{team}}",
+      "loanReturnedHome": "{{name}} ha vuelto de su cesión",
+      "loanReturnedAway": "{{name}} ha vuelto a {{team}}",
+      "promoted": "¡{{team}} ha ascendido!",
+      "relegated": "¡{{team}} ha descendido!",
+      "matchResult": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
+      "friendlyResult": "Amistoso: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
+      "playerEvolutions_one": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
+      "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones"
+    }
   },
   "home": {
     "hero": {

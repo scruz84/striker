@@ -171,8 +171,12 @@ func HireTrainer(dbCtx *DatabaseContext, trainerId int64, teamId int64) error {
 	}
 
 	if trainer, err := scanTrainer(dbCtx.Db.QueryRow(GetTrainerByIdStmtSql, trainerId)); err == nil {
-		_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRAINER,
-			"Hired "+trainer.FirstName+" "+trainer.LastName+" as head coach")
+		trainerName := trainer.FirstName + " " + trainer.LastName
+		_ = NotifyTeamOwner(dbCtx, teamId, NOTIFICATION_TRAINER, NotificationMessage{
+			Text:   "Hired " + trainerName + " as head coach",
+			Key:    "notifications.messages.trainerHired",
+			Params: map[string]any{"name": trainerName},
+		})
 	}
 	return nil
 }

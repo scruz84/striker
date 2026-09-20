@@ -47,7 +47,7 @@ export function SeasonRecap({ enabled }: { enabled: boolean }) {
           onClose={() => markRead.mutate(notification.notificationId)}
         >
           <AlertTitle>{t(titleKeyFor(notification.notificationType))}</AlertTitle>
-          {notification.message}
+          {notification.messageKey ? t(notification.messageKey, notification.messageParams) : notification.message}
         </Alert>
       ))}
     </Stack>

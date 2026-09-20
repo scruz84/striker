@@ -91,11 +91,18 @@ func NotifyMatchResult(dbCtx *common.DatabaseContext, match *common.MatchSimulat
 		log.Errorf("error getting team names for match result notification: %v / %v", errHome, errAway)
 		return
 	}
-	message := fmt.Sprintf("%s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName)
-	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_MATCH_RESULT, message); err != nil {
+	msg := common.NotificationMessage{
+		Text: fmt.Sprintf("%s %d - %d %s", homeTeam.TeamName, match.HomeGoals, match.AwayGoals, awayTeam.TeamName),
+		Key:  "notifications.messages.matchResult",
+		Params: map[string]any{
+			"home": homeTeam.TeamName, "homeGoals": match.HomeGoals,
+			"away": awayTeam.TeamName, "awayGoals": match.AwayGoals,
+		},
+	}
+	if err := common.NotifyTeamOwner(dbCtx, match.Home, common.NOTIFICATION_MATCH_RESULT, msg); err != nil {
 		log.Errorf("error notifying home team owner of match result: %s", err)
 	}
-	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_MATCH_RESULT, message); err != nil {
+	if err := common.NotifyTeamOwner(dbCtx, match.Away, common.NOTIFICATION_MATCH_RESULT, msg); err != nil {
 		log.Errorf("error notifying away team owner of match result: %s", err)
 	}
 }

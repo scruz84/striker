@@ -340,8 +340,16 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 		return err
 	}
 
-	_ = NotifyTeamOwner(dbCtx, toTeamId, NOTIFICATION_TRANSFER, "Sold "+playerName+" to "+buyerTeam.TeamName)
-	_ = NotifyTeamOwner(dbCtx, fromTeamId, NOTIFICATION_TRANSFER, "Bought "+playerName+" from "+sellerTeam.TeamName)
+	_ = NotifyTeamOwner(dbCtx, toTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Sold " + playerName + " to " + buyerTeam.TeamName,
+		Key:    "notifications.messages.transferSold",
+		Params: map[string]any{"player": playerName, "team": buyerTeam.TeamName},
+	})
+	_ = NotifyTeamOwner(dbCtx, fromTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Bought " + playerName + " from " + sellerTeam.TeamName,
+		Key:    "notifications.messages.transferBought",
+		Params: map[string]any{"player": playerName, "team": sellerTeam.TeamName},
+	})
 
 	return nil
 }
