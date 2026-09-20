@@ -24,6 +24,7 @@ import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
 import { mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
+import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
 
@@ -78,7 +79,10 @@ export function DivisionDetailsPage() {
           />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
-          <TopScorers leagueId={id} />
+          <Stack spacing={2}>
+            <TopScorers leagueId={id} />
+            <RecentLeagueTransfers leagueId={id} />
+          </Stack>
         </Grid>
       </Grid>
 

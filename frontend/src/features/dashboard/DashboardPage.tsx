@@ -27,6 +27,7 @@ import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { SeasonRecap } from './SeasonRecap'
 
 export function DashboardPage() {
@@ -48,7 +49,7 @@ export function DashboardPage() {
     <Box>
       <SeasonRecap enabled={!!loggedUser} />
       <TeamHeaderCard team={team} standing={standing} />
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <NextMatchCard match={nextMatch} teamId={team.id} />
         </Grid>
@@ -62,6 +63,7 @@ export function DashboardPage() {
           <SquadCard teamId={team.id} squadSize={players.length} />
         </Grid>
       </Grid>
+      <RecentLeagueTransfers leagueId={String(team.divisionId)} />
     </Box>
   )
 }

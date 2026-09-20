@@ -465,6 +465,11 @@
       "noGoals": "No goals scored yet this season."
     }
   },
+  "recentTransfers": {
+    "title": "Recent transfers",
+    "empty": "No transfers yet this season.",
+    "from": "from"
+  },
   "team": {
     "competitions": "Competitions:",
     "squad": "Squad",

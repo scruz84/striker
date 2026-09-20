@@ -760,6 +760,18 @@ export interface TransferMarketStats {
   topTransferFee?: TopTransferFee
 }
 
+// Mirrors backend/common.LeagueTransfer - one row of a league's recent-transfers panel (league
+// details page and the dashboard).
+export interface LeagueTransfer {
+  player: Player
+  amount: number
+  buyerTeamId: number
+  buyerTeamName: string
+  sellerTeamId: number
+  sellerTeamName: string
+  occurredAt: string
+}
+
 export interface FriendlyChallenge {
   challengeId: number
   challengerTeamId: number

@@ -21,6 +21,7 @@ import type {
   FriendlyChallenge,
   FriendlyMatch,
   FriendlySchedule,
+  LeagueTransfer,
   Lineup,
   LineupPosition,
   LineupSubstitution,
@@ -58,6 +59,7 @@ export const queryKeys = {
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
+  recentLeagueTransfers: (leagueId: string) => ['recentLeagueTransfers', leagueId] as const,
   leagueDirectory: ['leagueDirectory'] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
@@ -262,6 +264,14 @@ export function useTopScorers(leagueId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.topScorers(leagueId ?? ''),
     queryFn: () => api.get<ScorerStanding[]>(`/v1/teams/division/${leagueId}/top-scorers`),
+    enabled: !!leagueId,
+  })
+}
+
+export function useRecentLeagueTransfers(leagueId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.recentLeagueTransfers(leagueId ?? ''),
+    queryFn: () => api.get<LeagueTransfer[]>(`/v1/teams/division/${leagueId}/recent-transfers`),
     enabled: !!leagueId,
   })
 }

@@ -465,6 +465,11 @@
       "noGoals": "Todavía no se han marcado goles esta temporada."
     }
   },
+  "recentTransfers": {
+    "title": "Traspasos recientes",
+    "empty": "Todavía no hay traspasos esta temporada.",
+    "from": "desde"
+  },
   "team": {
     "competitions": "Competiciones:",
     "squad": "Plantilla",
