@@ -115,6 +115,21 @@ func BrowseTransfersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// TransferMarketStatsHandler returns the transfer market's activity panel (issue #72): how many
+// players are listed, how many offers were made in the last hour/day, the most-viewed listed
+// player, and the biggest transfer fee ever paid.
+func TransferMarketStatsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		stats, err := common.GetTransferMarketStats(dbCtx)
+		if err != nil {
+			log.Errorf("error computing transfer market stats: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, stats)
+	}
+}
+
 type transferWindowStatusResponse struct {
 	Open bool `json:"open"`
 }

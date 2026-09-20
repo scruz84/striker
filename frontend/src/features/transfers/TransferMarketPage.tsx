@@ -44,6 +44,7 @@ import {
   useRejectOffer,
   useTeamTrainer,
   useTransferListings,
+  useTransferMarketStats,
   useTransferWindowStatus,
   useUnlistPlayer,
   useUnlistPlayerForLoan,
@@ -170,6 +171,85 @@ function PositionFilterSelect({ value, onChange }: { value: number | ''; onChang
 // from TeamDetailsPage's coach card), rather than always landing on the first one.
 const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching'] as const
 
+// The market's activity panel (issue #72): how many players are listed, how busy the offer
+// market has been in the last hour/day, the currently-listed player getting the most attention,
+// and the biggest transfer fee ever paid. Renders nothing while stats are still loading rather
+// than a skeleton, since it sits above the tabs and shouldn't block the rest of the page.
+function MarketStatsPanel() {
+  const { t } = useTranslation()
+  const { data: loggedUser } = useMe()
+  const { data: stats } = useTransferMarketStats(!!loggedUser)
+
+  if (!stats) {
+    return null
+  }
+
+  return (
+    <Paper sx={{ p: 2, mb: 2 }}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('transfers.stats.listedPlayers')}
+          </Typography>
+          <Typography variant="h6">{stats.listedPlayersCount}</Typography>
+        </Grid>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('transfers.stats.offersRecently')}
+          </Typography>
+          <Typography variant="h6">
+            {t('transfers.stats.offersCount', { hour: stats.offersLastHour, day: stats.offersLastDay })}
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 3 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('transfers.stats.mostViewed')}
+          </Typography>
+          {stats.mostViewedPlayer ? (
+            <Typography variant="body2">
+              <Link component={RouterLink} to={`/player/${stats.mostViewedPlayer.player.id}`} underline="hover" color="inherit">
+                {stats.mostViewedPlayer.player.firstName} {stats.mostViewedPlayer.player.lastName}
+              </Link>{' '}
+              <Typography component="span" variant="caption" color="text.secondary">
+                {t('transfers.stats.viewCount', { count: stats.mostViewedPlayer.viewCount })}
+              </Typography>
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              {t('transfers.stats.none')}
+            </Typography>
+          )}
+        </Grid>
+        <Grid size={{ xs: 12, sm: 3 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('transfers.stats.topFee')}
+          </Typography>
+          {stats.topTransferFee ? (
+            <Typography variant="body2">
+              <Link component={RouterLink} to={`/player/${stats.topTransferFee.player.id}`} underline="hover" color="inherit">
+                {stats.topTransferFee.player.firstName} {stats.topTransferFee.player.lastName}
+              </Link>{' '}
+              <Typography component="span" sx={{ fontWeight: 700 }}>
+                {formatCurrency(stats.topTransferFee.amount)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" component="div">
+                {t('transfers.stats.topFeeTeams', {
+                  buyer: stats.topTransferFee.buyerTeamName,
+                  seller: stats.topTransferFee.sellerTeamName,
+                })}
+              </Typography>
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              {t('transfers.stats.none')}
+            </Typography>
+          )}
+        </Grid>
+      </Grid>
+    </Paper>
+  )
+}
+
 export function TransferMarketPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
@@ -189,6 +269,7 @@ export function TransferMarketPage() {
           {t('transfers.windowClosed')}
         </Alert>
       )}
+      <MarketStatsPanel />
       <Tabs value={tab} onChange={handleChange} sx={{ mb: 2 }}>
         <Tab label={t('transfers.tabs.transfers')} />
         <Tab label={t('transfers.tabs.loans')} />

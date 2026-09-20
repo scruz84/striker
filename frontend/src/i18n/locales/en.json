@@ -256,6 +256,17 @@
     "title": "Transfer market",
     "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
     "tabs": { "transfers": "Transfers", "loans": "Loans", "offers": "Offers", "freeAgents": "Free agents", "coaching": "Coaching" },
+    "stats": {
+      "listedPlayers": "Players listed",
+      "offersRecently": "Offers made",
+      "offersCount": "{{hour}} last hour · {{day}} last 24h",
+      "mostViewed": "Most viewed",
+      "viewCount_one": "{{count}} view",
+      "viewCount_other": "{{count}} views",
+      "topFee": "Record transfer fee",
+      "topFeeTeams": "{{buyer}} from {{seller}}",
+      "none": "None yet"
+    },
     "listPlayer": { "title": "List a player", "error": "Could not list that player." },
     "player": "Player",
     "askingPrice": "Asking price",

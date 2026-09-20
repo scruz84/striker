@@ -728,6 +728,35 @@ export interface TransferOffer {
   createdAt: string
 }
 
+// Mirrors backend/common.MostViewedPlayer - the currently-listed player whose profile has been
+// viewed the most (see PlayerDetailsHandler, which increments this on every fetch).
+export interface MostViewedPlayer {
+  player: Player
+  viewCount: number
+}
+
+// Mirrors backend/common.TopTransferFee - the biggest fee ever paid for one player, and both
+// clubs involved.
+export interface TopTransferFee {
+  player: Player
+  amount: number
+  buyerTeamId: number
+  buyerTeamName: string
+  sellerTeamId: number
+  sellerTeamName: string
+  occurredAt: string
+}
+
+// Mirrors backend/common.TransferMarketStats - the transfer market page's activity panel (issue
+// #72). mostViewedPlayer/topTransferFee are absent when there's nothing to report yet.
+export interface TransferMarketStats {
+  listedPlayersCount: number
+  offersLastHour: number
+  offersLastDay: number
+  mostViewedPlayer?: MostViewedPlayer
+  topTransferFee?: TopTransferFee
+}
+
 export interface FriendlyChallenge {
   challengeId: number
   challengerTeamId: number

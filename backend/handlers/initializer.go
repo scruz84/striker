@@ -77,6 +77,7 @@ func teamPlayerDependentTables() []string {
 		"cup_ties",
 		"cups",
 		"team_transactions",
+		"transfer_offer_log",
 		"transfer_offers",
 		"transfer_listings",
 		"loan_listings",

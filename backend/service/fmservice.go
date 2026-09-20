@@ -165,6 +165,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TransferGroup.GET("", handlers.BrowseTransfersHandler(dbCtx))
 	v1TransferGroup.POST("/:"+handlers.ID+"/buy", handlers.BuyTransferHandler(dbCtx))
 	v1TransferGroup.GET("/window", handlers.TransferWindowStatusHandler(dbCtx))
+	v1TransferGroup.GET("/stats", handlers.TransferMarketStatsHandler(dbCtx))
 
 	v1LoanGroup := v1Group.Group("/loans")
 	v1LoanGroup.Use(authMiddleware.MiddlewareFunc())

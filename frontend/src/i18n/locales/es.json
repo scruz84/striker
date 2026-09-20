@@ -256,6 +256,17 @@
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
     "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres", "coaching": "Cuerpo técnico" },
+    "stats": {
+      "listedPlayers": "Jugadores en venta",
+      "offersRecently": "Ofertas realizadas",
+      "offersCount": "{{hour}} última hora · {{day}} últimas 24h",
+      "mostViewed": "Más visitado",
+      "viewCount_one": "{{count}} visita",
+      "viewCount_other": "{{count}} visitas",
+      "topFee": "Traspaso récord",
+      "topFeeTeams": "{{buyer}} desde {{seller}}",
+      "none": "Todavía ninguno"
+    },
     "listPlayer": { "title": "Poner en venta a un jugador", "error": "No se pudo listar a ese jugador." },
     "player": "Jugador",
     "askingPrice": "Precio de venta",

@@ -36,6 +36,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		// Best-effort: powers the transfer market's "most viewed" stat (issue #72), never worth
+		// failing the page load over.
+		if err := common.IncrementPlayerViewCount(dbCtx, playerId); err != nil {
+			log.Errorf("error incrementing view count for player %d: %s", playerId, err)
+		}
+
 		details := common.PlayerDetails{Player: *player, BestPosition: common.BestCorePosition(*player)}
 
 		if player.TeamId != 0 {

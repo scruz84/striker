@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var ErrInvalidOfferAmount = errors.New("offer amount must be positive")
@@ -137,6 +139,9 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 			return nil, ErrOfferAlreadyExists
 		}
 		return nil, err
+	}
+	if err := LogTransferOfferMade(dbCtx); err != nil {
+		log.Errorf("error logging transfer offer activity: %s", err)
 	}
 
 	result.Accepted = true

@@ -41,6 +41,7 @@ import type {
   Trainer,
   TeamPlayerEvolution,
   TransferListing,
+  TransferMarketStats,
   TransferOffer,
   TransferOfferResult,
   WeekMatch,
@@ -62,6 +63,7 @@ export const queryKeys = {
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
   transferWindow: ['transferWindow'] as const,
+  transferMarketStats: ['transferMarketStats'] as const,
   offersReceived: ['offersReceived'] as const,
   offersSent: ['offersSent'] as const,
   friendlyChallengesReceived: ['friendlyChallengesReceived'] as const,
@@ -890,6 +892,15 @@ export function useTransferWindowStatus(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.transferWindow,
     queryFn: () => api.get<{ open: boolean }>('/v1/transfers/window'),
+    enabled,
+  })
+}
+
+// The transfer market's activity panel (issue #72) - see backend common.GetTransferMarketStats.
+export function useTransferMarketStats(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.transferMarketStats,
+    queryFn: () => api.get<TransferMarketStats>('/v1/transfers/stats'),
     enabled,
   })
 }
