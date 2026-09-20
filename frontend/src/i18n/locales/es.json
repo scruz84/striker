@@ -74,7 +74,9 @@
       "matchResult": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "friendlyResult": "Amistoso: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "playerEvolutions_one": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
-      "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones"
+      "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
+      "goldenBoot": "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
+      "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!"
     }
   },
   "home": {
@@ -165,7 +167,9 @@
   "seasonRecap": {
     "promoted": "¡Ascenso!",
     "relegated": "Descenso",
-    "cup": "Copa"
+    "cup": "Copa",
+    "goldenBoot": "Bota de Oro",
+    "playerOfSeason": "Jugador de la Temporada"
   },
   "lineup": {
     "title": "Alineación - {{teamName}}",

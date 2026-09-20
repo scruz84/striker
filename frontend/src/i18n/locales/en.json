@@ -74,7 +74,9 @@
       "matchResult": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "friendlyResult": "Friendly: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "playerEvolutions_one": "{{count}} of your players developed this season - check their latest evolutions",
-      "playerEvolutions_other": "{{count}} of your players developed this season - check their latest evolutions"
+      "playerEvolutions_other": "{{count}} of your players developed this season - check their latest evolutions",
+      "goldenBoot": "{{name}} won the Golden Boot with {{goals}} goals!",
+      "playerOfSeason": "{{name}} was named Player of the Season!"
     }
   },
   "home": {
@@ -165,7 +167,9 @@
   "seasonRecap": {
     "promoted": "Promoted!",
     "relegated": "Relegated",
-    "cup": "Cup"
+    "cup": "Cup",
+    "goldenBoot": "Golden Boot",
+    "playerOfSeason": "Player of the Season"
   },
   "lineup": {
     "title": "Lineup - {{teamName}}",

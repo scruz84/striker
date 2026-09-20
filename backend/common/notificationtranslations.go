@@ -34,6 +34,8 @@ var spanishNotificationTemplates = map[string]string{
 	"notifications.messages.matchResult":           "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
 	"notifications.messages.friendlyResult":        "Amistoso: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
 	"notifications.messages.playerEvolutions":      "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
+	"notifications.messages.goldenBoot":            "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
+	"notifications.messages.playerOfSeason":        "¡{{name}} ha sido nombrado Jugador de la Temporada!",
 }
 
 // renderNotificationMessage renders msg in the given language for external delivery (email/push),

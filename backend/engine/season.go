@@ -99,6 +99,7 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, season int) {
 		}
 		awardLeaguePrizeMoney(dbCtx, league.Tier, standings)
 		awardSeasonTicketsAndMerchandising(dbCtx, league.Tier, standings)
+		awardSeasonHonors(dbCtx, league.LeagueId, season)
 
 		leagueName, err := common.GetDivisionName(dbCtx, league.LeagueId)
 		if err != nil {

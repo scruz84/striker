@@ -892,6 +892,7 @@ export const NOTIFICATION_TRAINER = 5
 export const NOTIFICATION_FRIENDLY = 6
 export const NOTIFICATION_ACADEMY_PROMOTION = 7
 export const NOTIFICATION_PROGRESSION = 8
+export const NOTIFICATION_AWARD = 9
 
 export interface Notification {
   notificationId: number

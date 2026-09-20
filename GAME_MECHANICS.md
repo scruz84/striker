@@ -151,6 +151,28 @@ develop them) - one forced past `FreeAgencyRetirementSeasons` (2) consecutive un
 retires regardless of age, converting into a fresh trainer candidate on the open market
 (`RetireFreeAgentAsTrainer`) rather than just vanishing.
 
+## Season awards
+
+At the same rollover point, right alongside that season's prize money and season-ticket payouts
+(`applyPromotionRelegation`, `engine/awards.go`), each league hands out two awards, both delivered
+as `NOTIFICATION_AWARD` notifications to the winner's team owner (distinguished by
+`NotificationMessage.Key`, the same convention `NOTIFICATION_CUP` uses for a tie result vs. the
+champion) and linking to the winning player's page:
+
+- **Golden Boot** - the league's top scorer for the season (`common.GetTopScorers`, limit 1),
+  skipped if nobody scored at all.
+- **Player of the Season** - `common.GetPlayerOfTheSeason`: a simple goals/cards weighted score
+  (+3 per goal, -1 per yellow card, -3 per red card) tallied straight from `match_events`, same
+  "not a real performance model, just enough to make it feel earned" spirit as
+  `ComputeMatchRatings`. Skipped if nobody's score comes out positive.
+
+Both read `match_events` for the season just finished, which classification's in-place reset
+never touches, so they can run at any point in `applyPromotionRelegation` regardless of the
+already-run `ProgressPlayers`/`ProgressFreeAgents` steps. Neither award is archived anywhere
+beyond the notification itself - same reasoning as `SeasonRecap.tsx`'s doc comment on why there's
+no separate "final standings" to show: classification is reset in place rather than kept per
+season, so this, too, is a point-in-time recap rather than a permanent record.
+
 ## Economy
 
 Every team starts with a budget of **400,000** (`teams.budget` default, `resources/sql/init.sql`)
