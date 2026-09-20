@@ -254,6 +254,20 @@ happen rather than only seen on next visit - `common.NotificationPreferences`
 a package-level `Notifier` swapped at startup so callers don't need to know which channel(s) are
 actually wired up.
 
+Every call site builds a `common.NotificationMessage{Text, Key, Params}` rather than a bare
+string: `Text` is English, used for external delivery (below) and as the frontend's fallback;
+`Key`/`Params` are an i18n key (e.g. `notifications.messages.transferBought`) and its
+interpolation values, stored alongside `Text` in the `notifications.message_key`/`message_params`
+columns (both nullable - empty for a row written before this existed). The bell and the dashboard
+`SeasonRecap` banner both render `t(messageKey, messageParams)` when present, falling back to the
+plain `message` text otherwise - this is what lets the same match-result/transfer/cup notification
+show in whichever language the viewer has chosen instead of always English. Adding a new
+notification type means adding both the `Key`/`Params` at the call site and the matching
+`notifications.messages.*` entry in `frontend/src/i18n/locales/{en,es}.json`. External delivery
+(email/push) always uses the English `Text` - there's no server-known per-user language preference
+to render into, so a viewer who wants push/email in Spanish today still gets English content
+there, only the in-app feed is actually localized.
+
 - `LogNotifier` is the fallback: every channel just gets logged, never actually delivered - what
   runs when nothing else is configured.
 - `WebPushNotifier` (`common/webpushnotifier.go`) is the real implementation for the `push`
