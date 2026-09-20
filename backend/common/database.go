@@ -798,6 +798,25 @@ func SetUserCountry(dbCtx *DatabaseContext, userId int64, country string) error 
 	return err
 }
 
+// SetUserLanguage records a user's chosen UI language (see frontend LanguageSwitcher.tsx) so
+// external notification delivery (email/push) can render in that language too - see
+// deliverExternalNotifications.
+func SetUserLanguage(dbCtx *DatabaseContext, userId int64, language string) error {
+	_, err := dbCtx.Db.Exec("UPDATE users SET language = $1 WHERE user_id = $2", language, userId)
+	return err
+}
+
+// GetUserLanguage returns the user's stored language preference, or "" if none is recorded -
+// callers should fall back to English in that case.
+func GetUserLanguage(dbCtx *DatabaseContext, userId int64) (string, error) {
+	var language sql.NullString
+	err := dbCtx.Db.QueryRow("SELECT language FROM users WHERE user_id = $1", userId).Scan(&language)
+	if err != nil {
+		return "", err
+	}
+	return language.String, nil
+}
+
 // IsUserAdmin is a lightweight admin check (no join) for the RequireAdmin middleware - it's on
 // the hot path of every admin request, so it skips GetUserDetails' team join entirely.
 func IsUserAdmin(dbCtx *DatabaseContext, userId int64) (bool, error) {

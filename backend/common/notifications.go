@@ -17,9 +17,9 @@ import (
 // relevant), so the frontend only needs to treat it as clickable when non-empty. MessageKey/
 // MessageParams (empty for a notification created before they existed) let the frontend render
 // the message in the viewer's own chosen language via i18next - see NotificationMessage; Message
-// itself stays the English text, used for push/email delivery (see deliverExternalNotifications,
-// which has no server-known per-user language to render into) and as the frontend's fallback
-// when MessageKey is empty.
+// itself stays the English text, used as the frontend's fallback when MessageKey is empty and as
+// the last resort for push/email delivery (see deliverExternalNotifications, which renders into
+// the recipient's stored language - common.GetUserLanguage - when one is set and recognized).
 type Notification struct {
 	Id            int64          `json:"notificationId"`
 	Type          int            `json:"notificationType"`
@@ -117,7 +117,7 @@ func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int,
 	if err := CreateNotification(dbCtx, userId, notificationType, msg); err != nil {
 		return err
 	}
-	deliverExternalNotifications(dbCtx, userId, msg.Text)
+	deliverExternalNotifications(dbCtx, userId, msg)
 	return nil
 }
 
@@ -130,19 +130,28 @@ func NotifyTeamOwnerWithLink(dbCtx *DatabaseContext, teamId int64, notificationT
 	if err := CreateNotificationWithLink(dbCtx, userId, notificationType, msg, link); err != nil {
 		return err
 	}
-	deliverExternalNotifications(dbCtx, userId, msg.Text)
+	deliverExternalNotifications(dbCtx, userId, msg)
 	return nil
 }
 
 // deliverExternalNotifications is best-effort by design: a lookup failure or a Notifier error
 // here must never fail NotifyTeamOwner - the in-app notification, the part that actually works,
-// has already been written by the time this runs. Always sent as English text (see
-// Notification's doc comment) - there's no server-known per-user language to render into.
-func deliverExternalNotifications(dbCtx *DatabaseContext, userId int64, message string) {
+// has already been written by the time this runs. Renders into the recipient's stored language
+// (see GetUserLanguage/renderNotificationMessage) when one is set and recognized, falling back to
+// msg.Text (English) otherwise.
+func deliverExternalNotifications(dbCtx *DatabaseContext, userId int64, msg NotificationMessage) {
 	prefs, err := GetNotificationPreferences(dbCtx, userId)
 	if err != nil {
 		return
 	}
+	if !prefs.EmailEnabled && !prefs.PushEnabled {
+		return
+	}
+	language, err := GetUserLanguage(dbCtx, userId)
+	if err != nil {
+		language = ""
+	}
+	message := renderNotificationMessage(msg, language)
 	if prefs.EmailEnabled {
 		_ = DefaultNotifier.Send(userId, "email", message)
 	}

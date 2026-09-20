@@ -263,10 +263,18 @@ columns (both nullable - empty for a row written before this existed). The bell 
 plain `message` text otherwise - this is what lets the same match-result/transfer/cup notification
 show in whichever language the viewer has chosen instead of always English. Adding a new
 notification type means adding both the `Key`/`Params` at the call site and the matching
-`notifications.messages.*` entry in `frontend/src/i18n/locales/{en,es}.json`. External delivery
-(email/push) always uses the English `Text` - there's no server-known per-user language preference
-to render into, so a viewer who wants push/email in Spanish today still gets English content
-there, only the in-app feed is actually localized.
+`notifications.messages.*` entry in `frontend/src/i18n/locales/{en,es}.json`.
+
+External delivery (email/push) also localizes: `LanguageSwitcher.tsx` calls `PUT
+/v1/user/language` whenever a logged-in user changes language, storing it in `users.language`
+(`common.SetUserLanguage`/`GetUserLanguage`). `deliverExternalNotifications` looks this up and, for
+`"es"` with a recognized `Key`, renders through `common.spanishNotificationTemplates`
+(`common/notificationtranslations.go`) - a hand-maintained Go mirror of `es.json`'s
+`notifications.messages.*` block, needed because the backend has no runtime access to the
+frontend's JSON locale files. Any other language, an unset preference, or an unrecognized key falls
+back to the English `Text`, same as before this existed. Adding a new notification type's
+translation here is a manual step alongside the frontend JSON entry - nothing enforces the two stay
+in sync.
 
 - `LogNotifier` is the fallback: every channel just gets logged, never actually delivered - what
   runs when nothing else is configured.

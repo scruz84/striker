@@ -159,6 +159,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.PUT("/notification-preferences", handlers.SetNotificationPreferencesHandler(dbCtx))
 	v1UserGroup.POST("/push-subscriptions", handlers.SubscribeToPushHandler(dbCtx))
 	v1UserGroup.DELETE("/push-subscriptions", handlers.UnsubscribeFromPushHandler(dbCtx))
+	v1UserGroup.PUT("/language", handlers.SetUserLanguageHandler(dbCtx))
 
 	v1TransferGroup := v1Group.Group("/transfers")
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())

@@ -175,6 +175,39 @@ func SetNotificationPreferencesHandler(dbCtx *common.DatabaseContext) gin.Handle
 	}
 }
 
+// supportedLanguages mirrors frontend src/i18n/index.ts's SUPPORTED_LANGUAGES.
+var supportedLanguages = map[string]bool{"en": true, "es": true}
+
+type SetLanguageRequest struct {
+	Language string `json:"language"`
+}
+
+// SetUserLanguageHandler records the caller's chosen UI language so external notification
+// delivery (email/push) can render in that language too - see common.deliverExternalNotifications.
+func SetUserLanguageHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var req SetLanguageRequest
+		if err := c.BindJSON(&req); err != nil || !supportedLanguages[req.Language] {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid language"))
+			return
+		}
+
+		if err := common.SetUserLanguage(dbCtx, *userId, req.Language); err != nil {
+			log.Errorf("error setting language for user %d: %s", *userId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "language updated"})
+	}
+}
+
 // PushSubscriptionRequest mirrors the PushSubscription object the browser's own
 // PushManager.subscribe() resolves to - see frontend src/pushNotifications.ts.
 type PushSubscriptionRequest struct {

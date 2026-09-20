@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isUnauthorized } from './client'
 import { subscribeToPush, unsubscribeFromPush } from '../pushNotifications'
+import type { SupportedLanguage } from '../i18n'
 import type {
   AcademyOverview,
   AdminLeagueInfo,
@@ -702,6 +703,16 @@ export function useSetNotificationPreferences() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notificationPreferences })
     },
+  })
+}
+
+// Syncs a logged-in user's chosen UI language to the backend (see LanguageSwitcher), so
+// email/push notification delivery can render in that language too - see
+// common.deliverExternalNotifications. Fire-and-forget: nothing client-side depends on the
+// result, so failures aren't surfaced beyond the console.
+export function useSetUserLanguage() {
+  return useMutation({
+    mutationFn: (language: SupportedLanguage) => api.put('/v1/user/language', { language }),
   })
 }
 
