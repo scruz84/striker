@@ -79,6 +79,7 @@ const CORE_POSITIONS = [POSITION_GOALKEEPER, POSITION_DEFENSE, POSITION_MIDFIELD
 // descendant selector, so it applies equally whether it's spread on the TextField/Select itself
 // or on the FormControl wrapping one (see PositionFilterSelect and the loan duration filter).
 const pillFilterSx = {
+  width: '100%',
   '& .MuiOutlinedInput-root': {
     borderRadius: 999,
     backgroundColor: 'action.hover',
@@ -90,6 +91,19 @@ const pillFilterSx = {
       '& fieldset': { border: '2px solid', borderColor: 'primary.main' },
     },
   },
+} as const
+
+// Lays every filter field for a search bar out in an actual grid - fixed-width columns that wrap
+// as a whole row rather than each field wrapping wherever it happens to run out of horizontal
+// space (a plain flex-wrap row left ragged, misaligned rows once enough fields were on it - see
+// issue feedback on the transfers/loans/free-agents search bars). Each field fills its own cell
+// (see pillFilterSx's width: 100%) instead of carrying its own fixed pixel width.
+const filterGridSx = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+  gap: 1.5,
+  alignItems: 'center',
+  p: 2,
 } as const
 
 // A player's name plus two quick-reference badges - their suggested position (see
@@ -147,7 +161,7 @@ function PlayerCell({ player, formerClub }: { player: Player; formerClub?: strin
 function PositionFilterSelect({ value, onChange }: { value: number | ''; onChange: (value: number | '') => void }) {
   const { t } = useTranslation()
   return (
-    <FormControl size="small" sx={[pillFilterSx, { width: 150 }]}>
+    <FormControl size="small" sx={pillFilterSx}>
       <InputLabel id="position-filter-label">{t('transfers.filters.position')}</InputLabel>
       <Select
         labelId="position-filter-label"
@@ -198,7 +212,7 @@ function MarketStatsPanel() {
           <Typography variant="caption" color="text.secondary" component="div">
             {t('transfers.stats.offersRecently')}
           </Typography>
-          <Typography variant="h6">
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>
             {t('transfers.stats.offersCount', { hour: stats.offersLastHour, day: stats.offersLastDay })}
           </Typography>
         </Grid>
@@ -481,13 +495,13 @@ function TransfersTab() {
           </Typography>
         ) : (
           <>
-            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+            <Box sx={filterGridSx}>
               <TextField
                 size="small"
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={[pillFilterSx, { minWidth: 160 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -495,7 +509,7 @@ function TransfersTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -503,7 +517,7 @@ function TransfersTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -511,7 +525,7 @@ function TransfersTab() {
                 label={t('transfers.filters.minPrice')}
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                sx={[pillFilterSx, { width: 120 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -519,15 +533,15 @@ function TransfersTab() {
                 label={t('transfers.filters.maxPrice')}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                sx={[pillFilterSx, { width: 120 }]}
+                sx={pillFilterSx}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters}>
+                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
                   {t('transfers.filters.clear')}
                 </Button>
               )}
-            </Stack>
+            </Box>
             {filteredMarketListings.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
                 {t('transfers.filters.noResults')}
@@ -847,13 +861,13 @@ function LoansTab() {
           </Typography>
         ) : (
           <>
-            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+            <Box sx={filterGridSx}>
               <TextField
                 size="small"
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={[pillFilterSx, { minWidth: 160 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -861,7 +875,7 @@ function LoansTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -869,9 +883,9 @@ function LoansTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
-              <FormControl size="small" sx={[pillFilterSx, { width: 160 }]}>
+              <FormControl size="small" sx={pillFilterSx}>
                 <InputLabel id="loan-max-duration-label">{t('transfers.filters.maxDuration')}</InputLabel>
                 <Select
                   labelId="loan-max-duration-label"
@@ -893,11 +907,11 @@ function LoansTab() {
               </FormControl>
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters}>
+                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
                   {t('transfers.filters.clear')}
                 </Button>
               )}
-            </Stack>
+            </Box>
             {filteredMarketListings.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
                 {t('transfers.filters.noResults')}
@@ -1240,13 +1254,13 @@ function FreeAgentsTab() {
           </Typography>
         ) : (
           <>
-            <Stack direction="row" spacing={1} sx={{ p: 2, flexWrap: 'wrap' }}>
+            <Box sx={filterGridSx}>
               <TextField
                 size="small"
                 label={t('transfers.filters.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={[pillFilterSx, { minWidth: 160 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -1254,7 +1268,7 @@ function FreeAgentsTab() {
                 label={t('transfers.filters.minAge')}
                 value={minAge}
                 onChange={(e) => setMinAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
               <TextField
                 size="small"
@@ -1262,15 +1276,15 @@ function FreeAgentsTab() {
                 label={t('transfers.filters.maxAge')}
                 value={maxAge}
                 onChange={(e) => setMaxAge(e.target.value)}
-                sx={[pillFilterSx, { width: 100 }]}
+                sx={pillFilterSx}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters}>
+                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
                   {t('transfers.filters.clear')}
                 </Button>
               )}
-            </Stack>
+            </Box>
             {filteredFreeAgents.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
                 {t('transfers.filters.noResults')}
