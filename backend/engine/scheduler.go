@@ -75,6 +75,23 @@ func StartWeeklyWagesScheduler(weeklyWagesJob quartz.Job) {
 	}
 }
 
+func StartFreeAgentInjectionScheduler(freeAgentInjectionJob quartz.Job) {
+	sched.Start(ctx)
+	// A real calendar week, same cadence as StartWeeklyWagesScheduler - offset to Sunday
+	// midnight rather than Monday so a fresh batch of free agents is already sitting on the
+	// market by the time StartWeeklyWagesScheduler's Monday run charges everyone's wage bill.
+	cronTrigger, err := quartz.NewCronTrigger("0 0 0 ? * SUN")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(freeAgentInjectionJob.Description())
+	jobDetail := quartz.NewJobDetail(freeAgentInjectionJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func StartFriendlyScheduler(friendlyJob quartz.Job) {
 	sched.Start(ctx)
 	// Same per-minute cadence as cup ties - friendlies are scheduled a fixed delay after

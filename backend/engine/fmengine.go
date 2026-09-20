@@ -36,6 +36,7 @@ func StartEngine() {
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
 	StartCupScheduler(NewCupJob(dbCtx))
 	StartWeeklyWagesScheduler(NewWeeklyWagesJob(dbCtx))
+	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
 	WaitUntilFinish()

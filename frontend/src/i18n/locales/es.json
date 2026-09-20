@@ -671,6 +671,8 @@
       "confirmCheckSeasonAdvance": "¿Comprobar el avance de temporada ahora? Si la temporada está lista, esto la avanza de inmediato para todos los usuarios.",
       "payWagesNow": "Pagar salarios ahora",
       "confirmPayWages": "¿Pagar los salarios de esta semana ahora? Esto cobra de inmediato a cada equipo su nómina de jugadores y entrenador, igual que la ejecución semanal.",
+      "injectFreeAgentsNow": "Inyectar agentes libres ahora",
+      "confirmInjectFreeAgents": "¿Añadir {{count}} agente(s) libre(s) nuevo(s) al mercado ahora? Esto los añade de inmediato, igual que la ejecución semanal.",
       "closeWindow": "Cerrar mercado de fichajes",
       "confirmCloseWindow": "¿Cerrar el mercado de fichajes? Listar, comprar y aceptar cesiones u ofertas dejarán de estar disponibles para todos los usuarios hasta que reabra.",
       "openWindow": "Abrir mercado de fichajes",
@@ -678,6 +680,7 @@
       "simSuccess": "Simulación ejecutada.",
       "seasonSuccess": "Comprobación de avance de temporada ejecutada.",
       "payWagesSuccess": "Salarios semanales pagados.",
+      "injectFreeAgentsSuccess": "Agentes libres añadidos.",
       "windowSuccess": "Mercado de fichajes actualizado."
     },
     "adjustBudget": {
@@ -737,6 +740,14 @@
       "noWeekdaysError": "Selecciona al menos un día.",
       "success": "Días de amistosos actualizados.",
       "error": "No se pudieron actualizar los días de amistosos."
+    },
+    "freeAgentInjections": {
+      "title": "Inyección de agentes libres",
+      "description": "Cuántos jugadores nuevos se añaden al mercado de agentes libres cada semana natural, para mantener el mercado de fichajes activo. Pon 0 para desactivar la inyección por completo.",
+      "perWeek": "Jugadores por semana",
+      "save": "Guardar cantidad",
+      "success": "Cantidad de inyección de agentes libres actualizada.",
+      "error": "No se pudo actualizar la cantidad de inyección de agentes libres."
     },
     "worldStructure": {
       "title": "Estructura del mundo",

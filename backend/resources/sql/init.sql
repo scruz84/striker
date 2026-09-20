@@ -88,7 +88,11 @@ CREATE TABLE season (
     -- engine.ComputePromotionRelegation). Defaults match the constants these replaced
     -- (engine.PromotionCandidatesPerGroup=1, RelegationSlotsPerGroup=2).
     promotion_slots_per_group smallint NOT NULL DEFAULT 1,
-    relegation_slots_per_group smallint NOT NULL DEFAULT 2
+    relegation_slots_per_group smallint NOT NULL DEFAULT 2,
+    -- Admin-configurable count of brand-new players injected straight into the free agent pool
+    -- each real calendar week (see common.InjectFreeAgents/engine.InjectFreeAgentsJob). Zero
+    -- turns injection off entirely.
+    free_agent_injections_per_week smallint NOT NULL DEFAULT 5
 );
 
 CREATE TABLE leagues (

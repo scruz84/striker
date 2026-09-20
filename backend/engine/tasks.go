@@ -94,6 +94,36 @@ func NewWeeklyWagesJob(dbCtx *common.DatabaseContext) *WeeklyWagesJob {
 	return &WeeklyWagesJob{desc: "weekly wages job", dbCtx: dbCtx}
 }
 
+// FreeAgentInjectionJob implements the quartz.Job interface: adds the admin-configured count of
+// brand-new players to the free agent pool, on a real-calendar-time schedule independent of
+// match simulation - see common.InjectFreeAgents/common.GetFreeAgentInjectionsPerWeek.
+type FreeAgentInjectionJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *FreeAgentInjectionJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *FreeAgentInjectionJob) Execute(context.Context) error {
+	count, err := common.GetFreeAgentInjectionsPerWeek(pj.dbCtx)
+	if err != nil {
+		log.Errorf("error reading free agent injections per week: %s", err)
+		return nil
+	}
+	log.Infof("Free agent injection job (%d players)", count)
+	if err := common.InjectFreeAgents(pj.dbCtx, count); err != nil {
+		log.Errorf("error injecting free agents: %s", err)
+	}
+	return nil
+}
+
+func NewFreeAgentInjectionJob(dbCtx *common.DatabaseContext) *FreeAgentInjectionJob {
+	return &FreeAgentInjectionJob{desc: "free agent injection job", dbCtx: dbCtx}
+}
+
 // FriendlyJob implements the quartz.Job interface: each tick, it simulates any friendly matches
 // whose kickoff has arrived.
 type FriendlyJob struct {

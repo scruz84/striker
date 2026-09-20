@@ -53,22 +53,28 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		friendlyScheduleWeekdays := common.GetFriendlyScheduleWeekdays(dbCtx)
 		promotionRelegationConfig := common.GetPromotionRelegationConfig(dbCtx)
+		freeAgentInjectionsPerWeek, err := common.GetFreeAgentInjectionsPerWeek(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		c.JSON(http.StatusOK, common.AdminOverview{
-			Season:                    season,
-			UserCount:                 userCount,
-			TeamCount:                 teamCount,
-			LeagueCount:               leagueCount,
-			MatchesTotal:              matchesTotal,
-			MatchesUnplayed:           matchesUnplayed,
-			ActiveCups:                len(activeCups),
-			TransferWindowOpen:        common.IsTransferWindowOpen(dbCtx),
-			MatchScheduleWeekdaysMask: schedule.WeekdaysMask,
-			MatchScheduleHour:         schedule.Hour,
-			MatchScheduleMinute:       schedule.Minute,
-			MaxFriendliesPerWeek:      maxFriendliesPerWeek,
-			FriendlyScheduleWeekdays:  friendlyScheduleWeekdays,
-			PromotionSlotsPerGroup:    promotionRelegationConfig.PromotionSlotsPerGroup,
-			RelegationSlotsPerGroup:   promotionRelegationConfig.RelegationSlotsPerGroup,
+			Season:                     season,
+			UserCount:                  userCount,
+			TeamCount:                  teamCount,
+			LeagueCount:                leagueCount,
+			MatchesTotal:               matchesTotal,
+			MatchesUnplayed:            matchesUnplayed,
+			ActiveCups:                 len(activeCups),
+			TransferWindowOpen:         common.IsTransferWindowOpen(dbCtx),
+			MatchScheduleWeekdaysMask:  schedule.WeekdaysMask,
+			MatchScheduleHour:          schedule.Hour,
+			MatchScheduleMinute:        schedule.Minute,
+			MaxFriendliesPerWeek:       maxFriendliesPerWeek,
+			FriendlyScheduleWeekdays:   friendlyScheduleWeekdays,
+			PromotionSlotsPerGroup:     promotionRelegationConfig.PromotionSlotsPerGroup,
+			RelegationSlotsPerGroup:    promotionRelegationConfig.RelegationSlotsPerGroup,
+			FreeAgentInjectionsPerWeek: freeAgentInjectionsPerWeek,
 		})
 	}
 }
@@ -118,6 +124,56 @@ func AdminAdvanceSeasonHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		log.Infof("admin-triggered season advance check")
 		engine.AdvanceSeasonIfComplete(dbCtx)
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "season advance check triggered"})
+	}
+}
+
+// AdminInjectFreeAgentsNowHandler force-runs the same free agent injection the scheduler already
+// runs every real calendar week (see engine/scheduler.go), using the currently admin-configured
+// count (see common.GetFreeAgentInjectionsPerWeek) - a manual override/testing convenience, same
+// as AdminPayWagesNowHandler.
+func AdminInjectFreeAgentsNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		count, err := common.GetFreeAgentInjectionsPerWeek(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		log.Infof("admin-triggered manual free agent injection (%d players)", count)
+		if err := common.InjectFreeAgents(dbCtx, count); err != nil {
+			log.Errorf("error injecting free agents: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "free agents injected"})
+	}
+}
+
+type setFreeAgentInjectionsPerWeekRequest struct {
+	FreeAgentInjectionsPerWeek int `json:"freeAgentInjectionsPerWeek"`
+}
+
+// AdminSetFreeAgentInjectionsPerWeekHandler updates the admin-configured count of brand-new
+// players injected into the free agent pool each real calendar week (see
+// common.SetFreeAgentInjectionsPerWeek).
+func AdminSetFreeAgentInjectionsPerWeekHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setFreeAgentInjectionsPerWeekRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "freeAgentInjectionsPerWeek is required"))
+			return
+		}
+
+		if err := common.SetFreeAgentInjectionsPerWeek(dbCtx, req.FreeAgentInjectionsPerWeek); err != nil {
+			if errors.Is(err, common.ErrInvalidFreeAgentInjectionCount) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting free agent injections per week: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "free agent injections per week updated"})
 	}
 }
 

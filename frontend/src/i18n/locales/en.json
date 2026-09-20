@@ -671,6 +671,8 @@
       "confirmCheckSeasonAdvance": "Check for season advance now? If the season is ready, this immediately rolls it over for every user.",
       "payWagesNow": "Pay wages now",
       "confirmPayWages": "Pay this week's wages now? This immediately charges every team its player and trainer wage bill, the same as the weekly payroll run.",
+      "injectFreeAgentsNow": "Inject free agents now",
+      "confirmInjectFreeAgents": "Add {{count}} new free agent(s) to the market now? This immediately adds them, the same as the weekly injection run.",
       "closeWindow": "Close transfer window",
       "confirmCloseWindow": "Close the transfer window? Listing, buying, and accepting loans and offers become unavailable for every user until it reopens.",
       "openWindow": "Open transfer window",
@@ -678,6 +680,7 @@
       "simSuccess": "Simulation pass triggered.",
       "seasonSuccess": "Season advance check triggered.",
       "payWagesSuccess": "Weekly wages paid.",
+      "injectFreeAgentsSuccess": "Free agents injected.",
       "windowSuccess": "Transfer window updated."
     },
     "adjustBudget": {
@@ -737,6 +740,14 @@
       "noWeekdaysError": "Select at least one day.",
       "success": "Friendly match days updated.",
       "error": "Failed to update friendly match days."
+    },
+    "freeAgentInjections": {
+      "title": "Free agent injections",
+      "description": "How many brand-new players are added to the free agent pool every real calendar week, to keep the transfer market lively. Set to 0 to turn injections off entirely.",
+      "perWeek": "Players per week",
+      "save": "Save count",
+      "success": "Free agent injection count updated.",
+      "error": "Failed to update free agent injection count."
     },
     "worldStructure": {
       "title": "World structure",

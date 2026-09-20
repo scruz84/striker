@@ -34,11 +34,13 @@ import {
   useAdminAdjustBudget,
   useAdminAdvanceSeason,
   useAdminCountries,
+  useAdminInjectFreeAgentsNow,
   useAdminLeagues,
   useAdminOverview,
   useAdminPayWagesNow,
   useAdminRecreateLeagues,
   useAdminSetAiLevel,
+  useAdminSetFreeAgentInjectionsPerWeek,
   useAdminSetFriendlySchedule,
   useAdminSetMaxFriendliesPerWeek,
   useAdminSetPromotionRelegation,
@@ -173,6 +175,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
   const simulateNow = useAdminSimulateNow()
   const advanceSeason = useAdminAdvanceSeason()
   const payWagesNow = useAdminPayWagesNow()
+  const injectFreeAgentsNow = useAdminInjectFreeAgentsNow()
   const adjustBudget = useAdminAdjustBudget()
   const setTransferWindow = useSetTransferWindow()
   const [teamId, setTeamId] = useState('')
@@ -197,6 +200,15 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
     const ok = await confirm({ message: t('admin.actions.confirmPayWages'), destructive: true })
     if (ok) {
       payWagesNow.mutate()
+    }
+  }
+
+  const handleInjectFreeAgentsNow = async () => {
+    const ok = await confirm({
+      message: t('admin.actions.confirmInjectFreeAgents', { count: overview.freeAgentInjectionsPerWeek }),
+    })
+    if (ok) {
+      injectFreeAgentsNow.mutate()
     }
   }
 
@@ -250,6 +262,9 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
             <Button variant="outlined" onClick={handlePayWagesNow} disabled={payWagesNow.isPending}>
               {t('admin.actions.payWagesNow')}
             </Button>
+            <Button variant="outlined" onClick={handleInjectFreeAgentsNow} disabled={injectFreeAgentsNow.isPending}>
+              {t('admin.actions.injectFreeAgentsNow')}
+            </Button>
             <Button
               variant="outlined"
               color={transferWindowOpen ? 'warning' : 'success'}
@@ -262,6 +277,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
           {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.simSuccess')}</Alert>}
           {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.seasonSuccess')}</Alert>}
           {payWagesNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.payWagesSuccess')}</Alert>}
+          {injectFreeAgentsNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.injectFreeAgentsSuccess')}</Alert>}
           {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.windowSuccess')}</Alert>}
         </Box>
 
@@ -309,6 +325,8 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
         <MaxFriendliesPerWeekForm overview={overview} />
 
         <FriendlyScheduleForm overview={overview} />
+
+        <FreeAgentInjectionsForm overview={overview} />
       </Stack>
     </Paper>
   )
@@ -541,6 +559,46 @@ function MaxFriendliesPerWeekForm({ overview }: { overview: NonNullable<ReturnTy
       </Stack>
       {setMaxFriendliesPerWeek.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.maxFriendlies.success')}</Alert>}
       {setMaxFriendliesPerWeek.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.maxFriendlies.error')}</Alert>}
+    </Box>
+  )
+}
+
+function FreeAgentInjectionsForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setFreeAgentInjectionsPerWeek = useAdminSetFreeAgentInjectionsPerWeek()
+  const [freeAgentInjectionsPerWeek, setFreeAgentInjectionsPerWeekValue] = useState(String(overview.freeAgentInjectionsPerWeek))
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    const value = Number(freeAgentInjectionsPerWeek)
+    if (Number.isNaN(value) || value < 0) return
+    setFreeAgentInjectionsPerWeek.mutate(value)
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.freeAgentInjections.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.freeAgentInjections.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <TextField
+          label={t('admin.freeAgentInjections.perWeek')}
+          type="number"
+          size="small"
+          value={freeAgentInjectionsPerWeek}
+          onChange={(e) => setFreeAgentInjectionsPerWeekValue(e.target.value)}
+          sx={{ width: 140 }}
+          slotProps={{ htmlInput: { min: 0 } }}
+        />
+        <Button type="submit" variant="contained" disabled={setFreeAgentInjectionsPerWeek.isPending}>
+          {t('admin.freeAgentInjections.save')}
+        </Button>
+      </Stack>
+      {setFreeAgentInjectionsPerWeek.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.freeAgentInjections.success')}</Alert>}
+      {setFreeAgentInjectionsPerWeek.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.freeAgentInjections.error')}</Alert>}
     </Box>
   )
 }

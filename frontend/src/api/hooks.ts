@@ -906,6 +906,17 @@ export function useAdminPayWagesNow() {
   })
 }
 
+export function useAdminInjectFreeAgentsNow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post('/v1/admin/inject-free-agents'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
+    },
+  })
+}
+
 export function useAdminAdjustBudget() {
   return useMutation({
     mutationFn: ({ teamId, amount, description }: { teamId: number; amount: number; description: string }) =>
@@ -1116,6 +1127,16 @@ export function useAdminSetMaxFriendliesPerWeek() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (maxFriendliesPerWeek: number) => api.put('/v1/admin/max-friendlies-per-week', { maxFriendliesPerWeek }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+export function useAdminSetFreeAgentInjectionsPerWeek() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (freeAgentInjectionsPerWeek: number) => api.put('/v1/admin/free-agent-injections-per-week', { freeAgentInjectionsPerWeek }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
     },
