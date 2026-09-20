@@ -4,10 +4,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
+import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
@@ -44,24 +44,29 @@ export function SelectCountryPage() {
           </Typography>
 
           {isLoading ? (
-            <Skeleton variant="rectangular" width="100%" height={120} />
+            <Skeleton variant="rectangular" width="100%" height={56} />
           ) : !countries?.length ? (
             <Typography variant="body2" color="text.secondary">
               {t('onboarding.noCountries')}
             </Typography>
           ) : (
-            <FormControl sx={{ width: '100%' }}>
-              <RadioGroup value={selected} onChange={(e) => setSelected(e.target.value)}>
+            // A combo box rather than a radio group (issue #63) - a list of every country the
+            // game can generate a world for is only going to grow, and a radio button per option
+            // doesn't scale the way a searchable dropdown does.
+            <FormControl fullWidth>
+              <InputLabel id="onboarding-country-label">{t('onboarding.countryLabel')}</InputLabel>
+              <Select
+                labelId="onboarding-country-label"
+                label={t('onboarding.countryLabel')}
+                value={selected}
+                onChange={(e: SelectChangeEvent) => setSelected(e.target.value)}
+              >
                 {countries.map((country) => (
-                  <FormControlLabel
-                    key={country.code}
-                    value={country.code}
-                    control={<Radio />}
-                    label={country.name}
-                    sx={{ justifyContent: 'flex-start', ml: 0 }}
-                  />
+                  <MenuItem key={country.code} value={country.code}>
+                    {country.name}
+                  </MenuItem>
                 ))}
-              </RadioGroup>
+              </Select>
             </FormControl>
           )}
 

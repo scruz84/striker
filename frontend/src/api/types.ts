@@ -85,6 +85,9 @@ export const COUNTRY_NAME_KEYS: Record<string, string> = {
   de: 'countries.de',
   it: 'countries.it',
   pt: 'countries.pt',
+  br: 'countries.br',
+  jp: 'countries.jp',
+  ng: 'countries.ng',
 }
 
 // Mirrors backend/common.ContractRenewalOffer - the outcome of proposing new contract terms to

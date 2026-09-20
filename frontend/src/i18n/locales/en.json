@@ -117,6 +117,7 @@
     "title": "Choose your country",
     "subtitle": "Pick the country you want to manage a club in - you'll get an open team, starting from the top division down.",
     "confirm": "Confirm",
+    "countryLabel": "Country",
     "noCountries": "No countries are available to join right now.",
     "selectError": "Couldn't assign a team. Please try again."
   },
@@ -844,7 +845,10 @@
     "fr": "France",
     "de": "Germany",
     "it": "Italy",
-    "pt": "Portugal"
+    "pt": "Portugal",
+    "br": "Brazil",
+    "jp": "Japan",
+    "ng": "Nigeria"
   },
   "leagues": {
     "title": "Leagues",

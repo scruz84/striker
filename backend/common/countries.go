@@ -11,10 +11,15 @@ type CountryInfo struct {
 
 // KnownCountries lists every country the game engine knows how to generate a world for. Not all
 // of these are necessarily active - es/en/fr/de are seeded by a fresh --initialize (see
-// handlers.seededCountries), while it/pt stay inactive until an admin activates one via
+// handlers.seededCountries), while the rest stay inactive until an admin activates one via
 // POST /v1/admin/countries (see handlers.AdminAddCountryHandler) - adding a new entry here still
-// requires its own names_<code>/lastnames_<code> table pair (see resources/sql/init.sql) and
-// teamnames.go entries first.
+// requires its own names_<code>/lastnames_<code> table pair (see resources/sql/init.sql), an
+// entry in nameTableSuffixByCountry below, and teamnames.go/stadiumnames.go entries first.
+//
+// br/jp/ng (issue #63) are the game's first non-European countries - added specifically so a
+// region grouping (see frontend regionForCountry, and the planned backend counterpart for issue
+// #64's international competition) has more than one continent's worth of countries to actually
+// group.
 var KnownCountries = []CountryInfo{
 	{Code: "es", Name: "Spain"},
 	{Code: "en", Name: "England"},
@@ -22,6 +27,9 @@ var KnownCountries = []CountryInfo{
 	{Code: "de", Name: "Germany"},
 	{Code: "it", Name: "Italy"},
 	{Code: "pt", Name: "Portugal"},
+	{Code: "br", Name: "Brazil"},
+	{Code: "jp", Name: "Japan"},
+	{Code: "ng", Name: "Nigeria"},
 }
 
 // IsKnownCountry reports whether code has the name-pool/team-naming data needed to generate a

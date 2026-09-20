@@ -15,6 +15,9 @@ var stadiumNamePatternsByCountry = map[string][]string{
 	"fr": {"Stade %s", "Parc %s", "Arena %s"},
 	"it": {"Stadio %s", "Arena %s", "Campo %s"},
 	"pt": {"Estadio %s", "Parque %s", "Arena %s"},
+	"br": {"Estadio %s", "Arena %s", "Parque %s"},
+	"jp": {"%s Stadium", "%s Dome", "%s Arena"},
+	"ng": {"%s Stadium", "%s Sports Complex", "%s Arena"},
 }
 
 // RandomStadiumName generates a stadium name for country in the same spirit as RandomTeamName -

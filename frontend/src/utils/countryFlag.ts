@@ -11,6 +11,9 @@ const COUNTRY_FLAGS: Record<string, string> = {
   de: '🇩🇪',
   it: '🇮🇹',
   pt: '🇵🇹',
+  br: '🇧🇷',
+  jp: '🇯🇵',
+  ng: '🇳🇬',
 }
 
 export function countryFlag(code?: string): string | undefined {

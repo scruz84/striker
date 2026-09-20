@@ -26,15 +26,11 @@ const MOUTH_STYLES: readonly MouthStyle[] = ['flat', 'smallSmile', 'frown', 'ope
 
 // A player's face should skew toward what's common for their birth region while still leaving
 // every skin tone reachable (issue #71) - nobody's excluded, but the odds aren't uniform either.
-// Regions beyond 'europe' aren't reachable yet since every backend common.KnownCountries entry
-// is European today, but the weight tables are filled in now so the moment a non-European
-// country is added (issue #63) its players immediately look the part with no further changes
-// here.
 export type Region = 'europe' | 'africa' | 'asia' | 'americas'
 
 // Mirrors backend common.KnownCountries - every country code the game can currently generate a
-// world for maps to 'europe'. An unrecognized/missing code (legacy players created before
-// birthCountry existed) also falls back to 'europe', today's only real region.
+// world for. An unrecognized/missing code (legacy players created before birthCountry existed)
+// falls back to 'europe'.
 const COUNTRY_REGIONS: Record<string, Region> = {
   es: 'europe',
   en: 'europe',
@@ -42,6 +38,9 @@ const COUNTRY_REGIONS: Record<string, Region> = {
   de: 'europe',
   it: 'europe',
   pt: 'europe',
+  br: 'americas',
+  jp: 'asia',
+  ng: 'africa',
 }
 
 export function regionForCountry(countryCode?: string): Region {

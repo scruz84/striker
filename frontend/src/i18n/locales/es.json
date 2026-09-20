@@ -117,6 +117,7 @@
     "title": "Elige tu país",
     "subtitle": "Elige el país en el que quieres dirigir un club - se te asignará un equipo libre, empezando por la máxima división.",
     "confirm": "Confirmar",
+    "countryLabel": "País",
     "noCountries": "Ahora mismo no hay países disponibles para unirse.",
     "selectError": "No se pudo asignar un equipo. Inténtalo de nuevo."
   },
@@ -844,7 +845,10 @@
     "fr": "Francia",
     "de": "Alemania",
     "it": "Italia",
-    "pt": "Portugal"
+    "pt": "Portugal",
+    "br": "Brasil",
+    "jp": "Japón",
+    "ng": "Nigeria"
   },
   "leagues": {
     "title": "Ligas",
