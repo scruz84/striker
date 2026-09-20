@@ -12,10 +12,11 @@ import (
 // and, if so, rolls the game forward: it ages every rostered player a year (see ProgressPlayers)
 // and every unowned one too (see ProgressFreeAgents), returns any loan whose duration has
 // elapsed, promotes/relegates teams based on the season's final standings, starts a new cup for
-// each country from the post-promotion tier-1 teams, resets each league's classification for the
-// new season, bumps the season counter, and regenerates fixtures. See
-// ResetClassificationForSeason for why classification is reset in place rather than archived per
-// season.
+// each country from the post-promotion tier-1 teams plus a new international cup per region from
+// each of its countries' just-finished tier-1 champions (see StartInternationalCupsForNewSeason),
+// resets each league's classification for the new season, bumps the season counter, and
+// regenerates fixtures. See ResetClassificationForSeason for why classification is reset in
+// place rather than archived per season.
 func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	currentSeason := common.GetCurrentSeason(dbCtx)
 
@@ -38,6 +39,10 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	ReturnExpiredLoans(dbCtx, newSeason)
 	applyPromotionRelegation(dbCtx, currentSeason)
 	StartCupsForNewSeason(dbCtx, newSeason)
+	// Must run before the classification reset below - it reads the season just finished, not
+	// the one just started, to find each country's tier-1 champion (see
+	// StartInternationalCupsForNewSeason).
+	StartInternationalCupsForNewSeason(dbCtx, newSeason)
 
 	leagueIds, err := common.GetAllLeagueIds(dbCtx)
 	if err != nil {

@@ -237,6 +237,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1CupGroup := v1Group.Group("/cups")
 	v1CupGroup.Use(authMiddleware.MiddlewareFunc())
 	v1CupGroup.GET("/latest/:country", handlers.LatestCupHandler(dbCtx))
+	v1CupGroup.GET("/latest-international/:region", handlers.LatestInternationalCupHandler(dbCtx))
 	v1CupGroup.GET("/:"+handlers.ID, handlers.CupDetailsHandler(dbCtx))
 	v1CupGroup.GET("/ties/:"+handlers.ID+"/events", handlers.CupTieEventsHandler(dbCtx))
 	v1CupGroup.GET("/ties/:"+handlers.ID+"/live", handlers.LiveCupTieHandler(dbCtx))

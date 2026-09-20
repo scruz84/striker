@@ -81,6 +81,7 @@ export const queryKeys = {
   availableTrainers: ['availableTrainers'] as const,
   teamTrainer: ['teamTrainer'] as const,
   latestCup: (country: string) => ['latestCup', country] as const,
+  latestInternationalCup: (region: string) => ['latestInternationalCup', region] as const,
   cup: (id: string) => ['cup', id] as const,
   cupTie: (id: string) => ['cupTie', id] as const,
   cupTieLineup: (id: string) => ['cupTieLineup', id] as const,
@@ -554,6 +555,16 @@ export function useLatestCupId(country: string | undefined) {
     queryKey: queryKeys.latestCup(country ?? ''),
     queryFn: () => api.get<{ cupId: number }>(`/v1/cups/latest/${country}`),
     enabled: !!country,
+  })
+}
+
+// LatestCupId's international-cup counterpart (issue #64) - region comes from regionForCountry
+// (see components/avatar/traits.ts), applied to the logged-in user's own country.
+export function useLatestInternationalCupId(region: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.latestInternationalCup(region ?? ''),
+    queryFn: () => api.get<{ cupId: number }>(`/v1/cups/latest-international/${region}`),
+    enabled: !!region,
   })
 }
 

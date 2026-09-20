@@ -72,6 +72,93 @@ func startCupForCountry(dbCtx *common.DatabaseContext, country string, season in
 	return createRoundTies(dbCtx, cupId, 1, pairs)
 }
 
+// InternationalCupTier is the league tier whose champion represents a country in its region's
+// international cup (issue #64) - same tier the domestic cup draws its entrants from.
+const InternationalCupTier = CupTier
+
+// internationalCupNames gives each region's cup a name distinct from any country's domestic
+// "Cup" - falls back to a generic name for a region with no dedicated one.
+var internationalCupNames = map[string]string{
+	"europe":   "European Cup",
+	"americas": "Copa America",
+	"asia":     "Asian Cup",
+	"africa":   "African Cup",
+}
+
+func internationalCupName(region string) string {
+	if name, ok := internationalCupNames[region]; ok {
+		return name
+	}
+	return "International Cup"
+}
+
+// StartInternationalCupsForNewSeason creates a fresh international cup for every region with at
+// least two active countries that each finished the just-completed season with a decided tier-1
+// champion, entrants being one team per country - that country's tier-1 champion. Must run after
+// applyPromotionRelegation but before this season's classification is reset (see
+// engine.AdvanceSeasonIfComplete): it reads the tier-1 standings' final positions to find each
+// country's champion, and ResetClassificationForSeason clears exactly that data right after this
+// returns. Mirrors StartCupsForNewSeason's per-country cup, one level up.
+func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season int) {
+	champions, err := regionChampions(dbCtx)
+	if err != nil {
+		log.Errorf("error finding regional champions for international cups: %s", err)
+		return
+	}
+
+	for region, teamIds := range champions {
+		if len(teamIds) < 2 {
+			continue // not enough countries in this region yet for a cup
+		}
+		if err := startInternationalCupForRegion(dbCtx, region, season, teamIds); err != nil {
+			log.Errorf("error starting international cup for region %s season %d: %s", region, season, err)
+		}
+	}
+}
+
+// regionChampions returns, grouped by region, the team id of every active country's tier-1
+// champion (rank 1 of that country's tier-1 final standings) - see
+// StartInternationalCupsForNewSeason. A country with more than one tier-1 group (possible, if
+// unusual, under an admin-edited world config - see common.ValidateWorldConfig) only ever
+// contributes its first group's champion, so it can't end up with two entrants.
+func regionChampions(dbCtx *common.DatabaseContext) (map[string][]int64, error) {
+	leagues, err := common.GetLeaguesWithTier(dbCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	seenCountry := make(map[string]bool, len(leagues))
+	champions := make(map[string][]int64)
+	for _, league := range leagues {
+		if league.Tier != InternationalCupTier || seenCountry[league.Country] {
+			continue
+		}
+		standings, err := common.GetRankedClassification(dbCtx, league.LeagueId)
+		if err != nil {
+			log.Errorf("error getting standings for league %d: %s", league.LeagueId, err)
+			continue
+		}
+		if len(standings) == 0 {
+			continue
+		}
+		seenCountry[league.Country] = true
+		region := common.RegionForCountry(league.Country)
+		champions[region] = append(champions[region], standings[0].TeamId)
+	}
+	return champions, nil
+}
+
+func startInternationalCupForRegion(dbCtx *common.DatabaseContext, region string, season int, teamIds []int64) error {
+	cupId, err := common.CreateInternationalCup(dbCtx, region, season, internationalCupName(region))
+	if err != nil {
+		return err
+	}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	pairs := BuildFirstRoundPairings(teamIds, r)
+	return createRoundTies(dbCtx, cupId, 1, pairs)
+}
+
 // cupRoundGap is how far ahead of "now" a round's ties are scheduled - both for a fresh cup's
 // first round and for each next round AdvanceCups generates once the previous one resolves. A
 // round only counts as "resolved" once every tie is simulated (see IsCupRoundResolved), which

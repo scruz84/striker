@@ -7,10 +7,14 @@ import (
 	"time"
 )
 
-// Cup is a single-elimination competition for one country's teams in one season.
+// Cup is a single-elimination competition for one season - either one country's own tier-1
+// teams (Country set, Region empty) or, for an international cup (issue #64), one team per
+// country from every active country in one region (Region set, Country empty). Exactly one of
+// the two is ever set - see resources/sql/init52_international_cup.sql's CHECK constraint.
 type Cup struct {
 	CupId            int64  `json:"cupId"`
 	Country          string `json:"country"`
+	Region           string `json:"region"`
 	Season           int    `json:"season"`
 	Name             string `json:"name"`
 	Completed        bool   `json:"completed"`
@@ -37,17 +41,21 @@ type CupTie struct {
 	WinnerTeamId    *int64     `json:"winnerTeamId"`
 }
 
-const InsertCupStmtSql = "INSERT INTO cups (country, season, name) VALUES ($1, $2, $3) RETURNING cup_id"
+const InsertCupStmtSql = "INSERT INTO cups (country, region, season, name) VALUES ($1, NULL, $2, $3) RETURNING cup_id"
+
+const InsertInternationalCupStmtSql = "INSERT INTO cups (country, region, season, name) VALUES (NULL, $1, $2, $3) RETURNING cup_id"
 
 const InsertCupTieStmtSql = "INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id, match_date, played, winner_team_id) " +
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING tie_id"
 
-const GetActiveCupsStmtSql = "SELECT cup_id, country, season, name, completed, champion_team_id FROM cups WHERE completed = false"
+const GetActiveCupsStmtSql = "SELECT cup_id, country, region, season, name, completed, champion_team_id FROM cups WHERE completed = false"
 
-const GetCupStmtSql = "SELECT c.cup_id, c.country, c.season, c.name, c.completed, c.champion_team_id, t.name " +
+const GetCupStmtSql = "SELECT c.cup_id, c.country, c.region, c.season, c.name, c.completed, c.champion_team_id, t.name " +
 	"FROM cups c LEFT JOIN teams t ON t.team_id = c.champion_team_id WHERE c.cup_id = $1"
 
 const GetLatestCupForCountryStmtSql = "SELECT cup_id FROM cups WHERE country = $1 ORDER BY cup_id DESC LIMIT 1"
+
+const GetLatestCupForRegionStmtSql = "SELECT cup_id FROM cups WHERE region = $1 ORDER BY cup_id DESC LIMIT 1"
 
 const GetCupTiesStmtSql = "SELECT ct.tie_id, ct.cup_id, ct.round, ct.slot_number, ct.home_team_id, th.name, " +
 	"ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals, ct.went_to_penalties, ct.winner_team_id " +
@@ -87,6 +95,14 @@ func CreateCup(dbCtx *DatabaseContext, country string, season int, name string) 
 	return cupId, err
 }
 
+// CreateInternationalCup starts a new single-elimination cup for a region's season - the
+// international-cup counterpart to CreateCup (issue #64).
+func CreateInternationalCup(dbCtx *DatabaseContext, region string, season int, name string) (int64, error) {
+	var cupId int64
+	err := dbCtx.Db.QueryRow(InsertInternationalCupStmtSql, region, season, name).Scan(&cupId)
+	return cupId, err
+}
+
 // CreateCupTie inserts one bracket slot. A nil awayTeamId with a non-nil homeTeamId is a bye:
 // it's recorded as already won by the home team, with no match to simulate.
 func CreateCupTie(dbCtx *DatabaseContext, cupId int64, round int, slotNumber int, homeTeamId *int64, awayTeamId *int64, matchDate *time.Time) error {
@@ -110,10 +126,13 @@ func GetActiveCups(dbCtx *DatabaseContext) ([]Cup, error) {
 	cups := make([]Cup, 0)
 	for rows.Next() {
 		var cup Cup
+		var country, region sql.NullString
 		var championTeamId sql.NullInt64
-		if err := rows.Scan(&cup.CupId, &cup.Country, &cup.Season, &cup.Name, &cup.Completed, &championTeamId); err != nil {
+		if err := rows.Scan(&cup.CupId, &country, &region, &cup.Season, &cup.Name, &cup.Completed, &championTeamId); err != nil {
 			return nil, err
 		}
+		cup.Country = country.String
+		cup.Region = region.String
 		if championTeamId.Valid {
 			cup.ChampionTeamId = &championTeamId.Int64
 		}
@@ -124,13 +143,16 @@ func GetActiveCups(dbCtx *DatabaseContext) ([]Cup, error) {
 
 func GetCup(dbCtx *DatabaseContext, cupId int64) (*Cup, error) {
 	var cup Cup
+	var country, region sql.NullString
 	var championTeamId sql.NullInt64
 	var championTeamName sql.NullString
-	err := dbCtx.Db.QueryRow(GetCupStmtSql, cupId).Scan(&cup.CupId, &cup.Country, &cup.Season, &cup.Name,
+	err := dbCtx.Db.QueryRow(GetCupStmtSql, cupId).Scan(&cup.CupId, &country, &region, &cup.Season, &cup.Name,
 		&cup.Completed, &championTeamId, &championTeamName)
 	if err != nil {
 		return nil, err
 	}
+	cup.Country = country.String
+	cup.Region = region.String
 	if championTeamId.Valid {
 		cup.ChampionTeamId = &championTeamId.Int64
 	}
@@ -141,6 +163,13 @@ func GetCup(dbCtx *DatabaseContext, cupId int64) (*Cup, error) {
 func GetLatestCupForCountry(dbCtx *DatabaseContext, country string) (int64, error) {
 	var cupId int64
 	err := dbCtx.Db.QueryRow(GetLatestCupForCountryStmtSql, country).Scan(&cupId)
+	return cupId, err
+}
+
+// GetLatestCupForRegion is GetLatestCupForCountry's international-cup counterpart (issue #64).
+func GetLatestCupForRegion(dbCtx *DatabaseContext, region string) (int64, error) {
+	var cupId int64
+	err := dbCtx.Db.QueryRow(GetLatestCupForRegionStmtSql, region).Scan(&cupId)
 	return cupId, err
 }
 

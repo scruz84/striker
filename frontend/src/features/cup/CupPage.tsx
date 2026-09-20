@@ -55,7 +55,9 @@ export function CupPage() {
   )
 }
 
-function TieRow({ tie }: { tie: CupTie }) {
+// Exported for InternationalCupPage - identical bracket rendering, just keyed by region instead
+// of country to find its cup id (see useLatestInternationalCupId).
+export function TieRow({ tie }: { tie: CupTie }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isBye = tie.awayTeamId === null
@@ -93,7 +95,7 @@ function TieRow({ tie }: { tie: CupTie }) {
   )
 }
 
-function groupByRound(ties: CupTie[]): { round: number; ties: CupTie[] }[] {
+export function groupByRound(ties: CupTie[]): { round: number; ties: CupTie[] }[] {
   const byRound = new Map<number, CupTie[]>()
   for (const tie of ties) {
     const list = byRound.get(tie.round) ?? []
@@ -108,7 +110,7 @@ function groupByRound(ties: CupTie[]): { round: number; ties: CupTie[] }[] {
     }))
 }
 
-function roundName(t: (key: string, options?: Record<string, unknown>) => string, round: number, totalRounds: number): string {
+export function roundName(t: (key: string, options?: Record<string, unknown>) => string, round: number, totalRounds: number): string {
   const roundsFromEnd = totalRounds - round
   if (roundsFromEnd === 0) return t('cup.final')
   if (roundsFromEnd === 1) return t('cup.semifinal')

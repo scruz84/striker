@@ -56,6 +56,20 @@ func LatestCupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// LatestInternationalCupHandler is LatestCupHandler's international-cup counterpart (issue #64) -
+// points callers at the most recently created international cup for a region.
+func LatestInternationalCupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		region := c.Param("region")
+		cupId, err := common.GetLatestCupForRegion(dbCtx, region)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "no international cup found for region"))
+			return
+		}
+		c.JSON(http.StatusOK, LatestCupResponse{CupId: cupId})
+	}
+}
+
 // CupTieEventsHandler returns one tie's events (goals/cards/injuries) - the tie's score and
 // participants are already available from CupDetailsHandler's bracket view.
 func CupTieEventsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {

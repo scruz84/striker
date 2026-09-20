@@ -801,9 +801,12 @@ export interface FriendlySchedule {
   weekdaysMask: number
 }
 
+// Either a domestic cup (country set, region empty) or an international one (region set,
+// country empty, issue #64) - never both.
 export interface Cup {
   cupId: number
   country: string
+  region: string
   season: number
   name: string
   completed: boolean
