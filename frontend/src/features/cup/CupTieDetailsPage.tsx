@@ -15,6 +15,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchPositionComparison } from '../match/MatchPositionComparison'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function CupTieDetailsPage() {
@@ -146,6 +147,17 @@ function LiveTie({
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
       </Paper>
+      {live.homeQua && live.awayQua && (
+        <MatchPositionComparison
+          homeQua={live.homeQua}
+          awayQua={live.awayQua}
+          // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
+          homeGoalkeeperRating={0}
+          awayGoalkeeperRating={0}
+          homeName={tie.homeTeamName}
+          awayName={tie.awayTeamName}
+        />
+      )}
       {id &&
         team &&
         players &&

@@ -614,17 +614,14 @@
     },
     "positionBattle": {
       "title": "Position battle",
-      "description": "Each zone's starting strength for both teams - this is what the simulation compares (a team's attack against the opponent's defense on the same flank) to decide the probability of a goal.",
+      "description": "What the simulation actually compares to decide the probability of a goal: each team's attack on a flank against the opponent's defense on the mirrored flank plus their goalkeeper - never a zone against that same zone.",
+      "attackingHeader": "{{team}} attacking",
       "leftAttack": "Left attack",
       "centerAttack": "Attack",
       "rightAttack": "Right attack",
       "leftMidfield": "Left midfield",
       "centerMidfield": "Midfield",
-      "rightMidfield": "Right midfield",
-      "leftDefense": "Left defense",
-      "centerDefense": "Defense",
-      "rightDefense": "Right defense",
-      "goalkeeping": "Goalkeeping"
+      "rightMidfield": "Right midfield"
     }
   },
   "headToHead": {

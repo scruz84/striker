@@ -64,7 +64,7 @@ func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 const contractRenewalThresholdYears = 1
 
 // surplusDepthMargin is how far a core position's depth (see common.AssessPositionNeeds) must
-// exceed common.MinPositionDepth before releaseSurplusPlayer treats it as overstocked enough to
+// exceed common.MinPositionDepth before listSurplusPlayer treats it as overstocked enough to
 // trim - one full backup beyond the minimum, so a position sitting exactly at minimum depth is
 // never touched.
 const surplusDepthMargin = 1
@@ -86,7 +86,7 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	}
 
 	renewExpiringContracts(dbCtx, team.Id, *players)
-	releaseSurplusPlayer(dbCtx, team.Id, *players)
+	listSurplusPlayer(dbCtx, team.Id, *players)
 	signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
 	maximizeTicketPrice(dbCtx, team.Id)
 }
@@ -155,13 +155,21 @@ func renewExpiringContracts(dbCtx *common.DatabaseContext, teamId int64, players
 	}
 }
 
-// releaseSurplusPlayer frees up one roster spot (and its wage) when a core position is
-// comfortably overstocked (see surplusDepthMargin), releasing the weakest player at the single
-// most overstocked position - at most one release per call, so a squad's depth erodes gradually
-// rather than all at once. Never shrinks the squad below common.SquadSize, the size every team
-// starts with. ErrPlayerOnLoan and ErrInsufficientBudget (can't afford the severance right now)
-// are expected outcomes, not failures.
-func releaseSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
+// listSurplusPlayer frees up one roster spot's worth of depth when a core position is
+// comfortably overstocked (see surplusDepthMargin), listing the weakest player at the single
+// most overstocked position for transfer - at most one listing per call, so a squad's depth
+// erodes gradually rather than all at once. Never touches a squad already at or below
+// common.SquadSize, the size every team starts with. Lists rather than releasing outright (as
+// this used to) so a human browsing the transfer market actually gets a chance to buy a CPU
+// team's genuine squad surplus - before this, an AI-managed team's overstocked players were
+// simply released for free and never appeared on the market at all. The asking price is
+// minAcceptableTransferFeeWageMultiplier times the player's own market-rate wage - the same
+// yardstick this team would use to judge an incoming offer on this same player (see
+// respondToReceivedOffers), so its own listing price is internally consistent with what it'd
+// also accept. The transfer window being closed, the player already listed/loan-listed, or
+// currently out on loan are expected outcomes, not failures - releaseSurplusPlayer's old
+// ErrInsufficientBudget case no longer applies since listing costs nothing.
+func listSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
 	if len(players) <= common.SquadSize {
 		return
 	}
@@ -192,9 +200,14 @@ func releaseSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players [
 		return
 	}
 
-	if err := common.ReleasePlayer(dbCtx, weakest.Id, teamId); err != nil &&
-		!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrInsufficientBudget) {
-		log.Errorf("error releasing surplus player %d for AI-managed team %d: %s", weakest.Id, teamId, err)
+	expectedWage := common.PlayerWageFromSkills(weakest.GoalKeeper, weakest.Defense, weakest.Lateral, weakest.Pass,
+		weakest.Midfield, weakest.Dribbling, weakest.Shot)
+	askingPrice := int64(expectedWage * minAcceptableTransferFeeWageMultiplier)
+
+	if err := common.CreateTransferListing(dbCtx, weakest.Id, teamId, askingPrice); err != nil &&
+		!errors.Is(err, common.ErrPlayerAlreadyListed) && !errors.Is(err, common.ErrTransferWindowClosed) &&
+		!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerAlreadyLoanListed) {
+		log.Errorf("error listing surplus player %d for AI-managed team %d: %s", weakest.Id, teamId, err)
 	}
 }
 

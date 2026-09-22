@@ -69,7 +69,13 @@ const GetCupTieByIdStmtSql = "SELECT ct.tie_id, ct.cup_id, ct.round, ct.slot_num
 
 const GetMaxCupRoundStmtSql = "SELECT COALESCE(MAX(round), 0) FROM cup_ties WHERE cup_id = $1"
 
-const GetUnresolvedCupTieCountStmtSql = "SELECT count(*) FROM cup_ties WHERE cup_id = $1 AND round = $2 AND winner_team_id IS NULL"
+// A tie with a winner is still counted as unresolved while its match sits inside the
+// live-broadcast window (see LiveBroadcastWindow) - a bye (match_date IS NULL) is exempt since
+// there's no broadcast to wait out. Without this, the next round's pairing (and therefore the
+// winning team's name) would be created and revealed the instant the tie is simulated, before
+// that tie's own page stops showing it as "LIVE" (issue: match results review).
+const GetUnresolvedCupTieCountStmtSql = "SELECT count(*) FROM cup_ties WHERE cup_id = $1 AND round = $2 " +
+	"AND (winner_team_id IS NULL OR (match_date IS NOT NULL AND match_date > $3))"
 
 const GetCupRoundWinnersStmtSql = "SELECT winner_team_id FROM cup_ties WHERE cup_id = $1 AND round = $2 ORDER BY slot_number"
 
@@ -235,10 +241,11 @@ func GetMaxCupRound(dbCtx *DatabaseContext, cupId int64) (int, error) {
 	return round, err
 }
 
-// IsCupRoundResolved reports whether every tie in a round has a winner (played, or a bye).
+// IsCupRoundResolved reports whether every tie in a round has a winner (played, or a bye) whose
+// match, if any, is no longer inside its live-broadcast window (see LiveBroadcastWindow).
 func IsCupRoundResolved(dbCtx *DatabaseContext, cupId int64, round int) (bool, error) {
 	var unresolved int
-	err := dbCtx.Db.QueryRow(GetUnresolvedCupTieCountStmtSql, cupId, round).Scan(&unresolved)
+	err := dbCtx.Db.QueryRow(GetUnresolvedCupTieCountStmtSql, cupId, round, LiveBroadcastCutoff()).Scan(&unresolved)
 	if err != nil {
 		return false, err
 	}

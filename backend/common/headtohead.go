@@ -33,13 +33,18 @@ type HeadToHead struct {
 // the aggregate win/draw/loss/goal counts above still cover every played match regardless.
 const HeadToHeadMeetingsLimit = 10
 
+// match_date <= $3 excludes a match still inside its live-broadcast window (see
+// LiveBroadcastWindow) - otherwise this would reveal a result on the two teams' past-meetings
+// summary while that same match still shows as "LIVE" everywhere else (issue: match results
+// review).
 const GetHeadToHeadMatchesStmtSql = "SELECT match_id, season, match_date, home_team_id, away_team_id, home_goals, away_goals " +
-	"FROM matches WHERE played = true AND ((home_team_id = $1 AND away_team_id = $2) OR (home_team_id = $2 AND away_team_id = $1)) " +
+	"FROM matches WHERE played = true AND match_date <= $3 AND ((home_team_id = $1 AND away_team_id = $2) OR (home_team_id = $2 AND away_team_id = $1)) " +
 	"ORDER BY match_date DESC"
 
-// GetHeadToHead fetches every played match between two teams and summarizes it.
+// GetHeadToHead fetches every played match between two teams (excluding one still inside its
+// live-broadcast window - see LiveBroadcastWindow) and summarizes it.
 func GetHeadToHead(dbCtx *DatabaseContext, teamAId int64, teamBId int64) (*HeadToHead, error) {
-	rows, err := dbCtx.Db.Query(GetHeadToHeadMatchesStmtSql, teamAId, teamBId)
+	rows, err := dbCtx.Db.Query(GetHeadToHeadMatchesStmtSql, teamAId, teamBId, LiveBroadcastCutoff())
 	if err != nil {
 		return nil, err
 	}

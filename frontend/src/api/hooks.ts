@@ -945,6 +945,10 @@ export function useTransferMarketStats(enabled: boolean) {
     queryKey: queryKeys.transferMarketStats,
     queryFn: () => api.get<TransferMarketStats>('/v1/transfers/stats'),
     enabled,
+    // The offers-in-the-last-hour/24h counters age out purely with the passage of time, not with
+    // any action the viewer takes on this page - without a poll, a manager who parks on the
+    // transfer market page would see a stale "1 last hour" long after that offer has aged out.
+    refetchInterval: 60_000,
   })
 }
 

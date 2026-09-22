@@ -614,17 +614,14 @@
     },
     "positionBattle": {
       "title": "Duelo por zonas",
-      "description": "La fuerza inicial de cada zona para ambos equipos - esto es lo que compara la simulación (el ataque de un equipo contra la defensa del rival en el mismo costado) para decidir la probabilidad de gol.",
+      "description": "Lo que la simulación realmente compara para decidir la probabilidad de gol: el ataque de cada equipo por un costado contra la defensa del rival en el costado opuesto más su portero - nunca una zona contra esa misma zona.",
+      "attackingHeader": "{{team}} atacando",
       "leftAttack": "Ataque izquierdo",
       "centerAttack": "Ataque",
       "rightAttack": "Ataque derecho",
       "leftMidfield": "Medio izquierdo",
       "centerMidfield": "Medio campo",
-      "rightMidfield": "Medio derecho",
-      "leftDefense": "Defensa izquierda",
-      "centerDefense": "Defensa",
-      "rightDefense": "Defensa derecha",
-      "goalkeeping": "Portería"
+      "rightMidfield": "Medio derecho"
     }
   },
   "headToHead": {

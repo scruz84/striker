@@ -15,9 +15,14 @@ type ScorerStanding struct {
 	Goals     int    `json:"goals"`
 }
 
+// match_date <= $4 excludes goals from a match still inside its live-broadcast window (see
+// LiveBroadcastWindow) - match_events rows exist the instant a match is simulated, well before
+// its broadcast finishes, so without this a scorer's tally here would jump (and reveal that
+// their team just scored) before that match's own row shows anything but "LIVE" (issue: match
+// results review).
 const GetGoalEventScorersStmtSql = "SELECT me.team_players FROM match_events me " +
 	"JOIN matches m ON m.match_id = me.match_id " +
-	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type = $3"
+	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type = $3 AND m.match_date <= $4"
 
 const GetPlayerTeamForScorerStmtSql = "SELECT p.first_name, p.last_name, p.team_id, t.name " +
 	"FROM players p JOIN teams t ON t.team_id = p.team_id WHERE p.player_id = $1"
@@ -59,7 +64,7 @@ func rankScorerStandings(standings []ScorerStanding, limit int) []ScorerStanding
 // otherwise left the game entirely) has no row left to look their name/team up from, so this is
 // a "current squads" leaderboard rather than a full historical career record.
 func GetTopScorers(dbCtx *DatabaseContext, leagueId int64, season int, limit int) ([]ScorerStanding, error) {
-	rows, err := dbCtx.Db.Query(GetGoalEventScorersStmtSql, leagueId, season, GOAL)
+	rows, err := dbCtx.Db.Query(GetGoalEventScorersStmtSql, leagueId, season, GOAL, LiveBroadcastCutoff())
 	if err != nil {
 		return nil, err
 	}

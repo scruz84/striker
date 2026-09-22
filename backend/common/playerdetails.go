@@ -26,8 +26,14 @@ type PlayerCareerStats struct {
 	GoalsForTeam int `json:"goalsForTeam"`
 }
 
-const countPlayerEventStmtSql = "SELECT count(*) FROM match_events WHERE event_type = $1 AND team_players = $2"
-const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events WHERE event_type = $1 AND team_players = $2 AND team_owner = $3"
+// match_date <= $3 excludes an event from a match still inside its live-broadcast window (see
+// LiveBroadcastWindow) - otherwise a player's career goal/card tally here would jump the instant
+// their match is simulated, well before that match's own page stops showing it as "LIVE" (issue:
+// match results review).
+const countPlayerEventStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
+	"WHERE me.event_type = $1 AND me.team_players = $2 AND m.match_date <= $3"
+const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
+	"WHERE me.event_type = $1 AND me.team_players = $2 AND me.team_owner = $3 AND m.match_date <= $4"
 
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
 // in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
@@ -35,16 +41,17 @@ const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events WHERE 
 func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64, teamId int64) (PlayerCareerStats, error) {
 	var stats PlayerCareerStats
 	marker := fmt.Sprintf("[%d]", playerId)
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, GOAL, marker).Scan(&stats.Goals); err != nil {
+	cutoff := LiveBroadcastCutoff()
+	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, GOAL, marker, cutoff).Scan(&stats.Goals); err != nil {
 		return stats, err
 	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, YELLOW_CARD, marker).Scan(&stats.YellowCards); err != nil {
+	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, YELLOW_CARD, marker, cutoff).Scan(&stats.YellowCards); err != nil {
 		return stats, err
 	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, RED_CARD, marker).Scan(&stats.RedCards); err != nil {
+	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, RED_CARD, marker, cutoff).Scan(&stats.RedCards); err != nil {
 		return stats, err
 	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventForTeamStmtSql, GOAL, marker, teamId).Scan(&stats.GoalsForTeam); err != nil {
+	if err := dbCtx.Db.QueryRow(countPlayerEventForTeamStmtSql, GOAL, marker, teamId, cutoff).Scan(&stats.GoalsForTeam); err != nil {
 		return stats, err
 	}
 	return stats, nil

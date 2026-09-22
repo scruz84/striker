@@ -23,6 +23,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDivisionDetails, useFinances, useMe, useRenameTeam, useUserTeam } from '../../api/hooks'
 import type { ClassificationPosition, Team, WeekMatch } from '../../api/types'
+import { mightStillBeLive } from '../../api/useLiveMatch'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
@@ -202,6 +203,13 @@ function LastResultCard({ match, teamId }: { match: WeekMatch | undefined; teamI
     )
   }
 
+  // played flips true in the DB the instant a match is simulated, well before its result
+  // finishes broadcasting to viewers in real time (~90 minutes, see mightStillBeLive's comment)
+  // - showing the final score/outcome here immediately would spoil a match that still looks
+  // "live" everywhere else. Show a LIVE chip instead until that window has elapsed, same as
+  // DivisionDetailsPage's FixturesCard.
+  const stillLive = match.played && mightStillBeLive(match.matchDate)
+
   const isHome = match.home === teamId
   const ownGoals = isHome ? match.homeGoals : match.awayGoals
   const oppGoals = isHome ? match.awayGoals : match.homeGoals
@@ -218,12 +226,16 @@ function LastResultCard({ match, teamId }: { match: WeekMatch | undefined; teamI
         </Button>
       }
     >
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-          {ownGoals} - {oppGoals}
-        </Typography>
-      </Stack>
+      {stillLive ? (
+        <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+      ) : (
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
+          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            {ownGoals} - {oppGoals}
+          </Typography>
+        </Stack>
+      )}
       <Box sx={{ mt: 1 }}>
         <OpponentLine match={match} teamId={teamId} />
       </Box>

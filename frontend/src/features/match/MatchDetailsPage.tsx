@@ -159,9 +159,9 @@ function LiveMatch({
           homeQua={live.homeQua}
           awayQua={live.awayQua}
           // Goalkeeper ratings aren't shown live - a non-participant viewer has neither team's
-          // full roster loaded, and even a participant only has their own; 0/0 renders the
-          // goalkeeping row as a neutral 50/50 split rather than misleadingly favoring either
-          // side (see MatchPositionComparison's ZoneBar).
+          // full roster loaded, and even a participant only has their own; 0 simply drops the
+          // keeper's contribution to each attack-vs-defense matchup rather than misleadingly
+          // favoring either side (see MatchPositionComparison's attack/defense rows).
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
           homeName={homeName}

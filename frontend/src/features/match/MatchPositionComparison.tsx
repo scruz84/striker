@@ -11,20 +11,14 @@ interface ZoneRow {
   away: number
 }
 
-function buildRows(homeQua: TeamQualification, awayQua: TeamQualification, homeGk: number, awayGk: number): ZoneRow[] {
-  // Top to bottom in the same order the pitch itself draws these rows (strikers near the top,
-  // goalkeeper at the bottom - see components/pitch/pitchLayout.ts's ROW_Y).
+// The midfield battle is a genuinely symmetric contest - both teams' midfielders compete
+// directly in the same flank zone for the ball - so comparing each side's own midfield rating
+// zone-for-zone is the correct matchup, unlike attack/defense below.
+function midfieldRows(homeQua: TeamQualification, awayQua: TeamQualification): ZoneRow[] {
   return [
-    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.leftAttack, away: awayQua.leftAttack },
-    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.attack, away: awayQua.attack },
-    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.rightAttach, away: awayQua.rightAttach },
     { labelKey: 'match.positionBattle.leftMidfield', home: homeQua.leftMidfield, away: awayQua.leftMidfield },
     { labelKey: 'match.positionBattle.centerMidfield', home: homeQua.midfield, away: awayQua.midfield },
     { labelKey: 'match.positionBattle.rightMidfield', home: homeQua.rightMidfield, away: awayQua.rightMidfield },
-    { labelKey: 'match.positionBattle.leftDefense', home: homeQua.leftDefense, away: awayQua.leftDefense },
-    { labelKey: 'match.positionBattle.centerDefense', home: homeQua.defense, away: awayQua.defense },
-    { labelKey: 'match.positionBattle.rightDefense', home: homeQua.rightDefense, away: awayQua.rightDefense },
-    { labelKey: 'match.positionBattle.goalkeeping', home: homeGk, away: awayGk },
   ]
 }
 
@@ -37,10 +31,14 @@ interface MatchPositionComparisonProps {
   awayName: string
 }
 
-/** A zone-by-zone home-vs-away strength comparison, in the same top-to-bottom order the pitch
- * itself draws (attack, midfield, defense, goalkeeper) - these are the exact numbers
- * engine.processChance compares (a team's attack on one flank against the opponent's defense on
- * the mirrored flank) to decide whether a scoring chance becomes a goal, not a cosmetic summary. */
+/** A zone-by-zone strength comparison built from the exact same cross-zone matchups
+ * engine.processChance actually compares to decide the probability of a goal: each team's attack
+ * on one flank against the opponent's defense on the MIRRORED flank plus the opponent's
+ * goalkeeper - never a team's own zone against the opponent's identical zone (that would be
+ * comparing e.g. both teams' goalkeepers to each other, which the engine never does and which
+ * previously made this panel confusingly show "goalkeeping: home vs away" as if a keeper ever
+ * faced the opposing keeper). Midfield is the one genuinely symmetric zone-vs-same-zone contest,
+ * shown as-is. */
 export function MatchPositionComparison({
   homeQua,
   awayQua,
@@ -50,7 +48,17 @@ export function MatchPositionComparison({
   awayName,
 }: MatchPositionComparisonProps) {
   const { t } = useTranslation()
-  const rows = buildRows(homeQua, awayQua, homeGoalkeeperRating, awayGoalkeeperRating)
+
+  const homeAttackRows: ZoneRow[] = [
+    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.leftAttack, away: awayQua.rightDefense + awayGoalkeeperRating },
+    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.attack, away: awayQua.defense + awayGoalkeeperRating },
+    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating },
+  ]
+  const awayAttackRows: ZoneRow[] = [
+    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.rightDefense + homeGoalkeeperRating, away: awayQua.leftAttack },
+    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.defense + homeGoalkeeperRating, away: awayQua.attack },
+    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach },
+  ]
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
@@ -69,10 +77,32 @@ export function MatchPositionComparison({
           {awayName}
         </Typography>
       </Stack>
-      <Stack spacing={1}>
-        {rows.map((row) => (
-          <ZoneBar key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} />
-        ))}
+      <Stack spacing={1.5}>
+        <Stack spacing={1}>
+          {midfieldRows(homeQua, awayQua).map((row) => (
+            <ZoneBar key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} />
+          ))}
+        </Stack>
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            {t('match.positionBattle.attackingHeader', { team: homeName })}
+          </Typography>
+          <Stack spacing={1}>
+            {homeAttackRows.map((row) => (
+              <ZoneBar key={`home-${row.labelKey}`} label={t(row.labelKey)} home={row.home} away={row.away} />
+            ))}
+          </Stack>
+        </Stack>
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            {t('match.positionBattle.attackingHeader', { team: awayName })}
+          </Typography>
+          <Stack spacing={1}>
+            {awayAttackRows.map((row) => (
+              <ZoneBar key={`away-${row.labelKey}`} label={t(row.labelKey)} home={row.home} away={row.away} />
+            ))}
+          </Stack>
+        </Stack>
       </Stack>
     </Paper>
   )

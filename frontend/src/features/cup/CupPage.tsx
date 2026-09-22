@@ -85,7 +85,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
           {tie.awayTeamId ? <NestedTeamNameLink teamId={tie.awayTeamId}>{tie.awayTeamName}</NestedTeamNameLink> : isBye ? '' : t('cup.tbd')}
         </Typography>
-        {tie.wentToPenalties && (
+        {!stillLive && tie.wentToPenalties && (
           <Typography variant="caption" color="text.secondary">
             {t('cup.pens')}
           </Typography>
