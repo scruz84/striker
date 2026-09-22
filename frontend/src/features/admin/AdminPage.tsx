@@ -43,6 +43,7 @@ import {
   useAdminSetFreeAgentInjectionsPerWeek,
   useAdminSetFriendlySchedule,
   useAdminSetMaxFriendliesPerWeek,
+  useAdminSetOfferNegotiationWindow,
   useAdminSetPromotionRelegation,
   useAdminSimulateNow,
   useAdminUsers,
@@ -327,6 +328,8 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
         <FriendlyScheduleForm overview={overview} />
 
         <FreeAgentInjectionsForm overview={overview} />
+
+        <OfferNegotiationWindowForm overview={overview} />
       </Stack>
     </Paper>
   )
@@ -599,6 +602,46 @@ function FreeAgentInjectionsForm({ overview }: { overview: NonNullable<ReturnTyp
       </Stack>
       {setFreeAgentInjectionsPerWeek.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.freeAgentInjections.success')}</Alert>}
       {setFreeAgentInjectionsPerWeek.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.freeAgentInjections.error')}</Alert>}
+    </Box>
+  )
+}
+
+function OfferNegotiationWindowForm({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+  const { t } = useTranslation()
+  const setOfferNegotiationWindow = useAdminSetOfferNegotiationWindow()
+  const [offerNegotiationWindowMinutes, setOfferNegotiationWindowMinutesValue] = useState(String(overview.offerNegotiationWindowMinutes))
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    const value = Number(offerNegotiationWindowMinutes)
+    if (Number.isNaN(value) || value < 0) return
+    setOfferNegotiationWindow.mutate(value)
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="subtitle1" gutterBottom>
+        {t('admin.offerNegotiationWindow.title')}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        {t('admin.offerNegotiationWindow.description')}
+      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <TextField
+          label={t('admin.offerNegotiationWindow.minutes')}
+          type="number"
+          size="small"
+          value={offerNegotiationWindowMinutes}
+          onChange={(e) => setOfferNegotiationWindowMinutesValue(e.target.value)}
+          sx={{ width: 140 }}
+          slotProps={{ htmlInput: { min: 0 } }}
+        />
+        <Button type="submit" variant="contained" disabled={setOfferNegotiationWindow.isPending}>
+          {t('admin.offerNegotiationWindow.save')}
+        </Button>
+      </Stack>
+      {setOfferNegotiationWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.offerNegotiationWindow.success')}</Alert>}
+      {setOfferNegotiationWindow.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.offerNegotiationWindow.error')}</Alert>}
     </Box>
   )
 }

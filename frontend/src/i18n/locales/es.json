@@ -345,7 +345,7 @@
     "noLoanListings": "No hay jugadores disponibles en cesión en este momento.",
     "accept": "Aceptar",
     "offers": {
-      "intro": "Haz una oferta sobre cualquier jugador desde la página de su equipo, o propón un precio distinto en un jugador listado - esté listado o no, el vendedor puede aceptarla o rechazarla. Una oferta permanece abierta durante dos horas antes de poder aceptarse, para que el vendedor tenga tiempo de comparar otras ofertas antes de decidir.",
+      "intro": "Haz una oferta sobre cualquier jugador desde la página de su equipo, o propón un precio distinto en un jugador listado - esté listado o no, el vendedor puede aceptarla o rechazarla. Una oferta permanece abierta durante un tiempo antes de poder aceptarse, para que el vendedor tenga tiempo de comparar otras ofertas antes de decidir.",
       "onYourPlayers": "Ofertas por tus jugadores",
       "noPending": "No hay ofertas pendientes.",
       "yourOffers": "Tus ofertas",
@@ -748,6 +748,14 @@
       "save": "Guardar cantidad",
       "success": "Cantidad de inyección de agentes libres actualizada.",
       "error": "No se pudo actualizar la cantidad de inyección de agentes libres."
+    },
+    "offerNegotiationWindow": {
+      "title": "Ventana de negociación de ofertas",
+      "description": "Tiempo mínimo que una oferta de traspaso recibida debe permanecer pendiente antes de que tu equipo pueda aceptarla, para que tengas tiempo de comparar otras ofertas antes de decidir. Pon 0 para permitir aceptarla de inmediato.",
+      "minutes": "Minutos",
+      "save": "Guardar ventana",
+      "success": "Ventana de negociación de ofertas actualizada.",
+      "error": "No se pudo actualizar la ventana de negociación de ofertas."
     },
     "worldStructure": {
       "title": "Estructura del mundo",

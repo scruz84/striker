@@ -58,23 +58,29 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		offerNegotiationWindowMinutes, err := common.GetOfferNegotiationWindowMinutes(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		c.JSON(http.StatusOK, common.AdminOverview{
-			Season:                     season,
-			UserCount:                  userCount,
-			TeamCount:                  teamCount,
-			LeagueCount:                leagueCount,
-			MatchesTotal:               matchesTotal,
-			MatchesUnplayed:            matchesUnplayed,
-			ActiveCups:                 len(activeCups),
-			TransferWindowOpen:         common.IsTransferWindowOpen(dbCtx),
-			MatchScheduleWeekdaysMask:  schedule.WeekdaysMask,
-			MatchScheduleHour:          schedule.Hour,
-			MatchScheduleMinute:        schedule.Minute,
-			MaxFriendliesPerWeek:       maxFriendliesPerWeek,
-			FriendlyScheduleWeekdays:   friendlyScheduleWeekdays,
-			PromotionSlotsPerGroup:     promotionRelegationConfig.PromotionSlotsPerGroup,
-			RelegationSlotsPerGroup:    promotionRelegationConfig.RelegationSlotsPerGroup,
-			FreeAgentInjectionsPerWeek: freeAgentInjectionsPerWeek,
+			Season:                        season,
+			UserCount:                     userCount,
+			TeamCount:                     teamCount,
+			LeagueCount:                   leagueCount,
+			MatchesTotal:                  matchesTotal,
+			MatchesUnplayed:               matchesUnplayed,
+			ActiveCups:                    len(activeCups),
+			TransferWindowOpen:            common.IsTransferWindowOpen(dbCtx),
+			MatchScheduleWeekdaysMask:     schedule.WeekdaysMask,
+			MatchScheduleHour:             schedule.Hour,
+			MatchScheduleMinute:           schedule.Minute,
+			MaxFriendliesPerWeek:          maxFriendliesPerWeek,
+			FriendlyScheduleWeekdays:      friendlyScheduleWeekdays,
+			PromotionSlotsPerGroup:        promotionRelegationConfig.PromotionSlotsPerGroup,
+			RelegationSlotsPerGroup:       promotionRelegationConfig.RelegationSlotsPerGroup,
+			FreeAgentInjectionsPerWeek:    freeAgentInjectionsPerWeek,
+			OfferNegotiationWindowMinutes: offerNegotiationWindowMinutes,
 		})
 	}
 }
@@ -174,6 +180,35 @@ func AdminSetFreeAgentInjectionsPerWeekHandler(dbCtx *common.DatabaseContext) gi
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "free agent injections per week updated"})
+	}
+}
+
+type setOfferNegotiationWindowRequest struct {
+	OfferNegotiationWindowMinutes int `json:"offerNegotiationWindowMinutes"`
+}
+
+// AdminSetOfferNegotiationWindowHandler updates the admin-configured minimum time (in minutes) a
+// received transfer offer must sit pending before it can be accepted (see
+// common.SetOfferNegotiationWindowMinutes).
+func AdminSetOfferNegotiationWindowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setOfferNegotiationWindowRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "offerNegotiationWindowMinutes is required"))
+			return
+		}
+
+		if err := common.SetOfferNegotiationWindowMinutes(dbCtx, req.OfferNegotiationWindowMinutes); err != nil {
+			if errors.Is(err, common.ErrInvalidOfferNegotiationWindow) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting offer negotiation window: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "offer negotiation window updated"})
 	}
 }
 

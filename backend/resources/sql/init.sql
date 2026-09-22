@@ -92,7 +92,11 @@ CREATE TABLE season (
     -- Admin-configurable count of brand-new players injected straight into the free agent pool
     -- each real calendar week (see common.InjectFreeAgents/engine.InjectFreeAgentsJob). Zero
     -- turns injection off entirely.
-    free_agent_injections_per_week smallint NOT NULL DEFAULT 5
+    free_agent_injections_per_week smallint NOT NULL DEFAULT 5,
+    -- Admin-configurable minimum time (in minutes) a received transfer offer must sit pending
+    -- before it can be accepted (see common.GetOfferNegotiationWindowMinutes/common.AcceptOffer).
+    -- Zero turns the window off entirely.
+    offer_negotiation_window_minutes smallint NOT NULL DEFAULT 120
 );
 
 CREATE TABLE leagues (

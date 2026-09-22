@@ -345,7 +345,7 @@
     "noLoanListings": "No players available on loan right now.",
     "accept": "Accept",
     "offers": {
-      "intro": "Make an offer on any player from their team page, or propose a different price on a market listing - listed or not, the seller can accept or reject it. An offer stays open for two hours before it can be accepted, so a seller has time to compare other offers before committing.",
+      "intro": "Make an offer on any player from their team page, or propose a different price on a market listing - listed or not, the seller can accept or reject it. An offer stays open for a while before it can be accepted, so a seller has time to compare other offers before committing.",
       "onYourPlayers": "Offers on your players",
       "noPending": "No pending offers.",
       "yourOffers": "Your offers",
@@ -748,6 +748,14 @@
       "save": "Save count",
       "success": "Free agent injection count updated.",
       "error": "Failed to update free agent injection count."
+    },
+    "offerNegotiationWindow": {
+      "title": "Offer negotiation window",
+      "description": "The minimum time a received transfer offer must sit pending before your team can accept it, so you have time to compare other offers before committing. Set to 0 to allow accepting immediately.",
+      "minutes": "Minutes",
+      "save": "Save window",
+      "success": "Offer negotiation window updated.",
+      "error": "Failed to update offer negotiation window."
     },
     "worldStructure": {
       "title": "World structure",

@@ -32,13 +32,14 @@ func TestMakeTransferOffer_RejectsInvalidPersonalTermsWithoutTouchingDatabase(t 
 func TestOfferAcceptableAt(t *testing.T) {
 	createdAt := time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC)
 	want := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-	if got := offerAcceptableAt(createdAt); !got.Equal(want) {
-		t.Errorf("offerAcceptableAt(%v) = %v, want %v", createdAt, got, want)
+	if got := offerAcceptableAt(createdAt, 2*time.Hour); !got.Equal(want) {
+		t.Errorf("offerAcceptableAt(%v, 2h) = %v, want %v", createdAt, got, want)
 	}
 }
 
 func TestCanAcceptOfferAt(t *testing.T) {
 	createdAt := time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC)
+	window := 2 * time.Hour
 
 	cases := []struct {
 		name string
@@ -47,13 +48,21 @@ func TestCanAcceptOfferAt(t *testing.T) {
 	}{
 		{"just made", createdAt, false},
 		{"one hour later", createdAt.Add(time.Hour), false},
-		{"one second before the window elapses", createdAt.Add(OfferNegotiationWindow - time.Second), false},
-		{"exactly when the window elapses", createdAt.Add(OfferNegotiationWindow), true},
+		{"one second before the window elapses", createdAt.Add(window - time.Second), false},
+		{"exactly when the window elapses", createdAt.Add(window), true},
 		{"well after the window elapses", createdAt.Add(3 * time.Hour), true},
 	}
 	for _, c := range cases {
-		if got := canAcceptOfferAt(createdAt, c.now); got != c.want {
+		if got := canAcceptOfferAt(createdAt, c.now, window); got != c.want {
 			t.Errorf("canAcceptOfferAt(%s) = %v, want %v", c.name, got, c.want)
 		}
+	}
+}
+
+func TestSetOfferNegotiationWindowMinutes_RejectsNegativeWithoutTouchingDatabase(t *testing.T) {
+	// The minutes value is checked before any database access, so this is safe to exercise with
+	// a nil DatabaseContext - same trick as TestSetTicketPrice_RejectsOutOfRange.
+	if err := SetOfferNegotiationWindowMinutes(nil, -1); err != ErrInvalidOfferNegotiationWindow {
+		t.Fatalf("expected ErrInvalidOfferNegotiationWindow for a negative value, got %v", err)
 	}
 }

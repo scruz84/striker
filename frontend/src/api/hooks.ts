@@ -1143,6 +1143,16 @@ export function useAdminSetFreeAgentInjectionsPerWeek() {
   })
 }
 
+export function useAdminSetOfferNegotiationWindow() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerNegotiationWindowMinutes: number) => api.put('/v1/admin/offer-negotiation-window', { offerNegotiationWindowMinutes }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useAdminSetFriendlySchedule() {
   const queryClient = useQueryClient()
   return useMutation({

@@ -760,10 +760,10 @@ export interface TransferOffer {
   offeredWage: number
   offeredYears: number
   createdAt: string
-  // When this offer's two-hour negotiation window elapses and it becomes acceptable (see
-  // backend common.OfferNegotiationWindow) - lets the receiving team keep comparing offers
-  // instead of the first one in winning by default. Rejecting/withdrawing is never gated by
-  // this, only accepting.
+  // When this offer's admin-configurable negotiation window elapses and it becomes acceptable
+  // (see backend common.GetOfferNegotiationWindowMinutes) - lets the receiving team keep
+  // comparing offers instead of the first one in winning by default. Rejecting/withdrawing is
+  // never gated by this, only accepting.
   acceptableAt: string
 }
 
@@ -973,6 +973,7 @@ export interface AdminOverview {
   promotionSlotsPerGroup: number
   relegationSlotsPerGroup: number
   freeAgentInjectionsPerWeek: number
+  offerNegotiationWindowMinutes: number
 }
 
 // Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and
