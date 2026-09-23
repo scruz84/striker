@@ -56,6 +56,7 @@ import type { FreeAgentListing, LoanListing, Player, Trainer, TransferListing, T
 import { isPast } from '../../api/useLiveMatch'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
+import { Paginated } from '../../components/Paginated'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { countryFlag } from '../../utils/countryFlag'
@@ -547,13 +548,17 @@ function TransfersTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <ListingsTable
-                listings={filteredMarketListings}
-                sortField={sortField}
-                sortDir={sortDir}
-                onSort={handleSort}
-                renderAction={(listing) => <MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
-              />
+              <Paginated rows={filteredMarketListings} resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, position, sortField, sortDir])}>
+                {(pageListings) => (
+                  <ListingsTable
+                    listings={pageListings}
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                    renderAction={(listing) => <MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
+                  />
+                )}
+              </Paginated>
             )}
           </>
         )}
@@ -917,22 +922,26 @@ function LoansTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <LoanListingsTable
-                listings={filteredMarketListings}
-                sortField={sortField}
-                sortDir={sortDir}
-                onSort={handleSort}
-                renderAction={(listing) => (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={() => handleAcceptLoan(listing)}
-                    disabled={acceptLoan.isPending}
-                  >
-                    {t('transfers.accept')}
-                  </Button>
+              <Paginated rows={filteredMarketListings} resetKey={JSON.stringify([search, minAge, maxAge, maxDuration, position, sortField, sortDir])}>
+                {(pageListings) => (
+                  <LoanListingsTable
+                    listings={pageListings}
+                    sortField={sortField}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                    renderAction={(listing) => (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => handleAcceptLoan(listing)}
+                        disabled={acceptLoan.isPending}
+                      >
+                        {t('transfers.accept')}
+                      </Button>
+                    )}
+                  />
                 )}
-              />
+              </Paginated>
             )}
           </>
         )}
@@ -1290,56 +1299,60 @@ function FreeAgentsTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <TableContainer>
-                <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>{t('transfers.table.player')}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 56 }}
-                        sortDirection={sortField === 'age' ? sortDir : false}
-                      >
-                        <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
-                          {t('transfers.table.age')}
-                        </TableSortLabel>
-                      </TableCell>
-                      <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
-                        <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
-                          {t('transfers.freeAgents.wage')}
-                        </TableSortLabel>
-                      </TableCell>
-                      <TableCell align="right" sx={{ width: { xs: 76, sm: 92 } }} />
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredFreeAgents.map((player) => (
-                      <TableRow key={player.id}>
-                        <TableCell>
-                          <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                            <PlayerCell
-                              player={player}
-                              formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
-                            />
-                            {player.freeAgentSeasons === 0 && !!player.lastTeamId && (
-                              <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
-                            )}
-                          </Stack>
-                        </TableCell>
-                        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                          {player.age}
-                        </TableCell>
-                        <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
-                        <TableCell align="right">
-                          <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)} sx={{ minWidth: 0, px: 1 }}>
-                            {t('transfers.freeAgents.sign')}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Paginated rows={filteredFreeAgents} resetKey={JSON.stringify([search, minAge, maxAge, position, sortField, sortDir])}>
+                {(pageFreeAgents) => (
+                  <TableContainer>
+                    <Table size="small" sx={{ tableLayout: 'fixed' }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>{t('transfers.table.player')}</TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 56 }}
+                            sortDirection={sortField === 'age' ? sortDir : false}
+                          >
+                            <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
+                              {t('transfers.table.age')}
+                            </TableSortLabel>
+                          </TableCell>
+                          <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
+                            <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
+                              {t('transfers.freeAgents.wage')}
+                            </TableSortLabel>
+                          </TableCell>
+                          <TableCell align="right" sx={{ width: { xs: 76, sm: 92 } }} />
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {pageFreeAgents.map((player) => (
+                          <TableRow key={player.id}>
+                            <TableCell>
+                              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                                <PlayerCell
+                                  player={player}
+                                  formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
+                                />
+                                {player.freeAgentSeasons === 0 && !!player.lastTeamId && (
+                                  <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
+                                )}
+                              </Stack>
+                            </TableCell>
+                            <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                              {player.age}
+                            </TableCell>
+                            <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
+                            <TableCell align="right">
+                              <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)} sx={{ minWidth: 0, px: 1 }}>
+                                {t('transfers.freeAgents.sign')}
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </Paginated>
             )}
           </>
         )}
@@ -1456,48 +1469,52 @@ function CoachingTab() {
             {t('transfers.coaching.none')}
           </Typography>
         ) : (
-          <TableContainer>
-            <Table size="small" sx={{ tableLayout: 'fixed' }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('transfers.coaching.table.name')}</TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 72 }}
-                    sortDirection={sortField === 'skill' ? sortDir : false}
-                  >
-                    <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
-                      {t('transfers.coaching.skill')}
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
-                    <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
-                      {t('transfers.coaching.wage')}
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell align="right" sx={{ width: { xs: 112, sm: 100 } }} />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sorted.map((candidate) => (
-                  <TableRow key={candidate.id}>
-                    <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {candidate.firstName} {candidate.lastName}
-                    </TableCell>
-                    <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                      {candidate.skill}
-                    </TableCell>
-                    <TableCell align="right">{formatCurrency(candidate.wage)}</TableCell>
-                    <TableCell align="right">
-                      <Button size="small" variant="contained" onClick={() => handleHire(candidate)} disabled={hireTrainer.isPending} sx={{ minWidth: 0, px: 1 }}>
-                        {t('transfers.coaching.hire')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <Paginated rows={sorted} resetKey={JSON.stringify([sortField, sortDir])}>
+            {(pageCandidates) => (
+              <TableContainer>
+                <Table size="small" sx={{ tableLayout: 'fixed' }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{t('transfers.coaching.table.name')}</TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 72 }}
+                        sortDirection={sortField === 'skill' ? sortDir : false}
+                      >
+                        <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
+                          {t('transfers.coaching.skill')}
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
+                        <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
+                          {t('transfers.coaching.wage')}
+                        </TableSortLabel>
+                      </TableCell>
+                      <TableCell align="right" sx={{ width: { xs: 112, sm: 100 } }} />
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {pageCandidates.map((candidate) => (
+                      <TableRow key={candidate.id}>
+                        <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {candidate.firstName} {candidate.lastName}
+                        </TableCell>
+                        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                          {candidate.skill}
+                        </TableCell>
+                        <TableCell align="right">{formatCurrency(candidate.wage)}</TableCell>
+                        <TableCell align="right">
+                          <Button size="small" variant="contained" onClick={() => handleHire(candidate)} disabled={hireTrainer.isPending} sx={{ minWidth: 0, px: 1 }}>
+                            {t('transfers.coaching.hire')}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Paginated>
         )}
       </Paper>
     </Box>

@@ -9,6 +9,10 @@
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongDetail": "Esta página tuvo un problema. Inténtalo de nuevo o vuelve al panel principal.",
     "tryAgain": "Intentar de nuevo",
+    "pagination": {
+      "rowsPerPage": "Filas por página:",
+      "displayedRows": "{{from}}–{{to}} de {{count}}"
+    },
     "weekdaysShort": {
       "mon": "Lun",
       "tue": "Mar",

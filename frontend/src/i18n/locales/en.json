@@ -9,6 +9,10 @@
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongDetail": "This page ran into a problem. Try again, or head back to the dashboard.",
     "tryAgain": "Try again",
+    "pagination": {
+      "rowsPerPage": "Rows per page:",
+      "displayedRows": "{{from}}–{{to}} of {{count}}"
+    },
     "weekdaysShort": {
       "mon": "Mon",
       "tue": "Tue",
