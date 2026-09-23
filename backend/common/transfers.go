@@ -306,3 +306,54 @@ func isUniqueViolation(err error) bool {
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "unique") || strings.Contains(msg, "duplicate key")
 }
+
+const GetTeamLoanedInPlayerIdsStmtSql = "SELECT player_id FROM player_loans WHERE to_team_id = $1"
+const GetTeamTransferListedPlayerIdsStmtSql = "SELECT player_id FROM transfer_listings WHERE selling_team_id = $1"
+const GetTeamLoanListedPlayerIdsStmtSql = "SELECT player_id FROM loan_listings WHERE lending_team_id = $1"
+
+// TeamMarketCommitments is which of a team's current squad players are already tied up on the
+// market one way or another - see GetTeamMarketCommitments. Each map is keyed by player id.
+type TeamMarketCommitments struct {
+	// LoanedIn are players on loan to this team from another club - not this team's to sell.
+	LoanedIn map[int64]bool
+	// TransferListed are players this team has already put on the transfer list.
+	TransferListed map[int64]bool
+	// LoanListed are players this team has offered out on loan.
+	LoanListed map[int64]bool
+}
+
+// GetTeamMarketCommitments fetches TeamMarketCommitments for teamId in three small queries -
+// used by AI-managed teams (see engine.listSurplusPlayer) to judge which squad players they
+// actually own and can still list, instead of picking one blind and swallowing the error.
+func GetTeamMarketCommitments(dbCtx *DatabaseContext, teamId int64) (*TeamMarketCommitments, error) {
+	loanedIn, err := queryPlayerIdSet(dbCtx, GetTeamLoanedInPlayerIdsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	listed, err := queryPlayerIdSet(dbCtx, GetTeamTransferListedPlayerIdsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	loanListed, err := queryPlayerIdSet(dbCtx, GetTeamLoanListedPlayerIdsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return &TeamMarketCommitments{LoanedIn: loanedIn, TransferListed: listed, LoanListed: loanListed}, nil
+}
+
+func queryPlayerIdSet(dbCtx *DatabaseContext, query string, teamId int64) (map[int64]bool, error) {
+	rows, err := dbCtx.Db.Query(query, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ids := make(map[int64]bool)
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids[id] = true
+	}
+	return ids, rows.Err()
+}

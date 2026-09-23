@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
+	"sort"
 )
 
 // RunAITeamManagement drives every automatic action an unowned team's AI level entitles it to -
@@ -155,60 +156,155 @@ func renewExpiringContracts(dbCtx *common.DatabaseContext, teamId int64, players
 	}
 }
 
-// listSurplusPlayer frees up one roster spot's worth of depth when a core position is
-// comfortably overstocked (see surplusDepthMargin), listing the weakest player at the single
-// most overstocked position for transfer - at most one listing per call, so a squad's depth
-// erodes gradually rather than all at once. Never touches a squad already at or below
-// common.SquadSize, the size every team starts with. Lists rather than releasing outright (as
-// this used to) so a human browsing the transfer market actually gets a chance to buy a CPU
-// team's genuine squad surplus - before this, an AI-managed team's overstocked players were
-// simply released for free and never appeared on the market at all. The asking price is
-// minAcceptableTransferFeeWageMultiplier times the player's own market-rate wage - the same
-// yardstick this team would use to judge an incoming offer on this same player (see
-// respondToReceivedOffers), so its own listing price is internally consistent with what it'd
-// also accept. The transfer window being closed, the player already listed/loan-listed, or
-// currently out on loan are expected outcomes, not failures - releaseSurplusPlayer's old
-// ErrInsufficientBudget case no longer applies since listing costs nothing.
+// minSquadSizeAfterSale is the smallest owned, unlisted senior squad an AI-managed team will
+// still have once a listed player is sold - listSurplusPlayer won't list below it, and
+// withdrawSurplusListings pulls listings back once the squad has shrunk under it. Deliberately a
+// couple of players under common.SquadSize: every team starts at exactly SquadSize and the
+// academy only tops back up to exactly SquadSize, so requiring a squad above it (as this used to)
+// meant almost no CPU team ever qualified to list anyone. The per-position surplus check
+// (surplusDepthMargin) is what really keeps a sale from hurting the team.
+const minSquadSizeAfterSale = common.SquadSize - 2
+
+// listSurplusPlayer keeps an AI-managed team's transfer listings in line with its squad: first
+// withdraws any listing that's no longer genuine surplus (see planListingWithdrawals), then lists
+// at most one more player for transfer when a core position is comfortably overstocked (see
+// pickSurplusPlayerToList) - one per call, so a squad's depth erodes gradually rather than all at
+// once, but listings do accumulate over successive matches while the surplus lasts. Lists rather
+// than releasing so a human browsing the transfer market gets a chance to buy a CPU team's
+// genuine squad surplus. The asking price is minAcceptableTransferFeeWageMultiplier times the
+// player's own market-rate wage - the same yardstick this team uses to judge an incoming offer on
+// that player (see respondToReceivedOffers). Loaned-in, already-listed and loan-listed players
+// are filtered out up front (see common.GetTeamMarketCommitments) rather than picked and then
+// silently rejected, which used to leave a team stuck retrying the same unlistable player every
+// match. The transfer window being closed is an expected outcome, not a failure.
 func listSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
-	if len(players) <= common.SquadSize {
+	commitments, err := common.GetTeamMarketCommitments(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching market commitments for AI-managed team %d: %s", teamId, err)
 		return
 	}
 
-	overstockedPosition := -1
-	maxSurplus := surplusDepthMargin
-	for _, need := range common.AssessPositionNeeds(players) {
-		if surplus := need.Depth - common.MinPositionDepth[need.Position]; surplus > maxSurplus {
-			maxSurplus = surplus
-			overstockedPosition = need.Position
-		}
-	}
-	if overstockedPosition == -1 {
-		return
-	}
-
-	var weakest *common.Player
-	weakestValue := 0
-	for _, p := range players {
-		if common.BestCorePosition(*p) != overstockedPosition {
+	owned := ownedPlayers(players, commitments.LoanedIn)
+	for _, p := range planListingWithdrawals(owned, commitments.TransferListed) {
+		if err := common.CancelTransferListing(dbCtx, p.Id, teamId); err != nil &&
+			!errors.Is(err, common.ErrPlayerNotListedByTeam) {
+			log.Errorf("error withdrawing listing for player %d of AI-managed team %d: %s", p.Id, teamId, err)
 			continue
 		}
-		if v := common.PositionValue(overstockedPosition, *p); weakest == nil || v < weakestValue {
-			weakest, weakestValue = p, v
-		}
+		delete(commitments.TransferListed, p.Id)
 	}
-	if weakest == nil {
+
+	target := pickSurplusPlayerToList(owned, commitments.TransferListed, commitments.LoanListed)
+	if target == nil {
 		return
 	}
 
-	expectedWage := common.PlayerWageFromSkills(weakest.GoalKeeper, weakest.Defense, weakest.Lateral, weakest.Pass,
-		weakest.Midfield, weakest.Dribbling, weakest.Shot)
+	expectedWage := common.PlayerWageFromSkills(target.GoalKeeper, target.Defense, target.Lateral, target.Pass,
+		target.Midfield, target.Dribbling, target.Shot)
 	askingPrice := int64(expectedWage * minAcceptableTransferFeeWageMultiplier)
 
-	if err := common.CreateTransferListing(dbCtx, weakest.Id, teamId, askingPrice); err != nil &&
+	if err := common.CreateTransferListing(dbCtx, target.Id, teamId, askingPrice); err != nil &&
 		!errors.Is(err, common.ErrPlayerAlreadyListed) && !errors.Is(err, common.ErrTransferWindowClosed) &&
 		!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerAlreadyLoanListed) {
-		log.Errorf("error listing surplus player %d for AI-managed team %d: %s", weakest.Id, teamId, err)
+		log.Errorf("error listing surplus player %d for AI-managed team %d: %s", target.Id, teamId, err)
 	}
+}
+
+// ownedPlayers drops every player on loan to this team from another club - they count towards
+// neither the squad size nor the position depth listSurplusPlayer judges surplus by, since they
+// aren't this team's to keep or sell.
+func ownedPlayers(players []*common.Player, loanedIn map[int64]bool) []*common.Player {
+	owned := make([]*common.Player, 0, len(players))
+	for _, p := range players {
+		if !loanedIn[p.Id] {
+			owned = append(owned, p)
+		}
+	}
+	return owned
+}
+
+// withoutPlayers returns players minus every id in excluded.
+func withoutPlayers(players []*common.Player, excluded map[int64]bool) []*common.Player {
+	kept := make([]*common.Player, 0, len(players))
+	for _, p := range players {
+		if !excluded[p.Id] {
+			kept = append(kept, p)
+		}
+	}
+	return kept
+}
+
+// positionDepth counts players whose best core position is position.
+func positionDepth(players []*common.Player, position int) int {
+	depth := 0
+	for _, p := range players {
+		if common.BestCorePosition(*p) == position {
+			depth++
+		}
+	}
+	return depth
+}
+
+// planListingWithdrawals picks which of an AI-managed team's current transfer listings to take
+// back off the market: any listed player whose position would be thin without them (depth among
+// the owned, unlisted squad below common.MinPositionDepth - e.g. after a sale via an accepted
+// offer or a retirement at that position), or any listing while the unlisted squad has
+// shrunk below minSquadSizeAfterSale. Each withdrawn player rejoins the unlisted squad before the
+// next listing is judged, so only as many come back as are needed. The thresholds sit one player
+// below pickSurplusPlayerToList's, so a listing it just made is never immediately withdrawn.
+func planListingWithdrawals(owned []*common.Player, listed map[int64]bool) []*common.Player {
+	available := withoutPlayers(owned, listed)
+	withdrawals := make([]*common.Player, 0)
+	for _, p := range owned {
+		if !listed[p.Id] {
+			continue
+		}
+		position := common.BestCorePosition(*p)
+		if positionDepth(available, position) < common.MinPositionDepth[position] ||
+			len(available) < minSquadSizeAfterSale {
+			withdrawals = append(withdrawals, p)
+			available = append(available, p)
+		}
+	}
+	return withdrawals
+}
+
+// pickSurplusPlayerToList chooses the one player an AI-managed team should put up for transfer
+// next, or nil if none: the weakest listable player at the most overstocked core position, where
+// overstocked means the owned, unlisted depth there exceeds common.MinPositionDepth by more than
+// surplusDepthMargin, and only while selling them still leaves at least minSquadSizeAfterSale
+// owned, unlisted players. A loan-listed player can't also be transfer-listed, so they're skipped
+// - falling through to the next most overstocked position if nobody else at this one qualifies.
+func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loanListed map[int64]bool) *common.Player {
+	available := withoutPlayers(owned, listed)
+	if len(available)-1 < minSquadSizeAfterSale {
+		return nil
+	}
+
+	needs := common.AssessPositionNeeds(available)
+	sort.SliceStable(needs, func(i, j int) bool {
+		return needs[i].Depth-common.MinPositionDepth[needs[i].Position] >
+			needs[j].Depth-common.MinPositionDepth[needs[j].Position]
+	})
+	for _, need := range needs {
+		if need.Depth-common.MinPositionDepth[need.Position] <= surplusDepthMargin {
+			break
+		}
+		var weakest *common.Player
+		weakestValue := 0
+		for _, p := range available {
+			if loanListed[p.Id] || common.BestCorePosition(*p) != need.Position {
+				continue
+			}
+			if v := common.PositionValue(need.Position, *p); weakest == nil || v < weakestValue {
+				weakest, weakestValue = p, v
+			}
+		}
+		if weakest != nil {
+			return weakest
+		}
+	}
+	return nil
 }
 
 // signFreeAgentForWeakestPosition signs the best available free agent for a team's single

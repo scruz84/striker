@@ -348,10 +348,16 @@ happens exactly as often as that team actually plays.
   1. **Renew expiring contracts** - any squad player down to 1 season or fewer remaining gets
      offered a renewal at exactly their own market wage and their own age-appropriate maximum term
      - guaranteed to be accepted, since it's exactly what the player would ask for.
-  2. **Release one surplus player** - if a core position is stocked more than one player above
-     `MinPositionDepth` (and only then), the single weakest player at the *most* overstocked
-     position is released, at most one per match so depth erodes gradually rather than all at
-     once. Never drops the squad below `SquadSize`.
+  2. **Transfer-list surplus players** (`listSurplusPlayer`) - only players the team actually
+     owns count: anyone on loan *to* it is ignored, and players already transfer-listed don't
+     count towards depth. First, any existing listing that's no longer genuine surplus is
+     withdrawn - the listed player's position would be thin (below `MinPositionDepth`) without
+     them, or the unlisted squad has shrunk below `minSquadSizeAfterSale` (`SquadSize - 2`).
+     Then, if a core position's unlisted depth is more than one player above `MinPositionDepth`,
+     the weakest player there who isn't loan-listed is put on the transfer list at 20x their
+     market wage (the same bar used to accept an incoming offer) - at most one new listing per
+     match, so listings build up gradually while a surplus lasts, and never one that would leave
+     fewer than `minSquadSizeAfterSale` owned, unlisted players. Needs the transfer window open.
   3. **Sign a free agent for the weakest position** - only when `WeakestPositionNeed` flags a core
      position as genuinely thin, not merely below-average; picks whichever available free agent
      rates highest there.
