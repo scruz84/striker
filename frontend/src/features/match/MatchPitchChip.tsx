@@ -4,8 +4,10 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import type { Lineup, Player } from '../../api/types'
-import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { matchRatingColor } from '../../utils/matchRating'
+
+const CHIP_SIZE = 44
+const RING_THICKNESS = 3
 
 // Lineup.positions is a flat list; a formation's central slots (e.g. two center-backs) share a
 // position id and are told apart only by their order of appearance for that position.
@@ -18,6 +20,10 @@ export function slotIndexWithinPosition(lineup: Lineup, target: Lineup['position
   return index
 }
 
+// A Hattrick-style rating badge: a single ring around the score, filled proportionally to the
+// rating (out of matchRatingMax=10 - see backend common.ComputeMatchRatings) and colored by how
+// good it is. Replaces the old face + shirt-number + rating trio, which crammed three separate
+// pieces of information into one small pitch slot.
 export function MatchPitchChip({ player, rating }: { player: Player; rating?: number }) {
   const theme = useTheme()
   const label =
@@ -25,8 +31,10 @@ export function MatchPitchChip({ player, rating }: { player: Player; rating?: nu
       ? `${player.firstName} ${player.lastName} (${player.age})`
       : `${player.firstName} ${player.lastName} (${player.age}) - ${rating.toFixed(1)}`
   const ratingColor = rating === undefined ? undefined : matchRatingColor(rating)
-  const ratingBg =
-    ratingColor === undefined ? undefined : ratingColor === 'default' ? theme.palette.grey[600] : theme.palette[ratingColor].main
+  const ringColor =
+    ratingColor === undefined ? 'rgba(255,255,255,0.5)' : ratingColor === 'default' ? theme.palette.grey[300] : theme.palette[ratingColor].main
+  const fillPct = rating === undefined ? 0 : Math.max(0, Math.min(100, (rating / 10) * 100))
+
   return (
     <Tooltip title={label}>
       <Box
@@ -41,52 +49,38 @@ export function MatchPitchChip({ player, rating }: { player: Player; rating?: nu
           color: 'inherit',
         }}
       >
-        <Box sx={{ position: 'relative', lineHeight: 0 }}>
-          <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={40} />
-          {!!player.shirtNumber && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: -4,
-                right: -4,
-                width: 16,
-                height: 16,
-                borderRadius: '50%',
-                bgcolor: 'rgba(20,20,20,0.85)',
-                border: '1px solid rgba(255,255,255,0.85)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography sx={{ color: '#fff', fontSize: '0.55rem', fontWeight: 700, lineHeight: 1 }}>
-                {player.shirtNumber}
-              </Typography>
-            </Box>
-          )}
-          {rating !== undefined && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: -4,
-                left: -4,
-                width: 16,
-                height: 16,
-                borderRadius: '50%',
-                bgcolor: ratingBg,
-                border: '1px solid rgba(255,255,255,0.85)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography sx={{ color: '#fff', fontSize: '0.5rem', fontWeight: 700, lineHeight: 1 }}>
-                {rating.toFixed(1)}
-              </Typography>
-            </Box>
-          )}
+        <Box
+          sx={{
+            width: CHIP_SIZE,
+            height: CHIP_SIZE,
+            borderRadius: '50%',
+            background:
+              rating === undefined
+                ? 'none'
+                : `conic-gradient(${ringColor} ${fillPct}%, rgba(255,255,255,0.25) ${fillPct}%)`,
+            border: rating === undefined ? '2px solid rgba(255,255,255,0.5)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Box
+            sx={{
+              width: CHIP_SIZE - RING_THICKNESS * 2,
+              height: CHIP_SIZE - RING_THICKNESS * 2,
+              borderRadius: '50%',
+              bgcolor: 'rgba(20,20,20,0.82)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography sx={{ color: '#fff', fontSize: rating === undefined ? '0.85rem' : '0.75rem', fontWeight: 700, lineHeight: 1 }}>
+              {rating === undefined ? player.shirtNumber ?? '' : rating.toFixed(1)}
+            </Typography>
+          </Box>
         </Box>
-        <Box sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
+        <Box sx={{ mt: 0.4, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
           <Typography noWrap sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}>
             {player.lastName}
           </Typography>
