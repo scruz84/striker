@@ -225,17 +225,13 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
           <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.summary')} />
           <Tab label={t('match.tabs.ratings')} />
           <Tab label={t('match.tabs.players')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={match} />}
-          {tab === 1 && (
-            <Events events={match.events ?? []} homeId={match.home} homeName={match.homeName} awayName={match.awayName} />
-          )}
-          {tab === 2 && <MatchRatingsTab match={match} />}
-          {tab === 3 && (
+          {tab === 1 && <MatchRatingsTab match={match} />}
+          {tab === 2 && (
             <Lineups
               homeId={match.home}
               homeName={match.homeName}

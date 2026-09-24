@@ -103,17 +103,13 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
       <Paper variant="outlined">
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
           <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.summary')} />
           <Tab label={t('match.tabs.ratings')} />
           <Tab label={t('match.tabs.players')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={weekMatch} />}
-          {tab === 1 && (
-            <Events events={weekMatch.events ?? []} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
-          )}
-          {tab === 2 && <MatchRatingsTab match={weekMatch} />}
-          {tab === 3 && (
+          {tab === 1 && <MatchRatingsTab match={weekMatch} />}
+          {tab === 2 && (
             <Lineups
               homeId={match.homeTeamId}
               homeName={match.homeTeamName}

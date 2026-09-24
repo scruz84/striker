@@ -560,7 +560,6 @@
       "events": "Events",
       "lineups": "Lineups",
       "report": "Report",
-      "summary": "Summary",
       "ratings": "Ratings",
       "players": "Players"
     },
@@ -578,8 +577,6 @@
       "summary": {
         "title": "Match summary",
         "chances": "Chances",
-        "goalChances": "Chances with a goal",
-        "missedChances": "Missed chances",
         "yellowCards": "Yellow cards",
         "redCards": "Red cards",
         "injuries": "Injuries"

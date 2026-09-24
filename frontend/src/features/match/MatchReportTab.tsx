@@ -119,9 +119,10 @@ export function MatchReportTab({ match }: { match: WeekMatch }) {
   )
 }
 
-// A box-score-style summary above the narrative: total occasions each team created, split into
-// the ones that became a goal and the ones that didn't, plus cards and injuries - the numbers a
-// reader would otherwise have to tally themselves by scanning the whole event timeline below.
+// A box-score-style summary above the narrative: total chances each team created, plus cards and
+// injuries - the numbers a reader would otherwise have to tally themselves by scanning the whole
+// event timeline below. Deliberately omits the goal/missed split (already implicit in the
+// scoreline shown above) and just gives the total.
 function MatchStatsSummary({
   events,
   homeId,
@@ -138,8 +139,6 @@ function MatchStatsSummary({
 
   const rows: Array<{ labelKey: string; home: number; away: number }> = [
     { labelKey: 'match.report.summary.chances', home: home.goals + home.missedChances, away: away.goals + away.missedChances },
-    { labelKey: 'match.report.summary.goalChances', home: home.goals, away: away.goals },
-    { labelKey: 'match.report.summary.missedChances', home: home.missedChances, away: away.missedChances },
     { labelKey: 'match.report.summary.yellowCards', home: home.yellowCards, away: away.yellowCards },
     { labelKey: 'match.report.summary.redCards', home: home.redCards, away: away.redCards },
     { labelKey: 'match.report.summary.injuries', home: home.injuries, away: away.injuries },
@@ -186,9 +185,10 @@ function StatRow({ label, home, away }: { label: string; home: number; away: num
   )
 }
 
-// Same emoji-per-event-type mapping used by the "Resumen" ticker (MatchScoreboard.tsx) - kept as
-// a small local switch rather than a shared import since the two tabs style their icon slightly
-// differently (a plain glyph before the text here, vs. a title/aria-label chip there).
+// Same emoji-per-event-type mapping used by the "Eventos" ticker (Events/EventContent in
+// MatchScoreboard.tsx, still shown live and on a played cup tie) - kept as a small local switch
+// rather than a shared import since the two style their icon slightly differently (a plain glyph
+// before the text here, vs. a title/aria-label chip there).
 function iconFor(eventType: number): string | null {
   switch (eventType) {
     case EVENT_TYPE_GOAL:
