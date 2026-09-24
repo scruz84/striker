@@ -185,6 +185,8 @@
     "incompleteWarning": "Rellena cada hueco vacío antes de guardar.",
     "bench": "Banquillo",
     "benchEmpty": "Todo el plantel está en el campo.",
+    "unavailableStarters_one": "{{names}} está sancionado o lesionado y no puede jugar - sustitúyelo antes de guardar.",
+    "unavailableStarters_other": "{{names}} están sancionados o lesionados y no pueden jugar - sustitúyelos antes de guardar.",
     "save": "Guardar alineación",
     "substitutions": {
       "title": "Sustituciones programadas",

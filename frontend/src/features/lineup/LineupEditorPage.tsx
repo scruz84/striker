@@ -19,6 +19,8 @@ import type { Lineup, LineupSubstitution, Player, Team } from '../../api/types'
 import { PlayerBench } from './PlayerBench'
 import { SoccerPitch } from './SoccerPitch'
 import { useLineupSelections } from './useLineupSelections'
+import { UnavailableStartersWarning } from './UnavailableStartersWarning'
+import { useSquadUnavailability } from './useSquadUnavailability'
 
 // A row being edited in the substitution planner - fields start empty ('') until the manager
 // picks them, unlike LineupSubstitution which is only ever complete.
@@ -46,6 +48,7 @@ export function LineupEditorPage() {
 
 function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
   const { t } = useTranslation()
+  const unavailability = useSquadUnavailability()
   const {
     formation,
     setFormation,
@@ -53,13 +56,14 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
     visibleSelections,
     usedPlayerIds,
     isComplete,
+    unavailableStarters,
     benchPlayers,
     getPlayer,
     selectedPlayerId,
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
-  } = useLineupSelections(players, lineup)
+  } = useLineupSelections(players, lineup, unavailability)
   const [substitutionDrafts, setSubstitutionDrafts] = useState<SubstitutionDraft[]>(() => initialSubstitutionDrafts(lineup))
   const setLineup = useSetLineup()
 
@@ -88,7 +92,13 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
   const validSubstitutions: LineupSubstitution[] = substitutionDrafts
     .filter(
       (s): s is { playerOutId: number; playerInId: number; minute: number } =>
-        s.playerOutId !== '' && s.playerInId !== '' && s.minute !== '' && usedPlayerIds.has(s.playerOutId) && !usedPlayerIds.has(s.playerInId),
+        s.playerOutId !== '' &&
+        s.playerInId !== '' &&
+        s.minute !== '' &&
+        usedPlayerIds.has(s.playerOutId) &&
+        !usedPlayerIds.has(s.playerInId) &&
+        // A suspended/injured player can't come on either (see handlers.validateSubstitutions).
+        !unavailability.has(s.playerInId),
     )
     .map((s) => ({ playerOutId: s.playerOutId, playerInId: s.playerInId, minute: s.minute }))
 
@@ -125,7 +135,8 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         {t('lineup.tapHint')}
       </Typography>
 
-      {!isComplete && (
+      {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} />}
+      {!isComplete && unavailableStarters.length === 0 && (
         <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}
         </Alert>
@@ -143,7 +154,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
 
       <Grid container spacing={{ xs: 1, sm: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <SoccerPitch counts={counts} getPlayer={getPlayer} selectedPlayerId={selectedPlayerId} onSlotClick={handleSlotClick} />
+          <SoccerPitch counts={counts} getPlayer={getPlayer} selectedPlayerId={selectedPlayerId} onSlotClick={handleSlotClick} unavailability={unavailability} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerBench
@@ -151,6 +162,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
             selectedPlayerId={selectedPlayerId}
             onSelectPlayer={handleBenchPlayerClick}
             onBenchAreaClick={handleBenchAreaClick}
+            unavailability={unavailability}
           />
         </Grid>
       </Grid>
@@ -191,6 +203,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
                   onChange={(e) => handleSubstitutionChange(index, 'playerInId', e.target.value as number)}
                 >
                   {benchPlayers
+                    .filter((p) => !unavailability.has(p.id))
                     .filter((p) => p.id === draft.playerInId || !usedSubInIds.has(p.id))
                     .map((p) => (
                       <MenuItem key={p.id} value={p.id}>

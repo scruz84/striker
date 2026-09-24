@@ -191,6 +191,16 @@ export interface TeamDetails {
   players: Player[]
   lastMatches: WeekMatch[] | null
   nextMatches: WeekMatch[] | null
+  // Only sent for the caller's own team (/v1/user/team) - see backend common.TeamDetails.
+  unavailability?: PlayerUnavailability[]
+}
+
+// One player's current suspension or injury - reason is UNAVAILABLE_SUSPENSION or
+// UNAVAILABLE_INJURY. Mirrors backend common.PlayerUnavailability.
+export interface PlayerUnavailability {
+  playerId: number
+  reason: number
+  matchesRemaining: number
 }
 
 export interface LineupPosition {

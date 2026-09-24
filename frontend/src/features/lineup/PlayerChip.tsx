@@ -8,10 +8,11 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import { POSITION_SHORT_LABEL_KEYS, type Player } from '../../api/types'
+import { POSITION_SHORT_LABEL_KEYS, type Player, type PlayerUnavailability } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { UnavailabilityBadge } from './UnavailabilityBadge'
 
 interface PlayerChipProps {
   player: Player
@@ -24,6 +25,9 @@ interface PlayerChipProps {
    * distinct from `selected` itself, which is the one actually picked up. */
   highlight: boolean
   onSelect: () => void
+  /** Set while the player is suspended or injured - see useSquadUnavailability. On the bench
+   * such a player is shown disabled, since they can't be fielded (see useLineupSelections). */
+  unavailability?: PlayerUnavailability
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -53,7 +57,7 @@ function useSelectionRingSx(selected: boolean, highlight: boolean) {
   return {}
 }
 
-export function PlayerChip({ player, variant = 'bench', selected, highlight, onSelect }: PlayerChipProps) {
+export function PlayerChip({ player, variant = 'bench', selected, highlight, onSelect, unavailability }: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const ringSx = useSelectionRingSx(selected, highlight)
@@ -102,6 +106,12 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
                     </Typography>
                   </Box>
                 )}
+                {/* Top-left, the one corner the shirt number and rating badges leave free. */}
+                {unavailability && (
+                  <Box sx={{ position: 'absolute', top: -4, left: -4, lineHeight: 0 }}>
+                    <UnavailabilityBadge unavailability={unavailability} />
+                  </Box>
+                )}
                 {/* Average skill, quick-glance only (see the bench variant's fuller badge, where
                     there's room for the suggested position too) - bottom-left mirrors the shirt
                     number's top-right placement so neither badge crowds the face. */}
@@ -144,8 +154,22 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
   return (
     <>
       <Paper elevation={selected ? 4 : 1} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.5, width: '100%' }}>
-        <ButtonBase onClick={onSelect} sx={{ borderRadius: '50%' }} aria-pressed={selected} aria-label={label}>
-          <Box sx={{ lineHeight: 0, borderRadius: '50%', transition: 'box-shadow 150ms ease', ...ringSx }}>
+        <ButtonBase
+          onClick={onSelect}
+          disabled={!!unavailability}
+          sx={{ borderRadius: '50%' }}
+          aria-pressed={selected}
+          aria-label={label}
+        >
+          <Box
+            sx={{
+              lineHeight: 0,
+              borderRadius: '50%',
+              transition: 'box-shadow 150ms ease',
+              ...(unavailability && { opacity: 0.45, filter: 'grayscale(1)' }),
+              ...ringSx,
+            }}
+          >
             <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
           </Box>
         </ButtonBase>
@@ -167,6 +191,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
               <Typography variant="caption" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
                 {rating}
               </Typography>
+              {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
             </Stack>
           </Box>
         </ButtonBase>

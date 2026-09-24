@@ -1,5 +1,11 @@
 import { useMemo, useState } from 'react'
-import { FORMATION_BALANCED, FORMATION_POSITION_COUNTS, type Lineup, type Player } from '../../api/types'
+import {
+  FORMATION_BALANCED,
+  FORMATION_POSITION_COUNTS,
+  type Lineup,
+  type Player,
+  type PlayerUnavailability,
+} from '../../api/types'
 
 // Slots per position, keyed the same way FORMATION_POSITION_COUNTS is: a position not present
 // for a formation simply isn't used by it.
@@ -29,7 +35,13 @@ function initialSelections(lineup: Lineup): Selections {
 // second target to place them, needs no timing heuristics and lets every valid target be
 // highlighted the whole time a selection is active - see PlayerChip/SoccerPitch/PlayerBench's own
 // "highlight" props for that half of the fix.
-export function useLineupSelections(players: Player[], lineup: Lineup) {
+//
+// A suspended/injured player (see useSquadUnavailability) can't be put on the pitch: tapping them
+// on the bench does nothing, so they can never be picked up nor swapped in. One already fielded by
+// a lineup saved before their suspension/injury can still be moved (to the bench, or elsewhere on
+// the pitch), but isComplete stays false until they're replaced - the backend would reject the
+// save anyway (see handlers.validateLineup).
+export function useLineupSelections(players: Player[], lineup: Lineup, unavailability: Map<number, PlayerUnavailability>) {
   // Lazy initializers run once on mount, seeded from the lineup already loaded by the caller - no
   // effect needed to sync them in after the fact. Switching formations doesn't reset selections:
   // it just changes how many slots per position are shown/required, so a player picked under one
@@ -57,7 +69,8 @@ export function useLineupSelections(players: Player[], lineup: Lineup) {
     () => new Set(visibleSelections.map((s) => s.playerId).filter((v) => v !== '')),
     [visibleSelections],
   )
-  const isComplete = visibleSelections.every((s) => s.playerId !== '')
+  const unavailableStarters = players.filter((p) => usedPlayerIds.has(p.id) && unavailability.has(p.id))
+  const isComplete = visibleSelections.every((s) => s.playerId !== '') && unavailableStarters.length === 0
   const benchPlayers = players.filter((p) => !usedPlayerIds.has(p.id))
 
   const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players])
@@ -125,6 +138,9 @@ export function useLineupSelections(players: Player[], lineup: Lineup) {
   // in their old slot - the bench equivalent of a pitch-to-pitch swap. Two bench players have
   // nothing to swap (the bench has no order), so that case just moves the selection instead.
   function handleBenchPlayerClick(playerId: number) {
+    if (unavailability.has(playerId)) {
+      return
+    }
     if (selectedPlayerId === playerId) {
       setSelectedPlayerId(null)
       return
@@ -174,6 +190,7 @@ export function useLineupSelections(players: Player[], lineup: Lineup) {
     visibleSelections,
     usedPlayerIds,
     isComplete,
+    unavailableStarters,
     benchPlayers,
     getPlayer,
     selectedPlayerId,

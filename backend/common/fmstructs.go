@@ -251,6 +251,19 @@ type TeamDetails struct {
 	Players     []*Player   `json:"players"`
 	LastMatches []WeekMatch `json:"lastMatches"`
 	NextMatches []WeekMatch `json:"nextMatches"`
+	// Unavailability lists the squad's currently suspended/injured players - only filled in for
+	// the caller's own team (see GetFullTeamDetailsByUser), where the lineup editors use it to
+	// flag who can't be fielded. Never cached (unlike GetTeamDetails' views), since it changes
+	// after every match the team plays.
+	Unavailability []PlayerUnavailability `json:"unavailability,omitempty"`
+}
+
+// PlayerUnavailability is one player's current suspension or injury - Reason is
+// UNAVAILABLE_SUSPENSION or UNAVAILABLE_INJURY.
+type PlayerUnavailability struct {
+	PlayerId         int64 `json:"playerId"`
+	Reason           int   `json:"reason"`
+	MatchesRemaining int   `json:"matchesRemaining"`
 }
 
 type MatchSimulation struct {

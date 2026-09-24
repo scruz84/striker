@@ -181,6 +181,9 @@ const UpsertPlayerUnavailabilityStmtSql = "INSERT INTO player_unavailability (pl
 const GetUnavailablePlayerIdsStmtSql = "SELECT pu.player_id FROM player_unavailability pu " +
 	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0"
 
+const GetTeamUnavailabilityStmtSql = "SELECT pu.player_id, pu.reason, pu.matches_remaining FROM player_unavailability pu " +
+	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0 ORDER BY pu.player_id"
+
 const DecrementUnavailabilityForTeamStmtSql = "UPDATE player_unavailability pu SET matches_remaining = matches_remaining - 1 " +
 	"FROM players p WHERE p.player_id = pu.player_id AND p.team_id = $1"
 
@@ -1045,9 +1048,15 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		return nil, err2
 	}
 
+	unavailability, err3 := GetTeamUnavailability(dbCtx, team.Id)
+	if err3 != nil {
+		return nil, err3
+	}
+
 	return &TeamDetails{
-		Team:    team,
-		Players: *players,
+		Team:           team,
+		Players:        *players,
+		Unavailability: unavailability,
 	}, nil
 }
 
@@ -1425,6 +1434,26 @@ func GetUnavailablePlayerIds(dbCtx *DatabaseContext, teamId int64) (map[int64]bo
 		unavailable[playerId] = true
 	}
 	return unavailable, nil
+}
+
+// GetTeamUnavailability returns every one of a team's players currently serving a suspension or
+// injury, with its reason and how many matches it still has to run.
+func GetTeamUnavailability(dbCtx *DatabaseContext, teamId int64) ([]PlayerUnavailability, error) {
+	rows, err := dbCtx.Db.Query(GetTeamUnavailabilityStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var unavailability []PlayerUnavailability
+	for rows.Next() {
+		var u PlayerUnavailability
+		if err := rows.Scan(&u.PlayerId, &u.Reason, &u.MatchesRemaining); err != nil {
+			return nil, err
+		}
+		unavailability = append(unavailability, u)
+	}
+	return unavailability, rows.Err()
 }
 
 // DecrementUnavailabilityForTeam counts a played match against every currently-unavailable

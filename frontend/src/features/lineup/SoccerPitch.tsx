@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { alpha, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import type { Player } from '../../api/types'
+import type { Player, PlayerUnavailability } from '../../api/types'
 import { POSITION_LABEL_KEYS } from '../../api/types'
 import { PitchField, PitchSlotPosition } from '../../components/pitch/PitchField'
 import { layoutPitchSlots, PITCH_HEIGHT_HALF, type PitchSlot } from '../../components/pitch/pitchLayout'
@@ -14,9 +14,10 @@ interface SoccerPitchProps {
   getPlayer: (position: number, slotIndex: number) => Player | undefined
   selectedPlayerId: number | null
   onSlotClick: (position: number, slotIndex: number) => void
+  unavailability: Map<number, PlayerUnavailability>
 }
 
-export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick }: SoccerPitchProps) {
+export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability }: SoccerPitchProps) {
   // Only the half of the pitch a lineup ever actually occupies is shown here - see
   // PITCH_HEIGHT_HALF's comment in pitchLayout.ts - so editing a lineup takes noticeably less
   // vertical space than the full-pitch view used for read-only match lineups.
@@ -32,6 +33,7 @@ export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick }
             key={`${slot.position}-${slot.slotIndex}`}
             slot={slot}
             player={player}
+            unavailability={player ? unavailability.get(player.id) : undefined}
             selected={selected}
             // Any slot other than the one already selected is a valid place to tap next while a
             // selection is active - an empty one moves the player there, an occupied one swaps.
@@ -47,12 +49,14 @@ export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick }
 function PitchSlotView({
   slot,
   player,
+  unavailability,
   selected,
   highlight,
   onClick,
 }: {
   slot: PitchSlot
   player?: Player
+  unavailability?: PlayerUnavailability
   selected: boolean
   highlight: boolean
   onClick: () => void
@@ -63,7 +67,14 @@ function PitchSlotView({
   return (
     <PitchSlotPosition x={slot.x} y={slot.y} pitchHeight={PITCH_HEIGHT_HALF}>
       {player ? (
-        <PlayerChip player={player} variant="field" selected={selected} highlight={highlight} onSelect={onClick} />
+        <PlayerChip
+          player={player}
+          variant="field"
+          selected={selected}
+          highlight={highlight}
+          onSelect={onClick}
+          unavailability={unavailability}
+        />
       ) : (
         <ButtonBase onClick={onClick} sx={{ borderRadius: '50%' }} aria-label={t(POSITION_LABEL_KEYS[slot.position])}>
           <Box

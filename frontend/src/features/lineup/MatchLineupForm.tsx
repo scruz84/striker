@@ -12,6 +12,8 @@ import { FORMATION_LABEL_KEYS, type Lineup, type LineupPosition, type Player } f
 import { PlayerBench } from './PlayerBench'
 import { SoccerPitch } from './SoccerPitch'
 import { useLineupSelections } from './useLineupSelections'
+import { UnavailableStartersWarning } from './UnavailableStartersWarning'
+import { useSquadUnavailability } from './useSquadUnavailability'
 
 export interface MatchLineupFormProps {
   // i18n key rendered as the form's title, e.g. "friendlies.lineup.title" - interpolated with
@@ -34,19 +36,21 @@ export interface MatchLineupFormProps {
 // per-match overrides need (see backend common.SetLineupForMatch/SetCupTieLineup/SetFriendlyLineup).
 export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave, isSaving, isError, isSuccess }: MatchLineupFormProps) {
   const { t } = useTranslation()
+  const unavailability = useSquadUnavailability()
   const {
     formation,
     setFormation,
     counts,
     visibleSelections,
     isComplete,
+    unavailableStarters,
     benchPlayers,
     getPlayer,
     selectedPlayerId,
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
-  } = useLineupSelections(players, lineup)
+  } = useLineupSelections(players, lineup, unavailability)
 
   const handleFormationChange = (event: SelectChangeEvent<number>) => {
     setFormation(Number(event.target.value))
@@ -79,7 +83,8 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
         {t('lineup.tapHint')}
       </Typography>
 
-      {!isComplete && (
+      {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} />}
+      {!isComplete && unavailableStarters.length === 0 && (
         <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}
         </Alert>
@@ -97,7 +102,7 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
 
       <Grid container spacing={{ xs: 1, sm: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <SoccerPitch counts={counts} getPlayer={getPlayer} selectedPlayerId={selectedPlayerId} onSlotClick={handleSlotClick} />
+          <SoccerPitch counts={counts} getPlayer={getPlayer} selectedPlayerId={selectedPlayerId} onSlotClick={handleSlotClick} unavailability={unavailability} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerBench
@@ -105,6 +110,7 @@ export function MatchLineupForm({ titleKey, titleValues, players, lineup, onSave
             selectedPlayerId={selectedPlayerId}
             onSelectPlayer={handleBenchPlayerClick}
             onBenchAreaClick={handleBenchAreaClick}
+            unavailability={unavailability}
           />
         </Grid>
       </Grid>
