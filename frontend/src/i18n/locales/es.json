@@ -322,7 +322,8 @@
       "amount": "Importe",
       "terms": "Condiciones personales",
       "rating": "Valoración",
-      "position": "Pos"
+      "position": "Pos",
+      "salary": "Salario"
     },
     "filters": {
       "search": "Buscar jugador",
@@ -330,6 +331,8 @@
       "maxAge": "Edad máx.",
       "minPrice": "Precio mín.",
       "maxPrice": "Precio máx.",
+      "minSkill": "Valoración mín.",
+      "maxSkill": "Valoración máx.",
       "maxDuration": "Duración máx.",
       "position": "Posición",
       "allPositions": "Todas las posiciones",

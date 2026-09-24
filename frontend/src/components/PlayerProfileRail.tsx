@@ -20,6 +20,7 @@ import { formatCurrency } from '../utils/formatCurrency'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
 import { TeamBadge } from './TeamBadge'
+import { TransferOfferDialog } from './TransferOfferDialog'
 
 const RING_SIZE_MOBILE = 64
 const RING_SIZE_DESKTOP = 96
@@ -70,6 +71,12 @@ export function PlayerProfileRail({
     player.loanListingDurationSeasons === undefined &&
     !!windowStatus?.open
   const [listDialogOpen, setListDialogOpen] = useState(false)
+
+  // A player listed for transfer by someone else's team - the same negotiation dialog offered
+  // from the market's listings table (see TransferMarketPage's MarketListingActions), just
+  // reachable straight from the profile being viewed instead of only from the market table.
+  const canMakeOffer = !canSeeFinancials && player.transferListingAskingPrice !== undefined
+  const [offerDialogOpen, setOfferDialogOpen] = useState(false)
 
   const traits: Array<{ key: string; label: string }> = canSeeSkills
     ? [
@@ -212,8 +219,14 @@ export function PlayerProfileRail({
             {t('playerPage.listForTransfer.button')}
           </Button>
         )}
+        {canMakeOffer && (
+          <Button size="small" variant="contained" fullWidth onClick={() => setOfferDialogOpen(true)}>
+            {t('team.makeOffer')}
+          </Button>
+        )}
       </Stack>
       <ListPlayerForTransferDialog player={player} open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
+      {canMakeOffer && <TransferOfferDialog player={player} open={offerDialogOpen} onClose={() => setOfferDialogOpen(false)} />}
     </Paper>
   )
 }

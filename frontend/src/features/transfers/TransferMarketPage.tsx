@@ -65,9 +65,9 @@ import { formatDateTime } from '../../utils/formatDate'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
-type TransferSortField = 'age' | 'price' | 'listed'
-type LoanSortField = 'age' | 'duration' | 'listed'
-type FreeAgentSortField = 'age' | 'wage'
+type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
+type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
+type FreeAgentSortField = 'age' | 'wage' | 'skill'
 type TrainerSortField = 'skill' | 'wage'
 
 // The four core positions bestCorePosition ever returns - offered, in this order, by the
@@ -333,6 +333,8 @@ function TransfersTab() {
   const [maxAge, setMaxAge] = useState('')
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [minSkill, setMinSkill] = useState('')
+  const [maxSkill, setMaxSkill] = useState('')
   const [position, setPosition] = useState<number | ''>('')
   const [sortField, setSortField] = useState<TransferSortField>('listed')
   const [sortDir, setSortDir] = useState<SortDirection>('desc')
@@ -347,13 +349,15 @@ function TransfersTab() {
   const myListings = listings.filter((l) => l.sellingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.sellingTeamId !== myTeamId)
 
-  const hasActiveFilters = !!(search || minAge || maxAge || minPrice || maxPrice || position !== '')
+  const hasActiveFilters = !!(search || minAge || maxAge || minPrice || maxPrice || minSkill || maxSkill || position !== '')
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
     setMaxAge('')
     setMinPrice('')
     setMaxPrice('')
+    setMinSkill('')
+    setMaxSkill('')
     setPosition('')
   }
 
@@ -365,6 +369,8 @@ function TransfersTab() {
       if (maxAge && l.player.age > Number(maxAge)) return false
       if (minPrice && l.askingPrice < Number(minPrice)) return false
       if (maxPrice && l.askingPrice > Number(maxPrice)) return false
+      if (minSkill && overallRating(l.player) < Number(minSkill)) return false
+      if (maxSkill && overallRating(l.player) > Number(maxSkill)) return false
       if (position !== '' && bestCorePosition(l.player) !== position) return false
       return true
     })
@@ -374,7 +380,11 @@ function TransfersTab() {
           ? a.askingPrice - b.askingPrice
           : sortField === 'age'
             ? a.player.age - b.player.age
-            : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
+            : sortField === 'salary'
+              ? a.player.wage - b.player.wage
+              : sortField === 'skill'
+                ? overallRating(a.player) - overallRating(b.player)
+                : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
       return sortDir === 'asc' ? cmp : -cmp
     })
 
@@ -536,6 +546,22 @@ function TransfersTab() {
                 onChange={(e) => setMaxPrice(e.target.value)}
                 sx={pillFilterSx}
               />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minSkill')}
+                value={minSkill}
+                onChange={(e) => setMinSkill(e.target.value)}
+                sx={pillFilterSx}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.maxSkill')}
+                value={maxSkill}
+                onChange={(e) => setMaxSkill(e.target.value)}
+                sx={pillFilterSx}
+              />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
                 <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
@@ -548,7 +574,10 @@ function TransfersTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <Paginated rows={filteredMarketListings} resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, position, sortField, sortDir])}>
+              <Paginated
+                rows={filteredMarketListings}
+                resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, minSkill, maxSkill, position, sortField, sortDir])}
+              >
                 {(pageListings) => (
                   <ListingsTable
                     listings={pageListings}
@@ -631,6 +660,21 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
             )}
             {sortable ? (
               <TableCell
+                align="right"
+                sx={{ display: { xs: 'none', md: 'table-cell' }, width: 56 }}
+                sortDirection={sortField === 'skill' ? sortDir : false}
+              >
+                <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => onSort('skill')}>
+                  {t('transfers.table.rating')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' }, width: 56 }}>
+                {t('transfers.table.rating')}
+              </TableCell>
+            )}
+            {sortable ? (
+              <TableCell
                 sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}
                 sortDirection={sortField === 'listed' ? sortDir : false}
               >
@@ -644,6 +688,25 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
               </TableCell>
             ) : (
               <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.listed')}</TableCell>
+            )}
+            {sortable ? (
+              <TableCell
+                align="right"
+                sx={{ display: { xs: 'none', md: 'table-cell' }, width: 96 }}
+                sortDirection={sortField === 'salary' ? sortDir : false}
+              >
+                <TableSortLabel
+                  active={sortField === 'salary'}
+                  direction={sortField === 'salary' ? sortDir : 'asc'}
+                  onClick={() => onSort('salary')}
+                >
+                  {t('transfers.table.salary')}
+                </TableSortLabel>
+              </TableCell>
+            ) : (
+              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' }, width: 96 }}>
+                {t('transfers.table.salary')}
+              </TableCell>
             )}
             {sortable ? (
               <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'price' ? sortDir : false}>
@@ -675,7 +738,13 @@ function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: L
               <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                 {listing.player.age}
               </TableCell>
+              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                {overallRating(listing.player)}
+              </TableCell>
               <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(listing.listedAt)}</TableCell>
+              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                {formatCurrency(listing.player.wage)}
+              </TableCell>
               <TableCell align="right">{formatCurrency(listing.askingPrice)}</TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>
             </TableRow>
