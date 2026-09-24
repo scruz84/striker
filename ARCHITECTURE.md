@@ -233,6 +233,30 @@ gracefully. The one exception is the onboarding gate: `Layout` checks `useMe()` 
 `loggedUser.pendingCountrySelection` is true and the current route isn't already `/onboarding`,
 renders a redirect instead of the normal chrome - see "Auth" above.
 
+### Match details page (`features/match/`)
+
+`MatchDetailsPage.tsx`'s `PlayedMatch()` wires four tabs for an already-played match, all reading
+from the same `WeekMatch`/`match.events` data:
+
+- **Reporte** (`MatchReportTab.tsx`) - a single-column Hattrick-style narrative: an intro/kickoff/
+  full-time flavor paragraph (`ReportParagraph`, neutral gray left bar) plus one `ReportRow` per
+  notable event, each colored by which team it belongs to (home = `primary.main`, away =
+  `error.main` left bar) with a small per-event-type emoji icon.
+- **Resumen** (`Events`/`EventContent` in `MatchScoreboard.tsx`) - the same notable events as a
+  home-left/away-right ticker either side of a center minute divider, instead of a colored bar.
+- **Calificaciones** (`MatchRatingsTab.tsx`) - per-player match ratings.
+- **Jugadores** (`Lineups`) - the two teams' starting lineups/formations.
+
+Both timelines filter `match.events` down to the same `NOTABLE_EVENT_TYPES` (goal, no-goal/missed
+chance, yellow/red card, injury, substitution - duplicated as a local const in each file rather
+than shared, since the two tabs render differently) and use `event.teamOwner === match.home` as
+the one true home-vs-away check. `commentaryFor()` (`utils/matchCommentary.ts`) turns a
+`MatchEvent` into a phrased sentence for either tab. **Convention**: home-team UI uses
+`primary.main`, away-team UI uses `error.main` - keep new team-colored elements in the match views
+consistent with this pairing rather than inventing a third scheme (e.g. `TeamBadge.tsx`'s
+per-team-id random palette is a separate, unrelated convention used only for team badges/avatars,
+not for home/away distinction).
+
 ### i18n
 
 Two locales (`en`, `es`) as flat-ish nested JSON under `i18n/locales/`. Every new user-facing
