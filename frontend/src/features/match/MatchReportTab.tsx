@@ -102,7 +102,17 @@ export function MatchReportTab({ match }: { match: WeekMatch }) {
         if (!commentary) {
           return null
         }
-        return <ReportRow key={idx} minute={event.minute} homeGoals={event.homeGoals} awayGoals={event.awayGoals} text={commentary} />
+        return (
+          <ReportRow
+            key={idx}
+            minute={event.minute}
+            homeGoals={event.homeGoals}
+            awayGoals={event.awayGoals}
+            text={commentary}
+            isHome={isHome}
+            icon={iconFor(event.eventType)}
+          />
+        )
       })}
       <ReportParagraph text={t('match.report.fullTime')} />
     </Stack>
@@ -176,9 +186,31 @@ function StatRow({ label, home, away }: { label: string; home: number; away: num
   )
 }
 
+// Same emoji-per-event-type mapping used by the "Resumen" ticker (MatchScoreboard.tsx) - kept as
+// a small local switch rather than a shared import since the two tabs style their icon slightly
+// differently (a plain glyph before the text here, vs. a title/aria-label chip there).
+function iconFor(eventType: number): string | null {
+  switch (eventType) {
+    case EVENT_TYPE_GOAL:
+      return '⚽'
+    case EVENT_TYPE_NO_GOAL:
+      return '🚫'
+    case EVENT_TYPE_YELLOW_CARD:
+      return '🟨'
+    case EVENT_TYPE_RED_CARD:
+      return '🟥'
+    case EVENT_TYPE_INJURY:
+      return '🚑'
+    case EVENT_TYPE_SUBSTITUTION:
+      return '🔄'
+    default:
+      return null
+  }
+}
+
 function ReportParagraph({ text }: { text: string }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
+    <Paper variant="outlined" sx={{ p: 2, borderLeftWidth: 4, borderLeftStyle: 'solid', borderLeftColor: 'outlineVariant' }}>
       <Typography variant="body2" color="text.secondary">
         {text}
       </Typography>
@@ -186,9 +218,37 @@ function ReportParagraph({ text }: { text: string }) {
   )
 }
 
-function ReportRow({ minute, homeGoals, awayGoals, text }: { minute: number; homeGoals: number; awayGoals: number; text: string }) {
+// A row colored by which team the event belongs to - a home-team goal/card/etc. gets the home
+// color's left bar, an away-team one gets the away color's, so the timeline reads at a glance
+// without having to parse the sentence each time.
+function ReportRow({
+  minute,
+  homeGoals,
+  awayGoals,
+  text,
+  isHome,
+  icon,
+}: {
+  minute: number
+  homeGoals: number
+  awayGoals: number
+  text: string
+  isHome: boolean
+  icon: string | null
+}) {
   return (
-    <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
+    <Stack
+      direction="row"
+      spacing={1.5}
+      sx={{
+        alignItems: 'flex-start',
+        borderLeftWidth: 4,
+        borderLeftStyle: 'solid',
+        borderLeftColor: isHome ? 'primary.main' : 'error.main',
+        pl: 1.5,
+        py: 0.5,
+      }}
+    >
       <Box sx={{ minWidth: 44, textAlign: 'center', flexShrink: 0 }}>
         <Typography variant="body2" sx={{ fontWeight: 700 }}>
           {homeGoals} - {awayGoals}
@@ -197,6 +257,11 @@ function ReportRow({ minute, homeGoals, awayGoals, text }: { minute: number; hom
           {minute}&apos;
         </Typography>
       </Box>
+      {icon && (
+        <Typography component="span" sx={{ fontSize: '1.1rem', lineHeight: '1.5rem' }}>
+          {icon}
+        </Typography>
+      )}
       <Typography variant="body2" sx={{ flex: 1, pt: 0.25 }}>
         {text}
       </Typography>
