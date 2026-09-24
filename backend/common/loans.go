@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -98,10 +99,14 @@ func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int
 	}
 
 	_, err = dbCtx.Db.Exec(InsertLoanListingStmtSql, playerId, lendingTeamId, durationSeasons)
-	if err != nil && isUniqueViolation(err) {
-		return ErrPlayerAlreadyLoanListed
+	if err != nil {
+		if isUniqueViolation(err) {
+			return ErrPlayerAlreadyLoanListed
+		}
+		return err
 	}
-	return err
+	LoanListingsCounter.Add(context.Background(), 1)
+	return nil
 }
 
 // CancelLoanListing removes a player's loan listing, but only if it belongs to lendingTeamId.
@@ -206,6 +211,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		return err
 	}
 
+	LoansAcceptedCounter.Add(context.Background(), 1)
 	notifyLoanAccepted(dbCtx, playerId, lendingTeamId, borrowingTeamId)
 	return nil
 }

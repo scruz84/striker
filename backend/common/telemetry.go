@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -94,7 +95,100 @@ var (
 	// senior squad - see PromoteFromAcademy in academy.go.
 	AcademyPromotionsCounter, _ = Meter.Int64Counter("striker.academy.promotions",
 		metric.WithDescription("Youth academy prospects promoted to the senior squad"))
+
+	// TransferOffersMadeCounter counts every scouting offer actually created (the player already
+	// judged the personal terms acceptable) - see MakeTransferOffer. Distinct from
+	// TransfersCompletedCounter, which only fires once an offer or listing is actually accepted.
+	TransferOffersMadeCounter, _ = Meter.Int64Counter("striker.offers.made",
+		metric.WithDescription("Transfer offers made"))
+
+	// TransferOffersResolvedCounter counts every offer that leaves the pending state, labeled by
+	// "outcome" (accepted/rejected/withdrawn) - see OfferOutcomeAttribute. An "accepted" offer
+	// also drives TransfersCompletedCounter/TransferVolumeCounter via RecordTransferCompleted.
+	TransferOffersResolvedCounter, _ = Meter.Int64Counter("striker.offers.resolved",
+		metric.WithDescription("Transfer offers resolved, by outcome"))
+
+	// LoanListingsCounter counts players newly offered out on loan - see CreateLoanListing.
+	LoanListingsCounter, _ = Meter.Int64Counter("striker.loans.listed",
+		metric.WithDescription("Players newly listed for loan"))
+
+	// LoansAcceptedCounter counts loan listings accepted by a borrowing team - see AcceptLoan.
+	LoansAcceptedCounter, _ = Meter.Int64Counter("striker.loans.accepted",
+		metric.WithDescription("Loan listings accepted"))
 )
+
+// marketGaugesOnce guards RegisterMarketGauges - both the API service and the engine process
+// open their own DatabaseContext and could each call it, and in combined mode (--svc --engine in
+// one process) both call it against the same package-level Meter, so registering the same
+// observable gauge twice needs to be a no-op rather than a duplicate-instrument error.
+var marketGaugesOnce sync.Once
+
+// countRows runs a `SELECT count(*) ...`-shaped query and returns its single int64 result -
+// exists purely so RegisterMarketGauges's callbacks stay one line each.
+func countRows(dbCtx *DatabaseContext, query string) (int64, error) {
+	var count int64
+	err := dbCtx.Db.QueryRow(query).Scan(&count)
+	return count, err
+}
+
+// RegisterMarketGauges wires up the observable gauges that reflect point-in-time market state
+// (as opposed to the counters above, which only track events as they happen) - "how many players
+// are on the transfer market right now" can't be recovered from a counter of listings created,
+// since listings also disappear (bought, cancelled). Each gauge's callback re-runs a plain COUNT
+// query against dbCtx on every export tick (see InitMetrics's periodic reader), which is cheap
+// and always correct, rather than trying to track a running total that could drift from the real
+// table contents if a decrement path were ever missed. Called once from both
+// service.StartSvc and engine.StartEngine, right after each opens its own DatabaseContext.
+func RegisterMarketGauges(dbCtx *DatabaseContext) error {
+	var regErr error
+	marketGaugesOnce.Do(func() {
+		_, err := Meter.Int64ObservableGauge("striker.transfer_market.listed_players",
+			metric.WithDescription("Players currently listed for transfer"),
+			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
+				count, err := countRows(dbCtx, "SELECT count(*) FROM transfer_listings")
+				if err != nil {
+					return err
+				}
+				o.Observe(count)
+				return nil
+			}))
+		if err != nil {
+			regErr = err
+			return
+		}
+
+		_, err = Meter.Int64ObservableGauge("striker.loan_market.listed_players",
+			metric.WithDescription("Players currently listed for loan"),
+			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
+				count, err := countRows(dbCtx, "SELECT count(*) FROM loan_listings")
+				if err != nil {
+					return err
+				}
+				o.Observe(count)
+				return nil
+			}))
+		if err != nil {
+			regErr = err
+			return
+		}
+
+		_, err = Meter.Int64ObservableGauge("striker.loans.active",
+			metric.WithDescription("Players currently out on an active loan"),
+			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
+				count, err := countRows(dbCtx, "SELECT count(*) FROM player_loans")
+				if err != nil {
+					return err
+				}
+				o.Observe(count)
+				return nil
+			}))
+		if err != nil {
+			regErr = err
+			return
+		}
+	})
+	return regErr
+}
 
 // notificationTypeLabel maps a NOTIFICATION_* constant to a short, stable metric label - the
 // numeric constant itself would work as an attribute value too, but a name reads better on a
@@ -135,12 +229,26 @@ func LoginProviderAttribute(provider string) attribute.KeyValue {
 	return attribute.String("provider", provider)
 }
 
+// OfferOutcomeAttribute labels a resolved transfer offer - see TransferOffersResolvedCounter.
+func OfferOutcomeAttribute(outcome string) attribute.KeyValue {
+	return attribute.String("outcome", outcome)
+}
+
 // RecordMatchSimulated updates MatchesSimulatedCounter and GoalsScoredCounter for one
 // just-finished match - matchType is "league", "cup", or "friendly" (see each call site).
 func RecordMatchSimulated(ctx context.Context, matchType string, homeGoals int, awayGoals int) {
 	attrs := metric.WithAttributes(MatchTypeAttribute(matchType))
 	MatchesSimulatedCounter.Add(ctx, 1, attrs)
 	GoalsScoredCounter.Add(ctx, int64(homeGoals+awayGoals), attrs)
+}
+
+// RecordTransferCompleted updates TransfersCompletedCounter and TransferVolumeCounter for one
+// just-completed transfer, whether it came from a listing bought outright (ExecuteTransfer) or a
+// negotiated offer accepted (AcceptOffer) - both are "a transfer completed" from the economy's
+// point of view, so both feed the same two instruments.
+func RecordTransferCompleted(ctx context.Context, feeAmount int64) {
+	TransfersCompletedCounter.Add(ctx, 1)
+	TransferVolumeCounter.Add(ctx, feeAmount)
 }
 
 // otelMetricsEnabledEnvVar and otelServiceNameEnvVar are read directly (rather than through

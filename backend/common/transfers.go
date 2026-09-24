@@ -281,8 +281,7 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 		return err
 	}
 
-	TransfersCompletedCounter.Add(context.Background(), 1)
-	TransferVolumeCounter.Add(context.Background(), askingPrice)
+	RecordTransferCompleted(context.Background(), askingPrice)
 
 	// Best-effort, after the money has actually moved - a notification failure must never
 	// undo a completed transfer.

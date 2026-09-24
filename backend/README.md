@@ -414,7 +414,19 @@ production rather than exhaustive coverage of every code path:
   promotion/relegation, new fixtures) worth seeing happen in a dashboard, not just in logs.
 - **Transfers** (`striker.transfers.completed`, `striker.transfers.volume`) and **free agent
   signings** (`striker.free_agents.signed`) - the in-game economy's activity and the money moving
-  through it.
+  through it. Counted for both ways a transfer can complete: a listed player bought outright
+  (`ExecuteTransfer`) or a negotiated offer accepted (`AcceptOffer`) - see
+  `common.RecordTransferCompleted`.
+- **Transfer market size** (`striker.transfer_market.listed_players`) and **loan market size**
+  (`striker.loan_market.listed_players`) - observable gauges reporting how many players are
+  listed for transfer/loan right now, plus **active loans** (`striker.loans.active`) - how many
+  players are currently out on loan. Unlike the counters above, these are point-in-time snapshots
+  (re-queried on every export tick), not cumulative totals - see `common.RegisterMarketGauges`.
+- **Transfer offers** (`striker.offers.made`, and `striker.offers.resolved` labeled by `outcome`:
+  `accepted`/`rejected`/`withdrawn`) - the negotiated-offer side of the transfer market, separate
+  from the fixed-price listings above.
+- **Loans** (`striker.loans.listed`, `striker.loans.accepted`) - players newly offered out on
+  loan, and loan listings a borrowing team took up.
 - **Logins** (`striker.logins`, labeled by `provider`) and **new user registrations**
   (`striker.users.registered`) - the simplest signal of how much the game is actually being
   played.

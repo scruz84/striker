@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel/metric"
 )
 
 var ErrInvalidOfferAmount = errors.New("offer amount must be positive")
@@ -193,6 +195,7 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 	if err := LogTransferOfferMade(dbCtx); err != nil {
 		log.Errorf("error logging transfer offer activity: %s", err)
 	}
+	TransferOffersMadeCounter.Add(context.Background(), 1)
 
 	result.Accepted = true
 	result.OfferId = offerId
@@ -272,7 +275,11 @@ func WithdrawOffer(dbCtx *DatabaseContext, offerId int64, fromTeamId int64) erro
 		return ErrNotOfferSender
 	}
 	_, err = dbCtx.Db.Exec(DeleteTransferOfferStmtSql, offerId)
-	return err
+	if err != nil {
+		return err
+	}
+	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("withdrawn")))
+	return nil
 }
 
 // RejectOffer lets the team an offer was made to decline it - also allowed regardless of the
@@ -290,7 +297,11 @@ func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 		return ErrNotOfferRecipient
 	}
 	_, err = dbCtx.Db.Exec(DeleteTransferOfferStmtSql, offerId)
-	return err
+	if err != nil {
+		return err
+	}
+	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("rejected")))
+	return nil
 }
 
 // AcceptOffer executes the transfer at the offer's amount: moves the player, debits/credits both
@@ -410,6 +421,9 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	RecordTransferCompleted(context.Background(), amount)
+	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("accepted")))
 
 	_ = NotifyTeamOwner(dbCtx, toTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
 		Text:   "Sold " + playerName + " to " + buyerTeam.TeamName,

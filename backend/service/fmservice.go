@@ -51,6 +51,10 @@ func StartSvc() {
 
 	common.ConfigureWebPushNotifier(dbCtx)
 
+	if err := common.RegisterMarketGauges(dbCtx); err != nil {
+		log.Errorf("error registering transfer/loan market OpenTelemetry gauges: %s", err)
+	}
+
 	// Backfills the trainer market for a world that existed before the trainer feature shipped -
 	// see common.TopUpTrainerMarket.
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {

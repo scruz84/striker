@@ -3,6 +3,8 @@ package common
 import (
 	"context"
 	"testing"
+
+	"go.opentelemetry.io/otel/metric"
 )
 
 func TestNotificationTypeLabel_KnownAndUnknownTypes(t *testing.T) {
@@ -49,4 +51,17 @@ func TestRecordMatchSimulated_NeverPanics(t *testing.T) {
 	RecordMatchSimulated(context.Background(), "league", 2, 1)
 	HTTPRequestsCounter.Add(context.Background(), 1)
 	NotificationsSentCounter.Add(context.Background(), 1)
+}
+
+// TestRecordTransferCompleted_NeverPanics is the same smoke test as
+// TestRecordMatchSimulated_NeverPanics, for the transfer/loan market instruments added
+// alongside it - see ExecuteTransfer/AcceptOffer (RecordTransferCompleted), MakeTransferOffer/
+// AcceptOffer/RejectOffer/WithdrawOffer (TransferOffersMadeCounter/TransferOffersResolvedCounter),
+// and CreateLoanListing/AcceptLoan (LoanListingsCounter/LoansAcceptedCounter).
+func TestRecordTransferCompleted_NeverPanics(t *testing.T) {
+	RecordTransferCompleted(context.Background(), 1_000_000)
+	TransferOffersMadeCounter.Add(context.Background(), 1)
+	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("accepted")))
+	LoanListingsCounter.Add(context.Background(), 1)
+	LoansAcceptedCounter.Add(context.Background(), 1)
 }

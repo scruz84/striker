@@ -31,6 +31,10 @@ func StartEngine() {
 
 	common.ConfigureWebPushNotifier(dbCtx)
 
+	if err := common.RegisterMarketGauges(dbCtx); err != nil {
+		log.Errorf("error registering transfer/loan market OpenTelemetry gauges: %s", err)
+	}
+
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
