@@ -571,7 +571,16 @@
     "report": {
       "intro": "Thanks to the {{weather}} weather, a crowd of {{attendance}} gathered to watch the match. {{referee}} was the referee, assisted by {{assistant1}} and {{assistant2}}.",
       "kickoff": "Everyone is ready - the match is about to begin!",
-      "fullTime": "The referee blows the whistle for full time."
+      "fullTime": "The referee blows the whistle for full time.",
+      "summary": {
+        "title": "Match summary",
+        "chances": "Chances",
+        "goalChances": "Chances with a goal",
+        "missedChances": "Missed chances",
+        "yellowCards": "Yellow cards",
+        "redCards": "Red cards",
+        "injuries": "Injuries"
+      }
     },
     "ratings": {
       "title": "Player ratings"

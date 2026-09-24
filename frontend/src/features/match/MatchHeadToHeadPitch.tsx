@@ -12,13 +12,14 @@ interface MatchHeadToHeadPitchProps {
   homePlayers: Record<string, Player> | null
   awayLineup: Lineup | null
   awayPlayers: Record<string, Player> | null
+  ratings?: Record<string, number> | null
 }
 
 /** Both teams' starting XIs on one shared pitch, facing each other - home in the bottom half
  * (own goal at the bottom), away mirrored into the top half (own goal at the top) - the same
  * layout a broadcast head-to-head graphic uses, rather than each team getting its own separate
  * pitch. See pitchLayout.layoutHeadToHeadSlots for the coordinate math. */
-export function MatchHeadToHeadPitch({ homeLineup, homePlayers, awayLineup, awayPlayers }: MatchHeadToHeadPitchProps) {
+export function MatchHeadToHeadPitch({ homeLineup, homePlayers, awayLineup, awayPlayers, ratings }: MatchHeadToHeadPitchProps) {
   const { t } = useTranslation()
 
   if (!homeLineup || !homePlayers || !awayLineup || !awayPlayers || homeLineup.positions.length === 0 || awayLineup.positions.length === 0) {
@@ -35,8 +36,8 @@ export function MatchHeadToHeadPitch({ homeLineup, homePlayers, awayLineup, away
 
   return (
     <PitchField height={PITCH_HEIGHT_HEAD_TO_HEAD}>
-      {renderTeamSlots(homeSlots, homeLineup, homePlayers, t)}
-      {renderTeamSlots(awaySlots, awayLineup, awayPlayers, t)}
+      {renderTeamSlots(homeSlots, homeLineup, homePlayers, t, ratings)}
+      {renderTeamSlots(awaySlots, awayLineup, awayPlayers, t, ratings)}
     </PitchField>
   )
 }
@@ -46,6 +47,7 @@ function renderTeamSlots(
   lineup: Lineup,
   players: Record<string, Player>,
   t: (key: string) => string,
+  ratings?: Record<string, number> | null,
 ) {
   const playerIdBySlot = new Map<string, number>()
   for (const pos of lineup.positions) {
@@ -55,6 +57,7 @@ function renderTeamSlots(
   return slots.map((slot) => {
     const playerId = playerIdBySlot.get(`${slot.position}-${slot.slotIndex}`)
     const player = playerId !== undefined ? players[String(playerId)] : undefined
+    const rating = playerId !== undefined ? ratings?.[String(playerId)] : undefined
     return (
       <PitchSlotPosition
         key={`${lineup.teamId}-${slot.position}-${slot.slotIndex}`}
@@ -63,7 +66,7 @@ function renderTeamSlots(
         pitchHeight={PITCH_HEIGHT_HEAD_TO_HEAD}
       >
         {player ? (
-          <MatchPitchChip player={player} />
+          <MatchPitchChip player={player} rating={rating} />
         ) : (
           <Box
             sx={{

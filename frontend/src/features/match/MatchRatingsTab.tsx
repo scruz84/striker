@@ -6,15 +6,7 @@ import { useTranslation } from 'react-i18next'
 import type { Lineup, Player, WeekMatch } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
-
-// Most players cluster around the 6.0 base rating (see backend common.ComputeMatchRatings) -
-// only a genuinely strong or poor showing should read as green/red, so "default" (a neutral
-// gray) covers that whole unremarkable middle band rather than warning-orange swallowing it.
-function ratingColor(rating: number): 'success' | 'error' | 'default' {
-  if (rating >= 7.5) return 'success'
-  if (rating < 4) return 'error'
-  return 'default'
-}
+import { matchRatingColor } from '../../utils/matchRating'
 
 // A "Calificaciones" tab: every player who featured, grouped by team, with the 1-10 rating
 // backend common.ComputeMatchRatings derived for them - see that function's own doc comment for
@@ -66,7 +58,7 @@ function TeamRatingsColumn({
                 {player.firstName} {player.lastName}
               </PlayerNameLink>
             </Typography>
-            <Chip size="small" color={ratingColor(rating)} label={rating.toFixed(1)} sx={{ fontWeight: 700 }} />
+            <Chip size="small" color={matchRatingColor(rating)} label={rating.toFixed(1)} sx={{ fontWeight: 700 }} />
           </Stack>
         )
       })}

@@ -246,6 +246,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
               homePlayers={match.homePlayers}
               awayPlayers={match.awayPlayers}
               matchInstants={match.matchInstants}
+              ratings={match.ratings}
             />
           )}
         </Box>
@@ -265,6 +266,7 @@ export interface LineupsProps {
   homePlayers: WeekMatch['homePlayers']
   awayPlayers: WeekMatch['awayPlayers']
   matchInstants: WeekMatch['matchInstants']
+  ratings?: WeekMatch['ratings']
 }
 
 // The starting goalkeeper's own rating - not part of TeamQualification (see its own comment),
@@ -279,7 +281,18 @@ export function goalkeeperRating(lineup: WeekMatch['homeLineup'], players: WeekM
 // Exported for reuse by CupTieDetailsPage - a cup tie's lineups tab is otherwise identical, minus
 // per-minute instants (cup ties don't record those - see backend/common.CupTieDetails), so
 // callers there simply pass matchInstants={null}.
-export function Lineups({ homeId, homeName, awayId, awayName, homeLineup, awayLineup, homePlayers, awayPlayers, matchInstants }: LineupsProps) {
+export function Lineups({
+  homeId,
+  homeName,
+  awayId,
+  awayName,
+  homeLineup,
+  awayLineup,
+  homePlayers,
+  awayPlayers,
+  matchInstants,
+  ratings,
+}: LineupsProps) {
   // The kickoff instant (minute 1) reflects the same starting XI the pitch below shows - later
   // instants would drift as the match itself changes who's on the pitch (cards, injuries, subs).
   const kickoff = matchInstants?.[0]
@@ -308,6 +321,7 @@ export function Lineups({ homeId, homeName, awayId, awayName, homeLineup, awayLi
             homePlayers={homePlayers}
             awayLineup={awayLineup}
             awayPlayers={awayPlayers}
+            ratings={ratings}
           />
           <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
             <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>

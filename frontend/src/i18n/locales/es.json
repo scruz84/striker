@@ -571,7 +571,16 @@
     "report": {
       "intro": "Gracias al tiempo {{weather}}, un total de {{attendance}} aficionados se reunieron para presenciar el partido. {{referee}} fue el árbitro designado, junto a los asistentes {{assistant1}} y {{assistant2}}.",
       "kickoff": "¡Todo está listo, el partido está a punto de comenzar!",
-      "fullTime": "El árbitro pita el final del partido."
+      "fullTime": "El árbitro pita el final del partido.",
+      "summary": {
+        "title": "Resumen del partido",
+        "chances": "Ocasiones",
+        "goalChances": "Ocasiones con gol",
+        "missedChances": "Ocasiones falladas",
+        "yellowCards": "Tarjetas amarillas",
+        "redCards": "Tarjetas rojas",
+        "injuries": "Lesiones"
+      }
     },
     "ratings": {
       "title": "Calificaciones de los jugadores"

@@ -1,9 +1,11 @@
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import type { Lineup, Player } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
+import { matchRatingColor } from '../../utils/matchRating'
 
 // Lineup.positions is a flat list; a formation's central slots (e.g. two center-backs) share a
 // position id and are told apart only by their order of appearance for that position.
@@ -16,8 +18,15 @@ export function slotIndexWithinPosition(lineup: Lineup, target: Lineup['position
   return index
 }
 
-export function MatchPitchChip({ player }: { player: Player }) {
-  const label = `${player.firstName} ${player.lastName} (${player.age})`
+export function MatchPitchChip({ player, rating }: { player: Player; rating?: number }) {
+  const theme = useTheme()
+  const label =
+    rating === undefined
+      ? `${player.firstName} ${player.lastName} (${player.age})`
+      : `${player.firstName} ${player.lastName} (${player.age}) - ${rating.toFixed(1)}`
+  const ratingColor = rating === undefined ? undefined : matchRatingColor(rating)
+  const ratingBg =
+    ratingColor === undefined ? undefined : ratingColor === 'default' ? theme.palette.grey[600] : theme.palette[ratingColor].main
   return (
     <Tooltip title={label}>
       <Box
@@ -52,6 +61,27 @@ export function MatchPitchChip({ player }: { player: Player }) {
             >
               <Typography sx={{ color: '#fff', fontSize: '0.55rem', fontWeight: 700, lineHeight: 1 }}>
                 {player.shirtNumber}
+              </Typography>
+            </Box>
+          )}
+          {rating !== undefined && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -4,
+                left: -4,
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                bgcolor: ratingBg,
+                border: '1px solid rgba(255,255,255,0.85)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography sx={{ color: '#fff', fontSize: '0.5rem', fontWeight: 700, lineHeight: 1 }}>
+                {rating.toFixed(1)}
               </Typography>
             </Box>
           )}

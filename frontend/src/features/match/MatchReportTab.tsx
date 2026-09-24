@@ -10,6 +10,7 @@ import {
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
+  type MatchEvent,
   type WeekMatch,
 } from '../../api/types'
 import { commentaryFor } from '../../utils/matchCommentary'
@@ -22,6 +23,47 @@ const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_INJURY,
   EVENT_TYPE_SUBSTITUTION,
 ]
+
+interface TeamStats {
+  goals: number
+  missedChances: number
+  yellowCards: number
+  redCards: number
+  injuries: number
+}
+
+function emptyStats(): TeamStats {
+  return { goals: 0, missedChances: 0, yellowCards: 0, redCards: 0, injuries: 0 }
+}
+
+// Tallies each team's occasions (split into the ones that became a goal and the ones that
+// didn't), cards, and injuries from the same event list the timeline below narrates - a quick
+// scoreline-style summary of the match rather than a play-by-play.
+function statsByTeam(events: MatchEvent[], homeId: number): { home: TeamStats; away: TeamStats } {
+  const home = emptyStats()
+  const away = emptyStats()
+  for (const event of events) {
+    const stats = event.teamOwner === homeId ? home : away
+    switch (event.eventType) {
+      case EVENT_TYPE_GOAL:
+        stats.goals++
+        break
+      case EVENT_TYPE_NO_GOAL:
+        stats.missedChances++
+        break
+      case EVENT_TYPE_YELLOW_CARD:
+        stats.yellowCards++
+        break
+      case EVENT_TYPE_RED_CARD:
+        stats.redCards++
+        break
+      case EVENT_TYPE_INJURY:
+        stats.injuries++
+        break
+    }
+  }
+  return { home, away }
+}
 
 // A Hattrick-style narrative report: an intro paragraph (weather/crowd/referee flavor - see
 // backend common.UpdateMatchFlavor), then the same notable events the Summary tab lists as a
@@ -39,6 +81,7 @@ export function MatchReportTab({ match }: { match: WeekMatch }) {
 
   return (
     <Stack spacing={1.5}>
+      <MatchStatsSummary events={match.events ?? []} homeId={match.home} homeName={match.homeName} awayName={match.awayName} />
       {hasFlavor && (
         <ReportParagraph
           text={t('match.report.intro', {
@@ -62,6 +105,73 @@ export function MatchReportTab({ match }: { match: WeekMatch }) {
         return <ReportRow key={idx} minute={event.minute} homeGoals={event.homeGoals} awayGoals={event.awayGoals} text={commentary} />
       })}
       <ReportParagraph text={t('match.report.fullTime')} />
+    </Stack>
+  )
+}
+
+// A box-score-style summary above the narrative: total occasions each team created, split into
+// the ones that became a goal and the ones that didn't, plus cards and injuries - the numbers a
+// reader would otherwise have to tally themselves by scanning the whole event timeline below.
+function MatchStatsSummary({
+  events,
+  homeId,
+  homeName,
+  awayName,
+}: {
+  events: MatchEvent[]
+  homeId: number
+  homeName: string
+  awayName: string
+}) {
+  const { t } = useTranslation()
+  const { home, away } = statsByTeam(events, homeId)
+
+  const rows: Array<{ labelKey: string; home: number; away: number }> = [
+    { labelKey: 'match.report.summary.chances', home: home.goals + home.missedChances, away: away.goals + away.missedChances },
+    { labelKey: 'match.report.summary.goalChances', home: home.goals, away: away.goals },
+    { labelKey: 'match.report.summary.missedChances', home: home.missedChances, away: away.missedChances },
+    { labelKey: 'match.report.summary.yellowCards', home: home.yellowCards, away: away.yellowCards },
+    { labelKey: 'match.report.summary.redCards', home: home.redCards, away: away.redCards },
+    { labelKey: 'match.report.summary.injuries', home: home.injuries, away: away.injuries },
+  ]
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2 }}>
+      <Typography variant="subtitle2" gutterBottom>
+        {t('match.report.summary.title')}
+      </Typography>
+      <Stack spacing={1} sx={{ mb: 1 }}>
+        <Stack direction="row">
+          <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, textAlign: 'right', pr: 1 }} noWrap>
+            {homeName}
+          </Typography>
+          <Box sx={{ width: { xs: 130, sm: 160 } }} />
+          <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, pl: 1 }} noWrap>
+            {awayName}
+          </Typography>
+        </Stack>
+        {rows.map((row) => (
+          <StatRow key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} />
+        ))}
+      </Stack>
+    </Paper>
+  )
+}
+
+function StatRow({ label, home, away }: { label: string; home: number; away: number }) {
+  const homeStronger = home > away
+  const awayStronger = away > home
+  return (
+    <Stack direction="row" sx={{ alignItems: 'center' }}>
+      <Typography variant="body2" sx={{ flex: 1, textAlign: 'right', pr: 1, fontWeight: homeStronger ? 700 : 400 }}>
+        {home}
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ width: { xs: 130, sm: 160 }, textAlign: 'center' }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ flex: 1, pl: 1, fontWeight: awayStronger ? 700 : 400 }}>
+        {away}
+      </Typography>
     </Stack>
   )
 }
