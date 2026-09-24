@@ -51,9 +51,9 @@ func StartSvc() {
 
 	common.ConfigureWebPushNotifier(dbCtx)
 
-	if err := common.RegisterMarketGauges(dbCtx); err != nil {
-		log.Errorf("error registering transfer/loan market OpenTelemetry gauges: %s", err)
-	}
+	// RegisterMarketGauges is deliberately not called here - see its doc comment. Only
+	// engine.StartEngine registers it, so a normal svc+engine deployment (see
+	// docker-compose.yml) exports each gauge once instead of once per process.
 
 	// Backfills the trainer market for a world that existed before the trainer feature shipped -
 	// see common.TopUpTrainerMarket.

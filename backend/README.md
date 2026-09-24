@@ -439,6 +439,15 @@ production rather than exhaustive coverage of every code path:
 - **Notifications sent** (`striker.notifications.sent`, labeled by `type`) - a proxy for how much
   is happening across every user's game at once.
 
+A ready-made Grafana dashboard covering every metric above lives at
+`backend/resources/grafana/striker-dashboard.json`. Import it into Grafana (Dashboards > New >
+Import > Upload JSON file) and pick the Prometheus-compatible datasource that receives striker's
+OTLP metrics (Grafana Mimir/Cloud's native OTLP ingestion, or a Prometheus scraping an OTel
+Collector in front of it) when prompted. Its queries assume the OTel-to-Prometheus naming
+convention (dots become underscores, monotonic counters and histograms get their usual `_total`/
+`_bucket`/`_sum`/`_count` suffixes) - adjust the panels' PromQL if your pipeline names metrics
+differently.
+
 ## Local development (without Docker)
 
 ```bash

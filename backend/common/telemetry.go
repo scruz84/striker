@@ -117,10 +117,10 @@ var (
 		metric.WithDescription("Loan listings accepted"))
 )
 
-// marketGaugesOnce guards RegisterMarketGauges - both the API service and the engine process
-// open their own DatabaseContext and could each call it, and in combined mode (--svc --engine in
-// one process) both call it against the same package-level Meter, so registering the same
-// observable gauge twice needs to be a no-op rather than a duplicate-instrument error.
+// marketGaugesOnce guards RegisterMarketGauges - only engine.StartEngine calls it (see its own
+// doc comment below), but --svc --engine combined mode still runs both StartSvc and StartEngine
+// in one process against the same package-level Meter, so a second call within that same process
+// needs to stay a safe no-op rather than a duplicate-instrument error.
 var marketGaugesOnce sync.Once
 
 // queryInt64 runs a query that returns a single int64 column (a `SELECT count(*)` or
@@ -140,8 +140,14 @@ func queryInt64(dbCtx *DatabaseContext, query string) (int64, error) {
 // gauge's callback re-runs a plain aggregate query against dbCtx on every export tick (see
 // InitMetrics's periodic reader), which is cheap and always correct, rather than trying to track
 // a running total that could drift from the real table contents if an update path were ever
-// missed. Called once from both service.StartSvc and engine.StartEngine, right after each opens
-// its own DatabaseContext.
+// missed. Deliberately called only from engine.StartEngine, not service.StartSvc - a normal
+// deployment always runs both as separate containers (see docker-compose.yml), each with its own
+// service.name resource attribute (see InitMetrics), so calling this from both would export every
+// one of these gauges twice under two different series for the exact same DB-wide value (they're
+// plain aggregate queries, not scoped to whichever process happens to run the callback) - visible
+// in a dashboard as the same panel's value appearing duplicated. The counters above don't have
+// this problem since each one only fires from the process whose code path actually produced that
+// event.
 func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 	var regErr error
 	marketGaugesOnce.Do(func() {
