@@ -422,6 +422,12 @@ production rather than exhaustive coverage of every code path:
   listed for transfer/loan right now, plus **active loans** (`striker.loans.active`) - how many
   players are currently out on loan. Unlike the counters above, these are point-in-time snapshots
   (re-queried on every export tick), not cumulative totals - see `common.RegisterMarketGauges`.
+- **Total money in the economy** (`striker.economy.total_budget`) - every team's budget summed
+  together, right now. Also an observable gauge: a transfer or accepted offer just moves money
+  from one team's budget to another's (`striker.transfers.volume` tracks that flow), so this total
+  only actually moves when money is created or destroyed - season prize payouts, sponsor deals,
+  wage/stadium upkeep. Can go negative in aggregate if enough teams are in debt (see
+  `ErrTeamInsolvent`).
 - **Transfer offers** (`striker.offers.made`, and `striker.offers.resolved` labeled by `outcome`:
   `accepted`/`rejected`/`withdrawn`) - the negotiated-offer side of the transfer market, separate
   from the fixed-price listings above.

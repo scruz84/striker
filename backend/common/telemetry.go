@@ -123,29 +123,32 @@ var (
 // observable gauge twice needs to be a no-op rather than a duplicate-instrument error.
 var marketGaugesOnce sync.Once
 
-// countRows runs a `SELECT count(*) ...`-shaped query and returns its single int64 result -
-// exists purely so RegisterMarketGauges's callbacks stay one line each.
-func countRows(dbCtx *DatabaseContext, query string) (int64, error) {
-	var count int64
-	err := dbCtx.Db.QueryRow(query).Scan(&count)
-	return count, err
+// queryInt64 runs a query that returns a single int64 column (a `SELECT count(*)` or
+// `SELECT SUM(...)`) and returns it - exists purely so RegisterMarketGauges's callbacks stay one
+// line each.
+func queryInt64(dbCtx *DatabaseContext, query string) (int64, error) {
+	var result int64
+	err := dbCtx.Db.QueryRow(query).Scan(&result)
+	return result, err
 }
 
-// RegisterMarketGauges wires up the observable gauges that reflect point-in-time market state
+// RegisterMarketGauges wires up the observable gauges that reflect point-in-time economy state
 // (as opposed to the counters above, which only track events as they happen) - "how many players
-// are on the transfer market right now" can't be recovered from a counter of listings created,
-// since listings also disappear (bought, cancelled). Each gauge's callback re-runs a plain COUNT
-// query against dbCtx on every export tick (see InitMetrics's periodic reader), which is cheap
-// and always correct, rather than trying to track a running total that could drift from the real
-// table contents if a decrement path were ever missed. Called once from both
-// service.StartSvc and engine.StartEngine, right after each opens its own DatabaseContext.
+// are on the transfer market right now" or "how much money is in the economy right now" can't be
+// recovered from a counter of listings created or fees paid, since listings disappear (bought,
+// cancelled) and transfers just move money between teams rather than create or destroy it. Each
+// gauge's callback re-runs a plain aggregate query against dbCtx on every export tick (see
+// InitMetrics's periodic reader), which is cheap and always correct, rather than trying to track
+// a running total that could drift from the real table contents if an update path were ever
+// missed. Called once from both service.StartSvc and engine.StartEngine, right after each opens
+// its own DatabaseContext.
 func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 	var regErr error
 	marketGaugesOnce.Do(func() {
 		_, err := Meter.Int64ObservableGauge("striker.transfer_market.listed_players",
 			metric.WithDescription("Players currently listed for transfer"),
 			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
-				count, err := countRows(dbCtx, "SELECT count(*) FROM transfer_listings")
+				count, err := queryInt64(dbCtx, "SELECT count(*) FROM transfer_listings")
 				if err != nil {
 					return err
 				}
@@ -160,7 +163,7 @@ func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 		_, err = Meter.Int64ObservableGauge("striker.loan_market.listed_players",
 			metric.WithDescription("Players currently listed for loan"),
 			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
-				count, err := countRows(dbCtx, "SELECT count(*) FROM loan_listings")
+				count, err := queryInt64(dbCtx, "SELECT count(*) FROM loan_listings")
 				if err != nil {
 					return err
 				}
@@ -175,11 +178,34 @@ func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 		_, err = Meter.Int64ObservableGauge("striker.loans.active",
 			metric.WithDescription("Players currently out on an active loan"),
 			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
-				count, err := countRows(dbCtx, "SELECT count(*) FROM player_loans")
+				count, err := queryInt64(dbCtx, "SELECT count(*) FROM player_loans")
 				if err != nil {
 					return err
 				}
 				o.Observe(count)
+				return nil
+			}))
+		if err != nil {
+			regErr = err
+			return
+		}
+
+		// TotalTeamBudget is every team's budget summed together - the total amount of money
+		// that exists in the game's economy right now. It moves only when money is actually
+		// created or destroyed (season prize payouts, sponsor deals, stadium/wage upkeep), never
+		// by a transfer or transfer offer, which just moves an existing amount from one team's
+		// budget to another's - so this is a genuinely different signal than
+		// striker.transfers.volume, which tracks flow rather than the standing total. Can go
+		// negative in aggregate if enough teams are in debt (see ErrTeamInsolvent/MaxDebt), so
+		// this is a plain SELECT sum, not a count.
+		_, err = Meter.Int64ObservableGauge("striker.economy.total_budget",
+			metric.WithDescription("Sum of every team's budget - total money currently in the game economy"),
+			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
+				total, err := queryInt64(dbCtx, "SELECT COALESCE(SUM(budget), 0) FROM teams")
+				if err != nil {
+					return err
+				}
+				o.Observe(total)
 				return nil
 			}))
 		if err != nil {

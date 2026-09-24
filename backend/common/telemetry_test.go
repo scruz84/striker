@@ -65,3 +65,21 @@ func TestRecordTransferCompleted_NeverPanics(t *testing.T) {
 	LoanListingsCounter.Add(context.Background(), 1)
 	LoansAcceptedCounter.Add(context.Background(), 1)
 }
+
+// TestRegisterMarketGauges_RegistersOnceWithoutTouchingDatabase confirms that registering the
+// observable gauges (striker.transfer_market.listed_players, striker.loan_market.listed_players,
+// striker.loans.active, striker.economy.total_budget) never errors and, thanks to
+// marketGaugesOnce, is safe to call more than once - both StartSvc and StartEngine call it, and
+// combined mode (--svc --engine) runs both in the same process against the same package-level
+// Meter. It's registration-only: under the default no-op MeterProvider (the state this test runs
+// under), an observable gauge's callback is never actually invoked, so passing a DatabaseContext
+// with no real *sql.DB is safe here even though the callbacks assume a live one.
+func TestRegisterMarketGauges_RegistersOnceWithoutTouchingDatabase(t *testing.T) {
+	dbCtx := &DatabaseContext{}
+	if err := RegisterMarketGauges(dbCtx); err != nil {
+		t.Fatalf("expected no error registering market gauges, got %s", err)
+	}
+	if err := RegisterMarketGauges(dbCtx); err != nil {
+		t.Fatalf("expected a second call to be a no-op, got %s", err)
+	}
+}
