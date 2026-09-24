@@ -102,8 +102,12 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    active lineup for the rest of the match (nobody replaces them - there's no substitution model
    for this) and banned 1-2 matches (`SecondYellowSuspensionMatches`/`StraightRedSuspensionMatches`).
 5. **InjurySimulation** (`engine/injury_simulation.go`) - independently, a flat 1.5% chance per
-   minute (`ProbInjuryIncident`) of an injury, also removing the player from the rest of the match
-   and sidelining them 1-5 more matches.
+   minute (`ProbInjuryIncident`) of an injury, removing the player from the rest of the match and
+   sidelining them 1-5 more matches. Unlike a card, this doesn't necessarily leave the team a man
+   down: if they haven't already used all `MaxScheduledSubstitutions` (3, shared with the
+   manager's own scheduled swaps above) this match, the best available bench player is brought on
+   in the injured player's place (`bringOnInjuryReplacement`), logged as an ordinary substitution
+   event. With no substitutions left, the injured player simply isn't replaced.
 
 Goalkeepers are exempt from cards/injuries (there's no substitute to bring on for one). Both
 teams' finances are updated once the full 90 minutes resolve (ticket revenue, sponsorship - see

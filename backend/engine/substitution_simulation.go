@@ -7,14 +7,17 @@ import "github.com/scruz84/striker/common"
 // swapping the outgoing player out of whichever position they're still occupying for the
 // incoming player, in that same slot. Runs first in the pipeline each minute (see
 // runMatchSimulation) so every later stage that minute - qualification diffs, scoring,
-// discipline, injury - already sees the new player on the pitch.
+// discipline, injury - already sees the new player on the pitch. Each swap that actually fires
+// counts against the team's HomeSubstitutionsUsed/AwaySubstitutionsUsed, the same running total
+// InjurySimulation checks before bringing on an emergency replacement for an injured player -
+// the two draw from one shared pool of common.MaxScheduledSubstitutions per match.
 type SubstitutionSimulation struct{}
 
 func (s SubstitutionSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	applyScheduledSubstitutions(match, match.HomeSubstitutions, match.HomePlayersByPosition,
-		match.HomePlayers, match.Home, match.Away)
+		match.HomePlayers, match.Home, match.Away, &match.HomeSubstitutionsUsed)
 	applyScheduledSubstitutions(match, match.AwaySubstitutions, match.AwayPlayersByPosition,
-		match.AwayPlayers, match.Away, match.Home)
+		match.AwayPlayers, match.Away, match.Home, &match.AwaySubstitutionsUsed)
 }
 
 // applyScheduledSubstitutions runs every one of a team's planned substitutions due this minute.
@@ -25,7 +28,8 @@ func (s SubstitutionSimulation) Apply(dbCtx *common.DatabaseContext, match *comm
 // same "understaffed is fine, duplicated/invalid is not" tolerance the rest of the simulation
 // already applies.
 func applyScheduledSubstitutions(match *common.MatchSimulation, substitutions []common.LineupSubstitution,
-	playersByPosition *map[int][]int64, players *map[int64]common.Player, teamId int64, otherTeam int64) {
+	playersByPosition *map[int][]int64, players *map[int64]common.Player, teamId int64, otherTeam int64,
+	substitutionsUsed *int) {
 	for _, sub := range substitutions {
 		if sub.Minute != match.Minute {
 			continue
@@ -38,6 +42,7 @@ func applyScheduledSubstitutions(match *common.MatchSimulation, substitutions []
 
 		removePlayerFromPosition(playersByPosition, position, sub.PlayerOutId)
 		(*playersByPosition)[position] = append((*playersByPosition)[position], sub.PlayerInId)
+		*substitutionsUsed++
 
 		outName := (*players)[sub.PlayerOutId].FirstName + " " + (*players)[sub.PlayerOutId].LastName
 		inName := (*players)[sub.PlayerInId].FirstName + " " + (*players)[sub.PlayerInId].LastName

@@ -309,6 +309,19 @@ type MatchSimulation struct {
 	//removed, since each minute of the simulation loop runs exactly once.
 	HomeSubstitutions []LineupSubstitution
 	AwaySubstitutions []LineupSubstitution
+	//SubstitutionsUsed: how many of a team's MaxScheduledSubstitutions have actually been spent
+	//so far this match - incremented by engine.SubstitutionSimulation for a scheduled swap that
+	//fires and by engine.InjurySimulation for an emergency one, so whichever runs later in a
+	//given minute sees the other's count. Caps how many more emergency substitutions an injury
+	//can trigger - once a team has none left, an injured player simply isn't replaced.
+	HomeSubstitutionsUsed int
+	AwaySubstitutionsUsed int
+	//UnavailablePlayers: each team's players already ruled out for this match before kickoff
+	//(suspension/injury carried over from a previous match - see engine.excludeUnavailablePlayers),
+	//kept here so engine.InjurySimulation can skip them too when picking a bench player to bring
+	//on for someone injured mid-match, without re-querying the database.
+	HomeUnavailablePlayers map[int64]bool
+	AwayUnavailablePlayers map[int64]bool
 	//MinutesByPosition: per player, minutes spent at each tactical position they occupied
 	//during this match (playerId -> position -> minutes) - see engine.trackMinutesByPosition.
 	//Consumed by RecordPlayerPositionMinutes into the season-long accumulator that

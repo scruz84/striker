@@ -109,13 +109,19 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 
 	// Suspended/injured starters must not play even if they're still in the saved lineup - and
 	// rather than leaving their slot empty for the match, the next-best available squad player
-	// steps in, same as a real substitute (see backfillEmptyPositions).
-	if err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers); err != nil {
+	// steps in, same as a real substitute (see backfillEmptyPositions). The returned sets are
+	// kept on the match so InjurySimulation can reuse them later, when picking a bench player to
+	// bring on for someone injured mid-match, without re-querying the database.
+	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers)
+	if err != nil {
 		return nil, err
 	}
-	if err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition, *awayPlayers); err != nil {
+	awayUnavailable, err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition, *awayPlayers)
+	if err != nil {
 		return nil, err
 	}
+	matchSimulation.HomeUnavailablePlayers = homeUnavailable
+	matchSimulation.AwayUnavailablePlayers = awayUnavailable
 
 	simulations := make([]Simulation, 0)
 	simulations = append(simulations, SubstitutionSimulation{}, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
@@ -163,10 +169,10 @@ func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPositio
 // DisciplineSimulation/InjurySimulation) - if it ever did, an empty GOALKEEPER slice would
 // panic elsewhere (e.g. ScorerSimulation's goalkeeper value lookup), so this is cheap,
 // deliberate insurance; the backfill pass, unlike the exclusion, does cover every position.
-func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player) error {
+func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player) (map[int64]bool, error) {
 	unavailable, err := common.GetUnavailablePlayerIds(dbCtx, teamId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	originalCounts := make(map[int]int, len(common.ALL_OUTFIELD_POSITIONS))
@@ -176,7 +182,7 @@ func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, play
 
 	filterOutfieldPlayers(playersByPosition, unavailable)
 	backfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)
-	return nil
+	return unavailable, nil
 }
 
 // filterOutfieldPlayers removes every player in `exclude` from a team's non-goalkeeper
