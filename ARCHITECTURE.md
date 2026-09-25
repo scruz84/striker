@@ -145,10 +145,16 @@ once they're already an admin themselves.
 
 ### Player lifecycle
 
-All of this runs from `engine.ProgressPlayers`/`engine.ProgressFreeAgents`, called once per
-season from `engine.AdvanceSeasonIfComplete` - see backend/README.md's "Player aging and decline",
-"Free agency has a time limit", and "Youth academy (cantera)" sections for the full detail; the
-short version, since it's easy to get wrong when touching any one piece in isolation:
+Retirement, free agency, and the academy all still run from `engine.ProgressPlayers`/
+`engine.ProgressFreeAgents`, called once per season from `engine.AdvanceSeasonIfComplete` - see
+backend/README.md's "Player aging and decline", "Free agency has a time limit", and "Youth
+academy (cantera)" sections for the full detail. Skill drift itself, though, is no longer part of
+that season-end pass: it's triggered match-by-match instead, right after each competitive match a
+player features in (`engine.updatePlayerSkillsAfterMatch`, called from
+`engine.updateSkillsAfterCompetitiveMatch` in both `engine.simulateMatch` and
+`engine/cups.go`'s `simulateCupTie`) - see GAME_MECHANICS.md's "Player skill progression" for the
+full detail. The short version of what's still true either way, since it's easy to get wrong when
+touching any one piece in isolation:
 
 - **Skills drift with age**, not indefinitely: young players trend up, prime-age players hold
   flat, and past age 30 they trend down (`engine.ageTrendFor`). A hired trainer's growth bonus

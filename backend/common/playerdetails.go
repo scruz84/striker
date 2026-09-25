@@ -178,10 +178,10 @@ type PlayerDetails struct {
 	// Empty for a free agent. Unlike History/skills, this is never redacted: a team's results and
 	// which matches a player featured in are public the same way ClubHistory is.
 	RecentMatches []PlayerMatchSummary `json:"recentMatches"`
-	// LatestEvolution is this player's most recent season-end progression run (see
-	// GetLatestPlayerEvolution) - nil if they've never been through one, or (like skills
-	// generally, see RedactSkills) if the viewer isn't the owning team and this player isn't a
-	// free agent or transfer-listed.
+	// LatestEvolution is this player's most recent match-triggered progression run (see
+	// GetLatestPlayerEvolution and engine.updatePlayerSkillsAfterMatch) - nil if they've never
+	// been through one, or (like skills generally, see RedactSkills) if the viewer isn't the
+	// owning team and this player isn't a free agent or transfer-listed.
 	LatestEvolution *PlayerEvolution `json:"latestEvolution,omitempty"`
 }
 

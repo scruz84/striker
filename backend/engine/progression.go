@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
@@ -87,10 +86,11 @@ func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
 	return value
 }
 
-// primaryPosition picks the tactical position a player spent the most minutes at this season
-// (see common.GetTeamPlayerPositionMinutes), ties broken by the lowest position id for
-// determinism, and sums their total minutes across every position they occupied. ok is false
-// only when the player has no recorded minutes at all - i.e. they never played.
+// primaryPosition picks the tactical position with the most minutes in a minutesByPosition map -
+// a single match's (see updatePlayerSkillsAfterMatch) or, previously, a whole season's - ties
+// broken by the lowest position id for determinism, and sums total minutes across every position
+// occupied. ok is false only when there are no recorded minutes at all - i.e. the player never
+// took the field.
 func primaryPosition(minutesByPosition map[int]int) (position int, totalMinutes int, ok bool) {
 	position, bestMinutes := -1, -1
 	for p, minutes := range minutesByPosition {
@@ -106,8 +106,9 @@ func primaryPosition(minutesByPosition map[int]int) (position int, totalMinutes 
 // skills actually get used playing `position` - mirroring common.PositionValue's own
 // position->attribute weighting, so what improves tracks exactly what match minutes at that
 // position would plausibly sharpen (a defender's shooting doesn't get better from defending).
-// Every relevant skill independently rolls playChance (see common.FullSeasonMinutesReference)
-// before drifting; skills outside the relevant set are always left untouched.
+// Every relevant skill independently rolls playChance (see updatePlayerSkillsAfterMatch's
+// MatchSkillGrowthMinutesReference) before drifting; skills outside the relevant set are always
+// left untouched.
 func driftSkillsForPosition(p common.Player, position int, playChance float32, age int, trainerSkill int, r *rand.Rand) (
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) {
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot =
@@ -139,26 +140,104 @@ func driftSkillsForPosition(p common.Player, position int, playChance float32, a
 	return
 }
 
+// MatchSkillGrowthMinutesReference is the minutes-played benchmark
+// updatePlayerSkillsAfterMatch treats as "a full match" (90 minutes) for skill-growth purposes,
+// but scaled by the same 10-full-matches budget the old season-end system used (see this file's
+// git history for the season-long FullSeasonMinutesReference this replaces): a player's chance
+// of any given relevant skill drifting after one match is that match's minutes divided by this
+// reference, so someone who starts and finishes every match still only has roughly a 1-in-10
+// chance of a given skill moving per game they play, rather than nearly guaranteed growth every
+// single match - across a full season of starts that lands in the same ballpark as the old
+// once-a-season roll, just spread out match-by-match instead of saved up for one big drift.
+const MatchSkillGrowthMinutesReference = 900
+
+// updatePlayerSkillsAfterMatch is skill growth's actual trigger: called from
+// updateSkillsAfterCompetitiveMatch right after a competitive match is simulated (see
+// engine.simulateMatch/simulateCupTie), it drifts skills for every player who featured, using
+// that match's own in-memory minutesByPosition (MatchSimulation.HomeMinutesByPosition/
+// AwayMinutesByPosition) rather than a season-long accumulator - this fully replaces the old
+// season-end drift that used to run once per season in ProgressPlayers (removed - keeping both
+// would double-count the same minutes toward growth twice). Age, and a hired head coach's skill
+// (see common.GetTeamTrainer), work exactly as they did in the season-end system (see
+// driftSkill) - only the trigger and the per-event magnitude changed, not what influences
+// growth. Deliberately never called for friendly matches (see engine.simulateFriendly) - see
+// updateSkillsAfterCompetitiveMatch's own doc comment for why. season is the current one,
+// stamped on each common.LogPlayerProgression row (the same audit trail the season-end system
+// used to write to, just with many more, smaller rows now).
+func updatePlayerSkillsAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation, season int) {
+	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+	updateTeamPlayersAfterMatch(dbCtx, match.Home, match.HomePlayers, match.HomeMinutesByPosition, season, r)
+	updateTeamPlayersAfterMatch(dbCtx, match.Away, match.AwayPlayers, match.AwayMinutesByPosition, season, r)
+}
+
+// updateTeamPlayersAfterMatch is updatePlayerSkillsAfterMatch's per-team half - separated out
+// since a match always has two independent sides, each with its own trainer and its own subset
+// of minutesByPosition.
+func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, players *map[int64]common.Player,
+	minutesByPosition map[int64]map[int]int, season int, r *rand.Rand) {
+	if players == nil || len(minutesByPosition) == 0 {
+		return
+	}
+
+	trainerSkill := 0
+	if trainer, err := common.GetTeamTrainer(dbCtx, teamId); err != nil {
+		log.Errorf("error getting trainer for team %d match progression: %s", teamId, err)
+	} else if trainer != nil {
+		trainerSkill = trainer.Skill
+	}
+
+	for playerId, minutesAtPosition := range minutesByPosition {
+		player, ok := (*players)[playerId]
+		if !ok {
+			continue
+		}
+
+		position, totalMinutes, played := primaryPosition(minutesAtPosition)
+		if !played {
+			continue
+		}
+		playChance := float32(totalMinutes) / float32(MatchSkillGrowthMinutesReference)
+		if playChance > 1 {
+			playChance = 1
+		}
+
+		goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
+			driftSkillsForPosition(player, position, playChance, player.Age, trainerSkill, r)
+
+		if goalKeeper == player.GoalKeeper && defense == player.Defense && lateral == player.Lateral &&
+			pass == player.Pass && midfield == player.Midfield && dribbling == player.Dribbling && shot == player.Shot {
+			continue // nothing actually drifted this match - not worth a write or a log row
+		}
+
+		if err := common.UpdatePlayerProgression(dbCtx, player.Id, player.Age,
+			goalKeeper, defense, lateral, pass, midfield, dribbling, shot); err != nil {
+			log.Errorf("error updating match progression for player %d: %s", player.Id, err)
+			continue
+		}
+		if err := common.LogPlayerProgression(dbCtx, player.Id, season, player.Age, player.Age,
+			player.GoalKeeper, goalKeeper, player.Defense, defense, player.Lateral, lateral,
+			player.Pass, pass, player.Midfield, midfield, player.Dribbling, dribbling,
+			player.Shot, shot); err != nil {
+			log.Errorf("error logging match progression for player %d: %s", player.Id, err)
+		}
+	}
+}
+
 // ProgressPlayers advances every player on every team by one season: retirees are removed, and
 // their contract ticks down by one season (see common.AdvancePlayerContract - a contract
 // reaching zero releases the player to free agency) regardless of anything below. Age itself is
 // no longer touched here - it advances on its own periodic cycle (see ProcessBirthdays) - this
-// just reads each player's current age for the retirement check and to drive skill drift. Skills,
-// though, only change for a player who actually played a competitive minute this season (see
-// common.GetTeamPlayerPositionMinutes) - someone nobody fielded keeps every attribute exactly as
-// it was, growth or decline alike. For a player who did play, only the skills relevant to
-// whichever position they spent the most minutes at drift (see driftSkillsForPosition -
-// mirrors common.PositionValue's own position->attribute weighting), each independently, with a
-// chance that scales with their total minutes played this season up to
-// common.FullSeasonMinutesReference (see driftSkill for the age trend and a hired head coach's
-// trainerBonus, from common.GetTeamTrainer, that drift then applies). Any team left short of a
-// full squad (by either retirement or an expired contract) is topped back up from the youth
-// academy (see common.CreateAcademyPlayers, also trainer-boosted). Also tops up the open trainer
-// market (see common.TopUpTrainerMarket) and clears the season's minutes accumulator once it's
-// been read. Meant to run once per season, from AdvanceSeasonIfComplete. season is the one that
-// just completed - stamped on each common.LogPlayerProgression row and named in the resulting
-// NOTIFICATION_PROGRESSION notification.
-func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
+// just reads each player's current age for the retirement check. Skills are no longer touched
+// here at all: that used to be a season-end drift keyed off a whole season's accumulated
+// minutes-by-position, but it's now applied match-by-match instead, right after each match a
+// player actually features in (see updatePlayerSkillsAfterMatch) - a season-end pass over the
+// same minutes would double-count exactly the growth those per-match updates already applied,
+// so this function's only remaining jobs are retirement, contracts, and squad upkeep. Any team
+// left short of a full squad (by either retirement or an expired contract) is topped back up
+// from the youth academy (see common.CreateAcademyPlayers, trainer-boosted). Also tops up the
+// open trainer market (see common.TopUpTrainerMarket). Meant to run once per season, from
+// AdvanceSeasonIfComplete.
+func ProgressPlayers(dbCtx *common.DatabaseContext) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
 	teamIds, err := common.GetAllTeamIds(dbCtx)
@@ -181,49 +260,12 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 			trainerSkill = trainer.Skill
 		}
 
-		minutesByPlayer, err := common.GetTeamPlayerPositionMinutes(dbCtx, teamId)
-		if err != nil {
-			log.Errorf("error getting position minutes for team %d progression: %s", teamId, err)
-			minutesByPlayer = nil // treat as "nobody played" rather than block the season rollover
-		}
-
-		evolvedCount := 0
-
 		for _, player := range *players {
-			newAge := player.Age
-			if ShouldRetire(newAge, r) {
+			if ShouldRetire(player.Age, r) {
 				if err := common.RetirePlayer(dbCtx, player.Id); err != nil {
 					log.Errorf("error retiring player %d: %s", player.Id, err)
 				}
 				continue
-			}
-
-			goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
-				player.GoalKeeper, player.Defense, player.Lateral, player.Pass, player.Midfield, player.Dribbling, player.Shot
-
-			if position, totalMinutes, played := primaryPosition(minutesByPlayer[player.Id]); played {
-				playChance := float32(totalMinutes) / float32(common.FullSeasonMinutesReference)
-				if playChance > 1 {
-					playChance = 1
-				}
-				goalKeeper, defense, lateral, pass, midfield, dribbling, shot =
-					driftSkillsForPosition(*player, position, playChance, newAge, trainerSkill, r)
-			}
-
-			if err := common.UpdatePlayerProgression(dbCtx, player.Id, newAge,
-				goalKeeper, defense, lateral, pass, midfield, dribbling, shot); err != nil {
-				log.Errorf("error updating progression for player %d: %s", player.Id, err)
-			}
-
-			if err := common.LogPlayerProgression(dbCtx, player.Id, season, player.Age, newAge,
-				player.GoalKeeper, goalKeeper, player.Defense, defense, player.Lateral, lateral,
-				player.Pass, pass, player.Midfield, midfield, player.Dribbling, dribbling,
-				player.Shot, shot); err != nil {
-				log.Errorf("error logging progression for player %d: %s", player.Id, err)
-			}
-			if goalKeeper != player.GoalKeeper || defense != player.Defense || lateral != player.Lateral ||
-				pass != player.Pass || midfield != player.Midfield || dribbling != player.Dribbling || shot != player.Shot {
-				evolvedCount++
 			}
 
 			released, err := common.AdvancePlayerContract(dbCtx, player.Id)
@@ -234,27 +276,12 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 			}
 		}
 
-		if evolvedCount > 0 {
-			msg := common.NotificationMessage{
-				Text:   fmt.Sprintf("%d of your players developed this season - check their latest evolutions", evolvedCount),
-				Key:    "notifications.messages.playerEvolutions",
-				Params: map[string]any{"count": evolvedCount},
-			}
-			if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, msg, "/players/evolutions"); err != nil {
-				log.Errorf("error notifying team %d of player evolutions: %s", teamId, err)
-			}
-		}
-
 		topUpAcademy(dbCtx, teamId, trainerSkill)
 		autoManageLineupIfUnowned(dbCtx, teamId)
 	}
 
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {
 		log.Errorf("error topping up trainer market: %s", err)
-	}
-
-	if err := common.ClearPlayerPositionMinutes(dbCtx); err != nil {
-		log.Errorf("error clearing player position minutes after progression: %s", err)
 	}
 }
 

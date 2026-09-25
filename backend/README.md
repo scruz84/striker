@@ -304,16 +304,22 @@ the figure a prospective signer needs to see.
 
 ### Player aging and decline
 
-A rostered player's core skills only drift for whichever attributes are relevant to the position
-they actually played the most minutes at that season (`engine.driftSkillsForPosition`), by an
-amount that trends with age (`engine.ageTrendFor`): upward below 24, flat in their prime (24-29),
-downward from 30 on. A hired trainer's growth bonus (`engine.trainerBonus`) only ever applies
-while that trend is still flat or rising - once a player is past 30, a great coach can no longer
-reverse the decline, only fail to slow it down, so a veteran's skills merely hold steady at best
-each season rather than climbing indefinitely no matter how good their coaching is
-(`engine.driftSkill`). On top of that, `engine.ShouldRetire` forces every player out of the game
-eventually regardless of skill: never below 33, a rising chance each year after that, and always
-by 40.
+A rostered player's core skills drift match-by-match, not once a season: right after every
+competitive match (league or cup) they feature in, only whichever attributes are relevant to
+whichever position they played the most minutes at *in that match* have a chance to move
+(`engine.driftSkillsForPosition`), by an amount that trends with age (`engine.ageTrendFor`):
+upward below 24, flat in their prime (24-29), downward from 30 on. A hired trainer's growth bonus
+(`engine.trainerBonus`) only ever applies while that trend is still flat or rising - once a
+player is past 30, a great coach can no longer reverse the decline, only fail to slow it down, so
+a veteran's skills merely hold steady at best rather than climbing indefinitely no matter how
+good their coaching is (`engine.driftSkill`). Each relevant skill's chance of actually drifting
+that match scales with minutes played in it, up to `engine.MatchSkillGrowthMinutesReference` (900
+- the same 10-full-matches budget a season-end drift used to spend all at once, just spread out
+match by match now, so a single game rarely moves more than a skill or two). See
+GAME_MECHANICS.md's "Player skill progression" for the full mechanism. On top of that,
+`engine.ShouldRetire` forces every player out of the game eventually regardless of skill: never
+below 33, a rising chance each year after that, and always by 40 - that part is still checked
+once a season, in `engine.ProgressPlayers`.
 
 ### Free agency has a time limit
 

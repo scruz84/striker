@@ -652,18 +652,6 @@ CREATE TABLE default_lineup_substitutions (
     PRIMARY KEY (team_id, slot)
 );
 
--- Accumulates each player's minutes played at each tactical position across the current
--- season's competitive matches (league + cup - deliberately NOT friendlies). Consumed and
--- cleared once per season by engine.ProgressPlayers, which gates skill growth on having actually
--- played, restricted to the skills relevant to whichever position a player spent the most
--- minutes at, scaled by how many minutes they played in total.
-CREATE TABLE player_position_minutes (
-    player_id bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
-    position  smallint NOT NULL,
-    minutes   int NOT NULL DEFAULT 0,
-    PRIMARY KEY (player_id, position)
-);
-
 -- Indexes carried over unchanged from the original schema.
 create index classification_idx1 on classification (league_id);
 create index classification_idx2 on classification(team_id);

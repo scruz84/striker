@@ -22,7 +22,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
 	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
-	recordPlayerMinutes(dbCtx, matchSimulation)
+	updateSkillsAfterCompetitiveMatch(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, func() {
 		NotifyMatchResult(dbCtx, matchSimulation)
 	})
@@ -31,19 +31,20 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	return matchSimulation, nil
 }
 
-// recordPlayerMinutes persists a just-simulated competitive match's per-player-per-position
-// minutes into the season-long accumulator engine.ProgressPlayers reads at season rollover (see
-// common.RecordPlayerPositionMinutes) - shared by league matches (here) and cup ties (see
-// engine/cups.go's simulateCupTie). Deliberately NOT called for friendly matches - see
-// engine/friendlies.go's simulateFriendly and init26_friendlies.sql's own rationale for why
-// friendlies have no effect beyond the match itself.
-func recordPlayerMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	if err := common.RecordPlayerPositionMinutes(dbCtx, match.HomeMinutesByPosition); err != nil {
-		log.Errorf("error recording home player minutes for match %d: %s", match.Id, err)
+// updateSkillsAfterCompetitiveMatch drifts skills for every player who featured in a
+// just-simulated competitive match (see updatePlayerSkillsAfterMatch) - shared by league matches
+// (here) and cup ties (see engine/cups.go's simulateCupTie). Deliberately NOT called for friendly
+// matches - see engine/friendlies.go's simulateFriendly and init26_friendlies.sql's own rationale
+// for why friendlies have no effect beyond the match itself. Looks up the current season itself
+// (see GetCurrentSeason) rather than taking it as a parameter, since neither of its two callers
+// otherwise has it in scope.
+func updateSkillsAfterCompetitiveMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+	season, err := GetCurrentSeason(dbCtx)
+	if err != nil {
+		log.Errorf("error getting current season for match %d skill progression: %s", match.Id, err)
+		return
 	}
-	if err := common.RecordPlayerPositionMinutes(dbCtx, match.AwayMinutesByPosition); err != nil {
-		log.Errorf("error recording away player minutes for match %d: %s", match.Id, err)
-	}
+	updatePlayerSkillsAfterMatch(dbCtx, match, season)
 }
 
 // runMatchSimulation builds both teams' qualifications from the given lineups and runs the full

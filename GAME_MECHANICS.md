@@ -119,54 +119,63 @@ transfer-market section).
 
 ## Player skill progression
 
-Skills only ever change once a season - there's no in-season training or match-by-match drift.
-The whole thing runs from `AdvanceSeasonIfComplete` (`engine/season.go`), which the 5-minute cron
-job checks every tick: once every match of the current season has been played
-(`GetSeasonMatchCounts` reports zero unplayed), it calls `ProgressPlayers` and `ProgressFreeAgents`
-(`engine/progression.go`) before rolling promotion/relegation, cups, and fixtures over to the new
-season.
+Skills drift match-by-match, not once a season: right after every league match or cup tie is
+simulated, each player who featured gets an independent shot at growing (or declining), scaled by
+how many minutes of that specific match they played. `updateSkillsAfterCompetitiveMatch`
+(`engine/simulation.go`, called from `simulateMatch` and `engine/cups.go`'s `simulateCupTie`,
+right after the match's other post-processing) is the trigger; `updatePlayerSkillsAfterMatch`
+(`engine/progression.go`) does the actual drifting. Deliberately not called for friendlies - see
+`engine/friendlies.go`'s `simulateFriendly` and `init26_friendlies.sql`'s own rationale for why
+friendlies have no effect beyond the match itself.
 
-Aging itself is on a separate, independent cadence: `ProcessBirthdays` (`engine/birthdays.go`),
+For each player who took the field this match, on the side they played for:
+
+1. `primaryPosition` picks whichever single tactical position they logged the most minutes at
+   *in this match* (from the match simulation's own in-memory per-player-per-position minutes -
+   nothing is read back from the database), and only the skills that position actually uses
+   drift (mirrors `common.PositionValue`'s own position→skill weighting - e.g. a striker's
+   shot/pass/dribbling can move, their defense never does).
+2. Each relevant skill independently has a chance to drift at all, scaling with minutes played
+   *in this match* up to `MatchSkillGrowthMinutesReference` (900 - the same 10-full-matches budget
+   the old season-end system used, just now spent match by match: someone who plays every minute
+   of a game still only has roughly a 1-in-10 chance of a given skill moving that game, rather
+   than near-guaranteed growth every single match).
+3. When a skill does drift (`driftSkill`), the delta is an age trend (+1 under 24, 0 from 24-29,
+   -1 from 30 on) plus a hired trainer's bonus (`trainerBonus` - +1 for a decent coach, +2 for an
+   elite one, nothing below a minimum threshold, and never applied to a player already in decline
+   - a coach accelerates growth but can't reverse aging) plus a small ±1 random wobble, clamped to
+   `[1, 99]`. Age and trainer skill are both read fresh for that match, not cached from season
+   start.
+4. If nothing actually drifted this match (quite possible - see the small per-skill chance
+   above), there's no database write and no log row; if something did, it's persisted immediately
+   and logged to the same `player_progression_log` table the old season-end system used - see
+   `/players/evolutions`, unchanged, just now fed by many small match-triggered updates across a
+   season instead of one big batch at rollover.
+
+Aging is on its own, separate, independent cadence: `ProcessBirthdays` (`engine/birthdays.go`),
 run daily by its own cron job, bumps a player's age by one every `BirthdayCycleDays` (20) days
-since their `birth_day` anchor - not once per season. At the default one-match-per-day schedule a
-season runs well past 20 days, so most players see one or two birthdays a season rather than a
-single fixed bump at rollover; `birth_day` rolls forward by the same 20 days each time so it's
+since their `birth_day` anchor. `birth_day` rolls forward by the same 20 days each time so it's
 positioned for the next one, and the player details page shows "days until next birthday" derived
-straight from it. `ProgressPlayers`/`ProgressFreeAgents` below only read a player's *current* age
-(for retirement and the skill-drift age trend) - they no longer change it.
+straight from it.
 
-For each rostered player, in order:
+Season rollover (`AdvanceSeasonIfComplete`, `engine/season.go`, checked every tick by the 5-minute
+cron job once `GetSeasonMatchCounts` reports the season's matches all played) still calls
+`ProgressPlayers`/`ProgressFreeAgents` (`engine/progression.go`), but skills are no longer any
+part of what those do - just:
 
 1. **Retirement** - `ShouldRetire` checks the player's current age (already wherever
    `ProcessBirthdays` last left it): forced at 40 (`RetirementForcedAge`), and from 33
    (`RetirementEligibleAge`) the odds climb 15 percentage points per year past that. A retiree is
-   dropped immediately - no skill update, no contract step, nothing else below applies to them
-   this season.
-2. **Skill drift, only if they actually played** - `GetTeamPlayerPositionMinutes` gives each
-   player's minutes-by-tactical-position for the season just finished. A player with zero minutes
-   anywhere keeps every skill exactly as-is, growth or decline alike - benchwarming has no effect.
-   For anyone who did play, `primaryPosition` picks whichever single position they logged the most
-   minutes at, and only the skills that position actually uses drift (mirrors
-   `common.PositionValue`'s own position→skill weighting - e.g. a striker's shot/pass/dribbling can
-   move, their defense never does). Each relevant skill independently has a chance to drift at all,
-   scaling with total minutes played up to `FullSeasonMinutesReference` (900 minutes, i.e. ~10 full
-   matches) - a squad player who only came on twice barely moves the needle even at their best
-   position. When a skill does drift (`driftSkill`), the delta is an age trend (+1 under 24, 0 from
-   24-29, -1 from 30 on) plus a hired trainer's bonus (`trainerBonus` - +1 for a decent coach, +2
-   for an elite one, nothing below a minimum threshold, and never applied to a player already in
-   decline - a coach accelerates growth but can't reverse aging) plus a small ±1 random wobble,
-   clamped to `[1, 99]`.
-3. **Contract countdown** - `AdvancePlayerContract` ticks the remaining contract length down by
+   dropped immediately - no contract step, nothing else below applies to them this season.
+2. **Contract countdown** - `AdvancePlayerContract` ticks the remaining contract length down by
    one regardless of anything above; hitting zero releases the player to free agency.
-4. A notification (`NOTIFICATION_PROGRESSION`) is sent once per team summarizing how many players
-   evolved, linking to `/players/evolutions`.
 
 A team left short of a full squad afterward (retirements, expired contracts) gets topped back up
 from the academy (`CreateAcademyPlayers`, also trainer-boosted). `ProgressFreeAgents` checks
-unemployed players the same way but never drifts their skills (no club, no matches, no coach to
-develop them) - one forced past `FreeAgencyRetirementSeasons` (2) consecutive unsigned seasons
-retires regardless of age, converting into a fresh trainer candidate on the open market
-(`RetireFreeAgentAsTrainer`) rather than just vanishing.
+unemployed players the same way but they never drift skills at all, match-triggered or otherwise
+(no club, no matches, no coach to develop them) - one forced past `FreeAgencyRetirementSeasons`
+(2) consecutive unsigned seasons retires regardless of age, converting into a fresh trainer
+candidate on the open market (`RetireFreeAgentAsTrainer`) rather than just vanishing.
 
 ## Season awards
 

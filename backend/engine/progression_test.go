@@ -223,6 +223,16 @@ func TestDriftSkillsForPosition_OnlyTouchesSkillsRelevantToStriker(t *testing.T)
 	}
 }
 
+func TestUpdateTeamPlayersAfterMatch_NoPlayersIsANoop(t *testing.T) {
+	r := rand.New(rand.NewSource(1))
+	// A nil players map and an empty minutesByPosition map both return before touching the
+	// database (nobody to update either way), so a zero-value DatabaseContext (no live *sql.DB)
+	// is safe here - this just guards that both early-return paths actually stay no-ops instead
+	// of panicking on a nil map.
+	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, nil, map[int64]map[int]int{}, 2024, r)
+	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, &map[int64]common.Player{}, nil, 2024, r)
+}
+
 func TestDriftSkillsForPosition_LateralStrikerAlsoDriftsLateral(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	p := striker50()

@@ -317,7 +317,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
-	recordPlayerMinutes(dbCtx, matchSimulation)
+	updateSkillsAfterCompetitiveMatch(dbCtx, matchSimulation)
 	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
 	BroadcastMatchLive(dbCtx, common.CupTieChannel(matchSimulation.Id), matchSimulation, func() {
 		notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)

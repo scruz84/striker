@@ -126,10 +126,11 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// TeamLatestEvolutionsHandler lists the caller's own squad's most recent season-end progression
-// results (see common.GetLatestPlayerEvolutionsForTeam) - the page a NOTIFICATION_PROGRESSION
-// notification links to. Always scoped to the caller's own team; there's no equivalent for
-// browsing another team's evolutions.
+// TeamLatestEvolutionsHandler lists the caller's own squad's most recent match-triggered
+// progression results (see common.GetLatestPlayerEvolutionsForTeam) - each player's latest
+// skill drift, applied right after whichever competitive match they most recently featured in
+// (see engine.updatePlayerSkillsAfterMatch). Always scoped to the caller's own team; there's no
+// equivalent for browsing another team's evolutions.
 func TeamLatestEvolutionsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)

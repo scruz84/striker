@@ -329,8 +329,8 @@ type MatchSimulation struct {
 	AwayUnavailablePlayers map[int64]bool
 	//MinutesByPosition: per player, minutes spent at each tactical position they occupied
 	//during this match (playerId -> position -> minutes) - see engine.trackMinutesByPosition.
-	//Consumed by RecordPlayerPositionMinutes into the season-long accumulator that
-	//engine.ProgressPlayers reads to gate skill growth on having actually played.
+	//Consumed right after the match by engine.updatePlayerSkillsAfterMatch, which gates and
+	//scales that player's skill growth on having actually played and how many minutes.
 	HomeMinutesByPosition map[int64]map[int]int
 	AwayMinutesByPosition map[int64]map[int]int
 }

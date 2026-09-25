@@ -13,9 +13,10 @@ type SkillDelta struct {
 	After  int `json:"after"`
 }
 
-// PlayerEvolution is one player's captured skill/age change from a single season-end progression
-// run (see engine.ProgressPlayers) - the randomized drift itself can't be recomputed after the
-// fact, so this is the only record of what actually changed and by how much.
+// PlayerEvolution is one player's captured skill/age change from a single progression run,
+// applied right after a competitive match they featured in (see engine.updatePlayerSkillsAfterMatch)
+// - the randomized drift itself can't be recomputed after the fact, so this is the only record
+// of what actually changed and by how much.
 type PlayerEvolution struct {
 	PlayerId   int64      `json:"playerId"`
 	Season     int        `json:"season"`
@@ -72,8 +73,8 @@ const playerEvolutionColumnsAliased = "ppl.player_id, ppl.season, ppl.age_before
 	"ppl.shot_before, ppl.shot_after, ppl.created_at"
 
 // LogPlayerProgression records one player's before/after age and seven core skills from a single
-// season-end progression run - called from engine.ProgressPlayers at the exact point both are in
-// scope, right alongside UpdatePlayerProgression itself.
+// progression run - called from engine.updateTeamPlayersAfterMatch at the exact point both are
+// in scope, right alongside UpdatePlayerProgression itself.
 func LogPlayerProgression(dbCtx *DatabaseContext, playerId int64, season int, ageBefore, ageAfter int,
 	goalKeeperBefore, goalKeeperAfter, defenseBefore, defenseAfter, lateralBefore, lateralAfter,
 	passBefore, passAfter, midfieldBefore, midfieldAfter, dribblingBefore, dribblingAfter,
@@ -96,8 +97,8 @@ func scanPlayerEvolution(scan func(dest ...any) error) (PlayerEvolution, error) 
 }
 
 // GetLatestPlayerEvolution returns a player's most recent progression run, or nil if they've
-// never been through one (never played a competitive minute in a season that completed since
-// this table started tracking, or the player is new).
+// never been through one (never played a competitive minute since this table started tracking,
+// or the player is new).
 func GetLatestPlayerEvolution(dbCtx *DatabaseContext, playerId int64) (*PlayerEvolution, error) {
 	row := dbCtx.Db.QueryRow(GetLatestPlayerEvolutionStmtSql, playerId)
 	evolution, err := scanPlayerEvolution(row.Scan)
@@ -111,8 +112,8 @@ func GetLatestPlayerEvolution(dbCtx *DatabaseContext, playerId int64) (*PlayerEv
 }
 
 // GetLatestPlayerEvolutionsForTeam returns every current squad player's most recent progression
-// run - the squad-wide view linked from a NOTIFICATION_PROGRESSION notification. A player never
-// progressed (too new, or never played) simply has no row here.
+// run - the squad-wide "/players/evolutions" view. A player never progressed (too new, or never
+// played) simply has no row here.
 func GetLatestPlayerEvolutionsForTeam(dbCtx *DatabaseContext, teamId int64) ([]TeamPlayerEvolution, error) {
 	rows, err := dbCtx.Db.Query(GetLatestPlayerEvolutionsForTeamStmtSql, teamId)
 	if err != nil {
