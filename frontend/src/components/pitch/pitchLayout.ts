@@ -23,8 +23,11 @@ export const PITCH_HEIGHT = 460
 export const PITCH_HEIGHT_HALF = 260
 
 // Row depth (y) per position, own goal at the bottom (like the classic formation-sheet view).
+// The goalkeeper sits closer to its neighboring row than the other rows do to theirs, on
+// purpose - it's meant to hug the goal line - but not so close that a slot's chip (avatar +
+// name label below it) has no room left before the pitch's bottom edge.
 const ROW_Y: Record<number, number> = {
-  [POSITION_GOALKEEPER]: 430,
+  [POSITION_GOALKEEPER]: 415,
   [POSITION_DEFENSE]: 350,
   [POSITION_LATERAL_DEFENSE_LEFT]: 350,
   [POSITION_LATERAL_DEFENSE_RIGHT]: 350,
@@ -38,7 +41,7 @@ const ROW_Y: Record<number, number> = {
 
 // Same rows, compressed into PITCH_HEIGHT_HALF for the half-pitch layout.
 const ROW_Y_HALF: Record<number, number> = {
-  [POSITION_GOALKEEPER]: 235,
+  [POSITION_GOALKEEPER]: 220,
   [POSITION_DEFENSE]: 178,
   [POSITION_LATERAL_DEFENSE_LEFT]: 178,
   [POSITION_LATERAL_DEFENSE_RIGHT]: 178,
@@ -61,10 +64,13 @@ const WIDE_X: Record<number, number> = {
 }
 
 // Horizontal band the central (count-variable) slots at each row spread across, evenly spaced.
+// Widened for defense/midfield so a row's densest case (3 central players, e.g. 3-5-2's central
+// midfield trio) still gets real separation between neighboring chips instead of stacking them
+// almost on top of each other - while staying clear of that row's wide slots (see WIDE_X above).
 const CENTRAL_BAND: Record<number, [number, number]> = {
   [POSITION_GOALKEEPER]: [150, 150],
-  [POSITION_DEFENSE]: [95, 205],
-  [POSITION_MIDFIELD]: [90, 210],
+  [POSITION_DEFENSE]: [70, 230],
+  [POSITION_MIDFIELD]: [60, 240],
   [POSITION_STRIKER]: [55, 245],
 }
 

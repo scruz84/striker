@@ -30,12 +30,24 @@ export function PitchField({
         maxWidth: 420,
         mx: 'auto',
         aspectRatio: `${PITCH_WIDTH} / ${height}`,
-        borderRadius: 2,
-        overflow: 'hidden',
-        background: 'repeating-linear-gradient(180deg, #3f8f46 0px, #3f8f46 40px, #388240 40px, #388240 80px)',
       }}
     >
-      <PitchMarkings half={half} height={height} />
+      {/* Grass + markings live in their own clipped layer so the rounded corners stay clean.
+          Slot contents (below) are siblings, NOT children of this layer - a row placed close to
+          an edge (the goalkeeper's, hugging the goal line) can then render its full clickable
+          chip even if that chip's box slightly overhangs the pitch's visual bounds, instead of
+          having the overhanging part silently clipped away and left unclickable. */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: 2,
+          overflow: 'hidden',
+          background: 'repeating-linear-gradient(180deg, #3f8f46 0px, #3f8f46 40px, #388240 40px, #388240 80px)',
+        }}
+      >
+        <PitchMarkings half={half} height={height} />
+      </Box>
       {children}
     </Box>
   )
