@@ -374,7 +374,7 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		}
 	}
 	for i := 0; i < count; i++ {
-		firstName, lastName, _ := GetRandomName(dbCtx, country)
+		firstName, lastName, _ := GetPlayerName(dbCtx, country)
 		avatar := RandomAvatarAsString()
 		goalKeeper := minSkill + rand.Intn(maxSkill-minSkill+1)
 		defense := minSkill + rand.Intn(maxSkill-minSkill+1)

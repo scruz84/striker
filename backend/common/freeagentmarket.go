@@ -55,7 +55,7 @@ func InjectFreeAgents(dbCtx *DatabaseContext, count int) error {
 
 	for i := 0; i < count; i++ {
 		country := countries[rand.Intn(len(countries))]
-		firstName, lastName, err := GetRandomName(dbCtx, country)
+		firstName, lastName, err := GetPlayerName(dbCtx, country)
 		if err != nil {
 			log.Errorf("error generating name for injected free agent: %s", err)
 			continue
