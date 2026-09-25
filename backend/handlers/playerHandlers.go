@@ -14,6 +14,10 @@ import (
 // PlayerHistoryLimit bounds how many past transactions a player's page shows.
 const PlayerHistoryLimit = 20
 
+// PlayerRecentMatchesLimit bounds how many of the player's team's recent league matches show on
+// their profile page.
+const PlayerRecentMatchesLimit = 5
+
 // PlayerDetailsHandler returns a single player's full profile - base attributes, current team,
 // career stats (appearances/goals/cards), current status (on loan, listed, unavailable), and
 // transfer history. See common.PlayerDetails.
@@ -77,6 +81,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			log.Errorf("error loading club history for player %d: %s", playerId, err)
 		} else {
 			details.ClubHistory = clubHistory
+		}
+
+		if recentMatches, err := common.GetPlayerRecentMatches(dbCtx, playerId, player.TeamId, PlayerRecentMatchesLimit); err != nil {
+			log.Errorf("error loading recent matches for player %d: %s", playerId, err)
+		} else {
+			details.RecentMatches = recentMatches
 		}
 
 		// A rostered player's wage, contract, and financial transaction history are the owning

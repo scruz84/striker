@@ -181,6 +181,12 @@ const UpsertPlayerUnavailabilityStmtSql = "INSERT INTO player_unavailability (pl
 const GetUnavailablePlayerIdsStmtSql = "SELECT pu.player_id FROM player_unavailability pu " +
 	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0"
 
+// GetUnavailablePlayerIdsForFriendlyStmtSql excludes players serving a red-card suspension:
+// suspensions only bar official/league/cup matches, not friendlies. Injuries still apply.
+var GetUnavailablePlayerIdsForFriendlyStmtSql = "SELECT pu.player_id FROM player_unavailability pu " +
+	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0 " +
+	"AND pu.reason != " + strconv.Itoa(UNAVAILABLE_SUSPENSION)
+
 const GetTeamUnavailabilityStmtSql = "SELECT pu.player_id, pu.reason, pu.matches_remaining FROM player_unavailability pu " +
 	"JOIN players p ON p.player_id = pu.player_id WHERE p.team_id = $1 AND pu.matches_remaining > 0 ORDER BY pu.player_id"
 
@@ -1419,7 +1425,18 @@ func AddPlayerUnavailability(dbCtx *DatabaseContext, playerId int64, reason int,
 // GetUnavailablePlayerIds returns the set of a team's players currently serving a suspension
 // or injury.
 func GetUnavailablePlayerIds(dbCtx *DatabaseContext, teamId int64) (map[int64]bool, error) {
-	rows, err := dbCtx.Db.Query(GetUnavailablePlayerIdsStmtSql, teamId)
+	return queryUnavailablePlayerIds(dbCtx, GetUnavailablePlayerIdsStmtSql, teamId)
+}
+
+// GetUnavailablePlayerIdsForFriendly returns the set of a team's players unavailable for a
+// friendly match: injured players still count, but red-card suspensions don't, since a
+// suspension only bars official league/cup matches.
+func GetUnavailablePlayerIdsForFriendly(dbCtx *DatabaseContext, teamId int64) (map[int64]bool, error) {
+	return queryUnavailablePlayerIds(dbCtx, GetUnavailablePlayerIdsForFriendlyStmtSql, teamId)
+}
+
+func queryUnavailablePlayerIds(dbCtx *DatabaseContext, stmt string, teamId int64) (map[int64]bool, error) {
+	rows, err := dbCtx.Db.Query(stmt, teamId)
 	if err != nil {
 		return nil, err
 	}

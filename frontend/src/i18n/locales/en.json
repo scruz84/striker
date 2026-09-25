@@ -902,6 +902,16 @@
       "title": "Clubs",
       "club": "Club",
       "joined": "Joined"
+    },
+    "recentMatches": {
+      "title": "Recent matches",
+      "none": "No recent matches played yet.",
+      "opponent": "Opponent",
+      "date": "Date",
+      "result": "Result",
+      "rating": "Rating",
+      "homeTag": "H",
+      "awayTag": "A"
     }
   },
   "countries": {

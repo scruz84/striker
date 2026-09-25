@@ -1,3 +1,4 @@
+import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
@@ -9,16 +10,17 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import { useParams } from 'react-router-dom'
+import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
-import { TRANSACTION_REASON_KEYS } from '../../api/types'
+import { TRANSACTION_REASON_KEYS, type PlayerMatchSummary } from '../../api/types'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
-import { formatDateTime } from '../../utils/formatDate'
+import { formatDateTime, formatDayTime } from '../../utils/formatDate'
+import { matchRatingColor } from '../../utils/matchRating'
 
 export function PlayerDetailsPage() {
   const { t } = useTranslation()
@@ -82,6 +84,38 @@ export function PlayerDetailsPage() {
         </Stack>
       )}
 
+      {player.teamId !== 0 && (
+        <Stack spacing={1}>
+          <Typography variant="h6">{t('playerPage.recentMatches.title')}</Typography>
+          <TableContainer component={Paper}>
+            <Table size="small" aria-label="Recent matches">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('playerPage.recentMatches.date')}</TableCell>
+                  <TableCell>{t('playerPage.recentMatches.opponent')}</TableCell>
+                  <TableCell align="right">{t('playerPage.recentMatches.result')}</TableCell>
+                  <TableCell align="right">{t('playerPage.recentMatches.rating')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {player.recentMatches.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('playerPage.recentMatches.none')}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+                {player.recentMatches.map((match) => (
+                  <RecentMatchRow key={match.matchId} match={match} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Stack>
+      )}
+
       {canSeeFinancials && (
         <Stack spacing={1}>
           <Typography variant="h6">{t('playerPage.history.title')}</Typography>
@@ -121,5 +155,39 @@ export function PlayerDetailsPage() {
         </Stack>
       )}
     </Stack>
+  )
+}
+
+// Rows link through to the match report - the same place the "Calificaciones" tab that this
+// rating comes from lives (see MatchRatingsTab/matchRatingColor) - so a manager can jump straight
+// from "how has this player been doing" to the full match detail.
+function RecentMatchRow({ match }: { match: PlayerMatchSummary }) {
+  const { t } = useTranslation()
+  return (
+    <TableRow component={RouterLink} to={`/match/${match.matchId}`} hover sx={{ cursor: 'pointer', '& td': { border: 0 } }}>
+      <TableCell>{formatDayTime(match.matchDate)}</TableCell>
+      <TableCell>
+        <Chip
+          size="small"
+          variant="outlined"
+          label={t(match.isHome ? 'playerPage.recentMatches.homeTag' : 'playerPage.recentMatches.awayTag')}
+          sx={{ height: 18, mr: 0.75, fontSize: '0.65rem', '& .MuiChip-label': { px: 0.5 } }}
+        />
+        {match.opponentName}
+        {(match.goals > 0 || match.yellowCards > 0 || match.redCards > 0) && (
+          <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+            {match.goals > 0 && `⚽×${match.goals}`}
+            {match.yellowCards > 0 && ' 🟨'}
+            {match.redCards > 0 && ' 🟥'}
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell align="right">
+        {match.homeGoals} - {match.awayGoals}
+      </TableCell>
+      <TableCell align="right">
+        {match.rating !== undefined ? <Chip size="small" color={matchRatingColor(match.rating)} label={match.rating.toFixed(1)} /> : '—'}
+      </TableCell>
+    </TableRow>
   )
 }

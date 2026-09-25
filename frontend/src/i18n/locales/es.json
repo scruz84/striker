@@ -902,6 +902,16 @@
       "title": "Clubes",
       "club": "Club",
       "joined": "Fecha de llegada"
+    },
+    "recentMatches": {
+      "title": "Últimos partidos",
+      "none": "Aún no hay partidos recientes.",
+      "opponent": "Rival",
+      "date": "Fecha",
+      "result": "Resultado",
+      "rating": "Calificación",
+      "homeTag": "L",
+      "awayTag": "V"
     }
   },
   "countries": {

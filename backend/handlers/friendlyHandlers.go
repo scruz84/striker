@@ -492,7 +492,7 @@ func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		unavailable, err := common.GetUnavailablePlayerIds(dbCtx, team.Id)
+		unavailable, err := common.GetUnavailablePlayerIdsForFriendly(dbCtx, team.Id)
 		if err != nil {
 			log.Errorf("error getting unavailable players for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))

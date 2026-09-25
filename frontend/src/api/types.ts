@@ -696,12 +696,31 @@ export interface PlayerDetails extends Player {
   // never redacted for a non-owner viewer (which clubs a player played for is public, the same
   // way a transfer-market listing is).
   clubHistory: PlayerClubHistoryEntry[]
+  // This player's current team's most recent played league matches - see
+  // backend/common/playermatches.go's GetPlayerRecentMatches.
+  recentMatches: PlayerMatchSummary[]
 }
 
 export interface PlayerClubHistoryEntry {
   teamId: number
   teamName: string
   joinedAt: string
+}
+
+// Mirrors backend common.PlayerMatchSummary - one row in a player's "recent matches" list.
+// `rating` is absent when the match has no lineup data to derive one from.
+export interface PlayerMatchSummary {
+  matchId: number
+  matchDate: string
+  opponentId: number
+  opponentName: string
+  isHome: boolean
+  homeGoals: number
+  awayGoals: number
+  goals: number
+  yellowCards: number
+  redCards: number
+  rating?: number
 }
 
 // One attribute's value before and after a season-end progression run - see backend

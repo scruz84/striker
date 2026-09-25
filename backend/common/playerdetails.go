@@ -173,6 +173,11 @@ type PlayerDetails struct {
 	// GetPlayerClubHistory. Unlike History (financial transactions), this is never redacted: which
 	// clubs a player has played for is public the same way their transfer-market listing is.
 	ClubHistory []PlayerClubHistoryEntry `json:"clubHistory"`
+	// RecentMatches is this player's current team's most recent played league matches, with the
+	// player's own goals/cards and (when available) match rating - see GetPlayerRecentMatches.
+	// Empty for a free agent. Unlike History/skills, this is never redacted: a team's results and
+	// which matches a player featured in are public the same way ClubHistory is.
+	RecentMatches []PlayerMatchSummary `json:"recentMatches"`
 	// LatestEvolution is this player's most recent season-end progression run (see
 	// GetLatestPlayerEvolution) - nil if they've never been through one, or (like skills
 	// generally, see RedactSkills) if the viewer isn't the owning team and this player isn't a

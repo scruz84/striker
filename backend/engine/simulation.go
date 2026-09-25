@@ -12,7 +12,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	if err != nil {
 		return nil, err
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups)
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, false)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func recordPlayerMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimul
 // simulateFriendly uses common.GetLineupsForFriendly (friendly_lineup/friendly_lineup_positions,
 // keyed to friendly_matches(match_id)) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup) (*common.MatchSimulation, error) {
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, isFriendly bool) (*common.MatchSimulation, error) {
 	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
 	if err != nil {
 		return nil, err
@@ -112,11 +112,11 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	// steps in, same as a real substitute (see backfillEmptyPositions). The returned sets are
 	// kept on the match so InjurySimulation can reuse them later, when picking a bench player to
 	// bring on for someone injured mid-match, without re-querying the database.
-	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers)
+	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers, isFriendly)
 	if err != nil {
 		return nil, err
 	}
-	awayUnavailable, err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition, *awayPlayers)
+	awayUnavailable, err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition, *awayPlayers, isFriendly)
 	if err != nil {
 		return nil, err
 	}
@@ -169,8 +169,14 @@ func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPositio
 // DisciplineSimulation/InjurySimulation) - if it ever did, an empty GOALKEEPER slice would
 // panic elsewhere (e.g. ScorerSimulation's goalkeeper value lookup), so this is cheap,
 // deliberate insurance; the backfill pass, unlike the exclusion, does cover every position.
-func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player) (map[int64]bool, error) {
-	unavailable, err := common.GetUnavailablePlayerIds(dbCtx, teamId)
+func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player, isFriendly bool) (map[int64]bool, error) {
+	var unavailable map[int64]bool
+	var err error
+	if isFriendly {
+		unavailable, err = common.GetUnavailablePlayerIdsForFriendly(dbCtx, teamId)
+	} else {
+		unavailable, err = common.GetUnavailablePlayerIds(dbCtx, teamId)
+	}
 	if err != nil {
 		return nil, err
 	}
