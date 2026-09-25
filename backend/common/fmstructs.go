@@ -117,6 +117,11 @@ type Player struct {
 	TeamId     int64        `json:"teamId"`
 	FirstName  string       `json:"firstName"`
 	LastName   string       `json:"lastName"`
+	// BirthDay is the anchor for this player's periodic in-game birthday, not a real
+	// date-of-birth: it's set to the wall-clock creation time when the player is generated, and
+	// rolled forward by engine.BirthdayCycleDays every time engine.ProcessBirthdays fires their
+	// next birthday (which is also what bumps Age - see that function). The player details page
+	// derives "next birthday in N days" from this field directly.
 	BirthDay   time.Time    `json:"birthDay"`
 	GoalKeeper int          `json:"goalKeeper"`
 	Defense    int          `json:"defense"`

@@ -1679,6 +1679,42 @@ func UpdatePlayerProgression(dbCtx *DatabaseContext, playerId int64, age, goalKe
 	return err
 }
 
+const GetPlayersDueBirthdayStmtSql = "SELECT player_id, birth_day, age FROM players WHERE birth_day <= $1"
+
+// GetPlayersDueBirthday returns every player (rostered, free agent, or academy prospect alike -
+// this deliberately doesn't filter by team_id or in_academy) whose birth_day anchor is at or
+// before cutoff, i.e. at least engine.BirthdayCycleDays have passed since their last birthday -
+// see engine.ProcessBirthdays, the only caller. Only Id, BirthDay and Age are populated; every
+// other Player field is left at its zero value since the caller has no use for them.
+func GetPlayersDueBirthday(dbCtx *DatabaseContext, cutoff time.Time) ([]*Player, error) {
+	rows, err := dbCtx.Db.Query(GetPlayersDueBirthdayStmtSql, cutoff.UnixMilli())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	players := make([]*Player, 0)
+	for rows.Next() {
+		var playerId int64
+		var birthDay int64
+		var age int
+		if err := rows.Scan(&playerId, &birthDay, &age); err != nil {
+			return nil, err
+		}
+		players = append(players, &Player{Id: playerId, BirthDay: time.UnixMilli(birthDay), Age: age})
+	}
+	return players, nil
+}
+
+const UpdatePlayerBirthdayStmtSql = "UPDATE players SET age = $1, birth_day = $2 WHERE player_id = $3"
+
+// UpdatePlayerBirthday persists a player's new age and birth_day anchor after
+// engine.ProcessBirthdays fires one or more of their birthdays.
+func UpdatePlayerBirthday(dbCtx *DatabaseContext, playerId int64, age int, birthDay time.Time) error {
+	_, err := dbCtx.Db.Exec(UpdatePlayerBirthdayStmtSql, age, birthDay.UnixMilli(), playerId)
+	return err
+}
+
 // RetirePlayer removes a player from the game. player_unavailability and transfer_listings
 // both cascade-delete on the player_id FK, so those clean up automatically. But
 // default_lineup_positions.player_id only goes to NULL on delete (see init.sql) - leaving that

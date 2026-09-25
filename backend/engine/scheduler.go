@@ -126,6 +126,23 @@ func StartOfferResponseScheduler(offerResponseJob quartz.Job) {
 	}
 }
 
+func StartBirthdayScheduler(birthdayJob quartz.Job) {
+	sched.Start(ctx)
+	// Once a day is plenty - a player's birthday anchor only ever moves in whole-day steps (see
+	// engine.BirthdayCycleDays), so nothing is missed by checking less often than match
+	// simulation. Offset to 01:00 UTC, clear of the other daily/weekly jobs' 00:00/12:00 slots.
+	cronTrigger, err := quartz.NewCronTrigger("0 0 1 * * ?")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(birthdayJob.Description())
+	jobDetail := quartz.NewJobDetail(birthdayJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

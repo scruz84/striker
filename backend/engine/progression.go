@@ -22,9 +22,10 @@ const RetirementChancePerYear = 0.15
 // become a de facto permanent parking spot for players nobody wants.
 const FreeAgencyRetirementSeasons = 2
 
-// ShouldRetire decides whether a player calls it a career this season, given their age
-// *after* this season's aging. Below RetirementEligibleAge it's never; at/after
-// RetirementForcedAge it's always; in between, the chance rises 15 percentage points per year.
+// ShouldRetire decides whether a player calls it a career this season, given their current age
+// (age itself no longer changes at season end - see ProcessBirthdays). Below
+// RetirementEligibleAge it's never; at/after RetirementForcedAge it's always; in between, the
+// chance rises 15 percentage points per year.
 func ShouldRetire(age int, r *rand.Rand) bool {
 	if age >= RetirementForcedAge {
 		return true
@@ -138,9 +139,11 @@ func driftSkillsForPosition(p common.Player, position int, playChance float32, a
 	return
 }
 
-// ProgressPlayers ages every player on every team by one season: retirees are removed, and
+// ProgressPlayers advances every player on every team by one season: retirees are removed, and
 // their contract ticks down by one season (see common.AdvancePlayerContract - a contract
-// reaching zero releases the player to free agency) regardless of anything below. Skills,
+// reaching zero releases the player to free agency) regardless of anything below. Age itself is
+// no longer touched here - it advances on its own periodic cycle (see ProcessBirthdays) - this
+// just reads each player's current age for the retirement check and to drive skill drift. Skills,
 // though, only change for a player who actually played a competitive minute this season (see
 // common.GetTeamPlayerPositionMinutes) - someone nobody fielded keeps every attribute exactly as
 // it was, growth or decline alike. For a player who did play, only the skills relevant to
@@ -187,7 +190,7 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 		evolvedCount := 0
 
 		for _, player := range *players {
-			newAge := player.Age + 1
+			newAge := player.Age
 			if ShouldRetire(newAge, r) {
 				if err := common.RetirePlayer(dbCtx, player.Id); err != nil {
 					log.Errorf("error retiring player %d: %s", player.Id, err)
@@ -255,14 +258,16 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, season int) {
 	}
 }
 
-// ProgressFreeAgents ages every currently-unowned player by one season - ProgressPlayers only
-// iterates players belonging to a team, so without this a free agent would never age, retire, or
+// ProgressFreeAgents advances every currently-unowned player by one season - ProgressPlayers only
+// iterates players belonging to a team, so without this a free agent would never retire or
 // otherwise change at all no matter how long they sat unsigned. Skills are never drifted here: a
-// free agent has no club, no matches, and no coach to develop (or decline) them, so only age and
-// the free-agency clock (see common.AdvanceFreeAgencyClock) advance.
+// free agent has no club, no matches, and no coach to develop (or decline) them. Age isn't
+// touched here either - like ProgressPlayers, it just reads each player's current age (which
+// advances independently - see ProcessBirthdays); only the free-agency clock (see
+// common.AdvanceFreeAgencyClock) actually changes.
 //
-// A free agent retires exactly like a rostered player (see ShouldRetire) if their new age calls
-// for it, and also, regardless of age, once they've now gone FreeAgencyRetirementSeasons
+// A free agent retires exactly like a rostered player (see ShouldRetire) if their current age
+// calls for it, and also, regardless of age, once they've now gone FreeAgencyRetirementSeasons
 // consecutive seasons without a club - nobody stays a free agent forever. Either way they don't
 // simply vanish: common.RetireFreeAgentAsTrainer converts them into a fresh, unemployed trainer
 // candidate on the open market first, the same way a long, unresolved job search might end in a
@@ -278,7 +283,7 @@ func ProgressFreeAgents(dbCtx *common.DatabaseContext) {
 	}
 
 	for _, player := range freeAgents {
-		newAge := player.Age + 1
+		newAge := player.Age
 
 		if ShouldRetire(newAge, r) {
 			if err := common.RetireFreeAgentAsTrainer(dbCtx, player); err != nil {

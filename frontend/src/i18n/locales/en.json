@@ -868,7 +868,11 @@
       "team": "Team",
       "division": "Division",
       "age": "Age",
-      "birthCountry": "Born in"
+      "birthCountry": "Born in",
+      "birthday": "Birthday",
+      "birthdayToday": "Today!",
+      "birthdayIn_one": "In {{count}} day",
+      "birthdayIn_other": "In {{count}} days"
     },
     "attributes": {
       "title": "Attributes"

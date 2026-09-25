@@ -43,6 +43,7 @@ func StartEngine() {
 	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
+	StartBirthdayScheduler(NewBirthdayJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

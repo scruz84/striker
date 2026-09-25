@@ -168,3 +168,25 @@ func (pj *OfferResponseJob) Execute(context.Context) error {
 func NewOfferResponseJob(dbCtx *common.DatabaseContext) *OfferResponseJob {
 	return &OfferResponseJob{desc: "offer response sweep job", dbCtx: dbCtx}
 }
+
+// BirthdayJob implements the quartz.Job interface: ages up every player whose periodic in-game
+// birthday has come around - see engine.ProcessBirthdays.
+type BirthdayJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *BirthdayJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *BirthdayJob) Execute(context.Context) error {
+	log.Info("Player birthdays job")
+	ProcessBirthdays(pj.dbCtx)
+	return nil
+}
+
+func NewBirthdayJob(dbCtx *common.DatabaseContext) *BirthdayJob {
+	return &BirthdayJob{desc: "player birthdays job", dbCtx: dbCtx}
+}

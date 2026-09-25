@@ -868,7 +868,11 @@
       "team": "Equipo",
       "division": "División",
       "age": "Edad",
-      "birthCountry": "Nacido en"
+      "birthCountry": "Nacido en",
+      "birthday": "Cumpleaños",
+      "birthdayToday": "¡Hoy!",
+      "birthdayIn_one": "En {{count}} día",
+      "birthdayIn_other": "En {{count}} días"
     },
     "attributes": {
       "title": "Atributos"

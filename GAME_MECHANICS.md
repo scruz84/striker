@@ -27,6 +27,9 @@ kickoff has arrived:
   granularity).
 - Weekly wages: `StartWeeklyWagesScheduler` → `PayWeeklyWages` (`engine/wages.go`), once a week
   (Monday 00:00 UTC).
+- Player birthdays: `StartBirthdayScheduler` → `ProcessBirthdays` (`engine/birthdays.go`), once a
+  day (01:00 UTC) - see "Player skill progression" below for how this drives aging independently
+  of season rollover.
 
 A match becomes eligible the moment its `match_date` is **up to 15 minutes in the future**, not
 only once kickoff has strictly passed - see `common.GetSimulableMatchesStmtSql` /
@@ -123,12 +126,22 @@ job checks every tick: once every match of the current season has been played
 (`engine/progression.go`) before rolling promotion/relegation, cups, and fixtures over to the new
 season.
 
+Aging itself is on a separate, independent cadence: `ProcessBirthdays` (`engine/birthdays.go`),
+run daily by its own cron job, bumps a player's age by one every `BirthdayCycleDays` (20) days
+since their `birth_day` anchor - not once per season. At the default one-match-per-day schedule a
+season runs well past 20 days, so most players see one or two birthdays a season rather than a
+single fixed bump at rollover; `birth_day` rolls forward by the same 20 days each time so it's
+positioned for the next one, and the player details page shows "days until next birthday" derived
+straight from it. `ProgressPlayers`/`ProgressFreeAgents` below only read a player's *current* age
+(for retirement and the skill-drift age trend) - they no longer change it.
+
 For each rostered player, in order:
 
-1. **Aging and retirement** - age +1 first. `ShouldRetire` forces retirement at 40
-   (`RetirementForcedAge`), and from 33 (`RetirementEligibleAge`) the odds climb 15 percentage
-   points per year past that. A retiree is dropped immediately - no skill update, no contract
-   step, nothing else below applies to them this season.
+1. **Retirement** - `ShouldRetire` checks the player's current age (already wherever
+   `ProcessBirthdays` last left it): forced at 40 (`RetirementForcedAge`), and from 33
+   (`RetirementEligibleAge`) the odds climb 15 percentage points per year past that. A retiree is
+   dropped immediately - no skill update, no contract step, nothing else below applies to them
+   this season.
 2. **Skill drift, only if they actually played** - `GetTeamPlayerPositionMinutes` gives each
    player's minutes-by-tactical-position for the season just finished. A player with zero minutes
    anywhere keeps every skill exactly as-is, growth or decline alike - benchwarming has no effect.
@@ -149,7 +162,7 @@ For each rostered player, in order:
    evolved, linking to `/players/evolutions`.
 
 A team left short of a full squad afterward (retirements, expired contracts) gets topped back up
-from the academy (`CreateAcademyPlayers`, also trainer-boosted). `ProgressFreeAgents` ages
+from the academy (`CreateAcademyPlayers`, also trainer-boosted). `ProgressFreeAgents` checks
 unemployed players the same way but never drifts their skills (no club, no matches, no coach to
 develop them) - one forced past `FreeAgencyRetirementSeasons` (2) consecutive unsigned seasons
 retires regardless of age, converting into a fresh trainer candidate on the open market

@@ -16,6 +16,7 @@ import { useTransferWindowStatus } from '../api/hooks'
 import { COUNTRY_NAME_KEYS, POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
 import { overallRating, ratingTierColor } from '../utils/playerRating'
 import { countryFlag } from '../utils/countryFlag'
+import { daysUntilNextBirthday } from '../utils/playerBirthday'
 import { formatCurrency } from '../utils/formatCurrency'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
@@ -201,6 +202,14 @@ export function PlayerProfileRail({
             />
           )}
           <SpecRow label={t('playerPage.profile.age')} value={player.age} />
+          <SpecRow
+            label={t('playerPage.profile.birthday')}
+            value={
+              daysUntilNextBirthday(player.birthDay) === 0
+                ? t('playerPage.profile.birthdayToday')
+                : t('playerPage.profile.birthdayIn', { count: daysUntilNextBirthday(player.birthDay) })
+            }
+          />
           {player.birthCountry && (
             <SpecRow label={t('playerPage.profile.birthCountry')} value={t(COUNTRY_NAME_KEYS[player.birthCountry] ?? player.birthCountry)} />
           )}
