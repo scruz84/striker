@@ -4,7 +4,8 @@
 -- Runs automatically after init3_player_unavailability.sql on a fresh database. On an
 -- already-initialized one, apply it manually once - see backend/README.md.
 
-ALTER TABLE teams ADD COLUMN IF NOT EXISTS budget bigint NOT NULL DEFAULT 1000000;
+ALTER TABLE teams
+    ADD COLUMN IF NOT EXISTS budget bigint NOT NULL DEFAULT 400000;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS wage int NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS team_transactions (
