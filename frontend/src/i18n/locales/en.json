@@ -490,6 +490,7 @@
     "player": "Player",
     "age": "Age",
     "wage": "Wage",
+    "averageSkill": "Skill",
     "contract": "Contract",
     "contractSeasons_one": "{{count}} season left",
     "contractSeasons_other": "{{count}} seasons left",

@@ -14,7 +14,9 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -27,18 +29,28 @@ import {
   useTeamTrainer,
   useUserTeam,
 } from '../../api/hooks'
-import { MAX_CONTRACT_YEARS_REMAINING, type Player, type SeasonHistoryEntry } from '../../api/types'
+import {
+  COUNTRY_NAME_KEYS,
+  MAX_CONTRACT_YEARS_REMAINING,
+  type Player,
+  type PlayerUnavailability,
+  type SeasonHistoryEntry,
+} from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
+import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
+import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
+import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
-type SquadSortField = 'name' | 'age' | 'wage' | 'contract'
+type SquadSortField = 'name' | 'age' | 'wage' | 'skill' | 'contract'
 
 function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): number {
   switch (field) {
@@ -46,6 +58,8 @@ function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): numbe
       return a.age - b.age
     case 'wage':
       return a.wage - b.wage
+    case 'skill':
+      return overallRating(a) - overallRating(b)
     case 'contract':
       return a.contractYearsRemaining - b.contractYearsRemaining
     default:
@@ -60,6 +74,7 @@ export function TeamDetailsPage() {
   const { data: teamDetails, isLoading } = useTeamDetails(id)
   const { data: userTeam } = useUserTeam(!!loggedUser)
   const { data: history, isLoading: historyLoading } = useTeamHistory(id)
+  const unavailability = useSquadUnavailability()
   const [sortField, setSortField] = useState<SquadSortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
 
@@ -115,6 +130,13 @@ export function TeamDetailsPage() {
                 </TableSortLabel>
               </TableCell>
               {isOwnTeam && (
+                <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'skill' ? sortDir : false}>
+                  <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
+                    {t('team.averageSkill')}
+                  </TableSortLabel>
+                </TableCell>
+              )}
+              {isOwnTeam && (
                 <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'contract' ? sortDir : false}>
                   <TableSortLabel active={sortField === 'contract'} direction={sortField === 'contract' ? sortDir : 'asc'} onClick={() => handleSort('contract')}>
                     {t('team.contract')}
@@ -126,7 +148,12 @@ export function TeamDetailsPage() {
           </TableHead>
           <TableBody>
             {players.map((player) => (
-              <PlayerRow key={player.id} player={player} isOwnTeam={isOwnTeam} />
+              <PlayerRow
+                key={player.id}
+                player={player}
+                isOwnTeam={isOwnTeam}
+                unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
+              />
             ))}
           </TableBody>
         </Table>
@@ -332,12 +359,23 @@ function AcademySection() {
   )
 }
 
-function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }) {
+function PlayerRow({
+  player,
+  isOwnTeam,
+  unavailability,
+}: {
+  player: Player
+  isOwnTeam: boolean
+  unavailability?: PlayerUnavailability
+}) {
   const { t } = useTranslation()
+  const theme = useTheme()
   const confirm = useConfirm()
   const releasePlayer = useReleasePlayer()
   const [renewalOpen, setRenewalOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
+  const flag = countryFlag(player.birthCountry)
+  const rating = overallRating(player)
 
   const handleRelease = async () => {
     const ok = await confirm({
@@ -355,15 +393,28 @@ function PlayerRow({ player, isOwnTeam }: { player: Player; isOwnTeam: boolean }
       <TableCell>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
+          {flag && (
+            <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
+              <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
+                {flag}
+              </Typography>
+            </Tooltip>
+          )}
           <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
             {player.firstName} {player.lastName}
           </Link>
+          {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
       <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
         {formatCurrency(player.wage)}
       </TableCell>
+      {isOwnTeam && (
+        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, color: ratingTierColor(rating, theme.palette) }}>
+          {rating}
+        </TableCell>
+      )}
       {isOwnTeam && (
         <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
           {t('team.contractSeasons', { count: player.contractYearsRemaining })}
