@@ -29,6 +29,7 @@ function match(overrides: Partial<WeekMatch>): WeekMatch {
     inSimulation: false,
     home: 1,
     homeName: 'Home',
+    homeStadiumName: '',
     away: 2,
     awayName: 'Away',
     homeGoals: 0,

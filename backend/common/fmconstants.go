@@ -53,15 +53,11 @@ const TRANSACTION_TRAINER_WAGES = 9    // wage bill for an employed head coach, 
 const TRANSACTION_SEASON_TICKETS = 10  // once-a-season lump sum paid for stadium capacity, at rollover - income
 const TRANSACTION_MERCHANDISING = 11   // once-a-season shirt/merchandise income by league position, at rollover - income
 
-// Stadium capacity is picked once at team creation, scaled by the league tier it starts in
-// (see the initializer's createTeam and common.RandomStadiumCapacity) - bigger clubs get
-// bigger stadiums, and promotion/relegation carries a real financial stake beyond prestige.
-const StadiumCapacityTier1Min = 3000
-const StadiumCapacityTier1Max = 6000
-const StadiumCapacityTier2Min = 1500
-const StadiumCapacityTier2Max = 3500
-const StadiumCapacityTier3Min = 500
-const StadiumCapacityTier3Max = 2000
+// DefaultStadiumCapacity is every new team's starting stadium capacity (see the initializer's
+// createTeam), regardless of the league tier it starts in - flat and fixed rather than random, so
+// every manager starts with the same-size ground. From here on it only ever changes through
+// common.UpgradeStadium.
+const DefaultStadiumCapacity = 10000
 
 // DefaultTicketPrice is what a new team starts charging per seat; MinTicketPrice/MaxTicketPrice
 // bound what an owner can set it to (see handlers.SetTicketPriceHandler).

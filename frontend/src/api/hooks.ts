@@ -343,6 +343,16 @@ export function useSetTicketPrice() {
   })
 }
 
+export function useRenameStadium() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (name: string) => api.put('/v1/user/team/stadium/name', { name }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
 export function useSetSponsorDeal() {
   const queryClient = useQueryClient()
   return useMutation({

@@ -4,8 +4,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
+import EditIcon from '@mui/icons-material/Edit'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
@@ -20,7 +22,7 @@ import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useFinances, useMe, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
+import { useFinances, useMe, useRenameStadium, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import {
   SPONSOR_DEAL_BALANCED,
   SPONSOR_DEAL_DESCRIPTION_KEYS,
@@ -202,7 +204,10 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
   const confirm = useConfirm()
   const setTicketPrice = useSetTicketPrice()
   const upgradeStadium = useUpgradeStadium()
+  const renameStadium = useRenameStadium()
   const [price, setPrice] = useState(String(stadium.ticketPrice))
+  const [editingName, setEditingName] = useState(false)
+  const [name, setName] = useState(stadium.name)
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -220,6 +225,16 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
     }
   }
 
+  const handleRenameSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    const trimmed = name.trim()
+    if (!trimmed || trimmed === stadium.name) {
+      setEditingName(false)
+      return
+    }
+    renameStadium.mutate(trimmed, { onSuccess: () => setEditingName(false) })
+  }
+
   const upgradePending = stadium.pendingCapacity != null && stadium.upgradeCompletesAt != null
 
   return (
@@ -228,7 +243,41 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
         <Typography variant="overline" color="text.secondary">
           {t('finances.stadium')}
         </Typography>
-        <Typography variant="subtitle1">{stadium.name}</Typography>
+        {editingName ? (
+          <Box component="form" onSubmit={handleRenameSubmit} sx={{ mb: 0.5 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <TextField
+                label={t('finances.stadiumNameLabel')}
+                size="small"
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Button type="submit" size="small" variant="outlined" disabled={renameStadium.isPending}>
+                {t('common.save')}
+              </Button>
+            </Stack>
+          </Box>
+        ) : (
+          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+            <Typography variant="subtitle1">{stadium.name}</Typography>
+            <IconButton
+              size="small"
+              aria-label={t('finances.renameStadium')}
+              onClick={() => {
+                setName(stadium.name)
+                setEditingName(true)
+              }}
+            >
+              <EditIcon fontSize="inherit" />
+            </IconButton>
+          </Stack>
+        )}
+        {renameStadium.isError && (
+          <Alert severity="error" sx={{ mb: 1 }}>
+            {t('finances.renameStadiumError')}
+          </Alert>
+        )}
         <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
           <Typography variant="h4">{stadium.capacity.toLocaleString()}</Typography>
           <Typography variant="caption" color="text.secondary">

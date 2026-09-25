@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type ActionResult struct {
@@ -291,7 +290,7 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, t
 	if errInsert != nil {
 		log.Printf("error inserting new teams %s", errInsert)
 	}
-	capacity := common.RandomStadiumCapacity(tier, rand.New(rand.NewSource(time.Now().UnixNano())))
+	capacity := common.DefaultStadiumCapacity
 	// Every team starts unowned (see common.AssignTeam for how a human later claims one), so it
 	// gets an AI level right away - see common.RandomAiLevel.
 	aiLevel := common.RandomAiLevel(tier)

@@ -52,6 +52,7 @@ export function MatchDetailsPage() {
         matchId={id}
         homeId={match.home}
         homeName={match.homeName}
+        homeStadiumName={match.homeStadiumName}
         awayId={match.away}
         awayName={match.awayName}
         matchDate={match.matchDate}
@@ -70,6 +71,7 @@ function LiveMatch({
   matchId,
   homeId,
   homeName,
+  homeStadiumName,
   awayId,
   awayName,
   matchDate,
@@ -81,6 +83,7 @@ function LiveMatch({
   matchId: string | undefined
   homeId: number
   homeName: string
+  homeStadiumName: string
   awayId: number
   awayName: string
   matchDate: string
@@ -124,6 +127,7 @@ function LiveMatch({
         <Scoreboard
           homeId={homeId}
           homeName={homeName}
+          stadiumName={homeStadiumName}
           awayId={awayId}
           awayName={awayName}
           homeGoals={0}
@@ -144,6 +148,7 @@ function LiveMatch({
       <Scoreboard
         homeId={homeId}
         homeName={homeName}
+        stadiumName={homeStadiumName}
         awayId={awayId}
         awayName={awayName}
         homeGoals={live.homeGoals}
@@ -215,6 +220,7 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
       <Scoreboard
         homeId={match.home}
         homeName={match.homeName}
+        stadiumName={match.homeStadiumName}
         awayId={match.away}
         awayName={match.awayName}
         homeGoals={match.homeGoals}

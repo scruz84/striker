@@ -235,6 +235,10 @@
     "expandSuccess": "Ampliación del estadio en construcción.",
     "expandError": "Presupuesto insuficiente para ampliar.",
     "expandInProgress": "Ampliando a {{capacity}} asientos - listo el {{date}}",
+    "renameStadium": "Renombrar",
+    "stadiumNameLabel": "Nombre del estadio",
+    "renameStadiumSuccess": "Estadio renombrado.",
+    "renameStadiumError": "No se pudo renombrar el estadio.",
     "ticketPrice": "Precio de la entrada",
     "ticketPriceSuccess": "Precio de la entrada actualizado.",
     "ticketPriceError": "No se pudo actualizar el precio de la entrada.",
@@ -557,6 +561,7 @@
     "fullTime": "FINAL DEL PARTIDO",
     "connecting": "Conectando...",
     "scheduled": "Programado",
+    "venue": "🏟️ {{name}}",
     "tabs": {
       "events": "Eventos",
       "lineups": "Alineaciones",

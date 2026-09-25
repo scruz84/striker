@@ -217,7 +217,7 @@ row), so both mechanisms only apply it when the schema doesn't already exist.
 
 Every schema change that shipped before this file was consolidated is preserved, unchanged,
 under `resources/sql/history/` (`init2_league_tier.sql` through
-`init36_transfer_offer_terms.sql` at the time of writing) - kept for the record and for
+`init58_stadium_capacity_default.sql` at the time of writing) - kept for the record and for
 upgrading a database that predates one of them, but never auto-applied (`EnsureSchema` only
 lists the top-level `resources/sql/` directory, not `history/`).
 

@@ -235,6 +235,10 @@
     "expandSuccess": "Stadium expansion under construction.",
     "expandError": "Not enough budget to expand.",
     "expandInProgress": "Expanding to {{capacity}} seats - ready {{date}}",
+    "renameStadium": "Rename",
+    "stadiumNameLabel": "Stadium name",
+    "renameStadiumSuccess": "Stadium renamed.",
+    "renameStadiumError": "Failed to rename stadium.",
     "ticketPrice": "Ticket price",
     "ticketPriceSuccess": "Ticket price updated.",
     "ticketPriceError": "Failed to update ticket price.",
@@ -557,6 +561,7 @@
     "fullTime": "FULL TIME",
     "connecting": "Connecting...",
     "scheduled": "Scheduled",
+    "venue": "🏟️ {{name}}",
     "tabs": {
       "events": "Events",
       "lineups": "Lineups",

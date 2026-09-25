@@ -67,6 +67,9 @@ function friendlyToWeekMatch(match: FriendlyMatch): WeekMatch {
     inSimulation: false,
     home: match.homeTeamId,
     homeName: match.homeTeamName,
+    // A friendly doesn't carry stadium flavor the way a league match does (see WeekMatch's own
+    // comment) - Scoreboard simply omits the venue caption when this is empty.
+    homeStadiumName: '',
     away: match.awayTeamId,
     awayName: match.awayTeamName,
     homeGoals: match.homeGoals,

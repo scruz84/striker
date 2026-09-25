@@ -402,25 +402,29 @@ type Event struct {
 }
 
 type WeekMatch struct {
-	MatchId       int64             `json:"matchId"`
-	DivisionId    int64             `json:"divisionId"`
-	Season        int               `json:"season"`
-	WeekNumber    int               `json:"weekNumber"`
-	MatchDate     time.Time         `json:"matchDate"`
-	Played        bool              `json:"played"`
-	InSimulation  bool              `json:"inSimulation"`
-	Home          int64             `json:"home"`
-	HomeName      string            `json:"homeName"`
-	Away          int64             `json:"away"`
-	AwayName      string            `json:"awayName"`
-	HomeGoals     int               `json:"homeGoals"`
-	AwayGoals     int               `json:"awayGoals"`
-	Events        *[]Event          `json:"events"`
-	MatchInstants *[]MatchInstant   `json:"matchInstants"`
-	HomeLineup    *Lineup           `json:"homeLineup"`
-	AwayLineup    *Lineup           `json:"awayLineup"`
-	HomePlayers   *map[int64]Player `json:"homePlayers"`
-	AwayPlayers   *map[int64]Player `json:"awayPlayers"`
+	MatchId      int64     `json:"matchId"`
+	DivisionId   int64     `json:"divisionId"`
+	Season       int       `json:"season"`
+	WeekNumber   int       `json:"weekNumber"`
+	MatchDate    time.Time `json:"matchDate"`
+	Played       bool      `json:"played"`
+	InSimulation bool      `json:"inSimulation"`
+	Home         int64     `json:"home"`
+	HomeName     string    `json:"homeName"`
+	// HomeStadiumName is the home team's stadium at the time this match is fetched (not stored
+	// per-match like Weather/Attendance/etc below), so a later stadium rename is reflected on any
+	// already-played match too.
+	HomeStadiumName string            `json:"homeStadiumName"`
+	Away            int64             `json:"away"`
+	AwayName        string            `json:"awayName"`
+	HomeGoals       int               `json:"homeGoals"`
+	AwayGoals       int               `json:"awayGoals"`
+	Events          *[]Event          `json:"events"`
+	MatchInstants   *[]MatchInstant   `json:"matchInstants"`
+	HomeLineup      *Lineup           `json:"homeLineup"`
+	AwayLineup      *Lineup           `json:"awayLineup"`
+	HomePlayers     *map[int64]Player `json:"homePlayers"`
+	AwayPlayers     *map[int64]Player `json:"awayPlayers"`
 	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the match report's cosmetic
 	// flavor (issue: Hattrick-style match report) - empty/0 for a match not yet simulated, or one
 	// simulated before this existed (see resources/sql/init40_match_flavor.sql). Generated once at

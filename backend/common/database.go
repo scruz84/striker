@@ -96,7 +96,7 @@ const SetUserAdminStmtSql = "UPDATE users SET is_admin = $1 WHERE user_id = $2"
 
 const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" w.weather, w.attendance, w.referee_name, w.assistant1_name, w.assistant2_name," +
-	" t0.name as home_team_name, t1.name as away_team_name " +
+	" t0.name as home_team_name, t1.name as away_team_name, t0.stadium_name as home_stadium_name " +
 	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" weather, attendance, referee_name, assistant1_name, assistant2_name " +
 	"FROM matches where league_id = $1 and week_number = $2 and season = $3) w " +
@@ -104,7 +104,7 @@ const GetWeekMatchesStmtSql = "select match_id, w.league_id, w.season, played, i
 
 const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" w.weather, w.attendance, w.referee_name, w.assistant1_name, w.assistant2_name," +
-	" t0.name as home_team_name, t1.name as away_team_name " +
+	" t0.name as home_team_name, t1.name as away_team_name, t0.stadium_name as home_stadium_name " +
 	"FROM (SELECT match_id, league_id, season, played, in_simulation, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals," +
 	" weather, attendance, referee_name, assistant1_name, assistant2_name " +
 	"FROM matches where match_id = $1) w " +
@@ -997,6 +997,7 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 	var awayGoals int
 	var homeTeamName string
 	var awayTeamName string
+	var homeStadiumName sql.NullString
 	var weather sql.NullString
 	var attendance sql.NullInt64
 	var refereeName sql.NullString
@@ -1004,26 +1005,27 @@ func readWeekMatch(rows *sql.Rows) *WeekMatch {
 	var assistant2Name sql.NullString
 	rows.Scan(&matchId, &leagueId, &season, &played, &inSimulation, &weekNumber, &matchDate, &homeTeamId, &awayTeamId, &homeGoals, &awayGoals,
 		&weather, &attendance, &refereeName, &assistant1Name, &assistant2Name,
-		&homeTeamName, &awayTeamName)
+		&homeTeamName, &awayTeamName, &homeStadiumName)
 	return &WeekMatch{
-		MatchId:        matchId,
-		DivisionId:     leagueId,
-		Season:         season,
-		WeekNumber:     weekNumber,
-		MatchDate:      matchDate,
-		Played:         played,
-		InSimulation:   inSimulation,
-		Home:           homeTeamId,
-		HomeName:       homeTeamName,
-		Away:           awayTeamId,
-		AwayName:       awayTeamName,
-		HomeGoals:      homeGoals,
-		AwayGoals:      awayGoals,
-		Weather:        weather.String,
-		Attendance:     int(attendance.Int64),
-		RefereeName:    refereeName.String,
-		Assistant1Name: assistant1Name.String,
-		Assistant2Name: assistant2Name.String,
+		MatchId:         matchId,
+		DivisionId:      leagueId,
+		Season:          season,
+		WeekNumber:      weekNumber,
+		MatchDate:       matchDate,
+		Played:          played,
+		InSimulation:    inSimulation,
+		Home:            homeTeamId,
+		HomeName:        homeTeamName,
+		HomeStadiumName: homeStadiumName.String,
+		Away:            awayTeamId,
+		AwayName:        awayTeamName,
+		HomeGoals:       homeGoals,
+		AwayGoals:       awayGoals,
+		Weather:         weather.String,
+		Attendance:      int(attendance.Int64),
+		RefereeName:     refereeName.String,
+		Assistant1Name:  assistant1Name.String,
+		Assistant2Name:  assistant2Name.String,
 	}
 }
 

@@ -144,6 +144,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.PUT("/team/lineup", handlers.SetLineupHandler(dbCtx))
 	v1UserGroup.GET("/team/finances", handlers.GetFinancesHandler(dbCtx))
 	v1UserGroup.PUT("/team/stadium/ticket-price", handlers.SetTicketPriceHandler(dbCtx))
+	v1UserGroup.PUT("/team/stadium/name", handlers.RenameStadiumHandler(dbCtx))
 	v1UserGroup.PUT("/team/sponsor-deal", handlers.SetSponsorDealHandler(dbCtx))
 	v1UserGroup.POST("/team/stadium/upgrade", handlers.UpgradeStadiumHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/list", handlers.ListPlayerHandler(dbCtx))

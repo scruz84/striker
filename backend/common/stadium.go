@@ -4,27 +4,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math/rand"
+	"strings"
 	"time"
 )
 
 var ErrInvalidTicketPrice = errors.New("ticket price out of range")
 var ErrStadiumUpgradeInProgress = errors.New("stadium upgrade already in progress")
+var ErrInvalidStadiumName = errors.New("stadium name must be between 2 and 50 characters")
 
-// RandomStadiumCapacity picks a new team's stadium capacity for the tier it starts in (see the
-// StadiumCapacityTier*Min/Max constants). An unrecognized tier falls back to the tier-3
-// (smallest) range rather than panicking, since a tier the seed data doesn't create yet
-// shouldn't be able to crash team creation.
-func RandomStadiumCapacity(tier int, r *rand.Rand) int {
-	min, max := StadiumCapacityTier3Min, StadiumCapacityTier3Max
-	switch tier {
-	case 1:
-		min, max = StadiumCapacityTier1Min, StadiumCapacityTier1Max
-	case 2:
-		min, max = StadiumCapacityTier2Min, StadiumCapacityTier2Max
-	}
-	return min + r.Intn(max-min+1)
-}
+const (
+	MinStadiumNameLength = 2
+	MaxStadiumNameLength = 50
+)
 
 // Stadium is one team's ground and pricing - see GetStadium.
 type Stadium struct {
@@ -92,6 +83,17 @@ func GetStadium(dbCtx *DatabaseContext, teamId int64) (*Stadium, error) {
 	}
 
 	return &s, nil
+}
+
+// RenameStadium lets a team's owner rename their own stadium at any time - unlike the team name
+// itself (see RenameTeam), there's no one-shot restriction here.
+func RenameStadium(dbCtx *DatabaseContext, teamId int64, name string) error {
+	trimmed := strings.TrimSpace(name)
+	if len(trimmed) < MinStadiumNameLength || len(trimmed) > MaxStadiumNameLength {
+		return ErrInvalidStadiumName
+	}
+	_, err := dbCtx.Db.Exec(SetStadiumNameStmtSql, trimmed, teamId)
+	return err
 }
 
 // SetTicketPrice lets a team's owner set what they charge per seat, within

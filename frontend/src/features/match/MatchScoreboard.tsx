@@ -32,9 +32,23 @@ export interface ScoreboardProps {
   status: 'scheduled' | 'live' | 'connecting' | 'played'
   minute?: number
   subtitle?: string
+  // The home team's stadium - shown as a caption next to the status chip when known (omitted
+  // for a friendly, which doesn't track stadium flavor - see WeekMatch.homeStadiumName).
+  stadiumName?: string
 }
 
-export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, awayGoals, status, minute, subtitle }: ScoreboardProps) {
+export function Scoreboard({
+  homeId,
+  homeName,
+  awayId,
+  awayName,
+  homeGoals,
+  awayGoals,
+  status,
+  minute,
+  subtitle,
+  stadiumName,
+}: ScoreboardProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -69,6 +83,11 @@ export function Scoreboard({ homeId, homeName, awayId, awayName, homeGoals, away
           {status === 'scheduled' && <Chip size="small" variant="outlined" label={t('match.scheduled')} />}
           {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}
         </Stack>
+        {stadiumName && (
+          <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mb: 1.5 }}>
+            {t('match.venue', { name: stadiumName })}
+          </Typography>
+        )}
         {/* Flexbox rather than a 12-column Grid split - the center score needs a
             width that fits "88 - 3" without wrapping (see issue report: a fractional
             Grid column was too narrow on a phone screen and wrapped the score onto two

@@ -146,6 +146,47 @@ func SetTicketPriceHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type renameStadiumRequest struct {
+	Name string `json:"name"`
+}
+
+// RenameStadiumHandler lets the caller rename their own team's stadium - see
+// common.RenameStadium. Unlike the team's own name, this can be changed as often as the owner
+// likes.
+func RenameStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		var req renameStadiumRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "name is required"))
+			return
+		}
+
+		if err := common.RenameStadium(dbCtx, team.Id, req.Name); err != nil {
+			if errors.Is(err, common.ErrInvalidStadiumName) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error renaming stadium for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "stadium renamed"})
+	}
+}
+
 type setSponsorDealRequest struct {
 	Deal int `json:"deal"`
 }

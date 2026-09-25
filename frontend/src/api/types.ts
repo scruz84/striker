@@ -297,6 +297,9 @@ export interface WeekMatch {
   inSimulation: boolean
   home: number
   homeName: string
+  // The home team's stadium at the time this match was fetched - see the backend's
+  // common.WeekMatch.HomeStadiumName.
+  homeStadiumName: string
   away: number
   awayName: string
   homeGoals: number
