@@ -564,6 +564,14 @@ export interface Stadium {
   upgradeCompletesAt?: string
 }
 
+// Bounds for how many seats a stadium upgrade can add in one go - mirrors the backend's
+// common.MinStadiumUpgradeSeats/MaxStadiumUpgradeSeats. Duplicated here rather than fetched,
+// the same way MinTicketPrice/MaxTicketPrice aren't - the backend is the source of truth and
+// rejects anything outside range regardless of what the frontend sends.
+export const MIN_STADIUM_UPGRADE_SEATS = 100
+export const MAX_STADIUM_UPGRADE_SEATS = 5000
+export const DEFAULT_STADIUM_UPGRADE_SEATS = 500
+
 export interface FinancesResponse {
   budget: number
   transactions: TeamTransaction[]

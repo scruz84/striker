@@ -24,6 +24,9 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useRenameStadium, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import {
+  DEFAULT_STADIUM_UPGRADE_SEATS,
+  MAX_STADIUM_UPGRADE_SEATS,
+  MIN_STADIUM_UPGRADE_SEATS,
   SPONSOR_DEAL_BALANCED,
   SPONSOR_DEAL_DESCRIPTION_KEYS,
   SPONSOR_DEAL_LABEL_KEYS,
@@ -206,6 +209,7 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
   const upgradeStadium = useUpgradeStadium()
   const renameStadium = useRenameStadium()
   const [price, setPrice] = useState(String(stadium.ticketPrice))
+  const [seats, setSeats] = useState(String(DEFAULT_STADIUM_UPGRADE_SEATS))
   const [editingName, setEditingName] = useState(false)
   const [name, setName] = useState(stadium.name)
 
@@ -218,10 +222,19 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
     setTicketPrice.mutate(priceNum)
   }
 
+  const seatsNum = Number(seats)
+  const seatsValid = Number.isInteger(seatsNum) && seatsNum >= MIN_STADIUM_UPGRADE_SEATS && seatsNum <= MAX_STADIUM_UPGRADE_SEATS
+
   const handleUpgrade = async () => {
-    const ok = await confirm({ message: t('finances.confirmExpand'), confirmLabel: t('finances.expand') })
+    if (!seatsValid) {
+      return
+    }
+    const ok = await confirm({
+      message: t('finances.confirmExpand', { seats: seatsNum }),
+      confirmLabel: t('finances.expand'),
+    })
     if (ok) {
-      upgradeStadium.mutate()
+      upgradeStadium.mutate(seatsNum)
     }
   }
 
@@ -292,9 +305,26 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
             })}
           </Typography>
         ) : (
-          <Button size="small" variant="text" sx={{ mb: 1, px: 0 }} onClick={handleUpgrade} disabled={upgradeStadium.isPending}>
-            {t('finances.expand')}
-          </Button>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
+            <TextField
+              label={t('finances.newSeats')}
+              size="small"
+              type="number"
+              value={seats}
+              onChange={(e) => setSeats(e.target.value)}
+              error={!seatsValid}
+              helperText={
+                seatsValid
+                  ? undefined
+                  : t('finances.expandSeatsRange', { min: MIN_STADIUM_UPGRADE_SEATS, max: MAX_STADIUM_UPGRADE_SEATS })
+              }
+              slotProps={{ htmlInput: { min: MIN_STADIUM_UPGRADE_SEATS, max: MAX_STADIUM_UPGRADE_SEATS } }}
+              sx={{ width: 140 }}
+            />
+            <Button size="small" variant="text" onClick={handleUpgrade} disabled={upgradeStadium.isPending || !seatsValid}>
+              {t('finances.expand')}
+            </Button>
+          </Stack>
         )}
         {upgradeStadium.isSuccess && <Alert severity="success" sx={{ mb: 1 }}>{t('finances.expandSuccess')}</Alert>}
         {upgradeStadium.isError && <Alert severity="error" sx={{ mb: 1 }}>{t('finances.expandError')}</Alert>}

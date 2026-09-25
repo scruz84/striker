@@ -459,7 +459,7 @@ func upgradeStadiumIfAffordable(dbCtx *common.DatabaseContext, teamId int64) {
 		return
 	}
 
-	if _, err := common.UpgradeStadium(dbCtx, teamId); err != nil &&
+	if _, err := common.UpgradeStadium(dbCtx, teamId, common.StadiumUpgradeSeats); err != nil &&
 		!errors.Is(err, common.ErrInsufficientBudget) && !errors.Is(err, common.ErrStadiumUpgradeInProgress) {
 		log.Errorf("error upgrading stadium for AI-managed team %d: %s", teamId, err)
 	}

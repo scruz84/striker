@@ -15,6 +15,24 @@ func TestStadiumUpgradeCost_ScalesWithCurrentCapacity(t *testing.T) {
 	}
 }
 
+func TestStadiumUpgradeCost_ScalesWithSeatsRequested(t *testing.T) {
+	small := int64(1000) * StadiumUpgradeCostPerCurrentSeat * int64(MinStadiumUpgradeSeats) / StadiumUpgradeSeats
+	big := int64(1000) * StadiumUpgradeCostPerCurrentSeat * int64(MaxStadiumUpgradeSeats) / StadiumUpgradeSeats
+	if big <= small {
+		t.Fatal("expected requesting more seats to cost more")
+	}
+}
+
+func TestUpgradeStadium_RejectsSeatsOutOfRange(t *testing.T) {
+	// The seats range is validated before any database access, so this doesn't need a live one.
+	if _, err := UpgradeStadium(nil, 1, MinStadiumUpgradeSeats-1); err != ErrInvalidStadiumUpgradeSeats {
+		t.Fatalf("expected ErrInvalidStadiumUpgradeSeats for too few seats, got %v", err)
+	}
+	if _, err := UpgradeStadium(nil, 1, MaxStadiumUpgradeSeats+1); err != ErrInvalidStadiumUpgradeSeats {
+		t.Fatalf("expected ErrInvalidStadiumUpgradeSeats for too many seats, got %v", err)
+	}
+}
+
 func TestSetTicketPrice_RejectsOutOfRange(t *testing.T) {
 	// SetTicketPrice validates before touching the database, so this doesn't need a live one.
 	if err := SetTicketPrice(nil, 1, MinTicketPrice-1); err != ErrInvalidTicketPrice {

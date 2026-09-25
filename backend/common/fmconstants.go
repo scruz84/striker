@@ -65,10 +65,15 @@ const DefaultTicketPrice = 10
 const MinTicketPrice = 1
 const MaxTicketPrice = 100
 
-// A stadium upgrade adds a fixed number of seats at a cost proportional to the *current*
-// capacity, so expanding an already-big stadium costs more in absolute terms each time -
-// see UpgradeStadium.
+// A stadium upgrade adds an owner-chosen number of seats (see UpgradeStadium and
+// MinStadiumUpgradeSeats/MaxStadiumUpgradeSeats for the range they can pick from), at a cost
+// proportional to both the *current* capacity and the number of seats requested - so expanding
+// an already-big stadium, or requesting more seats at once, both cost more in absolute terms.
+// StadiumUpgradeSeats is the fixed amount AI-managed teams request (see
+// engine.upgradeStadiumIfAffordable) and the baseline the cost formula is scaled against.
 const StadiumUpgradeSeats = 500
+const MinStadiumUpgradeSeats = 100
+const MaxStadiumUpgradeSeats = 5000
 const StadiumUpgradeCostPerCurrentSeat = 10
 
 // StadiumUpgradeDuration is how long a paid-for stadium upgrade takes to finish construction

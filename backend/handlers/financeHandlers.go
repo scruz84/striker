@@ -228,9 +228,14 @@ func SetSponsorDealHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+type upgradeStadiumRequest struct {
+	Seats int `json:"seats" binding:"required"`
+}
+
 // UpgradeStadiumHandler spends the caller's team's budget to schedule an expansion of its own
-// stadium by a fixed increment - see common.UpgradeStadium for the cost formula and construction
-// delay.
+// stadium by a caller-chosen number of seats, within [common.MinStadiumUpgradeSeats,
+// common.MaxStadiumUpgradeSeats] - see common.UpgradeStadium for the cost formula and
+// construction delay.
 func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -245,9 +250,16 @@ func UpgradeStadiumHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		stadium, err := common.UpgradeStadium(dbCtx, team.Id)
+		var req upgradeStadiumRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "seats is required"))
+			return
+		}
+
+		stadium, err := common.UpgradeStadium(dbCtx, team.Id, req.Seats)
 		if err != nil {
-			if errors.Is(err, common.ErrInsufficientBudget) || errors.Is(err, common.ErrStadiumUpgradeInProgress) {
+			if errors.Is(err, common.ErrInsufficientBudget) || errors.Is(err, common.ErrStadiumUpgradeInProgress) ||
+				errors.Is(err, common.ErrInvalidStadiumUpgradeSeats) {
 				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 				return
 			}

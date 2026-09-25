@@ -366,7 +366,7 @@ export function useSetSponsorDeal() {
 export function useUpgradeStadium() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: () => api.post<Stadium>('/v1/user/team/stadium/upgrade'),
+    mutationFn: (seats: number) => api.post<Stadium>('/v1/user/team/stadium/upgrade', { seats }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
     },

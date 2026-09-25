@@ -10,6 +10,7 @@ import (
 
 var ErrInvalidTicketPrice = errors.New("ticket price out of range")
 var ErrStadiumUpgradeInProgress = errors.New("stadium upgrade already in progress")
+var ErrInvalidStadiumUpgradeSeats = errors.New("stadium upgrade seats out of range")
 var ErrInvalidStadiumName = errors.New("stadium name must be between 2 and 50 characters")
 
 const (
@@ -109,15 +110,21 @@ func SetTicketPrice(dbCtx *DatabaseContext, teamId int64, price int) error {
 const GetStadiumCapacityForUpdateStmtSql = "SELECT stadium_capacity, stadium_upgrade_target FROM teams WHERE team_id = $1 " + ForUpdate
 const SetStadiumUpgradeStmtSql = "UPDATE teams SET stadium_upgrade_target = $1, stadium_upgrade_completes_at = $2 WHERE team_id = $3"
 
-// UpgradeStadium charges a team's budget StadiumUpgradeCostPerCurrentSeat times its *current*
-// capacity - so the same fixed expansion costs more in absolute terms each time the stadium
-// grows - and schedules StadiumUpgradeSeats more capacity to go live after StadiumUpgradeDuration
+// UpgradeStadium charges a team's budget for adding seats new seats to its *current* capacity -
+// cost scales with both the current capacity and the number of seats requested (relative to the
+// StadiumUpgradeSeats baseline), so a bigger stadium or a bigger expansion both cost more in
+// absolute terms - and schedules those seats to go live after StadiumUpgradeDuration
 // (construction isn't instant; see resolveDueStadiumUpgrade for how that's later applied). Both
 // the capacity and budget rows are locked for the duration (SELECT ... FOR UPDATE), so two
 // upgrades racing each other can't both succeed off the same starting capacity/budget. Returns
-// ErrStadiumUpgradeInProgress if one is already under way, or ErrInsufficientBudget if the team
-// can't afford it.
-func UpgradeStadium(dbCtx *DatabaseContext, teamId int64) (*Stadium, error) {
+// ErrInvalidStadiumUpgradeSeats if seats is outside [MinStadiumUpgradeSeats,
+// MaxStadiumUpgradeSeats], ErrStadiumUpgradeInProgress if one is already under way, or
+// ErrInsufficientBudget if the team can't afford it.
+func UpgradeStadium(dbCtx *DatabaseContext, teamId int64, seats int) (*Stadium, error) {
+	if seats < MinStadiumUpgradeSeats || seats > MaxStadiumUpgradeSeats {
+		return nil, ErrInvalidStadiumUpgradeSeats
+	}
+
 	if err := resolveDueStadiumUpgrade(dbCtx, teamId); err != nil {
 		return nil, err
 	}
@@ -137,7 +144,7 @@ func UpgradeStadium(dbCtx *DatabaseContext, teamId int64) (*Stadium, error) {
 		return nil, ErrStadiumUpgradeInProgress
 	}
 
-	cost := int64(capacity) * StadiumUpgradeCostPerCurrentSeat
+	cost := int64(capacity) * StadiumUpgradeCostPerCurrentSeat * int64(seats) / StadiumUpgradeSeats
 
 	var budget int64
 	if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, teamId).Scan(&budget); err != nil {
@@ -147,7 +154,7 @@ func UpgradeStadium(dbCtx *DatabaseContext, teamId int64) (*Stadium, error) {
 		return nil, ErrInsufficientBudget
 	}
 
-	newCapacity := capacity + StadiumUpgradeSeats
+	newCapacity := capacity + seats
 	completesAt := time.Now().Add(StadiumUpgradeDuration)
 	if _, err := tx.Exec(SetStadiumUpgradeStmtSql, newCapacity, completesAt, teamId); err != nil {
 		return nil, err

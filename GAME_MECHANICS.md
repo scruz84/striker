@@ -254,10 +254,11 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
 - **Transfers** - a fixed-price listing (`common/transfers.go`) or an accepted negotiated offer
   (`common/offers.go`) debits the buyer and credits the seller the agreed fee in one atomic
   transaction; a free-agent signing costs nothing but the player's wage.
-- **Stadium expansion** (`UpgradeStadium`, `common/stadium.go`) - adds a fixed number of seats
-  (`StadiumUpgradeSeats`) each time, costing current capacity × `StadiumUpgradeCostPerCurrentSeat`
-  (10) - so the same fixed expansion gets more expensive in absolute terms every time a stadium
-  grows.
+- **Stadium expansion** (`UpgradeStadium`, `common/stadium.go`) - adds an owner-chosen number of
+  seats, between `MinStadiumUpgradeSeats` (100) and `MaxStadiumUpgradeSeats` (5,000), costing
+  current capacity × `StadiumUpgradeCostPerCurrentSeat` (10) × seats requested ÷
+  `StadiumUpgradeSeats` (500) - so both a bigger stadium and a bigger expansion cost more in
+  absolute terms. AI-managed teams always request the `StadiumUpgradeSeats` default.
 - **Contract renewal/release** - a renewal offered at or above the player's own market wage is
   accepted for free; releasing a player early before their contract expires costs a severance (see
   `common.EarlyReleaseWageMultiplier` in `common/contracts.go`).
