@@ -130,6 +130,10 @@ const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_position
 const GetDefaultLineupStmtSql = "SELECT player_id, position FROM default_lineup_positions WHERE team_id = $1"
 const DeleteDefaultLineupPositionsStmtSql = "DELETE FROM default_lineup_positions WHERE team_id = $1"
 
+const InsertDefaultFriendlyLineupPositionsStmtSql = "INSERT INTO default_friendly_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
+const GetDefaultFriendlyLineupStmtSql = "SELECT player_id, position FROM default_friendly_lineup_positions WHERE team_id = $1"
+const DeleteDefaultFriendlyLineupPositionsStmtSql = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
+
 const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals) " +
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
@@ -1849,6 +1853,84 @@ func SetDefaultLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPo
 	}
 
 	insertStmt, err := tx.Prepare(InsertDefaultLineupPositionsStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertStmt.Close()
+
+	for _, p := range positions {
+		if _, err := insertStmt.Exec(teamId, p.PlayerId, p.Position); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+// GetDefaultFriendlyLineup returns a team's standing friendly-only lineup (used as the fallback
+// for any friendly without a per-match override, see GetLineupsForFriendly) - kept separate from
+// GetDefaultLineup's league/cup default so a manager can field a weaker/experimental XI in
+// friendlies without touching their competitive default. Positions come back empty (never an
+// error) when the manager hasn't set one up yet; callers fall back to the league/cup default in
+// that case. Reuses the same scheduled substitutions as the league/cup default (see
+// GetDefaultLineupSubstitutions) - those are deliberately team-wide, not per-competition.
+func GetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
+	rows, err := dbCtx.Db.Query(GetDefaultFriendlyLineupStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	positions := make([]LineupPosition, 0)
+	for rows.Next() {
+		var playerId int64
+		var position int
+		if err := rows.Scan(&playerId, &position); err != nil {
+			return nil, err
+		}
+		positions = append(positions, LineupPosition{PlayerId: playerId, Position: position})
+	}
+
+	formation, err := GetTeamFriendlyFormation(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	substitutions, err := GetDefaultLineupSubstitutions(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions, Substitutions: substitutions}, nil
+}
+
+// SetDefaultFriendlyLineup atomically replaces a team's standing friendly-only lineup. Callers
+// must have already validated that every position is filled exactly once and every player
+// belongs to the team (see handlers.validateLineup). Mirrors SetDefaultLineup, including its
+// non-blocking per-team advisory lock against a concurrent duplicate-key race.
+func SetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPosition) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Same non-blocking per-team guard SetDefaultLineup uses, on a distinct lock key (the
+	// two-argument form, teamId plus an arbitrary second key) so a concurrent save of this team's
+	// league/cup default never contends with - or falsely no-ops - a save of its friendly default.
+	var acquiredLock bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1, $2)", teamId, 1).Scan(&acquiredLock); err != nil {
+		return err
+	}
+	if !acquiredLock {
+		return nil
+	}
+
+	if _, err := tx.Exec(DeleteDefaultFriendlyLineupPositionsStmtSql, teamId); err != nil {
+		return err
+	}
+
+	insertStmt, err := tx.Prepare(InsertDefaultFriendlyLineupPositionsStmtSql)
 	if err != nil {
 		return err
 	}

@@ -63,6 +63,7 @@ export const queryKeys = {
   leagueDirectory: ['leagueDirectory'] as const,
   match: (id: string) => ['match', id] as const,
   lineup: ['lineup'] as const,
+  friendlyDefaultLineup: ['friendlyDefaultLineup'] as const,
   finances: ['finances'] as const,
   transfers: ['transfers'] as const,
   transferWindow: ['transferWindow'] as const,
@@ -321,6 +322,25 @@ export function useSetLineup() {
     }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
+    },
+  })
+}
+
+export function useFriendlyDefaultLineup(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.friendlyDefaultLineup,
+    queryFn: () => api.get<Lineup>('/v1/user/team/lineup/friendly'),
+    enabled,
+  })
+}
+
+export function useSetFriendlyDefaultLineup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
+      api.put('/v1/user/team/lineup/friendly', { formation, positions }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyDefaultLineup })
     },
   })
 }

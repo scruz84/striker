@@ -108,3 +108,20 @@ func SetTeamFormation(dbCtx *DatabaseContext, teamId int64, formation int) error
 	_, err := dbCtx.Db.Exec(SetTeamFormationStmtSql, formation, teamId)
 	return err
 }
+
+const GetTeamFriendlyFormationStmtSql = "SELECT friendly_formation FROM teams WHERE team_id = $1"
+const SetTeamFriendlyFormationStmtSql = "UPDATE teams SET friendly_formation = $1 WHERE team_id = $2"
+
+// GetTeamFriendlyFormation returns the formation for a team's standing friendly-only default
+// lineup (see GetDefaultFriendlyLineup) - kept separate from GetTeamFormation's league/cup
+// formation so switching one doesn't disturb the other.
+func GetTeamFriendlyFormation(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	var formation int
+	err := dbCtx.Db.QueryRow(GetTeamFriendlyFormationStmtSql, teamId).Scan(&formation)
+	return formation, err
+}
+
+func SetTeamFriendlyFormation(dbCtx *DatabaseContext, teamId int64, formation int) error {
+	_, err := dbCtx.Db.Exec(SetTeamFriendlyFormationStmtSql, formation, teamId)
+	return err
+}

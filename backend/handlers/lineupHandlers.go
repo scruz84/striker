@@ -104,6 +104,91 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// GetFriendlyDefaultLineupHandler returns the caller's team's standing friendly-only default
+// lineup (see common.GetDefaultFriendlyLineup) - separate from GetLineupHandler's league/cup
+// default so a manager can review/edit each independently.
+func GetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		lineup, err := common.GetDefaultFriendlyLineup(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting default friendly lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, lineup)
+	}
+}
+
+// SetFriendlyDefaultLineupHandler replaces the caller's team's standing friendly-only default
+// lineup after the same formation/roster/availability validation SetLineupHandler applies to the
+// league/cup default. Scheduled substitutions aren't part of this request - those stay team-wide,
+// shared with the league/cup default (see common.GetDefaultLineupSubstitutions).
+func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		var req SetLineupRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid lineup payload"))
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		unavailable, err := common.GetUnavailablePlayerIds(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting unavailable players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+
+		if err := common.SetTeamFriendlyFormation(dbCtx, team.Id, req.Formation); err != nil {
+			log.Errorf("error setting friendly formation for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultFriendlyLineup(dbCtx, team.Id, req.Positions); err != nil {
+			log.Errorf("error setting friendly lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "lineup updated"})
+	}
+}
+
 // validateLineup ensures the submitted lineup matches the chosen formation's required headcount
 // at every tactical position (see common.FormationPositionCounts - always 11 players total,
 // goalkeeper included) with distinct players that actually belong to the team - without this, a

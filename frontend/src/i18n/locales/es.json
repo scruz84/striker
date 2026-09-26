@@ -178,6 +178,11 @@
   },
   "lineup": {
     "title": "Alineación - {{teamName}}",
+    "tabs": {
+      "leagueCup": "Liga / Copa",
+      "friendly": "Amistoso"
+    },
+    "friendlyHint": "Esta es la alineación por defecto para los amistosos que no tengan una alineación propia. Las sustituciones programadas se comparten con la alineación por defecto de liga/copa.",
     "formation": "Formación",
     "saveError": "No se pudo guardar la alineación. Revisa tus selecciones.",
     "saveSuccess": "Alineación guardada.",

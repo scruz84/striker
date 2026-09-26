@@ -10,12 +10,22 @@ import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useLineup, useMe, useSetLineup, useUserTeam } from '../../api/hooks'
+import {
+  useFriendlyDefaultLineup,
+  useLineup,
+  useMe,
+  useSetFriendlyDefaultLineup,
+  useSetLineup,
+  useUserTeam,
+} from '../../api/hooks'
 import { FORMATION_LABEL_KEYS, MAX_SCHEDULED_SUBSTITUTIONS } from '../../api/types'
-import type { Lineup, LineupSubstitution, Player, Team } from '../../api/types'
+import type { Lineup, LineupPosition, LineupSubstitution, Player, Team } from '../../api/types'
+import { MatchLineupForm } from './MatchLineupForm'
 import { PlayerBench } from './PlayerBench'
 import { SoccerPitch } from './SoccerPitch'
 import { useLineupSelections } from './useLineupSelections'
@@ -35,15 +45,65 @@ function initialSubstitutionDrafts(lineup: Lineup): SubstitutionDraft[] {
 }
 
 export function LineupEditorPage() {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState(0)
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
-  const { data: lineup, isLoading: lineupLoading } = useLineup(!!loggedUser)
+  const { data: lineup, isLoading: lineupLoading } = useLineup(!!loggedUser && tab === 0)
+  const { data: friendlyLineup, isLoading: friendlyLineupLoading } = useFriendlyDefaultLineup(!!loggedUser && tab === 1)
 
-  if (teamLoading || lineupLoading || !userTeam || !lineup) {
+  if (teamLoading || !userTeam) {
     return <Skeleton variant="rectangular" height={300} />
   }
 
-  return <LineupForm team={userTeam.team} players={userTeam.players} lineup={lineup} />
+  return (
+    <Box>
+      <Tabs value={tab} onChange={(_, next: number) => setTab(next)} sx={{ mb: { xs: 1, sm: 2 } }}>
+        <Tab label={t('lineup.tabs.leagueCup')} />
+        <Tab label={t('lineup.tabs.friendly')} />
+      </Tabs>
+      {tab === 0 &&
+        (lineupLoading || !lineup ? (
+          <Skeleton variant="rectangular" height={300} />
+        ) : (
+          <LineupForm team={userTeam.team} players={userTeam.players} lineup={lineup} />
+        ))}
+      {tab === 1 &&
+        (friendlyLineupLoading || !friendlyLineup ? (
+          <Skeleton variant="rectangular" height={300} />
+        ) : (
+          <FriendlyDefaultLineupForm team={userTeam.team} players={userTeam.players} lineup={friendlyLineup} />
+        ))}
+    </Box>
+  )
+}
+
+// The friendly-only default lineup, used as the fallback for any friendly without a per-match
+// override (see backend common.GetLineupsForFriendly) - independent of the league/cup default
+// above, so a manager can field a weaker/experimental XI in friendlies without touching their
+// competitive default. Reuses MatchLineupForm (no scheduled-substitutions section: those stay
+// team-wide, shared with the league/cup default).
+function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
+  const { t } = useTranslation()
+  const setFriendlyLineup = useSetFriendlyDefaultLineup()
+
+  return (
+    <Box>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 1, sm: 2 } }}>
+        {t('lineup.friendlyHint')}
+      </Typography>
+      <MatchLineupForm
+        titleKey="lineup.title"
+        titleValues={{ teamName: team.name }}
+        players={players}
+        lineup={lineup}
+        onSave={(formation: number, positions: LineupPosition[]) => setFriendlyLineup.mutate({ formation, positions })}
+        isSaving={setFriendlyLineup.isPending}
+        isError={setFriendlyLineup.isError}
+        isSuccess={setFriendlyLineup.isSuccess}
+      />
+    </Box>
+  )
 }
 
 function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
