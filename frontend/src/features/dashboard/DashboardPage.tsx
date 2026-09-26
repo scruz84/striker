@@ -1,8 +1,12 @@
 import { useState, type ReactNode } from 'react'
 import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
 import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone'
+import CompareArrowsTwoToneIcon from '@mui/icons-material/CompareArrowsTwoTone'
 import EditIcon from '@mui/icons-material/Edit'
+import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
+import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -21,13 +25,30 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useDivisionDetails, useFinances, useMe, useRenameTeam, useUserTeam } from '../../api/hooks'
-import type { ClassificationPosition, Team, WeekMatch } from '../../api/types'
+import {
+  useAcademy,
+  useDivisionDetails,
+  useFinances,
+  useFriendlyChallengesReceived,
+  useGroupDetails,
+  useHeadToHead,
+  useMe,
+  useMyGroups,
+  useOffersReceived,
+  useRenameTeam,
+  useTeamMatches,
+  useTopScorers,
+  useUserTeam,
+} from '../../api/hooks'
+import { SPONSOR_DEAL_LABEL_KEYS, type ClassificationPosition, type FinancesResponse, type Player, type Team, type TeamMatchSummary } from '../../api/types'
 import { mightStillBeLive } from '../../api/useLiveMatch'
+import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
+import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { SeasonRecap } from './SeasonRecap'
 
@@ -36,33 +57,54 @@ export function DashboardPage() {
   const { data: userTeam, isLoading } = useUserTeam(!!loggedUser)
   const { data: finances } = useFinances(!!userTeam)
   const { data: division } = useDivisionDetails(userTeam ? String(userTeam.team.divisionId) : undefined)
+  // Sourced from every league match, cup tie, and friendly the team has, rather than just the
+  // division's league fixtures - a league-only "next match" quietly skips a friendly kicking off
+  // sooner, which is exactly the bug this dashboard used to have.
+  const { data: teamMatches } = useTeamMatches(userTeam ? String(userTeam.team.id) : undefined)
 
   if (isLoading || !userTeam) {
     return <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
   }
 
   const { team, players } = userTeam
-  const nextMatch = division?.nextWeekMatches.find((m) => m.home === team.id || m.away === team.id)
-  const lastMatch = division?.previousWeekMatches.find((m) => m.home === team.id || m.away === team.id)
+  const playedMatches = teamMatches?.filter((m) => m.played).sort((a, b) => b.matchDate.localeCompare(a.matchDate))
+  const nextMatch = teamMatches?.filter((m) => !m.played).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
+  const lastMatch = playedMatches?.[0]
+  const recentForm = playedMatches?.slice(0, 5).reverse()
   const standing = division?.classification.positions.find((p) => p.teamId === team.id)
 
   return (
     <Box>
       <SeasonRecap enabled={!!loggedUser} />
-      <LiveMatchBanner match={lastMatch} teamId={team.id} />
-      <TeamHeaderCard team={team} standing={standing} />
+      <LiveMatchBanner match={lastMatch} />
+      <TeamHeaderCard team={team} standing={standing} recentForm={recentForm} />
+      <AttentionAlerts teamId={team.id} players={players} finances={finances} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <NextMatchCard match={nextMatch} teamId={team.id} />
+          <NextMatchCard match={nextMatch} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <LastResultCard match={lastMatch} teamId={team.id} />
+          <LastResultCard match={lastMatch} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <BudgetCard budget={finances?.budget} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SquadCard teamId={team.id} squadSize={players.length} />
+        </Grid>
+      </Grid>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <TopScorerCard leagueId={String(team.divisionId)} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <HeadToHeadCard teamId={team.id} nextMatch={nextMatch} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <GroupSnapshotCard teamId={team.id} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <SponsorDealCard finances={finances} />
         </Grid>
       </Grid>
       <RecentLeagueTransfers leagueId={String(team.divisionId)} />
@@ -72,37 +114,178 @@ export function DashboardPage() {
 
 // A prominent banner (rather than just the small LIVE chip LastResultCard already shows) for the
 // common case of a team owner landing on their dashboard while their own match is broadcasting -
-// `match.played` flips true in the DB (and the match moves into `previousWeekMatches`, which is
-// where `lastMatch` comes from) well before its live broadcast finishes pacing out to viewers,
-// so this is the same "still might be live" heuristic LastResultCard already uses, just surfaced
-// somewhere a viewer can't miss it (issue: dashboard live match notice).
-function LiveMatchBanner({ match, teamId }: { match: WeekMatch | undefined; teamId: number }) {
+// `match.played` flips true in the DB well before its live broadcast finishes pacing out to
+// viewers, so this is the same "still might be live" heuristic LastResultCard already uses, just
+// surfaced somewhere a viewer can't miss it (issue: dashboard live match notice). Works for a
+// friendly or cup tie too, not just a league match, since `match` now comes from useTeamMatches.
+function LiveMatchBanner({ match }: { match: TeamMatchSummary | undefined }) {
   const { t } = useTranslation()
 
   if (!match || !match.played || !mightStillBeLive(match.matchDate)) {
     return null
   }
 
-  const isHome = match.home === teamId
-  const opponentName = isHome ? match.awayName : match.homeName
-
   return (
     <Alert
       severity="info"
       icon={<SportsSoccerTwoToneIcon fontSize="inherit" />}
       action={
-        <Button color="inherit" size="small" component={RouterLink} to={`/match/${match.matchId}`}>
+        <Button color="inherit" size="small" component={RouterLink} to={matchSummaryLink(match)}>
           {t('dashboard.viewMatch')}
         </Button>
       }
       sx={{ mb: 2 }}
     >
-      {t('dashboard.liveMatchBanner', { opponent: opponentName })}
+      {t('dashboard.liveMatchBanner', { opponent: match.opponentName })}
     </Alert>
   )
 }
 
-function TeamHeaderCard({ team, standing }: { team: Team; standing: ClassificationPosition | undefined }) {
+// CONTRACT_EXPIRY_WARNING_YEARS mirrors the last value a rostered player's contractYearsRemaining
+// ever shows before AdvancePlayerContract releases them to free agency at season end (see
+// backend/common.Player.ContractYearsRemaining) - by the time it reads 1, there's exactly one
+// season left to renew or lose them for nothing.
+const CONTRACT_EXPIRY_WARNING_YEARS = 1
+
+// A row of dismissal-free notices for things that need the owner's action but have no other
+// presence on the dashboard - insolvency, contracts about to lapse, unavailable players ahead of
+// the next match, an academy prospect ready to promote, and unanswered transfer offers/friendly
+// challenges. Renders nothing once there's nothing pending, so it never adds permanent clutter.
+// Ordered roughly by how costly ignoring each one is.
+function AttentionAlerts({
+  teamId,
+  players,
+  finances,
+}: {
+  teamId: number
+  players: Player[]
+  finances: FinancesResponse | undefined
+}) {
+  const { t } = useTranslation()
+  const unavailability = useSquadUnavailability()
+  const { data: academy } = useAcademy()
+  const { data: offersReceived } = useOffersReceived(true)
+  const { data: challengesReceived } = useFriendlyChallengesReceived(true)
+  const expiringContracts = players.filter((p) => p.contractYearsRemaining <= CONTRACT_EXPIRY_WARNING_YEARS)
+
+  const alerts: ReactNode[] = []
+
+  if (finances?.insolvent) {
+    alerts.push(
+      <Alert
+        key="insolvent"
+        severity="error"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to="/dashboard/finances">
+            {t('dashboard.viewFinances')}
+          </Button>
+        }
+      >
+        {t('dashboard.insolvent')}
+      </Alert>,
+    )
+  }
+
+  if (expiringContracts.length > 0) {
+    alerts.push(
+      <Alert
+        key="expiringContracts"
+        severity="warning"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
+            {t('dashboard.viewTeam')}
+          </Button>
+        }
+      >
+        {t('dashboard.contractsExpiring', { count: expiringContracts.length })}
+      </Alert>,
+    )
+  }
+
+  if (unavailability.size > 0) {
+    alerts.push(
+      <Alert
+        key="unavailable"
+        severity="warning"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
+            {t('dashboard.viewTeam')}
+          </Button>
+        }
+      >
+        {t('dashboard.unavailablePlayers', { count: unavailability.size })}
+      </Alert>,
+    )
+  }
+
+  if (academy?.canPromote) {
+    alerts.push(
+      <Alert
+        key="academy"
+        severity="success"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
+            {t('dashboard.viewTeam')}
+          </Button>
+        }
+      >
+        {t('team.academy.available')}
+      </Alert>,
+    )
+  }
+
+  if (offersReceived && offersReceived.length > 0) {
+    alerts.push(
+      <Alert
+        key="offers"
+        severity="info"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to="/transfers?tab=offers">
+            {t('dashboard.viewOffers')}
+          </Button>
+        }
+      >
+        {t('dashboard.offersReceived', { count: offersReceived.length })}
+      </Alert>,
+    )
+  }
+
+  if (challengesReceived && challengesReceived.length > 0) {
+    alerts.push(
+      <Alert
+        key="challenges"
+        severity="info"
+        action={
+          <Button color="inherit" size="small" component={RouterLink} to="/friendlies">
+            {t('dashboard.viewChallenges')}
+          </Button>
+        }
+      >
+        {t('dashboard.friendlyChallengesReceived', { count: challengesReceived.length })}
+      </Alert>,
+    )
+  }
+
+  if (alerts.length === 0) {
+    return null
+  }
+
+  return (
+    <Stack spacing={1} sx={{ mb: 2 }}>
+      {alerts}
+    </Stack>
+  )
+}
+
+function TeamHeaderCard({
+  team,
+  standing,
+  recentForm,
+}: {
+  team: Team
+  standing: ClassificationPosition | undefined
+  recentForm: TeamMatchSummary[] | undefined
+}) {
   const { t } = useTranslation()
   return (
     <Card sx={{ mb: 2 }}>
@@ -134,6 +317,7 @@ function TeamHeaderCard({ team, standing }: { team: Team; standing: Classificati
                   />
                 )}
               </Stack>
+              {recentForm && recentForm.length > 0 && <FormStrip matches={recentForm} />}
             </Box>
           </Stack>
           <Button component={RouterLink} to="/dashboard/lineup" variant="contained" size="small">
@@ -142,6 +326,36 @@ function TeamHeaderCard({ team, standing }: { team: Team; standing: Classificati
         </Stack>
       </CardContent>
     </Card>
+  )
+}
+
+// The team header's own past-5-results-at-a-glance strip, oldest first (left) to most recent
+// (right) - reuses the same league/cup/friendly match data the next/last match cards derive from,
+// so it costs no extra request.
+function FormStrip({ matches }: { matches: TeamMatchSummary[] }) {
+  const { t } = useTranslation()
+  return (
+    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mt: 0.75 }}>
+      <Typography variant="caption" color="text.secondary">
+        {t('dashboard.form')}
+      </Typography>
+      {matches.map((match) => {
+        const ownGoals = match.isHome ? match.homeGoals : match.awayGoals
+        const oppGoals = match.isHome ? match.awayGoals : match.homeGoals
+        const outcome = ownGoals > oppGoals ? 'win' : ownGoals < oppGoals ? 'loss' : 'draw'
+        const color = outcome === 'win' ? 'success' : outcome === 'loss' ? 'error' : 'default'
+        return (
+          <Tooltip key={`${match.kind}-${match.matchId}`} title={`${match.opponentName} ${ownGoals}-${oppGoals}`}>
+            <Chip
+              size="small"
+              color={color}
+              label={t(`dashboard.result.${outcome}`)}
+              sx={{ height: 20, width: 24, fontSize: '0.65rem', fontWeight: 700, '& .MuiChip-label': { px: 0 } }}
+            />
+          </Tooltip>
+        )
+      })}
+    </Stack>
   )
 }
 
@@ -172,28 +386,38 @@ function StatCard({
   )
 }
 
-function OpponentLine({ match, teamId }: { match: WeekMatch; teamId: number }) {
+function OpponentLine({ match }: { match: TeamMatchSummary }) {
   const { t } = useTranslation()
-  const isHome = match.home === teamId
-  const opponentName = isHome ? match.awayName : match.homeName
-  const opponentId = isHome ? match.away : match.home
 
   return (
     <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-      <TeamBadge teamId={opponentId} teamName={opponentName} size={32} />
+      <TeamBadge teamId={match.opponentId} teamName={match.opponentName} size={32} />
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-          <TeamNameLink teamId={opponentId}>{opponentName}</TeamNameLink>
+          <TeamNameLink teamId={match.opponentId}>{match.opponentName}</TeamNameLink>
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {isHome ? t('dashboard.home') : t('dashboard.away')}
+          {match.isHome ? t('dashboard.home') : t('dashboard.away')}
         </Typography>
       </Box>
     </Stack>
   )
 }
 
-function NextMatchCard({ match, teamId }: { match: WeekMatch | undefined; teamId: number }) {
+function MatchKindChip({ kind }: { kind: TeamMatchSummary['kind'] }) {
+  const { t } = useTranslation()
+  return (
+    <Chip
+      size="small"
+      variant="outlined"
+      color={matchKindColor(kind)}
+      label={t(matchKindLabelKey(kind))}
+      sx={{ height: 18, fontSize: '0.65rem', alignSelf: 'flex-start' }}
+    />
+  )
+}
+
+function NextMatchCard({ match }: { match: TeamMatchSummary | undefined }) {
   const { t } = useTranslation()
   return (
     <StatCard
@@ -201,7 +425,7 @@ function NextMatchCard({ match, teamId }: { match: WeekMatch | undefined; teamId
       title={t('dashboard.nextMatch')}
       action={
         match && (
-          <Button size="small" component={RouterLink} to={`/match/${match.matchId}`}>
+          <Button size="small" component={RouterLink} to={matchSummaryLink(match)}>
             {t('dashboard.viewMatch')}
           </Button>
         )
@@ -209,7 +433,8 @@ function NextMatchCard({ match, teamId }: { match: WeekMatch | undefined; teamId
     >
       {match ? (
         <Stack spacing={0.5}>
-          <OpponentLine match={match} teamId={teamId} />
+          <MatchKindChip kind={match.kind} />
+          <OpponentLine match={match} />
           <Typography variant="caption" color="text.secondary">
             {formatDateTime(match.matchDate)}
           </Typography>
@@ -223,7 +448,7 @@ function NextMatchCard({ match, teamId }: { match: WeekMatch | undefined; teamId
   )
 }
 
-function LastResultCard({ match, teamId }: { match: WeekMatch | undefined; teamId: number }) {
+function LastResultCard({ match }: { match: TeamMatchSummary | undefined }) {
   const { t } = useTranslation()
 
   if (!match) {
@@ -243,9 +468,8 @@ function LastResultCard({ match, teamId }: { match: WeekMatch | undefined; teamI
   // DivisionDetailsPage's FixturesCard.
   const stillLive = match.played && mightStillBeLive(match.matchDate)
 
-  const isHome = match.home === teamId
-  const ownGoals = isHome ? match.homeGoals : match.awayGoals
-  const oppGoals = isHome ? match.awayGoals : match.homeGoals
+  const ownGoals = match.isHome ? match.homeGoals : match.awayGoals
+  const oppGoals = match.isHome ? match.awayGoals : match.homeGoals
   const outcome = ownGoals > oppGoals ? 'win' : ownGoals < oppGoals ? 'loss' : 'draw'
   const color = outcome === 'win' ? 'success' : outcome === 'loss' ? 'error' : 'default'
 
@@ -254,24 +478,25 @@ function LastResultCard({ match, teamId }: { match: WeekMatch | undefined; teamI
       icon={<SportsSoccerTwoToneIcon color="primary" fontSize="small" />}
       title={t('dashboard.lastResult')}
       action={
-        <Button size="small" component={RouterLink} to={`/match/${match.matchId}`}>
+        <Button size="small" component={RouterLink} to={matchSummaryLink(match)}>
           {t('dashboard.viewMatch')}
         </Button>
       }
     >
-      {stillLive ? (
-        <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
-      ) : (
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
-            {ownGoals} - {oppGoals}
-          </Typography>
-        </Stack>
-      )}
-      <Box sx={{ mt: 1 }}>
-        <OpponentLine match={match} teamId={teamId} />
-      </Box>
+      <Stack spacing={0.5}>
+        <MatchKindChip kind={match.kind} />
+        {stillLive ? (
+          <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+        ) : (
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
+            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+              {ownGoals} - {oppGoals}
+            </Typography>
+          </Stack>
+        )}
+        <OpponentLine match={match} />
+      </Stack>
     </StatCard>
   )
 }
@@ -317,6 +542,157 @@ function SquadCard({ teamId, squadSize }: { teamId: number; squadSize: number })
       <Typography variant="caption" color="text.secondary">
         {t('dashboard.players')}
       </Typography>
+    </StatCard>
+  )
+}
+
+function TopScorerCard({ leagueId }: { leagueId: string }) {
+  const { t } = useTranslation()
+  const { data: scorers } = useTopScorers(leagueId)
+  const leader = scorers?.[0]
+
+  return (
+    <StatCard
+      icon={<EmojiEventsTwoToneIcon color="primary" fontSize="small" />}
+      title={t('dashboard.topScorer')}
+      action={
+        <Button size="small" component={RouterLink} to={`/division/${leagueId}`}>
+          {t('dashboard.viewLeague')}
+        </Button>
+      }
+    >
+      {!scorers ? (
+        <Skeleton width={100} height={32} />
+      ) : !leader ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('division.topScorers.noGoals')}
+        </Typography>
+      ) : (
+        <Stack spacing={0.5}>
+          <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+            <PlayerNameLink playerId={leader.playerId}>
+              {leader.firstName} {leader.lastName}
+            </PlayerNameLink>
+          </Typography>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            <TeamNameLink teamId={leader.teamId}>{leader.teamName}</TeamNameLink>
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t('dashboard.goalsCount', { count: leader.goals })}
+          </Typography>
+        </Stack>
+      )}
+    </StatCard>
+  )
+}
+
+// The record against whoever's up next (across league, cup, and friendly meetings alike, since
+// HeadToHead isn't scoped to one competition) - context for how that match has historically gone,
+// right next to the card that says when it's happening.
+function HeadToHeadCard({ teamId, nextMatch }: { teamId: number; nextMatch: TeamMatchSummary | undefined }) {
+  const { t } = useTranslation()
+  const { data: h2h } = useHeadToHead(teamId, nextMatch?.opponentId)
+
+  return (
+    <StatCard
+      icon={<CompareArrowsTwoToneIcon color="primary" fontSize="small" />}
+      title={t('dashboard.headToHead')}
+      action={
+        nextMatch && (
+          <Button size="small" component={RouterLink} to={`/team/${nextMatch.opponentId}`}>
+            {t('dashboard.viewTeam')}
+          </Button>
+        )
+      }
+    >
+      {!nextMatch ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('dashboard.noUpcomingMatch')}
+        </Typography>
+      ) : !h2h || h2h.totalMatches === 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('dashboard.headToHeadFirstMeeting', { opponent: nextMatch.opponentName })}
+        </Typography>
+      ) : (
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {t('dashboard.vsOpponent', { opponent: nextMatch.opponentName })}
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {h2h.teamAWins}W {h2h.draws}D {h2h.teamBWins}L
+          </Typography>
+        </Stack>
+      )}
+    </StatCard>
+  )
+}
+
+// A snapshot of the owner's own friend group (see GroupsPage) - just enough to notice a rank
+// change without leaving the dashboard. Only the first group is shown if the owner belongs to
+// several, same as this being a glance-only card rather than the full leaderboard.
+function GroupSnapshotCard({ teamId }: { teamId: number }) {
+  const { t } = useTranslation()
+  const { data: groups } = useMyGroups(true)
+  const firstGroup = groups?.[0]
+  const { data: details } = useGroupDetails(firstGroup ? String(firstGroup.groupId) : undefined, !!firstGroup)
+  const rank = details?.leaderboard.findIndex((m) => m.teamId === teamId)
+
+  return (
+    <StatCard
+      icon={<LeaderboardTwoToneIcon color="primary" fontSize="small" />}
+      title={t('groups.title')}
+      action={
+        <Button size="small" component={RouterLink} to="/groups">
+          {t('dashboard.viewGroups')}
+        </Button>
+      }
+    >
+      {!groups ? (
+        <Skeleton width={100} height={32} />
+      ) : !firstGroup ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('groups.noGroups')}
+        </Typography>
+      ) : !details || rank === undefined || rank < 0 ? (
+        <Skeleton width={100} height={32} />
+      ) : (
+        <Stack spacing={0.5}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t('dashboard.groupRank', { rank: rank + 1, total: details.leaderboard.length })}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {firstGroup.name}
+          </Typography>
+        </Stack>
+      )}
+    </StatCard>
+  )
+}
+
+function SponsorDealCard({ finances }: { finances: FinancesResponse | undefined }) {
+  const { t } = useTranslation()
+  return (
+    <StatCard
+      icon={<HandshakeTwoToneIcon color="primary" fontSize="small" />}
+      title={t('finances.sponsorDeal.title')}
+      action={
+        <Button size="small" component={RouterLink} to="/dashboard/finances">
+          {t('dashboard.viewFinances')}
+        </Button>
+      }
+    >
+      {!finances ? (
+        <Skeleton width={100} height={32} />
+      ) : (
+        <Stack spacing={0.5}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            {t(SPONSOR_DEAL_LABEL_KEYS[finances.sponsorDeal])}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {finances.sponsorDealLocked ? t('finances.sponsorDeal.locked') : t('dashboard.sponsorDealTip')}
+          </Typography>
+        </Stack>
+      )}
     </StatCard>
   )
 }

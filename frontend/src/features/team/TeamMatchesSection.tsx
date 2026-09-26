@@ -7,10 +7,11 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTeamMatches } from '../../api/hooks'
-import { MATCH_KIND_CUP, MATCH_KIND_LEAGUE, type TeamMatchSummary } from '../../api/types'
+import type { TeamMatchSummary } from '../../api/types'
 import { mightStillBeLive } from '../../api/useLiveMatch'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
+import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
 
 // TeamMatchesSection lists every league match, cup tie, and friendly a team has played or has
 // scheduled - split into upcoming (soonest first) and played (most recent first), each row marked
@@ -80,7 +81,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
   return (
     <Stack
       component={RouterLink}
-      to={matchLink(match)}
+      to={matchSummaryLink(match)}
       direction="row"
       spacing={1}
       sx={{
@@ -93,7 +94,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
         '&:hover': { bgcolor: 'action.hover' },
       }}
     >
-      <Chip size="small" color={kindColor(match.kind)} label={t(kindLabelKey(match.kind))} sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0 }} />
+      <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0 }} />
       <Chip
         size="small"
         variant="outlined"
@@ -117,37 +118,4 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
       )}
     </Stack>
   )
-}
-
-function kindColor(kind: TeamMatchSummary['kind']): 'primary' | 'secondary' | 'default' {
-  switch (kind) {
-    case MATCH_KIND_LEAGUE:
-      return 'primary'
-    case MATCH_KIND_CUP:
-      return 'secondary'
-    default:
-      return 'default'
-  }
-}
-
-function kindLabelKey(kind: TeamMatchSummary['kind']): string {
-  switch (kind) {
-    case MATCH_KIND_LEAGUE:
-      return 'team.matches.kindLeague'
-    case MATCH_KIND_CUP:
-      return 'team.matches.kindCup'
-    default:
-      return 'team.matches.kindFriendly'
-  }
-}
-
-function matchLink(match: TeamMatchSummary): string {
-  switch (match.kind) {
-    case MATCH_KIND_LEAGUE:
-      return `/match/${match.matchId}`
-    case MATCH_KIND_CUP:
-      return `/cup/ties/${match.matchId}`
-    default:
-      return `/friendlies/${match.matchId}`
-  }
 }
