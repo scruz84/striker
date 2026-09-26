@@ -66,8 +66,9 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 
 // UpdateTeamFinancesAfterMatch credits both teams their matchday income - gate receipts for the
 // home side, sponsorship for both - since that's genuinely event-driven, tied to actually
-// playing. Wages are not: see PayWeeklyWages, which runs on a real-calendar-time schedule
-// independent of who played, the same way a real club's payroll doesn't pause between fixtures.
+// playing. Shared by league matches and cup ties (see simulateMatch/simulateCupTie), unlike
+// wages: those are charged separately, only from simulateMatch (see PayMatchdayWages), so a cup
+// tie played in the same round as a league match doesn't charge a team's wage bill twice.
 // This is also the once-per-match hook point for any unowned team's AI upkeep (see
 // RunAITeamManagement) - matches are the natural cadence for that, and reusing this call site
 // avoids a separate scheduler job for it.

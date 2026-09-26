@@ -25,8 +25,6 @@ kickoff has arrived:
 - Season rollover check: `StartAdvanceSeasonScheduler` → `AdvanceSeasonIfComplete`
   (`engine/season.go`), every 5 minutes (cheaper to check, so it doesn't need per-minute
   granularity).
-- Weekly wages: `StartWeeklyWagesScheduler` → `PayWeeklyWages` (`engine/wages.go`), once a week
-  (Monday 00:00 UTC).
 - Player birthdays: `StartBirthdayScheduler` → `ProcessBirthdays` (`engine/birthdays.go`), once a
   day (01:00 UTC) - see "Player skill progression" below for how this drives aging independently
   of season rollover.
@@ -222,7 +220,11 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   is now a real tradeoff rather than a free lever: `optimalTicketPrice` scans every price in
   `[MinTicketPrice, MaxTicketPrice]` for whichever maximizes expected `price × demandRate(price)`
   (currently 69, well below the maximum - see the CPU-team section below, which charges exactly
-  this rather than simply maxing out).
+  this rather than simply maxing out). Capacity starts at `DefaultStadiumCapacity` (1000, lowered
+  from 10000 - see that constant's comment): at 10000, a single home match's expected ticket
+  revenue alone ran several times an average squad's entire wage bill, which needed fixing
+  alongside wages moving to per-round charging (see "Wages" below) so a bigger stadium wasn't
+  also doing all the work of outrunning payroll on its own.
 - **Sponsorship** (`engine/sponsorship.go`) - a per-match payment to *both* sides regardless of
   result, scaled by the division tier they currently play in (8,000/4,000/1,500 base for tiers
   1/2/3, `sponsorshipForTier`) and further shaped by each team's own chosen `common.SponsorDeal`
@@ -247,13 +249,22 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
 
 **Expenses:**
 
-- **Wages** - deducted weekly, not per match (`PayWeeklyWages`, Monday 00:00 UTC via its own cron
-  job), as the sum of every squad player's wage (`GetTeamWageBill`) plus the team's trainer's wage
-  if it has one. A player's own wage is derived from their skills
-  (`common.PlayerWageFromSkills`): the sum of all seven core skills × `WagePerSkillPoint` (5) - a
-  higher-rated player costs more to keep, with no separate negotiation needed for the baseline
-  figure (negotiated wages on signing/renewal are checked against this as a floor - see
-  `common.MaxAcceptableRenewalYears`/offer-acceptance logic in `common/contracts.go`).
+- **Wages** - deducted once per league match played (`PayMatchdayWages`, called from
+  `simulateMatch` for both sides - a round-robin schedule gives every team exactly one league
+  match per round, so this fires exactly once per round), as the sum of every squad player's wage
+  (`GetTeamWageBill`) plus the team's trainer's wage if it has one. A player's own wage is derived
+  from their skills (`common.PlayerWageFromSkills`): the sum of all seven core skills ×
+  `WagePerSkillPoint` (5) - a higher-rated player costs more to keep, with no separate negotiation
+  needed for the baseline figure (negotiated wages on signing/renewal are checked against this as
+  a floor - see `common.MaxAcceptableRenewalYears`/offer-acceptance logic in
+  `common/contracts.go`). This used to fire on a fixed real-calendar cron (Monday 00:00 UTC)
+  regardless of how many rounds a league actually played that week - since ticket revenue and
+  sponsorship are paid per match, a league scheduled to play daily could earn up to 7x a weekly
+  league's income in the same real week while paying the same, cadence-independent wage bill (a
+  season's fixed number of rounds costing a fraction of the wages once compressed into fewer real
+  weeks). Tying the charge to the same per-round cadence the income side already follows removes
+  that gap: a season's total wage cost is now proportional to its total match count, the same way
+  ticket/sponsorship income already is, regardless of which weekdays a league's schedule uses.
 - **Transfers** - a fixed-price listing (`common/transfers.go`) or an accepted negotiated offer
   (`common/offers.go`) debits the buyer and credits the seller the agreed fee in one atomic
   transaction; a free-agent signing costs nothing but the player's wage.

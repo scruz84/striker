@@ -60,10 +60,8 @@ type FriendlyMatch struct {
 	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
 }
 
-// StartOfWeek returns midnight UTC on the most recent Monday on or before t - the same
-// real-calendar-week boundary a friendly-match weekly limit resets on as PayWeeklyWages' own
-// Monday-midnight-UTC cadence (see engine.StartWeeklyWagesScheduler), so "once a week" means the
-// same thing everywhere in this game's economy.
+// StartOfWeek returns midnight UTC on the most recent Monday on or before t - the real-calendar-
+// week boundary a friendly-match weekly limit resets on.
 func StartOfWeek(t time.Time) time.Time {
 	t = t.UTC()
 	daysSinceMonday := (int(t.Weekday()) + 6) % 7 // Monday=0, Tuesday=1, ..., Sunday=6

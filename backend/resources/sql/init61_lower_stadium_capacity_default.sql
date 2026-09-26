@@ -1,0 +1,14 @@
+-- Lowers the default stadium_capacity for newly created teams from 10000 to 1000 (see
+-- common.DefaultStadiumCapacity's comment for the full calibration reasoning: at 10000, ticket
+-- revenue alone dwarfed the average squad's wage bill several times over, and once wages moved
+-- from a fixed weekly charge to one charged per round (engine.PayMatchdayWages), a bigger
+-- schedule cadence could otherwise multiply that income advantage with no matching cost).
+-- Editing init.sql's CREATE TABLE text only affects a brand-new database - an already-existing
+-- teams table keeps whatever DEFAULT it was created with regardless, since a column default is
+-- fixed in the catalog at creation time, not re-read from the script. Naturally idempotent -
+-- re-running this just reasserts the same default - so safe for EnsureSchema to reapply on every
+-- startup along with every other numbered migration.
+--
+-- Existing teams' current stadium capacities are deliberately left untouched: this only changes
+-- what a newly inserted team gets from here on.
+ALTER TABLE teams ALTER COLUMN stadium_capacity SET DEFAULT 1000;

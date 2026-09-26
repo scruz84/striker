@@ -67,7 +67,7 @@ CREATE TABLE teams (
    -- common.DefaultStadiumCapacity and the initializer's createTeam) rather than random or scaled
    -- by league tier, so every manager starts with the same-size ground. From here on it only ever
    -- changes through common.UpgradeStadium.
-   stadium_capacity integer NOT NULL DEFAULT 10000,
+   stadium_capacity integer NOT NULL DEFAULT 1000,
    ticket_price integer NOT NULL DEFAULT 10,
    formation smallint NOT NULL DEFAULT 0,
    name_changed boolean NOT NULL DEFAULT false,

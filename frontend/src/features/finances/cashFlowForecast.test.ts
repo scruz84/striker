@@ -65,4 +65,25 @@ describe('computeCashFlowForecast', () => {
 
     expect(forecast!.weeksUntilInsolvent).toBeNull()
   })
+
+  it('averages wages over the window instead of reading only the most recent charge', () => {
+    // A daily-cadence league charges wages once per round (see engine.PayMatchdayWages), so 7
+    // charges can land within a single real week - reading just the most recent one would badly
+    // undercount the true weekly wage burn.
+    const transactions = [
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-07T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-06T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-05T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-04T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-03T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-02T00:00:00Z' }),
+      tx({ reason: TRANSACTION_WAGES, amount: -1000, createdAt: '2026-03-01T00:00:00Z' }),
+    ]
+
+    const forecast = computeCashFlowForecast(transactions, 100000, 200000)
+
+    // 7 charges of 1000 spanning exactly one week = 7000/week, not the 1000 a "most recent
+    // transaction" reading would have given.
+    expect(forecast!.weeklyWages).toBeCloseTo(7000, 0)
+  })
 })

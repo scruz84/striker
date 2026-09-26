@@ -58,28 +58,10 @@ func StartCupScheduler(cupJob quartz.Job) {
 	}
 }
 
-func StartWeeklyWagesScheduler(weeklyWagesJob quartz.Job) {
-	sched.Start(ctx)
-	// A real calendar week, not tied to match simulation at all - see engine.PayWeeklyWages.
-	// Midnight Monday UTC; a missed firing (e.g. the server was down at that exact minute)
-	// simply waits for the next one, same as every other job here.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 0 ? * MON")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(weeklyWagesJob.Description())
-	jobDetail := quartz.NewJobDetail(weeklyWagesJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
-}
-
 func StartFreeAgentInjectionScheduler(freeAgentInjectionJob quartz.Job) {
 	sched.Start(ctx)
-	// A real calendar week, same cadence as StartWeeklyWagesScheduler - offset to Sunday
-	// midnight rather than Monday so a fresh batch of free agents is already sitting on the
-	// market by the time StartWeeklyWagesScheduler's Monday run charges everyone's wage bill.
+	// A real calendar week, independent of match simulation - Sunday midnight UTC, so a fresh
+	// batch of free agents is sitting on the market ahead of Monday's usual transfer activity.
 	cronTrigger, err := quartz.NewCronTrigger("0 0 0 ? * SUN")
 	if err != nil {
 		log.Panic(err)

@@ -21,6 +21,12 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdateClassification(dbCtx, matchSimulation)
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	// Wages track league match cadence, not cup ties or friendlies (see PayMatchdayWages) - a
+	// round-robin schedule gives every team exactly one league match per round, so this fires
+	// exactly once per round per team, here rather than inside UpdateTeamFinancesAfterMatch so a
+	// cup tie played the same week doesn't charge wages a second time.
+	PayMatchdayWages(dbCtx, matchSimulation.Home)
+	PayMatchdayWages(dbCtx, matchSimulation.Away)
 	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
 	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, func() {

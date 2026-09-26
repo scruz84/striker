@@ -39,7 +39,6 @@ func StartEngine() {
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
 	StartCupScheduler(NewCupJob(dbCtx))
-	StartWeeklyWagesScheduler(NewWeeklyWagesJob(dbCtx))
 	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))

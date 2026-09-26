@@ -21,22 +21,25 @@ export interface CashFlowForecast {
 // computeCashFlowForecast estimates a team's ongoing weekly cash flow from its recent transaction
 // history alone (see ECONOMY_ROADMAP.md Phase 5) - no separate wage-bill/attendance endpoint
 // needed, since the numbers those would return are already implicit in the transactions
-// PayWeeklyWages/creditTicketRevenue/awardSponsorship already write.
+// PayMatchdayWages/creditTicketRevenue/awardSponsorship already write.
 //
-// weeklyWages is read directly off the most recent WAGES (and TRAINER_WAGES, if a trainer is
-// employed) transaction, rather than averaged - wages are a fixed weekly debit, not something
-// that fluctuates match to match. weeklyIncome is the true average of TICKET_REVENUE and
-// SPONSORSHIP transactions (the two genuinely recurring, roughly-weekly income sources) over
-// however many weeks the visible transaction window actually spans - deliberately excluding
-// once-a-season lumps (prize money, season tickets, merchandising) and transfers, which would
-// otherwise wildly skew a "weekly" estimate depending on when in the season this happens to run.
+// weeklyWages is the average of WAGES and TRAINER_WAGES transactions over however many weeks the
+// visible window spans, the same way weeklyIncome already averages ticket/sponsorship - wages are
+// charged once per league match now (see engine.PayMatchdayWages), not once a calendar week, so a
+// league scheduled to play more than once a week would otherwise make reading the single most
+// recent wage transaction as "the weekly bill" undercount how often it actually recurs.
+// weeklyIncome is the true average of TICKET_REVENUE and SPONSORSHIP transactions (the two
+// genuinely recurring, roughly-weekly income sources) over however many weeks the visible
+// transaction window actually spans - deliberately excluding once-a-season lumps (prize money,
+// season tickets, merchandising) and transfers, which would otherwise wildly skew a "weekly"
+// estimate depending on when in the season this happens to run.
 export function computeCashFlowForecast(transactions: TeamTransaction[], budget: number, maxDebt: number): CashFlowForecast | null {
   if (transactions.length === 0) {
     return null
   }
 
-  const mostRecentAmount = (reason: number): number => transactions.find((tx) => tx.reason === reason)?.amount ?? 0
-  const weeklyWages = Math.abs(mostRecentAmount(TRANSACTION_WAGES)) + Math.abs(mostRecentAmount(TRANSACTION_TRAINER_WAGES))
+  const wageTransactions = transactions.filter((tx) => tx.reason === TRANSACTION_WAGES || tx.reason === TRANSACTION_TRAINER_WAGES)
+  const weeklyWages = Math.abs(averagePerWeek(wageTransactions))
 
   const recurringIncome = transactions.filter((tx) => tx.reason === TRANSACTION_TICKET_REVENUE || tx.reason === TRANSACTION_SPONSORSHIP)
   const weeklyIncome = averagePerWeek(recurringIncome)

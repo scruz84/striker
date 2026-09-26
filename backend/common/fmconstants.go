@@ -57,7 +57,18 @@ const TRANSACTION_MERCHANDISING = 11   // once-a-season shirt/merchandise income
 // createTeam), regardless of the league tier it starts in - flat and fixed rather than random, so
 // every manager starts with the same-size ground. From here on it only ever changes through
 // common.UpgradeStadium.
-const DefaultStadiumCapacity = 10000
+//
+// Lowered from 10000: at that capacity, a single home match's ticket revenue alone (attendance x
+// optimalTicketPrice - see engine.optimalTicketPrice) ran upwards of 180,000, several times an
+// average 18-player squad's entire ~28,350/week wage bill (see teams.budget's comment in
+// resources/sql/init.sql). Combined with wages now being charged once per round instead of once
+// per real calendar week (see engine.PayMatchdayWages), a stadium this big no longer also needed
+// to dwarf payroll on its own for a well-run team to turn a healthy profit. 1000 keeps a home
+// match's expected ticket revenue in the same order of magnitude as the wage bill it's meant to
+// help cover, leaving prize money/season tickets/merchandising and match results (sponsorship
+// bonuses, league position) as the actual difference between a team that profits and one that
+// doesn't, rather than raw stadium size alone.
+const DefaultStadiumCapacity = 1000
 
 // DefaultTicketPrice is what a new team starts charging per seat; MinTicketPrice/MaxTicketPrice
 // bound what an owner can set it to (see handlers.SetTicketPriceHandler).
@@ -78,7 +89,7 @@ const StadiumUpgradeCostPerCurrentSeat = 10
 
 // StadiumUpgradeDuration is how long a paid-for stadium upgrade takes to finish construction
 // before UpgradeStadium's extra seats actually become usable - a real week, not tied to match
-// simulation, the same way weekly wages are (see engine.PayWeeklyWages).
+// simulation cadence.
 const StadiumUpgradeDuration = 7 * 24 * time.Hour
 
 // MaxDebt is how far a team's budget may go negative before IsTeamSolvent starts blocking new

@@ -110,15 +110,15 @@ func AdminSimulateNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// AdminPayWagesNowHandler force-runs the same weekly wage payment the scheduler already runs
-// every Monday (see engine/scheduler.go) - a manual override/testing convenience, useful since
-// unlike match simulation there's otherwise no way to see this fire without waiting for the
-// real calendar week to turn over.
+// AdminPayWagesNowHandler force-charges every team's current wage bill on demand - wages are
+// tied to league match cadence now (see engine.PayMatchdayWages), not a recurring scheduler, so
+// this is purely a manual testing convenience for seeing a wage payment happen without waiting
+// for a league's next round to simulate.
 func AdminPayWagesNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered manual wage payment")
-		engine.PayWeeklyWages(dbCtx)
-		c.JSON(http.StatusOK, common.HttpResponse{Message: "weekly wages paid"})
+		engine.PayAllTeamsWagesNow(dbCtx)
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "wages paid"})
 	}
 }
 
