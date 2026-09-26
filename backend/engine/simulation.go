@@ -121,6 +121,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		AwaySubstitutions:     awaySubstitutions,
 		HomeMinutesByPosition: make(map[int64]map[int]int),
 		AwayMinutesByPosition: make(map[int64]map[int]int),
+		IsFriendly:            isFriendly,
 	}
 	events = nil
 	matchInstants = nil

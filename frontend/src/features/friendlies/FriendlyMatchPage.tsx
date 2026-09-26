@@ -240,6 +240,7 @@ function FriendlyLineupEditor({ matchId, team, players }: { matchId: string; tea
       isError={setLineup.isError}
       isSuccess={setLineup.isSuccess}
       substitutionsEnabled
+      isFriendly
     />
   )
 }

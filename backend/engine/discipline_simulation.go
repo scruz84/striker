@@ -54,15 +54,20 @@ func (s DisciplineSimulation) Apply(dbCtx *common.DatabaseContext, match *common
 		match.SentOff[player] = true
 		removePlayerFromPosition(playersByPosition, position, player)
 
-		suspensionMatches := SecondYellowSuspensionMatches
-		if isStraightRed {
-			suspensionMatches = StraightRedSuspensionMatches
+		// A red card in a friendly carries no suspension at all - not into other friendlies
+		// (already excluded by GetUnavailablePlayerIdsForFriendly) and not into league/cup
+		// matches either, since a friendly has no competitive stakes to sanction.
+		if !match.IsFriendly {
+			suspensionMatches := SecondYellowSuspensionMatches
+			if isStraightRed {
+				suspensionMatches = StraightRedSuspensionMatches
+			}
+			match.PendingUnavailabilities = append(match.PendingUnavailabilities, common.PendingUnavailability{
+				PlayerId: player,
+				Reason:   common.UNAVAILABLE_SUSPENSION,
+				Matches:  suspensionMatches,
+			})
 		}
-		match.PendingUnavailabilities = append(match.PendingUnavailabilities, common.PendingUnavailability{
-			PlayerId: player,
-			Reason:   common.UNAVAILABLE_SUSPENSION,
-			Matches:  suspensionMatches,
-		})
 	} else {
 		match.YellowCards[player] = true
 	}

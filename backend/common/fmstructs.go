@@ -333,6 +333,10 @@ type MatchSimulation struct {
 	//scales that player's skill growth on having actually played and how many minutes.
 	HomeMinutesByPosition map[int64]map[int]int
 	AwayMinutesByPosition map[int64]map[int]int
+	//IsFriendly: whether this match is a friendly rather than a league or cup fixture - a red
+	//card picked up in a friendly (see engine.DisciplineSimulation) carries no suspension at
+	//all, for a friendly or otherwise, since a friendly has no competitive stakes to sanction.
+	IsFriendly bool
 }
 
 // PendingUnavailability is a suspension or injury picked up during a match, not yet

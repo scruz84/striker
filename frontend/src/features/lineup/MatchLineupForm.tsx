@@ -35,6 +35,9 @@ export interface MatchLineupFormProps {
   // substitutions from the team-wide default (see backend common.SetLineupForMatch/
   // SetCupTieLineup), so they leave this off and onSave's substitutions argument empty.
   substitutionsEnabled?: boolean
+  // A red-card suspension carries no sanction into a friendly (see useSquadUnavailability) - set
+  // this for FriendlyMatchPage's caller so a suspended-only player isn't wrongly flagged/blocked.
+  isFriendly?: boolean
 }
 
 // A formation/pitch/bench editor scoped to one specific match (league, cup tie, or friendly)
@@ -51,9 +54,10 @@ export function MatchLineupForm({
   isError,
   isSuccess,
   substitutionsEnabled,
+  isFriendly,
 }: MatchLineupFormProps) {
   const { t } = useTranslation()
-  const unavailability = useSquadUnavailability()
+  const unavailability = useSquadUnavailability(isFriendly)
   const {
     formation,
     setFormation,

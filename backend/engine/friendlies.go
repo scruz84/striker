@@ -44,9 +44,11 @@ func SimulateFriendlies(dbCtx *common.DatabaseContext) {
 // init26_friendlies.sql) and any per-match AI-team management hook (a friendly result itself is
 // not something an AI manager needs to react to - see RunAiTeamDailyActivity in aiteams.go for the
 // separate, match-independent scheduler that now covers CPU market upkeep instead).
-// Injuries/suspensions still apply via UpdatePlayerAvailability, same as any other simulated
-// match, and so does skill growth (updateSkillsAfterPlayedMatch) - a friendly still develops the
-// players who feature in it, even with no financial stakes attached.
+// Injuries still apply via UpdatePlayerAvailability, same as any other simulated match, and so
+// does skill growth (updateSkillsAfterPlayedMatch) - a friendly still develops the players who
+// feature in it, even with no financial stakes attached. Red cards, however, carry no suspension
+// at all when picked up in a friendly (see DisciplineSimulation.Apply) - a friendly has nothing
+// competitive to sanction.
 func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMatch) error {
 	lineups, err := common.GetLineupsForFriendly(dbCtx, friendly.MatchId, []int64{friendly.HomeTeamId, friendly.AwayTeamId})
 	if err != nil {
