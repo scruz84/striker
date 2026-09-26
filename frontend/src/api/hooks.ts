@@ -1129,8 +1129,15 @@ export function useFriendlyLineup(id: string | undefined, enabled: boolean) {
 export function useSetFriendlyLineup(id: string | undefined) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
-      api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions: [] }),
+    mutationFn: ({
+      formation,
+      positions,
+      substitutions,
+    }: {
+      formation: number
+      positions: LineupPosition[]
+      substitutions: LineupSubstitution[]
+    }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyLineup(id ?? '') })
     },

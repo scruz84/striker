@@ -403,8 +403,11 @@ func GetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64) (Lineup,
 }
 
 // GetLineupsForCupTie resolves both teams' lineups for one cup tie: a team's saved override (see
-// SetCupTieLineup) if it has one, falling back to its standing default lineup otherwise - the cup
-// equivalent of GetLineupsForFriendly. Used by both simulateCupTie (engine/cups.go) and
+// SetCupTieLineup) if it has one, falling back to its standing default lineup otherwise - unlike
+// GetLineupsForFriendly, which instead falls back to a freshly computed best XI (see
+// BestLineupForTeam), since a friendly should be fulfilled by default with the strongest squad
+// currently available rather than whatever was last saved for competitive play. Used by both
+// simulateCupTie (engine/cups.go) and
 // GetCupTieDetails (the played-tie "Lineups" view) - replaces the previous simulateCupTie call to
 // GetLineupsForMatch(dbCtx, tie.TieId, ...), which was only ever safe while nothing wrote to
 // lineup/lineup_positions (see this file's SetCupTieLineup doc comment).

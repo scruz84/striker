@@ -94,3 +94,22 @@ func FlattenLineup(lineup map[int][]int64) []LineupPosition {
 	}
 	return positions
 }
+
+// BestLineupForTeam computes teamId's current strongest available XI fresh from its full squad
+// (see SelectBestLineup), rather than reading back whatever was last saved as the team's standing
+// default lineup - used to give a friendly a sensible starting XI by default (see
+// GetLineupsForFriendly/handlers.GetFriendlyLineupHandler) without requiring the manager to have
+// set up, or kept up to date, a default lineup first. Substitutions are deliberately left empty:
+// the caller decides whether to attach any (see GetFriendlyLineupSubstitutions).
+func BestLineupForTeam(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
+	players, err := GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return &Lineup{
+		TeamId:        teamId,
+		Formation:     FormationBalanced,
+		Positions:     FlattenLineup(SelectBestLineup(*players)),
+		Substitutions: make([]LineupSubstitution, 0),
+	}, nil
+}

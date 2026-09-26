@@ -70,13 +70,30 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	if err != nil {
 		return nil, err
 	}
-	homeSubstitutions, err := common.GetDefaultLineupSubstitutions(dbCtx, homeTeamId)
-	if err != nil {
-		return nil, err
-	}
-	awaySubstitutions, err := common.GetDefaultLineupSubstitutions(dbCtx, awayTeamId)
-	if err != nil {
-		return nil, err
+	// A friendly's scheduled substitutions are saved specifically for that match (see
+	// common.SetFriendlyLineup/GetFriendlyLineupSubstitutions), not the team's standing default
+	// lineup subs - its starting XI can itself be a freshly computed best XI rather than the
+	// default lineup (see common.GetLineupsForFriendly), so the two would otherwise reference
+	// different players. League matches and cup ties still draw from the team-wide default.
+	var homeSubstitutions, awaySubstitutions []common.LineupSubstitution
+	if isFriendly {
+		homeSubstitutions, err = common.GetFriendlyLineupSubstitutions(dbCtx, matchId, homeTeamId)
+		if err != nil {
+			return nil, err
+		}
+		awaySubstitutions, err = common.GetFriendlyLineupSubstitutions(dbCtx, matchId, awayTeamId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		homeSubstitutions, err = common.GetDefaultLineupSubstitutions(dbCtx, homeTeamId)
+		if err != nil {
+			return nil, err
+		}
+		awaySubstitutions, err = common.GetDefaultLineupSubstitutions(dbCtx, awayTeamId)
+		if err != nil {
+			return nil, err
+		}
 	}
 	events := make([]common.Event, 0)
 	matchInstants := make([]common.MatchInstant, 0)

@@ -508,12 +508,13 @@ const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team
 const DeleteFriendlyLineupPositionsStmtSql = "DELETE FROM friendly_lineup_positions WHERE lineup_id = $1"
 const InsertFriendlyLineupPositionStmtSql = "INSERT INTO friendly_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
-// SetFriendlyLineup replaces teamId's lineup override for one friendly - upserting the
+// SetFriendlyLineup replaces teamId's lineup override for one friendly, along with any
+// substitutions planned specifically for it (see friendly_lineup_substitutions) - upserting the
 // (match_id, team_id) row (so re-saving doesn't need its own delete-then-insert) and always
-// replacing its positions outright. Guarded by a non-blocking advisory lock keyed on
-// (matchId, teamId), the same race-avoidance convention as SetDefaultLineup, scoped to just
-// this match so editing one friendly never blocks editing another for the same team.
-func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition) error {
+// replacing its positions and substitutions outright. Guarded by a non-blocking advisory lock
+// keyed on (matchId, teamId), the same race-avoidance convention as SetDefaultLineup, scoped to
+// just this match so editing one friendly never blocks editing another for the same team.
+func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition, substitutions []LineupSubstitution) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
@@ -546,17 +547,34 @@ func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 			return err
 		}
 	}
+
+	if _, err := tx.Exec(DeleteFriendlyLineupSubstitutionsStmtSql, matchId, teamId); err != nil {
+		return err
+	}
+	insertSubStmt, err := tx.Prepare(InsertFriendlyLineupSubstitutionStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertSubStmt.Close()
+	for i, s := range substitutions {
+		if _, err := insertSubStmt.Exec(matchId, teamId, i+1, s.PlayerOutId, s.PlayerInId, s.Minute); err != nil {
+			return err
+		}
+	}
+
 	return tx.Commit()
 }
 
 const GetFriendlyLineupStmtSql = "SELECT lineup_id, formation FROM friendly_lineup WHERE match_id = $1 AND team_id = $2"
 const GetFriendlyLineupPositionsStmtSql = "SELECT player_id, position FROM friendly_lineup_positions WHERE lineup_id = $1"
 
-// GetFriendlyLineup returns teamId's saved override for one friendly. hasOverride is false (with
-// a zero Lineup) when the team hasn't saved one for this match yet, so callers like the lineup
-// editor can fall back to showing the team's current default lineup as a starting point.
+// GetFriendlyLineup returns teamId's saved override for one friendly, including any
+// substitutions planned specifically for it (see GetFriendlyLineupSubstitutions). hasOverride is
+// false (with a zero Lineup) when the team hasn't saved one for this match yet, so callers like
+// the lineup editor can fall back to showing the team's current best available XI as a starting
+// point (see BestLineupForTeam).
 func GetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lineup, bool, error) {
-	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
 	err := dbCtx.Db.QueryRow(GetFriendlyLineupStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation)
@@ -579,16 +597,26 @@ func GetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lin
 		}
 		lineup.Positions = append(lineup.Positions, p)
 	}
+
+	substitutions, err := GetFriendlyLineupSubstitutions(dbCtx, matchId, teamId)
+	if err != nil {
+		return Lineup{}, false, err
+	}
+	lineup.Substitutions = substitutions
+
 	return lineup, true, nil
 }
 
-// GetLineupsForFriendly resolves both teams' lineups for one friendly: a team's saved override
-// (see SetFriendlyLineup) if it has one, falling back to its standing friendly-only default lineup
-// (see GetDefaultFriendlyLineup), and falling back further to its league/cup default (see
-// GetDefaultLineup) if the manager has never set one up - the friendly equivalent of
-// GetLineupsForMatch, kept entirely separate (its own tables) so a friendly's override can never
-// collide with a competitive match's id space - see the friendly_lineup table comment in
-// resources/sql/init.sql for why that matters.
+// GetLineupsForFriendly resolves both teams' lineups for one friendly, in priority order: a
+// team's saved per-match override (see SetFriendlyLineup) if it has one; else its standing
+// friendly-only default lineup (see GetDefaultFriendlyLineup) if the manager has set one up; else
+// a freshly computed best available XI (see BestLineupForTeam) - so a friendly is always
+// fulfilled by default with the strongest squad currently available rather than a stale or
+// never-configured default. Deliberately never falls back to the league/cup default (see
+// GetDefaultLineup): that's a separate, competitive-only concept a manager may not want touched by
+// friendlies at all. Kept entirely separate from GetLineupsForMatch (its own tables) so a
+// friendly's override can never collide with a competitive match's id space - see the
+// friendly_lineup table comment in resources/sql/init.sql for why that matters.
 func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int64) (*map[int64]*Lineup, error) {
 	lineups := make(map[int64]*Lineup, len(teamIds))
 	for _, teamId := range teamIds {
@@ -600,18 +628,23 @@ func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int6
 			lineups[teamId] = &override
 			continue
 		}
-		defaultLineup, err := GetDefaultFriendlyLineup(dbCtx, teamId)
+
+		friendlyDefault, err := GetDefaultFriendlyLineup(dbCtx, teamId)
 		if err != nil {
 			return nil, err
 		}
-		if len(defaultLineup.Positions) == 0 {
-			defaultLineup, err = GetDefaultLineup(dbCtx, teamId)
-			if err != nil {
-				return nil, err
-			}
+		if len(friendlyDefault.Positions) > 0 {
+			friendlyDefault.MatchId = matchId
+			lineups[teamId] = friendlyDefault
+			continue
 		}
-		defaultLineup.MatchId = matchId
-		lineups[teamId] = defaultLineup
+
+		bestLineup, err := BestLineupForTeam(dbCtx, teamId)
+		if err != nil {
+			return nil, err
+		}
+		bestLineup.MatchId = matchId
+		lineups[teamId] = bestLineup
 	}
 	return &lineups, nil
 }

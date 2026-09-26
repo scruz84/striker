@@ -306,7 +306,7 @@ func initJWTMiddleware(dbCtx *common.DatabaseContext) *ginjwt.GinJWTMiddleware {
 	var timeout string
 	timeout = os.Getenv("SESSION_TIMEOUT")
 	if timeout == "" {
-		timeout = "30m"
+		timeout = "24h"
 	}
 	sessionTimeout, _ := time.ParseDuration(timeout)
 	authMiddleware, err := ginjwt.New(&ginjwt.GinJWTMiddleware{

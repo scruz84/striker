@@ -431,29 +431,28 @@ func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		// No override saved yet - hand back the team's current default lineup/formation as the
-		// editor's starting point, same shape as the override so the frontend doesn't need to
-		// know which one it got.
-		formation, err := common.GetTeamFormation(dbCtx, team.Id)
+		// No override saved yet - hand back the team's current best available XI as the editor's
+		// starting point (see common.BestLineupForTeam), same shape as an override so the
+		// frontend doesn't need to know which one it got. Deliberately not the team's standing
+		// default lineup (unlike the league/cup equivalents): a friendly should be fulfilled by
+		// default with the strongest squad currently available, not whatever was last saved for
+		// competitive play.
+		bestLineup, err := common.BestLineupForTeam(dbCtx, team.Id)
 		if err != nil {
-			log.Errorf("error getting formation for team %d: %s", team.Id, err)
+			log.Errorf("error getting best lineup for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		defaultLineup, err := common.GetDefaultLineup(dbCtx, team.Id)
-		if err != nil {
-			log.Errorf("error getting default lineup for team %d: %s", team.Id, err)
-			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
-			return
-		}
-		defaultLineup.MatchId = matchId
-		defaultLineup.Formation = formation
-		c.JSON(http.StatusOK, defaultLineup)
+		bestLineup.MatchId = matchId
+		c.JSON(http.StatusOK, bestLineup)
 	}
 }
 
-// SetFriendlyLineupHandler saves the caller's team's lineup override for one friendly, after the
-// same formation/roster/availability validation SetLineupHandler applies to the default lineup.
+// SetFriendlyLineupHandler saves the caller's team's lineup override for one friendly, along with
+// any substitutions planned specifically for it, after the same formation/roster/availability and
+// substitution validation SetLineupHandler applies to the default lineup - unlike the league/cup
+// equivalents, a friendly gets its own scheduled substitutions (see common.SetFriendlyLineup),
+// since its starting XI can itself differ from the team's standing default lineup.
 func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -502,8 +501,12 @@ func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := validateSubstitutions(req.Positions, req.Substitutions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetFriendlyLineup(dbCtx, matchId, team.Id, req.Formation, req.Positions); err != nil {
+		if err := common.SetFriendlyLineup(dbCtx, matchId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting friendly lineup for match %d team %d: %s", matchId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
