@@ -158,7 +158,22 @@ const UnAssignPlayersStmtSql = "UPDATE players SET team_id = NULL, shirt_number 
 // common.AiLevelCaretaker/Manager/Director) - Team.AiLevel's own doc comment already promises 0
 // for an owned team, but leaving the old value in place here let it leak back out via GetTeamById
 // as soon as the new owner viewed their own squad page (see AssignTeam).
-const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2, name_changed = false, ai_level = 0 WHERE team_id = $3"
+//
+// Everything else a previous owner (human or CPU) could have changed is reset to that column's
+// table default too - budget, stadium_capacity, ticket_price, formation and sponsor_deal/
+// sponsor_deal_season via SQL's DEFAULT keyword (so this stays in sync with the CREATE TABLE
+// teams defaults in resources/sql/init.sql without duplicating the numbers here), and
+// stadium_upgrade_target/stadium_upgrade_completes_at/last_academy_promotion_at explicitly to
+// NULL since those have no meaningful default besides "nothing in progress yet". A fresh
+// stadium_name is handed in alongside the fresh team name so the new owner isn't stuck with
+// whatever the previous owner (or CPU) had named it. Without this, GetFreeTeamStmtSql handing a
+// previously-owned team to a new manager would start them with someone else's leftover budget,
+// stadium size/upgrade, ticket price, formation and sponsor deal instead of a true fresh start.
+const UpdateTeamDetailsStmtSql = "UPDATE teams SET name = $1, owner_id = $2, name_changed = false, ai_level = 0, " +
+	"stadium_name = $3, budget = DEFAULT, stadium_capacity = DEFAULT, ticket_price = DEFAULT, " +
+	"formation = DEFAULT, sponsor_deal = DEFAULT, sponsor_deal_season = DEFAULT, " +
+	"stadium_upgrade_target = NULL, stadium_upgrade_completes_at = NULL, last_academy_promotion_at = NULL " +
+	"WHERE team_id = $4"
 
 const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = matches+$1, points = points+$2, wins = wins+$3, " +
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
@@ -465,7 +480,8 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 	}
 	defer ustmt.Close()
 	teamName := RandomTeamName(country)
-	_, err = ustmt.Exec(teamName, userId, teamId)
+	stadiumName := RandomStadiumName(country)
+	_, err = ustmt.Exec(teamName, userId, stadiumName, teamId)
 	if err != nil {
 		return nil, err
 	}
