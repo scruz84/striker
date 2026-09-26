@@ -1,21 +1,37 @@
-import Chip from '@mui/material/Chip'
 import Grid from '@mui/material/Grid'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import type { Lineup, Player, WeekMatch } from '../../api/types'
-import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
-import { PlayerNameLink } from '../../components/PlayerNameLink'
-import { matchRatingColor } from '../../utils/matchRating'
+import type { WeekMatch } from '../../api/types'
+import { MatchMinuteRatings } from './MatchMinuteRatings'
+import { TeamRatingsColumn } from './TeamRatingsColumn'
 
 // A "Calificaciones" tab: every player who featured, grouped by team, with the 1-10 rating
 // backend common.ComputeMatchRatings derived for them - see that function's own doc comment for
-// how the rating is computed (it's a simple heuristic, not a real performance model).
+// how the rating is computed (it's a simple heuristic, not a real performance model). When the
+// match's minute-by-minute events are available, this hands off to MatchMinuteRatings so a viewer
+// can scrub back to see the ratings as they stood at any earlier minute, rather than only ever
+// seeing the final whistle's numbers.
 export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   const { t } = useTranslation()
 
   if (!match.ratings || !match.homeLineup || !match.awayLineup || !match.homePlayers || !match.awayPlayers) {
     return <Typography color="text.secondary">{t('match.noLineupData')}</Typography>
+  }
+
+  if (match.events && match.events.length > 0) {
+    return (
+      <MatchMinuteRatings
+        homeName={match.homeName}
+        awayName={match.awayName}
+        homeLineup={match.homeLineup}
+        awayLineup={match.awayLineup}
+        homePlayers={match.homePlayers}
+        awayPlayers={match.awayPlayers}
+        events={match.events}
+        currentMinute={finalMatchMinute(match)}
+        finalRatings={match.ratings}
+      />
+    )
   }
 
   return (
@@ -30,41 +46,14 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   )
 }
 
-// Exported for reuse by MatchDetailsPage's live view, which computes the same shape of ratings
-// live (see utils/liveMatchRatings.computeLiveMatchRatings) rather than reading them off an
-// already-played match.
-export function TeamRatingsColumn({
-  title,
-  lineup,
-  players,
-  ratings,
-}: {
-  title: string
-  lineup: Lineup
-  players: Record<string, Player>
-  ratings: Record<string, number>
-}) {
-  return (
-    <Stack spacing={1.25}>
-      <Typography variant="subtitle2">{title}</Typography>
-      {lineup.positions.map((pos) => {
-        const player = players[String(pos.playerId)]
-        const rating = ratings[String(pos.playerId)]
-        if (!player || rating === undefined) {
-          return null
-        }
-        return (
-          <Stack key={pos.playerId} direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            <CartoonAvatar seed={pos.playerId} birthCountry={player.birthCountry} size={32} />
-            <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
-              <PlayerNameLink playerId={pos.playerId}>
-                {player.firstName} {player.lastName}
-              </PlayerNameLink>
-            </Typography>
-            <Chip size="small" color={matchRatingColor(rating)} label={rating.toFixed(1)} sx={{ fontWeight: 700 }} />
-          </Stack>
-        )
-      })}
-    </Stack>
-  )
+// finalMatchMinute is the highest minute a scrubber needs to reach for a finished match - normally
+// the last recorded MatchInstant's minute, but events can (rarely) carry a slightly later minute
+// than the last instant (e.g. a stoppage-time card), and a friendly/cup tie without instants has
+// none at all, so this takes whichever of the two is higher, floored at a full 90 minutes.
+function finalMatchMinute(match: WeekMatch): number {
+  const instants = match.matchInstants ?? []
+  const events = match.events ?? []
+  const lastInstantMinute = instants.length > 0 ? instants[instants.length - 1].minute : 0
+  const lastEventMinute = events.reduce((max, event) => Math.max(max, event.minute), 0)
+  return Math.max(lastInstantMinute, lastEventMinute, 90)
 }

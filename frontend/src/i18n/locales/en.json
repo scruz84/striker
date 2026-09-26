@@ -606,8 +606,13 @@
     },
     "ratings": {
       "title": "Player ratings",
-      "liveTitle": "Player ratings so far"
+      "liveTitle": "Player ratings so far",
+      "atMinute": "Ratings at minute {{minute}}",
+      "jumpToNow": "Jump to the latest minute",
+      "previousMinute": "Previous minute",
+      "nextMinute": "Next minute"
     },
+    "stadiumEntry": "{{home}} and {{away}} take to the pitch at {{stadium}}!",
     "noNotableEvents": "No notable events in this match.",
     "noLineupData": "No lineup data.",
     "lineup": { "title": "{{teamName}}'s lineup for this match" },

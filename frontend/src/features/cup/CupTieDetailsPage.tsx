@@ -15,6 +15,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchPositionComparison } from '../match/MatchPositionComparison'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -144,6 +145,19 @@ function LiveTie({
         status={live.connected ? 'live' : 'connecting'}
         minute={live.minute}
       />
+      {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            {t('match.tabs.lineups')}
+          </Typography>
+          <MatchHeadToHeadPitch
+            homeLineup={live.homeLineup}
+            homePlayers={live.homePlayers}
+            awayLineup={live.awayLineup}
+            awayPlayers={live.awayPlayers}
+          />
+        </Paper>
+      )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
       </Paper>

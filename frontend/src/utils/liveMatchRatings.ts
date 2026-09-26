@@ -72,3 +72,22 @@ export function computeLiveMatchRatings(
 
   return ratings
 }
+
+/** Same computation as computeLiveMatchRatings, but as they stood at an arbitrary past minute
+ * rather than "everything broadcast so far" - events after `minute` are dropped, and the score
+ * used for the result bonus is read off the last goal event at or before `minute` (0-0 if none yet)
+ * rather than the match's current/final score. This is what lets a viewer scrub a live or played
+ * match's ratings back to any earlier minute (see MatchMinuteRatings). */
+export function computeRatingsAsOfMinute(homeLineup: Lineup, awayLineup: Lineup, events: MatchEvent[], minute: number): Record<string, number> {
+  const upToMinute = events.filter((event) => event.minute <= minute)
+  let homeGoals = 0
+  let awayGoals = 0
+  for (let i = upToMinute.length - 1; i >= 0; i--) {
+    if (upToMinute[i].eventType === EVENT_TYPE_GOAL) {
+      homeGoals = upToMinute[i].homeGoals
+      awayGoals = upToMinute[i].awayGoals
+      break
+    }
+  }
+  return computeLiveMatchRatings(homeLineup, awayLineup, upToMinute, homeGoals, awayGoals)
+}

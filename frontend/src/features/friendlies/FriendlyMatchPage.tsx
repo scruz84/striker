@@ -14,6 +14,7 @@ import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchPositionComparison } from '../match/MatchPositionComparison'
 import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
@@ -185,6 +186,19 @@ function LiveFriendly({
         minute={isDue ? live.minute : undefined}
         subtitle={formatDateTime(match.matchDate)}
       />
+      {isDue && live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
+        <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            {t('match.tabs.lineups')}
+          </Typography>
+          <MatchHeadToHeadPitch
+            homeLineup={live.homeLineup}
+            homePlayers={live.homePlayers}
+            awayLineup={live.awayLineup}
+            awayPlayers={live.awayPlayers}
+          />
+        </Paper>
+      )}
       {isDue && (
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
           <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />

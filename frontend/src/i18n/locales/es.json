@@ -606,8 +606,13 @@
     },
     "ratings": {
       "title": "Calificaciones de los jugadores",
-      "liveTitle": "Calificaciones hasta el momento"
+      "liveTitle": "Calificaciones hasta el momento",
+      "atMinute": "Calificaciones en el minuto {{minute}}",
+      "jumpToNow": "Ir al último minuto",
+      "previousMinute": "Minuto anterior",
+      "nextMinute": "Minuto siguiente"
     },
+    "stadiumEntry": "¡{{home}} y {{away}} saltan al terreno de juego del {{stadium}}!",
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",
     "lineup": { "title": "Alineación de {{teamName}} para este partido" },

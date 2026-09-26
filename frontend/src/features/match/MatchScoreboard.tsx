@@ -63,6 +63,11 @@ export function Scoreboard({
         }}
       />
       <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
+        {stadiumName && (
+          <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mb: 1 }}>
+            {t('match.venue', { name: stadiumName })}
+          </Typography>
+        )}
         <Stack direction="row" sx={{ justifyContent: 'center', mb: 1.5 }}>
           {status === 'live' && (
             <Chip
@@ -83,11 +88,6 @@ export function Scoreboard({
           {status === 'scheduled' && <Chip size="small" variant="outlined" label={t('match.scheduled')} />}
           {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}
         </Stack>
-        {stadiumName && (
-          <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mb: 1.5 }}>
-            {t('match.venue', { name: stadiumName })}
-          </Typography>
-        )}
         {/* Flexbox rather than a 12-column Grid split - the center score needs a
             width that fits "88 - 3" without wrapping (see issue report: a fractional
             Grid column was too narrow on a phone screen and wrapped the score onto two
