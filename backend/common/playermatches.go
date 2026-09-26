@@ -24,20 +24,24 @@ type PlayerMatchSummary struct {
 }
 
 const getRecentPlayedLeagueMatchIdsStmtSql = "SELECT match_id FROM matches " +
-	"WHERE (home_team_id = $1 OR away_team_id = $1) AND played = true ORDER BY match_date DESC LIMIT $2"
+	"WHERE (home_team_id = $1 OR away_team_id = $1) AND played = true AND match_date <= $2 " +
+	"ORDER BY match_date DESC LIMIT $3"
 
 // GetPlayerRecentMatches lists teamId's most recent played league matches (most recent first,
 // capped at limit), each annotated with this player's own goals/cards for that match and, when a
 // lineup was recorded for it, their match rating - so a player's page can show "how has this
 // player actually been playing" rather than only career totals. Returns an empty slice for a free
-// agent (teamId == 0), who has no current team's fixtures to show.
+// agent (teamId == 0), who has no current team's fixtures to show. Matches still inside their
+// live-broadcast window (see LiveBroadcastWindow) are excluded, same as GetPlayerCareerStats,
+// otherwise a match would show up here as a finished result before its own page stops treating it
+// as "LIVE".
 func GetPlayerRecentMatches(dbCtx *DatabaseContext, playerId int64, teamId int64, limit int) ([]PlayerMatchSummary, error) {
 	summaries := make([]PlayerMatchSummary, 0)
 	if teamId == 0 {
 		return summaries, nil
 	}
 
-	rows, err := dbCtx.Db.Query(getRecentPlayedLeagueMatchIdsStmtSql, teamId, limit)
+	rows, err := dbCtx.Db.Query(getRecentPlayedLeagueMatchIdsStmtSql, teamId, LiveBroadcastCutoff(), limit)
 	if err != nil {
 		return nil, err
 	}
