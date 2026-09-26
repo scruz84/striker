@@ -52,6 +52,22 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 	}
 
 	go func() {
+		// Published once, before the first "instant" - both lineups are already fixed for the
+		// whole match at this point (see LiveMatchMessage's own comment), so there's no reason to
+		// wait or repeat this later. A cup tie or friendly missing either lineup (shouldn't
+		// normally happen, but the zero value leaves these nil either way) just skips it - a live
+		// viewer then falls back to the team-level qualification comparison only, same as before
+		// this existed.
+		if match.HomeLineup != nil && match.AwayLineup != nil && match.HomePlayers != nil && match.AwayPlayers != nil {
+			dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
+				Type:        "lineups",
+				HomeLineup:  match.HomeLineup,
+				AwayLineup:  match.AwayLineup,
+				HomePlayers: match.HomePlayers,
+				AwayPlayers: match.AwayPlayers,
+			})
+		}
+
 		homeGoals, awayGoals := 0, 0
 		for _, instant := range instants {
 			homeGoals, awayGoals = instant.HomeGoals, instant.AwayGoals

@@ -152,18 +152,18 @@ func driftSkillsForPosition(p common.Player, position int, playChance float32, a
 const MatchSkillGrowthMinutesReference = 900
 
 // updatePlayerSkillsAfterMatch is skill growth's actual trigger: called from
-// updateSkillsAfterCompetitiveMatch right after a competitive match is simulated (see
-// engine.simulateMatch/simulateCupTie), it drifts skills for every player who featured, using
-// that match's own in-memory minutesByPosition (MatchSimulation.HomeMinutesByPosition/
-// AwayMinutesByPosition) rather than a season-long accumulator - this fully replaces the old
-// season-end drift that used to run once per season in ProgressPlayers (removed - keeping both
-// would double-count the same minutes toward growth twice). Age, and a hired head coach's skill
-// (see common.GetTeamTrainer), work exactly as they did in the season-end system (see
-// driftSkill) - only the trigger and the per-event magnitude changed, not what influences
-// growth. Deliberately never called for friendly matches (see engine.simulateFriendly) - see
-// updateSkillsAfterCompetitiveMatch's own doc comment for why. season is the current one,
-// stamped on each common.LogPlayerProgression row (the same audit trail the season-end system
-// used to write to, just with many more, smaller rows now).
+// updateSkillsAfterPlayedMatch right after any match is simulated - league, cup, or friendly (see
+// engine.simulateMatch/simulateCupTie/simulateFriendly) - it drifts skills for every player who
+// featured, using that match's own in-memory minutesByPosition (MatchSimulation.
+// HomeMinutesByPosition/AwayMinutesByPosition) rather than a season-long accumulator - this fully
+// replaces the old season-end drift that used to run once per season in ProgressPlayers (removed
+// - keeping both would double-count the same minutes toward growth twice). Age, and a hired head
+// coach's skill (see common.GetTeamTrainer), work exactly as they did in the season-end system
+// (see driftSkill) - only the trigger and the per-event magnitude changed, not what influences
+// growth. A friendly counts the same as a competitive match here - it carries no financial stakes
+// (see UpdateTeamFinancesAfterMatch), but the players on the pitch still develop from playing it.
+// season is the current one, stamped on each common.LogPlayerProgression row (the same audit
+// trail the season-end system used to write to, just with many more, smaller rows now).
 func updatePlayerSkillsAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation, season int) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 	updateTeamPlayersAfterMatch(dbCtx, match.Home, match.HomePlayers, match.HomeMinutesByPosition, season, r)

@@ -4,21 +4,33 @@ import (
 	"errors"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"sort"
+	"time"
 )
 
+// isAiManagedTeam reports whether a team is both unowned and has an AI level entitling it to any
+// automated behavior at all (see common.AiLevelCaretaker/Manager/Director) - the one gate shared
+// by every entry point into AI-team automation (RunAITeamManagement, RespondToAllPendingOffers,
+// RunAiTeamDailyActivity), so the definition of "AI-managed" can't drift between them.
+func isAiManagedTeam(team *common.Team) bool {
+	return team.OwnerId <= 0 && team.AiLevel >= common.AiLevelCaretaker
+}
+
 // RunAITeamManagement drives every automatic action an unowned team's AI level entitles it to -
-// called once per match for each side involved (see UpdateTeamFinancesAfterMatch) instead of a
-// separate scheduler job, so AI upkeep happens exactly as often as game time actually advances.
-// See common.AiLevelCaretaker/Manager/Director for what each tier adds on top of the one below
-// it; a no-op for any team with a real owner.
+// called once per match for each side involved (see UpdateTeamFinancesAfterMatch), and once more
+// a day (on average) for every AI-managed team regardless of match activity (see
+// RunAiTeamDailyActivity/StartAiActivityScheduler) - safe to call redundantly since every action
+// inside is itself a no-op once there's nothing left to do (nothing to renew, no surplus to list,
+// etc.). See common.AiLevelCaretaker/Manager/Director for what each tier adds on top of the one
+// below it; a no-op for any team with a real owner.
 func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 	team, err := common.GetTeamById(teamId, dbCtx)
 	if err != nil {
 		log.Errorf("error fetching team %d for AI management: %s", teamId, err)
 		return
 	}
-	if team.OwnerId > 0 || team.AiLevel < common.AiLevelCaretaker {
+	if !isAiManagedTeam(team) {
 		return
 	}
 
@@ -52,7 +64,7 @@ func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 			log.Errorf("error fetching team %d for offer response sweep: %s", teamId, err)
 			continue
 		}
-		if team.OwnerId > 0 || team.AiLevel < common.AiLevelCaretaker {
+		if !isAiManagedTeam(team) {
 			continue
 		}
 		respondToReceivedOffers(dbCtx, teamId)
@@ -518,5 +530,104 @@ func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 	if err := common.SetDefaultLineup(dbCtx, teamId, common.FlattenLineup(common.SelectBestLineup(*players))); err != nil {
 		log.Errorf("error refreshing lineup for AI-managed team %d: %s", teamId, err)
+	}
+}
+
+// aiActivityTicksPerDay is how many times StartAiActivityScheduler's job fires per day (every 5
+// minutes - see its own comment) - the denominator ProbAiDailyActivityPerTick is built from.
+const aiActivityTicksPerDay = 24 * 60 / 5
+
+// ProbAiDailyActivityPerTick is calibrated so each eligible team's chance of triggering on any
+// given tick averages out to once a day - spread randomly across it (whichever tick happens to
+// roll true first) rather than every team acting in lockstep at the same fixed hour, the same way
+// a single shared probability already spreads out per-minute match events (see e.g.
+// engine.ProbChance) instead of scheduling them deterministically.
+const ProbAiDailyActivityPerTick = float32(1) / float32(aiActivityTicksPerDay)
+
+// RunAiTeamDailyActivity gives every AI-managed team (see isAiManagedTeam) an independent,
+// randomly-timed chance each tick (see StartAiActivityScheduler) to run its full market
+// management pass and to challenge another AI-managed team to a friendly - both entirely
+// decoupled from match simulation, unlike RunAITeamManagement's per-match trigger. Before this, a
+// freshly created world's CPU teams sat completely idle in the transfer market (and never played
+// each other) until their very first league/cup match was simulated; this guarantees market
+// activity - and a friendly habit - from day one, whether or not any competitive match has been
+// played yet. A friendly opponent is deliberately only ever another AI-managed team, never a
+// human's - a human still only ever gets challenged by another human (see ChallengeToFriendly),
+// so this can't spam a manager's inbox with unsolicited CPU challenges.
+func RunAiTeamDailyActivity(dbCtx *common.DatabaseContext) {
+	teamIds, err := common.GetAllTeamIds(dbCtx)
+	if err != nil {
+		log.Errorf("error listing teams for AI daily activity: %s", err)
+		return
+	}
+
+	teams := make([]*common.Team, 0, len(teamIds))
+	for _, teamId := range teamIds {
+		team, err := common.GetTeamById(teamId, dbCtx)
+		if err != nil {
+			log.Errorf("error fetching team %d for AI daily activity: %s", teamId, err)
+			continue
+		}
+		teams = append(teams, team)
+	}
+
+	eligible := filterAiManagedTeams(teams)
+	eligibleIds := make([]int64, len(eligible))
+	for i, team := range eligible {
+		eligibleIds[i] = team.Id
+	}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for _, team := range eligible {
+		if r.Float32() < ProbAiDailyActivityPerTick {
+			RunAITeamManagement(dbCtx, team.Id)
+		}
+		if r.Float32() < ProbAiDailyActivityPerTick {
+			challengeAiTeamToFriendly(dbCtx, r, team.Id, eligibleIds)
+		}
+	}
+}
+
+// filterAiManagedTeams narrows teams down to the ones isAiManagedTeam accepts, preserving order.
+func filterAiManagedTeams(teams []*common.Team) []*common.Team {
+	eligible := make([]*common.Team, 0, len(teams))
+	for _, team := range teams {
+		if isAiManagedTeam(team) {
+			eligible = append(eligible, team)
+		}
+	}
+	return eligible
+}
+
+// pickRandomOpponent picks a uniformly random id from teamIds other than exclude, or false if
+// exclude is the only (or not a genuine) candidate in there.
+func pickRandomOpponent(r *rand.Rand, teamIds []int64, exclude int64) (int64, bool) {
+	candidates := make([]int64, 0, len(teamIds))
+	for _, id := range teamIds {
+		if id != exclude {
+			candidates = append(candidates, id)
+		}
+	}
+	if len(candidates) == 0 {
+		return 0, false
+	}
+	return candidates[r.Intn(len(candidates))], true
+}
+
+// challengeAiTeamToFriendly has teamId challenge a random other AI-managed team (from
+// eligibleIds) to a friendly. Both sides being unowned means ChallengeToFriendly auto-accepts on
+// the spot (see its own doc comment) - there's nobody who'd otherwise need to act on it.
+// ErrFriendlyLimitReached (either side already at its weekly cap - the default is just 1) and
+// ErrFriendlyChallengeAlreadyExists (a pending challenge between this exact pair still
+// outstanding, which shouldn't happen between two auto-accepting sides but costs nothing to guard
+// against) are expected outcomes, not failures.
+func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, teamId int64, eligibleIds []int64) {
+	opponent, ok := pickRandomOpponent(r, eligibleIds, teamId)
+	if !ok {
+		return
+	}
+	if err := common.ChallengeToFriendly(dbCtx, teamId, opponent, nil); err != nil &&
+		!errors.Is(err, common.ErrFriendlyLimitReached) && !errors.Is(err, common.ErrFriendlyChallengeAlreadyExists) {
+		log.Errorf("error challenging team %d to a friendly for AI-managed team %d: %s", opponent, teamId, err)
 	}
 }

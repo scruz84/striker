@@ -41,9 +41,12 @@ func SimulateFriendlies(dbCtx *common.DatabaseContext) {
 
 // simulateFriendly runs the shared match engine and persists the result, but deliberately skips
 // UpdateTeamFinancesAfterMatch (no ticket revenue/sponsorship for a friendly - see
-// init26_friendlies.sql) and any AI-team management hook (a friendly is not a competitive
-// result an AI manager needs to react to). Injuries/suspensions still apply via
-// UpdatePlayerAvailability, same as any other simulated match.
+// init26_friendlies.sql) and any per-match AI-team management hook (a friendly result itself is
+// not something an AI manager needs to react to - see RunAiTeamDailyActivity in aiteams.go for the
+// separate, match-independent scheduler that now covers CPU market upkeep instead).
+// Injuries/suspensions still apply via UpdatePlayerAvailability, same as any other simulated
+// match, and so does skill growth (updateSkillsAfterPlayedMatch) - a friendly still develops the
+// players who feature in it, even with no financial stakes attached.
 func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMatch) error {
 	lineups, err := common.GetLineupsForFriendly(dbCtx, friendly.MatchId, []int64{friendly.HomeTeamId, friendly.AwayTeamId})
 	if err != nil {
@@ -60,6 +63,7 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	}
 
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
+	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.FriendlyMatchChannel(matchSimulation.Id), matchSimulation, func() {
 		notifyFriendlyResult(dbCtx, matchSimulation)
 	})

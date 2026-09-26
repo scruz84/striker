@@ -160,6 +160,7 @@
     "lastResult": "Último resultado",
     "noUpcomingMatch": "No hay ningún partido programado.",
     "noRecentMatch": "Todavía no se han jugado partidos.",
+    "liveMatchBanner": "¡Tu partido contra {{opponent}} se está jugando ahora mismo!",
     "viewMatch": "Ver partido",
     "viewFinances": "Ver finanzas",
     "viewSquad": "Ver plantilla",
@@ -591,7 +592,8 @@
       }
     },
     "ratings": {
-      "title": "Calificaciones de los jugadores"
+      "title": "Calificaciones de los jugadores",
+      "liveTitle": "Calificaciones hasta el momento"
     },
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type SyntheticEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type SyntheticEvent } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -10,16 +10,17 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
-import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
+import { POSITION_GOALKEEPER, type Lineup, type MatchEvent, type Player, type Team, type WeekMatch } from '../../api/types'
 import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
+import { computeLiveMatchRatings } from '../../utils/liveMatchRatings'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchPositionComparison } from './MatchPositionComparison'
-import { MatchRatingsTab } from './MatchRatingsTab'
+import { MatchRatingsTab, TeamRatingsColumn } from './MatchRatingsTab'
 import { MatchReportHeader } from './MatchReportHeader'
 import { MatchReportTab } from './MatchReportTab'
 import { Events, Scoreboard } from './MatchScoreboard'
@@ -173,8 +174,70 @@ function LiveMatch({
           awayName={awayName}
         />
       )}
+      {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
+        <LiveMatchRatings
+          homeName={homeName}
+          awayName={awayName}
+          homeLineup={live.homeLineup}
+          awayLineup={live.awayLineup}
+          homePlayers={live.homePlayers}
+          awayPlayers={live.awayPlayers}
+          events={live.events}
+          homeGoals={live.homeGoals}
+          awayGoals={live.awayGoals}
+        />
+      )}
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
+  )
+}
+
+// Shows each starting player's current match rating while the broadcast is still going, the
+// live equivalent of the "Calificaciones" tab a played match's report gives (MatchRatingsTab) -
+// see utils/liveMatchRatings.computeLiveMatchRatings for how a live rating is derived from
+// however much of the match has broadcast so far, and its own comment for why it's only an
+// approximation of the final, backend-computed one (issue: live player qualification).
+function LiveMatchRatings({
+  homeName,
+  awayName,
+  homeLineup,
+  awayLineup,
+  homePlayers,
+  awayPlayers,
+  events,
+  homeGoals,
+  awayGoals,
+}: {
+  homeName: string
+  awayName: string
+  homeLineup: Lineup
+  awayLineup: Lineup
+  homePlayers: Record<string, Player>
+  awayPlayers: Record<string, Player>
+  events: MatchEvent[]
+  homeGoals: number
+  awayGoals: number
+}) {
+  const { t } = useTranslation()
+  const ratings = useMemo(
+    () => computeLiveMatchRatings(homeLineup, awayLineup, events, homeGoals, awayGoals),
+    [homeLineup, awayLineup, events, homeGoals, awayGoals],
+  )
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+      <Typography variant="subtitle2" gutterBottom>
+        {t('match.ratings.liveTitle')}
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TeamRatingsColumn title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TeamRatingsColumn title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} />
+        </Grid>
+      </Grid>
+    </Paper>
   )
 }
 

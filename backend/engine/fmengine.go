@@ -44,6 +44,7 @@ func StartEngine() {
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
 	StartBirthdayScheduler(NewBirthdayJob(dbCtx))
+	StartAiActivityScheduler(NewAiActivityJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

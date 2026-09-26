@@ -143,6 +143,23 @@ func StartBirthdayScheduler(birthdayJob quartz.Job) {
 	}
 }
 
+func StartAiActivityScheduler(aiActivityJob quartz.Job) {
+	sched.Start(ctx)
+	// Same cadence as StartAdvanceSeasonScheduler - cheap per tick (a handful of teams rolling a
+	// low-probability chance each), and aiActivityTicksPerDay (engine/aiteams.go) is built from
+	// this exact interval, so changing it here means updating that constant too.
+	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(aiActivityJob.Description())
+	jobDetail := quartz.NewJobDetail(aiActivityJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 import { getWsEndpoint } from '../config'
-import type { MatchEvent, MatchInstant, TeamQualification } from './types'
+import type { Lineup, MatchEvent, MatchInstant, Player, TeamQualification } from './types'
 
 interface LiveMatchMessage {
-  type: 'instant' | 'event' | 'complete'
+  type: 'lineups' | 'instant' | 'event' | 'complete'
   instant?: MatchInstant
   event?: MatchEvent
+  // Only set on the one "lineups" message published right before the first "instant" - see
+  // backend common.LiveMatchMessage's own comment on why the lineups themselves never change
+  // mid-broadcast.
+  homeLineup?: Lineup
+  awayLineup?: Lineup
+  homePlayers?: Record<string, Player>
+  awayPlayers?: Record<string, Player>
   homeGoals: number
   awayGoals: number
 }
@@ -22,6 +29,17 @@ export interface LiveMatchState {
   // to MatchPositionComparison.
   homeQua: TeamQualification | null
   awayQua: TeamQualification | null
+  // The starting XI/squads broadcast once via the "lineups" message (see LiveMatchMessage) -
+  // null until it arrives, which for a genuinely live connection is essentially immediate (it's
+  // the very first thing BroadcastMatchLive publishes), and for one catching up on history is
+  // whatever the catch-up itself already delivered. Lets a live viewer show the same per-player
+  // ratings a played match's report shows, computed live from `events`/`homeGoals`/`awayGoals`
+  // (see utils/liveMatchRatings.computeLiveMatchRatings) rather than waiting for the match to
+  // finish.
+  homeLineup: Lineup | null
+  awayLineup: Lineup | null
+  homePlayers: Record<string, Player> | null
+  awayPlayers: Record<string, Player> | null
   complete: boolean
   // True once reconnection has been exhausted without ever seeing a "complete" message - the
   // live channel itself is unreachable (a downed Redis, a persistent proxy/network problem),
@@ -42,6 +60,10 @@ const initialState: LiveMatchState = {
   events: [],
   homeQua: null,
   awayQua: null,
+  homeLineup: null,
+  awayLineup: null,
+  homePlayers: null,
+  awayPlayers: null,
   complete: false,
   giveUp: false,
 }
@@ -167,6 +189,10 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
           events: msg.event ? [...prev.events, msg.event] : prev.events,
           homeQua: msg.instant?.homeQua ?? prev.homeQua,
           awayQua: msg.instant?.awayQua ?? prev.awayQua,
+          homeLineup: msg.homeLineup ?? prev.homeLineup,
+          awayLineup: msg.awayLineup ?? prev.awayLineup,
+          homePlayers: msg.homePlayers ?? prev.homePlayers,
+          awayPlayers: msg.awayPlayers ?? prev.awayPlayers,
           complete: msg.type === 'complete',
           giveUp: false,
         }))

@@ -22,7 +22,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
 	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
-	updateSkillsAfterCompetitiveMatch(dbCtx, matchSimulation)
+	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, func() {
 		NotifyMatchResult(dbCtx, matchSimulation)
 	})
@@ -31,14 +31,14 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	return matchSimulation, nil
 }
 
-// updateSkillsAfterCompetitiveMatch drifts skills for every player who featured in a
-// just-simulated competitive match (see updatePlayerSkillsAfterMatch) - shared by league matches
-// (here) and cup ties (see engine/cups.go's simulateCupTie). Deliberately NOT called for friendly
-// matches - see engine/friendlies.go's simulateFriendly and init26_friendlies.sql's own rationale
-// for why friendlies have no effect beyond the match itself. Looks up the current season itself
-// (see GetCurrentSeason) rather than taking it as a parameter, since neither of its two callers
-// otherwise has it in scope.
-func updateSkillsAfterCompetitiveMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
+// updateSkillsAfterPlayedMatch drifts skills for every player who featured in a just-simulated
+// match (see updatePlayerSkillsAfterMatch) - shared by league matches (here), cup ties (see
+// engine/cups.go's simulateCupTie), and friendlies (see engine/friendlies.go's simulateFriendly) -
+// a friendly still develops the players who feature in it, even though (unlike a league match or
+// cup tie) it carries no financial stakes and doesn't trigger an unowned side's AI upkeep (see
+// UpdateTeamFinancesAfterMatch). Looks up the current season itself (see GetCurrentSeason) rather
+// than taking it as a parameter, since none of its three callers otherwise has it in scope.
+func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	season, err := GetCurrentSeason(dbCtx)
 	if err != nil {
 		log.Errorf("error getting current season for match %d skill progression: %s", match.Id, err)

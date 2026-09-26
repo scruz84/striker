@@ -190,3 +190,26 @@ func (pj *BirthdayJob) Execute(context.Context) error {
 func NewBirthdayJob(dbCtx *common.DatabaseContext) *BirthdayJob {
 	return &BirthdayJob{desc: "player birthdays job", dbCtx: dbCtx}
 }
+
+// AiActivityJob implements the quartz.Job interface: gives every AI-managed team its
+// independent, randomly-timed daily chance at market management and at challenging another
+// AI-managed team to a friendly - see engine.RunAiTeamDailyActivity.
+type AiActivityJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *AiActivityJob) Description() string {
+	return pj.desc
+}
+
+// Execute is called by a Scheduler when the Trigger associated with this job fires.
+func (pj *AiActivityJob) Execute(context.Context) error {
+	log.Info("AI team daily activity job")
+	RunAiTeamDailyActivity(pj.dbCtx)
+	return nil
+}
+
+func NewAiActivityJob(dbCtx *common.DatabaseContext) *AiActivityJob {
+	return &AiActivityJob{desc: "AI team daily activity job", dbCtx: dbCtx}
+}

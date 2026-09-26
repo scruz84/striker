@@ -30,6 +30,9 @@ kickoff has arrived:
 - Player birthdays: `StartBirthdayScheduler` → `ProcessBirthdays` (`engine/birthdays.go`), once a
   day (01:00 UTC) - see "Player skill progression" below for how this drives aging independently
   of season rollover.
+- CPU team daily activity: `StartAiActivityScheduler` → `RunAiTeamDailyActivity`
+  (`engine/aiteams.go`), every 5 minutes - see "How CPU (unowned) teams resolve the transfer
+  market" below for why this exists alongside the per-match trigger.
 
 A match becomes eligible the moment its `match_date` is **up to 15 minutes in the future**, not
 only once kickoff has strictly passed - see `common.GetSimulableMatchesStmtSql` /
@@ -119,14 +122,14 @@ transfer-market section).
 
 ## Player skill progression
 
-Skills drift match-by-match, not once a season: right after every league match or cup tie is
-simulated, each player who featured gets an independent shot at growing (or declining), scaled by
-how many minutes of that specific match they played. `updateSkillsAfterCompetitiveMatch`
-(`engine/simulation.go`, called from `simulateMatch` and `engine/cups.go`'s `simulateCupTie`,
-right after the match's other post-processing) is the trigger; `updatePlayerSkillsAfterMatch`
-(`engine/progression.go`) does the actual drifting. Deliberately not called for friendlies - see
-`engine/friendlies.go`'s `simulateFriendly` and `init26_friendlies.sql`'s own rationale for why
-friendlies have no effect beyond the match itself.
+Skills drift match-by-match, not once a season: right after every league match, cup tie, or
+friendly is simulated, each player who featured gets an independent shot at growing (or
+declining), scaled by how many minutes of that specific match they played. A friendly counts here
+too, even though it carries none of a competitive match's financial stakes (see "Economy" below) -
+the players who feature in it still develop from playing. `updateSkillsAfterPlayedMatch`
+(`engine/simulation.go`, called from `simulateMatch`, `engine/cups.go`'s `simulateCupTie`, and
+`engine/friendlies.go`'s `simulateFriendly`, right after each one's other post-processing) is the
+trigger; `updatePlayerSkillsAfterMatch` (`engine/progression.go`) does the actual drifting.
 
 For each player who took the field this match, on the side they played for:
 
@@ -290,8 +293,11 @@ sums every positive transaction by reason into horizontal bars.
 `common/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
 ties route through after a result: it credits the home side's ticket revenue, credits sponsorship
 to both sides, and triggers `RunAITeamManagement` for either side that's currently unowned (see
-below). Friendlies deliberately skip all of this - no ticket revenue, no sponsorship, no AI
-upkeep hook - since a friendly isn't a competitive result with financial stakes.
+below). Friendlies deliberately skip all of this - no ticket revenue, no sponsorship, no
+*per-match* AI upkeep hook - since a friendly isn't a competitive result with financial stakes
+(skill growth is the one exception - see "Player skill progression" above). A CPU team's market
+upkeep isn't actually gated on this hook firing, though - see the daily scheduler described in the
+next section.
 
 ## Notifications
 
@@ -352,8 +358,29 @@ weighted-randomly assigned at creation and biased by the division tier it starts
 leagues skew toward sharper CPU competition - `RandomAiLevel`, `common/aimanager.go`). Each tier is
 a strict superset of the one below it. All of this is driven from `RunAITeamManagement`
 (`engine/aiteams.go`), called once per match for each unowned side involved (via
-`UpdateTeamFinancesAfterMatch` above) - there's no separate scheduler job for it, so AI upkeep
-happens exactly as often as that team actually plays.
+`UpdateTeamFinancesAfterMatch` above) - and, independently of any match at all, once a day on
+average for every AI-managed team via `RunAiTeamDailyActivity`/`StartAiActivityScheduler`
+(`isAiManagedTeam` is the one shared gate all three of `RunAITeamManagement`,
+`RespondToAllPendingOffers`, and `RunAiTeamDailyActivity` check: unowned and at least Caretaker
+level). Calling `RunAITeamManagement` twice over is harmless - every action inside is itself a
+no-op once there's nothing left to do - so before match activity even starts (a freshly created
+world, or simply a quiet week for a given team) a CPU team's market upkeep no longer depends on it
+having played anything.
+
+`RunAiTeamDailyActivity`'s own scheduler ticks every 5 minutes (288 times a day);
+each AI-managed team independently rolls a 1-in-288 chance per tick for its market-management
+pass and, separately, the same 1-in-288 chance to challenge another AI-managed team to a friendly
+(`ChallengeToFriendly`, `common/friendlies.go`) - both average out to about once a day, at
+whichever random tick happens to hit first, rather than every team acting in lockstep at a fixed
+hour. A friendly opponent is always another AI-managed team, never a human's: a human still only
+ever gets challenged by another human, so this can't spam a manager's inbox with unsolicited CPU
+challenges. Since both sides are unowned, `ChallengeToFriendly` auto-accepts the challenge on the
+spot (there's nobody who'd otherwise act on it) and schedules the resulting friendly the same short
+delay ahead as any other accepted challenge (`friendlyScheduleDelay`) - it's picked up by the
+regular per-minute `StartFriendlyScheduler` from there, same as a human-arranged one, subject to
+the same weekly cap (`max_friendlies_per_week`) on both sides. Beyond the market-trigger and
+matchday-activity purpose, a friendly a CPU team plays this way still counts for skill growth (see
+"Player skill progression" above) exactly like a competitive match would.
 
 - **Caretaker** (tier 1, the baseline every level gets):
   1. **Keeps the default lineup fresh** (`refreshAiTeamLineup` re-picks the current best XI from

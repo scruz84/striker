@@ -49,6 +49,7 @@ export function DashboardPage() {
   return (
     <Box>
       <SeasonRecap enabled={!!loggedUser} />
+      <LiveMatchBanner match={lastMatch} teamId={team.id} />
       <TeamHeaderCard team={team} standing={standing} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -66,6 +67,38 @@ export function DashboardPage() {
       </Grid>
       <RecentLeagueTransfers leagueId={String(team.divisionId)} />
     </Box>
+  )
+}
+
+// A prominent banner (rather than just the small LIVE chip LastResultCard already shows) for the
+// common case of a team owner landing on their dashboard while their own match is broadcasting -
+// `match.played` flips true in the DB (and the match moves into `previousWeekMatches`, which is
+// where `lastMatch` comes from) well before its live broadcast finishes pacing out to viewers,
+// so this is the same "still might be live" heuristic LastResultCard already uses, just surfaced
+// somewhere a viewer can't miss it (issue: dashboard live match notice).
+function LiveMatchBanner({ match, teamId }: { match: WeekMatch | undefined; teamId: number }) {
+  const { t } = useTranslation()
+
+  if (!match || !match.played || !mightStillBeLive(match.matchDate)) {
+    return null
+  }
+
+  const isHome = match.home === teamId
+  const opponentName = isHome ? match.awayName : match.homeName
+
+  return (
+    <Alert
+      severity="info"
+      icon={<SportsSoccerTwoToneIcon fontSize="inherit" />}
+      action={
+        <Button color="inherit" size="small" component={RouterLink} to={`/match/${match.matchId}`}>
+          {t('dashboard.viewMatch')}
+        </Button>
+      }
+      sx={{ mb: 2 }}
+    >
+      {t('dashboard.liveMatchBanner', { opponent: opponentName })}
+    </Alert>
   )
 }
 

@@ -160,6 +160,7 @@
     "lastResult": "Last result",
     "noUpcomingMatch": "No upcoming match scheduled.",
     "noRecentMatch": "No matches played yet.",
+    "liveMatchBanner": "Your match against {{opponent}} is live right now!",
     "viewMatch": "View match",
     "viewFinances": "View finances",
     "viewSquad": "View squad",
@@ -591,7 +592,8 @@
       }
     },
     "ratings": {
-      "title": "Player ratings"
+      "title": "Player ratings",
+      "liveTitle": "Player ratings so far"
     },
     "noNotableEvents": "No notable events in this match.",
     "noLineupData": "No lineup data.",

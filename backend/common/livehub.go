@@ -15,11 +15,22 @@ import (
 // BroadcastMatchLive, which paces a match's already-computed events/instants out to any
 // subscribed WebSocket viewers to give the appearance of a match unfolding in real time.
 type LiveMatchMessage struct {
-	Type      string        `json:"type"` // "instant", "event", or "complete"
-	Instant   *MatchInstant `json:"instant,omitempty"`
-	Event     *Event        `json:"event,omitempty"`
-	HomeGoals int           `json:"homeGoals"`
-	AwayGoals int           `json:"awayGoals"`
+	Type    string        `json:"type"` // "lineups", "instant", "event", or "complete"
+	Instant *MatchInstant `json:"instant,omitempty"`
+	Event   *Event        `json:"event,omitempty"`
+	// HomeLineup/AwayLineup/HomePlayers/AwayPlayers are only set on the one "lineups" message
+	// published right before the first "instant" (see BroadcastMatchLive) - the starting XI each
+	// manager picked, which stays fixed for the whole match (substitutions swap who occupies a
+	// position in *PlayersByPosition, never the Lineup.Positions each side kicked off with - see
+	// SubstitutionSimulation.Apply). Lets a live viewer compute the same per-player match ratings
+	// a played match's report shows (common.ComputeMatchRatings), evolving minute to minute as
+	// events come in, without a per-minute payload any heavier than it already was.
+	HomeLineup  *Lineup           `json:"homeLineup,omitempty"`
+	AwayLineup  *Lineup           `json:"awayLineup,omitempty"`
+	HomePlayers *map[int64]Player `json:"homePlayers,omitempty"`
+	AwayPlayers *map[int64]Player `json:"awayPlayers,omitempty"`
+	HomeGoals   int               `json:"homeGoals"`
+	AwayGoals   int               `json:"awayGoals"`
 }
 
 // liveMatchChannelBuffer is generous enough that a momentarily slow consumer (a WS write in

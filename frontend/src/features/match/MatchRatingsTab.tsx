@@ -30,7 +30,10 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   )
 }
 
-function TeamRatingsColumn({
+// Exported for reuse by MatchDetailsPage's live view, which computes the same shape of ratings
+// live (see utils/liveMatchRatings.computeLiveMatchRatings) rather than reading them off an
+// already-played match.
+export function TeamRatingsColumn({
   title,
   lineup,
   players,

@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/scruz84/striker/common"
@@ -140,5 +141,64 @@ func TestPlanListingWithdrawals_WithdrawsOnlyEnoughWhenSquadTooSmall(t *testing.
 	// 15 unlisted < minSquadSizeAfterSale (16): exactly one listing should come back.
 	if got := planListingWithdrawals(squad, listed); len(got) != 1 {
 		t.Errorf("withdrew %d listings, want exactly 1", len(got))
+	}
+}
+
+func TestIsAiManagedTeam(t *testing.T) {
+	tests := []struct {
+		name    string
+		ownerId int64
+		aiLevel int
+		want    bool
+	}{
+		{"unowned Caretaker", 0, common.AiLevelCaretaker, true},
+		{"unowned Director", 0, common.AiLevelDirector, true},
+		{"unowned but no AI level yet", 0, 0, false},
+		{"owned, even with a leftover AI level", 42, common.AiLevelDirector, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			team := &common.Team{OwnerId: tt.ownerId, AiLevel: tt.aiLevel}
+			if got := isAiManagedTeam(team); got != tt.want {
+				t.Errorf("isAiManagedTeam(%+v) = %v, want %v", team, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFilterAiManagedTeams(t *testing.T) {
+	teams := []*common.Team{
+		{Id: 1, OwnerId: 0, AiLevel: common.AiLevelManager},
+		{Id: 2, OwnerId: 7, AiLevel: common.AiLevelDirector}, // owned - excluded
+		{Id: 3, OwnerId: 0, AiLevel: 0},                      // no AI level yet - excluded
+		{Id: 4, OwnerId: 0, AiLevel: common.AiLevelCaretaker},
+	}
+	got := filterAiManagedTeams(teams)
+	if len(got) != 2 || got[0].Id != 1 || got[1].Id != 4 {
+		t.Errorf("expected teams [1 4], got %v", got)
+	}
+}
+
+func TestPickRandomOpponent_NeverReturnsExcludedTeam(t *testing.T) {
+	r := rand.New(rand.NewSource(1))
+	teamIds := []int64{10, 20, 30}
+	for i := 0; i < 50; i++ {
+		got, ok := pickRandomOpponent(r, teamIds, 20)
+		if !ok {
+			t.Fatalf("expected a candidate, got none")
+		}
+		if got == 20 {
+			t.Fatalf("pickRandomOpponent returned the excluded team")
+		}
+	}
+}
+
+func TestPickRandomOpponent_FalseWhenOnlyExcludedCandidate(t *testing.T) {
+	r := rand.New(rand.NewSource(1))
+	if _, ok := pickRandomOpponent(r, []int64{5}, 5); ok {
+		t.Fatalf("expected no candidate when the only team is the excluded one")
+	}
+	if _, ok := pickRandomOpponent(r, []int64{}, 5); ok {
+		t.Fatalf("expected no candidate for an empty team list")
 	}
 }
