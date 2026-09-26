@@ -498,6 +498,14 @@
   },
   "team": {
     "competitions": "Competiciones:",
+    "classificationPosition": "Posición {{position}} en la clasificación",
+    "cup": {
+      "domestic": "Copa",
+      "international": "Copa internacional",
+      "stillIn": "En competición",
+      "eliminated": "Eliminado",
+      "champion": "Campeón"
+    },
     "squad": "Plantilla",
     "player": "Jugador",
     "age": "Edad",

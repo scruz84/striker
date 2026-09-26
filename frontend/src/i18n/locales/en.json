@@ -498,6 +498,14 @@
   },
   "team": {
     "competitions": "Competitions:",
+    "classificationPosition": "Position {{position}} in the classification",
+    "cup": {
+      "domestic": "Cup",
+      "international": "International cup",
+      "stillIn": "Still in",
+      "eliminated": "Eliminated",
+      "champion": "Champion"
+    },
     "squad": "Squad",
     "player": "Player",
     "age": "Age",

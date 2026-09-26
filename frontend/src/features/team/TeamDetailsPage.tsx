@@ -21,6 +21,9 @@ import { Link as RouterLink, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcademy,
+  useCupDetails,
+  useLatestCupId,
+  useLatestInternationalCupId,
   useMe,
   usePromoteFromAcademy,
   useReleasePlayer,
@@ -32,11 +35,13 @@ import {
 import {
   COUNTRY_NAME_KEYS,
   MAX_CONTRACT_YEARS_REMAINING,
+  type CupDetails,
   type Player,
   type PlayerUnavailability,
   type SeasonHistoryEntry,
 } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
+import { regionForCountry } from '../../components/avatar/traits'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
@@ -51,6 +56,33 @@ import { overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
 type SquadSortField = 'name' | 'age' | 'wage' | 'skill' | 'contract'
+
+type CupStatus = 'none' | 'champion' | 'active' | 'eliminated'
+
+// Derives whether a team is still alive in a cup from its ties - there's no dedicated
+// "still in" field on Team/TeamDetails, so this reuses the same CupDetails.ties data the
+// cup bracket pages (CupPage/InternationalCupPage) already fetch and render.
+function teamCupStatus(cupDetails: CupDetails | undefined, teamId: number): CupStatus {
+  if (!cupDetails) return 'none'
+  const { cup, ties } = cupDetails
+  const teamTies = ties.filter((tie) => tie.homeTeamId === teamId || tie.awayTeamId === teamId)
+  if (teamTies.length === 0) return 'none'
+  const eliminated = teamTies.some((tie) => tie.played && tie.winnerTeamId !== null && tie.winnerTeamId !== teamId)
+  if (eliminated) return 'eliminated'
+  if (cup.completed && cup.championTeamId === teamId) return 'champion'
+  return 'active'
+}
+
+function CupStatusChip({ label, status }: { label: string; status: CupStatus }) {
+  const { t } = useTranslation()
+  if (status === 'none') return null
+
+  const color = status === 'champion' ? 'success' : status === 'active' ? 'primary' : 'default'
+  const statusLabel =
+    status === 'champion' ? t('team.cup.champion') : status === 'active' ? t('team.cup.stillIn') : t('team.cup.eliminated')
+
+  return <Chip size="small" color={color} label={`${label}: ${statusLabel}`} />
+}
 
 function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): number {
   switch (field) {
@@ -78,11 +110,21 @@ export function TeamDetailsPage() {
   const [sortField, setSortField] = useState<SquadSortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
 
+  const teamCountry = teamDetails?.team.country
+  const { data: latestCup } = useLatestCupId(teamCountry)
+  const { data: cupDetails } = useCupDetails(latestCup?.cupId)
+  const region = teamCountry ? regionForCountry(teamCountry) : undefined
+  const { data: latestInternationalCup } = useLatestInternationalCupId(region)
+  const { data: internationalCupDetails } = useCupDetails(latestInternationalCup?.cupId)
+
   if (isLoading || !teamDetails) {
     return <div>{t('common.loading')}</div>
   }
 
   const isOwnTeam = userTeam?.team.id === teamDetails.team.id
+  const flag = countryFlag(teamDetails.team.country)
+  const cupStatus = teamCupStatus(cupDetails, teamDetails.team.id)
+  const internationalCupStatus = teamCupStatus(internationalCupDetails, teamDetails.team.id)
 
   const handleSort = (field: SquadSortField) => {
     if (field === sortField) {
@@ -99,13 +141,31 @@ export function TeamDetailsPage() {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="h4" gutterBottom>
-        {teamDetails.team.name} ({teamDetails.team.id})
-      </Typography>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
+          {teamDetails.team.name} ({teamDetails.team.id})
+        </Typography>
+        {flag && (
+          <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
+            <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
+              {flag}
+            </Typography>
+          </Tooltip>
+        )}
+      </Stack>
       <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
-      <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
-        {teamDetails.team.divisionName}
-      </Link>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
+          {teamDetails.team.divisionName}
+        </Link>
+        <Typography variant="body2" color="text.secondary">
+          {t('team.classificationPosition', { position: teamDetails.team.classificationPosition })}
+        </Typography>
+      </Stack>
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
+        <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
+      </Stack>
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.squad')}
