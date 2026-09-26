@@ -41,7 +41,7 @@ import {
   useUserTeam,
 } from '../../api/hooks'
 import { SPONSOR_DEAL_LABEL_KEYS, type ClassificationPosition, type FinancesResponse, type Player, type Team, type TeamMatchSummary } from '../../api/types'
-import { mightStillBeLive } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -67,8 +67,16 @@ export function DashboardPage() {
   }
 
   const { team, players } = userTeam
-  const playedMatches = teamMatches?.filter((m) => m.played).sort((a, b) => b.matchDate.localeCompare(a.matchDate))
-  const nextMatch = teamMatches?.filter((m) => !m.played).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
+  // A league match or friendly is read into simulation up to 15 minutes before its scheduled
+  // matchDate (see backend GetSimulableMatchesStmtSql/GetSimulableFriendliesStmtSql), so `played`
+  // can flip true while matchDate is still in the future. Gating on isPast too keeps such a match
+  // out of the recent-results/streak list, and in the upcoming list, until its advertised kickoff
+  // has actually arrived - otherwise the dashboard would announce it as live, or already won or
+  // lost, before the viewer ever saw it start.
+  const playedMatches = teamMatches
+    ?.filter((m) => m.played && isPast(m.matchDate))
+    .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
+  const nextMatch = teamMatches?.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
   const lastMatch = playedMatches?.[0]
   const recentForm = playedMatches?.slice(0, 5).reverse()
   const standing = division?.classification.positions.find((p) => p.teamId === team.id)

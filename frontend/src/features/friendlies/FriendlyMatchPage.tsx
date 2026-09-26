@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
 import type { FriendlyMatch, Player, Team, WeekMatch } from '../../api/types'
-import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
@@ -33,10 +33,10 @@ export function FriendlyMatchPage() {
     return <Skeleton variant="rectangular" height={200} />
   }
 
-  // Show the live view whenever the broadcast might still be going, and stick with it until the
-  // broadcast itself reports completion via onComplete - see MatchDetailsPage's identical
-  // reasoning (issue #37).
-  if ((!match.played || mightStillBeLive(match.matchDate)) && !liveComplete) {
+  // Show the live view whenever kickoff hasn't happened yet or the broadcast might still be
+  // going, and stick with it until the broadcast itself reports completion via onComplete - see
+  // MatchDetailsPage's identical reasoning (issue #37).
+  if ((!isPast(match.matchDate) || mightStillBeLive(match.matchDate)) && !liveComplete) {
     return (
       <LiveFriendly
         id={id}

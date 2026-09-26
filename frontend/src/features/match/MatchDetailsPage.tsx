@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
 import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
-import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -38,15 +38,17 @@ export function MatchDetailsPage() {
     return <Skeleton variant="rectangular" height={200} />
   }
 
-  // Show the live view whenever the broadcast might still be going, not only while `match.played`
-  // is still false: that flag flips true in the DB the instant the match is simulated, well
-  // before the live broadcast finishes pacing its minutes out to a viewer (see
-  // liveMatchMinuteDelay in backend/engine/livematch.go) - a viewer who opens this page any time
-  // in that window still needs the live view (backend/handlers/liveMatchHandlers.go now catches
-  // them up on everything already broadcast), not the long-finished-match view (issue #37). Once
-  // shown, stick with the live view until the broadcast itself reports completion via onComplete,
-  // rather than switching the moment the next REST poll notices `played`.
-  if ((!match.played || mightStillBeLive(match.matchDate)) && !liveComplete) {
+  // Show the live view whenever kickoff hasn't happened yet or the broadcast might still be
+  // going, not only while `match.played` is still false: that flag flips true in the DB up to 15
+  // minutes before matchDate (the match is read into simulation early - see
+  // GetSimulableMatchesStmtSql) and again well before the live broadcast finishes pacing its
+  // minutes out to a viewer (see liveMatchMinuteDelay in backend/engine/livematch.go) - a viewer
+  // who opens this page any time up to matchDate, or in the broadcast window after it, still needs
+  // the live view (backend/handlers/liveMatchHandlers.go now catches them up on everything already
+  // broadcast, or waits for kickoff), not the long-finished-match view (issue #37). Once shown,
+  // stick with the live view until the broadcast itself reports completion via onComplete, rather
+  // than switching the moment the next REST poll notices `played`.
+  if ((!isPast(match.matchDate) || mightStillBeLive(match.matchDate)) && !liveComplete) {
     const isParticipant = userTeam?.team.id === match.home || userTeam?.team.id === match.away
     return (
       <LiveMatch

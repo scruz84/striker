@@ -88,7 +88,14 @@ const reconnectDelayMs = 3000
 const maxLiveBroadcastWindowMs = 2 * 60 * 60 * 1000
 
 export function mightStillBeLive(matchDate: string): boolean {
-  return Date.now() - new Date(matchDate).getTime() < maxLiveBroadcastWindowMs
+  const elapsedMs = Date.now() - new Date(matchDate).getTime()
+  // A friendly or league match is read into simulation up to 15 minutes before its scheduled
+  // matchDate (see GetSimulableFriendliesStmtSql/GetSimulableMatchesStmtSql), so `played` can
+  // already be true while matchDate itself is still in the future. Without the elapsedMs >= 0
+  // guard, that negative elapsed time trivially satisfies "< maxLiveBroadcastWindowMs" and every
+  // caller pairing this with `played` (the live banner, "LIVE" chips, recent-form results) would
+  // treat a match as in progress, or already decided, before its advertised kickoff has arrived.
+  return elapsedMs >= 0 && elapsedMs < maxLiveBroadcastWindowMs
 }
 
 // isPast reports whether the given ISO timestamp has already arrived. Callers use this instead

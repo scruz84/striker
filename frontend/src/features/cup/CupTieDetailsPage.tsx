@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team } from '../../api/types'
-import { mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
@@ -35,10 +35,10 @@ export function CupTieDetailsPage() {
     return <ByeTie tie={tie} />
   }
 
-  // Show the live view whenever the broadcast might still be going, and stick with it until the
-  // broadcast itself reports completion via onComplete - see MatchDetailsPage's identical
-  // reasoning (issue #37).
-  if ((!tie.played || mightStillBeLive(tie.matchDate ?? '')) && !liveComplete) {
+  // Show the live view whenever kickoff hasn't happened yet or the broadcast might still be
+  // going, and stick with it until the broadcast itself reports completion via onComplete - see
+  // MatchDetailsPage's identical reasoning (issue #37).
+  if ((!isPast(tie.matchDate ?? '') || mightStillBeLive(tie.matchDate ?? '')) && !liveComplete) {
     const isParticipant = userTeam?.team.id === tie.homeTeamId || userTeam?.team.id === tie.awayTeamId
     return (
       <LiveTie

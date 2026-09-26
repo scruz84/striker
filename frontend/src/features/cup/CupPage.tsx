@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
 import type { CupTie } from '../../api/types'
-import { mightStillBeLive } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -79,7 +79,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
           <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
         ) : (
           <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
-            {isBye ? t('cup.bye') : tie.played ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
+            {isBye ? t('cup.bye') : tie.played && isPast(tie.matchDate ?? '') ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
           </Typography>
         )}
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>

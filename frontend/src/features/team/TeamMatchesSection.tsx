@@ -8,7 +8,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTeamMatches } from '../../api/hooks'
 import type { TeamMatchSummary } from '../../api/types'
-import { mightStillBeLive } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
@@ -26,9 +26,13 @@ export function TeamMatchesSection({ teamId }: { teamId: string }) {
     return <Skeleton variant="rectangular" height={200} />
   }
 
-  const upcoming = matches.filter((m) => !m.played).sort((a, b) => a.matchDate.localeCompare(b.matchDate))
+  // A match is read into simulation up to 15 minutes before its scheduled matchDate (see backend
+  // GetSimulableMatchesStmtSql/GetSimulableFriendliesStmtSql), so `played` can flip true while
+  // matchDate is still ahead - bucket by isPast instead so such a match still shows as upcoming
+  // until its advertised kickoff actually arrives.
+  const upcoming = matches.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))
   const played = matches
-    .filter((m) => m.played)
+    .filter((m) => m.played && isPast(m.matchDate))
     .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
 
   return (
@@ -112,7 +116,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
             {formatDayTime(match.matchDate)}
           </Typography>
           <Typography variant="body2" noWrap sx={{ flexShrink: 0, minWidth: 32, textAlign: 'right', fontWeight: 700 }}>
-            {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '-'}
+            {match.played && isPast(match.matchDate) ? `${match.homeGoals} - ${match.awayGoals}` : '-'}
           </Typography>
         </>
       )}

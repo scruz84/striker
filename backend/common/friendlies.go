@@ -374,13 +374,17 @@ func GetFriendlyChallengesSent(dbCtx *DatabaseContext, teamId int64) ([]Friendly
 	return scanFriendlyChallenges(rows)
 }
 
+// fm.match_date > now() (rather than fm.played = false) keeps a friendly "upcoming" up to its own
+// kickoff even though it's read into simulation up to 15 minutes early and `played` flips true
+// before then (see GetSimulableFriendliesStmtSql) - otherwise it would vanish from "upcoming" and
+// show up in "recent" (below) with its final score, before the viewer ever saw it kick off.
 const GetUpcomingFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE (fm.home_team_id = $1 OR fm.away_team_id = $1) AND fm.played = false ORDER BY fm.match_date ASC"
+	"WHERE (fm.home_team_id = $1 OR fm.away_team_id = $1) AND fm.match_date > now() ORDER BY fm.match_date ASC"
 
 const GetRecentFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE (fm.home_team_id = $1 OR fm.away_team_id = $1) AND fm.played = true ORDER BY fm.match_date DESC LIMIT $2"
+	"WHERE (fm.home_team_id = $1 OR fm.away_team_id = $1) AND fm.played = true AND fm.match_date <= now() ORDER BY fm.match_date DESC LIMIT $2"
 
 func scanFriendlyMatches(rows *sql.Rows) ([]FriendlyMatch, error) {
 	defer rows.Close()
@@ -396,7 +400,8 @@ func scanFriendlyMatches(rows *sql.Rows) ([]FriendlyMatch, error) {
 	return matches, nil
 }
 
-// GetUpcomingFriendlies lists teamId's accepted-but-not-yet-played friendlies, soonest first.
+// GetUpcomingFriendlies lists teamId's accepted friendlies whose kickoff hasn't arrived yet,
+// soonest first - see GetUpcomingFriendliesStmtSql on why that's match_date rather than played.
 func GetUpcomingFriendlies(dbCtx *DatabaseContext, teamId int64) ([]FriendlyMatch, error) {
 	rows, err := dbCtx.Db.Query(GetUpcomingFriendliesStmtSql, teamId)
 	if err != nil {
@@ -405,7 +410,8 @@ func GetUpcomingFriendlies(dbCtx *DatabaseContext, teamId int64) ([]FriendlyMatc
 	return scanFriendlyMatches(rows)
 }
 
-// GetRecentFriendlies lists teamId's most recently played friendlies, most recent first.
+// GetRecentFriendlies lists teamId's most recently kicked-off, played friendlies, most recent
+// first.
 func GetRecentFriendlies(dbCtx *DatabaseContext, teamId int64, limit int) ([]FriendlyMatch, error) {
 	rows, err := dbCtx.Db.Query(GetRecentFriendliesStmtSql, teamId, limit)
 	if err != nil {

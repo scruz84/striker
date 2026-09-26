@@ -22,7 +22,7 @@ import type { ClassificationPosition, ScorerStanding, WeekMatch } from '../../ap
 import { TeamBadge } from '../../components/TeamBadge'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
-import { mightStillBeLive } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 
@@ -374,7 +374,7 @@ function FixturesCard({ title, matches }: { title: string; matches: WeekMatch[] 
                       <Chip label={t('match.live')} color="error" size="small" sx={{ display: 'flex', mx: 'auto', width: 'fit-content', fontWeight: 700 }} />
                     ) : (
                       <Typography variant="body2" align="center" sx={{ fontWeight: 700 }}>
-                        {match.played ? `${match.homeGoals} - ${match.awayGoals}` : t('division.vs')}
+                        {match.played && isPast(match.matchDate) ? `${match.homeGoals} - ${match.awayGoals}` : t('division.vs')}
                       </Typography>
                     )}
                   </Grid>
