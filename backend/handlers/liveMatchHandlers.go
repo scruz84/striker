@@ -33,6 +33,19 @@ const liveMatchWriteTimeout = 10 * time.Second
 // like any other dropped connection, so this is a safe, ordinary case for it to handle.
 const liveMatchMaxConnectionLifetime = 3 * time.Hour
 
+// liveMatchStaleTimeout bounds how long serveLiveMatch will wait for the next broadcast message
+// once the broadcast has demonstrably started (there's history, or a message has arrived live)
+// before concluding it died partway through - a backend crash or redeploy kills
+// engine.BroadcastMatchLive's goroutine outright, with nothing left to ever publish a "complete"
+// for that channel again, yet leaves this handler's own connection sitting open, so without a
+// bound a reconnecting viewer would otherwise be stuck watching a frozen minute for as long as
+// liveMatchMaxConnectionLifetime allows.
+//
+// It has to clear the halftime pause (engine.liveMatchHalftimeDelay, 15 real minutes) by a
+// comfortable margin, or a perfectly healthy broadcast's halftime break would trip it - a var
+// rather than a const so tests can shrink it instead of waiting out the real duration.
+var liveMatchStaleTimeout = 18 * time.Minute
+
 // LiveMatchHandler streams a league match's events live over a WebSocket - see
 // engine.BroadcastMatchLive, which is what actually paces the messages out once the match
 // finishes simulating.
@@ -169,12 +182,31 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 	maxLifetime := time.NewTimer(liveMatchMaxConnectionLifetime)
 	defer maxLifetime.Stop()
 
+	// broadcastStarted tracks whether we know engine.BroadcastMatchLive has actually begun
+	// publishing for this channel (either it already had before we connected - non-empty
+	// history - or we've now seen a message live) - see the staleC comment below for why the
+	// stale-broadcast timeout must only apply once that's true.
+	broadcastStarted := len(history) > 0
+
 	for {
+		// Rebuilt fresh every iteration (rather than Reset/Stop on a single shared Timer) so
+		// each new wait starts its own liveMatchStaleTimeout window - simpler than the
+		// stop-drain-reset dance a shared Timer would need here, at the cost of a small timer
+		// allocation per message, which is negligible next to the once-a-minute pace these
+		// messages already come at. Left nil (blocking forever in the select below) until the
+		// broadcast is known to have started, so a match whose kickoff is still hours away
+		// doesn't get falsely declared dead just for sitting quiet that long.
+		var staleC <-chan time.Time
+		if broadcastStarted {
+			staleC = time.After(liveMatchStaleTimeout)
+		}
+
 		select {
 		case msg, ok := <-ch:
 			if !ok {
 				return
 			}
+			broadcastStarted = true
 			// Already delivered as part of the history catch-up above - skip the duplicate that
 			// arrives here whenever it was published in the small window between subscribing and
 			// reading history.
@@ -189,6 +221,15 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 				return
 			}
 		case <-done:
+			return
+		case <-staleC:
+			// The match is already fully simulated and persisted by the time
+			// engine.BroadcastMatchLive ever starts publishing (see simulateMatch/
+			// simulateCupTie/simulateFriendly), so homeGoals/awayGoals here are already the
+			// correct final score regardless of how much of the broadcast itself the viewer
+			// actually got to see.
+			log.Warnf("live match broadcast for %s went stale (no message for %s) - reporting final result", channel, liveMatchStaleTimeout)
+			_ = conn.WriteJSON(common.LiveMatchMessage{Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals})
 			return
 		case <-maxLifetime.C:
 			log.Warnf("live match connection for %s exceeded max lifetime without completing - closing", channel)
