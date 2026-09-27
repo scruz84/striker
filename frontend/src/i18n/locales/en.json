@@ -42,6 +42,7 @@
       "internationalCup": "International Cup",
       "friendlies": "Friendlies",
       "friendGroups": "Friend groups",
+      "help": "Help",
       "admin": "Admin",
       "logout": "Logout"
     }
@@ -1071,5 +1072,238 @@
     "subtitle": "Browse every league in the game world and see its standings and squads - not just your own.",
     "tier": "Tier {{tier}}",
     "none": "No leagues have been generated yet."
+  },
+  "help": {
+    "title": "Help & how to play",
+    "subtitle": "Everything you need to know about running your club, from claiming a team to lifting the cup.",
+    "sections": {
+      "gettingStarted": {
+        "title": "Getting started",
+        "items": [
+          {
+            "q": "How do I start playing?",
+            "a": "Sign in with your Google account, then pick a country. You're assigned an open team in that country, starting from the top division down, so you always begin with the best available club."
+          },
+          {
+            "q": "Can I choose which team I get?",
+            "a": "No - you get whichever unowned team is open in the country you picked. Every division fills from the top tier downward."
+          },
+          {
+            "q": "Can I rename my team?",
+            "a": "Yes, once, from the dashboard. Names must be between 2 and 50 characters."
+          },
+          {
+            "q": "What's the goal of the game?",
+            "a": "Build your club over an ongoing series of seasons: win matches, earn promotion, manage your finances, develop your squad, and chase silverware in the cup competitions."
+          }
+        ]
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "items": [
+          {
+            "q": "What does the dashboard show me?",
+            "a": "Your next match and last result, your top scorer, head-to-head history against your next opponent, your friend-group rank, and quick links to your squad, finances, and lineup."
+          },
+          {
+            "q": "What are those alert banners for?",
+            "a": "The dashboard flags anything that needs your attention: contracts expiring at season end, players unavailable through injury or suspension, pending transfer offers and friendly challenges, and whether your budget is running low."
+          },
+          {
+            "q": "What is \"Live around the world\"?",
+            "a": "A feed of matches other managers are currently playing live, anywhere in the game world. Pick one to watch it unfold, or ask for another suggestion."
+          }
+        ]
+      },
+      "lineup": {
+        "title": "Squad & lineup",
+        "items": [
+          {
+            "q": "How do I set my lineup?",
+            "a": "Tap a player to pick them up, then tap a spot on the pitch or the bench to place them there. Every outfield slot must be filled before you can save."
+          },
+          {
+            "q": "What formations can I use?",
+            "a": "Balanced (4-4-2), Defensive (5-3-2), Attacking (3-4-3), Wingers (4-3-3), Packed midfield (4-5-1), and Wing-backs (3-5-2). Each spreads your players across defense, midfield, and attack differently."
+          },
+          {
+            "q": "Do I need separate lineups for league/cup and friendly matches?",
+            "a": "You can set one, but you don't have to - a friendly match falls back to your league/cup default lineup if you haven't set one specifically for friendlies. Planned substitutions are shared between both."
+          },
+          {
+            "q": "What are planned substitutions?",
+            "a": "You can schedule a limited number of substitutions to happen automatically during a match, choosing who comes off, who comes on, and at what minute - useful for resting players or reacting to the clock without watching live."
+          },
+          {
+            "q": "When does the lineup lock?",
+            "a": "Shortly before kickoff, so last-second changes can't sneak into a match that's about to start. Save your lineup ahead of time to be safe."
+          },
+          {
+            "q": "What if a starter is injured or suspended?",
+            "a": "You can still save them in your default lineup, but they won't actually play in any match while unavailable - swap them out before the real kickoff."
+          }
+        ]
+      },
+      "matches": {
+        "title": "Matches",
+        "items": [
+          {
+            "q": "How are matches played out?",
+            "a": "Every match simulates live, minute by minute, with commentary, goals, cards, injuries, and substitutions appearing as they happen. You can follow along in real time or check back for the result afterward."
+          },
+          {
+            "q": "What decides who scores?",
+            "a": "The simulation compares each team's attack on a flank against the opponent's defense on the mirrored flank plus their goalkeeper (and likewise for midfield) - never a zone against that same zone. The \"Position battle\" tab shows these matchups as the match unfolds."
+          },
+          {
+            "q": "What else can I check during or after a match?",
+            "a": "Player ratings minute-by-minute, a full event timeline, both lineups, and a written match report summarizing chances, cards, and injuries."
+          },
+          {
+            "q": "When are matches scheduled?",
+            "a": "League fixtures are dated on the days and kickoff time configured for your league (set by the admins), one matchday per game week."
+          }
+        ]
+      },
+      "transfers": {
+        "title": "Transfer market",
+        "items": [
+          {
+            "q": "How do I buy a player?",
+            "a": "Buy a listed player outright at their asking price - the fee is deducted from your budget immediately."
+          },
+          {
+            "q": "How do transfer offers work?",
+            "a": "From a player's page, or on a market listing, propose a fee to their club plus the wage and contract length you're offering the player. The player judges the personal terms on the spot, before their club ever sees the fee. An accepted offer needs to sit open for a minimum time first, so the seller has a chance to compare it against other offers before committing."
+          },
+          {
+            "q": "How do loans work?",
+            "a": "Loans are free, with no transfer fee - list one of your players for loan, or take another team's player on loan for a set number of seasons. They return to their parent club automatically once the loan ends."
+          },
+          {
+            "q": "What are free agents?",
+            "a": "Unowned players you can sign directly by proposing a wage and contract length. If they were released recently, their former club may be owed a transfer premium when you sign them."
+          },
+          {
+            "q": "What's the transfer window?",
+            "a": "Listing, buying, and accepting loan or offer deals only work while the transfer window is open. It closes and reopens on a schedule set by the admins."
+          },
+          {
+            "q": "What happens if my budget is deep in debt?",
+            "a": "Once your club is insolvent, buying, signing, and taking players on loan are all blocked until your budget recovers - but selling or releasing players stays available so you can dig yourself out."
+          }
+        ]
+      },
+      "squadDevelopment": {
+        "title": "Squad development",
+        "items": [
+          {
+            "q": "How does the youth academy work?",
+            "a": "Your academy periodically produces a prospect ready for promotion to the first team. You can only promote one at a time, and there's a cooldown before the next one becomes available."
+          },
+          {
+            "q": "What does a head coach do?",
+            "a": "Hiring a head coach speeds up every player's development and raises the quality of prospects your academy produces. There's no signing fee, just their wage, and you can fire them back to the open market at any time."
+          },
+          {
+            "q": "How do players improve or decline?",
+            "a": "After matches, players can develop - their skills shift up or down based on age, playing time, and coaching. Check the evolution page to see what changed for your squad this season."
+          },
+          {
+            "q": "How do contracts and renewals work?",
+            "a": "Offer a wage and contract length; the player decides on the spot based on what they think they're worth and how many seasons they're willing to commit to. Releasing a player ends their contract immediately and they can't be brought back."
+          },
+          {
+            "q": "Do players age and retire?",
+            "a": "Yes - every player ages over time, developing early in their career and declining as they approach retirement, so your squad needs constant refreshing through the academy and transfer market."
+          }
+        ]
+      },
+      "finances": {
+        "title": "Finances & stadium",
+        "items": [
+          {
+            "q": "Where does my budget come from?",
+            "a": "Ticket revenue, sponsorship payments, prize money, season ticket sales, merchandising, and any transfer fees you receive - weighed against wages, transfer spending, and stadium upgrades."
+          },
+          {
+            "q": "What are sponsor deals?",
+            "a": "Each season you pick one of three deals: Steady pays the highest guaranteed amount every match with no bonus; Balanced pays a solid guaranteed amount plus a bonus for a win or draw; Performance pays the least guaranteed but the biggest bonus for a good result. You're locked into your choice for the season, and can switch again once it rolls over."
+          },
+          {
+            "q": "How do I expand my stadium?",
+            "a": "Choose a new seat count within the allowed range. The cost is deducted immediately, and construction takes about a week before the extra capacity is ready."
+          },
+          {
+            "q": "Can I change my ticket price?",
+            "a": "Yes, from the finances page - it directly affects how much matchday revenue you earn per attendee."
+          },
+          {
+            "q": "What does the cash-flow forecast tell me?",
+            "a": "Your estimated weekly income against your weekly wage bill, and roughly how many weeks it'll take to hit the debt ceiling if nothing changes - a heads-up before you actually go insolvent."
+          }
+        ]
+      },
+      "leagues": {
+        "title": "Leagues, promotion & relegation",
+        "items": [
+          {
+            "q": "How is the game world organized?",
+            "a": "Each country has several tiers, each tier split into groups (leagues) of teams. You can browse every country, tier, and league in the world from the Leagues page, including standings and squads - not just your own."
+          },
+          {
+            "q": "How does promotion and relegation work?",
+            "a": "At the end of each season, a set number of teams move up from each group to the tier above, and a set number move down to the tier below - keeping every division competitive over time."
+          },
+          {
+            "q": "What do the standings columns mean?",
+            "a": "Points, average, wins, draws, and losses, plus goals for and against - the usual league-table numbers, updated after every matchday."
+          }
+        ]
+      },
+      "cup": {
+        "title": "Cup & international cup",
+        "items": [
+          {
+            "q": "How does the domestic cup work?",
+            "a": "A straight knockout: quarterfinals, semifinals, and a final. If a tie is level after normal play, it's settled on penalties. A team can also get a bye through a round if the bracket doesn't fill evenly."
+          },
+          {
+            "q": "What is the international cup?",
+            "a": "A regional knockout competition between clubs from different countries. It only starts once at least two countries in that region are active and have completed a season."
+          }
+        ]
+      },
+      "friendlies": {
+        "title": "Friendlies",
+        "items": [
+          {
+            "q": "What's a friendly match?",
+            "a": "A non-competitive match against another team - it has no effect on your league position and pays no ticket revenue, so it's a safe way to test tactics or just play more football."
+          },
+          {
+            "q": "How do I set one up?",
+            "a": "Challenge a team directly (optionally proposing a kickoff time). They have to accept before it's scheduled, and there's a weekly limit on how many friendlies a team can accept, set by the admins."
+          },
+          {
+            "q": "What days can friendlies kick off on?",
+            "a": "Whichever weekdays are enabled by the admins. An accepted challenge is scheduled as soon as possible, pushed forward to the next allowed day if needed."
+          }
+        ]
+      },
+      "groups": {
+        "title": "Friend groups",
+        "items": [
+          {
+            "q": "What are friend groups?",
+            "a": "A private leaderboard between you and your friends' teams, ranked by budget. It's not a real league or competition - just bragging rights over the clubs you already manage."
+          },
+          {
+            "q": "How do I join or create one?",
+            "a": "Create a group with a name to get an invite code, or join an existing group using a code someone shares with you. You can leave a group at any time, or delete one you created."
+          }
+        ]
+      }
+    }
   }
 }

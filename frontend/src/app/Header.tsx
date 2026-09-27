@@ -45,6 +45,11 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
               <Logo />
             </Link>
           </Box>
+          {!loggedUser && (
+            <Link component={RouterLink} to="/help" underline="hover" color="inherit" sx={{ mr: 2 }}>
+              {t('header.nav.help')}
+            </Link>
+          )}
           <ThemeModeToggle />
           <LanguageSwitcher />
           <NotificationBell />

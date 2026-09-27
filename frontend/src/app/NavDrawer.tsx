@@ -6,6 +6,7 @@ import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone'
 import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
 import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
@@ -68,6 +69,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
     { to: '/international-cup', label: t('header.nav.internationalCup'), icon: <WorkspacePremiumTwoToneIcon /> },
     { to: '/friendlies', label: t('header.nav.friendlies'), icon: <HandshakeTwoToneIcon /> },
     { to: '/groups', label: t('header.nav.friendGroups'), icon: <GroupsTwoToneIcon /> },
+    { to: '/help', label: t('header.nav.help'), icon: <HelpTwoToneIcon /> },
     ...(loggedUser.isAdmin
       ? [{ to: '/admin', label: t('header.nav.admin'), icon: <AdminPanelSettingsTwoToneIcon /> }]
       : []),

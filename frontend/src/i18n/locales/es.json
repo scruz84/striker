@@ -42,6 +42,7 @@
       "internationalCup": "Copa Internacional",
       "friendlies": "Amistosos",
       "friendGroups": "Grupos de amigos",
+      "help": "Ayuda",
       "admin": "Administración",
       "logout": "Cerrar sesión"
     }
@@ -1071,5 +1072,238 @@
     "subtitle": "Explora todas las ligas del mundo del juego y consulta su clasificación y plantillas, no solo la tuya.",
     "tier": "Nivel {{tier}}",
     "none": "Todavía no se ha generado ninguna liga."
+  },
+  "help": {
+    "title": "Ayuda y cómo jugar",
+    "subtitle": "Todo lo que necesitas saber para dirigir tu club, desde reclamar un equipo hasta levantar la copa.",
+    "sections": {
+      "gettingStarted": {
+        "title": "Primeros pasos",
+        "items": [
+          {
+            "q": "¿Cómo empiezo a jugar?",
+            "a": "Inicia sesión con tu cuenta de Google y elige un país. Se te asigna un equipo libre de ese país, empezando por la división más alta, así que siempre comienzas con el mejor club disponible."
+          },
+          {
+            "q": "¿Puedo elegir qué equipo me toca?",
+            "a": "No: recibes el equipo libre que haya disponible en el país elegido. Cada división se completa de arriba hacia abajo."
+          },
+          {
+            "q": "¿Puedo cambiar el nombre de mi equipo?",
+            "a": "Sí, una única vez, desde el panel principal. El nombre debe tener entre 2 y 50 caracteres."
+          },
+          {
+            "q": "¿Cuál es el objetivo del juego?",
+            "a": "Construir tu club a lo largo de una serie continua de temporadas: gana partidos, consigue ascensos, gestiona tus finanzas, desarrolla tu plantilla y lucha por los títulos en las competiciones de copa."
+          }
+        ]
+      },
+      "dashboard": {
+        "title": "Panel principal",
+        "items": [
+          {
+            "q": "¿Qué muestra el panel principal?",
+            "a": "Tu próximo partido y el último resultado, tu máximo goleador, el historial de enfrentamientos contra tu próximo rival, tu posición en el grupo de amigos y accesos directos a tu plantilla, finanzas y alineación."
+          },
+          {
+            "q": "¿Para qué son esos avisos?",
+            "a": "El panel señala todo lo que requiere tu atención: contratos que vencen al final de la temporada, jugadores no disponibles por lesión o sanción, ofertas de traspaso y retos amistosos pendientes, y si tu presupuesto anda escaso."
+          },
+          {
+            "q": "¿Qué es \"En directo por el mundo\"?",
+            "a": "Una lista de partidos que otros usuarios están jugando en directo ahora mismo, en cualquier parte del mundo del juego. Elige uno para verlo en vivo, o pide otra sugerencia."
+          }
+        ]
+      },
+      "lineup": {
+        "title": "Plantilla y alineación",
+        "items": [
+          {
+            "q": "¿Cómo configuro mi alineación?",
+            "a": "Toca un jugador para seleccionarlo y luego toca una posición del campo o el banquillo para colocarlo ahí. Hay que rellenar todas las posiciones antes de poder guardar."
+          },
+          {
+            "q": "¿Qué formaciones puedo usar?",
+            "a": "Equilibrada (4-4-2), Defensiva (5-3-2), Ofensiva (3-4-3), Extremos (4-3-3), Medio campo reforzado (4-5-1) y Carrileros (3-5-2). Cada una reparte a tus jugadores de forma distinta entre defensa, medio campo y ataque."
+          },
+          {
+            "q": "¿Necesito alineaciones distintas para liga/copa y para amistosos?",
+            "a": "Puedes configurar una específica, pero no es obligatorio: un amistoso usa tu alineación por defecto de liga/copa si no has definido una propia para amistosos. Las sustituciones programadas se comparten entre ambas."
+          },
+          {
+            "q": "¿Qué son las sustituciones programadas?",
+            "a": "Puedes programar un número limitado de cambios para que ocurran automáticamente durante el partido, eligiendo quién sale, quién entra y en qué minuto - útil para dosificar esfuerzos o reaccionar al reloj sin ver el partido en directo."
+          },
+          {
+            "q": "¿Cuándo se bloquea la alineación?",
+            "a": "Poco antes del saque inicial, para que los cambios de última hora no lleguen a tiempo a un partido que está a punto de empezar. Guarda tu alineación con antelación para evitar sorpresas."
+          },
+          {
+            "q": "¿Qué pasa si un titular está lesionado o sancionado?",
+            "a": "Puedes guardarlo igualmente en tu alineación por defecto, pero no jugará ningún partido mientras no esté disponible - sustitúyelo antes del partido real."
+          }
+        ]
+      },
+      "matches": {
+        "title": "Partidos",
+        "items": [
+          {
+            "q": "¿Cómo se juegan los partidos?",
+            "a": "Cada partido se simula en directo, minuto a minuto, con comentarios, goles, tarjetas, lesiones y cambios que van apareciendo según ocurren. Puedes seguirlo en tiempo real o consultar el resultado más tarde."
+          },
+          {
+            "q": "¿Qué determina quién marca?",
+            "a": "La simulación compara el ataque de cada equipo por un lateral contra la defensa rival del lateral opuesto más su portero (y lo mismo en el medio campo) - nunca una zona contra esa misma zona. La pestaña \"Duelo por zonas\" muestra estos enfrentamientos mientras avanza el partido."
+          },
+          {
+            "q": "¿Qué más puedo consultar durante o después de un partido?",
+            "a": "Las valoraciones de los jugadores minuto a minuto, la línea de tiempo completa de eventos, ambas alineaciones y una crónica escrita que resume ocasiones, tarjetas y lesiones."
+          },
+          {
+            "q": "¿Cuándo se programan los partidos?",
+            "a": "Los partidos de liga se fechan según los días y la hora de inicio configurados para tu liga (definidos por la administración), una jornada por semana de juego."
+          }
+        ]
+      },
+      "transfers": {
+        "title": "Mercado de fichajes",
+        "items": [
+          {
+            "q": "¿Cómo compro un jugador?",
+            "a": "Puedes comprar directamente un jugador listado por su precio de venta - el importe se descuenta de tu presupuesto de inmediato."
+          },
+          {
+            "q": "¿Cómo funcionan las ofertas de traspaso?",
+            "a": "Desde la ficha de un jugador, o sobre un anuncio del mercado, propones una cantidad a su club junto con el salario y la duración del contrato que le ofreces al jugador. El jugador valora las condiciones personales al instante, antes de que su club vea la oferta económica. Una oferta debe permanecer abierta un tiempo mínimo antes de poder aceptarse, para que el vendedor pueda comparar otras ofertas antes de decidir."
+          },
+          {
+            "q": "¿Cómo funcionan los préstamos?",
+            "a": "Los préstamos son gratuitos, sin comisión de traspaso - puedes ceder a uno de tus jugadores o tomar prestado el de otro equipo durante un número de temporadas. Vuelven automáticamente a su club de origen cuando termina el préstamo."
+          },
+          {
+            "q": "¿Qué son los agentes libres?",
+            "a": "Jugadores sin equipo a los que puedes fichar directamente proponiendo un salario y una duración de contrato. Si fueron liberados recientemente, es posible que su antiguo club reciba una prima de traspaso cuando los fiches."
+          },
+          {
+            "q": "¿Qué es el mercado de fichajes (ventana)?",
+            "a": "Listar jugadores, comprar y aceptar préstamos u ofertas solo funciona mientras la ventana de fichajes está abierta. Se abre y se cierra según un calendario definido por la administración."
+          },
+          {
+            "q": "¿Qué pasa si mi presupuesto está muy en números rojos?",
+            "a": "Cuando tu club entra en números rojos, comprar, fichar y tomar jugadores en préstamo quedan bloqueados hasta que tu presupuesto se recupere - pero vender o rescindir contratos de jugadores sigue disponible para ayudarte a salir del apuro."
+          }
+        ]
+      },
+      "squadDevelopment": {
+        "title": "Desarrollo de la plantilla",
+        "items": [
+          {
+            "q": "¿Cómo funciona la cantera?",
+            "a": "Tu cantera produce periódicamente un canterano listo para subir al primer equipo. Solo puedes promocionar uno cada vez, y hay un tiempo de espera antes de que aparezca el siguiente."
+          },
+          {
+            "q": "¿Qué hace un entrenador?",
+            "a": "Contratar un entrenador acelera el desarrollo de todos tus jugadores y mejora la calidad de los canteranos que produce tu cantera. No hay comisión de fichaje, solo su salario, y puedes despedirlo en cualquier momento para que vuelva al mercado."
+          },
+          {
+            "q": "¿Cómo mejoran o empeoran los jugadores?",
+            "a": "Después de los partidos, los jugadores pueden evolucionar - sus habilidades suben o bajan según la edad, los minutos jugados y el entrenador. Consulta la página de evolución para ver qué ha cambiado en tu plantilla esta temporada."
+          },
+          {
+            "q": "¿Cómo funcionan los contratos y las renovaciones?",
+            "a": "Propón un salario y una duración; el jugador decide al instante según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse. Rescindir el contrato de un jugador lo saca de tu plantilla de inmediato y no se puede recuperar."
+          },
+          {
+            "q": "¿Los jugadores envejecen y se retiran?",
+            "a": "Sí: todos los jugadores envejecen con el tiempo, mejorando al principio de su carrera y declinando a medida que se acercan al retiro, por lo que tu plantilla necesita renovarse constantemente a través de la cantera y el mercado de fichajes."
+          }
+        ]
+      },
+      "finances": {
+        "title": "Finanzas y estadio",
+        "items": [
+          {
+            "q": "¿De dónde sale mi presupuesto?",
+            "a": "Ingresos por entradas, pagos de patrocinio, premios en metálico, venta de abonos, merchandising y cualquier traspaso que recibas - frente a los salarios, el gasto en fichajes y las mejoras del estadio."
+          },
+          {
+            "q": "¿Qué son los acuerdos de patrocinio?",
+            "a": "Cada temporada eliges uno de tres acuerdos: Estable paga el importe garantizado más alto en cada partido sin bonificación; Equilibrado paga un importe garantizado sólido más una bonificación por victoria o empate; Rendimiento paga lo mínimo garantizado pero la mayor bonificación por un buen resultado. Tu elección queda fijada para toda la temporada y puedes cambiarla de nuevo cuando esta termine."
+          },
+          {
+            "q": "¿Cómo amplío mi estadio?",
+            "a": "Elige una nueva capacidad dentro del rango permitido. El coste se descuenta de inmediato y la construcción tarda alrededor de una semana en estar lista."
+          },
+          {
+            "q": "¿Puedo cambiar el precio de las entradas?",
+            "a": "Sí, desde la página de finanzas - afecta directamente a cuánto ingresas por cada asistente en cada partido."
+          },
+          {
+            "q": "¿Qué me indica la previsión de flujo de caja?",
+            "a": "Tu ingreso semanal estimado frente a tu masa salarial semanal, y aproximadamente cuántas semanas tardarías en llegar al límite de deuda si nada cambia - un aviso antes de entrar realmente en números rojos."
+          }
+        ]
+      },
+      "leagues": {
+        "title": "Ligas, ascensos y descensos",
+        "items": [
+          {
+            "q": "¿Cómo está organizado el mundo del juego?",
+            "a": "Cada país tiene varios niveles, y cada nivel se divide en grupos (ligas) de equipos. Puedes explorar todos los países, niveles y ligas del mundo desde la página de Ligas, incluidas sus clasificaciones y plantillas - no solo las tuyas."
+          },
+          {
+            "q": "¿Cómo funcionan los ascensos y descensos?",
+            "a": "Al final de cada temporada, un número determinado de equipos sube de cada grupo al nivel superior, y otro número determinado baja al nivel inferior, manteniendo todas las divisiones competitivas con el tiempo."
+          },
+          {
+            "q": "¿Qué significan las columnas de la clasificación?",
+            "a": "Puntos, promedio, victorias, empates y derrotas, además de goles a favor y en contra - los datos habituales de una tabla de liga, actualizados después de cada jornada."
+          }
+        ]
+      },
+      "cup": {
+        "title": "Copa y copa internacional",
+        "items": [
+          {
+            "q": "¿Cómo funciona la copa nacional?",
+            "a": "Es una eliminatoria directa: cuartos de final, semifinales y una final. Si una eliminatoria termina empatada tras el partido, se decide por penaltis. Un equipo también puede pasar de ronda con un \"bye\" si el cuadro no se completa de forma pareja."
+          },
+          {
+            "q": "¿Qué es la copa internacional?",
+            "a": "Una competición eliminatoria regional entre clubes de distintos países. Solo comienza una vez que al menos dos países de esa región están activos y han terminado una temporada."
+          }
+        ]
+      },
+      "friendlies": {
+        "title": "Amistosos",
+        "items": [
+          {
+            "q": "¿Qué es un partido amistoso?",
+            "a": "Un partido no competitivo contra otro equipo - no afecta a tu posición en la liga ni genera ingresos por entradas, así que es una forma segura de probar tácticas o simplemente jugar más partidos."
+          },
+          {
+            "q": "¿Cómo organizo uno?",
+            "a": "Reta directamente a un equipo (proponiendo opcionalmente una fecha y hora). El otro equipo debe aceptar antes de que se programe, y hay un límite semanal de amistosos que un equipo puede aceptar, fijado por la administración."
+          },
+          {
+            "q": "¿Qué días pueden jugarse los amistosos?",
+            "a": "Los días de la semana que la administración tenga habilitados. Un reto aceptado se programa lo antes posible, aplazándose al siguiente día permitido si hace falta."
+          }
+        ]
+      },
+      "groups": {
+        "title": "Grupos de amigos",
+        "items": [
+          {
+            "q": "¿Qué son los grupos de amigos?",
+            "a": "Una clasificación privada entre tú y los equipos de tus amigos, ordenada por presupuesto. No es una liga ni una competición real - solo presume de qué club es el más valioso entre los que ya gestionáis."
+          },
+          {
+            "q": "¿Cómo me uno o creo uno?",
+            "a": "Crea un grupo con un nombre para obtener un código de invitación, o únete a uno existente con el código que te compartan. Puedes abandonar un grupo en cualquier momento, o eliminar uno que hayas creado tú."
+          }
+        ]
+      }
+    }
   }
 }
