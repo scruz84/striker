@@ -6,6 +6,8 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // team_id is coalesced to 0 - GetPlayerById is also used to look up a free agent (e.g. from
@@ -279,6 +281,14 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 
 	if err := tx.Commit(); err != nil {
 		return err
+	}
+
+	// Counted alongside negotiated offers (see MakeTransferOffer) toward the transfer market
+	// stats panel's "offers made" figure, so an AI-managed team buying a listing outright -
+	// the only way it ever acquires a listed player - shows up there too, not just human
+	// negotiated offers.
+	if err := LogTransferOfferMade(dbCtx); err != nil {
+		log.Errorf("error logging transfer activity: %s", err)
 	}
 
 	RecordTransferCompleted(context.Background(), askingPrice)

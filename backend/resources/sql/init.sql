@@ -468,10 +468,11 @@ CREATE TABLE transfer_offers (
     UNIQUE (player_id, from_team_id)
 );
 
--- Append-only log of transfer offers actually made (see common.MakeTransferOffer) - unlike
--- transfer_offers itself, which is deleted the moment an offer resolves (accepted/rejected/
--- withdrawn), this never shrinks, so "how many offers were made in the last hour/day" (issue
--- #72) stays answerable regardless of how quickly offers get resolved.
+-- Append-only log of transfer market activity - negotiated offers (see common.MakeTransferOffer)
+-- and outright buys of a listed player (see common.ExecuteTransfer), from human and AI-managed
+-- teams alike - unlike transfer_offers itself, which is deleted the moment an offer resolves
+-- (accepted/rejected/withdrawn), this never shrinks, so "how many offers were made in the last
+-- hour/day" (issue #72) stays answerable regardless of how quickly offers get resolved.
 CREATE TABLE transfer_offer_log (
     event_id   bigserial PRIMARY KEY,
     created_at timestamptz NOT NULL DEFAULT now()
