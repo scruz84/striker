@@ -383,7 +383,10 @@
       "allPositions": "Todas las posiciones",
       "any": "Cualquiera",
       "clear": "Borrar filtros",
-      "noResults": "Ningún jugador coincide con tus filtros."
+      "noResults": "Ningún jugador coincide con tus filtros.",
+      "sortBy": "Ordenar por",
+      "sortAscending": "Orden ascendente",
+      "sortDescending": "Orden descendente"
     },
     "buy": "Comprar",
     "offerLoan": {
@@ -938,6 +941,15 @@
       "midfield": "Medio",
       "dribbling": "Regate",
       "shot": "Disparo"
+    },
+    "skillsShort": {
+      "goalkeeper": "POR",
+      "defense": "DEF",
+      "lateral": "LAT",
+      "pass": "PAS",
+      "midfield": "MED",
+      "dribbling": "REG",
+      "shot": "DIS"
     },
     "traits": {
       "aerial": "Aéreo",

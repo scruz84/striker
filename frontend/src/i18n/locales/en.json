@@ -383,7 +383,10 @@
       "allPositions": "All positions",
       "any": "Any",
       "clear": "Clear filters",
-      "noResults": "No players match your filters."
+      "noResults": "No players match your filters.",
+      "sortBy": "Sort by",
+      "sortAscending": "Ascending order",
+      "sortDescending": "Descending order"
     },
     "buy": "Buy",
     "offerLoan": {
@@ -938,6 +941,15 @@
       "midfield": "Midfield",
       "dribbling": "Dribbling",
       "shot": "Shot"
+    },
+    "skillsShort": {
+      "goalkeeper": "GK",
+      "defense": "DEF",
+      "lateral": "LAT",
+      "pass": "PAS",
+      "midfield": "MID",
+      "dribbling": "DRI",
+      "shot": "SHO"
     },
     "traits": {
       "aerial": "Aerial",

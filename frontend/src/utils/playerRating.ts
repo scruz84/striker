@@ -3,6 +3,19 @@ import { POSITION_DEFENSE, POSITION_GOALKEEPER, POSITION_MIDFIELD, POSITION_STRI
 
 export const SKILL_FIELDS = ['goalKeeper', 'defense', 'lateral', 'pass', 'midfield', 'dribbling', 'shot'] as const
 
+// Three-letter abbreviations for SKILL_FIELDS, used wherever all seven skills need to fit on one
+// compact line (e.g. a listing card) rather than the full-word labels PlayerStatsPopover's
+// SkillBar rows show.
+export const SKILL_SHORT_LABEL_KEYS: Record<(typeof SKILL_FIELDS)[number], string> = {
+  goalKeeper: 'playerCard.skillsShort.goalkeeper',
+  defense: 'playerCard.skillsShort.defense',
+  lateral: 'playerCard.skillsShort.lateral',
+  pass: 'playerCard.skillsShort.pass',
+  midfield: 'playerCard.skillsShort.midfield',
+  dribbling: 'playerCard.skillsShort.dribbling',
+  shot: 'playerCard.skillsShort.shot',
+}
+
 /** A single 0-99 headline number summarizing a player's seven core skills - shown as the badge
  * on PlayerCard and inside PlayerStatsPopover. */
 export function overallRating(player: Player): number {

@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import Link from '@mui/material/Link'
 import MenuItem from '@mui/material/MenuItem'
@@ -25,6 +26,8 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -62,7 +65,7 @@ import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
-import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { bestCorePosition, overallRating, ratingTierColor, SKILL_FIELDS, SKILL_SHORT_LABEL_KEYS } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
@@ -105,6 +108,16 @@ const filterGridSx = {
   gap: 1.5,
   alignItems: 'center',
   p: 2,
+} as const
+
+// A table-layout:fixed column doesn't clip its own overflow by default, so a header label too
+// long for its column (e.g. "Valoración" in a 56px rating column) spilled out and visually merged
+// with the next column's header instead of wrapping or truncating (issue feedback: garbled table
+// headers). Every header TableCell across the market's tables spreads this in.
+const headerCellTruncateSx = {
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 } as const
 
 // A player's name plus two quick-reference badges - their suggested position (see
@@ -153,6 +166,146 @@ function PlayerCell({ player, formerClub }: { player: Player; formerClub?: strin
         </Typography>
       )}
     </Stack>
+  )
+}
+
+// A compact one-line strip of all seven skills, abbreviated to three letters and colored by tier
+// (see ratingTierColor) - lets a listing card show a player's actual strengths and weaknesses
+// without opening their profile, in far less vertical space than PlayerStatsPopover's full-width
+// SkillBar rows (which is what this game's Hattrick-style "scouting" screens show elsewhere).
+function SkillChipsRow({ player }: { player: Player }) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  return (
+    <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>
+      {SKILL_FIELDS.map((field) => {
+        const value = player[field]
+        return (
+          <Box
+            key={field}
+            sx={{
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 0.375,
+              px: 0.625,
+              py: 0.125,
+              borderRadius: 999,
+              bgcolor: 'action.hover',
+            }}
+          >
+            <Typography component="span" sx={{ fontSize: '0.62rem', fontWeight: 600, color: 'text.secondary', lineHeight: 1.4 }}>
+              {t(SKILL_SHORT_LABEL_KEYS[field])}
+            </Typography>
+            <Typography component="span" sx={{ fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.4, color: ratingTierColor(value, theme.palette) }}>
+              {value}
+            </Typography>
+          </Box>
+        )
+      })}
+    </Stack>
+  )
+}
+
+// A "·" separator for the meta line under a listing card's skill strip (team/age/listed date, or
+// age/former club) - plain text items are passed as children rather than a join() on strings so
+// callers can mix in links (TeamNameLink) and translated fragments freely.
+function MetaDot() {
+  return (
+    <Typography component="span" variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
+      ·
+    </Typography>
+  )
+}
+
+// The listing card every browsable market tab (transfers, free agents) renders one of per row -
+// replacing a table row so every attribute is visible at every viewport width instead of the
+// table's narrower columns disappearing on mobile (issue feedback), and so a browser can see a
+// player's actual skills (SkillChipsRow) without clicking into their profile first.
+function ListingCard({
+  player,
+  formerClub,
+  badge,
+  meta,
+  priceLabel,
+  priceValue,
+  actions,
+}: {
+  player: Player
+  formerClub?: string
+  badge?: React.ReactNode
+  meta?: React.ReactNode
+  priceLabel: string
+  priceValue: React.ReactNode
+  actions: React.ReactNode
+}) {
+  return (
+    <Paper variant="outlined" sx={{ p: 1.25, display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+      <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <PlayerCell player={player} formerClub={formerClub} />
+          {badge}
+        </Stack>
+        <SkillChipsRow player={player} />
+        {meta && (
+          <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', alignItems: 'center', rowGap: 0.25, mt: 0.5 }}>
+            {meta}
+          </Stack>
+        )}
+      </Box>
+      <Stack spacing={0.5} sx={{ alignItems: 'flex-end', flexShrink: 0 }}>
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant="caption" color="text.secondary" component="div" noWrap>
+            {priceLabel}
+          </Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
+            {priceValue}
+          </Typography>
+        </Box>
+        {actions}
+      </Stack>
+    </Paper>
+  )
+}
+
+// Field/direction picker replacing a table's clickable column headers for card-based listings,
+// which have no header row to click - reused by the transfers market and free agents cards.
+function SortControl<T extends string>({
+  value,
+  onChange,
+  direction,
+  onToggleDirection,
+  options,
+}: {
+  value: T
+  onChange: (value: T) => void
+  direction: SortDirection
+  onToggleDirection: () => void
+  options: { value: T; label: string }[]
+}) {
+  const { t } = useTranslation()
+  return (
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <FormControl size="small" sx={{ ...pillFilterSx, flexGrow: 1 }}>
+        <InputLabel id="sort-field-label">{t('transfers.filters.sortBy')}</InputLabel>
+        <Select
+          labelId="sort-field-label"
+          label={t('transfers.filters.sortBy')}
+          value={value}
+          onChange={(event: SelectChangeEvent) => onChange(event.target.value as T)}
+        >
+          {options.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Tooltip title={t(direction === 'asc' ? 'transfers.filters.sortAscending' : 'transfers.filters.sortDescending')}>
+        <IconButton size="small" onClick={onToggleDirection} sx={{ flexShrink: 0, bgcolor: 'action.hover' }}>
+          {direction === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+        </IconButton>
+      </Tooltip>
+    </Box>
   )
 }
 
@@ -388,15 +541,6 @@ function TransfersTab() {
       return sortDir === 'asc' ? cmp : -cmp
     })
 
-  const handleSort = (field: TransferSortField) => {
-    if (field === sortField) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortField(field)
-      setSortDir('asc')
-    }
-  }
-
   const handleList = () => {
     const price = Number(askingPrice)
     if (selectedPlayerId === '' || !price || price <= 0) {
@@ -481,32 +625,55 @@ function TransfersTab() {
       </Paper>
 
       {myListings.length > 0 && (
-        <Paper sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
+          <Typography variant="subtitle1" gutterBottom>
             {t('transfers.yourListings')}
           </Typography>
-          <ListingsTable
-            listings={myListings}
-            renderAction={(listing) => (
-              <Button size="small" color="secondary" onClick={() => unlistPlayer.mutate(listing.player.id)}>
-                {t('transfers.unlist')}
-              </Button>
-            )}
-          />
+          <Stack spacing={1}>
+            {myListings.map((listing) => (
+              <ListingCard
+                key={listing.listingId}
+                player={listing.player}
+                meta={
+                  <>
+                    <Typography variant="caption" color="text.secondary">
+                      {t('transfers.table.age')} {listing.player.age}
+                    </Typography>
+                    <MetaDot />
+                    <Typography variant="caption" color="text.secondary">
+                      {formatDateTime(listing.listedAt)}
+                    </Typography>
+                  </>
+                }
+                priceLabel={t('transfers.table.price')}
+                priceValue={formatCurrency(listing.askingPrice)}
+                actions={
+                  <Button
+                    size="small"
+                    color="secondary"
+                    onClick={() => unlistPlayer.mutate(listing.player.id)}
+                    sx={{ minWidth: 0, px: 1.25, py: 0.25 }}
+                  >
+                    {t('transfers.unlist')}
+                  </Button>
+                }
+              />
+            ))}
+          </Stack>
         </Paper>
       )}
 
-      <Paper>
-        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
+      <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="subtitle1" gutterBottom>
           {t('transfers.market')}
         </Typography>
         {marketListings.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary">
             {t('transfers.noMarketListings')}
           </Typography>
         ) : (
           <>
-            <Box sx={filterGridSx}>
+            <Box sx={{ ...filterGridSx, p: 0, pb: 2 }}>
               <TextField
                 size="small"
                 label={t('transfers.filters.search')}
@@ -563,6 +730,19 @@ function TransfersTab() {
                 sx={pillFilterSx}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
+              <SortControl<TransferSortField>
+                value={sortField}
+                onChange={setSortField}
+                direction={sortDir}
+                onToggleDirection={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                options={[
+                  { value: 'listed', label: t('transfers.table.listed') },
+                  { value: 'price', label: t('transfers.table.price') },
+                  { value: 'age', label: t('transfers.table.age') },
+                  { value: 'skill', label: t('transfers.table.rating') },
+                  { value: 'salary', label: t('transfers.table.salary') },
+                ]}
+              />
               {hasActiveFilters && (
                 <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
                   {t('transfers.filters.clear')}
@@ -570,7 +750,7 @@ function TransfersTab() {
               )}
             </Box>
             {filteredMarketListings.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary">
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
@@ -579,13 +759,36 @@ function TransfersTab() {
                 resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, minSkill, maxSkill, position, sortField, sortDir])}
               >
                 {(pageListings) => (
-                  <ListingsTable
-                    listings={pageListings}
-                    sortField={sortField}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                    renderAction={(listing) => <MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
-                  />
+                  <Stack spacing={1}>
+                    {pageListings.map((listing) => (
+                      <ListingCard
+                        key={listing.listingId}
+                        player={listing.player}
+                        meta={
+                          <>
+                            <TeamNameLink teamId={listing.sellingTeamId} variant="caption" color="text.secondary" underline="hover">
+                              {listing.sellingTeamName}
+                            </TeamNameLink>
+                            <MetaDot />
+                            <Typography variant="caption" color="text.secondary">
+                              {t('transfers.table.age')} {listing.player.age}
+                            </Typography>
+                            <MetaDot />
+                            <Typography variant="caption" color="text.secondary">
+                              {formatCurrency(listing.player.wage)}
+                            </Typography>
+                            <MetaDot />
+                            <Typography variant="caption" color="text.secondary">
+                              {formatDateTime(listing.listedAt)}
+                            </Typography>
+                          </>
+                        }
+                        priceLabel={t('transfers.table.price')}
+                        priceValue={formatCurrency(listing.askingPrice)}
+                        actions={<MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
+                      />
+                    ))}
+                  </Stack>
                 )}
               </Paginated>
             )}
@@ -622,136 +825,6 @@ function MarketListingActions({
       </Button>
       <TransferOfferDialog player={listing.player} open={offerOpen} onClose={() => setOfferOpen(false)} />
     </Stack>
-  )
-}
-
-interface ListingsTableProps {
-  listings: TransferListing[]
-  renderAction: (listing: TransferListing) => React.ReactNode
-  sortField?: TransferSortField
-  sortDir?: SortDirection
-  onSort?: (field: TransferSortField) => void
-}
-
-function ListingsTable({ listings, renderAction, sortField, sortDir, onSort }: ListingsTableProps) {
-  const { t } = useTranslation()
-  const sortable = !!onSort
-  return (
-    <TableContainer>
-      <Table size="small" sx={{ tableLayout: 'fixed' }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%' }}>{t('transfers.table.team')}</TableCell>
-            {sortable ? (
-              <TableCell
-                align="right"
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44 }}
-                sortDirection={sortField === 'age' ? sortDir : false}
-              >
-                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
-                  {t('transfers.table.age')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44 }}>
-                {t('transfers.table.age')}
-              </TableCell>
-            )}
-            {sortable ? (
-              <TableCell
-                align="right"
-                sx={{ display: { xs: 'none', md: 'table-cell' }, width: 56 }}
-                sortDirection={sortField === 'skill' ? sortDir : false}
-              >
-                <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => onSort('skill')}>
-                  {t('transfers.table.rating')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' }, width: 56 }}>
-                {t('transfers.table.rating')}
-              </TableCell>
-            )}
-            {sortable ? (
-              <TableCell
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}
-                sortDirection={sortField === 'listed' ? sortDir : false}
-              >
-                <TableSortLabel
-                  active={sortField === 'listed'}
-                  direction={sortField === 'listed' ? sortDir : 'asc'}
-                  onClick={() => onSort('listed')}
-                >
-                  {t('transfers.table.listed')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.listed')}</TableCell>
-            )}
-            {sortable ? (
-              <TableCell
-                align="right"
-                sx={{ display: { xs: 'none', md: 'table-cell' }, width: 96 }}
-                sortDirection={sortField === 'salary' ? sortDir : false}
-              >
-                <TableSortLabel
-                  active={sortField === 'salary'}
-                  direction={sortField === 'salary' ? sortDir : 'asc'}
-                  onClick={() => onSort('salary')}
-                >
-                  {t('transfers.table.salary')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' }, width: 96 }}>
-                {t('transfers.table.salary')}
-              </TableCell>
-            )}
-            {sortable ? (
-              <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'price' ? sortDir : false}>
-                <TableSortLabel
-                  active={sortField === 'price'}
-                  direction={sortField === 'price' ? sortDir : 'asc'}
-                  onClick={() => onSort('price')}
-                >
-                  {t('transfers.table.price')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }}>
-                {t('transfers.table.price')}
-              </TableCell>
-            )}
-            <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {listings.map((listing) => (
-            <TableRow key={listing.listingId}>
-              <TableCell>
-                <PlayerCell player={listing.player} />
-              </TableCell>
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                <TeamNameLink teamId={listing.sellingTeamId}>{listing.sellingTeamName}</TeamNameLink>
-              </TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                {listing.player.age}
-              </TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                {overallRating(listing.player)}
-              </TableCell>
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(listing.listedAt)}</TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                {formatCurrency(listing.player.wage)}
-              </TableCell>
-              <TableCell align="right">{formatCurrency(listing.askingPrice)}</TableCell>
-              <TableCell align="right">{renderAction(listing)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
   )
 }
 
@@ -1035,12 +1108,14 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
       <Table size="small" sx={{ tableLayout: 'fixed' }}>
         <TableHead>
           <TableRow>
-            <TableCell>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%' }}>{t('transfers.table.team')}</TableCell>
+            <TableCell sx={headerCellTruncateSx}>{t('transfers.table.player')}</TableCell>
+            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%', ...headerCellTruncateSx }}>
+              {t('transfers.table.team')}
+            </TableCell>
             {sortable ? (
               <TableCell
                 align="right"
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44 }}
+                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44, ...headerCellTruncateSx }}
                 sortDirection={sortField === 'age' ? sortDir : false}
               >
                 <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
@@ -1048,13 +1123,13 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44 }}>
+              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44, ...headerCellTruncateSx }}>
                 {t('transfers.table.age')}
               </TableCell>
             )}
             {sortable ? (
               <TableCell
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}
+                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}
                 sortDirection={sortField === 'listed' ? sortDir : false}
               >
                 <TableSortLabel
@@ -1066,10 +1141,16 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.listed')}</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
+                {t('transfers.table.listed')}
+              </TableCell>
             )}
             {sortable ? (
-              <TableCell align="right" sx={{ width: { xs: 96, sm: 100 } }} sortDirection={sortField === 'duration' ? sortDir : false}>
+              <TableCell
+                align="right"
+                sx={{ width: { xs: 96, sm: 100 }, ...headerCellTruncateSx }}
+                sortDirection={sortField === 'duration' ? sortDir : false}
+              >
                 <TableSortLabel
                   active={sortField === 'duration'}
                   direction={sortField === 'duration' ? sortDir : 'asc'}
@@ -1079,7 +1160,7 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 </TableSortLabel>
               </TableCell>
             ) : (
-              <TableCell align="right" sx={{ width: { xs: 96, sm: 100 } }}>
+              <TableCell align="right" sx={{ width: { xs: 96, sm: 100 }, ...headerCellTruncateSx }}>
                 {t('transfers.table.duration')}
               </TableCell>
             )}
@@ -1224,12 +1305,14 @@ function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
       <Table size="small" sx={{ tableLayout: 'fixed' }}>
         <TableHead>
           <TableRow>
-            <TableCell>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%' }}>{t('transfers.table.made')}</TableCell>
-            <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }}>
+            <TableCell sx={headerCellTruncateSx}>{t('transfers.table.player')}</TableCell>
+            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
+              {t('transfers.table.made')}
+            </TableCell>
+            <TableCell align="right" sx={{ width: { xs: 84, sm: 96 }, ...headerCellTruncateSx }}>
               {t('transfers.table.amount')}
             </TableCell>
-            <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 150 }}>
+            <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 150, ...headerCellTruncateSx }}>
               {t('transfers.table.terms')}
             </TableCell>
             <TableCell align="right" sx={{ width: { xs: 92, sm: 140 } }} />
@@ -1311,28 +1394,19 @@ function FreeAgentsTab() {
       return sortDir === 'asc' ? cmp : -cmp
     })
 
-  const handleSort = (field: FreeAgentSortField) => {
-    if (field === sortField) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortField(field)
-      setSortDir('desc')
-    }
-  }
-
   return (
     <Box>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {t('transfers.freeAgents.intro')}
       </Typography>
-      <Paper>
+      <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
         {freeAgents.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+          <Typography variant="body2" color="text.secondary">
             {t('transfers.freeAgents.none')}
           </Typography>
         ) : (
           <>
-            <Box sx={filterGridSx}>
+            <Box sx={{ ...filterGridSx, p: 0, pb: 2 }}>
               <TextField
                 size="small"
                 label={t('transfers.filters.search')}
@@ -1357,6 +1431,16 @@ function FreeAgentsTab() {
                 sx={pillFilterSx}
               />
               <PositionFilterSelect value={position} onChange={setPosition} />
+              <SortControl<FreeAgentSortField>
+                value={sortField}
+                onChange={setSortField}
+                direction={sortDir}
+                onToggleDirection={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                options={[
+                  { value: 'wage', label: t('transfers.freeAgents.wage') },
+                  { value: 'age', label: t('transfers.table.age') },
+                ]}
+              />
               {hasActiveFilters && (
                 <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
                   {t('transfers.filters.clear')}
@@ -1364,62 +1448,38 @@ function FreeAgentsTab() {
               )}
             </Box>
             {filteredFreeAgents.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+              <Typography variant="body2" color="text.secondary">
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
               <Paginated rows={filteredFreeAgents} resetKey={JSON.stringify([search, minAge, maxAge, position, sortField, sortDir])}>
                 {(pageFreeAgents) => (
-                  <TableContainer>
-                    <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>{t('transfers.table.player')}</TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 56 }}
-                            sortDirection={sortField === 'age' ? sortDir : false}
-                          >
-                            <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
-                              {t('transfers.table.age')}
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
-                            <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
-                              {t('transfers.freeAgents.wage')}
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell align="right" sx={{ width: { xs: 76, sm: 92 } }} />
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {pageFreeAgents.map((player) => (
-                          <TableRow key={player.id}>
-                            <TableCell>
-                              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                                <PlayerCell
-                                  player={player}
-                                  formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
-                                />
-                                {player.freeAgentSeasons === 0 && !!player.lastTeamId && (
-                                  <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
-                                )}
-                              </Stack>
-                            </TableCell>
-                            <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                              {player.age}
-                            </TableCell>
-                            <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
-                            <TableCell align="right">
-                              <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)} sx={{ minWidth: 0, px: 1 }}>
-                                {t('transfers.freeAgents.sign')}
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <Stack spacing={1}>
+                    {pageFreeAgents.map((player) => (
+                      <ListingCard
+                        key={player.id}
+                        player={player}
+                        formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
+                        badge={
+                          player.freeAgentSeasons === 0 && !!player.lastTeamId ? (
+                            <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
+                          ) : undefined
+                        }
+                        meta={
+                          <Typography variant="caption" color="text.secondary">
+                            {t('transfers.table.age')} {player.age}
+                          </Typography>
+                        }
+                        priceLabel={t('transfers.freeAgents.wage')}
+                        priceValue={formatCurrency(player.wage)}
+                        actions={
+                          <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
+                            {t('transfers.freeAgents.sign')}
+                          </Button>
+                        }
+                      />
+                    ))}
+                  </Stack>
                 )}
               </Paginated>
             )}
@@ -1544,17 +1604,21 @@ function CoachingTab() {
                 <Table size="small" sx={{ tableLayout: 'fixed' }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell>{t('transfers.coaching.table.name')}</TableCell>
+                      <TableCell sx={headerCellTruncateSx}>{t('transfers.coaching.table.name')}</TableCell>
                       <TableCell
                         align="right"
-                        sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 72 }}
+                        sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 72, ...headerCellTruncateSx }}
                         sortDirection={sortField === 'skill' ? sortDir : false}
                       >
                         <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
                           {t('transfers.coaching.skill')}
                         </TableSortLabel>
                       </TableCell>
-                      <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} sortDirection={sortField === 'wage' ? sortDir : false}>
+                      <TableCell
+                        align="right"
+                        sx={{ width: { xs: 84, sm: 96 }, ...headerCellTruncateSx }}
+                        sortDirection={sortField === 'wage' ? sortDir : false}
+                      >
                         <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
                           {t('transfers.coaching.wage')}
                         </TableSortLabel>
