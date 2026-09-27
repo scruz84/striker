@@ -19,7 +19,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
-import { MatchPositionComparison } from './MatchPositionComparison'
+import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
 import { MatchRatingsTab } from './MatchRatingsTab'
 import { MatchReportHeader } from './MatchReportHeader'
 import { MatchReportTab } from './MatchReportTab'
@@ -157,7 +157,7 @@ function LiveMatch({
         awayName={awayName}
         homeGoals={live.homeGoals}
         awayGoals={live.awayGoals}
-        status={live.connected ? 'live' : 'connecting'}
+        status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
         minute={live.minute}
       />
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
@@ -179,18 +179,19 @@ function LiveMatch({
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
       </Paper>
-      {live.homeQua && live.awayQua && (
-        <MatchPositionComparison
-          homeQua={live.homeQua}
-          awayQua={live.awayQua}
+      {live.instants.length > 0 && (
+        <MatchMinuteZoneComparison
+          homeName={homeName}
+          awayName={awayName}
           // Goalkeeper ratings aren't shown live - a non-participant viewer has neither team's
           // full roster loaded, and even a participant only has their own; 0 simply drops the
           // keeper's contribution to each attack-vs-defense matchup rather than misleadingly
-          // favoring either side (see MatchPositionComparison's attack/defense rows).
+          // favoring either side (see ZoneComparisonRows' attack/defense rows).
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
-          homeName={homeName}
-          awayName={awayName}
+          matchInstants={live.instants}
+          currentMinute={live.minute}
+          live
         />
       )}
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
@@ -328,25 +329,28 @@ export function Lineups({
   matchInstants,
   ratings,
 }: LineupsProps) {
-  // The kickoff instant (minute 1) reflects the same starting XI the pitch below shows - later
-  // instants would drift as the match itself changes who's on the pitch (cards, injuries, subs).
-  const kickoff = matchInstants?.[0]
+  // The full per-minute history (see backend common.MatchInstant) lets a viewer scrub the
+  // zone-battle panel through the whole match, the same way MatchMinuteRatings already lets them
+  // scrub player ratings - not just the kickoff snapshot this used to be frozen at. A cup tie has
+  // no recorded instants at all (see LineupsProps.matchInstants' own comment), so it simply skips
+  // this panel, same as before.
+  const zoneHistory = matchInstants && matchInstants.length > 0 ? matchInstants : null
 
   return (
     <Grid container spacing={3}>
-      {kickoff && (
+      {zoneHistory && (
         <Grid size={{ xs: 12, md: 5 }}>
-          <MatchPositionComparison
-            homeQua={kickoff.homeQua}
-            awayQua={kickoff.awayQua}
-            homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
-            awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
+          <MatchMinuteZoneComparison
             homeName={homeName}
             awayName={awayName}
+            homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
+            awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
+            matchInstants={zoneHistory}
+            currentMinute={zoneHistory[zoneHistory.length - 1].minute}
           />
         </Grid>
       )}
-      <Grid size={{ xs: 12, md: kickoff ? 7 : 12 }}>
+      <Grid size={{ xs: 12, md: zoneHistory ? 7 : 12 }}>
         <Box sx={{ maxWidth: 380, mx: 'auto' }}>
           <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
             <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>

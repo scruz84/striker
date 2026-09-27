@@ -23,8 +23,8 @@ var liveMatchUpgrader = websocket.Upgrader{
 const liveMatchWriteTimeout = 10 * time.Second
 
 // liveMatchMaxConnectionLifetime caps how long serveLiveMatch will hold a connection open
-// waiting for messages that may never come - comfortably above the ~90-real-minute broadcast
-// itself (see engine.liveMatchMinuteDelay) plus scheduler lag, so it never cuts off a genuinely
+// waiting for messages that may never come - comfortably above the ~105-real-minute broadcast
+// itself (see engine.liveMatchMinuteDelay/engine.liveMatchHalftimeDelay) plus scheduler lag, so it never cuts off a genuinely
 // in-progress match, but still bounds the damage of a channel that's stuck for any reason (a
 // downed Redis, a bug, a match that somehow never gets a "complete" published) - without this, a
 // stuck connection's goroutines and file descriptor stay held indefinitely, and enough of those

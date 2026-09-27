@@ -16,6 +16,18 @@ import (
 // had already finished (issue #37).
 const liveMatchMinuteDelay = 60 * time.Second
 
+// liveMatchHalftimeMinute is the simulated minute after which the broadcast pauses for a
+// halftime break (see liveMatchHalftimeDelay) instead of the ordinary per-minute delay.
+const liveMatchHalftimeMinute = 45
+
+// liveMatchHalftimeDelay replaces the ordinary liveMatchMinuteDelay just once, between minute
+// 45 and minute 46 - a real match doesn't play straight through from kickoff to full time, and a
+// viewer who'd been following the first half live would otherwise see the second half start
+// exactly as fast as any other minute, with no sense that a break happened at all. So a match
+// that kicks off at 14:00 now reaches half time at 14:45, resumes at 15:00, and finishes at
+// 15:45 - 105 real minutes end to end rather than a flat 90.
+const liveMatchHalftimeDelay = 15 * time.Minute
+
 // BroadcastMatchLive replays a just-simulated match's events/instants, minute by minute, to
 // any WebSocket clients currently subscribed to channel (see common.LeagueMatchChannel /
 // common.CupTieChannel, common.LiveMatchHub, and handlers.LiveMatchHandler).
@@ -25,14 +37,14 @@ const liveMatchMinuteDelay = 60 * time.Second
 // "does anyone have this channel open right now" check would race a viewer who opens the match
 // page a moment later: once that check said no, nothing would ever get published for this match
 // again, even though the check and the viewer's page load could easily land within the same
-// handful of milliseconds. A few hundred lightweight Redis publishes over ~90 real minutes per
-// match is cheap enough at this app's scale (see maxConcurrentSimulations) - it's just a sleeping
-// goroutine between publishes, not active work - that there's no real efficiency case for that
-// risk.
+// handful of milliseconds. A few hundred lightweight Redis publishes over ~105 real minutes per
+// match (90 minutes of play plus the halftime break - see liveMatchHalftimeDelay) is cheap enough
+// at this app's scale (see maxConcurrentSimulations) - it's just a sleeping goroutine between
+// publishes, not active work - that there's no real efficiency case for that risk.
 //
 // This runs in its own goroutine so it never delays the caller (simulateMatch/simulateCupTie):
 // the match is already fully computed and persisted by this point, so pacing its broadcast out
-// over ~90 minutes is purely cosmetic for live viewers and must not hold up match processing.
+// over ~105 minutes is purely cosmetic for live viewers and must not hold up match processing.
 //
 // onComplete runs after the final "complete" publish, once the whole broadcast has played out -
 // callers use it to send the result notification (see simulateMatch/simulateCupTie/
@@ -81,6 +93,13 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 			dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 				Type: "instant", Instant: &i, HomeGoals: homeGoals, AwayGoals: awayGoals,
 			})
+			if instant.Minute == liveMatchHalftimeMinute {
+				dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
+					Type: "halftime", HomeGoals: homeGoals, AwayGoals: awayGoals,
+				})
+				time.Sleep(liveMatchHalftimeDelay)
+				continue
+			}
 			time.Sleep(liveMatchMinuteDelay)
 		}
 		dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{

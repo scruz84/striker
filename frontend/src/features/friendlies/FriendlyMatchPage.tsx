@@ -15,7 +15,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
-import { MatchPositionComparison } from '../match/MatchPositionComparison'
+import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
 import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
@@ -182,7 +182,7 @@ function LiveFriendly({
         // Before kickoff, show "scheduled" rather than a premature "Live" label (issue #31) - the
         // lineup editor below still renders either way (until it locks near kickoff, see
         // isLineupLocked below), so a manager can set it up ahead of time.
-        status={isDue ? (live.connected ? 'live' : 'connecting') : 'scheduled'}
+        status={isDue ? (live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting') : 'scheduled'}
         minute={isDue ? live.minute : undefined}
         subtitle={formatDateTime(match.matchDate)}
       />
@@ -204,15 +204,16 @@ function LiveFriendly({
           <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
         </Paper>
       )}
-      {isDue && live.homeQua && live.awayQua && (
-        <MatchPositionComparison
-          homeQua={live.homeQua}
-          awayQua={live.awayQua}
+      {isDue && live.instants.length > 0 && (
+        <MatchMinuteZoneComparison
+          homeName={match.homeTeamName}
+          awayName={match.awayTeamName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
-          homeName={match.homeTeamName}
-          awayName={match.awayTeamName}
+          matchInstants={live.instants}
+          currentMinute={live.minute}
+          live
         />
       )}
       {id &&

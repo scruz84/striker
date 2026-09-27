@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box'
-import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
@@ -27,7 +26,7 @@ function midfieldRows(homeQua: TeamQualification, awayQua: TeamQualification): Z
   ]
 }
 
-interface MatchPositionComparisonProps {
+interface ZoneComparisonRowsProps {
   homeQua: TeamQualification
   awayQua: TeamQualification
   homeGoalkeeperRating: number
@@ -43,15 +42,20 @@ interface MatchPositionComparisonProps {
  * comparing e.g. both teams' goalkeepers to each other, which the engine never does and which
  * previously made this panel confusingly show "goalkeeping: home vs away" as if a keeper ever
  * faced the opposing keeper). Midfield is the one genuinely symmetric zone-vs-same-zone contest,
- * shown as-is. */
-export function MatchPositionComparison({
+ * shown as-is.
+ *
+ * Just the team-name header and zone bars, with no Paper/title/description of its own - every
+ * caller (MatchMinuteZoneComparison, live or a finished match's "Jugadores" tab) wraps this in its
+ * own Paper with a minute slider above it, the same way TeamRatingsColumn is shared between
+ * MatchRatingsTab's static view and MatchMinuteRatings' scrubbable one. */
+export function ZoneComparisonRows({
   homeQua,
   awayQua,
   homeGoalkeeperRating,
   awayGoalkeeperRating,
   homeName,
   awayName,
-}: MatchPositionComparisonProps) {
+}: ZoneComparisonRowsProps) {
   const { t } = useTranslation()
 
   const homeAttackRows: ZoneRow[] = [
@@ -66,13 +70,7 @@ export function MatchPositionComparison({
   ]
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        {t('match.positionBattle.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('match.positionBattle.description')}
-      </Typography>
+    <>
       <Stack direction="row" sx={{ mb: 1 }}>
         <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, textAlign: 'right', pr: 1 }} noWrap>
           {homeName}
@@ -114,7 +112,7 @@ export function MatchPositionComparison({
           </Stack>
         </Stack>
       </Stack>
-    </Paper>
+    </>
   )
 }
 

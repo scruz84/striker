@@ -29,7 +29,7 @@ export interface ScoreboardProps {
   awayName: string
   homeGoals: number
   awayGoals: number
-  status: 'scheduled' | 'live' | 'connecting' | 'played'
+  status: 'scheduled' | 'live' | 'halftime' | 'connecting' | 'played'
   minute?: number
   subtitle?: string
   // The home team's stadium - shown as a caption next to the status chip when known (omitted
@@ -84,6 +84,7 @@ export function Scoreboard({
               }}
             />
           )}
+          {status === 'halftime' && <Chip size="small" variant="outlined" color="warning" label={t('match.halftime')} />}
           {status === 'connecting' && <Chip size="small" label={t('match.connecting')} />}
           {status === 'scheduled' && <Chip size="small" variant="outlined" label={t('match.scheduled')} />}
           {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}

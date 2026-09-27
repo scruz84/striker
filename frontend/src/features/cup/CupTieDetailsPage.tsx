@@ -9,14 +9,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
-import type { CupTieDetails, Player, Team } from '../../api/types'
+import type { CupTieDetails, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Events, Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
-import { MatchPositionComparison } from '../match/MatchPositionComparison'
+import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
+import { MatchReportTab } from '../match/MatchReportTab'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function CupTieDetailsPage() {
@@ -142,7 +143,7 @@ function LiveTie({
         awayName={tie.awayTeamName}
         homeGoals={live.homeGoals}
         awayGoals={live.awayGoals}
-        status={live.connected ? 'live' : 'connecting'}
+        status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
         minute={live.minute}
       />
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
@@ -161,15 +162,16 @@ function LiveTie({
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
         <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
       </Paper>
-      {live.homeQua && live.awayQua && (
-        <MatchPositionComparison
-          homeQua={live.homeQua}
-          awayQua={live.awayQua}
+      {live.instants.length > 0 && (
+        <MatchMinuteZoneComparison
+          homeName={tie.homeTeamName}
+          awayName={tie.awayTeamName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
-          homeName={tie.homeTeamName}
-          awayName={tie.awayTeamName}
+          matchInstants={live.instants}
+          currentMinute={live.minute}
+          live
         />
       )}
       {id &&
@@ -200,10 +202,44 @@ function CupTieLineupSection({ tieId, team, players }: { tieId: string; team: Te
   )
 }
 
+// cupTieToWeekMatch adapts a played CupTieDetails into the WeekMatch shape MatchReportTab
+// expects, so a tie's report can reuse the same Hattrick-style narrative a league match's or
+// friendly's report does (see MatchDetailsPage's PlayedMatch / FriendlyMatchPage's
+// friendlyToWeekMatch) instead of the bare live-style event ticker this used to fall back to.
+// divisionId/season/weekNumber/inSimulation/matchInstants/ratings are meaningless or unavailable
+// for a cup tie and left at their zero/null values - MatchReportTab never reads them, and a tie
+// doesn't carry weather/attendance/referee flavor either, so its report simply omits that intro
+// paragraph, same as a friendly's.
+function cupTieToWeekMatch(tie: CupTieDetails): WeekMatch {
+  return {
+    matchId: tie.tieId,
+    divisionId: 0,
+    season: 0,
+    weekNumber: 0,
+    matchDate: tie.matchDate ?? '',
+    played: tie.played,
+    inSimulation: false,
+    home: tie.homeTeamId ?? 0,
+    homeName: tie.homeTeamName,
+    homeStadiumName: '',
+    away: tie.awayTeamId ?? 0,
+    awayName: tie.awayTeamName,
+    homeGoals: tie.homeGoals,
+    awayGoals: tie.awayGoals,
+    events: tie.events,
+    matchInstants: null,
+    homeLineup: tie.homeLineup,
+    awayLineup: tie.awayLineup,
+    homePlayers: tie.homePlayers,
+    awayPlayers: tie.awayPlayers,
+  }
+}
+
 function PlayedTie({ tie }: { tie: CupTieDetails }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
+  const weekMatch = cupTieToWeekMatch(tie)
 
   return (
     <Box>
@@ -225,13 +261,11 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
 
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange}>
-          <Tab label={t('match.tabs.events')} />
+          <Tab label={t('match.tabs.report')} />
           <Tab label={t('match.tabs.lineups')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
-          {tab === 0 && (
-            <Events events={tie.events} homeId={tie.homeTeamId ?? 0} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
-          )}
+          {tab === 0 && <MatchReportTab match={weekMatch} />}
           {tab === 1 && (
             <Lineups
               homeId={tie.homeTeamId ?? 0}

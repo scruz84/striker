@@ -15,7 +15,7 @@ import (
 // BroadcastMatchLive, which paces a match's already-computed events/instants out to any
 // subscribed WebSocket viewers to give the appearance of a match unfolding in real time.
 type LiveMatchMessage struct {
-	Type    string        `json:"type"` // "lineups", "instant", "event", or "complete"
+	Type    string        `json:"type"` // "lineups", "instant", "event", "halftime", or "complete"
 	Instant *MatchInstant `json:"instant,omitempty"`
 	Event   *Event        `json:"event,omitempty"`
 	// HomeLineup/AwayLineup/HomePlayers/AwayPlayers are only set on the one "lineups" message
@@ -42,8 +42,8 @@ const liveMatchChannelBuffer = 8
 const liveMatchKeyPrefix = "livematch:"
 
 // liveMatchHistoryTTL bounds how long a broadcast's message history sticks around in Redis -
-// comfortably longer than the ~90 real-minute broadcast itself (see engine.liveMatchMinuteDelay)
-// so a viewer connecting even quite late still gets the full catch-up (see History/serveLiveMatch),
+// comfortably longer than the ~105 real-minute broadcast itself (see engine.liveMatchMinuteDelay/
+// engine.liveMatchHalftimeDelay) so a viewer connecting even quite late still gets the full catch-up (see History/serveLiveMatch),
 // but not indefinitely - this is purely cosmetic replay data, not the source of truth (that's the
 // match's own played/events columns).
 const liveMatchHistoryTTL = 4 * time.Hour

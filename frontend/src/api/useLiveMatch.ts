@@ -3,7 +3,7 @@ import { getWsEndpoint } from '../config'
 import type { Lineup, MatchEvent, MatchInstant, Player, TeamQualification } from './types'
 
 interface LiveMatchMessage {
-  type: 'lineups' | 'instant' | 'event' | 'complete'
+  type: 'lineups' | 'instant' | 'event' | 'halftime' | 'complete'
   instant?: MatchInstant
   event?: MatchEvent
   // Only set on the one "lineups" message published right before the first "instant" - see
@@ -26,9 +26,19 @@ export interface LiveMatchState {
   // The most recent per-minute zone-by-zone strength snapshot broadcast for this match (see
   // backend common.MatchInstant) - null until the first "instant" message arrives. Lets a live
   // viewer see the same zone comparison a played match's report shows (issue #56), fed straight
-  // to MatchPositionComparison.
+  // to MatchMinuteZoneComparison/ZoneComparisonRows.
   homeQua: TeamQualification | null
   awayQua: TeamQualification | null
+  // Every "instant" broadcast so far this match, in order - the same minute-by-minute history a
+  // finished match's report reads back from match_instants (see WeekMatch.matchInstants), just
+  // accumulated live instead of fetched in one go. Lets a live viewer scrub the zone-battle panel
+  // back through the match so far (MatchMinuteZoneComparison), the same way `events` already lets
+  // MatchMinuteRatings scrub player ratings live.
+  instants: MatchInstant[]
+  // True while the broadcast is paused for the halftime break (see backend
+  // engine.liveMatchHalftimeDelay) - the scoreboard shows this instead of the pulsing "live" chip
+  // so a viewer isn't left wondering why nothing has happened in a while.
+  halftime: boolean
   // The starting XI/squads broadcast once via the "lineups" message (see LiveMatchMessage) -
   // null until it arrives, which for a genuinely live connection is essentially immediate (it's
   // the very first thing BroadcastMatchLive publishes), and for one catching up on history is
@@ -60,6 +70,8 @@ const initialState: LiveMatchState = {
   events: [],
   homeQua: null,
   awayQua: null,
+  instants: [],
+  halftime: false,
   homeLineup: null,
   awayLineup: null,
   homePlayers: null,
@@ -76,7 +88,7 @@ const maxReconnectAttempts = 5
 const reconnectDelayMs = 3000
 
 // maxLiveBroadcastWindowMs generously bounds how long after kickoff a match's live broadcast
-// (~90 real minutes - see liveMatchMinuteDelay in backend/engine/livematch.go - plus whatever lag
+// (~105 real minutes - see liveMatchMinuteDelay/liveMatchHalftimeDelay in backend/engine/livematch.go - plus whatever lag
 // the scheduler has before it even starts simulating) could still be in progress. Callers use
 // this to decide whether it's worth opening a live connection at all for a match the REST data
 // already reports as played: `played` flips true in the DB the instant the match is simulated,
@@ -196,6 +208,8 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
           events: msg.event ? [...prev.events, msg.event] : prev.events,
           homeQua: msg.instant?.homeQua ?? prev.homeQua,
           awayQua: msg.instant?.awayQua ?? prev.awayQua,
+          instants: msg.instant ? [...prev.instants, msg.instant] : prev.instants,
+          halftime: msg.type === 'halftime',
           homeLineup: msg.homeLineup ?? prev.homeLineup,
           awayLineup: msg.awayLineup ?? prev.awayLineup,
           homePlayers: msg.homePlayers ?? prev.homePlayers,
