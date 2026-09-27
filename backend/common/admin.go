@@ -73,6 +73,7 @@ type AdminOverview struct {
 	LeagueCount                   int  `json:"leagueCount"`
 	MatchesTotal                  int  `json:"matchesTotal"`
 	MatchesUnplayed               int  `json:"matchesUnplayed"`
+	StuckMatches                  int  `json:"stuckMatches"`
 	ActiveCups                    int  `json:"activeCups"`
 	TransferWindowOpen            bool `json:"transferWindowOpen"`
 	MatchScheduleWeekdaysMask     int  `json:"matchScheduleWeekdaysMask"`

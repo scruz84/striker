@@ -710,6 +710,48 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	return &matches, nil
 }
 
+// GetStuckMatchesStmtSql selects every league match still claimed (in_simulation = true) but
+// never marked played - see GetStuckMatches.
+const GetStuckMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
+	"home_goals, away_goals from matches where played is false and in_simulation is true order by league_id"
+
+// GetStuckMatches returns every league match a simulation pass claimed via GetSimulableMatches
+// (setting in_simulation = true) but never finished simulating - most likely because the
+// process crashed mid-run. Unlike GetSimulableMatches, this doesn't re-claim anything: the rows
+// are already claimed, and the caller is expected to re-simulate them right away (see
+// engine.FinishStuckMatches), since GetSimulableMatches' own "and in_simulation is false" filter
+// means the normal scheduler will never pick these back up on its own.
+func GetStuckMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
+	rows, err := dbCtx.Db.Query(GetStuckMatchesStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make([]WeekMatch, 0)
+	for rows.Next() {
+		var m WeekMatch
+		if err := rows.Scan(&m.MatchId, &m.DivisionId, &m.Season, &m.WeekNumber, &m.MatchDate,
+			&m.Home, &m.Away, &m.HomeGoals, &m.AwayGoals); err != nil {
+			return nil, err
+		}
+		matches = append(matches, m)
+	}
+	return &matches, nil
+}
+
+// CountStuckSimulations counts every league match and friendly left claimed
+// (in_simulation = true) but never marked played, across both tables - used by the admin
+// overview to surface how many matches a crashed simulation pass left behind (see
+// GetStuckMatches/GetStuckFriendlies and engine.FinishStuckSimulations).
+func CountStuckSimulations(dbCtx *DatabaseContext) (int, error) {
+	var count int
+	err := dbCtx.Db.QueryRow(
+		"SELECT (SELECT count(*) FROM matches WHERE played = false AND in_simulation = true) + " +
+			"(SELECT count(*) FROM friendly_matches WHERE played = false AND in_simulation = true)").Scan(&count)
+	return count, err
+}
+
 // GetElapsedWeeksForCountry returns how many rounds country's existing leagues have already
 // completed this season - the least-advanced league's played-round count. Used when a new
 // division is added to an already-running country mid-season (issue #68) to know how many of its

@@ -16,7 +16,28 @@ func SimulateFriendlies(dbCtx *common.DatabaseContext) {
 		log.Errorf("error getting simulable friendlies: %s", err)
 		return
 	}
+	simulateFriendliesNow(dbCtx, friendlies)
+}
 
+// FinishStuckFriendlies re-simulates every friendly a simulation pass claimed
+// (in_simulation = true) but never finished simulating - the case a server crash mid-run leaves
+// behind, since GetSimulableFriendliesStmtSql's "and in_simulation = false" filter means the
+// normal scheduler never revisits a claimed friendly on its own (see
+// common.GetStuckFriendlies). Returns how many friendlies it re-simulated.
+func FinishStuckFriendlies(dbCtx *common.DatabaseContext) int {
+	friendlies, err := common.GetStuckFriendlies(dbCtx)
+	if err != nil {
+		log.Errorf("error getting stuck friendlies: %s", err)
+		return 0
+	}
+	simulateFriendliesNow(dbCtx, friendlies)
+	return len(friendlies)
+}
+
+// simulateFriendliesNow fans out over the given friendlies with the same bounded-concurrency +
+// panic-recovery approach as SimulateMatchesNow (engine.go) - shared by SimulateFriendlies and
+// FinishStuckFriendlies, which differ only in how they pick which friendlies to simulate.
+func simulateFriendliesNow(dbCtx *common.DatabaseContext, friendlies []common.FriendlyMatch) {
 	sem := make(chan struct{}, maxConcurrentSimulations)
 	var wg sync.WaitGroup
 	for _, friendly := range friendlies {

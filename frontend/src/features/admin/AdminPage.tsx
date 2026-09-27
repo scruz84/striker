@@ -34,6 +34,7 @@ import {
   useAdminAdjustBudget,
   useAdminAdvanceSeason,
   useAdminCountries,
+  useAdminFinishStuckMatches,
   useAdminInjectFreeAgentsNow,
   useAdminLeagues,
   useAdminOverview,
@@ -132,6 +133,7 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
     { key: 'leagues', value: overview.leagueCount },
     { key: 'matchesTotal', value: overview.matchesTotal },
     { key: 'matchesUnplayed', value: overview.matchesUnplayed },
+    { key: 'stuckMatches', value: overview.stuckMatches },
     { key: 'activeCups', value: overview.activeCups },
   ]
 
@@ -174,6 +176,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
   const confirm = useConfirm()
   const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
+  const finishStuckMatches = useAdminFinishStuckMatches()
   const advanceSeason = useAdminAdvanceSeason()
   const payWagesNow = useAdminPayWagesNow()
   const injectFreeAgentsNow = useAdminInjectFreeAgentsNow()
@@ -187,6 +190,16 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
     const ok = await confirm({ message: t('admin.actions.confirmRunSimulation'), destructive: true })
     if (ok) {
       simulateNow.mutate()
+    }
+  }
+
+  const handleFinishStuckMatches = async () => {
+    const ok = await confirm({
+      message: t('admin.actions.confirmFinishStuckMatches', { count: overview.stuckMatches }),
+      destructive: true,
+    })
+    if (ok) {
+      finishStuckMatches.mutate()
     }
   }
 
@@ -257,6 +270,14 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
             <Button variant="outlined" onClick={handleSimulateNow} disabled={simulateNow.isPending}>
               {t('admin.actions.runSimulation')}
             </Button>
+            <Button
+              variant="outlined"
+              color={overview.stuckMatches > 0 ? 'warning' : 'inherit'}
+              onClick={handleFinishStuckMatches}
+              disabled={finishStuckMatches.isPending || overview.stuckMatches === 0}
+            >
+              {t('admin.actions.finishStuckMatches', { count: overview.stuckMatches })}
+            </Button>
             <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
               {t('admin.actions.checkSeasonAdvance')}
             </Button>
@@ -276,6 +297,14 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
             </Button>
           </Stack>
           {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.simSuccess')}</Alert>}
+          {finishStuckMatches.isSuccess && (
+            <Alert severity="success" sx={{ mt: 1 }}>
+              {t('admin.actions.finishStuckMatchesSuccess', {
+                leagueMatches: finishStuckMatches.data.leagueMatches,
+                friendlies: finishStuckMatches.data.friendlies,
+              })}
+            </Alert>
+          )}
           {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.seasonSuccess')}</Alert>}
           {payWagesNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.payWagesSuccess')}</Alert>}
           {injectFreeAgentsNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.injectFreeAgentsSuccess')}</Alert>}

@@ -931,6 +931,17 @@ export function useAdminSimulateNow() {
   })
 }
 
+export function useAdminFinishStuckMatches() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      api.post<{ leagueMatches: number; friendlies: number }>('/v1/admin/finish-stuck-matches'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useAdminAdvanceSeason() {
   const queryClient = useQueryClient()
   return useMutation({

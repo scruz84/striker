@@ -198,3 +198,35 @@ func SimulateMatchesNow(dbCtx *common.DatabaseContext, matches []common.WeekMatc
 	}
 	wg.Wait()
 }
+
+// FinishStuckMatches re-simulates every league match a simulation pass claimed
+// (in_simulation = true) but never finished simulating - the case a server crash mid-run leaves
+// behind, since GetSimulableMatchesStmtSql's "and in_simulation is false" filter means the
+// normal scheduler never revisits a claimed match on its own (see common.GetStuckMatches).
+// Returns how many matches it re-simulated.
+func FinishStuckMatches(dbCtx *common.DatabaseContext) int {
+	matches, err := common.GetStuckMatches(dbCtx)
+	if err != nil {
+		log.Errorf("error getting stuck matches: %s", err)
+		return 0
+	}
+	SimulateMatchesNow(dbCtx, *matches)
+	return len(*matches)
+}
+
+// StuckSimulationsResult reports how many matches of each kind FinishStuckSimulations
+// re-simulated.
+type StuckSimulationsResult struct {
+	LeagueMatches int
+	Friendlies    int
+}
+
+// FinishStuckSimulations re-simulates every league match and friendly left stuck at
+// in_simulation = true (played = false) by a simulation pass that never finished - typically a
+// server crash mid-run. See FinishStuckMatches and FinishStuckFriendlies.
+func FinishStuckSimulations(dbCtx *common.DatabaseContext) StuckSimulationsResult {
+	return StuckSimulationsResult{
+		LeagueMatches: FinishStuckMatches(dbCtx),
+		Friendlies:    FinishStuckFriendlies(dbCtx),
+	}
+}

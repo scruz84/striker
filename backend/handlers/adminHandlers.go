@@ -24,6 +24,11 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		stuckMatches, err := common.CountStuckSimulations(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		userCount, err := common.CountUsers(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -70,6 +75,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			LeagueCount:                   leagueCount,
 			MatchesTotal:                  matchesTotal,
 			MatchesUnplayed:               matchesUnplayed,
+			StuckMatches:                  stuckMatches,
 			ActiveCups:                    len(activeCups),
 			TransferWindowOpen:            common.IsTransferWindowOpen(dbCtx),
 			MatchScheduleWeekdaysMask:     schedule.WeekdaysMask,
@@ -107,6 +113,27 @@ func AdminSimulateNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		engine.SimulateCupTies(dbCtx)
 		engine.AdvanceCups(dbCtx)
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "simulation pass triggered"})
+	}
+}
+
+type finishStuckMatchesResponse struct {
+	LeagueMatches int `json:"leagueMatches"`
+	Friendlies    int `json:"friendlies"`
+}
+
+// AdminFinishStuckMatchesHandler re-simulates every league match and friendly left stuck at
+// in_simulation = true (played = false) - rows a simulation pass claimed but never finished
+// simulating, most likely because the server crashed mid-run. The normal scheduler never
+// revisits these on its own (see engine.FinishStuckSimulations), so this is the only way to
+// recover them short of a direct database fix.
+func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log.Infof("admin-triggered stuck match recovery")
+		result := engine.FinishStuckSimulations(dbCtx)
+		c.JSON(http.StatusOK, finishStuckMatchesResponse{
+			LeagueMatches: result.LeagueMatches,
+			Friendlies:    result.Friendlies,
+		})
 	}
 }
 

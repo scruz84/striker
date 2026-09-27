@@ -1058,6 +1058,7 @@ export interface AdminOverview {
   leagueCount: number
   matchesTotal: number
   matchesUnplayed: number
+  stuckMatches: number
   activeCups: number
   transferWindowOpen: boolean
   matchScheduleWeekdaysMask: number

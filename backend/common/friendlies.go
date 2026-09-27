@@ -500,6 +500,34 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 	return matches, tx.Commit()
 }
 
+const GetStuckFriendliesStmtSql = "SELECT match_id, home_team_id, away_team_id, match_date FROM friendly_matches " +
+	"WHERE played = false AND in_simulation = true"
+
+// GetStuckFriendlies returns every friendly a simulation pass claimed via
+// GetSimulableFriendlies (setting in_simulation = true) but never finished simulating - most
+// likely because the process crashed mid-run. Unlike GetSimulableFriendlies, this doesn't
+// re-claim anything: the rows are already claimed, and the caller is expected to re-simulate
+// them right away (see engine.FinishStuckFriendlies), since GetSimulableFriendliesStmtSql's own
+// "and in_simulation = false" filter means the normal scheduler will never pick these back up on
+// its own.
+func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
+	rows, err := dbCtx.Db.Query(GetStuckFriendliesStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	matches := make([]FriendlyMatch, 0)
+	for rows.Next() {
+		var m FriendlyMatch
+		if err := rows.Scan(&m.MatchId, &m.HomeTeamId, &m.AwayTeamId, &m.MatchDate); err != nil {
+			return nil, err
+		}
+		matches = append(matches, m)
+	}
+	return matches, nil
+}
+
 const SetFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 WHERE match_id = $3"
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
