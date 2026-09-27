@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import {
   FORMATION_BALANCED,
+  FORMATION_POSITION_COUNTS,
   POSITION_GOALKEEPER,
   UNAVAILABLE_INJURY,
   type Lineup,
@@ -45,6 +46,19 @@ const lineupWithGoalkeeper = (playerId: number): Lineup => ({
   substitutions: [],
 })
 
+// A full FormationBalanced (4-4-2) XI: one distinct player per required slot, ids 1..11.
+function fullBalancedLineup(): Lineup {
+  const counts = FORMATION_POSITION_COUNTS[FORMATION_BALANCED]
+  const positions: Lineup['positions'] = []
+  let nextPlayerId = 1
+  for (const [position, count] of Object.entries(counts)) {
+    for (let i = 0; i < (count ?? 0); i++) {
+      positions.push({ position: Number(position), playerId: nextPlayerId++ })
+    }
+  }
+  return { matchId: 0, teamId: 1, formation: FORMATION_BALANCED, positions, substitutions: [] }
+}
+
 describe('useLineupSelections', () => {
   it("won't let a suspended/injured bench player be picked up or swapped in", () => {
     const { result } = renderHook(() => useLineupSelections(players, lineupWithGoalkeeper(1), injured(2)))
@@ -66,5 +80,12 @@ describe('useLineupSelections', () => {
     act(() => result.current.handleBenchPlayerClick(3))
     expect(result.current.getPlayer(POSITION_GOALKEEPER, 0)?.id).toBe(3)
     expect(result.current.unavailableStarters).toEqual([])
+  })
+
+  it('lets a default lineup (enforceAvailability=false) stay complete with an unavailable starter', () => {
+    const fullSquad = Array.from({ length: 11 }, (_, i) => player(i + 1))
+    const { result } = renderHook(() => useLineupSelections(fullSquad, fullBalancedLineup(), injured(1), false))
+    expect(result.current.unavailableStarters.map((p) => p.id)).toEqual([1])
+    expect(result.current.isComplete).toBe(true)
   })
 })

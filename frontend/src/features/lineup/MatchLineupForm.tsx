@@ -38,6 +38,12 @@ export interface MatchLineupFormProps {
   // A red-card suspension carries no sanction into a friendly (see useSquadUnavailability) - set
   // this for FriendlyMatchPage's caller so a suspended-only player isn't wrongly flagged/blocked.
   isFriendly?: boolean
+  // Set by LineupEditorPage's friendly-default form: a team's standing default lineup is
+  // general-purpose rather than scoped to one matchday's squad, so an unavailable starter is shown
+  // as informational only and never blocks saving (mirrors LineupForm's league/cup default -
+  // see useLineupSelections' enforceAvailability). Per-match forms (FriendlyMatchPage,
+  // MatchDetailsPage, CupTieDetailsPage) leave this off and keep the hard block.
+  isDefaultLineup?: boolean
 }
 
 // A formation/pitch/bench editor scoped to one specific match (league, cup tie, or friendly)
@@ -55,6 +61,7 @@ export function MatchLineupForm({
   isSuccess,
   substitutionsEnabled,
   isFriendly,
+  isDefaultLineup,
 }: MatchLineupFormProps) {
   const { t } = useTranslation()
   const unavailability = useSquadUnavailability(isFriendly)
@@ -72,7 +79,7 @@ export function MatchLineupForm({
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
-  } = useLineupSelections(players, lineup, unavailability)
+  } = useLineupSelections(players, lineup, unavailability, !isDefaultLineup)
   const {
     substitutionDrafts,
     usedSubOutIds,
@@ -116,7 +123,9 @@ export function MatchLineupForm({
         {t('lineup.tapHint')}
       </Typography>
 
-      {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} />}
+      {unavailableStarters.length > 0 && (
+        <UnavailableStartersWarning players={unavailableStarters} blocking={!isDefaultLineup} />
+      )}
       {!isComplete && unavailableStarters.length === 0 && (
         <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}

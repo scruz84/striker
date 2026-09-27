@@ -74,7 +74,7 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable, false); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
@@ -169,7 +169,7 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			return
 		}
 
-		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable, false); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
@@ -193,12 +193,17 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 // at every tactical position (see common.FormationPositionCounts - always 11 players total,
 // goalkeeper included) with distinct players that actually belong to the team - without this, a
 // manager could otherwise field an empty/understaffed position, duplicate a player, or field an
-// opponent's player, since the DB foreign key alone doesn't enforce team ownership. It also
-// rejects any player currently suspended or injured (see common.GetUnavailablePlayerIds) - the
-// simulation itself would exclude them anyway (see engine.excludeUnavailablePlayers), but
-// rejecting it here gives the manager a clear reason instead of a lineup that quietly plays
-// short.
-func validateLineup(formation int, positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
+// opponent's player, since the DB foreign key alone doesn't enforce team ownership.
+//
+// enforceAvailability additionally rejects any player currently suspended or injured (see
+// common.GetUnavailablePlayerIds) - the simulation itself would exclude them anyway (see
+// engine.excludeUnavailablePlayers), but rejecting it here gives the manager a clear reason
+// instead of a lineup that quietly plays short. This only applies to a lineup being saved for a
+// specific match (SetMatchLineupHandler/SetCupTieLineupHandler/SetFriendlyLineupHandler): a
+// team's standing default lineup (SetLineupHandler/SetFriendlyDefaultLineupHandler) isn't tied to
+// any one matchday's squad, so a manager can save it as-is with a currently unavailable player
+// still in it - they'll simply sit out whichever matches find them still unavailable.
+func validateLineup(formation int, positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool, enforceAvailability bool) error {
 	if !common.IsValidFormation(formation) {
 		return fmt.Errorf("invalid formation %d", formation)
 	}
@@ -234,7 +239,7 @@ func validateLineup(formation int, positions []common.LineupPosition, teamPlayer
 			return fmt.Errorf("player %d does not belong to this team", pos.PlayerId)
 		}
 
-		if unavailable[pos.PlayerId] {
+		if enforceAvailability && unavailable[pos.PlayerId] {
 			return fmt.Errorf("player %d is suspended or injured and unavailable", pos.PlayerId)
 		}
 	}

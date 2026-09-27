@@ -497,7 +497,7 @@ func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		if err := validateLineup(req.Formation, req.Positions, players, unavailable); err != nil {
+		if err := validateLineup(req.Formation, req.Positions, players, unavailable, true); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}

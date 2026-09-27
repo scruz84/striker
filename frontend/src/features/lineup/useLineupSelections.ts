@@ -39,9 +39,17 @@ function initialSelections(lineup: Lineup): Selections {
 // A suspended/injured player (see useSquadUnavailability) can't be put on the pitch: tapping them
 // on the bench does nothing, so they can never be picked up nor swapped in. One already fielded by
 // a lineup saved before their suspension/injury can still be moved (to the bench, or elsewhere on
-// the pitch), but isComplete stays false until they're replaced - the backend would reject the
-// save anyway (see handlers.validateLineup).
-export function useLineupSelections(players: Player[], lineup: Lineup, unavailability: Map<number, PlayerUnavailability>) {
+// the pitch); whether that blocks saving depends on enforceAvailability - true for a per-match
+// lineup (isComplete stays false until they're replaced, matching the backend rejecting the save -
+// see handlers.validateLineup), false for a team's standing default (league/cup or friendly),
+// which is general-purpose rather than tied to a specific matchday's squad and so may legitimately
+// carry a player who's currently out.
+export function useLineupSelections(
+  players: Player[],
+  lineup: Lineup,
+  unavailability: Map<number, PlayerUnavailability>,
+  enforceAvailability = true,
+) {
   // Lazy initializers run once on mount, seeded from the lineup already loaded by the caller - no
   // effect needed to sync them in after the fact. Switching formations doesn't reset selections:
   // it just changes how many slots per position are shown/required, so a player picked under one
@@ -70,7 +78,8 @@ export function useLineupSelections(players: Player[], lineup: Lineup, unavailab
     [visibleSelections],
   )
   const unavailableStarters = players.filter((p) => usedPlayerIds.has(p.id) && unavailability.has(p.id))
-  const isComplete = visibleSelections.every((s) => s.playerId !== '') && unavailableStarters.length === 0
+  const isComplete =
+    visibleSelections.every((s) => s.playerId !== '') && (!enforceAvailability || unavailableStarters.length === 0)
   const benchPlayers = players.filter((p) => !usedPlayerIds.has(p.id))
 
   const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players])

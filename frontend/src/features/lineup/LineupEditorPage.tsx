@@ -88,6 +88,7 @@ function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; play
         isSaving={setFriendlyLineup.isPending}
         isError={setFriendlyLineup.isError}
         isSuccess={setFriendlyLineup.isSuccess}
+        isDefaultLineup
       />
     </Box>
   )
@@ -110,7 +111,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
-  } = useLineupSelections(players, lineup, unavailability)
+  } = useLineupSelections(players, lineup, unavailability, false)
   const {
     substitutionDrafts,
     usedSubOutIds,
@@ -157,7 +158,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
         {t('lineup.tapHint')}
       </Typography>
 
-      {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} />}
+      {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} blocking={false} />}
       {!isComplete && unavailableStarters.length === 0 && (
         <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.incompleteWarning')}

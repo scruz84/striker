@@ -224,6 +224,8 @@
     "benchEmpty": "Every squad player is on the pitch.",
     "unavailableStarters_one": "{{names}} is suspended or injured and can't play - replace them before saving.",
     "unavailableStarters_other": "{{names}} are suspended or injured and can't play - replace them before saving.",
+    "unavailableStartersInfo_one": "{{names}} is currently suspended or injured. This is fine for the default lineup, but they won't play in any match while unavailable.",
+    "unavailableStartersInfo_other": "{{names}} are currently suspended or injured. This is fine for the default lineup, but they won't play in any match while unavailable.",
     "save": "Save lineup",
     "substitutions": {
       "title": "Planned substitutions",

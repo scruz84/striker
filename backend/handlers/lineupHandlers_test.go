@@ -37,13 +37,13 @@ func fullRoster() *[]*common.Player {
 }
 
 func TestValidateLineup_Valid(t *testing.T) {
-	if err := validateLineup(common.FormationBalanced, balancedLineup(), fullRoster(), nil); err != nil {
+	if err := validateLineup(common.FormationBalanced, balancedLineup(), fullRoster(), nil, true); err != nil {
 		t.Fatalf("expected valid lineup to pass, got error: %s", err)
 	}
 }
 
 func TestValidateLineup_InvalidFormation(t *testing.T) {
-	if err := validateLineup(99, balancedLineup(), fullRoster(), nil); err == nil {
+	if err := validateLineup(99, balancedLineup(), fullRoster(), nil, true); err == nil {
 		t.Fatal("expected error for an unrecognized formation")
 	}
 }
@@ -71,7 +71,7 @@ func TestValidateLineup_EveryFormationAccepts11DistinctPlayers(t *testing.T) {
 		if len(positions) != 11 {
 			t.Fatalf("formation %d: expected 11 total players, got %d", formation, len(positions))
 		}
-		if err := validateLineup(formation, positions, fullRoster(), nil); err != nil {
+		if err := validateLineup(formation, positions, fullRoster(), nil, true); err != nil {
 			t.Fatalf("formation %d: expected valid lineup to pass, got error: %s", formation, err)
 		}
 	}
@@ -79,7 +79,7 @@ func TestValidateLineup_EveryFormationAccepts11DistinctPlayers(t *testing.T) {
 
 func TestValidateLineup_WrongCount(t *testing.T) {
 	positions := balancedLineup()[:10]
-	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil); err == nil {
+	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil, true); err == nil {
 		t.Fatal("expected error for a lineup with fewer than 11 positions")
 	}
 }
@@ -100,7 +100,7 @@ func TestValidateLineup_DoesNotMatchChosenFormationShape(t *testing.T) {
 			nextPlayerId++
 		}
 	}
-	if err := validateLineup(common.FormationBalanced, defensivePositions, fullRoster(), nil); err == nil {
+	if err := validateLineup(common.FormationBalanced, defensivePositions, fullRoster(), nil, true); err == nil {
 		t.Fatal("expected error when the submitted shape doesn't match the declared formation")
 	}
 }
@@ -108,7 +108,7 @@ func TestValidateLineup_DoesNotMatchChosenFormationShape(t *testing.T) {
 func TestValidateLineup_DuplicatePlayer(t *testing.T) {
 	positions := balancedLineup()
 	positions[1].PlayerId = positions[0].PlayerId
-	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil); err == nil {
+	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil, true); err == nil {
 		t.Fatal("expected error for duplicate player")
 	}
 }
@@ -117,7 +117,7 @@ func TestValidateLineup_PlayerNotOnRoster(t *testing.T) {
 	roster := rosterOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 	positions := balancedLineup()
 	positions[10].PlayerId = 999
-	if err := validateLineup(common.FormationBalanced, positions, roster, nil); err == nil {
+	if err := validateLineup(common.FormationBalanced, positions, roster, nil, true); err == nil {
 		t.Fatal("expected error for player not belonging to the team")
 	}
 }
@@ -125,16 +125,28 @@ func TestValidateLineup_PlayerNotOnRoster(t *testing.T) {
 func TestValidateLineup_InvalidPositionId(t *testing.T) {
 	positions := balancedLineup()
 	positions[0].Position = 42
-	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil); err == nil {
+	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), nil, true); err == nil {
 		t.Fatal("expected error for out-of-range position id")
 	}
 }
 
-func TestValidateLineup_UnavailablePlayerRejected(t *testing.T) {
+func TestValidateLineup_UnavailablePlayerRejectedWhenEnforced(t *testing.T) {
 	positions := balancedLineup()
 	unavailable := map[int64]bool{positions[3].PlayerId: true}
-	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), unavailable); err == nil {
-		t.Fatal("expected error for a suspended/injured player")
+	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), unavailable, true); err == nil {
+		t.Fatal("expected error for a suspended/injured player when availability is enforced")
+	}
+}
+
+// A team's standing default lineup (SetLineupHandler/SetFriendlyDefaultLineupHandler) isn't tied
+// to any one matchday's squad, so it must stay savable even with a currently unavailable player
+// still in it - see useLineupSelections' enforceAvailability on the frontend for the matching
+// per-context behavior.
+func TestValidateLineup_UnavailablePlayerAllowedWhenNotEnforced(t *testing.T) {
+	positions := balancedLineup()
+	unavailable := map[int64]bool{positions[3].PlayerId: true}
+	if err := validateLineup(common.FormationBalanced, positions, fullRoster(), unavailable, false); err != nil {
+		t.Fatalf("expected a default lineup with a suspended/injured player to be allowed, got error: %s", err)
 	}
 }
 
