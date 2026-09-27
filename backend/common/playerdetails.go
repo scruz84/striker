@@ -166,6 +166,12 @@ type PlayerDetails struct {
 	// deliberately excluded: their value formulas don't depend on side, so they'd always tie
 	// with each other and couldn't be picked between meaningfully.
 	BestPosition int `json:"bestPosition"`
+	// AverageSkill is this player's seven core skills reduced to a single 0-99 figure (see
+	// common.AverageSkill) - unlike the individual skills/traits, it stays visible on someone
+	// else's rostered, unlisted player too, giving a visitor a rough scouting read without
+	// exposing the full breakdown. See handlers.PlayerDetailsHandler, which computes it before
+	// RedactSkills zeroes the underlying fields.
+	AverageSkill int `json:"averageSkill"`
 	PlayerCareerStats
 	PlayerStatus
 	History []TeamTransaction `json:"history"`

@@ -690,6 +690,11 @@ export interface PlayerDetails extends Player {
   divisionName: string
   country: string
   bestPosition: number
+  // A single 0-99 aggregate of the seven core skills - unlike those underlying fields (zeroed by
+  // the backend for someone else's rostered, unlisted player), this stays populated, so the
+  // player page can show a rough scouting figure without the full breakdown. See backend
+  // common.AverageSkill.
+  averageSkill: number
   goals: number
   yellowCards: number
   redCards: number

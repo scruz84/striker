@@ -33,9 +33,11 @@ export function PlayerDetailsPage() {
     return <Skeleton variant="rectangular" height={300} />
   }
 
-  // A rostered player's wage, contract, and financial history are the owning manager's business
+  // A rostered player's contract length and financial history are the owning manager's business
   // - the backend already redacts them for anyone else (see common.Player.RedactFinancials), so
-  // this only decides whether to render the sections at all. A free agent (teamId 0) has no
+  // this decides whether to render the transaction history table below (PlayerProfileRail
+  // handles the contract-length spec row itself). Wage stays visible regardless - the backend
+  // keeps it populated even for someone else's rostered player. A free agent (teamId 0) has no
   // current team to protect that information for, same reasoning as the transfer market listing.
   const canSeeFinancials = player.teamId === 0 || userTeam?.team.id === player.teamId
   // A rostered player's skill ratings are likewise the owning manager's business, unless this

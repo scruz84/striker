@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math"
 	"time"
 )
 
@@ -193,6 +194,16 @@ func (p *Player) RedactSkills(transferListed bool) {
 	p.Quick = false
 	p.Creative = false
 	p.Technical = false
+}
+
+// AverageSkill reduces a player's seven core skill ratings to a single 0-99 headline figure,
+// rounded to the nearest point - mirrors the frontend's client-side overallRating (see
+// utils/playerRating.ts), kept in sync by hand since nothing shares this formula between the Go
+// engine and the client. Callers that need this to survive RedactSkills (see
+// handlers.PlayerDetailsHandler) must compute it before calling that.
+func AverageSkill(p Player) int {
+	total := p.GoalKeeper + p.Defense + p.Lateral + p.Pass + p.Midfield + p.Dribbling + p.Shot
+	return int(math.Round(float64(total) / 7))
 }
 
 // TeamTransaction is one entry in a team's financial ledger.

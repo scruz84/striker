@@ -46,7 +46,11 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			log.Errorf("error incrementing view count for player %d: %s", playerId, err)
 		}
 
-		details := common.PlayerDetails{Player: *player, BestPosition: common.BestCorePosition(*player)}
+		details := common.PlayerDetails{
+			Player:       *player,
+			BestPosition: common.BestCorePosition(*player),
+			AverageSkill: common.AverageSkill(*player),
+		}
 
 		if player.TeamId != 0 {
 			if team, err := common.GetTeamById(player.TeamId, dbCtx); err != nil {
@@ -89,10 +93,13 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.RecentMatches = recentMatches
 		}
 
-		// A rostered player's wage, contract, and financial transaction history are the owning
+		// A rostered player's contract length and financial transaction history are the owning
 		// team's business, not any visitor's - see common.Player.RedactFinancials. A free agent
 		// (TeamId == 0) has no current team to protect that information for, so it stays visible
-		// to everyone, same as on the transfer market's free agent listing.
+		// to everyone, same as on the transfer market's free agent listing. Wage is the one
+		// exception: it stays visible even on someone else's rostered player (restored right after
+		// RedactFinancials zeroes it), giving a visitor a rough sense of what signing this player's
+		// team would cost to compete with, same reasoning as AverageSkill above.
 		isOwner := true
 		if player.TeamId != 0 {
 			userId := GetUserIdFromCookie(c)
@@ -100,7 +107,9 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			isOwner = userId != nil && teamOwner >= 0 && *userId == teamOwner
 		}
 		if !isOwner {
+			wage := details.Wage
 			details.RedactFinancials()
+			details.Wage = wage
 			details.History = []common.TeamTransaction{}
 		} else if history, err := common.GetPlayerTransactions(dbCtx, playerId, PlayerHistoryLimit); err != nil {
 			log.Errorf("error loading transaction history for player %d: %s", playerId, err)

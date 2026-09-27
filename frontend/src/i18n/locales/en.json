@@ -535,7 +535,6 @@
     "age": "Age",
     "wage": "Wage",
     "averageSkill": "Skill",
-    "contract": "Contract",
     "contractSeasons_one": "{{count}} season left",
     "contractSeasons_other": "{{count}} seasons left",
     "renewContract": "Renew",
@@ -935,7 +934,8 @@
       "yellowCards": "Yellow cards",
       "redCards": "Red cards",
       "contract": "Contract",
-      "wage": "Wage"
+      "wage": "Wage",
+      "averageSkill": "Average skill"
     },
     "listForTransfer": {
       "button": "List for transfer"

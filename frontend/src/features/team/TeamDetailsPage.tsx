@@ -55,7 +55,7 @@ import { formatDateTime } from '../../utils/formatDate'
 import { overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
-type SquadSortField = 'name' | 'age' | 'wage' | 'skill' | 'contract'
+type SquadSortField = 'name' | 'age' | 'wage' | 'skill'
 
 type CupStatus = 'none' | 'champion' | 'active' | 'eliminated'
 
@@ -92,8 +92,6 @@ function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): numbe
       return a.wage - b.wage
     case 'skill':
       return overallRating(a) - overallRating(b)
-    case 'contract':
-      return a.contractYearsRemaining - b.contractYearsRemaining
     default:
       return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
   }
@@ -184,22 +182,15 @@ export function TeamDetailsPage() {
                   {t('team.age')}
                 </TableSortLabel>
               </TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'wage' ? sortDir : false}>
+              <TableCell align="right" sortDirection={sortField === 'wage' ? sortDir : false}>
                 <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
                   {t('team.wage')}
                 </TableSortLabel>
               </TableCell>
               {isOwnTeam && (
-                <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'skill' ? sortDir : false}>
+                <TableCell align="right" sortDirection={sortField === 'skill' ? sortDir : false}>
                   <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
                     {t('team.averageSkill')}
-                  </TableSortLabel>
-                </TableCell>
-              )}
-              {isOwnTeam && (
-                <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }} sortDirection={sortField === 'contract' ? sortDir : false}>
-                  <TableSortLabel active={sortField === 'contract'} direction={sortField === 'contract' ? sortDir : 'asc'} onClick={() => handleSort('contract')}>
-                    {t('team.contract')}
                   </TableSortLabel>
                 </TableCell>
               )}
@@ -467,22 +458,15 @@ function PlayerRow({
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
-      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-        {formatCurrency(player.wage)}
-      </TableCell>
+      <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
       {isOwnTeam && (
-        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, color: ratingTierColor(rating, theme.palette) }}>
+        <TableCell align="right" sx={{ color: ratingTierColor(rating, theme.palette) }}>
           {rating}
-        </TableCell>
-      )}
-      {isOwnTeam && (
-        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-          {t('team.contractSeasons', { count: player.contractYearsRemaining })}
         </TableCell>
       )}
       {isOwnTeam ? (
         <TableCell align="right">
-          <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+          <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
             <Button
               size="small"
               onClick={() => setRenewalOpen(true)}
@@ -490,6 +474,11 @@ function PlayerRow({
             >
               {t('team.renewContract')}
             </Button>
+            <Tooltip title={t('team.contractSeasons', { count: player.contractYearsRemaining })}>
+              <Typography variant="body2" color="text.secondary" component="span">
+                ({player.contractYearsRemaining})
+              </Typography>
+            </Tooltip>
             <Button size="small" color="secondary" onClick={handleRelease} disabled={releasePlayer.isPending}>
               {t('team.releasePlayer')}
             </Button>

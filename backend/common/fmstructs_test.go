@@ -51,3 +51,10 @@ func TestRedactSkills_LeavesFreeAgentUntouched(t *testing.T) {
 		t.Fatalf("expected a free agent's skills to stay visible, got %+v, want %+v", p, want)
 	}
 }
+
+func TestAverageSkill_RoundsToNearestPoint(t *testing.T) {
+	p := fullSkillPlayer(42) // 80+70+60+90+55+65+75 = 495, 495/7 = 70.71...
+	if got := AverageSkill(p); got != 71 {
+		t.Fatalf("expected average skill 71, got %d", got)
+	}
+}

@@ -535,7 +535,6 @@
     "age": "Edad",
     "wage": "Salario",
     "averageSkill": "Habilidad",
-    "contract": "Contrato",
     "contractSeasons_one": "{{count}} temporada restante",
     "contractSeasons_other": "{{count}} temporadas restantes",
     "renewContract": "Renovar",
@@ -935,7 +934,8 @@
       "yellowCards": "Tarjetas amarillas",
       "redCards": "Tarjetas rojas",
       "contract": "Contrato",
-      "wage": "Salario"
+      "wage": "Salario",
+      "averageSkill": "Habilidad media"
     },
     "listForTransfer": {
       "button": "Poner en el mercado"

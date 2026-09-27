@@ -37,15 +37,18 @@ export function PlayerProfileRail({
   autoOpenOffer = false,
 }: {
   player: PlayerDetails
-  /** Whether the viewer may see this player's wage and contract length - false when someone else
-   * owns this player's team (see PlayerDetailsPage). Defaults true for other callers (e.g. the
-   * squad page's own PlayerRow, which already gates the whole component by team ownership). */
+  /** Whether the viewer may see this player's contract length and transaction history - false
+   * when someone else owns this player's team (see PlayerDetailsPage). Wage is shown regardless
+   * (the backend keeps it visible even on someone else's rostered player - see
+   * handlers.PlayerDetailsHandler). Defaults true for other callers (e.g. the squad page's own
+   * PlayerRow, which already gates the whole component by team ownership). */
   canSeeFinancials?: boolean
-  /** Whether the viewer may see this player's skill ratings/traits/best position - false when
-   * someone else owns this player's team and hasn't listed them for transfer (see
+  /** Whether the viewer may see this player's full skill breakdown/traits/best position - false
+   * when someone else owns this player's team and hasn't listed them for transfer (see
    * PlayerDetailsPage and the backend's common.Player.RedactSkills, which zeroes the underlying
-   * fields for the same case, so this only decides whether to render them). Defaults true for
-   * other callers, same reasoning as canSeeFinancials. */
+   * fields for the same case, so this only decides whether to render them). When false, a single
+   * averageSkill figure is shown instead (see common.AverageSkill), which survives redaction.
+   * Defaults true for other callers, same reasoning as canSeeFinancials. */
   canSeeSkills?: boolean
   /** Opens the make-offer dialog as soon as it's allowed - set when the viewer arrived here from
    * a "your offer was declined" notification link (see PlayerDetailsPage/RejectOffer), so they can
@@ -226,10 +229,11 @@ export function PlayerProfileRail({
           {player.birthCountry && (
             <SpecRow label={t('playerPage.profile.birthCountry')} value={t(COUNTRY_NAME_KEYS[player.birthCountry] ?? player.birthCountry)} />
           )}
+          {!canSeeSkills && <SpecRow label={t('playerPage.stats.averageSkill')} value={player.averageSkill} />}
           {canSeeFinancials && (
             <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
           )}
-          {canSeeFinancials && <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />}
+          <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
           {!isFreeAgent && <SpecRow label={t('playerPage.stats.goalsForTeam')} value={player.goalsForTeam} />}
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />
