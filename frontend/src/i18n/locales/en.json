@@ -78,8 +78,8 @@
       "relegated": "{{team}} was relegated!",
       "matchResult": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "friendlyResult": "Friendly: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
-      "playerEvolutions_one": "{{count}} of your players developed this season - check their latest evolutions",
-      "playerEvolutions_other": "{{count}} of your players developed this season - check their latest evolutions",
+      "playerEvolutions_one": "{{count}} of your players developed after the match - check their latest evolutions",
+      "playerEvolutions_other": "{{count}} of your players developed after the match - check their latest evolutions",
       "goldenBoot": "{{name}} won the Golden Boot with {{goals}} goals!",
       "playerOfSeason": "{{name}} was named Player of the Season!"
     }
@@ -897,8 +897,8 @@
     "pageTitle": "Latest player evolutions",
     "season": "Season {{season}}",
     "age": "Age",
-    "noChange": "No skill changes this season.",
-    "none": "No players have gone through a season progression yet."
+    "noChange": "No skill changes yet.",
+    "none": "No players have developed yet."
   },
   "playerCard": {
     "age": "Age {{age}}",

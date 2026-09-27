@@ -8,9 +8,9 @@ import { PlayerEvolutionBody } from '../../components/PlayerEvolutionCard'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 
 // The page a NOTIFICATION_PROGRESSION notification links to - every one of the caller's own
-// squad's players who went through the most recent season-end progression run (see
-// engine.ProgressPlayers), each with what changed (see PlayerEvolutionBody). A player who never
-// played a competitive minute that season simply has no row here.
+// squad's players who went through a match-triggered progression run (see
+// engine.updatePlayerSkillsAfterMatch), each with what changed since then (see
+// PlayerEvolutionBody). A player who never played a competitive minute simply has no row here.
 export function LatestEvolutionsPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()

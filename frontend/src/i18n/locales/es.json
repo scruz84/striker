@@ -78,8 +78,8 @@
       "relegated": "¡{{team}} ha descendido!",
       "matchResult": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "friendlyResult": "Amistoso: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
-      "playerEvolutions_one": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
-      "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
+      "playerEvolutions_one": "{{count}} de tus jugadores ha evolucionado tras el partido - revisa sus últimas evoluciones",
+      "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado tras el partido - revisa sus últimas evoluciones",
       "goldenBoot": "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
       "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!"
     }
@@ -897,8 +897,8 @@
     "pageTitle": "Últimas evoluciones de jugadores",
     "season": "Temporada {{season}}",
     "age": "Edad",
-    "noChange": "Sin cambios de habilidad esta temporada.",
-    "none": "Ningún jugador ha pasado aún por una progresión de temporada."
+    "noChange": "Sin cambios de habilidad todavía.",
+    "none": "Ningún jugador ha evolucionado todavía."
   },
   "playerCard": {
     "age": "Edad {{age}}",

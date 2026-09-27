@@ -1,10 +1,12 @@
 package engine
 
 import (
-	"github.com/scruz84/striker/common"
-	log "github.com/sirupsen/logrus"
+	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/scruz84/striker/common"
+	log "github.com/sirupsen/logrus"
 )
 
 // RetirementForcedAge is the age at which a player retires unconditionally.
@@ -172,7 +174,11 @@ func updatePlayerSkillsAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 
 // updateTeamPlayersAfterMatch is updatePlayerSkillsAfterMatch's per-team half - separated out
 // since a match always has two independent sides, each with its own trainer and its own subset
-// of minutesByPosition.
+// of minutesByPosition. When at least one player actually evolves, the team's owner gets a
+// NOTIFICATION_PROGRESSION notification linking to /players/evolutions - the squad-wide report
+// showing each affected player's before/after skill state (see common.GetLatestPlayerEvolutionsForTeam
+// and the frontend's LatestEvolutionsPage), so an evolution isn't only visible by happening to
+// open a player's own page.
 func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, players *map[int64]common.Player,
 	minutesByPosition map[int64]map[int]int, season int, r *rand.Rand) {
 	if players == nil || len(minutesByPosition) == 0 {
@@ -185,6 +191,8 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 	} else if trainer != nil {
 		trainerSkill = trainer.Skill
 	}
+
+	evolvedCount := 0
 
 	for playerId, minutesAtPosition := range minutesByPosition {
 		player, ok := (*players)[playerId]
@@ -219,7 +227,23 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 			player.Pass, pass, player.Midfield, midfield, player.Dribbling, dribbling,
 			player.Shot, shot); err != nil {
 			log.Errorf("error logging match progression for player %d: %s", player.Id, err)
+			continue
 		}
+		evolvedCount++
+	}
+
+	if evolvedCount == 0 {
+		return
+	}
+	msg := common.NotificationMessage{
+		Text: fmt.Sprintf("%d of your players developed after the match - check their latest evolutions", evolvedCount),
+		Key:  "notifications.messages.playerEvolutions",
+		Params: map[string]any{
+			"count": evolvedCount,
+		},
+	}
+	if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, msg, "/players/evolutions"); err != nil {
+		log.Errorf("error notifying team %d owner of player evolutions: %s", teamId, err)
 	}
 }
 

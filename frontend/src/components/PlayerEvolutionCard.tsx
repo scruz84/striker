@@ -14,9 +14,9 @@ const SKILL_ROWS: { field: 'goalKeeper' | 'defense' | 'lateral' | 'pass' | 'midf
   { field: 'shot', labelKey: 'playerCard.skills.shot' },
 ]
 
-/** A player's skill/age changes from their most recent season-end progression run - only the
+/** A player's skill/age changes from their most recent match-triggered progression run - only the
  * skills that actually drifted (see engine.driftSkillsForPosition's independent per-skill
- * chance) are listed, since most seasons leave most skills untouched. Split from
+ * chance) are listed, since most matches leave most skills untouched. Split from
  * PlayerEvolutionCard so the squad-wide latest-evolutions list can reuse just this body under its
  * own per-player heading, instead of a second nested title. */
 export function PlayerEvolutionBody({ evolution }: { evolution: PlayerEvolution }) {

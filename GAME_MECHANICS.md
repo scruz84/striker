@@ -151,7 +151,10 @@ For each player who took the field this match, on the side they played for:
    above), there's no database write and no log row; if something did, it's persisted immediately
    and logged to the same `player_progression_log` table the old season-end system used - see
    `/players/evolutions`, unchanged, just now fed by many small match-triggered updates across a
-   season instead of one big batch at rollover.
+   season instead of one big batch at rollover. When at least one of a team's players evolved this
+   match, its owner also gets a `NOTIFICATION_PROGRESSION` notification (how many players
+   developed, linking to `/players/evolutions`) so the change is visible without having to think
+   to check a player's page.
 
 Aging is on its own, separate, independent cadence: `ProcessBirthdays` (`engine/birthdays.go`),
 run daily by its own cron job, bumps a player's age by one every `BirthdayCycleDays` (20) days
