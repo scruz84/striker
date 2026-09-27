@@ -100,8 +100,67 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 
 	renewExpiringContracts(dbCtx, team.Id, *players)
 	listSurplusPlayer(dbCtx, team.Id, *players)
-	signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
+	if !promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players) {
+		signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
+	}
 	maximizeTicketPrice(dbCtx, team.Id)
+}
+
+// promoteFromAcademyForWeakestPosition has a Manager-level AI-managed team weigh its own cantera
+// (see common.GetCantera) against its single neediest core position (see
+// common.WeakestPositionNeed), exactly the choice CanPromoteFromAcademy/PromoteFromAcademy exist
+// to offer a human manager - a CPU team should take the option into account too rather than let
+// prospects sit in the academy forever. Same "only when actually thin" trigger as
+// signFreeAgentForWeakestPosition (both are a free source of bodies, so neither should fire just
+// because a position has below-average depth), and deliberately tried first: promoting one of the
+// team's own prospects costs nothing extra beyond the weekly cap, so it's preferred over reaching
+// for an outside free agent when both are on the table for the same thin spot. Reports whether it
+// promoted anyone, so manageRosterIfManager can skip the free-agent path this tick for the same
+// position it just filled - the stale `players` snapshot both act on wouldn't otherwise reflect
+// the promotion, and filling one thin position twice in the same pass has no benefit. The weekly
+// cap (ErrAcademyPromotionAlreadyUsedThisWeek) is an expected outcome, not a failure - it just
+// means the option was already taken this week, by this call or an earlier one.
+func promoteFromAcademyForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) bool {
+	weakest := common.WeakestPositionNeed(players)
+	if weakest == nil || !weakest.Thin {
+		return false
+	}
+
+	canPromote, _, err := common.CanPromoteFromAcademy(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error checking academy promotion availability for AI-managed team %d: %s", teamId, err)
+		return false
+	}
+	if !canPromote {
+		return false
+	}
+
+	cantera, err := common.GetCantera(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching cantera for AI-managed team %d: %s", teamId, err)
+		return false
+	}
+	var best *common.Player
+	bestValue := 0
+	for _, p := range cantera {
+		if common.BestCorePosition(*p) != weakest.Position {
+			continue
+		}
+		if v := common.PositionValue(weakest.Position, *p); best == nil || v > bestValue {
+			best, bestValue = p, v
+		}
+	}
+	if best == nil {
+		return false
+	}
+
+	if err := common.PromoteFromAcademy(dbCtx, best.Id, teamId); err != nil {
+		if !errors.Is(err, common.ErrAcademyPromotionAlreadyUsedThisWeek) {
+			log.Errorf("error promoting academy prospect %d for AI-managed team %d: %s", best.Id, teamId, err)
+		}
+		return false
+	}
+	return true
 }
 
 // minAcceptableTransferFeeWageMultiplier is how many times a player's own market-rate wage (see

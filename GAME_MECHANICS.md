@@ -426,9 +426,14 @@ matchday-activity purpose, a friendly a CPU team plays this way still counts for
      market wage (the same bar used to accept an incoming offer) - at most one new listing per
      match, so listings build up gradually while a surplus lasts, and never one that would leave
      fewer than `minSquadSizeAfterSale` owned, unlisted players. Needs the transfer window open.
-  3. **Sign a free agent for the weakest position** - only when `WeakestPositionNeed` flags a core
-     position as genuinely thin, not merely below-average; picks whichever available free agent
-     rates highest there.
+  3. **Promote a cantera prospect for the weakest position, else sign a free agent for it**
+     (`promoteFromAcademyForWeakestPosition`, falling back to the same free-agent signing as
+     before) - same "genuinely thin, not merely below-average" trigger as the free-agent path,
+     since both are a free source of bodies. A CPU team weighs its own academy exactly the choice
+     `CanPromoteFromAcademy`/`PromoteFromAcademy` exist to offer a human manager: whichever cantera
+     prospect rates highest at the thin position is promoted first, subject to the same once-a-
+     real-calendar-week cap a human promotion uses; only when no prospect fits (empty cantera, wrong
+     position, or the weekly cap already spent) does it fall through to signing a free agent instead.
   4. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
      above) - this used to simply be `MaxTicketPrice`, back when attendance never fell as price
      rose, but now that it does, always maxing out would just as often cost revenue as earn it.
