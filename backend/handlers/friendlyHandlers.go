@@ -341,8 +341,9 @@ func AdminSetMaxFriendliesPerWeekHandler(dbCtx *common.DatabaseContext) gin.Hand
 var errFriendlyTeamNotFound = errors.New("team not found for user")
 
 // loadFriendlyForParticipant fetches one friendly and confirms the caller's team is one of its
-// two teams - shared by the match-detail and lineup handlers, which all need this same check
-// before letting the caller see or change anything about it.
+// two teams - shared by the lineup handlers, which need this check before letting the caller see
+// or change either team's lineup for it (match details themselves are open to any viewer - see
+// FriendlyMatchHandler).
 func loadFriendlyForParticipant(dbCtx *common.DatabaseContext, userId int64, matchId int64) (*common.FriendlyMatch, *common.Team, error) {
 	team, err := common.GetTeamByOwner(userId, dbCtx)
 	if err != nil {
@@ -359,7 +360,7 @@ func loadFriendlyForParticipant(dbCtx *common.DatabaseContext, userId int64, mat
 }
 
 // writeFriendlyLookupError renders the errors loadFriendlyForParticipant can return - shared so
-// the three handlers that call it respond the same way to the same failures.
+// the two lineup handlers that call it respond the same way to the same failures.
 func writeFriendlyLookupError(c *gin.Context, matchId int64, err error) {
 	switch {
 	case errors.Is(err, errFriendlyTeamNotFound):
@@ -374,22 +375,28 @@ func writeFriendlyLookupError(c *gin.Context, matchId int64, err error) {
 	}
 }
 
-// FriendlyMatchHandler returns one friendly, provided the caller's team is one of its two teams.
+// FriendlyMatchHandler returns one friendly's details, open to any authenticated user the same
+// way a league match's or cup tie's details are (see MatchDetailsHandler/CupTieDetailsHandler) -
+// not just its two participants. A friendly can be the dashboard's random "live right now"
+// suggestion (see common.GetLiveMatches) for any two teams in the world, so restricting this to
+// participants - as it used to - made that link 403 for every viewer except the two teams
+// actually playing it. Only the lineup endpoints below stay participant-only, since a lineup is
+// each team's own private call.
 func FriendlyMatchHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId := GetUserIdFromCookie(c)
-		if userId == nil {
-			c.JSON(http.StatusForbidden, nil)
-			return
-		}
 		matchId, err := common.StringToInt64(c.Param(ID))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, "invalid match id"))
 			return
 		}
-		match, _, err := loadFriendlyForParticipant(dbCtx, *userId, matchId)
+		match, err := common.GetFriendlyMatchById(dbCtx, matchId)
 		if err != nil {
-			writeFriendlyLookupError(c, matchId, err)
+			if errors.Is(err, sql.ErrNoRows) {
+				c.JSON(http.StatusNotFound, GetError(0, "friendly not found"))
+				return
+			}
+			log.Errorf("error getting friendly match %d: %s", matchId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
 		if err := common.EnrichPlayedFriendly(dbCtx, match); err != nil {
