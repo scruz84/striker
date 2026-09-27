@@ -520,14 +520,16 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	lineups := make(map[int64]*Lineup, 0)
 
 	lineups[(*teamIds)[0]] = &Lineup{
-		MatchId:   matchId,
-		TeamId:    (*teamIds)[0],
-		Positions: make([]LineupPosition, 0),
+		MatchId:       matchId,
+		TeamId:        (*teamIds)[0],
+		Positions:     make([]LineupPosition, 0),
+		Substitutions: make([]LineupSubstitution, 0),
 	}
 	lineups[(*teamIds)[1]] = &Lineup{
-		MatchId:   matchId,
-		TeamId:    (*teamIds)[1],
-		Positions: make([]LineupPosition, 0),
+		MatchId:       matchId,
+		TeamId:        (*teamIds)[1],
+		Positions:     make([]LineupPosition, 0),
+		Substitutions: make([]LineupSubstitution, 0),
 	}
 
 	rows, err := dbCtx.Db.Query(GetLineupsForMatchStmtSql, (*teamIds)[0], (*teamIds)[1], matchId)
@@ -611,7 +613,7 @@ const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM 
 // Lineup) when the team hasn't saved one for this match yet, so callers like the lineup editor
 // can fall back to showing the team's current default lineup as a starting point.
 func GetMatchLineupOverride(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lineup, bool, error) {
-	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
 	err := dbCtx.Db.QueryRow(GetMatchLineupOverrideStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation)

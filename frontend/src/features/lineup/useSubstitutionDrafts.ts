@@ -10,7 +10,7 @@ export interface SubstitutionDraft {
 }
 
 function initialSubstitutionDrafts(lineup: Lineup): SubstitutionDraft[] {
-  return lineup.substitutions.map((s) => ({ playerOutId: s.playerOutId, playerInId: s.playerInId, minute: s.minute }))
+  return (lineup.substitutions ?? []).map((s) => ({ playerOutId: s.playerOutId, playerInId: s.playerInId, minute: s.minute }))
 }
 
 // Drives the substitution planner's add/remove/edit state, shared by LineupEditorPage (the

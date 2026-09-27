@@ -376,7 +376,7 @@ const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie
 // GetCupTieLineup returns teamId's saved override for one cup tie. hasOverride is false (with a
 // zero Lineup) when the team hasn't saved one for this tie yet.
 func GetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64) (Lineup, bool, error) {
-	lineup := Lineup{MatchId: tieId, TeamId: teamId, Positions: make([]LineupPosition, 0)}
+	lineup := Lineup{MatchId: tieId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
 	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(&lineupId, &lineup.Formation)
