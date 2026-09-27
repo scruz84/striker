@@ -25,6 +25,7 @@ import type {
   Lineup,
   LineupPosition,
   LineupSubstitution,
+  LiveMatchesOverview,
   LoanListing,
   LoggedUser,
   Group,
@@ -100,6 +101,7 @@ export const queryKeys = {
   onboardingCountries: ['onboardingCountries'] as const,
   adminLeagues: ['adminLeagues'] as const,
   devLoginUsers: ['devLoginUsers'] as const,
+  liveMatchesOverview: ['liveMatchesOverview'] as const,
 }
 
 export function useMe() {
@@ -653,6 +655,19 @@ export function useTeamMatches(teamId: string | undefined) {
     queryKey: queryKeys.teamMatches(teamId ?? ''),
     queryFn: () => api.get<TeamMatchSummary[]>(`/v1/teams/team/${teamId}/matches`),
     enabled: !!teamId,
+  })
+}
+
+// useLiveMatchesOverview polls how many matches are live across the whole world right now, plus
+// a suggested one to watch (prioritized toward the top divisions) - see backend
+// common.GetLiveMatchesOverview. Refetches periodically since kickoffs and final whistles happen
+// on their own schedule, not in response to anything the viewer does on this page.
+export function useLiveMatchesOverview(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.liveMatchesOverview,
+    queryFn: () => api.get<LiveMatchesOverview>('/v1/teams/matches/live'),
+    enabled,
+    refetchInterval: 60000,
   })
 }
 

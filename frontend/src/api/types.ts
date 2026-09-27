@@ -963,6 +963,29 @@ export interface TeamMatchSummary {
   round?: number
 }
 
+// LiveMatchSummary is one match currently inside its live-broadcast window, anywhere in the
+// world - see backend common.GetLiveMatches. Country/competitionName/tier are only set for a
+// league match (kind === 'league'); a cup tie or friendly has no division to report.
+export interface LiveMatchSummary {
+  kind: 'league' | 'cup' | 'friendly'
+  matchId: number
+  homeTeamName: string
+  awayTeamName: string
+  matchDate: string
+  homeGoals: number
+  awayGoals: number
+  country?: string
+  competitionName?: string
+  tier?: number
+}
+
+// LiveMatchesOverview is the dashboard's "matches in play right now" summary - see backend
+// common.GetLiveMatchesOverview. suggested is undefined when count is 0.
+export interface LiveMatchesOverview {
+  count: number
+  suggested?: LiveMatchSummary
+}
+
 // notifications.notification_type values from backend/common/fmconstants.go
 export const NOTIFICATION_MATCH_RESULT = 0
 export const NOTIFICATION_PROMOTION = 1

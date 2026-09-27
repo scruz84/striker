@@ -7,6 +7,8 @@ import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone'
+import LiveTvTwoToneIcon from '@mui/icons-material/LiveTvTwoTone'
+import ShuffleTwoToneIcon from '@mui/icons-material/ShuffleTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -32,6 +34,7 @@ import {
   useFriendlyChallengesReceived,
   useGroupDetails,
   useHeadToHead,
+  useLiveMatchesOverview,
   useMe,
   useMyGroups,
   useOffersReceived,
@@ -40,11 +43,20 @@ import {
   useTopScorers,
   useUserTeam,
 } from '../../api/hooks'
-import { SPONSOR_DEAL_LABEL_KEYS, type ClassificationPosition, type FinancesResponse, type Player, type Team, type TeamMatchSummary } from '../../api/types'
+import {
+  SPONSOR_DEAL_LABEL_KEYS,
+  type ClassificationPosition,
+  type FinancesResponse,
+  type LiveMatchSummary,
+  type Player,
+  type Team,
+  type TeamMatchSummary,
+} from '../../api/types'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
@@ -101,6 +113,7 @@ export function DashboardPage() {
           <SquadCard teamId={team.id} squadSize={players.length} />
         </Grid>
       </Grid>
+      <LiveMatchesCard />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TopScorerCard leagueId={String(team.divisionId)} />
@@ -146,6 +159,95 @@ function LiveMatchBanner({ match }: { match: TeamMatchSummary | undefined }) {
     >
       {t('dashboard.liveMatchBanner', { opponent: match.opponentName })}
     </Alert>
+  )
+}
+
+// A dashboard-wide (not just the owner's own team) glance at how much of the world is currently
+// mid-broadcast, with one suggested match - prioritized toward the top divisions of any country
+// (see backend common.PickRandomLiveMatch) - to jump straight into watching. Refreshes itself
+// periodically (see useLiveMatchesOverview) since kickoffs and final whistles happen on their own
+// schedule; the shuffle button re-asks the backend for a fresh random pick on demand.
+function LiveMatchesCard() {
+  const { t } = useTranslation()
+  const { data, isLoading, isFetching, refetch } = useLiveMatchesOverview(true)
+  const suggested = data?.suggested
+
+  return (
+    <Card sx={{ mb: 2 }}>
+      <CardContent>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between' }}
+        >
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <LiveTvTwoToneIcon color="error" />
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+                {t('dashboard.liveWorldwide')}
+              </Typography>
+              {isLoading ? (
+                <Skeleton width={160} height={20} />
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {data && data.count > 0
+                    ? t('dashboard.liveMatchesCount', { count: data.count })
+                    : t('dashboard.noLiveMatches')}
+                </Typography>
+              )}
+            </Box>
+          </Stack>
+          {suggested && <SuggestedLiveMatch match={suggested} isFetching={isFetching} onShuffle={refetch} />}
+        </Stack>
+      </CardContent>
+    </Card>
+  )
+}
+
+function SuggestedLiveMatch({
+  match,
+  isFetching,
+  onShuffle,
+}: {
+  match: LiveMatchSummary
+  isFetching: boolean
+  onShuffle: () => void
+}) {
+  const { t } = useTranslation()
+  const flag = countryFlag(match.country)
+
+  return (
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
+      <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          <MatchKindChip kind={match.kind} />
+          {match.kind === 'league' && match.tier !== undefined && (
+            <Chip
+              size="small"
+              variant="outlined"
+              label={t('dashboard.tierLabel', { tier: match.tier })}
+              sx={{ height: 18, fontSize: '0.65rem' }}
+            />
+          )}
+          {flag && <span aria-hidden="true">{flag}</span>}
+        </Stack>
+        <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+          {match.homeTeamName} - {match.awayTeamName}
+        </Typography>
+      </Stack>
+      <Stack direction="row" spacing={1}>
+        <Tooltip title={t('dashboard.shuffleLiveMatch')}>
+          <span>
+            <IconButton size="small" onClick={() => onShuffle()} disabled={isFetching}>
+              <ShuffleTwoToneIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Button size="small" variant="contained" component={RouterLink} to={matchSummaryLink(match)}>
+          {t('dashboard.watchLive')}
+        </Button>
+      </Stack>
+    </Stack>
   )
 }
 

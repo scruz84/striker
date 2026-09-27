@@ -191,7 +191,14 @@
     "offersReceived_one": "Tienes {{count}} oferta de traspaso esperando respuesta.",
     "offersReceived_other": "Tienes {{count}} ofertas de traspaso esperando respuesta.",
     "friendlyChallengesReceived_one": "Tienes {{count}} desafío amistoso esperando respuesta.",
-    "friendlyChallengesReceived_other": "Tienes {{count}} desafíos amistosos esperando respuesta."
+    "friendlyChallengesReceived_other": "Tienes {{count}} desafíos amistosos esperando respuesta.",
+    "liveWorldwide": "En directo por el mundo",
+    "liveMatchesCount_one": "{{count}} partido en juego ahora mismo",
+    "liveMatchesCount_other": "{{count}} partidos en juego ahora mismo",
+    "noLiveMatches": "Ahora mismo no se está jugando ningún partido.",
+    "tierLabel": "División {{tier}}",
+    "watchLive": "Ver en directo",
+    "shuffleLiveMatch": "Sugerir otro partido"
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",

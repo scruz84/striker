@@ -191,7 +191,14 @@
     "offersReceived_one": "You have {{count}} transfer offer waiting for a response.",
     "offersReceived_other": "You have {{count}} transfer offers waiting for a response.",
     "friendlyChallengesReceived_one": "You have {{count}} friendly challenge waiting for a response.",
-    "friendlyChallengesReceived_other": "You have {{count}} friendly challenges waiting for a response."
+    "friendlyChallengesReceived_other": "You have {{count}} friendly challenges waiting for a response.",
+    "liveWorldwide": "Live around the world",
+    "liveMatchesCount_one": "{{count}} match in play right now",
+    "liveMatchesCount_other": "{{count}} matches in play right now",
+    "noLiveMatches": "No matches are being played right now.",
+    "tierLabel": "Tier {{tier}}",
+    "watchLive": "Watch live",
+    "shuffleLiveMatch": "Suggest another match"
   },
   "seasonRecap": {
     "promoted": "Promoted!",
