@@ -114,3 +114,8 @@ const NOTIFICATION_PROGRESSION = 8
 // Golden Boot and Player of the Season share this one type, same as NOTIFICATION_CUP covers both
 // a tie result and the champion - distinguished by NotificationMessage.Key, not by type.
 const NOTIFICATION_AWARD = 9
+
+// NOTIFICATION_OFFER_DECLINED tells a buyer their transfer offer was rejected by the selling
+// club - see common.RejectOffer, which links it straight back to the player's page so the buyer
+// can renegotiate with new terms without hunting for the player again.
+const NOTIFICATION_OFFER_DECLINED = 10

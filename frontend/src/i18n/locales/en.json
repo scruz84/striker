@@ -63,6 +63,7 @@
       "academyPromotion": "Promoted {{name}} from the academy to the first team",
       "transferSold": "Sold {{player}} to {{team}}",
       "transferBought": "Bought {{player}} from {{team}}",
+      "offerDeclined": "{{team}} declined your offer for {{player}} - tap to renegotiate",
       "cupChampion": "{{team}} won the cup!",
       "cupTieResult": "Cup: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "cupTieResultPenalties": "Cup: {{home}} {{homeGoals}} - {{awayGoals}} {{away}} (penalties)",

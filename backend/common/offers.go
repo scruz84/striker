@@ -113,7 +113,7 @@ const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
 	"WHERE o.from_team_id = $1 ORDER BY o.created_at DESC"
 
-const GetOfferOwnersStmtSql = "SELECT from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
+const GetOfferOwnersStmtSql = "SELECT player_id, from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
 const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
@@ -263,8 +263,8 @@ func GetOffersSent(dbCtx *DatabaseContext, teamId int64) ([]TransferOffer, error
 // WithdrawOffer lets the team that made an offer cancel it - allowed regardless of the transfer
 // window's state, same as cancelling a listing.
 func WithdrawOffer(dbCtx *DatabaseContext, offerId int64, fromTeamId int64) error {
-	var actualFromTeamId, actualToTeamId int64
-	err := dbCtx.Db.QueryRow(GetOfferOwnersStmtSql, offerId).Scan(&actualFromTeamId, &actualToTeamId)
+	var playerId, actualFromTeamId, actualToTeamId int64
+	err := dbCtx.Db.QueryRow(GetOfferOwnersStmtSql, offerId).Scan(&playerId, &actualFromTeamId, &actualToTeamId)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrOfferNotFound
 	}
@@ -283,10 +283,12 @@ func WithdrawOffer(dbCtx *DatabaseContext, offerId int64, fromTeamId int64) erro
 }
 
 // RejectOffer lets the team an offer was made to decline it - also allowed regardless of the
-// transfer window's state.
+// transfer window's state. Notifies the buyer with a link straight back to the player's page, so
+// they can open a fresh offer with better terms without having to go find the player again (see
+// NotifyTeamOwnerWithLink and PlayerProfileRail's "make offer" button on the frontend).
 func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
-	var actualFromTeamId, actualToTeamId int64
-	err := dbCtx.Db.QueryRow(GetOfferOwnersStmtSql, offerId).Scan(&actualFromTeamId, &actualToTeamId)
+	var playerId, actualFromTeamId, actualToTeamId int64
+	err := dbCtx.Db.QueryRow(GetOfferOwnersStmtSql, offerId).Scan(&playerId, &actualFromTeamId, &actualToTeamId)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrOfferNotFound
 	}
@@ -301,6 +303,18 @@ func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 		return err
 	}
 	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("rejected")))
+
+	if player, err := GetPlayerById(dbCtx, playerId); err == nil {
+		if sellerTeam, err := GetTeamById(toTeamId, dbCtx); err == nil {
+			playerName := player.FirstName + " " + player.LastName
+			_ = NotifyTeamOwnerWithLink(dbCtx, actualFromTeamId, NOTIFICATION_OFFER_DECLINED, NotificationMessage{
+				Text:   sellerTeam.TeamName + " declined your offer for " + playerName,
+				Key:    "notifications.messages.offerDeclined",
+				Params: map[string]any{"player": playerName, "team": sellerTeam.TeamName},
+			}, "/player/"+strconv.FormatInt(playerId, 10)+"?renegotiate=1")
+		}
+	}
+
 	return nil
 }
 

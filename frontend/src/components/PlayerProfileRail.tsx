@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -34,6 +34,7 @@ export function PlayerProfileRail({
   player,
   canSeeFinancials = true,
   canSeeSkills = true,
+  autoOpenOffer = false,
 }: {
   player: PlayerDetails
   /** Whether the viewer may see this player's wage and contract length - false when someone else
@@ -46,6 +47,10 @@ export function PlayerProfileRail({
    * fields for the same case, so this only decides whether to render them). Defaults true for
    * other callers, same reasoning as canSeeFinancials. */
   canSeeSkills?: boolean
+  /** Opens the make-offer dialog as soon as it's allowed - set when the viewer arrived here from
+   * a "your offer was declined" notification link (see PlayerDetailsPage/RejectOffer), so they can
+   * go straight to renegotiating instead of having to find and click the button themselves. */
+  autoOpenOffer?: boolean
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -73,11 +78,19 @@ export function PlayerProfileRail({
     !!windowStatus?.open
   const [listDialogOpen, setListDialogOpen] = useState(false)
 
-  // A player listed for transfer by someone else's team - the same negotiation dialog offered
-  // from the market's listings table (see TransferMarketPage's MarketListingActions), just
-  // reachable straight from the profile being viewed instead of only from the market table.
-  const canMakeOffer = !canSeeFinancials && player.transferListingAskingPrice !== undefined
+  // Any player belonging to someone else's team, listed for transfer or not - the same
+  // negotiation dialog offered from the team squad page's own "Make Offer" button (see
+  // TeamDetailsPage's PlayerRow), just reachable straight from the profile being viewed instead
+  // of only after navigating to that player's team page first.
+  const canMakeOffer = !canSeeFinancials
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
+
+  useEffect(() => {
+    if (autoOpenOffer && canMakeOffer) {
+      setOfferDialogOpen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenOffer, canMakeOffer, player.id])
 
   const traits: Array<{ key: string; label: string }> = canSeeSkills
     ? [

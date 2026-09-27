@@ -10,7 +10,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
 import { TRANSACTION_REASON_KEYS, type PlayerMatchSummary } from '../../api/types'
@@ -25,6 +25,7 @@ import { matchRatingColor } from '../../utils/matchRating'
 export function PlayerDetailsPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
   const { data: player, isLoading } = usePlayerDetails(id)
   const { data: userTeam } = useUserTeam(true)
 
@@ -47,7 +48,12 @@ export function PlayerDetailsPage() {
     <Stack spacing={{ xs: 1.5, sm: 2 }}>
       <Grid container spacing={{ xs: 1.5, sm: 2 }}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <PlayerProfileRail player={player} canSeeFinancials={canSeeFinancials} canSeeSkills={canSeeSkills} />
+          <PlayerProfileRail
+            player={player}
+            canSeeFinancials={canSeeFinancials}
+            canSeeSkills={canSeeSkills}
+            autoOpenOffer={searchParams.get('renegotiate') === '1'}
+          />
         </Grid>
         {canSeeSkills && (
           <Grid size={{ xs: 12, md: 8 }}>
