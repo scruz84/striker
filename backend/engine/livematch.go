@@ -28,9 +28,35 @@ const liveMatchHalftimeMinute = 45
 // 15:45 - 105 real minutes end to end rather than a flat 90.
 const liveMatchHalftimeDelay = 15 * time.Minute
 
+// minutePublishOffset is how long after kickoff (matchDate) instant.Minute should be published,
+// under the fixed pacing above (45 minutes, a liveMatchHalftimeDelay break, then 45 more) - the
+// mirror image of common.CurrentMatchMinute, which goes the other way (elapsed time -> minute)
+// for the same schedule. Minute 1 publishes right at kickoff (offset zero); minute 46 publishes
+// right as the halftime break ends.
+func minutePublishOffset(minute int) time.Duration {
+	if minute <= liveMatchHalftimeMinute {
+		return time.Duration(minute-1) * liveMatchMinuteDelay
+	}
+	return time.Duration(minute-2)*liveMatchMinuteDelay + liveMatchHalftimeDelay
+}
+
 // BroadcastMatchLive replays a just-simulated match's events/instants, minute by minute, to
 // any WebSocket clients currently subscribed to channel (see common.LeagueMatchChannel /
-// common.CupTieChannel, common.LiveMatchHub, and handlers.LiveMatchHandler).
+// common.CupTieChannel, common.LiveMatchHub, and handlers.LiveMatchHandler) - paced against
+// matchDate, the fixture's own scheduled kickoff, rather than against whenever this function
+// itself happens to run.
+//
+// That distinction matters because this can run well after kickoff: matches are normally claimed
+// for simulation up to 15 minutes early (see GetSimulableMatchesStmtSql/
+// GetSimulableFriendliesStmtSql) so the broadcast is already under way by kickoff, but a scheduler
+// gap (a restart, a stuck pass - see GetStuckMatches/FinishStuckMatches) or an admin-triggered
+// re-run can leave a match unsimulated for much longer, and a cup tie's own claiming query has no
+// upper bound on match_date staleness at all (see GetSimulableCupTiesStmtSql). Pacing every minute
+// against matchDate+minutePublishOffset(minute) rather than a fixed per-iteration delay means any
+// minute whose publish time has already passed by the time this loop reaches it is caught up on
+// immediately (no sleep) - so a match that starts broadcasting an hour late still shows viewers
+// the minute that actually corresponds to real elapsed time since kickoff, instead of restarting
+// its own clock from 1 as if kickoff were happening right now (the bug this replaced).
 //
 // This always runs, even when nobody is watching (the common case) - Publish-ing to a Redis
 // channel with zero subscribers is a harmless no-op, and skipping the whole thing on an upfront
@@ -55,8 +81,10 @@ const liveMatchHalftimeDelay = 15 * time.Minute
 // but a notification fired at that same early instant would spoil a result before the match
 // nominally even started, which is exactly the bug this pattern replaced (the frontend's
 // mightStillBeLive already hides the score everywhere else during this window - a persisted
-// notification has no equivalent per-viewer gating, so it has to not exist yet instead).
-func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation, onComplete func()) {
+// notification has no equivalent per-viewer gating, so it has to not exist yet instead). Pacing
+// minute 1 itself against matchDate (rather than publishing it immediately) keeps that guarantee
+// intact for an on-time match too: nothing publishes before kickoff has actually arrived.
+func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation, matchDate time.Time, onComplete func()) {
 	instants := append([]common.MatchInstant(nil), *match.MatchInstants...)
 	eventsByMinute := make(map[int][]common.Event)
 	for _, event := range *match.Events {
@@ -82,6 +110,9 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 
 		homeGoals, awayGoals := 0, 0
 		for _, instant := range instants {
+			if wait := time.Until(matchDate.Add(minutePublishOffset(instant.Minute))); wait > 0 {
+				time.Sleep(wait)
+			}
 			homeGoals, awayGoals = instant.HomeGoals, instant.AwayGoals
 			for _, event := range eventsByMinute[instant.Minute] {
 				e := event
@@ -97,10 +128,7 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 				dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 					Type: "halftime", HomeGoals: homeGoals, AwayGoals: awayGoals,
 				})
-				time.Sleep(liveMatchHalftimeDelay)
-				continue
 			}
-			time.Sleep(liveMatchMinuteDelay)
 		}
 		dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 			Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals,
