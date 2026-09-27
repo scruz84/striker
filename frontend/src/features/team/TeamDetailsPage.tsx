@@ -29,6 +29,7 @@ import {
   useReleasePlayer,
   useTeamDetails,
   useTeamHistory,
+  useTeamMatches,
   useTeamTrainer,
   useUserTeam,
 } from '../../api/hooks'
@@ -51,10 +52,14 @@ import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
+import { isPast } from '../../api/useLiveMatch'
+import { MatchesList } from './TeamMatchesSection'
 import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
 import { overallRating, ratingTierColor } from '../../utils/playerRating'
+
+const RECENT_MATCHES_LIMIT = 5
 
 type SortDirection = 'asc' | 'desc'
 type SquadSortField = 'name' | 'age' | 'wage' | 'skill'
@@ -172,6 +177,10 @@ export function TeamDetailsPage() {
           <StadiumCard stadium={teamDetails.stadium} />
         </Box>
       )}
+
+      <Box sx={{ mt: 2 }}>
+        <RecentMatchesCard teamId={teamDetails.team.id} />
+      </Box>
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.squad')}
@@ -335,6 +344,36 @@ function StadiumCard({ stadium }: { stadium: StadiumSummary }) {
         </Typography>
       )}
     </Paper>
+  )
+}
+
+// RecentMatchesCard shows this team's most recently played matches (league, cup, and friendly
+// alike) right on any team's page, with a link through to the full fixture/results list - so a
+// visitor doesn't have to jump to the "own team" matches page (only reachable via the sidebar for
+// the caller's own team) just to see how an arbitrary team has been doing lately.
+function RecentMatchesCard({ teamId }: { teamId: number }) {
+  const { t } = useTranslation()
+  const { data: matches, isLoading } = useTeamMatches(String(teamId))
+
+  if (isLoading || !matches) {
+    return <Skeleton variant="rectangular" height={100} />
+  }
+
+  const played = matches
+    .filter((m) => m.played && isPast(m.matchDate))
+    .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
+    .slice(0, RECENT_MATCHES_LIMIT)
+
+  return (
+    <Stack spacing={0.5}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h6">{t('team.matches.recent')}</Typography>
+        <Link component={RouterLink} to={`/team/${teamId}/matches`} underline="hover">
+          {t('team.matches.viewAll')}
+        </Link>
+      </Stack>
+      <MatchesList matches={played} emptyKey="team.matches.noPlayed" />
+    </Stack>
   )
 }
 

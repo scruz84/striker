@@ -591,6 +591,8 @@
       "title": "Partidos",
       "upcoming": "Próximos",
       "played": "Jugados",
+      "recent": "Últimos partidos",
+      "viewAll": "Ver todos los partidos",
       "noUpcoming": "No hay partidos programados.",
       "noPlayed": "Aún no se ha jugado ningún partido.",
       "kindLeague": "Liga",

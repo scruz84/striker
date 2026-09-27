@@ -591,6 +591,8 @@
       "title": "Matches",
       "upcoming": "Upcoming",
       "played": "Played",
+      "recent": "Recent matches",
+      "viewAll": "View all matches",
       "noUpcoming": "No upcoming matches scheduled.",
       "noPlayed": "No matches played yet.",
       "kindLeague": "League",

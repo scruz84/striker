@@ -54,7 +54,8 @@ export function TeamMatchesSection({ teamId }: { teamId: string }) {
 // chip, opponent, date, result) forced the opponent's name to wrap onto two lines at phone width
 // and pushed the result column off-screen entirely. This wraps its pieces as a group instead, so
 // a narrow viewport only ever grows a row's height by one extra line, never four.
-function MatchesList({ matches, emptyKey }: { matches: TeamMatchSummary[]; emptyKey: string }) {
+// Exported so TeamDetailsPage can reuse the same row rendering for its recent-matches summary.
+export function MatchesList({ matches, emptyKey }: { matches: TeamMatchSummary[]; emptyKey: string }) {
   const { t } = useTranslation()
 
   if (matches.length === 0) {
