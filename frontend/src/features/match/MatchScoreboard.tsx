@@ -35,6 +35,11 @@ export interface ScoreboardProps {
   // The home team's stadium - shown as a caption next to the status chip when known (omitted
   // for a friendly, which doesn't track stadium flavor - see WeekMatch.homeStadiumName).
   stadiumName?: string
+  // Each team's current league standing (see ClassificationPosition.position), shown as a small
+  // chip under their name - only known for a league match (WeekMatch.divisionId), so undefined
+  // for a friendly or cup tie simply omits it rather than showing something misleading.
+  homePosition?: number
+  awayPosition?: number
 }
 
 export function Scoreboard({
@@ -48,6 +53,8 @@ export function Scoreboard({
   minute,
   subtitle,
   stadiumName,
+  homePosition,
+  awayPosition,
 }: ScoreboardProps) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -101,6 +108,9 @@ export function Scoreboard({
               <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
                 <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
               </Typography>
+              {typeof homePosition === 'number' && (
+                <Chip size="small" variant="outlined" label={t('match.leaguePosition', { position: homePosition })} />
+              )}
             </Stack>
           </Box>
           <Box sx={{ flex: '0 0 auto', minWidth: { xs: 64, sm: 96 }, textAlign: 'center' }}>
@@ -119,6 +129,9 @@ export function Scoreboard({
               <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
                 <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
               </Typography>
+              {typeof awayPosition === 'number' && (
+                <Chip size="small" variant="outlined" label={t('match.leaguePosition', { position: awayPosition })} />
+              )}
             </Stack>
           </Box>
         </Stack>

@@ -625,6 +625,7 @@
     "connecting": "Conectando...",
     "scheduled": "Programado",
     "venue": "🏟️ {{name}}",
+    "leaguePosition": "#{{position}}",
     "tabs": {
       "events": "Eventos",
       "lineups": "Alineaciones",

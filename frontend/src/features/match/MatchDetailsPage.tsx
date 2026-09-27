@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
-import { POSITION_GOALKEEPER, type Player, type Team, type WeekMatch } from '../../api/types'
+import { POSITION_GOALKEEPER, type DivisionDetails, type Player, type Team, type WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
@@ -26,11 +26,19 @@ import { MatchReportTab } from './MatchReportTab'
 import { Events, Scoreboard } from './MatchScoreboard'
 import { StadiumEntry } from './StadiumEntry'
 
+// A team's current standing in its league (see ClassificationPosition.position) - undefined
+// while the division hasn't loaded yet, or if that team isn't in it (shouldn't happen for a
+// league match's own two teams, but a stale/mismatched division fetch shouldn't crash the page).
+function positionOf(division: DivisionDetails | undefined, teamId: number): number | undefined {
+  return division?.classification.positions.find((p) => p.teamId === teamId)?.position
+}
+
 export function MatchDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const { data: match, isLoading } = useMatchDetails(id)
   const { data: loggedUser } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
+  const { data: division } = useDivisionDetails(match ? String(match.divisionId) : undefined)
   const [liveComplete, setLiveComplete] = useState(false)
   const handleLiveComplete = useCallback(() => setLiveComplete(true), [])
 
@@ -59,6 +67,8 @@ export function MatchDetailsPage() {
         homeStadiumName={match.homeStadiumName}
         awayId={match.away}
         awayName={match.awayName}
+        homePosition={positionOf(division, match.home)}
+        awayPosition={positionOf(division, match.away)}
         matchDate={match.matchDate}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
@@ -68,7 +78,7 @@ export function MatchDetailsPage() {
     )
   }
 
-  return <PlayedMatch match={match} />
+  return <PlayedMatch match={match} division={division} />
 }
 
 function LiveMatch({
@@ -78,6 +88,8 @@ function LiveMatch({
   homeStadiumName,
   awayId,
   awayName,
+  homePosition,
+  awayPosition,
   matchDate,
   team,
   players,
@@ -90,6 +102,8 @@ function LiveMatch({
   homeStadiumName: string
   awayId: number
   awayName: string
+  homePosition?: number
+  awayPosition?: number
   matchDate: string
   team?: Team
   players?: Player[]
@@ -134,6 +148,8 @@ function LiveMatch({
           stadiumName={homeStadiumName}
           awayId={awayId}
           awayName={awayName}
+          homePosition={homePosition}
+          awayPosition={awayPosition}
           homeGoals={0}
           awayGoals={0}
           status="scheduled"
@@ -155,6 +171,8 @@ function LiveMatch({
         stadiumName={homeStadiumName}
         awayId={awayId}
         awayName={awayName}
+        homePosition={homePosition}
+        awayPosition={awayPosition}
         homeGoals={live.homeGoals}
         awayGoals={live.awayGoals}
         status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
@@ -241,11 +259,10 @@ function weeksInASeason(teamCount: number): number {
   return (teamCount - 1) * 2
 }
 
-function PlayedMatch({ match }: { match: WeekMatch }) {
+function PlayedMatch({ match, division }: { match: WeekMatch; division: DivisionDetails | undefined }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
-  const { data: division } = useDivisionDetails(String(match.divisionId))
   const weekTotal = division ? weeksInASeason(division.classification.positions.length) : undefined
 
   return (
@@ -257,6 +274,8 @@ function PlayedMatch({ match }: { match: WeekMatch }) {
         stadiumName={match.homeStadiumName}
         awayId={match.away}
         awayName={match.awayName}
+        homePosition={positionOf(division, match.home)}
+        awayPosition={positionOf(division, match.away)}
         homeGoals={match.homeGoals}
         awayGoals={match.awayGoals}
         status="played"
