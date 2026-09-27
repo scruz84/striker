@@ -691,11 +691,15 @@
       "liveTitle": "Duelo por zonas hasta el momento",
       "atMinute": "Duelo por zonas en el minuto {{minute}}",
       "description": "Lo que la simulación realmente compara para decidir la probabilidad de gol: el ataque de cada equipo por un costado contra la defensa del rival en el costado opuesto más su portero - nunca una zona contra esa misma zona.",
-      "midfieldHeader": "Centro del campo (duelo directo: mismo costado contra mismo costado)",
-      "attackingHeader": "{{team}} atacando",
+      "defenseHeader": "Defensa",
+      "midfieldHeader": "Medio campo",
+      "attackHeader": "Ataque",
       "leftAttack": "Ataque izquierdo",
       "centerAttack": "Ataque",
       "rightAttack": "Ataque derecho",
+      "leftDefenseZone": "Defensa izquierda",
+      "centerDefenseZone": "Defensa",
+      "rightDefenseZone": "Defensa derecha",
       "leftMidfield": "Medio izquierdo",
       "centerMidfield": "Medio campo",
       "rightMidfield": "Medio derecho",
@@ -704,7 +708,10 @@
       "vsMidfieldRight": "vs medio derecho del rival",
       "vsDefenseLeftGk": "vs defensa izquierda + portero del rival",
       "vsDefenseCenterGk": "vs defensa + portero del rival",
-      "vsDefenseRightGk": "vs defensa derecha + portero del rival"
+      "vsDefenseRightGk": "vs defensa derecha + portero del rival",
+      "vsAttackLeft": "vs ataque izquierdo del rival",
+      "vsAttackCenter": "vs ataque central del rival",
+      "vsAttackRight": "vs ataque derecho del rival"
     }
   },
   "headToHead": {

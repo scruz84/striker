@@ -691,11 +691,15 @@
       "liveTitle": "Position battle so far",
       "atMinute": "Position battle at minute {{minute}}",
       "description": "What the simulation actually compares to decide the probability of a goal: each team's attack on a flank against the opponent's defense on the mirrored flank plus their goalkeeper - never a zone against that same zone.",
-      "midfieldHeader": "Midfield (direct duel: same flank against same flank)",
-      "attackingHeader": "{{team}} attacking",
+      "defenseHeader": "Defense",
+      "midfieldHeader": "Midfield",
+      "attackHeader": "Attack",
       "leftAttack": "Left attack",
       "centerAttack": "Attack",
       "rightAttack": "Right attack",
+      "leftDefenseZone": "Left defense",
+      "centerDefenseZone": "Defense",
+      "rightDefenseZone": "Right defense",
       "leftMidfield": "Left midfield",
       "centerMidfield": "Midfield",
       "rightMidfield": "Right midfield",
@@ -704,7 +708,10 @@
       "vsMidfieldRight": "vs opponent's right midfield",
       "vsDefenseLeftGk": "vs opponent's left defense + goalkeeper",
       "vsDefenseCenterGk": "vs opponent's defense + goalkeeper",
-      "vsDefenseRightGk": "vs opponent's right defense + goalkeeper"
+      "vsDefenseRightGk": "vs opponent's right defense + goalkeeper",
+      "vsAttackLeft": "vs opponent's left attack",
+      "vsAttackCenter": "vs opponent's attack",
+      "vsAttackRight": "vs opponent's right attack"
     }
   },
   "headToHead": {
