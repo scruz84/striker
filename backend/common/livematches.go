@@ -1,6 +1,7 @@
 package common
 
 import (
+	"database/sql"
 	"math"
 	"math/rand"
 	"time"
@@ -23,6 +24,10 @@ type LiveMatchSummary struct {
 	// Tier is the league's division tier (1 = the top flight) - only set for a league match
 	// (Kind == MatchKindLeague). A cup tie or friendly has no division to rank, so it's left zero.
 	Tier int `json:"tier,omitempty"`
+	// Minute is only set on the one match GetLiveMatchesOverview suggests (see
+	// enrichSuggestedLiveMatch) - populating it for every live match in the world on every poll
+	// would mean one extra query per match for a number nothing else here uses.
+	Minute int `json:"minute,omitempty"`
 }
 
 const getLiveLeagueMatchesStmtSql = "SELECT m.match_id, ht.name, at.name, m.match_date, m.home_goals, m.away_goals, l.country, l.name, l.tier " +
@@ -126,9 +131,55 @@ func GetLiveMatchesOverview(dbCtx *DatabaseContext) (LiveMatchesOverview, error)
 
 	overview := LiveMatchesOverview{Count: len(matches)}
 	if suggested, ok := PickRandomLiveMatch(matches); ok {
+		if err := enrichSuggestedLiveMatch(dbCtx, &suggested); err != nil {
+			return LiveMatchesOverview{}, err
+		}
 		overview.Suggested = &suggested
 	}
 	return overview, nil
+}
+
+const getMatchScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM match_events " +
+	"WHERE match_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+const getCupTieScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM cup_tie_events " +
+	"WHERE tie_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+const getFriendlyScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM friendly_events " +
+	"WHERE match_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+
+// enrichSuggestedLiveMatch fills in Minute (see CurrentMatchMinute) and overwrites HomeGoals/
+// AwayGoals - freshly queried off matches/cup_ties/friendly_matches, they're already the final
+// result, which would spoil a match still supposedly in progress - with the score as of that
+// same minute, read back from whichever event table its Kind owns. Every event row (goal or not)
+// carries the running score at the moment it happened (see InsertMatchEventStmtSql), so the most
+// recent one at or before the current minute is exactly that snapshot; no event yet at or before
+// it means the match is still scoreless so far.
+func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) error {
+	match.Minute = CurrentMatchMinute(match.MatchDate)
+
+	var stmtSql string
+	switch match.Kind {
+	case MatchKindLeague:
+		stmtSql = getMatchScoreAsOfMinuteStmtSql
+	case MatchKindCup:
+		stmtSql = getCupTieScoreAsOfMinuteStmtSql
+	case MatchKindFriendly:
+		stmtSql = getFriendlyScoreAsOfMinuteStmtSql
+	default:
+		return nil
+	}
+
+	var homeGoals, awayGoals int
+	err := dbCtx.Db.QueryRow(stmtSql, match.MatchId, match.Minute).Scan(&homeGoals, &awayGoals)
+	if err == sql.ErrNoRows {
+		match.HomeGoals, match.AwayGoals = 0, 0
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	match.HomeGoals, match.AwayGoals = homeGoals, awayGoals
+	return nil
 }
 
 // GetLiveMatches lists every league match, cup tie, and friendly currently inside its

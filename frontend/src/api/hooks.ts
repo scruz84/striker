@@ -660,14 +660,15 @@ export function useTeamMatches(teamId: string | undefined) {
 
 // useLiveMatchesOverview polls how many matches are live across the whole world right now, plus
 // a suggested one to watch (prioritized toward the top divisions) - see backend
-// common.GetLiveMatchesOverview. Refetches periodically since kickoffs and final whistles happen
-// on their own schedule, not in response to anything the viewer does on this page.
+// common.GetLiveMatchesOverview. The 5s refetch interval doubles as the dashboard's auto-rotation
+// through suggested matches (each poll asks the backend for a fresh random pick, same as the
+// shuffle button) and keeps the suggested match's minute/score-as-of-minute reasonably current.
 export function useLiveMatchesOverview(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.liveMatchesOverview,
     queryFn: () => api.get<LiveMatchesOverview>('/v1/teams/matches/live'),
     enabled,
-    refetchInterval: 60000,
+    refetchInterval: 5000,
   })
 }
 

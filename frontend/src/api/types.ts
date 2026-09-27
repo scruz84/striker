@@ -992,7 +992,10 @@ export interface TeamMatchSummary {
 
 // LiveMatchSummary is one match currently inside its live-broadcast window, anywhere in the
 // world - see backend common.GetLiveMatches. Country/competitionName/tier are only set for a
-// league match (kind === 'league'); a cup tie or friendly has no division to report.
+// league match (kind === 'league'); a cup tie or friendly has no division to report. minute is
+// only set on the dashboard's suggested pick (see backend common.enrichSuggestedLiveMatch), in
+// which case homeGoals/awayGoals are the score as of that minute rather than the eventual final
+// result.
 export interface LiveMatchSummary {
   kind: 'league' | 'cup' | 'friendly'
   matchId: number
@@ -1004,6 +1007,7 @@ export interface LiveMatchSummary {
   country?: string
   competitionName?: string
   tier?: number
+  minute?: number
 }
 
 // LiveMatchesOverview is the dashboard's "matches in play right now" summary - see backend

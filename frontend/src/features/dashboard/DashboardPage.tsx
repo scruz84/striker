@@ -230,9 +230,17 @@ function SuggestedLiveMatch({
             />
           )}
           {flag && <span aria-hidden="true">{flag}</span>}
+          {match.minute !== undefined && (
+            <Chip
+              size="small"
+              color="error"
+              label={t('dashboard.liveMatchMinute', { minute: match.minute })}
+              sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
+            />
+          )}
         </Stack>
         <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-          {match.homeTeamName} - {match.awayTeamName}
+          {match.homeTeamName} {match.homeGoals} - {match.awayGoals} {match.awayTeamName}
         </Typography>
       </Stack>
       <Stack direction="row" spacing={1}>

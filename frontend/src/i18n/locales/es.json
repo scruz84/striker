@@ -198,7 +198,8 @@
     "noLiveMatches": "Ahora mismo no se está jugando ningún partido.",
     "tierLabel": "División {{tier}}",
     "watchLive": "Ver en directo",
-    "shuffleLiveMatch": "Sugerir otro partido"
+    "shuffleLiveMatch": "Sugerir otro partido",
+    "liveMatchMinute": "{{minute}}'"
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",

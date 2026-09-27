@@ -198,7 +198,8 @@
     "noLiveMatches": "No matches are being played right now.",
     "tierLabel": "Tier {{tier}}",
     "watchLive": "Watch live",
-    "shuffleLiveMatch": "Suggest another match"
+    "shuffleLiveMatch": "Suggest another match",
+    "liveMatchMinute": "{{minute}}'"
   },
   "seasonRecap": {
     "promoted": "Promoted!",

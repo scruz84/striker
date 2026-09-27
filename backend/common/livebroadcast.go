@@ -18,3 +18,39 @@ const LiveBroadcastWindow = 2 * time.Hour
 func LiveBroadcastCutoff() time.Time {
 	return time.Now().Add(-LiveBroadcastWindow)
 }
+
+// liveMatchMinuteDelay/liveMatchHalftimeDelay mirror engine.liveMatchMinuteDelay/
+// liveMatchHalftimeDelay (backend/engine/livematch.go) - kept in sync manually since engine
+// already depends on common and importing it back here would cycle. They pace how real elapsed
+// time since kickoff maps onto the match's own clock for CurrentMatchMinute.
+const liveMatchMinuteDelay = 60 * time.Second
+const liveMatchHalftimeDelay = 15 * time.Minute
+const liveMatchFirstHalfMinutes = 45
+const liveMatchSecondHalfMinutes = 45
+
+// CurrentMatchMinute estimates which match-minute a live broadcast that kicked off at matchDate
+// is showing right now, given the fixed real-time pacing above (45 minutes, then a real
+// liveMatchHalftimeDelay pause, then another 45 minutes) - the same schedule
+// engine.BroadcastMatchLive actually paces its messages on. Used for a dashboard-wide glance at a
+// suggested live match (see GetLiveMatchesOverview) where opening an actual live connection just
+// to read the current minute would be overkill. Clamps to the last minute of each half, so a
+// caller checking in during the halftime break or right at the end still gets a sensible number
+// rather than one that overshoots.
+func CurrentMatchMinute(matchDate time.Time) int {
+	elapsed := time.Since(matchDate)
+	firstHalf := time.Duration(liveMatchFirstHalfMinutes) * liveMatchMinuteDelay
+	if elapsed < firstHalf {
+		return int(elapsed/liveMatchMinuteDelay) + 1
+	}
+
+	afterHalftime := elapsed - firstHalf - liveMatchHalftimeDelay
+	if afterHalftime < 0 {
+		return liveMatchFirstHalfMinutes
+	}
+
+	minute := liveMatchFirstHalfMinutes + int(afterHalftime/liveMatchMinuteDelay) + 1
+	if maxMinute := liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes; minute > maxMinute {
+		return maxMinute
+	}
+	return minute
+}
