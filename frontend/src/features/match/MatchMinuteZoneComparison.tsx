@@ -84,9 +84,6 @@ export function MatchMinuteZoneComparison({
           </IconButton>
         )}
       </Stack>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('match.positionBattle.description')}
-      </Typography>
       {currentMinute > 0 && (
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
           <IconButton size="small" aria-label={t('match.ratings.previousMinute')} disabled={minute <= 0} onClick={() => goToMinute(minute - 1)}>

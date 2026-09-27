@@ -6,24 +6,23 @@ import { useTranslation } from 'react-i18next'
 import type { TeamQualification } from '../../api/types'
 
 interface ZoneRow {
-  labelKey: string
-  home: number
-  away: number
   /** i18n key for the tooltip spelling out exactly which zone is being compared. */
   captionKey: string
+  home: number
+  away: number
 }
 
-// The midfield battle is a genuinely symmetric contest - both teams' midfielders compete
-// directly in the same flank zone for the ball - so comparing each side's own midfield rating
-// zone-for-zone is the correct matchup, unlike the defense/attack columns below. This is the one
-// column where "left" means the same flank for both teams, unlike the mirrored columns - which
-// is exactly what confuses readers, so every cell's tooltip spells out its own matchup instead of
-// relying on the label alone.
+// Midfield is mirrored the same way the defense/attack columns are (see this file's main doc
+// comment): a team's own left flank is physically the same strip of pitch as the opponent's
+// right flank, since the two sides attack in opposite directions - so a home left-midfielder's
+// real contest is against the away right-midfielder, not the away left-midfielder. Backend
+// engine.flankMidfieldSupport (scorer_simulation.go) feeds this exact crossed pairing into a
+// left/right chance's attack value, so this column isn't just a display convention.
 function midfieldRows(homeQua: TeamQualification, awayQua: TeamQualification): ZoneRow[] {
   return [
-    { labelKey: 'match.positionBattle.leftMidfield', home: homeQua.leftMidfield, away: awayQua.leftMidfield, captionKey: 'match.positionBattle.vsMidfieldLeft' },
-    { labelKey: 'match.positionBattle.centerMidfield', home: homeQua.midfield, away: awayQua.midfield, captionKey: 'match.positionBattle.vsMidfieldCenter' },
-    { labelKey: 'match.positionBattle.rightMidfield', home: homeQua.rightMidfield, away: awayQua.rightMidfield, captionKey: 'match.positionBattle.vsMidfieldRight' },
+    { home: homeQua.leftMidfield, away: awayQua.rightMidfield, captionKey: 'match.positionBattle.vsMidfieldRight' },
+    { home: homeQua.midfield, away: awayQua.midfield, captionKey: 'match.positionBattle.vsMidfieldCenter' },
+    { home: homeQua.rightMidfield, away: awayQua.leftMidfield, captionKey: 'match.positionBattle.vsMidfieldLeft' },
   ]
 }
 
@@ -43,17 +42,21 @@ const AWAY_COLOR = '#e53935'
 
 /** A pitch-shaped, zone-by-zone strength comparison built from the exact same cross-zone
  * matchups engine.processChance actually compares to decide the probability of a goal: each
- * team's attack on one flank against the opponent's defense on the MIRRORED flank plus the
- * opponent's goalkeeper - never a team's own zone against the opponent's identical zone (that
- * would be comparing e.g. both teams' goalkeepers to each other, which the engine never does).
- * Midfield is the one genuinely symmetric zone-vs-same-zone contest, shown as-is.
+ * team's attack/midfield on one flank against the opponent's defense/midfield on the MIRRORED
+ * flank (plus the opponent's goalkeeper for the defense/attack columns) - never a team's own
+ * zone against the opponent's identical zone, since the two teams attack in opposite directions
+ * and so physically share each flank with the opponent's OPPOSITE flank, not their same-named
+ * one. All three columns (defense, midfield, attack) are mirrored this way; only the center row
+ * of each is a same-zone contest.
  *
- * Both mirrored columns are anchored to the home team's own zone names (its defense fending off
- * the opponent's attack on the mirrored flank; its attack against the opponent's defense on the
- * mirrored flank) so the whole panel reads as one pitch - "how strong is MY team, zone by zone" -
- * rather than needing a separate "{team} attacking" section per side to say the same six numbers
- * from the other direction. Each cell's exact matchup (which raw values feed it) is on its
- * tooltip rather than printed inline, to keep the grid as scannable as a real pitch view.
+ * All three mirrored columns are anchored to the home team's own zone names (its defense fending
+ * off the opponent's attack on the mirrored flank; its midfield contesting the opponent's
+ * midfield on the mirrored flank; its attack against the opponent's defense on the mirrored
+ * flank) so the whole panel reads as one pitch - "how strong is MY team, zone by zone" - rather
+ * than needing a separate "{team} attacking" section per side to say the same nine numbers from
+ * the other direction. Each cell's own matchup is a hover tooltip rather than a printed label, to
+ * keep the grid as scannable as a real pitch view - the column headers plus cell position already
+ * say which zone is being compared.
  *
  * Just the team-name header and the zone grid, with no Paper/title/description of its own - every
  * caller (MatchMinuteZoneComparison, live or a finished match's "Jugadores" tab) wraps this in its
@@ -70,15 +73,15 @@ export function ZoneComparisonRows({
   const { t } = useTranslation()
 
   const defenseRows: ZoneRow[] = [
-    { labelKey: 'match.positionBattle.leftDefenseZone', home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach, captionKey: 'match.positionBattle.vsAttackRight' },
-    { labelKey: 'match.positionBattle.centerDefenseZone', home: homeQua.defense + homeGoalkeeperRating, away: awayQua.attack, captionKey: 'match.positionBattle.vsAttackCenter' },
-    { labelKey: 'match.positionBattle.rightDefenseZone', home: homeQua.rightDefense + homeGoalkeeperRating, away: awayQua.leftAttack, captionKey: 'match.positionBattle.vsAttackLeft' },
+    { home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach, captionKey: 'match.positionBattle.vsAttackRight' },
+    { home: homeQua.defense + homeGoalkeeperRating, away: awayQua.attack, captionKey: 'match.positionBattle.vsAttackCenter' },
+    { home: homeQua.rightDefense + homeGoalkeeperRating, away: awayQua.leftAttack, captionKey: 'match.positionBattle.vsAttackLeft' },
   ]
   const midRows = midfieldRows(homeQua, awayQua)
   const attackRows: ZoneRow[] = [
-    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.leftAttack, away: awayQua.rightDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseRightGk' },
-    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.attack, away: awayQua.defense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseCenterGk' },
-    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseLeftGk' },
+    { home: homeQua.leftAttack, away: awayQua.rightDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseRightGk' },
+    { home: homeQua.attack, away: awayQua.defense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseCenterGk' },
+    { home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseLeftGk' },
   ]
   const columns = [
     { headerKey: 'match.positionBattle.defenseHeader', rows: defenseRows },
@@ -131,7 +134,7 @@ export function ZoneComparisonRows({
         {columns.map((col) => (
           <Stack key={col.headerKey} spacing={{ xs: 0.5, sm: 0.75 }} sx={{ flex: 1, minWidth: 0 }}>
             {col.rows.map((row) => (
-              <DuelCell key={row.labelKey} label={t(row.labelKey)} caption={t(row.captionKey)} home={row.home} away={row.away} />
+              <DuelCell key={row.captionKey} caption={t(row.captionKey)} home={row.home} away={row.away} />
             ))}
           </Stack>
         ))}
@@ -167,7 +170,7 @@ function formatValue(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1)
 }
 
-function DuelCell({ label, caption, home, away }: { label: string; caption: string; home: number; away: number }) {
+function DuelCell({ caption, home, away }: { caption: string; home: number; away: number }) {
   const total = home + away
   const homeShare = total > 0 ? (home / total) * 100 : 50
   const awayShare = 100 - homeShare
@@ -175,7 +178,7 @@ function DuelCell({ label, caption, home, away }: { label: string; caption: stri
   const awayStronger = away > home
 
   return (
-    <Tooltip title={`${label} — ${caption}`} arrow enterTouchDelay={0}>
+    <Tooltip title={caption} arrow enterTouchDelay={0}>
       <Box
         sx={{
           display: 'flex',

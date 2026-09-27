@@ -89,17 +89,29 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    thinned a position group, so this has to be recalculated every minute, not once at kickoff).
    A core stat like `Attack` is just the sum of the relevant players' raw skill values (e.g.
    every striker's `Shot`); a flank stat blends the winger/full-back's own skill 50/50 with their
-   `Lateral` rating. These roll up into a `MidfieldDiff` and per-side attack-vs-defense diffs used
-   for match reporting/flavor, not for the goal math itself.
+   `Lateral` rating. `blendLine` then gives each zone of a line (defense, midfield, attack) a
+   share of its neighbors' raw strength (`ZoneSpillover`, 15% each way - a flank picks up some of
+   the center's strength and vice versa, the same way a back four or midfield three actually
+   covers for each other), so `TeamQualification`'s `Defense`/`Midfield`/`Attack` and their
+   `Left`/`Right` variants all carry a bit of their neighbors' strength before ScorerSimulation
+   ever reads them - not just the display-only `MidfieldDiff`/per-side attack-vs-defense diffs
+   (now plain center-vs-center diffs on top of that already-blended strength, used for match
+   reporting/flavor).
 3. **ScorerSimulation** (`engine/scorer_simulation.go`) - each minute has a `14%` base chance of
    producing an attacking "chance" (`ProbChance`), boosted by up to another 10 percentage points
    the more one side's `Midfield` dominates the other's (`chanceProbability`). Whichever team gets
    the chance is itself weighted by that same midfield split (`getTeamChance`). The chance is then
-   randomly center/left/right (50/25/25), a player is picked to take it (70% a striker, 20%
-   midfielder, 10% defender - `getPlayerForChance`), and it succeeds (a goal) with probability
-   `(attack + player'sOwnValue) / (defense + goalkeeperSkill + attack + player'sOwnValue)` - i.e.
-   pure relative strength between the attacking side's build-up plus the individual finisher
-   against the defending side's back line plus their goalkeeper.
+   randomly center/left/right (50/25/25); a left/right chance's attack value also picks up a
+   crossed midfield edge (`flankMidfieldSupport`, weighted `FlankMidfieldSupportWeight`) - the
+   attacking side's own flank midfield against the defending side's *mirrored* flank midfield, not
+   the same-named one, since the two teams attack in opposite directions and so a team's own left
+   flank is physically the same strip of pitch as the opponent's right flank (see
+   `ZoneComparisonRows.tsx`'s doc comment on the frontend for the same reasoning applied to
+   attack-vs-defense). A player is picked to take the chance (70% a striker, 20% midfielder, 10%
+   defender - `getPlayerForChance`), and it succeeds (a goal) with a probability derived from a
+   logistic curve over the attacking side's build-up plus the individual finisher against the
+   defending side's back line plus their goalkeeper (`chanceSuccessProbability`) - bounded to a
+   realistic conversion-rate band instead of scaling linearly with the stat gap.
 4. **DisciplineSimulation** (`engine/discipline_simulation.go`) - a flat 3% chance per minute of a
    card incident (`ProbCardIncident`), 6% of those a straight red, otherwise a yellow (a second
    yellow for the same player converts to a red). A sent-off player is removed from their team's

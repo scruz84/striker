@@ -69,6 +69,21 @@ func chanceProbability(match *common.MatchSimulation) float32 {
 	return ProbChance + dominance*ProbChanceDominanceBonus
 }
 
+// FlankMidfieldSupportWeight is how much a flank's midfield battle nudges that same flank's
+// attacking value for a left/right chance in processChance - modest support, not a replacement
+// for the flank's own attack rating. Crossed the same way attack-vs-defense already is: a team's
+// own left flank is physically the same strip of pitch as the opponent's right flank, since the
+// two sides attack in opposite directions (see ZoneComparisonRows.tsx's doc comment on the
+// frontend side of this), so the attacking side's left-midfield battle is fought against the
+// defending side's right-midfield, not their left.
+const FlankMidfieldSupportWeight = 0.2
+
+// flankMidfieldSupport is the crossed midfield edge (attacking side's own flank vs the defending
+// side's mirrored flank) that processChance adds into a left/right chance's attack value.
+func flankMidfieldSupport(attackerFlankMidfield float32, defenderCrossedFlankMidfield float32) float32 {
+	return FlankMidfieldSupportWeight * (attackerFlankMidfield - defenderCrossedFlankMidfield)
+}
+
 func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *common.MatchSimulation, teamChance int64) {
 	isRight := false
 	isLeft := false
@@ -94,10 +109,10 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 		otherTeam = match.Away
 		goalKeeperValue = (*match.AwayPlayers)[(*match.AwayPlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
 		if isRight {
-			attack = match.HomeQua.RightAttach
+			attack = match.HomeQua.RightAttach + flankMidfieldSupport(match.HomeQua.RightMidfield, match.AwayQua.LeftMidfield)
 			defense = match.AwayQua.LeftDefense
 		} else if isLeft {
-			attack = match.HomeQua.LeftAttack
+			attack = match.HomeQua.LeftAttack + flankMidfieldSupport(match.HomeQua.LeftMidfield, match.AwayQua.RightMidfield)
 			defense = match.AwayQua.RightDefense
 		} else {
 			attack = match.HomeQua.Attack
@@ -109,10 +124,10 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 		otherTeam = match.Home
 		goalKeeperValue = (*match.HomePlayers)[(*match.HomePlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
 		if isRight {
-			attack = match.AwayQua.RightAttach
+			attack = match.AwayQua.RightAttach + flankMidfieldSupport(match.AwayQua.RightMidfield, match.HomeQua.LeftMidfield)
 			defense = match.HomeQua.LeftDefense
 		} else if isLeft {
-			attack = match.AwayQua.LeftAttack
+			attack = match.AwayQua.LeftAttack + flankMidfieldSupport(match.AwayQua.LeftMidfield, match.HomeQua.RightMidfield)
 			defense = match.HomeQua.RightDefense
 		} else {
 			attack = match.AwayQua.Attack

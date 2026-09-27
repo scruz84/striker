@@ -71,6 +71,29 @@ func TestHomeChanceShare_BoundedForExtremeDominance(t *testing.T) {
 	}
 }
 
+func TestFlankMidfieldSupport_EvenMidfieldBattleIsNeutral(t *testing.T) {
+	if got := flankMidfieldSupport(50, 50); got != 0 {
+		t.Fatalf("expected an even flank midfield battle to add nothing, got %v", got)
+	}
+}
+
+func TestFlankMidfieldSupport_WinningTheFlankAddsAModestBoost(t *testing.T) {
+	got := flankMidfieldSupport(70, 50)
+	want := float32(FlankMidfieldSupportWeight) * 20
+	if math.Abs(float64(got-want)) > 0.001 {
+		t.Fatalf("expected a %v-weighted boost of %v, got %v", FlankMidfieldSupportWeight, want, got)
+	}
+	if got <= 0 {
+		t.Fatalf("expected winning the flank's midfield battle to boost attack, got %v", got)
+	}
+}
+
+func TestFlankMidfieldSupport_LosingTheFlankIsAPenalty(t *testing.T) {
+	if got := flankMidfieldSupport(40, 60); got >= 0 {
+		t.Fatalf("expected losing the flank's midfield battle to penalize attack, got %v", got)
+	}
+}
+
 func TestChanceQualityMultiplier_OnlyEverReturnsTheTwoTiers(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	for i := 0; i < 100; i++ {

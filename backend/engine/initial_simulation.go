@@ -49,26 +49,49 @@ func calculateDiffs(match *common.MatchSimulation) {
 func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, playersByPosition *map[int][]int64,
 	players *map[int64]common.Player) {
 	//defense
-	teamQua.LeftDefense = calculateLateralDefense(
+	rawLeftDefense := calculateLateralDefense(
 		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
-	teamQua.RightDefense = calculateLateralDefense(
+	rawRightDefense := calculateLateralDefense(
 		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
-	teamQua.Defense = calculateDefense(
+	rawDefense := calculateDefense(
 		(*playersByPosition)[common.DEFENSE], (*playersByPosition)[common.MIDFIELD], players)
+	teamQua.LeftDefense, teamQua.Defense, teamQua.RightDefense = blendLine(rawLeftDefense, rawDefense, rawRightDefense)
+
 	//midfield
-	teamQua.LeftMidfield = calculateLateralMidfield(
+	rawLeftMidfield := calculateLateralMidfield(
 		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
-	teamQua.RightMidfield = calculateLateralMidfield(
+	rawRightMidfield := calculateLateralMidfield(
 		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
-	teamQua.Midfield = calculateMidfield(
+	rawMidfield := calculateMidfield(
 		(*playersByPosition)[common.DEFENSE], (*playersByPosition)[common.MIDFIELD], players)
+	teamQua.LeftMidfield, teamQua.Midfield, teamQua.RightMidfield = blendLine(rawLeftMidfield, rawMidfield, rawRightMidfield)
+
 	//attack
-	teamQua.LeftAttack = calculateLateralAttack(
+	rawLeftAttack := calculateLateralAttack(
 		(*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], (*playersByPosition)[common.LATERAL_STRIKER_LEFT], players)
-	teamQua.RightAttach = calculateLateralAttack(
+	rawRightAttack := calculateLateralAttack(
 		(*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], (*playersByPosition)[common.LATERAL_STRIKER_RIGHT], players)
-	teamQua.Attack = calculateAttack(
+	rawAttack := calculateAttack(
 		(*playersByPosition)[common.STRIKER], (*playersByPosition)[common.MIDFIELD], players)
+	teamQua.LeftAttack, teamQua.Attack, teamQua.RightAttach = blendLine(rawLeftAttack, rawAttack, rawRightAttack)
+}
+
+// ZoneSpillover is how much of a three-zone line's (defense, midfield, or attack) strength leaks
+// into its neighboring zone, the same way a back four or midfield three actually covers for each
+// other rather than each zone playing in total isolation - a busy left flank still draws a bit of
+// support from the center, and vice versa. Applied identically to all three lines by blendLine.
+const ZoneSpillover = 0.15
+
+// blendLine gives each zone of a left/center/right line a share of its neighbors' raw strength:
+// the center picks up a slice of both flanks, and each flank picks up a slice of the center (not
+// of the opposite flank, which isn't adjacent to it). Mirrors the 0.7/0.15/0.15 weighting this
+// package's match-report diffs already used, just applied to the actual TeamQualification values
+// the simulation plays out with instead of only a display-only summary.
+func blendLine(left float32, center float32, right float32) (blendedLeft float32, blendedCenter float32, blendedRight float32) {
+	blendedLeft = left*(1-ZoneSpillover) + center*ZoneSpillover
+	blendedRight = right*(1-ZoneSpillover) + center*ZoneSpillover
+	blendedCenter = center*(1-2*ZoneSpillover) + left*ZoneSpillover + right*ZoneSpillover
+	return blendedLeft, blendedCenter, blendedRight
 }
 
 func calculateLateralDefense(def []int64, mid []int64, players *map[int64]common.Player) float32 {
@@ -120,17 +143,18 @@ func calculateAttack(striker []int64, mid []int64, players *map[int64]common.Pla
 	return value
 }
 
+// calculateMidfieldDiff/calculateHomeAttackDiff/calculateAwayAttackDiff used to each re-blend
+// their own 0.7/0.15/0.15 mix of center/left/right on top of already-raw Qua values - now that
+// blendLine bakes that same mix directly into Midfield/Attack/Defense themselves (see
+// calculateQua), these are plain center-vs-center diffs instead of re-blending it a second time.
 func calculateMidfieldDiff(match *common.MatchSimulation) float32 {
-	return (match.HomeQua.Midfield*0.7 + match.HomeQua.LeftMidfield*0.15 + match.HomeQua.RightMidfield*0.15) -
-		(match.AwayQua.Midfield*0.7 + match.AwayQua.LeftMidfield*0.15 + match.AwayQua.RightMidfield*0.15)
+	return match.HomeQua.Midfield - match.AwayQua.Midfield
 }
 
 func calculateHomeAttackDiff(match *common.MatchSimulation) float32 {
-	return (match.HomeQua.Attack*0.7 + match.HomeQua.LeftAttack*0.15 + match.HomeQua.RightAttach*0.15) -
-		(match.AwayQua.Defense*0.7 + match.AwayQua.LeftDefense*0.15 + match.AwayQua.RightDefense*0.15)
+	return match.HomeQua.Attack - match.AwayQua.Defense
 }
 
 func calculateAwayAttackDiff(match *common.MatchSimulation) float32 {
-	return (match.AwayQua.Attack*0.7 + match.AwayQua.LeftAttack*0.15 + match.AwayQua.RightAttach*0.15) -
-		(match.HomeQua.Defense*0.7 + match.HomeQua.LeftDefense*0.15 + match.HomeQua.RightDefense*0.15)
+	return match.AwayQua.Attack - match.HomeQua.Defense
 }
