@@ -9,16 +9,21 @@ interface ZoneRow {
   labelKey: string
   home: number
   away: number
+  /** i18n key for the small "vs ..." caption spelling out exactly which zone is being compared. */
+  captionKey: string
 }
 
 // The midfield battle is a genuinely symmetric contest - both teams' midfielders compete
 // directly in the same flank zone for the ball - so comparing each side's own midfield rating
-// zone-for-zone is the correct matchup, unlike attack/defense below.
+// zone-for-zone is the correct matchup, unlike attack/defense below. This is the one row group
+// where "left" means the same flank for both teams, unlike the attack rows below where "left"/
+// "right" mirror across the pitch - which is exactly what confuses readers, so every row spells
+// out its own matchup via captionKey instead of relying on the label alone.
 function midfieldRows(homeQua: TeamQualification, awayQua: TeamQualification): ZoneRow[] {
   return [
-    { labelKey: 'match.positionBattle.leftMidfield', home: homeQua.leftMidfield, away: awayQua.leftMidfield },
-    { labelKey: 'match.positionBattle.centerMidfield', home: homeQua.midfield, away: awayQua.midfield },
-    { labelKey: 'match.positionBattle.rightMidfield', home: homeQua.rightMidfield, away: awayQua.rightMidfield },
+    { labelKey: 'match.positionBattle.leftMidfield', home: homeQua.leftMidfield, away: awayQua.leftMidfield, captionKey: 'match.positionBattle.vsMidfieldLeft' },
+    { labelKey: 'match.positionBattle.centerMidfield', home: homeQua.midfield, away: awayQua.midfield, captionKey: 'match.positionBattle.vsMidfieldCenter' },
+    { labelKey: 'match.positionBattle.rightMidfield', home: homeQua.rightMidfield, away: awayQua.rightMidfield, captionKey: 'match.positionBattle.vsMidfieldRight' },
   ]
 }
 
@@ -50,14 +55,14 @@ export function MatchPositionComparison({
   const { t } = useTranslation()
 
   const homeAttackRows: ZoneRow[] = [
-    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.leftAttack, away: awayQua.rightDefense + awayGoalkeeperRating },
-    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.attack, away: awayQua.defense + awayGoalkeeperRating },
-    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating },
+    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.leftAttack, away: awayQua.rightDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseRightGk' },
+    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.attack, away: awayQua.defense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseCenterGk' },
+    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseLeftGk' },
   ]
   const awayAttackRows: ZoneRow[] = [
-    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.rightDefense + homeGoalkeeperRating, away: awayQua.leftAttack },
-    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.defense + homeGoalkeeperRating, away: awayQua.attack },
-    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach },
+    { labelKey: 'match.positionBattle.leftAttack', home: homeQua.rightDefense + homeGoalkeeperRating, away: awayQua.leftAttack, captionKey: 'match.positionBattle.vsDefenseRightGk' },
+    { labelKey: 'match.positionBattle.centerAttack', home: homeQua.defense + homeGoalkeeperRating, away: awayQua.attack, captionKey: 'match.positionBattle.vsDefenseCenterGk' },
+    { labelKey: 'match.positionBattle.rightAttack', home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach, captionKey: 'match.positionBattle.vsDefenseLeftGk' },
   ]
 
   return (
@@ -78,10 +83,15 @@ export function MatchPositionComparison({
         </Typography>
       </Stack>
       <Stack spacing={1.5}>
-        <Stack spacing={1}>
-          {midfieldRows(homeQua, awayQua).map((row) => (
-            <ZoneBar key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} />
-          ))}
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            {t('match.positionBattle.midfieldHeader')}
+          </Typography>
+          <Stack spacing={1}>
+            {midfieldRows(homeQua, awayQua).map((row) => (
+              <ZoneBar key={row.labelKey} label={t(row.labelKey)} caption={t(row.captionKey)} home={row.home} away={row.away} />
+            ))}
+          </Stack>
         </Stack>
         <Stack spacing={0.5}>
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
@@ -89,7 +99,7 @@ export function MatchPositionComparison({
           </Typography>
           <Stack spacing={1}>
             {homeAttackRows.map((row) => (
-              <ZoneBar key={`home-${row.labelKey}`} label={t(row.labelKey)} home={row.home} away={row.away} />
+              <ZoneBar key={`home-${row.labelKey}`} label={t(row.labelKey)} caption={t(row.captionKey)} home={row.home} away={row.away} />
             ))}
           </Stack>
         </Stack>
@@ -99,7 +109,7 @@ export function MatchPositionComparison({
           </Typography>
           <Stack spacing={1}>
             {awayAttackRows.map((row) => (
-              <ZoneBar key={`away-${row.labelKey}`} label={t(row.labelKey)} home={row.home} away={row.away} />
+              <ZoneBar key={`away-${row.labelKey}`} label={t(row.labelKey)} caption={t(row.captionKey)} home={row.home} away={row.away} />
             ))}
           </Stack>
         </Stack>
@@ -108,7 +118,7 @@ export function MatchPositionComparison({
   )
 }
 
-function ZoneBar({ label, home, away }: { label: string; home: number; away: number }) {
+function ZoneBar({ label, caption, home, away }: { label: string; caption: string; home: number; away: number }) {
   const total = home + away
   // Each side's share of the zone, as a 0-100 pair summing to 100 (split evenly when neither team
   // has anything here). The bar itself halves that share again so a side never overruns the
@@ -131,6 +141,13 @@ function ZoneBar({ label, home, away }: { label: string; home: number; away: num
       <Box sx={{ width: { xs: 90, sm: 120 } }}>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mb: 0.25 }}>
           {label}
+        </Typography>
+        <Typography
+          variant="caption"
+          color="text.disabled"
+          sx={{ display: 'block', textAlign: 'center', mb: 0.25, fontSize: '0.65rem', lineHeight: 1.1 }}
+        >
+          {caption}
         </Typography>
         <Box sx={{ position: 'relative', height: 8, bgcolor: 'action.hover', borderRadius: 1 }}>
           <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '1px', bgcolor: 'divider' }} />

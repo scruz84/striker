@@ -681,13 +681,20 @@
     "positionBattle": {
       "title": "Position battle",
       "description": "What the simulation actually compares to decide the probability of a goal: each team's attack on a flank against the opponent's defense on the mirrored flank plus their goalkeeper - never a zone against that same zone.",
+      "midfieldHeader": "Midfield (direct duel: same flank against same flank)",
       "attackingHeader": "{{team}} attacking",
       "leftAttack": "Left attack",
       "centerAttack": "Attack",
       "rightAttack": "Right attack",
       "leftMidfield": "Left midfield",
       "centerMidfield": "Midfield",
-      "rightMidfield": "Right midfield"
+      "rightMidfield": "Right midfield",
+      "vsMidfieldLeft": "vs opponent's left midfield",
+      "vsMidfieldCenter": "vs opponent's midfield",
+      "vsMidfieldRight": "vs opponent's right midfield",
+      "vsDefenseLeftGk": "vs opponent's left defense + goalkeeper",
+      "vsDefenseCenterGk": "vs opponent's defense + goalkeeper",
+      "vsDefenseRightGk": "vs opponent's right defense + goalkeeper"
     }
   },
   "headToHead": {
