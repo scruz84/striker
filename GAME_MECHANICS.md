@@ -101,11 +101,11 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    pure relative strength between the attacking side's build-up plus the individual finisher
    against the defending side's back line plus their goalkeeper.
 4. **DisciplineSimulation** (`engine/discipline_simulation.go`) - a flat 3% chance per minute of a
-   card incident (`ProbCardIncident`), 15% of those a straight red, otherwise a yellow (a second
+   card incident (`ProbCardIncident`), 6% of those a straight red, otherwise a yellow (a second
    yellow for the same player converts to a red). A sent-off player is removed from their team's
    active lineup for the rest of the match (nobody replaces them - there's no substitution model
    for this) and banned 1-2 matches (`SecondYellowSuspensionMatches`/`StraightRedSuspensionMatches`).
-5. **InjurySimulation** (`engine/injury_simulation.go`) - independently, a flat 1.5% chance per
+5. **InjurySimulation** (`engine/injury_simulation.go`) - independently, a flat 0.5% chance per
    minute (`ProbInjuryIncident`) of an injury, removing the player from the rest of the match and
    sidelining them 1-5 more matches. Unlike a card, this doesn't necessarily leave the team a man
    down: if they haven't already used all `MaxScheduledSubstitutions` (3, shared with the

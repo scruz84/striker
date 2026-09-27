@@ -48,7 +48,7 @@
   ],
   "uid": "striker-economy",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "timezone": "browser",
   "editable": true,
   "graphTooltip": 1,
@@ -237,7 +237,7 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "Matches simulated, by competition type",
+      "title": "Matches simulated per day, by competition type",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -269,8 +269,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_matches_simulated_total[5m])) by (type)",
-          "legendFormat": "{{type}}",
+          "expr": "sum(rate(striker_matches_simulated_total[1h])) by (type) * 86400",
+          "legendFormat": "{{type}}/day",
           "refId": "A"
         }
       ],
@@ -287,7 +287,7 @@
     {
       "id": 7,
       "type": "timeseries",
-      "title": "Goals scored, by competition type",
+      "title": "Goals scored per day, by competition type",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -319,8 +319,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_goals_scored_total[5m])) by (type)",
-          "legendFormat": "{{type}}",
+          "expr": "sum(rate(striker_goals_scored_total[1h])) by (type) * 86400",
+          "legendFormat": "{{type}}/day",
           "refId": "A"
         }
       ],
@@ -377,12 +377,63 @@
       }
     },
     {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Academy promotions per day",
+      "description": "Youth academy prospects promoted to the senior squad - see AcademyPromotionsCounter in backend/common/telemetry.go.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_academy_promotions_total[1h])) * 86400",
+          "legendFormat": "promotions/day",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
       "id": 9,
       "type": "row",
       "title": "Economy",
       "gridPos": {
         "x": 0,
-        "y": 26,
+        "y": 34,
         "w": 24,
         "h": 1
       },
@@ -399,7 +450,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 35,
         "w": 8,
         "h": 8
       },
@@ -435,14 +486,14 @@
     {
       "id": 11,
       "type": "timeseries",
-      "title": "Transfer fee volume",
+      "title": "Transfer fee volume per day",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 8,
-        "y": 27,
+        "y": 35,
         "w": 8,
         "h": 8
       },
@@ -467,8 +518,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_transfers_volume_total[1h]))",
-          "legendFormat": "fees/sec",
+          "expr": "sum(rate(striker_transfers_volume_total[1h])) * 86400",
+          "legendFormat": "fees/day",
           "refId": "A"
         }
       ],
@@ -485,14 +536,14 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Transfers completed vs. free agent signings",
+      "title": "Transfers completed vs. free agent signings (per day)",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 16,
-        "y": 27,
+        "y": 35,
         "w": 8,
         "h": 8
       },
@@ -517,8 +568,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_transfers_completed_total[5m]))",
-          "legendFormat": "transfers",
+          "expr": "sum(rate(striker_transfers_completed_total[1h])) * 86400",
+          "legendFormat": "transfers/day",
           "refId": "A"
         },
         {
@@ -526,8 +577,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_free_agents_signed_total[5m]))",
-          "legendFormat": "free agents",
+          "expr": "sum(rate(striker_free_agents_signed_total[1h])) * 86400",
+          "legendFormat": "free agents/day",
           "refId": "B"
         }
       ],
@@ -547,7 +598,7 @@
       "title": "Transfer & loan market",
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 43,
         "w": 24,
         "h": 1
       },
@@ -564,7 +615,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 36,
+        "y": 44,
         "w": 6,
         "h": 8
       },
@@ -604,7 +655,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 36,
+        "y": 44,
         "w": 6,
         "h": 8
       },
@@ -644,7 +695,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 36,
+        "y": 44,
         "w": 6,
         "h": 8
       },
@@ -677,14 +728,14 @@
     {
       "id": 17,
       "type": "timeseries",
-      "title": "Loans listed vs. accepted",
+      "title": "Loans listed vs. accepted (per day)",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 18,
-        "y": 36,
+        "y": 44,
         "w": 6,
         "h": 8
       },
@@ -709,8 +760,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_loans_listed_total[1h]))",
-          "legendFormat": "listed",
+          "expr": "sum(rate(striker_loans_listed_total[1h])) * 86400",
+          "legendFormat": "listed/day",
           "refId": "A"
         },
         {
@@ -718,8 +769,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_loans_accepted_total[1h]))",
-          "legendFormat": "accepted",
+          "expr": "sum(rate(striker_loans_accepted_total[1h])) * 86400",
+          "legendFormat": "accepted/day",
           "refId": "B"
         }
       ],
@@ -736,14 +787,14 @@
     {
       "id": 18,
       "type": "timeseries",
-      "title": "Transfer offers made vs. resolved, by outcome",
+      "title": "Transfer offers made vs. resolved, by outcome (per day)",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 0,
-        "y": 44,
+        "y": 52,
         "w": 24,
         "h": 8
       },
@@ -768,8 +819,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_offers_made_total[1h]))",
-          "legendFormat": "made",
+          "expr": "sum(rate(striker_offers_made_total[1h])) * 86400",
+          "legendFormat": "made/day",
           "refId": "A"
         },
         {
@@ -777,8 +828,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_offers_resolved_total[1h])) by (outcome)",
-          "legendFormat": "resolved: {{outcome}}",
+          "expr": "sum(rate(striker_offers_resolved_total[1h])) by (outcome) * 86400",
+          "legendFormat": "resolved: {{outcome}}/day",
           "refId": "B"
         }
       ],
@@ -798,7 +849,7 @@
       "title": "Community",
       "gridPos": {
         "x": 0,
-        "y": 52,
+        "y": 60,
         "w": 24,
         "h": 1
       },
@@ -808,14 +859,14 @@
     {
       "id": 20,
       "type": "timeseries",
-      "title": "Logins, by provider",
+      "title": "Logins per day, by provider",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 0,
-        "y": 53,
+        "y": 61,
         "w": 8,
         "h": 8
       },
@@ -840,8 +891,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_logins_total[1h])) by (provider)",
-          "legendFormat": "{{provider}}",
+          "expr": "sum(rate(striker_logins_total[1h])) by (provider) * 86400",
+          "legendFormat": "{{provider}}/day",
           "refId": "A"
         }
       ],
@@ -858,14 +909,14 @@
     {
       "id": 21,
       "type": "timeseries",
-      "title": "New user registrations",
+      "title": "New user registrations per day",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 8,
-        "y": 53,
+        "y": 61,
         "w": 8,
         "h": 8
       },
@@ -890,8 +941,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_users_registered_total[1h]))",
-          "legendFormat": "registrations",
+          "expr": "sum(rate(striker_users_registered_total[1h])) * 86400",
+          "legendFormat": "registrations/day",
           "refId": "A"
         }
       ],
@@ -908,14 +959,14 @@
     {
       "id": 22,
       "type": "timeseries",
-      "title": "Notifications sent, by type",
+      "title": "Notifications sent per day, by type",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "gridPos": {
         "x": 16,
-        "y": 53,
+        "y": 61,
         "w": 8,
         "h": 8
       },
@@ -940,8 +991,8 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_notifications_sent_total[1h])) by (type)",
-          "legendFormat": "{{type}}",
+          "expr": "sum(rate(striker_notifications_sent_total[1h])) by (type) * 86400",
+          "legendFormat": "{{type}}/day",
           "refId": "A"
         }
       ],

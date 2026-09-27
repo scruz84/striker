@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const ProbInjuryIncident = 0.015
+const ProbInjuryIncident = 0.005
 const MinInjuryMatches = 1
 const MaxInjuryMatches = 5
 

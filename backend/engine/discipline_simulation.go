@@ -7,7 +7,7 @@ import (
 )
 
 const ProbCardIncident = 0.03
-const ProbStraightRed = 0.15
+const ProbStraightRed = 0.06
 const StraightRedSuspensionMatches = 2
 const SecondYellowSuspensionMatches = 1
 
