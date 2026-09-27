@@ -98,6 +98,7 @@ export function DashboardPage() {
       <SeasonRecap enabled={!!loggedUser} />
       <LiveMatchBanner match={lastMatch} />
       <TeamHeaderCard team={team} standing={standing} recentForm={recentForm} />
+      <LiveMatchesCard />
       <AttentionAlerts teamId={team.id} players={players} finances={finances} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -113,7 +114,6 @@ export function DashboardPage() {
           <SquadCard teamId={team.id} squadSize={players.length} />
         </Grid>
       </Grid>
-      <LiveMatchesCard />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <TopScorerCard leagueId={String(team.divisionId)} />
