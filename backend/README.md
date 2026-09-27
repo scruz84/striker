@@ -295,12 +295,18 @@ times the player's wage, debited from the team's budget and logged to the ledger
 renewal offer and release endpoints reject a player currently out on loan - the borrowing team
 holds `team_id` for the loan's duration, but the contract belongs to the parent club, not them.
 
-A player's wage, contract length, and financial transfer history (`GET /v1/teams/player/:id/`'s
+A player's contract length and financial transfer history (`GET /v1/teams/player/:id/`'s
 `history`) are only ever visible in full to the team that currently owns them -
 `common.Player.RedactFinancials` zeroes them out (and the response's `history` comes back empty)
-for anyone else, the same way `GET /v1/teams/team/:id/` only shows a squad's real wages/contracts
-to its own owner. A free agent's wage stays visible to everyone, same as today, since it's exactly
-the figure a prospective signer needs to see.
+for anyone else, the same way `GET /v1/teams/team/:id/` only shows a squad's real contract terms
+to its own owner. Wage is the one exception, on both endpoints: it's restored right after
+`RedactFinancials` zeroes it, so it stays visible on someone else's rostered player too, giving a
+visitor a rough sense of what signing them (or fielding a rival's whole squad) would cost - a free
+agent's wage was already visible to everyone, since it's exactly the figure a prospective signer
+needs to see. `GET /v1/teams/team/:id/` makes the same exception for each player's `averageSkill`
+(a single 0-99 aggregate, unlike the seven individual skill fields `RedactSkills` zeroes) and also
+reports the team's real classification position and public stadium summary (name, capacity, most
+recent home match with attendance) regardless of who's asking.
 
 ### Player aging and decline
 

@@ -34,11 +34,12 @@ type FinancesResponse struct {
 	SponsorDealLocked bool `json:"sponsorDealLocked"`
 }
 
-// GetFinancesHandler returns the caller's team's budget, recent transaction history, and
-// stadium/ticket pricing. Deliberately not part of the general Team/TeamDetails response (which
-// any authenticated user can fetch for any team, see handlers.Team) - all of it, capacity
-// included, stays private to the owner for now. Showing capacity on the public team page too
-// would be a reasonable follow-up, just not built here to keep this change to one endpoint.
+// GetFinancesHandler returns the caller's team's budget, recent transaction history, and full
+// stadium/ticket pricing detail (including ticket price and any pending capacity upgrade).
+// Deliberately not part of the general Team/TeamDetails response (which any authenticated user
+// can fetch for any team, see handlers.Team) - those two fields stay private to the owner, unlike
+// the stadium's name, capacity, and last home match, which common.GetTeamDetailsById exposes
+// publicly as common.StadiumSummary.
 func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)

@@ -29,6 +29,28 @@ type Stadium struct {
 	UpgradeCompletesAt *time.Time `json:"upgradeCompletesAt,omitempty"`
 }
 
+// StadiumSummary is the public-facing slice of a team's Stadium - name, capacity, and the most
+// recently played home match there - shown on any team's page, unlike Stadium's ticket price and
+// pending-upgrade fields, which stay owner-only (see GetFinancesHandler).
+type StadiumSummary struct {
+	Name     string `json:"name"`
+	Capacity int    `json:"capacity"`
+	// LastHomeMatch is nil if this team has never played a completed home match yet.
+	LastHomeMatch *StadiumLastMatch `json:"lastHomeMatch,omitempty"`
+}
+
+// StadiumLastMatch is the headline facts of one match played at a team's stadium - enough for a
+// "last time out at home" summary without loading the full match report (see WeekMatchById).
+type StadiumLastMatch struct {
+	MatchId      int64     `json:"matchId"`
+	MatchDate    time.Time `json:"matchDate"`
+	OpponentId   int64     `json:"opponentId"`
+	OpponentName string    `json:"opponentName"`
+	HomeGoals    int       `json:"homeGoals"`
+	AwayGoals    int       `json:"awayGoals"`
+	Attendance   int       `json:"attendance"`
+}
+
 const GetStadiumStmtSql = "SELECT stadium_name, stadium_capacity, ticket_price, stadium_upgrade_target, stadium_upgrade_completes_at, country " +
 	"FROM teams WHERE team_id = $1"
 const SetStadiumNameStmtSql = "UPDATE teams SET stadium_name = $1 WHERE team_id = $2"
@@ -171,4 +193,30 @@ func UpgradeStadium(dbCtx *DatabaseContext, teamId int64, seats int) (*Stadium, 
 		return nil, err
 	}
 	return GetStadium(dbCtx, teamId)
+}
+
+const getLastHomeMatchStmtSql = "SELECT m.match_id, m.match_date, m.away_team_id, t.name, m.home_goals, m.away_goals, m.attendance " +
+	"FROM matches m JOIN teams t ON t.team_id = m.away_team_id " +
+	"WHERE m.home_team_id = $1 AND m.played = true AND m.match_date <= $2 " +
+	"ORDER BY m.match_date DESC LIMIT 1"
+
+// GetLastHomeMatch reports the most recent completed league match teamId played at home, or nil
+// if it's never played one yet. Restricted to league matches, like GetPlayerRecentMatches - cup
+// ties and friendlies live in their own tables (cup_ties, friendly_challenges) and never generate
+// gate receipts/attendance to begin with. Excludes a match still inside its live-broadcast window
+// (see LiveBroadcastCutoff), so a stadium summary can't show a match as finished before its own
+// report stops treating it as "LIVE".
+func GetLastHomeMatch(dbCtx *DatabaseContext, teamId int64) (*StadiumLastMatch, error) {
+	var m StadiumLastMatch
+	var attendance sql.NullInt64
+	err := dbCtx.Db.QueryRow(getLastHomeMatchStmtSql, teamId, LiveBroadcastCutoff()).
+		Scan(&m.MatchId, &m.MatchDate, &m.OpponentId, &m.OpponentName, &m.HomeGoals, &m.AwayGoals, &attendance)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	m.Attendance = int(attendance.Int64)
+	return &m, nil
 }

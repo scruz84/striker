@@ -66,6 +66,11 @@ export interface Player {
   // 0/absent for a player with none assigned yet (an academy prospect not yet promoted, or a
   // free agent) - see backend common.nextFreeShirtNumber.
   shirtNumber?: number
+  // A single 0-99 aggregate of the seven core skills - only populated where the backend
+  // specifically computes it (currently TeamDetails.players), unlike those underlying fields
+  // (zeroed for someone else's rostered, unlisted player), so a squad list can show a rough
+  // scouting figure without the full breakdown. See backend common.AverageSkill.
+  averageSkill?: number
 }
 
 // FreeAgentListing is what the free agents tab of the transfer market actually gets back - a
@@ -186,6 +191,27 @@ export const AI_LEVEL_CARETAKER = 1
 export const AI_LEVEL_MANAGER = 2
 export const AI_LEVEL_DIRECTOR = 3
 
+// StadiumLastMatch is the headline facts of the most recent completed league match played at a
+// team's stadium - mirrors backend common.StadiumLastMatch.
+export interface StadiumLastMatch {
+  matchId: number
+  matchDate: string
+  opponentId: number
+  opponentName: string
+  homeGoals: number
+  awayGoals: number
+  attendance: number
+}
+
+// StadiumSummary is the public-facing slice of a team's stadium - name, capacity, and its last
+// played home match - mirrors backend common.StadiumSummary. Unlike the finances page's full
+// Stadium (ticket price, pending upgrade), this is shown on any team's page.
+export interface StadiumSummary {
+  name: string
+  capacity: number
+  lastHomeMatch?: StadiumLastMatch
+}
+
 export interface TeamDetails {
   team: Team
   players: Player[]
@@ -193,6 +219,7 @@ export interface TeamDetails {
   nextMatches: WeekMatch[] | null
   // Only sent for the caller's own team (/v1/user/team) - see backend common.TeamDetails.
   unavailability?: PlayerUnavailability[]
+  stadium?: StadiumSummary
 }
 
 // One player's current suspension or injury - reason is UNAVAILABLE_SUSPENSION or

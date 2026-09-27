@@ -157,6 +157,11 @@ type Player struct {
 	// or a free agent - see common.nextFreeShirtNumber, assigned whenever a player joins a team's
 	// senior roster and cleared whenever they leave it).
 	ShirtNumber int `json:"shirtNumber,omitempty"`
+	// AverageSkill is this player's seven core skills reduced to a single 0-99 figure (see
+	// common.AverageSkill) - only populated by callers that need it to survive RedactSkills (see
+	// GetTeamDetailsById and PlayerDetails.AverageSkill, which redundantly recomputes its own copy
+	// since it embeds Player rather than reading this field).
+	AverageSkill int `json:"averageSkill,omitempty"`
 }
 
 // RedactFinancials zeroes the wage and contract terms of a player who currently belongs to a
@@ -267,6 +272,11 @@ type TeamDetails struct {
 	Players     []*Player   `json:"players"`
 	LastMatches []WeekMatch `json:"lastMatches"`
 	NextMatches []WeekMatch `json:"nextMatches"`
+	// Stadium is this team's ground - name, capacity, and its most recently played home match (see
+	// GetTeamDetailsById). Public information (unlike the rest of Stadium's fields - ticket price,
+	// pending upgrades - which stay owner-only on GetFinancesHandler), the same way a real club's
+	// stadium and attendance figures are.
+	Stadium *StadiumSummary `json:"stadium,omitempty"`
 	// Unavailability lists the squad's currently suspended/injured players - only filled in for
 	// the caller's own team (see GetFullTeamDetailsByUser), where the lineup editors use it to
 	// flag who can't be fielded. Never cached (unlike GetTeamDetails' views), since it changes

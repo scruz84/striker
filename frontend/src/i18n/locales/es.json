@@ -576,6 +576,14 @@
       "hire": "Contratar entrenador",
       "manage": "Gestionar"
     },
+    "stadium": {
+      "title": "Estadio",
+      "capacity": "Capacidad: {{capacity}} asientos",
+      "lastMatch": "Último partido aquí",
+      "lastMatchResult": "{{homeGoals}} - {{awayGoals}} vs.",
+      "attendance": "Asistencia: {{count}}",
+      "noMatches": "Aún no se ha jugado ningún partido en este estadio."
+    },
     "matches": {
       "title": "Partidos",
       "upcoming": "Próximos",

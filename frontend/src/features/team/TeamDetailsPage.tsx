@@ -39,6 +39,7 @@ import {
   type Player,
   type PlayerUnavailability,
   type SeasonHistoryEntry,
+  type StadiumSummary,
 } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { regionForCountry } from '../../components/avatar/traits'
@@ -47,11 +48,12 @@ import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
-import { formatDateTime } from '../../utils/formatDate'
+import { formatDate, formatDateTime } from '../../utils/formatDate'
 import { overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
@@ -91,7 +93,7 @@ function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): numbe
     case 'wage':
       return a.wage - b.wage
     case 'skill':
-      return overallRating(a) - overallRating(b)
+      return (a.averageSkill ?? overallRating(a)) - (b.averageSkill ?? overallRating(b))
     default:
       return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
   }
@@ -165,6 +167,12 @@ export function TeamDetailsPage() {
         <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
       </Stack>
 
+      {teamDetails.stadium && (
+        <Box sx={{ mt: 1 }}>
+          <StadiumCard stadium={teamDetails.stadium} />
+        </Box>
+      )}
+
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.squad')}
       </Typography>
@@ -187,13 +195,11 @@ export function TeamDetailsPage() {
                   {t('team.wage')}
                 </TableSortLabel>
               </TableCell>
-              {isOwnTeam && (
-                <TableCell align="right" sortDirection={sortField === 'skill' ? sortDir : false}>
-                  <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
-                    {t('team.averageSkill')}
-                  </TableSortLabel>
-                </TableCell>
-              )}
+              <TableCell align="right" sortDirection={sortField === 'skill' ? sortDir : false}>
+                <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
+                  {t('team.averageSkill')}
+                </TableSortLabel>
+              </TableCell>
               <TableCell align="right" />
             </TableRow>
           </TableHead>
@@ -288,6 +294,47 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
         </TableBody>
       </Table>
     </TableContainer>
+  )
+}
+
+// StadiumCard shows this team's stadium name, capacity, and (when it's played one) the most
+// recent completed league match there with its attendance - public information, shown on any
+// team's page, unlike ticket price and pending-upgrade details, which stay owner-only on
+// FinancesPage.
+function StadiumCard({ stadium }: { stadium: StadiumSummary }) {
+  const { t } = useTranslation()
+  const match = stadium.lastHomeMatch
+
+  return (
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="overline" color="text.secondary" sx={{ display: 'block' }}>
+        {t('team.stadium.title')}
+      </Typography>
+      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+        {stadium.name}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {t('team.stadium.capacity', { capacity: stadium.capacity.toLocaleString() })}
+      </Typography>
+      {match ? (
+        <Box sx={{ mt: 1 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('team.stadium.lastMatch')} · {formatDate(match.matchDate)}
+          </Typography>
+          <Typography variant="body2">
+            {t('team.stadium.lastMatchResult', { homeGoals: match.homeGoals, awayGoals: match.awayGoals })}{' '}
+            <TeamNameLink teamId={match.opponentId}>{match.opponentName}</TeamNameLink>
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {t('team.stadium.attendance', { count: match.attendance.toLocaleString() })}
+          </Typography>
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          {t('team.stadium.noMatches')}
+        </Typography>
+      )}
+    </Paper>
   )
 }
 
@@ -426,7 +473,7 @@ function PlayerRow({
   const [renewalOpen, setRenewalOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const flag = countryFlag(player.birthCountry)
-  const rating = overallRating(player)
+  const rating = player.averageSkill ?? overallRating(player)
 
   const handleRelease = async () => {
     const ok = await confirm({
@@ -459,11 +506,9 @@ function PlayerRow({
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
       <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
-      {isOwnTeam && (
-        <TableCell align="right" sx={{ color: ratingTierColor(rating, theme.palette) }}>
-          {rating}
-        </TableCell>
-      )}
+      <TableCell align="right" sx={{ color: ratingTierColor(rating, theme.palette) }}>
+        {rating}
+      </TableCell>
       {isOwnTeam ? (
         <TableCell align="right">
           <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>

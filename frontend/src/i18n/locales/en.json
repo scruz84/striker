@@ -576,6 +576,14 @@
       "hire": "Hire a coach",
       "manage": "Manage"
     },
+    "stadium": {
+      "title": "Stadium",
+      "capacity": "Capacity: {{capacity}} seats",
+      "lastMatch": "Last match here",
+      "lastMatchResult": "{{homeGoals}} - {{awayGoals}} vs.",
+      "attendance": "Attendance: {{count}}",
+      "noMatches": "No matches played at this stadium yet."
+    },
     "matches": {
       "title": "Matches",
       "upcoming": "Upcoming",

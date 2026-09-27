@@ -51,6 +51,15 @@ const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points
 	" FROM classification a JOIN teams b ON a.team_id = b.team_id " +
 	"WHERE a.league_id = $1 and a.season = $2 ORDER BY a.points DESC, a.goals_scored-a.goals_received DESC, a.goals_scored DESC, a.wins DESC, a.draws DESC"
 
+// GetTeamClassificationPositionStmtSql ranks every team in a league/season with the same
+// ordering GetDivisionDetailsStmtSql uses (points, then goal difference, goals scored, wins,
+// draws), then picks out the requested team's rank - used by GetTeamDetailsById so a team's page
+// can show where it actually sits without the caller fetching (and ranking) the whole division.
+const GetTeamClassificationPositionStmtSql = "SELECT position FROM (" +
+	"SELECT team_id, ROW_NUMBER() OVER (ORDER BY points DESC, goals_scored-goals_received DESC, goals_scored DESC, wins DESC, draws DESC) AS position " +
+	"FROM classification WHERE league_id = $1 AND season = $2" +
+	") ranked WHERE team_id = $3"
+
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
@@ -917,6 +926,22 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 	}, nil
 }
 
+// GetTeamClassificationPosition reports where teamId currently sits in leagueId's classification
+// for season (1-based, same ordering as GetDivisionDetails' table), or 0 if the team has no
+// classification row yet (e.g. just moved into the league and not yet backfilled - see
+// InsertTeamToClassificationStmtSql).
+func GetTeamClassificationPosition(dbCtx *DatabaseContext, leagueId int64, season int, teamId int64) (int, error) {
+	var position int
+	err := dbCtx.Db.QueryRow(GetTeamClassificationPositionStmtSql, leagueId, season, teamId).Scan(&position)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return position, nil
+}
+
 func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetails, error) {
 	leagueName, err := GetDivisionName(dbCtx, leagueId)
 	if err != nil {
@@ -1264,31 +1289,68 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	// a team's real level to decide how to manage it.
 	team.AiLevel = 0
 
+	// GetTeamById never computes a team's league standing (it's also the engine's read path, which
+	// has no use for it) - filled in here instead, same current-season classification
+	// GetDivisionDetails ranks the whole league table from, so a team's page shows the real
+	// position instead of always reading 0.
+	position, err := GetTeamClassificationPosition(dbCtx, team.DivisionId, GetCurrentSeason(dbCtx), teamId)
+	if err != nil {
+		return nil, err
+	}
+	team.ClassificationPosition = position
+
 	players, err := GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
 		return nil, err
 	}
 
-	// A squad's wages, contract terms, and skill ratings are the owning manager's business, not
+	// AverageSkill (unlike the underlying skill fields RedactSkills zeroes below) is meant to stay
+	// visible on someone else's rostered player too, the same rough-scouting exception
+	// handlers.PlayerDetailsHandler already makes for a single player's page - so it has to be
+	// computed from the real skills before any redaction happens, own team or not.
+	for _, p := range *players {
+		p.AverageSkill = AverageSkill(*p)
+	}
+
+	// A squad's contract terms and detailed skill breakdown are the owning manager's business, not
 	// any visitor's - see Player.RedactFinancials/RedactSkills. Only reached for someone else's
 	// team; GetFullTeamDetailsByUser (the caller's own team) always passes isOwner true. A player
 	// this team has put up for transfer is the one exception to the skill redaction - a
 	// prospective buyer needs to see what they'd actually be signing (a rostered player is never
 	// a free agent, so that exemption never applies here, unlike in RedactSkills' other callers).
+	// Wage is a second, narrower exception (restored right after RedactFinancials zeroes it): it
+	// stays visible on someone else's rostered player too, mirroring handlers.PlayerDetailsHandler,
+	// so a visitor gets a rough sense of what signing this team's squad would cost.
 	if !isOwner {
 		listedPlayerIds, err := GetTransferListedPlayerIdsForTeam(dbCtx, teamId)
 		if err != nil {
 			return nil, err
 		}
 		for _, p := range *players {
+			wage := p.Wage
 			p.RedactFinancials()
+			p.Wage = wage
 			p.RedactSkills(listedPlayerIds[p.Id])
 		}
+	}
+
+	stadium, err := GetStadium(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	lastHomeMatch, err := GetLastHomeMatch(dbCtx, teamId)
+	if err != nil {
+		return nil, err
 	}
 
 	return &TeamDetails{
 		Team:    team,
 		Players: *players,
+		Stadium: &StadiumSummary{
+			Name:          stadium.Name,
+			Capacity:      stadium.Capacity,
+			LastHomeMatch: lastHomeMatch,
+		},
 	}, nil
 }
 
