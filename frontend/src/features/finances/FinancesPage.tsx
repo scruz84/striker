@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -145,8 +145,28 @@ function SponsorDealCard({
   locked: boolean
 }) {
   const { t } = useTranslation()
+  const confirm = useConfirm()
   const setSponsorDeal = useSetSponsorDeal()
+  // Shows the just-clicked option as selected right away, while the confirm dialog below is
+  // open - RadioGroup is controlled by sponsorDeal (the server-confirmed value), so without this
+  // the radio would just sit on the old selection until (if) the choice is confirmed. Reset back
+  // to null either way once the dialog settles, so the group falls back to reflecting sponsorDeal.
+  const [pendingDeal, setPendingDeal] = useState<number | null>(null)
   const amountsByDeal = new Map(options.map((option) => [option.deal, option]))
+
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const deal = Number(event.target.value)
+    setPendingDeal(deal)
+    const ok = await confirm({
+      message: t('finances.sponsorDeal.confirmChange'),
+      confirmLabel: t('finances.sponsorDeal.confirmLabel'),
+    })
+    if (ok) {
+      setSponsorDeal.mutate(deal, { onSettled: () => setPendingDeal(null) })
+    } else {
+      setPendingDeal(null)
+    }
+  }
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -159,10 +179,7 @@ function SponsorDealCard({
             {t('finances.sponsorDeal.locked')}
           </Typography>
         )}
-        <RadioGroup
-          value={sponsorDeal}
-          onChange={(event) => setSponsorDeal.mutate(Number(event.target.value))}
-        >
+        <RadioGroup value={pendingDeal ?? sponsorDeal} onChange={handleChange}>
           {[SPONSOR_DEAL_STEADY, SPONSOR_DEAL_BALANCED, SPONSOR_DEAL_PERFORMANCE].map((deal) => {
             const amounts = amountsByDeal.get(deal)
             return (

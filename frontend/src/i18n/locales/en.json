@@ -290,6 +290,8 @@
       "title": "Sponsor deal",
       "error": "Failed to update sponsor deal.",
       "locked": "You've already chosen your sponsor deal for this season - it can be changed again once the season rolls over.",
+      "confirmChange": "Choosing this sponsor deal locks it in for the rest of the season - you won't be able to switch again until the season rolls over. Continue?",
+      "confirmLabel": "Lock in this deal",
       "amounts": "Win {{win}} · Draw {{draw}} · Loss {{loss}}",
       "options": {
         "steady": "Steady",
