@@ -291,8 +291,8 @@ function PlayedMatch({ match, division }: { match: WeekMatch; division: Division
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
           <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.ratings')} />
           <Tab label={t('match.tabs.players')} />
+          <Tab label={t('match.tabs.ratings')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={match} />}
