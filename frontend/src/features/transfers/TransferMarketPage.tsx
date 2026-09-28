@@ -60,12 +60,13 @@ import { isPast } from '../../api/useLiveMatch'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
 import { Paginated } from '../../components/Paginated'
+import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
-import { bestCorePosition, overallRating, ratingTierColor, SKILL_FIELDS, SKILL_SHORT_LABEL_KEYS } from '../../utils/playerRating'
+import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
@@ -165,43 +166,6 @@ function PlayerCell({ player, formerClub }: { player: Player; formerClub?: strin
           {formerClub}
         </Typography>
       )}
-    </Stack>
-  )
-}
-
-// A compact one-line strip of all seven skills, abbreviated to three letters and colored by tier
-// (see ratingTierColor) - lets a listing card show a player's actual strengths and weaknesses
-// without opening their profile, in far less vertical space than PlayerStatsPopover's full-width
-// SkillBar rows (which is what this game's Hattrick-style "scouting" screens show elsewhere).
-function SkillChipsRow({ player }: { player: Player }) {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  return (
-    <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>
-      {SKILL_FIELDS.map((field) => {
-        const value = player[field]
-        return (
-          <Box
-            key={field}
-            sx={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: 0.375,
-              px: 0.625,
-              py: 0.125,
-              borderRadius: 999,
-              bgcolor: 'action.hover',
-            }}
-          >
-            <Typography component="span" sx={{ fontSize: '0.62rem', fontWeight: 600, color: 'text.secondary', lineHeight: 1.4 }}>
-              {t(SKILL_SHORT_LABEL_KEYS[field])}
-            </Typography>
-            <Typography component="span" sx={{ fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.4, color: ratingTierColor(value, theme.palette) }}>
-              {value}
-            </Typography>
-          </Box>
-        )
-      })}
     </Stack>
   )
 }

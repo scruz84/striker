@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { POSITION_SHORT_LABEL_KEYS, type Player, type PlayerUnavailability } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
+import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 import { UnavailabilityBadge } from './UnavailabilityBadge'
 
@@ -174,7 +175,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
           </Box>
         </ButtonBase>
         <ButtonBase onClick={openStats} sx={{ minWidth: 0, flex: 1, justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 0.5 }}>
-          <Box sx={{ minWidth: 0 }}>
+          <Box sx={{ minWidth: 0, width: '100%' }}>
             <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
               {player.firstName} {player.lastName}
             </Typography>
@@ -193,6 +194,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
               </Typography>
               {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
             </Stack>
+            <SkillChipsRow player={player} />
           </Box>
         </ButtonBase>
       </Paper>
