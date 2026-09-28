@@ -11,14 +11,17 @@ import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { formatDateTime } from '../../utils/formatDate'
+import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
-import { Events, Scoreboard } from '../match/MatchScoreboard'
+import { Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchEventsReport } from '../match/MatchEventsReport'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
 import { MatchReportTab } from '../match/MatchReportTab'
-import { formatDateTime } from '../../utils/formatDate'
 
 export function CupTieDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -97,6 +100,11 @@ function LiveTie({
   const live = useLiveMatch(id ? `/v1/cups/ties/${id}/live` : undefined, !!id)
   const isDue = useIsDue(tie.matchDate ?? '')
   const isLineupLocked = useIsLineupLocked(tie.matchDate ?? '')
+  // Shared with the zone-comparison panel below, so scrubbing it also updates the pitch's
+  // per-player ratings instead of the pitch staying frozen on the live/current minute.
+  const minuteScrub = useMinuteScrub(live.minute)
+  const pitchRatings =
+    live.homeLineup && live.awayLineup ? computeRatingsAsOfMinute(live.homeLineup, live.awayLineup, live.events, minuteScrub.minute) : undefined
 
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
@@ -158,11 +166,12 @@ function LiveTie({
             homePlayers={live.homePlayers}
             awayLineup={live.awayLineup}
             awayPlayers={live.awayPlayers}
+            ratings={pitchRatings}
           />
         </Paper>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <Events events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
+        <MatchEventsReport events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
@@ -174,6 +183,7 @@ function LiveTie({
           matchInstants={live.instants}
           currentMinute={live.minute}
           live
+          scrub={minuteScrub}
         />
       )}
       {id &&

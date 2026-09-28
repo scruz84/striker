@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
@@ -12,6 +12,7 @@ import RestoreIcon from '@mui/icons-material/Restore'
 import { useTranslation } from 'react-i18next'
 import type { Lineup, MatchEvent, Player } from '../../api/types'
 import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { TeamRatingsColumn } from './TeamRatingsColumn'
 
 export interface MatchMinuteRatingsProps {
@@ -31,6 +32,10 @@ export interface MatchMinuteRatingsProps {
   // once the scrubber is at `currentMinute` instead of this component's own live-style
   // approximation. Omitted for a still-live match, which has no "final" yet.
   finalRatings?: Record<string, number>
+  // Lets a caller share this panel's scrub position with other panels on the same page (e.g. the
+  // lineup pitch's per-player ratings). Omitted, this owns its own scrub position exactly as
+  // before.
+  scrub?: MinuteScrub
 }
 
 /** Player ratings for one match minute, with a slider (plus step buttons) to scrub back through
@@ -48,27 +53,18 @@ export function MatchMinuteRatings({
   currentMinute,
   live = false,
   finalRatings,
+  scrub,
 }: MatchMinuteRatingsProps) {
   const { t } = useTranslation()
-  // null means "pinned to now" - a live broadcast's minute keeps climbing, and this stays pinned
-  // to it (no effect needed - `minute` below just falls back to `currentMinute` on every render)
-  // unless the viewer has deliberately scrubbed back to an earlier minute, tracked here as an
-  // explicit minute instead.
-  const [scrubbedMinute, setScrubbedMinute] = useState<number | null>(null)
-  const minute = scrubbedMinute ?? currentMinute
+  const ownScrub = useMinuteScrub(currentMinute)
+  const { minute, atNow, goToMinute } = scrub ?? ownScrub
 
-  const atNow = minute >= currentMinute
   const ratings = useMemo(() => {
     if (atNow && finalRatings) {
       return finalRatings
     }
     return computeRatingsAsOfMinute(homeLineup, awayLineup, events, minute)
   }, [atNow, finalRatings, homeLineup, awayLineup, events, minute])
-
-  const goToMinute = (value: number) => {
-    const clamped = Math.max(0, Math.min(currentMinute, value))
-    setScrubbedMinute(clamped >= currentMinute ? null : clamped)
-  }
 
   const title = atNow ? t(live ? 'match.ratings.liveTitle' : 'match.ratings.title') : t('match.ratings.atMinute', { minute })
 

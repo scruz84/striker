@@ -13,17 +13,20 @@ import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, 
 import { POSITION_GOALKEEPER, type DivisionDetails, type Player, type Team, type WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
+import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
+import { MatchEventsReport } from './MatchEventsReport'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
 import { MatchRatingsTab } from './MatchRatingsTab'
 import { MatchReportHeader } from './MatchReportHeader'
 import { MatchReportTab } from './MatchReportTab'
-import { Events, Scoreboard } from './MatchScoreboard'
+import { Scoreboard } from './MatchScoreboard'
 import { StadiumEntry } from './StadiumEntry'
 
 // A team's current standing in its league (see ClassificationPosition.position) - undefined
@@ -119,6 +122,12 @@ function LiveMatch({
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
   const isDue = useIsDue(matchDate)
   const isLineupLocked = useIsLineupLocked(matchDate)
+  // Shared by the lineup pitch's per-player ratings and the zone-comparison/ratings-list panels
+  // below, so scrubbing any one of them (e.g. "recuerda que se pueden poner minutos anteriores")
+  // moves the others in lockstep instead of each panel tracking its own independent minute.
+  const minuteScrub = useMinuteScrub(live.minute)
+  const pitchRatings =
+    live.homeLineup && live.awayLineup ? computeRatingsAsOfMinute(live.homeLineup, live.awayLineup, live.events, minuteScrub.minute) : undefined
 
   useEffect(() => {
     // live.giveUp alone isn't enough - the socket can be entirely unreachable (a downed Redis,
@@ -197,12 +206,13 @@ function LiveMatch({
               homePlayers={live.homePlayers}
               awayLineup={live.awayLineup}
               awayPlayers={live.awayPlayers}
+              ratings={pitchRatings}
             />
           </Paper>
         </>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <Events events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
+        <MatchEventsReport events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
@@ -217,6 +227,7 @@ function LiveMatch({
           matchInstants={live.instants}
           currentMinute={live.minute}
           live
+          scrub={minuteScrub}
         />
       )}
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
@@ -230,6 +241,7 @@ function LiveMatch({
           events={live.events}
           currentMinute={live.minute}
           live
+          scrub={minuteScrub}
         />
       )}
       <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />

@@ -84,9 +84,9 @@ export function ZoneComparisonRows({
     { home: homeQua.rightAttach, away: awayQua.leftDefense + awayGoalkeeperRating, captionKey: 'match.positionBattle.vsDefenseLeftGk' },
   ]
   const columns = [
-    { headerKey: 'match.positionBattle.defenseHeader', rows: defenseRows },
-    { headerKey: 'match.positionBattle.midfieldHeader', rows: midRows },
-    { headerKey: 'match.positionBattle.attackHeader', rows: attackRows },
+    { key: 'defense', rows: defenseRows },
+    { key: 'midfield', rows: midRows },
+    { key: 'attack', rows: attackRows },
   ]
 
   return (
@@ -105,18 +105,6 @@ export function ZoneComparisonRows({
           </Typography>
         </Box>
       </Stack>
-      <Stack direction="row" sx={{ mb: 0.5 }}>
-        {columns.map((col) => (
-          <Typography
-            key={col.headerKey}
-            variant="caption"
-            color="text.secondary"
-            sx={{ flex: 1, textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.65rem' }}
-          >
-            {t(col.headerKey)}
-          </Typography>
-        ))}
-      </Stack>
       <Box
         sx={{
           position: 'relative',
@@ -132,7 +120,7 @@ export function ZoneComparisonRows({
         <PitchCorner corner="bottom-left" />
         <PitchCorner corner="bottom-right" />
         {columns.map((col) => (
-          <Stack key={col.headerKey} spacing={{ xs: 0.5, sm: 0.75 }} sx={{ flex: 1, minWidth: 0 }}>
+          <Stack key={col.key} spacing={{ xs: 0.5, sm: 0.75 }} sx={{ flex: 1, minWidth: 0 }}>
             {col.rows.map((row) => (
               <DuelCell key={row.captionKey} caption={t(row.captionKey)} home={row.home} away={row.away} />
             ))}

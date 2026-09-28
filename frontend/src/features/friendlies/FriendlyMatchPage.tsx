@@ -11,15 +11,18 @@ import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
 import type { FriendlyMatch, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { formatDateTime } from '../../utils/formatDate'
+import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
+import { MatchEventsReport } from '../match/MatchEventsReport'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
 import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
-import { Events, Scoreboard } from '../match/MatchScoreboard'
-import { formatDateTime } from '../../utils/formatDate'
+import { Scoreboard } from '../match/MatchScoreboard'
 
 export function FriendlyMatchPage() {
   const { id } = useParams<{ id: string }>()
@@ -157,6 +160,11 @@ function LiveFriendly({
   const live = useLiveMatch(id ? `/v1/friendlies/${id}/live` : undefined, !!id)
   const isDue = useIsDue(match.matchDate)
   const isLineupLocked = useIsLineupLocked(match.matchDate)
+  // Shared with the zone-comparison panel below, so scrubbing it also updates the pitch's
+  // per-player ratings instead of the pitch staying frozen on the live/current minute.
+  const minuteScrub = useMinuteScrub(live.minute)
+  const pitchRatings =
+    live.homeLineup && live.awayLineup ? computeRatingsAsOfMinute(live.homeLineup, live.awayLineup, live.events, minuteScrub.minute) : undefined
 
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
@@ -199,12 +207,13 @@ function LiveFriendly({
             homePlayers={live.homePlayers}
             awayLineup={live.awayLineup}
             awayPlayers={live.awayPlayers}
+            ratings={pitchRatings}
           />
         </Paper>
       )}
       {isDue && (
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-          <Events events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
+          <MatchEventsReport events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
         </Paper>
       )}
       {isDue && live.instants.length > 0 && (
@@ -217,6 +226,7 @@ function LiveFriendly({
           matchInstants={live.instants}
           currentMinute={live.minute}
           live
+          scrub={minuteScrub}
         />
       )}
       {id &&

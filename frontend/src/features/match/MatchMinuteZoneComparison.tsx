@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
@@ -10,6 +10,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import RestoreIcon from '@mui/icons-material/Restore'
 import { useTranslation } from 'react-i18next'
 import type { MatchInstant } from '../../api/types'
+import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { ZoneComparisonRows } from './ZoneComparisonRows'
 
 export interface MatchMinuteZoneComparisonProps {
@@ -26,6 +27,10 @@ export interface MatchMinuteZoneComparisonProps {
   currentMinute: number
   // True for a still-broadcasting match - only affects the title/copy shown at the current minute.
   live?: boolean
+  // Lets a caller share this panel's scrub position with other panels on the same page (e.g. the
+  // lineup pitch's per-player ratings - see FriendlyMatchPage/MatchDetailsPage's live views).
+  // Omitted, this owns its own scrub position exactly as before.
+  scrub?: MinuteScrub
 }
 
 // instantAsOfMinute picks the latest recorded instant at or before `minute` - matchInstants is
@@ -54,19 +59,13 @@ export function MatchMinuteZoneComparison({
   matchInstants,
   currentMinute,
   live = false,
+  scrub,
 }: MatchMinuteZoneComparisonProps) {
   const { t } = useTranslation()
-  // null means "pinned to now" - see MatchMinuteRatings' identical reasoning.
-  const [scrubbedMinute, setScrubbedMinute] = useState<number | null>(null)
-  const minute = scrubbedMinute ?? currentMinute
-  const atNow = minute >= currentMinute
+  const ownScrub = useMinuteScrub(currentMinute)
+  const { minute, atNow, goToMinute } = scrub ?? ownScrub
 
   const instant = useMemo(() => instantAsOfMinute(matchInstants, minute), [matchInstants, minute])
-
-  const goToMinute = (value: number) => {
-    const clamped = Math.max(0, Math.min(currentMinute, value))
-    setScrubbedMinute(clamped >= currentMinute ? null : clamped)
-  }
 
   if (!instant) {
     return null
