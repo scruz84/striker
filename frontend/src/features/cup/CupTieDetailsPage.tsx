@@ -171,11 +171,13 @@ function LiveTie({
         </Paper>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayName={tie.awayTeamName} />
+        <MatchEventsReport events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayId={awayId} awayName={tie.awayTeamName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
+          homeId={homeId}
           homeName={tie.homeTeamName}
+          awayId={awayId}
           awayName={tie.awayTeamName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}

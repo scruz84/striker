@@ -4,17 +4,20 @@ import Typography from '@mui/material/Typography'
 import type { Lineup, Player } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
+import { TeamNameLink } from '../../components/TeamNameLink'
 import { matchRatingColor } from '../../utils/matchRating'
 
 // Shared by MatchRatingsTab (a finished match's report) and MatchMinuteRatings (live, or scrubbed
 // back to an earlier minute) - both end up with the same shape of ratings (keyed by playerId as a
 // string), just computed differently, so they render through this one column.
 export function TeamRatingsColumn({
+  teamId,
   title,
   lineup,
   players,
   ratings,
 }: {
+  teamId: number
   title: string
   lineup: Lineup
   players: Record<string, Player>
@@ -22,7 +25,9 @@ export function TeamRatingsColumn({
 }) {
   return (
     <Stack spacing={1.25}>
-      <Typography variant="subtitle2">{title}</Typography>
+      <Typography variant="subtitle2">
+        <TeamNameLink teamId={teamId}>{title}</TeamNameLink>
+      </Typography>
       {lineup.positions.map((pos) => {
         const player = players[String(pos.playerId)]
         const rating = ratings[String(pos.playerId)]

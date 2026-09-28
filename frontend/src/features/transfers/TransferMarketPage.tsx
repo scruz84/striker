@@ -154,6 +154,8 @@ function PlayerCell({ player, formerClub }: { player: Player; formerClub?: strin
         <Chip
           size="small"
           variant="outlined"
+          translate="no"
+          className="notranslate"
           label={t(POSITION_SHORT_LABEL_KEYS[bestCorePosition(player)])}
           sx={{ height: 18, fontSize: '0.65rem', flexShrink: 0 }}
         />
@@ -291,7 +293,7 @@ function PositionFilterSelect({ value, onChange }: { value: number | ''; onChang
           <em>{t('transfers.filters.allPositions')}</em>
         </MenuItem>
         {CORE_POSITIONS.map((position) => (
-          <MenuItem key={position} value={position}>
+          <MenuItem key={position} value={position} translate="no" className="notranslate">
             {t(POSITION_SHORT_LABEL_KEYS[position])}
           </MenuItem>
         ))}

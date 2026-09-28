@@ -16,7 +16,9 @@ import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { TeamRatingsColumn } from './TeamRatingsColumn'
 
 export interface MatchMinuteRatingsProps {
+  homeId: number
   homeName: string
+  awayId: number
   awayName: string
   homeLineup: Lineup
   awayLineup: Lineup
@@ -43,7 +45,9 @@ export interface MatchMinuteRatingsProps {
  * "Calificaciones" tab (MatchRatingsTab), the two moments a viewer might want ratings "as of an
  * exact minute" rather than only ever the latest/final ones. */
 export function MatchMinuteRatings({
+  homeId,
   homeName,
+  awayId,
   awayName,
   homeLineup,
   awayLineup,
@@ -111,10 +115,10 @@ export function MatchMinuteRatings({
       )}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} />
+          <TeamRatingsColumn teamId={homeId} title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} />
+          <TeamRatingsColumn teamId={awayId} title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} />
         </Grid>
       </Grid>
     </Paper>

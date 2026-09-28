@@ -4,6 +4,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import type { TeamQualification } from '../../api/types'
+import { TeamNameLink } from '../../components/TeamNameLink'
 
 interface ZoneRow {
   /** i18n key for the tooltip spelling out exactly which zone is being compared. */
@@ -31,7 +32,9 @@ interface ZoneComparisonRowsProps {
   awayQua: TeamQualification
   homeGoalkeeperRating: number
   awayGoalkeeperRating: number
+  homeId: number
   homeName: string
+  awayId: number
   awayName: string
 }
 
@@ -67,7 +70,9 @@ export function ZoneComparisonRows({
   awayQua,
   homeGoalkeeperRating,
   awayGoalkeeperRating,
+  homeId,
   homeName,
+  awayId,
   awayName,
 }: ZoneComparisonRowsProps) {
   const { t } = useTranslation()
@@ -95,13 +100,13 @@ export function ZoneComparisonRows({
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, justifyContent: 'flex-end' }}>
           <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: HOME_COLOR, flexShrink: 0 }} />
           <Typography variant="caption" sx={{ fontWeight: 700 }} noWrap>
-            {homeName}
+            <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
           </Typography>
         </Box>
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, pl: 2 }}>
           <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: AWAY_COLOR, flexShrink: 0 }} />
           <Typography variant="caption" sx={{ fontWeight: 700 }} noWrap>
-            {awayName}
+            <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
           </Typography>
         </Box>
       </Stack>

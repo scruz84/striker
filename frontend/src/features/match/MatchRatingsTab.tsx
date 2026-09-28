@@ -21,7 +21,9 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   if (match.events && match.events.length > 0) {
     return (
       <MatchMinuteRatings
+        homeId={match.home}
         homeName={match.homeName}
+        awayId={match.away}
         awayName={match.awayName}
         homeLineup={match.homeLineup}
         awayLineup={match.awayLineup}
@@ -37,10 +39,10 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   return (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TeamRatingsColumn title={match.homeName} lineup={match.homeLineup} players={match.homePlayers} ratings={match.ratings} />
+        <TeamRatingsColumn teamId={match.home} title={match.homeName} lineup={match.homeLineup} players={match.homePlayers} ratings={match.ratings} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TeamRatingsColumn title={match.awayName} lineup={match.awayLineup} players={match.awayPlayers} ratings={match.ratings} />
+        <TeamRatingsColumn teamId={match.away} title={match.awayName} lineup={match.awayLineup} players={match.awayPlayers} ratings={match.ratings} />
       </Grid>
     </Grid>
   )

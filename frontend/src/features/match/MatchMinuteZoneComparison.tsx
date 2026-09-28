@@ -14,7 +14,9 @@ import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { ZoneComparisonRows } from './ZoneComparisonRows'
 
 export interface MatchMinuteZoneComparisonProps {
+  homeId: number
   homeName: string
+  awayId: number
   awayName: string
   homeGoalkeeperRating: number
   awayGoalkeeperRating: number
@@ -52,7 +54,9 @@ function instantAsOfMinute(instants: MatchInstant[], minute: number): MatchInsta
  * and a finished match's "Jugadores" tab, the same way MatchMinuteRatings already lets a viewer
  * scrub player ratings instead of only ever showing the latest/final snapshot. */
 export function MatchMinuteZoneComparison({
+  homeId,
   homeName,
+  awayId,
   awayName,
   homeGoalkeeperRating,
   awayGoalkeeperRating,
@@ -119,7 +123,9 @@ export function MatchMinuteZoneComparison({
         awayQua={instant.awayQua}
         homeGoalkeeperRating={homeGoalkeeperRating}
         awayGoalkeeperRating={awayGoalkeeperRating}
+        homeId={homeId}
         homeName={homeName}
+        awayId={awayId}
         awayName={awayName}
       />
     </Paper>

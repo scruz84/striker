@@ -213,12 +213,20 @@ function LiveFriendly({
       )}
       {isDue && (
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-          <MatchEventsReport events={live.events} homeId={match.homeTeamId} homeName={match.homeTeamName} awayName={match.awayTeamName} />
+          <MatchEventsReport
+            events={live.events}
+            homeId={match.homeTeamId}
+            homeName={match.homeTeamName}
+            awayId={match.awayTeamId}
+            awayName={match.awayTeamName}
+          />
         </Paper>
       )}
       {isDue && live.instants.length > 0 && (
         <MatchMinuteZoneComparison
+          homeId={match.homeTeamId}
           homeName={match.homeTeamName}
+          awayId={match.awayTeamId}
           awayName={match.awayTeamName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}

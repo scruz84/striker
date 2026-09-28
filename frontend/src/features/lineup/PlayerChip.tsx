@@ -186,6 +186,8 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
               <Chip
                 size="small"
                 variant="outlined"
+                translate="no"
+                className="notranslate"
                 label={t(POSITION_SHORT_LABEL_KEYS[position])}
                 sx={{ height: 16, fontSize: '0.6rem', '& .MuiChip-label': { px: 0.5 } }}
               />

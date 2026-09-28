@@ -9,6 +9,7 @@ import {
   type MatchEvent,
 } from '../api/types'
 import { PlayerNameLink } from '../components/PlayerNameLink'
+import { TeamNameLink } from '../components/TeamNameLink'
 
 const COMMENTARY_KEYS: Partial<Record<number, string>> = {
   [EVENT_TYPE_GOAL]: 'match.commentary.goal',
@@ -30,17 +31,18 @@ function pickVariantIndex(count: number, seedParts: number[]): number {
   return Math.abs(hash) % count
 }
 
-// A {{key}} placeholder's fill-in text, plus the player it should link to when it names one -
-// team/opponent placeholders have no playerId and render as plain text.
+// A {{key}} placeholder's fill-in text, plus the player or team it should link to when it names
+// one - a placeholder with neither renders as plain text.
 interface CommentaryVar {
   text: string
   playerId?: number
+  teamId?: number
 }
 
 // Splits template on its {{...}} placeholders and fills each one in from vars, rendering a
-// placeholder with a playerId as a clickable PlayerNameLink (issue: clickable player names in the
-// match report) and everything else - including a placeholder with no matching var - as plain
-// text, same as interpolate's old `?? ''` fallback.
+// placeholder with a playerId/teamId as a clickable PlayerNameLink/TeamNameLink (issue: clickable
+// player and team names in the match report) and everything else - including a placeholder with
+// no matching var - as plain text, same as interpolate's old `?? ''` fallback.
 function interpolateNodes(template: string, vars: Record<string, CommentaryVar>): ReactNode[] {
   return template.split(/(\{\{\w+\}\})/g).map((part, index) => {
     const match = /^\{\{(\w+)\}\}$/.exec(part)
@@ -51,14 +53,21 @@ function interpolateNodes(template: string, vars: Record<string, CommentaryVar>)
     if (!v) {
       return ''
     }
-    if (v.playerId === undefined) {
-      return v.text
+    if (v.playerId !== undefined) {
+      return (
+        <PlayerNameLink key={index} playerId={v.playerId}>
+          {v.text}
+        </PlayerNameLink>
+      )
     }
-    return (
-      <PlayerNameLink key={index} playerId={v.playerId}>
-        {v.text}
-      </PlayerNameLink>
-    )
+    if (v.teamId !== undefined) {
+      return (
+        <TeamNameLink key={index} teamId={v.teamId}>
+          {v.text}
+        </TeamNameLink>
+      )
+    }
+    return v.text
   })
 }
 
@@ -66,10 +75,18 @@ type Translate = (key: string, options: { returnObjects: true }) => unknown
 
 /** Turns one match event into a single radio-commentator-style line, picking one of several
  * i18n-translated phrasings for its event type (see match.commentary.* in the locale files) -
- * with any player name in that phrasing rendered as a clickable link to that player's page
- * rather than plain text. Returns undefined for event types with no commentary (or missing
- * player data to fill one in) - callers should fall back to their own rendering in that case. */
-export function commentaryFor(event: MatchEvent, t: Translate, teamName: string, opponentName: string): ReactNode[] | undefined {
+ * with any player or team name in that phrasing rendered as a clickable link to that player's/
+ * team's page rather than plain text. Returns undefined for event types with no commentary (or
+ * missing player data to fill one in) - callers should fall back to their own rendering in that
+ * case. */
+export function commentaryFor(
+  event: MatchEvent,
+  t: Translate,
+  teamId: number,
+  teamName: string,
+  opponentId: number,
+  opponentName: string,
+): ReactNode[] | undefined {
   const key = COMMENTARY_KEYS[event.eventType]
   if (!key) {
     return undefined
@@ -89,8 +106,8 @@ export function commentaryFor(event: MatchEvent, t: Translate, teamName: string,
       return undefined
     }
     return interpolateNodes(template, {
-      team: { text: teamName },
-      opponent: { text: opponentName },
+      team: { text: teamName, teamId },
+      opponent: { text: opponentName, teamId: opponentId },
       outPlayer: { text: playerNames[0], playerId: playerIds[0] },
       inPlayer: { text: playerNames[1], playerId: playerIds[1] },
     })
@@ -102,7 +119,7 @@ export function commentaryFor(event: MatchEvent, t: Translate, teamName: string,
   }
   return interpolateNodes(template, {
     player: { text: player, playerId: playerIds[0] },
-    team: { text: teamName },
-    opponent: { text: opponentName },
+    team: { text: teamName, teamId },
+    opponent: { text: opponentName, teamId: opponentId },
   })
 }

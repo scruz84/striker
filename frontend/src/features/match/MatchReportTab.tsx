@@ -10,6 +10,7 @@ export function MatchReportTab({ match }: { match: WeekMatch }) {
       events={match.events ?? []}
       homeId={match.home}
       homeName={match.homeName}
+      awayId={match.away}
       awayName={match.awayName}
       weather={match.weather}
       attendance={match.attendance}

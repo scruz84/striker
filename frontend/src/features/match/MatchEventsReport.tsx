@@ -14,6 +14,7 @@ import {
   type MatchEvent,
 } from '../../api/types'
 import { commentaryFor } from '../../utils/matchCommentary'
+import { TeamNameLink } from '../../components/TeamNameLink'
 
 const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_GOAL,
@@ -69,6 +70,7 @@ export interface MatchEventsReportProps {
   events: MatchEvent[]
   homeId: number
   homeName: string
+  awayId: number
   awayName: string
   // Match-flavor fields (see backend common.UpdateMatchFlavor) - all four are required together
   // for the intro paragraph to render (see hasFlavor below); a live broadcast simply doesn't have
@@ -95,6 +97,7 @@ export function MatchEventsReport({
   events,
   homeId,
   homeName,
+  awayId,
   awayName,
   weather,
   attendance,
@@ -111,7 +114,7 @@ export function MatchEventsReport({
 
   return (
     <Stack spacing={1.5}>
-      <MatchStatsSummary events={events} homeId={homeId} homeName={homeName} awayName={awayName} />
+      <MatchStatsSummary events={events} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
       {hasFlavor && (
         <ReportParagraph
           text={t('match.report.intro', {
@@ -126,9 +129,11 @@ export function MatchEventsReport({
       <ReportParagraph text={t('match.report.kickoff')} />
       {notable.map((event, idx) => {
         const isHome = event.teamOwner === homeId
+        const teamId = isHome ? homeId : awayId
         const teamName = isHome ? homeName : awayName
+        const opponentId = isHome ? awayId : homeId
         const opponentName = isHome ? awayName : homeName
-        const commentary = commentaryFor(event, t, teamName, opponentName)
+        const commentary = commentaryFor(event, t, teamId, teamName, opponentId, opponentName)
         if (!commentary) {
           return null
         }
@@ -157,11 +162,13 @@ function MatchStatsSummary({
   events,
   homeId,
   homeName,
+  awayId,
   awayName,
 }: {
   events: MatchEvent[]
   homeId: number
   homeName: string
+  awayId: number
   awayName: string
 }) {
   const { t } = useTranslation()
@@ -182,11 +189,11 @@ function MatchStatsSummary({
       <Stack spacing={1} sx={{ mb: 1 }}>
         <Stack direction="row">
           <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, textAlign: 'right', pr: 1 }} noWrap>
-            {homeName}
+            <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
           </Typography>
           <Box sx={{ width: { xs: 130, sm: 160 } }} />
           <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, pl: 1 }} noWrap>
-            {awayName}
+            <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
           </Typography>
         </Stack>
         {rows.map((row) => (

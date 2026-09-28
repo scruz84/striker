@@ -212,11 +212,13 @@ function LiveMatch({
         </>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={live.events} homeId={homeId} homeName={homeName} awayName={awayName} />
+        <MatchEventsReport events={live.events} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
+          homeId={homeId}
           homeName={homeName}
+          awayId={awayId}
           awayName={awayName}
           // Goalkeeper ratings aren't shown live - a non-participant viewer has neither team's
           // full roster loaded, and even a participant only has their own; 0 simply drops the
@@ -232,7 +234,9 @@ function LiveMatch({
       )}
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
         <MatchMinuteRatings
+          homeId={homeId}
           homeName={homeName}
+          awayId={awayId}
           awayName={awayName}
           homeLineup={live.homeLineup}
           awayLineup={live.awayLineup}
@@ -379,7 +383,9 @@ export function Lineups({
       {zoneHistory && (
         <Grid size={{ xs: 12, md: 5 }}>
           <MatchMinuteZoneComparison
+            homeId={homeId}
             homeName={homeName}
+            awayId={awayId}
             awayName={awayName}
             homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
             awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
