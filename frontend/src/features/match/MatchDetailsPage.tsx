@@ -126,11 +126,18 @@ function LiveMatch({
     // nothing useful to fall back to yet in that case. Only bail out once the REST side also
     // confirms the match is actually over, restoring the pre-#37-fix resilience where a broken
     // socket never stranded a viewer once the match had genuinely finished.
-    if ((live.complete || (live.giveUp && played)) && matchId) {
+    //
+    // `played` alone isn't "actually over" either: it flips true in the DB up to 15 minutes
+    // before matchDate (see GetSimulableMatchesStmtSql), so a viewer who opens the page in that
+    // early window and hits a flaky socket (a proxy timeout, a network blip - anything that
+    // burns through the reconnect attempts) would otherwise get dropped straight into the
+    // finished-match report before their own match's advertised kickoff had even arrived. `isDue`
+    // guards against that the same way the scheduled-vs-live branch below does.
+    if ((live.complete || (live.giveUp && played && isDue)) && matchId) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.match(matchId) })
       onComplete()
     }
-  }, [live.complete, live.giveUp, played, matchId, queryClient, onComplete])
+  }, [live.complete, live.giveUp, played, isDue, matchId, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

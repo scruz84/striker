@@ -160,11 +160,13 @@ function LiveFriendly({
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
     // while the match might still genuinely be in progress - only once REST also confirms it's over.
-    if ((live.complete || (live.giveUp && played)) && id) {
+    // `played` alone isn't "over" either, since it flips true up to 15 minutes before matchDate -
+    // `isDue` guards against falling into the finished-match report before the match's own kickoff.
+    if ((live.complete || (live.giveUp && played && isDue)) && id) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyMatch(id) })
       onComplete()
     }
-  }, [live.complete, live.giveUp, played, id, queryClient, onComplete])
+  }, [live.complete, live.giveUp, played, isDue, id, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>
