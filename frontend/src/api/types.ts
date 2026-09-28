@@ -599,6 +599,18 @@ export const MIN_STADIUM_UPGRADE_SEATS = 100
 export const MAX_STADIUM_UPGRADE_SEATS = 5000
 export const DEFAULT_STADIUM_UPGRADE_SEATS = 500
 
+// Cost formula for a stadium upgrade - mirrors the backend's common.UpgradeStadium: cost scales
+// with both the stadium's current capacity and the number of seats requested (relative to this
+// baseline), so a bigger stadium or a bigger expansion both cost more in absolute terms. Used to
+// show the total price of the work before the user confirms - the backend remains the source of
+// truth and recomputes/enforces this same formula server-side.
+export const STADIUM_UPGRADE_COST_PER_CURRENT_SEAT = 10
+export const STADIUM_UPGRADE_SEATS_BASELINE = 500
+
+export function calculateStadiumUpgradeCost(currentCapacity: number, seats: number): number {
+  return Math.floor((currentCapacity * STADIUM_UPGRADE_COST_PER_CURRENT_SEAT * seats) / STADIUM_UPGRADE_SEATS_BASELINE)
+}
+
 export interface FinancesResponse {
   budget: number
   transactions: TeamTransaction[]

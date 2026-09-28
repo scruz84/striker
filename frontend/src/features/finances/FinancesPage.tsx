@@ -24,6 +24,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useRenameStadium, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import {
+  calculateStadiumUpgradeCost,
   DEFAULT_STADIUM_UPGRADE_SEATS,
   MAX_STADIUM_UPGRADE_SEATS,
   MIN_STADIUM_UPGRADE_SEATS,
@@ -224,13 +225,14 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
 
   const seatsNum = Number(seats)
   const seatsValid = Number.isInteger(seatsNum) && seatsNum >= MIN_STADIUM_UPGRADE_SEATS && seatsNum <= MAX_STADIUM_UPGRADE_SEATS
+  const expandCost = seatsValid ? calculateStadiumUpgradeCost(stadium.capacity, seatsNum) : null
 
   const handleUpgrade = async () => {
-    if (!seatsValid) {
+    if (!seatsValid || expandCost == null) {
       return
     }
     const ok = await confirm({
-      message: t('finances.confirmExpand', { seats: seatsNum }),
+      message: t('finances.confirmExpand', { seats: seatsNum, cost: formatCurrency(expandCost) }),
       confirmLabel: t('finances.expand'),
     })
     if (ok) {
@@ -315,7 +317,7 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
               error={!seatsValid}
               helperText={
                 seatsValid
-                  ? undefined
+                  ? t('finances.expandCost', { cost: formatCurrency(expandCost ?? 0) })
                   : t('finances.expandSeatsRange', { min: MIN_STADIUM_UPGRADE_SEATS, max: MAX_STADIUM_UPGRADE_SEATS })
               }
               slotProps={{ htmlInput: { min: MIN_STADIUM_UPGRADE_SEATS, max: MAX_STADIUM_UPGRADE_SEATS } }}
