@@ -90,9 +90,14 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    A core stat like `Attack` is just the sum of the relevant players' raw skill values (e.g.
    every striker's `Shot`); a flank stat blends the winger/full-back's own skill 50/50 with their
    `Lateral` rating. `blendLine` then gives each zone of a line (defense, midfield, attack) a
-   share of its neighbors' raw strength (`ZoneSpillover`, 15% each way - a flank picks up some of
-   the center's strength and vice versa, the same way a back four or midfield three actually
-   covers for each other), so `TeamQualification`'s `Defense`/`Midfield`/`Attack` and their
+   share of its neighbors' *per-player average* strength (`ZoneSpillover`, 15% each way - a flank
+   picks up some of the center's strength and vice versa, the same way a back four or midfield
+   three actually covers for each other) - the average, not the center's raw sum, since a flank is
+   always exactly one player (see `common/formation.go`) while the center fields one to three, and
+   comparing raw totals would swing a flank's own rating just from this team's own formation width
+   rather than anyone's actual skill; the center's blended result is then scaled back up by its
+   player count, so a wider line's greater total presence (the reason the game sums it) is
+   otherwise unaffected. `TeamQualification`'s `Defense`/`Midfield`/`Attack` and their
    `Left`/`Right` variants all carry a bit of their neighbors' strength before ScorerSimulation
    ever reads them - not just the display-only `MidfieldDiff`/per-side attack-vs-defense diffs
    (now plain center-vs-center diffs on top of that already-blended strength, used for match

@@ -53,27 +53,30 @@ func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, play
 		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
 	rawRightDefense := calculateLateralDefense(
 		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
-	rawDefense := calculateDefense(
-		(*playersByPosition)[common.DEFENSE], (*playersByPosition)[common.MIDFIELD], players)
-	teamQua.LeftDefense, teamQua.Defense, teamQua.RightDefense = blendLine(rawLeftDefense, rawDefense, rawRightDefense)
+	centralDefenders := (*playersByPosition)[common.DEFENSE]
+	rawDefense := calculateDefense(centralDefenders, (*playersByPosition)[common.MIDFIELD], players)
+	teamQua.LeftDefense, teamQua.Defense, teamQua.RightDefense =
+		blendLine(rawLeftDefense, rawDefense, len(centralDefenders), rawRightDefense)
 
 	//midfield
 	rawLeftMidfield := calculateLateralMidfield(
 		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
 	rawRightMidfield := calculateLateralMidfield(
 		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
-	rawMidfield := calculateMidfield(
-		(*playersByPosition)[common.DEFENSE], (*playersByPosition)[common.MIDFIELD], players)
-	teamQua.LeftMidfield, teamQua.Midfield, teamQua.RightMidfield = blendLine(rawLeftMidfield, rawMidfield, rawRightMidfield)
+	centralMidfielders := (*playersByPosition)[common.MIDFIELD]
+	rawMidfield := calculateMidfield((*playersByPosition)[common.DEFENSE], centralMidfielders, players)
+	teamQua.LeftMidfield, teamQua.Midfield, teamQua.RightMidfield =
+		blendLine(rawLeftMidfield, rawMidfield, len(centralMidfielders), rawRightMidfield)
 
 	//attack
 	rawLeftAttack := calculateLateralAttack(
 		(*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], (*playersByPosition)[common.LATERAL_STRIKER_LEFT], players)
 	rawRightAttack := calculateLateralAttack(
 		(*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], (*playersByPosition)[common.LATERAL_STRIKER_RIGHT], players)
-	rawAttack := calculateAttack(
-		(*playersByPosition)[common.STRIKER], (*playersByPosition)[common.MIDFIELD], players)
-	teamQua.LeftAttack, teamQua.Attack, teamQua.RightAttach = blendLine(rawLeftAttack, rawAttack, rawRightAttack)
+	strikers := (*playersByPosition)[common.STRIKER]
+	rawAttack := calculateAttack(strikers, (*playersByPosition)[common.MIDFIELD], players)
+	teamQua.LeftAttack, teamQua.Attack, teamQua.RightAttach =
+		blendLine(rawLeftAttack, rawAttack, len(strikers), rawRightAttack)
 }
 
 // ZoneSpillover is how much of a three-zone line's (defense, midfield, or attack) strength leaks
@@ -82,15 +85,27 @@ func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, play
 // support from the center, and vice versa. Applied identically to all three lines by blendLine.
 const ZoneSpillover = 0.15
 
-// blendLine gives each zone of a left/center/right line a share of its neighbors' raw strength:
-// the center picks up a slice of both flanks, and each flank picks up a slice of the center (not
-// of the opposite flank, which isn't adjacent to it). Mirrors the 0.7/0.15/0.15 weighting this
-// package's match-report diffs already used, just applied to the actual TeamQualification values
-// the simulation plays out with instead of only a display-only summary.
-func blendLine(left float32, center float32, right float32) (blendedLeft float32, blendedCenter float32, blendedRight float32) {
-	blendedLeft = left*(1-ZoneSpillover) + center*ZoneSpillover
-	blendedRight = right*(1-ZoneSpillover) + center*ZoneSpillover
-	blendedCenter = center*(1-2*ZoneSpillover) + left*ZoneSpillover + right*ZoneSpillover
+// blendLine gives each zone of a left/center/right line a share of its neighbors' *per-player
+// average* strength, not their raw magnitude: a flank is always exactly one player
+// (LATERAL_DEFENSE_LEFT etc. are always 1-wide, see formation.go), but the center can field one
+// to three (DEFENSE/MIDFIELD/STRIKER), and calculateDefense/calculateMidfield/calculateAttack sum
+// every one of them - so a raw three-player center is 2-3x a raw one-player flank for identical
+// per-player quality, and blending them directly would swing a flank's rating from this team's
+// own formation shape alone (a back three vs a lone sweeper), not from anyone's actual skill.
+// Averaging the center over centerCount first keeps the blend comparable player-for-player; the
+// returned center is then scaled back up by centerCount, so a wider center's greater total
+// presence (the whole reason the game sums it) is otherwise unaffected - only how much it gives
+// to/takes from its flanks changes. centerCount == 0 (every central player sent off) skips
+// blending entirely rather than dividing by zero, leaving the flanks as they are.
+func blendLine(left float32, centerTotal float32, centerCount int, right float32) (blendedLeft float32, blendedCenter float32, blendedRight float32) {
+	if centerCount == 0 {
+		return left, 0, right
+	}
+	centerAvg := centerTotal / float32(centerCount)
+	blendedLeft = left*(1-ZoneSpillover) + centerAvg*ZoneSpillover
+	blendedRight = right*(1-ZoneSpillover) + centerAvg*ZoneSpillover
+	blendedCenterAvg := centerAvg*(1-2*ZoneSpillover) + left*ZoneSpillover + right*ZoneSpillover
+	blendedCenter = blendedCenterAvg * float32(centerCount)
 	return blendedLeft, blendedCenter, blendedRight
 }
 
@@ -121,7 +136,7 @@ func calculateLateralMidfield(def []int64, mid []int64, players *map[int64]commo
 
 func calculateMidfield(def []int64, mid []int64, players *map[int64]common.Player) float32 {
 	value := float32(0)
-	for _, d := range def {
+	for _, d := range mid {
 		value += float32((*players)[d].Midfield)
 	}
 	return value
