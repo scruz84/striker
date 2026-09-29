@@ -90,6 +90,51 @@ type LineupPosition struct {
 	Position int   `json:"position"`
 }
 
+// CopyLineup returns an independent copy of lineup - specifically, one whose Positions slice can
+// be mutated (e.g. by ApplySubstitutionToLineup) without affecting the original. Used wherever a
+// caller needs to derive an evolving "lineup as it currently stands" from a fixed starting lineup
+// without mutating the starting one out from under some other reader.
+func CopyLineup(lineup *Lineup) *Lineup {
+	if lineup == nil {
+		return nil
+	}
+	cp := *lineup
+	cp.Positions = append([]LineupPosition(nil), lineup.Positions...)
+	return &cp
+}
+
+// ApplySubstitutionToLineup swaps a SUBSTITUTION event's outgoing player for its incoming one in
+// lineup's own position list, in place, at whichever slot the outgoing player was holding.
+//
+// Nothing in the simulation pipeline updates a Lineup itself when a substitution happens -
+// engine.applyScheduledSubstitutions/bringOnInjuryReplacement only swap the two teams' internal
+// position-group maps the goal math actually reads (see engine/substitution_simulation.go), which
+// is a different representation than the Lineup a live viewer's head-to-head pitch or a finished
+// match's report renders (MatchHeadToHeadPitch, fed by WeekMatch.HomeLineup/AwayLineup or a live
+// broadcast's own "lineups"/"event" messages) - so without this, both kept showing the XI a
+// manager submitted before kickoff forever, never whoever's actually on the pitch after a
+// substitution. Deriving the real on-pitch lineup means replaying every SUBSTITUTION event onto a
+// copy (see CopyLineup) of the starting lineup after the fact - see engine.BroadcastMatchLive (a
+// live broadcast, applied event by event as the broadcast paces through them) and WeekMatchById (a
+// finished match's report, applied all at once from the full event history).
+//
+// No-op for anything but a SUBSTITUTION event, a nil lineup, an event without the expected
+// [outgoingPlayerId, incomingPlayerId] pair, or an event for the other team's lineup (TeamId
+// decides which of a match's two Lineups this event even applies to, so a caller can call this for
+// both without checking which team an event belongs to first).
+func ApplySubstitutionToLineup(lineup *Lineup, event Event) {
+	if lineup == nil || event.EventType != SUBSTITUTION || len(event.TeamOwnerPlayers) != 2 || event.TeamOwner != lineup.TeamId {
+		return
+	}
+	outId, inId := event.TeamOwnerPlayers[0], event.TeamOwnerPlayers[1]
+	for i, pos := range lineup.Positions {
+		if pos.PlayerId == outId {
+			lineup.Positions[i].PlayerId = inId
+			return
+		}
+	}
+}
+
 type Team struct {
 	Id                     int64  `json:"id"`
 	OwnerId                int64  `json:"ownerId"`

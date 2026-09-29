@@ -1175,6 +1175,15 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	} else {
 		match.HomeLineup = (*lineups)[match.Home]
 		match.AwayLineup = (*lineups)[match.Away]
+		// GetLineupsForMatch only ever returns the XI submitted before kickoff - replay every
+		// substitution this match actually had on top of it, so a finished match's report shows
+		// who was really on the pitch (see ApplySubstitutionToLineup's own doc comment).
+		if match.Events != nil {
+			for _, event := range *match.Events {
+				ApplySubstitutionToLineup(match.HomeLineup, event)
+				ApplySubstitutionToLineup(match.AwayLineup, event)
+			}
+		}
 	}
 	homePlayers, err := GetPlayersFromTeamId(dbCtx, match.Home)
 	if err != nil {

@@ -91,18 +91,23 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 		eventsByMinute[event.Minute] = append(eventsByMinute[event.Minute], event)
 	}
 
+	// match.HomeLineup/AwayLineup are always the XI submitted before kickoff - nothing in the
+	// simulation pipeline ever updates them when a substitution happens (see
+	// common.ApplySubstitutionToLineup's doc comment) - so these two local copies are what
+	// actually evolve as the broadcast replays SUBSTITUTION events below, never the originals.
+	homeLineup := common.CopyLineup(match.HomeLineup)
+	awayLineup := common.CopyLineup(match.AwayLineup)
+
 	go func() {
-		// Published once, before the first "instant" - both lineups are already fixed for the
-		// whole match at this point (see LiveMatchMessage's own comment), so there's no reason to
-		// wait or repeat this later. A cup tie or friendly missing either lineup (shouldn't
-		// normally happen, but the zero value leaves these nil either way) just skips it - a live
-		// viewer then falls back to the team-level qualification comparison only, same as before
-		// this existed.
-		if match.HomeLineup != nil && match.AwayLineup != nil && match.HomePlayers != nil && match.AwayPlayers != nil {
+		// Published once, before the first "instant". A cup tie or friendly missing either
+		// lineup (shouldn't normally happen, but the zero value leaves these nil either way) just
+		// skips it - a live viewer then falls back to the team-level qualification comparison
+		// only, same as before this existed.
+		if homeLineup != nil && awayLineup != nil && match.HomePlayers != nil && match.AwayPlayers != nil {
 			dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 				Type:        "lineups",
-				HomeLineup:  match.HomeLineup,
-				AwayLineup:  match.AwayLineup,
+				HomeLineup:  homeLineup,
+				AwayLineup:  awayLineup,
 				HomePlayers: match.HomePlayers,
 				AwayPlayers: match.AwayPlayers,
 			})
@@ -125,9 +130,21 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 			for _, event := range eventsByMinute[instant.Minute] {
 				e := event
 				homeGoals, awayGoals = e.HomeGoals, e.AwayGoals
-				dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
+				msg := common.LiveMatchMessage{
 					Type: "event", Event: &e, HomeGoals: homeGoals, AwayGoals: awayGoals,
-				})
+				}
+				// A substitution changes who's actually on the pitch - update this broadcast's
+				// own evolving lineup copies and publish them alongside the event itself, so a
+				// live viewer's head-to-head pitch (MatchHeadToHeadPitch, fed by these same
+				// homeLineup/awayLineup fields via useLiveMatch) reflects it instead of staying
+				// frozen at the starting XI for the rest of the match.
+				if e.EventType == common.SUBSTITUTION {
+					common.ApplySubstitutionToLineup(homeLineup, e)
+					common.ApplySubstitutionToLineup(awayLineup, e)
+					msg.HomeLineup = homeLineup
+					msg.AwayLineup = awayLineup
+				}
+				dbCtx.LiveHub.Publish(channel, msg)
 			}
 			i := instant
 			dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
