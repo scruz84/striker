@@ -18,6 +18,17 @@ type LiveMatchMessage struct {
 	Type    string        `json:"type"` // "lineups", "instant", "event", "halftime", or "complete"
 	Instant *MatchInstant `json:"instant,omitempty"`
 	Event   *Event        `json:"event,omitempty"`
+	// Seq is a per-channel, strictly increasing sequence number Publish assigns (see its own
+	// comment) - a client catching up on History() and then continuing to read live off the
+	// channel it Subscribe-d to (see handlers.serveLiveMatch) uses this, not a message's own
+	// minute, to tell a genuine duplicate delivered on both paths (the small window between
+	// Subscribe and History - see History's comment) from a brand new message that merely shares
+	// a minute with one already delivered. A single simulated minute can carry more than one
+	// message (an event followed by its instant, or two events back to back - see
+	// BroadcastMatchLive), so "have I already seen this minute" is not the same question as "have
+	// I already seen this message", and answering the wrong one silently drops the second message
+	// of such a minute for a client unlucky enough to reconnect in that exact window.
+	Seq int64 `json:"seq"`
 	// HomeLineup/AwayLineup/HomePlayers/AwayPlayers are only set on the one "lineups" message
 	// published right before the first "instant" (see BroadcastMatchLive) - the starting XI each
 	// manager picked, which stays fixed for the whole match (substitutions swap who occupies a
@@ -49,6 +60,12 @@ const liveMatchKeyPrefix = "livematch:"
 const liveMatchHistoryTTL = 4 * time.Hour
 
 func historyKey(channel string) string { return liveMatchKeyPrefix + "history:" + channel }
+
+// seqKey namespaces the atomic counter Publish uses to assign each channel's messages their own
+// strictly increasing Seq (see LiveMatchMessage.Seq) - a separate key from historyKey's list so
+// the counter (a single INCR) never has to agree with the list's own length, which would require
+// combining both into one round trip to stay race-free.
+func seqKey(channel string) string { return liveMatchKeyPrefix + "seq:" + channel }
 
 // LiveMatchHub fans out a match's live messages to every WebSocket client currently watching
 // it. Backed by Redis pub/sub rather than an in-process map: the API server (svc, where clients
@@ -137,12 +154,25 @@ func (h *LiveMatchHub) HasSubscribers(channel string) bool {
 // under way - can still be caught up on everything they missed instead of only seeing whatever
 // happens to be published from the moment they connect onward.
 func (h *LiveMatchHub) Publish(channel string, msg LiveMatchMessage) {
+	ctx := context.Background()
+	sKey := seqKey(channel)
+	// Assigned from its own atomic counter (INCR), not the history list's own length: BroadcastMatchLive
+	// publishes every message for a match from a single goroutine, so this is already strictly
+	// increasing in publish order without needing to agree with a separate RPush's return value.
+	if seq, err := h.client.Incr(ctx, sKey).Result(); err != nil {
+		log.Errorf("error assigning live match sequence for %s: %s", channel, err)
+	} else {
+		msg.Seq = seq
+		if err := h.client.Expire(ctx, sKey, liveMatchHistoryTTL).Err(); err != nil {
+			log.Errorf("error setting live match sequence TTL for %s: %s", channel, err)
+		}
+	}
+
 	payload, err := json.Marshal(msg)
 	if err != nil {
 		log.Errorf("error encoding live match message for %s: %s", channel, err)
 		return
 	}
-	ctx := context.Background()
 	hKey := historyKey(channel)
 	if err := h.client.RPush(ctx, hKey, payload).Err(); err != nil {
 		log.Errorf("error recording live match history for %s: %s", channel, err)

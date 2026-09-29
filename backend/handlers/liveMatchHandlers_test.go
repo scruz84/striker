@@ -105,6 +105,49 @@ func TestServeLiveMatch_StaleBroadcastReportsFinalResult(t *testing.T) {
 	}
 }
 
+// TestServeLiveMatch_SecondMessageInSameMinuteSurvivesReconnectCatchUp reproduces a real bug: a
+// single simulated minute can carry more than one message (e.g. two events back to back, or an
+// event followed by its trailing instant - see engine.BroadcastMatchLive), and a client that
+// connects in the brief window between the hub's Subscribe and its History call (see
+// LiveMatchHub.History's own comment on that window) gets the first of that minute's messages via
+// history catch-up and would - if duplicates were filtered by minute rather than by each
+// message's own Seq - see the second one dropped as a "duplicate" for sharing the same minute,
+// even though it's a distinct message the client hasn't seen at all. Deduping by Seq must let it
+// through.
+func TestServeLiveMatch_SecondMessageInSameMinuteSurvivesReconnectCatchUp(t *testing.T) {
+	redisReachableForTest(t)
+
+	channel := common.LeagueMatchChannel(time.Now().UnixNano())
+	server, dbCtx := newLiveMatchTestServer(t, channel, false, 0, 0)
+
+	// Simulates the first of this minute's two messages having already been published (and thus
+	// already sitting in history) by the time this client connects.
+	dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
+		Type: "event", HomeGoals: 1, AwayGoals: 0,
+		Event: &common.Event{Minute: 18, EventType: common.GOAL},
+	})
+
+	conn := dialLiveMatch(t, server)
+
+	first := readLiveMatchMessage(t, conn, 2*time.Second)
+	if first.Type != "event" || first.Event.Minute != 18 {
+		t.Fatalf("expected the already-published minute-18 event first, got: %+v", first)
+	}
+
+	// The same minute's second message, published only now - after this client's history
+	// catch-up already ran. A minute-based dedup would wrongly discard this as a duplicate of the
+	// message above just for sharing minute 18.
+	dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
+		Type: "event", HomeGoals: 1, AwayGoals: 0,
+		Event: &common.Event{Minute: 18, EventType: common.YELLOW_CARD},
+	})
+
+	second := readLiveMatchMessage(t, conn, 2*time.Second)
+	if second.Type != "event" || second.Event.Minute != 18 || second.Event.EventType != common.YELLOW_CARD {
+		t.Fatalf("expected the second minute-18 event to still arrive, got: %+v", second)
+	}
+}
+
 // TestServeLiveMatch_QuietBeforeKickoffIsNotStale makes sure the stale-broadcast timeout doesn't
 // fire just because a viewer opened a match page long before kickoff and the broadcast simply
 // hasn't started yet - see broadcastStarted in serveLiveMatch.

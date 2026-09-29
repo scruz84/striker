@@ -197,6 +197,31 @@ func TestLiveMatchHub_HistoryCatchesUpALateSubscriber(t *testing.T) {
 	}
 }
 
+// TestLiveMatchHub_PublishAssignsStrictlyIncreasingSeq pins the sequence numbering
+// handlers.serveLiveMatch relies on to tell a genuine duplicate (delivered once via history
+// catch-up and again live, in the small window History's own comment describes) from a brand new
+// message that merely happens to share a minute with one already seen.
+func TestLiveMatchHub_PublishAssignsStrictlyIncreasingSeq(t *testing.T) {
+	hub := liveHubForTest(t)
+	channel := LeagueMatchChannel(time.Now().UnixNano() + 2)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), seqKey(channel)) })
+
+	hub.Publish(channel, LiveMatchMessage{Type: "instant"})
+	hub.Publish(channel, LiveMatchMessage{Type: "event"})
+	hub.Publish(channel, LiveMatchMessage{Type: "complete"})
+
+	history := hub.History(channel)
+	if len(history) != 3 {
+		t.Fatalf("expected 3 history messages, got %d: %+v", len(history), history)
+	}
+	if history[0].Seq == 0 || history[1].Seq == 0 || history[2].Seq == 0 {
+		t.Fatalf("expected every message to get a non-zero Seq, got: %+v", history)
+	}
+	if !(history[0].Seq < history[1].Seq && history[1].Seq < history[2].Seq) {
+		t.Fatalf("expected strictly increasing Seq in publish order, got: %d, %d, %d", history[0].Seq, history[1].Seq, history[2].Seq)
+	}
+}
+
 func TestLiveMatchHub_HasSubscribersReflectsSubscriptionState(t *testing.T) {
 	hub := liveHubForTest(t)
 	channel := LeagueMatchChannel(2)

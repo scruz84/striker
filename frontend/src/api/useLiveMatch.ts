@@ -183,6 +183,14 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
     let isComplete = false
 
     const connect = () => {
+      // The backend always replays a channel's *entire* published history to a freshly connected
+      // socket (see backend/handlers/liveMatchHandlers.go's serveLiveMatch), including on a
+      // reconnect after a dropped connection - it has no notion of "this viewer already saw
+      // messages up to X" across two separate sockets. Without this reset, a reconnect (a proxy
+      // timeout, a network blip - the exact case this hook's own retry logic exists for) would
+      // append that whole replayed history a second time onto whatever had already accumulated
+      // from the first connection, doubling up every event and instant seen so far.
+      setState(initialState)
       socket = new WebSocket(getWsEndpoint(path))
 
       socket.onopen = () => {

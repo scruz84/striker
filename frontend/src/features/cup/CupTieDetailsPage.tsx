@@ -12,7 +12,7 @@ import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup
 import type { CupTieDetails, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
-import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
@@ -100,11 +100,14 @@ function LiveTie({
   const live = useLiveMatch(id ? `/v1/cups/ties/${id}/live` : undefined, !!id)
   const isDue = useIsDue(tie.matchDate ?? '')
   const isLineupLocked = useIsLineupLocked(tie.matchDate ?? '')
-  // Shared with the zone-comparison panel below, so scrubbing it also updates the pitch's
-  // per-player ratings instead of the pitch staying frozen on the live/current minute.
+  // Shared with the zone-comparison panel below, so scrubbing it moves any other scrub-aware panel
+  // in lockstep instead of each one tracking its own independent minute.
   const minuteScrub = useMinuteScrub(live.minute)
-  const pitchRatings =
-    live.homeLineup && live.awayLineup ? computeRatingsAsOfMinute(live.homeLineup, live.awayLineup, live.events, minuteScrub.minute) : undefined
+  // Player evaluations (ratings) aren't shown at all while a tie is still broadcasting live -
+  // withheld until full time the same way the events below withhold injuries/red cards, so the
+  // pitch simply renders without a `ratings` prop; it comes back once the page switches to the
+  // finished-tie view (played=true) with the real thing.
+  const liveEvents = withholdSpoilerEvents(live.events)
 
   useEffect(() => {
     // See MatchDetailsPage's identical reasoning: a broken socket alone isn't enough to bail out
@@ -166,12 +169,11 @@ function LiveTie({
             homePlayers={live.homePlayers}
             awayLineup={live.awayLineup}
             awayPlayers={live.awayPlayers}
-            ratings={pitchRatings}
           />
         </Paper>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={live.events} homeId={homeId} homeName={tie.homeTeamName} awayId={awayId} awayName={tie.awayTeamName} />
+        <MatchEventsReport events={liveEvents} homeId={homeId} homeName={tie.homeTeamName} awayId={awayId} awayName={tie.awayTeamName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison

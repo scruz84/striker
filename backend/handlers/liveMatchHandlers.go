@@ -141,7 +141,7 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 	defer unsubscribe()
 
 	history := dbCtx.LiveHub.History(channel)
-	lastMinute := -1
+	var lastSeq int64
 	for _, msg := range history {
 		if msg.Type == "complete" {
 			_ = conn.WriteJSON(msg)
@@ -151,8 +151,8 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 		if err := conn.WriteJSON(msg); err != nil {
 			return
 		}
-		if minute := messageMinute(msg); minute > lastMinute {
-			lastMinute = minute
+		if msg.Seq > lastSeq {
+			lastSeq = msg.Seq
 		}
 	}
 
@@ -209,8 +209,12 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 			broadcastStarted = true
 			// Already delivered as part of the history catch-up above - skip the duplicate that
 			// arrives here whenever it was published in the small window between subscribing and
-			// reading history.
-			if minute := messageMinute(msg); minute >= 0 && minute <= lastMinute {
+			// reading history. Compared by Seq (a strictly increasing per-message counter - see
+			// LiveMatchMessage.Seq), not by minute: a single minute can carry more than one
+			// message (an event and its trailing instant, or two events back to back), and a
+			// minute-based comparison would wrongly treat the second one as a duplicate of the
+			// first just for sharing a minute, dropping it for good.
+			if msg.Seq != 0 && msg.Seq <= lastSeq {
 				continue
 			}
 			_ = conn.SetWriteDeadline(time.Now().Add(liveMatchWriteTimeout))
@@ -235,19 +239,5 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 			log.Warnf("live match connection for %s exceeded max lifetime without completing - closing", channel)
 			return
 		}
-	}
-}
-
-// messageMinute returns msg's match minute, or -1 for a message type that doesn't carry one (eg.
-// "complete") - used by serveLiveMatch to avoid re-delivering a message live that was already
-// sent as part of the history catch-up.
-func messageMinute(msg common.LiveMatchMessage) int {
-	switch {
-	case msg.Instant != nil:
-		return msg.Instant.Minute
-	case msg.Event != nil:
-		return msg.Event.Minute
-	default:
-		return -1
 	}
 }

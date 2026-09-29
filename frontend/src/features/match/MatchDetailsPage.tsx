@@ -13,7 +13,7 @@ import { queryKeys, useDivisionDetails, useMatchDetails, useMatchLineup, useMe, 
 import { POSITION_GOALKEEPER, type DivisionDetails, type Player, type Team, type WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
-import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -122,12 +122,16 @@ function LiveMatch({
   const live = useLiveMatch(matchId ? `/v1/teams/match/${matchId}/live` : undefined, !!matchId)
   const isDue = useIsDue(matchDate)
   const isLineupLocked = useIsLineupLocked(matchDate)
-  // Shared by the lineup pitch's per-player ratings and the zone-comparison/ratings-list panels
-  // below, so scrubbing any one of them (e.g. "recuerda que se pueden poner minutos anteriores")
-  // moves the others in lockstep instead of each panel tracking its own independent minute.
+  // Shared by the zone-comparison panel below, so scrubbing it moves any other scrub-aware panel
+  // in lockstep instead of each one tracking its own independent minute.
   const minuteScrub = useMinuteScrub(live.minute)
-  const pitchRatings =
-    live.homeLineup && live.awayLineup ? computeRatingsAsOfMinute(live.homeLineup, live.awayLineup, live.events, minuteScrub.minute) : undefined
+  // Injury/red-card events are withheld from everything fed live events below (the narrated
+  // report and MatchMinuteRatings alike) - a live viewer shouldn't learn a team just went down to
+  // ten men, or which player just got injured, before the match itself is over (see
+  // withholdSpoilerEvents' own comment). Once the match completes, the page switches over to the
+  // finished-match view (played=true), which reads the real, unfiltered events straight from the
+  // backend.
+  const liveEvents = withholdSpoilerEvents(live.events)
 
   useEffect(() => {
     // live.giveUp alone isn't enough - the socket can be entirely unreachable (a downed Redis,
@@ -206,13 +210,12 @@ function LiveMatch({
               homePlayers={live.homePlayers}
               awayLineup={live.awayLineup}
               awayPlayers={live.awayPlayers}
-              ratings={pitchRatings}
             />
           </Paper>
         </>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={live.events} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
+        <MatchEventsReport events={liveEvents} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
@@ -242,7 +245,7 @@ function LiveMatch({
           awayLineup={live.awayLineup}
           homePlayers={live.homePlayers}
           awayPlayers={live.awayPlayers}
-          events={live.events}
+          events={liveEvents}
           currentMinute={live.minute}
           live
           scrub={minuteScrub}
