@@ -13,7 +13,7 @@ import (
 func liveHubForTest(t *testing.T) *LiveMatchHub {
 	t.Helper()
 	hub := NewLiveMatchHub()
-	if err := hub.client.Ping(context.Background()).Err(); err != nil {
+	if err := hub.Ping(); err != nil {
 		t.Skipf("redis not reachable, skipping: %s", err)
 	}
 	return hub

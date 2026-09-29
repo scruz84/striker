@@ -76,6 +76,13 @@ func NewLiveMatchHub() *LiveMatchHub {
 	return &LiveMatchHub{client: client}
 }
 
+// Ping reports whether the underlying Redis connection is reachable - used by tests (in this
+// package and others, like engine's BroadcastMatchLive tests) that need the real pub/sub round
+// trip and should skip rather than fail when no Redis is available to test against.
+func (h *LiveMatchHub) Ping() error {
+	return h.client.Ping(context.Background()).Err()
+}
+
 // LeagueMatchChannel, CupTieChannel and FriendlyMatchChannel are the id namespaces a live
 // channel key can come from - use these rather than formatting the string inline, so every
 // caller stays consistent.

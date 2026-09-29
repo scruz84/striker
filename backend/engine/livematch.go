@@ -108,14 +108,23 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 			})
 		}
 
+		// homeGoals/awayGoals is tracked from each Event's own HomeGoals/AwayGoals (set from
+		// match.HomeGoals/match.AwayGoals at the instant it was recorded - see ScorerSimulation and
+		// friends), not from the MatchInstant snapshot below: InitialSimulation appends that
+		// snapshot at the start of its minute's pipeline stage, before ScorerSimulation runs for
+		// that same minute, so instant.HomeGoals/AwayGoals always lag a goal scored that minute by
+		// one full minute of broadcast - the scoreboard's minute counter would tick forward on
+		// schedule while the score itself stayed stuck at the pre-goal count until the next
+		// instant. Events, appended after whichever stage actually changed the score, don't have
+		// that lag.
 		homeGoals, awayGoals := 0, 0
 		for _, instant := range instants {
 			if wait := time.Until(matchDate.Add(minutePublishOffset(instant.Minute))); wait > 0 {
 				time.Sleep(wait)
 			}
-			homeGoals, awayGoals = instant.HomeGoals, instant.AwayGoals
 			for _, event := range eventsByMinute[instant.Minute] {
 				e := event
+				homeGoals, awayGoals = e.HomeGoals, e.AwayGoals
 				dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 					Type: "event", Event: &e, HomeGoals: homeGoals, AwayGoals: awayGoals,
 				})
