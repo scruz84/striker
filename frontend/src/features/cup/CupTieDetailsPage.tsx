@@ -22,6 +22,7 @@ import { MatchEventsReport } from '../match/MatchEventsReport'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
 import { MatchReportTab } from '../match/MatchReportTab'
+import { cupTiePenaltyWinnerName } from './CupPage'
 
 export function CupTieDetailsPage() {
   const { id } = useParams<{ id: string }>()
@@ -256,6 +257,7 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
   const weekMatch = cupTieToWeekMatch(tie)
+  const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
 
   return (
     <Box>
@@ -271,7 +273,7 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
       />
       {tie.wentToPenalties && (
         <Typography color="text.secondary" align="center" sx={{ mb: 2 }}>
-          {t('cup.pens')}
+          {penaltyWinnerName ? t('cup.pensWinner', { team: penaltyWinnerName }) : t('cup.pens')}
         </Typography>
       )}
 

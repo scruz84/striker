@@ -465,6 +465,7 @@
     "quarterfinal": "Cuartos de final",
     "bye": "Exento",
     "pens": "(pens)",
+    "pensWinner": "{{team}} avanza tras ganar en la tanda de penaltis",
     "tbd": "Por determinar",
     "lineup": { "title": "Alineación de {{teamName}} para esta eliminatoria" }
   },

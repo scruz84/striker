@@ -465,6 +465,7 @@
     "quarterfinal": "Quarterfinal",
     "bye": "Bye",
     "pens": "(pens)",
+    "pensWinner": "{{team}} advances after winning the penalty shootout",
     "tbd": "TBD",
     "lineup": { "title": "{{teamName}}'s lineup for this cup tie" }
   },

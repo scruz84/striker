@@ -4,6 +4,7 @@ import ButtonBase from '@mui/material/ButtonBase'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -55,6 +56,17 @@ export function CupPage() {
   )
 }
 
+// A tie decided by a penalty shootout ends level on the scoreboard (0-0, 1-1, ...), so unlike a
+// normally-decided tie, the score alone can't tell a reader who actually advances - only
+// tie.winnerTeamId (set by the coin-flip shootout in backend engine.simulateCupTie) says that.
+// Returns undefined for a tie that wasn't decided on penalties, or isn't played/resolved yet, so
+// callers can fall back to the plain "(pens)" caption (issue: bracket/tie page said penalties
+// happened but never said who won).
+export function cupTiePenaltyWinnerName(tie: CupTie): string | undefined {
+  if (!tie.wentToPenalties || tie.winnerTeamId === null) return undefined
+  return tie.winnerTeamId === tie.homeTeamId ? tie.homeTeamName : tie.awayTeamName
+}
+
 // Exported for InternationalCupPage - identical bracket rendering, just keyed by region instead
 // of country to find its cup id (see useLatestInternationalCupId).
 export function TieRow({ tie }: { tie: CupTie }) {
@@ -64,6 +76,9 @@ export function TieRow({ tie }: { tie: CupTie }) {
   // See DivisionDetailsPage's identical mightStillBeLive check - a tie flips played=true the
   // instant it's simulated, well before its result finishes broadcasting live.
   const stillLive = tie.played && mightStillBeLive(tie.matchDate ?? '')
+  const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
+  const homeWonPenalties = tie.wentToPenalties && tie.winnerTeamId === tie.homeTeamId
+  const awayWonPenalties = tie.wentToPenalties && tie.winnerTeamId === tie.awayTeamId
 
   return (
     <ButtonBase
@@ -73,7 +88,13 @@ export function TieRow({ tie }: { tie: CupTie }) {
     >
       <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center', width: '100%' }}>
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
-          {tie.homeTeamId ? <NestedTeamNameLink teamId={tie.homeTeamId}>{tie.homeTeamName}</NestedTeamNameLink> : t('cup.tbd')}
+          {tie.homeTeamId ? (
+            <NestedTeamNameLink teamId={tie.homeTeamId} sx={{ fontWeight: homeWonPenalties ? 700 : undefined }}>
+              {tie.homeTeamName}
+            </NestedTeamNameLink>
+          ) : (
+            t('cup.tbd')
+          )}
         </Typography>
         {stillLive ? (
           <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
@@ -83,12 +104,22 @@ export function TieRow({ tie }: { tie: CupTie }) {
           </Typography>
         )}
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-          {tie.awayTeamId ? <NestedTeamNameLink teamId={tie.awayTeamId}>{tie.awayTeamName}</NestedTeamNameLink> : isBye ? '' : t('cup.tbd')}
+          {tie.awayTeamId ? (
+            <NestedTeamNameLink teamId={tie.awayTeamId} sx={{ fontWeight: awayWonPenalties ? 700 : undefined }}>
+              {tie.awayTeamName}
+            </NestedTeamNameLink>
+          ) : isBye ? (
+            ''
+          ) : (
+            t('cup.tbd')
+          )}
         </Typography>
         {!stillLive && tie.wentToPenalties && (
-          <Typography variant="caption" color="text.secondary">
-            {t('cup.pens')}
-          </Typography>
+          <Tooltip title={penaltyWinnerName ? t('cup.pensWinner', { team: penaltyWinnerName }) : ''}>
+            <Typography variant="caption" color="text.secondary">
+              {t('cup.pens')}
+            </Typography>
+          </Tooltip>
         )}
       </Stack>
     </ButtonBase>
