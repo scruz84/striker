@@ -81,6 +81,20 @@ export function currentStanding(
   return hideStillLiveResults(division.classification.positions, division.previousWeekMatches).find((p) => p.teamId === teamId)
 }
 
+// selectRecentForm picks the last `limit` played matches (most recent last, for FormStrip's
+// left-to-right oldest-to-newest strip) from an already-played, most-recent-first list (see
+// DashboardPage's own playedMatches). Unlike LastResultCard (which masks a still-live lastMatch
+// behind a LIVE chip itself), FormStrip has no per-chip live state to fall back to - it always
+// renders a W/L/D result - so a still-live match is dropped here entirely rather than spoiling it
+// the instant kickoff arrives, well before its broadcast (shown elsewhere on this very dashboard)
+// finishes.
+export function selectRecentForm(playedMatches: TeamMatchSummary[], limit: number): TeamMatchSummary[] {
+  return playedMatches
+    .filter((m) => !mightStillBeLive(m.matchDate))
+    .slice(0, limit)
+    .reverse()
+}
+
 export function DashboardPage() {
   const { data: loggedUser } = useMe()
   const { data: userTeam, isLoading } = useUserTeam(!!loggedUser)
@@ -107,7 +121,7 @@ export function DashboardPage() {
     .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
   const nextMatch = teamMatches?.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
   const lastMatch = playedMatches?.[0]
-  const recentForm = playedMatches?.slice(0, 5).reverse()
+  const recentForm = playedMatches && selectRecentForm(playedMatches, 5)
   const standing = currentStanding(division, team.id)
 
   return (

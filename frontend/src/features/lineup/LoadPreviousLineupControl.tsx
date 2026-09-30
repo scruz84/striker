@@ -9,7 +9,8 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
 import { useTranslation } from 'react-i18next'
 import { useMatchDetails, useTeamMatches } from '../../api/hooks'
-import { MATCH_KIND_LEAGUE, type Lineup, type WeekMatch } from '../../api/types'
+import { MATCH_KIND_LEAGUE, type Lineup, type TeamMatchSummary, type WeekMatch } from '../../api/types'
+import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDate } from '../../utils/formatDate'
 
 // How far back the dropdown offers - a manager reusing an old lineup almost always means a
@@ -52,6 +53,19 @@ interface LoadPreviousLineupControlProps {
   onLoad: (lineup: Lineup) => void
 }
 
+// selectPastLeagueMatches picks the league matches this control may offer to copy a lineup from -
+// most recent first, capped at `limit`. m.played flips true up to 15 minutes before matchDate
+// (see GetSimulableMatchesStmtSql) and stays true well before the match's live broadcast finishes
+// pacing out (~105 real minutes - see mightStillBeLive), so both isPast and !mightStillBeLive are
+// required - without them this dropdown would offer, and reveal the final score of, a match the
+// viewer hasn't even seen kick off yet, or is still watching live elsewhere in the app.
+export function selectPastLeagueMatches(matches: TeamMatchSummary[], limit: number): TeamMatchSummary[] {
+  return matches
+    .filter((m) => m.kind === MATCH_KIND_LEAGUE && m.played && isPast(m.matchDate) && !mightStillBeLive(m.matchDate))
+    .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
+    .slice(0, limit)
+}
+
 /** Lets a manager copy one of their own team's past played league matches' lineup (formation +
  * XI) straight into the editor, instead of rebuilding it slot by slot - "use the same lineup as
  * that match". Scoped to league matches: cup ties and friendlies store their lineups through
@@ -66,10 +80,7 @@ export function LoadPreviousLineupControl({ teamId, onLoad }: LoadPreviousLineup
   const [loadError, setLoadError] = useState(false)
   const { data: match, isFetching, isError: fetchError } = useMatchDetails(pendingMatchId)
 
-  const pastMatches = (matches ?? [])
-    .filter((m) => m.kind === MATCH_KIND_LEAGUE && m.played)
-    .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
-    .slice(0, MAX_PREVIOUS_MATCHES)
+  const pastMatches = selectPastLeagueMatches(matches ?? [], MAX_PREVIOUS_MATCHES)
 
   useEffect(() => {
     if (!pendingMatchId) {

@@ -201,10 +201,55 @@ section for the full list of what's instrumented and how to configure it.
 ### Live match streaming
 
 A match's simulation is instant and fully computed/persisted to Postgres in one go - there's no
-real-time simulation loop. "Live" is a cosmetic replay: `engine.BroadcastMatchLive` paces
-already-known events out over ~22 seconds via the Redis-backed hub above, to any browser with the
-match's live WebSocket open (`GET /v1/teams/match/:id/live`). The frontend also polls every 5s
-while a match isn't marked played yet, as a backstop against a missed/dropped socket message.
+real-time simulation loop. `matches.played` (and `cup_ties.played`/`friendly_matches.played`) flips
+to `true` - with the final score and, for a league match, the `classification` table - up to **15
+minutes before kickoff** (a match is read into simulation early; see
+`GetSimulableMatchesStmtSql`/`GetSimulableFriendliesStmtSql`). "Live" is a cosmetic replay of that
+already-decided result: `engine.BroadcastMatchLive` paces the already-known events out over real
+time (~105 minutes: 45' + a 15-minute halftime pause + 45', see `liveMatchMinuteDelay`/
+`liveMatchHalftimeDelay` in `engine/livematch.go`) via the Redis-backed hub above, to any browser
+with the match's live WebSocket open (`GET /v1/teams/match/:id/live`). The frontend also polls
+every 5s while a match isn't marked played yet, as a backstop against a missed/dropped socket
+message.
+
+#### The still-live spoiler guard (read this before touching match results or standings)
+
+Because the DB already knows a match's outcome long before a viewer's "live" experience finishes,
+**any** code path - new or old, backend or frontend - that surfaces a match's result, or anything
+derived from it (a team's classification/position, a head-to-head tally, a "recent form" list, top
+scorers, a cup bracket's next round, "load previous lineup" from a past match), must treat a match
+still inside its live-broadcast window as not-yet-decided, even though `played`/`classification`
+already reflect the final result. `played === true` alone is **never** the right check for
+anything shown to a viewer other than that one match's own live page.
+
+- **Backend**: any query that aggregates "completed" matches for a caller who isn't that specific
+  match's own (correctly live-gated) page must add `match_date <= LiveBroadcastCutoff()` (see
+  `common/livebroadcast.go`'s `LiveBroadcastWindow`/`LiveBroadcastCutoff`) to its
+  `WHERE played = true` clause. Already applied in `GetHeadToHead`, `GetTopScorers`,
+  `GetPlayerCareerStats`/`GetPlayerRecentMatches`, `GetLastHomeMatch`, and
+  `engine.IsCupRoundResolved` - follow the same pattern for any new aggregate.
+- **Frontend**: any component reading a match's own `played`/`homeGoals`/`awayGoals`, or a team's
+  `classification` row, must gate on `mightStillBeLive(matchDate)` (from `api/useLiveMatch.ts`,
+  mirrors the backend's `LiveBroadcastWindow`) - usually paired with `isPast(matchDate)` too, to
+  also exclude a match simulated early whose own kickoff hasn't arrived yet. For classification
+  specifically, `division/DivisionDetailsPage.tsx`'s `hideStillLiveResults` is the canonical
+  pattern (revert the affected team's row to its pre-match state, then re-sort); reuse it rather
+  than re-deriving the reversion logic - see `dashboard/DashboardPage.tsx`'s `currentStanding` and
+  `match/MatchDetailsPage.tsx`'s `positionOf`. For a raw match/result list (`TeamMatchSummary`,
+  `WeekMatch`, a cup tie), either drop the still-live entry entirely
+  (`dashboard/DashboardPage.tsx`'s `selectRecentForm`, `lineup/LoadPreviousLineupControl.tsx`'s
+  `selectPastLeagueMatches`) or swap in a "LIVE" chip instead of the score
+  (`dashboard/DashboardPage.tsx`'s `LastResultCard`, `team/TeamMatchesSection.tsx`'s `MatchRow`,
+  `friendlies/FriendliesPage.tsx`, `cup/CupPage.tsx`) - never render the raw score/outcome
+  unconditionally.
+
+**This has already leaked more than once**: issue #82 (the league table itself), then a follow-up
+audit that found the dashboard's league-position chip, its "recent form" strip, the match page's
+own scoreboard positions, and the lineup screen's "load previous lineup" dropdown all reading the
+same not-yet-masked data - each added independently, each forgetting the check because nothing
+forced it to be remembered. When adding a new page or component that touches match results or
+classification, grep for `mightStillBeLive`/`hideStillLiveResults`/`LiveBroadcastCutoff` first and
+follow an existing call site's pattern instead of reading `played`/`classification` directly.
 
 ## Frontend (`frontend/`)
 
@@ -298,3 +343,8 @@ run elsewhere and the app services need to be pointed at them instead of the bun
   ledger/notification entry** where one of those already exists for similar actions (see how
   transfers, contract renewals, and budget corrections all log to the team transaction ledger) -
   consistency here is what makes the finances page and notification feed trustworthy.
+- **A match's `played` flag - and anything derived from it (classification, head-to-head, recent
+  form, top scorers) - goes true up to 15 minutes before kickoff, well before its live broadcast
+  finishes.** Never show a result/score/standing sourced from a match without first checking
+  `mightStillBeLive`/`LiveBroadcastCutoff` - see "The still-live spoiler guard" under "Live match
+  streaming" above before adding any new UI or query that touches match results.

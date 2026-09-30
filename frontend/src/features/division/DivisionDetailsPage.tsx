@@ -39,7 +39,11 @@ export function DivisionDetailsPage() {
     return <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
   }
 
-  const currentWeek = divisionDetails.classification.positions[0]?.matches ?? 0
+  // Reverted once and reused below for both the week chip and the table itself - positions[0]'s
+  // own `matches` count otherwise ticks over the instant a match is simulated too, up to 15
+  // minutes before its official kickoff (see hideStillLiveResults).
+  const positions = hideStillLiveResults(divisionDetails.classification.positions, divisionDetails.previousWeekMatches)
+  const currentWeek = positions[0]?.matches ?? 0
   const myTeamId = userTeam?.team.id
 
   return (
@@ -73,10 +77,7 @@ export function DivisionDetailsPage() {
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <ClassificationTable
-            positions={hideStillLiveResults(divisionDetails.classification.positions, divisionDetails.previousWeekMatches)}
-            myTeamId={myTeamId}
-          />
+          <ClassificationTable positions={positions} myTeamId={myTeamId} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={2}>

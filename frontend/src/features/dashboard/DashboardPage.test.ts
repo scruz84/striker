@@ -1,6 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import type { ClassificationPosition, DivisionDetails, WeekMatch } from '../../api/types'
-import { currentStanding } from './DashboardPage'
+import type { ClassificationPosition, DivisionDetails, TeamMatchSummary, WeekMatch } from '../../api/types'
+import { currentStanding, selectRecentForm } from './DashboardPage'
+
+function teamMatch(overrides: Partial<TeamMatchSummary>): TeamMatchSummary {
+  return {
+    kind: 'league',
+    matchId: 1,
+    opponentId: 2,
+    opponentName: 'Opponent',
+    isHome: true,
+    matchDate: '2020-01-01T00:00:00Z',
+    played: true,
+    homeGoals: 0,
+    awayGoals: 0,
+    ...overrides,
+  }
+}
 
 function position(overrides: Partial<ClassificationPosition>): ClassificationPosition {
   return {
@@ -90,5 +105,31 @@ describe('currentStanding', () => {
     })
 
     expect(currentStanding(div, 1)?.points).toBe(13)
+  })
+})
+
+describe('selectRecentForm', () => {
+  it('keeps a genuinely finished match, oldest first', () => {
+    const matches = [
+      teamMatch({ matchId: 2, matchDate: '2020-01-02T00:00:00Z' }),
+      teamMatch({ matchId: 1, matchDate: '2020-01-01T00:00:00Z' }),
+    ]
+    expect(selectRecentForm(matches, 5).map((m) => m.matchId)).toEqual([1, 2])
+  })
+
+  it('drops a match still within its live-broadcast window', () => {
+    const matches = [
+      teamMatch({ matchId: 1, matchDate: new Date(Date.now() - 30 * 60 * 1000).toISOString() }),
+      teamMatch({ matchId: 2, matchDate: '2020-01-01T00:00:00Z' }),
+    ]
+    expect(selectRecentForm(matches, 5).map((m) => m.matchId)).toEqual([2])
+  })
+
+  it('caps the result at the given limit', () => {
+    // Most-recent-first, matching DashboardPage's own playedMatches ordering.
+    const matches = Array.from({ length: 8 }, (_, i) =>
+      teamMatch({ matchId: i, matchDate: new Date(2020, 0, 8 - i).toISOString() }),
+    )
+    expect(selectRecentForm(matches, 5)).toHaveLength(5)
   })
 })

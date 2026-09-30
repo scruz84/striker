@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Lineup, WeekMatch } from '../../api/types'
-import { resolveLoadOutcome } from './LoadPreviousLineupControl'
+import type { Lineup, TeamMatchSummary, WeekMatch } from '../../api/types'
+import { resolveLoadOutcome, selectPastLeagueMatches } from './LoadPreviousLineupControl'
 
 const TEAM_ID = 1
 const OPPONENT_ID = 2
@@ -70,5 +70,62 @@ describe('resolveLoadOutcome', () => {
   it('errors when the match has no lineup on our side (should not normally happen, but the field is nullable)', () => {
     const match = weekMatch({ home: TEAM_ID, away: OPPONENT_ID, homeLineup: null })
     expect(resolveLoadOutcome(TEAM_ID, false, false, match)).toEqual({ action: 'error' })
+  })
+})
+
+function teamMatch(overrides: Partial<TeamMatchSummary>): TeamMatchSummary {
+  return {
+    kind: 'league',
+    matchId: 1,
+    opponentId: 2,
+    opponentName: 'Opponent',
+    isHome: true,
+    matchDate: '2020-01-01T00:00:00Z',
+    played: true,
+    homeGoals: 0,
+    awayGoals: 0,
+    ...overrides,
+  }
+}
+
+describe('selectPastLeagueMatches', () => {
+  it('includes a genuinely finished league match', () => {
+    const matches = [teamMatch({ matchDate: '2020-01-01T00:00:00Z' })]
+    expect(selectPastLeagueMatches(matches, 15)).toHaveLength(1)
+  })
+
+  it('excludes a cup tie or friendly', () => {
+    const matches = [
+      teamMatch({ kind: 'cup', matchDate: '2020-01-01T00:00:00Z' }),
+      teamMatch({ kind: 'friendly', matchDate: '2020-01-01T00:00:00Z' }),
+    ]
+    expect(selectPastLeagueMatches(matches, 15)).toHaveLength(0)
+  })
+
+  it('excludes an unplayed match', () => {
+    const matches = [teamMatch({ played: false, matchDate: '2020-01-01T00:00:00Z' })]
+    expect(selectPastLeagueMatches(matches, 15)).toHaveLength(0)
+  })
+
+  it('excludes a match simulated early whose kickoff has not arrived yet', () => {
+    // played can flip true up to 15 minutes before matchDate - a manager should not be offered
+    // (or shown the score of) a match they haven't seen kick off yet.
+    const matches = [teamMatch({ played: true, matchDate: new Date(Date.now() + 5 * 60 * 1000).toISOString() })]
+    expect(selectPastLeagueMatches(matches, 15)).toHaveLength(0)
+  })
+
+  it('excludes a match still within its live-broadcast window', () => {
+    const matches = [teamMatch({ played: true, matchDate: new Date(Date.now() - 30 * 60 * 1000).toISOString() })]
+    expect(selectPastLeagueMatches(matches, 15)).toHaveLength(0)
+  })
+
+  it('caps the result at the given limit, most recent first', () => {
+    const matches = [
+      teamMatch({ matchId: 1, matchDate: '2020-01-01T00:00:00Z' }),
+      teamMatch({ matchId: 2, matchDate: '2020-01-03T00:00:00Z' }),
+      teamMatch({ matchId: 3, matchDate: '2020-01-02T00:00:00Z' }),
+    ]
+    const result = selectPastLeagueMatches(matches, 2)
+    expect(result.map((m) => m.matchId)).toEqual([2, 3])
   })
 })
