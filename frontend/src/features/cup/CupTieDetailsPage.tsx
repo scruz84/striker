@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { queryKeys, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { formatDateTime } from '../../utils/formatDate'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
@@ -20,7 +21,9 @@ import { Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchEventsReport } from '../match/MatchEventsReport'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
+import { MatchMinuteRatings } from '../match/MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
+import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
 import { cupTiePenaltyWinnerName } from './CupPage'
 
@@ -191,10 +194,27 @@ function LiveTie({
           scrub={minuteScrub}
         />
       )}
+      {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
+        <MatchMinuteRatings
+          homeId={homeId}
+          homeName={tie.homeTeamName}
+          awayId={awayId}
+          awayName={tie.awayTeamName}
+          homeLineup={live.homeLineup}
+          awayLineup={live.awayLineup}
+          homePlayers={live.homePlayers}
+          awayPlayers={live.awayPlayers}
+          events={liveEvents}
+          currentMinute={live.minute}
+          live
+          scrub={minuteScrub}
+        />
+      )}
       {id &&
         team &&
         players &&
         (isLineupLocked ? <LineupLockedNotice /> : <CupTieLineupSection tieId={id} team={team} players={players} />)}
+      <HeadToHeadCard teamAId={homeId} teamAName={tie.homeTeamName} teamBId={awayId} teamBName={tie.awayTeamName} />
     </Box>
   )
 }
@@ -249,6 +269,7 @@ function cupTieToWeekMatch(tie: CupTieDetails): WeekMatch {
     awayLineup: tie.awayLineup,
     homePlayers: tie.homePlayers,
     awayPlayers: tie.awayPlayers,
+    ratings: tie.ratings,
   }
 }
 
@@ -278,13 +299,15 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
       )}
 
       <Paper variant="outlined" sx={{ mb: 2 }}>
-        <Tabs value={tab} onChange={handleChange}>
+        <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
           <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.lineups')} />
+          <Tab label={t('match.tabs.players')} />
+          <Tab label={t('match.tabs.ratings')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={weekMatch} />}
-          {tab === 1 && (
+          {tab === 1 && <MatchRatingsTab match={weekMatch} />}
+          {tab === 2 && (
             <Lineups
               homeId={tie.homeTeamId ?? 0}
               homeName={tie.homeTeamName}
@@ -295,10 +318,17 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
               homePlayers={tie.homePlayers}
               awayPlayers={tie.awayPlayers}
               matchInstants={null}
+              ratings={tie.ratings}
             />
           )}
         </Box>
       </Paper>
+      <HeadToHeadCard
+        teamAId={tie.homeTeamId ?? 0}
+        teamAName={tie.homeTeamName}
+        teamBId={tie.awayTeamId ?? 0}
+        teamBName={tie.awayTeamName}
+      />
     </Box>
   )
 }

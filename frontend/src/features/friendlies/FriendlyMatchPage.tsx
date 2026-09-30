@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { queryKeys, useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
 import type { FriendlyMatch, Player, Team, WeekMatch } from '../../api/types'
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { formatDateTime } from '../../utils/formatDate'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
@@ -19,6 +20,7 @@ import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchEventsReport } from '../match/MatchEventsReport'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
+import { MatchMinuteRatings } from '../match/MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
 import { MatchRatingsTab } from '../match/MatchRatingsTab'
 import { MatchReportTab } from '../match/MatchReportTab'
@@ -132,6 +134,12 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
           )}
         </Box>
       </Paper>
+      <HeadToHeadCard
+        teamAId={match.homeTeamId}
+        teamAName={match.homeTeamName}
+        teamBId={match.awayTeamId}
+        teamBName={match.awayTeamName}
+      />
     </Box>
   )
 }
@@ -239,10 +247,34 @@ function LiveFriendly({
           scrub={minuteScrub}
         />
       )}
+      {isDue && live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
+        <MatchMinuteRatings
+          homeId={match.homeTeamId}
+          homeName={match.homeTeamName}
+          awayId={match.awayTeamId}
+          awayName={match.awayTeamName}
+          homeLineup={live.homeLineup}
+          awayLineup={live.awayLineup}
+          homePlayers={live.homePlayers}
+          awayPlayers={live.awayPlayers}
+          events={liveEvents}
+          currentMinute={live.minute}
+          live
+          scrub={minuteScrub}
+        />
+      )}
       {id &&
         team &&
         players &&
         (isLineupLocked ? <LineupLockedNotice /> : <FriendlyLineupEditor matchId={id} team={team} players={players} />)}
+      {isDue && (
+        <HeadToHeadCard
+          teamAId={match.homeTeamId}
+          teamAName={match.homeTeamName}
+          teamBId={match.awayTeamId}
+          teamBName={match.awayTeamName}
+        />
+      )}
     </Box>
   )
 }

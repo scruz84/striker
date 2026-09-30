@@ -444,6 +444,11 @@ type CupTieDetails struct {
 	AwayLineup  *Lineup          `json:"awayLineup"`
 	HomePlayers map[int64]Player `json:"homePlayers"`
 	AwayPlayers map[int64]Player `json:"awayPlayers"`
+	// Ratings is computed on read (see ComputeMatchRatings), same as WeekMatch.Ratings/
+	// FriendlyMatch.Ratings, so a played tie's "Jugadores" tab shows the same per-player ratings a
+	// league match or friendly does instead of only the lineups pitch view (issue: cup/friendly
+	// match pages missing the league match page's info).
+	Ratings *map[int64]float64 `json:"ratings,omitempty"`
 }
 
 // GetCupTieDetails assembles one cup tie's full detail view - see CupTieDetails.
@@ -482,6 +487,20 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 		return nil, err
 	}
 	details.AwayPlayers = playerListToMap(awayPlayers)
+
+	// Mirrors EnrichPlayedFriendly's identical guard - only a played tie has meaningful ratings to
+	// show, and ComputeMatchRatings itself needs both lineups to attribute events to a side.
+	if tie.Played && details.HomeLineup != nil && details.AwayLineup != nil {
+		events := details.Events
+		details.Ratings = ComputeMatchRatings(&WeekMatch{
+			MatchId:    tie.TieId,
+			HomeGoals:  tie.HomeGoals,
+			AwayGoals:  tie.AwayGoals,
+			Events:     &events,
+			HomeLineup: details.HomeLineup,
+			AwayLineup: details.AwayLineup,
+		})
+	}
 
 	return details, nil
 }

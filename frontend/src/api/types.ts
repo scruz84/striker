@@ -980,6 +980,9 @@ export interface CupTieDetails extends CupTie {
   awayLineup: Lineup | null
   homePlayers: Record<string, Player> | null
   awayPlayers: Record<string, Player> | null
+  // Only present once the tie has been played - the same per-player rating breakdown a league
+  // match's WeekMatch or a played FriendlyMatch carries (see backend common.GetCupTieDetails).
+  ratings?: Record<string, number>
 }
 
 // Match kind discriminators for TeamMatchSummary.kind - see backend/common/teammatches.go.
