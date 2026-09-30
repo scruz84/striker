@@ -996,6 +996,7 @@
       "suspended_other": "Suspended - out for {{count}} more matches",
       "onLoan": "On loan from {{team}} - returns for season {{season}}",
       "listedForTransfer": "Listed for transfer - asking price {{price}}",
+      "listedForTransferShort": "Listed for transfer",
       "listedForLoan_one": "Listed for loan - {{count}} season",
       "listedForLoan_other": "Listed for loan - {{count}} seasons"
     },

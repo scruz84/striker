@@ -996,6 +996,7 @@
       "suspended_other": "Sancionado - baja para {{count}} partidos más",
       "onLoan": "Cedido por {{team}} - vuelve en la temporada {{season}}",
       "listedForTransfer": "En venta - precio de venta {{price}}",
+      "listedForTransferShort": "En venta",
       "listedForLoan_one": "Disponible en cesión - {{count}} temporada",
       "listedForLoan_other": "Disponible en cesión - {{count}} temporadas"
     },

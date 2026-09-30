@@ -13,12 +13,13 @@ interface PlayerBenchProps {
    * player is currently selected. */
   onBenchAreaClick: () => void
   unavailability: Map<number, PlayerUnavailability>
+  transferListed: Set<number>
 }
 
 /** Where a player not currently assigned to a pitch slot shows up - tap a fielded player, then tap
  * a bench player (to swap) or the bench's own background (to just bench them) - see
  * useLineupSelections for the actual placement logic. */
-export function PlayerBench({ players, selectedPlayerId, onSelectPlayer, onBenchAreaClick, unavailability }: PlayerBenchProps) {
+export function PlayerBench({ players, selectedPlayerId, onSelectPlayer, onBenchAreaClick, unavailability, transferListed }: PlayerBenchProps) {
   const { t } = useTranslation()
   const hasSelection = selectedPlayerId !== null
   // The bench itself is only a meaningful tap target while the selection is a fielded player -
@@ -67,6 +68,7 @@ export function PlayerBench({ players, selectedPlayerId, onSelectPlayer, onBench
               highlight={selectedIsFielded && player.id !== selectedPlayerId && !unavailability.has(player.id)}
               onSelect={() => onSelectPlayer(player.id)}
               unavailability={unavailability.get(player.id)}
+              forSale={transferListed.has(player.id)}
             />
           ))
         )}

@@ -15,9 +15,10 @@ interface SoccerPitchProps {
   selectedPlayerId: number | null
   onSlotClick: (position: number, slotIndex: number) => void
   unavailability: Map<number, PlayerUnavailability>
+  transferListed: Set<number>
 }
 
-export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability }: SoccerPitchProps) {
+export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed }: SoccerPitchProps) {
   // Only the half of the pitch a lineup ever actually occupies is shown here - see
   // PITCH_HEIGHT_HALF's comment in pitchLayout.ts - so editing a lineup takes noticeably less
   // vertical space than the full-pitch view used for read-only match lineups.
@@ -34,6 +35,7 @@ export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, 
             slot={slot}
             player={player}
             unavailability={player ? unavailability.get(player.id) : undefined}
+            forSale={!!player && transferListed.has(player.id)}
             selected={selected}
             // Any slot other than the one already selected is a valid place to tap next while a
             // selection is active - an empty one moves the player there, an occupied one swaps.
@@ -50,6 +52,7 @@ function PitchSlotView({
   slot,
   player,
   unavailability,
+  forSale,
   selected,
   highlight,
   onClick,
@@ -57,6 +60,7 @@ function PitchSlotView({
   slot: PitchSlot
   player?: Player
   unavailability?: PlayerUnavailability
+  forSale?: boolean
   selected: boolean
   highlight: boolean
   onClick: () => void
@@ -74,6 +78,7 @@ function PitchSlotView({
           highlight={highlight}
           onSelect={onClick}
           unavailability={unavailability}
+          forSale={forSale}
         />
       ) : (
         <ButtonBase onClick={onClick} sx={{ borderRadius: '50%' }} aria-label={t(POSITION_LABEL_KEYS[slot.position])}>

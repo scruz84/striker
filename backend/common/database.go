@@ -1150,10 +1150,20 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		return nil, err3
 	}
 
+	transferListed, err4 := GetTransferListedPlayerIdsForTeam(dbCtx, team.Id)
+	if err4 != nil {
+		return nil, err4
+	}
+	transferListedIds := make([]int64, 0, len(transferListed))
+	for playerId := range transferListed {
+		transferListedIds = append(transferListedIds, playerId)
+	}
+
 	return &TeamDetails{
-		Team:           team,
-		Players:        *players,
-		Unavailability: unavailability,
+		Team:                    team,
+		Players:                 *players,
+		Unavailability:          unavailability,
+		TransferListedPlayerIds: transferListedIds,
 	}, nil
 }
 

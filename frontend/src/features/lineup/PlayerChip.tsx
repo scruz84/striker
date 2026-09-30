@@ -13,6 +13,7 @@ import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { TransferListedBadge } from './TransferListedBadge'
 import { UnavailabilityBadge } from './UnavailabilityBadge'
 
 interface PlayerChipProps {
@@ -29,6 +30,8 @@ interface PlayerChipProps {
   /** Set while the player is suspended or injured - see useSquadUnavailability. On the bench
    * such a player is shown disabled, since they can't be fielded (see useLineupSelections). */
   unavailability?: PlayerUnavailability
+  /** True while the player is listed on the transfer market - see useSquadTransferListed. */
+  forSale?: boolean
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -58,7 +61,7 @@ function useSelectionRingSx(selected: boolean, highlight: boolean) {
   return {}
 }
 
-export function PlayerChip({ player, variant = 'bench', selected, highlight, onSelect, unavailability }: PlayerChipProps) {
+export function PlayerChip({ player, variant = 'bench', selected, highlight, onSelect, unavailability, forSale }: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const ringSx = useSelectionRingSx(selected, highlight)
@@ -135,6 +138,12 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
                     {rating}
                   </Typography>
                 </Box>
+                {/* The one corner left free by the shirt number/unavailability/rating badges. */}
+                {forSale && (
+                  <Box sx={{ position: 'absolute', bottom: -4, right: -4, lineHeight: 0 }}>
+                    <TransferListedBadge />
+                  </Box>
+                )}
               </Box>
             </ButtonBase>
           </Tooltip>
@@ -195,6 +204,7 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
                 {rating}
               </Typography>
               {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
+              {forSale && <TransferListedBadge size={16} />}
             </Stack>
             <SkillChipsRow player={player} />
           </Box>

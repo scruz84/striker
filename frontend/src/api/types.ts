@@ -219,6 +219,9 @@ export interface TeamDetails {
   nextMatches: WeekMatch[] | null
   // Only sent for the caller's own team (/v1/user/team) - see backend common.TeamDetails.
   unavailability?: PlayerUnavailability[]
+  // The squad's own players currently listed for transfer - only sent for the caller's own team,
+  // same as unavailability. See backend common.TeamDetails.TransferListedPlayerIds.
+  transferListedPlayerIds?: number[]
   stadium?: StadiumSummary
 }
 

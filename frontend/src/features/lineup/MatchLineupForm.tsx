@@ -16,6 +16,7 @@ import { useLineupSelections } from './useLineupSelections'
 import { useSubstitutionDrafts } from './useSubstitutionDrafts'
 import { UnavailableStartersWarning } from './UnavailableStartersWarning'
 import { useSquadUnavailability } from './useSquadUnavailability'
+import { useSquadTransferListed } from './useSquadTransferListed'
 
 export interface MatchLineupFormProps {
   // i18n key rendered as the form's title, e.g. "friendlies.lineup.title" - interpolated with
@@ -65,6 +66,7 @@ export function MatchLineupForm({
 }: MatchLineupFormProps) {
   const { t } = useTranslation()
   const unavailability = useSquadUnavailability(isFriendly)
+  const transferListed = useSquadTransferListed()
   const {
     formation,
     setFormation,
@@ -144,7 +146,14 @@ export function MatchLineupForm({
 
       <Grid container spacing={{ xs: 1, sm: 2 }}>
         <Grid size={{ xs: 12, md: 8 }}>
-          <SoccerPitch counts={counts} getPlayer={getPlayer} selectedPlayerId={selectedPlayerId} onSlotClick={handleSlotClick} unavailability={unavailability} />
+          <SoccerPitch
+            counts={counts}
+            getPlayer={getPlayer}
+            selectedPlayerId={selectedPlayerId}
+            onSlotClick={handleSlotClick}
+            unavailability={unavailability}
+            transferListed={transferListed}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerBench
@@ -153,6 +162,7 @@ export function MatchLineupForm({
             onSelectPlayer={handleBenchPlayerClick}
             onBenchAreaClick={handleBenchAreaClick}
             unavailability={unavailability}
+            transferListed={transferListed}
           />
         </Grid>
       </Grid>

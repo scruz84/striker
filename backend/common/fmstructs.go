@@ -327,6 +327,11 @@ type TeamDetails struct {
 	// flag who can't be fielded. Never cached (unlike GetTeamDetails' views), since it changes
 	// after every match the team plays.
 	Unavailability []PlayerUnavailability `json:"unavailability,omitempty"`
+	// TransferListedPlayerIds is the set of the squad's own players currently listed for transfer
+	// (see GetTransferListedPlayerIdsForTeam) - only filled in for the caller's own team, same as
+	// Unavailability, so the squad and lineup pages can flag them the same way an injured/
+	// suspended player is flagged.
+	TransferListedPlayerIds []int64 `json:"transferListedPlayerIds,omitempty"`
 }
 
 // PlayerUnavailability is one player's current suspension or injury - Reason is

@@ -52,6 +52,8 @@ import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
+import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
+import { TransferListedBadge } from '../lineup/TransferListedBadge'
 import { isPast } from '../../api/useLiveMatch'
 import { MatchesList } from './TeamMatchesSection'
 import { countryFlag } from '../../utils/countryFlag'
@@ -112,6 +114,7 @@ export function TeamDetailsPage() {
   const { data: userTeam } = useUserTeam(!!loggedUser)
   const { data: history, isLoading: historyLoading } = useTeamHistory(id)
   const unavailability = useSquadUnavailability()
+  const transferListed = useSquadTransferListed()
   const [sortField, setSortField] = useState<SquadSortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
 
@@ -219,6 +222,7 @@ export function TeamDetailsPage() {
                 player={player}
                 isOwnTeam={isOwnTeam}
                 unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
+                forSale={isOwnTeam && transferListed.has(player.id)}
               />
             ))}
           </TableBody>
@@ -500,10 +504,12 @@ function PlayerRow({
   player,
   isOwnTeam,
   unavailability,
+  forSale,
 }: {
   player: Player
   isOwnTeam: boolean
   unavailability?: PlayerUnavailability
+  forSale?: boolean
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -541,6 +547,7 @@ function PlayerRow({
             {player.firstName} {player.lastName}
           </Link>
           {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
+          {forSale && <TransferListedBadge size={16} />}
         </Stack>
       </TableCell>
       <TableCell align="right">{player.age}</TableCell>
