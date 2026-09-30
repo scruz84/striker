@@ -46,6 +46,7 @@ import {
 import {
   SPONSOR_DEAL_LABEL_KEYS,
   type ClassificationPosition,
+  type DivisionDetails,
   type FinancesResponse,
   type LiveMatchSummary,
   type Player,
@@ -61,8 +62,24 @@ import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
+import { hideStillLiveResults } from '../division/DivisionDetailsPage'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { SeasonRecap } from './SeasonRecap'
+
+// currentStanding reads the team's classification row with the same "don't spoil a match that's
+// still within its live-broadcast window" reversion DivisionDetailsPage's own table applies (see
+// hideStillLiveResults) - without it, this dashboard's league-position chip would jump to its
+// post-match value the instant a match is simulated, well before the live broadcast the rest of
+// the app still shows the viewer actually finishes.
+export function currentStanding(
+  division: DivisionDetails | undefined,
+  teamId: number,
+): ClassificationPosition | undefined {
+  if (!division) {
+    return undefined
+  }
+  return hideStillLiveResults(division.classification.positions, division.previousWeekMatches).find((p) => p.teamId === teamId)
+}
 
 export function DashboardPage() {
   const { data: loggedUser } = useMe()
@@ -91,7 +108,7 @@ export function DashboardPage() {
   const nextMatch = teamMatches?.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
   const lastMatch = playedMatches?.[0]
   const recentForm = playedMatches?.slice(0, 5).reverse()
-  const standing = division?.classification.positions.find((p) => p.teamId === team.id)
+  const standing = currentStanding(division, team.id)
 
   return (
     <Box>

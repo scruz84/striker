@@ -17,6 +17,7 @@ import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { hideStillLiveResults } from '../division/DivisionDetailsPage'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchEventsReport } from './MatchEventsReport'
@@ -32,8 +33,15 @@ import { StadiumEntry } from './StadiumEntry'
 // A team's current standing in its league (see ClassificationPosition.position) - undefined
 // while the division hasn't loaded yet, or if that team isn't in it (shouldn't happen for a
 // league match's own two teams, but a stale/mismatched division fetch shouldn't crash the page).
-function positionOf(division: DivisionDetails | undefined, teamId: number): number | undefined {
-  return division?.classification.positions.find((p) => p.teamId === teamId)?.position
+// Goes through hideStillLiveResults first, the same reversion DivisionDetailsPage's own table
+// applies (issue #82): a still-live match's own page would otherwise show its two teams'
+// post-match positions - a direct spoiler - well before that match's live broadcast (shown on
+// this very page) finishes pacing out to the viewer.
+export function positionOf(division: DivisionDetails | undefined, teamId: number): number | undefined {
+  if (!division) {
+    return undefined
+  }
+  return hideStillLiveResults(division.classification.positions, division.previousWeekMatches).find((p) => p.teamId === teamId)?.position
 }
 
 export function MatchDetailsPage() {
