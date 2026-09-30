@@ -22,6 +22,7 @@ import {
 } from '../../api/hooks'
 import { FORMATION_LABEL_KEYS } from '../../api/types'
 import type { Lineup, LineupPosition, Player, Team } from '../../api/types'
+import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { MatchLineupForm } from './MatchLineupForm'
 import { PlayerBench } from './PlayerBench'
 import { SoccerPitch } from './SoccerPitch'
@@ -102,6 +103,7 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
   const {
     formation,
     setFormation,
+    loadLineup,
     counts,
     visibleSelections,
     usedPlayerIds,
@@ -121,9 +123,18 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
     handleAddSubstitution,
     handleRemoveSubstitution,
     handleSubstitutionChange,
+    resetSubstitutionDrafts,
     validSubstitutions,
   } = useSubstitutionDrafts(lineup, usedPlayerIds, unavailability)
   const setLineup = useSetLineup()
+
+  // Loading a different match's lineup can un-start a player a planned substitution still names
+  // as playerOutId - clearing the drafts alongside it avoids a stale, unfillable row rather than
+  // leaving the manager to notice and remove it by hand.
+  const handleLoadPreviousLineup = (loaded: Lineup) => {
+    loadLineup(loaded)
+    resetSubstitutionDrafts()
+  }
 
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
 
@@ -159,6 +170,8 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 1, sm: 2 } }}>
         {t('lineup.tapHint')}
       </Typography>
+
+      <LoadPreviousLineupControl teamId={team.id} onLoad={handleLoadPreviousLineup} />
 
       {unavailableStarters.length > 0 && <UnavailableStartersWarning players={unavailableStarters} blocking={false} />}
       {!isComplete && unavailableStarters.length === 0 && (

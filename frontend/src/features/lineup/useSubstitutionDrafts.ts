@@ -37,6 +37,16 @@ export function useSubstitutionDrafts(lineup: Lineup, usedPlayerIds: Set<number 
     setSubstitutionDrafts((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)))
   }
 
+  // Clears every draft outright, rather than re-seeding from some other lineup's own
+  // substitutions - see LoadPreviousLineupControl, whose "copy a previous match's lineup" always
+  // hands back an empty Substitutions array anyway (GetLineupsForMatch never populates it), and
+  // whose whole point is a fresh XI, not carrying over an unrelated match's own subs. Needed
+  // because loading a different lineup can un-start a player a draft still names as playerOutId,
+  // which a lineup change alone wouldn't otherwise clear (this hook's own state, seeded once on
+  // mount from the original `lineup` prop, only reacts to draft edits, not to the pitch/bench
+  // changing under it).
+  const resetSubstitutionDrafts = () => setSubstitutionDrafts([])
+
   // A draft becomes an actual scheduled substitution only once every field is filled and both
   // players still exist in the current starters/bench (a lineup edit made after picking a
   // substitution can otherwise strand a stale player id) - anything else is silently dropped
@@ -61,6 +71,7 @@ export function useSubstitutionDrafts(lineup: Lineup, usedPlayerIds: Set<number 
     handleAddSubstitution,
     handleRemoveSubstitution,
     handleSubstitutionChange,
+    resetSubstitutionDrafts,
     validSubstitutions,
   }
 }

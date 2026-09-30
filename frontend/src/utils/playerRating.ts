@@ -16,6 +16,18 @@ export const SKILL_SHORT_LABEL_KEYS: Record<(typeof SKILL_FIELDS)[number], strin
   shot: 'playerCard.skillsShort.shot',
 }
 
+// Full-word labels for SKILL_FIELDS - e.g. a "sort by" dropdown, where the three-letter
+// abbreviation alone (SKILL_SHORT_LABEL_KEYS) would be too cryptic for an option label.
+export const SKILL_LABEL_KEYS: Record<(typeof SKILL_FIELDS)[number], string> = {
+  goalKeeper: 'playerCard.skills.goalkeeper',
+  defense: 'playerCard.skills.defense',
+  lateral: 'playerCard.skills.lateral',
+  pass: 'playerCard.skills.pass',
+  midfield: 'playerCard.skills.midfield',
+  dribbling: 'playerCard.skills.dribbling',
+  shot: 'playerCard.skills.shot',
+}
+
 /** A single 0-99 headline number summarizing a player's seven core skills - shown as the badge
  * on PlayerCard and inside PlayerStatsPopover. */
 export function overallRating(player: Player): number {

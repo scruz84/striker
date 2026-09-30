@@ -88,4 +88,34 @@ describe('useLineupSelections', () => {
     expect(result.current.unavailableStarters.map((p) => p.id)).toEqual([1])
     expect(result.current.isComplete).toBe(true)
   })
+
+  it('loadLineup replaces the formation and selections with another lineup', () => {
+    const { result } = renderHook(() => useLineupSelections(players, lineupWithGoalkeeper(1), new Map()))
+
+    act(() => result.current.loadLineup({ ...lineupWithGoalkeeper(2), formation: FORMATION_BALANCED }))
+
+    expect(result.current.formation).toBe(FORMATION_BALANCED)
+    expect(result.current.getPlayer(POSITION_GOALKEEPER, 0)?.id).toBe(2)
+  })
+
+  it('loadLineup drops a player no longer on the squad, leaving their slot empty', () => {
+    const { result } = renderHook(() => useLineupSelections(players, lineupWithGoalkeeper(1), new Map()))
+
+    // Player 99 started that old match but has since left the squad (sold, retired, released) -
+    // isn't in `players`, so the slot they held should come back empty, not a phantom occupant.
+    act(() => result.current.loadLineup(lineupWithGoalkeeper(99)))
+
+    expect(result.current.getPlayer(POSITION_GOALKEEPER, 0)).toBeUndefined()
+    expect(result.current.isComplete).toBe(false)
+  })
+
+  it('loadLineup clears any in-progress selection', () => {
+    const { result } = renderHook(() => useLineupSelections(players, lineupWithGoalkeeper(1), new Map()))
+
+    act(() => result.current.handleSlotClick(POSITION_GOALKEEPER, 0))
+    expect(result.current.selectedPlayerId).toBe(1)
+
+    act(() => result.current.loadLineup(lineupWithGoalkeeper(2)))
+    expect(result.current.selectedPlayerId).toBeNull()
+  })
 })

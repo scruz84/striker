@@ -191,9 +191,30 @@ export function useLineupSelections(
     setSelectedPlayerId(null)
   }
 
+  // Replaces the whole editor state with another lineup - e.g. "copy a previous match's lineup"
+  // (see LoadPreviousLineupControl). A player that lineup fielded but who's no longer on this
+  // squad (sold, retired, released) is silently dropped rather than left as a phantom occupant of
+  // that slot: isComplete already requires every visible slot to hold a real playerId, so the slot
+  // just comes back empty for the manager to fill with someone actually on the roster today.
+  function loadLineup(next: Lineup) {
+    const squadIds = new Set(players.map((p) => p.id))
+    const filtered: Selections = {}
+    for (const pos of next.positions) {
+      if (!squadIds.has(pos.playerId)) continue
+      if (!filtered[pos.position]) {
+        filtered[pos.position] = []
+      }
+      filtered[pos.position].push(pos.playerId)
+    }
+    setFormationState(next.formation)
+    setSelections(filtered)
+    setSelectedPlayerId(null)
+  }
+
   return {
     formation,
     setFormation,
+    loadLineup,
     counts,
     positionsToShow,
     visibleSelections,
