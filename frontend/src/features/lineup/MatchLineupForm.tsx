@@ -36,10 +36,12 @@ export interface MatchLineupFormProps {
   isSuccess: boolean
   // Shows the planned-substitutions section below the pitch/bench editor, letting the manager
   // schedule up to MAX_SCHEDULED_SUBSTITUTIONS for this specific match rather than only the
-  // team's standing default lineup - currently only friendlies support this (see
-  // FriendlyMatchPage/common.SetFriendlyLineup); league matches and cup ties still draw their
-  // substitutions from the team-wide default (see backend common.SetLineupForMatch/
-  // SetCupTieLineup), so they leave this off and onSave's substitutions argument empty.
+  // team's standing default lineup - set by every per-match caller (MatchDetailsPage,
+  // CupTieDetailsPage, FriendlyMatchPage). A team that doesn't schedule any for this particular
+  // match still falls back to its team-wide default (see backend
+  // common.GetSubstitutionsForMatch/GetSubstitutionsForCupTie/GetFriendlyLineupSubstitutions).
+  // The team's own standing-default editor (LineupEditorPage) renders SubstitutionsEditor
+  // directly instead of through this flag.
   substitutionsEnabled?: boolean
   // A red-card suspension carries no sanction into a friendly (see useSquadUnavailability) - set
   // this for FriendlyMatchPage's caller so a suspended-only player isn't wrongly flagged/blocked.

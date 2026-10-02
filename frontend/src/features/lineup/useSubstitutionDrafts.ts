@@ -14,10 +14,10 @@ function initialSubstitutionDrafts(lineup: Lineup): SubstitutionDraft[] {
 }
 
 // Drives the substitution planner's add/remove/edit state, shared by LineupEditorPage (the
-// team's standing default lineup) and MatchLineupForm (a friendly's own per-match substitutions) -
-// the two used to each carry their own copy of this exact state, which is what useLineupSelections
-// already fixed for the pitch/bench editor half of the form; this is the same fix for the
-// substitutions half.
+// team's standing default lineup) and MatchLineupForm (a league match's, cup tie's, or friendly's
+// own per-match substitutions) - the two used to each carry their own copy of this exact state,
+// which is what useLineupSelections already fixed for the pitch/bench editor half of the form;
+// this is the same fix for the substitutions half.
 export function useSubstitutionDrafts(lineup: Lineup, usedPlayerIds: Set<number | ''>, unavailability: Map<number, unknown>) {
   const [substitutionDrafts, setSubstitutionDrafts] = useState<SubstitutionDraft[]>(() => initialSubstitutionDrafts(lineup))
 

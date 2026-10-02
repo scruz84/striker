@@ -291,7 +291,18 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	if err != nil {
 		return err
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, false)
+	// A team's own per-tie lineup override can schedule its own substitutions (see
+	// common.SetCupTieLineup/GetSubstitutionsForCupTie); a team without one still draws from its
+	// team-wide default, same as it always has.
+	homeSubstitutions, err := common.GetSubstitutionsForCupTie(dbCtx, tie.TieId, *tie.HomeTeamId)
+	if err != nil {
+		return err
+	}
+	awaySubstitutions, err := common.GetSubstitutionsForCupTie(dbCtx, tie.TieId, *tie.AwayTeamId)
+	if err != nil {
+		return err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false)
 	if err != nil {
 		return err
 	}

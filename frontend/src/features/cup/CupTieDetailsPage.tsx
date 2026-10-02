@@ -232,10 +232,11 @@ function CupTieLineupSection({ tieId, team, players }: { tieId: string; team: Te
       teamId={team.id}
       players={players}
       lineup={lineup}
-      onSave={(formation, positions) => setLineup.mutate({ formation, positions })}
+      onSave={(formation, positions, substitutions) => setLineup.mutate({ formation, positions, substitutions })}
       isSaving={setLineup.isPending}
       isError={setLineup.isError}
       isSuccess={setLineup.isSuccess}
+      substitutionsEnabled
     />
   )
 }

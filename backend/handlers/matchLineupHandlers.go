@@ -125,10 +125,11 @@ func GetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// SetMatchLineupHandler saves the caller's team's lineup override for one league match, after the
-// same validation SetLineupHandler applies to the default lineup - mirrors
-// friendlyHandlers.SetFriendlyLineupHandler. Only the starting XI/formation are overridable per
-// match; scheduled substitutions stay team-wide (see common.GetDefaultLineupSubstitutions).
+// SetMatchLineupHandler saves the caller's team's lineup override for one league match, along
+// with any substitutions planned specifically for it, after the same validation SetLineupHandler
+// applies to the default lineup - mirrors friendlyHandlers.SetFriendlyLineupHandler. A team that
+// doesn't save an override for this match (or saves one with no substitutions of its own) keeps
+// drawing from its team-wide default (see common.GetSubstitutionsForMatch).
 func SetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -177,8 +178,12 @@ func SetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := validateSubstitutions(req.Positions, req.Substitutions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Positions); err != nil {
+		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting match lineup for match %d team %d: %s", matchId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
@@ -305,9 +310,10 @@ func GetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// SetCupTieLineupHandler saves the caller's team's lineup override for one cup tie, after the
-// same validation SetLineupHandler applies to the default lineup - mirrors
-// SetMatchLineupHandler/friendlyHandlers.SetFriendlyLineupHandler.
+// SetCupTieLineupHandler saves the caller's team's lineup override for one cup tie, along with
+// any substitutions planned specifically for it, after the same validation SetLineupHandler
+// applies to the default lineup - mirrors SetMatchLineupHandler/
+// friendlyHandlers.SetFriendlyLineupHandler.
 func SetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -356,8 +362,12 @@ func SetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := validateSubstitutions(req.Positions, req.Substitutions, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Positions); err != nil {
+		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting cup tie lineup for tie %d team %d: %s", tieId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return

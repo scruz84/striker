@@ -25,7 +25,8 @@ export interface SubstitutionsEditorProps {
 
 // The planned-substitutions section: pick who comes off, who comes on, and at what minute, up to
 // MAX_SCHEDULED_SUBSTITUTIONS times. Shared by LineupEditorPage (the team's standing default
-// lineup) and MatchLineupForm (a friendly's own per-match substitutions, see FriendlyMatchPage).
+// lineup) and MatchLineupForm (a league match's, cup tie's, or friendly's own per-match
+// substitutions, see MatchDetailsPage/CupTieDetailsPage/FriendlyMatchPage).
 export function SubstitutionsEditor({
   starters,
   benchPlayers,

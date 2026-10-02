@@ -654,8 +654,15 @@ export function useCupTieLineup(tieId: string | undefined, enabled: boolean) {
 export function useSetCupTieLineup(tieId: string | undefined) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
-      api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions: [] }),
+    mutationFn: ({
+      formation,
+      positions,
+      substitutions,
+    }: {
+      formation: number
+      positions: LineupPosition[]
+      substitutions: LineupSubstitution[]
+    }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTieLineup(tieId ?? '') })
     },
@@ -697,8 +704,15 @@ export function useMatchLineup(matchId: string | undefined, enabled: boolean) {
 export function useSetMatchLineup(matchId: string | undefined) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
-      api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions: [] }),
+    mutationFn: ({
+      formation,
+      positions,
+      substitutions,
+    }: {
+      formation: number
+      positions: LineupPosition[]
+      substitutions: LineupSubstitution[]
+    }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.matchLineup(matchId ?? '') })
     },

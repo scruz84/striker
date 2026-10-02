@@ -585,13 +585,14 @@ const InsertMatchLineupStmtSql = "INSERT INTO lineup (match_id, team_id, formati
 const DeleteMatchLineupPositionsStmtSql = "DELETE FROM lineup_positions WHERE lineup_id = $1"
 const InsertMatchLineupPositionStmtSql = "INSERT INTO lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
-// SetLineupForMatch replaces teamId's lineup override for one league match - the same
-// upsert-then-replace-positions shape as SetFriendlyLineup, guarded by the same non-blocking
-// per-(matchId, teamId) advisory lock. This is what finally puts the lineup/lineup_positions
-// tables to use: GetLineupsForMatch already reads them with a fallback to
+// SetLineupForMatch replaces teamId's lineup override for one league match, along with any
+// substitutions planned specifically for it (see lineup_substitutions) - the same
+// upsert-then-replace-positions-and-substitutions shape as SetFriendlyLineup, guarded by the same
+// non-blocking per-(matchId, teamId) advisory lock. This is what finally puts the
+// lineup/lineup_positions tables to use: GetLineupsForMatch already reads them with a fallback to
 // default_lineup_positions, so a row inserted here is picked up by both simulation and the
 // played-match "Lineups" tab (WeekMatchById) with no further changes needed anywhere else.
-func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition) error {
+func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, positions []LineupPosition, substitutions []LineupSubstitution) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
@@ -624,13 +625,29 @@ func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 			return err
 		}
 	}
+
+	if _, err := tx.Exec(DeleteMatchLineupSubstitutionsStmtSql, matchId, teamId); err != nil {
+		return err
+	}
+	insertSubStmt, err := tx.Prepare(InsertMatchLineupSubstitutionStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertSubStmt.Close()
+	for i, s := range substitutions {
+		if _, err := insertSubStmt.Exec(matchId, teamId, i+1, s.PlayerOutId, s.PlayerInId, s.Minute); err != nil {
+			return err
+		}
+	}
+
 	return tx.Commit()
 }
 
 const GetMatchLineupOverrideStmtSql = "SELECT lineup_id, formation FROM lineup WHERE match_id = $1 AND team_id = $2"
 const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM lineup_positions WHERE lineup_id = $1"
 
-// GetMatchLineupOverride returns teamId's saved lineup override for one league match, the
+// GetMatchLineupOverride returns teamId's saved lineup override for one league match, including
+// any substitutions planned specifically for it (see GetMatchLineupSubstitutions) - the
 // GetFriendlyLineup equivalent for lineup/lineup_positions. hasOverride is false (with a zero
 // Lineup) when the team hasn't saved one for this match yet, so callers like the lineup editor
 // can fall back to showing the team's current default lineup as a starting point.
@@ -658,6 +675,13 @@ func GetMatchLineupOverride(dbCtx *DatabaseContext, matchId int64, teamId int64)
 		}
 		lineup.Positions = append(lineup.Positions, p)
 	}
+
+	substitutions, err := GetMatchLineupSubstitutions(dbCtx, matchId, teamId)
+	if err != nil {
+		return Lineup{}, false, err
+	}
+	lineup.Substitutions = substitutions
+
 	return lineup, true, nil
 }
 

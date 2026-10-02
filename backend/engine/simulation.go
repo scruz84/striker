@@ -12,7 +12,18 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	if err != nil {
 		return nil, err
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, false)
+	// A team's own per-match lineup override can schedule its own substitutions (see
+	// common.SetLineupForMatch/GetSubstitutionsForMatch); a team without one still draws from its
+	// team-wide default, same as it always has.
+	homeSubstitutions, err := common.GetSubstitutionsForMatch(dbCtx, match.MatchId, match.Home)
+	if err != nil {
+		return nil, err
+	}
+	awaySubstitutions, err := common.GetSubstitutionsForMatch(dbCtx, match.MatchId, match.Away)
+	if err != nil {
+		return nil, err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false)
 	if err != nil {
 		return nil, err
 	}
@@ -58,16 +69,21 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // decide what to do with the result, since a league match updates classification differently
 // than a cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
 //
-// lineups is resolved by the caller rather than looked up here, so each match kind can use its
-// own resolution: simulateMatch uses common.GetLineupsForMatch (a per-match override, keyed to
-// matches(match_id), falling back to the team's default lineup), simulateCupTie uses the
-// equivalent common.GetLineupsForCupTie (its own cup_tie_lineup/cup_tie_lineup_positions tables,
-// keyed to cup_ties(tie_id) - a cup tie's id is drawn from a different, independent sequence than
-// a real match's, so it could never safely share matches-keyed override rows), and
-// simulateFriendly uses common.GetLineupsForFriendly (friendly_lineup/friendly_lineup_positions,
-// keyed to friendly_matches(match_id)) - three parallel, deliberately separate override
+// lineups and the scheduled substitutions are both resolved by the caller rather than looked up
+// here, so each match kind can use its own resolution: simulateMatch uses common.GetLineupsForMatch/
+// GetSubstitutionsForMatch (a per-match override, keyed to matches(match_id), falling back to the
+// team's default lineup/substitutions), simulateCupTie uses the equivalent
+// common.GetLineupsForCupTie/GetSubstitutionsForCupTie (its own cup_tie_lineup/
+// cup_tie_lineup_positions/cup_tie_lineup_substitutions tables, keyed to cup_ties(tie_id) - a cup
+// tie's id is drawn from a different, independent sequence than a real match's, so it could never
+// safely share matches-keyed override rows), and simulateFriendly uses
+// common.GetLineupsForFriendly/GetFriendlyLineupSubstitutions (friendly_lineup/
+// friendly_lineup_positions/friendly_lineup_substitutions, keyed to friendly_matches(match_id), and
+// never falling back to the team-wide default - a friendly's starting XI can itself be a freshly
+// computed best XI rather than the default lineup, see common.GetLineupsForFriendly, so the two
+// would otherwise reference different players) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, isFriendly bool) (*common.MatchSimulation, error) {
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool) (*common.MatchSimulation, error) {
 	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
 	if err != nil {
 		return nil, err
@@ -75,31 +91,6 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	awayPlayers, err := GetPlayersFromTeam(dbCtx, awayTeamId)
 	if err != nil {
 		return nil, err
-	}
-	// A friendly's scheduled substitutions are saved specifically for that match (see
-	// common.SetFriendlyLineup/GetFriendlyLineupSubstitutions), not the team's standing default
-	// lineup subs - its starting XI can itself be a freshly computed best XI rather than the
-	// default lineup (see common.GetLineupsForFriendly), so the two would otherwise reference
-	// different players. League matches and cup ties still draw from the team-wide default.
-	var homeSubstitutions, awaySubstitutions []common.LineupSubstitution
-	if isFriendly {
-		homeSubstitutions, err = common.GetFriendlyLineupSubstitutions(dbCtx, matchId, homeTeamId)
-		if err != nil {
-			return nil, err
-		}
-		awaySubstitutions, err = common.GetFriendlyLineupSubstitutions(dbCtx, matchId, awayTeamId)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		homeSubstitutions, err = common.GetDefaultLineupSubstitutions(dbCtx, homeTeamId)
-		if err != nil {
-			return nil, err
-		}
-		awaySubstitutions, err = common.GetDefaultLineupSubstitutions(dbCtx, awayTeamId)
-		if err != nil {
-			return nil, err
-		}
 	}
 	events := make([]common.Event, 0)
 	matchInstants := make([]common.MatchInstant, 0)

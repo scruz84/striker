@@ -75,7 +75,18 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	if err != nil {
 		return err
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, true)
+	// A friendly's scheduled substitutions are saved specifically for that match (see
+	// common.SetFriendlyLineup/GetFriendlyLineupSubstitutions), not the team's standing default
+	// lineup subs - see runMatchSimulation's own doc comment for why.
+	homeSubstitutions, err := common.GetFriendlyLineupSubstitutions(dbCtx, friendly.MatchId, friendly.HomeTeamId)
+	if err != nil {
+		return err
+	}
+	awaySubstitutions, err := common.GetFriendlyLineupSubstitutions(dbCtx, friendly.MatchId, friendly.AwayTeamId)
+	if err != nil {
+		return err
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true)
 	if err != nil {
 		return err
 	}
