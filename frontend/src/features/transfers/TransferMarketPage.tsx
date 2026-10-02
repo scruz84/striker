@@ -121,6 +121,33 @@ const headerCellTruncateSx = {
   whiteSpace: 'nowrap',
 } as const
 
+// usePersistedFilter keeps one search-bar field in the page's URL query string instead of plain
+// component state. Every listing card links to that player's own page (PlayerCell/ListingCard),
+// and clicking "back" from there remounts this whole tab fresh - a plain useState would lose
+// whatever was typed/selected the instant that happens, since nothing survives the remount except
+// what's in the URL the browser is navigating back to. Writes replace the current history entry
+// (rather than pushing a new one), so typing in a filter field doesn't turn every keystroke into
+// its own "back" stop - only the final state before navigating away ends up in the URL.
+function usePersistedFilter<T extends string>(key: string, defaultValue: T): [T, (value: T) => void] {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const value = (searchParams.get(key) as T | null) ?? defaultValue
+  const setValue = (next: T) => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev)
+        if (next === defaultValue) {
+          params.delete(key)
+        } else {
+          params.set(key, next)
+        }
+        return params
+      },
+      { replace: true },
+    )
+  }
+  return [value, setValue]
+}
+
 // A player's name plus two quick-reference badges - their suggested position (see
 // bestCorePosition) and average skill rating - so browsing a listings table doesn't require
 // opening each player's profile just to see roughly what they're worth. formerClub renders as a
@@ -389,10 +416,9 @@ export function TransferMarketPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: windowStatus } = useTransferWindowStatus(!!loggedUser)
-  const [searchParams] = useSearchParams()
-  const initialTabIndex = TAB_NAMES.indexOf(searchParams.get('tab') as (typeof TAB_NAMES)[number])
-  const [tab, setTab] = useState(initialTabIndex >= 0 ? initialTabIndex : 0)
-  const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
+  const [tabName, setTabName] = usePersistedFilter<(typeof TAB_NAMES)[number]>('tab', TAB_NAMES[0])
+  const tab = Math.max(TAB_NAMES.indexOf(tabName), 0)
+  const handleChange = (_event: SyntheticEvent, newValue: number) => setTabName(TAB_NAMES[newValue])
 
   return (
     <Box>
@@ -447,16 +473,18 @@ function TransfersTab() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
   const [askingPrice, setAskingPrice] = useState('')
 
-  const [search, setSearch] = useState('')
-  const [minAge, setMinAge] = useState('')
-  const [maxAge, setMaxAge] = useState('')
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-  const [minSkill, setMinSkill] = useState('')
-  const [maxSkill, setMaxSkill] = useState('')
-  const [position, setPosition] = useState<number | ''>('')
-  const [sortField, setSortField] = useState<TransferSortField>('listed')
-  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+  const [search, setSearch] = usePersistedFilter<string>('tSearch', '')
+  const [minAge, setMinAge] = usePersistedFilter<string>('tMinAge', '')
+  const [maxAge, setMaxAge] = usePersistedFilter<string>('tMaxAge', '')
+  const [minPrice, setMinPrice] = usePersistedFilter<string>('tMinPrice', '')
+  const [maxPrice, setMaxPrice] = usePersistedFilter<string>('tMaxPrice', '')
+  const [minSkill, setMinSkill] = usePersistedFilter<string>('tMinSkill', '')
+  const [maxSkill, setMaxSkill] = usePersistedFilter<string>('tMaxSkill', '')
+  const [positionStr, setPositionStr] = usePersistedFilter<string>('tPosition', '')
+  const position = positionStr === '' ? '' : Number(positionStr)
+  const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
+  const [sortField, setSortField] = usePersistedFilter<TransferSortField>('tSort', 'listed')
+  const [sortDir, setSortDir] = usePersistedFilter<SortDirection>('tDir', 'desc')
 
   if (teamLoading || listingsLoading || !userTeam || !listings) {
     return <Skeleton variant="rectangular" height={300} />
@@ -700,7 +728,7 @@ function TransfersTab() {
                 value={sortField}
                 onChange={setSortField}
                 direction={sortDir}
-                onToggleDirection={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
                 options={[
                   { value: 'listed', label: t('transfers.table.listed') },
                   { value: 'price', label: t('transfers.table.price') },
@@ -810,13 +838,17 @@ function LoansTab() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
   const [duration, setDuration] = useState<number>(1)
 
-  const [search, setSearch] = useState('')
-  const [minAge, setMinAge] = useState('')
-  const [maxAge, setMaxAge] = useState('')
-  const [maxDuration, setMaxDuration] = useState<number | ''>('')
-  const [position, setPosition] = useState<number | ''>('')
-  const [sortField, setSortField] = useState<LoanSortField>('listed')
-  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+  const [search, setSearch] = usePersistedFilter<string>('lSearch', '')
+  const [minAge, setMinAge] = usePersistedFilter<string>('lMinAge', '')
+  const [maxAge, setMaxAge] = usePersistedFilter<string>('lMaxAge', '')
+  const [maxDurationStr, setMaxDurationStr] = usePersistedFilter<string>('lMaxDuration', '')
+  const maxDuration = maxDurationStr === '' ? '' : Number(maxDurationStr)
+  const setMaxDuration = (value: number | '') => setMaxDurationStr(value === '' ? '' : String(value))
+  const [positionStr, setPositionStr] = usePersistedFilter<string>('lPosition', '')
+  const position = positionStr === '' ? '' : Number(positionStr)
+  const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
+  const [sortField, setSortField] = usePersistedFilter<LoanSortField>('lSort', 'listed')
+  const [sortDir, setSortDir] = usePersistedFilter<SortDirection>('lDir', 'desc')
 
   if (teamLoading || listingsLoading || !userTeam || !listings) {
     return <Skeleton variant="rectangular" height={300} />
@@ -859,7 +891,7 @@ function LoansTab() {
 
   const handleSort = (field: LoanSortField) => {
     if (field === sortField) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
     } else {
       setSortField(field)
       setSortDir('asc')
@@ -1327,12 +1359,14 @@ function FreeAgentsTab() {
   const { data: freeAgents, isLoading } = useFreeAgents(!!loggedUser)
   const [signingPlayer, setSigningPlayer] = useState<FreeAgentListing | null>(null)
 
-  const [search, setSearch] = useState('')
-  const [minAge, setMinAge] = useState('')
-  const [maxAge, setMaxAge] = useState('')
-  const [position, setPosition] = useState<number | ''>('')
-  const [sortField, setSortField] = useState<FreeAgentSortField>('wage')
-  const [sortDir, setSortDir] = useState<SortDirection>('desc')
+  const [search, setSearch] = usePersistedFilter<string>('faSearch', '')
+  const [minAge, setMinAge] = usePersistedFilter<string>('faMinAge', '')
+  const [maxAge, setMaxAge] = usePersistedFilter<string>('faMaxAge', '')
+  const [positionStr, setPositionStr] = usePersistedFilter<string>('faPosition', '')
+  const position = positionStr === '' ? '' : Number(positionStr)
+  const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
+  const [sortField, setSortField] = usePersistedFilter<FreeAgentSortField>('faSort', 'wage')
+  const [sortDir, setSortDir] = usePersistedFilter<SortDirection>('faDir', 'desc')
 
   if (isLoading || !freeAgents) {
     return <Skeleton variant="rectangular" height={300} />
@@ -1401,7 +1435,7 @@ function FreeAgentsTab() {
                 value={sortField}
                 onChange={setSortField}
                 direction={sortDir}
-                onToggleDirection={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
                 options={[
                   { value: 'wage', label: t('transfers.freeAgents.wage') },
                   { value: 'age', label: t('transfers.table.age') },
