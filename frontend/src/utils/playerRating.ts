@@ -28,6 +28,17 @@ export const SKILL_LABEL_KEYS: Record<(typeof SKILL_FIELDS)[number], string> = {
   shot: 'playerCard.skills.shot',
 }
 
+// Stamina and Form - deliberately not part of SKILL_FIELDS (see PlayerConditionPanel: neither
+// measures footballing quality, so neither belongs in overallRating/bestCorePosition), but shown
+// alongside the seven skills on the same compact chip rows (SkillChipsRow) since they share the
+// same 0-99 scale and tier coloring.
+export const CONDITION_FIELDS = ['stamina', 'form'] as const
+
+export const CONDITION_SHORT_LABEL_KEYS: Record<(typeof CONDITION_FIELDS)[number], string> = {
+  stamina: 'playerCard.skillsShort.stamina',
+  form: 'playerCard.skillsShort.form',
+}
+
 /** A single 0-99 headline number summarizing a player's seven core skills - shown as the badge
  * on PlayerCard and inside PlayerStatsPopover. */
 export function overallRating(player: Player): number {
@@ -41,8 +52,10 @@ export function overallRating(player: Player): number {
 function midfieldValue(player: Player): number {
   return (player.midfield + player.pass) / 2
 }
+// Shot counts twice as much as Dribbling or Pass - see GetStrikerValue's own comment in fmteam.go
+// for why. Math.floor mirrors Go's integer division (the "+2" rounds to nearest first).
 function strikerValue(player: Player): number {
-  return (player.shot + player.pass + player.dribbling) / 3
+  return Math.floor((player.shot * 2 + player.dribbling + player.pass + 2) / 4)
 }
 
 /** Which of the four non-lateral tactical positions (goalkeeper/defense/midfield/striker) a

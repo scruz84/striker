@@ -21,17 +21,26 @@ interface PlayerChipProps {
   /** "field" shows the avatar with a name label and squad number underneath, sized to fit a
    * crowded pitch; "bench" shows the full name inline in a wider card. */
   variant?: 'field' | 'bench'
-  /** This is the player currently picked up, waiting to be placed - see useLineupSelections. */
-  selected: boolean
+  /** This is the player currently picked up, waiting to be placed - see useLineupSelections.
+   * Irrelevant (and left false) outside the lineup editor - see TeamDetailsPage's squad list,
+   * which reuses the "bench" card purely as a display row. */
+  selected?: boolean
   /** A selection is active (elsewhere) and tapping this player would place it here (a swap) -
-   * distinct from `selected` itself, which is the one actually picked up. */
-  highlight: boolean
-  onSelect: () => void
+   * distinct from `selected` itself, which is the one actually picked up. Same caveat as
+   * `selected`. */
+  highlight?: boolean
+  /** Optional outside the lineup editor, where tapping the avatar has nothing to do. */
+  onSelect?: () => void
   /** Set while the player is suspended or injured - see useSquadUnavailability. On the bench
    * such a player is shown disabled, since they can't be fielded (see useLineupSelections). */
   unavailability?: PlayerUnavailability
   /** True while the player is listed on the transfer market - see useSquadTransferListed. */
   forSale?: boolean
+  /** Extra content rendered below a "bench" card's stats, outside the tap targets above it (its
+   * own avatar/name buttons stay reserved for selection and the stats popover) - e.g. the wage and
+   * renew/release contract controls TeamDetailsPage's squad list needs per player, which a plain
+   * lineup bench slot has no use for. */
+  footer?: React.ReactNode
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -61,7 +70,16 @@ function useSelectionRingSx(selected: boolean, highlight: boolean) {
   return {}
 }
 
-export function PlayerChip({ player, variant = 'bench', selected, highlight, onSelect, unavailability, forSale }: PlayerChipProps) {
+export function PlayerChip({
+  player,
+  variant = 'bench',
+  selected = false,
+  highlight = false,
+  onSelect = () => {},
+  unavailability,
+  forSale,
+  footer,
+}: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const ringSx = useSelectionRingSx(selected, highlight)
@@ -163,52 +181,55 @@ export function PlayerChip({ player, variant = 'bench', selected, highlight, onS
 
   return (
     <>
-      <Paper elevation={selected ? 4 : 1} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.5, width: '100%' }}>
-        <ButtonBase
-          onClick={onSelect}
-          disabled={!!unavailability}
-          sx={{ borderRadius: '50%' }}
-          aria-pressed={selected}
-          aria-label={label}
-        >
-          <Box
-            sx={{
-              lineHeight: 0,
-              borderRadius: '50%',
-              transition: 'box-shadow 150ms ease',
-              ...(unavailability && { opacity: 0.45, filter: 'grayscale(1)' }),
-              ...ringSx,
-            }}
+      <Paper elevation={selected ? 4 : 1} sx={{ display: 'flex', flexDirection: 'column', gap: footer ? 0.75 : 0, p: 0.5, width: '100%' }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <ButtonBase
+            onClick={onSelect}
+            disabled={!!unavailability}
+            sx={{ borderRadius: '50%' }}
+            aria-pressed={selected}
+            aria-label={label}
           >
-            <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
-          </Box>
-        </ButtonBase>
-        <ButtonBase onClick={openStats} sx={{ minWidth: 0, flex: 1, justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 0.5 }}>
-          <Box sx={{ minWidth: 0, width: '100%' }}>
-            <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-              {player.firstName} {player.lastName}
-            </Typography>
-            <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-              <Typography variant="caption" color="text.secondary">
-                {player.age}
+            <Box
+              sx={{
+                lineHeight: 0,
+                borderRadius: '50%',
+                transition: 'box-shadow 150ms ease',
+                ...(unavailability && { opacity: 0.45, filter: 'grayscale(1)' }),
+                ...ringSx,
+              }}
+            >
+              <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
+            </Box>
+          </ButtonBase>
+          <ButtonBase onClick={openStats} sx={{ minWidth: 0, flex: 1, justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 0.5 }}>
+            <Box sx={{ minWidth: 0, width: '100%' }}>
+              <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                {player.firstName} {player.lastName}
               </Typography>
-              <Chip
-                size="small"
-                variant="outlined"
-                translate="no"
-                className="notranslate"
-                label={t(POSITION_SHORT_LABEL_KEYS[position])}
-                sx={{ height: 16, fontSize: '0.6rem', '& .MuiChip-label': { px: 0.5 } }}
-              />
-              <Typography variant="caption" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
-                {rating}
-              </Typography>
-              {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
-              {forSale && <TransferListedBadge size={16} />}
-            </Stack>
-            <SkillChipsRow player={player} />
-          </Box>
-        </ButtonBase>
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                <Typography variant="caption" color="text.secondary">
+                  {player.age}
+                </Typography>
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  translate="no"
+                  className="notranslate"
+                  label={t(POSITION_SHORT_LABEL_KEYS[position])}
+                  sx={{ height: 16, fontSize: '0.6rem', '& .MuiChip-label': { px: 0.5 } }}
+                />
+                <Typography variant="caption" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
+                  {rating}
+                </Typography>
+                {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
+                {forSale && <TransferListedBadge size={16} />}
+              </Stack>
+              <SkillChipsRow player={player} />
+            </Box>
+          </ButtonBase>
+        </Stack>
+        {footer}
       </Paper>
       <PlayerStatsPopover player={player} anchorEl={statsAnchor} onClose={closeStats} />
     </>

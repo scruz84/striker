@@ -1,10 +1,17 @@
 import { useState } from 'react'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import FormControl from '@mui/material/FormControl'
+import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
 import Link from '@mui/material/Link'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
+import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -13,7 +20,6 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TableSortLabel from '@mui/material/TableSortLabel'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
@@ -51,6 +57,7 @@ import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { PlayerChip } from '../lineup/PlayerChip'
 import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
@@ -116,7 +123,7 @@ export function TeamDetailsPage() {
   const { data: history, isLoading: historyLoading } = useTeamHistory(id)
   const unavailability = useSquadUnavailability()
   const transferListed = useSquadTransferListed()
-  const [sortField, setSortField] = useState<SquadSortField | null>(null)
+  const [sortField, setSortField] = useState<SquadSortField>('name')
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [challengeOpen, setChallengeOpen] = useState(false)
 
@@ -145,9 +152,7 @@ export function TeamDetailsPage() {
     }
   }
 
-  const players = sortField
-    ? [...teamDetails.players].sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField))
-    : teamDetails.players
+  const players = [...teamDetails.players].sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField))
 
   return (
     <Stack spacing={1}>
@@ -205,46 +210,36 @@ export function TeamDetailsPage() {
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.squad')}
       </Typography>
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell sortDirection={sortField === 'name' ? sortDir : false}>
-                <TableSortLabel active={sortField === 'name'} direction={sortField === 'name' ? sortDir : 'asc'} onClick={() => handleSort('name')}>
-                  {t('team.player')}
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right" sortDirection={sortField === 'age' ? sortDir : false}>
-                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => handleSort('age')}>
-                  {t('team.age')}
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right" sortDirection={sortField === 'wage' ? sortDir : false}>
-                <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
-                  {t('team.wage')}
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right" sortDirection={sortField === 'skill' ? sortDir : false}>
-                <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
-                  {t('team.averageSkill')}
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right" />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {players.map((player) => (
-              <PlayerRow
-                key={player.id}
-                player={player}
-                isOwnTeam={isOwnTeam}
-                unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
-                forSale={isOwnTeam && transferListed.has(player.id)}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
+          <InputLabel id="squad-sort-label">{t('team.sortBy')}</InputLabel>
+          <Select
+            labelId="squad-sort-label"
+            label={t('team.sortBy')}
+            value={sortField}
+            onChange={(event: SelectChangeEvent) => handleSort(event.target.value as SquadSortField)}
+          >
+            <MenuItem value="name">{t('team.player')}</MenuItem>
+            <MenuItem value="age">{t('team.age')}</MenuItem>
+            <MenuItem value="wage">{t('team.wage')}</MenuItem>
+            <MenuItem value="skill">{t('team.averageSkill')}</MenuItem>
+          </Select>
+        </FormControl>
+        <IconButton size="small" onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}>
+          {sortDir === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+        </IconButton>
+      </Stack>
+      <Stack spacing={1}>
+        {players.map((player) => (
+          <SquadPlayerCard
+            key={player.id}
+            player={player}
+            isOwnTeam={isOwnTeam}
+            unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
+            forSale={isOwnTeam && transferListed.has(player.id)}
+          />
+        ))}
+      </Stack>
 
       {isOwnTeam && (
         <Box sx={{ mt: 2 }}>
@@ -517,7 +512,13 @@ function AcademySection() {
   )
 }
 
-function PlayerRow({
+// The caller's own squad gets the full lineup-bench card (PlayerChip), with the per-skill/
+// condition breakdown and renew/release controls as its footer. A rival's squad stays a plain
+// summary row instead - common.AverageSkill (see api/types.ts) is the only rating the backend
+// sends for someone else's rostered, unlisted player, with the seven individual skills and
+// Stamina/Form all zeroed out, so PlayerChip's skill chips would show a misleading wall of zeros
+// rather than actually-hidden data.
+function SquadPlayerCard({
   player,
   isOwnTeam,
   unavailability,
@@ -534,8 +535,6 @@ function PlayerRow({
   const releasePlayer = useReleasePlayer()
   const [renewalOpen, setRenewalOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
-  const flag = countryFlag(player.birthCountry)
-  const rating = player.averageSkill ?? overallRating(player)
 
   const handleRelease = async () => {
     const ok = await confirm({
@@ -548,33 +547,14 @@ function PlayerRow({
     }
   }
 
-  return (
-    <TableRow>
-      <TableCell>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
-          {flag && (
-            <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
-              <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
-                {flag}
-              </Typography>
-            </Tooltip>
-          )}
-          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit">
-            {player.firstName} {player.lastName}
-          </Link>
-          {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
-          {forSale && <TransferListedBadge size={16} />}
-        </Stack>
-      </TableCell>
-      <TableCell align="right">{player.age}</TableCell>
-      <TableCell align="right">{formatCurrency(player.wage)}</TableCell>
-      <TableCell align="right" sx={{ color: ratingTierColor(rating, theme.palette) }}>
-        {rating}
-      </TableCell>
-      {isOwnTeam ? (
-        <TableCell align="right">
-          <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+  if (isOwnTeam) {
+    const footer = (
+      <Stack spacing={0.5}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <Typography variant="body2" color="text.secondary">
+            {formatCurrency(player.wage)}
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Button
               size="small"
               onClick={() => setRenewalOpen(true)}
@@ -591,21 +571,51 @@ function PlayerRow({
               {t('team.releasePlayer')}
             </Button>
           </Stack>
-          {releasePlayer.isError && (
-            <Alert severity="error" sx={{ mt: 1 }}>
-              {t('team.releaseError')}
-            </Alert>
+        </Stack>
+        {releasePlayer.isError && <Alert severity="error">{t('team.releaseError')}</Alert>}
+      </Stack>
+    )
+
+    return (
+      <>
+        <PlayerChip player={player} unavailability={unavailability} forSale={forSale} footer={footer} />
+        <ContractRenewalDialog player={player} open={renewalOpen} onClose={() => setRenewalOpen(false)} />
+      </>
+    )
+  }
+
+  const flag = countryFlag(player.birthCountry)
+  const rating = player.averageSkill ?? overallRating(player)
+
+  return (
+    <Paper sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1 }}>
+      <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          {flag && (
+            <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
+              <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
+                {flag}
+              </Typography>
+            </Tooltip>
           )}
-          <ContractRenewalDialog player={player} open={renewalOpen} onClose={() => setRenewalOpen(false)} />
-        </TableCell>
-      ) : (
-        <TableCell align="right">
-          <Button size="small" onClick={() => setOfferOpen(true)}>
-            {t('team.makeOffer')}
-          </Button>
-          <TransferOfferDialog player={player} open={offerOpen} onClose={() => setOfferOpen(false)} />
-        </TableCell>
-      )}
-    </TableRow>
+          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit" noWrap>
+            {player.firstName} {player.lastName}
+          </Link>
+          {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
+          {forSale && <TransferListedBadge size={16} />}
+        </Stack>
+        <Typography variant="caption" color="text.secondary">
+          {player.age}
+        </Typography>
+      </Box>
+      <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
+        {rating}
+      </Typography>
+      <Button size="small" onClick={() => setOfferOpen(true)}>
+        {t('team.makeOffer')}
+      </Button>
+      <TransferOfferDialog player={player} open={offerOpen} onClose={() => setOfferOpen(false)} />
+    </Paper>
   )
 }
