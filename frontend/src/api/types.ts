@@ -906,6 +906,9 @@ export interface FriendlyChallenge {
   // default for the opponent's own accept-time kickoff picker, never enforced. Absent if they
   // left it up to the opponent.
   proposedKickoff?: string
+  // Which side of the fixture the challenger chose to take when sending the challenge - true
+  // puts the challenger at home once accepted, false puts the opponent at home instead.
+  challengerIsHome: boolean
 }
 
 export interface FriendlyMatch {

@@ -1123,8 +1123,15 @@ export function useRecentFriendlies(enabled: boolean) {
 export function useChallengeToFriendly() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ opponentTeamId, proposedKickoff }: { opponentTeamId: number; proposedKickoff?: string }) =>
-      api.post('/v1/friendlies/challenges', { opponentTeamId, proposedKickoff }),
+    mutationFn: ({
+      opponentTeamId,
+      proposedKickoff,
+      challengerIsHome,
+    }: {
+      opponentTeamId: number
+      proposedKickoff?: string
+      challengerIsHome?: boolean
+    }) => api.post('/v1/friendlies/challenges', { opponentTeamId, proposedKickoff, challengerIsHome }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyChallengesSent })
     },

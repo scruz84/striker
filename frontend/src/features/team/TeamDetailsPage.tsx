@@ -45,6 +45,7 @@ import {
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { regionForCountry } from '../../components/avatar/traits'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { ChallengeToFriendlyDialog } from '../../components/ChallengeToFriendlyDialog'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
@@ -117,6 +118,7 @@ export function TeamDetailsPage() {
   const transferListed = useSquadTransferListed()
   const [sortField, setSortField] = useState<SquadSortField | null>(null)
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
+  const [challengeOpen, setChallengeOpen] = useState(false)
 
   const teamCountry = teamDetails?.team.country
   const { data: latestCup } = useLatestCupId(teamCountry)
@@ -149,18 +151,33 @@ export function TeamDetailsPage() {
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
-          {teamDetails.team.name} ({teamDetails.team.id})
-        </Typography>
-        {flag && (
-          <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
-            <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
-              {flag}
-            </Typography>
-          </Tooltip>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
+            {teamDetails.team.name} ({teamDetails.team.id})
+          </Typography>
+          {flag && (
+            <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
+              <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
+                {flag}
+              </Typography>
+            </Tooltip>
+          )}
+        </Stack>
+        {!isOwnTeam && userTeam && (
+          <Button variant="outlined" size="small" onClick={() => setChallengeOpen(true)}>
+            {t('friendlies.challenge.challengeTeam')}
+          </Button>
         )}
       </Stack>
+      {!isOwnTeam && userTeam && (
+        <ChallengeToFriendlyDialog
+          opponentTeamId={teamDetails.team.id}
+          opponentTeamName={teamDetails.team.name}
+          open={challengeOpen}
+          onClose={() => setChallengeOpen(false)}
+        />
+      )}
       <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>

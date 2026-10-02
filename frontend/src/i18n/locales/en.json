@@ -488,9 +488,14 @@
       "title": "Challenge a team",
       "opponentTeamId": "Opponent team id",
       "proposedKickoff": "Proposed kickoff (optional)",
+      "side": "Your team plays",
+      "home": "Home",
+      "away": "Away",
       "button": "Send challenge",
       "success": "Challenge sent.",
-      "error": "Could not send that challenge."
+      "error": "Could not send that challenge.",
+      "challengeTeam": "Challenge to a friendly",
+      "dialogTitle": "Challenge {{name}} to a friendly"
     },
     "received": {
       "title": "Challenges received",
@@ -502,12 +507,16 @@
       "kickoffNotAllowed": "That day isn't open for friendlies - pick another.",
       "confirmKickoff": "Confirm",
       "cancel": "Cancel",
-      "acceptError": "Could not accept that challenge - you may be at your weekly limit."
+      "acceptError": "Could not accept that challenge - you may be at your weekly limit.",
+      "youPlayHome": "You'd play at home",
+      "youPlayAway": "You'd play away"
     },
     "sent": {
       "title": "Challenges sent",
       "empty": "No pending challenges.",
-      "withdraw": "Withdraw"
+      "withdraw": "Withdraw",
+      "youPlayHome": "You'd play at home",
+      "youPlayAway": "You'd play away"
     },
     "upcoming": {
       "title": "Upcoming friendlies",

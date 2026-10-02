@@ -32,6 +32,10 @@ type FriendlyChallenge struct {
 	// challenge (see ChallengeToFriendly) - nil if they left it up to the opponent. Purely a
 	// suggested default for the opponent's own accept-time kickoff picker; never enforced.
 	ProposedKickoff *time.Time `json:"proposedKickoff,omitempty"`
+	// ChallengerIsHome is which side of the fixture the challenger chose to take when sending
+	// the challenge (see ChallengeToFriendly) - true puts the challenger at home once accepted,
+	// false puts the opponent at home instead.
+	ChallengerIsHome bool `json:"challengerIsHome"`
 }
 
 // FriendlyMatch is an accepted friendly, scheduled or already played - see
@@ -160,8 +164,8 @@ func CountFriendliesThisWeek(dbCtx *DatabaseContext, teamId int64) (int, error) 
 	return count, err
 }
 
-const InsertFriendlyChallengeStmtSql = "INSERT INTO friendly_challenges (challenger_team_id, opponent_team_id, proposed_kickoff) VALUES ($1, $2, $3) RETURNING challenge_id"
-const GetFriendlyChallengeStmtSql = "SELECT challenger_team_id, opponent_team_id FROM friendly_challenges WHERE challenge_id = $1"
+const InsertFriendlyChallengeStmtSql = "INSERT INTO friendly_challenges (challenger_team_id, opponent_team_id, proposed_kickoff, challenger_is_home) VALUES ($1, $2, $3, $4) RETURNING challenge_id"
+const GetFriendlyChallengeStmtSql = "SELECT challenger_team_id, opponent_team_id, challenger_is_home FROM friendly_challenges WHERE challenge_id = $1"
 const GetFriendlyChallengeForUpdateStmtSql = GetFriendlyChallengeStmtSql + " " + ForUpdate
 const DeleteFriendlyChallengeStmtSql = "DELETE FROM friendly_challenges WHERE challenge_id = $1"
 const InsertFriendlyMatchStmtSql = "INSERT INTO friendly_matches (home_team_id, away_team_id, match_date) VALUES ($1, $2, $3)"
@@ -173,7 +177,9 @@ const friendlyScheduleDelay = 5 * time.Minute
 
 // ChallengeToFriendly proposes a friendly match to opponentTeamId, on behalf of challengerTeamId,
 // optionally suggesting a kickoff (proposedKickoff may be nil to leave it entirely up to the
-// opponent). A non-nil proposedKickoff must itself be a valid kickoff (see
+// opponent). challengerIsHome picks which side of the fixture the challenger takes once the
+// challenge is accepted - true keeps the challenger at home, false makes the opponent the home
+// team instead. A non-nil proposedKickoff must itself be a valid kickoff (see
 // isAllowedFriendlyKickoff) - the challenger doesn't get to suggest something the opponent
 // couldn't have picked themselves anyway. If the opponent is unowned (an AI-managed team - see
 // AiLevelCaretaker/Manager/Director, every tier of which accepts unconditionally, there being no
@@ -181,7 +187,7 @@ const friendlyScheduleDelay = 5 * time.Minute
 // left pending forever with nobody to act on it, using proposedKickoff if one was given and is
 // still valid by then; otherwise it waits for the opponent's owner to accept or reject it, with
 // proposedKickoff surfaced to them as a suggested default (see FriendlyChallenge.ProposedKickoff).
-func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponentTeamId int64, proposedKickoff *time.Time) error {
+func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponentTeamId int64, proposedKickoff *time.Time, challengerIsHome bool) error {
 	if challengerTeamId == opponentTeamId {
 		return ErrCannotChallengeOwnTeam
 	}
@@ -202,7 +208,7 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	}
 
 	var challengeId int64
-	err = dbCtx.Db.QueryRow(InsertFriendlyChallengeStmtSql, challengerTeamId, opponentTeamId, proposedKickoff).Scan(&challengeId)
+	err = dbCtx.Db.QueryRow(InsertFriendlyChallengeStmtSql, challengerTeamId, opponentTeamId, proposedKickoff, challengerIsHome).Scan(&challengeId)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return ErrFriendlyChallengeAlreadyExists
@@ -265,7 +271,8 @@ func acceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 	defer tx.Rollback()
 
 	var challengerTeamId, actualOpponentTeamId int64
-	err = tx.QueryRow(GetFriendlyChallengeForUpdateStmtSql, challengeId).Scan(&challengerTeamId, &actualOpponentTeamId)
+	var challengerIsHome bool
+	err = tx.QueryRow(GetFriendlyChallengeForUpdateStmtSql, challengeId).Scan(&challengerTeamId, &actualOpponentTeamId, &challengerIsHome)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrFriendlyChallengeNotFound
 	}
@@ -291,7 +298,11 @@ func acceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 		return ErrInvalidFriendlyKickoff
 	}
 
-	if _, err := tx.Exec(InsertFriendlyMatchStmtSql, challengerTeamId, opponentTeamId, kickoff); err != nil {
+	homeTeamId, awayTeamId := challengerTeamId, opponentTeamId
+	if !challengerIsHome {
+		homeTeamId, awayTeamId = opponentTeamId, challengerTeamId
+	}
+	if _, err := tx.Exec(InsertFriendlyMatchStmtSql, homeTeamId, awayTeamId, kickoff); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteFriendlyChallengeStmtSql, challengeId); err != nil {
@@ -303,7 +314,8 @@ func acceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 // RejectFriendlyChallenge lets the challenged team decline, without spending a weekly slot.
 func RejectFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponentTeamId int64) error {
 	var challengerTeamId, actualOpponentTeamId int64
-	err := dbCtx.Db.QueryRow(GetFriendlyChallengeStmtSql, challengeId).Scan(&challengerTeamId, &actualOpponentTeamId)
+	var challengerIsHome bool
+	err := dbCtx.Db.QueryRow(GetFriendlyChallengeStmtSql, challengeId).Scan(&challengerTeamId, &actualOpponentTeamId, &challengerIsHome)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrFriendlyChallengeNotFound
 	}
@@ -320,7 +332,8 @@ func RejectFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 // WithdrawFriendlyChallenge lets the challenger cancel their own pending challenge.
 func WithdrawFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, challengerTeamId int64) error {
 	var actualChallengerTeamId, opponentTeamId int64
-	err := dbCtx.Db.QueryRow(GetFriendlyChallengeStmtSql, challengeId).Scan(&actualChallengerTeamId, &opponentTeamId)
+	var challengerIsHome bool
+	err := dbCtx.Db.QueryRow(GetFriendlyChallengeStmtSql, challengeId).Scan(&actualChallengerTeamId, &opponentTeamId, &challengerIsHome)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrFriendlyChallengeNotFound
 	}
@@ -334,11 +347,11 @@ func WithdrawFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, challe
 	return err
 }
 
-const GetFriendlyChallengesReceivedStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff " +
+const GetFriendlyChallengesReceivedStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff, fc.challenger_is_home " +
 	"FROM friendly_challenges fc JOIN teams ct ON ct.team_id = fc.challenger_team_id JOIN teams ot ON ot.team_id = fc.opponent_team_id " +
 	"WHERE fc.opponent_team_id = $1 ORDER BY fc.created_at DESC"
 
-const GetFriendlyChallengesSentStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff " +
+const GetFriendlyChallengesSentStmtSql = "SELECT fc.challenge_id, fc.challenger_team_id, ct.name, fc.opponent_team_id, ot.name, fc.created_at, fc.proposed_kickoff, fc.challenger_is_home " +
 	"FROM friendly_challenges fc JOIN teams ct ON ct.team_id = fc.challenger_team_id JOIN teams ot ON ot.team_id = fc.opponent_team_id " +
 	"WHERE fc.challenger_team_id = $1 ORDER BY fc.created_at DESC"
 
@@ -348,7 +361,7 @@ func scanFriendlyChallenges(rows *sql.Rows) ([]FriendlyChallenge, error) {
 	for rows.Next() {
 		var c FriendlyChallenge
 		if err := rows.Scan(&c.ChallengeId, &c.ChallengerTeamId, &c.ChallengerTeamName,
-			&c.OpponentTeamId, &c.OpponentTeamName, &c.CreatedAt, &c.ProposedKickoff); err != nil {
+			&c.OpponentTeamId, &c.OpponentTeamName, &c.CreatedAt, &c.ProposedKickoff, &c.ChallengerIsHome); err != nil {
 			return nil, err
 		}
 		challenges = append(challenges, c)

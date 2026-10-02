@@ -1404,6 +1404,10 @@ CREATE TABLE friendly_challenges (
     -- still has final say when accepting; this is only ever used as a suggested default, never
     -- enforced.
     proposed_kickoff    timestamptz,
+    -- Which side of the fixture the challenger takes once accepted (see
+    -- common.acceptFriendlyChallenge) - true puts the challenger at home, false makes the
+    -- opponent the home team instead. Added by init62_friendly_challenge_home_side.sql.
+    challenger_is_home  boolean NOT NULL DEFAULT true,
     UNIQUE (challenger_team_id, opponent_team_id)
 );
 

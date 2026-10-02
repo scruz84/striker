@@ -8,6 +8,8 @@ import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
@@ -26,31 +28,9 @@ import {
   useUserTeam,
   useWithdrawFriendlyChallenge,
 } from '../../api/hooks'
-import type { FriendlyChallenge, FriendlyMatch, FriendlySchedule } from '../../api/types'
+import type { FriendlyChallenge, FriendlyMatch } from '../../api/types'
+import { defaultKickoffValue, isWeekdayAllowed, MIN_KICKOFF_LEAD_MINUTES, toDateTimeLocalValue } from '../../utils/friendlyKickoff'
 import { formatDateTime } from '../../utils/formatDate'
-
-// The minimum lead time backend.AcceptFriendlyChallenge enforces (friendlyScheduleDelay) -
-// mirrored here only to seed a sensible default kickoff value and a client-side `min` on the
-// picker; the backend re-validates regardless.
-const MIN_KICKOFF_LEAD_MINUTES = 5
-
-function toDateTimeLocalValue(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
-}
-
-function defaultKickoffValue(minutesFromNow: number): string {
-  return toDateTimeLocalValue(new Date(Date.now() + minutesFromNow * 60 * 1000))
-}
-
-// Shared by the challenge form's optional proposed-kickoff field and the accept dialog's kickoff
-// field - both need to reject a datetime-local value that falls on a day
-// common.GetFriendlyScheduleWeekdays doesn't allow, before the backend gets a chance to.
-function isWeekdayAllowed(schedule: FriendlySchedule | undefined, value: string): boolean {
-  if (!schedule || !value) return true
-  const day = new Date(value).getDay()
-  return (schedule.weekdaysMask & (1 << day)) !== 0
-}
 
 export function FriendliesPage() {
   const { t } = useTranslation()
@@ -67,6 +47,7 @@ export function FriendliesPage() {
   const challenge = useChallengeToFriendly()
   const [opponentTeamId, setOpponentTeamId] = useState('')
   const [proposedKickoff, setProposedKickoff] = useState('')
+  const [challengerIsHome, setChallengerIsHome] = useState(true)
 
   const proposedKickoffAllowed = isWeekdayAllowed(schedule, proposedKickoff)
 
@@ -76,11 +57,16 @@ export function FriendliesPage() {
     if (!id || id <= 0) return
     if (proposedKickoff && !proposedKickoffAllowed) return
     challenge.mutate(
-      { opponentTeamId: id, proposedKickoff: proposedKickoff ? new Date(proposedKickoff).toISOString() : undefined },
+      {
+        opponentTeamId: id,
+        proposedKickoff: proposedKickoff ? new Date(proposedKickoff).toISOString() : undefined,
+        challengerIsHome,
+      },
       {
         onSuccess: () => {
           setOpponentTeamId('')
           setProposedKickoff('')
+          setChallengerIsHome(true)
         },
       },
     )
@@ -119,6 +105,17 @@ export function FriendliesPage() {
             helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : ' '}
             slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
           />
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={challengerIsHome}
+            onChange={(_event, value: boolean | null) => {
+              if (value !== null) setChallengerIsHome(value)
+            }}
+          >
+            <ToggleButton value={true}>{t('friendlies.challenge.home')}</ToggleButton>
+            <ToggleButton value={false}>{t('friendlies.challenge.away')}</ToggleButton>
+          </ToggleButtonGroup>
           <Button type="submit" variant="contained" disabled={challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}>
             {t('friendlies.challenge.button')}
           </Button>
@@ -207,6 +204,9 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
                   <Typography variant="body2" component={RouterLink} to={`/team/${c.challengerTeamId}`}>
                     {c.challengerTeamName}
                   </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {c.challengerIsHome ? t('friendlies.received.youPlayAway') : t('friendlies.received.youPlayHome')}
+                  </Typography>
                   {c.proposedKickoff && pickingId !== c.challengeId && (
                     <Typography variant="caption" color="text.secondary">
                       {t('friendlies.received.proposedKickoff', { date: formatDateTime(c.proposedKickoff) })}
@@ -282,9 +282,14 @@ function ChallengesSent({ challenges, isLoading }: { challenges?: FriendlyChalle
         <Stack spacing={1}>
           {challenges.map((c) => (
             <Stack key={c.challengeId} direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="body2" component={RouterLink} to={`/team/${c.opponentTeamId}`}>
-                {c.opponentTeamName}
-              </Typography>
+              <Stack>
+                <Typography variant="body2" component={RouterLink} to={`/team/${c.opponentTeamId}`}>
+                  {c.opponentTeamName}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {c.challengerIsHome ? t('friendlies.sent.youPlayHome') : t('friendlies.sent.youPlayAway')}
+                </Typography>
+              </Stack>
               <Button
                 size="small"
                 color="secondary"

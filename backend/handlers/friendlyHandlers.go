@@ -15,6 +15,10 @@ type ChallengeToFriendlyRequest struct {
 	// ProposedKickoff optionally suggests when the challenger would like to play - left nil to
 	// leave the decision entirely to the opponent, same as before this field existed.
 	ProposedKickoff *time.Time `json:"proposedKickoff"`
+	// ChallengerIsHome picks which side of the fixture the challenger's team takes once the
+	// challenge is accepted - nil (and true) keeps the challenger at home, matching the only
+	// behavior that existed before this field; false makes the challenger the away team instead.
+	ChallengerIsHome *bool `json:"challengerIsHome"`
 }
 
 // ChallengeToFriendlyHandler proposes a friendly match to another team on behalf of the
@@ -40,7 +44,8 @@ func ChallengeToFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := common.ChallengeToFriendly(dbCtx, team.Id, req.OpponentTeamId, req.ProposedKickoff); err != nil {
+		challengerIsHome := req.ChallengerIsHome == nil || *req.ChallengerIsHome
+		if err := common.ChallengeToFriendly(dbCtx, team.Id, req.OpponentTeamId, req.ProposedKickoff, challengerIsHome); err != nil {
 			switch {
 			case errors.Is(err, common.ErrCannotChallengeOwnTeam),
 				errors.Is(err, common.ErrFriendlyChallengeAlreadyExists),

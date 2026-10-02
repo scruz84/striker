@@ -685,7 +685,7 @@ func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, team
 	if !ok {
 		return
 	}
-	if err := common.ChallengeToFriendly(dbCtx, teamId, opponent, nil); err != nil &&
+	if err := common.ChallengeToFriendly(dbCtx, teamId, opponent, nil, true); err != nil &&
 		!errors.Is(err, common.ErrFriendlyLimitReached) && !errors.Is(err, common.ErrFriendlyChallengeAlreadyExists) {
 		log.Errorf("error challenging team %d to a friendly for AI-managed team %d: %s", opponent, teamId, err)
 	}

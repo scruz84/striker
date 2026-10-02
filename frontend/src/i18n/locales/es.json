@@ -488,9 +488,14 @@
       "title": "Retar a un equipo",
       "opponentTeamId": "Id del equipo rival",
       "proposedKickoff": "Fecha y hora propuesta (opcional)",
+      "side": "Tu equipo jugará",
+      "home": "En casa",
+      "away": "Fuera",
       "button": "Enviar reto",
       "success": "Reto enviado.",
-      "error": "No se pudo enviar ese reto."
+      "error": "No se pudo enviar ese reto.",
+      "challengeTeam": "Retar a un amistoso",
+      "dialogTitle": "Retar a {{name}} a un amistoso"
     },
     "received": {
       "title": "Retos recibidos",
@@ -502,12 +507,16 @@
       "kickoffNotAllowed": "Ese día no está habilitado para amistosos - elige otro.",
       "confirmKickoff": "Confirmar",
       "cancel": "Cancelar",
-      "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal."
+      "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal.",
+      "youPlayHome": "Jugarías en casa",
+      "youPlayAway": "Jugarías fuera"
     },
     "sent": {
       "title": "Retos enviados",
       "empty": "No hay retos pendientes.",
-      "withdraw": "Retirar"
+      "withdraw": "Retirar",
+      "youPlayHome": "Jugarías en casa",
+      "youPlayAway": "Jugarías fuera"
     },
     "upcoming": {
       "title": "Próximos amistosos",
