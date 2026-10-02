@@ -80,7 +80,7 @@ const GetPlayerFullNameStmtSql = "SELECT first_name, last_name FROM players WHER
 // GetCantera for the separate query that lists a team's current academy pool instead.
 const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
-	"COALESCE(shirt_number, 0) " +
+	"COALESCE(shirt_number, 0), stamina, form " +
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1 AND p.in_academy = false"
 
@@ -131,8 +131,8 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) " +
+	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number, stamina, form) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) " +
 	"RETURNING player_id"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
@@ -295,6 +295,16 @@ const SquadSize = 18
 const SeniorSkillMin, SeniorSkillMax = 30, 60
 const SeniorAgeMin, SeniorAgeMax = 18, 32
 
+// StaminaGenerationMin/Max bounds a freshly generated player's starting Stamina - applied
+// uniformly by doCreatePlayers/InjectFreeAgents regardless of senior/academy/free-agent, since
+// physical conditioning (unlike the seven footballing skills) isn't meant to track a prospect's
+// lower starting quality.
+const StaminaGenerationMin, StaminaGenerationMax = 50, 90
+
+// DefaultForm is the neutral starting Form every freshly generated player gets, whatever their
+// skills or age - see engine.updateTeamPlayersAfterMatch for how it moves from there.
+const DefaultForm = 50
+
 func CreatePlayers(dbCtx *DatabaseContext, teamId int64, country string) {
 	insertStmt, errInsert := dbCtx.Db.Prepare(InsertNewPlayerStmtSql)
 	if errInsert != nil {
@@ -411,6 +421,7 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		midfield := minSkill + rand.Intn(maxSkill-minSkill+1)
 		dribbling := minSkill + rand.Intn(maxSkill-minSkill+1)
 		shot := minSkill + rand.Intn(maxSkill-minSkill+1)
+		stamina := StaminaGenerationMin + rand.Intn(StaminaGenerationMax-StaminaGenerationMin+1)
 		age := minAge + rand.Intn(maxAge-minAge+1)
 		wage := 0
 		contractYears := 0
@@ -441,7 +452,9 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			contractYears,
 			&country,
 			inAcademy,
-			shirtNumber).Scan(&newPlayerId)
+			shirtNumber,
+			stamina,
+			DefaultForm).Scan(&newPlayerId)
 		if err != nil {
 			log.Errorf("error creating player for team %d: %s", teamId, err)
 			continue
@@ -1746,9 +1759,11 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 	var contractYearsRemaining int
 	var birthCountry sql.NullString
 	var shirtNumber int
+	var stamina int
+	var form int
 	for rows.Next() {
 		err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
-			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining, &birthCountry, &shirtNumber)
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar, &contractYearsRemaining, &birthCountry, &shirtNumber, &stamina, &form)
 		if err != nil {
 			log.Errorf("error scanning player row: %s", err)
 		} else {
@@ -1775,6 +1790,8 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 				ContractYearsRemaining: contractYearsRemaining,
 				BirthCountry:           birthCountry.String,
 				ShirtNumber:            shirtNumber,
+				Stamina:                stamina,
+				Form:                   form,
 			})
 		}
 	}
@@ -1823,6 +1840,17 @@ func CountTeamPlayers(dbCtx *DatabaseContext, teamId int64) (int, error) {
 func UpdatePlayerProgression(dbCtx *DatabaseContext, playerId int64, age, goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) error {
 	wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
 	_, err := dbCtx.Db.Exec(UpdatePlayerProgressionStmtSql, age, goalKeeper, defense, lateral, pass, midfield, dribbling, shot, wage, playerId)
+	return err
+}
+
+const UpdatePlayerStaminaAndFormStmtSql = "UPDATE players SET stamina = $1, form = $2 WHERE player_id = $3"
+
+// UpdatePlayerStaminaAndForm persists a player's post-match Stamina/Form drift (see
+// engine.updateTeamPlayersAfterMatch) - kept separate from UpdatePlayerProgression rather than
+// folded into it, since these two attributes drift on every match a player features (or doesn't
+// feature) in, independently of whether any of the seven core skills happened to drift that match.
+func UpdatePlayerStaminaAndForm(dbCtx *DatabaseContext, playerId int64, stamina, form int) error {
+	_, err := dbCtx.Db.Exec(UpdatePlayerStaminaAndFormStmtSql, stamina, form, playerId)
 	return err
 }
 

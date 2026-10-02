@@ -104,10 +104,10 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 	var attackPlayers *map[int][]int64
 	var players *map[int64]common.Player
 	if teamChance == match.Home {
-		players = match.HomePlayers
+		players = match.EffectiveHomePlayers
 		attackPlayers = match.HomePlayersByPosition
 		otherTeam = match.Away
-		goalKeeperValue = (*match.AwayPlayers)[(*match.AwayPlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
+		goalKeeperValue = (*match.EffectiveAwayPlayers)[(*match.AwayPlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
 		if isRight {
 			attack = match.HomeQua.RightAttach + flankMidfieldSupport(match.HomeQua.RightMidfield, match.AwayQua.LeftMidfield)
 			defense = match.AwayQua.LeftDefense
@@ -119,10 +119,10 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 			defense = match.AwayQua.Defense
 		}
 	} else {
-		players = match.AwayPlayers
+		players = match.EffectiveAwayPlayers
 		attackPlayers = match.AwayPlayersByPosition
 		otherTeam = match.Home
-		goalKeeperValue = (*match.HomePlayers)[(*match.HomePlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
+		goalKeeperValue = (*match.EffectiveHomePlayers)[(*match.HomePlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
 		if isRight {
 			attack = match.AwayQua.RightAttach + flankMidfieldSupport(match.AwayQua.RightMidfield, match.HomeQua.LeftMidfield)
 			defense = match.HomeQua.LeftDefense

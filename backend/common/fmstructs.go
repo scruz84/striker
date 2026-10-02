@@ -160,9 +160,9 @@ type Player struct {
 	// TeamId is 0 for a free agent (team_id IS NULL in the database - see GetFreeAgents):
 	// GetPlayerById coalesces the NULL to 0 rather than requiring every caller to know whether
 	// the player it looked up happens to be currently unowned.
-	TeamId     int64        `json:"teamId"`
-	FirstName  string       `json:"firstName"`
-	LastName   string       `json:"lastName"`
+	TeamId    int64  `json:"teamId"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 	// BirthDay is the anchor for this player's periodic in-game birthday, not a real
 	// date-of-birth: it's set to the wall-clock creation time when the player is generated, and
 	// rolled forward by engine.BirthdayCycleDays every time engine.ProcessBirthdays fires their
@@ -202,6 +202,20 @@ type Player struct {
 	// or a free agent - see common.nextFreeShirtNumber, assigned whenever a player joins a team's
 	// senior roster and cleared whenever they leave it).
 	ShirtNumber int `json:"shirtNumber,omitempty"`
+	// Stamina (0-99) is how well this player holds up physically within a single match - read
+	// every simulated minute by engine.StaminaSimulation to fatigue a tired player's effective
+	// skills, and drifted after each match by engine.updateTeamPlayersAfterMatch based on minutes
+	// played and age (older players recover stamina more slowly - see engine.ageTrendForStamina).
+	// Unlike the seven core skills it isn't generated inside the 15-40/35-75 min/max bands those
+	// use (see doCreatePlayers) - see SeniorStaminaMin/Max and AcademyStaminaMin/Max instead.
+	Stamina int `json:"stamina"`
+	// Form (0-99) is a slower-moving measure of recent performances, read once per match by
+	// common.ComputeMatchRatings to nudge that match's rating up or down - unlike Stamina it
+	// doesn't change minute-by-minute, only after a match finishes (see
+	// engine.updateTeamPlayersAfterMatch), rising when the player plays (more so with a good
+	// rating) and decaying when they sit out. Every new player starts at the neutral midpoint, 50
+	// (see doCreatePlayers/InjectFreeAgents).
+	Form int `json:"form"`
 	// AverageSkill is this player's seven core skills reduced to a single 0-99 figure (see
 	// common.AverageSkill) - only populated by callers that need it to survive RedactSkills (see
 	// GetTeamDetailsById and PlayerDetails.AverageSkill, which redundantly recomputes its own copy
@@ -244,6 +258,8 @@ func (p *Player) RedactSkills(transferListed bool) {
 	p.Quick = false
 	p.Creative = false
 	p.Technical = false
+	p.Stamina = 0
+	p.Form = 0
 }
 
 // AverageSkill reduces a player's seven core skill ratings to a single 0-99 headline figure,
@@ -357,6 +373,15 @@ type MatchSimulation struct {
 	AwayPlayers           *map[int64]Player
 	HomePlayersByPosition *map[int][]int64
 	AwayPlayersByPosition *map[int][]int64
+	//EffectiveHomePlayers/EffectiveAwayPlayers: a per-minute fatigue-adjusted copy of
+	//HomePlayers/AwayPlayers, rebuilt every minute by engine.StaminaSimulation (the pipeline step
+	//that runs right before InitialSimulation) from each player's Stamina and their minutes played
+	//so far this match (see HomeMinutesByPosition/AwayMinutesByPosition). InitialSimulation's
+	//calculateQua and ScorerSimulation's direct per-player skill reads both use these instead of
+	//HomePlayers/AwayPlayers, so a tired player's reduced skills consistently affect both a team's
+	//aggregate zone qualifications and any individual chance they're personally involved in.
+	EffectiveHomePlayers *map[int64]Player
+	EffectiveAwayPlayers *map[int64]Player
 	//Qualifications
 	HomeQua *TeamQualification
 	AwayQua *TeamQualification

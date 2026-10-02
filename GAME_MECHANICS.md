@@ -84,7 +84,17 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
 1. **SubstitutionSimulation** - applies any of the manager's scheduled substitutions (see
    "Player skill progression" below for where those minutes end up being credited) due this
    minute.
-2. **InitialSimulation** (`engine/initial_simulation.go`) - recomputes both teams'
+2. **StaminaSimulation** (`engine/stamina_simulation.go`) - rebuilds `EffectiveHomePlayers`/
+   `EffectiveAwayPlayers`, a fatigue-adjusted copy of each team's players that every later stage
+   reads instead of the raw `HomePlayers`/`AwayPlayers` (`InitialSimulation`'s qualifications and
+   `ScorerSimulation`'s individual goalkeeper/finisher rolls alike). Each player's seven core
+   skills are scaled down by `fatigueMultiplier`, which combines how many minutes they've played
+   so far this match (from `HomeMinutesByPosition`/`AwayMinutesByPosition`, see "Player skill
+   progression" below) with their own `Stamina` (0-99): a `Stamina`-99 player never fatigues at
+   all, a `Stamina`-0 player who has played every minute loses up to `FatigueMaxPenalty` (30%) off
+   every skill. A player who hasn't played yet this match (0 minutes) is always unaffected,
+   whatever their `Stamina`.
+3. **InitialSimulation** (`engine/initial_simulation.go`) - recomputes both teams'
    `TeamQualification` from the current lineup (a red card or injury this match already
    thinned a position group, so this has to be recalculated every minute, not once at kickoff).
    A core stat like `Attack` is just the sum of the relevant players' raw skill values (e.g.
@@ -102,7 +112,7 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    ever reads them - not just the display-only `MidfieldDiff`/per-side attack-vs-defense diffs
    (now plain center-vs-center diffs on top of that already-blended strength, used for match
    reporting/flavor).
-3. **ScorerSimulation** (`engine/scorer_simulation.go`) - each minute has a `14%` base chance of
+4. **ScorerSimulation** (`engine/scorer_simulation.go`) - each minute has a `14%` base chance of
    producing an attacking "chance" (`ProbChance`), boosted by up to another 10 percentage points
    the more one side's `Midfield` dominates the other's (`chanceProbability`). Whichever team gets
    the chance is itself weighted by that same midfield split (`getTeamChance`). The chance is then
@@ -117,12 +127,12 @@ lineup that minute, then runs a fixed pipeline once per simulated minute, 1 to 9
    logistic curve over the attacking side's build-up plus the individual finisher against the
    defending side's back line plus their goalkeeper (`chanceSuccessProbability`) - bounded to a
    realistic conversion-rate band instead of scaling linearly with the stat gap.
-4. **DisciplineSimulation** (`engine/discipline_simulation.go`) - a flat 3% chance per minute of a
+5. **DisciplineSimulation** (`engine/discipline_simulation.go`) - a flat 3% chance per minute of a
    card incident (`ProbCardIncident`), 6% of those a straight red, otherwise a yellow (a second
    yellow for the same player converts to a red). A sent-off player is removed from their team's
    active lineup for the rest of the match (nobody replaces them - there's no substitution model
    for this) and banned 1-2 matches (`SecondYellowSuspensionMatches`/`StraightRedSuspensionMatches`).
-5. **InjurySimulation** (`engine/injury_simulation.go`) - independently, a flat 0.5% chance per
+6. **InjurySimulation** (`engine/injury_simulation.go`) - independently, a flat 0.5% chance per
    minute (`ProbInjuryIncident`) of an injury, removing the player from the rest of the match and
    sidelining them 1-5 more matches. Unlike a card, this doesn't necessarily leave the team a man
    down: if they haven't already used all `MaxScheduledSubstitutions` (3, shared with the
@@ -172,6 +182,41 @@ For each player who took the field this match, on the side they played for:
    match, its owner also gets a `NOTIFICATION_PROGRESSION` notification (how many players
    developed, linking to `/players/evolutions`) so the change is visible without having to think
    to check a player's page.
+
+**Stamina and Form** are two further per-player attributes (0-99, alongside the seven core
+skills), both updated in the same `updateTeamPlayersAfterMatch` pass but on their own rules -
+persisted separately (`common.UpdatePlayerStaminaAndForm`) rather than through
+`UpdatePlayerProgression`, and never part of a `NOTIFICATION_PROGRESSION` notification or the
+`player_progression_log` audit trail (they're expected to move after nearly every match, so a
+notification for them would lose all signal value):
+
+- **Stamina** is read every simulated minute, not just post-match - see `StaminaSimulation` above,
+  which fatigues a player's *effective* in-match skills based on it. After the match, a player who
+  featured gets an independent chance to drift (`driftStamina`), scaled by the same
+  minutes-played-this-match chance the core skills use. The drift itself is purely an age trend
+  (`ageTrendForStamina` - rises under 24, flat 24-29, declines from 30 on and steeper again from
+  34, reflecting that physical conditioning fades earlier and faster than footballing skill) plus
+  a small ±1 wobble - no trainer bonus, since a coach develops footballing skill, not raw fitness.
+  A player who didn't feature in a match doesn't have their Stamina touched at all (no fatigue to
+  recover from, nothing played to drift it either way).
+- **Form** updates for *every* squad player each match, not just whoever played - it also feeds
+  back into that very match's own player ratings (`common.ComputeMatchRatings`, see below), so a
+  player's current Form shapes their rating before the match, and their rating that match then
+  reshapes their Form afterward. A player who featured gets a baseline rise
+  (`FormRisePerMatch`, +2) for simply playing, adjusted up or down by how far their own match
+  rating landed from the average 6.0 (`driftFormPlayed`, `FormPerformanceWeight` - a poor enough
+  performance can outweigh the baseline rise and net Form down despite having played). A squad
+  player who sat out the match entirely instead gets a flat decay (`driftFormBenched`,
+  `FormDecayPerMatchBenched`, -1). Both clamp to `[1, 99]`, same as every other attribute.
+  `ComputeMatchRatings` itself reads a player's Form defensively: a `nil` player map or a missing
+  player id (every call site that predates Form, and any hand-built `WeekMatch` in a test) falls
+  back to the neutral midpoint (`common.DefaultForm`, 50 - no rating effect either way) rather than
+  erroring or crashing.
+
+New players start with Form at the neutral midpoint (`common.DefaultForm`) and Stamina randomized
+independently of their footballing skills (`common.StaminaGenerationMin`/`Max`, 50-90) - unlike the
+seven core skills, physical conditioning isn't meant to track a prospect's lower starting quality
+(see `doCreatePlayers`/`InjectFreeAgents`).
 
 Aging is on its own, separate, independent cadence: `ProcessBirthdays` (`engine/birthdays.go`),
 run daily by its own cron job, bumps a player's age by one every `BirthdayCycleDays` (20) days

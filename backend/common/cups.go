@@ -493,12 +493,14 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	if tie.Played && details.HomeLineup != nil && details.AwayLineup != nil {
 		events := details.Events
 		details.Ratings = ComputeMatchRatings(&WeekMatch{
-			MatchId:    tie.TieId,
-			HomeGoals:  tie.HomeGoals,
-			AwayGoals:  tie.AwayGoals,
-			Events:     &events,
-			HomeLineup: details.HomeLineup,
-			AwayLineup: details.AwayLineup,
+			MatchId:     tie.TieId,
+			HomeGoals:   tie.HomeGoals,
+			AwayGoals:   tie.AwayGoals,
+			Events:      &events,
+			HomeLineup:  details.HomeLineup,
+			AwayLineup:  details.AwayLineup,
+			HomePlayers: &details.HomePlayers,
+			AwayPlayers: &details.AwayPlayers,
 		})
 	}
 

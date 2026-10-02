@@ -225,12 +225,92 @@ func TestDriftSkillsForPosition_OnlyTouchesSkillsRelevantToStriker(t *testing.T)
 
 func TestUpdateTeamPlayersAfterMatch_NoPlayersIsANoop(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
-	// A nil players map and an empty minutesByPosition map both return before touching the
+	// A nil players map and an empty (but non-nil) players map both return before touching the
 	// database (nobody to update either way), so a zero-value DatabaseContext (no live *sql.DB)
 	// is safe here - this just guards that both early-return paths actually stay no-ops instead
 	// of panicking on a nil map.
-	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, nil, map[int64]map[int]int{}, 2024, r)
-	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, &map[int64]common.Player{}, nil, 2024, r)
+	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, nil, map[int64]map[int]int{}, map[int64]float64{}, 2024, r)
+	updateTeamPlayersAfterMatch(&common.DatabaseContext{}, 1, &map[int64]common.Player{}, nil, map[int64]float64{}, 2024, r)
+}
+
+func TestAgeTrendForStamina(t *testing.T) {
+	if trend := ageTrendForStamina(20); trend <= 0 {
+		t.Errorf("expected a young player (20) to trend upward, got %d", trend)
+	}
+	if trend := ageTrendForStamina(27); trend != 0 {
+		t.Errorf("expected a player in their prime (27) to trend flat, got %d", trend)
+	}
+	if trend := ageTrendForStamina(31); trend >= 0 {
+		t.Errorf("expected an older player (31) to trend downward, got %d", trend)
+	}
+	if older, oldest := ageTrendForStamina(32), ageTrendForStamina(40); oldest >= older {
+		t.Errorf("expected stamina decline to steepen further past 34, got age-32 trend=%d age-40 trend=%d", older, oldest)
+	}
+}
+
+func TestDriftStamina_StaysWithinBounds(t *testing.T) {
+	r := rand.New(rand.NewSource(1))
+	for i := 0; i < 1000; i++ {
+		if v := driftStamina(1, 40, r); v < 1 || v > 99 {
+			t.Fatalf("drifted stamina out of bounds: %d", v)
+		}
+		if v := driftStamina(99, 20, r); v < 1 || v > 99 {
+			t.Fatalf("drifted stamina out of bounds: %d", v)
+		}
+	}
+}
+
+func TestDriftStamina_DeclinesOnAverageForOlderPlayers(t *testing.T) {
+	r := rand.New(rand.NewSource(3))
+	const trials = 5000
+	const start = 50
+	sumYoung, sumOld := 0, 0
+	for i := 0; i < trials; i++ {
+		sumYoung += driftStamina(start, 20, r)
+		sumOld += driftStamina(start, 36, r)
+	}
+	avgYoung := float64(sumYoung) / trials
+	avgOld := float64(sumOld) / trials
+	if avgOld >= avgYoung {
+		t.Fatalf("expected an older player's stamina to drift down more than a younger player's on average: young avg=%.2f old avg=%.2f", avgYoung, avgOld)
+	}
+}
+
+func TestDriftFormPlayed_RisesForAGoodPerformance(t *testing.T) {
+	if got := driftFormPlayed(50, 9.0, true); got <= 50 {
+		t.Fatalf("expected a great match rating (9.0) to raise Form above 50, got %d", got)
+	}
+}
+
+func TestDriftFormPlayed_CanFallForAPoorPerformanceDespitePlaying(t *testing.T) {
+	if got := driftFormPlayed(50, 2.0, true); got >= 50 {
+		t.Fatalf("expected a poor match rating (2.0) to outweigh the base rise and lower Form below 50, got %d", got)
+	}
+}
+
+func TestDriftFormPlayed_NoRatingStillRisesFromBaselineAlone(t *testing.T) {
+	got := driftFormPlayed(50, 0, false)
+	if got != 50+FormRisePerMatch {
+		t.Fatalf("expected no-rating case to apply only the baseline rise (%d), got %d", 50+FormRisePerMatch, got)
+	}
+}
+
+func TestDriftFormPlayed_ClampsToValidRange(t *testing.T) {
+	if got := driftFormPlayed(99, 10.0, true); got > 99 {
+		t.Fatalf("expected Form to clamp at 99, got %d", got)
+	}
+	if got := driftFormPlayed(1, 1.0, true); got < 1 {
+		t.Fatalf("expected Form to clamp at 1, got %d", got)
+	}
+}
+
+func TestDriftFormBenched_AlwaysLowersForm(t *testing.T) {
+	if got := driftFormBenched(50); got != 50-FormDecayPerMatchBenched {
+		t.Fatalf("expected benched Form to drop by %d, got %d", FormDecayPerMatchBenched, got)
+	}
+	if got := driftFormBenched(1); got < 1 {
+		t.Fatalf("expected Form to clamp at 1, got %d", got)
+	}
 }
 
 func TestDriftSkillsForPosition_LateralStrikerAlsoDriftsLateral(t *testing.T) {

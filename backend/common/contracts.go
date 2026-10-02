@@ -46,7 +46,7 @@ var ErrInvalidRenewalOffer = errors.New("renewal offer must be a positive wage f
 // Player.ShirtNumber's zero value is already the right answer.
 const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
 	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
-	"free_agent_seasons, COALESCE(last_team_id, 0) " +
+	"free_agent_seasons, COALESCE(last_team_id, 0), stamina, form " +
 	"FROM players WHERE team_id IS NULL " +
 	"ORDER BY (goal_keeper + defense + \"lateral\" + pass + midfield + dribbling + shot) DESC"
 
@@ -72,7 +72,7 @@ const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_
 // with no last_team_id (never released) gets a NULL/empty name, same as LastTeamId being 0.
 const GetFreeAgentListingsStmtSql = "SELECT p.player_id, p.first_name, p.last_name, p.birth_day, p.goal_keeper, p.defense, p.\"lateral\", p.pass, p.midfield, " +
 	"p.dribbling, p.shot, p.\"header\", p.quick, p.creative, p.technical, p.wage, p.age, p.avatar, p.contract_years_remaining, p.birth_country, " +
-	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(t.name, '') " +
+	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(t.name, ''), p.stamina, p.form " +
 	"FROM players p LEFT JOIN teams t ON t.team_id = p.last_team_id " +
 	"WHERE p.team_id IS NULL " +
 	"ORDER BY (p.goal_keeper + p.defense + p.\"lateral\" + p.pass + p.midfield + p.dribbling + p.shot) DESC"
@@ -95,7 +95,7 @@ func GetFreeAgentListings(dbCtx *DatabaseContext) ([]*FreeAgentListing, error) {
 		if err := rows.Scan(&l.Id, &l.FirstName, &l.LastName, &birthDay,
 			&l.GoalKeeper, &l.Defense, &l.Lateral, &l.Pass, &l.Midfield, &l.Dribbling, &l.Shot,
 			&l.Header, &l.Quick, &l.Creative, &l.Technical, &l.Wage, &l.Age, &avatar, &l.ContractYearsRemaining, &birthCountry,
-			&l.FreeAgentSeasons, &l.LastTeamId, &l.LastTeamName); err != nil {
+			&l.FreeAgentSeasons, &l.LastTeamId, &l.LastTeamName, &l.Stamina, &l.Form); err != nil {
 			return nil, err
 		}
 		l.BirthDay = time.UnixMilli(birthDay)
@@ -125,7 +125,7 @@ func GetFreeAgents(dbCtx *DatabaseContext) ([]*Player, error) {
 		if err := rows.Scan(&p.Id, &p.FirstName, &p.LastName, &birthDay,
 			&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
 			&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
-			&p.FreeAgentSeasons, &p.LastTeamId); err != nil {
+			&p.FreeAgentSeasons, &p.LastTeamId, &p.Stamina, &p.Form); err != nil {
 			return nil, err
 		}
 		p.BirthDay = time.UnixMilli(birthDay)

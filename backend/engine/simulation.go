@@ -149,7 +149,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	matchSimulation.AwayUnavailablePlayers = awayUnavailable
 
 	simulations := make([]Simulation, 0)
-	simulations = append(simulations, SubstitutionSimulation{}, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
+	simulations = append(simulations, SubstitutionSimulation{}, StaminaSimulation{}, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
 	pipeline := SimulationPipelineImpl{
 		simulations: simulations,
 	}

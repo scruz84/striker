@@ -22,12 +22,12 @@ var ErrFriendlyAlreadyPlayed = errors.New("this friendly has already been played
 
 // FriendlyChallenge is a pending invite from one team to another - see ChallengeToFriendly.
 type FriendlyChallenge struct {
-	ChallengeId        int64      `json:"challengeId"`
-	ChallengerTeamId   int64      `json:"challengerTeamId"`
-	ChallengerTeamName string     `json:"challengerTeamName"`
-	OpponentTeamId     int64      `json:"opponentTeamId"`
-	OpponentTeamName   string     `json:"opponentTeamName"`
-	CreatedAt          time.Time  `json:"createdAt"`
+	ChallengeId        int64     `json:"challengeId"`
+	ChallengerTeamId   int64     `json:"challengerTeamId"`
+	ChallengerTeamName string    `json:"challengerTeamName"`
+	OpponentTeamId     int64     `json:"opponentTeamId"`
+	OpponentTeamName   string    `json:"opponentTeamName"`
+	CreatedAt          time.Time `json:"createdAt"`
 	// ProposedKickoff is the kickoff the challenger optionally suggested when sending the
 	// challenge (see ChallengeToFriendly) - nil if they left it up to the opponent. Purely a
 	// suggested default for the opponent's own accept-time kickoff picker; never enforced.
@@ -55,12 +55,12 @@ type FriendlyMatch struct {
 	// breakdown a league match's WeekMatch carries (events, zone-by-zone qualifications, the
 	// lineups actually used, and per-player ratings), so the friendly detail page can show the
 	// same report a league match gets.
-	Events        *[]Event          `json:"events,omitempty"`
-	MatchInstants *[]MatchInstant   `json:"matchInstants,omitempty"`
-	HomeLineup    *Lineup           `json:"homeLineup,omitempty"`
-	AwayLineup    *Lineup           `json:"awayLineup,omitempty"`
-	HomePlayers   *map[int64]Player `json:"homePlayers,omitempty"`
-	AwayPlayers   *map[int64]Player `json:"awayPlayers,omitempty"`
+	Events        *[]Event           `json:"events,omitempty"`
+	MatchInstants *[]MatchInstant    `json:"matchInstants,omitempty"`
+	HomeLineup    *Lineup            `json:"homeLineup,omitempty"`
+	AwayLineup    *Lineup            `json:"awayLineup,omitempty"`
+	HomePlayers   *map[int64]Player  `json:"homePlayers,omitempty"`
+	AwayPlayers   *map[int64]Player  `json:"awayPlayers,omitempty"`
 	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
 }
 
@@ -884,12 +884,14 @@ func EnrichPlayedFriendly(dbCtx *DatabaseContext, match *FriendlyMatch) error {
 
 	if match.HomeLineup != nil && match.AwayLineup != nil && match.Events != nil {
 		match.Ratings = ComputeMatchRatings(&WeekMatch{
-			MatchId:    match.MatchId,
-			HomeGoals:  match.HomeGoals,
-			AwayGoals:  match.AwayGoals,
-			Events:     match.Events,
-			HomeLineup: match.HomeLineup,
-			AwayLineup: match.AwayLineup,
+			MatchId:     match.MatchId,
+			HomeGoals:   match.HomeGoals,
+			AwayGoals:   match.AwayGoals,
+			Events:      match.Events,
+			HomeLineup:  match.HomeLineup,
+			AwayLineup:  match.AwayLineup,
+			HomePlayers: match.HomePlayers,
+			AwayPlayers: match.AwayPlayers,
 		})
 	}
 

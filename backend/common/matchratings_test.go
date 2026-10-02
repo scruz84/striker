@@ -121,3 +121,80 @@ func TestComputeMatchRatings_OnlyRatesPlayersInALineup(t *testing.T) {
 		t.Fatalf("expected exactly 2 rated players, got %d", len(ratings))
 	}
 }
+
+func TestFormRatingDelta_NeutralAtDefaultForm(t *testing.T) {
+	if got := formRatingDelta(DefaultForm); got != 0 {
+		t.Fatalf("expected the neutral DefaultForm (%d) to give no rating adjustment, got %v", DefaultForm, got)
+	}
+}
+
+func TestFormRatingDelta_RisesWithForm(t *testing.T) {
+	if formRatingDelta(99) <= formRatingDelta(DefaultForm) {
+		t.Fatal("expected great Form (99) to give a higher delta than neutral Form")
+	}
+	if formRatingDelta(1) >= formRatingDelta(DefaultForm) {
+		t.Fatal("expected poor Form (1) to give a lower delta than neutral Form")
+	}
+}
+
+func TestPlayerForm_DefaultsToNeutralWhenMapIsNil(t *testing.T) {
+	if got := playerForm(nil, nil, 1, true); got != DefaultForm {
+		t.Fatalf("expected a nil player map to default to DefaultForm (%d), got %d", DefaultForm, got)
+	}
+}
+
+func TestPlayerForm_DefaultsToNeutralWhenPlayerIsMissing(t *testing.T) {
+	players := map[int64]Player{2: {Id: 2, Form: 80}}
+	if got := playerForm(&players, nil, 1, true); got != DefaultForm {
+		t.Fatalf("expected a player id missing from the map to default to DefaultForm (%d), got %d", DefaultForm, got)
+	}
+}
+
+func TestPlayerForm_ReadsFromTheCorrectSide(t *testing.T) {
+	home := map[int64]Player{1: {Id: 1, Form: 90}}
+	away := map[int64]Player{2: {Id: 2, Form: 10}}
+	if got := playerForm(&home, &away, 1, true); got != 90 {
+		t.Fatalf("expected home player's own Form (90), got %d", got)
+	}
+	if got := playerForm(&home, &away, 2, false); got != 10 {
+		t.Fatalf("expected away player's own Form (10), got %d", got)
+	}
+}
+
+func TestComputeMatchRatings_HigherFormRaisesRating(t *testing.T) {
+	baseMatch := func(homePlayers *map[int64]Player) *WeekMatch {
+		return &WeekMatch{
+			MatchId:     1,
+			HomeLineup:  lineupOf(1),
+			AwayLineup:  lineupOf(2),
+			Events:      &[]Event{},
+			HomePlayers: homePlayers,
+		}
+	}
+
+	lowForm := map[int64]Player{1: {Id: 1, Form: 1}}
+	highForm := map[int64]Player{1: {Id: 1, Form: 99}}
+
+	lowRatings := *ComputeMatchRatings(baseMatch(&lowForm))
+	highRatings := *ComputeMatchRatings(baseMatch(&highForm))
+
+	if highRatings[1] <= lowRatings[1] {
+		t.Fatalf("expected a player in career-best form to rate higher than one in a slump: low-form=%v high-form=%v",
+			lowRatings[1], highRatings[1])
+	}
+}
+
+func TestComputeMatchRatings_MissingHomePlayersStillWorks(t *testing.T) {
+	// Every existing test above (and every caller predating Form - see GetCupTieDetails/
+	// EnrichPlayedFriendly's doc comments) builds a WeekMatch without HomePlayers/AwayPlayers set
+	// at all - ComputeMatchRatings must still produce ratings, just with no Form adjustment.
+	match := &WeekMatch{
+		MatchId:    1,
+		HomeLineup: lineupOf(1),
+		AwayLineup: lineupOf(2),
+		Events:     &[]Event{},
+	}
+	if ComputeMatchRatings(match) == nil {
+		t.Fatal("expected ratings even without HomePlayers/AwayPlayers set")
+	}
+}

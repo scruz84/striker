@@ -18,8 +18,8 @@ func (s SimulationPipelineImpl) Simulate(dbCtx *common.DatabaseContext, match *c
 type InitialSimulation struct{}
 
 func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	calculateQua(match.HomeQua, match.HomeLineup, match.HomePlayersByPosition, match.HomePlayers)
-	calculateQua(match.AwayQua, match.AwayLineup, match.AwayPlayersByPosition, match.AwayPlayers)
+	calculateQua(match.HomeQua, match.HomeLineup, match.HomePlayersByPosition, match.EffectiveHomePlayers)
+	calculateQua(match.AwayQua, match.AwayLineup, match.AwayPlayersByPosition, match.EffectiveAwayPlayers)
 
 	calculateDiffs(match)
 	//Append a new match instant

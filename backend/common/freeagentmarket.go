@@ -22,8 +22,8 @@ const FreeAgentInjectionAgeMin, FreeAgentInjectionAgeMax = 20, 30
 // ReleaseFromTeamStmtSql).
 const InsertFreeAgentStmtSql = "INSERT INTO players (first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, \"header\", quick, creative, technical, " +
-	"avatar, wage, age, contract_years_remaining, birth_country) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) " +
+	"avatar, wage, age, contract_years_remaining, birth_country, stamina, form) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21) " +
 	"RETURNING player_id"
 
 // InjectFreeAgents adds count brand-new, never-employed players straight to the free agent pool
@@ -70,12 +70,13 @@ func InjectFreeAgents(dbCtx *DatabaseContext, count int) error {
 		shot := FreeAgentInjectionSkillMin + rand.Intn(FreeAgentInjectionSkillMax-FreeAgentInjectionSkillMin+1)
 		age := FreeAgentInjectionAgeMin + rand.Intn(FreeAgentInjectionAgeMax-FreeAgentInjectionAgeMin+1)
 		wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
+		stamina := StaminaGenerationMin + rand.Intn(StaminaGenerationMax-StaminaGenerationMin+1)
 
 		var newPlayerId int64
 		err = insertStmt.QueryRow(&firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper, defense, lateral, pass, midfield, dribbling, shot,
 			false, false, false, false,
-			&avatar, wage, age, 0, &country).Scan(&newPlayerId)
+			&avatar, wage, age, 0, &country, stamina, DefaultForm).Scan(&newPlayerId)
 		if err != nil {
 			log.Errorf("error injecting free agent: %s", err)
 		}

@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -88,6 +89,84 @@ func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
 	return value
 }
 
+// ageTrendForStamina is the typical per-season Stamina delta purely from age - unlike
+// ageTrendFor (the seven core footballing skills, which hold flat through a player's late 20s),
+// physical conditioning starts fading earlier and keeps declining faster the older a player gets,
+// matching the feature's own spec ("a mayor edad sera esperable que la resistencia baje").
+func ageTrendForStamina(age int) int {
+	switch {
+	case age < 24:
+		return 1
+	case age < 30:
+		return 0
+	case age < 34:
+		return -1
+	default:
+		return -2
+	}
+}
+
+// driftStamina applies a player's Stamina-specific age trend (see ageTrendForStamina) plus a
+// little noise (-1..+1), clamped to [1, 99] - same shape as driftSkill, but with no trainer bonus
+// (a hired coach develops footballing skill, not raw physical conditioning) since nothing in the
+// feature's own spec ties Stamina's drift to coaching.
+func driftStamina(value int, age int, r *rand.Rand) int {
+	value += ageTrendForStamina(age) + r.Intn(3) - 1
+	return clampAttribute(value)
+}
+
+// FormRisePerMatch is the baseline Form bump a player gets just for featuring in a match, however
+// well or badly they played - "el estado de forma deberia subir cuando el jugador juegue
+// partidos" from the feature's own spec.
+const FormRisePerMatch = 2
+
+// FormPerformanceWeight scales how much a match rating above/below the average, unremarkable
+// matchRatingBaseline (6.0 - mirrors common.matchRatingBase) pushes Form further up or down on
+// top of FormRisePerMatch - "tambien si tiene buenas actuaciones ... al contrario deberia bajar
+// si ... sus actuaciones son malas": a poor enough rating can outweigh FormRisePerMatch entirely
+// and net Form down even though the player did feature.
+const FormPerformanceWeight = 2.0
+
+// matchRatingBaseline mirrors common.matchRatingBase (unexported in that package) - the
+// unremarkable, dead-even rating driftFormPlayed measures a performance against.
+const matchRatingBaseline = 6.0
+
+// FormDecayPerMatchBenched is how much Form falls for a squad player who sat out a match
+// entirely - "deberia bajar si no juega partidos" from the feature's own spec.
+const FormDecayPerMatchBenched = 1
+
+// driftFormPlayed updates a player's Form after a match they featured in: a baseline rise for
+// simply playing (FormRisePerMatch), adjusted up or down by how far their own match rating (see
+// common.ComputeMatchRatings, recomputed in-memory for this exact match by
+// matchRatingsForProgression) landed from matchRatingBaseline. hasRating is false only when the
+// match had no computed ratings at all (missing lineup/event data) - plain featuring still counts
+// then, just without a performance adjustment either way.
+func driftFormPlayed(form int, rating float64, hasRating bool) int {
+	delta := FormRisePerMatch
+	if hasRating {
+		delta += int(math.Round((rating - matchRatingBaseline) * FormPerformanceWeight))
+	}
+	return clampAttribute(form + delta)
+}
+
+// driftFormBenched is driftFormPlayed's counterpart for a squad player who didn't feature at all
+// this match.
+func driftFormBenched(form int) int {
+	return clampAttribute(form - FormDecayPerMatchBenched)
+}
+
+// clampAttribute bounds a drifted Stamina/Form value to the same [1, 99] range every other
+// numeric player attribute uses (see driftSkill).
+func clampAttribute(value int) int {
+	if value < 1 {
+		return 1
+	}
+	if value > 99 {
+		return 99
+	}
+	return value
+}
+
 // primaryPosition picks the tactical position with the most minutes in a minutesByPosition map -
 // a single match's (see updatePlayerSkillsAfterMatch) or, previously, a whole season's - ties
 // broken by the lowest position id for determinism, and sums total minutes across every position
@@ -168,20 +247,51 @@ const MatchSkillGrowthMinutesReference = 900
 // trail the season-end system used to write to, just with many more, smaller rows now).
 func updatePlayerSkillsAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation, season int) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
-	updateTeamPlayersAfterMatch(dbCtx, match.Home, match.HomePlayers, match.HomeMinutesByPosition, season, r)
-	updateTeamPlayersAfterMatch(dbCtx, match.Away, match.AwayPlayers, match.AwayMinutesByPosition, season, r)
+	ratings := matchRatingsForProgression(match)
+	updateTeamPlayersAfterMatch(dbCtx, match.Home, match.HomePlayers, match.HomeMinutesByPosition, ratings, season, r)
+	updateTeamPlayersAfterMatch(dbCtx, match.Away, match.AwayPlayers, match.AwayMinutesByPosition, ratings, season, r)
+}
+
+// matchRatingsForProgression computes this match's own per-player ratings in-memory, the exact
+// same way common.WeekMatchById does on every read (see common.ComputeMatchRatings) - purely a
+// function of the match's own id, events and result, so this produces byte-identical numbers to
+// whatever the player will later see on the match's own report page, with no extra database
+// round-trip. Drives Form's post-match update (see driftFormPlayed) - a player's Form moves on how
+// well they actually played, not merely on whether they featured. Returns an empty map (never nil)
+// when ComputeMatchRatings itself has nothing to go on, so callers can index it unconditionally.
+func matchRatingsForProgression(match *common.MatchSimulation) map[int64]float64 {
+	ratings := common.ComputeMatchRatings(&common.WeekMatch{
+		MatchId:     match.Id,
+		HomeGoals:   match.HomeGoals,
+		AwayGoals:   match.AwayGoals,
+		Events:      match.Events,
+		HomeLineup:  match.HomeLineup,
+		AwayLineup:  match.AwayLineup,
+		HomePlayers: match.HomePlayers,
+		AwayPlayers: match.AwayPlayers,
+	})
+	if ratings == nil {
+		return map[int64]float64{}
+	}
+	return *ratings
 }
 
 // updateTeamPlayersAfterMatch is updatePlayerSkillsAfterMatch's per-team half - separated out
 // since a match always has two independent sides, each with its own trainer and its own subset
-// of minutesByPosition. When at least one player actually evolves, the team's owner gets a
-// NOTIFICATION_PROGRESSION notification linking to /players/evolutions - the squad-wide report
-// showing each affected player's before/after skill state (see common.GetLatestPlayerEvolutionsForTeam
-// and the frontend's LatestEvolutionsPage), so an evolution isn't only visible by happening to
-// open a player's own page.
+// of minutesByPosition. Besides the seven core skills, it also drifts every squad player's
+// Stamina and Form here: Stamina only for whoever actually played (see driftStamina), Form for
+// every squad player regardless - up for whoever played (more so with a good rating, see
+// driftFormPlayed), down for whoever sat out the match entirely (see driftFormBenched). When at
+// least one player's core skills actually evolve, the team's owner gets a NOTIFICATION_PROGRESSION
+// notification linking to /players/evolutions - the squad-wide report showing each affected
+// player's before/after skill state (see common.GetLatestPlayerEvolutionsForTeam and the
+// frontend's LatestEvolutionsPage), so an evolution isn't only visible by happening to open a
+// player's own page. Stamina/Form drift silently (no notification) - unlike the seven core
+// skills, they're expected to move after nearly every match, so a notification for them would
+// lose all signal value.
 func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, players *map[int64]common.Player,
-	minutesByPosition map[int64]map[int]int, season int, r *rand.Rand) {
-	if players == nil || len(minutesByPosition) == 0 {
+	minutesByPosition map[int64]map[int]int, ratings map[int64]float64, season int, r *rand.Rand) {
+	if players == nil || len(*players) == 0 {
 		return
 	}
 
@@ -194,9 +304,14 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 
 	evolvedCount := 0
 
-	for playerId, minutesAtPosition := range minutesByPosition {
-		player, ok := (*players)[playerId]
-		if !ok {
+	for playerId, player := range *players {
+		minutesAtPosition, playedThisMatch := minutesByPosition[playerId]
+		if !playedThisMatch {
+			if newForm := driftFormBenched(player.Form); newForm != player.Form {
+				if err := common.UpdatePlayerStaminaAndForm(dbCtx, player.Id, player.Stamina, newForm); err != nil {
+					log.Errorf("error updating benched form for player %d: %s", player.Id, err)
+				}
+			}
 			continue
 		}
 
@@ -211,6 +326,18 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 
 		goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
 			driftSkillsForPosition(player, position, playChance, player.Age, trainerSkill, r)
+
+		newStamina := player.Stamina
+		if r.Float32() < playChance {
+			newStamina = driftStamina(player.Stamina, player.Age, r)
+		}
+		rating, hasRating := ratings[playerId]
+		newForm := driftFormPlayed(player.Form, rating, hasRating)
+		if newStamina != player.Stamina || newForm != player.Form {
+			if err := common.UpdatePlayerStaminaAndForm(dbCtx, player.Id, newStamina, newForm); err != nil {
+				log.Errorf("error updating stamina/form for player %d: %s", player.Id, err)
+			}
+		}
 
 		if goalKeeper == player.GoalKeeper && defense == player.Defense && lateral == player.Lateral &&
 			pass == player.Pass && midfield == player.Midfield && dribbling == player.Dribbling && shot == player.Shot {
