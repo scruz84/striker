@@ -274,6 +274,7 @@ function MatchLineupSection({ matchId, team, players }: { matchId: string; team:
     <MatchLineupForm
       titleKey="match.lineup.title"
       titleValues={{ teamName: team.name }}
+      teamId={team.id}
       players={players}
       lineup={lineup}
       onSave={(formation, positions) => setLineup.mutate({ formation, positions })}

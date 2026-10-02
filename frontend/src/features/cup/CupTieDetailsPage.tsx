@@ -229,6 +229,7 @@ function CupTieLineupSection({ tieId, team, players }: { tieId: string; team: Te
     <MatchLineupForm
       titleKey="cup.lineup.title"
       titleValues={{ teamName: team.name }}
+      teamId={team.id}
       players={players}
       lineup={lineup}
       onSave={(formation, positions) => setLineup.mutate({ formation, positions })}

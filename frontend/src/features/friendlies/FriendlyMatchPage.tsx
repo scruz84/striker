@@ -289,6 +289,7 @@ function FriendlyLineupEditor({ matchId, team, players }: { matchId: string; tea
     <MatchLineupForm
       titleKey="friendlies.lineup.title"
       titleValues={{ teamName: team.name }}
+      teamId={team.id}
       players={players}
       lineup={lineup}
       onSave={(formation, positions, substitutions) => setLineup.mutate({ formation, positions, substitutions })}

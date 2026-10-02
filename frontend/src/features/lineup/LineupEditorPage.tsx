@@ -84,6 +84,7 @@ function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; play
       <MatchLineupForm
         titleKey="lineup.title"
         titleValues={{ teamName: team.name }}
+        teamId={team.id}
         players={players}
         lineup={lineup}
         onSave={(formation: number, positions: LineupPosition[]) => setFriendlyLineup.mutate({ formation, positions })}

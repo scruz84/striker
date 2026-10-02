@@ -9,6 +9,7 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { FORMATION_LABEL_KEYS, type Lineup, type LineupPosition, type LineupSubstitution, type Player } from '../../api/types'
+import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { PlayerBench } from './PlayerBench'
 import { SoccerPitch } from './SoccerPitch'
 import { SubstitutionsEditor } from './SubstitutionsEditor'
@@ -23,6 +24,10 @@ export interface MatchLineupFormProps {
   // titleValues (typically just { teamName }).
   titleKey: string
   titleValues?: Record<string, unknown>
+  // The team this lineup belongs to - lets the form offer LoadPreviousLineupControl (copy a past
+  // league match's lineup straight in). Every per-match caller (MatchDetailsPage,
+  // CupTieDetailsPage, FriendlyMatchPage) already has the team loaded to pass here.
+  teamId: number
   players: Player[]
   lineup: Lineup
   onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[]) => void
@@ -54,6 +59,7 @@ export interface MatchLineupFormProps {
 export function MatchLineupForm({
   titleKey,
   titleValues,
+  teamId,
   players,
   lineup,
   onSave,
@@ -70,6 +76,7 @@ export function MatchLineupForm({
   const {
     formation,
     setFormation,
+    loadLineup,
     counts,
     visibleSelections,
     usedPlayerIds,
@@ -89,10 +96,19 @@ export function MatchLineupForm({
     handleAddSubstitution,
     handleRemoveSubstitution,
     handleSubstitutionChange,
+    resetSubstitutionDrafts,
     validSubstitutions,
   } = useSubstitutionDrafts(lineup, usedPlayerIds, unavailability)
 
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
+
+  // See LineupEditorPage's identical handler: loading a different match's lineup can un-start a
+  // player a planned substitution still names as playerOutId, so any in-progress drafts are
+  // cleared alongside it rather than left stranded.
+  const handleLoadPreviousLineup = (loaded: Lineup) => {
+    loadLineup(loaded)
+    resetSubstitutionDrafts()
+  }
 
   const handleFormationChange = (event: SelectChangeEvent<number>) => {
     setFormation(Number(event.target.value))
@@ -124,6 +140,8 @@ export function MatchLineupForm({
       <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 1, sm: 2 } }}>
         {t('lineup.tapHint')}
       </Typography>
+
+      <LoadPreviousLineupControl teamId={teamId} onLoad={handleLoadPreviousLineup} />
 
       {unavailableStarters.length > 0 && (
         <UnavailableStartersWarning players={unavailableStarters} blocking={!isDefaultLineup} />
