@@ -1146,6 +1146,45 @@ export interface MatchSchedule {
   minute: number
 }
 
+// Mirrors backend/common.SearchResults - the global search page's response, grouped by what kind
+// of thing matched. A coach or stadium result has no page of its own, so it links into the team
+// that employs/owns it (same as TeamDetailsPage's CoachCard/StadiumCard).
+export interface TeamSearchResult {
+  id: number
+  name: string
+  country: string
+  divisionName: string
+}
+
+export interface PlayerSearchResult {
+  id: number
+  firstName: string
+  lastName: string
+  teamId: number
+  teamName: string
+}
+
+export interface CoachSearchResult {
+  id: number
+  firstName: string
+  lastName: string
+  teamId: number
+  teamName: string
+}
+
+export interface StadiumSearchResult {
+  teamId: number
+  teamName: string
+  stadiumName: string
+}
+
+export interface SearchResults {
+  teams: TeamSearchResult[]
+  players: PlayerSearchResult[]
+  coaches: CoachSearchResult[]
+  stadiums: StadiumSearchResult[]
+}
+
 export interface AdminLeagueInfo {
   leagueId: number
   country: string

@@ -218,6 +218,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/top-scorers", handlers.TopScorersHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/recent-transfers", handlers.RecentLeagueTransfersHandler(dbCtx))
 	v1TeamGroup.GET("/leagues", handlers.LeagueDirectoryHandler(dbCtx))
+	v1TeamGroup.GET("/search", handlers.SearchHandler(dbCtx))
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/", handlers.Team(dbCtx))
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/history", handlers.TeamHistoryHandler(dbCtx))
 	v1TeamGroup.GET("/team/:"+handlers.ID+"/matches", handlers.TeamMatchesHandler(dbCtx))

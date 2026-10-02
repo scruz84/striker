@@ -36,6 +36,7 @@ import type {
   NotificationsResponse,
   PlayerDetails,
   ScorerStanding,
+  SearchResults,
   SeasonHistoryEntry,
   Stadium,
   TeamDetails,
@@ -102,6 +103,7 @@ export const queryKeys = {
   adminLeagues: ['adminLeagues'] as const,
   devLoginUsers: ['devLoginUsers'] as const,
   liveMatchesOverview: ['liveMatchesOverview'] as const,
+  search: (query: string) => ['search', query] as const,
 }
 
 export function useMe() {
@@ -285,6 +287,18 @@ export function useLeagueDirectory() {
   return useQuery({
     queryKey: queryKeys.leagueDirectory,
     queryFn: () => api.get<CountryLeagueDirectory[]>('/v1/teams/leagues'),
+  })
+}
+
+// Powers the global search page - teams/players/coaches/stadiums by (partial) name. Disabled for
+// a blank/whitespace-only query so the page doesn't fire a request before the user has typed
+// anything worth searching for.
+export function useSearch(query: string) {
+  const trimmed = query.trim()
+  return useQuery({
+    queryKey: queryKeys.search(trimmed),
+    queryFn: () => api.get<SearchResults>(`/v1/teams/search?q=${encodeURIComponent(trimmed)}`),
+    enabled: trimmed.length > 0,
   })
 }
 

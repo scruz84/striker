@@ -42,6 +42,7 @@
       "internationalCup": "Copa Internacional",
       "friendlies": "Amistosos",
       "friendGroups": "Grupos de amigos",
+      "search": "Buscar",
       "help": "Ayuda",
       "admin": "Administración",
       "logout": "Cerrar sesión"
@@ -1311,5 +1312,19 @@
         ]
       }
     }
+  },
+  "search": {
+    "title": "Buscar",
+    "subtitle": "Busca un equipo, jugador, entrenador o estadio por nombre.",
+    "placeholder": "Buscar por nombre...",
+    "prompt": "Empieza a escribir para buscar equipos, jugadores, entrenadores y estadios.",
+    "none": "Sin resultados para \"{{query}}\".",
+    "teams": "Equipos",
+    "players": "Jugadores",
+    "coaches": "Entrenadores",
+    "stadiums": "Estadios",
+    "freeAgent": "Agente libre",
+    "coachOf": "Entrenador de {{team}}",
+    "stadiumOf": "Estadio de {{team}}"
   }
 }
