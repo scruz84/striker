@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
 import Link from '@mui/material/Link'
 import Popover from '@mui/material/Popover'
 import Stack from '@mui/material/Stack'
@@ -89,6 +90,9 @@ export function PlayerStatsPopover({
           value={player[field]}
         />
       ))}
+      <Divider sx={{ my: 1 }} />
+      <SkillBar label={t('playerCard.skills.stamina')} value={player.stamina} />
+      <SkillBar label={t('playerCard.skills.form')} value={player.form} />
       <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" variant="body2" sx={{ display: 'block', mt: 1.5 }}>
         {t('playerCard.viewProfile')}
       </Link>

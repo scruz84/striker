@@ -964,7 +964,9 @@
       "pass": "Pase",
       "midfield": "Medio",
       "dribbling": "Regate",
-      "shot": "Disparo"
+      "shot": "Disparo",
+      "stamina": "Resistencia",
+      "form": "Forma"
     },
     "skillsShort": {
       "goalkeeper": "POR",
@@ -973,7 +975,9 @@
       "pass": "PAS",
       "midfield": "MED",
       "dribbling": "REG",
-      "shot": "DIS"
+      "shot": "DIS",
+      "stamina": "RES",
+      "form": "FOR"
     },
     "traits": {
       "aerial": "Aéreo",
@@ -997,6 +1001,13 @@
     },
     "attributes": {
       "title": "Atributos"
+    },
+    "condition": {
+      "title": "Condición física",
+      "stamina": "Resistencia",
+      "staminaHint": "Cómo aguanta este jugador físicamente a medida que avanza el partido.",
+      "form": "Forma",
+      "formHint": "Actuaciones recientes - sube jugando partidos y con buenas actuaciones, baja si se queda en el banquillo."
     },
     "stats": {
       "goals": "Goles en su carrera",

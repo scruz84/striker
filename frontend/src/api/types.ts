@@ -51,6 +51,15 @@ export interface Player {
   quick: boolean
   creative: boolean
   technical: boolean
+  // Stamina (0-99) fatigues this player's in-match skills minute by minute - unlike the seven
+  // core skills it's deliberately left out of SKILL_FIELDS/overallRating (see playerRating.ts),
+  // since it measures physical conditioning rather than footballing quality. See backend
+  // Player.Stamina/engine.StaminaSimulation.
+  stamina: number
+  // Form (0-99) nudges this player's match ratings up or down and moves match-by-match like the
+  // other skills (unlike Stamina, not minute-by-minute) - also excluded from SKILL_FIELDS for the
+  // same reason. 50 is neutral (backend common.DefaultForm). See backend Player.Form.
+  form: number
   wage: number
   age: number
   contractYearsRemaining: number

@@ -29,6 +29,8 @@ function player(id: number): Player {
     quick: false,
     creative: false,
     technical: false,
+    stamina: 70,
+    form: 50,
     wage: 0,
     age: 25,
     contractYearsRemaining: 1,

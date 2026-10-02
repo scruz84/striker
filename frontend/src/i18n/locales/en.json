@@ -964,7 +964,9 @@
       "pass": "Pass",
       "midfield": "Midfield",
       "dribbling": "Dribbling",
-      "shot": "Shot"
+      "shot": "Shot",
+      "stamina": "Stamina",
+      "form": "Form"
     },
     "skillsShort": {
       "goalkeeper": "GK",
@@ -973,7 +975,9 @@
       "pass": "PAS",
       "midfield": "MID",
       "dribbling": "DRI",
-      "shot": "SHO"
+      "shot": "SHO",
+      "stamina": "STA",
+      "form": "FRM"
     },
     "traits": {
       "aerial": "Aerial",
@@ -997,6 +1001,13 @@
     },
     "attributes": {
       "title": "Attributes"
+    },
+    "condition": {
+      "title": "Condition",
+      "stamina": "Stamina",
+      "staminaHint": "How well this player holds up physically as a match wears on.",
+      "form": "Form",
+      "formHint": "Recent performances - rises with playing time and good ratings, falls when benched."
     },
     "stats": {
       "goals": "Career goals",

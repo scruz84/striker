@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
 import { TRANSACTION_REASON_KEYS, type PlayerMatchSummary } from '../../api/types'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
+import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -59,7 +60,10 @@ export function PlayerDetailsPage() {
         </Grid>
         {canSeeSkills && (
           <Grid size={{ xs: 12, md: 8 }}>
-            <PlayerAttributesPanel player={player} />
+            <Stack spacing={{ xs: 1.5, sm: 2 }}>
+              <PlayerAttributesPanel player={player} />
+              <PlayerConditionPanel player={player} />
+            </Stack>
           </Grid>
         )}
       </Grid>
