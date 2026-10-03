@@ -42,13 +42,13 @@
     }
   ],
   "title": "Striker - game activity & economy",
-  "description": "Every OpenTelemetry metric striker's svc/engine export - see backend/README.md's \"OpenTelemetry metrics\" section and backend/common/telemetry.go for the source of truth. Import into Grafana (Dashboards > New > Import), pick the Prometheus-compatible datasource that receives striker's OTLP metrics when prompted, and turn export on with OTEL_METRICS_ENABLED=true (see the README) for panels to show data.",
+  "description": "Every OpenTelemetry metric striker's svc/engine export - see backend/README.md's \"OpenTelemetry metrics\" section and backend/common/telemetry.go for the source of truth. Import into Grafana (Dashboards > New > Import), pick the Prometheus-compatible datasource that receives striker's OTLP metrics when prompted, and turn export on with OTEL_METRICS_ENABLED=true (see the README) for panels to show data. The \"Per node\" row needs a backend that ingests OTLP natively (Prometheus >=2.47, Mimir, Grafana Cloud) so the service.instance.id resource attribute becomes the `instance` label used there.",
   "tags": [
     "striker"
   ],
   "uid": "striker-economy",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 3,
   "timezone": "browser",
   "editable": true,
   "graphTooltip": 1,
@@ -361,7 +361,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "increase(striker_season_rollovers_total[24h])",
+          "expr": "sum(increase(striker_season_rollovers_total[24h]))",
           "legendFormat": "rollovers",
           "refId": "A"
         }
@@ -468,7 +468,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_economy_total_budget",
+          "expr": "max(striker_economy_total_budget)",
           "legendFormat": "total budget",
           "refId": "A"
         }
@@ -632,7 +632,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_transfer_market_listed_players",
+          "expr": "max(striker_transfer_market_listed_players)",
           "legendFormat": "listed",
           "refId": "A"
         }
@@ -672,7 +672,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_loan_market_listed_players",
+          "expr": "max(striker_loan_market_listed_players)",
           "legendFormat": "listed",
           "refId": "A"
         }
@@ -712,7 +712,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_loans_active",
+          "expr": "max(striker_loans_active)",
           "legendFormat": "active",
           "refId": "A"
         }
@@ -993,6 +993,227 @@
           },
           "expr": "sum(rate(striker_notifications_sent_total[1h])) by (type) * 86400",
           "legendFormat": "{{type}}/day",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "row",
+      "title": "Per node",
+      "gridPos": {
+        "x": 0,
+        "y": 69,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "HTTP requests per node (svc)",
+      "description": "Each svc replica's own request rate, labeled by the service.instance.id resource attribute (Prometheus/Mimir's `instance` label) - see backend/common/telemetry.go's InitMetrics doc comment. Flat, overlapping lines mean the load balancer is spreading traffic evenly across replicas; one line riding well above the rest means it isn't.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 70,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_http_requests_total[5m])) by (instance)",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "HTTP request share per node (svc)",
+      "description": "Same data as \"HTTP requests per node\", normalized to each node's percentage of total traffic right now - makes uneven distribution obvious even while overall load is changing (e.g. during a deploy's rolling restart).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 70,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "max": 100,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_http_requests_total[5m])) by (instance) / scalar(sum(rate(striker_http_requests_total[5m]))) * 100",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Matches simulated per node (engine)",
+      "description": "Each engine replica's own share of match simulation work, labeled by `instance` (service.instance.id) - lets you check whether simulation jobs are actually spread across replicas or piling onto one.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 78,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_matches_simulated_total[1h])) by (instance) * 86400",
+          "legendFormat": "{{instance}}/day",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "timeseries",
+      "title": "Matches simulated share per node (engine)",
+      "description": "Same data as \"Matches simulated per node\", normalized to each node's percentage of simulated matches right now.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 78,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "max": 100,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_matches_simulated_total[5m])) by (instance) / scalar(sum(rate(striker_matches_simulated_total[5m]))) * 100",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],

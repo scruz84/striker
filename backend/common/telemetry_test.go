@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"go.opentelemetry.io/otel/metric"
@@ -64,6 +65,19 @@ func TestRecordTransferCompleted_NeverPanics(t *testing.T) {
 	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("accepted")))
 	LoanListingsCounter.Add(context.Background(), 1)
 	LoansAcceptedCounter.Add(context.Background(), 1)
+}
+
+// TestInstanceID_MatchesHostname confirms the service.instance.id resource attribute (see
+// InitMetrics) tracks the process's actual hostname - the property that makes it unique per
+// replica once svc/engine are scaled to several nodes, with no extra configuration needed.
+func TestInstanceID_MatchesHostname(t *testing.T) {
+	want, err := os.Hostname()
+	if err != nil {
+		t.Fatalf("os.Hostname() failed: %s", err)
+	}
+	if got := instanceID(); got != want {
+		t.Errorf("instanceID() = %q, want %q", got, want)
+	}
 }
 
 // TestRegisterMarketGauges_RegistersOnceWithoutTouchingDatabase confirms that registering the

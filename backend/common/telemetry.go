@@ -148,6 +148,13 @@ func queryInt64(dbCtx *DatabaseContext, query string) (int64, error) {
 // in a dashboard as the same panel's value appearing duplicated. The counters above don't have
 // this problem since each one only fires from the process whose code path actually produced that
 // event.
+//
+// The same duplication shows up again, one level down, once the engine itself is scaled to
+// several replicas (see InitMetrics's doc comment on service.instance.id): every replica still
+// runs this same DB-wide query and exports the same correct value, now just under N different
+// `instance` labels instead of one. Harmless for a "stat" panel reading the latest value (they
+// all agree), but summing across instances would multiply the true number by the replica count -
+// the dashboard's economy panels use max(...) rather than sum(...) for exactly this reason.
 func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 	var regErr error
 	marketGaugesOnce.Do(func() {
@@ -289,6 +296,21 @@ func RecordTransferCompleted(ctx context.Context, feeAmount int64) {
 const otelMetricsEnabledEnvVar = "OTEL_METRICS_ENABLED"
 const otelServiceNameEnvVar = "OTEL_SERVICE_NAME"
 
+// instanceID identifies this specific process for the service.instance.id resource attribute
+// (see InitMetrics) - the hostname, which on every deployment shape that actually runs several
+// svc/engine replicas (Docker Compose's --scale, a Kubernetes Deployment/StatefulSet) is already
+// unique per container/pod with no extra configuration needed. Falls back to the empty string on
+// the (practically never happening on Linux/the container images this app ships in) error case,
+// which still exports fine - just without a way to tell replicas apart.
+func instanceID() string {
+	name, err := os.Hostname()
+	if err != nil {
+		log.Warnf("failed to read hostname for the service.instance.id metric attribute: %s", err)
+		return ""
+	}
+	return name
+}
+
 // InitMetrics turns on real OpenTelemetry metrics export for this process, if asked to.
 //
 // Off by default: unless OTEL_METRICS_ENABLED=true is set, this is a no-op and every
@@ -305,6 +327,18 @@ const otelServiceNameEnvVar = "OTEL_SERVICE_NAME"
 // attribute reported on every exported metric, unless OTEL_SERVICE_NAME overrides it - pass
 // something that distinguishes the API service from the simulation engine (see cmd/striker.go)
 // since both processes can be exporting to the same collector at once.
+//
+// Also sets the `service.instance.id` resource attribute to this process's hostname (see
+// instanceID) - svc and engine can each be scaled to several replicas (Docker Compose's --scale,
+// a Kubernetes Deployment), and every one of them exports under the same service.name. A
+// Prometheus-compatible backend that ingests OTLP natively (Prometheus >=2.47's OTLP receiver,
+// Mimir, Grafana Cloud) turns service.name/service.instance.id into the usual `job`/`instance`
+// labels on every series, so per-node load (is striker.http.requests or
+// striker.matches.simulated actually spread evenly across replicas, or is one of them doing all
+// the work?) can be read straight off any panel with `by (instance)` - see the "Per node"
+// dashboard row in backend/resources/grafana/striker-dashboard.json. The one place this needs
+// care is RegisterMarketGauges's observable gauges: they query the same DB-wide aggregate from
+// every engine replica, so summing them by instance overcounts - see that function's doc comment.
 //
 // Returns a shutdown function that flushes any buffered metrics and stops the exporter -
 // callers should defer it (or call it from a signal handler) so a normal exit doesn't lose the
@@ -333,6 +367,7 @@ func InitMetrics(serviceName string) (shutdown func(context.Context) error, err 
 
 	res, err := resource.Merge(resource.Default(), resource.NewSchemaless(
 		attribute.String("service.name", serviceName),
+		attribute.String("service.instance.id", instanceID()),
 	))
 	if err != nil {
 		return noop, err

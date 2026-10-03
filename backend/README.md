@@ -411,6 +411,13 @@ See `common.InitMetrics` for the full mechanism. A few notes:
   process - see `cmd/striker.go`). Set it if you're running `svc` and `engine` as separate
   containers (the normal Docker Compose setup) exporting to the same collector, so their metrics
   don't get attributed to the same series.
+- Every metric also carries a `service.instance.id` resource attribute set to the process's
+  hostname - unique per replica with no extra configuration on every deployment shape that
+  actually scales `svc`/`engine` to several nodes (Docker Compose's `--scale`, a Kubernetes
+  Deployment, each container/pod already gets its own hostname). Against a backend that ingests
+  OTLP natively (Prometheus >=2.47's OTLP receiver, Mimir, Grafana Cloud), this becomes the usual
+  `instance` label on every series, so you can check whether work is actually spread evenly
+  across replicas - see the "Per node" row in the Grafana dashboard below.
 - Metrics export on a periodic timer (the SDK default is every 60 seconds) and flush once more
   on a clean shutdown (SIGINT/SIGTERM).
 - Every instrument is a package-level var in `common/telemetry.go` (`common.Meter`,
