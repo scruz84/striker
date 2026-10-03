@@ -1098,6 +1098,9 @@ export function useAcceptOffer() {
       void queryClient.invalidateQueries({ queryKey: queryKeys.offersReceived })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+      // Accepting an offer also drops the player's transfer/loan listing server-side.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.transfers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
     },
   })
 }
