@@ -1,5 +1,12 @@
 package common
 
+import (
+	"os"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
+)
+
 // CountryInfo is one entry in KnownCountries - a country the game engine can generate a world
 // for (it has a names_<code>/lastnames_<code> table pair and team-naming data, see
 // GetRandomName and teamnames.go), whether or not it's currently active (present in the
@@ -11,7 +18,7 @@ type CountryInfo struct {
 
 // KnownCountries lists every country the game engine knows how to generate a world for. Not all
 // of these are necessarily active - es/en/fr/de are seeded by a fresh --initialize (see
-// handlers.seededCountries), while the rest stay inactive until an admin activates one via
+// SeededCountries), while the rest stay inactive until an admin activates one via
 // POST /v1/admin/countries (see handlers.AdminAddCountryHandler) - adding a new entry here still
 // requires its own names_<code>/lastnames_<code> table pair (see resources/sql/init.sql), an
 // entry in nameTableSuffixByCountry below, and teamnames.go/stadiumnames.go entries first.
@@ -77,6 +84,40 @@ func IsKnownCountry(code string) bool {
 		}
 	}
 	return false
+}
+
+// DefaultSeededCountries mirrors the game's original hardcoded set - used until SEEDED_COUNTRIES
+// says otherwise.
+var DefaultSeededCountries = []string{"es", "en", "fr", "de"}
+
+// SeededCountries lists every country a fresh --initialize creates a world for (see
+// handlers.InitializeGame), and that a new Google sign-in can be randomly assigned to (see
+// handlers.randomSeededCountry) - configurable via the comma-separated SEEDED_COUNTRIES
+// environment variable, same pattern as CorsAllowedOrigins/IsConfiguredAdminEmail. Falls back to
+// DefaultSeededCountries if unset, or if nothing configured survives the IsKnownCountry check
+// (each needs its own names_<code>/lastnames_<code> table pair - see KnownCountries).
+func SeededCountries() []string {
+	configured := os.Getenv("SEEDED_COUNTRIES")
+	if configured == "" {
+		return DefaultSeededCountries
+	}
+	countries := make([]string, 0)
+	for _, candidate := range strings.Split(configured, ",") {
+		code := strings.ToLower(strings.TrimSpace(candidate))
+		if code == "" {
+			continue
+		}
+		if !IsKnownCountry(code) {
+			log.Errorf("SEEDED_COUNTRIES: %q is not a known country, skipping", code)
+			continue
+		}
+		countries = append(countries, code)
+	}
+	if len(countries) == 0 {
+		log.Error("SEEDED_COUNTRIES had no usable country codes, using defaults")
+		return DefaultSeededCountries
+	}
+	return countries
 }
 
 // GetActiveCountries returns every country currently in the `countries` table - the ones a

@@ -21,14 +21,20 @@ has no countries/leagues/teams/players yet. Seed (or reset) the game world expli
 docker compose --profile init run --rm init
 ```
 
-The seeded world spans four countries (`seededCountries` in `handlers/initializer.go`): Spain
+The seeded world spans four countries by default (`common.DefaultSeededCountries`): Spain
 (`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own three-tier league
 structure and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
 `resources/sql/init.sql`). Spain's pool is a real ~29k-name
 dump; the other three are curated common-name lists of about 60 first/last names each - real
 names, just a much smaller pool, so expect more repetition across a large league than Spain's
-teams see. A new Google sign-in is assigned to one of the four at random
+teams see. A new Google sign-in is assigned to one of the seeded countries at random
 (`randomSeededCountry`) - there's no sign-up step for a new user to pick one themselves.
+
+Override which countries get seeded with the comma-separated `SEEDED_COUNTRIES` environment
+variable (e.g. `SEEDED_COUNTRIES=es,en,it,pt`) - each code must already be a known country (see
+`common.KnownCountries`), i.e. have its own `names_<code>`/`lastnames_<code>` table pair and
+team/stadium naming data; an unknown code is skipped with a logged error rather than failing the
+whole list. Unset or entirely invalid falls back to the four defaults above.
 
 Override any setting via a `.env` file in this directory (see `docker-compose.yml` for the full
 list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The

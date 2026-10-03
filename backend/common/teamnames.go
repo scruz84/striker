@@ -5,7 +5,7 @@ import (
 	"math/rand"
 )
 
-// Invented place-like names per seeded country (see handlers.seededCountries) - deliberately
+// Invented place-like names per seeded country (see SeededCountries) - deliberately
 // not real cities or club names, just plausible-sounding ones in that country's style, combined
 // with a locally-flavored naming pattern in RandomTeamName.
 var placeNamesByCountry = map[string][]string{

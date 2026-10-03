@@ -35,3 +35,60 @@ func TestIsKnownCountry(t *testing.T) {
 		t.Error("IsKnownCountry(\"zz\") = true, want false")
 	}
 }
+
+func TestSeededCountries_FallsBackToDefaultsWhenUnset(t *testing.T) {
+	t.Setenv("SEEDED_COUNTRIES", "")
+
+	got := SeededCountries()
+
+	if len(got) != len(DefaultSeededCountries) {
+		t.Fatalf("SeededCountries() = %v, want %v", got, DefaultSeededCountries)
+	}
+	for i, code := range DefaultSeededCountries {
+		if got[i] != code {
+			t.Fatalf("SeededCountries() = %v, want %v", got, DefaultSeededCountries)
+		}
+	}
+}
+
+func TestSeededCountries_UsesConfiguredKnownCountries(t *testing.T) {
+	t.Setenv("SEEDED_COUNTRIES", " it, PT ,es")
+
+	got := SeededCountries()
+
+	want := []string{"it", "pt", "es"}
+	if len(got) != len(want) {
+		t.Fatalf("SeededCountries() = %v, want %v", got, want)
+	}
+	for i, code := range want {
+		if got[i] != code {
+			t.Fatalf("SeededCountries() = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestSeededCountries_SkipsUnknownCodesButKeepsKnownOnes(t *testing.T) {
+	t.Setenv("SEEDED_COUNTRIES", "es,zz,en")
+
+	got := SeededCountries()
+
+	want := []string{"es", "en"}
+	if len(got) != len(want) {
+		t.Fatalf("SeededCountries() = %v, want %v", got, want)
+	}
+	for i, code := range want {
+		if got[i] != code {
+			t.Fatalf("SeededCountries() = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestSeededCountries_FallsBackToDefaultsWhenNothingConfiguredIsKnown(t *testing.T) {
+	t.Setenv("SEEDED_COUNTRIES", "zz, yy")
+
+	got := SeededCountries()
+
+	if len(got) != len(DefaultSeededCountries) {
+		t.Fatalf("SeededCountries() = %v, want fallback to defaults %v", got, DefaultSeededCountries)
+	}
+}

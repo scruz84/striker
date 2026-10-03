@@ -1,10 +1,15 @@
 package handlers
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/scruz84/striker/common"
+)
 
 func TestRandomSeededCountry_AlwaysReturnsASeededCountry(t *testing.T) {
-	seeded := make(map[string]bool, len(seededCountries))
-	for _, c := range seededCountries {
+	configured := common.SeededCountries()
+	seeded := make(map[string]bool, len(configured))
+	for _, c := range configured {
 		seeded[c] = true
 	}
 
@@ -12,7 +17,7 @@ func TestRandomSeededCountry_AlwaysReturnsASeededCountry(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		country := randomSeededCountry()
 		if !seeded[country] {
-			t.Fatalf("randomSeededCountry() returned %q, which isn't in seededCountries %v", country, seededCountries)
+			t.Fatalf("randomSeededCountry() returned %q, which isn't in common.SeededCountries() %v", country, configured)
 		}
 	}
 }

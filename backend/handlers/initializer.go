@@ -116,7 +116,7 @@ func InitializeGame(dbCtx *common.DatabaseContext) error {
 	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
 	log.Info("initialize: creating countries")
-	countries := createCountriesList(dbCtx, seededCountries)
+	countries := createCountriesList(dbCtx, common.SeededCountries())
 
 	log.Info("initialize: creating leagues, teams, and players - this is the slow part, one country at a time")
 	createTeams(dbCtx, countries, common.GetWorldConfig(dbCtx))
@@ -145,7 +145,7 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 		return err
 	}
 	if len(activeCountries) == 0 {
-		activeCountries = seededCountries
+		activeCountries = common.SeededCountries()
 	}
 
 	users, err := common.ListUsersWithCountry(dbCtx)
@@ -190,19 +190,16 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 	return nil
 }
 
-// seededCountries lists every country the game world is generated for - each needs a matching
-// names_<code>/lastnames_<code> table pair (see common.GetRandomName and resources/sql/init.sql).
-var seededCountries = []string{"es", "en", "fr", "de"}
-
-// randomSeededCountry picks one of seededCountries at random - used to assign a new Google
-// sign-in (see DoExternalLogin) to one of the game's countries, since there's no sign-up step
-// where a new user picks one themselves.
+// randomSeededCountry picks one of common.SeededCountries at random - used to assign a new
+// Google sign-in (see DoExternalLogin) to one of the game's countries, since there's no sign-up
+// step where a new user picks one themselves.
 func randomSeededCountry() string {
-	return seededCountries[rand.Intn(len(seededCountries))]
+	seeded := common.SeededCountries()
+	return seeded[rand.Intn(len(seeded))]
 }
 
 // createCountriesList inserts each of the given country codes into the countries table,
-// returning the ones that succeeded - used both for a full init (seededCountries) and a
+// returning the ones that succeeded - used both for a full init (common.SeededCountries) and a
 // leagues recreate that keeps whichever countries were already active (see
 // RecreateLeaguesKeepingUsers).
 func createCountriesList(dbCtx *common.DatabaseContext, codes []string) []string {

@@ -541,7 +541,7 @@ CREATE TABLE push_subscriptions (
 -- schema. Curated common first/last names (~60 each) rather than a dump the size of
 -- names_es/lastnames_es (~29k rows) - a deliberately smaller pool, disclosed as a scope cut: more
 -- repetition across a large squad of teams than the Spanish pool has, but real, common names.
--- it/pt are NOT inserted into `countries`/seededCountries here - they stay inactive until an
+-- it/pt are NOT inserted into `countries`/SeededCountries here - they stay inactive until an
 -- admin explicitly activates one via POST /v1/admin/countries (see common.KnownCountries).
 CREATE TABLE names_en ("name" varchar(100) NULL, freq float8 NULL);
 CREATE TABLE lastnames_en (lastname varchar(100) NULL, freq float8 NULL);
