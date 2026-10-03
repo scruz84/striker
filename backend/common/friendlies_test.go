@@ -40,3 +40,21 @@ func TestSetFriendlyScheduleWeekdays_RejectsEmptyMaskWithoutTouchingDatabase(t *
 		t.Fatalf("expected ErrInvalidFriendlySchedule, got %v", err)
 	}
 }
+
+func TestStartOfDay_ReturnsMidnightUtcOnTsOwnDay(t *testing.T) {
+	got := StartOfDay(time.Date(2024, 1, 3, 18, 5, 30, 0, time.UTC))
+	want := time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC)
+	if !got.Equal(want) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+}
+
+func TestStartOfDay_ConvertsToUtcFirst(t *testing.T) {
+	loc := time.FixedZone("UTC-5", -5*60*60)
+	// 2024-01-03 23:00 UTC-5 is 2024-01-04 04:00 UTC - StartOfDay should land on the UTC day.
+	got := StartOfDay(time.Date(2024, 1, 3, 23, 0, 0, 0, loc))
+	want := time.Date(2024, 1, 4, 0, 0, 0, 0, time.UTC)
+	if !got.Equal(want) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+}

@@ -603,6 +603,25 @@ const aiActivityTicksPerDay = 24 * 60 / 5
 // engine.ProbChance) instead of scheduling them deterministically.
 const ProbAiDailyActivityPerTick = float32(1) / float32(aiActivityTicksPerDay)
 
+// aiFriendlyChallengeAttemptsPerDay is how many expected dice rolls a day's worth of ticks gives
+// an eligible team to challenge another AI-managed team to a friendly - ProbAiDailyActivityPerTick
+// averaging out to a single attempt a day is fine for market management (skipping a day there
+// costs nothing), but a skipped day here is a wasted friendly slot that issue #... complains about:
+// CPU teams sitting on an unused weekly allowance instead of actually playing through it. At this
+// rate the chance of a whole day passing with zero attempts is negligible (~(1 -
+// aiFriendlyChallengeAttemptsPerDay/aiActivityTicksPerDay)^aiActivityTicksPerDay ≈ e^-10, well
+// under 0.01%), while still landing at a randomly-timed tick rather than deterministically at the
+// day's first one. challengeAiTeamToFriendly's own "already has one today" guard is what actually
+// keeps this to one per day despite the many rolls, and what lets the days a team's weekly cap
+// isn't yet spent actually get used, one per day, instead of a few lucky days exhausting the whole
+// week's allowance while the rest go without.
+const aiFriendlyChallengeAttemptsPerDay = 10
+
+// ProbAiFriendlyChallengePerTick is the per-tick dice an eligible team rolls to attempt a friendly
+// challenge - see aiFriendlyChallengeAttemptsPerDay for why it's set much higher than
+// ProbAiDailyActivityPerTick.
+const ProbAiFriendlyChallengePerTick = float32(aiFriendlyChallengeAttemptsPerDay) / float32(aiActivityTicksPerDay)
+
 // RunAiTeamDailyActivity gives every AI-managed team (see isAiManagedTeam) an independent,
 // randomly-timed chance each tick (see StartAiActivityScheduler) to run its full market
 // management pass and to challenge another AI-managed team to a friendly - both entirely
@@ -613,6 +632,12 @@ const ProbAiDailyActivityPerTick = float32(1) / float32(aiActivityTicksPerDay)
 // played yet. A friendly opponent is deliberately only ever another AI-managed team, never a
 // human's - a human still only ever gets challenged by another human (see ChallengeToFriendly),
 // so this can't spam a manager's inbox with unsolicited CPU challenges.
+//
+// Teams that already have a friendly kicking off today (see common.GetTeamsWithFriendlyToday) are
+// left out of the friendly round entirely - neither offered as an opponent nor allowed to
+// challenge - so a team's weekly allowance of friendlies (see common.GetMaxFriendliesPerWeek)
+// spreads out one per day across the week instead of a few lucky days using it all up while the
+// rest go unplayed.
 func RunAiTeamDailyActivity(dbCtx *common.DatabaseContext) {
 	teamIds, err := common.GetAllTeamIds(dbCtx)
 	if err != nil {
@@ -636,15 +661,33 @@ func RunAiTeamDailyActivity(dbCtx *common.DatabaseContext) {
 		eligibleIds[i] = team.Id
 	}
 
+	playedToday, err := common.GetTeamsWithFriendlyToday(dbCtx)
+	if err != nil {
+		log.Errorf("error checking today's friendlies for AI daily activity: %s", err)
+		playedToday = map[int64]bool{}
+	}
+	availableForFriendly := excludeTeamIds(eligibleIds, playedToday)
+
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for _, team := range eligible {
 		if r.Float32() < ProbAiDailyActivityPerTick {
 			RunAITeamManagement(dbCtx, team.Id)
 		}
-		if r.Float32() < ProbAiDailyActivityPerTick {
-			challengeAiTeamToFriendly(dbCtx, r, team.Id, eligibleIds)
+		if !playedToday[team.Id] && r.Float32() < ProbAiFriendlyChallengePerTick {
+			challengeAiTeamToFriendly(dbCtx, r, team.Id, availableForFriendly)
 		}
 	}
+}
+
+// excludeTeamIds returns ids minus every id present (and true) in excluded.
+func excludeTeamIds(ids []int64, excluded map[int64]bool) []int64 {
+	kept := make([]int64, 0, len(ids))
+	for _, id := range ids {
+		if !excluded[id] {
+			kept = append(kept, id)
+		}
+	}
+	return kept
 }
 
 // filterAiManagedTeams narrows teams down to the ones isAiManagedTeam accepts, preserving order.
@@ -674,14 +717,15 @@ func pickRandomOpponent(r *rand.Rand, teamIds []int64, exclude int64) (int64, bo
 }
 
 // challengeAiTeamToFriendly has teamId challenge a random other AI-managed team (from
-// eligibleIds) to a friendly. Both sides being unowned means ChallengeToFriendly auto-accepts on
-// the spot (see its own doc comment) - there's nobody who'd otherwise need to act on it.
+// candidateIds, which RunAiTeamDailyActivity has already narrowed down to teams with no friendly
+// kicking off today) to a friendly. Both sides being unowned means ChallengeToFriendly auto-accepts
+// on the spot (see its own doc comment) - there's nobody who'd otherwise need to act on it.
 // ErrFriendlyLimitReached (either side already at its weekly cap - the default is just 1) and
 // ErrFriendlyChallengeAlreadyExists (a pending challenge between this exact pair still
 // outstanding, which shouldn't happen between two auto-accepting sides but costs nothing to guard
 // against) are expected outcomes, not failures.
-func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, teamId int64, eligibleIds []int64) {
-	opponent, ok := pickRandomOpponent(r, eligibleIds, teamId)
+func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, teamId int64, candidateIds []int64) {
+	opponent, ok := pickRandomOpponent(r, candidateIds, teamId)
 	if !ok {
 		return
 	}

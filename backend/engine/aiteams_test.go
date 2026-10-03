@@ -202,3 +202,29 @@ func TestPickRandomOpponent_FalseWhenOnlyExcludedCandidate(t *testing.T) {
 		t.Fatalf("expected no candidate for an empty team list")
 	}
 }
+
+func TestExcludeTeamIds_DropsOnlyTeamsMarkedExcluded(t *testing.T) {
+	got := excludeTeamIds([]int64{1, 2, 3, 4}, map[int64]bool{2: true, 4: true})
+	want := []int64{1, 3}
+	if len(got) != len(want) {
+		t.Fatalf("expected %v, got %v", want, got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("expected %v, got %v", want, got)
+		}
+	}
+}
+
+func TestExcludeTeamIds_NoneExcludedReturnsAllUnchanged(t *testing.T) {
+	ids := []int64{7, 8, 9}
+	got := excludeTeamIds(ids, map[int64]bool{})
+	if len(got) != len(ids) {
+		t.Fatalf("expected %v, got %v", ids, got)
+	}
+	for i := range ids {
+		if got[i] != ids[i] {
+			t.Fatalf("expected %v, got %v", ids, got)
+		}
+	}
+}

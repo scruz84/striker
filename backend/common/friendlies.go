@@ -73,6 +73,14 @@ func StartOfWeek(t time.Time) time.Time {
 	return time.Date(monday.Year(), monday.Month(), monday.Day(), 0, 0, 0, 0, time.UTC)
 }
 
+// StartOfDay returns midnight UTC on t's own calendar day - the boundary
+// GetTeamsWithFriendlyToday uses to cap an AI-managed team at one new friendly per day (see its
+// own doc comment).
+func StartOfDay(t time.Time) time.Time {
+	t = t.UTC()
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+}
+
 const GetFriendlyScheduleWeekdaysStmtSql = "SELECT friendly_schedule_weekdays FROM season"
 const SetFriendlyScheduleWeekdaysStmtSql = "UPDATE season SET friendly_schedule_weekdays = $1"
 
@@ -162,6 +170,34 @@ func CountFriendliesThisWeek(dbCtx *DatabaseContext, teamId int64) (int, error) 
 	var count int
 	err := dbCtx.Db.QueryRow(CountFriendliesThisWeekStmtSql, teamId, StartOfWeek(time.Now())).Scan(&count)
 	return count, err
+}
+
+const GetTeamsWithFriendlyTodayStmtSql = "SELECT home_team_id, away_team_id FROM friendly_matches WHERE match_date >= $1 AND match_date < $2"
+
+// GetTeamsWithFriendlyToday returns the set of team ids with any accepted friendly (scheduled or
+// already played) kicking off today (the UTC calendar day - see StartOfDay), on either side of the
+// fixture. engine.RunAiTeamDailyActivity uses this to cap an AI-managed team at one new friendly
+// challenge per day - both as the would-be challenger and as a candidate opponent - so a week's
+// worth of challenges actually spread across distinct days instead of a lucky streak exhausting
+// the whole weekly cap (see GetMaxFriendliesPerWeek) in a single day while other days go unused.
+func GetTeamsWithFriendlyToday(dbCtx *DatabaseContext) (map[int64]bool, error) {
+	start := StartOfDay(time.Now())
+	rows, err := dbCtx.Db.Query(GetTeamsWithFriendlyTodayStmtSql, start, start.AddDate(0, 0, 1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	teams := make(map[int64]bool)
+	for rows.Next() {
+		var home, away int64
+		if err := rows.Scan(&home, &away); err != nil {
+			return nil, err
+		}
+		teams[home] = true
+		teams[away] = true
+	}
+	return teams, rows.Err()
 }
 
 const InsertFriendlyChallengeStmtSql = "INSERT INTO friendly_challenges (challenger_team_id, opponent_team_id, proposed_kickoff, challenger_is_home) VALUES ($1, $2, $3, $4) RETURNING challenge_id"
