@@ -266,7 +266,7 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
           <Typography variant="subtitle1" gutterBottom>
             {t('admin.actions.title')}
           </Typography>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
             <Button variant="outlined" onClick={handleSimulateNow} disabled={simulateNow.isPending}>
               {t('admin.actions.runSimulation')}
             </Button>
