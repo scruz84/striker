@@ -463,6 +463,14 @@ production rather than exhaustive coverage of every code path:
   played.
 - **Notifications sent** (`striker.notifications.sent`, labeled by `type`) - a proxy for how much
   is happening across every user's game at once.
+- **Per-process health** (`striker.process.goroutines`, `striker.process.memory.heap_alloc`,
+  `striker.process.cpu_time`, `striker.process.uptime`) - each replica's own goroutine count, heap
+  memory in use, cumulative CPU time, and seconds since it started, registered unconditionally for
+  every process (unlike the market/economy gauges above, there's no DB-wide value here to
+  double-count - see `common.registerProcessHealthGauges`). CPU time is Linux-only (reads
+  `/proc/self/stat`); the other three work everywhere. Paired with `service.instance.id`, these
+  are what the "Per node" dashboard row's goroutines/memory/CPU/uptime panels graph to compare
+  replicas side by side.
 
 A ready-made Grafana dashboard covering every metric above lives at
 `backend/resources/grafana/striker-dashboard.json`. Import it into Grafana (Dashboards > New >

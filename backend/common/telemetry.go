@@ -2,8 +2,11 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -15,6 +18,11 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 )
+
+// processStartTime captures roughly when this process started (package-init time, a few
+// instructions after the real process start - close enough for an uptime gauge) - see
+// registerProcessHealthGauges's "striker.process.uptime".
+var processStartTime = time.Now()
 
 // Meter is the app's single OpenTelemetry meter, used to create every instrument below. It's
 // always safe to use, whether or not metrics export is actually enabled: before InitMetrics
@@ -383,6 +391,120 @@ func InitMetrics(serviceName string) (shutdown func(context.Context) error, err 
 	// provider the moment SetMeterProvider is called - nothing needs to be recreated.
 	otel.SetMeterProvider(provider)
 
+	if err := registerProcessHealthGauges(); err != nil {
+		return provider.Shutdown, err
+	}
+
 	log.Infof("OpenTelemetry metrics export enabled for service %q", serviceName)
 	return provider.Shutdown, nil
+}
+
+// linuxClockTicksPerSecond is USER_HZ, the unit /proc/[pid]/stat's utime/stime fields are
+// counted in - fixed at 100 by long-standing Linux/glibc convention (sysconf(_SC_CLK_TCK)),
+// regardless of the kernel's actual timer frequency, on every Linux distribution this app
+// actually runs on (see instanceID's own Linux assumption above). Hardcoded rather than read via
+// a syscall, since in practice it's never anything else.
+const linuxClockTicksPerSecond = 100
+
+// parseProcSelfStatCPUSeconds extracts this process's cumulative user+system CPU time (in
+// seconds) from the content of /proc/self/stat - a pure function so the parsing itself is
+// testable without a real /proc filesystem (see processCPUSeconds, which reads the real file).
+// The second field (comm, the executable name) is parenthesized and can itself contain spaces or
+// closing parens, so this finds the LAST ")" rather than naively splitting the whole line on
+// spaces - the same technique ps/top and Prometheus's own process collector use. utime and stime
+// are fields 14 and 15 overall (see `man proc`), i.e. the 12th and 13th fields after comm.
+func parseProcSelfStatCPUSeconds(stat string) (float64, error) {
+	afterComm := strings.LastIndex(stat, ")")
+	if afterComm == -1 {
+		return 0, fmt.Errorf("unexpected /proc/self/stat format: no ')' found")
+	}
+	fields := strings.Fields(stat[afterComm+1:])
+	const utimeIndex, stimeIndex = 11, 12
+	if len(fields) <= stimeIndex {
+		return 0, fmt.Errorf("unexpected /proc/self/stat format: only %d fields after comm", len(fields))
+	}
+	utime, err := strconv.ParseFloat(fields[utimeIndex], 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing utime: %w", err)
+	}
+	stime, err := strconv.ParseFloat(fields[stimeIndex], 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing stime: %w", err)
+	}
+	return (utime + stime) / linuxClockTicksPerSecond, nil
+}
+
+// processCPUSeconds reads this process's own cumulative CPU time from /proc/self/stat (Linux
+// only, which every deployed svc/engine container is - see instanceID). ok is false on any other
+// platform, or if /proc/self/stat couldn't be read or parsed, so the gauge callback below can
+// just skip observing a value that tick rather than failing the whole metrics export over
+// something that was never expected to work everywhere (a developer's own machine, say).
+func processCPUSeconds() (seconds float64, ok bool) {
+	data, err := os.ReadFile("/proc/self/stat")
+	if err != nil {
+		return 0, false
+	}
+	seconds, err = parseProcSelfStatCPUSeconds(string(data))
+	if err != nil {
+		log.Warnf("failed to parse /proc/self/stat for the process CPU time metric: %s", err)
+		return 0, false
+	}
+	return seconds, true
+}
+
+// registerProcessHealthGauges wires up four observable instruments describing this process's
+// own runtime health - goroutines, heap memory in use, uptime, and cumulative CPU time - each
+// labeled by `instance` the same way every other metric here is (see InitMetrics's doc comment
+// on service.instance.id), so the "Per node" dashboard row can compare them side by side across
+// every svc/engine replica. Unlike RegisterMarketGauges, this runs unconditionally for every
+// process (called directly from InitMetrics, not gated behind a --engine-only guard): there's no
+// DB-wide value here to accidentally double-count, each replica's own process stats are
+// genuinely its own.
+func registerProcessHealthGauges() error {
+	if _, err := Meter.Int64ObservableGauge("striker.process.goroutines",
+		metric.WithDescription("Live goroutines in this process right now"),
+		metric.WithInt64Callback(func(_ context.Context, o metric.Int64Observer) error {
+			o.Observe(int64(runtime.NumGoroutine()))
+			return nil
+		})); err != nil {
+		return err
+	}
+
+	if _, err := Meter.Int64ObservableGauge("striker.process.memory.heap_alloc",
+		metric.WithDescription("Bytes of heap memory currently allocated and in use by this process"),
+		metric.WithUnit("By"),
+		metric.WithInt64Callback(func(_ context.Context, o metric.Int64Observer) error {
+			var stats runtime.MemStats
+			runtime.ReadMemStats(&stats)
+			o.Observe(int64(stats.HeapAlloc))
+			return nil
+		})); err != nil {
+		return err
+	}
+
+	if _, err := Meter.Float64ObservableGauge("striker.process.uptime",
+		metric.WithDescription("Seconds since this process started"),
+		metric.WithUnit("s"),
+		metric.WithFloat64Callback(func(_ context.Context, o metric.Float64Observer) error {
+			o.Observe(time.Since(processStartTime).Seconds())
+			return nil
+		})); err != nil {
+		return err
+	}
+
+	if _, err := Meter.Float64ObservableCounter("striker.process.cpu_time",
+		metric.WithDescription("Cumulative CPU time (user+system) this process has consumed - "+
+			"rate() this over a window to get cores used (1.0 = fully saturating one core). "+
+			"Only observed on Linux (see processCPUSeconds)."),
+		metric.WithUnit("s"),
+		metric.WithFloat64Callback(func(_ context.Context, o metric.Float64Observer) error {
+			if seconds, ok := processCPUSeconds(); ok {
+				o.Observe(seconds)
+			}
+			return nil
+		})); err != nil {
+		return err
+	}
+
+	return nil
 }

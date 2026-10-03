@@ -98,3 +98,60 @@ func TestRegisterMarketGauges_RegistersOnceWithoutTouchingDatabase(t *testing.T)
 		t.Fatalf("expected a second call to be a no-op, got %s", err)
 	}
 }
+
+// TestParseProcSelfStatCPUSeconds_ParsesUtimeAndStime uses a hand-written line in the real
+// /proc/[pid]/stat format (see `man proc`) - comm (the second field) deliberately contains a
+// space to exercise finding the LAST ")" rather than naively splitting on spaces. utime=1500,
+// stime=250 clock ticks -> (1500+250)/100 = 17.5s.
+func TestParseProcSelfStatCPUSeconds_ParsesUtimeAndStime(t *testing.T) {
+	stat := "1234 (my process name) S 1 1234 1234 0 -1 4194304 100 0 0 0 1500 250 0 0 20 0 4 0 12345 0 0 18446744073709551615 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+
+	got, err := parseProcSelfStatCPUSeconds(stat)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	if want := 17.5; got != want {
+		t.Errorf("parseProcSelfStatCPUSeconds() = %v, want %v", got, want)
+	}
+}
+
+func TestParseProcSelfStatCPUSeconds_RejectsMalformedInput(t *testing.T) {
+	cases := []string{
+		"",
+		"no closing paren here",
+		"1234 (ok) S 1 1234", // too few fields after comm
+	}
+	for _, stat := range cases {
+		if _, err := parseProcSelfStatCPUSeconds(stat); err == nil {
+			t.Errorf("parseProcSelfStatCPUSeconds(%q) expected an error, got none", stat)
+		}
+	}
+}
+
+// TestProcessCPUSeconds_ReadsRealProcSelfStat confirms this test process's own real
+// /proc/self/stat parses successfully - a sanity check that the field-counting in
+// parseProcSelfStatCPUSeconds matches the real kernel's layout, not just the hand-written sample
+// above. Every svc/engine deployment runs on Linux (see processCPUSeconds/instanceID), which is
+// also what CI runs this test on.
+func TestProcessCPUSeconds_ReadsRealProcSelfStat(t *testing.T) {
+	seconds, ok := processCPUSeconds()
+
+	if !ok {
+		t.Fatal("expected processCPUSeconds() to succeed")
+	}
+	if seconds < 0 {
+		t.Errorf("processCPUSeconds() = %v, want >= 0", seconds)
+	}
+}
+
+// TestRegisterProcessHealthGauges_NeverErrors is the same registration-only smoke test as
+// TestRegisterMarketGauges_RegistersOnceWithoutTouchingDatabase: under the default no-op
+// MeterProvider (the state this test runs under), creating an observable gauge never touches its
+// callback, so this is safe without a real OTLP exporter - including the CPU gauge's callback,
+// even though it reads the real /proc/self/stat.
+func TestRegisterProcessHealthGauges_NeverErrors(t *testing.T) {
+	if err := registerProcessHealthGauges(); err != nil {
+		t.Fatalf("expected no error registering process health gauges, got %s", err)
+	}
+}
