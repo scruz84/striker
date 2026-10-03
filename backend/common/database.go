@@ -131,8 +131,10 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
-	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number, stamina, form) " +
-	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) " +
+	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number, stamina, form, " +
+	"goal_keeper_max, defense_max, lateral_max, pass_max, midfield_max, dribbling_max, shot_max) " +
+	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, " +
+	"$25, $26, $27, $28, $29, $30, $31) " +
 	"RETURNING player_id"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
@@ -433,6 +435,13 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 		if i < len(shirtNumbers) {
 			shirtNumber = sql.NullInt64{Int64: int64(shirtNumbers[i]), Valid: true}
 		}
+		goalKeeperMax := rollSkillCap(goalKeeper)
+		defenseMax := rollSkillCap(defense)
+		lateralMax := rollSkillCap(lateral)
+		passMax := rollSkillCap(pass)
+		midfieldMax := rollSkillCap(midfield)
+		dribblingMax := rollSkillCap(dribbling)
+		shotMax := rollSkillCap(shot)
 		var newPlayerId int64
 		err := insertStmt.QueryRow(&teamId, &firstName, &lastName, time.Now().UnixMilli(),
 			goalKeeper,
@@ -454,7 +463,14 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			inAcademy,
 			shirtNumber,
 			stamina,
-			DefaultForm).Scan(&newPlayerId)
+			DefaultForm,
+			goalKeeperMax,
+			defenseMax,
+			lateralMax,
+			passMax,
+			midfieldMax,
+			dribblingMax,
+			shotMax).Scan(&newPlayerId)
 		if err != nil {
 			log.Errorf("error creating player for team %d: %s", teamId, err)
 			continue
@@ -1835,6 +1851,30 @@ const DeletePlayerStmtSql = "DELETE FROM players WHERE player_id = $1"
 const AcademySkillMin, AcademySkillMax = 15, 40
 const AcademyAgeMin, AcademyAgeMax = 17, 19
 
+// rollSkillCap picks a player's lifetime ceiling for one skill, given the starting value just
+// rolled for it (see doCreatePlayers/InjectFreeAgents) - most players (70%) get a modest 5-15
+// point gap above their starting value, a smaller share (25%) a real room-to-grow gap of 15-30,
+// and a rare few (5%) a wonderkid-sized 30-45 gap, mirroring how few real players ever develop
+// into world-class talents. Never below the starting value, never above the universal 99 ceiling
+// (see driftSkill) - in practice a player whose starting roll is already close to 99 simply ends
+// up with little or no headroom left, same as in real football.
+func rollSkillCap(startingSkill int) int {
+	var gap int
+	switch roll := rand.Float64(); {
+	case roll < 0.70:
+		gap = 5 + rand.Intn(11) // 5..15
+	case roll < 0.95:
+		gap = 15 + rand.Intn(16) // 15..30
+	default:
+		gap = 30 + rand.Intn(16) // 30..45
+	}
+	max := startingSkill + gap
+	if max > 99 {
+		max = 99
+	}
+	return max
+}
+
 func GetAllTeamIds(dbCtx *DatabaseContext) ([]int64, error) {
 	rows, err := dbCtx.Db.Query(GetAllTeamIdsStmtSql)
 	if err != nil {
@@ -1865,6 +1905,53 @@ func UpdatePlayerProgression(dbCtx *DatabaseContext, playerId int64, age, goalKe
 	wage := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
 	_, err := dbCtx.Db.Exec(UpdatePlayerProgressionStmtSql, age, goalKeeper, defense, lateral, pass, midfield, dribbling, shot, wage, playerId)
 	return err
+}
+
+// PlayerSkillCaps is a player's individually-rolled lifetime ceiling for each of the seven core
+// skills (see rollSkillCap) - deliberately kept out of the Player struct and never serialized to
+// the frontend: a manager sees a player's current skills but never their hidden potential, same
+// as scouting in most real football management games. The only reader is engine/progression.go's
+// match-by-match skill drift (see GetPlayerSkillCaps), which clamps growth at these values
+// instead of the universal [1, 99] range every player used to share.
+type PlayerSkillCaps struct {
+	GoalKeeperMax int
+	DefenseMax    int
+	LateralMax    int
+	PassMax       int
+	MidfieldMax   int
+	DribblingMax  int
+	ShotMax       int
+}
+
+const GetPlayerSkillCapsStmtSql = "SELECT player_id, goal_keeper_max, defense_max, lateral_max, pass_max, " +
+	"midfield_max, dribbling_max, shot_max FROM players WHERE player_id = ANY($1)"
+
+// GetPlayerSkillCaps batch-fetches the skill ceilings for a set of players, keyed by player_id -
+// one query per match's worth of participants rather than one per player, since
+// updateTeamPlayersAfterMatch needs every featured player's caps at once. A player id with no
+// matching row simply has no entry in the returned map; callers fall back to the universal 99 cap
+// (see driftSkill) rather than failing, so a player created before this feature existed (and
+// still mid-backfill) never gets stuck unable to grow.
+func GetPlayerSkillCaps(dbCtx *DatabaseContext, playerIds []int64) (map[int64]PlayerSkillCaps, error) {
+	caps := make(map[int64]PlayerSkillCaps, len(playerIds))
+	if len(playerIds) == 0 {
+		return caps, nil
+	}
+	rows, err := dbCtx.Db.Query(GetPlayerSkillCapsStmtSql, playerIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var playerId int64
+		var c PlayerSkillCaps
+		if err := rows.Scan(&playerId, &c.GoalKeeperMax, &c.DefenseMax, &c.LateralMax, &c.PassMax,
+			&c.MidfieldMax, &c.DribblingMax, &c.ShotMax); err != nil {
+			return nil, err
+		}
+		caps[playerId] = c
+	}
+	return caps, rows.Err()
 }
 
 const UpdatePlayerStaminaAndFormStmtSql = "UPDATE players SET stamina = $1, form = $2 WHERE player_id = $3"

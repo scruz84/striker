@@ -172,9 +172,19 @@ For each player who took the field this match, on the side they played for:
    -1 from 30 on) plus a hired trainer's bonus (`trainerBonus` - +1 for a decent coach, +2 for an
    elite one, nothing below a minimum threshold, and never applied to a player already in decline
    - a coach accelerates growth but can't reverse aging) plus a small ±1 random wobble, clamped to
-   `[1, 99]`. Age and trainer skill are both read fresh for that match, not cached from season
+   `[1, max]`. Age and trainer skill are both read fresh for that match, not cached from season
    start.
-4. If nothing actually drifted this match (quite possible - see the small per-skill chance
+4. `max` is that specific player's own hidden ceiling for that skill, not a universal 99 - every
+   player gets one individually rolled per skill at creation time (`common.rollSkillCap`, applied
+   by `doCreatePlayers` for new squads/academy/cantera players and `InjectFreeAgents` for injected
+   free agents), stored in `players.*_max` columns and fetched in batch per match
+   (`common.GetPlayerSkillCaps`). Most players (70%) get a modest 5-15 point gap above their
+   starting value, 25% get a real 15-30 point gap, and a rare 5% get a wonderkid-sized 30-45 point
+   gap - always capped at 99. Once a skill reaches its own ceiling, further positive drift simply
+   has nowhere left to go, mirroring how few real players ever develop into world-class talents.
+   This ceiling is deliberately never exposed anywhere in the `Player` struct or any API response
+   - a manager sees a player's current skills, never their hidden potential.
+5. If nothing actually drifted this match (quite possible - see the small per-skill chance
    above), there's no database write and no log row; if something did, it's persisted immediately
    and logged to the same `player_progression_log` table the old season-end system used - see
    `/players/evolutions`, unchanged, just now fed by many small match-triggered updates across a

@@ -63,11 +63,23 @@ func TestAgeTrendFor(t *testing.T) {
 func TestDriftSkill_StaysWithinBounds(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	for i := 0; i < 1000; i++ {
-		if v := driftSkill(1, 35, 0, r); v < 1 || v > 99 {
+		if v := driftSkill(1, 99, 35, 0, r); v < 1 || v > 99 {
 			t.Fatalf("drifted skill out of bounds: %d", v)
 		}
-		if v := driftSkill(99, 20, 90, r); v < 1 || v > 99 {
+		if v := driftSkill(99, 99, 20, 90, r); v < 1 || v > 99 {
 			t.Fatalf("drifted skill out of bounds: %d", v)
+		}
+	}
+}
+
+func TestDriftSkill_NeverExceedsPlayerSpecificMax(t *testing.T) {
+	r := rand.New(rand.NewSource(3))
+	const max = 60
+	for i := 0; i < 1000; i++ {
+		// A young, well-coached player who'd otherwise drift well past 60 under the old universal
+		// 99 ceiling must still be held at their own lower max.
+		if v := driftSkill(max, max, 18, common.TrainerSkillMax, r); v > max {
+			t.Fatalf("drifted skill %d exceeded player-specific max %d", v, max)
 		}
 	}
 }
@@ -80,8 +92,8 @@ func TestDriftSkill_TrainerBonusDoesNotApplyPastPrime(t *testing.T) {
 
 	sumNoTrainer, sumEliteTrainer := 0, 0
 	for i := 0; i < trials; i++ {
-		sumNoTrainer += driftSkill(startValue, age, 0, r)
-		sumEliteTrainer += driftSkill(startValue, age, common.TrainerSkillMax, r)
+		sumNoTrainer += driftSkill(startValue, 99, age, 0, r)
+		sumEliteTrainer += driftSkill(startValue, 99, age, common.TrainerSkillMax, r)
 	}
 
 	avgNoTrainer := float64(sumNoTrainer) / trials
@@ -126,8 +138,8 @@ func TestDriftSkill_TrainerRaisesExpectedGrowth(t *testing.T) {
 
 	sumWithout, sumWith := 0, 0
 	for i := 0; i < trials; i++ {
-		sumWithout += driftSkill(startValue, age, 0, r)
-		sumWith += driftSkill(startValue, age, common.TrainerSkillMax, r)
+		sumWithout += driftSkill(startValue, 99, age, 0, r)
+		sumWith += driftSkill(startValue, 99, age, common.TrainerSkillMax, r)
 	}
 
 	avgWithout := float64(sumWithout) / trials
@@ -183,11 +195,19 @@ func striker50() common.Player {
 	}
 }
 
+// uncappedCaps mirrors the universal [1, 99] range every player used to share - most
+// driftSkillsForPosition tests care about which skills drift, not how a specific ceiling clamps
+// them, so they use this instead of a realistic (lower) PlayerSkillCaps.
+var uncappedCaps = common.PlayerSkillCaps{
+	GoalKeeperMax: 99, DefenseMax: 99, LateralMax: 99, PassMax: 99,
+	MidfieldMax: 99, DribblingMax: 99, ShotMax: 99,
+}
+
 func TestDriftSkillsForPosition_ZeroPlayChanceChangesNothing(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	p := striker50()
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
-		driftSkillsForPosition(p, common.STRIKER, 0, 27, 0, r)
+		driftSkillsForPosition(p, uncappedCaps, common.STRIKER, 0, 27, 0, r)
 
 	if goalKeeper != p.GoalKeeper || defense != p.Defense || lateral != p.Lateral || pass != p.Pass ||
 		midfield != p.Midfield || dribbling != p.Dribbling || shot != p.Shot {
@@ -202,7 +222,7 @@ func TestDriftSkillsForPosition_OnlyTouchesSkillsRelevantToStriker(t *testing.T)
 	// playChance 1 guarantees every relevant skill rolls the drift - see driftSkillsForPosition's
 	// maybeDrift (r.Float32() is always < 1).
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
-		driftSkillsForPosition(p, common.STRIKER, 1, 27, 0, r)
+		driftSkillsForPosition(p, uncappedCaps, common.STRIKER, 1, 27, 0, r)
 
 	if goalKeeper != p.GoalKeeper {
 		t.Errorf("a striker's goalkeeping should never drift, got %d (was %d)", goalKeeper, p.GoalKeeper)
@@ -317,7 +337,7 @@ func TestDriftSkillsForPosition_LateralStrikerAlsoDriftsLateral(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	p := striker50()
 	_, defense, lateral, pass, midfield, dribbling, shot :=
-		driftSkillsForPosition(p, common.LATERAL_STRIKER_LEFT, 1, 27, 0, r)
+		driftSkillsForPosition(p, uncappedCaps, common.LATERAL_STRIKER_LEFT, 1, 27, 0, r)
 
 	if defense != p.Defense || midfield != p.Midfield {
 		t.Errorf("a lateral striker's defense/midfield should never drift, got defense=%d midfield=%d", defense, midfield)

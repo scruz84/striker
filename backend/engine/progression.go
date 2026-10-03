@@ -68,12 +68,15 @@ func trainerBonus(trainerSkill int) int {
 }
 
 // driftSkill applies a player's age trend, a hired trainer's bonus, and a little noise (-1..+1)
-// to one skill value, clamped to a sane [1, 99] range. The trainer's bonus (0 with no trainer)
-// only applies while the age trend is still flat or rising (ageTrendFor(age) >= 0) - a coach
-// accelerates a player's development, but can't reverse the physical decline of someone already
-// past their prime, so a veteran's skills merely hold steady at best rather than climbing
+// to one skill value, clamped to [1, max]. max is that player's individually-rolled lifetime
+// ceiling for this specific skill (see common.rollSkillCap/GetPlayerSkillCaps) rather than a
+// universal 99 - once a player reaches their own ceiling, further positive drift simply has no
+// more room to go, same as a real player topping out their potential. The trainer's bonus (0 with
+// no trainer) only applies while the age trend is still flat or rising (ageTrendFor(age) >= 0) -
+// a coach accelerates a player's development, but can't reverse the physical decline of someone
+// already past their prime, so a veteran's skills merely hold steady at best rather than climbing
 // indefinitely no matter how good their coach is.
-func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
+func driftSkill(value int, max int, age int, trainerSkill int, r *rand.Rand) int {
 	trend := ageTrendFor(age)
 	bonus := 0
 	if trend >= 0 {
@@ -83,8 +86,8 @@ func driftSkill(value int, age int, trainerSkill int, r *rand.Rand) int {
 	if value < 1 {
 		value = 1
 	}
-	if value > 99 {
-		value = 99
+	if value > max {
+		value = max
 	}
 	return value
 }
@@ -190,35 +193,44 @@ func primaryPosition(minutesByPosition map[int]int) (position int, totalMinutes 
 // Every relevant skill independently rolls playChance (see updatePlayerSkillsAfterMatch's
 // MatchSkillGrowthMinutesReference) before drifting; skills outside the relevant set are always
 // left untouched.
-func driftSkillsForPosition(p common.Player, position int, playChance float32, age int, trainerSkill int, r *rand.Rand) (
+func driftSkillsForPosition(p common.Player, caps common.PlayerSkillCaps, position int, playChance float32, age int, trainerSkill int, r *rand.Rand) (
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) {
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot =
 		p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot
 
-	maybeDrift := func(current int) int {
+	maybeDrift := func(current int, max int) int {
 		if r.Float32() >= playChance {
 			return current
 		}
-		return driftSkill(current, age, trainerSkill, r)
+		return driftSkill(current, max, age, trainerSkill, r)
 	}
 
 	switch position {
 	case common.GOALKEEPER:
-		goalKeeper = maybeDrift(goalKeeper)
+		goalKeeper = maybeDrift(goalKeeper, caps.GoalKeeperMax)
 	case common.DEFENSE:
-		defense = maybeDrift(defense)
+		defense = maybeDrift(defense, caps.DefenseMax)
 	case common.LATERAL_DEFENSE_LEFT, common.LATERAL_DEFENSE_RIGHT:
-		lateral, defense = maybeDrift(lateral), maybeDrift(defense)
+		lateral, defense = maybeDrift(lateral, caps.LateralMax), maybeDrift(defense, caps.DefenseMax)
 	case common.MIDFIELD:
-		midfield, pass = maybeDrift(midfield), maybeDrift(pass)
+		midfield, pass = maybeDrift(midfield, caps.MidfieldMax), maybeDrift(pass, caps.PassMax)
 	case common.LATERAL_MIDFIELD_LEFT, common.LATERAL_MIDFIELD_RIGHT:
-		lateral, midfield, pass = maybeDrift(lateral), maybeDrift(midfield), maybeDrift(pass)
+		lateral, midfield, pass = maybeDrift(lateral, caps.LateralMax), maybeDrift(midfield, caps.MidfieldMax), maybeDrift(pass, caps.PassMax)
 	case common.STRIKER:
-		shot, pass, dribbling = maybeDrift(shot), maybeDrift(pass), maybeDrift(dribbling)
+		shot, pass, dribbling = maybeDrift(shot, caps.ShotMax), maybeDrift(pass, caps.PassMax), maybeDrift(dribbling, caps.DribblingMax)
 	case common.LATERAL_STRIKER_LEFT, common.LATERAL_STRIKER_RIGHT:
-		lateral, shot, pass, dribbling = maybeDrift(lateral), maybeDrift(shot), maybeDrift(pass), maybeDrift(dribbling)
+		lateral, shot, pass, dribbling = maybeDrift(lateral, caps.LateralMax), maybeDrift(shot, caps.ShotMax), maybeDrift(pass, caps.PassMax), maybeDrift(dribbling, caps.DribblingMax)
 	}
 	return
+}
+
+// defaultSkillCaps is the fallback used when a player has no PlayerSkillCaps row yet (e.g. a
+// player created before this feature existed, caught between app deploy and the schema backfill
+// finishing) - the universal [1, 99] range every player used to share, so such a player is never
+// stuck unable to grow just because their individual ceilings haven't been rolled yet.
+var defaultSkillCaps = common.PlayerSkillCaps{
+	GoalKeeperMax: 99, DefenseMax: 99, LateralMax: 99, PassMax: 99,
+	MidfieldMax: 99, DribblingMax: 99, ShotMax: 99,
 }
 
 // MatchSkillGrowthMinutesReference is the minutes-played benchmark
@@ -302,6 +314,16 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 		trainerSkill = trainer.Skill
 	}
 
+	playerIds := make([]int64, 0, len(minutesByPosition))
+	for playerId := range minutesByPosition {
+		playerIds = append(playerIds, playerId)
+	}
+	skillCaps, err := common.GetPlayerSkillCaps(dbCtx, playerIds)
+	if err != nil {
+		log.Errorf("error getting skill caps for team %d match progression: %s", teamId, err)
+		skillCaps = map[int64]common.PlayerSkillCaps{}
+	}
+
 	evolvedCount := 0
 
 	for playerId, player := range *players {
@@ -324,8 +346,13 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 			playChance = 1
 		}
 
+		caps, ok := skillCaps[playerId]
+		if !ok {
+			caps = defaultSkillCaps
+		}
+
 		goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
-			driftSkillsForPosition(player, position, playChance, player.Age, trainerSkill, r)
+			driftSkillsForPosition(player, caps, position, playChance, player.Age, trainerSkill, r)
 
 		newStamina := player.Stamina
 		if r.Float32() < playChance {
