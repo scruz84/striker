@@ -20,6 +20,14 @@ func IsValidFormation(formation int) bool {
 	}
 }
 
+// AllFormations lists every valid formation - kept in sync with IsValidFormation's own switch by
+// hand, same as that function's list. Used by SelectBestFormationAndLineup to compare a squad's
+// best-XI strength across all six shapes rather than only ever building FormationBalanced's.
+var AllFormations = []int{
+	FormationBalanced, FormationDefensive, FormationAttacking,
+	FormationFourThreeThree, FormationFourFiveOne, FormationThreeFiveTwo,
+}
+
 // FormationPositionCounts returns how many players a formation needs at each tactical
 // position - every formation sums to 11 (including the goalkeeper). Used both to validate a
 // submitted lineup (see handlers.validateLineup) and, in principle, to build one automatically,

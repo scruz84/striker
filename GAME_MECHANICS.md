@@ -469,9 +469,16 @@ matchday-activity purpose, a friendly a CPU team plays this way still counts for
 "Player skill progression" above) exactly like a competitive match would.
 
 - **Caretaker** (tier 1, the baseline every level gets):
-  1. **Keeps the default lineup fresh** (`refreshAiTeamLineup` re-picks the current best XI from
-     the squad every match, so retirements, academy call-ups, and signings show up in the lineup
-     immediately rather than waiting for season end).
+  1. **Keeps the default lineup - and formation - fresh** (`refreshAiTeamLineup` re-picks the
+     current best XI from the squad every match, so retirements, academy call-ups, and signings
+     show up in the lineup immediately rather than waiting for season end). The formation itself
+     is picked fresh too, not left at `FormationBalanced`'s 4-4-2 forever:
+     `common.SelectBestFormationAndLineup` builds every one of the six formations' own best-XI for
+     this exact squad, ranks them by total strength, and picks the rank this team's own AI level
+     settles for (`common.formationRankForAiLevel`) - only Director reliably finds the genuinely
+     strongest shape (rank 0); Manager settles for the second-best (rank 1); Caretaker settles for
+     the third or fourth best (a coin flip each time), reflecting that it's the least sharp of the
+     three at reading its own squad.
   2. **Resolves every pending transfer offer on its own players** - this is the direct answer to
      "how does the CPU decide on a transfer offer": accept if the fee is at least
      `minAcceptableTransferFeeWageMultiplier` (20) × the player's own market-rate wage, otherwise

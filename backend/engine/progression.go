@@ -513,25 +513,24 @@ func ProgressFreeAgents(dbCtx *common.DatabaseContext) {
 }
 
 // autoManageLineupIfUnowned keeps a team nobody manages (no owner) fielding its current best XI
-// every season - the only "intelligence" it has is always picking its best available players
-// (see common.SelectBestLineup), same as at team creation. Without this, an unowned team's
-// lineup would go stale as retirees and academy arrivals (both just above) change its squad:
-// retirees are already dropped from default_lineup_positions (see RetirePlayer), leaving the
-// team fielding fewer than 11 players, and new academy players would never be selected at all.
+// (and, via refreshAiTeamLineup, the best formation its AI level can find for that squad) every
+// season. Without this, an unowned team's lineup would go stale as retirees and academy arrivals
+// (both just above) change its squad: retirees are already dropped from default_lineup_positions
+// (see RetirePlayer), leaving the team fielding fewer than 11 players, and new academy players
+// would never be selected at all. Delegates to refreshAiTeamLineup (engine/aiteams.go) - the same
+// function RunAITeamManagement calls every match - rather than duplicating its own copy of the
+// lineup/formation selection, so the two can never drift into picking differently for the same
+// squad. Unlike RunAITeamManagement, this doesn't gate on isAiManagedTeam (AiLevel >=
+// AiLevelCaretaker): a team that's unowned but hasn't been assigned an AI level yet (AiLevel 0 -
+// e.g. one not yet reached by BackfillAiLevels) still needs its lineup refreshed here or it would
+// simply go stale forever, and refreshAiTeamLineup/formationRankForAiLevel already treat AiLevel 0
+// the same as Caretaker's "almost the best" behavior, not as an error case.
 func autoManageLineupIfUnowned(dbCtx *common.DatabaseContext, teamId int64) {
-	owner, err := common.GetTeamOwner(dbCtx, teamId)
-	if err != nil || owner > 0 {
+	team, err := common.GetTeamById(teamId, dbCtx)
+	if err != nil || team.OwnerId > 0 {
 		return
 	}
-
-	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
-	if err != nil {
-		log.Errorf("error fetching squad for unowned team %d lineup refresh: %s", teamId, err)
-		return
-	}
-	if err := common.SetDefaultLineup(dbCtx, teamId, common.FlattenLineup(common.SelectBestLineup(*players))); err != nil {
-		log.Errorf("error refreshing lineup for unowned team %d: %s", teamId, err)
-	}
+	refreshAiTeamLineup(dbCtx, teamId, team.AiLevel)
 }
 
 func topUpAcademy(dbCtx *common.DatabaseContext, teamId int64, trainerSkill int) {

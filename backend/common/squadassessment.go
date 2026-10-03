@@ -31,8 +31,9 @@ func SquadStrength(players []*Player) int {
 
 // MinPositionDepth is the fewest squad players an AI-managed team should have whose best core
 // position (see BestCorePosition) is a given slot before AssessPositionNeeds flags it as thin -
-// one full XI's worth of that slot plus a single backup: 2 for goalkeeper (bestLineupSlots only
-// ever fills one), 3 for defense/midfield/striker (bestLineupSlots fills two of each).
+// one full XI's worth of that slot plus a single backup: 2 for goalkeeper (FormationBalanced, the
+// shape SquadStrength's SelectBestLineup always builds, only ever fills one), 3 for defense/
+// midfield/striker (FormationBalanced fills two of each).
 var MinPositionDepth = map[int]int{
 	GOALKEEPER: 2,
 	DEFENSE:    3,

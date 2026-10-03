@@ -34,7 +34,7 @@ func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 		return
 	}
 
-	refreshAiTeamLineup(dbCtx, teamId)
+	refreshAiTeamLineup(dbCtx, teamId, team.AiLevel)
 	// Responding to incoming offers is baseline Caretaker-level behavior (see
 	// AiLevelCaretaker/Manager/Director's own doc comment: "Caretaker only reacts ... accepts
 	// clearly-good incoming offers") - it belongs here, unconditional at every AI level, not
@@ -575,19 +575,30 @@ func upgradeTrainerIfBetterAvailable(dbCtx *common.DatabaseContext, teamId int64
 	}
 }
 
-// refreshAiTeamLineup re-picks and persists an unowned team's best-XI default lineup from its
-// current squad - the Caretaker-level baseline every AI-managed team gets, every AI level and up.
-// Runs every match rather than only at season rollover (see autoManageLineupIfUnowned in
+// refreshAiTeamLineup re-picks and persists an unowned team's formation and that formation's
+// best-XI from its current squad - the Caretaker-level baseline every AI-managed team gets, every
+// AI level and up. Which formation it settles for isn't fixed: common.SelectBestFormationAndLineup
+// compares the squad's best-XI strength across every formation and picks the rank its own AI level
+// (aiLevel) settles for - only Director reliably finds the genuinely strongest shape, Manager
+// settles for the second-best, Caretaker further still (see that function and
+// common.formationRankForAiLevel) - so a CPU team's formation varies with its squad and its
+// sharpness instead of every unowned team defaulting to FormationBalanced's 4-4-2 forever. Runs
+// every match rather than only at season rollover (see autoManageLineupIfUnowned in
 // progression.go, which still covers the retirement/academy-intake refresh at season end) so a
 // mid-season squad change - a Level 2/3 signing, release or transfer buy - shows up in the
-// default lineup right away instead of waiting for the next season.
-func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64) {
+// default lineup (and, now, potentially a reconsidered formation) right away instead of waiting
+// for the next season.
+func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64, aiLevel int) {
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching squad for AI-managed team %d lineup refresh: %s", teamId, err)
 		return
 	}
-	if err := common.SetDefaultLineup(dbCtx, teamId, common.FlattenLineup(common.SelectBestLineup(*players))); err != nil {
+	formation, lineup := common.SelectBestFormationAndLineup(*players, aiLevel)
+	if err := common.SetTeamFormation(dbCtx, teamId, formation); err != nil {
+		log.Errorf("error setting formation for AI-managed team %d: %s", teamId, err)
+	}
+	if err := common.SetDefaultLineup(dbCtx, teamId, common.FlattenLineup(lineup)); err != nil {
 		log.Errorf("error refreshing lineup for AI-managed team %d: %s", teamId, err)
 	}
 }
