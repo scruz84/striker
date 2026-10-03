@@ -1,4 +1,4 @@
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nadeem',418.0),
 	 ('Marek',385.0),
 	 ('Mike',278.0),
@@ -9,7 +9,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fazal',79.0),
 	 ('Romano',70.0),
 	 ('Ryad',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Derick',44.0),
 	 ('Olav',41.0),
 	 ('Honesto',38.0),
@@ -20,7 +20,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Efran',26.0),
 	 ('Junlei',24.0),
 	 ('Ozgur',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Augusto',21.0),
 	 ('Antonio',640.854),
 	 ('Manuel',562.798),
@@ -31,7 +31,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier',308.465),
 	 ('Jose Antonio',303.446),
 	 ('Daniel',302.864);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Javier',285.853),
 	 ('Jose Luis',285.096),
 	 ('Carlos',276.918),
@@ -42,7 +42,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael',228.32),
 	 ('Miguel Angel',227.786),
 	 ('Pablo',222.59);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro',214.374),
 	 ('Angel',213.042),
 	 ('Sergio',209.093),
@@ -53,7 +53,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto',179.233),
 	 ('Alvaro',164.351),
 	 ('Juan Carlos',160.704);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian',158.783),
 	 ('Diego',154.834),
 	 ('Juan Jose',151.376),
@@ -64,7 +64,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique',124.83),
 	 ('Oscar',123.308),
 	 ('Ramon',115.941);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres',113.392),
 	 ('Juan Manuel',112.411),
 	 ('Vicente',111.719),
@@ -75,7 +75,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo',104.224),
 	 ('Roberto',97.787),
 	 ('Jaime',95.959);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Jose',95.334),
 	 ('Marcos',95.305),
 	 ('Hugo',89.378),
@@ -86,7 +86,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salvador',77.61),
 	 ('Guillermo',72.973),
 	 ('Marc',72.286);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel',72.244),
 	 ('Mohamed',71.073),
 	 ('Emilio',69.152),
@@ -97,7 +97,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian',63.67),
 	 ('Tomas',62.31),
 	 ('Nicolas',60.075);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin',59.954),
 	 ('Jose Ramon',57.349),
 	 ('Samuel',56.989),
@@ -108,7 +108,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix',52.968),
 	 ('Aitor',52.249),
 	 ('Hector',50.149);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker',47.652),
 	 ('Alex',47.346),
 	 ('Juan Francisco',46.925),
@@ -119,7 +119,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mariano',42.281),
 	 ('Alfredo',41.924),
 	 ('Domingo',41.361);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo',41.251),
 	 ('Jose Angel',40.821),
 	 ('Rodrigo',40.339),
@@ -130,7 +130,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Francisco',34.395),
 	 ('Xavier',34.026),
 	 ('Juan Luis',33.878);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Albert',33.832),
 	 ('Pau',32.837),
 	 ('Gregorio',31.415),
@@ -141,7 +141,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Borja',30.32),
 	 ('Eric',30.067),
 	 ('Esteban',29.578);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arturo',29.445),
 	 ('Mohammed',29.109),
 	 ('Cristobal',29.096),
@@ -152,7 +152,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Jesus',26.831),
 	 ('Juan Miguel',26.83),
 	 ('Francisco Manuel',26.192);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dario',25.984),
 	 ('Eugenio',25.945),
 	 ('Jesus Maria',25.812),
@@ -163,7 +163,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abel',24.778),
 	 ('Marco',24.613),
 	 ('German',24.547);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan',24.343),
 	 ('Ahmed',24.068),
 	 ('Pedro Jose',24.035),
@@ -174,7 +174,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moises',22.863),
 	 ('Christian',22.754),
 	 ('Omar',22.182);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Ramon',21.897),
 	 ('Pol',21.868),
 	 ('Iñigo',21.633),
@@ -185,7 +185,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adolfo',20.711),
 	 ('Arnau',20.446),
 	 ('Adam',19.961);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Israel',19.736),
 	 ('Oriol',19.598),
 	 ('Ernesto',19.5),
@@ -196,7 +196,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eloy',18.659),
 	 ('Bernardo',18.523),
 	 ('Gerardo',18.491);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oliver',18.486),
 	 ('Benito',18.454),
 	 ('Carmelo',17.732),
@@ -207,7 +207,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Alberto',17.221),
 	 ('Adria',16.88),
 	 ('Youssef',16.832);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alonso',16.766),
 	 ('Saul',16.757),
 	 ('Juan Jesus',16.702),
@@ -218,7 +218,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias',16.087),
 	 ('Marti',15.986),
 	 ('Erik',15.908);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Pablo',15.887),
 	 ('Iñaki',15.872),
 	 ('Josep Maria',15.456),
@@ -229,7 +229,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bartolome',15.22),
 	 ('Guillem',15.177),
 	 ('Alexander',15.176);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Alberto',15.022),
 	 ('Marco Antonio',14.931),
 	 ('Pere',14.887),
@@ -240,7 +240,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antoni',14.424),
 	 ('Marcelino',14.337),
 	 ('Abraham',14.208);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julen',14.176),
 	 ('Angel Luis',14.164),
 	 ('Juan Ignacio',13.968),
@@ -251,7 +251,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aurelio',13.322),
 	 ('Gorka',13.174),
 	 ('Ferran',12.945);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Fernando',12.884),
 	 ('Gustavo',12.785),
 	 ('Leonardo',12.739),
@@ -262,7 +262,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yeray',12.473),
 	 ('Manuel Angel',12.47),
 	 ('Jose Juan',12.395);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Manuel',12.319),
 	 ('Jacinto',12.232),
 	 ('Damian',12.21),
@@ -273,7 +273,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian',11.628),
 	 ('Pedro Luis',11.614),
 	 ('Victoriano',11.606);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enric',11.583),
 	 ('Armando',11.308),
 	 ('Isidoro',11.181),
@@ -284,7 +284,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduard',10.857),
 	 ('Jose Joaquin',10.84),
 	 ('Gines',10.673);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Cesar',10.666),
 	 ('Teodoro',10.571),
 	 ('Biel',10.545),
@@ -295,7 +295,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar',10.391),
 	 ('Candido',10.344),
 	 ('Justo',10.342);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nil',10.306),
 	 ('Francisco Antonio',10.242),
 	 ('Luca',10.179),
@@ -306,7 +306,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Andres',9.878),
 	 ('Simon',9.777),
 	 ('Luis Antonio',9.729);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emiliano',9.703),
 	 ('Luis Angel',9.667),
 	 ('Jesus Angel',9.617),
@@ -317,7 +317,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Maria',9.255),
 	 ('Thiago',9.222),
 	 ('Igor',9.213);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ezequiel',9.06),
 	 ('Faustino',9.018),
 	 ('Yago',8.992),
@@ -328,7 +328,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Claudio',8.762),
 	 ('Muhammad',8.749),
 	 ('Manuel Antonio',8.748);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Miguel',8.733),
 	 ('Juan Diego',8.692),
 	 ('Amador',8.626),
@@ -339,7 +339,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauro',8.425),
 	 ('Jose Daniel',8.411),
 	 ('Jose Fernando',8.3);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rayan',8.272),
 	 ('Rogelio',8.235),
 	 ('Ion',8.214),
@@ -350,7 +350,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Manuel',8.051),
 	 ('Hamza',7.982),
 	 ('Aimar',7.952);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ayoub',7.931),
 	 ('Juan Andres',7.927),
 	 ('Joaquim',7.885),
@@ -361,7 +361,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josue',7.738),
 	 ('Khalid',7.735),
 	 ('Leandro',7.718);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ildefonso',7.712),
 	 ('Antonio Miguel',7.683),
 	 ('Luis Javier',7.591),
@@ -372,7 +372,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian',7.375),
 	 ('Bilal',7.335),
 	 ('Florentino',7.308);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Jesus',7.288),
 	 ('Abdellah',7.243),
 	 ('Manel',7.195),
@@ -383,7 +383,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paulino',7.012),
 	 ('Constantino',6.993),
 	 ('Robert',6.982);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hicham',6.972),
 	 ('Francesc Xavier',6.944),
 	 ('Juan Angel',6.915),
@@ -394,7 +394,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oier',6.756),
 	 ('Imanol',6.723),
 	 ('Marcelo',6.631);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brais',6.57),
 	 ('Saturnino',6.495),
 	 ('Abdelkader',6.431),
@@ -405,7 +405,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andoni',6.324),
 	 ('Gaspar',6.301),
 	 ('Brahim',6.29);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Enrique',6.264),
 	 ('Ibrahim',6.242),
 	 ('Bernat',6.198),
@@ -416,7 +416,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Jose',6.105),
 	 ('Didac',6.04),
 	 ('Jesus Antonio',6.028);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Carlos',5.987),
 	 ('Yassine',5.973),
 	 ('Clemente',5.943),
@@ -427,7 +427,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raimundo',5.777),
 	 ('Juan David',5.768),
 	 ('Anton',5.753);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelaziz',5.665),
 	 ('Ioan',5.598),
 	 ('Feliciano',5.586),
@@ -438,7 +438,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Evaristo',5.465),
 	 ('Adan',5.453),
 	 ('Karim',5.407);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcial',5.387),
 	 ('Antonio Francisco',5.375),
 	 ('Mauricio',5.336),
@@ -449,7 +449,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Max',5.274),
 	 ('Eliseo',5.273),
 	 ('Francisco Luis',5.263);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hamid',5.242),
 	 ('Laureano',5.206),
 	 ('Noah',5.174),
@@ -460,7 +460,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pelayo',5.027),
 	 ('Camilo',5.022),
 	 ('Amir',5.01);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Jose',5.004),
 	 ('Cecilio',4.999),
 	 ('Benigno',4.98),
@@ -471,7 +471,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Constantin',4.849),
 	 ('Segundo',4.844),
 	 ('Zakaria',4.825);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mamadou',4.789),
 	 ('Pedro Miguel',4.767),
 	 ('Jose Gabriel',4.764),
@@ -482,7 +482,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Valeriano',4.641),
 	 ('Eloi',4.625),
 	 ('Denis',4.624);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Asis',4.596),
 	 ('Demetrio',4.578),
 	 ('Jose Felix',4.572),
@@ -493,7 +493,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesareo',4.547),
 	 ('Octavio',4.546),
 	 ('Teo',4.519);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Pedro',4.458),
 	 ('Luis Francisco',4.435),
 	 ('Jose Alejandro',4.424),
@@ -504,7 +504,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bernabe',4.339),
 	 ('Beñat',4.332),
 	 ('Lazaro',4.325);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Jose',4.317),
 	 ('Aziz',4.316),
 	 ('Bienvenido',4.296),
@@ -515,7 +515,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Enrique',4.201),
 	 ('Baltasar',4.2),
 	 ('Cipriano',4.197);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alessandro',4.169),
 	 ('Anselmo',4.162),
 	 ('Carlos Enrique',4.152),
@@ -526,7 +526,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ayman',4.124),
 	 ('Samir',4.111),
 	 ('Gustavo Adolfo',4.101);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amadeo',4.076),
 	 ('Noe',4.072),
 	 ('Anibal',4.06),
@@ -537,7 +537,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Unax',4.007),
 	 ('Juan Gabriel',3.999),
 	 ('Kilian',3.993);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Orlando',3.99),
 	 ('Aday',3.989),
 	 ('Celso',3.983),
@@ -548,7 +548,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adil',3.947),
 	 ('Yassin',3.939),
 	 ('Luis Eduardo',3.938);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eulogio',3.912),
 	 ('Fulgencio',3.897),
 	 ('Juan Fernando',3.891),
@@ -559,7 +559,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Imran',3.841),
 	 ('Casimiro',3.827),
 	 ('Jose Pablo',3.807);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru',3.793),
 	 ('Eduardo Jose',3.779),
 	 ('Teofilo',3.77),
@@ -570,7 +570,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaizka',3.656),
 	 ('Maximino',3.633),
 	 ('Carlos Andres',3.623);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Tomas',3.619),
 	 ('Jose Jesus',3.58),
 	 ('Jesus Alberto',3.56),
@@ -581,7 +581,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Antonio',3.512),
 	 ('Yoel',3.511),
 	 ('Antonio David',3.495);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vidal',3.461),
 	 ('Marino',3.456),
 	 ('Aquilino',3.443),
@@ -592,7 +592,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anxo',3.399),
 	 ('Juan Sebastian',3.396),
 	 ('Stefan',3.382);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yahya',3.379),
 	 ('Jose Emilio',3.359),
 	 ('Eder',3.35),
@@ -603,7 +603,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isaias',3.309),
 	 ('Melchor',3.308),
 	 ('Beltran',3.3);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Jose',3.284),
 	 ('Luis Felipe',3.28),
 	 ('Francisco Ramon',3.278),
@@ -614,7 +614,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hipolito',3.247),
 	 ('Rosendo',3.245),
 	 ('Victorino',3.227);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bryan',3.206),
 	 ('Ibrahima',3.206),
 	 ('Mimoun',3.199),
@@ -625,7 +625,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Virgilio',3.17),
 	 ('Oussama',3.166),
 	 ('Jose Raul',3.164);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Augusto',3.152),
 	 ('Erick',3.147),
 	 ('Giovanni',3.138),
@@ -636,7 +636,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Manuel',3.116),
 	 ('Victor Hugo',3.11),
 	 ('Higinio',3.086);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Antonio',3.086),
 	 ('Eleuterio',3.083),
 	 ('Arkaitz',3.079),
@@ -647,7 +647,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Rafael',3.027),
 	 ('Fernando Javier',3.021),
 	 ('Ilyas',3.013);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jon Ander',3.011),
 	 ('Carlos Eduardo',3.007),
 	 ('Xavi',3.006),
@@ -658,7 +658,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Maria',2.977),
 	 ('Angel Antonio',2.969),
 	 ('Achraf',2.968);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Jesus',2.968),
 	 ('Abelardo',2.962),
 	 ('Mourad',2.954),
@@ -669,7 +669,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdellatif',2.936),
 	 ('Urbano',2.92),
 	 ('Abdelilah',2.916);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mostafa',2.914),
 	 ('Jacob',2.909),
 	 ('Yerai',2.908),
@@ -680,7 +680,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Venancio',2.86),
 	 ('Abderrahman',2.859),
 	 ('Ceferino',2.856);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohammad',2.853),
 	 ('Ruben Dario',2.838),
 	 ('Hernan',2.835),
@@ -691,7 +691,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tarik',2.78),
 	 ('Vladimir',2.78),
 	 ('Neizan',2.775);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Cruz',2.765),
 	 ('Artur',2.761),
 	 ('Telmo',2.759),
@@ -702,7 +702,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amine',2.726),
 	 ('Humberto',2.706),
 	 ('Inocencio',2.702);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amin',2.691),
 	 ('Pablo Antonio',2.691),
 	 ('Lahcen',2.689),
@@ -713,7 +713,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aran',2.657),
 	 ('Salah',2.653),
 	 ('Andrea',2.635);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Braulio',2.635),
 	 ('Genaro',2.623),
 	 ('Antonio Angel',2.614),
@@ -724,7 +724,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Imad',2.588),
 	 ('Quim',2.587),
 	 ('Bautista',2.574);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Primitivo',2.567),
 	 ('Rafael Antonio',2.56),
 	 ('Soufiane',2.548),
@@ -735,7 +735,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonas',2.531),
 	 ('Llorenç',2.53),
 	 ('Juan Daniel',2.524);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Mariano',2.519),
 	 ('Fouad',2.516),
 	 ('Francisco David',2.514),
@@ -746,7 +746,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Prudencio',2.497),
 	 ('Antonio Ramon',2.491),
 	 ('Delfin',2.489);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Fernando',2.486),
 	 ('Fausto',2.455),
 	 ('Francisco Paula',2.452),
@@ -757,7 +757,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelson',2.426),
 	 ('Danel',2.425),
 	 ('Indalecio',2.421);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Alberto',2.42),
 	 ('Mounir',2.411),
 	 ('Thomas',2.41),
@@ -768,7 +768,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Javier',2.368),
 	 ('Julio Jose',2.364),
 	 ('Luis Ignacio',2.36);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mhamed',2.358),
 	 ('Jose Alfredo',2.34),
 	 ('Secundino',2.336),
@@ -779,7 +779,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rene',2.318),
 	 ('Carlos Daniel',2.316),
 	 ('Mohamed Amin',2.311);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaouad',2.309),
 	 ('Abdoulaye',2.307),
 	 ('Farid',2.305),
@@ -790,7 +790,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Francisco',2.271),
 	 ('Ionut',2.27),
 	 ('Rafael Angel',2.266);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Camilo',2.263),
 	 ('Diego Jesus',2.245),
 	 ('Vicenç',2.245),
@@ -801,7 +801,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelali',2.226),
 	 ('Miguel Jose',2.223),
 	 ('Ambrosio',2.216);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lino',2.21),
 	 ('Viorel',2.201),
 	 ('Hodei',2.197),
@@ -812,7 +812,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Salvador',2.189),
 	 ('Jonay',2.187),
 	 ('Andre',2.185);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ilias',2.183),
 	 ('Nicanor',2.17),
 	 ('Luis Alejandro',2.163),
@@ -823,7 +823,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jokin',2.128),
 	 ('Vicente Manuel',2.122),
 	 ('Sixto',2.114);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mustafa',2.113),
 	 ('Nizar',2.112),
 	 ('Abdelghani',2.111),
@@ -834,7 +834,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Desiderio',2.09),
 	 ('Oscar Manuel',2.089),
 	 ('Juan Javier',2.088);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Luis',2.084),
 	 ('Manuel Enrique',2.08),
 	 ('Fernando Manuel',2.078),
@@ -845,7 +845,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Airam',2.066),
 	 ('Xoel',2.066),
 	 ('Ariel',2.063);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ousmane',2.059),
 	 ('Francisco Gabriel',2.057),
 	 ('Manuel Luis',2.057),
@@ -856,7 +856,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Damaso',2.03),
 	 ('Hermenegildo',2.03),
 	 ('Diego Alejandro',2.028);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ventura',2.027),
 	 ('Sami',2.026),
 	 ('Ares',2.025),
@@ -867,7 +867,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Jesus',2.005),
 	 ('Anthony',2.003),
 	 ('Josep Lluis',2.003);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tristan',1.996),
 	 ('Victor Javier',1.996),
 	 ('Gilberto',1.992),
@@ -878,7 +878,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Ramon',1.97),
 	 ('Luis Alfredo',1.969),
 	 ('Abdelkrim',1.966);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antolin',1.965),
 	 ('Jose Salvador',1.964),
 	 ('Jose Roberto',1.957),
@@ -889,7 +889,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Pascual',1.943),
 	 ('Honorio',1.941),
 	 ('Angel Miguel',1.938);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Narcis',1.937),
 	 ('Vasyl',1.933),
 	 ('Alvaro Jose',1.932),
@@ -900,7 +900,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Jesus',1.907),
 	 ('Benedicto',1.902),
 	 ('Juan Felipe',1.902);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mahamadou',1.902),
 	 ('Tiago',1.9),
 	 ('Ekain',1.898),
@@ -911,7 +911,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Jose',1.872),
 	 ('Albino',1.867),
 	 ('Pablo Manuel',1.867);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Silverio',1.867),
 	 ('Celedonio',1.862),
 	 ('Blai',1.853),
@@ -922,7 +922,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Manuel',1.831),
 	 ('Eustaquio',1.823),
 	 ('Servando',1.822);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sandro',1.821),
 	 ('Patrick',1.81),
 	 ('Aron',1.798),
@@ -933,7 +933,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelhamid',1.785),
 	 ('Arcadio',1.785),
 	 ('Dimas',1.781);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Olegario',1.779),
 	 ('Amadou',1.776),
 	 ('Viktor',1.776),
@@ -944,7 +944,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Vicente',1.755),
 	 ('Florian',1.753),
 	 ('Juan Domingo',1.751);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicasio',1.747),
 	 ('Jesus Jose',1.745),
 	 ('Enrique Manuel',1.744),
@@ -955,7 +955,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Javier',1.725),
 	 ('Zacarias',1.708),
 	 ('Jesus Ignacio',1.703);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Rafael',1.701),
 	 ('Jose Santiago',1.689),
 	 ('Luis Ramon',1.689),
@@ -966,7 +966,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Daniel',1.667),
 	 ('Joshua',1.664),
 	 ('Koldo',1.658);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Ivan',1.657),
 	 ('Bosco',1.656),
 	 ('Amancio',1.647),
@@ -977,7 +977,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emanuel',1.639),
 	 ('Enol',1.637),
 	 ('Bartomeu',1.634);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Juan',1.634),
 	 ('Miquel Angel',1.634),
 	 ('Manuel Alberto',1.631),
@@ -988,7 +988,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Balbino',1.616),
 	 ('Luis Daniel',1.616),
 	 ('Marçal',1.616);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Justino',1.613),
 	 ('Frank',1.61),
 	 ('Daniel Jose',1.609),
@@ -999,7 +999,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michel',1.591),
 	 ('Alberto Manuel',1.59),
 	 ('Remigio',1.589);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Marcos',1.583),
 	 ('Antonino',1.582),
 	 ('Mouad',1.58),
@@ -1010,7 +1010,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Guillermo',1.569),
 	 ('Rolando',1.569),
 	 ('Yasser',1.569);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Jose',1.568),
 	 ('David Alejandro',1.561),
 	 ('Jose Eugenio',1.56),
@@ -1021,7 +1021,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Buenaventura',1.553),
 	 ('Enrique Javier',1.551),
 	 ('Dan',1.546);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angelo',1.545),
 	 ('Costel',1.545),
 	 ('Alfonso Carlos',1.542),
@@ -1032,7 +1032,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Vicente',1.529),
 	 ('Jose Mario',1.526),
 	 ('Maxim',1.52);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Petru',1.519),
 	 ('Miguel Jesus',1.518),
 	 ('James',1.515),
@@ -1043,7 +1043,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jordan',1.504),
 	 ('Diego Antonio',1.503),
 	 ('Cristofer',1.502);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Angel',1.501),
 	 ('Aureliano',1.497),
 	 ('Pavel',1.494),
@@ -1054,7 +1054,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iulian',1.487),
 	 ('Badr',1.482),
 	 ('Jesus Enrique',1.479);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Maria',1.478),
 	 ('Romualdo',1.474),
 	 ('Joan Josep',1.472),
@@ -1065,7 +1065,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dante',1.463),
 	 ('Issam',1.463),
 	 ('Perfecto',1.461);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Luis',1.459),
 	 ('Alberto Jesus',1.456),
 	 ('Steven',1.454),
@@ -1076,7 +1076,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Crescencio',1.442),
 	 ('Jose Damian',1.44),
 	 ('Emil',1.439);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Felipe',1.439),
 	 ('Jorge Andres',1.436),
 	 ('Manuel David',1.435),
@@ -1087,7 +1087,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Javier',1.42),
 	 ('Otman',1.418),
 	 ('Juan Emilio',1.415);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Gabriel',1.413),
 	 ('Josep Antoni',1.411),
 	 ('Lukas',1.408),
@@ -1098,7 +1098,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Redouane',1.402),
 	 ('Julio Manuel',1.398),
 	 ('Rayco',1.396);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Heriberto',1.386),
 	 ('Laurentino',1.386),
 	 ('Timoteo',1.38),
@@ -1109,7 +1109,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amalio',1.373),
 	 ('Jose Jaime',1.372),
 	 ('Nikolay',1.368);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Fernando',1.364),
 	 ('Francisco Alberto',1.363),
 	 ('Josep Oriol',1.359),
@@ -1120,7 +1120,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Jesus',1.342),
 	 ('Ramon Antonio',1.34),
 	 ('Abdelhafid',1.332);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Davide',1.332),
 	 ('Henry',1.332),
 	 ('Luken',1.331),
@@ -1131,7 +1131,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lisardo',1.324),
 	 ('Oumar',1.321),
 	 ('Boris',1.319);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Alejandro',1.319),
 	 ('Jose Esteban',1.316),
 	 ('Abdelhakim',1.313),
@@ -1142,7 +1142,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joseph',1.306),
 	 ('Francisco Tomas',1.302),
 	 ('Pedro Enrique',1.301);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Andres',1.299),
 	 ('Anwar',1.298),
 	 ('Juan Alejandro',1.298),
@@ -1153,7 +1153,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Manuel',1.291),
 	 ('Cristhian',1.29),
 	 ('Iosu',1.29);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Musa',1.29),
 	 ('Sorin',1.288),
 	 ('Joaquin Manuel',1.285),
@@ -1164,7 +1164,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ahmad',1.276),
 	 ('Daniele',1.276),
 	 ('Andres Jose',1.272);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Manuel',1.272),
 	 ('Jose Lorenzo',1.27),
 	 ('Alfonso Javier',1.269),
@@ -1175,7 +1175,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ihor',1.265),
 	 ('Juan Felix',1.265),
 	 ('Javier Jesus',1.263);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Joaquin',1.254),
 	 ('Emeterio',1.254),
 	 ('Eudald',1.254),
@@ -1186,7 +1186,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Victor',1.247),
 	 ('Massimo',1.246),
 	 ('Pablo Andres',1.246);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Doroteo',1.244),
 	 ('Jose Ruben',1.244),
 	 ('Pedro Vicente',1.243),
@@ -1197,7 +1197,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Jose',1.237),
 	 ('Jose Adrian',1.234),
 	 ('Manuel Javier',1.233);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Manuel',1.228),
 	 ('Jean Pierre',1.227),
 	 ('Angel Ramon',1.226),
@@ -1208,7 +1208,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Jesus',1.221),
 	 ('Yasin',1.217),
 	 ('Michele',1.216);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enaitz',1.211),
 	 ('Modou',1.211),
 	 ('Javier Alejandro',1.21),
@@ -1219,7 +1219,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emilio Jesus',1.202),
 	 ('Aurel',1.2),
 	 ('Hector Manuel',1.2);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Miguel',1.2),
 	 ('Nahuel',1.2),
 	 ('Jhon Jairo',1.199),
@@ -1230,7 +1230,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Antonio',1.189),
 	 ('Mario Jose',1.189),
 	 ('Nour Eddine',1.187);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bogdan',1.185),
 	 ('Mohamed Reda',1.183),
 	 ('Vicente Ramon',1.183),
@@ -1241,7 +1241,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ayoze',1.18),
 	 ('Sergey',1.18),
 	 ('Amando',1.178);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fructuoso',1.178),
 	 ('Jesus Vicente',1.176),
 	 ('Franco',1.175),
@@ -1252,7 +1252,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Jose',1.169),
 	 ('Raimon',1.169),
 	 ('Julian Andres',1.166);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ilie',1.165),
 	 ('Allal',1.161),
 	 ('Souleymane',1.161),
@@ -1263,7 +1263,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Ignacio',1.152),
 	 ('Samba',1.151),
 	 ('Manex',1.15);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Izei',1.149),
 	 ('Victor Antonio',1.149),
 	 ('Nadir',1.148),
@@ -1274,7 +1274,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrew',1.141),
 	 ('Cristian David',1.14),
 	 ('Jeremy',1.14);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Ramon',1.14),
 	 ('Adonay',1.137),
 	 ('Jesus Daniel',1.137),
@@ -1285,7 +1285,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Jose',1.128),
 	 ('Emili',1.127),
 	 ('Hakim',1.127);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruslan',1.126),
 	 ('Rafael Francisco',1.125),
 	 ('Ciriaco',1.124),
@@ -1296,7 +1296,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Antonio',1.12),
 	 ('Marouane',1.12),
 	 ('Haron',1.114);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Luis',1.113),
 	 ('Jorge Eduardo',1.112),
 	 ('Ricardo Manuel',1.112),
@@ -1307,7 +1307,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Antonio',1.109),
 	 ('Oscar David',1.107),
 	 ('Ronald',1.107);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hafid',1.106),
 	 ('Ladislao',1.105),
 	 ('Salvatore',1.105),
@@ -1318,7 +1318,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bakary',1.099),
 	 ('Alvar',1.098),
 	 ('Jhonatan',1.098);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valentino',1.094),
 	 ('Jorge Jose',1.093),
 	 ('Antonio Fernando',1.092),
@@ -1329,7 +1329,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Alejandro',1.084),
 	 ('Boubacar',1.083),
 	 ('Joaquin Antonio',1.081);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mykhaylo',1.08),
 	 ('Emilio Manuel',1.076),
 	 ('Jorge David',1.071),
@@ -1340,7 +1340,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abderrazak',1.064),
 	 ('Alvaro Jesus',1.064),
 	 ('Alfred',1.06);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Casto',1.057),
 	 ('Rida',1.057),
 	 ('Carlos Gustavo',1.056),
@@ -1351,7 +1351,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mihail',1.054),
 	 ('Hassane',1.053),
 	 ('Ilyass',1.053);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristino',1.052),
 	 ('Ruperto',1.051),
 	 ('Ramon Maria',1.05),
@@ -1362,7 +1362,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Andres',1.041),
 	 ('Manuel Andres',1.04),
 	 ('Gervasio',1.039);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Custodio',1.038),
 	 ('Joseba Andoni',1.038),
 	 ('Jawad',1.037),
@@ -1373,7 +1373,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Artem',1.034),
 	 ('Andreas',1.032),
 	 ('Asensio',1.029);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Jesus',1.029),
 	 ('Jose Oscar',1.029),
 	 ('Nicola',1.026),
@@ -1384,7 +1384,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Carlos',1.016),
 	 ('Atanasio',1.015),
 	 ('Luigi',1.015);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oleh',1.014),
 	 ('Vicente Luis',1.014),
 	 ('Alexandro',1.011),
@@ -1395,7 +1395,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Alejandro',1.005),
 	 ('Castor',1.005),
 	 ('Eulalio',1.005);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yousef',1.005),
 	 ('Eduardo Javier',1.003),
 	 ('Fortunato',1.002),
@@ -1406,7 +1406,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Torcuato',999.0),
 	 ('Jose Arturo',997.0),
 	 ('Jose Carmelo',997.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wassim',994.0),
 	 ('Angel Alberto',993.0),
 	 ('Millan',992.0),
@@ -1417,7 +1417,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aliou',981.0),
 	 ('Domingo Antonio',980.0),
 	 ('Aleksandr',979.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cornel',979.0),
 	 ('Cesc',977.0),
 	 ('Aiman',976.0),
@@ -1428,7 +1428,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Cristobal',974.0),
 	 ('Yonatan',974.0),
 	 ('Andrii',970.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Magin',968.0),
 	 ('Lucian',967.0),
 	 ('Theo',967.0),
@@ -1439,7 +1439,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Francisco',955.0),
 	 ('Mathias',955.0),
 	 ('Jose Aurelio',954.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Antonio',953.0),
 	 ('Belarmino',951.0),
 	 ('Cristopher',949.0),
@@ -1450,7 +1450,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oskar',944.0),
 	 ('El Bachir',943.0),
 	 ('Alvaro Manuel',942.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Taoufik',941.0),
 	 ('Edmundo',940.0),
 	 ('Magi',939.0),
@@ -1461,7 +1461,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Angel',934.0),
 	 ('Vicente Miguel',934.0),
 	 ('Aymane',933.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Jesus',933.0),
 	 ('Pep',932.0),
 	 ('Peru',932.0),
@@ -1472,7 +1472,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Renato',930.0),
 	 ('Carlos Alfredo',928.0),
 	 ('Leonel',926.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Antonio',925.0),
 	 ('Vincenzo',924.0),
 	 ('Yael',924.0),
@@ -1483,7 +1483,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Jesus',921.0),
 	 ('Simeon',921.0),
 	 ('Babacar',920.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Manuel',920.0),
 	 ('Andy',918.0),
 	 ('Ricardo Javier',917.0),
@@ -1494,7 +1494,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Jose',909.0),
 	 ('Santiago Manuel',908.0),
 	 ('Antonio Daniel',907.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aythami',902.0),
 	 ('Francisco Fernando',902.0),
 	 ('Joaquin Maria',902.0),
@@ -1505,7 +1505,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aissa',898.0),
 	 ('Enrique Antonio',896.0),
 	 ('Jose Nicolas',896.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Alberto',894.0),
 	 ('Dimitar',894.0),
 	 ('Juan Santiago',894.0),
@@ -1516,7 +1516,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Riccardo',892.0),
 	 ('Enmanuel',891.0),
 	 ('Rafael Maria',891.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Silvino',891.0),
 	 ('Breixo',890.0),
 	 ('Danut',889.0),
@@ -1527,7 +1527,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mircea',883.0),
 	 ('Mikhail',882.0),
 	 ('Ebrima',880.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Serhiy',880.0),
 	 ('Mostapha',879.0),
 	 ('Mouhamed',879.0),
@@ -1538,7 +1538,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Khaled',873.0),
 	 ('Nikita',872.0),
 	 ('Zakariae',870.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Jose',868.0),
 	 ('Miguel Luis',868.0),
 	 ('Yasir',868.0),
@@ -1549,7 +1549,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leocadio',865.0),
 	 ('Adel',864.0),
 	 ('Ruyman',864.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aitzol',863.0),
 	 ('Manuel Alfonso',862.0),
 	 ('Flavio',861.0),
@@ -1560,7 +1560,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Atilano',859.0),
 	 ('Felix Antonio',859.0),
 	 ('Jaime Antonio',859.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David John',858.0),
 	 ('Logan',858.0),
 	 ('Pablo Miguel',858.0),
@@ -1571,7 +1571,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Radouane',853.0),
 	 ('Joan Ramon',852.0),
 	 ('Osama',845.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stanislav',845.0),
 	 ('Yusef',845.0),
 	 ('Francisco Maria',844.0),
@@ -1582,7 +1582,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio David',838.0),
 	 ('Victor Alfonso',838.0),
 	 ('Jean Paul',836.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Manuel',836.0),
 	 ('Jose Ernesto',835.0),
 	 ('Oscar Jesus',835.0),
@@ -1593,7 +1593,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kenneth',827.0),
 	 ('Silvio',826.0),
 	 ('Ignacio Manuel',825.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marouan',825.0),
 	 ('Antonio Gabriel',822.0),
 	 ('Casiano',822.0),
@@ -1604,7 +1604,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Angel',821.0),
 	 ('Galder',821.0),
 	 ('Pedro Joaquin',821.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aldo',820.0),
 	 ('Angel Fernando',817.0),
 	 ('Ramses',817.0),
@@ -1615,7 +1615,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jagoba',814.0),
 	 ('Daniel Eduardo',811.0),
 	 ('Abdallah',810.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edward',810.0),
 	 ('Cristian Camilo',808.0),
 	 ('Jorge Ivan',808.0),
@@ -1626,7 +1626,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Neftali',804.0),
 	 ('Geronimo',803.0),
 	 ('Jose Fermin',803.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Santiago',803.0),
 	 ('Angel Carlos',802.0),
 	 ('Carlos Vicente',802.0),
@@ -1637,7 +1637,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Antonio',799.0),
 	 ('Eugen',799.0),
 	 ('Quintin',799.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ancor',798.0),
 	 ('Guido',797.0),
 	 ('Mariano Jose',797.0),
@@ -1648,7 +1648,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Ignacio',792.0),
 	 ('Diego Francisco',792.0),
 	 ('Amaro',790.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lamin',790.0),
 	 ('Abdelouahid',789.0),
 	 ('Liher',789.0),
@@ -1659,7 +1659,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Jesus',787.0),
 	 ('Andres Eduardo',786.0),
 	 ('Joan Miquel',786.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mbaye',785.0),
 	 ('Joseba Iñaki',782.0),
 	 ('Oscar Eduardo',782.0),
@@ -1670,7 +1670,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Hassane',780.0),
 	 ('Francis',779.0),
 	 ('Pedro Daniel',779.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Andres',778.0),
 	 ('Dayron',777.0),
 	 ('Odei',777.0),
@@ -1681,7 +1681,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Demba',773.0),
 	 ('Antonio Andres',772.0),
 	 ('Carlos Ramon',772.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Joaquin',772.0),
 	 ('Wilfredo',772.0),
 	 ('Dorian',769.0),
@@ -1692,7 +1692,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wei',768.0),
 	 ('Abderrazzak',767.0),
 	 ('Curro',767.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Javier',767.0),
 	 ('Gabriele',766.0),
 	 ('Salvador Jose',766.0),
@@ -1703,7 +1703,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Augusto',763.0),
 	 ('Manuel Reyes',763.0),
 	 ('Santiago Jesus',763.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioritz',762.0),
 	 ('El Habib',761.0),
 	 ('Filiberto',761.0),
@@ -1714,7 +1714,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Gonzalo',756.0),
 	 ('Zigor',756.0),
 	 ('Justiniano',755.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Olivier',755.0),
 	 ('Alejandro David',754.0),
 	 ('El Miloud',754.0),
@@ -1725,7 +1725,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Alejandro',752.0),
 	 ('Pedro Alfonso',750.0),
 	 ('Sergio Jesus',750.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Ismael',748.0),
 	 ('Pedro Carlos',747.0),
 	 ('Adei',746.0),
@@ -1736,7 +1736,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nael',744.0),
 	 ('Oscar Alberto',744.0),
 	 ('Santi',744.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Teodor',744.0),
 	 ('Valenti',744.0),
 	 ('Luis Ernesto',743.0),
@@ -1747,7 +1747,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marceliano',740.0),
 	 ('Marcos Jesus',740.0),
 	 ('Ishak',739.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Abel',739.0),
 	 ('Jose Adolfo',739.0),
 	 ('Manuel Eduardo',739.0),
@@ -1758,7 +1758,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Francisco',736.0),
 	 ('Sergio Andres',736.0),
 	 ('Adur',735.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Islam',735.0),
 	 ('Jalal',735.0),
 	 ('Luis Roberto',735.0),
@@ -1769,7 +1769,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Jose',730.0),
 	 ('Elvis',730.0),
 	 ('Angel Rafael',729.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Othmane',728.0),
 	 ('Joan Maria',727.0),
 	 ('Mohamed Said',727.0),
@@ -1780,7 +1780,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Andres',725.0),
 	 ('Javier Manuel',725.0),
 	 ('Luis Rafael',723.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Manuel',722.0),
 	 ('Alejandro Miguel',721.0),
 	 ('Haroun',720.0),
@@ -1791,7 +1791,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugeni',716.0),
 	 ('Andres Francisco',715.0),
 	 ('Antonio Pedro',715.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Angel',714.0),
 	 ('Pablo Alberto',713.0),
 	 ('Eduardo Luis',712.0),
@@ -1802,7 +1802,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Ivan',705.0),
 	 ('Galo',705.0),
 	 ('Jose Oriol',705.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Jesus',705.0),
 	 ('Houssam',704.0),
 	 ('Vladislav',704.0),
@@ -1813,7 +1813,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Manuel',700.0),
 	 ('Ricardo Jesus',699.0),
 	 ('Victor Luis',699.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Javier',698.0),
 	 ('Angel Custodio',697.0),
 	 ('Arnaldo',697.0),
@@ -1824,7 +1824,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Mario',694.0),
 	 ('Smail',693.0),
 	 ('Diego Alberto',692.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Eduardo',691.0),
 	 ('Enrico',690.0),
 	 ('Lorien',690.0),
@@ -1835,7 +1835,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Andres',687.0),
 	 ('Javier Enrique',686.0),
 	 ('Mokhtar',686.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdullah',684.0),
 	 ('Domenec',684.0),
 	 ('Salman',684.0),
@@ -1846,7 +1846,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Fabio',681.0),
 	 ('Mohamad',681.0),
 	 ('Cristian Jose',680.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Santiago',679.0),
 	 ('Misael',679.0),
 	 ('Ramon Angel',679.0),
@@ -1857,7 +1857,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eutimio',677.0),
 	 ('Daniel Andres',676.0),
 	 ('Kevin Alexander',676.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Osvaldo',676.0),
 	 ('Andres Miguel',675.0),
 	 ('Pedro Rafael',675.0),
@@ -1868,7 +1868,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jad',672.0),
 	 ('Luis Pedro',672.0),
 	 ('Manolo',670.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Alberto',669.0),
 	 ('Tanausu',668.0),
 	 ('Lahbib',667.0),
@@ -1879,7 +1879,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Daniel',664.0),
 	 ('Arthur',663.0),
 	 ('Carlos Gabriel',663.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Manuel',663.0),
 	 ('Jose Matias',663.0),
 	 ('Usman',663.0),
@@ -1890,7 +1890,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sohaib',661.0),
 	 ('Daniel Francisco',660.0),
 	 ('Miguel Ramon',660.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nassim',659.0),
 	 ('Eufrasio',657.0),
 	 ('Pablo Alejandro',657.0),
@@ -1901,7 +1901,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Azeddine',654.0),
 	 ('Crisanto',654.0),
 	 ('Francisco Pedro',654.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Jorge',654.0),
 	 ('Paco',654.0),
 	 ('Rafael Enrique',654.0),
@@ -1912,7 +1912,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Enrique',651.0),
 	 ('Cristo Manuel',651.0),
 	 ('Nicomedes',651.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Mario',650.0),
 	 ('Nilo',649.0),
 	 ('Gonzalo Jose',648.0),
@@ -1923,7 +1923,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dmitry',646.0),
 	 ('Jose Gerardo',646.0),
 	 ('Hao',645.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matthew',645.0),
 	 ('Nuno',645.0),
 	 ('Luis Armando',644.0),
@@ -1934,7 +1934,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Fernando',642.0),
 	 ('Xoan',642.0),
 	 ('Daniel Angel',641.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Luis',640.0),
 	 ('Ovidiu',639.0),
 	 ('Pablo Enrique',639.0),
@@ -1945,7 +1945,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miroslav',637.0),
 	 ('Petrica',637.0),
 	 ('Radu',637.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rigoberto',637.0),
 	 ('Shahid',637.0),
 	 ('Charles',636.0),
@@ -1956,7 +1956,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Gonzaga',635.0),
 	 ('Segismundo',635.0),
 	 ('Aleksandar',634.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arian',634.0),
 	 ('Khadim',634.0),
 	 ('Assane',631.0),
@@ -1967,7 +1967,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Eduardo',628.0),
 	 ('Marcos Javier',628.0),
 	 ('Domenico',627.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Nicolas',627.0),
 	 ('Miguel Carlos',627.0),
 	 ('Laurentiu',626.0),
@@ -1978,7 +1978,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Daniel',625.0),
 	 ('Abian',624.0),
 	 ('Tony',624.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Antonio',623.0),
 	 ('Roberto Jesus',622.0),
 	 ('Mouloud',621.0),
@@ -1989,7 +1989,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Alexander',618.0),
 	 ('Ramon Francisco',618.0),
 	 ('Stepan',618.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Mokhtar',617.0),
 	 ('Alvaro Antonio',616.0),
 	 ('Jose Leonardo',616.0),
@@ -2000,7 +2000,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emilio Antonio',614.0),
 	 ('Luis Gerardo',614.0),
 	 ('Rafael Juan',614.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eligio',613.0),
 	 ('Javier Andres',613.0),
 	 ('Mattia',613.0),
@@ -2011,7 +2011,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yonathan',612.0),
 	 ('Jose Cruz',611.0),
 	 ('Carlos Juan',610.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jie',610.0),
 	 ('Manuel Pedro',610.0),
 	 ('Manuel Salvador',610.0),
@@ -2022,7 +2022,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomeu',605.0),
 	 ('Abdenbi',604.0),
 	 ('Josep Miquel',604.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Jesus',604.0),
 	 ('Francisco Eduardo',603.0),
 	 ('Julio Angel',603.0),
@@ -2033,7 +2033,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Mauricio',600.0),
 	 ('Guiu',600.0),
 	 ('Joan Manel',600.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Alejandro',600.0),
 	 ('Andres Antonio',599.0),
 	 ('Carlos Julio',599.0),
@@ -2044,7 +2044,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Juan',597.0),
 	 ('Antonio Domingo',596.0),
 	 ('Bernardo Jose',596.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Andres',595.0),
 	 ('Aridane',594.0),
 	 ('Luis Pablo',594.0),
@@ -2055,7 +2055,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jared',592.0),
 	 ('Nicusor',592.0),
 	 ('Ruben Jose',592.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Domingo Manuel',591.0),
 	 ('Habib',591.0),
 	 ('Liberto',591.0),
@@ -2066,7 +2066,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eliezer',586.0),
 	 ('Julian Jose',586.0),
 	 ('Julio Miguel',586.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Tomas',586.0),
 	 ('Antonio Ignacio',585.0),
 	 ('Julian David',585.0),
@@ -2077,7 +2077,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Alexander',584.0),
 	 ('Olmo',584.0),
 	 ('Joaquin Francisco',583.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Valentin',583.0),
 	 ('Melquiades',583.0),
 	 ('Oscar Andres',583.0),
@@ -2088,7 +2088,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adolfo Jose',580.0),
 	 ('Antonio Salvador',580.0),
 	 ('Claudiu',580.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amjad',579.0),
 	 ('El Houssine',579.0),
 	 ('Jefferson',579.0),
@@ -2099,7 +2099,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hernando',578.0),
 	 ('Imrane',578.0),
 	 ('Denys',577.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Francisco',577.0),
 	 ('Kerman',577.0),
 	 ('Jun',576.0),
@@ -2110,7 +2110,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edorta',573.0),
 	 ('Petar',573.0),
 	 ('Juan Roberto',572.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Khalifa',572.0),
 	 ('Pablo David',572.0),
 	 ('Rafa',572.0),
@@ -2121,7 +2121,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yanis',567.0),
 	 ('Youcef',567.0),
 	 ('Raul Jose',566.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ulpiano',566.0),
 	 ('Isabelo',564.0),
 	 ('Javier Luis',564.0),
@@ -2132,7 +2132,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Teodosio',560.0),
 	 ('Yordan',560.0),
 	 ('Plamen',559.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Serhii',559.0),
 	 ('Abdelfattah',557.0),
 	 ('Luis Arturo',557.0),
@@ -2143,7 +2143,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Juan',555.0),
 	 ('Aram',554.0),
 	 ('Camilo Andres',554.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Alexis',554.0),
 	 ('Xuban',554.0),
 	 ('Alejandro Daniel',553.0),
@@ -2154,7 +2154,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Antonio',552.0),
 	 ('Pedro Julian',552.0),
 	 ('Sotero',552.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tahar',552.0),
 	 ('Bru',551.0),
 	 ('Bouazza',550.0),
@@ -2165,7 +2165,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Miguel',548.0),
 	 ('El Houcine',548.0),
 	 ('Enrique Miguel',548.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Siro',548.0),
 	 ('Alfonso Maria',547.0),
 	 ('Irai',547.0),
@@ -2176,7 +2176,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Artemio',544.0),
 	 ('Baba',544.0),
 	 ('Maksim',544.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohcine',544.0),
 	 ('Djibril',543.0),
 	 ('Francesc Josep',543.0),
@@ -2187,7 +2187,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vitalii',542.0),
 	 ('Francisco Raul',541.0),
 	 ('Mansour',541.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kristian',540.0),
 	 ('Raymond',540.0),
 	 ('Francisco Xavier',539.0),
@@ -2198,7 +2198,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nikola',537.0),
 	 ('Sergio Miguel',537.0),
 	 ('Vadim',537.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valero',537.0),
 	 ('Wael',536.0),
 	 ('Antonio Alfonso',535.0),
@@ -2209,7 +2209,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Javier',534.0),
 	 ('Deogracias',533.0),
 	 ('Franklin',533.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xurxo',533.0),
 	 ('Andres Avelino',532.0),
 	 ('Fernando David',532.0),
@@ -2220,7 +2220,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eutiquio',530.0),
 	 ('Jesus Joaquin',530.0),
 	 ('Vasil',530.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Francisco',529.0),
 	 ('Paulo Jorge',529.0),
 	 ('Santiago Andres',529.0),
@@ -2231,7 +2231,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael David',527.0),
 	 ('Siraj',527.0),
 	 ('Felix Jesus',526.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Alfonso',526.0),
 	 ('Agustin Manuel',525.0),
 	 ('Nicholas',525.0),
@@ -2242,7 +2242,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Delmiro',522.0),
 	 ('Konstantin',522.0),
 	 ('Otto',522.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Ignacio',521.0),
 	 ('Yi',521.0),
 	 ('Cosmin',520.0),
@@ -2253,7 +2253,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Philip',519.0),
 	 ('Roland',519.0),
 	 ('David Fernando',518.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ghulam',518.0),
 	 ('Martiño',518.0),
 	 ('Oliverio',517.0),
@@ -2264,7 +2264,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dilan',516.0),
 	 ('Johan',516.0),
 	 ('Neculai',516.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alin',515.0),
 	 ('Bousselham',515.0),
 	 ('Luis Humberto',515.0),
@@ -2275,7 +2275,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Javier',512.0),
 	 ('Nikolas',512.0),
 	 ('Robinson',512.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Miguel',511.0),
 	 ('Carlos Felipe',511.0),
 	 ('Christian David',511.0),
@@ -2286,7 +2286,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abid',509.0),
 	 ('Cristo',509.0),
 	 ('Ignacio Antonio',509.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sofiane',509.0),
 	 ('Andres Alejandro',508.0),
 	 ('David Francisco',507.0),
@@ -2297,7 +2297,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Luis',506.0),
 	 ('Alvaro Luis',506.0),
 	 ('Cristobal Jose',506.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guilherme',506.0),
 	 ('Emanuele',505.0),
 	 ('Gary',505.0),
@@ -2308,7 +2308,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xabat',505.0),
 	 ('Gaston',504.0),
 	 ('Haitam',504.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Ramiro',504.0),
 	 ('Jacint',503.0),
 	 ('Jorge Fernando',503.0),
@@ -2319,7 +2319,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Apolonio',500.0),
 	 ('Danny',500.0),
 	 ('Cesar Jose',499.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivaylo',499.0),
 	 ('Juan Raul',499.0),
 	 ('Victor Angel',499.0),
@@ -2330,7 +2330,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jon Mikel',497.0),
 	 ('Josep Manel',497.0),
 	 ('Owen',497.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Koldobika',496.0),
 	 ('Xose',496.0),
 	 ('Jonathan David',495.0),
@@ -2341,7 +2341,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Eduardo',493.0),
 	 ('Unay',493.0),
 	 ('David Miguel',492.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Idrissa',492.0),
 	 ('Sam',492.0),
 	 ('Diego Martin',491.0),
@@ -2352,7 +2352,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Luis',490.0),
 	 ('Manuel Domingo',489.0),
 	 ('Ossama',489.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafik',489.0),
 	 ('Reynaldo',489.0),
 	 ('Mykhailo',488.0),
@@ -2363,7 +2363,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Toufik',486.0),
 	 ('Joaquin Vicente',485.0),
 	 ('Kylian',485.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florentin',484.0),
 	 ('Vadym',484.0),
 	 ('Leovigildo',483.0),
@@ -2374,7 +2374,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel David',482.0),
 	 ('Carmelo Jesus',481.0),
 	 ('Harold',481.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Angel',481.0),
 	 ('Juan Benito',481.0),
 	 ('Anatoliy',480.0),
@@ -2385,7 +2385,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nordin',480.0),
 	 ('Mario Luis',478.0),
 	 ('Nasir',478.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Umar',478.0),
 	 ('Yacine',478.0),
 	 ('Kimetz',477.0),
@@ -2396,7 +2396,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Jesus',476.0),
 	 ('Javier Alberto',476.0),
 	 ('Trinitario',475.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Armando Jose',474.0),
 	 ('Antonio Pablo',473.0),
 	 ('Belkacem',473.0),
@@ -2407,7 +2407,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hermogenes',472.0),
 	 ('Manuel Felipe',472.0),
 	 ('Jose Amador',471.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Jose',470.0),
 	 ('Mario Alejandro',470.0),
 	 ('Airan',469.0),
@@ -2418,7 +2418,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Mariano',468.0),
 	 ('Juan Eugenio',468.0),
 	 ('Patxi Xabier',468.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Pablo',467.0),
 	 ('Zouhir',467.0),
 	 ('Frutos',466.0),
@@ -2429,7 +2429,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Serapio',463.0),
 	 ('Yahia',463.0),
 	 ('Andres Fernando',462.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Raul',462.0),
 	 ('Gerson',462.0),
 	 ('Joao Pedro',462.0),
@@ -2440,7 +2440,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sajid',462.0),
 	 ('Brigido',461.0),
 	 ('Manuel Tomas',461.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ximo',461.0),
 	 ('Angel Pedro',460.0),
 	 ('Dame',460.0),
@@ -2451,7 +2451,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Ramon',460.0),
 	 ('Youssouf',460.0),
 	 ('Carlos Emilio',459.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Waqas',459.0),
 	 ('Bibiano',458.0),
 	 ('Francisco Santiago',458.0),
@@ -2462,7 +2462,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Isidro',457.0),
 	 ('Lassana',457.0),
 	 ('Nasser',457.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kamel',456.0),
 	 ('Safwan',456.0),
 	 ('Zayd',456.0),
@@ -2473,7 +2473,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pere Joan',455.0),
 	 ('Aladino',454.0),
 	 ('Gurpreet',454.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Mariano',454.0),
 	 ('Bernard',453.0),
 	 ('Cesar David',453.0),
@@ -2484,7 +2484,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salaheddine',453.0),
 	 ('Salvador Jesus',453.0),
 	 ('Tito',453.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Antonio',453.0),
 	 ('Antonio Julian',452.0),
 	 ('Baudilio',452.0),
@@ -2495,7 +2495,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Alejandro',451.0),
 	 ('Cesar Javier',450.0),
 	 ('Jesus Santiago',450.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bassirou',449.0),
 	 ('Feng',448.0),
 	 ('Paulo Cesar',448.0),
@@ -2506,7 +2506,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Albano',446.0),
 	 ('Emilio Francisco',446.0),
 	 ('David Gabriel',445.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eki',445.0),
 	 ('Jhonny',445.0),
 	 ('Sebastian Andres',445.0),
@@ -2517,7 +2517,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison',444.0),
 	 ('Fahd',443.0),
 	 ('Isidro Jose',443.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Lucas',443.0),
 	 ('Angel Juan',442.0),
 	 ('Fernando Andres',442.0),
@@ -2528,7 +2528,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Javier',441.0),
 	 ('Guifre',441.0),
 	 ('Jesus Emilio',441.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelu',441.0),
 	 ('Carlos Ernesto',439.0),
 	 ('Jack',439.0),
@@ -2539,7 +2539,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alassane',437.0),
 	 ('Alfonso Miguel',437.0),
 	 ('Cesar Alberto',437.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manu',437.0),
 	 ('Hector Javier',436.0),
 	 ('Tudor',436.0),
@@ -2550,7 +2550,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximilian',435.0),
 	 ('Mohamed Rida',435.0),
 	 ('Eduardo Andres',434.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gregorio Jose',434.0),
 	 ('Onesimo',433.0),
 	 ('Benet',432.0),
@@ -2561,7 +2561,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Alberto',432.0),
 	 ('Riyad',432.0),
 	 ('Sebastian Jose',432.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Traian',432.0),
 	 ('Gheorghita',431.0),
 	 ('Carmelo Jose',430.0),
@@ -2572,7 +2572,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joanes',428.0),
 	 ('Luis Esteban',428.0),
 	 ('Obdulio',428.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Todor',428.0),
 	 ('Asterio',427.0),
 	 ('Jiahao',427.0),
@@ -2583,7 +2583,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saulo',425.0),
 	 ('Souhail',425.0),
 	 ('Victor Gabriel',425.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Badreddine',424.0),
 	 ('Jhon Fredy',424.0),
 	 ('Santiago Antonio',424.0),
@@ -2594,7 +2594,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Alejandro',423.0),
 	 ('Inhar',422.0),
 	 ('Samuel Jesus',422.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sidi',422.0),
 	 ('Fredy',421.0),
 	 ('Belisario',420.0),
@@ -2605,7 +2605,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adonai',419.0),
 	 ('Djamel',419.0),
 	 ('Adrian Manuel',418.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Javier',418.0),
 	 ('Johnny',418.0),
 	 ('Meliton',418.0),
@@ -2616,7 +2616,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anacleto',416.0),
 	 ('Artai',416.0),
 	 ('Ekai',416.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jimmy',416.0),
 	 ('Jorge Vicente',416.0),
 	 ('Luis Gustavo',416.0),
@@ -2627,7 +2627,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felipe Manuel',414.0),
 	 ('Jose Fidel',414.0),
 	 ('Ousseynou',414.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lorenzo Jose',413.0),
 	 ('Luis Adrian',413.0),
 	 ('Jose Mauricio',412.0),
@@ -2638,7 +2638,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Joaquin',411.0),
 	 ('Josep Francesc',410.0),
 	 ('Papa',410.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agoney',409.0),
 	 ('Ayose',409.0),
 	 ('Echedey',409.0),
@@ -2649,7 +2649,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Tomas',408.0),
 	 ('Oscar Fernando',408.0),
 	 ('Alipio',407.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabricio',407.0),
 	 ('Ivan Antonio',407.0),
 	 ('Julio Andres',407.0),
@@ -2660,7 +2660,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Salem',406.0),
 	 ('Alexandr',405.0),
 	 ('Cristinel',405.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Asif',404.0),
 	 ('Darek',404.0),
 	 ('David Enrique',404.0),
@@ -2671,7 +2671,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Luis',404.0),
 	 ('Santiago David',404.0),
 	 ('Elliot',403.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabian Andres',403.0),
 	 ('Felipe Jesus',403.0),
 	 ('Iliass',403.0),
@@ -2682,7 +2682,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Arbi',402.0),
 	 ('Sandalio',402.0),
 	 ('Evgeny',401.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Daniel',401.0),
 	 ('Jorge Angel',401.0),
 	 ('Manuel Pablo',401.0),
@@ -2693,7 +2693,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaudencio',400.0),
 	 ('Jon Joseba',400.0),
 	 ('Miguel David',400.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Norbert',400.0),
 	 ('Pello',400.0),
 	 ('Rui',400.0),
@@ -2704,7 +2704,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jilali',399.0),
 	 ('Kenai',399.0),
 	 ('Luis Alonso',399.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos David',399.0),
 	 ('Rodrigo Jose',399.0),
 	 ('Tadeo',399.0),
@@ -2715,7 +2715,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Enrique',398.0),
 	 ('Alejandro Gabriel',397.0),
 	 ('Eddy',397.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Manuel',397.0),
 	 ('Ismaila',397.0),
 	 ('El Mahjoub',396.0),
@@ -2726,7 +2726,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mamadou Lamine',396.0),
 	 ('Otger',396.0),
 	 ('Raffaele',396.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ridouan',396.0),
 	 ('Salem',396.0),
 	 ('Tom',396.0),
@@ -2737,7 +2737,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Esteban',395.0),
 	 ('Ruben David',395.0),
 	 ('Zenon',395.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aiden',394.0),
 	 ('Caleb',394.0),
 	 ('Cesar Enrique',394.0),
@@ -2748,7 +2748,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Andres',394.0),
 	 ('Robustiano',394.0),
 	 ('Sinforiano',394.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Davit',393.0),
 	 ('Isabelino',393.0),
 	 ('Jesus Domingo',393.0),
@@ -2759,7 +2759,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Gabriel',392.0),
 	 ('Crispin',391.0),
 	 ('Irfan',391.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kirill',391.0),
 	 ('Sohail',391.0),
 	 ('Alfonso Antonio',390.0),
@@ -2770,7 +2770,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Larbi',390.0),
 	 ('Muhamadou',390.0),
 	 ('Nadal',390.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Sebastian',390.0),
 	 ('Benito Jose',389.0),
 	 ('Mario Javier',389.0),
@@ -2781,7 +2781,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Henrique',388.0),
 	 ('Nuño',388.0),
 	 ('Salvador Antonio',388.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stelian',388.0),
 	 ('Alexandru Gabriel',387.0),
 	 ('Allan',387.0),
@@ -2792,7 +2792,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stephen John',386.0),
 	 ('Vicente Salvador',386.0),
 	 ('Guillermo Javier',385.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Mario',385.0),
 	 ('Kevin Jose',385.0),
 	 ('Raul Manuel',385.0),
@@ -2803,7 +2803,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antoine',383.0),
 	 ('Francisco Emilio',383.0),
 	 ('Nuno Miguel',383.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Juan',382.0),
 	 ('François',382.0),
 	 ('Jose Alonso',382.0),
@@ -2814,7 +2814,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Cesar',381.0),
 	 ('Raphael',381.0),
 	 ('Oscar Francisco',380.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Emilio',380.0),
 	 ('Rafael Ignacio',380.0),
 	 ('Ramdane',380.0),
@@ -2825,7 +2825,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Eladio',379.0),
 	 ('Sellam',379.0),
 	 ('Yu',379.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Ionut',378.0),
 	 ('Cesar Alejandro',378.0),
 	 ('Fabriciano',378.0),
@@ -2836,7 +2836,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Daniel',376.0),
 	 ('Martin Alejandro',376.0),
 	 ('Sulaiman',376.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yurii',376.0),
 	 ('Diego David',375.0),
 	 ('Dominic',375.0),
@@ -2847,7 +2847,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Naveed',375.0),
 	 ('Nazar',375.0),
 	 ('Nicolas Jose',375.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bastian',374.0),
 	 ('Lautaro',374.0),
 	 ('Nicolas Alejandro',374.0),
@@ -2858,7 +2858,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin David',372.0),
 	 ('Kevin Jesus',372.0),
 	 ('Ramon Alberto',372.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Eduardo',372.0),
 	 ('Francisco Ivan',371.0),
 	 ('Gabriel Eduardo',371.0),
@@ -2869,7 +2869,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wolfgang',370.0),
 	 ('Jesus Martin',369.0),
 	 ('Joan Baptista',369.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Alfredo',369.0),
 	 ('Rabie',369.0),
 	 ('Ramon Miguel',369.0),
@@ -2880,7 +2880,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Helios',368.0),
 	 ('Ivan Dario',368.0),
 	 ('Ricardo Daniel',368.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Emilio',367.0),
 	 ('David Daniel',367.0),
 	 ('Rafael Javier',367.0),
@@ -2891,7 +2891,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Alejandro',366.0),
 	 ('Pablo Martin',366.0),
 	 ('Saber',366.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Alejandro',366.0),
 	 ('Abdessalam',365.0),
 	 ('Carlos Tomas',365.0),
@@ -2902,7 +2902,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stephane',365.0),
 	 ('Abdelmoula',364.0),
 	 ('Eduardo Alberto',364.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haytam',364.0),
 	 ('Ricardo Francisco',364.0),
 	 ('Carlos Mauricio',363.0),
@@ -2913,7 +2913,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Farouk',362.0),
 	 ('Josep Manuel',362.0),
 	 ('Felix Miguel',361.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Rafael',361.0),
 	 ('Joaquin Luis',361.0),
 	 ('Jose Vidal',361.0),
@@ -2924,7 +2924,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Rafael',361.0),
 	 ('Zahid',361.0),
 	 ('Alejandro Enrique',360.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Francisco',360.0),
 	 ('Justin',360.0),
 	 ('Salvador Manuel',360.0),
@@ -2935,7 +2935,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gilbert',359.0),
 	 ('Hans',359.0),
 	 ('Juan Valentin',359.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tahir',359.0),
 	 ('Antonio Raul',358.0),
 	 ('David Eduardo',358.0),
@@ -2946,7 +2946,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Romulo',358.0),
 	 ('Tommaso',358.0),
 	 ('Abdelghafour',357.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Gustavo',357.0),
 	 ('Mohand',357.0),
 	 ('Ton',357.0),
@@ -2957,7 +2957,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alai',354.0),
 	 ('Americo',354.0),
 	 ('Aymen',354.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Angel',354.0),
 	 ('Hossain',354.0),
 	 ('Ilya',354.0),
@@ -2968,7 +2968,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Enrique',354.0),
 	 ('Dmitrii',353.0),
 	 ('Eliot',353.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iluminado',353.0),
 	 ('Jaime Enrique',353.0),
 	 ('Joao Carlos',353.0),
@@ -2979,7 +2979,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcus',352.0),
 	 ('Pedro Santiago',352.0),
 	 ('Fernando Ramon',351.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laro',351.0),
 	 ('Rizwan',351.0),
 	 ('Virginio',351.0),
@@ -2990,7 +2990,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Serigne',350.0),
 	 ('Gregori',349.0),
 	 ('Joaquin Ramon',349.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Otilio',349.0),
 	 ('Pasquale',349.0),
 	 ('Yacouba',349.0),
@@ -3001,7 +3001,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Alfredo',348.0),
 	 ('Lei',348.0),
 	 ('Santiago Luis',348.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Albert',347.0),
 	 ('Julio Fernando',347.0),
 	 ('Octavian',347.0),
@@ -3012,7 +3012,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Krzysztof',346.0),
 	 ('Lucas Gabriel',346.0),
 	 ('Arman',345.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Eduardo',345.0),
 	 ('Darwin',345.0),
 	 ('Eugenio Manuel',345.0),
@@ -3023,7 +3023,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mimoune',345.0),
 	 ('Oleksiy',345.0),
 	 ('Silviu',345.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Felipe',344.0),
 	 ('Colin',344.0),
 	 ('Faissal',344.0),
@@ -3034,7 +3034,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Santiago',342.0),
 	 ('Ionut Alexandru',342.0),
 	 ('Jonathan Jose',342.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Fernando',342.0),
 	 ('Vicente Carlos',342.0),
 	 ('Antonio Ricardo',341.0),
@@ -3045,7 +3045,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Serghei',341.0),
 	 ('Asad',340.0),
 	 ('Claudi',340.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Fernando',340.0),
 	 ('Raul Alejandro',340.0),
 	 ('Sadik',340.0),
@@ -3056,7 +3056,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Inar',339.0),
 	 ('Jesus Damian',339.0),
 	 ('Manuel Jorge',339.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thierno',339.0),
 	 ('Xin',339.0),
 	 ('Adrian Antonio',338.0),
@@ -3067,7 +3067,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilmer',338.0),
 	 ('Liborio',337.0),
 	 ('Pablo Fernando',337.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Juan',337.0),
 	 ('Sergio Francisco',337.0),
 	 ('Cristian Gabriel',336.0),
@@ -3078,7 +3078,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jerome',335.0),
 	 ('Virgil',335.0),
 	 ('Daniel Manuel',334.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Heraclio',334.0),
 	 ('Jose Dario',334.0),
 	 ('Mariano Jesus',334.0),
@@ -3089,7 +3089,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Alberto',333.0),
 	 ('Jorge Raul',333.0),
 	 ('Piotr',333.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adonis',332.0),
 	 ('Atanas',332.0),
 	 ('Ayad',332.0),
@@ -3100,7 +3100,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mattin',332.0),
 	 ('Sergio Enrique',332.0),
 	 ('Javier Vicente',331.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Rafael',330.0),
 	 ('Carlos Jorge',330.0),
 	 ('Hector David',330.0),
@@ -3111,7 +3111,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Damian',329.0),
 	 ('Gonzalo Jesus',329.0),
 	 ('Juan Simon',329.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jurgen',329.0),
 	 ('Manuel Lorenzo',329.0),
 	 ('Mario Enrique',329.0),
@@ -3122,7 +3122,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Omar',328.0),
 	 ('Julian Francisco',328.0),
 	 ('Leonidas',328.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Munir',328.0),
 	 ('Pastor',328.0),
 	 ('Sacha',328.0),
@@ -3133,7 +3133,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javi',327.0),
 	 ('Javier Miguel',327.0),
 	 ('Jose Candido',327.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Vicente',327.0),
 	 ('Lucas Daniel',326.0),
 	 ('Mohammed Amin',326.0),
@@ -3144,7 +3144,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rosario',325.0),
 	 ('Andrew John',324.0),
 	 ('Arcadi',324.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fode',324.0),
 	 ('Giulio',324.0),
 	 ('Lhoussaine',324.0),
@@ -3155,7 +3155,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Gabriel',323.0),
 	 ('Jose Anibal',323.0),
 	 ('Klaus',323.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Noureddin',323.0),
 	 ('Pedro Jorge',323.0),
 	 ('Abdelaaziz',322.0),
@@ -3166,7 +3166,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Julio',322.0),
 	 ('Ronaldo',322.0),
 	 ('Zebenzui',322.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Nicolas',321.0),
 	 ('Francisco Jorge',321.0),
 	 ('Gustavo Andres',321.0),
@@ -3177,7 +3177,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Javier',320.0),
 	 ('Jaime Miguel',320.0),
 	 ('Jose Lucas',320.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Gonzalo',320.0),
 	 ('Lisandro',320.0),
 	 ('Tao',320.0),
@@ -3188,7 +3188,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Martin',318.0),
 	 ('Jesus Carmelo',318.0),
 	 ('Juan Adolfo',318.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Ramon',318.0),
 	 ('Luis Marcelo',318.0),
 	 ('Antonio Marcos',317.0),
@@ -3199,7 +3199,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenzo Javier',317.0),
 	 ('Sidy',317.0),
 	 ('Viacheslav',317.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdennour',316.0),
 	 ('Fares',316.0),
 	 ('Julien',316.0),
@@ -3210,7 +3210,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Braian',315.0),
 	 ('Waldo',315.0),
 	 ('Justo Manuel',314.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Eugenio',314.0),
 	 ('Matias Nicolas',314.0),
 	 ('Roberto Miguel',314.0),
@@ -3221,7 +3221,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isidro Manuel',313.0),
 	 ('Louis',313.0),
 	 ('Mikel Aingeru',313.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Angel',313.0),
 	 ('Yeremi',313.0),
 	 ('Cesar Jesus',312.0),
@@ -3232,7 +3232,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nahum',312.0),
 	 ('Sadio',312.0),
 	 ('Ubay',312.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Miguel',311.0),
 	 ('Iriome',311.0),
 	 ('Jorge Arturo',311.0),
@@ -3243,7 +3243,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joan Sebastian',310.0),
 	 ('Jordi Joan',310.0),
 	 ('Mikel Gotzon',310.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Qiang',310.0),
 	 ('Victor Fernando',310.0),
 	 ('Carlos Cesar',309.0),
@@ -3254,7 +3254,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Acoran',308.0),
 	 ('Escolastico',308.0),
 	 ('Lorenzo Manuel',308.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdoulie',307.0),
 	 ('Alesander',307.0),
 	 ('Jesus Gregorio',307.0),
@@ -3265,7 +3265,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Egoi',306.0),
 	 ('Emilio Luis',306.0),
 	 ('Gianni',306.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Marcelo',306.0),
 	 ('Odin',306.0),
 	 ('Daoud',305.0),
@@ -3276,7 +3276,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Ivan',305.0),
 	 ('Sid Ahmed',305.0),
 	 ('Vitalie',305.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfredo Antonio',304.0),
 	 ('Arslan',304.0),
 	 ('Luis Salvador',304.0),
@@ -3287,7 +3287,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias Ezequiel',303.0),
 	 ('Abdesslam',302.0),
 	 ('Emilio Angel',302.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Evencio',302.0),
 	 ('Francisco Adrian',302.0),
 	 ('Santiago Francisco',302.0),
@@ -3298,7 +3298,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Emilio',301.0),
 	 ('Sergii',301.0),
 	 ('Enrique Alberto',300.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hamadi',300.0),
 	 ('Juan Adrian',300.0),
 	 ('Juan Alvaro',300.0),
@@ -3309,7 +3309,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomasz',300.0),
 	 ('Barry',299.0),
 	 ('Jean Claude',299.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Micael',299.0),
 	 ('Pedro Martin',299.0),
 	 ('Abdelatif',298.0),
@@ -3320,7 +3320,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oleksii',298.0),
 	 ('Razvan',298.0),
 	 ('Renzo',298.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rui Manuel',298.0),
 	 ('Abdelhay',297.0),
 	 ('Ayyoub',297.0),
@@ -3331,7 +3331,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Guillermo',297.0),
 	 ('Mark Anthony',297.0),
 	 ('Matthias',297.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pantaleon',297.0),
 	 ('Radoslav',297.0),
 	 ('Sukhwinder',297.0),
@@ -3342,7 +3342,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Rodrigo',296.0),
 	 ('Marzouk',296.0),
 	 ('Mohamadou',296.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nacor',296.0),
 	 ('Timur',296.0),
 	 ('Alejandro Alberto',295.0),
@@ -3353,7 +3353,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leonardo David',295.0),
 	 ('Luis Bernardo',295.0),
 	 ('Marcelo Alejandro',295.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Randy',295.0),
 	 ('Rashid',295.0),
 	 ('Victor Alberto',295.0),
@@ -3364,7 +3364,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vinicius',294.0),
 	 ('Abou',293.0),
 	 ('Andrzej',293.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haitz',293.0),
 	 ('Manuel Ivan',293.0),
 	 ('Mario David',293.0),
@@ -3375,7 +3375,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Graciliano',292.0),
 	 ('Iurii',292.0),
 	 ('Jose Hilario',292.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laurent',292.0),
 	 ('Salif',292.0),
 	 ('Vicente Joaquin',292.0),
@@ -3386,7 +3386,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhoan Sebastian',291.0),
 	 ('Jorge Alexander',291.0),
 	 ('Vitor Manuel',291.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bruc',290.0),
 	 ('Francisco Guillermo',290.0),
 	 ('Luis Julian',290.0),
@@ -3397,7 +3397,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo David',290.0),
 	 ('Emilio Miguel',289.0),
 	 ('Gora',289.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Honorino',289.0),
 	 ('Jacques',289.0),
 	 ('Jorge Alfredo',289.0),
@@ -3408,7 +3408,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Emilio',288.0),
 	 ('Aurelian',288.0),
 	 ('Cesar Miguel',288.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Egor',288.0),
 	 ('Esteban Manuel',288.0),
 	 ('Joritz',288.0),
@@ -3419,7 +3419,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Lorenzo',287.0),
 	 ('Cristian Alexander',287.0),
 	 ('Diego Alonso',287.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Ricardo',287.0),
 	 ('Joaquin Carlos',287.0),
 	 ('Pedro Eduardo',287.0),
@@ -3430,7 +3430,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Francisco',286.0),
 	 ('Jose Rogelio',286.0),
 	 ('Juan Blas',286.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('M Hamed',286.0),
 	 ('Mouhamadou',286.0),
 	 ('Pedro Felipe',286.0),
@@ -3441,7 +3441,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stoyan',285.0),
 	 ('Alexander Jose',284.0),
 	 ('Alvaro Daniel',284.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Padua',284.0),
 	 ('Edson',284.0),
 	 ('Francisco Felipe',284.0),
@@ -3452,7 +3452,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Angel',284.0),
 	 ('Alvaro Maria',283.0),
 	 ('Angel Alfonso',283.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Damian',283.0),
 	 ('Bittor',283.0),
 	 ('Cristian Antonio',283.0),
@@ -3463,7 +3463,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael David',283.0),
 	 ('Angel Roberto',282.0),
 	 ('Bruno Miguel',282.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dembo',282.0),
 	 ('Doru',282.0),
 	 ('Francisco Eugenio',282.0),
@@ -3474,7 +3474,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tiziano',282.0),
 	 ('Vittorio',282.0),
 	 ('Aketza',281.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Juan',281.0),
 	 ('Carlos Julian',281.0),
 	 ('Diego Hernan',281.0),
@@ -3485,7 +3485,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasilica',281.0),
 	 ('Benito Manuel',280.0),
 	 ('Carlos Alexander',280.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David William',280.0),
 	 ('Donovan',280.0),
 	 ('Enrique Ramon',280.0),
@@ -3496,7 +3496,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sean',280.0),
 	 ('Werner',280.0),
 	 ('Aleksander',279.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cherif',279.0),
 	 ('Dirk',279.0),
 	 ('Esteban Jesus',279.0),
@@ -3507,7 +3507,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Ivan',279.0),
 	 ('Mohammed Said',279.0),
 	 ('Rafael Ramon',279.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sandu',279.0),
 	 ('Enrique Fernando',278.0),
 	 ('Gabriel Maria',278.0),
@@ -3518,7 +3518,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joseba Mikel',278.0),
 	 ('Mamoudou',278.0),
 	 ('Pablo Gabriel',278.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Recaredo',278.0),
 	 ('Santiago Ramon',278.0),
 	 ('Alberto Ramon',277.0),
@@ -3529,7 +3529,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Javier',277.0),
 	 ('Jose Marcelino',277.0),
 	 ('Luis Orlando',277.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stephan',277.0),
 	 ('Yann',277.0),
 	 ('Angel Alejandro',276.0),
@@ -3540,7 +3540,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Orlando Jose',276.0),
 	 ('Thierry',276.0),
 	 ('Agustin Jesus',275.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alcides',275.0),
 	 ('Arsen',275.0),
 	 ('Jesus Roberto',275.0),
@@ -3551,7 +3551,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Florencio',275.0),
 	 ('Jose Gaspar',275.0),
 	 ('Jose Jacinto',275.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Benito',275.0),
 	 ('Martin Antonio',275.0),
 	 ('Matei',275.0),
@@ -3562,7 +3562,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Rafael',274.0),
 	 ('Jose Isaac',274.0),
 	 ('Juan Mata',274.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lauro',274.0),
 	 ('Marco Tulio',274.0),
 	 ('Michael Alexander',274.0),
@@ -3573,7 +3573,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hortensio',273.0),
 	 ('Josu Mirena',273.0),
 	 ('Kelvin',273.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Louay',273.0),
 	 ('Marc Antoni',273.0),
 	 ('Pawel',273.0),
@@ -3584,7 +3584,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Etienne',272.0),
 	 ('Hamidou',272.0),
 	 ('Jaime Juan',272.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Anton',272.0),
 	 ('Simo',272.0),
 	 ('Sven',272.0),
@@ -3595,7 +3595,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gregorio Manuel',271.0),
 	 ('Harry',271.0),
 	 ('Hug',271.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Loyola',271.0),
 	 ('Junhao',271.0),
 	 ('Nicolas Manuel',271.0),
@@ -3606,7 +3606,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Pablo',270.0),
 	 ('Lotfi',270.0),
 	 ('Remus',270.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adeel',269.0),
 	 ('Benicio',269.0),
 	 ('Djiby',269.0),
@@ -3617,7 +3617,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Martin',269.0),
 	 ('Hector Alejandro',269.0),
 	 ('Jihad',269.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juventino',269.0),
 	 ('Saikou',269.0),
 	 ('Tarsicio',269.0),
@@ -3628,7 +3628,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Jorge',268.0),
 	 ('Victor Juan',268.0),
 	 ('Bjorn',267.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Climent',267.0),
 	 ('Dimitri',267.0),
 	 ('Jean François',267.0),
@@ -3639,7 +3639,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sasha',267.0),
 	 ('Xiang',267.0),
 	 ('Zafar',267.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Acisclo',266.0),
 	 ('Agustin Antonio',266.0),
 	 ('Amer',266.0),
@@ -3650,7 +3650,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Javier',266.0),
 	 ('Daniel Vicente',266.0),
 	 ('Eduardo Rafael',266.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erasmo',266.0),
 	 ('Francisco Roberto',266.0),
 	 ('Jeray',266.0),
@@ -3661,7 +3661,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Rafael',266.0),
 	 ('Abdelmounaim',265.0),
 	 ('Casildo',265.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ernesto Javier',265.0),
 	 ('Godofredo',265.0),
 	 ('Ionut Daniel',265.0),
@@ -3672,7 +3672,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yosu',265.0),
 	 ('Besay',264.0),
 	 ('Chakir',264.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Alfonso',264.0),
 	 ('Jose Patricio',264.0),
 	 ('Luke',264.0),
@@ -3683,7 +3683,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Andres',263.0),
 	 ('Carlos Fabian',263.0),
 	 ('Cornelio',263.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eydan',263.0),
 	 ('Hector Eduardo',263.0),
 	 ('Ismael Jesus',263.0),
@@ -3694,7 +3694,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Ramon',263.0),
 	 ('Quique',263.0),
 	 ('Rodrigo Andres',263.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saqib',263.0),
 	 ('Alberto Enrique',262.0),
 	 ('Angel Ricardo',262.0),
@@ -3705,7 +3705,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kashif',262.0),
 	 ('Ruben Alejandro',262.0),
 	 ('Sebastian Manuel',262.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelfettah',261.0),
 	 ('Bo',261.0),
 	 ('Corneliu',261.0),
@@ -3716,7 +3716,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohammadi',261.0),
 	 ('Carlos Sebastian',260.0),
 	 ('Eduardo Ramon',260.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florea',260.0),
 	 ('Giovanny',260.0),
 	 ('Giuliano',260.0),
@@ -3727,7 +3727,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Daniel',259.0),
 	 ('Amara',259.0),
 	 ('Angel Felipe',259.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Pascual',259.0),
 	 ('Duarte',259.0),
 	 ('Ibra',259.0),
@@ -3738,7 +3738,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Atif',258.0),
 	 ('Fernando Jorge',258.0),
 	 ('Jayden',258.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Enric',258.0),
 	 ('Jon Imanol',258.0),
 	 ('Nasim',258.0),
@@ -3749,7 +3749,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheikh Tidiane',257.0),
 	 ('Dario Javier',257.0),
 	 ('Guillermo Andres',257.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Ignacio',257.0),
 	 ('Nasreddine',257.0),
 	 ('Samuel Antonio',257.0),
@@ -3760,7 +3760,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Felix',256.0),
 	 ('Marcos Andres',256.0),
 	 ('Pedro Pascual',256.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodrigo Javier',256.0),
 	 ('Alfredo Luis',255.0),
 	 ('Angel Felix',255.0),
@@ -3771,7 +3771,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Augusto',255.0),
 	 ('Manuel Felix',255.0),
 	 ('Mario Cesar',255.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nouh',255.0),
 	 ('Thami',255.0),
 	 ('Waseem',255.0),
@@ -3782,7 +3782,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Feliu',254.0),
 	 ('Hector Enrique',254.0),
 	 ('Izhan',254.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Ricardo',254.0),
 	 ('Marcos Luis',254.0),
 	 ('Olaf',254.0),
@@ -3793,7 +3793,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Ignacio',253.0),
 	 ('Domingos',253.0),
 	 ('Guillermo Enrique',253.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Ventura',253.0),
 	 ('Joseba Mirena',253.0),
 	 ('Leonardo Andres',253.0),
@@ -3804,7 +3804,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Yassine',253.0),
 	 ('Qaisar',253.0),
 	 ('Qasim',253.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelhaq',252.0),
 	 ('Alexandru Daniel',252.0),
 	 ('Faysal',252.0),
@@ -3815,7 +3815,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rubens',252.0),
 	 ('Sergio Ivan',252.0),
 	 ('Alejandro Andres',251.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iftikhar',251.0),
 	 ('Jesus Lorenzo',251.0),
 	 ('Vicente David',251.0),
@@ -3826,7 +3826,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Catalino',250.0),
 	 ('Houari',250.0),
 	 ('Miguel Rafael',250.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Ivan',250.0),
 	 ('Sebastien',250.0),
 	 ('Zain',250.0),
@@ -3837,7 +3837,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Carlos',249.0),
 	 ('Peng',249.0),
 	 ('Souhaib',249.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stiven',249.0),
 	 ('Yevhen',249.0),
 	 ('Alejandro Carlos',248.0),
@@ -3848,7 +3848,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Alberto',248.0),
 	 ('Djilali',248.0),
 	 ('Elias Jose',248.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Maria',248.0),
 	 ('Jose Raimundo',248.0),
 	 ('Juanjo',248.0),
@@ -3859,7 +3859,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Francisco',247.0),
 	 ('Crhistian',247.0),
 	 ('David Juan',247.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Manuel',247.0),
 	 ('Franc',247.0),
 	 ('Joseba Koldobika',247.0),
@@ -3870,7 +3870,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ahsan',246.0),
 	 ('Cesar Carlos',246.0),
 	 ('Daniel Santiago',246.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Nicolas',246.0),
 	 ('Diego Ramon',246.0),
 	 ('Francisco German',246.0),
@@ -3881,7 +3881,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Miguel',246.0),
 	 ('Bryan Andres',245.0),
 	 ('Job',245.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Leon',245.0),
 	 ('Julio Carlos',245.0),
 	 ('Maverick',245.0),
@@ -3892,7 +3892,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Harpreet',244.0),
 	 ('Hugo Antonio',244.0),
 	 ('Jose Marcial',244.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Modesto',244.0),
 	 ('Lucas Jose',244.0),
 	 ('Manuel Gabriel',244.0),
@@ -3903,7 +3903,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Eduardo',243.0),
 	 ('Jorge Leonardo',243.0),
 	 ('Jose Eusebio',243.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Justo Jose',243.0),
 	 ('Luan',243.0),
 	 ('Manuel Arturo',243.0),
@@ -3914,7 +3914,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Diego',242.0),
 	 ('Diego Maria',242.0),
 	 ('El Hadi',242.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Jaime',242.0),
 	 ('Jaime Fernando',242.0),
 	 ('Joaquin Andres',242.0),
@@ -3925,7 +3925,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Enrique',242.0),
 	 ('Zakariya',242.0),
 	 ('Bladimir',241.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Daniel',241.0),
 	 ('Christian Jesus',241.0),
 	 ('El Mostapha',241.0),
@@ -3936,7 +3936,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maren',241.0),
 	 ('Mikael',241.0),
 	 ('Oscar Ramon',241.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ousama',241.0),
 	 ('Alberto Alejandro',240.0),
 	 ('Alfonso Angel',240.0),
@@ -3947,7 +3947,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Borja Jose',240.0),
 	 ('Cesar Francisco',240.0),
 	 ('Filomeno',240.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Diego',240.0),
 	 ('Gennaro',240.0),
 	 ('Jaswinder',240.0),
@@ -3958,7 +3958,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bouziane',239.0),
 	 ('Carlos Agustin',239.0),
 	 ('Iurie',239.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jamil',239.0),
 	 ('Jesualdo',239.0),
 	 ('Lluis Maria',239.0),
@@ -3969,7 +3969,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paulo Alexandre',239.0),
 	 ('Serigne Fallou',239.0),
 	 ('Tanveer',239.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valerii',239.0),
 	 ('Andrei Alexandru',238.0),
 	 ('Aris',238.0),
@@ -3980,7 +3980,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Grau',238.0),
 	 ('Herman',238.0),
 	 ('Ivan Andres',238.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Jeronimo',238.0),
 	 ('Juan Ruben',238.0),
 	 ('Manuel Carmelo',238.0),
@@ -3991,7 +3991,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Javier',238.0),
 	 ('Xacobe',238.0),
 	 ('Achour',237.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anthony John',237.0),
 	 ('Arnold',237.0),
 	 ('Baghdad',237.0),
@@ -4002,7 +4002,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Alexis',237.0),
 	 ('Lars',237.0),
 	 ('Marcelli',237.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcio',237.0),
 	 ('Mohamed Lamine',237.0),
 	 ('Nourdin',237.0),
@@ -4013,7 +4013,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amilcar',236.0),
 	 ('Andres Vicente',236.0),
 	 ('Badr Eddine',236.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chen',236.0),
 	 ('Eduardo Alejandro',236.0),
 	 ('Lahsen',236.0),
@@ -4024,7 +4024,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salva',236.0),
 	 ('Sebastian Antonio',236.0),
 	 ('Agustin Javier',235.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Julian',235.0),
 	 ('Antonio Guillermo',235.0),
 	 ('Antonio Ivan',235.0),
@@ -4035,7 +4035,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Alexander',235.0),
 	 ('Jose Camilo',235.0),
 	 ('Juan Damian',235.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Jesus',235.0),
 	 ('Ruben Francisco',235.0),
 	 ('Vicente Pascual',235.0),
@@ -4046,7 +4046,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Agustin',234.0),
 	 ('Marius Daniel',234.0),
 	 ('Moises David',234.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rahhal',234.0),
 	 ('Alguer',233.0),
 	 ('Geoffrey',233.0),
@@ -4057,7 +4057,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kamil',233.0),
 	 ('Luis Filipe',233.0),
 	 ('Marwane',233.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauricio Andres',233.0),
 	 ('Mohamed Fadel',233.0),
 	 ('Rogerio',233.0),
@@ -4068,7 +4068,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelkabir',232.0),
 	 ('Antonio Eugenio',232.0),
 	 ('Antonio Roberto',232.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aritza',232.0),
 	 ('Dagoberto',232.0),
 	 ('Daniel Adrian',232.0),
@@ -4079,7 +4079,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Outman',232.0),
 	 ('Carlos Eugenio',231.0),
 	 ('Carlos Pedro',231.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Daniel',231.0),
 	 ('Hussein',231.0),
 	 ('Ivan Javier',231.0),
@@ -4090,7 +4090,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Raul',231.0),
 	 ('Ouassim',231.0),
 	 ('Ralf',231.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adai',230.0),
 	 ('Antonio Ruben',230.0),
 	 ('Christian Manuel',230.0),
@@ -4101,7 +4101,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luc',230.0),
 	 ('Malcolm',230.0),
 	 ('Manuel Nicolas',230.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcin',230.0),
 	 ('Alex Daniel',229.0),
 	 ('Andres Ignacio',229.0),
@@ -4112,7 +4112,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioseba',229.0),
 	 ('Juan Gines',229.0),
 	 ('Mario Francisco',229.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rio',229.0),
 	 ('Yadiel',229.0),
 	 ('Yeison',229.0),
@@ -4123,7 +4123,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gelu',228.0),
 	 ('Ilian',228.0),
 	 ('Jorge Felix',228.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kouider',228.0),
 	 ('Liang',228.0),
 	 ('Luis Benito',228.0),
@@ -4134,7 +4134,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Waqar',228.0),
 	 ('Abel Jesus',227.0),
 	 ('Anir',227.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Julio',227.0),
 	 ('Bernardo Jesus',227.0),
 	 ('Byron',227.0),
@@ -4145,7 +4145,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Killian',227.0),
 	 ('Leonardo Fabio',227.0),
 	 ('Pedro Esteban',227.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Attila',226.0),
 	 ('Blas Antonio',226.0),
 	 ('Carlos Federico',226.0),
@@ -4156,7 +4156,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Georgios',226.0),
 	 ('Hernan Dario',226.0),
 	 ('Ivan Carlos',226.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaafar',226.0),
 	 ('Juan Aurelio',226.0),
 	 ('Llibert',226.0),
@@ -4167,7 +4167,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sigfrido',226.0),
 	 ('Abdourahmane',225.0),
 	 ('Anatolie',225.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Alexander',225.0),
 	 ('Ernesto Manuel',225.0),
 	 ('Fernando Alfonso',225.0),
@@ -4178,7 +4178,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Ramon',225.0),
 	 ('John Henry',225.0),
 	 ('Manuel Gonzalo',225.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Nicolas',225.0),
 	 ('Tijani',225.0),
 	 ('Alfonso David',224.0),
@@ -4189,7 +4189,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Ismael',224.0),
 	 ('Jurgi',224.0),
 	 ('Neymar',224.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nolan',224.0),
 	 ('Pedro Salvador',224.0),
 	 ('Raul Fernando',224.0),
@@ -4200,7 +4200,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Ricardo',223.0),
 	 ('Emilian',223.0),
 	 ('John Anthony',223.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Evaristo',223.0),
 	 ('Jose Marcelo',223.0),
 	 ('Josep Enric',223.0),
@@ -4211,7 +4211,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Ignacio',223.0),
 	 ('Zihao',223.0),
 	 ('Alex David',222.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrew James',222.0),
 	 ('Blas Jose',222.0),
 	 ('Eithan',222.0),
@@ -4222,7 +4222,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martxel',222.0),
 	 ('Nathaniel',222.0),
 	 ('Rodrigo Manuel',222.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Nicolas',222.0),
 	 ('Xiaofeng',222.0),
 	 ('Alpha',221.0),
@@ -4233,7 +4233,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Guzman',221.0),
 	 ('Enrique Maria',221.0),
 	 ('John Paul',221.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Aitor',221.0),
 	 ('Jose Octavio',221.0),
 	 ('Miguel Salvador',221.0),
@@ -4244,7 +4244,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anatoli',220.0),
 	 ('David Carlos',220.0),
 	 ('Dieter',220.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elyas',220.0),
 	 ('Firas',220.0),
 	 ('Jorge Adrian',220.0),
@@ -4255,7 +4255,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nestor Jose',220.0),
 	 ('Nicolas Francisco',220.0),
 	 ('Sebastian David',220.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Fernando',220.0),
 	 ('Augustin',219.0),
 	 ('Carlos Adolfo',219.0),
@@ -4266,7 +4266,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Agustin',219.0),
 	 ('Luis Aurelio',219.0),
 	 ('Mihai Alexandru',219.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Alfonso',219.0),
 	 ('Peter James',219.0),
 	 ('Sergio Juan',219.0),
@@ -4277,7 +4277,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Andres',218.0),
 	 ('Pablo Tomas',218.0),
 	 ('Qamar',218.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Daniel',218.0),
 	 ('Sinesio',218.0),
 	 ('Tomas Enrique',218.0),
@@ -4288,7 +4288,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Azzedine',217.0),
 	 ('Daniel Miguel',217.0),
 	 ('Eduardo Vicente',217.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaber',217.0),
 	 ('Marcos Alejandro',217.0),
 	 ('Miguel Pedro',217.0),
@@ -4299,7 +4299,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Acacio',216.0),
 	 ('Claudio Antonio',216.0),
 	 ('Houssain',216.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ione',216.0),
 	 ('Ivan Luis',216.0),
 	 ('Jianfeng',216.0),
@@ -4310,7 +4310,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Daniel',216.0),
 	 ('Marcos Alberto',216.0),
 	 ('Rafael Santiago',216.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Francisco',216.0),
 	 ('Ruben Daniel',216.0),
 	 ('Samy',216.0),
@@ -4321,7 +4321,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Alexandru',215.0),
 	 ('Floreal',215.0),
 	 ('Helmut',215.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Jonathan',215.0),
 	 ('Kike',215.0),
 	 ('Mateus',215.0),
@@ -4332,7 +4332,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Babar',214.0),
 	 ('Hector Hugo',214.0),
 	 ('Joan Ignasi',214.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joel Alexander',214.0),
 	 ('Jorge Ernesto',214.0),
 	 ('Jose Faustino',214.0),
@@ -4343,7 +4343,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Eduardo',214.0),
 	 ('Vitor',214.0),
 	 ('Wilder',214.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristofol',213.0),
 	 ('Daniel Ignacio',213.0),
 	 ('Demian',213.0),
@@ -4354,7 +4354,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Garoe',213.0),
 	 ('Grzegorz',213.0),
 	 ('Itzan',213.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jakub',213.0),
 	 ('Kevin Manuel',213.0),
 	 ('Luis Fabian',213.0),
@@ -4365,7 +4365,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Alberto',213.0),
 	 ('Sergio Eduardo',213.0),
 	 ('Umair',213.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ben',212.0),
 	 ('Faris',212.0),
 	 ('Francisco Carmelo',212.0),
@@ -4376,7 +4376,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lakbir',212.0),
 	 ('Manuel Victor',212.0),
 	 ('Oscar Alfredo',212.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santino',212.0),
 	 ('Ablaye',211.0),
 	 ('Adolfo Manuel',211.0),
@@ -4387,7 +4387,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ernesto Jesus',211.0),
 	 ('Eugenio Jesus',211.0),
 	 ('Francisco Sebastian',211.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isidro Javier',211.0),
 	 ('Jaime Alejandro',211.0),
 	 ('Josua',211.0),
@@ -4398,7 +4398,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Maria',210.0),
 	 ('Andres Sebastian',210.0),
 	 ('Angel Guillermo',210.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Martin',210.0),
 	 ('Bingen',210.0),
 	 ('Essaid',210.0),
@@ -4409,7 +4409,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Ruben',210.0),
 	 ('Saidou',210.0),
 	 ('Santiago Alberto',210.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Enrique',210.0),
 	 ('Faycal',209.0),
 	 ('Felipe Carlos',209.0),
@@ -4420,7 +4420,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Maria',209.0),
 	 ('Manases',209.0),
 	 ('Marius Ionut',209.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Osman',209.0),
 	 ('Ramon Fernando',209.0),
 	 ('Ricardo Juan',209.0),
@@ -4431,7 +4431,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Juan',208.0),
 	 ('Barae',208.0),
 	 ('Candelario',208.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('German Andres',208.0),
 	 ('John James',208.0),
 	 ('Juan Rodrigo',208.0),
@@ -4442,7 +4442,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rudolf',208.0),
 	 ('Zulfiqar',208.0),
 	 ('Bryan David',207.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Carlos',207.0),
 	 ('Daniel Ramon',207.0),
 	 ('Dany',207.0),
@@ -4453,7 +4453,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Idris',207.0),
 	 ('Joaquin Fernando',207.0),
 	 ('Jorge Omar',207.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Jose',207.0),
 	 ('Mohammed Larbi',207.0),
 	 ('Nidal',207.0),
@@ -4464,7 +4464,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Mihai',206.0),
 	 ('Alexis Jose',206.0),
 	 ('Angel Ivan',206.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carmine',206.0),
 	 ('Edwin Andres',206.0),
 	 ('Jesus Oscar',206.0),
@@ -4475,7 +4475,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauricio Jose',206.0),
 	 ('Moustafa',206.0),
 	 ('Rafael Alfonso',206.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Enrique',206.0),
 	 ('Rayhan',206.0),
 	 ('Roberto Angel',206.0),
@@ -4486,7 +4486,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon',205.0),
 	 ('Jose Abelardo',205.0),
 	 ('Mamadou Aliou',205.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mariano Javier',205.0),
 	 ('Maricel',205.0),
 	 ('Marius Cristian',205.0),
@@ -4497,7 +4497,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Pablo',204.0),
 	 ('Ranjit',204.0),
 	 ('Samuele',204.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrien',203.0),
 	 ('Antonio Ismael',203.0),
 	 ('Antonio Jaime',203.0),
@@ -4508,7 +4508,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fidencio',203.0),
 	 ('Florin Daniel',203.0),
 	 ('Francisco Ismael',203.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Fernando',203.0),
 	 ('Jeremi',203.0),
 	 ('Lukasz',203.0),
@@ -4519,7 +4519,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xesus',203.0),
 	 ('Adrian Daniel',202.0),
 	 ('Aomar',202.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Awais',202.0),
 	 ('Daniel Juan',202.0),
 	 ('David Alfonso',202.0),
@@ -4530,7 +4530,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Miguel',202.0),
 	 ('Licinio',202.0),
 	 ('Lorenzo Antonio',202.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mimon',202.0),
 	 ('Ming',202.0),
 	 ('Nawfal',202.0),
@@ -4541,7 +4541,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ameur',201.0),
 	 ('Bernd',201.0),
 	 ('Diosdado',201.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eusebi',201.0),
 	 ('Fernando Joaquin',201.0),
 	 ('Georges',201.0),
@@ -4552,7 +4552,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Alexander',201.0),
 	 ('Noman',201.0),
 	 ('Ricardo Alejandro',201.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Alexander',201.0),
 	 ('Andres Camilo',200.0),
 	 ('Carlos Marcelo',200.0),
@@ -4563,7 +4563,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Cesar',200.0),
 	 ('Lahouari',200.0),
 	 ('Odon',200.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Victor',200.0),
 	 ('Rafael Joaquin',200.0),
 	 ('Rainer',200.0),
@@ -4574,7 +4574,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dairon',199.0),
 	 ('Diego Daniel',199.0),
 	 ('Enrique Eduardo',199.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Alberto',199.0),
 	 ('Imtiaz',199.0),
 	 ('Jalil',199.0),
@@ -4585,7 +4585,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Rafael',199.0),
 	 ('Lin',199.0),
 	 ('Luis Lorenzo',199.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Enrique',199.0),
 	 ('Nicolas David',199.0),
 	 ('Rolf',199.0),
@@ -4596,7 +4596,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Florin',198.0),
 	 ('David Israel',198.0),
 	 ('El Haj',198.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florenci',198.0),
 	 ('Georgel',198.0),
 	 ('Ian David',198.0),
@@ -4607,7 +4607,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mitko',198.0),
 	 ('Carlos Ariel',197.0),
 	 ('Cesar Fernando',197.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Sebastian',197.0),
 	 ('David George',197.0),
 	 ('Diego Eduardo',197.0),
@@ -4618,7 +4618,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Daniel',197.0),
 	 ('Layachi',197.0),
 	 ('Li',197.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Monsef',197.0),
 	 ('Ramon Eduardo',197.0),
 	 ('Robert Andrei',197.0),
@@ -4629,7 +4629,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Alberto',197.0),
 	 ('Yazid',197.0),
 	 ('Adrian Alberto',196.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Fermin',196.0),
 	 ('Azzouz',196.0),
 	 ('Eduardo Angel',196.0),
@@ -4640,7 +4640,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jairo Andres',196.0),
 	 ('Joel Antonio',196.0),
 	 ('Johan Manuel',196.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Dionisio',196.0),
 	 ('Julio Eduardo',196.0),
 	 ('Julio Ernesto',196.0),
@@ -4651,7 +4651,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Khalil',195.0),
 	 ('Felix Enrique',195.0),
 	 ('Gregorio Antonio',195.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luar',195.0),
 	 ('Manuel Jaime',195.0),
 	 ('Noreddine',195.0),
@@ -4662,7 +4662,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Andrei',194.0),
 	 ('Chahid',194.0),
 	 ('Daniel Nicolas',194.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Carlos',194.0),
 	 ('El Amin',194.0),
 	 ('Eudaldo',194.0),
@@ -4673,7 +4673,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Solaiman',194.0),
 	 ('Victoriano Manuel',194.0),
 	 ('Aaron Jose',193.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander David',193.0),
 	 ('Amandeep',193.0),
 	 ('Angel Nicolas',193.0),
@@ -4684,7 +4684,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Maria',193.0),
 	 ('Fernando Nicolas',193.0),
 	 ('Filipe',193.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hagie',193.0),
 	 ('Iacob',193.0),
 	 ('Jacinto Manuel',193.0),
@@ -4695,7 +4695,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mamadou Saliou',193.0),
 	 ('Manuel Raul',193.0),
 	 ('Mathieu',193.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohssine',193.0),
 	 ('Nicolas Javier',193.0),
 	 ('Orlando Jesus',193.0),
@@ -4706,7 +4706,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Agustin',192.0),
 	 ('David Vicente',192.0),
 	 ('Emran',192.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Pedro',192.0),
 	 ('Fernando Tomas',192.0),
 	 ('Francisco Mariano',192.0),
@@ -4717,7 +4717,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Gabriel',192.0),
 	 ('Pablo Joaquin',192.0),
 	 ('Roberto Juan',192.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rossend',192.0),
 	 ('Rostyslav',192.0),
 	 ('Victor Julio',192.0),
@@ -4728,7 +4728,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Sebastian',191.0),
 	 ('Domingo Luis',191.0),
 	 ('Gabriel David',191.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Miguel',191.0),
 	 ('Jeferson',191.0),
 	 ('Jelloul',191.0),
@@ -4739,7 +4739,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Rafael',191.0),
 	 ('Taib',191.0),
 	 ('Alfredo Miguel',190.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bruno Jose',190.0),
 	 ('David Ramon',190.0),
 	 ('Enrique Daniel',190.0),
@@ -4750,7 +4750,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Alvaro',190.0),
 	 ('Jorge Nicolas',190.0),
 	 ('Marcos Francisco',190.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Daniel',190.0),
 	 ('Nourddine',190.0),
 	 ('Oscar Juan',190.0),
@@ -4761,7 +4761,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alan David',189.0),
 	 ('Cristobal Javier',189.0),
 	 ('Edgardo',189.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Antonio',189.0),
 	 ('Helder',189.0),
 	 ('Jaime David',189.0),
@@ -4772,7 +4772,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Francisco',189.0),
 	 ('Qi',189.0),
 	 ('Ramiro Jose',189.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adolf',188.0),
 	 ('Ansar',188.0),
 	 ('David Ricardo',188.0),
@@ -4783,7 +4783,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ismael Antonio',188.0),
 	 ('Jaime Vicente',188.0),
 	 ('Jorge Martin',188.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucky',188.0),
 	 ('Luis Oswaldo',188.0),
 	 ('Melvin',188.0),
@@ -4794,7 +4794,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richard Alexander',188.0),
 	 ('Salvador Miguel',188.0),
 	 ('William Andres',188.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xuan',188.0),
 	 ('Yeray Jesus',188.0),
 	 ('Alexandru Ioan',187.0),
@@ -4805,7 +4805,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ernesto Antonio',187.0),
 	 ('Fanel',187.0),
 	 ('Fayssal',187.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isolino',187.0),
 	 ('Jean Louis',187.0),
 	 ('Jorge Anibal',187.0),
@@ -4816,7 +4816,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Gabriel',187.0),
 	 ('Abdenour',186.0),
 	 ('Antonio Adrian',186.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Fernando',186.0),
 	 ('Cibran',186.0),
 	 ('Eloy Manuel',186.0),
@@ -4827,7 +4827,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jens',186.0),
 	 ('Jhon Alejandro',186.0),
 	 ('Joan David',186.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Armando',186.0),
 	 ('Leonardo Gabriel',186.0),
 	 ('Marco Andres',186.0),
@@ -4838,7 +4838,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tsvetan',186.0),
 	 ('Alfonso Enrique',185.0),
 	 ('Anghel',185.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Armando Jesus',185.0),
 	 ('Ataulfo',185.0),
 	 ('Aymar',185.0),
@@ -4849,7 +4849,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Andres',185.0),
 	 ('Jianwei',185.0),
 	 ('Kevin Joel',185.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonardo Jesus',185.0),
 	 ('Leopoldo Jose',185.0),
 	 ('Mandeep',185.0),
@@ -4860,7 +4860,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Rafael',184.0),
 	 ('Andrei Cristian',184.0),
 	 ('Andrei Daniel',184.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrei Ionut',184.0),
 	 ('Blas Jesus',184.0),
 	 ('Carmelo Javier',184.0),
@@ -4871,7 +4871,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joao Miguel',184.0),
 	 ('John Robert',184.0),
 	 ('Loic',184.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Magdaleno',184.0),
 	 ('Manuel Santos',184.0),
 	 ('Miguel Angelo',184.0),
@@ -4882,7 +4882,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adelaido',183.0),
 	 ('Bara',183.0),
 	 ('Carlos Ricardo',183.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Camilo',183.0),
 	 ('Francisco Adolfo',183.0),
 	 ('Gerhard',183.0),
@@ -4893,7 +4893,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Patricio',183.0),
 	 ('Maria',183.0),
 	 ('Raul Miguel',183.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Gabriel',183.0),
 	 ('Saif Eddine',183.0),
 	 ('Samuel Andres',183.0),
@@ -4904,7 +4904,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Constantin',182.0),
 	 ('Anthony David',182.0),
 	 ('Augusto Jose',182.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Eduardo',182.0),
 	 ('Cristian Miguel',182.0),
 	 ('Etelvino',182.0),
@@ -4915,7 +4915,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ionut Cristian',182.0),
 	 ('Marco Jose',182.0),
 	 ('Marius Adrian',182.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohammed Ali',182.0),
 	 ('Omar Jose',182.0),
 	 ('Patricio Jose',182.0),
@@ -4926,7 +4926,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Emilio',182.0),
 	 ('Alex Javier',181.0),
 	 ('Alvaro Fernando',181.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arif',181.0),
 	 ('Benito Jesus',181.0),
 	 ('Esteban Javier',181.0),
@@ -4937,7 +4937,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lasha',181.0),
 	 ('Luis Marcos',181.0),
 	 ('Luis Ruben',181.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mark Andrew',181.0),
 	 ('Martin Miguel',181.0),
 	 ('Nestor Javier',181.0),
@@ -4948,7 +4948,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Fernando',181.0),
 	 ('Abdel Lah',180.0),
 	 ('Ametz',180.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Rafael',180.0),
 	 ('Blas Manuel',180.0),
 	 ('Euken',180.0),
@@ -4959,7 +4959,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Cristobal',180.0),
 	 ('Nicolaie',180.0),
 	 ('Yves',180.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alan John',179.0),
 	 ('Albeiro',179.0),
 	 ('Angel Alfredo',179.0),
@@ -4970,7 +4970,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Antonio',179.0),
 	 ('Enai',179.0),
 	 ('Foday',179.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frederick',179.0),
 	 ('Haytham',179.0),
 	 ('Iqbal',179.0),
@@ -4981,7 +4981,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lokman',179.0),
 	 ('Manuel Isidro',179.0),
 	 ('Nicolas Alberto',179.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paulo Sergio',179.0),
 	 ('Ramon Andres',179.0),
 	 ('Saeed',179.0),
@@ -4992,7 +4992,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Victor',178.0),
 	 ('David Anthony',178.0),
 	 ('Felix Carlos',178.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Pablo',178.0),
 	 ('Ioan Adrian',178.0),
 	 ('Ioannis',178.0),
@@ -5003,7 +5003,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mariusz',178.0),
 	 ('Miguel Agustin',178.0),
 	 ('Pedro Ricardo',178.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Angel',178.0),
 	 ('Soumaila',178.0),
 	 ('Aaron Jesus',177.0),
@@ -5014,7 +5014,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Alexis',177.0),
 	 ('Iliyan',177.0),
 	 ('Ionut Catalin',177.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iskander',177.0),
 	 ('Joachim',177.0),
 	 ('Jose Leopoldo',177.0),
@@ -5025,7 +5025,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maati',177.0),
 	 ('Manuel Damian',177.0),
 	 ('Manuel Oscar',177.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Aurelio',177.0),
 	 ('Marius Catalin',177.0),
 	 ('Martin Andres',177.0),
@@ -5036,7 +5036,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Anibal',176.0),
 	 ('Edgar Alexander',176.0),
 	 ('Eutiquiano',176.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Jesus',176.0),
 	 ('Ihab',176.0),
 	 ('Jairo Antonio',176.0),
@@ -5047,7 +5047,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Pablo',176.0),
 	 ('Nelson Javier',176.0),
 	 ('Soliman',176.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wesley',176.0),
 	 ('Alberto Tomas',175.0),
 	 ('Alfonso Ramon',175.0),
@@ -5058,7 +5058,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Cristian',175.0),
 	 ('Diego Pablo',175.0),
 	 ('Eugeniu',175.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felipe Luis',175.0),
 	 ('Fernando Agustin',175.0),
 	 ('Ferney',175.0),
@@ -5069,7 +5069,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isaac Jose',175.0),
 	 ('Jhonathan',175.0),
 	 ('Leonardo Enrique',175.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lizer',175.0),
 	 ('Luis Nicolas',175.0),
 	 ('Matias Gabriel',175.0),
@@ -5080,7 +5080,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Valery',175.0),
 	 ('Ventsislav',175.0),
 	 ('Yifan',175.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdeltif',174.0),
 	 ('Alaa',174.0),
 	 ('Carlos Damian',174.0),
@@ -5091,7 +5091,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Illia',174.0),
 	 ('Ivan Miguel',174.0),
 	 ('Jaime Ignacio',174.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jairo Jose',174.0),
 	 ('Joe',174.0),
 	 ('Jorge Tomas',174.0),
@@ -5102,7 +5102,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Touhami',174.0),
 	 ('Zubair',174.0),
 	 ('Abdou Aziz',173.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abubakar',173.0),
 	 ('Aliaksandr',173.0),
 	 ('Benyounes',173.0),
@@ -5113,7 +5113,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Federico',173.0),
 	 ('Philip John',173.0),
 	 ('Adem',172.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aureo',172.0),
 	 ('Carlos Felix',172.0),
 	 ('Cristhian Andres',172.0),
@@ -5124,7 +5124,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izam',172.0),
 	 ('Matias Daniel',172.0),
 	 ('Pascual Antonio',172.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Angel',172.0),
 	 ('Vicente Pedro',172.0),
 	 ('Victor Adrian',172.0),
@@ -5135,7 +5135,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison Javier',171.0),
 	 ('Eritz',171.0),
 	 ('Eyden',171.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fermi',171.0),
 	 ('Israel David',171.0),
 	 ('Jianjun',171.0),
@@ -5146,7 +5146,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Niceto',171.0),
 	 ('Omar Alejandro',171.0),
 	 ('Sergio Raul',171.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stanley',171.0),
 	 ('Stuart',171.0),
 	 ('Trevor',171.0),
@@ -5157,7 +5157,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arley',170.0),
 	 ('Bonaventura',170.0),
 	 ('Deepak',170.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Es Said',170.0),
 	 ('Flaviano',170.0),
 	 ('Haoran',170.0),
@@ -5168,7 +5168,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Tomas',170.0),
 	 ('Pablo Pedro',170.0),
 	 ('Ridouane',170.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Vicente',169.0),
 	 ('Carlos Jaime',169.0),
 	 ('Carlos Samuel',169.0),
@@ -5179,7 +5179,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jael',169.0),
 	 ('Julio Daniel',169.0),
 	 ('Lucas Javier',169.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maurice',169.0),
 	 ('Mauricio Javier',169.0),
 	 ('Michael Andres',169.0),
@@ -5190,7 +5190,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Satnam',169.0),
 	 ('Sergio Adrian',169.0),
 	 ('Yaakoub',169.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Afrodisio',168.0),
 	 ('Angel Gregorio',168.0),
 	 ('Antonio Alfredo',168.0),
@@ -5201,7 +5201,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Esteban Francisco',168.0),
 	 ('Evans',168.0),
 	 ('Ever',168.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fermin Jose',168.0),
 	 ('Javier Agustin',168.0),
 	 ('Jonnathan',168.0),
@@ -5212,7 +5212,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aboubakr',167.0),
 	 ('Adolfo Antonio',167.0),
 	 ('Ascensio',167.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Balduino',167.0),
 	 ('Cristian Andrei',167.0),
 	 ('Denis Gabriel',167.0),
@@ -5223,7 +5223,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Valentin',167.0),
 	 ('Julius',167.0),
 	 ('Luis Fermin',167.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marius Alexandru',167.0),
 	 ('Miguel Oscar',167.0),
 	 ('Nelson Antonio',167.0),
@@ -5234,7 +5234,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Andrei',167.0),
 	 ('Sebastian Francisco',167.0),
 	 ('Simon Pedro',167.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sliman',167.0),
 	 ('Abdelwahed',166.0),
 	 ('Antoni Josep',166.0),
@@ -5245,7 +5245,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Francisco',166.0),
 	 ('Fernando Augusto',166.0),
 	 ('Gleb',166.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guiem',166.0),
 	 ('Heber',166.0),
 	 ('Hector Raul',166.0),
@@ -5256,7 +5256,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Ernesto',166.0),
 	 ('Jesus Israel',166.0),
 	 ('Joaquin Pedro',166.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Manuel',166.0),
 	 ('Jorge Esteban',166.0),
 	 ('Jose Higinio',166.0),
@@ -5267,7 +5267,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Julio',166.0),
 	 ('Marco Alejandro',166.0),
 	 ('Mario Roberto',166.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moaad',166.0),
 	 ('Oscar Rafael',166.0),
 	 ('Petronilo',166.0),
@@ -5278,7 +5278,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Az Eddine',165.0),
 	 ('Carlos Patricio',165.0),
 	 ('Carmelo Antonio',165.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Ionut',165.0),
 	 ('David Ionut',165.0),
 	 ('Donald',165.0),
@@ -5289,7 +5289,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Alonso',165.0),
 	 ('Francisco Roman',165.0),
 	 ('Hamady',165.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Ivan',165.0),
 	 ('Hossein',165.0),
 	 ('Jaime Rafael',165.0),
@@ -5300,7 +5300,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Vicente',165.0),
 	 ('Xose Anton',165.0),
 	 ('Alexander Jesus',164.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alieu',164.0),
 	 ('Ansumana',164.0),
 	 ('Daniel Gabriel',164.0),
@@ -5311,7 +5311,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elier',164.0),
 	 ('German Luis',164.0),
 	 ('Hector Fabian',164.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Alberto',164.0),
 	 ('Ivan Enrique',164.0),
 	 ('Jesus Armando',164.0),
@@ -5322,7 +5322,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Md',164.0),
 	 ('Rodrigo Jesus',164.0),
 	 ('Santo',164.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Alexander',164.0),
 	 ('William David',164.0),
 	 ('Alberto Vicente',163.0),
@@ -5333,7 +5333,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arnulfo',163.0),
 	 ('Daren',163.0),
 	 ('Daryl',163.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgar Manuel',163.0),
 	 ('Essa',163.0),
 	 ('Florin Adrian',163.0),
@@ -5344,7 +5344,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johnatan',163.0),
 	 ('Kevin Steven',163.0),
 	 ('Mamadi',163.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Myroslav',163.0),
 	 ('Pablo Esteban',163.0),
 	 ('Scott',163.0),
@@ -5355,7 +5355,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelmoumen',162.0),
 	 ('Adrian Javier',162.0),
 	 ('Aleks',162.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Julio',162.0),
 	 ('Antonio Blas',162.0),
 	 ('Danail',162.0),
@@ -5366,7 +5366,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Samuel',162.0),
 	 ('Gabriel Luis',162.0),
 	 ('Hector Fernando',162.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Heiko',162.0),
 	 ('Javier Martin',162.0),
 	 ('Lhoucine',162.0),
@@ -5377,7 +5377,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdoul Aziz',161.0),
 	 ('Abubaker',161.0),
 	 ('Alejandro Sebastian',161.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Nicolas',161.0),
 	 ('Aria',161.0),
 	 ('Asdrubal',161.0),
@@ -5388,7 +5388,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduard Andrei',161.0),
 	 ('Eladio Jose',161.0),
 	 ('Fahad',161.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Francisco',161.0),
 	 ('Gonzalo Luis',161.0),
 	 ('Harun',161.0),
@@ -5399,7 +5399,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josias',161.0),
 	 ('Josue Daniel',161.0),
 	 ('Kevin Antonio',161.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Eduardo',161.0),
 	 ('Kostyantyn',161.0),
 	 ('Lur',161.0),
@@ -5410,7 +5410,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shakeel',161.0),
 	 ('Tomas Vicente',161.0),
 	 ('Victor Ignacio',161.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zoubir',161.0),
 	 ('Abselam',160.0),
 	 ('Anthony Alexander',160.0),
@@ -5421,7 +5421,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eriz',160.0),
 	 ('Felix Fernando',160.0),
 	 ('Guillermo Carlos',160.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo David',160.0),
 	 ('Gunter',160.0),
 	 ('Harjinder',160.0),
@@ -5432,7 +5432,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jin',160.0),
 	 ('Joan Anton',160.0),
 	 ('Jon Kepa',160.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Aquilino',160.0),
 	 ('Jose Fulgencio',160.0),
 	 ('Julian Javier',160.0),
@@ -5443,7 +5443,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abel Jose',159.0),
 	 ('Adrian Vasile',159.0),
 	 ('Akhtar',159.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Fernando',159.0),
 	 ('Alpha Oumar',159.0),
 	 ('Cristhian Camilo',159.0),
@@ -5454,7 +5454,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Alfonso',159.0),
 	 ('John Joseph',159.0),
 	 ('Jose Norberto',159.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marius Gabriel',159.0),
 	 ('Pablo Roberto',159.0),
 	 ('Pedro Nolasco',159.0),
@@ -5465,7 +5465,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abel Antonio',158.0),
 	 ('Angelino',158.0),
 	 ('Antonio Matias',158.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bacary',158.0),
 	 ('Brayan Stiven',158.0),
 	 ('Christian Alberto',158.0),
@@ -5476,7 +5476,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Abel',158.0),
 	 ('Francisco Arturo',158.0),
 	 ('Francisco Gerardo',158.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gerardo Jesus',158.0),
 	 ('Ignacio Alejandro',158.0),
 	 ('Isidro Jesus',158.0),
@@ -5487,7 +5487,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Andrei',158.0),
 	 ('Luis Patricio',158.0),
 	 ('Morgan',158.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mubashar',158.0),
 	 ('Nelson Eduardo',158.0),
 	 ('Nikolaos',158.0),
@@ -5498,7 +5498,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Enrique',158.0),
 	 ('Solayman',158.0),
 	 ('Tomas Ignacio',158.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valerica',158.0),
 	 ('Weijie',158.0),
 	 ('Xiaodong',158.0),
@@ -5509,7 +5509,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Borja Jesus',157.0),
 	 ('Buba',157.0),
 	 ('Darius Andrei',157.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Domingo Miguel',157.0),
 	 ('Doudou',157.0),
 	 ('Ferdinand',157.0),
@@ -5520,7 +5520,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Anselmo',157.0),
 	 ('Juan German',157.0),
 	 ('Karmelo',157.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lain',157.0),
 	 ('Maamar',157.0),
 	 ('Mariano Andres',157.0),
@@ -5531,7 +5531,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santiago Fernando',157.0),
 	 ('Sunil',157.0),
 	 ('Umer',157.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yamil',157.0),
 	 ('Adrian Alexander',156.0),
 	 ('Andres Julian',156.0),
@@ -5542,7 +5542,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Alami',156.0),
 	 ('Eyad',156.0),
 	 ('Fermin Javier',156.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ghali',156.0),
 	 ('Iker Manuel',156.0),
 	 ('Ioan Alexandru',156.0),
@@ -5553,7 +5553,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauricio Antonio',156.0),
 	 ('Paul Michael',156.0),
 	 ('Ricardo Gabriel',156.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Rafael',156.0),
 	 ('Tomas Alejandro',156.0),
 	 ('Yichen',156.0),
@@ -5564,7 +5564,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alae Eddine',155.0),
 	 ('Baljinder',155.0),
 	 ('Bouzian',155.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Damien',155.0),
 	 ('Edey',155.0),
 	 ('Edwin Alberto',155.0),
@@ -5575,7 +5575,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hammad',155.0),
 	 ('Haoxuan',155.0),
 	 ('Hugo Enrique',155.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Rafael',155.0),
 	 ('Jesus Sebastian',155.0),
 	 ('Jhon Sebastian',155.0),
@@ -5586,7 +5586,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robert Daniel',155.0),
 	 ('Wellington',155.0),
 	 ('Xiaojun',155.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xiaowei',155.0),
 	 ('Yuhao',155.0),
 	 ('Armin',154.0),
@@ -5597,7 +5597,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix David',154.0),
 	 ('Felix Eduardo',154.0),
 	 ('Fethi',154.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Mateo',154.0),
 	 ('Gagik',154.0),
 	 ('Joel Jesus',154.0),
@@ -5608,7 +5608,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Eduardo',154.0),
 	 ('Matias Jesus',154.0),
 	 ('Omar Enrique',154.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Philipp',154.0),
 	 ('Ruben Eduardo',154.0),
 	 ('Salvi',154.0),
@@ -5619,7 +5619,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Agustin',154.0),
 	 ('Valer',154.0),
 	 ('Zaza',154.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelkbir',153.0),
 	 ('Abderahim',153.0),
 	 ('Alberto Joaquin',153.0),
@@ -5630,7 +5630,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos German',153.0),
 	 ('Carlos Victor',153.0),
 	 ('Dativo',153.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Carlos',153.0),
 	 ('Franck',153.0),
 	 ('Juan Jacobo',153.0),
@@ -5641,7 +5641,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Enrique',153.0),
 	 ('Ravinder',153.0),
 	 ('Angel Adrian',152.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aylan',152.0),
 	 ('Daniel Florin',152.0),
 	 ('Javier Emilio',152.0),
@@ -5652,7 +5652,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Leonardo',152.0),
 	 ('Manuel Ruben',152.0),
 	 ('Manuel Valentin',152.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Alejandro',152.0),
 	 ('Mussa',152.0),
 	 ('Nelson Jesus',152.0),
@@ -5663,7 +5663,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yuchen',152.0),
 	 ('Zakariyae',152.0),
 	 ('Aleixandre',151.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ashot',151.0),
 	 ('David Alan',151.0),
 	 ('Esteban Luis',151.0),
@@ -5674,7 +5674,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Ricardo',151.0),
 	 ('Jose Ovidio',151.0),
 	 ('Julian Fernando',151.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Josue',151.0),
 	 ('Kiran',151.0),
 	 ('Leandro Javier',151.0),
@@ -5685,7 +5685,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nathanael',151.0),
 	 ('Nazan',151.0),
 	 ('Pedro Roberto',151.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramzi',151.0),
 	 ('Renan',151.0),
 	 ('Samvel',151.0),
@@ -5696,7 +5696,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Carmelo',150.0),
 	 ('Angel Rodrigo',150.0),
 	 ('Armando Javier',150.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bhupinder',150.0),
 	 ('Claudio Alberto',150.0),
 	 ('Dumitru Daniel',150.0),
@@ -5707,7 +5707,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jabir',150.0),
 	 ('Josep Ignasi',150.0),
 	 ('Juan Federico',150.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Mauricio',150.0),
 	 ('Junyi',150.0),
 	 ('Kenan',150.0),
@@ -5718,7 +5718,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Quiterio',150.0),
 	 ('Raul Ernesto',150.0),
 	 ('Saif',150.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Teodulo',150.0),
 	 ('Tomas David',150.0),
 	 ('Zihan',150.0),
@@ -5729,7 +5729,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Mauricio',149.0),
 	 ('Daniel Martin',149.0),
 	 ('David Salvador',149.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Ayachi',149.0),
 	 ('Emilio Enrique',149.0),
 	 ('Fernando Ariel',149.0),
@@ -5740,7 +5740,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jake',149.0),
 	 ('Jesus Benito',149.0),
 	 ('Jose Eliseo',149.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Narciso',149.0),
 	 ('Lucas Ezequiel',149.0),
 	 ('Marcelo Antonio',149.0),
@@ -5751,7 +5751,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Venerando',149.0),
 	 ('Weifeng',149.0),
 	 ('Wilmar',149.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Maria',148.0),
 	 ('Alhagie',148.0),
 	 ('Cesar Ivan',148.0),
@@ -5762,7 +5762,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eddie',148.0),
 	 ('Eduardo Alfonso',148.0),
 	 ('Florin Cristian',148.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gheorghe Daniel',148.0),
 	 ('Gines Jose',148.0),
 	 ('Gonzalo Miguel',148.0),
@@ -5773,7 +5773,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Luis',148.0),
 	 ('Luis Alexis',148.0),
 	 ('Mario Alexander',148.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Jorge',148.0),
 	 ('Oroitz',148.0),
 	 ('Radi',148.0),
@@ -5784,7 +5784,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xaquin',148.0),
 	 ('Youssoupha',148.0),
 	 ('Angel Marcos',147.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Bernardo',147.0),
 	 ('Armindo',147.0),
 	 ('Bayron',147.0),
@@ -5795,7 +5795,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Yamani',147.0),
 	 ('Emir',147.0),
 	 ('Faizan',147.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Fermin',147.0),
 	 ('German Jesus',147.0),
 	 ('Guillermo Eduardo',147.0),
@@ -5806,7 +5806,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Librado',147.0),
 	 ('Lucrecio',147.0),
 	 ('Majd',147.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Armando',147.0),
 	 ('Michael Joseph',147.0),
 	 ('Min',147.0),
@@ -5817,7 +5817,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Tomas',147.0),
 	 ('Raul Angel',147.0),
 	 ('Richard James',147.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Steven John',147.0),
 	 ('Suleiman',147.0),
 	 ('Weijun',147.0),
@@ -5828,7 +5828,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benito Antonio',146.0),
 	 ('Brian John',146.0),
 	 ('Bright',146.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bruce',146.0),
 	 ('Dean',146.0),
 	 ('Ebrahim',146.0),
@@ -5839,7 +5839,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jianhua',146.0),
 	 ('Kenny',146.0),
 	 ('Kevin John',146.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Alejandro',146.0),
 	 ('Marcelo Jose',146.0),
 	 ('Messaoud',146.0),
@@ -5850,7 +5850,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ping',146.0),
 	 ('Surinder',146.0),
 	 ('Andrei Gabriel',145.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Augustine',145.0),
 	 ('Cesar Ignacio',145.0),
 	 ('Cezar',145.0),
@@ -5861,7 +5861,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Luis',145.0),
 	 ('Felipe Alejandro',145.0),
 	 ('Felipe Miguel',145.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Gabriel',145.0),
 	 ('Herve',145.0),
 	 ('Ignacio Nicolas',145.0),
@@ -5872,7 +5872,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Mauricio',145.0),
 	 ('Jose Victoriano',145.0),
 	 ('Kuldeep',145.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lluis Miquel',145.0),
 	 ('Luis Damian',145.0),
 	 ('Mario Nicolas',145.0),
@@ -5883,7 +5883,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yulian',145.0),
 	 ('Adelio',144.0),
 	 ('Adrian Florin',144.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Stefan',144.0),
 	 ('Alexis Manuel',144.0),
 	 ('Carlos Joel',144.0),
@@ -5894,7 +5894,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gevorg',144.0),
 	 ('Haider',144.0),
 	 ('Hendrik',144.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Israel Jesus',144.0),
 	 ('Iñigo Maria',144.0),
 	 ('Jesus Marcos',144.0),
@@ -5905,7 +5905,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Alonso',144.0),
 	 ('Mario Raul',144.0),
 	 ('Martin Angel',144.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Nicolas',144.0),
 	 ('Maximo Jose',144.0),
 	 ('Miguel Arturo',144.0),
@@ -5916,7 +5916,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Sebastian',144.0),
 	 ('Rahul',144.0),
 	 ('Rajinder',144.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Javier',144.0),
 	 ('Sergio Nicolas',144.0),
 	 ('Vasile Adrian',144.0),
@@ -5927,7 +5927,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Gustavo',143.0),
 	 ('Angel Victor',143.0),
 	 ('Anibal Jose',143.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Alejandro',143.0),
 	 ('Biser',143.0),
 	 ('Brayan Steven',143.0),
@@ -5938,7 +5938,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Alexandru',143.0),
 	 ('Gabriel Ignacio',143.0),
 	 ('Gorgonio',143.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Andres',143.0),
 	 ('Javier Alfredo',143.0),
 	 ('Jianyong',143.0),
@@ -5949,7 +5949,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Andres',143.0),
 	 ('Martin Alberto',143.0),
 	 ('Mykyta',143.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nouredine',143.0),
 	 ('Olau',143.0),
 	 ('Oscar Santiago',143.0),
@@ -5960,7 +5960,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santiago Vicente',143.0),
 	 ('Serigne Saliou',143.0),
 	 ('Adrian Ioan',142.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Patricio',142.0),
 	 ('Antoni Maria',142.0),
 	 ('Aslam',142.0),
@@ -5971,7 +5971,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Damian Jesus',142.0),
 	 ('Daniel Cristian',142.0),
 	 ('Emilio David',142.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Rafael',142.0),
 	 ('Felix Daniel',142.0),
 	 ('Fernando Raul',142.0),
@@ -5982,7 +5982,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kostadin',142.0),
 	 ('Luis Mauricio',142.0),
 	 ('Manuel Diego',142.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohsine',142.0),
 	 ('William Fernando',142.0),
 	 ('Wladimiro',142.0),
@@ -5993,7 +5993,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Xavier',141.0),
 	 ('Chistian',141.0),
 	 ('Claudio Javier',141.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Samuel',141.0),
 	 ('El Hachmi',141.0),
 	 ('Erich',141.0),
@@ -6004,7 +6004,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Mauricio',141.0),
 	 ('Jean Jacques',141.0),
 	 ('Jerry',141.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin David',141.0),
 	 ('Kaloyan',141.0),
 	 ('Lorenzo Miguel',141.0),
@@ -6015,7 +6015,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thiago Alexander',141.0),
 	 ('Thomas James',141.0),
 	 ('Valentin Jose',141.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vasile Cristian',141.0),
 	 ('Vasile Daniel',141.0),
 	 ('Vicente Eduardo',141.0),
@@ -6026,7 +6026,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Gonzalo',140.0),
 	 ('Diego Vicente',140.0),
 	 ('Edwin Fernando',140.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Freddy Antonio',140.0),
 	 ('George Adrian',140.0),
 	 ('Gerardo Javier',140.0),
@@ -6037,7 +6037,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeison',140.0),
 	 ('Jesus Jaime',140.0),
 	 ('Jose Rolando',140.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Carles',140.0),
 	 ('Juan Alexander',140.0),
 	 ('Juan Israel',140.0),
@@ -6048,7 +6048,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moises Jesus',140.0),
 	 ('Oscar Angel',140.0),
 	 ('Oscar Dario',140.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Julian',140.0),
 	 ('Pablo Jorge',140.0),
 	 ('Patryk',140.0),
@@ -6059,7 +6059,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salvador Enrique',140.0),
 	 ('Sergio Vicente',140.0),
 	 ('Sory',140.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Maria',140.0),
 	 ('Xandre',140.0),
 	 ('Xose Lois',140.0),
@@ -6070,7 +6070,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Arturo',139.0),
 	 ('Antonio Mario',139.0),
 	 ('Antonio Reyes',139.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aurelio Jesus',139.0),
 	 ('Auritz',139.0),
 	 ('Carlos Gonzalo',139.0),
@@ -6081,7 +6081,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Luis',139.0),
 	 ('Jatinder',139.0),
 	 ('Jesus Gerardo',139.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Horacio',139.0),
 	 ('Juan Moises',139.0),
 	 ('Lasana',139.0),
@@ -6092,7 +6092,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Medardo',139.0),
 	 ('Miguel Domingo',139.0),
 	 ('Mirel',139.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolae Adrian',139.0),
 	 ('Nigel',139.0),
 	 ('Outmane',139.0),
@@ -6103,7 +6103,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Miguel',139.0),
 	 ('Vicente Emilio',139.0),
 	 ('Vicente Paul',139.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Carlos',139.0),
 	 ('William Jose',139.0),
 	 ('Alberto Gabriel',138.0),
@@ -6114,7 +6114,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benaisa',138.0),
 	 ('Birama',138.0),
 	 ('Carlos Oscar',138.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Catalin Ionut',138.0),
 	 ('Constantin Cristian',138.0),
 	 ('Danila',138.0),
@@ -6125,7 +6125,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Emilio',138.0),
 	 ('Francisco Gonzalo',138.0),
 	 ('German Manuel',138.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Giordano',138.0),
 	 ('Gonzalo Martin',138.0),
 	 ('Ignacio Enrique',138.0),
@@ -6136,7 +6136,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohssin',138.0),
 	 ('Pablo Guillermo',138.0),
 	 ('Pascual Manuel',138.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rabia',138.0),
 	 ('Santiago Tomas',138.0),
 	 ('Sebastiano',138.0),
@@ -6147,7 +6147,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dario Alejandro',137.0),
 	 ('David Andrew',137.0),
 	 ('Felix Ignacio',137.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franklin Jose',137.0),
 	 ('George Daniel',137.0),
 	 ('Guayre',137.0),
@@ -6158,7 +6158,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Victor',137.0),
 	 ('Joaquin Salvador',137.0),
 	 ('Jorge Salvador',137.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Florentino',137.0),
 	 ('Jose Rene',137.0),
 	 ('Julian Esteban',137.0),
@@ -6169,7 +6169,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Andrei',137.0),
 	 ('Mihai Gabriel',137.0),
 	 ('Milos',137.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mory',137.0),
 	 ('Narek',137.0),
 	 ('Santiago Gabriel',137.0),
@@ -6180,7 +6180,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Domingo',137.0),
 	 ('Victor Ivan',137.0),
 	 ('Walter Antonio',137.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wenhao',137.0),
 	 ('Xu',137.0),
 	 ('Yevgen',137.0),
@@ -6191,7 +6191,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Gabriel',136.0),
 	 ('Antonio Alexis',136.0),
 	 ('Antonio Oscar',136.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arai',136.0),
 	 ('Armando Manuel',136.0),
 	 ('Badar',136.0),
@@ -6202,7 +6202,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Ivan',136.0),
 	 ('Jonathan Alejandro',136.0),
 	 ('Jorge Orlando',136.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Cayetano',136.0),
 	 ('Jose Hernan',136.0),
 	 ('Junwei',136.0),
@@ -6213,7 +6213,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodolfo Antonio',136.0),
 	 ('Samuel Enrique',136.0),
 	 ('Sebastian Ignacio',136.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sohayb',136.0),
 	 ('Tomas Ramon',136.0),
 	 ('Abdelah',135.0),
@@ -6224,7 +6224,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Lorenzo',135.0),
 	 ('Constantin Daniel',135.0),
 	 ('Cristian Felipe',135.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Javier',135.0),
 	 ('El Bekkay',135.0),
 	 ('Estiven',135.0),
@@ -6235,7 +6235,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Heitor',135.0),
 	 ('Iker Jose',135.0),
 	 ('Ilyasse',135.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jefferson Andres',135.0),
 	 ('John Charles',135.0),
 	 ('Leonardo Manuel',135.0),
@@ -6246,7 +6246,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Ignacio',135.0),
 	 ('Nicolas Martin',135.0),
 	 ('Pedro Mario',135.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Carlos',135.0),
 	 ('Serguei',135.0),
 	 ('Thor',135.0),
@@ -6257,7 +6257,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Boumediene',134.0),
 	 ('Bozhidar',134.0),
 	 ('Carlos Gregorio',134.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Luis',134.0),
 	 ('Daniel Ernesto',134.0),
 	 ('David Raul',134.0),
@@ -6268,7 +6268,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hubert',134.0),
 	 ('Iker Javier',134.0),
 	 ('Jairo Alberto',134.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesse',134.0),
 	 ('Jesus Arturo',134.0),
 	 ('Jorge Patricio',134.0),
@@ -6279,7 +6279,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mariano Angel',134.0),
 	 ('Miguel Adrian',134.0),
 	 ('Mohamed Taha',134.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Naser',134.0),
 	 ('Pablo Damian',134.0),
 	 ('Pablo Julian',134.0),
@@ -6290,7 +6290,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shabbir',134.0),
 	 ('Yair',134.0),
 	 ('Yvan',134.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zoumana',134.0),
 	 ('Aitor Jesus',133.0),
 	 ('Andrian',133.0),
@@ -6301,7 +6301,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Manuel',133.0),
 	 ('Cristo Jose',133.0),
 	 ('Daniel Oscar',133.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Stefan',133.0),
 	 ('David Tomas',133.0),
 	 ('Diego Ivan',133.0),
@@ -6312,7 +6312,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernan',133.0),
 	 ('Fernando Arturo',133.0),
 	 ('Haddou',133.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Bernardo',133.0),
 	 ('Jon Mirena',133.0),
 	 ('Kian',133.0),
@@ -6323,7 +6323,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moncef',133.0),
 	 ('Monico',133.0),
 	 ('Octaviano',133.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Orest',133.0),
 	 ('Peter William',133.0),
 	 ('Tyler',133.0),
@@ -6334,7 +6334,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Ignacio',132.0),
 	 ('Alfonso Rafael',132.0),
 	 ('Amaiur',132.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ashfaq',132.0),
 	 ('Carmelo Manuel',132.0),
 	 ('Claro',132.0),
@@ -6345,7 +6345,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domitilo',132.0),
 	 ('Gonzalo Nicolas',132.0),
 	 ('Haojie',132.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Jesus',132.0),
 	 ('Isaac Jesus',132.0),
 	 ('Jackson',132.0),
@@ -6356,7 +6356,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Demetrio',132.0),
 	 ('Jose Venancio',132.0),
 	 ('Juan Florencio',132.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Vicente',132.0),
 	 ('Julio Santiago',132.0),
 	 ('Lhou',132.0),
@@ -6367,7 +6367,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Octavio Jose',132.0),
 	 ('Pedro Mariano',132.0),
 	 ('Ramon Joaquin',132.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richar',132.0),
 	 ('Ruben Javier',132.0),
 	 ('Salvio',132.0),
@@ -6378,7 +6378,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexi',131.0),
 	 ('Alfredo Ramon',131.0),
 	 ('Amadou Tidiane',131.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amaury',131.0),
 	 ('Andoitz',131.0),
 	 ('Andrei Florin',131.0),
@@ -6389,7 +6389,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Denzel',131.0),
 	 ('Domingo Alberto',131.0),
 	 ('Enetz',131.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Joaquin',131.0),
 	 ('Farooq',131.0),
 	 ('Faustino Jose',131.0),
@@ -6400,7 +6400,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hichem',131.0),
 	 ('Hugo David',131.0),
 	 ('Ioan Cristian',131.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Janos',131.0),
 	 ('Jose Bartolome',131.0),
 	 ('Juan Hilario',131.0),
@@ -6411,7 +6411,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhamed',131.0),
 	 ('Oscar Orlando',131.0),
 	 ('Rafaqat',131.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Eduardo',131.0),
 	 ('Sebastian Javier',131.0),
 	 ('Tibor',131.0),
@@ -6422,7 +6422,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Nicolae',130.0),
 	 ('Antonio Gerardo',130.0),
 	 ('Bamba',130.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bonoso',130.0),
 	 ('Camil',130.0),
 	 ('Carlos Ismael',130.0),
@@ -6433,7 +6433,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Florin',130.0),
 	 ('Csaba',130.0),
 	 ('Dario Antonio',130.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Davinder',130.0),
 	 ('Diego Raul',130.0),
 	 ('Enrique Andres',130.0),
@@ -6444,7 +6444,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Idir',130.0),
 	 ('Israel Jose',130.0),
 	 ('Iñigo Loyola',130.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jean Luc',130.0),
 	 ('Jesus Gonzalo',130.0),
 	 ('Jesus Reyes',130.0),
@@ -6455,7 +6455,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Emilio',130.0),
 	 ('Muhammad Usman',130.0),
 	 ('Pablo Ariel',130.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Alexander',130.0),
 	 ('Pere Lluis',130.0),
 	 ('Raul Vicente',130.0),
@@ -6466,7 +6466,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yoro',130.0),
 	 ('Yuxuan',130.0),
 	 ('Alfonso Fernando',129.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alvaro Nicolas',129.0),
 	 ('Arturo Miguel',129.0),
 	 ('Christofer',129.0),
@@ -6477,7 +6477,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Jorge',129.0),
 	 ('Diego Felipe',129.0),
 	 ('Dylan Gabriel',129.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Ramon',129.0),
 	 ('Heinz',129.0),
 	 ('Jonatan Jesus',129.0),
@@ -6488,7 +6488,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Alfredo',129.0),
 	 ('Kemen',129.0),
 	 ('Kulwinder',129.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lhassan',129.0),
 	 ('Luis Matias',129.0),
 	 ('Madalin',129.0),
@@ -6499,7 +6499,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robert Ionut',129.0),
 	 ('Tomas Andres',129.0),
 	 ('Ur',129.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valter',129.0),
 	 ('Wilson Fernando',129.0),
 	 ('Zbigniew',129.0),
@@ -6510,7 +6510,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Candido Manuel',128.0),
 	 ('David Martin',128.0),
 	 ('Diamantino',128.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edesio',128.0),
 	 ('Enrique Ignacio',128.0),
 	 ('Famara',128.0),
@@ -6521,7 +6521,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jadiel',128.0),
 	 ('James Alexander',128.0),
 	 ('Joaquin Santiago',128.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorg',128.0),
 	 ('Jorge Julian',128.0),
 	 ('Jose Aaron',128.0),
@@ -6532,7 +6532,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximo Antonio',128.0),
 	 ('Mouhsine',128.0),
 	 ('Muhammad Abdullah',128.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Andrew',128.0),
 	 ('Pedro Marcos',128.0),
 	 ('Rafael Salvador',128.0),
@@ -6543,7 +6543,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stanimir',128.0),
 	 ('Waldemar',128.0),
 	 ('Abimael',127.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aday Jesus',127.0),
 	 ('Agostinho',127.0),
 	 ('Aimane',127.0),
@@ -6554,7 +6554,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Borja Antonio',127.0),
 	 ('Christian Gabriel',127.0),
 	 ('Daniel Emilio',127.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Nicolas',127.0),
 	 ('Emilio Andres',127.0),
 	 ('Esteban Miguel',127.0),
@@ -6565,7 +6565,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ionut Marius',127.0),
 	 ('Jesus Fermin',127.0),
 	 ('Jesus Moises',127.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jiacheng',127.0),
 	 ('Jorge Marcelo',127.0),
 	 ('Josafat',127.0),
@@ -6576,7 +6576,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nasr Eddine',127.0),
 	 ('Nourddin',127.0),
 	 ('Olexandr',127.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oswaldo Jose',127.0),
 	 ('Paul Robert',127.0),
 	 ('Pedro Alexis',127.0),
@@ -6587,7 +6587,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Eduardo',127.0),
 	 ('Waheed',127.0),
 	 ('Willem',127.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Alberto',127.0),
 	 ('Wilson Javier',127.0),
 	 ('Yadel',127.0),
@@ -6598,7 +6598,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Joaquin',126.0),
 	 ('Angel Benito',126.0),
 	 ('Antonio Elias',126.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arquimedes',126.0),
 	 ('Ashok',126.0),
 	 ('Aurelio Manuel',126.0),
@@ -6609,7 +6609,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ernesto Luis',126.0),
 	 ('Gonzalo Daniel',126.0),
 	 ('Graham John',126.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hans Jurgen',126.0),
 	 ('Ivan Alexander',126.0),
 	 ('Jesus Aurelio',126.0),
@@ -6620,7 +6620,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Vicente',126.0),
 	 ('Marius Constantin',126.0),
 	 ('Markos',126.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Ricardo',126.0),
 	 ('Reinier',126.0),
 	 ('Richard David',126.0),
@@ -6631,7 +6631,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexander James',125.0),
 	 ('Badre',125.0),
 	 ('Benjamin Jose',125.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bogdan Alexandru',125.0),
 	 ('Cristian Alexandru',125.0),
 	 ('Daniel Salvador',125.0),
@@ -6642,7 +6642,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Esmeraldo',125.0),
 	 ('Eusebio Manuel',125.0),
 	 ('German Dario',125.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Alberto',125.0),
 	 ('Heribert',125.0),
 	 ('Ignacio Tomas',125.0),
@@ -6653,7 +6653,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Luis',125.0),
 	 ('Matias Javier',125.0),
 	 ('Miguel Nicolas',125.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mihai Cristian',125.0),
 	 ('Mihai Daniel',125.0),
 	 ('Miloudi',125.0),
@@ -6664,7 +6664,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Seddik',125.0),
 	 ('William James',125.0),
 	 ('Abdennasser',124.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aftab',124.0),
 	 ('Alejandro Angel',124.0),
 	 ('Alexandru Nicolae',124.0),
@@ -6675,7 +6675,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Darien',124.0),
 	 ('David Leonardo',124.0),
 	 ('Dawda',124.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Adrian',124.0),
 	 ('Edgar Eduardo',124.0),
 	 ('Eloy Jesus',124.0),
@@ -6686,7 +6686,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Floriano',124.0),
 	 ('Gurutz',124.0),
 	 ('Gustavo David',124.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Harrison',124.0),
 	 ('Henrik',124.0),
 	 ('Jianguo',124.0),
@@ -6697,7 +6697,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Massamba',124.0),
 	 ('Mirco',124.0),
 	 ('Omar Andres',124.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Alfonso',124.0),
 	 ('Pablo Eugenio',124.0),
 	 ('Pablo Salvador',124.0),
@@ -6708,7 +6708,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adams',123.0),
 	 ('Adham',123.0),
 	 ('Alexander Antonio',123.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aretx',123.0),
 	 ('Asur',123.0),
 	 ('Cesar Alfonso',123.0),
@@ -6719,7 +6719,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fan',123.0),
 	 ('Federico Martin',123.0),
 	 ('Felix Rafael',123.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Eloy',123.0),
 	 ('Isaac Antonio',123.0),
 	 ('Johnson',123.0),
@@ -6730,7 +6730,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leandro Manuel',123.0),
 	 ('Luis Dario',123.0),
 	 ('M Barek',123.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Mario',123.0),
 	 ('Michael Thomas',123.0),
 	 ('Miguel Martin',123.0),
@@ -6741,7 +6741,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nazim',123.0),
 	 ('Nika',123.0),
 	 ('Rafael Ricardo',123.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Carlos',123.0),
 	 ('Rodrigo Alberto',123.0),
 	 ('Rony',123.0),
@@ -6752,7 +6752,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andeka',122.0),
 	 ('Angel Augusto',122.0),
 	 ('Antonio Santos',122.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Augusto Cesar',122.0),
 	 ('Brian Alexander',122.0),
 	 ('Caio',122.0),
@@ -6763,7 +6763,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Fabian',122.0),
 	 ('Diego Joaquin',122.0),
 	 ('Edilson',122.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edison Fernando',122.0),
 	 ('Edu',122.0),
 	 ('Eduardo Tomas',122.0),
@@ -6774,7 +6774,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Eduardo',122.0),
 	 ('Iñigo Javier',122.0),
 	 ('Jairo Manuel',122.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Alonso',122.0),
 	 ('Jesus Elias',122.0),
 	 ('Jesus Santos',122.0),
@@ -6785,7 +6785,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose William',122.0),
 	 ('Juan Augusto',122.0),
 	 ('Libardo',122.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Santos',122.0),
 	 ('Marat',122.0),
 	 ('Mikheil',122.0),
@@ -6796,7 +6796,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Alexander',122.0),
 	 ('Riaz',122.0),
 	 ('Riduan',122.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robson',122.0),
 	 ('Ruben Ivan',122.0),
 	 ('Santiago Eduardo',122.0),
@@ -6807,7 +6807,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yuan',122.0),
 	 ('Alberto Jorge',121.0),
 	 ('Ales',121.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alhassane',121.0),
 	 ('Alireza',121.0),
 	 ('Angel Bernardo',121.0),
@@ -6818,7 +6818,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Isidro',121.0),
 	 ('Dario Jesus',121.0),
 	 ('Dario Manuel',121.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Gabriel',121.0),
 	 ('Enrique Jorge',121.0),
 	 ('Fernando Julian',121.0),
@@ -6829,7 +6829,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Alfonso',121.0),
 	 ('Hamido',121.0),
 	 ('Ignacio Martin',121.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Irineo',121.0),
 	 ('James Robert',121.0),
 	 ('Jhony',121.0),
@@ -6840,7 +6840,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Santiago',121.0),
 	 ('Kyrylo',121.0),
 	 ('Manuel Eloy',121.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Rafael',121.0),
 	 ('Miguel Eugenio',121.0),
 	 ('Nicolas Ignacio',121.0),
@@ -6851,7 +6851,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Peter David',121.0),
 	 ('Raul Adrian',121.0),
 	 ('Rehan',121.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sambou',121.0),
 	 ('Sukhjinder',121.0),
 	 ('Sylvain',121.0),
@@ -6862,7 +6862,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agustin Luis',120.0),
 	 ('Alexandru Valentin',120.0),
 	 ('Andres Eloy',120.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Guillermo',120.0),
 	 ('Austin',120.0),
 	 ('Cristian Fabian',120.0),
@@ -6873,7 +6873,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Horst',120.0),
 	 ('Joao Vitor',120.0),
 	 ('Jose Jairo',120.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Karamo',120.0),
 	 ('Lawrence',120.0),
 	 ('Lhoussain',120.0),
@@ -6884,7 +6884,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Ramon',120.0),
 	 ('Matias Ignacio',120.0),
 	 ('Miguel Anxo',120.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Daniel',120.0),
 	 ('Mohamed El Amine',120.0),
 	 ('Nicolas Enrique',120.0),
@@ -6895,7 +6895,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sandy',120.0),
 	 ('Santiago Agustin',120.0),
 	 ('Sarfraz',120.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sinuhe',120.0),
 	 ('Suhar',120.0),
 	 ('Yuliyan',120.0),
@@ -6906,7 +6906,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandros',119.0),
 	 ('Alioune Badara',119.0),
 	 ('Anes',119.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bangally',119.0),
 	 ('Bogdan Andrei',119.0),
 	 ('Brahima',119.0),
@@ -6917,7 +6917,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Tomas',119.0),
 	 ('Darius Gabriel',119.0),
 	 ('Diodoro',119.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Mahfoud',119.0),
 	 ('Gabriel Nicolas',119.0),
 	 ('Guillermo Nicolas',119.0),
@@ -6928,7 +6928,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isac',119.0),
 	 ('Joan Jordi',119.0),
 	 ('Jordi Xavier',119.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Oswaldo',119.0),
 	 ('Juan Modesto',119.0),
 	 ('Julian Ignacio',119.0),
@@ -6939,7 +6939,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Adrian',119.0),
 	 ('Mosaab',119.0),
 	 ('Mouhamadou Lamine',119.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Jesus',119.0),
 	 ('Nicolae Daniel',119.0),
 	 ('Nicolas Fernando',119.0),
@@ -6950,7 +6950,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Volker',119.0),
 	 ('Zhen',119.0),
 	 ('Abdul Rehman',118.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ahmida',118.0),
 	 ('Alberte',118.0),
 	 ('Alejandro Alfonso',118.0),
@@ -6961,7 +6961,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daviti',118.0),
 	 ('Dayan',118.0),
 	 ('Dejan',118.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgar Andres',118.0),
 	 ('Fabio Jose',118.0),
 	 ('Fermin Antonio',118.0),
@@ -6972,7 +6972,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gheorghe Florin',118.0),
 	 ('Ignacio Fernando',118.0),
 	 ('Ioan Marius',118.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jean Baptiste',118.0),
 	 ('Jerico',118.0),
 	 ('Jese',118.0),
@@ -6983,7 +6983,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Amable',118.0),
 	 ('Luciano Jose',118.0),
 	 ('Luis Omar',118.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mathias Alejandro',118.0),
 	 ('Matthew John',118.0),
 	 ('Pablo Ivan',118.0),
@@ -6994,7 +6994,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Arturo',118.0),
 	 ('Talal',118.0),
 	 ('Tayyab',118.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Trifon',118.0),
 	 ('Wilson Andres',118.0),
 	 ('Zixuan',118.0),
@@ -7005,7 +7005,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Francisco',117.0),
 	 ('Baraa',117.0),
 	 ('Carlos Abel',117.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Henrique',117.0),
 	 ('Chris',117.0),
 	 ('Cristian Ioan',117.0),
@@ -7016,7 +7016,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Kbir',117.0),
 	 ('Fernando Felix',117.0),
 	 ('Freddy Jose',117.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Adrian',117.0),
 	 ('Hermann',117.0),
 	 ('Inazio',117.0),
@@ -7027,7 +7027,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Evangelista',117.0),
 	 ('Juan Leandro',117.0),
 	 ('Klaus Dieter',117.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ludovic',117.0),
 	 ('Manuel Amador',117.0),
 	 ('Manuel Matias',117.0),
@@ -7038,7 +7038,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Emilio',117.0),
 	 ('Pablo Ricardo',117.0),
 	 ('Pedro Benito',117.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Ruben',117.0),
 	 ('Remberto',117.0),
 	 ('Sebastian Miguel',117.0),
@@ -7049,7 +7049,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Luis',116.0),
 	 ('Alberto Santiago',116.0),
 	 ('Alejandro Jorge',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Pedro',116.0),
 	 ('Alexander Javier',116.0),
 	 ('Alfonso Eduardo',116.0),
@@ -7060,7 +7060,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Gerardo',116.0),
 	 ('Cesar Gabriel',116.0),
 	 ('Claude',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Corsino',116.0),
 	 ('Cristian Alexis',116.0),
 	 ('Daniel Andrei',116.0),
@@ -7071,7 +7071,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Miguel',116.0),
 	 ('Eusebio Jesus',116.0),
 	 ('Federico Carlos',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florin Marius',116.0),
 	 ('Francisco Alexander',116.0),
 	 ('Francisco Blas',116.0),
@@ -7082,7 +7082,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Rafael',116.0),
 	 ('Henry Alexander',116.0),
 	 ('Husnain',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jacobo Jose',116.0),
 	 ('Jaime Rodrigo',116.0),
 	 ('Javier Arturo',116.0),
@@ -7093,7 +7093,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Ricardo',116.0),
 	 ('Lazaro Jesus',116.0),
 	 ('Leonardo Alberto',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Gilberto',116.0),
 	 ('Lyubomyr',116.0),
 	 ('Mickael',116.0),
@@ -7104,7 +7104,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paulo Manuel',116.0),
 	 ('Pedro Oscar',116.0),
 	 ('Rafael Domingo',116.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Oscar',116.0),
 	 ('Ruy',116.0),
 	 ('Sid Ali',116.0),
@@ -7115,7 +7115,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abderrachid',115.0),
 	 ('Agustin Alberto',115.0),
 	 ('Aithor',115.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Fabian',115.0),
 	 ('Arturo Alejandro',115.0),
 	 ('Artyom',115.0),
@@ -7126,7 +7126,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Davyd',115.0),
 	 ('Deniz',115.0),
 	 ('Dylan David',115.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgar Javier',115.0),
 	 ('Efrem',115.0),
 	 ('Eliam',115.0),
@@ -7137,7 +7137,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gheorghe Adrian',115.0),
 	 ('Ionut Cosmin',115.0),
 	 ('Jorge Ariel',115.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Constantino',115.0),
 	 ('Julio Pedro',115.0),
 	 ('Loris',115.0),
@@ -7148,7 +7148,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin David',115.0),
 	 ('Michael Peter',115.0),
 	 ('Mohamed Lemine',115.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moises Alejandro',115.0),
 	 ('Nelson Andres',115.0),
 	 ('Pablo Ernesto',115.0),
@@ -7159,7 +7159,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xaime',115.0),
 	 ('Yonay',115.0),
 	 ('Adda',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aldemar',114.0),
 	 ('Alejandro Cesar',114.0),
 	 ('Alfredo Carlos',114.0),
@@ -7170,7 +7170,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Rafael',114.0),
 	 ('David Paul',114.0),
 	 ('Edel',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Joaquin',114.0),
 	 ('Erico',114.0),
 	 ('Felix Vicente',114.0),
@@ -7181,7 +7181,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Enrique',114.0),
 	 ('Gregorio Luis',114.0),
 	 ('Guillermo Ramon',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Henry David',114.0),
 	 ('Houdaifa',114.0),
 	 ('Iaroslav',114.0),
@@ -7192,7 +7192,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jianmin',114.0),
 	 ('Jiawei',114.0),
 	 ('Jiri',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Francis',114.0),
 	 ('Jordi Lluis',114.0),
 	 ('Keita',114.0),
@@ -7203,7 +7203,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicholas James',114.0),
 	 ('Nisar',114.0),
 	 ('Nuhazet',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Otoniel',114.0),
 	 ('Paulo Jose',114.0),
 	 ('Ricardo Alfredo',114.0),
@@ -7214,7 +7214,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Eduardo',114.0),
 	 ('Vicente Julian',114.0),
 	 ('Xulio',114.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abraham Jesus',113.0),
 	 ('Agustin Juan',113.0),
 	 ('Ariday',113.0),
@@ -7225,7 +7225,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Moises',113.0),
 	 ('Cesar Alfredo',113.0),
 	 ('David Edward',113.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Moises',113.0),
 	 ('Eduardo Fernando',113.0),
 	 ('Emilio Joaquin',113.0),
@@ -7236,7 +7236,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Aurelio',113.0),
 	 ('Francisco Yeray',113.0),
 	 ('Gabriel Sebastian',113.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ian Alexander',113.0),
 	 ('Ilies',113.0),
 	 ('Ivan Rafael',113.0),
@@ -7247,7 +7247,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Ivan',113.0),
 	 ('Kevin Alexis',113.0),
 	 ('Levon',113.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Ismael',113.0),
 	 ('Miguel Lorenzo',113.0),
 	 ('Mihai Adrian',113.0),
@@ -7258,7 +7258,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Federico',113.0),
 	 ('Pedro Alonso',113.0),
 	 ('Pierluigi',113.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raimundo Jose',113.0),
 	 ('Ricardo Fernando',113.0),
 	 ('Rogelio Jose',113.0),
@@ -7269,7 +7269,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anyelo',112.0),
 	 ('Asghar',112.0),
 	 ('Ausencio',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Badara',112.0),
 	 ('Carlos Leonardo',112.0),
 	 ('Cheickne',112.0),
@@ -7280,7 +7280,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Tomas',112.0),
 	 ('Dong',112.0),
 	 ('Dusan',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Antonio',112.0),
 	 ('El Mati',112.0),
 	 ('Eladio Manuel',112.0),
@@ -7291,7 +7291,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ildefonso Jose',112.0),
 	 ('Jefferson Alexander',112.0),
 	 ('Jillali',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Patrick',112.0),
 	 ('John Sebastian',112.0),
 	 ('Jonathan Josue',112.0),
@@ -7302,7 +7302,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ke',112.0),
 	 ('Lenny',112.0),
 	 ('Luis Valentin',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lyam',112.0),
 	 ('Lyes',112.0),
 	 ('Mahir',112.0),
@@ -7313,7 +7313,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Juan',112.0),
 	 ('Milton Cesar',112.0),
 	 ('Orlando Antonio',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Orlando Manuel',112.0),
 	 ('Patricio Javier',112.0),
 	 ('Pedro Augusto',112.0),
@@ -7324,7 +7324,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Alexander',112.0),
 	 ('Santiago Pedro',112.0),
 	 ('Santos Javier',112.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Pablo',112.0),
 	 ('Xuhar',112.0),
 	 ('Adrian Arturo',111.0),
@@ -7335,7 +7335,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Daniel',111.0),
 	 ('Andre Luiz',111.0),
 	 ('Antonio Roman',111.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Armando Antonio',111.0),
 	 ('Ascension',111.0),
 	 ('Cai',111.0),
@@ -7346,7 +7346,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar David',111.0),
 	 ('Edgar Patricio',111.0),
 	 ('Fabio Antonio',111.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabrice',111.0),
 	 ('Federico Miguel',111.0),
 	 ('Felipe Angel',111.0),
@@ -7357,7 +7357,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonçal',111.0),
 	 ('Henrry',111.0),
 	 ('Ilyes',111.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Fernando',111.0),
 	 ('Javier Felipe',111.0),
 	 ('Jesus Eloy',111.0),
@@ -7368,7 +7368,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juanito',111.0),
 	 ('Malek',111.0),
 	 ('Manuel Jacinto',111.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Ruben',111.0),
 	 ('Mateo Jesus',111.0),
 	 ('Merouane',111.0),
@@ -7379,7 +7379,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raico',111.0),
 	 ('Ricardo Ignacio',111.0),
 	 ('Robert Adrian',111.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Cristian',111.0),
 	 ('Salah Eddin',111.0),
 	 ('Samuel Francisco',111.0),
@@ -7390,7 +7390,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aitor Javier',110.0),
 	 ('Andrius',110.0),
 	 ('Aparicio',110.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Astor',110.0),
 	 ('Beka',110.0),
 	 ('Bryan Alexis',110.0),
@@ -7401,7 +7401,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Crisostomo',110.0),
 	 ('Damiano',110.0),
 	 ('Daniel Armando',110.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edahi',110.0),
 	 ('Eduardo Martin',110.0),
 	 ('Hector Mario',110.0),
@@ -7412,7 +7412,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iuri',110.0),
 	 ('Joaquim Maria',110.0),
 	 ('Jorge Felipe',110.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Dionisio',110.0),
 	 ('Kada',110.0),
 	 ('Liaqat',110.0),
@@ -7423,7 +7423,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Juan',110.0),
 	 ('Paulino Jose',110.0),
 	 ('Pieter',110.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramesh',110.0),
 	 ('Ramon Alfonso',110.0),
 	 ('Salvador Ramon',110.0),
@@ -7434,7 +7434,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilmer Jose',110.0),
 	 ('Yelco',110.0),
 	 ('Yuxiang',110.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zaki',110.0),
 	 ('Adal',109.0),
 	 ('Alex Eduardo',109.0),
@@ -7445,7 +7445,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Vicente',109.0),
 	 ('David Steven',109.0),
 	 ('Edgar Enrique',109.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eric Daniel',109.0),
 	 ('Fabian Alberto',109.0),
 	 ('Fei',109.0),
@@ -7456,7 +7456,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Miguel',109.0),
 	 ('German Alberto',109.0),
 	 ('Gocha',109.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Ruben',109.0),
 	 ('Hugo Luis',109.0),
 	 ('Ivan Gabriel',109.0),
@@ -7467,7 +7467,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Cecilio',109.0),
 	 ('Jose Paulo',109.0),
 	 ('Jose Saul',109.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mahamadu',109.0),
 	 ('Mamuka',109.0),
 	 ('Martino',109.0),
@@ -7478,7 +7478,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Ibrahim',109.0),
 	 ('Nayim',109.0),
 	 ('Pablo Felipe',109.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rabi',109.0),
 	 ('Sebastian Nicolas',109.0),
 	 ('Sheraz',109.0),
@@ -7489,7 +7489,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Manuel',108.0),
 	 ('Angel Ernesto',108.0),
 	 ('Anthony Jose',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Eloy',108.0),
 	 ('Bilel',108.0),
 	 ('Brayan David',108.0),
@@ -7500,7 +7500,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Donaciano',108.0),
 	 ('El Yazid',108.0),
 	 ('Elias Jesus',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Esaul',108.0),
 	 ('Evgeni',108.0),
 	 ('Gedeon',108.0),
@@ -7511,7 +7511,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ionut Valentin',108.0),
 	 ('Itamar',108.0),
 	 ('Ivon',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Oscar',108.0),
 	 ('Jesus Cesar',108.0),
 	 ('Jhon Henry',108.0),
@@ -7522,7 +7522,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Paul',108.0),
 	 ('Luis Elias',108.0),
 	 ('Manuel Dario',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Alexandru',108.0),
 	 ('Marius Iulian',108.0),
 	 ('Michael George',108.0),
@@ -7533,7 +7533,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mousa',108.0),
 	 ('Nazariy',108.0),
 	 ('Oscar Adrian',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Ruben',108.0),
 	 ('Pedro Ernesto',108.0),
 	 ('Peter Anthony',108.0),
@@ -7544,7 +7544,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Alexander',108.0),
 	 ('Sergio Tomas',108.0),
 	 ('Simon Jose',108.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sofyan',108.0),
 	 ('Sorinel',108.0),
 	 ('Soufyan',108.0),
@@ -7555,7 +7555,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Youssouph',108.0),
 	 ('Abdelmonim',107.0),
 	 ('Aderito',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Cristian',107.0),
 	 ('Agustin Fernando',107.0),
 	 ('Alexis Daniel',107.0),
@@ -7566,7 +7566,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Diego',107.0),
 	 ('Carlos Matias',107.0),
 	 ('Carsten',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Antonio',107.0),
 	 ('Cristhian Alexander',107.0),
 	 ('Esteban Alejandro',107.0),
@@ -7577,7 +7577,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivelin',107.0),
 	 ('Janusz',107.0),
 	 ('Javier Adrian',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Daniel',107.0),
 	 ('Jesus Samuel',107.0),
 	 ('Joaquin Alfonso',107.0),
@@ -7588,7 +7588,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Amador',107.0),
 	 ('Julian Pedro',107.0),
 	 ('Kassim',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kumar',107.0),
 	 ('Luis Borja',107.0),
 	 ('Luis Cristobal',107.0),
@@ -7599,7 +7599,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Ivan',107.0),
 	 ('Marius Andrei',107.0),
 	 ('Mark John',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mitxel',107.0),
 	 ('Nestor David',107.0),
 	 ('Nicolas Ezequiel',107.0),
@@ -7610,7 +7610,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Rafael',107.0),
 	 ('Rayco Jose',107.0),
 	 ('Raymond John',107.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richard Antonio',107.0),
 	 ('Ronal',107.0),
 	 ('Sahil',107.0),
@@ -7621,7 +7621,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Juan',107.0),
 	 ('Zhiwei',107.0),
 	 ('Abdelati',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelouafi',106.0),
 	 ('Abubacarr',106.0),
 	 ('Alami',106.0),
@@ -7632,7 +7632,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amat',106.0),
 	 ('Andres Emilio',106.0),
 	 ('Antidio',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Abel',106.0),
 	 ('Armando Luis',106.0),
 	 ('Aurelio Antonio',106.0),
@@ -7643,7 +7643,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristobal Francisco',106.0),
 	 ('David Josue',106.0),
 	 ('Diego Ricardo',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Daniel',106.0),
 	 ('Eduardo Felipe',106.0),
 	 ('Edwin Alejandro',106.0),
@@ -7654,7 +7654,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jean Franco',106.0),
 	 ('Joaquin Tomas',106.0),
 	 ('Joel Andres',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Johan Steven',106.0),
 	 ('Jorge Hugo',106.0),
 	 ('Jose Hugo',106.0),
@@ -7665,7 +7665,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Beltran',106.0),
 	 ('Mauro Jose',106.0),
 	 ('Maxwell',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Manuel',106.0),
 	 ('Nour',106.0),
 	 ('Oscar Felipe',106.0),
@@ -7676,7 +7676,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Martin',106.0),
 	 ('Ruben Enrique',106.0),
 	 ('Saleem',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sasho',106.0),
 	 ('Shamraiz',106.0),
 	 ('Siarhei',106.0),
@@ -7687,7 +7687,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Santiago',106.0),
 	 ('Victor Nicolas',106.0),
 	 ('Yesid',106.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Nicolas',105.0),
 	 ('Alfonso Vicente',105.0),
 	 ('Andres Martin',105.0),
@@ -7698,7 +7698,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Alexander',105.0),
 	 ('Cosmin Ionut',105.0),
 	 ('Cristian Paul',105.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Alexandru',105.0),
 	 ('Daniel Augusto',105.0),
 	 ('David Agustin',105.0),
@@ -7709,7 +7709,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ezio',105.0),
 	 ('Florencio Jose',105.0),
 	 ('Franklin Antonio',105.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ganix',105.0),
 	 ('Grigor',105.0),
 	 ('Hai',105.0),
@@ -7720,7 +7720,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Andrew',105.0),
 	 ('Jorge Victor',105.0),
 	 ('Jose Joaquim',105.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lassine',105.0),
 	 ('Lijun',105.0),
 	 ('Lyan',105.0),
@@ -7731,7 +7731,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mathew',105.0),
 	 ('Mbacke',105.0),
 	 ('Mehmet',105.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Najem',105.0),
 	 ('Octavio Jesus',105.0),
 	 ('Oscar Humberto',105.0),
@@ -7742,7 +7742,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rochdi',105.0),
 	 ('Ronnie',105.0),
 	 ('Silas',105.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Slawomir',105.0),
 	 ('Stefan Daniel',105.0),
 	 ('Terry',105.0),
@@ -7753,7 +7753,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aboubakar',104.0),
 	 ('Alexander Manuel',104.0),
 	 ('Alvin',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amr',104.0),
 	 ('Andres Alexander',104.0),
 	 ('Angel Adolfo',104.0),
@@ -7764,7 +7764,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Julio',104.0),
 	 ('Cornelis',104.0),
 	 ('Daniel Agustin',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Ivan',104.0),
 	 ('El Madani',104.0),
 	 ('Evangelino',104.0),
@@ -7775,7 +7775,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Frederico',104.0),
 	 ('Gabi',104.0),
 	 ('Gabriel Alfonso',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Georgii',104.0),
 	 ('Ghassan',104.0),
 	 ('Gian Carlo',104.0),
@@ -7786,7 +7786,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Daniel',104.0),
 	 ('Iurgi',104.0),
 	 ('Javier Sebastian',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joel Manuel',104.0),
 	 ('Jorel',104.0),
 	 ('Jose Cipriano',104.0),
@@ -7797,7 +7797,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauro Antonio',104.0),
 	 ('Michael Andrew',104.0),
 	 ('Mindaugas',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moise',104.0),
 	 ('Mor Talla',104.0),
 	 ('Nicolas Rafael',104.0),
@@ -7808,7 +7808,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shota',104.0),
 	 ('Stanislaw',104.0),
 	 ('Tomas Carlos',104.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter Javier',104.0),
 	 ('Aaron Alejandro',103.0),
 	 ('Abdelwahid',103.0),
@@ -7819,7 +7819,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ameer',103.0),
 	 ('Andi',103.0),
 	 ('Andres Leonardo',103.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ayden',103.0),
 	 ('Blas Miguel',103.0),
 	 ('Bryan Josue',103.0),
@@ -7830,7 +7830,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Alejandro',103.0),
 	 ('Edouard',103.0),
 	 ('Elias Antonio',103.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elisei',103.0),
 	 ('Erik Alexander',103.0),
 	 ('Flores',103.0),
@@ -7841,7 +7841,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Icaro',103.0),
 	 ('Jesus Matias',103.0),
 	 ('John Anderson',103.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Alejo',103.0),
 	 ('Jose Wilson',103.0),
 	 ('Julian Camilo',103.0),
@@ -7852,7 +7852,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Gabriel',103.0),
 	 ('Martin Alonso',103.0),
 	 ('Nasar',103.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Octavio Manuel',103.0),
 	 ('Pedro Valentin',103.0),
 	 ('Rafael Esteban',103.0),
@@ -7863,7 +7863,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rohit',103.0),
 	 ('Ronald Alexander',103.0),
 	 ('Sergio Martin',103.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Ruben',103.0),
 	 ('Soren',103.0),
 	 ('Yoseba',103.0),
@@ -7874,7 +7874,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aladji',102.0),
 	 ('Alejandro Esteban',102.0),
 	 ('Aleksey',102.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfredo Juan',102.0),
 	 ('Andres Pedro',102.0),
 	 ('Angel Gonzalo',102.0),
@@ -7885,7 +7885,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bathie',102.0),
 	 ('Daniel Humberto',102.0),
 	 ('David Ernesto',102.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Thomas',102.0),
 	 ('Dionisio Jose',102.0),
 	 ('El Houssein',102.0),
@@ -7896,7 +7896,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haimar',102.0),
 	 ('Ivano',102.0),
 	 ('James David',102.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Salvador',102.0),
 	 ('Jordi Ramon',102.0),
 	 ('Jose Jacobo',102.0),
@@ -7907,7 +7907,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kyle',102.0),
 	 ('Leonardo Fabian',102.0),
 	 ('Martin Daniel',102.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Antonio',102.0),
 	 ('Miguel Felix',102.0),
 	 ('Momar',102.0),
@@ -7918,7 +7918,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Martin',102.0),
 	 ('Raul Luis',102.0),
 	 ('Saddik',102.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saverio',102.0),
 	 ('Sidahmed',102.0),
 	 ('Varinder',102.0),
@@ -7929,7 +7929,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alin Ionut',101.0),
 	 ('Andranik',101.0),
 	 ('Anselmo Jose',101.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Federico',101.0),
 	 ('Barry John',101.0),
 	 ('Carlos Isaac',101.0),
@@ -7940,7 +7940,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Conor',101.0),
 	 ('David Pablo',101.0),
 	 ('Diego Ariel',101.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edison Patricio',101.0),
 	 ('Edwin David',101.0),
 	 ('Elmehdi',101.0),
@@ -7951,7 +7951,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hasier',101.0),
 	 ('Hector Juan',101.0),
 	 ('Hovhannes',101.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Insa',101.0),
 	 ('Javier Alexis',101.0),
 	 ('Joan Antonio',101.0),
@@ -7962,7 +7962,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kennedy',101.0),
 	 ('Lucas Nahuel',101.0),
 	 ('Martin Enrique',101.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Ivan',101.0),
 	 ('Nestor Luis',101.0),
 	 ('Oscar Ricardo',101.0),
@@ -7973,7 +7973,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sidi Ahmed',101.0),
 	 ('Tomas Maria',101.0),
 	 ('Vicent Josep',101.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xenxo',101.0),
 	 ('Yihao',101.0),
 	 ('Zoe',101.0),
@@ -7984,7 +7984,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ali Salem',100.0),
 	 ('Andras',100.0),
 	 ('Anselm',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bernardo Francisco',100.0),
 	 ('Bruno Antonio',100.0),
 	 ('Charaf Eddine',100.0),
@@ -7995,7 +7995,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Benito',100.0),
 	 ('Gerardo Francisco',100.0),
 	 ('Hector Julio',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Arturo',100.0),
 	 ('Jaroslaw',100.0),
 	 ('Jefferson David',100.0),
@@ -8006,7 +8006,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jordi Albert',100.0),
 	 ('Jorge Diego',100.0),
 	 ('Jose Albeiro',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Anastasio',100.0),
 	 ('Jose Leonel',100.0),
 	 ('Josep Antonio',100.0),
@@ -8017,7 +8017,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Makhtar',100.0),
 	 ('Manuel Roman',100.0),
 	 ('Mauricio Alexander',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mencey',100.0),
 	 ('Mohamed Achraf',100.0),
 	 ('Monsif',100.0),
@@ -8028,7 +8028,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Guillermo',100.0),
 	 ('Raid',100.0),
 	 ('Rakesh',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramiro Antonio',100.0),
 	 ('Roberto Mario',100.0),
 	 ('Roberto Martin',100.0),
@@ -8039,7 +8039,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Augusto',100.0),
 	 ('Victor Martin',100.0),
 	 ('Wajid',100.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zohaib',100.0),
 	 ('Alexander Daniel',99.0),
 	 ('Anasse',99.0),
@@ -8050,7 +8050,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bakari',99.0),
 	 ('Cesar Arturo',99.0),
 	 ('David Jonathan',99.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Ernesto',99.0),
 	 ('Diego German',99.0),
 	 ('Edmond',99.0),
@@ -8061,7 +8061,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fulvio',99.0),
 	 ('Gelasio',99.0),
 	 ('Gilles',99.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Alexander',99.0),
 	 ('Henry Alberto',99.0),
 	 ('Hua',99.0),
@@ -8072,7 +8072,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Paulino',99.0),
 	 ('Lassina',99.0),
 	 ('Leandro Jesus',99.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonardo Miguel',99.0),
 	 ('Manuel Jeronimo',99.0),
 	 ('Manuel Mateo',99.0),
@@ -8083,7 +8083,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oliver James',99.0),
 	 ('Omar Alberto',99.0),
 	 ('Prisciliano',99.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rabii',99.0),
 	 ('Raul Oscar',99.0),
 	 ('Rommel',99.0),
@@ -8094,7 +8094,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Viggo',99.0),
 	 ('Walter Alejandro',99.0),
 	 ('Yaw',99.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yeiden',99.0),
 	 ('Alan James',98.0),
 	 ('Alatz',98.0),
@@ -8105,7 +8105,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bashir',98.0),
 	 ('Christos',98.0),
 	 ('Cristian Vasile',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristobal Miguel',98.0),
 	 ('Denis Alexandru',98.0),
 	 ('Elias Daniel',98.0),
@@ -8116,7 +8116,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Catalin',98.0),
 	 ('Francisco Simon',98.0),
 	 ('Ignacio Gabriel',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Igotz',98.0),
 	 ('Iñigo Jose',98.0),
 	 ('Jalid',98.0),
@@ -8127,7 +8127,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Alexander',98.0),
 	 ('Julio Joaquin',98.0),
 	 ('Kevin Mauricio',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Nicolas',98.0),
 	 ('Leandre',98.0),
 	 ('Liyong',98.0),
@@ -8138,7 +8138,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matthieu',98.0),
 	 ('Mijail',98.0),
 	 ('Murat',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Alexander',98.0),
 	 ('Omar Alexander',98.0),
 	 ('Omer',98.0),
@@ -8149,7 +8149,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Gregorio',98.0),
 	 ('Rafael Felipe',98.0),
 	 ('Rafael Ivan',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rehman',98.0),
 	 ('Richard William',98.0),
 	 ('Robert Edward',98.0),
@@ -8160,7 +8160,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Ignacio',98.0),
 	 ('Sergio Ricardo',98.0),
 	 ('Steffen',98.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sunny',98.0),
 	 ('Timofei',98.0),
 	 ('Vicente Raul',98.0),
@@ -8171,7 +8171,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhiyong',98.0),
 	 ('Adrian Marius',97.0),
 	 ('Adrian Mihai',97.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amor',97.0),
 	 ('Angel Valentin',97.0),
 	 ('Anton Maria',97.0),
@@ -8182,7 +8182,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Constantin',97.0),
 	 ('Darel',97.0),
 	 ('Darwin Javier',97.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diadie',97.0),
 	 ('Diego Arturo',97.0),
 	 ('Diego Leon',97.0),
@@ -8193,7 +8193,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gurpreet Singh',97.0),
 	 ('Haruna',97.0),
 	 ('Irinel',97.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isaac Alejandro',97.0),
 	 ('Isacio',97.0),
 	 ('Jacinto Jesus',97.0),
@@ -8204,7 +8204,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Roberto',97.0),
 	 ('Liwei',97.0),
 	 ('Luis Vidal',97.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('M Hammed',97.0),
 	 ('Michael Charles',97.0),
 	 ('Nicolas Sebastian',97.0),
@@ -8215,7 +8215,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raimond',97.0),
 	 ('Raul Ignacio',97.0),
 	 ('Santiago Pablo',97.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sidney',97.0),
 	 ('Stephen William',97.0),
 	 ('Terence John',97.0),
@@ -8226,7 +8226,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yasmany',97.0),
 	 ('Abdou Karim',96.0),
 	 ('Adi',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Afonso',96.0),
 	 ('Aketx',96.0),
 	 ('Alexis Antonio',96.0),
@@ -8237,7 +8237,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brian Jose',96.0),
 	 ('Concepcion',96.0),
 	 ('Danny Alexander',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Santiago',96.0),
 	 ('Ehedey',96.0),
 	 ('Freddy Alejandro',96.0),
@@ -8248,7 +8248,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonçalo',96.0),
 	 ('Hani',96.0),
 	 ('Hernan Jose',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hmad',96.0),
 	 ('Isaac Daniel',96.0),
 	 ('Isaak',96.0),
@@ -8259,7 +8259,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jay',96.0),
 	 ('Jonathan Alberto',96.0),
 	 ('Jonathan Alexis',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jordi Alexander',96.0),
 	 ('Jose Antolin',96.0),
 	 ('Jose Walter',96.0),
@@ -8270,7 +8270,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Gabriel',96.0),
 	 ('Kevin Michael',96.0),
 	 ('Kilian Jesus',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lleo',96.0),
 	 ('Marian Ionut',96.0),
 	 ('Martin Fernando',96.0),
@@ -8281,7 +8281,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ravi',96.0),
 	 ('Raza',96.0),
 	 ('Sander',96.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santos Jose',96.0),
 	 ('Segundo Francisco',96.0),
 	 ('Victor Guillermo',96.0),
@@ -8292,7 +8292,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Catalin',95.0),
 	 ('Alexandru Marius',95.0),
 	 ('Alfredo Daniel',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alvaro Carlos',95.0),
 	 ('Amrik',95.0),
 	 ('Andre Luis',95.0),
@@ -8303,7 +8303,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Baldiri',95.0),
 	 ('Billy',95.0),
 	 ('Constantin Alexandru',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darko',95.0),
 	 ('David Emilio',95.0),
 	 ('David Mihai',95.0),
@@ -8314,7 +8314,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felipe Ramon',95.0),
 	 ('Franco Nicolas',95.0),
 	 ('Gabriel Esteban',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Ionut',95.0),
 	 ('Gabriel Omar',95.0),
 	 ('Gadiel',95.0),
@@ -8325,7 +8325,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Fabian',95.0),
 	 ('Jose Ambrosio',95.0),
 	 ('Julian Felipe',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kalifa',95.0),
 	 ('Kay',95.0),
 	 ('Lewis',95.0),
@@ -8336,7 +8336,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Augusto',95.0),
 	 ('Mark David',95.0),
 	 ('Mateo Sebastian',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matt',95.0),
 	 ('Moctar',95.0),
 	 ('Monday',95.0),
@@ -8347,7 +8347,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Matias',95.0),
 	 ('Ramon Agustin',95.0),
 	 ('Richard Paul',95.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Jorge',95.0),
 	 ('Roberto Rafael',95.0),
 	 ('Salam',95.0),
@@ -8358,7 +8358,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Walter Enrique',95.0),
 	 ('Yousaf',95.0),
 	 ('Adiel',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adolfo Enrique',94.0),
 	 ('Alberto Julian',94.0),
 	 ('Alex Dario',94.0),
@@ -8369,7 +8369,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arona',94.0),
 	 ('Atila',94.0),
 	 ('Bieito',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brandon Steven',94.0),
 	 ('Carlos Rene',94.0),
 	 ('Constantin Marius',94.0),
@@ -8380,7 +8380,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emilio Pedro',94.0),
 	 ('Fabien',94.0),
 	 ('Fadel',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gerardo Daniel',94.0),
 	 ('Hadrian',94.0),
 	 ('Hamma',94.0),
@@ -8391,7 +8391,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Cristian',94.0),
 	 ('Juan Gaspar',94.0),
 	 ('Junior Alexander',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonardo Rafael',94.0),
 	 ('Mamadou Oury',94.0),
 	 ('Manuel Israel',94.0),
@@ -8402,7 +8402,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nestor Raul',94.0),
 	 ('Noa',94.0),
 	 ('Nolasco',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Diego',94.0),
 	 ('Pedro Lucas',94.0),
 	 ('Ramon Salvador',94.0),
@@ -8413,7 +8413,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Alfonso',94.0),
 	 ('Sion',94.0),
 	 ('Vicente Ricardo',94.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter David',94.0),
 	 ('Xiaojie',94.0),
 	 ('Yeison Andres',94.0),
@@ -8424,7 +8424,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfredo Vicente',93.0),
 	 ('Andrew Paul',93.0),
 	 ('Angel Alexander',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Lucas',93.0),
 	 ('Argemiro',93.0),
 	 ('Aridany',93.0),
@@ -8435,7 +8435,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Armando',93.0),
 	 ('Claudio Fabian',93.0),
 	 ('Daniel Robert',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Ezequiel',93.0),
 	 ('Diego Leonardo',93.0),
 	 ('Diego Marcelo',93.0),
@@ -8446,7 +8446,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Armando',93.0),
 	 ('Gilmar',93.0),
 	 ('Gustavo Ramon',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haifeng',93.0),
 	 ('Heinrich',93.0),
 	 ('Iker Alexander',93.0),
@@ -8457,7 +8457,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Just',93.0),
 	 ('Ken',93.0),
 	 ('Khawar',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kiko',93.0),
 	 ('Konrad',93.0),
 	 ('Lauren',93.0),
@@ -8468,7 +8468,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohammadine',93.0),
 	 ('Nain',93.0),
 	 ('Paul Daniel',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Armando',93.0),
 	 ('Platon',93.0),
 	 ('Raul Alfonso',93.0),
@@ -8479,7 +8479,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Semen',93.0),
 	 ('Silviano',93.0),
 	 ('Stan',93.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Pedro',93.0),
 	 ('Vytautas',93.0),
 	 ('Wilhelm',93.0),
@@ -8490,7 +8490,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yohan',93.0),
 	 ('Adolfo Miguel',92.0),
 	 ('Alejandrino',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Fernando',92.0),
 	 ('Alvaro Martin',92.0),
 	 ('Alvaro Vicente',92.0),
@@ -8501,7 +8501,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Avtar',92.0),
 	 ('Charif',92.0),
 	 ('Cristian Marian',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dawei',92.0),
 	 ('Eduardo Salvador',92.0),
 	 ('Enrique Emilio',92.0),
@@ -8512,7 +8512,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Guillermo',92.0),
 	 ('Fedir',92.0),
 	 ('Gabriel Miguel',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Martin',92.0),
 	 ('Gustavo Fernando',92.0),
 	 ('Ilyan',92.0),
@@ -8523,7 +8523,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Fernando',92.0),
 	 ('Jorge Alexis',92.0),
 	 ('Jose Celso',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Alfonso',92.0),
 	 ('Junxi',92.0),
 	 ('Justo Luis',92.0),
@@ -8534,7 +8534,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Melecio',92.0),
 	 ('Mohammed Rida',92.0),
 	 ('Mouhsin',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Bilal',92.0),
 	 ('Nadim',92.0),
 	 ('Ndiogou',92.0),
@@ -8545,7 +8545,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Moises',92.0),
 	 ('Pedro Nel',92.0),
 	 ('Rodrigo Fernando',92.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sauc',92.0),
 	 ('Suresh',92.0),
 	 ('Surjit',92.0),
@@ -8556,7 +8556,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Youssou',92.0),
 	 ('Zhivko',92.0),
 	 ('Adrian Alexandru',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alvaro Joaquin',91.0),
 	 ('Alvaro Sebastian',91.0),
 	 ('Angel Isidro',91.0),
@@ -8567,7 +8567,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bubacar',91.0),
 	 ('Clemente Jose',91.0),
 	 ('Cristian Nicolae',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Da',91.0),
 	 ('Dacio',91.0),
 	 ('Daljit',91.0),
@@ -8578,7 +8578,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Patricio',91.0),
 	 ('Duncan',91.0),
 	 ('Ebrahima',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eric Andrei',91.0),
 	 ('Ero',91.0),
 	 ('Fabian Enrique',91.0),
@@ -8589,7 +8589,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fredy Alexander',91.0),
 	 ('Gareth',91.0),
 	 ('Gines Jesus',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo David',91.0),
 	 ('Gregorio Angel',91.0),
 	 ('Humberto Jesus',91.0),
@@ -8600,7 +8600,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joan Daniel',91.0),
 	 ('John Thomas',91.0),
 	 ('Jose Christian',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Isaias',91.0),
 	 ('Jose Nelson',91.0),
 	 ('Kiliam',91.0),
@@ -8611,7 +8611,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Sebastian',91.0),
 	 ('Mario German',91.0),
 	 ('Martin Gabriel',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mehmed',91.0),
 	 ('Nicolas Matias',91.0),
 	 ('Nuno Filipe',91.0),
@@ -8622,7 +8622,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ram',91.0),
 	 ('Ramon Daniel',91.0),
 	 ('Razvan Andrei',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rene Alejandro',91.0),
 	 ('Ricardo Ernesto',91.0),
 	 ('Richard Daniel',91.0),
@@ -8633,7 +8633,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Simon Antonio',91.0),
 	 ('Stefan Adrian',91.0),
 	 ('Teimuraz',91.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Teolindo',91.0),
 	 ('Thomas Michael',91.0),
 	 ('Ursicino',91.0),
@@ -8644,7 +8644,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelmoughit',90.0),
 	 ('Abdul Hadi',90.0),
 	 ('Abel Angel',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abul',90.0),
 	 ('Adilson',90.0),
 	 ('Alberto Agustin',90.0),
@@ -8655,7 +8655,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Joaquim',90.0),
 	 ('Bennaceur',90.0),
 	 ('Bertin',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Berto',90.0),
 	 ('Chenhao',90.0),
 	 ('Claudio Miguel',90.0),
@@ -8666,7 +8666,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Fernando',90.0),
 	 ('Festus',90.0),
 	 ('Francisco Ernesto',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hermindo',90.0),
 	 ('Hmida',90.0),
 	 ('Ignazio',90.0),
@@ -8677,7 +8677,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon James',90.0),
 	 ('John Steven',90.0),
 	 ('Jorge Damian',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Valeriano',90.0),
 	 ('Josue Alexander',90.0),
 	 ('Juan Marcelino',90.0),
@@ -8688,7 +8688,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manjinder',90.0),
 	 ('Manuel Benjamin',90.0),
 	 ('Manuel Humberto',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Manuel',90.0),
 	 ('Miguel Arcangel',90.0),
 	 ('Miguel Jaime',90.0),
@@ -8699,7 +8699,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Guillermo',90.0),
 	 ('Pablo Arturo',90.0),
 	 ('Rafael Alexander',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Marcos',90.0),
 	 ('Remy',90.0),
 	 ('Rodrigo Ignacio',90.0),
@@ -8710,7 +8710,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sinforoso',90.0),
 	 ('Teodoro Jose',90.0),
 	 ('Ulisses',90.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vardan',90.0),
 	 ('Vicente Alfonso',90.0),
 	 ('Xiaoming',90.0),
@@ -8721,7 +8721,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zdravko',90.0),
 	 ('Abdelmadjid',89.0),
 	 ('Abderrahaman',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdul Rahman',89.0),
 	 ('Alcibiades',89.0),
 	 ('Alejandro Ruben',89.0),
@@ -8732,7 +8732,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anthony Joel',89.0),
 	 ('Antonio Cruz',89.0),
 	 ('Antonio Simon',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arfan',89.0),
 	 ('Benali',89.0),
 	 ('Borja Javier',89.0),
@@ -8743,7 +8743,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Alfredo',89.0),
 	 ('Eloy Francisco',89.0),
 	 ('Enrique Agustin',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fanica',89.0),
 	 ('Feras',89.0),
 	 ('Freddy Alexander',89.0),
@@ -8754,7 +8754,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hazael',89.0),
 	 ('Hector Mauricio',89.0),
 	 ('Hryhoriy',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isa',89.0),
 	 ('Ismael David',89.0),
 	 ('Iñaki Mirena',89.0),
@@ -8765,7 +8765,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeremy Alexander',89.0),
 	 ('Jesus Roman',89.0),
 	 ('Jhonnatan',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Pablo',89.0),
 	 ('Joey',89.0),
 	 ('Jorge Cesar',89.0),
@@ -8776,7 +8776,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kissima',89.0),
 	 ('Luis Rodolfo',89.0),
 	 ('Manoj',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Eusebio',89.0),
 	 ('Manuel Federico',89.0),
 	 ('Mauricio Alberto',89.0),
@@ -8787,7 +8787,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Mahmoud',89.0),
 	 ('Nabor',89.0),
 	 ('Naseer',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Niklas',89.0),
 	 ('Ognyan',89.0),
 	 ('Paulo Andres',89.0),
@@ -8798,7 +8798,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salec',89.0),
 	 ('Samuel Elias',89.0),
 	 ('Sargis',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Agustin',89.0),
 	 ('Seth',89.0),
 	 ('Stephen David',89.0),
@@ -8809,7 +8809,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vishal',89.0),
 	 ('Walter Jose',89.0),
 	 ('Xacobo',89.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xi',89.0),
 	 ('Xiaolei',89.0),
 	 ('Xinyu',89.0),
@@ -8820,7 +8820,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Stefan',88.0),
 	 ('Agostino',88.0),
 	 ('Alexander Gabriel',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrei Marian',88.0),
 	 ('Angel Armando',88.0),
 	 ('Angel Benigno',88.0),
@@ -8831,7 +8831,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cayetano Jose',88.0),
 	 ('Celso Manuel',88.0),
 	 ('Cesar Ricardo',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesario',88.0),
 	 ('Cristopher Alexander',88.0),
 	 ('Domingo Vicente',88.0),
@@ -8842,7 +8842,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Alfredo',88.0),
 	 ('Fiaz',88.0),
 	 ('Gica',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gilen',88.0),
 	 ('Gueorgui',88.0),
 	 ('Hector Adrian',88.0),
@@ -8853,7 +8853,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Gabriel',88.0),
 	 ('Jonny',88.0),
 	 ('Jorge Ramiro',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Bernabe',88.0),
 	 ('Jose Gabino',88.0),
 	 ('Jose Jonatan',88.0),
@@ -8864,7 +8864,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lafdil',88.0),
 	 ('Leandro Ezequiel',88.0),
 	 ('Limber',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luiz Fernando',88.0),
 	 ('M''Hammed',88.0),
 	 ('Mama',88.0),
@@ -8875,7 +8875,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamadi',88.0),
 	 ('Pablo Gustavo',88.0),
 	 ('Rafael Augusto',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Lorenzo',88.0),
 	 ('Raul Alexandru',88.0),
 	 ('Razvan Gabriel',88.0),
@@ -8886,7 +8886,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas William',88.0),
 	 ('Walter Alexander',88.0),
 	 ('William Antonio',88.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xose Luis',88.0),
 	 ('Xose Maria',88.0),
 	 ('Yeremy',88.0),
@@ -8897,7 +8897,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alin Constantin',87.0),
 	 ('Antonio Alvaro',87.0),
 	 ('Antonio Amador',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Argentino',87.0),
 	 ('Atilio',87.0),
 	 ('Blas Javier',87.0),
@@ -8908,7 +8908,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Mateo',87.0),
 	 ('Constantino Jose',87.0),
 	 ('Daniel Joseph',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Constantin',87.0),
 	 ('David Ruben',87.0),
 	 ('Dinu',87.0),
@@ -8919,7 +8919,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Alfredo',87.0),
 	 ('Eric Jose',87.0),
 	 ('Eufemiano',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ferdinando',87.0),
 	 ('Fernando Ivan',87.0),
 	 ('Freddy Fernando',87.0),
@@ -8930,7 +8930,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Santiago',87.0),
 	 ('Jesus German',87.0),
 	 ('Jesus Leonardo',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Francisco',87.0),
 	 ('Jose Altagracia',87.0),
 	 ('Jose Danilo',87.0),
@@ -8941,7 +8941,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Eduardo',87.0),
 	 ('Maicol',87.0),
 	 ('Malamine',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mantas',87.0),
 	 ('Manuel Rogelio',87.0),
 	 ('Mate',87.0),
@@ -8952,7 +8952,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Santiago',87.0),
 	 ('Robert Marian',87.0),
 	 ('Roke',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roque Manuel',87.0),
 	 ('Salvador Maria',87.0),
 	 ('Sarjo',87.0),
@@ -8963,7 +8963,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Joaquin',87.0),
 	 ('Valerian',87.0),
 	 ('Wilson Antonio',87.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yiming',87.0),
 	 ('Yue',87.0),
 	 ('Zakariaa',87.0),
@@ -8974,7 +8974,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Fabian',86.0),
 	 ('Altair',86.0),
 	 ('Angel Jorge',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Mateo',86.0),
 	 ('Antonello',86.0),
 	 ('Armengol',86.0),
@@ -8985,7 +8985,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brian Steven',86.0),
 	 ('Carlos Bernardo',86.0),
 	 ('Carlos Eloy',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carmelo Ramon',86.0),
 	 ('Celso Jose',86.0),
 	 ('Christian Enrique',86.0),
@@ -8996,7 +8996,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diakaridia',86.0),
 	 ('Diego Agustin',86.0),
 	 ('Eladio Jesus',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fermin Jesus',86.0),
 	 ('Fernando Roberto',86.0),
 	 ('Gabriel Daniel',86.0),
@@ -9007,7 +9007,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Alfonso',86.0),
 	 ('Hssain',86.0),
 	 ('Ihsan',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Gustavo',86.0),
 	 ('Jeroen',86.0),
 	 ('Jose Arsenio',86.0),
@@ -9018,7 +9018,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Paulo',86.0),
 	 ('Justo Jesus',86.0),
 	 ('Juvencio',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Khelifa',86.0),
 	 ('Krystian',86.0),
 	 ('Linus',86.0),
@@ -9029,7 +9029,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Obed',86.0),
 	 ('Ricky',86.0),
 	 ('Russell',86.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Andres',86.0),
 	 ('Shah',86.0),
 	 ('Suren',86.0),
@@ -9040,7 +9040,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yacoub',86.0),
 	 ('Yao',86.0),
 	 ('Aaron Gabriel',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdel Karim',85.0),
 	 ('Abner',85.0),
 	 ('Adolfo Francisco',85.0),
@@ -9051,7 +9051,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benoit',85.0),
 	 ('Bouba',85.0),
 	 ('Carmelo Angel',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Ivan',85.0),
 	 ('Cruz Maria',85.0),
 	 ('Eliazar',85.0),
@@ -9062,7 +9062,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Ricardo',85.0),
 	 ('Hussnain',85.0),
 	 ('Ian Michael',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ilai',85.0),
 	 ('Isidoro Manuel',85.0),
 	 ('Jaime Patricio',85.0),
@@ -9073,7 +9073,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Noel',85.0),
 	 ('Juan Cecilio',85.0),
 	 ('Juan Fidel',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Humberto',85.0),
 	 ('Juan Marcial',85.0),
 	 ('Kalilu',85.0),
@@ -9084,7 +9084,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luca Andrei',85.0),
 	 ('Manuel Joaquim',85.0),
 	 ('Marian Daniel',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marius Mihai',85.0),
 	 ('Mateo David',85.0),
 	 ('Matias Manuel',85.0),
@@ -9095,7 +9095,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Danilo',85.0),
 	 ('Oscar Ernesto',85.0),
 	 ('Oscar Pedro',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Domingo',85.0),
 	 ('Pablo Matias',85.0),
 	 ('Pedro Alfredo',85.0),
@@ -9106,7 +9106,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stephen Michael',85.0),
 	 ('Travis',85.0),
 	 ('Tulio',85.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Txema',85.0),
 	 ('Vicente Marcos',85.0),
 	 ('Wilfrido',85.0),
@@ -9117,7 +9117,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yunier',85.0),
 	 ('Abderrahime',84.0),
 	 ('Adib',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Marcelo',84.0),
 	 ('Alejandro Julian',84.0),
 	 ('Alvaro Rodrigo',84.0),
@@ -9128,7 +9128,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arne',84.0),
 	 ('Avelino Jose',84.0),
 	 ('Cristian Omar',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Damian Alejandro',84.0),
 	 ('Daniel Guillermo',84.0),
 	 ('Denis Ionut',84.0),
@@ -9139,7 +9139,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Exiquio',84.0),
 	 ('Fernando Diego',84.0),
 	 ('Florin Marian',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Ezequiel',84.0),
 	 ('Georgi Ivanov',84.0),
 	 ('Gheorghe Cristian',84.0),
@@ -9150,7 +9150,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Alfonso',84.0),
 	 ('Isael',84.0),
 	 ('Isak',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jianzhong',84.0),
 	 ('Joan Andres',84.0),
 	 ('Joan Jesus',84.0),
@@ -9161,7 +9161,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kwaku',84.0),
 	 ('Leandro Martin',84.0),
 	 ('Lluis Albert',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Leonardo',84.0),
 	 ('Mariano Enrique',84.0),
 	 ('Mugurel',84.0),
@@ -9172,7 +9172,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafael Oscar',84.0),
 	 ('Raymundo',84.0),
 	 ('Robert Anthony',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Vicente',84.0),
 	 ('Ruddy',84.0),
 	 ('Sebastian Carlos',84.0),
@@ -9183,7 +9183,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xevi',84.0),
 	 ('Zhou',84.0),
 	 ('Zia',84.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Tomas',83.0),
 	 ('Arnel',83.0),
 	 ('Assier',83.0),
@@ -9194,7 +9194,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Benito',83.0),
 	 ('Carlos Horacio',83.0),
 	 ('Christian Miguel',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Omar',83.0),
 	 ('Cristhian Javier',83.0),
 	 ('David Florin',83.0),
@@ -9205,7 +9205,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dominick',83.0),
 	 ('Dragomir',83.0),
 	 ('Eduardo Alfredo',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Nicolas',83.0),
 	 ('Florin Alin',83.0),
 	 ('Francesc Assis',83.0),
@@ -9216,7 +9216,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Halim',83.0),
 	 ('Haris',83.0),
 	 ('Harold Andres',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hernan Javier',83.0),
 	 ('Homero',83.0),
 	 ('Hoummad',83.0),
@@ -9227,7 +9227,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Dario',83.0),
 	 ('Jayro',83.0),
 	 ('Jhon Edward',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Miguel',83.0),
 	 ('Johny',83.0),
 	 ('Jose Leoncio',83.0),
@@ -9238,7 +9238,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Ivan',83.0),
 	 ('Karan',83.0),
 	 ('Lambert',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ludovico',83.0),
 	 ('Luis Samuel',83.0),
 	 ('Makar',83.0),
@@ -9249,7 +9249,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximo Jesus',83.0),
 	 ('Mekki',83.0),
 	 ('Michael Antonio',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Guillermo',83.0),
 	 ('Miguelangel',83.0),
 	 ('Mohamed Laarbi',83.0),
@@ -9260,7 +9260,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nestor Eduardo',83.0),
 	 ('Nicolay',83.0),
 	 ('Nirmal',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nour Eddin',83.0),
 	 ('Omar Eduardo',83.0),
 	 ('Orkatz',83.0),
@@ -9271,7 +9271,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Remo',83.0),
 	 ('Rolando Jose',83.0),
 	 ('Roman Jesus',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sagar',83.0),
 	 ('Sugoi',83.0),
 	 ('Tamba',83.0),
@@ -9282,7 +9282,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Jorge',83.0),
 	 ('Viriato',83.0),
 	 ('Vladimiro',83.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wander',83.0),
 	 ('Xim',83.0),
 	 ('Xinhao',83.0),
@@ -9293,7 +9293,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Raul',82.0),
 	 ('Alejandro Emilio',82.0),
 	 ('Amath',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Joel',82.0),
 	 ('Anthony Josue',82.0),
 	 ('Antonio Serafin',82.0),
@@ -9304,7 +9304,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brando',82.0),
 	 ('Candido Jesus',82.0),
 	 ('Cesar Guillermo',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristhian Eduardo',82.0),
 	 ('Cristian Joel',82.0),
 	 ('Cristian Leonardo',82.0),
@@ -9315,7 +9315,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Pedro',82.0),
 	 ('Emad',82.0),
 	 ('Eugenio Maria',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Farhad',82.0),
 	 ('Federico Francisco',82.0),
 	 ('Felice',82.0),
@@ -9326,7 +9326,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Fernando',82.0),
 	 ('Hades',82.0),
 	 ('Hugo Eduardo',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ibrar',82.0),
 	 ('Iñaki Xabier',82.0),
 	 ('Jaime Nicolas',82.0),
@@ -9337,7 +9337,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Edgar',82.0),
 	 ('Jose Ildefonso',82.0),
 	 ('Jose Indalecio',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Junyong',82.0),
 	 ('Kaba',82.0),
 	 ('Lahcene',82.0),
@@ -9348,7 +9348,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Juan',82.0),
 	 ('Marcos Ramon',82.0),
 	 ('Mario Alfredo',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mihai Andrei',82.0),
 	 ('Miquel Sants',82.0),
 	 ('Moro',82.0),
@@ -9359,7 +9359,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pancracio',82.0),
 	 ('Pedro Blas',82.0),
 	 ('Rafael Alfredo',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raja',82.0),
 	 ('Raul Juan',82.0),
 	 ('Raul Sebastian',82.0),
@@ -9370,7 +9370,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Serafim',82.0),
 	 ('Sergio Emilio',82.0),
 	 ('Sergio Roberto',82.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Sebastian',82.0),
 	 ('Simon James',82.0),
 	 ('Stefan Cristian',82.0),
@@ -9381,7 +9381,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zakhar',82.0),
 	 ('Abdesalam',81.0),
 	 ('Abel Alejandro',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adolfo Carlos',81.0),
 	 ('Agustin Rafael',81.0),
 	 ('Akier',81.0),
@@ -9392,7 +9392,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Gerardo',81.0),
 	 ('Anthony Javier',81.0),
 	 ('Bikendi',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Benjamin',81.0),
 	 ('Celestino Jose',81.0),
 	 ('Daniel Valentin',81.0),
@@ -9403,7 +9403,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo David',81.0),
 	 ('Eduardo Raul',81.0),
 	 ('El Amine',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Gabriel',81.0),
 	 ('Etxahun',81.0),
 	 ('Eugene',81.0),
@@ -9414,7 +9414,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Carlos',81.0),
 	 ('Henry Jesus',81.0),
 	 ('Ibrahin',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeronimo Jesus',81.0),
 	 ('Joel Francisco',81.0),
 	 ('John Alan',81.0),
@@ -9425,7 +9425,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Evaristo',81.0),
 	 ('Juan Raimundo',81.0),
 	 ('Juan Victoriano',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Francisco',81.0),
 	 ('Kuldip',81.0),
 	 ('Livan',81.0),
@@ -9436,7 +9436,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias David',81.0),
 	 ('Matvey',81.0),
 	 ('Metodi',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Nabil',81.0),
 	 ('Moulay',81.0),
 	 ('Nestor Alejandro',81.0),
@@ -9447,7 +9447,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Pedro',81.0),
 	 ('Roberto Adrian',81.0),
 	 ('Rodney',81.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Luis',81.0),
 	 ('Serviliano',81.0),
 	 ('Shalva',81.0),
@@ -9458,7 +9458,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yankuba',81.0),
 	 ('Zitouni',81.0),
 	 ('Abba',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdourahamane',80.0),
 	 ('Adan Jesus',80.0),
 	 ('Agustin Ezequiel',80.0),
@@ -9469,7 +9469,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bogdan Marian',80.0),
 	 ('Brendan',80.0),
 	 ('Camilo Ernesto',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Rafael',80.0),
 	 ('Constantin Gabriel',80.0),
 	 ('Cosme Damian',80.0),
@@ -9480,7 +9480,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Erick Joel',80.0),
 	 ('Fabian Eduardo',80.0),
 	 ('Faustino Manuel',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felix Pablo',80.0),
 	 ('Fernando Damian',80.0),
 	 ('Fernando Guillermo',80.0),
@@ -9491,7 +9491,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gela',80.0),
 	 ('Gerd',80.0),
 	 ('Ian Daniel',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ingo',80.0),
 	 ('Inti',80.0),
 	 ('Irian',80.0),
@@ -9502,7 +9502,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhan Carlos',80.0),
 	 ('Joan Xavier',80.0),
 	 ('Jonathan Xavier',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Rogelio',80.0),
 	 ('Kevin Leonardo',80.0),
 	 ('Leonardo Martin',80.0),
@@ -9513,7 +9513,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Horacio',80.0),
 	 ('Madjid',80.0),
 	 ('Manuel Lucas',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Marcelino',80.0),
 	 ('Manuel Segundo',80.0),
 	 ('Marian Adrian',80.0),
@@ -9524,7 +9524,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Ayman',80.0),
 	 ('Muhammad Hassan',80.0),
 	 ('Niceforo',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Adrian',80.0),
 	 ('Nicolas Ramon',80.0),
 	 ('Oliver Alexander',80.0),
@@ -9535,7 +9535,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roger Antonio',80.0),
 	 ('Sarbjit',80.0),
 	 ('Sayon',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastian Alexander',80.0),
 	 ('Segundino',80.0),
 	 ('Sviatoslav',80.0),
@@ -9546,7 +9546,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Marian',80.0),
 	 ('Victor Armando',80.0),
 	 ('Wayne',80.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yauci',80.0),
 	 ('Zhiqiang',80.0),
 	 ('Zichen',80.0),
@@ -9557,7 +9557,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abibou',79.0),
 	 ('Aguedo',79.0),
 	 ('Ajay',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Josue',79.0),
 	 ('Alejandro Marcelo',79.0),
 	 ('Alexandru Vasile',79.0),
@@ -9568,7 +9568,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Arturo',79.0),
 	 ('Aqib',79.0),
 	 ('Azman',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bismark',79.0),
 	 ('Bocar',79.0),
 	 ('Carlos Cristobal',79.0),
@@ -9579,7 +9579,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Santiago',79.0),
 	 ('Domingo Enrique',79.0),
 	 ('Eduardo Pablo',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Mofaddal',79.0),
 	 ('Elhadji Malick',79.0),
 	 ('Elias Javier',79.0),
@@ -9590,7 +9590,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Oscar',79.0),
 	 ('Gonzalo Eduardo',79.0),
 	 ('Haijun',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haseeb',79.0),
 	 ('Hector Alfredo',79.0),
 	 ('Hernan David',79.0),
@@ -9601,7 +9601,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izan Manuel',79.0),
 	 ('James Andrew',79.0),
 	 ('Jasbir',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaspreet',79.0),
 	 ('Joaquin Gabriel',79.0),
 	 ('Jorge Ismael',79.0),
@@ -9612,7 +9612,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenzo Luis',79.0),
 	 ('Luis Moises',79.0),
 	 ('Marco Manuel',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mariano Alejandro',79.0),
 	 ('Matias Eduardo',79.0),
 	 ('Medoune',79.0),
@@ -9623,7 +9623,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Procopio',79.0),
 	 ('Rafael Julio',79.0),
 	 ('Reinel',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Joaquin',79.0),
 	 ('Robert Florin',79.0),
 	 ('Rodrigo Alonso',79.0),
@@ -9634,7 +9634,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sixto Jose',79.0),
 	 ('Steven Paul',79.0),
 	 ('Venelin',79.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilfried',79.0),
 	 ('Xavier Alexander',79.0),
 	 ('Agustin Andres',78.0),
@@ -9645,7 +9645,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Borja',78.0),
 	 ('Alfredo Fernando',78.0),
 	 ('Alin Florin',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrei Cosmin',78.0),
 	 ('Andrei Sebastian',78.0),
 	 ('Bartosz',78.0),
@@ -9656,7 +9656,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheikh Mbacke',78.0),
 	 ('Chej',78.0),
 	 ('Cristhian Daniel',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Marius',78.0),
 	 ('Daniel Julian',78.0),
 	 ('Darwin Patricio',78.0),
@@ -9667,7 +9667,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Roberto',78.0),
 	 ('Emilio Tomas',78.0),
 	 ('Erick Manuel',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Evarist',78.0),
 	 ('Fernando Julio',78.0),
 	 ('Francisco Abraham',78.0),
@@ -9678,7 +9678,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Fernando',78.0),
 	 ('Guillermo Federico',78.0),
 	 ('Hacomar',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Harjit',78.0),
 	 ('Hassen',78.0),
 	 ('Jaime Jorge',78.0),
@@ -9689,7 +9689,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johan Alejandro',78.0),
 	 ('Jordi Manuel',78.0),
 	 ('Jorge Lorenzo',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Valentin',78.0),
 	 ('Juanma',78.0),
 	 ('Julio Agustin',78.0),
@@ -9700,7 +9700,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Serafin',78.0),
 	 ('Manuel Simon',78.0),
 	 ('Marcos Alexander',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Alfonso',78.0),
 	 ('Marius Alin',78.0),
 	 ('Martin Ariel',78.0),
@@ -9711,7 +9711,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Hernan',78.0),
 	 ('Pedro Abel',78.0),
 	 ('Pedro Alexandre',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Alvaro',78.0),
 	 ('Philip James',78.0),
 	 ('Rafael Felix',78.0),
@@ -9722,7 +9722,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Tomas',78.0),
 	 ('Roman Jose',78.0),
 	 ('Sasa',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Selim',78.0),
 	 ('Tawfik',78.0),
 	 ('Timothy James',78.0),
@@ -9733,7 +9733,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xairo',78.0),
 	 ('Yari',78.0),
 	 ('Yerik',78.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yovani',78.0),
 	 ('Zhong',78.0),
 	 ('Abdelkadir',77.0),
@@ -9744,7 +9744,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Ariel',77.0),
 	 ('Alfonso Joaquin',77.0),
 	 ('Alfonso Pedro',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anatolio',77.0),
 	 ('Andrei Iulian',77.0),
 	 ('Andrei Valentin',77.0),
@@ -9755,7 +9755,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Yeray',77.0),
 	 ('Ara',77.0),
 	 ('Bouabdellah',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bradley',77.0),
 	 ('Catalin Florin',77.0),
 	 ('Cecilio Manuel',77.0),
@@ -9766,7 +9766,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Mihai',77.0),
 	 ('Daniel Eugenio',77.0),
 	 ('Daud',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Ismael',77.0),
 	 ('Davor',77.0),
 	 ('Deividas',77.0),
@@ -9777,7 +9777,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Egidio',77.0),
 	 ('Ekhiotz',77.0),
 	 ('El Hadji Malick',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Mekki',77.0),
 	 ('Emilio Ignacio',77.0),
 	 ('Eric David',77.0),
@@ -9788,7 +9788,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Eugenio',77.0),
 	 ('Freddy Alberto',77.0),
 	 ('Freddy Javier',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Cristian',77.0),
 	 ('Garry',77.0),
 	 ('Gerardo Alberto',77.0),
@@ -9799,7 +9799,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hagi',77.0),
 	 ('Harvinder',77.0),
 	 ('Hector Vicente',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hodaifa',77.0),
 	 ('Ivan Mauricio',77.0),
 	 ('Javier Hernan',77.0),
@@ -9810,7 +9810,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Leopoldo',77.0),
 	 ('Julio Oscar',77.0),
 	 ('Julio Salvador',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Koba',77.0),
 	 ('Lau',77.0),
 	 ('Lennon',77.0),
@@ -9821,7 +9821,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mame Mor',77.0),
 	 ('Mario Alexandru',77.0),
 	 ('Mario Ivan',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Sebastian',77.0),
 	 ('Marius Marian',77.0),
 	 ('Matias Alberto',77.0),
@@ -9832,7 +9832,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paul Joseph',77.0),
 	 ('Peter Charles',77.0),
 	 ('Placido Jose',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rahim',77.0),
 	 ('Raul Ionut',77.0),
 	 ('Reinhard',77.0),
@@ -9843,7 +9843,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sabiniano',77.0),
 	 ('Serafi',77.0),
 	 ('Serafin Jose',77.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tamaz',77.0),
 	 ('Tiago Filipe',77.0),
 	 ('Tome',77.0),
@@ -9854,7 +9854,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zakarias',77.0),
 	 ('Aday Jose',76.0),
 	 ('Aitor David',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alaa Eddine',76.0),
 	 ('Albert Josep',76.0),
 	 ('Alberto Domingo',76.0),
@@ -9865,7 +9865,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Gaspar',76.0),
 	 ('Arkan',76.0),
 	 ('Arseni',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arsenii',76.0),
 	 ('Augusto Javier',76.0),
 	 ('Bartolome Jesus',76.0),
@@ -9876,7 +9876,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bryan Fernando',76.0),
 	 ('Carlos Borja',76.0),
 	 ('Catalin Marian',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Orlando',76.0),
 	 ('Danial',76.0),
 	 ('Daniel Marius',76.0),
@@ -9887,7 +9887,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Sebastian',76.0),
 	 ('Enekoitz',76.0),
 	 ('Eric Manuel',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erol',76.0),
 	 ('Estanislau',76.0),
 	 ('Ezequiel Alejandro',76.0),
@@ -9898,7 +9898,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haibin',76.0),
 	 ('Hector Emilio',76.0),
 	 ('Henry Daniel',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Huberto',76.0),
 	 ('Iagoba',76.0),
 	 ('Ian Alejandro',76.0),
@@ -9909,7 +9909,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izan David',76.0),
 	 ('Jan Carlos',76.0),
 	 ('Jianbin',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joao Gabriel',76.0),
 	 ('Joaquim Manuel',76.0),
 	 ('Jose Baltasar',76.0),
@@ -9920,7 +9920,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luciano Antonio',76.0),
 	 ('Luiz Henrique',76.0),
 	 ('Mao',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Nicolas',76.0),
 	 ('Mateo Daniel',76.0),
 	 ('Matias Miguel',76.0),
@@ -9931,7 +9931,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelo',76.0),
 	 ('Nicolas Esteban',76.0),
 	 ('Norbey',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Fabian',76.0),
 	 ('Petrus',76.0),
 	 ('Ramos',76.0),
@@ -9942,7 +9942,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Angel',76.0),
 	 ('Segundo Miguel',76.0),
 	 ('Sergio Damian',76.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stephen Charles',76.0),
 	 ('Tsvetelin',76.0),
 	 ('Vitor Hugo',76.0),
@@ -9953,7 +9953,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abderraman',75.0),
 	 ('Abdulah',75.0),
 	 ('Airon',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alby',75.0),
 	 ('Alesandro',75.0),
 	 ('Alex Jose',75.0),
@@ -9964,7 +9964,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ashley',75.0),
 	 ('Bojan',75.0),
 	 ('Bryan Jesus',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Camilo Antonio',75.0),
 	 ('Carlos Steven',75.0),
 	 ('Choukri',75.0),
@@ -9975,7 +9975,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cyril',75.0),
 	 ('Daniel Horacio',75.0),
 	 ('Darius Alexandru',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Denilson',75.0),
 	 ('Eladi',75.0),
 	 ('Elan',75.0),
@@ -9986,7 +9986,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Felipe',75.0),
 	 ('Finn',75.0),
 	 ('Foad',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Isidoro',75.0),
 	 ('Graziano',75.0),
 	 ('Hamlet',75.0),
@@ -9997,7 +9997,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ishac',75.0),
 	 ('Israel Manuel',75.0),
 	 ('Jagtar',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Humberto',75.0),
 	 ('Jaime Ricardo',75.0),
 	 ('Jean Christophe',75.0),
@@ -10008,7 +10008,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Edwin',75.0),
 	 ('Jonatas',75.0),
 	 ('Jorge Mariano',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Emmanuel',75.0),
 	 ('Jose Silvestre',75.0),
 	 ('Joseph David',75.0),
@@ -10019,7 +10019,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kacper',75.0),
 	 ('Karamoko',75.0),
 	 ('Lahssen',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leandro Ariel',75.0),
 	 ('Leandro Gabriel',75.0),
 	 ('Lucas Agustin',75.0),
@@ -10030,7 +10030,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Santiago',75.0),
 	 ('Marian Florin',75.0),
 	 ('Marlon Jose',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Francisco',75.0),
 	 ('Mateo Javier',75.0),
 	 ('Matias Agustin',75.0),
@@ -10041,7 +10041,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohcin',75.0),
 	 ('Moreno',75.0),
 	 ('Naceur',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nayem',75.0),
 	 ('Nikolozi',75.0),
 	 ('Nilton',75.0),
@@ -10052,7 +10052,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Patricio Antonio',75.0),
 	 ('Patrizio',75.0),
 	 ('Patxi Joseba',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pere Miquel',75.0),
 	 ('Radwan',75.0),
 	 ('Ramiro Manuel',75.0),
@@ -10063,7 +10063,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Santiago',75.0),
 	 ('Robert Constantin',75.0),
 	 ('Rodrigo Francisco',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Rafael',75.0),
 	 ('Saqlain',75.0),
 	 ('Sebastian Ramon',75.0),
@@ -10074,7 +10074,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Alexis',75.0),
 	 ('Victor Sebastian',75.0),
 	 ('Yasmani',75.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abu Bakr',74.0),
 	 ('Adelmo',74.0),
 	 ('Adrian Sebastian',74.0),
@@ -10085,7 +10085,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrei Marius',74.0),
 	 ('Angel Cruz',74.0),
 	 ('Angel Josue',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Ramiro',74.0),
 	 ('Anthony Jesus',74.0),
 	 ('Anthony William',74.0),
@@ -10096,7 +10096,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arpad',74.0),
 	 ('Birame',74.0),
 	 ('Bogdan Constantin',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bogdan Florin',74.0),
 	 ('Bogdan Mihai',74.0),
 	 ('Bryan Eduardo',74.0),
@@ -10107,7 +10107,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Paul',74.0),
 	 ('David Mauricio',74.0),
 	 ('Derek John',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dimitry',74.0),
 	 ('Edgar Fabian',74.0),
 	 ('Edward John',74.0),
@@ -10118,7 +10118,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ennio',74.0),
 	 ('Eugenio Angel',74.0),
 	 ('Eugenio Ramon',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fathallah',74.0),
 	 ('Fernando Rodrigo',74.0),
 	 ('Florencio Jesus',74.0),
@@ -10129,7 +10129,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('George Catalin',74.0),
 	 ('Gian',74.0),
 	 ('Gian Marco',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gregor',74.0),
 	 ('Guang',74.0),
 	 ('Guillermo Jorge',74.0),
@@ -10140,7 +10140,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jacobo Manuel',74.0),
 	 ('Jaime Alexander',74.0),
 	 ('Javier Raul',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Roberto',74.0),
 	 ('Jonathan Mauricio',74.0),
 	 ('Jordan Alexander',74.0),
@@ -10151,7 +10151,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Anthony',74.0),
 	 ('Leopoldo Manuel',74.0),
 	 ('Marcelo Enrique',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Rene',74.0),
 	 ('Marlon Antonio',74.0),
 	 ('Mauricio Fernando',74.0),
@@ -10162,7 +10162,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ostap',74.0),
 	 ('Pacifico',74.0),
 	 ('Patrice',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Bernardo',74.0),
 	 ('Pedro Gustavo',74.0),
 	 ('Rafael Arturo',74.0),
@@ -10173,7 +10173,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel James',74.0),
 	 ('Sergio Hernan',74.0),
 	 ('Sergio Pedro',74.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shaun',74.0),
 	 ('Wilson David',74.0),
 	 ('Xinxin',74.0),
@@ -10184,7 +10184,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anael',73.0),
 	 ('Andres Agustin',73.0),
 	 ('Anibal Jesus',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anthony Joseph',73.0),
 	 ('Antonio Marcelino',73.0),
 	 ('Axular',73.0),
@@ -10195,7 +10195,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Leonardo',73.0),
 	 ('Chenyu',73.0),
 	 ('Christian Mauricio',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudio Cesar',73.0),
 	 ('Claus',73.0),
 	 ('Crescente',73.0),
@@ -10206,7 +10206,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dylan Adrian',73.0),
 	 ('Edwin Manuel',73.0),
 	 ('Elias Miguel',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Javier',73.0),
 	 ('Ernesto Enrique',73.0),
 	 ('Eugenio David',73.0),
@@ -10217,7 +10217,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Gaspar',73.0),
 	 ('Gabriel Arturo',73.0),
 	 ('Gabriel Santiago',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaspar Jose',73.0),
 	 ('George Gabriel',73.0),
 	 ('George William',73.0),
@@ -10228,7 +10228,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ianis',73.0),
 	 ('Iker Jesus',73.0),
 	 ('Ildefonso Jesus',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Inderjit',73.0),
 	 ('Iulen',73.0),
 	 ('Jaime Salvador',73.0),
@@ -10239,7 +10239,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhonattan',73.0),
 	 ('Jiang',73.0),
 	 ('Jianguang',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Sebastia',73.0),
 	 ('Joao Francisco',73.0),
 	 ('Jose Bonifacio',73.0),
@@ -10250,7 +10250,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Evelio',73.0),
 	 ('Manuel Joao',73.0),
 	 ('Manuel Patricio',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Alexander',73.0),
 	 ('Marcos Angel',73.0),
 	 ('Martin Maria',73.0),
@@ -10261,7 +10261,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Rachid',73.0),
 	 ('Neithan',73.0),
 	 ('Nenad',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Augusto',73.0),
 	 ('Oscar Leonardo',73.0),
 	 ('Paul Andrei',73.0),
@@ -10272,7 +10272,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Cristian',73.0),
 	 ('Raul Emilio',73.0),
 	 ('Razvan Alexandru',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Cesar',73.0),
 	 ('Robert Paul',73.0),
 	 ('Roberto Pedro',73.0),
@@ -10283,7 +10283,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Timofey',73.0),
 	 ('Udo',73.0),
 	 ('Valentin Manuel',73.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Ernesto',73.0),
 	 ('Vital',73.0),
 	 ('Wilson Enrique',73.0),
@@ -10294,7 +10294,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zarek',73.0),
 	 ('Aaron Alexander',72.0),
 	 ('Abel David',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Valentin',72.0),
 	 ('Alejandro Arturo',72.0),
 	 ('Alexis Gabriel',72.0),
@@ -10305,7 +10305,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benjamin Antonio',72.0),
 	 ('Carlos Aaron',72.0),
 	 ('Carlos Alvaro',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Oswaldo',72.0),
 	 ('Carmelo Juan',72.0),
 	 ('Celso Antonio',72.0),
@@ -10316,7 +10316,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Raul',72.0),
 	 ('Darius Ionut',72.0),
 	 ('Darwin Alexander',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Alexandre',72.0),
 	 ('Dennis Alexander',72.0),
 	 ('Dennys',72.0),
@@ -10327,7 +10327,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Pedro',72.0),
 	 ('Edison Andres',72.0),
 	 ('Edwin Daniel',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Fernando',72.0),
 	 ('Ernesto Ramon',72.0),
 	 ('Eukeni',72.0),
@@ -10338,7 +10338,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Ramon',72.0),
 	 ('Gustau',72.0),
 	 ('Gustavo Carlos',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Marcelo',72.0),
 	 ('Ion Daniel',72.0),
 	 ('Ionut Ciprian',72.0),
@@ -10349,7 +10349,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Amado',72.0),
 	 ('Jesus Benjamin',72.0),
 	 ('Jhon Michael',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhonatan Alexander',72.0),
 	 ('Joan Alejandro',72.0),
 	 ('Joel Alberto',72.0),
@@ -10360,7 +10360,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Aniceto',72.0),
 	 ('Jose Nestor',72.0),
 	 ('Jose Saturnino',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Ezequiel',72.0),
 	 ('Julio Guillermo',72.0),
 	 ('Junior Jose',72.0),
@@ -10371,7 +10371,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maguette',72.0),
 	 ('Manuel Celestino',72.0),
 	 ('Marcelino Manuel',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Esteban',72.0),
 	 ('Mariano Vicente',72.0),
 	 ('Martin James',72.0),
@@ -10382,7 +10382,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Alvaro',72.0),
 	 ('Miguel Pascual',72.0),
 	 ('Mohamed Yassir',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moises Alberto',72.0),
 	 ('Moritz',72.0),
 	 ('Oliver David',72.0),
@@ -10393,7 +10393,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Peter Robert',72.0),
 	 ('Rafael Leonardo',72.0),
 	 ('Ramon Domingo',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Tomas',72.0),
 	 ('Ricardo Ivan',72.0),
 	 ('Richard Eduardo',72.0),
@@ -10404,7 +10404,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Dario',72.0),
 	 ('Sidi Mohammed',72.0),
 	 ('Stuart James',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Syed',72.0),
 	 ('Tiago Miguel',72.0),
 	 ('Timo',72.0),
@@ -10415,7 +10415,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yannis',72.0),
 	 ('Yasiel',72.0),
 	 ('Yongwei',72.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhiyuan',72.0),
 	 ('Abderrezak',71.0),
 	 ('Adan Jose',71.0),
@@ -10426,7 +10426,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Aurelio',71.0),
 	 ('Angel Isaac',71.0),
 	 ('Antoni Miquel',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Bartolome',71.0),
 	 ('Antonio Eusebio',71.0),
 	 ('Arnaitz',71.0),
@@ -10437,7 +10437,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aytami',71.0),
 	 ('Biagio',71.0),
 	 ('Brayan Alejandro',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Santiago',71.0),
 	 ('Charanjit',71.0),
 	 ('Cheick Oumar',71.0),
@@ -10448,7 +10448,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison Fabian',71.0),
 	 ('Eldar',71.0),
 	 ('Elton',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emile',71.0),
 	 ('Emilio Santiago',71.0),
 	 ('Erick Santiago',71.0),
@@ -10459,7 +10459,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Julian',71.0),
 	 ('Fernando Adolfo',71.0),
 	 ('Francisco Eusebio',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Joel',71.0),
 	 ('Francisco Lucas',71.0),
 	 ('Fredy Antonio',71.0),
@@ -10470,7 +10470,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaurav',71.0),
 	 ('German Alejandro',71.0),
 	 ('Gia',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Sebastian',71.0),
 	 ('Grigorii',71.0),
 	 ('Guillermo Arturo',71.0),
@@ -10481,7 +10481,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Julian',71.0),
 	 ('Ilay',71.0),
 	 ('Isidoro Jesus',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isidro Luis',71.0),
 	 ('Issouf',71.0),
 	 ('Ivan Nicolas',71.0),
@@ -10492,7 +10492,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Abraham',71.0),
 	 ('Jhon Carlos',71.0),
 	 ('Jhon Edwin',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhon Kevin',71.0),
 	 ('Jonathan Luis',71.0),
 	 ('Jose Aday',71.0),
@@ -10503,7 +10503,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josep Pere',71.0),
 	 ('Juan Gilberto',71.0),
 	 ('Jude',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Esteban',71.0),
 	 ('Kulwant',71.0),
 	 ('Leonardo Sebastian',71.0),
@@ -10514,7 +10514,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Ventura',71.0),
 	 ('Marco Patricio',71.0),
 	 ('Mario Carlos',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Cristian',71.0),
 	 ('Miguel Carmelo',71.0),
 	 ('Miguel Raul',71.0),
@@ -10525,7 +10525,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nereo',71.0),
 	 ('Nicolae Alexandru',71.0),
 	 ('Norberto Jesus',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Lorenzo',71.0),
 	 ('Pascual Javier',71.0),
 	 ('Pedro Cristobal',71.0),
@@ -10536,7 +10536,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Redwan',71.0),
 	 ('Remi',71.0),
 	 ('Richard Manuel',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Ignacio',71.0),
 	 ('Saaid',71.0),
 	 ('Sergio Omar',71.0),
@@ -10547,7 +10547,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Weiping',71.0),
 	 ('Wieslaw',71.0),
 	 ('Xiaoyi',71.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xose Carlos',71.0),
 	 ('Yoni',71.0),
 	 ('Zhe',71.0),
@@ -10558,7 +10558,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Adrian',70.0),
 	 ('Alexandru Bogdan',70.0),
 	 ('Alexandru George',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Gabriel',70.0),
 	 ('Andres Domingo',70.0),
 	 ('Antonio Florencio',70.0),
@@ -10569,7 +10569,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Calogero',70.0),
 	 ('Carlos Hector',70.0),
 	 ('Celestino Manuel',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Clodomiro',70.0),
 	 ('Damian Antonio',70.0),
 	 ('Daniel Alexis',70.0),
@@ -10580,7 +10580,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edmon',70.0),
 	 ('Edwin Fabian',70.0),
 	 ('Eihar',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Moustapha',70.0),
 	 ('Emilio Maria',70.0),
 	 ('Erik Gabriel',70.0),
@@ -10591,7 +10591,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Fabian',70.0),
 	 ('Francesc Borja',70.0),
 	 ('Gerrit',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guille',70.0),
 	 ('Hamou',70.0),
 	 ('He',70.0),
@@ -10602,7 +10602,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isidro Francisco',70.0),
 	 ('Ivan Ramon',70.0),
 	 ('Izhar',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaume Antoni',70.0),
 	 ('Jaume Josep',70.0),
 	 ('Jhoan Manuel',70.0),
@@ -10613,7 +10613,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Conrado',70.0),
 	 ('Jose Honorio',70.0),
 	 ('Juan Cayetano',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Faustino',70.0),
 	 ('Justo Miguel',70.0),
 	 ('Kalel',70.0),
@@ -10624,7 +10624,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Jesus',70.0),
 	 ('Mario Agustin',70.0),
 	 ('Mark William',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marlon Andres',70.0),
 	 ('Matias Francisco',70.0),
 	 ('Meziane',70.0),
@@ -10635,7 +10635,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelson Alejandro',70.0),
 	 ('Noel Antonio',70.0),
 	 ('Noor',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Alexis',70.0),
 	 ('Oscar Omar',70.0),
 	 ('Paata',70.0),
@@ -10646,7 +10646,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Eugenio',70.0),
 	 ('Ricardo Nicolas',70.0),
 	 ('Roberto Emilio',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastian Rafael',70.0),
 	 ('Sharif',70.0),
 	 ('Stephen Robert',70.0),
@@ -10657,7 +10657,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Alexandru',70.0),
 	 ('Vicente Damian',70.0),
 	 ('Vicente Ferrer',70.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Ruben',70.0),
 	 ('Vinicio',70.0),
 	 ('Wenbo',70.0),
@@ -10668,7 +10668,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdeljabar',69.0),
 	 ('Alejandro Adrian',69.0),
 	 ('Alejandro Dario',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Altaf',69.0),
 	 ('Anthony Gabriel',69.0),
 	 ('Antolino',69.0),
@@ -10679,7 +10679,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Baldev',69.0),
 	 ('Bartolome Jose',69.0),
 	 ('Bruno Jesus',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bryan Antonio',69.0),
 	 ('Carlos Cristian',69.0),
 	 ('Carlos Ezequiel',69.0),
@@ -10690,7 +10690,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristhian Fernando',69.0),
 	 ('David Orlando',69.0),
 	 ('David Peter',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Joel',69.0),
 	 ('Edison David',69.0),
 	 ('Eduard Daniel',69.0),
@@ -10701,7 +10701,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elias Francisco',69.0),
 	 ('Elie',69.0),
 	 ('Eloy Miguel',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Eduardo',69.0),
 	 ('Eric Nicolas',69.0),
 	 ('Ernesto David',69.0),
@@ -10712,7 +10712,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fritz',69.0),
 	 ('German Carlos',69.0),
 	 ('Guillermo Tomas',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Angel',69.0),
 	 ('Hector Armando',69.0),
 	 ('Hector Omar',69.0),
@@ -10723,7 +10723,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isusko',69.0),
 	 ('Ivan Georgiev',69.0),
 	 ('Izan Daniel',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jacinto Miguel',69.0),
 	 ('Javier Guillermo',69.0),
 	 ('Johan Jose',69.0),
@@ -10734,7 +10734,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Inocencio',69.0),
 	 ('Jose Jonay',69.0),
 	 ('Jose Prudencio',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Remigio',69.0),
 	 ('Josep Joaquim',69.0),
 	 ('Juan Segundo',69.0),
@@ -10745,7 +10745,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lachezar',69.0),
 	 ('Loren',69.0),
 	 ('Luis Xavier',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Macedonio',69.0),
 	 ('Mamadou Saidou',69.0),
 	 ('Mamudou',69.0),
@@ -10756,7 +10756,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marvin Antonio',69.0),
 	 ('Mauricio Jesus',69.0),
 	 ('Maximiliano Jose',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Javier',69.0),
 	 ('Medin',69.0),
 	 ('Michael Alejandro',69.0),
@@ -10767,7 +10767,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Niculai',69.0),
 	 ('Oscar Marino',69.0),
 	 ('Pablo Anibal',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Julio',69.0),
 	 ('Patrici',69.0),
 	 ('Pedro Gerardo',69.0),
@@ -10778,7 +10778,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Relu',69.0),
 	 ('Roberto Santiago',69.0),
 	 ('Rodel',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Romulus',69.0),
 	 ('Sameer',69.0),
 	 ('Santiago Esteban',69.0),
@@ -10789,7 +10789,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Spas',69.0),
 	 ('Stephen Anthony',69.0),
 	 ('Taleb',69.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vahe',69.0),
 	 ('Vasili',69.0),
 	 ('Vikram',69.0),
@@ -10800,7 +10800,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yixiang',69.0),
 	 ('Abdelbaki',68.0),
 	 ('Adrian Carlos',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Damian',68.0),
 	 ('Alejandro Marcos',68.0),
 	 ('Alex Fabian',68.0),
@@ -10811,7 +10811,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Gonzalo',68.0),
 	 ('Amadou Oury',68.0),
 	 ('Aniss',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Fidel',68.0),
 	 ('Antonio Modesto',68.0),
 	 ('Arkadiusz',68.0),
@@ -10822,7 +10822,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Nicolas',68.0),
 	 ('Cesar Pablo',68.0),
 	 ('Claudio Francisco',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Constantin',68.0),
 	 ('Cristian Josue',68.0),
 	 ('Daniel Leonardo',68.0),
@@ -10833,7 +10833,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Kebir',68.0),
 	 ('Esteban Carlos',68.0),
 	 ('Facundo Martin',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fausto Antonio',68.0),
 	 ('Felipe Alfonso',68.0),
 	 ('Fernando Ezequiel',68.0),
@@ -10844,7 +10844,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Valentin',68.0),
 	 ('Gianluigi',68.0),
 	 ('Gianpaolo',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gines Miguel',68.0),
 	 ('Grigory',68.0),
 	 ('Guillermo Alfredo',68.0),
@@ -10855,7 +10855,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Mario',68.0),
 	 ('Humberto Manuel',68.0),
 	 ('Issame',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jagjit',68.0),
 	 ('Jan Marc',68.0),
 	 ('Jaswant',68.0),
@@ -10866,7 +10866,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jia Hao',68.0),
 	 ('Joel Enrique',68.0),
 	 ('Johan Esteban',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Enrique',68.0),
 	 ('Jorge Samuel',68.0),
 	 ('Jose Agapito',68.0),
@@ -10877,7 +10877,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kassem',68.0),
 	 ('Khizar',68.0),
 	 ('Laaziz',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Liam David',68.0),
 	 ('Lucas Fernando',68.0),
 	 ('Lucas Samuel',68.0),
@@ -10888,7 +10888,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Orlando',68.0),
 	 ('Marc Josep',68.0),
 	 ('Mariano Gabriel',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Esteban',68.0),
 	 ('Marlon David',68.0),
 	 ('Matej',68.0),
@@ -10899,7 +10899,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nerijus',68.0),
 	 ('Nestor Andres',68.0),
 	 ('Nestor Miguel',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Israel',68.0),
 	 ('Peter Alexander',68.0),
 	 ('Ramon Gabriel',68.0),
@@ -10910,7 +10910,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Ezequiel',68.0),
 	 ('Rodrigo Luis',68.0),
 	 ('Ryszard',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saer',68.0),
 	 ('Saibou',68.0),
 	 ('Sirio',68.0),
@@ -10921,7 +10921,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Omar',68.0),
 	 ('Walter Andres',68.0),
 	 ('William Eduardo',68.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Alexander',68.0),
 	 ('Yan Carlos',68.0),
 	 ('Yijie',68.0),
@@ -10932,7 +10932,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agustin Santiago',67.0),
 	 ('Agustin Tomas',67.0),
 	 ('Airam Jesus',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Eugenio',67.0),
 	 ('Alexander Enrique',67.0),
 	 ('Alexandru Iulian',67.0),
@@ -10943,7 +10943,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anthony Paul',67.0),
 	 ('Antonio Marcelo',67.0),
 	 ('Arash',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arjun',67.0),
 	 ('Asael',67.0),
 	 ('Benjamin James',67.0),
@@ -10954,7 +10954,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Rafael',67.0),
 	 ('Christopher Mark',67.0),
 	 ('Cristia',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Santiago',67.0),
 	 ('Daniel Alexandre',67.0),
 	 ('Daniel Benjamin',67.0),
@@ -10965,7 +10965,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dylan Josue',67.0),
 	 ('Eduardo Arturo',67.0),
 	 ('Edwar',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edward Alexander',67.0),
 	 ('Edwin Eduardo',67.0),
 	 ('Elijah',67.0),
@@ -10976,7 +10976,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabio Jesus',67.0),
 	 ('Felipe Fernando',67.0),
 	 ('Francisco Bartolome',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Rodrigo',67.0),
 	 ('George Marian',67.0),
 	 ('Gheorghe Alexandru',67.0),
@@ -10987,7 +10987,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Horacio Jose',67.0),
 	 ('Ian Jose',67.0),
 	 ('Ignacio Salvador',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker Adrian',67.0),
 	 ('Iru',67.0),
 	 ('Ivan Felipe',67.0),
@@ -10998,7 +10998,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jero',67.0),
 	 ('Jhonny Javier',67.0),
 	 ('Jianrong',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Arthur',67.0),
 	 ('Jonatan Manuel',67.0),
 	 ('Jorge Alvaro',67.0),
@@ -11009,7 +11009,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joshua David',67.0),
 	 ('Josue Jesus',67.0),
 	 ('Juan Aitor',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Ildefonso',67.0),
 	 ('Krishna',67.0),
 	 ('Leandro Daniel',67.0),
@@ -11020,7 +11020,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Eusebio',67.0),
 	 ('Luis Norberto',67.0),
 	 ('Malam',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maninder',67.0),
 	 ('Manuel Cayetano',67.0),
 	 ('Marcus Vinicius',67.0),
@@ -11031,7 +11031,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Anouar',67.0),
 	 ('Muhammad Awais',67.0),
 	 ('Nail',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Gabriel',67.0),
 	 ('Nor Eddine',67.0),
 	 ('Oscar Domingo',67.0),
@@ -11042,7 +11042,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Aurelio',67.0),
 	 ('Ramiro Jesus',67.0),
 	 ('Rayco Manuel',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Andrew',67.0),
 	 ('Robert Stefan',67.0),
 	 ('Roger David',67.0),
@@ -11053,7 +11053,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tello',67.0),
 	 ('Thomas David',67.0),
 	 ('Tyrone',67.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Felipe',67.0),
 	 ('Virgilio Jose',67.0),
 	 ('Wahid',67.0),
@@ -11064,7 +11064,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdennacer',66.0),
 	 ('Adrian Gustavo',66.0),
 	 ('Adrian Vicente',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Daniel',66.0),
 	 ('Agustin Enrique',66.0),
 	 ('Aitor Alejandro',66.0),
@@ -11075,7 +11075,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Oscar',66.0),
 	 ('Alejandro Samuel',66.0),
 	 ('Alejandro Valentin',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alex Xavier',66.0),
 	 ('Alexander John',66.0),
 	 ('Alexander Rafael',66.0),
@@ -11086,7 +11086,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Corsino',66.0),
 	 ('Ariel Fernando',66.0),
 	 ('Arturo Daniel',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aurelio Javier',66.0),
 	 ('Badreddin',66.0),
 	 ('Bartolome Juan',66.0),
@@ -11097,7 +11097,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Fidel',66.0),
 	 ('Cesar Agustin',66.0),
 	 ('Cheikhouna',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Clifford',66.0),
 	 ('Cosmin Florin',66.0),
 	 ('Cristhofer',66.0),
@@ -11108,7 +11108,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Joel',66.0),
 	 ('Dawood',66.0),
 	 ('Deyvid',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dictino',66.0),
 	 ('Diyan',66.0),
 	 ('Djillali',66.0),
@@ -11119,7 +11119,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eitan',66.0),
 	 ('Enea',66.0),
 	 ('Enrique Martin',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eriberto',66.0),
 	 ('Erick Antonio',66.0),
 	 ('Erlaitz',66.0),
@@ -11130,7 +11130,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Augusto',66.0),
 	 ('Francisco Jacinto',66.0),
 	 ('Gabriel Emilio',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Jaime',66.0),
 	 ('Gio',66.0),
 	 ('Gonzalo Pedro',66.0),
@@ -11141,7 +11141,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Gabriel',66.0),
 	 ('Ioan Sorin',66.0),
 	 ('Ion Adrian',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ion Marius',66.0),
 	 ('Jaime Ernesto',66.0),
 	 ('Jaime Pablo',66.0),
@@ -11152,7 +11152,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeyko',66.0),
 	 ('Jhon Fernando',66.0),
 	 ('Jhon Steven',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jiansheng',66.0),
 	 ('Joaquin Ricardo',66.0),
 	 ('Jonatan Jose',66.0),
@@ -11163,7 +11163,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Pino',66.0),
 	 ('Josu Iñaki',66.0),
 	 ('Josue Antonio',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Octavio',66.0),
 	 ('Julio Armando',66.0),
 	 ('Julio Domingo',66.0),
@@ -11174,7 +11174,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lazaro Manuel',66.0),
 	 ('Lutgardo',66.0),
 	 ('Manuel Benigno',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcelo David',66.0),
 	 ('Marcelo Fernando',66.0),
 	 ('Marco Alexander',66.0),
@@ -11185,7 +11185,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauro Alejandro',66.0),
 	 ('Mehmood',66.0),
 	 ('Michael Stiven',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Asif',66.0),
 	 ('Nassir',66.0),
 	 ('Nehuen',66.0),
@@ -11196,7 +11196,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Gonzalo',66.0),
 	 ('Paul Alexandru',66.0),
 	 ('Pedro Jacinto',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Simon',66.0),
 	 ('Raju',66.0),
 	 ('Raoul',66.0),
@@ -11207,7 +11207,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Gabriel',66.0),
 	 ('Salvador Fernando',66.0),
 	 ('Sammy',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Domingo',66.0),
 	 ('Saulius',66.0),
 	 ('Sava',66.0),
@@ -11218,7 +11218,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Serigne Modou',66.0),
 	 ('Stewart',66.0),
 	 ('Taibi',66.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Agustin',66.0),
 	 ('Victor Arturo',66.0),
 	 ('Victor Diego',66.0),
@@ -11229,7 +11229,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adasat',65.0),
 	 ('Adelin',65.0),
 	 ('Adrian Felipe',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Martin',65.0),
 	 ('Alejandro Domingo',65.0),
 	 ('Alejandro Matias',65.0),
@@ -11240,7 +11240,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrei Vasile',65.0),
 	 ('Andres Mariano',65.0),
 	 ('Angel Blas',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Elias',65.0),
 	 ('Antonio Alexander',65.0),
 	 ('Antonio Leonardo',65.0),
@@ -11251,7 +11251,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bladimiro',65.0),
 	 ('Brayan Jose',65.0),
 	 ('Casimir',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Catalin Adrian',65.0),
 	 ('Chaudhry',65.0),
 	 ('Claudiu Constantin',65.0),
@@ -11262,7 +11262,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Denis Cristian',65.0),
 	 ('Dexter',65.0),
 	 ('Dian',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dietmar',65.0),
 	 ('Digno',65.0),
 	 ('Duberney',65.0),
@@ -11273,7 +11273,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fahim',65.0),
 	 ('Faly',65.0),
 	 ('Federico Agustin',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Flavius',65.0),
 	 ('Francisco Federico',65.0),
 	 ('Gabriel Felipe',65.0),
@@ -11284,7 +11284,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Glen',65.0),
 	 ('Gonzalo Alfonso',65.0),
 	 ('Gonzalo Ezequiel',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Joaquin',65.0),
 	 ('Gurjeet',65.0),
 	 ('Hansel',65.0),
@@ -11295,7 +11295,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ion Cristian',65.0),
 	 ('Ionel Daniel',65.0),
 	 ('Ivan Santiago',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Raul',65.0),
 	 ('Javier Humberto',65.0),
 	 ('Jesus Sergio',65.0),
@@ -11306,7 +11306,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Philip',65.0),
 	 ('Jon Gurutz',65.0),
 	 ('Jon Karla',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonattan',65.0),
 	 ('Jose Emanuel',65.0),
 	 ('Juan Ambrosio',65.0),
@@ -11317,7 +11317,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Malcolm John',65.0),
 	 ('Manuel Celso',65.0),
 	 ('Manuel Eladio',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Modesto',65.0),
 	 ('Marc Albert',65.0),
 	 ('Marc Andreu',65.0),
@@ -11328,7 +11328,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Oscar',65.0),
 	 ('Marius Bogdan',65.0),
 	 ('Marius Cosmin',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Ariel',65.0),
 	 ('Maudilio',65.0),
 	 ('Mauro Javier',65.0),
@@ -11339,7 +11339,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Carlos',65.0),
 	 ('Nuno Alexandre',65.0),
 	 ('Pau Josep',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Santos',65.0),
 	 ('Quentin',65.0),
 	 ('Rafael Gregorio',65.0),
@@ -11350,7 +11350,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roque Jesus',65.0),
 	 ('Salahdin',65.0),
 	 ('Santos Antonio',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastiao',65.0),
 	 ('Shayan',65.0),
 	 ('Suleyman',65.0),
@@ -11361,7 +11361,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ugutz',65.0),
 	 ('Valdemar',65.0),
 	 ('Valentin Javier',65.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Cesar',65.0),
 	 ('Victor Gonzalo',65.0),
 	 ('Victor Jorge',65.0),
@@ -11372,7 +11372,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Catalin',64.0),
 	 ('Aitami',64.0),
 	 ('Alano',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Federico',64.0),
 	 ('Alejandro Victor',64.0),
 	 ('Alexandre Manuel',64.0),
@@ -11383,7 +11383,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Rafael',64.0),
 	 ('Bandiougou',64.0),
 	 ('Brian Daniel',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Hernando',64.0),
 	 ('Carlos Segundo',64.0),
 	 ('Carlos Vinicio',64.0),
@@ -11394,7 +11394,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Joseph',64.0),
 	 ('David Marcos',64.0),
 	 ('David Omar',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Jorge',64.0),
 	 ('Dinesh',64.0),
 	 ('Domingo Tomas',64.0),
@@ -11405,7 +11405,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elio Jose',64.0),
 	 ('Ely',64.0),
 	 ('Ermengol',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ernesto Rafael',64.0),
 	 ('Evangelos',64.0),
 	 ('Fabio Alejandro',64.0),
@@ -11416,7 +11416,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gianpiero',64.0),
 	 ('Gines David',64.0),
 	 ('Gulzar',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hannibal',64.0),
 	 ('Haochen',64.0),
 	 ('Hector Hernan',64.0),
@@ -11427,7 +11427,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Alexis',64.0),
 	 ('Jaime Tomas',64.0),
 	 ('Javier Felix',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Gregorio',64.0),
 	 ('Javier Leonardo',64.0),
 	 ('Jesus Blas',64.0),
@@ -11438,7 +11438,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Henrique',64.0),
 	 ('Jose Nemesio',64.0),
 	 ('Jose Pastor',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Omar',64.0),
 	 ('Juda',64.0),
 	 ('Julian Gabriel',64.0),
@@ -11449,7 +11449,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leandro Nicolas',64.0),
 	 ('Liberio',64.0),
 	 ('Lleonard',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lothar',64.0),
 	 ('Mamadou Dian',64.0),
 	 ('Marco Andre',64.0),
@@ -11460,7 +11460,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Natael',64.0),
 	 ('Navdeep',64.0),
 	 ('Neyen',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Palmiro',64.0),
 	 ('Patricio Andres',64.0),
 	 ('Paul Edward',64.0),
@@ -11471,7 +11471,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Esteban',64.0),
 	 ('Roberto Maria',64.0),
 	 ('Rodrigo David',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rogelio Jesus',64.0),
 	 ('Saifeddine',64.0),
 	 ('Samuel Alberto',64.0),
@@ -11482,7 +11482,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Aquino',64.0),
 	 ('Umaru',64.0),
 	 ('Urbez',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Uri',64.0),
 	 ('Vicente Lorenzo',64.0),
 	 ('Vicente Martin',64.0),
@@ -11493,7 +11493,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xufeng',64.0),
 	 ('Yasen',64.0),
 	 ('Yicheng',64.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yuze',64.0),
 	 ('Zineddine',64.0),
 	 ('Aaron Javier',63.0),
@@ -11504,7 +11504,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abiel',63.0),
 	 ('Adrian Paul',63.0),
 	 ('Aisa',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Diego',63.0),
 	 ('Alexis Fernando',63.0),
 	 ('Alois',63.0),
@@ -11515,7 +11515,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aqeel',63.0),
 	 ('Argeo',63.0),
 	 ('Arturo Carlos',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arturo David',63.0),
 	 ('Attilio',63.0),
 	 ('Avram',63.0),
@@ -11526,7 +11526,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Boualam',63.0),
 	 ('Braulio Antonio',63.0),
 	 ('Cesar Joaquin',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Francisco',63.0),
 	 ('Cleber',63.0),
 	 ('Cristhian Jose',63.0),
@@ -11537,7 +11537,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Arthur',63.0),
 	 ('David Benjamin',63.0),
 	 ('Diego Guillermo',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dionisio Antonio',63.0),
 	 ('Eduardo Cesar',63.0),
 	 ('Emerio',63.0),
@@ -11548,7 +11548,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Mariano',63.0),
 	 ('Florencio Javier',63.0),
 	 ('Florica',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florin Bogdan',63.0),
 	 ('Francisco Omar',63.0),
 	 ('Franklin Alberto',63.0),
@@ -11559,7 +11559,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haoyang',63.0),
 	 ('Hibai',63.0),
 	 ('Ianis Andrei',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iordan',63.0),
 	 ('Iuliu',63.0),
 	 ('Ivan Jorge',63.0),
@@ -11570,7 +11570,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jiarui',63.0),
 	 ('Joan Toni',63.0),
 	 ('John Kevin',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Israel',63.0),
 	 ('Jonathan Joel',63.0),
 	 ('Jonathan Patricio',63.0),
@@ -11581,7 +11581,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justo Pastor',63.0),
 	 ('Justo Ramon',63.0),
 	 ('Kelly',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Khlifa',63.0),
 	 ('Lazaro Antonio',63.0),
 	 ('Lifeng',63.0),
@@ -11592,7 +11592,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mahesh',63.0),
 	 ('Mamadou Lamarana',63.0),
 	 ('Manuel Clemente',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Pablo',63.0),
 	 ('Martin Ramon',63.0),
 	 ('Mbemba',63.0),
@@ -11603,7 +11603,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nonito',63.0),
 	 ('Oscar Mariano',63.0),
 	 ('Pablo Augusto',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Sergio',63.0),
 	 ('Peter Joseph',63.0),
 	 ('Ponç',63.0),
@@ -11614,7 +11614,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richard Alberto',63.0),
 	 ('Ronald David',63.0),
 	 ('Samuil',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Julian',63.0),
 	 ('Segundo Angel',63.0),
 	 ('Sergio Arturo',63.0),
@@ -11625,7 +11625,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Steven Alejandro',63.0),
 	 ('Thiago Alessandro',63.0),
 	 ('Ting',63.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tong',63.0),
 	 ('Valentin Daniel',63.0),
 	 ('Vasile Sorin',63.0),
@@ -11636,7 +11636,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yaidel',63.0),
 	 ('Ziheng',63.0),
 	 ('Abdallahi',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelelah',62.0),
 	 ('Abdelhabib',62.0),
 	 ('Abdelrhani',62.0),
@@ -11647,7 +11647,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alan William',62.0),
 	 ('Alberto Ivan',62.0),
 	 ('Aleksi',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amaranto',62.0),
 	 ('Amaru',62.0),
 	 ('Andres Mateo',62.0),
@@ -11658,7 +11658,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Polivio',62.0),
 	 ('Angel Reyes',62.0),
 	 ('Augusto Antonio',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Azmat',62.0),
 	 ('Badri',62.0),
 	 ('Benjamin John',62.0),
@@ -11669,7 +11669,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Dario',62.0),
 	 ('Charly',62.0),
 	 ('Chema',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ciprian Constantin',62.0),
 	 ('Cosmin Andrei',62.0),
 	 ('Cristobal Angel',62.0),
@@ -11680,7 +11680,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Israel',62.0),
 	 ('Dionisio Manuel',62.0),
 	 ('Edgar Leonardo',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Ivan',62.0),
 	 ('Eduardo Ruben',62.0),
 	 ('Edwin Enrique',62.0),
@@ -11691,7 +11691,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Erick Eduardo',62.0),
 	 ('Ernesto Juan',62.0),
 	 ('Esteban Eduardo',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Xavier',62.0),
 	 ('Florencio Manuel',62.0),
 	 ('Florin Cosmin',62.0),
@@ -11702,7 +11702,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Angel',62.0),
 	 ('Gheorghe Marius',62.0),
 	 ('Guillermo Raul',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gurdev',62.0),
 	 ('Gustavo Henrique',62.0),
 	 ('Gustavo Martin',62.0),
@@ -11713,7 +11713,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Ovidiu',62.0),
 	 ('Ion Florin',62.0),
 	 ('Isaac Miguel',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jafar',62.0),
 	 ('Jafet',62.0),
 	 ('Jaime Alfredo',62.0),
@@ -11724,7 +11724,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Eladio',62.0),
 	 ('Jesus Emiliano',62.0),
 	 ('Jinhao',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonay Jesus',62.0),
 	 ('Jordi Daniel',62.0),
 	 ('Jorge Adolfo',62.0),
@@ -11735,7 +11735,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Khan',62.0),
 	 ('Lahssan',62.0),
 	 ('Limbert',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lino Jose',62.0),
 	 ('Luis Camilo',62.0),
 	 ('Luis Marino',62.0),
@@ -11746,7 +11746,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Silvestre',62.0),
 	 ('Marcos Agustin',62.0),
 	 ('Marius Sorin',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Rafael',62.0),
 	 ('Maximiliano Andres',62.0),
 	 ('Mihai Bogdan',62.0),
@@ -11757,7 +11757,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolae Alin',62.0),
 	 ('Nicolas Alexandru',62.0),
 	 ('Octavio Augusto',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Samuel',62.0),
 	 ('Parvez',62.0),
 	 ('Rafael Diego',62.0),
@@ -11768,7 +11768,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Alfredo',62.0),
 	 ('Rodrigo Alfonso',62.0),
 	 ('Rodrigo Hernan',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Adrian',62.0),
 	 ('Ruben Juan',62.0),
 	 ('Santiago Felix',62.0),
@@ -11779,7 +11779,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shaukat',62.0),
 	 ('Shuo',62.0),
 	 ('Sol',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Trevor John',62.0),
 	 ('Victor Alonso',62.0),
 	 ('Walter Jesus',62.0),
@@ -11790,7 +11790,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yahdih',62.0),
 	 ('Yaret',62.0),
 	 ('Yariel',62.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yerover',62.0),
 	 ('Ying',62.0),
 	 ('Yuhan',62.0),
@@ -11801,7 +11801,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Nicolas',61.0),
 	 ('Ali Hassan',61.0),
 	 ('Anatael',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anderson David',61.0),
 	 ('Andrei David',61.0),
 	 ('Andrei Nicolae',61.0),
@@ -11812,7 +11812,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arie',61.0),
 	 ('Aurelio Francisco',61.0),
 	 ('Benigno Manuel',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benyamin',61.0),
 	 ('Borja Alejandro',61.0),
 	 ('Carlos Efren',61.0),
@@ -11823,7 +11823,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cosmin Gabriel',61.0),
 	 ('Cristian Martin',61.0),
 	 ('Cristian Rodrigo',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristofor',61.0),
 	 ('Daniel Marcelo',61.0),
 	 ('Daniel Stiven',61.0),
@@ -11834,7 +11834,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dilawar',61.0),
 	 ('Eduardo Esteban',61.0),
 	 ('Eduardo Felix',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Marcelo',61.0),
 	 ('Edwin Jesus',61.0),
 	 ('El Moukhtar',61.0),
@@ -11845,7 +11845,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ezequiel David',61.0),
 	 ('Ezequiel Jose',61.0),
 	 ('Fabia',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabian Marcelo',61.0),
 	 ('Florencio Antonio',61.0),
 	 ('Francesc Antoni',61.0),
@@ -11856,7 +11856,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Pedro',61.0),
 	 ('Hernan Alejandro',61.0),
 	 ('Ian John',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioan Gheorghe',61.0),
 	 ('Ivan Pedro',61.0),
 	 ('Ivan Rodrigo',61.0),
@@ -11867,7 +11867,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joan Jaume',61.0),
 	 ('Joan Marti',61.0),
 	 ('Joao Maria',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Felipe',61.0),
 	 ('Johan Camilo',61.0),
 	 ('Johan Daniel',61.0),
@@ -11878,7 +11878,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Celestino',61.0),
 	 ('Juan Lucio',61.0),
 	 ('Juergen',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Daniel',61.0),
 	 ('Karamba',61.0),
 	 ('Kevin Rafael',61.0),
@@ -11889,7 +11889,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Licerio',61.0),
 	 ('Lizandro',61.0),
 	 ('Marcelo Sebastian',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Paulo',61.0),
 	 ('Marinica',61.0),
 	 ('Mateo Andres',61.0),
@@ -11900,7 +11900,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelson Ricardo',61.0),
 	 ('Oscar Gustavo',61.0),
 	 ('Oswaldo Antonio',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ousainou',61.0),
 	 ('Pablo Jaime',61.0),
 	 ('Paul Martin',61.0),
@@ -11911,7 +11911,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Peter Edward',61.0),
 	 ('Pompilio',61.0),
 	 ('Rafael Pascual',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ragnar',61.0),
 	 ('Rahman',61.0),
 	 ('Ramon Ricardo',61.0),
@@ -11922,7 +11922,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Salifu',61.0),
 	 ('Salvador Carlos',61.0),
 	 ('Sebastian Juan',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Segundo Carlos',61.0),
 	 ('Sergio Felipe',61.0),
 	 ('Sghir',61.0),
@@ -11933,7 +11933,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Timotei',61.0),
 	 ('Victor Felix',61.0),
 	 ('William Patricio',61.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilmer Enrique',61.0),
 	 ('Yijun',61.0),
 	 ('Zain Ul',61.0),
@@ -11944,7 +11944,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru David',60.0),
 	 ('Alfredo Eduardo',60.0),
 	 ('Anchel',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anderson Javier',60.0),
 	 ('Andrei Ioan',60.0),
 	 ('Andres Alfredo',60.0),
@@ -11955,7 +11955,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Cecilio',60.0),
 	 ('Antonio Joao',60.0),
 	 ('Antonio Justo',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Leon',60.0),
 	 ('Arsalan',60.0),
 	 ('Ayob',60.0),
@@ -11966,7 +11966,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Byron Patricio',60.0),
 	 ('Camara',60.0),
 	 ('Candelas',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudio Luis',60.0),
 	 ('Claudiu Ioan',60.0),
 	 ('Constantin Alin',60.0),
@@ -11977,7 +11977,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Di',60.0),
 	 ('Diego Alessandro',60.0),
 	 ('Dima',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edric',60.0),
 	 ('Eduardo Alexander',60.0),
 	 ('Eduardo Augusto',60.0),
@@ -11988,7 +11988,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Essam',60.0),
 	 ('Fabio Manuel',60.0),
 	 ('Faustino Jesus',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felipe Daniel',60.0),
 	 ('Fernando Carmelo',60.0),
 	 ('Fernando Isidro',60.0),
@@ -11999,7 +11999,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Vidal',60.0),
 	 ('Frederik',60.0),
 	 ('Gideon',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hari',60.0),
 	 ('Hector Orlando',60.0),
 	 ('Henryk',60.0),
@@ -12010,7 +12010,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Imre',60.0),
 	 ('Jarnail',60.0),
 	 ('Jesus Clemente',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Vidal',60.0),
 	 ('Joan Baptiste',60.0),
 	 ('Joaquin Domingo',60.0),
@@ -12021,7 +12021,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Bolivar',60.0),
 	 ('Jose Victorio',60.0),
 	 ('Juan Eulogio',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Felipe',60.0),
 	 ('Junyu',60.0),
 	 ('Kamaljit',60.0),
@@ -12032,7 +12032,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucio Antonio',60.0),
 	 ('Mamun',60.0),
 	 ('Manuel Dionisio',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mariano Fernando',60.0),
 	 ('Michael Francis',60.0),
 	 ('Michail',60.0),
@@ -12043,7 +12043,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Olmedo',60.0),
 	 ('Oswaldo Enrique',60.0),
 	 ('Pablo Cruz',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Valentin',60.0),
 	 ('Patricio Fernando',60.0),
 	 ('Paul Gabriel',60.0),
@@ -12054,7 +12054,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Ariel',60.0),
 	 ('Roberto Felix',60.0),
 	 ('Roberto Ivan',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Julian',60.0),
 	 ('Rong',60.0),
 	 ('Roque Jose',60.0),
@@ -12065,7 +12065,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Segundo Juan',60.0),
 	 ('Smain',60.0),
 	 ('Vasile Viorel',60.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vieux',60.0),
 	 ('Wisdom',60.0),
 	 ('Xalo',60.0),
@@ -12076,7 +12076,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhan',60.0),
 	 ('Zhijie',60.0),
 	 ('Aaron Miguel',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelbari',59.0),
 	 ('Abdelhamed',59.0),
 	 ('Abdessalem',59.0),
@@ -12087,7 +12087,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aliaksei',59.0),
 	 ('Amidou',59.0),
 	 ('Andrew Charles',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Orlando',59.0),
 	 ('Antimo',59.0),
 	 ('Antonio Dario',59.0),
@@ -12098,7 +12098,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Belkheir',59.0),
 	 ('Benito Miguel',59.0),
 	 ('Bouzid',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Norberto',59.0),
 	 ('Carlos Vidal',59.0),
 	 ('Carmelo Miguel',59.0),
@@ -12109,7 +12109,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Marcelo',59.0),
 	 ('Christopher William',59.0),
 	 ('Clemente Jesus',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Constantin Bogdan',59.0),
 	 ('Constantin Ciprian',59.0),
 	 ('Dauda',59.0),
@@ -12120,7 +12120,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Josue',59.0),
 	 ('Edwin Marcelo',59.0),
 	 ('Enrique Pascual',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erin',59.0),
 	 ('Esmael',59.0),
 	 ('Eusebio Javier',59.0),
@@ -12131,7 +12131,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Ismael',59.0),
 	 ('Francisco Leon',59.0),
 	 ('Francisco Marcelo',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Carlos',59.0),
 	 ('Gabriel Leonardo',59.0),
 	 ('Gamaliel',59.0),
@@ -12142,7 +12142,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gregorio Enrique',59.0),
 	 ('Guglielmo',59.0),
 	 ('Gustavo Ernesto',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gyorgy',59.0),
 	 ('Henry Javier',59.0),
 	 ('Hilario Manuel',59.0),
@@ -12153,7 +12153,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ion Catalin',59.0),
 	 ('Ionica',59.0),
 	 ('Ionut Madalin',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Razvan',59.0),
 	 ('Isaac Alberto',59.0),
 	 ('Isaac Gabriel',59.0),
@@ -12164,7 +12164,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joan Angel',59.0),
 	 ('Joan Esteve',59.0),
 	 ('Jonathan Michael',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Rene',59.0),
 	 ('Jose Fausto',59.0),
 	 ('Jose Junior',59.0),
@@ -12175,7 +12175,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kleber',59.0),
 	 ('Leonel Alejandro',59.0),
 	 ('Lucas Rafael',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Albeiro',59.0),
 	 ('Luis Amador',59.0),
 	 ('Luis Leon',59.0),
@@ -12186,7 +12186,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Florencio',59.0),
 	 ('Manuel Teodoro',59.0),
 	 ('Maqsood',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Joan',59.0),
 	 ('Marco Ivan',59.0),
 	 ('Marcos Alfredo',59.0),
@@ -12197,7 +12197,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauricio David',59.0),
 	 ('Melanio',59.0),
 	 ('Mesias',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Daniel',59.0),
 	 ('Mohamed Rayane',59.0),
 	 ('Mumtaz',59.0),
@@ -12208,7 +12208,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Elias',59.0),
 	 ('Pablo Israel',59.0),
 	 ('Pavlin',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pier Paolo',59.0),
 	 ('Rafael Damian',59.0),
 	 ('Rafael Jaime',59.0),
@@ -12219,7 +12219,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Adrian',59.0),
 	 ('Ricardo Sebastian',59.0),
 	 ('Rito',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Valentin',59.0),
 	 ('Roberto Raul',59.0),
 	 ('Roderick',59.0),
@@ -12230,7 +12230,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sanjeev',59.0),
 	 ('Sebastian Matias',59.0),
 	 ('Sergio Armando',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shakil',59.0),
 	 ('Shakir',59.0),
 	 ('Stuart John',59.0),
@@ -12241,7 +12241,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Walter Fabian',59.0),
 	 ('Walter Fernando',59.0),
 	 ('Weidong',59.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Alejandro',59.0),
 	 ('Yakoub',59.0),
 	 ('Abdel Hamid',58.0),
@@ -12252,7 +12252,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Ernesto',58.0),
 	 ('Alexis Miguel',58.0),
 	 ('Alfredo Maria',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ali Raza',58.0),
 	 ('Alvaro Agustin',58.0),
 	 ('Andres Ernesto',58.0),
@@ -12263,7 +12263,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Claudio',58.0),
 	 ('Artau',58.0),
 	 ('Arturo Ramon',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brandon Alexis',58.0),
 	 ('Broulaye',58.0),
 	 ('Byron Javier',58.0),
@@ -12274,7 +12274,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Martin',58.0),
 	 ('Constanti',58.0),
 	 ('Cosmin Adrian',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Valentin',58.0),
 	 ('Dairo',58.0),
 	 ('Daniel Gerardo',58.0),
@@ -12285,7 +12285,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Omar',58.0),
 	 ('Dimo',58.0),
 	 ('Dragos Ionut',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Julio',58.0),
 	 ('Eduardo Oscar',58.0),
 	 ('Eduardo Rodrigo',58.0),
@@ -12296,7 +12296,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Jaime',58.0),
 	 ('Fernando Valentin',58.0),
 	 ('Florin Nicolae',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Benjamin',58.0),
 	 ('Francisco Leopoldo',58.0),
 	 ('Galileo',58.0),
@@ -12307,7 +12307,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Pablo',58.0),
 	 ('Gregorio David',58.0),
 	 ('Harvey',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Anibal',58.0),
 	 ('Henry Fernando',58.0),
 	 ('Ioan Marian',58.0),
@@ -12318,7 +12318,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Augusto',58.0),
 	 ('Jaime Martin',58.0),
 	 ('Jatri',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Eloy',58.0),
 	 ('Jeison Andres',58.0),
 	 ('Jesus Mauricio',58.0),
@@ -12329,7 +12329,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Amaro',58.0),
 	 ('Jose Arnaldo',58.0),
 	 ('Jose Kevin',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Teofilo',58.0),
 	 ('Josue Israel',58.0),
 	 ('Juan Anibal',58.0),
@@ -12340,7 +12340,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kawsu',58.0),
 	 ('Le',58.0),
 	 ('Lorenzo Ramon',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Ignacio',58.0),
 	 ('Luciano Jesus',58.0),
 	 ('Luis Gines',58.0),
@@ -12351,7 +12351,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Madani',58.0),
 	 ('Manuel Fidel',58.0),
 	 ('Manuel Luciano',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marco Enrique',58.0),
 	 ('Marcos Ignacio',58.0),
 	 ('Mariano Nicolas',58.0),
@@ -12362,7 +12362,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mark Richard',58.0),
 	 ('Mark Stephen',58.0),
 	 ('Martin Alexander',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maxi',58.0),
 	 ('Michael Jesus',58.0),
 	 ('Mohamed Saad',58.0),
@@ -12373,7 +12373,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nodar',58.0),
 	 ('Norberto Manuel',58.0),
 	 ('Oliver Manuel',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Alonso',58.0),
 	 ('Osmani',58.0),
 	 ('Oukacha',58.0),
@@ -12384,7 +12384,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Radostin',58.0),
 	 ('Rafael Gonzalo',58.0),
 	 ('Ramon Josep',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Julian',58.0),
 	 ('Ramunas',58.0),
 	 ('Raul Guillermo',58.0),
@@ -12395,7 +12395,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Cesar',58.0),
 	 ('Rodrigo Enrique',58.0),
 	 ('Rodrigo Gabriel',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ronan',58.0),
 	 ('Ross',58.0),
 	 ('Ruben Alfonso',58.0),
@@ -12406,7 +12406,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Ismael',58.0),
 	 ('Sergio Oscar',58.0),
 	 ('Sidati',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Taimoor',58.0),
 	 ('Tianyu',58.0),
 	 ('Tijan',58.0),
@@ -12417,7 +12417,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Waly',58.0),
 	 ('Xinlei',58.0),
 	 ('Yon Ander',58.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Younas',58.0),
 	 ('Zhicheng',58.0),
 	 ('Zhixiang',58.0),
@@ -12428,7 +12428,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Albaro',57.0),
 	 ('Alejandro Ezequiel',57.0),
 	 ('Alejandro Rodrigo',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andima',57.0),
 	 ('Andrejs',57.0),
 	 ('Andres Gregorio',57.0),
@@ -12439,7 +12439,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anuk',57.0),
 	 ('Armando David',57.0),
 	 ('Arnaldo Jose',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arturo Vicente',57.0),
 	 ('Avelino Manuel',57.0),
 	 ('Banta',57.0),
@@ -12450,7 +12450,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brian Javier',57.0),
 	 ('Carlos Abraham',57.0),
 	 ('Catalin Gabriel',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Fabian',57.0),
 	 ('Chenxi',57.0),
 	 ('Claudio Gabriel',57.0),
@@ -12461,7 +12461,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Stefan',57.0),
 	 ('Diango',57.0),
 	 ('Diego Gonzalo',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Domingo Alejandro',57.0),
 	 ('Eduardo Patricio',57.0),
 	 ('Elhassan',57.0),
@@ -12472,7 +12472,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Alberto',57.0),
 	 ('Everton',57.0),
 	 ('Fabio Daniel',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Farrukh',57.0),
 	 ('Fath Allah',57.0),
 	 ('Felipe Agustin',57.0),
@@ -12483,7 +12483,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Luciano',57.0),
 	 ('Francisco Orlando',57.0),
 	 ('Franco Ezequiel',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franz Josef',57.0),
 	 ('Gabriel Catalin',57.0),
 	 ('Gabriel Ioan',57.0),
@@ -12494,7 +12494,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guohua',57.0),
 	 ('Guoping',57.0),
 	 ('Hamada',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hassana',57.0),
 	 ('Hector Alonso',57.0),
 	 ('Hector Guillermo',57.0),
@@ -12505,7 +12505,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Claudiu',57.0),
 	 ('Ionut Claudiu',57.0),
 	 ('Ionut Iulian',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isidro Juan',57.0),
 	 ('Izan Jose',57.0),
 	 ('Jaime Ivan',57.0),
@@ -12516,7 +12516,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Ariel',57.0),
 	 ('Jose Airam',57.0),
 	 ('Jose Aridane',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Arley',57.0),
 	 ('Jose Benedicto',57.0),
 	 ('Jose Calasanz',57.0),
@@ -12527,7 +12527,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josimar',57.0),
 	 ('Jovito',57.0),
 	 ('Juan Francisco Javier',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Fulgencio',57.0),
 	 ('Kemal',57.0),
 	 ('Kevin Bryan',57.0),
@@ -12538,7 +12538,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Liam Alexander',57.0),
 	 ('Liam Gabriel',57.0),
 	 ('Liviu Ionut',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Abraham',57.0),
 	 ('Malamin',57.0),
 	 ('Marck',57.0),
@@ -12549,7 +12549,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias Emanuel',57.0),
 	 ('Md Abdul',57.0),
 	 ('Michael Christopher',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Julio',57.0),
 	 ('Mohsan',57.0),
 	 ('Nathael',57.0),
@@ -12560,7 +12560,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Ariel',57.0),
 	 ('Pablo Alexis',57.0),
 	 ('Patrick James',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Christopher',57.0),
 	 ('Pedro Filipe',57.0),
 	 ('Pedro Leon',57.0),
@@ -12571,7 +12571,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Roberto',57.0),
 	 ('Reinaldo Antonio',57.0),
 	 ('Robert Alejandro',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Joseph',57.0),
 	 ('Roberto Fabian',57.0),
 	 ('Roberto Joaquin',57.0),
@@ -12582,7 +12582,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Rafael',57.0),
 	 ('Ruben Vicente',57.0),
 	 ('Sahli',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sainey',57.0),
 	 ('Santiago Matias',57.0),
 	 ('Segundo Javier',57.0),
@@ -12593,7 +12593,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sixto Javier',57.0),
 	 ('Socorro',57.0),
 	 ('Tanase',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tiago Manuel',57.0),
 	 ('Vaidas',57.0),
 	 ('Vicente Bernardo',57.0),
@@ -12604,7 +12604,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yassen',57.0),
 	 ('Yeray David',57.0),
 	 ('Yucheng',57.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Josue',56.0),
 	 ('Abdelmaoula',56.0),
 	 ('Abu Bakar',56.0),
@@ -12615,7 +12615,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ahren',56.0),
 	 ('Alam',56.0),
 	 ('Alex Francisco',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Miguel',56.0),
 	 ('Alexsandro',56.0),
 	 ('Alien',56.0),
@@ -12626,7 +12626,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Argenis',56.0),
 	 ('Armando Rafael',56.0),
 	 ('Arshdeep',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aslan',56.0),
 	 ('Aurelio Miguel',56.0),
 	 ('Benigno Antonio',56.0),
@@ -12637,7 +12637,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheickna',56.0),
 	 ('Chihab',56.0),
 	 ('Christian Joel',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christopher Charles',56.0),
 	 ('Cristian Ricardo',56.0),
 	 ('Dael',56.0),
@@ -12648,7 +12648,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Lorenzo',56.0),
 	 ('Demetre',56.0),
 	 ('Denis Daniel',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Gaston',56.0),
 	 ('Dimitar Ivanov',56.0),
 	 ('Eduard Alexandru',56.0),
@@ -12659,7 +12659,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Mamoune',56.0),
 	 ('Eladino',56.0),
 	 ('Eloy Angel',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emanoil',56.0),
 	 ('Enrique Arturo',56.0),
 	 ('Esteban Angel',56.0),
@@ -12670,7 +12670,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fausto Javier',56.0),
 	 ('Fernando Alvaro',56.0),
 	 ('Fernando Dario',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Mariano',56.0),
 	 ('Fily',56.0),
 	 ('Fiodor',56.0),
@@ -12681,7 +12681,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Giovanni Jesus',56.0),
 	 ('Glicerio',56.0),
 	 ('Gonzalo Tomas',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Vicente',56.0),
 	 ('Guillermo Santiago',56.0),
 	 ('Haiyong',56.0),
@@ -12692,7 +12692,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Ramon',56.0),
 	 ('Iain',56.0),
 	 ('Ioan Mihai',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioan Viorel',56.0),
 	 ('Ion Marian',56.0),
 	 ('Ionel Cristian',56.0),
@@ -12703,7 +12703,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Felipe',56.0),
 	 ('Jesus Leopoldo',56.0),
 	 ('Jhon David',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhon Eduard',56.0),
 	 ('Jhon Faber',56.0),
 	 ('Jialiang',56.0),
@@ -12714,7 +12714,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josemaria',56.0),
 	 ('Juan Abraham',56.0),
 	 ('Julio Nicolas',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Junxiang',56.0),
 	 ('Kamen',56.0),
 	 ('Kevin Esteban',56.0),
@@ -12725,7 +12725,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lyuben',56.0),
 	 ('Marcelo Luis',56.0),
 	 ('Marcos Felipe',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mark Edward',56.0),
 	 ('Matias Adrian',56.0),
 	 ('Mhammad',56.0),
@@ -12736,7 +12736,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moises Francisco',56.0),
 	 ('Muhammadou',56.0),
 	 ('Nawaz',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nedyalko',56.0),
 	 ('Nicholas Paul',56.0),
 	 ('Nicolas Pedro',56.0),
@@ -12747,7 +12747,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pergentino',56.0),
 	 ('Rafael Gustavo',56.0),
 	 ('Rafael Isidro',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Carmelo',56.0),
 	 ('Ramon Gregorio',56.0),
 	 ('Regis',56.0),
@@ -12758,7 +12758,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Mihai',56.0),
 	 ('Sega',56.0),
 	 ('Sergio Salvador',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Serguey',56.0),
 	 ('Servulo',56.0),
 	 ('Serxio',56.0),
@@ -12769,7 +12769,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tawfiq',56.0),
 	 ('Thiago Gabriel',56.0),
 	 ('Thiago Nicolas',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vasile Catalin',56.0),
 	 ('Vasile Ciprian',56.0),
 	 ('Victor Adolfo',56.0),
@@ -12780,7 +12780,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Henry',56.0),
 	 ('William Javier',56.0),
 	 ('William Joseph',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Thomas',56.0),
 	 ('Wilson Alfredo',56.0),
 	 ('Wilson Jose',56.0),
@@ -12791,7 +12791,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yousuf',56.0),
 	 ('Zaman',56.0),
 	 ('Zdenek',56.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhao',56.0),
 	 ('Zinoviy',56.0),
 	 ('Aaron Antonio',55.0),
@@ -12802,7 +12802,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adael',55.0),
 	 ('Adalid',55.0),
 	 ('Aitor Francisco',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aitor Miguel',55.0),
 	 ('Alberto Alfonso',55.0),
 	 ('Alberto Oscar',55.0),
@@ -12813,7 +12813,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexander Paul',55.0),
 	 ('Alvaro Diego',55.0),
 	 ('Amador Jesus',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Damian',55.0),
 	 ('Angel Ismael',55.0),
 	 ('Annas',55.0),
@@ -12824,7 +12824,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Axel Daniel',55.0),
 	 ('Aydan',55.0),
 	 ('Ayham',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Azddine',55.0),
 	 ('Bernardino Jose',55.0),
 	 ('Bogdan Vasile',55.0),
@@ -12835,7 +12835,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Celesti',55.0),
 	 ('Cesar Nicolas',55.0),
 	 ('Cesar Oswaldo',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Charles Edward',55.0),
 	 ('Chenyi',55.0),
 	 ('Claudiu Daniel',55.0),
@@ -12846,7 +12846,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Fabian',55.0),
 	 ('Daniel George',55.0),
 	 ('Darius Stefan',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Christopher',55.0),
 	 ('David Stiven',55.0),
 	 ('Derek Alexander',55.0),
@@ -12857,7 +12857,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Esteban Alberto',55.0),
 	 ('Esteban Fernando',55.0),
 	 ('Esteban Ramon',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felix Martin',55.0),
 	 ('Francisco Dario',55.0),
 	 ('Francisco Hilario',55.0),
@@ -12868,7 +12868,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaieta',55.0),
 	 ('Gerson David',55.0),
 	 ('Gian Piero',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guoliang',55.0),
 	 ('Habibou',55.0),
 	 ('Hakob',55.0),
@@ -12879,7 +12879,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ion Mikel',55.0),
 	 ('Jaime Gustavo',55.0),
 	 ('Jaime Orlando',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('James Thomas',55.0),
 	 ('Jefferson Daniel',55.0),
 	 ('Jesus Modesto',55.0),
@@ -12890,7 +12890,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Adrian',55.0),
 	 ('Jonathan Fabricio',55.0),
 	 ('Jonathan Mark',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Vinicio',55.0),
 	 ('Jose Adalberto',55.0),
 	 ('Jose Perfecto',55.0),
@@ -12901,7 +12901,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Ricardo',55.0),
 	 ('Julio Alexis',55.0),
 	 ('Kevin James',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laurentiu Ionut',55.0),
 	 ('Loan',55.0),
 	 ('Luis Teodoro',55.0),
@@ -12912,7 +12912,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Raimundo',55.0),
 	 ('Marcial Jose',55.0),
 	 ('Marius Gheorghe',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Alejandro',55.0),
 	 ('Merab',55.0),
 	 ('Mohamed Nizar',55.0),
@@ -12923,7 +12923,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nikolay Ivanov',55.0),
 	 ('Noel Jesus',55.0),
 	 ('Octavio Javier',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Adolfo',55.0),
 	 ('Oto',55.0),
 	 ('Pablo Isaac',55.0),
@@ -12934,7 +12934,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Quintino',55.0),
 	 ('Rabeh',55.0),
 	 ('Radu Andrei',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Valentin',55.0),
 	 ('Razvan Mihai',55.0),
 	 ('Ricardo Salvador',55.0),
@@ -12945,7 +12945,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santos Jesus',55.0),
 	 ('Serafin Antonio',55.0),
 	 ('Sorin Daniel',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stephen Andrew',55.0),
 	 ('Teodoro Antonio',55.0),
 	 ('Thiago Jesus',55.0),
@@ -12956,7 +12956,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Eugenio',55.0),
 	 ('Victor Mauricio',55.0),
 	 ('Victor Oscar',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vitorino',55.0),
 	 ('Wilfredo Jose',55.0),
 	 ('Wilson Alberto',55.0),
@@ -12967,7 +12967,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yufeng',55.0),
 	 ('Zinedine',55.0),
 	 ('Zurabi',55.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Nicolas',54.0),
 	 ('Abdennassar',54.0),
 	 ('Abdennebi',54.0),
@@ -12978,7 +12978,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ademar',54.0),
 	 ('Akaki',54.0),
 	 ('Akash',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Damian',54.0),
 	 ('Alberto Esteban',54.0),
 	 ('Alejandro Alfredo',54.0),
@@ -12989,7 +12989,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alin Alexandru',54.0),
 	 ('Aliu',54.0),
 	 ('Alonso Antonio',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Augusto',54.0),
 	 ('Angel Anibal',54.0),
 	 ('Antonio Cayetano',54.0),
@@ -13000,7 +13000,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Atman',54.0),
 	 ('Balbir',54.0),
 	 ('Barry James',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bernardo Andres',54.0),
 	 ('Brian Manuel',54.0),
 	 ('Carlos Marcos',54.0),
@@ -13011,7 +13011,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Nicolas',54.0),
 	 ('Ciprian Vasile',54.0),
 	 ('Cipriano Manuel',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cleofe',54.0),
 	 ('Darius Adrian',54.0),
 	 ('David Mateo',54.0),
@@ -13022,7 +13022,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Ignacio',54.0),
 	 ('Domingo Santiago',54.0),
 	 ('Domnino',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Sebastian',54.0),
 	 ('Edgar Humberto',54.0),
 	 ('Eduar',54.0),
@@ -13033,7 +13033,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eloy Javier',54.0),
 	 ('Emanuel David',54.0),
 	 ('Enrique Bernardo',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Jesus',54.0),
 	 ('Eulogio Manuel',54.0),
 	 ('Falou',54.0),
@@ -13044,7 +13044,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Sebastian',54.0),
 	 ('Felipe Neri',54.0),
 	 ('Felipe Tomas',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fermin Francisco',54.0),
 	 ('Florin Claudiu',54.0),
 	 ('Francisco Cecilio',54.0),
@@ -13055,7 +13055,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('George Valentin',54.0),
 	 ('Gergely',54.0),
 	 ('German Miguel',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gheorghe Gabriel',54.0),
 	 ('Gheorghe Marian',54.0),
 	 ('Gines Manuel',54.0),
@@ -13066,7 +13066,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Adrian',54.0),
 	 ('Ian William',54.0),
 	 ('Ibraim',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Idafe',54.0),
 	 ('Ilidio',54.0),
 	 ('Imar',54.0),
@@ -13077,7 +13077,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isaac Javier',54.0),
 	 ('Iustin',54.0),
 	 ('Jaime Esteban',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jairo Alejandro',54.0),
 	 ('James Paul',54.0),
 	 ('Jan Erik',54.0),
@@ -13088,7 +13088,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinhui',54.0),
 	 ('John Albert',54.0),
 	 ('John Jaime',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jordi Manel',54.0),
 	 ('Jorge Octavio',54.0),
 	 ('Jorge Pascual',54.0),
@@ -13099,7 +13099,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jovan',54.0),
 	 ('Julian Agustin',54.0),
 	 ('Kalidou',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kebir',54.0),
 	 ('Kevin Stiven',54.0),
 	 ('Leandro David',54.0),
@@ -13110,7 +13110,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Joel',54.0),
 	 ('Luis Rogelio',54.0),
 	 ('Manuel Evaristo',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mar',54.0),
 	 ('Mariano Ignacio',54.0),
 	 ('Mario Alexis',54.0),
@@ -13121,7 +13121,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mateo Alexander',54.0),
 	 ('Mauricio Daniel',54.0),
 	 ('Mauro Andres',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Luis',54.0),
 	 ('Miguel Gonzalo',54.0),
 	 ('Miquel Antoni',54.0),
@@ -13132,7 +13132,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mujahid',54.0),
 	 ('Myron',54.0),
 	 ('Nauzet Jesus',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nayib',54.0),
 	 ('Nelson Miguel',54.0),
 	 ('Nelson Ramon',54.0),
@@ -13143,7 +13143,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Omar Francisco',54.0),
 	 ('Ovidiu Ioan',54.0),
 	 ('Pablo Leonardo',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paulino Manuel',54.0),
 	 ('Pengfei',54.0),
 	 ('Philip Anthony',54.0),
@@ -13154,7 +13154,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Riu',54.0),
 	 ('Rodrigo Ivan',54.0),
 	 ('Ronald Alberto',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ronald Eduardo',54.0),
 	 ('Ruben Emilio',54.0),
 	 ('Salah Din',54.0),
@@ -13165,7 +13165,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tegaday',54.0),
 	 ('Thomas John',54.0),
 	 ('Thomas Peter',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tiago Andre',54.0),
 	 ('Valentin Francisco',54.0),
 	 ('Vasileios',54.0),
@@ -13176,7 +13176,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xiaoliang',54.0),
 	 ('Xose Anxo',54.0),
 	 ('Yihang',54.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yiyang',54.0),
 	 ('Yujie',54.0),
 	 ('Zhengwei',54.0),
@@ -13187,7 +13187,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agustin Domingo',53.0),
 	 ('Airam Jose',53.0),
 	 ('Alan George',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alan Robert',53.0),
 	 ('Alejo Manuel',53.0),
 	 ('Aleu',53.0),
@@ -13198,7 +13198,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Guillermo',53.0),
 	 ('Antonio Emiliano',53.0),
 	 ('Antonio Fabian',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Marcial',53.0),
 	 ('Arion',53.0),
 	 ('Arjan',53.0),
@@ -13209,7 +13209,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bryan Paul',53.0),
 	 ('Can',53.0),
 	 ('Carlos Clemente',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Gilberto',53.0),
 	 ('Celerino',53.0),
 	 ('Christian Leonardo',53.0),
@@ -13220,7 +13220,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dahou',53.0),
 	 ('Dario Miguel',53.0),
 	 ('Darren John',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Henry',53.0),
 	 ('David Lucas',53.0),
 	 ('Diego Federico',53.0),
@@ -13231,7 +13231,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dumitru Adrian',53.0),
 	 ('Dustin',53.0),
 	 ('Edgar Miguel',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Arabi',53.0),
 	 ('Eliberto',53.0),
 	 ('Enar',53.0),
@@ -13242,7 +13242,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Ezequiel',53.0),
 	 ('Felio',53.0),
 	 ('Felix Raul',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fidel Jesus',53.0),
 	 ('Francesc Ramon',53.0),
 	 ('Francisco Emiliano',53.0),
@@ -13253,7 +13253,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Daniel',53.0),
 	 ('Gustavo Angel',53.0),
 	 ('Harpreet Singh',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Leonardo',53.0),
 	 ('Housni',53.0),
 	 ('Husam',53.0),
@@ -13264,7 +13264,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Cosmin',53.0),
 	 ('Ixai',53.0),
 	 ('Javier Elias',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Marcelo',53.0),
 	 ('Javier Omar',53.0),
 	 ('Jeronimo Francisco',53.0),
@@ -13275,7 +13275,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joao Batista',53.0),
 	 ('Joel Fernando',53.0),
 	 ('Joel Sebastian',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Leslie',53.0),
 	 ('Johnny Alberto',53.0),
 	 ('Jose Milton',53.0),
@@ -13286,7 +13286,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Rufino',53.0),
 	 ('Julio Mario',53.0),
 	 ('Junfeng',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kakha',53.0),
 	 ('Latif',53.0),
 	 ('Lazaro Javier',53.0),
@@ -13297,7 +13297,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Yeray',53.0),
 	 ('Malaquias',53.0),
 	 ('Malkhaz',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mansor',53.0),
 	 ('Manuel Abraham',53.0),
 	 ('Manuel Leopoldo',53.0),
@@ -13308,7 +13308,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mariano Agustin',53.0),
 	 ('Mario Hernan',53.0),
 	 ('Martin Vicente',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Miguel',53.0),
 	 ('Mathias Nicolas',53.0),
 	 ('Mauricio Gabriel',53.0),
@@ -13319,7 +13319,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miklos',53.0),
 	 ('Moataz',53.0),
 	 ('Mohamed Aziz',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed El Amin',53.0),
 	 ('Mohamed Salah',53.0),
 	 ('Mohamed Salim',53.0),
@@ -13330,7 +13330,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Narciso Jesus',53.0),
 	 ('Nedal',53.0),
 	 ('Nouriddin',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Olayo',53.0),
 	 ('Ole',53.0),
 	 ('Orlando Enrique',53.0),
@@ -13341,7 +13341,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Radu Alexandru',53.0),
 	 ('Raman',53.0),
 	 ('Raudel',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Esteban',53.0),
 	 ('Raul Mihai',53.0),
 	 ('Raul Rafael',53.0),
@@ -13352,7 +13352,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rolando Javier',53.0),
 	 ('Ronald Andres',53.0),
 	 ('Ruben Omar',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Ricardo',53.0),
 	 ('Samuel Fernando',53.0),
 	 ('Samuel Ignacio',53.0),
@@ -13363,7 +13363,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sorin Ioan',53.0),
 	 ('Stephen George',53.0),
 	 ('Stephen Richard',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Steven Andres',53.0),
 	 ('Syed Ali',53.0),
 	 ('Tahirou',53.0),
@@ -13374,7 +13374,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Alfredo',53.0),
 	 ('Vicente Felix',53.0),
 	 ('Victor Gerardo',53.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Lorenzo',53.0),
 	 ('Victor Orlando',53.0),
 	 ('Xesc',53.0),
@@ -13385,7 +13385,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhang',53.0),
 	 ('Zviad',53.0),
 	 ('Aditya',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adolfo Ramon',52.0),
 	 ('Adrian Pablo',52.0),
 	 ('Airas',52.0),
@@ -13396,7 +13396,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexander Nicolas',52.0),
 	 ('Alexis Alejandro',52.0),
 	 ('Alfredo Gabriel',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alle',52.0),
 	 ('Alvaro Ernesto',52.0),
 	 ('Alvaro Julian',52.0),
@@ -13407,7 +13407,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Jaime',52.0),
 	 ('Angel Teodoro',52.0),
 	 ('Antonio Leopoldo',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Gustavo',52.0),
 	 ('Arturo Angel',52.0),
 	 ('Athanasios',52.0),
@@ -13418,7 +13418,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Filipe',52.0),
 	 ('Byron Andres',52.0),
 	 ('Byron Fernando',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Camilo Alejandro',52.0),
 	 ('Carlos Andre',52.0),
 	 ('Carlos Jacinto',52.0),
@@ -13429,7 +13429,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesareo Jose',52.0),
 	 ('Charkaoui',52.0),
 	 ('Christian Roberto',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christopher Daniel',52.0),
 	 ('Claudio Martin',52.0),
 	 ('Claudiu Gabriel',52.0),
@@ -13440,7 +13440,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Darius Nicolas',52.0),
 	 ('David Emmanuel',52.0),
 	 ('Denis Alexander',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgar Marcelo',52.0),
 	 ('Edrisa',52.0),
 	 ('Eduardo Jaime',52.0),
@@ -13451,7 +13451,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enoch',52.0),
 	 ('Enrique Esteban',52.0),
 	 ('Enzo Daniel',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enzo Jose',52.0),
 	 ('Erick Alberto',52.0),
 	 ('Ernesto Daniel',52.0),
@@ -13462,7 +13462,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fayyaz',52.0),
 	 ('Federico Eduardo',52.0),
 	 ('Federico Enrique',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Gregorio',52.0),
 	 ('Fernando Gustavo',52.0),
 	 ('Fernando Marcelo',52.0),
@@ -13473,7 +13473,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Florencio',52.0),
 	 ('Frantisek',52.0),
 	 ('Gabriel Andrei',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Garik',52.0),
 	 ('Georgi Dimitrov',52.0),
 	 ('Gerai',52.0),
@@ -13484,7 +13484,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gratiniano',52.0),
 	 ('Gregorio Vicente',52.0),
 	 ('Guillermo Alexander',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hachem',52.0),
 	 ('Hans Christian',52.0),
 	 ('Hector Jorge',52.0),
@@ -13495,7 +13495,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Roberto',52.0),
 	 ('Ian Carlos',52.0),
 	 ('Ion Gabriel',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioseb',52.0),
 	 ('Izan Gabriel',52.0),
 	 ('James Christopher',52.0),
@@ -13506,7 +13506,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Maria Jose',52.0),
 	 ('Jhon Esteban',52.0),
 	 ('Jimmy Alejandro',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Esteban',52.0),
 	 ('Joerg',52.0),
 	 ('Johnnatan',52.0),
@@ -13517,7 +13517,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Macario',52.0),
 	 ('Jose Sabino',52.0),
 	 ('Jose Trinidad',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Xavier',52.0),
 	 ('Juan Demetrio',52.0),
 	 ('Juan Horacio',52.0),
@@ -13528,7 +13528,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Koldo Mirena',52.0),
 	 ('Leonardo Luis',52.0),
 	 ('Lingwei',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lubomir',52.0),
 	 ('Luis Benigno',52.0),
 	 ('Luiz',52.0),
@@ -13539,7 +13539,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Raul',52.0),
 	 ('Mariano Rafael',52.0),
 	 ('Mario Pedro',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marius Ciprian',52.0),
 	 ('Marius Claudiu',52.0),
 	 ('Mark Christopher',52.0),
@@ -13550,7 +13550,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Mouloud',52.0),
 	 ('Mohamed Yasser',52.0),
 	 ('Nahuel Alejandro',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Narciso Javier',52.0),
 	 ('Nicolas Andrei',52.0),
 	 ('Oliver Antonio',52.0),
@@ -13561,7 +13561,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oskitz',52.0),
 	 ('Pablo Adolfo',52.0),
 	 ('Paulino Antonio',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paulino Jesus',52.0),
 	 ('Pedro Ezequiel',52.0),
 	 ('Pedro Fidel',52.0),
@@ -13572,7 +13572,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raheel',52.0),
 	 ('Ramon Julio',52.0),
 	 ('Ramon Lorenzo',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Dario',52.0),
 	 ('Reinaldo Jesus',52.0),
 	 ('Ricardo Filipe',52.0),
@@ -13583,7 +13583,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roger John',52.0),
 	 ('Rubel',52.0),
 	 ('Salvador Alberto',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Samuel Isaac',52.0),
 	 ('Santiago Ismael',52.0),
 	 ('Saul Alejandro',52.0),
@@ -13594,7 +13594,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stephen Peter',52.0),
 	 ('Uhaitz',52.0),
 	 ('Vakhtang',52.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valentin Florin',52.0),
 	 ('Vasile Bogdan',52.0),
 	 ('Vicente Carmelo',52.0),
@@ -13605,7 +13605,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Ignacio',51.0),
 	 ('Ahmed Amin',51.0),
 	 ('Aimrane',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Akim',51.0),
 	 ('Alberto Ismael',51.0),
 	 ('Alberto Valentin',51.0),
@@ -13616,7 +13616,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Raul',51.0),
 	 ('Amado Jesus',51.0),
 	 ('Amed',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anderson Jose',51.0),
 	 ('Andrei Lucian',51.0),
 	 ('Andrei Nicolas',51.0),
@@ -13627,7 +13627,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Rogelio',51.0),
 	 ('Azan',51.0),
 	 ('Badr Eddin',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bambo',51.0),
 	 ('Bernardo Ramon',51.0),
 	 ('Borja Maria',51.0),
@@ -13638,7 +13638,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesareo Manuel',51.0),
 	 ('Cosmin Mihai',51.0),
 	 ('Cristhian Manuel',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Pablo',51.0),
 	 ('Damian Manuel',51.0),
 	 ('Dan Florin',51.0),
@@ -13649,7 +13649,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Gerardo',51.0),
 	 ('David Mark',51.0),
 	 ('Davis',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Denny',51.0),
 	 ('Diosnel',51.0),
 	 ('Dylan Mateo',51.0),
@@ -13660,7 +13660,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edvard',51.0),
 	 ('Edward Andres',51.0),
 	 ('Edward James',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eladio Antonio',51.0),
 	 ('Elieser',51.0),
 	 ('Enebie',51.0),
@@ -13671,7 +13671,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ferran Josep',51.0),
 	 ('Florent',51.0),
 	 ('Fortia',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Serafin',51.0),
 	 ('Franco Agustin',51.0),
 	 ('Franklin Patricio',51.0),
@@ -13682,7 +13682,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gurgen',51.0),
 	 ('Gurinder',51.0),
 	 ('Haresh',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Harpal',51.0),
 	 ('Helder Manuel',51.0),
 	 ('Henrique Manuel',51.0),
@@ -13693,7 +13693,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Sebastian',51.0),
 	 ('Ihar',51.0),
 	 ('Imade',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iren',51.0),
 	 ('Ismael Manuel',51.0),
 	 ('Israel Alejandro',51.0),
@@ -13704,7 +13704,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Maria',51.0),
 	 ('Izan Javier',51.0),
 	 ('Jaime Guillermo',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Clemente',51.0),
 	 ('Jeremy David',51.0),
 	 ('Jesus Avelino',51.0),
@@ -13715,7 +13715,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Lorenzo',51.0),
 	 ('Johan Fernando',51.0),
 	 ('John Stephen',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Castor',51.0),
 	 ('Jose Natalio',51.0),
 	 ('Jose Nicasio',51.0),
@@ -13726,7 +13726,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Martin',51.0),
 	 ('Kalen',51.0),
 	 ('Kenneth William',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kerim',51.0),
 	 ('Khamiss',51.0),
 	 ('Leonardo Nicolas',51.0),
@@ -13737,7 +13737,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luca Gabriel',51.0),
 	 ('Luis Edgar',51.0),
 	 ('Luis Geovanny',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Steven',51.0),
 	 ('Maikol',51.0),
 	 ('Mamoutou',51.0),
@@ -13748,7 +13748,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Gaspar',51.0),
 	 ('Manuel Hilario',51.0),
 	 ('Manuele',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Antonio',51.0),
 	 ('Marc Daniel',51.0),
 	 ('Marcelino Javier',51.0),
@@ -13759,7 +13759,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mariano Carmen',51.0),
 	 ('Marius Stefan',51.0),
 	 ('Martin Federico',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matenin',51.0),
 	 ('Mauricio Manuel',51.0),
 	 ('Maximiliano Ezequiel',51.0),
@@ -13770,7 +13770,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael Javier',51.0),
 	 ('Mihai Sorin',51.0),
 	 ('Mika',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miquel Josep',51.0),
 	 ('Mohamed Bilal',51.0),
 	 ('Muhammad Hussain',51.0),
@@ -13781,7 +13781,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Agustin',51.0),
 	 ('Oscar Damian',51.0),
 	 ('Oscar Diego',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Julio',51.0),
 	 ('Oscar Salvador',51.0),
 	 ('Otar',51.0),
@@ -13792,7 +13792,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Leonardo',51.0),
 	 ('Petros',51.0),
 	 ('Rafael Adrian',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Humberto',51.0),
 	 ('Raidel',51.0),
 	 ('Razvan Constantin',51.0),
@@ -13803,7 +13803,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ridwan',51.0),
 	 ('Romario',51.0),
 	 ('Roque Javier',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roque Luis',51.0),
 	 ('Rui Filipe',51.0),
 	 ('Saim',51.0),
@@ -13814,7 +13814,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Pablo',51.0),
 	 ('Sergio Guillermo',51.0),
 	 ('Sergio Jorge',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Mario',51.0),
 	 ('Serkan',51.0),
 	 ('Shoukat',51.0),
@@ -13825,7 +13825,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Teddy',51.0),
 	 ('Tomas Domingo',51.0),
 	 ('Tomas Salvador',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Traore',51.0),
 	 ('Vasile Alin',51.0),
 	 ('Vasile Lucian',51.0),
@@ -13836,7 +13836,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilson Fabian',51.0),
 	 ('Wilson Oswaldo',51.0),
 	 ('Xes',51.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yiping',51.0),
 	 ('Yovanny',51.0),
 	 ('Yunus',51.0),
@@ -13847,7 +13847,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adam John',50.0),
 	 ('Adolfo Leon',50.0),
 	 ('Adrian Sorin',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ahmedou',50.0),
 	 ('Aiping',50.0),
 	 ('Alberto Mariano',50.0),
@@ -13858,7 +13858,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Robert',50.0),
 	 ('Alexis Andres',50.0),
 	 ('Almamy',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alseny',50.0),
 	 ('Alvaro Felipe',50.0),
 	 ('Alvaro Pablo',50.0),
@@ -13869,7 +13869,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Lucas',50.0),
 	 ('Aniel',50.0),
 	 ('Antonio Bienvenido',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Archil',50.0),
 	 ('Arno',50.0),
 	 ('Arturo Andres',50.0),
@@ -13880,7 +13880,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Blas Alberto',50.0),
 	 ('Boubakar',50.0),
 	 ('Brayan Estiven',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brian Alejandro',50.0),
 	 ('Candido Luis',50.0),
 	 ('Carlos Paul',50.0),
@@ -13891,7 +13891,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Colin David',50.0),
 	 ('Colin James',50.0),
 	 ('Constantin Claudiu',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Jorge',50.0),
 	 ('Dah',50.0),
 	 ('Damian Ezequiel',50.0),
@@ -13902,7 +13902,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Osvaldo',50.0),
 	 ('Dario Francisco',50.0),
 	 ('Darius Mihai',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Junior',50.0),
 	 ('David Patrick',50.0),
 	 ('Demetrio Jesus',50.0),
@@ -13913,7 +13913,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dimitar Georgiev',50.0),
 	 ('Dinko',50.0),
 	 ('Dobromir',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dongdong',50.0),
 	 ('Dylan Alexis',50.0),
 	 ('Edgar Ramon',50.0),
@@ -13924,7 +13924,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elias Josue',50.0),
 	 ('Emmanuel Jesus',50.0),
 	 ('Enric Josep',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrike',50.0),
 	 ('Erick Sebastian',50.0),
 	 ('Ernesto Vicente',50.0),
@@ -13935,7 +13935,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Maria',50.0),
 	 ('Felipe Nicolas',50.0),
 	 ('Felix Alfredo',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felix Domingo',50.0),
 	 ('Fidelio',50.0),
 	 ('Florin Iulian',50.0),
@@ -13946,7 +13946,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Galdric',50.0),
 	 ('Garcia',50.0),
 	 ('Gaspar Antonio',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaspar Jesus',50.0),
 	 ('George Robert',50.0),
 	 ('Gerardo Gabriel',50.0),
@@ -13957,7 +13957,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guram',50.0),
 	 ('Haibo',50.0),
 	 ('Hebert',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Nicolas',50.0),
 	 ('Hernan Andres',50.0),
 	 ('Heron',50.0),
@@ -13968,7 +13968,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ildefons',50.0),
 	 ('Ionatan',50.0),
 	 ('Ionut Lucian',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Viorel',50.0),
 	 ('Isidro Angel',50.0),
 	 ('Isidro Ramon',50.0),
@@ -13979,7 +13979,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izan Jesus',50.0),
 	 ('Iñigo Jesus',50.0),
 	 ('Jabran',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jairo Francisco',50.0),
 	 ('Jeffry',50.0),
 	 ('Jerai',50.0),
@@ -13990,7 +13990,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinping',50.0),
 	 ('Joan Ferran',50.0),
 	 ('Joao Henrique',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Mariano',50.0),
 	 ('Joaquin Sebastian',50.0),
 	 ('Joel Adrian',50.0),
@@ -14001,7 +14001,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Guzman',50.0),
 	 ('Jose Maria Jesus',50.0),
 	 ('Jose Wilfredo',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Wilmer',50.0),
 	 ('Josu Andoni',50.0),
 	 ('Juan Emiliano',50.0),
@@ -14012,7 +14012,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justo Angel',50.0),
 	 ('Kadda',50.0),
 	 ('Kashmir',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kauan',50.0),
 	 ('Kilyan',50.0),
 	 ('Koldo Mikel',50.0),
@@ -14023,7 +14023,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Constantino',50.0),
 	 ('Manuel Marcial',50.0),
 	 ('Marc Xavier',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mark Peter',50.0),
 	 ('Mark Robert',50.0),
 	 ('Massoud',50.0),
@@ -14034,7 +14034,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moises Eduardo',50.0),
 	 ('Mouhamed Lamine',50.0),
 	 ('Muhammad Arham',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Rafael',50.0),
 	 ('Nelson Rodrigo',50.0),
 	 ('Nicolae Ioan',50.0),
@@ -14045,7 +14045,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oliver Alejandro',50.0),
 	 ('Omar Daniel',50.0),
 	 ('Orlando Rafael',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Francis',50.0),
 	 ('Paul Thomas',50.0),
 	 ('Pawan',50.0),
@@ -14056,7 +14056,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rabih',50.0),
 	 ('Radu Gabriel',50.0),
 	 ('Rafael Alonso',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Alvaro',50.0),
 	 ('Ramon Alexander',50.0),
 	 ('Raul Mario',50.0),
@@ -14067,7 +14067,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Remigijus',50.0),
 	 ('Revaz',50.0),
 	 ('Robert Nicolae',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Peter',50.0),
 	 ('Ronald Javier',50.0),
 	 ('Rosalio',50.0),
@@ -14078,7 +14078,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Alexis',50.0),
 	 ('Sergio Israel',50.0),
 	 ('Simon Alejandro',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Simon Jesus',50.0),
 	 ('Sorin Constantin',50.0),
 	 ('Sukhwinder Singh',50.0),
@@ -14089,7 +14089,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tinerfe',50.0),
 	 ('Tomas Martin',50.0),
 	 ('Toumany',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Ariel',50.0),
 	 ('Vitalino',50.0),
 	 ('Vlad Alexandru',50.0),
@@ -14100,7 +14100,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yusein',50.0),
 	 ('Zeljko',50.0),
 	 ('Zoheir',50.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aali',49.0),
 	 ('Abdelkhalik',49.0),
 	 ('Abderrahmen',49.0),
@@ -14111,7 +14111,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexis Francisco',49.0),
 	 ('Alfredo Joaquin',49.0),
 	 ('Alfredo Raul',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alphousseyni',49.0),
 	 ('Anastasios',49.0),
 	 ('Ancizar',49.0),
@@ -14122,7 +14122,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anthony Manuel',49.0),
 	 ('Anthony Thomas',49.0),
 	 ('Armando Enrique',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Azdin',49.0),
 	 ('Babak',49.0),
 	 ('Balkar',49.0),
@@ -14133,7 +14133,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno David',49.0),
 	 ('Bryan Enrique',49.0),
 	 ('Camilo Jesus',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carles Josep',49.0),
 	 ('Carles Maria',49.0),
 	 ('Carlos Saul',49.0),
@@ -14144,7 +14144,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Pedro',49.0),
 	 ('Christian Ricardo',49.0),
 	 ('Claudiu Adrian',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudiu Andrei',49.0),
 	 ('Constantin Iulian',49.0),
 	 ('Cresencio',49.0),
@@ -14155,7 +14155,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Matias',49.0),
 	 ('Darius Florin',49.0),
 	 ('David Aaron',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Salomon',49.0),
 	 ('David Sergio',49.0),
 	 ('David Stephen',49.0),
@@ -14166,7 +14166,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Alfonso',49.0),
 	 ('Eduard Stefan',49.0),
 	 ('Eduardo Mario',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Geovanny',49.0),
 	 ('Edwin Orlando',49.0),
 	 ('Edwin Santiago',49.0),
@@ -14177,7 +14177,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Adolfo',49.0),
 	 ('Enrique Roberto',49.0),
 	 ('Eric Alejandro',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Adrian',49.0),
 	 ('Estiben',49.0),
 	 ('Eusebio Luis',49.0),
@@ -14188,7 +14188,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felipe Joaquin',49.0),
 	 ('Felipe Julian',49.0),
 	 ('Fousseni',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franco Daniel',49.0),
 	 ('Frans',49.0),
 	 ('Gabriel Rafael',49.0),
@@ -14199,7 +14199,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gheorghe Ioan',49.0),
 	 ('Guillermo Felipe',49.0),
 	 ('Gurmit',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Rodrigo',49.0),
 	 ('Hector Samuel',49.0),
 	 ('Henry Manuel',49.0),
@@ -14210,7 +14210,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian Andres',49.0),
 	 ('Ian Richard',49.0),
 	 ('Ignacio Emilio',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Raul',49.0),
 	 ('Ioan Catalin',49.0),
 	 ('Irkus',49.0),
@@ -14221,7 +14221,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Gonzalo',49.0),
 	 ('Jaime Leonardo',49.0),
 	 ('Jamel',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Aaron',49.0),
 	 ('Jesus Hilario',49.0),
 	 ('Jeyden',49.0),
@@ -14232,7 +14232,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joni',49.0),
 	 ('Jordi Alejandro',49.0),
 	 ('Jorge Fermin',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Osvaldo',49.0),
 	 ('Jorge Rolando',49.0),
 	 ('Jose Americo',49.0),
@@ -14243,7 +14243,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joseph Daniel',49.0),
 	 ('Joshua James',49.0),
 	 ('Joud',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Ariel',49.0),
 	 ('Julian Domingo',49.0),
 	 ('Kang',49.0),
@@ -14254,7 +14254,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Hector',49.0),
 	 ('Mahamed',49.0),
 	 ('Mame Cheikh',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Mauricio',49.0),
 	 ('Manuel Oswaldo',49.0),
 	 ('Marcos Cesar',49.0),
@@ -14265,7 +14265,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martyn',49.0),
 	 ('Mauricio Nicolas',49.0),
 	 ('Mauro Daniel',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauro Sebastian',49.0),
 	 ('Mehran',49.0),
 	 ('Mezian',49.0),
@@ -14276,7 +14276,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Milton Fernando',49.0),
 	 ('Mohamed Yahya',49.0),
 	 ('Mounsif',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Ahmed',49.0),
 	 ('Muhammad Irfan',49.0),
 	 ('Nahim',49.0),
@@ -14287,7 +14287,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicandro',49.0),
 	 ('Nicolae Valentin',49.0),
 	 ('Nicolas Guillermo',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Joaquin',49.0),
 	 ('Nicolas Raul',49.0),
 	 ('Nicolas Ricardo',49.0),
@@ -14298,7 +14298,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ovidiu Florin',49.0),
 	 ('Pascual Ramon',49.0),
 	 ('Paz',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Fabian',49.0),
 	 ('Pegerto',49.0),
 	 ('Pere Pau',49.0),
@@ -14309,7 +14309,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rashad',49.0),
 	 ('Raul Felipe',49.0),
 	 ('Renat',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richard Jesus',49.0),
 	 ('Roderic',49.0),
 	 ('Rodolfo Alberto',49.0),
@@ -14320,7 +14320,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rukhsar',49.0),
 	 ('Saihou',49.0),
 	 ('Salvador Daniel',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Joaquin',49.0),
 	 ('Santiago Carmelo',49.0),
 	 ('Santiago Sebastian',49.0),
@@ -14331,7 +14331,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Szymon',49.0),
 	 ('Tahiel',49.0),
 	 ('Tomas Felipe',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Pablo',49.0),
 	 ('Uladzimir',49.0),
 	 ('Vicente Mario',49.0),
@@ -14342,7 +14342,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xiaobo',49.0),
 	 ('Yonghua',49.0),
 	 ('Zakir',49.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdeljebbar',48.0),
 	 ('Abdelmoghit',48.0),
 	 ('Abdul Aziz',48.0),
@@ -14353,7 +14353,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Andres',48.0),
 	 ('Alexa',48.0),
 	 ('Alexis Ramon',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Emilio',48.0),
 	 ('Alfonso Julian',48.0),
 	 ('Alfonso Martin',48.0),
@@ -14364,7 +14364,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Mario',48.0),
 	 ('Andry',48.0),
 	 ('Angel Fidel',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Segundo',48.0),
 	 ('Ankit',48.0),
 	 ('Anthony Alejandro',48.0),
@@ -14375,7 +14375,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bagdad',48.0),
 	 ('Bartolo',48.0),
 	 ('Brayan Josue',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bryam',48.0),
 	 ('Bryan Alberto',48.0),
 	 ('Byron David',48.0),
@@ -14386,7 +14386,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Ernesto',48.0),
 	 ('Cesar Octavio',48.0),
 	 ('Christian Alfredo',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Josue',48.0),
 	 ('Chun',48.0),
 	 ('Cisse',48.0),
@@ -14397,7 +14397,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniyal',48.0),
 	 ('Dario Andres',48.0),
 	 ('Dario Nicolas',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darius Cristian',48.0),
 	 ('Dave',48.0),
 	 ('Declan',48.0),
@@ -14408,7 +14408,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dragos Andrei',48.0),
 	 ('Dylan Antonio',48.0),
 	 ('Dylan Eduardo',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Ramiro',48.0),
 	 ('Elmahdi',48.0),
 	 ('Emilio Agustin',48.0),
@@ -14419,7 +14419,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabio Enrique',48.0),
 	 ('Francesc Joan',48.0),
 	 ('Francisco Clemente',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Dionisio',48.0),
 	 ('Francisco Marcial',48.0),
 	 ('Franklin David',48.0),
@@ -14430,7 +14430,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Emilio',48.0),
 	 ('Guorong',48.0),
 	 ('Gustavo Jorge',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hamet',48.0),
 	 ('Hector Felipe',48.0),
 	 ('Heorhiy',48.0),
@@ -14441,7 +14441,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Innocent',48.0),
 	 ('Isicio',48.0),
 	 ('Isidro David',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ismael Enrique',48.0),
 	 ('Ivan Alfredo',48.0),
 	 ('Ivan Ernesto',48.0),
@@ -14452,7 +14452,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johnny Fernando',48.0),
 	 ('Jon Alexander',48.0),
 	 ('Jordan Jose',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jordy Alexander',48.0),
 	 ('Jorge Matias',48.0),
 	 ('Jose Aladino',48.0),
@@ -14463,7 +14463,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Adolfo',48.0),
 	 ('Julio Arturo',48.0),
 	 ('Juraj',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kaleb',48.0),
 	 ('Karolis',48.0),
 	 ('Kevin Israel',48.0),
@@ -14474,7 +14474,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lijie',48.0),
 	 ('Limam',48.0),
 	 ('Lorenzo Andres',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Paulino',48.0),
 	 ('Luis Segundo',48.0),
 	 ('Manpreet Singh',48.0),
@@ -14485,7 +14485,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Jacobo',48.0),
 	 ('Manuel Leandro',48.0),
 	 ('Marco Fernando',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marco Gabriel',48.0),
 	 ('Marcos Joel',48.0),
 	 ('Marian Marius',48.0),
@@ -14496,7 +14496,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Masud',48.0),
 	 ('Mateo Luis',48.0),
 	 ('Maximo Alberto',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Fermin',48.0),
 	 ('Mihai Alin',48.0),
 	 ('Modesto Manuel',48.0),
@@ -14507,7 +14507,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nauman',48.0),
 	 ('Nelson Luis',48.0),
 	 ('Nestor Adrian',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Alberto',48.0),
 	 ('Nouman',48.0),
 	 ('Nourreddine',48.0),
@@ -14518,7 +14518,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oswaldo Jesus',48.0),
 	 ('Pablo Mauricio',48.0),
 	 ('Patricio Manuel',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Stephen',48.0),
 	 ('Radu Mihai',48.0),
 	 ('Rafael Bernardo',48.0),
@@ -14529,7 +14529,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Jaime',48.0),
 	 ('Raul Tomas',48.0),
 	 ('Razvan Marian',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Reyad',48.0),
 	 ('Richard Mark',48.0),
 	 ('Rodrigo Rafael',48.0),
@@ -14540,7 +14540,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Simon Alberto',48.0),
 	 ('Souleye',48.0),
 	 ('Stefan Florin',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stefan Ionut',48.0),
 	 ('Taysir',48.0),
 	 ('Theodor',48.0),
@@ -14551,7 +14551,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Rafael',48.0),
 	 ('Wilson Manuel',48.0),
 	 ('Wilson Rodrigo',48.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yabir',48.0),
 	 ('Yacob',48.0),
 	 ('Yeriel',48.0),
@@ -14562,7 +14562,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhijian',48.0),
 	 ('Abdel Hakim',47.0),
 	 ('Abdeluahed',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abubakari',47.0),
 	 ('Adolfo Angel',47.0),
 	 ('Adrian Bogdan',47.0),
@@ -14573,7 +14573,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ali Reza',47.0),
 	 ('Amedeo',47.0),
 	 ('Andres Carmelo',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Lorenzo',47.0),
 	 ('Andres Valentin',47.0),
 	 ('Angel Israel',47.0),
@@ -14584,7 +14584,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Faustino',47.0),
 	 ('Antonio Josue',47.0),
 	 ('Antonio Maria Claret',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Paulo',47.0),
 	 ('Antonio Ramiro',47.0),
 	 ('Armando Andres',47.0),
@@ -14595,7 +14595,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Azeddin',47.0),
 	 ('Azedine',47.0),
 	 ('Balvir',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Barrie',47.0),
 	 ('Baruc',47.0),
 	 ('Blas Luis',47.0),
@@ -14606,7 +14606,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carles Enric',47.0),
 	 ('Cayetano Antonio',47.0),
 	 ('Cesar Felipe',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chaker',47.0),
 	 ('Christian Santiago',47.0),
 	 ('Colas',47.0),
@@ -14617,7 +14617,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dachi',47.0),
 	 ('Dailos Jesus',47.0),
 	 ('Damaso Jose',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darey',47.0),
 	 ('David Marcelo',47.0),
 	 ('Dialla',47.0),
@@ -14628,7 +14628,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dylan Fernando',47.0),
 	 ('Eddy Antonio',47.0),
 	 ('Edgar Augusto',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edilio',47.0),
 	 ('Edison Xavier',47.0),
 	 ('Edmund',47.0),
@@ -14639,7 +14639,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emre',47.0),
 	 ('Enrique Felix',47.0),
 	 ('Estanis',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ewan',47.0),
 	 ('Ezequiel Matias',47.0),
 	 ('Felix Alexander',47.0),
@@ -14650,7 +14650,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Founeke',47.0),
 	 ('Francesco Paolo',47.0),
 	 ('Francisco Aitor',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Jacobo',47.0),
 	 ('Freddy Manuel',47.0),
 	 ('Gabriel Marcelo',47.0),
@@ -14661,7 +14661,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gian Paolo',47.0),
 	 ('Gicu',47.0),
 	 ('Gregorio Fernando',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gueye',47.0),
 	 ('Guillermo Sebastian',47.0),
 	 ('Gurnoor',47.0),
@@ -14672,7 +14672,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hermesindo',47.0),
 	 ('Hernan Ariel',47.0),
 	 ('Himad',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Huan',47.0),
 	 ('Ignacio Julio',47.0),
 	 ('Imobach',47.0),
@@ -14683,7 +14683,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Matias',47.0),
 	 ('Javier Santos',47.0),
 	 ('Jean Manuel',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeremy Jose',47.0),
 	 ('Jeyson',47.0),
 	 ('Joaquim Jose',47.0),
@@ -14694,7 +14694,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Walter',47.0),
 	 ('Jon Aingeru',47.0),
 	 ('Jonai',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Moises',47.0),
 	 ('Jose Amando',47.0),
 	 ('Jose Domingos',47.0),
@@ -14705,7 +14705,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joshua Alexander',47.0),
 	 ('Juan Marino',47.0),
 	 ('Juan Pastor',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Junbo',47.0),
 	 ('Kaiwen',47.0),
 	 ('Karoly',47.0),
@@ -14716,7 +14716,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Laurentiu Marian',47.0),
 	 ('Liu',47.0),
 	 ('Lixin',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lluis Antoni',47.0),
 	 ('Lorgio',47.0),
 	 ('Luis Aaron',47.0),
@@ -14727,7 +14727,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Magencio',47.0),
 	 ('Malkit',47.0),
 	 ('Mamadou Mouctar',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Paulino',47.0),
 	 ('Marino Antonio',47.0),
 	 ('Mario Gustavo',47.0),
@@ -14738,7 +14738,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matei Alexandru',47.0),
 	 ('Matias Ivan',47.0),
 	 ('Matthew Robert',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximiliano Javier',47.0),
 	 ('Medir',47.0),
 	 ('Mehrdad',47.0),
@@ -14749,7 +14749,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mircea Ioan',47.0),
 	 ('Mohamed Nour',47.0),
 	 ('Naufel',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Felipe',47.0),
 	 ('Nima',47.0),
 	 ('Oscar Esteban',47.0),
@@ -14760,7 +14760,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Piotr Pawel',47.0),
 	 ('Qin',47.0),
 	 ('Rafael Benito',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Mario',47.0),
 	 ('Ramon Isidro',47.0),
 	 ('Raouf',47.0),
@@ -14771,7 +14771,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Felipe',47.0),
 	 ('Rodolfo Alejandro',47.0),
 	 ('Ronald Jesus',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Jorge',47.0),
 	 ('Ruben Ramon',47.0),
 	 ('Santiago Julio',47.0),
@@ -14782,7 +14782,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Slavi',47.0),
 	 ('Souleyman',47.0),
 	 ('Stoycho',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Suso',47.0),
 	 ('Tayler',47.0),
 	 ('Thiago Sebastian',47.0),
@@ -14793,7 +14793,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Hernan',47.0),
 	 ('Victor Rodrigo',47.0),
 	 ('Walter Alfredo',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Weihao',47.0),
 	 ('Weiqiang',47.0),
 	 ('Xavier Eduardo',47.0),
@@ -14804,7 +14804,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yoandy',47.0),
 	 ('Youba',47.0),
 	 ('Zahoor',47.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhihui',47.0),
 	 ('Aaron Francisco',46.0),
 	 ('Abdel Rahman',46.0),
@@ -14815,7 +14815,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aitor Antonio',46.0),
 	 ('Albert Gabriel',46.0),
 	 ('Alberto Ruben',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Sebastian',46.0),
 	 ('Alejandro Eugenio',46.0),
 	 ('Alexis Joel',46.0),
@@ -14826,7 +14826,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anderson Jesus',46.0),
 	 ('Andres Adolfo',46.0),
 	 ('Andres Jaime',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Geovanny',46.0),
 	 ('Angel Junior',46.0),
 	 ('Angel Sergio',46.0),
@@ -14837,7 +14837,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturs',46.0),
 	 ('Ayhan',46.0),
 	 ('Ba',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Belmiro',46.0),
 	 ('Braulio Jesus',46.0),
 	 ('Carlos Emanuel',46.0),
@@ -14848,7 +14848,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chang',46.0),
 	 ('Cheikh Ibrahima',46.0),
 	 ('Christian Ariel',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Patricio',46.0),
 	 ('Christian Xavier',46.0),
 	 ('Christopher Andrew',46.0),
@@ -14859,7 +14859,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Deiby',46.0),
 	 ('Diego Felix',46.0),
 	 ('Douglas Jose',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Gael',46.0),
 	 ('Edison Jose',46.0),
 	 ('Eduardo Eugenio',46.0),
@@ -14870,7 +14870,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Joaquin',46.0),
 	 ('Exequiel',46.0),
 	 ('Facundo Manuel',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fady',46.0),
 	 ('Federico David',46.0),
 	 ('Federico Gaston',46.0),
@@ -14881,7 +14881,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Filipe Miguel',46.0),
 	 ('Francisco Eladio',46.0),
 	 ('Francisco Rene',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Teodoro',46.0),
 	 ('Francisco Victoriano',46.0),
 	 ('Franco David',46.0),
@@ -14892,7 +14892,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gartxot',46.0),
 	 ('Gheorghe Sorin',46.0),
 	 ('Gheorghe Vasile',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Adrian',46.0),
 	 ('Gonzalo Joaquin',46.0),
 	 ('Hafed',46.0),
@@ -14903,7 +14903,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Joaquin',46.0),
 	 ('Ignacio Alfredo',46.0),
 	 ('Iliasse',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Constantin',46.0),
 	 ('Isidoro Javier',46.0),
 	 ('Ismael Alexander',46.0),
@@ -14914,7 +14914,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jacobo Jesus',46.0),
 	 ('Jaime Oswaldo',46.0),
 	 ('James Peter',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaswinder Singh',46.0),
 	 ('Jaume Francesc',46.0),
 	 ('Javier Carmelo',46.0),
@@ -14925,7 +14925,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesper',46.0),
 	 ('Jesus Bienvenido',46.0),
 	 ('Jesus Federico',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhoan Andres',46.0),
 	 ('Jhon Anthony',46.0),
 	 ('Jiandong',46.0),
@@ -14936,7 +14936,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Blas',46.0),
 	 ('Jorge Geovanny',46.0),
 	 ('Jorge Gregorio',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Joel',46.0),
 	 ('Jorge Nelson',46.0),
 	 ('Joris',46.0),
@@ -14947,7 +14947,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Joel',46.0),
 	 ('Juan Melchor',46.0),
 	 ('Junior Antonio',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juri',46.0),
 	 ('Kenneth James',46.0),
 	 ('Kevin Ricardo',46.0),
@@ -14958,7 +14958,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenzo Enrique',46.0),
 	 ('Loukman',46.0),
 	 ('Lucian Ionut',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucidio',46.0),
 	 ('Luis Efren',46.0),
 	 ('Luis Simon',46.0),
@@ -14969,7 +14969,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Joaquin',46.0),
 	 ('Martin Leonardo',46.0),
 	 ('Mateo Juan',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mathias Daniel',46.0),
 	 ('Matias Hernan',46.0),
 	 ('Merzak',46.0),
@@ -14980,7 +14980,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moulaye',46.0),
 	 ('Nauset',46.0),
 	 ('Nelson Dario',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Patricio',46.0),
 	 ('Nemanja',46.0),
 	 ('Nikolay Georgiev',46.0),
@@ -14991,7 +14991,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ouadia',46.0),
 	 ('Ovidiu Constantin',46.0),
 	 ('Pablo Benjamin',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Gregorio',46.0),
 	 ('Patrick Michael',46.0),
 	 ('Pedro Isidoro',46.0),
@@ -15002,7 +15002,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Martin',46.0),
 	 ('Ramon Valentin',46.0),
 	 ('Ran',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rauf',46.0),
 	 ('Raul Omar',46.0),
 	 ('Raydel',46.0),
@@ -15013,7 +15013,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Juan',46.0),
 	 ('Rosendo Jose',46.0),
 	 ('Rudiger',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruel',46.0),
 	 ('Salvado',46.0),
 	 ('Samuel Daniel',46.0),
@@ -15024,7 +15024,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Ezequiel',46.0),
 	 ('Sebastian Ioan',46.0),
 	 ('Segundo Rafael',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Segundo Raul',46.0),
 	 ('Serafin Jesus',46.0),
 	 ('Sergio Alonso',46.0),
@@ -15035,7 +15035,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas Charles',46.0),
 	 ('Vagner',46.0),
 	 ('Vicente Esteban',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Weimin',46.0),
 	 ('Wilfred',46.0),
 	 ('Wouter',46.0),
@@ -15046,7 +15046,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yuheng',46.0),
 	 ('Ze',46.0),
 	 ('Zhimin',46.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zidane',46.0),
 	 ('Abdala',45.0),
 	 ('Abderrafia',45.0),
@@ -15057,7 +15057,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Cesar',45.0),
 	 ('Alejandro Gregorio',45.0),
 	 ('Alex Ionut',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alex Rafael',45.0),
 	 ('Alexandru Alin',45.0),
 	 ('Amabilio',45.0),
@@ -15068,7 +15068,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Florencio',45.0),
 	 ('Angel Modesto',45.0),
 	 ('Antonio Hilario',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Luciano',45.0),
 	 ('Antonio Victoriano',45.0),
 	 ('Artemii',45.0),
@@ -15079,7 +15079,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Azeem',45.0),
 	 ('Bacar',45.0),
 	 ('Badayco',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bala',45.0),
 	 ('Baptiste',45.0),
 	 ('Bela',45.0),
@@ -15090,7 +15090,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Alexander',45.0),
 	 ('Bruno Eduardo',45.0),
 	 ('Carlos Andrei',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carmelo Santiago',45.0),
 	 ('Cels',45.0),
 	 ('Chaabane',45.0),
@@ -15101,7 +15101,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Geovanny',45.0),
 	 ('Daniel Catalin',45.0),
 	 ('Daniel Filipe',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Gheorghe',45.0),
 	 ('Daniel Marcos',45.0),
 	 ('Daniel Moises',45.0),
@@ -15112,7 +15112,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Alvaro',45.0),
 	 ('Dioni',45.0),
 	 ('Domingo Gabriel',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edmilson',45.0),
 	 ('Eduardo Gustavo',45.0),
 	 ('Edward Jose',45.0),
@@ -15123,7 +15123,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Gustavo',45.0),
 	 ('Eric Jesus',45.0),
 	 ('Esteban Enrique',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Estebe',45.0),
 	 ('Faraz',45.0),
 	 ('Fernando Alexis',45.0),
@@ -15134,7 +15134,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Jonay',45.0),
 	 ('Francisco Justo',45.0),
 	 ('Francisco Laureano',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frank Alejandro',45.0),
 	 ('Gabriel Dario',45.0),
 	 ('Gabriel Henrique',45.0),
@@ -15145,7 +15145,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Georgi Georgiev',45.0),
 	 ('Geovanny Alexander',45.0),
 	 ('German Ignacio',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('German Pablo',45.0),
 	 ('Ghita',45.0),
 	 ('Gillen',45.0),
@@ -15156,7 +15156,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gurnam',45.0),
 	 ('Gustavo Armando',45.0),
 	 ('Gustavo Emilio',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Raul',45.0),
 	 ('Haouari',45.0),
 	 ('Hector Ignacio',45.0),
@@ -15167,7 +15167,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian Charles',45.0),
 	 ('Ignacio Felipe',45.0),
 	 ('Igors',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Illart',45.0),
 	 ('Ioan Sebastian',45.0),
 	 ('Ionut Robert',45.0),
@@ -15178,7 +15178,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Sebastian',45.0),
 	 ('Jairo Daniel',45.0),
 	 ('Janko',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jarek',45.0),
 	 ('Jefferson Alejandro',45.0),
 	 ('Jefferson Jose',45.0),
@@ -15189,7 +15189,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon Jaime',45.0),
 	 ('Jhony Alexander',45.0),
 	 ('Joan Vicenç',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joao Fernando',45.0),
 	 ('Joaquin Guillermo',45.0),
 	 ('Joaquin Roberto',45.0),
@@ -15200,7 +15200,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Benito',45.0),
 	 ('Jose Aldemar',45.0),
 	 ('Jose Calixto',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Edgardo',45.0),
 	 ('Jose Estanislao',45.0),
 	 ('Jose Jair',45.0),
@@ -15211,7 +15211,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justice',45.0),
 	 ('Kande',45.0),
 	 ('Karlo',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kepa Joseba',45.0),
 	 ('Kevin Andrei',45.0),
 	 ('Kevin Ivan',45.0),
@@ -15222,7 +15222,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Laurentiu Cristian',45.0),
 	 ('Leopoldo Miguel',45.0),
 	 ('Liam Manuel',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lorenzo Carlos',45.0),
 	 ('Lucas Enrique',45.0),
 	 ('Lucas Fabian',45.0),
@@ -15233,7 +15233,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Laureano',45.0),
 	 ('Manuel Lazaro',45.0),
 	 ('Marcos Augusto',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Ezequiel',45.0),
 	 ('Marcos Tomas',45.0),
 	 ('Mariano Daniel',45.0),
@@ -15244,7 +15244,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Tomas',45.0),
 	 ('Mark Alan',45.0),
 	 ('Mark Joseph',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marlon Josue',45.0),
 	 ('Martim',45.0),
 	 ('Martin Esteban',45.0),
@@ -15255,7 +15255,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Meng',45.0),
 	 ('Miguel Cristobal',45.0),
 	 ('Mihai Ioan',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Milcho',45.0),
 	 ('Miller',45.0),
 	 ('Milton Patricio',45.0),
@@ -15266,7 +15266,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ndiasse',45.0),
 	 ('Nelson Francisco',45.0),
 	 ('Nfamara',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicholas David',45.0),
 	 ('Nofre',45.0),
 	 ('Nugzar',45.0),
@@ -15277,7 +15277,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ovidiu Mihai',45.0),
 	 ('Pablo Aurelio',45.0),
 	 ('Pablo Fermin',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Mateo',45.0),
 	 ('Paul Fernando',45.0),
 	 ('Paul Sebastian',45.0),
@@ -15288,7 +15288,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pere Anton',45.0),
 	 ('Peter Alan',45.0),
 	 ('Peter Andrew',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Peter Paul',45.0),
 	 ('Peter Thomas',45.0),
 	 ('Petrea',45.0),
@@ -15299,7 +15299,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Razmik',45.0),
 	 ('Ricardo Julio',45.0),
 	 ('Ricardo Omar',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Victor',45.0),
 	 ('Richard Gabriel',45.0),
 	 ('Rider',45.0),
@@ -15310,7 +15310,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Adrian',45.0),
 	 ('Samuel Nicolas',45.0),
 	 ('Santiago Lorenzo',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sayf Eddine',45.0),
 	 ('Segundo Vicente',45.0),
 	 ('Serafin Manuel',45.0),
@@ -15321,7 +15321,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thiago Matias',45.0),
 	 ('Thomas George',45.0),
 	 ('Tiemoko',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Emilio',45.0),
 	 ('Valentin Marian',45.0),
 	 ('Vicent Xavier',45.0),
@@ -15332,7 +15332,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Walter Oswaldo',45.0),
 	 ('William Manuel',45.0),
 	 ('Xuwei',45.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yaseen',45.0),
 	 ('Yifei',45.0),
 	 ('Yikai',45.0),
@@ -15343,7 +15343,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdalah',44.0),
 	 ('Abderrafik',44.0),
 	 ('Adam David',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adan Manuel',44.0),
 	 ('Adolfo David',44.0),
 	 ('Adrian Alfonso',44.0),
@@ -15354,7 +15354,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Gregorio',44.0),
 	 ('Alberto Gustavo',44.0),
 	 ('Alex Sandro',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Alberto',44.0),
 	 ('Alexandre Jose',44.0),
 	 ('Alexsander',44.0),
@@ -15365,7 +15365,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Alexis',44.0),
 	 ('Andres Julio',44.0),
 	 ('Andres Patricio',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Ariel',44.0),
 	 ('Angel Clemente',44.0),
 	 ('Angel Dionisio',44.0),
@@ -15376,7 +15376,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ariel Hernan',44.0),
 	 ('Ariel Sebastian',44.0),
 	 ('Baroudi',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bartolome Antonio',44.0),
 	 ('Basel',44.0),
 	 ('Basilio Antonio',44.0),
@@ -15387,7 +15387,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Ricardo',44.0),
 	 ('Calvin',44.0),
 	 ('Camilo Javier',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Camilo Manuel',44.0),
 	 ('Candelo',44.0),
 	 ('Catalin Daniel',44.0),
@@ -15398,7 +15398,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ciprian Florin',44.0),
 	 ('Claudiu Alexandru',44.0),
 	 ('Constantino Manuel',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristo Fernando',44.0),
 	 ('Cristobal Ramon',44.0),
 	 ('Dabi',44.0),
@@ -15409,7 +15409,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Darwin Andres',44.0),
 	 ('David Christian',44.0),
 	 ('David Leslie',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dickson',44.0),
 	 ('Diego Gustavo',44.0),
 	 ('Dosindo',44.0),
@@ -15420,7 +15420,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Orlando',44.0),
 	 ('Edgar Rolando',44.0),
 	 ('Eduard Cristian',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edvinas',44.0),
 	 ('Edwin Rafael',44.0),
 	 ('Elio Antonio',44.0),
@@ -15431,7 +15431,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Lorenzo',44.0),
 	 ('Erik Javier',44.0),
 	 ('Ernesto Angel',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eudosio',44.0),
 	 ('Eugenio Pedro',44.0),
 	 ('Eugenio Vicente',44.0),
@@ -15442,7 +15442,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Alexander',44.0),
 	 ('Fidenciano',44.0),
 	 ('Francisco Octavio',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franco Gabriel',44.0),
 	 ('Franco Jose',44.0),
 	 ('Franklyn',44.0),
@@ -15453,7 +15453,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Martin',44.0),
 	 ('Gerardo Vicente',44.0),
 	 ('German Augusto',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('German Rafael',44.0),
 	 ('Graeme',44.0),
 	 ('Guillermo Cesar',44.0),
@@ -15464,7 +15464,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Hernan',44.0),
 	 ('Henning',44.0),
 	 ('Hernan Patricio',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hilario Antonio',44.0),
 	 ('Hugo Ariel',44.0),
 	 ('Ibraima',44.0),
@@ -15475,7 +15475,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iskren',44.0),
 	 ('Ismael Vicente',44.0),
 	 ('Ivan Guillermo',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Marcos',44.0),
 	 ('Ivan Pablo',44.0),
 	 ('Ivan Sergio',44.0),
@@ -15486,7 +15486,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Benito',44.0),
 	 ('Javier Jaime',44.0),
 	 ('Javier Pascual',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeremie',44.0),
 	 ('Jesus Dionisio',44.0),
 	 ('Jesus Isidoro',44.0),
@@ -15497,7 +15497,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John George',44.0),
 	 ('John Mark',44.0),
 	 ('Jonathan Ivan',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan James',44.0),
 	 ('Jordan Javier',44.0),
 	 ('Jordi Jose',44.0),
@@ -15508,7 +15508,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Libardo',44.0),
 	 ('Jose Maximiliano',44.0),
 	 ('Jose Nazario',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Secundino',44.0),
 	 ('Josep Tomas',44.0),
 	 ('Joseph William',44.0),
@@ -15519,7 +15519,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Junkai',44.0),
 	 ('Kevin Joseph',44.0),
 	 ('Kevin Raul',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kimi',44.0),
 	 ('Koen',44.0),
 	 ('Leandro Alberto',44.0),
@@ -15530,7 +15530,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Alexandru',44.0),
 	 ('Lucas Joaquin',44.0),
 	 ('Lucas Ramon',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luciano Alberto',44.0),
 	 ('Luciano Daniel',44.0),
 	 ('Luis Basilio',44.0),
@@ -15541,7 +15541,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Julian',44.0),
 	 ('Mario Salvador',44.0),
 	 ('Marius Ovidiu',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Alfredo',44.0),
 	 ('Metin',44.0),
 	 ('Miguel Alexandre',44.0),
@@ -15552,7 +15552,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nazaret',44.0),
 	 ('Nicolas Ariel',44.0),
 	 ('Oscar Patricio',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Osel',44.0),
 	 ('Osmundo',44.0),
 	 ('Oubay',44.0),
@@ -15563,7 +15563,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Dario',44.0),
 	 ('Pedro Eusebio',44.0),
 	 ('Pedro Nuno',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Paulo',44.0),
 	 ('Rafael Adolfo',44.0),
 	 ('Rafael Gerardo',44.0),
@@ -15574,7 +15574,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Razvan Daniel',44.0),
 	 ('Razvan Ioan',44.0),
 	 ('Rinat',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Jaime',44.0),
 	 ('Roberto Salvador',44.0),
 	 ('Rodrigo Alexander',44.0),
@@ -15585,7 +15585,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Ernesto',44.0),
 	 ('Ruben Nicolas',44.0),
 	 ('Rufino Jose',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Santiago',44.0),
 	 ('Santiago Alonso',44.0),
 	 ('Santiago Ezequiel',44.0),
@@ -15596,7 +15596,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sekouba',44.0),
 	 ('Semidan',44.0),
 	 ('Sergio Julian',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Victor',44.0),
 	 ('Sherif',44.0),
 	 ('Shijie',44.0),
@@ -15607,7 +15607,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas Anthony',44.0),
 	 ('Thyago',44.0),
 	 ('Tiago Alexandre',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Esteban',44.0),
 	 ('Valdas',44.0),
 	 ('Valentin Adrian',44.0),
@@ -15618,7 +15618,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victoriano Antonio',44.0),
 	 ('Vikas',44.0),
 	 ('William Alfredo',44.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Paul',44.0),
 	 ('Wilson Hernan',44.0),
 	 ('Winston',44.0),
@@ -15629,7 +15629,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelfetah',43.0),
 	 ('Abdessamed',43.0),
 	 ('Abdesslem',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdollah',43.0),
 	 ('Abraham Antonio',43.0),
 	 ('Adrian Salvador',43.0),
@@ -15640,7 +15640,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Adrian',43.0),
 	 ('Alcino',43.0),
 	 ('Alejandro Julio',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Mariano',43.0),
 	 ('Alejandro Patricio',43.0),
 	 ('Alex Miguel',43.0),
@@ -15651,7 +15651,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Leandro',43.0),
 	 ('Antonio Eladio',43.0),
 	 ('Ariel Jesus',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aristobulo',43.0),
 	 ('Artal',43.0),
 	 ('Artemiy',43.0),
@@ -15662,7 +15662,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bastien',43.0),
 	 ('Benjamin Ignacio',43.0),
 	 ('Biao',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Branislav',43.0),
 	 ('Bruno Andres',43.0),
 	 ('Bryan Mauricio',43.0),
@@ -15673,7 +15673,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Casto Jose',43.0),
 	 ('Catalin Marius',43.0),
 	 ('Cayetano Jesus',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Gonzalo',43.0),
 	 ('Claudiu Marius',43.0),
 	 ('Clemente Antonio',43.0),
@@ -15684,7 +15684,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Abraham',43.0),
 	 ('Daniel Claudiu',43.0),
 	 ('Daniel Peter',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel William',43.0),
 	 ('Danilo Antonio',43.0),
 	 ('Darwin Eduardo',43.0),
@@ -15695,7 +15695,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dominador',43.0),
 	 ('Domingo Eduardo',43.0),
 	 ('Domingo Pedro',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Donino',43.0),
 	 ('Dylan Isaac',43.0),
 	 ('Edgar Ruben',43.0),
@@ -15706,7 +15706,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Samuel',43.0),
 	 ('Efrain Antonio',43.0),
 	 ('Eloy Alberto',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emeka',43.0),
 	 ('Emilio Martin',43.0),
 	 ('Enrique Damian',43.0),
@@ -15717,7 +15717,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Esteban Maria',43.0),
 	 ('Fabian Andrei',43.0),
 	 ('Fabian Manuel',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabio Cesar',43.0),
 	 ('Fede',43.0),
 	 ('Federic',43.0),
@@ -15728,7 +15728,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Laurentiu',43.0),
 	 ('Floro',43.0),
 	 ('Francesco Maria',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Claudio',43.0),
 	 ('Francisco Humberto',43.0),
 	 ('Franklin Daniel',43.0),
@@ -15739,7 +15739,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('George Florin',43.0),
 	 ('German Javier',43.0),
 	 ('German Ricardo',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gheorghe Cosmin',43.0),
 	 ('Gregorio Alberto',43.0),
 	 ('Gustavo Juan',43.0),
@@ -15750,7 +15750,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian Thomas',43.0),
 	 ('Iker Sebastian',43.0),
 	 ('Ilir',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isaac Alexander',43.0),
 	 ('Isaiah',43.0),
 	 ('Ivan Vicente',43.0),
@@ -15761,7 +15761,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Joel',43.0),
 	 ('Jiachen',43.0),
 	 ('Jianhao',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Alonso',43.0),
 	 ('John Kenneth',43.0),
 	 ('Jon Aitor',43.0),
@@ -15772,7 +15772,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Cristobal',43.0),
 	 ('Jorge Efrain',43.0),
 	 ('Jose Iñigo',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Rosario',43.0),
 	 ('Josu Imanol',43.0),
 	 ('Josu Xabier',43.0),
@@ -15783,7 +15783,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Salvador',43.0),
 	 ('Kassoum',43.0),
 	 ('Laaroussi',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leslie John',43.0),
 	 ('Liam Jose',43.0),
 	 ('Lider',43.0),
@@ -15794,7 +15794,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Malcom',43.0),
 	 ('Manuel Higinio',43.0),
 	 ('Manuel Justo',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Leon',43.0),
 	 ('Marcelo Jorge',43.0),
 	 ('Marcos Julian',43.0),
@@ -15805,7 +15805,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias Luis',43.0),
 	 ('Matthew Thomas',43.0),
 	 ('Mauro Ezequiel',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maxym',43.0),
 	 ('Michael Douglas',43.0),
 	 ('Miguel Damian',43.0),
@@ -15816,7 +15816,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Morteza',43.0),
 	 ('Moslim',43.0),
 	 ('Mouctar',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mouhamad',43.0),
 	 ('Mouhcin',43.0),
 	 ('Muhammad Ismail',43.0),
@@ -15827,7 +15827,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Federico',43.0),
 	 ('Nicolas Mateo',43.0),
 	 ('Nicolas Vicente',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Omid',43.0),
 	 ('Oscar Anibal',43.0),
 	 ('Ovidiu Daniel',43.0),
@@ -15838,7 +15838,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pawel Piotr',43.0),
 	 ('Pedro Bartolome',43.0),
 	 ('Pedro Marcial',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pere Francesc',43.0),
 	 ('Petar Ivanov',43.0),
 	 ('Philip Michael',43.0),
@@ -15849,7 +15849,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramiro Andres',43.0),
 	 ('Rayner',43.0),
 	 ('Razvan Adrian',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardas',43.0),
 	 ('Robert Jesus',43.0),
 	 ('Roberto Esteban',43.0),
@@ -15860,7 +15860,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Adrian',43.0),
 	 ('Sebastian Valentin',43.0),
 	 ('Sergio Anibal',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shengli',43.0),
 	 ('Silviu Marian',43.0),
 	 ('Simohamed',43.0),
@@ -15871,7 +15871,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Svilen',43.0),
 	 ('Thiago Ezequiel',43.0),
 	 ('Tomas Eugenio',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Valentin',43.0),
 	 ('Victor Xavier',43.0),
 	 ('Virgilio Antonio',43.0),
@@ -15882,7 +15882,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Ricardo',43.0),
 	 ('Williams Jose',43.0),
 	 ('Wilmar Andres',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilmer David',43.0),
 	 ('Xavier Andres',43.0),
 	 ('Yaman',43.0),
@@ -15893,7 +15893,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yotuel',43.0),
 	 ('Zein',43.0),
 	 ('Zihang',43.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Moises',42.0),
 	 ('Abdelhakem',42.0),
 	 ('Abisai',42.0),
@@ -15904,7 +15904,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aleko',42.0),
 	 ('Alex Junior',42.0),
 	 ('Alexandru Claudiu',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Agustin',42.0),
 	 ('Alfonso Felix',42.0),
 	 ('Alfonso Jorge',42.0),
@@ -15915,7 +15915,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anderson Joel',42.0),
 	 ('Andres Dario',42.0),
 	 ('Andres Ruben',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Aaron',42.0),
 	 ('Angel Eusebio',42.0),
 	 ('Angel Rogelio',42.0),
@@ -15926,7 +15926,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Cristo',42.0),
 	 ('Aridane Jesus',42.0),
 	 ('Armando Jorge',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Armando Vicente',42.0),
 	 ('Avelino Jesus',42.0),
 	 ('Ayram',42.0),
@@ -15937,7 +15937,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benedetto',42.0),
 	 ('Bernardo Enrique',42.0),
 	 ('Bogomil',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Boubkar',42.0),
 	 ('Brayan Daniel',42.0),
 	 ('Brian Joseph',42.0),
@@ -15948,7 +15948,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Leandro',42.0),
 	 ('Cesar Ariel',42.0),
 	 ('Chistopher',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chokri',42.0),
 	 ('Christopher Jose',42.0),
 	 ('Claudiu Vasile',42.0),
@@ -15959,7 +15959,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Alvaro',42.0),
 	 ('Daniel German',42.0),
 	 ('Daniel Oswaldo',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Danilo Jose',42.0),
 	 ('Darwin David',42.0),
 	 ('David Francis',42.0),
@@ -15970,7 +15970,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dragos Mihai',42.0),
 	 ('Dumitrel',42.0),
 	 ('Dumitru Cristian',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Duvan Felipe',42.0),
 	 ('Edgar Joel',42.0),
 	 ('Edgar Vicente',42.0),
@@ -15981,7 +15981,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduardo Sergio',42.0),
 	 ('Edwin Josue',42.0),
 	 ('Ehtisham',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Mustafa',42.0),
 	 ('Elias Alberto',42.0),
 	 ('Elyass',42.0),
@@ -15992,7 +15992,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enzo Javier',42.0),
 	 ('Eric Javier',42.0),
 	 ('Erik Fernando',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Esteban Nicolas',42.0),
 	 ('Estevan',42.0),
 	 ('Faye',42.0),
@@ -16003,7 +16003,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Franco Andres',42.0),
 	 ('Franco Nahuel',42.0),
 	 ('Gabriel Constantin',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Pedro',42.0),
 	 ('Gener',42.0),
 	 ('George Mihai',42.0),
@@ -16014,7 +16014,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Roberto',42.0),
 	 ('Hannes',42.0),
 	 ('Haroune',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Henry Eduardo',42.0),
 	 ('Henry William',42.0),
 	 ('Hilario Javier',42.0),
@@ -16025,7 +16025,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignat',42.0),
 	 ('Isidoro Antonio',42.0),
 	 ('Isidro Vicente',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Itoitz',42.0),
 	 ('Ivan Salvador',42.0),
 	 ('Jagdish',42.0),
@@ -16036,7 +16036,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jimmy Javier',42.0),
 	 ('Jinhua',42.0),
 	 ('Jinming',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joar',42.0),
 	 ('Johnny Javier',42.0),
 	 ('Jon Xabier',42.0),
@@ -16047,7 +16047,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Buenaventura',42.0),
 	 ('Jose Emeterio',42.0),
 	 ('Jose Osvaldo',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Pelayo',42.0),
 	 ('Josep Jaume',42.0),
 	 ('Joseph Alejandro',42.0),
@@ -16058,7 +16058,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Eugenio',42.0),
 	 ('Knut',42.0),
 	 ('Laith',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laurentiu Constantin',42.0),
 	 ('Leandro Rafael',42.0),
 	 ('Leszek',42.0),
@@ -16069,7 +16069,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luali',42.0),
 	 ('Luis Bartolome',42.0),
 	 ('Luis Dionisio',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Gaspar',42.0),
 	 ('Luis Herminio',42.0),
 	 ('Luis Reinaldo',42.0),
@@ -16080,7 +16080,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Anxo',42.0),
 	 ('Manuel Basilio',42.0),
 	 ('Manuel Claudio',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcelo Ricardo',42.0),
 	 ('Marian Claudiu',42.0),
 	 ('Marian Nicolae',42.0),
@@ -16091,7 +16091,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Gustavo',42.0),
 	 ('Matias Alexander',42.0),
 	 ('Matias Enrique',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Rafael',42.0),
 	 ('Matthew Alexander',42.0),
 	 ('Mauricio Rafael',42.0),
@@ -16102,7 +16102,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mihai Laurentiu',42.0),
 	 ('Miles',42.0),
 	 ('Mingxuan',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moises Angel',42.0),
 	 ('Muhammad Ayan',42.0),
 	 ('Muhammad Nadeem',42.0),
@@ -16113,7 +16113,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolae Bogdan',42.0),
 	 ('Nicolas Cristian',42.0),
 	 ('Nitin',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Norberto Luis',42.0),
 	 ('Normando',42.0),
 	 ('Nuno Ricardo',42.0),
@@ -16124,7 +16124,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Outhman',42.0),
 	 ('Pablo Isidro',42.0),
 	 ('Pankaj',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pascual Andres',42.0),
 	 ('Patricio Miguel',42.0),
 	 ('Pau Francesc',42.0),
@@ -16135,7 +16135,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramiro Javier',42.0),
 	 ('Raul Cesar',42.0),
 	 ('Raul Joaquin',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Felix',42.0),
 	 ('Ricardo Valentin',42.0),
 	 ('Richard Fernando',42.0),
@@ -16146,7 +16146,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ronald Steven',42.0),
 	 ('Ruben Sebastian',42.0),
 	 ('Salome',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Samuel Santiago',42.0),
 	 ('Santiago Elias',42.0),
 	 ('Sean Patrick',42.0),
@@ -16157,7 +16157,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shuangfeng',42.0),
 	 ('Silvio Jose',42.0),
 	 ('Souhayl',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stefan Marian',42.0),
 	 ('Tamim',42.0),
 	 ('Temur',42.0),
@@ -16168,7 +16168,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Ricardo',42.0),
 	 ('Ulysses',42.0),
 	 ('Urbano Jose',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vaclav',42.0),
 	 ('Vahid',42.0),
 	 ('Vasile Iulian',42.0),
@@ -16179,7 +16179,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Washington Eduardo',42.0),
 	 ('Wiktor',42.0),
 	 ('Wilmer Jesus',42.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Alejandro',42.0),
 	 ('Wilson Orlando',42.0),
 	 ('Yeray Antonio',42.0),
@@ -16190,7 +16190,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aaron Isaac',41.0),
 	 ('Adamo',41.0),
 	 ('Adrian Juan',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Carmelo',41.0),
 	 ('Alan Javier',41.0),
 	 ('Alan Manuel',41.0),
@@ -16201,7 +16201,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Mauricio',41.0),
 	 ('Aleksejs',41.0),
 	 ('Alexandru Gheorghe',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Razvan',41.0),
 	 ('Alexis Sebastian',41.0),
 	 ('Alfonso Domingo',41.0),
@@ -16212,7 +16212,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amanat',41.0),
 	 ('Anand',41.0),
 	 ('Andrei Ciprian',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andriu',41.0),
 	 ('Angel Alonso',41.0),
 	 ('Antonio Bernabe',41.0),
@@ -16223,7 +16223,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aurelio Ramon',41.0),
 	 ('Aurica',41.0),
 	 ('Bachar',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Baha',41.0),
 	 ('Benjamin Andres',41.0),
 	 ('Benjamin Daniel',41.0),
@@ -16234,7 +16234,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brooklyn',41.0),
 	 ('Bruno Francisco',41.0),
 	 ('Bruno Martin',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cairo',41.0),
 	 ('Camilo Enrique',41.0),
 	 ('Carlos Filipe',41.0),
@@ -16245,7 +16245,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheikh Oumar',41.0),
 	 ('Cheikhna',41.0),
 	 ('Christian Felipe',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christopher Joseph',41.0),
 	 ('Claudiano',41.0),
 	 ('Claudio Rafael',41.0),
@@ -16256,7 +16256,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dainius',41.0),
 	 ('Damyan',41.0),
 	 ('Dancho',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Alessandro',41.0),
 	 ('Daniel Ezequiel',41.0),
 	 ('Daniel Junior',41.0),
@@ -16267,7 +16267,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Jaime',41.0),
 	 ('David Julio',41.0),
 	 ('David Roy',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Denis Antonio',41.0),
 	 ('Deniss',41.0),
 	 ('Derek James',41.0),
@@ -16278,7 +16278,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Gabriel',41.0),
 	 ('Edison Roberto',41.0),
 	 ('Eduard Adrian',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduard Marian',41.0),
 	 ('Eduardo Diego',41.0),
 	 ('Edward Charles',41.0),
@@ -16289,7 +16289,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elian David',41.0),
 	 ('Elias Samuel',41.0),
 	 ('Elmar',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eloy Fernando',41.0),
 	 ('Eluney',41.0),
 	 ('Emiliano Antonio',41.0),
@@ -16300,7 +16300,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Daniel',41.0),
 	 ('Eugenio Rafael',41.0),
 	 ('Falak',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fanor',41.0),
 	 ('Federico Angel',41.0),
 	 ('Federico Fernando',41.0),
@@ -16311,7 +16311,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Matias',41.0),
 	 ('Fernando Roman',41.0),
 	 ('Franklin Enrique',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franklin Jesus',41.0),
 	 ('Franklin Manuel',41.0),
 	 ('Furqan',41.0),
@@ -16322,7 +16322,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gilberto Manuel',41.0),
 	 ('Gines Luis',41.0),
 	 ('Giovanni Battista',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Giovanni Paolo',41.0),
 	 ('Godfrey',41.0),
 	 ('Goyo',41.0),
@@ -16333,7 +16333,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hayden',41.0),
 	 ('Hector Oscar',41.0),
 	 ('Henry Alejandro',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hernan Diego',41.0),
 	 ('Hssaine',41.0),
 	 ('Hugo Ruben',41.0),
@@ -16344,7 +16344,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iran',41.0),
 	 ('Isidoro Francisco',41.0),
 	 ('Ismael Eduardo',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ismael Fernando',41.0),
 	 ('Ismael Juan',41.0),
 	 ('Ivan Ruben',41.0),
@@ -16355,7 +16355,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Aitor',41.0),
 	 ('Javier Alvaro',41.0),
 	 ('Javier Aurelio',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Federico',41.0),
 	 ('Javier Mateo',41.0),
 	 ('Jean Charles',41.0),
@@ -16366,7 +16366,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Rogelio',41.0),
 	 ('Jia',41.0),
 	 ('Jiahui',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joao Alberto',41.0),
 	 ('Joao Ricardo',41.0),
 	 ('Joaquim Antonio',41.0),
@@ -16377,7 +16377,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Ezequiel',41.0),
 	 ('Jorge Hernando',41.0),
 	 ('Jose Alex',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Casto',41.0),
 	 ('Jose Eustaquio',41.0),
 	 ('Jose Luis Antonio',41.0),
@@ -16388,7 +16388,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joseba Erramun',41.0),
 	 ('Josep Agusti',41.0),
 	 ('Josue Alberto',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Eliseo',41.0),
 	 ('Juan Fabian',41.0),
 	 ('Juan Saturnino',41.0),
@@ -16399,7 +16399,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Fabricio',41.0),
 	 ('Kevin Thomas',41.0),
 	 ('Kevin William',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kirmen',41.0),
 	 ('Kone',41.0),
 	 ('Lee John',41.0),
@@ -16410,7 +16410,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Liviu Florin',41.0),
 	 ('Lucas Maria',41.0),
 	 ('Luciano Alejandro',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luciano Francisco',41.0),
 	 ('Luis Bolivar',41.0),
 	 ('Luis Evaristo',41.0),
@@ -16421,7 +16421,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Abelardo',41.0),
 	 ('Manuel Anibal',41.0),
 	 ('Manzoor',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcelo Francisco',41.0),
 	 ('Marcelo Patricio',41.0),
 	 ('Marcio Jose',41.0),
@@ -16432,7 +16432,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Adolfo',41.0),
 	 ('Marley',41.0),
 	 ('Martijn',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martins',41.0),
 	 ('Mateo Andrei',41.0),
 	 ('Mathias David',41.0),
@@ -16443,7 +16443,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael Josue',41.0),
 	 ('Micheal',41.0),
 	 ('Miguel Cesar',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel German',41.0),
 	 ('Mihaly',41.0),
 	 ('Milton Jose',41.0),
@@ -16454,7 +16454,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moises Abraham',41.0),
 	 ('Muad',41.0),
 	 ('Muhammad Saad',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Narciso Antonio',41.0),
 	 ('Natividad',41.0),
 	 ('Nestor Francisco',41.0),
@@ -16465,7 +16465,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ondrej',41.0),
 	 ('Oscar Felix',41.0),
 	 ('Ovidiu Cristian',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ovidiu Nicolae',41.0),
 	 ('Pablo Omar',41.0),
 	 ('Parmjit',41.0),
@@ -16476,7 +16476,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Emiliano',41.0),
 	 ('Pedro Joel',41.0),
 	 ('Pedro Reyes',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Petru Cristian',41.0),
 	 ('Petrus Johannes',41.0),
 	 ('Placido Antonio',41.0),
@@ -16487,7 +16487,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raj Kumar',41.0),
 	 ('Ramon Ivan',41.0),
 	 ('Raul Orlando',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Ramon',41.0),
 	 ('Raul Victor',41.0),
 	 ('Redwane',41.0),
@@ -16498,7 +16498,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Elias',41.0),
 	 ('Roberto Marcelo',41.0),
 	 ('Rodrigo Fabian',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rogeli',41.0),
 	 ('Rosendo Manuel',41.0),
 	 ('Roure',41.0),
@@ -16509,7 +16509,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sadiq',41.0),
 	 ('Sahel',41.0),
 	 ('Samuel Manuel',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Ariel',41.0),
 	 ('Santiago Nahuel',41.0),
 	 ('Sebastian Rodrigo',41.0),
@@ -16520,7 +16520,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shuangwei',41.0),
 	 ('Sidibe',41.0),
 	 ('Sohan',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sukhvir',41.0),
 	 ('Suping',41.0),
 	 ('Syed Muhammad',41.0),
@@ -16531,7 +16531,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Josue',41.0),
 	 ('Vlad Ionut',41.0),
 	 ('Wilson Rene',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xuyi',41.0),
 	 ('Yongjian',41.0),
 	 ('Yongliang',41.0),
@@ -16542,7 +16542,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhihong',41.0),
 	 ('Zhongyi',41.0),
 	 ('Zijun',41.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdalahi',40.0),
 	 ('Abdelkamal',40.0),
 	 ('Abdelouhab',40.0),
@@ -16553,7 +16553,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Guillermo',40.0),
 	 ('Adrian Iulian',40.0),
 	 ('Adrian John',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Roberto',40.0),
 	 ('Adrian Tomas',40.0),
 	 ('Aitz',40.0),
@@ -16564,7 +16564,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Hugo',40.0),
 	 ('Alejandro Israel',40.0),
 	 ('Alex Cristian',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexis Alberto',40.0),
 	 ('Alfusainey',40.0),
 	 ('Alvaro Ricardo',40.0),
@@ -16575,7 +16575,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Marino',40.0),
 	 ('Anibal Manuel',40.0),
 	 ('Anthony Richard',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Paulino',40.0),
 	 ('Arcadio Jose',40.0),
 	 ('Artur Jorge',40.0),
@@ -16586,7 +16586,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bassim',40.0),
 	 ('Billel',40.0),
 	 ('Boi',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Borja Daniel',40.0),
 	 ('Borja David',40.0),
 	 ('Carlos Rogelio',40.0),
@@ -16597,7 +16597,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Rene',40.0),
 	 ('Christopher George',40.0),
 	 ('Constantin Ionut',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristhian Ariel',40.0),
 	 ('Cristian Ruben',40.0),
 	 ('Cristo Antonio',40.0),
@@ -16608,7 +16608,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Leandro',40.0),
 	 ('Diego Marcos',40.0),
 	 ('Dimitre',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Domingo Salvador',40.0),
 	 ('Dylan Nicolas',40.0),
 	 ('Edgar Roberto',40.0),
@@ -16619,7 +16619,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edward William',40.0),
 	 ('Edwin Joel',40.0),
 	 ('Egon',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elias Angel',40.0),
 	 ('Eliseo Antonio',40.0),
 	 ('Emilio Alfredo',40.0),
@@ -16630,7 +16630,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eradio',40.0),
 	 ('Esneider',40.0),
 	 ('Eugenio Andres',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eutropio',40.0),
 	 ('Fabian Dario',40.0),
 	 ('Feliciano Jose',40.0),
@@ -16641,7 +16641,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Saul',40.0),
 	 ('Francisco Xose',40.0),
 	 ('Gabirel',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Arcangel',40.0),
 	 ('Gabriel Raul',40.0),
 	 ('Galo Fernando',40.0),
@@ -16652,7 +16652,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gexan',40.0),
 	 ('Giovanni Alexander',40.0),
 	 ('Goar',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Fabian',40.0),
 	 ('Gori',40.0),
 	 ('Guillem Josep',40.0),
@@ -16663,7 +16663,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hassan Ali',40.0),
 	 ('Heorhii',40.0),
 	 ('Heriberto Antonio',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hermelo',40.0),
 	 ('Hernan Rodrigo',40.0),
 	 ('Hodayfa',40.0),
@@ -16674,7 +16674,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Bogdan',40.0),
 	 ('Ion Sorin',40.0),
 	 ('Ionel Adrian',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Sorin',40.0),
 	 ('Ionut Stefan',40.0),
 	 ('Ionut Vasile',40.0),
@@ -16685,7 +16685,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Ariel',40.0),
 	 ('Ivan Emilio',40.0),
 	 ('Iñigo Luis',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Domingo',40.0),
 	 ('Jallal',40.0),
 	 ('Jasim',40.0),
@@ -16696,7 +16696,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Jonathan',40.0),
 	 ('Jesus Maximo',40.0),
 	 ('Jesus Octavio',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhon Edwar',40.0),
 	 ('Jia Jun',40.0),
 	 ('Jiakai',40.0),
@@ -16707,7 +16707,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Barry',40.0),
 	 ('John Eric',40.0),
 	 ('John Javier',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jordi Javier',40.0),
 	 ('Jorge Wilson',40.0),
 	 ('Jose Luiz',40.0),
@@ -16718,7 +16718,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Aurelio',40.0),
 	 ('Julio Ismael',40.0),
 	 ('Julio Jaime',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Sebastian',40.0),
 	 ('Kenneth George',40.0),
 	 ('Kevin Orlando',40.0),
@@ -16729,7 +16729,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenzo Gabriel',40.0),
 	 ('Luis Adriano',40.0),
 	 ('Luis Andre',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Ezequiel',40.0),
 	 ('M Bark',40.0),
 	 ('Magno',40.0),
@@ -16740,7 +16740,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Maria',40.0),
 	 ('Marcos Pedro',40.0),
 	 ('Marcos Tulio',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Alin',40.0),
 	 ('Mario Alonso',40.0),
 	 ('Mario Eugenio',40.0),
@@ -16751,7 +16751,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Massinissa',40.0),
 	 ('Mauricio Eduardo',40.0),
 	 ('Maximo Daniel',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Meissa',40.0),
 	 ('Michael Eduardo',40.0),
 	 ('Michael Jordan',40.0),
@@ -16762,7 +16762,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohssen',40.0),
 	 ('Muhammad Waqas',40.0),
 	 ('Muzaffar',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nazrul',40.0),
 	 ('Neil David',40.0),
 	 ('Neron',40.0),
@@ -16773,7 +16773,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nikhil',40.0),
 	 ('Ninel',40.0),
 	 ('Orlando Daniel',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Orosio',40.0),
 	 ('Osaretin',40.0),
 	 ('Ouahid',40.0),
@@ -16784,7 +16784,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Prabhjot',40.0),
 	 ('Prudenci',40.0),
 	 ('Querubin',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Radu Cristian',40.0),
 	 ('Rafael Matias',40.0),
 	 ('Rafael Sergio',40.0),
@@ -16795,7 +16795,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Marcelo',40.0),
 	 ('Reginald',40.0),
 	 ('Riahi',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Riasat',40.0),
 	 ('Ricardo Damian',40.0),
 	 ('Ricardo Elias',40.0),
@@ -16806,7 +16806,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Ricardo',40.0),
 	 ('Robinson Andres',40.0),
 	 ('Rodolfo Carlos',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodolfo Luis',40.0),
 	 ('Rodrigo Gonzalo',40.0),
 	 ('Rolando Enrique',40.0),
@@ -16817,7 +16817,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Joaquin',40.0),
 	 ('Ruben Marcos',40.0),
 	 ('Ruben Martin',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ryo',40.0),
 	 ('Sallam',40.0),
 	 ('Salvador Gabriel',40.0),
@@ -16828,7 +16828,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Satwinder',40.0),
 	 ('Sebastian Constantin',40.0),
 	 ('Shafique',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sohel',40.0),
 	 ('Stephen Edward',40.0),
 	 ('Thomas Paul',40.0),
@@ -16839,7 +16839,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Weiguo',40.0),
 	 ('William Hernan',40.0),
 	 ('Wilson Ivan',40.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xavier Josep',40.0),
 	 ('Xiaoguang',40.0),
 	 ('Xinbo',40.0),
@@ -16850,7 +16850,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhongwei',40.0),
 	 ('Zijian',40.0),
 	 ('Abdou Khadir',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abian Jesus',39.0),
 	 ('Abib',39.0),
 	 ('Abubakary',39.0),
@@ -16861,7 +16861,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aijun',39.0),
 	 ('Albert Jose',39.0),
 	 ('Aldo Daniel',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Viorel',39.0),
 	 ('Alin Cristian',39.0),
 	 ('Alvaro Domingo',39.0),
@@ -16872,7 +16872,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Paulino',39.0),
 	 ('Angel Rodolfo',39.0),
 	 ('Anthony Bryan',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Basilio',39.0),
 	 ('Antonio Genaro',39.0),
 	 ('Antonio Marco',39.0),
@@ -16883,7 +16883,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aridai',39.0),
 	 ('Arkadi',39.0),
 	 ('Asan',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ashok Kumar',39.0),
 	 ('Assil',39.0),
 	 ('Atta',39.0),
@@ -16894,7 +16894,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bert',39.0),
 	 ('Brandon Andres',39.0),
 	 ('Brian George',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bruno Gabriel',39.0),
 	 ('Bryan Stiven',39.0),
 	 ('Carlos Edgardo',39.0),
@@ -16905,7 +16905,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christopher Andres',39.0),
 	 ('Claudio Adrian',39.0),
 	 ('Claudio David',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Conceso',39.0),
 	 ('Cosmin Vasile',39.0),
 	 ('Cristian Armando',39.0),
@@ -16916,7 +16916,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Danyil',39.0),
 	 ('Darius Marian',39.0),
 	 ('Darwin Alberto',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darwin Manuel',39.0),
 	 ('David Albert',39.0),
 	 ('David Stanley',39.0),
@@ -16927,7 +16927,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Raul',39.0),
 	 ('Edgar Rene',39.0),
 	 ('Edison Marcelo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Andrei',39.0),
 	 ('Eduardo Elias',39.0),
 	 ('Eduardo Gregorio',39.0),
@@ -16938,7 +16938,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emidio',39.0),
 	 ('Emiliano Nicolas',39.0),
 	 ('Emilio Julio',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Nicolas',39.0),
 	 ('Enrique Victor',39.0),
 	 ('Erik Adrian',39.0),
@@ -16949,7 +16949,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabricio Javier',39.0),
 	 ('Fattah',39.0),
 	 ('Felix Salvador',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florin Ovidiu',39.0),
 	 ('Fousseny',39.0),
 	 ('Francisco Aday',39.0),
@@ -16960,7 +16960,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fredy Alejandro',39.0),
 	 ('Gerardo Maria',39.0),
 	 ('German Alonso',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('German Pedro',39.0),
 	 ('German Ramon',39.0),
 	 ('Gert',39.0),
@@ -16971,7 +16971,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Ariel',39.0),
 	 ('Guillermo Ernesto',39.0),
 	 ('Guillermo Fabian',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Julian',39.0),
 	 ('Guodong',39.0),
 	 ('Guofeng',39.0),
@@ -16982,7 +16982,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hamidreza',39.0),
 	 ('Haonan',39.0),
 	 ('Hector Marcelo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Maria',39.0),
 	 ('Hektor',39.0),
 	 ('Helder Jose',39.0),
@@ -16993,7 +16993,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hur',39.0),
 	 ('Huzaifa',39.0),
 	 ('Ignacio Federico',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker Joel',39.0),
 	 ('Isaac Enrique',39.0),
 	 ('Ismael Alberto',39.0),
@@ -17004,7 +17004,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Moises',39.0),
 	 ('Javier Roman',39.0),
 	 ('Javier Ruben',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Lazaro',39.0),
 	 ('Jesus Marino',39.0),
 	 ('Jhon Alex',39.0),
@@ -17015,7 +17015,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Junior',39.0),
 	 ('Jose Abdon',39.0),
 	 ('Jose Adelto',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Donato',39.0),
 	 ('Jose Maria Manuel',39.0),
 	 ('Jose Primitivo',39.0),
@@ -17026,7 +17026,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Hipolito',39.0),
 	 ('Juan Jose Antonio',39.0),
 	 ('Juan Placido',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Alfredo',39.0),
 	 ('Julian Dario',39.0),
 	 ('Julian Emilio',39.0),
@@ -17037,7 +17037,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Keanu',39.0),
 	 ('Kelvin Jose',39.0),
 	 ('Kevin Brian',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Fabian',39.0),
 	 ('Krum',39.0),
 	 ('Laxman',39.0),
@@ -17048,7 +17048,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Juan',39.0),
 	 ('Luciano Nicolas',39.0),
 	 ('Luis Jonathan',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Josue',39.0),
 	 ('Luis Melchor',39.0),
 	 ('Madicke',39.0),
@@ -17059,7 +17059,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelo Roberto',39.0),
 	 ('Marco Alexis',39.0),
 	 ('Marcos Domingo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Fabian',39.0),
 	 ('Marcos Ricardo',39.0),
 	 ('Marian Cosmin',39.0),
@@ -17070,7 +17070,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martiria',39.0),
 	 ('Marvin Jose',39.0),
 	 ('Mateo Enrique',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Fernando',39.0),
 	 ('Matthew Paul',39.0),
 	 ('Michael Arthur',39.0),
@@ -17081,7 +17081,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mihai Lucian',39.0),
 	 ('Mikel Garikoitz',39.0),
 	 ('Milton Rodrigo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Cherif',39.0),
 	 ('Mohamed Ibrahim',39.0),
 	 ('Mohamed Walid',39.0),
@@ -17092,7 +17092,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicholas Andrew',39.0),
 	 ('Nicolae Constantin',39.0),
 	 ('Nicolae Sorin',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nikolay Dimitrov',39.0),
 	 ('Noel Jose',39.0),
 	 ('Nour Dine',39.0),
@@ -17103,7 +17103,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Cruz',39.0),
 	 ('Oscar Ramiro',39.0),
 	 ('Oscar Rodrigo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Osiel',39.0),
 	 ('Osvaldo Antonio',39.0),
 	 ('Pablo Hugo',39.0),
@@ -17114,7 +17114,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pere Jaume',39.0),
 	 ('Pierangelo',39.0),
 	 ('Poncio',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Radek',39.0),
 	 ('Radomir',39.0),
 	 ('Rafael Ruben',39.0),
@@ -17125,7 +17125,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rangel',39.0),
 	 ('Razvan Cristian',39.0),
 	 ('Renjie',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Alonso',39.0),
 	 ('Richard Edward',39.0),
 	 ('Richard Martin',39.0),
@@ -17136,7 +17136,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roger Jose',39.0),
 	 ('Rokas',39.0),
 	 ('Rolan',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roman Alberto',39.0),
 	 ('Rubiel',39.0),
 	 ('Rune',39.0),
@@ -17147,7 +17147,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saul Enrique',39.0),
 	 ('Sebastian Esteban',39.0),
 	 ('Segisfredo',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Marcelo',39.0),
 	 ('Sergio Valentin',39.0),
 	 ('Sheriff',39.0),
@@ -17158,7 +17158,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stefan Catalin',39.0),
 	 ('Terence Michael',39.0),
 	 ('Terje',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thierno Amadou',39.0),
 	 ('Tomas Sebastian',39.0),
 	 ('Ursino',39.0),
@@ -17169,7 +17169,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Mariano',39.0),
 	 ('Victor Anibal',39.0),
 	 ('Victor Junior',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Valentin',39.0),
 	 ('Wajahat',39.0),
 	 ('Walfrido',39.0),
@@ -17180,7 +17180,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilmer Javier',39.0),
 	 ('Yegor',39.0),
 	 ('Yujun',39.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zaigham',39.0),
 	 ('Zhifeng',39.0),
 	 ('Zviadi',39.0),
@@ -17191,7 +17191,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adair',38.0),
 	 ('Adrian Ion',38.0),
 	 ('Adrian Joel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Robert',38.0),
 	 ('Agustin Felix',38.0),
 	 ('Ahmed Mohamed',38.0),
@@ -17202,7 +17202,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Gonzalo',38.0),
 	 ('Alejandro Moises',38.0),
 	 ('Alejandro Sergio',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Peter',38.0),
 	 ('Alexander William',38.0),
 	 ('Alexandru Dumitru',38.0),
@@ -17213,7 +17213,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Nicolas',38.0),
 	 ('Alfredo Jorge',38.0),
 	 ('Alfredo Roberto',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alvaro Fabian',38.0),
 	 ('Alvaro Jaime',38.0),
 	 ('Alvaro Ruben',38.0),
@@ -17224,7 +17224,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrew Alexander',38.0),
 	 ('Andy Joel',38.0),
 	 ('Angel Abraham',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Faustino',38.0),
 	 ('Anthony Fernando',38.0),
 	 ('Antonio Jacobo',38.0),
@@ -17235,7 +17235,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Gabriel',38.0),
 	 ('Aurimas',38.0),
 	 ('Ayachi',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benjamin Alejandro',38.0),
 	 ('Bhagwan',38.0),
 	 ('Blagovest',38.0),
@@ -17246,7 +17246,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Bartolome',38.0),
 	 ('Carlos Benigno',38.0),
 	 ('Carlos Gaston',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Gines',38.0),
 	 ('Carlos Modesto',38.0),
 	 ('Carlos Rolando',38.0),
@@ -17257,7 +17257,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chegdali',38.0),
 	 ('Christian Sebastian',38.0),
 	 ('Claudiu Cristian',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Clemente Javier',38.0),
 	 ('Clemente Manuel',38.0),
 	 ('Clinton',38.0),
@@ -17268,7 +17268,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristobal Daniel',38.0),
 	 ('Damian Alberto',38.0),
 	 ('Daniel Andre',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Bernardo',38.0),
 	 ('Daniel Samuel',38.0),
 	 ('Danny Jose',38.0),
@@ -17279,7 +17279,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Dario',38.0),
 	 ('Diego Domingo',38.0),
 	 ('Diego Elias',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Oscar',38.0),
 	 ('Domenech',38.0),
 	 ('Domingo Alfonso',38.0),
@@ -17290,7 +17290,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edy',38.0),
 	 ('El Mahi',38.0),
 	 ('Elias Moises',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emiliano Javier',38.0),
 	 ('Emilio Roberto',38.0),
 	 ('Endurance',38.0),
@@ -17301,7 +17301,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eusebio Francisco',38.0),
 	 ('Ezequiel Antonio',38.0),
 	 ('Fabian Gabriel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Facundo Jose',38.0),
 	 ('Fall',38.0),
 	 ('Fang',38.0),
@@ -17312,7 +17312,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Hugo',38.0),
 	 ('Francisco Ventura',38.0),
 	 ('Freddy Andres',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fredy Andres',38.0),
 	 ('Gaston Nicolas',38.0),
 	 ('Georgi Petrov',38.0),
@@ -17323,7 +17323,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Goio',38.0),
 	 ('Gonzalo Federico',38.0),
 	 ('Gregorio Carlos',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gulfam',38.0),
 	 ('Guo',38.0),
 	 ('Guoqiang',38.0),
@@ -17334,7 +17334,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haitao',38.0),
 	 ('Hakkoum',38.0),
 	 ('Hao Xuan',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hao Yu',38.0),
 	 ('Hector Rene',38.0),
 	 ('Hector Santiago',38.0),
@@ -17345,7 +17345,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hongyu',38.0),
 	 ('Horacio Alberto',38.0),
 	 ('Hosain',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ian Gael',38.0),
 	 ('Ian Martin',38.0),
 	 ('Ignacio Matias',38.0),
@@ -17356,7 +17356,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iosua',38.0),
 	 ('Ismael Carlos',38.0),
 	 ('Issah',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Issaka',38.0),
 	 ('Ivan Cristo',38.0),
 	 ('Ivan Ezequiel',38.0),
@@ -17367,7 +17367,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Hernan',38.0),
 	 ('Jairo Fernando',38.0),
 	 ('Jairo Miguel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jason Alexander',38.0),
 	 ('Jean Michael',38.0),
 	 ('Jesus Aitor',38.0),
@@ -17378,7 +17378,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jimmy Fernando',38.0),
 	 ('Jimmy Jose',38.0),
 	 ('Jinrong',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joao Nuno',38.0),
 	 ('John Alex',38.0),
 	 ('Jonah',38.0),
@@ -17389,7 +17389,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Andre',38.0),
 	 ('Jose Damaso',38.0),
 	 ('Jose Enmanuel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Freddy',38.0),
 	 ('Jose Gervasio',38.0),
 	 ('Jose Oliverio',38.0),
@@ -17400,7 +17400,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Genaro',38.0),
 	 ('Juan Sixto',38.0),
 	 ('Juan Virgilio',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Nicolas',38.0),
 	 ('Julio Bernardo',38.0),
 	 ('Kiriam',38.0),
@@ -17411,7 +17411,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leandro Sebastian',38.0),
 	 ('Leonel Alexander',38.0),
 	 ('Leonel Jesus',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonel Jose',38.0),
 	 ('Liam Mateo',38.0),
 	 ('Llucia',38.0),
@@ -17422,7 +17422,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Ivan',38.0),
 	 ('Lucas Maximiliano',38.0),
 	 ('Lucas Valentin',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucian Florin',38.0),
 	 ('Lucian Ioan',38.0),
 	 ('Lucian Vasile',38.0),
@@ -17433,7 +17433,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manraj',38.0),
 	 ('Manuel Eulogio',38.0),
 	 ('Manuel Ovidio',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Enric',38.0),
 	 ('Marcell',38.0),
 	 ('Marcelo Damian',38.0),
@@ -17444,7 +17444,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Domingo',38.0),
 	 ('Mario Fabian',38.0),
 	 ('Mario Julio',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Rodolfo',38.0),
 	 ('Mario Stefan',38.0),
 	 ('Mark Antony',38.0),
@@ -17455,7 +17455,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Melvin Antonio',38.0),
 	 ('Mfeddal',38.0),
 	 ('Mihai Viorel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamad Ali',38.0),
 	 ('Momodou Lamin',38.0),
 	 ('Mossaab',38.0),
@@ -17466,7 +17466,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Huzaifa',38.0),
 	 ('Muhammad Naveed',38.0),
 	 ('Nama',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nathan James',38.0),
 	 ('Nazmul',38.0),
 	 ('Nelson Armando',38.0),
@@ -17477,7 +17477,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Octavio Cesar',38.0),
 	 ('Omar Alexis',38.0),
 	 ('Omar Gabriel',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar German',38.0),
 	 ('Oscar Valentin',38.0),
 	 ('Osvaldo Daniel',38.0),
@@ -17488,7 +17488,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Parwinder',38.0),
 	 ('Pedro Faustino',38.0),
 	 ('Pedro Lazaro',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Orlando',38.0),
 	 ('Pradeep',38.0),
 	 ('Qinghua',38.0),
@@ -17499,7 +17499,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rana',38.0),
 	 ('Raul Arturo',38.0),
 	 ('Raul Domingo',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Marian',38.0),
 	 ('Raul Stefan',38.0),
 	 ('Razvan Vasile',38.0),
@@ -17510,7 +17510,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richmond',38.0),
 	 ('Roger Alberto',38.0),
 	 ('Ronald William',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roque Francisco',38.0),
 	 ('Ruben Arturo',38.0),
 	 ('Ruben Elias',38.0),
@@ -17521,7 +17521,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samad',38.0),
 	 ('Santiago Alexis',38.0),
 	 ('Santiago Federico',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Guillermo',38.0),
 	 ('Santos Angel',38.0),
 	 ('Santos Enrique',38.0),
@@ -17532,7 +17532,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Roman',38.0),
 	 ('Sergiu Alexandru',38.0),
 	 ('Shamas',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sigfrid',38.0),
 	 ('Silvio Antonio',38.0),
 	 ('Siriman',38.0),
@@ -17543,7 +17543,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tore',38.0),
 	 ('Uziel',38.0),
 	 ('Vahan',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valeriano Jose',38.0),
 	 ('Vicencio',38.0),
 	 ('Vicente Oscar',38.0),
@@ -17554,7 +17554,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wanderley',38.0),
 	 ('Weibin',38.0),
 	 ('Wilmer Alberto',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Rafael',38.0),
 	 ('Xavier Maria',38.0),
 	 ('Xiaoqiang',38.0),
@@ -17565,7 +17565,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yongming',38.0),
 	 ('Yongqiang',38.0),
 	 ('Yongyi',38.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yonny',38.0),
 	 ('Younis',38.0),
 	 ('Youssif',38.0),
@@ -17576,7 +17576,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdellali',37.0),
 	 ('Abderrazaq',37.0),
 	 ('Abdessamie',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abelardo Antonio',37.0),
 	 ('Aboubaker',37.0),
 	 ('Adolfo Alejandro',37.0),
@@ -17587,7 +17587,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Akwasi',37.0),
 	 ('Alejandro Isaac',37.0),
 	 ('Alejandro Mateo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alex Ricardo',37.0),
 	 ('Alex Roberto',37.0),
 	 ('Alfonso Esteban',37.0),
@@ -17598,7 +17598,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Matias',37.0),
 	 ('Ambrosio Jose',37.0),
 	 ('Andres Armando',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Rodrigo',37.0),
 	 ('Andrew Richard',37.0),
 	 ('Angel Avelino',37.0),
@@ -17609,7 +17609,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anthony Peter',37.0),
 	 ('Antonio Melchor',37.0),
 	 ('Antonio Rufino',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arayik',37.0),
 	 ('Ariel Jose',37.0),
 	 ('Arturo Alberto',37.0),
@@ -17620,7 +17620,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bafode',37.0),
 	 ('Baljeet',37.0),
 	 ('Bemba',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bjarne',37.0),
 	 ('Boguslaw',37.0),
 	 ('Boujama',37.0),
@@ -17631,7 +17631,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brayan Antonio',37.0),
 	 ('Brayan Fernando',37.0),
 	 ('Brian Ezequiel',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brian Robert',37.0),
 	 ('Bryan Francisco',37.0),
 	 ('Bryan Manuel',37.0),
@@ -17642,7 +17642,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Vladimir',37.0),
 	 ('Cesar Esteban',37.0),
 	 ('Chafiq',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chems Eddine',37.0),
 	 ('Christian Dario',37.0),
 	 ('Christopher Jesus',37.0),
@@ -17653,7 +17653,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Guillermo',37.0),
 	 ('Cristian Israel',37.0),
 	 ('Cristian Xavier',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dan Vasile',37.0),
 	 ('Daniel Christian',37.0),
 	 ('Daniel Hector',37.0),
@@ -17664,7 +17664,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Nicholas',37.0),
 	 ('Daylos',37.0),
 	 ('Denis Alejandro',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dennis John',37.0),
 	 ('Detelin',37.0),
 	 ('Diego Adolfo',37.0),
@@ -17675,7 +17675,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Julian',37.0),
 	 ('Dragos Florin',37.0),
 	 ('Dumitru Catalin',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Miguel',37.0),
 	 ('Edgaras',37.0),
 	 ('Edison Santiago',37.0),
@@ -17686,7 +17686,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eirik',37.0),
 	 ('Emanuil',37.0),
 	 ('Embarec',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Raul',37.0),
 	 ('Encarnacion',37.0),
 	 ('Enock',37.0),
@@ -17697,7 +17697,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fekri',37.0),
 	 ('Fernando Leon',37.0),
 	 ('Fernando Samuel',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Filipe Jose',37.0),
 	 ('Floreano',37.0),
 	 ('Florin Madalin',37.0),
@@ -17708,7 +17708,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Ramiro',37.0),
 	 ('Frank Jose',37.0),
 	 ('Franklin Rafael',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Freddy Patricio',37.0),
 	 ('Gabriel Domingo',37.0),
 	 ('Gabriel Pablo',37.0),
@@ -17719,7 +17719,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Patricio',37.0),
 	 ('Gonzalo Damian',37.0),
 	 ('Gonzalo Guillermo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Jorge',37.0),
 	 ('Gregorio Pedro',37.0),
 	 ('Grygoriy',37.0),
@@ -17730,7 +17730,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haroldo',37.0),
 	 ('Harsh',37.0),
 	 ('Hector Osvaldo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hermelindo',37.0),
 	 ('Hernan Marcelo',37.0),
 	 ('Hongliang',37.0),
@@ -17741,7 +17741,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ionut Sebastian',37.0),
 	 ('Iosif Daniel',37.0),
 	 ('Isaac Emanuel',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isard',37.0),
 	 ('Ithan',37.0),
 	 ('Ivan Domingo',37.0),
@@ -17752,7 +17752,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeisson',37.0),
 	 ('Jesus Celestino',37.0),
 	 ('Jesus Gaspar',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Gran Poder',37.0),
 	 ('Jesus Melchor',37.0),
 	 ('Jesus Oliver',37.0),
@@ -17763,7 +17763,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joel Angel',37.0),
 	 ('John Raymond',37.0),
 	 ('Jon Paul',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonatan Daniel',37.0),
 	 ('Jordan Steven',37.0),
 	 ('Jordi Antonio',37.0),
@@ -17774,7 +17774,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Adonay',37.0),
 	 ('Jose Arbey',37.0),
 	 ('Jose Edmundo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Hermenegildo',37.0),
 	 ('Jose Luis Manuel',37.0),
 	 ('Jovanny',37.0),
@@ -17785,7 +17785,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Higinio',37.0),
 	 ('Julian Ernesto',37.0),
 	 ('Julian Juan',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Gregorio',37.0),
 	 ('Julio Humberto',37.0),
 	 ('Junior Javier',37.0),
@@ -17796,7 +17796,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Samuel',37.0),
 	 ('Khachik',37.0),
 	 ('Koa',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kunal',37.0),
 	 ('Lamarana',37.0),
 	 ('Leonardo Alexander',37.0),
@@ -17807,7 +17807,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Gael',37.0),
 	 ('Lucas Gaston',37.0),
 	 ('Luis Amado',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Faustino',37.0),
 	 ('Luis Ferney',37.0),
 	 ('Maarten',37.0),
@@ -17818,7 +17818,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mamoun',37.0),
 	 ('Manuel Albino',37.0),
 	 ('Manuel Alejo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Bartolome',37.0),
 	 ('Manuel Eliseo',37.0),
 	 ('Manuel Emiliano',37.0),
@@ -17829,7 +17829,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcial Jesus',37.0),
 	 ('Marco Augusto',37.0),
 	 ('Marian Bogdan',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Rodrigo',37.0),
 	 ('Marius Ion',37.0),
 	 ('Marius Madalin',37.0),
@@ -17840,7 +17840,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Santiago',37.0),
 	 ('Martirian',37.0),
 	 ('Mason',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Massaer',37.0),
 	 ('Matei Gabriel',37.0),
 	 ('Mathias Andres',37.0),
@@ -17851,7 +17851,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael Enrique',37.0),
 	 ('Michael Frederick',37.0),
 	 ('Michel Jean',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Federico',37.0),
 	 ('Miguel Isaac',37.0),
 	 ('Mihai Claudiu',37.0),
@@ -17862,7 +17862,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Sami',37.0),
 	 ('Muhammad Hamza',37.0),
 	 ('Namory',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nasko',37.0),
 	 ('Nelson Gustavo',37.0),
 	 ('Niall',37.0),
@@ -17873,7 +17873,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nikos',37.0),
 	 ('Noel Alejandro',37.0),
 	 ('Obaid',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Obay',37.0),
 	 ('Oliver Javier',37.0),
 	 ('Orazio',37.0),
@@ -17884,7 +17884,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Josue',37.0),
 	 ('Oscar Lorenzo',37.0),
 	 ('Osvaldo Jose',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ottavio',37.0),
 	 ('Ouasim',37.0),
 	 ('Pablo Roman',37.0),
@@ -17895,7 +17895,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paul Enrique',37.0),
 	 ('Paul Raymond',37.0),
 	 ('Pedro Humberto',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Mauricio',37.0),
 	 ('Pedro Raimundo',37.0),
 	 ('Petru Florin',37.0),
@@ -17906,7 +17906,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Armando',37.0),
 	 ('Ricardo Ismael',37.0),
 	 ('Ricardo Ruben',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Sergio',37.0),
 	 ('Richard Fabian',37.0),
 	 ('Richard George',37.0),
@@ -17917,7 +17917,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Raul',37.0),
 	 ('Rufino Manuel',37.0),
 	 ('Samuel John',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Samuel Luis',37.0),
 	 ('Santiago Eugenio',37.0),
 	 ('Santiago Valentin',37.0),
@@ -17928,7 +17928,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergi Josep',37.0),
 	 ('Sergio Elias',37.0),
 	 ('Sergo',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Servando Jose',37.0),
 	 ('Servando Manuel',37.0),
 	 ('Shengjie',37.0),
@@ -17939,7 +17939,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sukhvinder',37.0),
 	 ('Teodoro Francisco',37.0),
 	 ('Theodore',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thiago Miguel',37.0),
 	 ('Thomas Martin',37.0),
 	 ('Tomas Gregorio',37.0),
@@ -17950,7 +17950,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Danut',37.0),
 	 ('Vicent Joan',37.0),
 	 ('Victor Emanuel',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Fidel',37.0),
 	 ('Victoriano Francisco',37.0),
 	 ('Vladut',37.0),
@@ -17961,7 +17961,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Dario',37.0),
 	 ('William Ernesto',37.0),
 	 ('Xujun',37.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yasel',37.0),
 	 ('Yeron',37.0),
 	 ('Yerson',37.0),
@@ -17972,7 +17972,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ziyu',37.0),
 	 ('Aaron Eduardo',36.0),
 	 ('Abderzak',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdi',36.0),
 	 ('Abdias',36.0),
 	 ('Abdou Salam',36.0),
@@ -17983,7 +17983,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Ismael',36.0),
 	 ('Adrian Matias',36.0),
 	 ('Adulai',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Ricardo',36.0),
 	 ('Aitor Maria',36.0),
 	 ('Alan Andres',36.0),
@@ -17994,7 +17994,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Marcos',36.0),
 	 ('Alex Joel',36.0),
 	 ('Alex Omar',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexis Nicolas',36.0),
 	 ('Alfonso Julio',36.0),
 	 ('Alian',36.0),
@@ -18005,7 +18005,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andde',36.0),
 	 ('Andre Felipe',36.0),
 	 ('Angel Alvaro',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Emiliano',36.0),
 	 ('Angel Luciano',36.0),
 	 ('Angel Rosendo',36.0),
@@ -18016,7 +18016,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Eulogio',36.0),
 	 ('Antonio Raimundo',36.0),
 	 ('Antonio Silvestre',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arles',36.0),
 	 ('Austine',36.0),
 	 ('Barbaro',36.0),
@@ -18027,7 +18027,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bernardo Maria',36.0),
 	 ('Blas Alfonso',36.0),
 	 ('Blas Carlos',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Blas Fernando',36.0),
 	 ('Bogdan Daniel',36.0),
 	 ('Borja Rafael',36.0),
@@ -18038,7 +18038,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bruno Fernando',36.0),
 	 ('Bryan Patricio',36.0),
 	 ('Carlos Blas',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Edmundo',36.0),
 	 ('Castro',36.0),
 	 ('Cayetano Francisco',36.0),
@@ -18049,7 +18049,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheikh Ahmadou Bamba',36.0),
 	 ('Christian Alfonso',36.0),
 	 ('Ciprian Mihai',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudiu Valentin',36.0),
 	 ('Constantin Madalin',36.0),
 	 ('Cosmin Nicolae',36.0),
@@ -18060,7 +18060,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Damian Gabriel',36.0),
 	 ('Damon',36.0),
 	 ('Daniel Christopher',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Isaias',36.0),
 	 ('Daniel Iulian',36.0),
 	 ('Daniel Simon',36.0),
@@ -18071,7 +18071,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Demir',36.0),
 	 ('Devin',36.0),
 	 ('Domingo Martin',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Duverney',36.0),
 	 ('Edgar Gustavo',36.0),
 	 ('Edgar Ramiro',36.0),
@@ -18082,7 +18082,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Efren Jesus',36.0),
 	 ('El Ouali',36.0),
 	 ('Emanuel Daniel',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio Felipe',36.0),
 	 ('Enzo Alejandro',36.0),
 	 ('Eric Miguel',36.0),
@@ -18093,7 +18093,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eusebio Angel',36.0),
 	 ('Evaristo Jesus',36.0),
 	 ('Ezequiel Francisco',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Facundo Agustin',36.0),
 	 ('Faheem',36.0),
 	 ('Felician',36.0),
@@ -18104,7 +18104,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fernando Federico',36.0),
 	 ('Fidel Luis',36.0),
 	 ('Florin Ionel',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florin Sorin',36.0),
 	 ('Francesc Asis',36.0),
 	 ('Francesc D''Asis',36.0),
@@ -18115,7 +18115,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaudioso',36.0),
 	 ('George Alin',36.0),
 	 ('Giovanni Andres',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Raul',36.0),
 	 ('Gonzalo Rodrigo',36.0),
 	 ('Graham David',36.0),
@@ -18126,7 +18126,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hajie',36.0),
 	 ('Hakan',36.0),
 	 ('Halil',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hanif',36.0),
 	 ('Hans Georg',36.0),
 	 ('Harish',36.0),
@@ -18137,7 +18137,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Henry Patricio',36.0),
 	 ('Herminio Manuel',36.0),
 	 ('Hernan Gustavo',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Horacio Antonio',36.0),
 	 ('Hristian',36.0),
 	 ('Hryhorii',36.0),
@@ -18148,7 +18148,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Humberto Enrique',36.0),
 	 ('Ian Stuart',36.0),
 	 ('Ievgenii',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioan Constantin',36.0),
 	 ('Ionel Marian',36.0),
 	 ('Ionel Marius',36.0),
@@ -18159,7 +18159,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Petrov',36.0),
 	 ('Jagroop Singh',36.0),
 	 ('Jai',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Cristobal',36.0),
 	 ('Javier Horacio',36.0),
 	 ('Javier Victor',36.0),
@@ -18170,7 +18170,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Cecilio',36.0),
 	 ('Jesus Luciano',36.0),
 	 ('Jesus Marcelo',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Serafin',36.0),
 	 ('Jimmy Andres',36.0),
 	 ('Jincheng',36.0),
@@ -18181,7 +18181,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Julio',36.0),
 	 ('John Ander',36.0),
 	 ('John Faber',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Vincent',36.0),
 	 ('Jon Josu',36.0),
 	 ('Jonathan Charles',36.0),
@@ -18192,7 +18192,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Fidel',36.0),
 	 ('Jorge Leandro',36.0),
 	 ('Jorge Mauro',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Walter',36.0),
 	 ('Jose Duvan',36.0),
 	 ('Jose Edison',36.0),
@@ -18203,7 +18203,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Maria Luis',36.0),
 	 ('Jose Ruyman',36.0),
 	 ('Josep Marc',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joseph Paul',36.0),
 	 ('Juan Bernardino',36.0),
 	 ('Juan Hugo',36.0),
@@ -18214,7 +18214,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kaito',36.0),
 	 ('Karnail',36.0),
 	 ('Kevin Cristo',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Roberto',36.0),
 	 ('Laurentiu Daniel',36.0),
 	 ('Layonel',36.0),
@@ -18225,7 +18225,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leonardo Adrian',36.0),
 	 ('Leonardo Alfonso',36.0),
 	 ('Leopoldo Antonio',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Liviu Marian',36.0),
 	 ('Lluch',36.0),
 	 ('Luca Stefan',36.0),
@@ -18236,7 +18236,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ludivino',36.0),
 	 ('Luis Arnaldo',36.0),
 	 ('Luis Edmundo',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Francisco Javier',36.0),
 	 ('Magueye',36.0),
 	 ('Makram',36.0),
@@ -18247,7 +18247,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Ceferino',36.0),
 	 ('Manuel Cristian',36.0),
 	 ('Manuel Maximo',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Narciso',36.0),
 	 ('Marcelo Ivan',36.0),
 	 ('Marcelo Oscar',36.0),
@@ -18258,7 +18258,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mateo Agustin',36.0),
 	 ('Mateo Alberto',36.0),
 	 ('Mateo Ignacio',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauricio Esteban',36.0),
 	 ('Mauro Nicolas',36.0),
 	 ('Maximiliano Ariel',36.0),
@@ -18269,7 +18269,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mitchell',36.0),
 	 ('Mjid',36.0),
 	 ('Mohamed Jad',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohammadreza',36.0),
 	 ('Mohammed Amir',36.0),
 	 ('Mohammed Karim',36.0),
@@ -18280,7 +18280,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Neal',36.0),
 	 ('Nebil',36.0),
 	 ('Neculae',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicholas Charles',36.0),
 	 ('Nicolae Vasile',36.0),
 	 ('Nicolas Marcelo',36.0),
@@ -18291,7 +18291,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Eugenio',36.0),
 	 ('Oscar Horacio',36.0),
 	 ('Oscar Junior',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Otavio',36.0),
 	 ('Ouissam',36.0),
 	 ('Pablo Joel',36.0),
@@ -18302,7 +18302,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Gaspar',36.0),
 	 ('Pelagio',36.0),
 	 ('Preslav',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Radu Ioan',36.0),
 	 ('Radu Vasile',36.0),
 	 ('Rafael Raul',36.0),
@@ -18313,7 +18313,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Domingo',36.0),
 	 ('Ricardo Leon',36.0),
 	 ('Ricardo Moises',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Ioan',36.0),
 	 ('Robert Stephen',36.0),
 	 ('Roberth',36.0),
@@ -18324,7 +18324,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rogelio Javier',36.0),
 	 ('Roman Alejandro',36.0),
 	 ('Ronald John',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rony Alexander',36.0),
 	 ('Saidi',36.0),
 	 ('Salia',36.0),
@@ -18335,7 +18335,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sara',36.0),
 	 ('Saul Andres',36.0),
 	 ('Sebastian Agustin',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sene',36.0),
 	 ('Sergio Cesar',36.0),
 	 ('Sergio Orlando',36.0),
@@ -18346,7 +18346,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sorin Marius',36.0),
 	 ('Soungalo',36.0),
 	 ('Sukhdeep',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tai',36.0),
 	 ('Takashi',36.0),
 	 ('Tenesor',36.0),
@@ -18357,7 +18357,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomislav',36.0),
 	 ('Toufiq',36.0),
 	 ('Touseef',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ulises Antonio',36.0),
 	 ('Vali',36.0),
 	 ('Vasko',36.0),
@@ -18368,7 +18368,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Viorel Daniel',36.0),
 	 ('Walter Guillermo',36.0),
 	 ('Walther',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Washington Javier',36.0),
 	 ('Weiming',36.0),
 	 ('Wenhua',36.0),
@@ -18379,7 +18379,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xinhua',36.0),
 	 ('Yanis Andrei',36.0),
 	 ('Yawad',36.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yefferson',36.0),
 	 ('Yeudiel',36.0),
 	 ('Yongfeng',36.0),
@@ -18390,7 +18390,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zi Hao',36.0),
 	 ('Zunbeltz',36.0),
 	 ('Aaron Rafael',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelhanin',35.0),
 	 ('Abdellilah',35.0),
 	 ('Abdelwadoud',35.0),
@@ -18401,7 +18401,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adahi',35.0),
 	 ('Adolfo Alberto',35.0),
 	 ('Adolfo Eduardo',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adolfo Vicente',35.0),
 	 ('Adrian Ionel',35.0),
 	 ('Adrian Joaquin',35.0),
@@ -18412,7 +18412,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Joel',35.0),
 	 ('Alex Martin',35.0),
 	 ('Alexander Sebastian',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Eduard',35.0),
 	 ('Alexis Xavier',35.0),
 	 ('Alfonso Felipe',35.0),
@@ -18423,7 +18423,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres German',35.0),
 	 ('Andres Sergio',35.0),
 	 ('Andrew Stephen',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Benigno',35.0),
 	 ('Antonio Jonathan',35.0),
 	 ('Antonio Orlando',35.0),
@@ -18434,7 +18434,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Armando Carlos',35.0),
 	 ('Asuncion',35.0),
 	 ('Azzeddin',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Babil',35.0),
 	 ('Bairon',35.0),
 	 ('Balde',35.0),
@@ -18445,7 +18445,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bilawal',35.0),
 	 ('Birahim',35.0),
 	 ('Bobi',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brandon Stiven',35.0),
 	 ('Brayan Camilo',35.0),
 	 ('Brian Antonio',35.0),
@@ -18456,7 +18456,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chengjun',35.0),
 	 ('Choaib',35.0),
 	 ('Christian Israel',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian James',35.0),
 	 ('Christopher Martin',35.0),
 	 ('Christopher Richard',35.0),
@@ -18467,7 +18467,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Esteban',35.0),
 	 ('Cristian Mateo',35.0),
 	 ('Cristian Pedro',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dalibor',35.0),
 	 ('Daniel Anibal',35.0),
 	 ('Daniel Cosmin',35.0),
@@ -18478,7 +18478,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Richard',35.0),
 	 ('Danilo Andres',35.0),
 	 ('Dario Luis',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darius Nicolae',35.0),
 	 ('Darwin Enrique',35.0),
 	 ('Darwin Fabian',35.0),
@@ -18489,7 +18489,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dennis Alejandro',35.0),
 	 ('Derek William',35.0),
 	 ('Diego Isaac',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Joel',35.0),
 	 ('Diego Julio',35.0),
 	 ('Dilpreet',35.0),
@@ -18500,7 +18500,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dyland',35.0),
 	 ('Eddy Santiago',35.0),
 	 ('Edgar Adrian',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgars',35.0),
 	 ('Edier',35.0),
 	 ('Edison Manuel',35.0),
@@ -18511,7 +18511,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ehedei',35.0),
 	 ('El Ouafi',35.0),
 	 ('Elbachir',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Electo',35.0),
 	 ('Elias Sebastian',35.0),
 	 ('Elios',35.0),
@@ -18522,7 +18522,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Mario',35.0),
 	 ('Enze',35.0),
 	 ('Eric Alexandru',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eric Antonio',35.0),
 	 ('Eric Stefan',35.0),
 	 ('Erick Miguel',35.0),
@@ -18533,7 +18533,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fausto Manuel',35.0),
 	 ('Federico Jorge',35.0),
 	 ('Federico Pablo',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Santiago',35.0),
 	 ('Fermin Carlos',35.0),
 	 ('Firmo',35.0),
@@ -18544,7 +18544,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Melchor',35.0),
 	 ('Francisco Paulino',35.0),
 	 ('Frank David',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Franklin Fernando',35.0),
 	 ('Gabriel Alexis',35.0),
 	 ('Gerardo Angel',35.0),
@@ -18555,7 +18555,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Horacio',35.0),
 	 ('Guillermo Oscar',35.0),
 	 ('Gurpal',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gurwinder Singh',35.0),
 	 ('Hady',35.0),
 	 ('Hans Ulrich',35.0),
@@ -18566,7 +18566,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Henry Andres',35.0),
 	 ('Hernando Jose',35.0),
 	 ('Hipolito Manuel',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Houmad',35.0),
 	 ('Ian Samuel',35.0),
 	 ('Ianis Gabriel',35.0),
@@ -18577,7 +18577,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Idy',35.0),
 	 ('Iker Eduardo',35.0),
 	 ('Iker Fernando',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker Samuel',35.0),
 	 ('Isaac Fernando',35.0),
 	 ('Isaac Ramon',35.0),
@@ -18588,7 +18588,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ismael Santiago',35.0),
 	 ('Iulian Andrei',35.0),
 	 ('Iulian Florin',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Diego',35.0),
 	 ('Ivan Gonzalo',35.0),
 	 ('Ivan Samuel',35.0),
@@ -18599,7 +18599,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jamshed',35.0),
 	 ('Jason David',35.0),
 	 ('Jason Lee',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jason Paul',35.0),
 	 ('Javier Bernardo',35.0),
 	 ('Jean Yves',35.0),
@@ -18610,7 +18610,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Laureano',35.0),
 	 ('Jesus Simon',35.0),
 	 ('Jhonny Fernando',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jinyu',35.0),
 	 ('Joan Esteban',35.0),
 	 ('Joan Tomas',35.0),
@@ -18621,7 +18621,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johann Sebastian',35.0),
 	 ('John Carlo',35.0),
 	 ('Jonathan Isaac',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Ismael',35.0),
 	 ('Jonathan Samuel',35.0),
 	 ('Jonathan Santiago',35.0),
@@ -18632,7 +18632,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Erasmo',35.0),
 	 ('Jose Facundo',35.0),
 	 ('Jose Franklin',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Renato',35.0),
 	 ('Joseba Aitor',35.0),
 	 ('Joselin',35.0),
@@ -18643,7 +18643,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Leoncio',35.0),
 	 ('Juan Pio',35.0),
 	 ('Julian Cesar',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Gerardo',35.0),
 	 ('Julio German',35.0),
 	 ('Jun Jie',35.0),
@@ -18654,7 +18654,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Aaron',35.0),
 	 ('Kevin Cristian',35.0),
 	 ('Kevin Ismael',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Leandro',35.0),
 	 ('Laureano Antonio',35.0),
 	 ('Laureano Jesus',35.0),
@@ -18665,7 +18665,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenz',35.0),
 	 ('Luca Alexandru',35.0),
 	 ('Luca Antonio',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Marcelo',35.0),
 	 ('Luis Demetrio',35.0),
 	 ('Luis Maximo',35.0),
@@ -18676,7 +18676,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marc David',35.0),
 	 ('Marcelino Luis',35.0),
 	 ('Marcelo Nicolas',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Samuel',35.0),
 	 ('Marcos Valentin',35.0),
 	 ('Marian Sorin',35.0),
@@ -18687,7 +18687,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marlon Joel',35.0),
 	 ('Martin Elias',35.0),
 	 ('Martin Ernesto',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Hernan',35.0),
 	 ('Martin Peter',35.0),
 	 ('Martynas',35.0),
@@ -18698,7 +18698,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maykol',35.0),
 	 ('Melvyn',35.0),
 	 ('Mhamed Hamed',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Fernando',35.0),
 	 ('Miguel Hernan',35.0),
 	 ('Miguel Patricio',35.0),
@@ -18709,7 +18709,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Aiman',35.0),
 	 ('Mohamed Anuar',35.0),
 	 ('Mohamed Ghali',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Kamal',35.0),
 	 ('Mohamed Najib',35.0),
 	 ('Moises Elias',35.0),
@@ -18720,7 +18720,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Umer',35.0),
 	 ('Mustansar',35.0),
 	 ('Nazakat',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nazih',35.0),
 	 ('Neeraj',35.0),
 	 ('Neil John',35.0),
@@ -18731,7 +18731,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Olegs',35.0),
 	 ('Orlando Miguel',35.0),
 	 ('Oscar Abel',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Israel',35.0),
 	 ('Outhmane',35.0),
 	 ('Patricio Hernan',35.0),
@@ -18742,7 +18742,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Plamen Ivanov',35.0),
 	 ('Policarpio',35.0),
 	 ('Prudencio Jose',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Qun',35.0),
 	 ('Radko',35.0),
 	 ('Rafael Alexis',35.0),
@@ -18753,7 +18753,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Andre',35.0),
 	 ('Richard Adrian',35.0),
 	 ('Richard Ian',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Sebastian',35.0),
 	 ('Rogelio Luis',35.0),
 	 ('Roger Alejandro',35.0),
@@ -18764,7 +18764,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santiago Benjamin',35.0),
 	 ('Santiago Cesar',35.0),
 	 ('Santiago Gregorio',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Xavier',35.0),
 	 ('Saul Daniel',35.0),
 	 ('Sebastian Florin',35.0),
@@ -18775,7 +18775,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Samuel',35.0),
 	 ('Sif Eddine',35.0),
 	 ('Simon Francisco',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Simon Richard',35.0),
 	 ('Simranjit',35.0),
 	 ('Sisenando',35.0),
@@ -18786,7 +18786,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tono',35.0),
 	 ('Toqeer',35.0),
 	 ('Toure',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ussumane',35.0),
 	 ('Valentin Miguel',35.0),
 	 ('Vasil Georgiev',35.0),
@@ -18797,7 +18797,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Waldino',35.0),
 	 ('Walter Mauricio',35.0),
 	 ('Walter Oscar',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Gabriel',35.0),
 	 ('Willians',35.0),
 	 ('Xander',35.0),
@@ -18808,7 +18808,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yanik',35.0),
 	 ('Yeicob',35.0),
 	 ('Yeison David',35.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yeray Francisco',35.0),
 	 ('Yimin',35.0),
 	 ('Yongxin',35.0),
@@ -18819,7 +18819,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aaron Enrique',34.0),
 	 ('Abdelouadoud',34.0),
 	 ('Abdul Wahab',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdus',34.0),
 	 ('Abel Daniel',34.0),
 	 ('Abel Ramon',34.0),
@@ -18830,7 +18830,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agnaldo',34.0),
 	 ('Agustin Emilio',34.0),
 	 ('Agustin Gregorio',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Julian',34.0),
 	 ('Aime',34.0),
 	 ('Aitor Luis',34.0),
@@ -18841,7 +18841,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Fermin',34.0),
 	 ('Alejandro Fidel',34.0),
 	 ('Aleksandras',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Francisco',34.0),
 	 ('Alexis Fabian',34.0),
 	 ('Almiro',34.0),
@@ -18852,7 +18852,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Felix',34.0),
 	 ('Alvaro Ismael',34.0),
 	 ('Alvaro Julio',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amadeo Antonio',34.0),
 	 ('Amadou Lamine',34.0),
 	 ('Anderson Daniel',34.0),
@@ -18863,7 +18863,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andy Gabriel',34.0),
 	 ('Angel Benjamin',34.0),
 	 ('Angel Saul',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ankor',34.0),
 	 ('Anselmo Jesus',34.0),
 	 ('Antoni Francesc',34.0),
@@ -18874,7 +18874,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Dionisio',34.0),
 	 ('Antonio Narciso',34.0),
 	 ('Antxoka',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Martin',34.0),
 	 ('Arkadiy',34.0),
 	 ('Arturo Nicolas',34.0),
@@ -18885,7 +18885,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bassem',34.0),
 	 ('Bikramjit',34.0),
 	 ('Blas Enrique',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bouabdallah',34.0),
 	 ('Brayan Eduardo',34.0),
 	 ('Bruno Rafael',34.0),
@@ -18896,7 +18896,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Alexis',34.0),
 	 ('Chabane',34.0),
 	 ('Charles William',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Rodrigo',34.0),
 	 ('Christopher Alan',34.0),
 	 ('Claudio Gustavo',34.0),
@@ -18907,7 +18907,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Alin',34.0),
 	 ('Cristian Arturo',34.0),
 	 ('Cristian George',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian German',34.0),
 	 ('Cristian Gonzalo',34.0),
 	 ('Cristian Julian',34.0),
@@ -18918,7 +18918,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Abel',34.0),
 	 ('Deivy',34.0),
 	 ('Diadji',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diame',34.0),
 	 ('Diego Sergio',34.0),
 	 ('Diouf',34.0),
@@ -18929,7 +18929,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Ricardo',34.0),
 	 ('Edgardo Jose',34.0),
 	 ('Eduardo Pascual',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Xavier',34.0),
 	 ('Eidur',34.0),
 	 ('El Houcein',34.0),
@@ -18940,7 +18940,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Valentin',34.0),
 	 ('Eric Joel',34.0),
 	 ('Eric John',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Fabricio',34.0),
 	 ('Erick Rafael',34.0),
 	 ('Ernesto Fernando',34.0),
@@ -18951,7 +18951,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian Nicolas',34.0),
 	 ('Fabio Junior',34.0),
 	 ('Feliks',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felipe Domingo',34.0),
 	 ('Felipe Esteban',34.0),
 	 ('Felix Carmelo',34.0),
@@ -18962,7 +18962,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francesc Lluis',34.0),
 	 ('Francisco Celso',34.0),
 	 ('Francisco Evaristo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Maximo',34.0),
 	 ('Francisco Rufino',34.0),
 	 ('Franco Alejandro',34.0),
@@ -18973,7 +18973,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Horacio',34.0),
 	 ('Gabriel Marius',34.0),
 	 ('Gabriel Matias',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Mauricio',34.0),
 	 ('Gaetan',34.0),
 	 ('Gali',34.0),
@@ -18984,7 +18984,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gilmer',34.0),
 	 ('Godspower',34.0),
 	 ('Gonzalo Alfredo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Julian',34.0),
 	 ('Graham Robert',34.0),
 	 ('Guadalupe',34.0),
@@ -18995,7 +18995,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gursewak',34.0),
 	 ('Gustavo Dario',34.0),
 	 ('Gustavo Vicente',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haider Ali',34.0),
 	 ('Hamid Reza',34.0),
 	 ('Harol',34.0),
@@ -19006,7 +19006,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Houssem',34.0),
 	 ('Hrachya',34.0),
 	 ('Hugo Leonardo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Patricio',34.0),
 	 ('Hugo Rene',34.0),
 	 ('Hugo Santiago',34.0),
@@ -19017,7 +19017,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iliyas',34.0),
 	 ('Ilja',34.0),
 	 ('Inacio',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ioel',34.0),
 	 ('Ion Imanol',34.0),
 	 ('Ion Viorel',34.0),
@@ -19028,7 +19028,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iulica',34.0),
 	 ('Izan Antonio',34.0),
 	 ('Jacinto Francisco',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Felix',34.0),
 	 ('Jaime Marcelo',34.0),
 	 ('Jairo Josue',34.0),
@@ -19039,7 +19039,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jean Noel',34.0),
 	 ('Jefferson Fernando',34.0),
 	 ('Jefferson Paul',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jehu',34.0),
 	 ('Jesus Evaristo',34.0),
 	 ('Jesus Rufino',34.0),
@@ -19050,7 +19050,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Gregorio',34.0),
 	 ('John Erick',34.0),
 	 ('John Graham',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Johnny Andres',34.0),
 	 ('Jonathan Alfredo',34.0),
 	 ('Jonny Alexander',34.0),
@@ -19061,7 +19061,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Cristino',34.0),
 	 ('Jose Edilberto',34.0),
 	 ('Jose Eligio',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Froilan',34.0),
 	 ('Jose Guadalupe',34.0),
 	 ('Jose Henry',34.0),
@@ -19072,7 +19072,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Valentin',34.0),
 	 ('Junzhe',34.0),
 	 ('Kayden',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Angel',34.0),
 	 ('Leo Alexander',34.0),
 	 ('Leodegario',34.0),
@@ -19083,7 +19083,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lhachmi',34.0),
 	 ('Liam James',34.0),
 	 ('Linjie',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lionel Jesus',34.0),
 	 ('Lirong',34.0),
 	 ('Lizardo',34.0),
@@ -19094,7 +19094,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Cristian',34.0),
 	 ('Luis Olmedo',34.0),
 	 ('Luis Raimundo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Venancio',34.0),
 	 ('Makhan',34.0),
 	 ('Malcolm James',34.0),
@@ -19105,7 +19105,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Gumersindo',34.0),
 	 ('Manuel Ildefonso',34.0),
 	 ('Manuel Rodolfo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manveer',34.0),
 	 ('Marc Gabriel',34.0),
 	 ('Marcelo Pablo',34.0),
@@ -19116,7 +19116,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Felix',34.0),
 	 ('Marcos Gustavo',34.0),
 	 ('Marie',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Diego',34.0),
 	 ('Martin Julian',34.0),
 	 ('Masum',34.0),
@@ -19127,7 +19127,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mawdo',34.0),
 	 ('Maximiliano Daniel',34.0),
 	 ('Maximino Antonio',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Kevin',34.0),
 	 ('Miguel Roman',34.0),
 	 ('Mikelats',34.0),
@@ -19138,7 +19138,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Misael Antonio',34.0),
 	 ('Modou Lamin',34.0),
 	 ('Mohamed Saleh',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Yacine',34.0),
 	 ('Mohammad Amin',34.0),
 	 ('Moises Enrique',34.0),
@@ -19149,7 +19149,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Niang',34.0),
 	 ('Nicolas Nahuel',34.0),
 	 ('Nistor',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Noah Gabriel',34.0),
 	 ('Noan',34.0),
 	 ('Oliver Francisco',34.0),
@@ -19160,7 +19160,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Nahuel',34.0),
 	 ('Pancho',34.0),
 	 ('Papa Mamadou',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paraschiv',34.0),
 	 ('Patricio Daniel',34.0),
 	 ('Patrick Andrei',34.0),
@@ -19171,7 +19171,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Roque',34.0),
 	 ('Pedro Segundo',34.0),
 	 ('Perseo',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Peter Francis',34.0),
 	 ('Philippe Jean',34.0),
 	 ('Pierre Andre',34.0),
@@ -19182,7 +19182,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Gustavo',34.0),
 	 ('Rene Jose',34.0),
 	 ('Rimer',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Nicolas',34.0),
 	 ('Rodolf',34.0),
 	 ('Rodrigo Ramon',34.0),
@@ -19193,7 +19193,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Agustin',34.0),
 	 ('Ruben Armando',34.0),
 	 ('Ruben Felipe',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rufino Antonio',34.0),
 	 ('Rupert',34.0),
 	 ('Safeer',34.0),
@@ -19204,7 +19204,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Dario',34.0),
 	 ('Samuel Josue',34.0),
 	 ('Sandro Jose',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Arturo',34.0),
 	 ('Santiago Josue',34.0),
 	 ('Sebastian Cristian',34.0),
@@ -19215,7 +19215,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sevastian',34.0),
 	 ('Seydi',34.0),
 	 ('Sigitas',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Silver',34.0),
 	 ('Sixto Jesus',34.0),
 	 ('Tapha',34.0),
@@ -19226,7 +19226,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Valentin Carlos',34.0),
 	 ('Valentin Luis',34.0),
 	 ('Vassil',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Velichko',34.0),
 	 ('Vergil',34.0),
 	 ('Veridiano',34.0),
@@ -19237,7 +19237,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Matias',34.0),
 	 ('Viktar',34.0),
 	 ('Viorel Marian',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vlad Mihai',34.0),
 	 ('Walter Dario',34.0),
 	 ('Walter Francisco',34.0),
@@ -19248,7 +19248,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wenliang',34.0),
 	 ('Xiaorong',34.0),
 	 ('Yalal',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yiheng',34.0),
 	 ('Yongqing',34.0),
 	 ('Yubin',34.0),
@@ -19259,7 +19259,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zeyad',34.0),
 	 ('Zhiyi',34.0),
 	 ('Zixiang',34.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Andres',33.0),
 	 ('Abdeljaouad',33.0),
 	 ('Aboudou',33.0),
@@ -19270,7 +19270,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Leonardo',33.0),
 	 ('Aduanich',33.0),
 	 ('Agustin Matias',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ahtisham',33.0),
 	 ('Alberto Diego',33.0),
 	 ('Alberto Fermin',33.0),
@@ -19281,7 +19281,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexander Andres',33.0),
 	 ('Alexander Luis',33.0),
 	 ('Alexandru Petru',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Sebastian',33.0),
 	 ('Alexe',33.0),
 	 ('Alfredo Pablo',33.0),
@@ -19292,7 +19292,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amjid',33.0),
 	 ('Andersson',33.0),
 	 ('Andres Pascual',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrew George',33.0),
 	 ('Angel Candido',33.0),
 	 ('Angel Rolando',33.0),
@@ -19303,7 +19303,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anthony Miguel',33.0),
 	 ('Antonio Aaron',33.0),
 	 ('Antonio Fulgencio',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Enrique',33.0),
 	 ('Arturo Joaquin',33.0),
 	 ('Asser',33.0),
@@ -19314,7 +19314,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bernal',33.0),
 	 ('Bismarck',33.0),
 	 ('Bjoern',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Blas Vicente',33.0),
 	 ('Boufelja',33.0),
 	 ('Boulaye',33.0),
@@ -19325,7 +19325,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bryan Israel',33.0),
 	 ('Bryan Ivan',33.0),
 	 ('Bryan Santiago',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Calin Ioan',33.0),
 	 ('Carlos Gaspar',33.0),
 	 ('Carlos Justo',33.0),
@@ -19336,7 +19336,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Gerardo',33.0),
 	 ('Cesar Marcelo',33.0),
 	 ('Cheikh Omar',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chenrui',33.0),
 	 ('Christopher Edward',33.0),
 	 ('Ciprian Adrian',33.0),
@@ -19347,7 +19347,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Constantin Razvan',33.0),
 	 ('Costache',33.0),
 	 ('Cristian Abel',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Diego',33.0),
 	 ('Cristian Ion',33.0),
 	 ('Cristian Leonel',33.0),
@@ -19358,7 +19358,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Cesar',33.0),
 	 ('Daniel Mark',33.0),
 	 ('Daniel Sergio',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Danny Fernando',33.0),
 	 ('Danny Mauricio',33.0),
 	 ('Dario Daniel',33.0),
@@ -19369,7 +19369,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Abel',33.0),
 	 ('Diego Moises',33.0),
 	 ('Diego Ramiro',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Rene',33.0),
 	 ('Dimas Manuel',33.0),
 	 ('Dimcho',33.0),
@@ -19380,7 +19380,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dumitru Alexandru',33.0),
 	 ('Ebou',33.0),
 	 ('Edison Antonio',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edmar',33.0),
 	 ('Eduard Antonio',33.0),
 	 ('Eduard David',33.0),
@@ -19391,7 +19391,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edwin Roberto',33.0),
 	 ('Efrain Jose',33.0),
 	 ('Elaid',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elian Jose',33.0),
 	 ('Elvis Manuel',33.0),
 	 ('Emanuel Jose',33.0),
@@ -19402,7 +19402,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Esteven',33.0),
 	 ('Eugenio Alejandro',33.0),
 	 ('Evaristo Javier',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eyder',33.0),
 	 ('Favour',33.0),
 	 ('Felipe Pedro',33.0),
@@ -19413,7 +19413,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Flavio Cesar',33.0),
 	 ('Flavio Jose',33.0),
 	 ('Fodil',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Bernabe',33.0),
 	 ('Francisco Jonas',33.0),
 	 ('Francisco Jonatan',33.0),
@@ -19424,7 +19424,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Armando',33.0),
 	 ('Gabriel Julian',33.0),
 	 ('Gabrieli',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Galo Javier',33.0),
 	 ('Genaro Manuel',33.0),
 	 ('George Alexander',33.0),
@@ -19435,7 +19435,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gil Manuel',33.0),
 	 ('Gonzalo Esteban',33.0),
 	 ('Gotzon Mirena',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Graham Paul',33.0),
 	 ('Guillermo Elias',33.0),
 	 ('Guillermo Salvador',33.0),
@@ -19446,7 +19446,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hany',33.0),
 	 ('Haozhe',33.0),
 	 ('Hardip',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Harold David',33.0),
 	 ('Harry James',33.0),
 	 ('Hector Elias',33.0),
@@ -19457,7 +19457,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iakov',33.0),
 	 ('Ian Jesus',33.0),
 	 ('Ian Joel',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iba',33.0),
 	 ('Ignacio Ezequiel',33.0),
 	 ('Ignacio Mariano',33.0),
@@ -19468,7 +19468,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Oscar',33.0),
 	 ('Iñigo Antonio',33.0),
 	 ('Jack Michael',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jacky',33.0),
 	 ('Jaime Leon',33.0),
 	 ('Jaime Mauricio',33.0),
@@ -19479,7 +19479,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Feliciano',33.0),
 	 ('Jesus Gines',33.0),
 	 ('Jhon Jader',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jiafu',33.0),
 	 ('Jiaxing',33.0),
 	 ('Joan Deu',33.0),
@@ -19490,7 +19490,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Christian',33.0),
 	 ('John Eduardo',33.0),
 	 ('John Gerard',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Howard',33.0),
 	 ('Jon Ugutz',33.0),
 	 ('Jonathan Ezequiel',33.0),
@@ -19501,7 +19501,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Santos',33.0),
 	 ('Jose Adelino',33.0),
 	 ('Jose Arquimedes',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Aureliano',33.0),
 	 ('Jose Eulalio',33.0),
 	 ('Jose Filipe',33.0),
@@ -19512,7 +19512,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Peña',33.0),
 	 ('Jose Senen',33.0),
 	 ('Jose Tadeo',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Toribio',33.0),
 	 ('Joseph Patrick',33.0),
 	 ('Joshue',33.0),
@@ -19523,7 +19523,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Mateo',33.0),
 	 ('Justo David',33.0),
 	 ('Kader',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kamrul',33.0),
 	 ('Karmel',33.0),
 	 ('Kei',33.0),
@@ -19534,7 +19534,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Konstantine',33.0),
 	 ('Krasimir Ivanov',33.0),
 	 ('Landelino',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laye',33.0),
 	 ('Leandro Luis',33.0),
 	 ('Lee Anthony',33.0),
@@ -19545,7 +19545,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lovepreet Singh',33.0),
 	 ('Luca Nicolas',33.0),
 	 ('Lucas Aaron',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Pedro',33.0),
 	 ('Lucas Stefan',33.0),
 	 ('Lucian Nicolae',33.0),
@@ -19556,7 +19556,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Lazaro',33.0),
 	 ('Luis Narciso',33.0),
 	 ('Luis Nelson',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Ventura',33.0),
 	 ('Maday',33.0),
 	 ('Maicon',33.0),
@@ -19567,7 +19567,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Rufino',33.0),
 	 ('Manuel Severino',33.0),
 	 ('Manuel Victoriano',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Alexandre',33.0),
 	 ('Marcelino Miguel',33.0),
 	 ('Marcelo Augusto',33.0),
@@ -19578,7 +19578,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marian Madalin',33.0),
 	 ('Mariano Joaquin',33.0),
 	 ('Mariano Sebastian',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marino Jesus',33.0),
 	 ('Mario Carmelo',33.0),
 	 ('Marlon Alberto',33.0),
@@ -19589,7 +19589,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximiliano Alejandro',33.0),
 	 ('Mercedes',33.0),
 	 ('Michael Gabriel',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michel Alejandro',33.0),
 	 ('Michiel',33.0),
 	 ('Miguel Abraham',33.0),
@@ -19600,7 +19600,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mikayel',33.0),
 	 ('Milton Alexander',33.0),
 	 ('Miquel Ramon',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mir',33.0),
 	 ('Mircea Vasile',33.0),
 	 ('Moazzam',33.0),
@@ -19611,7 +19611,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Abdul',33.0),
 	 ('Muhammad Rizwan',33.0),
 	 ('Muhammad Talha',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Naoki',33.0),
 	 ('Nelson Mauricio',33.0),
 	 ('Nelson Orlando',33.0),
@@ -19622,7 +19622,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Orlando Juan',33.0),
 	 ('Osagie',33.0),
 	 ('Ovidiu Andrei',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Abel',33.0),
 	 ('Pablo Emanuel',33.0),
 	 ('Pablo Ramiro',33.0),
@@ -19633,7 +19633,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Amalio',33.0),
 	 ('Pedro Borja',33.0),
 	 ('Pedro Serafin',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Piergiorgio',33.0),
 	 ('Puiu',33.0),
 	 ('Rael',33.0),
@@ -19644,7 +19644,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rajiv',33.0),
 	 ('Ramon Mario',33.0),
 	 ('Raul Clemente',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Eugenio',33.0),
 	 ('Recesvinto',33.0),
 	 ('Rene Eduardo',33.0),
@@ -19655,7 +19655,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Claudio',33.0),
 	 ('Roberto Ruben',33.0),
 	 ('Rodrigo Adrian',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rui Alexandre',33.0),
 	 ('Sachin',33.0),
 	 ('Saladino',33.0),
@@ -19666,7 +19666,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Carlos',33.0),
 	 ('Sanson',33.0),
 	 ('Saturno',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saul Alexander',33.0),
 	 ('Savva',33.0),
 	 ('Sebastian Alexis',33.0),
@@ -19677,7 +19677,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergiu Ionut',33.0),
 	 ('Sevak',33.0),
 	 ('Seyni',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shaiel',33.0),
 	 ('Shuangjun',33.0),
 	 ('Shun',33.0),
@@ -19688,7 +19688,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Simon Charles',33.0),
 	 ('Simon Javier',33.0),
 	 ('Stalin',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stefan Ioan',33.0),
 	 ('Stefan Marius',33.0),
 	 ('Stephen Philip',33.0),
@@ -19699,7 +19699,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Theodoros',33.0),
 	 ('Tomas Felix',33.0),
 	 ('Touba',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Uyi',33.0),
 	 ('Valentin Constantin',33.0),
 	 ('Valentin Nicolae',33.0),
@@ -19710,7 +19710,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vitalijus',33.0),
 	 ('Wadia',33.0),
 	 ('Walter Ramon',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wenkai',33.0),
 	 ('Wilkin',33.0),
 	 ('Wilmer Daniel',33.0),
@@ -19721,7 +19721,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yeidan',33.0),
 	 ('Yoshua',33.0),
 	 ('Yu Hao',33.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yusniel',33.0),
 	 ('Zdzislaw',33.0),
 	 ('Zhenhua',33.0),
@@ -19732,7 +19732,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aamer',32.0),
 	 ('Aaron Santiago',32.0),
 	 ('Abad',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelaati',32.0),
 	 ('Abdennaser',32.0),
 	 ('Abderrezzak',32.0),
@@ -19743,7 +19743,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abubakr',32.0),
 	 ('Adolfo Andres',32.0),
 	 ('Akmal',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alaaeddine',32.0),
 	 ('Alan Nicolas',32.0),
 	 ('Alan Roy',32.0),
@@ -19754,7 +19754,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Michael',32.0),
 	 ('Alexander Fernando',32.0),
 	 ('Alexandru Raul',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Pascual',32.0),
 	 ('Alfonso Roberto',32.0),
 	 ('Alie',32.0),
@@ -19765,7 +19765,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amante',32.0),
 	 ('Amrit',32.0),
 	 ('Amro',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anastacio',32.0),
 	 ('Andres Bernardo',32.0),
 	 ('Andres Isaac',32.0),
@@ -19776,7 +19776,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anibal Javier',32.0),
 	 ('Anoar',32.0),
 	 ('Anselmo Javier',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Bautista',32.0),
 	 ('Antonio Camilo',32.0),
 	 ('Antonio Celestino',32.0),
@@ -19787,7 +19787,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Jorge',32.0),
 	 ('Arturo Pablo',32.0),
 	 ('Assaad',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aurelio Rafael',32.0),
 	 ('Basilides',32.0),
 	 ('Ben Youssef',32.0),
@@ -19798,7 +19798,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bubakary',32.0),
 	 ('Byron Alejandro',32.0),
 	 ('Byron Eduardo',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Byron Jose',32.0),
 	 ('Carlos Christian',32.0),
 	 ('Carlos Florencio',32.0),
@@ -19809,7 +19809,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Felix',32.0),
 	 ('Charles Henry',32.0),
 	 ('Cheikh Ahmed Tidiane',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chengjie',32.0),
 	 ('Chenxuan',32.0),
 	 ('Christian Jonathan',32.0),
@@ -19820,7 +19820,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cornelis Johannes',32.0),
 	 ('Costel Daniel',32.0),
 	 ('Cristian Eugen',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Iulian',32.0),
 	 ('Damian Ariel',32.0),
 	 ('Daniel Anthony',32.0),
@@ -19831,7 +19831,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Adolfo',32.0),
 	 ('David Vasile',32.0),
 	 ('Dennis Javier',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Derlis',32.0),
 	 ('Diego Josue',32.0),
 	 ('Dmitrij',32.0),
@@ -19842,7 +19842,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison Giovanny',32.0),
 	 ('Eduard George',32.0),
 	 ('Eduardo Ariel',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Hector',32.0),
 	 ('Eduardo Ismael',32.0),
 	 ('Edward Daniel',32.0),
@@ -19853,7 +19853,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Hamid',32.0),
 	 ('El Haouari',32.0),
 	 ('Elhabib',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elias Andres',32.0),
 	 ('Elio Jesus',32.0),
 	 ('Elmostafa',32.0),
@@ -19864,7 +19864,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Oscar',32.0),
 	 ('Eric Santiago',32.0),
 	 ('Erik Jesus',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ernesto Eduardo',32.0),
 	 ('Esteban Joaquin',32.0),
 	 ('Esteban Santiago',32.0),
@@ -19875,7 +19875,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian Patricio',32.0),
 	 ('Fabio Luis',32.0),
 	 ('Fabricio Alexander',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fausto Jesus',32.0),
 	 ('Federico Matias',32.0),
 	 ('Feliciano Jesus',32.0),
@@ -19886,7 +19886,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Ciprian',32.0),
 	 ('Florin Dan',32.0),
 	 ('Francisco Amadeo',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Candido',32.0),
 	 ('Francisco Genaro',32.0),
 	 ('Franco Emanuel',32.0),
@@ -19897,7 +19897,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Franklin Geovanny',32.0),
 	 ('Freddy Daniel',32.0),
 	 ('Freddy Orlando',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frederick William',32.0),
 	 ('Friedrich Wilhelm',32.0),
 	 ('Gabriel Humberto',32.0),
@@ -19908,7 +19908,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Germiniano',32.0),
 	 ('Gheorghe Nicolae',32.0),
 	 ('Gildardo Antonio',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Glyn',32.0),
 	 ('Gonzalo Hernan',32.0),
 	 ('Gonzalo Nahuel',32.0),
@@ -19919,7 +19919,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hamara',32.0),
 	 ('Harkirat',32.0),
 	 ('Harold Antonio',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hasni',32.0),
 	 ('Hector Arturo',32.0),
 	 ('Hector Salvador',32.0),
@@ -19930,7 +19930,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hongsheng',32.0),
 	 ('Huc',32.0),
 	 ('Hugo Angel',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Nelson',32.0),
 	 ('Ian Santiago',32.0),
 	 ('Iban Jesus',32.0),
@@ -19941,7 +19941,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Petru',32.0),
 	 ('Ion Bogdan',32.0),
 	 ('Isidoro Angel',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isidro Fernando',32.0),
 	 ('Ismaail',32.0),
 	 ('Iulian Cristian',32.0),
@@ -19952,7 +19952,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jandro',32.0),
 	 ('Jaume Albert',32.0),
 	 ('Javier Hugo',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Oswaldo',32.0),
 	 ('Jaziel',32.0),
 	 ('Jeffery',32.0),
@@ -19963,7 +19963,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Cayetano',32.0),
 	 ('Jesus Cipriano',32.0),
 	 ('Jesus Constantino',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Florentino',32.0),
 	 ('Jesus Lucas',32.0),
 	 ('Jesus Raimundo',32.0),
@@ -19974,7 +19974,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinsheng',32.0),
 	 ('Joan Agusti',32.0),
 	 ('Joaquin Mario',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquin Martin',32.0),
 	 ('Johan Eduardo',32.0),
 	 ('John Alexis',32.0),
@@ -19985,7 +19985,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonay Manuel',32.0),
 	 ('Jordi Pere',32.0),
 	 ('Jorge Bolivar',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Eloy',32.0),
 	 ('Jorge Filipe',32.0),
 	 ('Jorge Maximiliano',32.0),
@@ -19996,7 +19996,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Misael',32.0),
 	 ('Jose Regino',32.0),
 	 ('Jose Severo',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Vicenç',32.0),
 	 ('Joseph Manuel',32.0),
 	 ('Josue Abraham',32.0),
@@ -20007,7 +20007,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Benito',32.0),
 	 ('Junior Alejandro',32.0),
 	 ('Junior Jesus',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kamo',32.0),
 	 ('Kaue',32.0),
 	 ('Keith Robert',32.0),
@@ -20018,7 +20018,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lazare',32.0),
 	 ('Lazaro Miguel',32.0),
 	 ('Leonardo Carlos',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonel Andres',32.0),
 	 ('Liber',32.0),
 	 ('Licer',32.0),
@@ -20029,7 +20029,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Mariano',32.0),
 	 ('Lucas Mihai',32.0),
 	 ('Lucian Constantin',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Anderson',32.0),
 	 ('Luis Emmanuel',32.0),
 	 ('Luis Fabricio',32.0),
@@ -20040,7 +20040,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Magdiel',32.0),
 	 ('Mame Gor',32.0),
 	 ('Mani',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maniang',32.0),
 	 ('Manuel Herminio',32.0),
 	 ('Manuel Maximino',32.0),
@@ -20051,7 +20051,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marco Francisco',32.0),
 	 ('Marcos Dario',32.0),
 	 ('Marcos Gregorio',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos Josue',32.0),
 	 ('Mario Ismael',32.0),
 	 ('Marius Costel',32.0),
@@ -20062,7 +20062,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin William',32.0),
 	 ('Marton',32.0),
 	 ('Masse',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Santiago',32.0),
 	 ('Matias Leonel',32.0),
 	 ('Maui',32.0),
@@ -20073,7 +20073,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Amador',32.0),
 	 ('Miguel Jacinto',32.0),
 	 ('Milton Alejandro',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Milton Daniel',32.0),
 	 ('Mingliang',32.0),
 	 ('Mohamed El Arbi',32.0),
@@ -20084,7 +20084,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Moncif',32.0),
 	 ('Muhammad Fahad',32.0),
 	 ('Muhammad Naeem',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Murillo',32.0),
 	 ('Nacer Eddine',32.0),
 	 ('Nathan David',32.0),
@@ -20095,7 +20095,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Emanuel',32.0),
 	 ('Nicolas Fabian',32.0),
 	 ('Nicolas Pierre',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nikko',32.0),
 	 ('Nixon',32.0),
 	 ('Noe Jesus',32.0),
@@ -20106,7 +20106,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ouahib',32.0),
 	 ('Pablo Bernardo',32.0),
 	 ('Pablo Cristian',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Mario',32.0),
 	 ('Pablo Rodolfo',32.0),
 	 ('Panfilo',32.0),
@@ -20117,7 +20117,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Philip George',32.0),
 	 ('Pierre Louis',32.0),
 	 ('Protasio',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Quiliano',32.0),
 	 ('Rafael Aurelio',32.0),
 	 ('Rafael Cesar',32.0),
@@ -20128,7 +20128,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramiro Francisco',32.0),
 	 ('Ramon Diego',32.0),
 	 ('Ramon Oscar',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rares Ionut',32.0),
 	 ('Raul Agustin',32.0),
 	 ('Raul Ioan',32.0),
@@ -20139,7 +20139,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richard Henry',32.0),
 	 ('Rico',32.0),
 	 ('Rimantas',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rinaldo',32.0),
 	 ('Robert Steven',32.0),
 	 ('Robert Thomas',32.0),
@@ -20150,7 +20150,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rolando David',32.0),
 	 ('Ruben Horacio',32.0),
 	 ('Ruben Orlando',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Patricio',32.0),
 	 ('Ryu',32.0),
 	 ('Samai',32.0),
@@ -20161,7 +20161,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santos Andres',32.0),
 	 ('Saul Alberto',32.0),
 	 ('Seikou',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Senador',32.0),
 	 ('Serafin Francisco',32.0),
 	 ('Sergio Alvaro',32.0),
@@ -20172,7 +20172,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shady',32.0),
 	 ('Sidonio',32.0),
 	 ('Silverio Jose',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Silviu Constantin',32.0),
 	 ('Sindo',32.0),
 	 ('Sixto Antonio',32.0),
@@ -20183,7 +20183,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stefan Alin',32.0),
 	 ('Stefan Iulian',32.0),
 	 ('Steven Robert',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stivan',32.0),
 	 ('Sukhchain',32.0),
 	 ('Tabare',32.0),
@@ -20194,7 +20194,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Texenery',32.0),
 	 ('Thiago Antonio',32.0),
 	 ('Thiago Benjamin',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thierno Ibrahima',32.0),
 	 ('Tianle',32.0),
 	 ('Timothy David',32.0),
@@ -20205,7 +20205,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Varun',32.0),
 	 ('Victor Aurelio',32.0),
 	 ('Victoriano Javier',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vlad Gabriel',32.0),
 	 ('Wahab',32.0),
 	 ('Walter Vinicio',32.0),
@@ -20216,7 +20216,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Armando',32.0),
 	 ('William Humberto',32.0),
 	 ('William Richard',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Ramiro',32.0),
 	 ('Xabier Mikel',32.0),
 	 ('Xabin',32.0),
@@ -20227,7 +20227,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xose Antonio',32.0),
 	 ('Yadier',32.0),
 	 ('Yankhoba',32.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yongli',32.0),
 	 ('Yufei',32.0),
 	 ('Yunlong',32.0),
@@ -20238,7 +20238,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhichao',32.0),
 	 ('Abdel Kader',31.0),
 	 ('Abdelghni',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelhai',31.0),
 	 ('Abdeluahid',31.0),
 	 ('Abdul Razak',31.0),
@@ -20249,7 +20249,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Gonzalo',31.0),
 	 ('Adrian Isaac',31.0),
 	 ('Adrian Pedro',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Afif',31.0),
 	 ('Ahamed',31.0),
 	 ('Ahmed Salek',31.0),
@@ -20260,7 +20260,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Arturo',31.0),
 	 ('Alberto Matias',31.0),
 	 ('Aldo Antonio',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Hernan',31.0),
 	 ('Alejandro Rene',31.0),
 	 ('Alex Geovanny',31.0),
@@ -20271,7 +20271,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Dario',31.0),
 	 ('Alvaro Samuel',31.0),
 	 ('Amadou Dioulde',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amalio Jose',31.0),
 	 ('Amrinder',31.0),
 	 ('Anderson Steven',31.0),
@@ -20282,7 +20282,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Federico',31.0),
 	 ('Andres Felix',31.0),
 	 ('Andres Oscar',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Victor',31.0),
 	 ('Andrew Thomas',31.0),
 	 ('Andy Daniel',31.0),
@@ -20293,7 +20293,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Eladio',31.0),
 	 ('Angel Fabricio',31.0),
 	 ('Angel Hernan',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Jeronimo',31.0),
 	 ('Anibal Daniel',31.0),
 	 ('Anri',31.0),
@@ -20304,7 +20304,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ararat',31.0),
 	 ('Arek',31.0),
 	 ('Ariam',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Dario',31.0),
 	 ('Ariel Marcelo',31.0),
 	 ('Armando Alberto',31.0),
@@ -20315,7 +20315,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aurelio Enrique',31.0),
 	 ('Avelino Antonio',31.0),
 	 ('Avetik',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ayouba',31.0),
 	 ('Ayran',31.0),
 	 ('Azibar',31.0),
@@ -20326,7 +20326,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bharat',31.0),
 	 ('Blas Alejandro',31.0),
 	 ('Blas David',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bogdan Catalin',31.0),
 	 ('Bohan',31.0),
 	 ('Bram',31.0),
@@ -20337,7 +20337,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Burak',31.0),
 	 ('Caio Cesar',31.0),
 	 ('Carlito',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Emmanuel',31.0),
 	 ('Carlos Luciano',31.0),
 	 ('Carlos Wilfredo',31.0),
@@ -20348,7 +20348,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Armando',31.0),
 	 ('Christian Gustavo',31.0),
 	 ('Christian Hernan',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chuan',31.0),
 	 ('Chunsheng',31.0),
 	 ('Claudio Sebastian',31.0),
@@ -20359,7 +20359,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cornel Daniel',31.0),
 	 ('Cristiam',31.0),
 	 ('Cristian Gustavo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Rene',31.0),
 	 ('Cruz Manuel',31.0),
 	 ('Daan',31.0),
@@ -20370,7 +20370,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Leon',31.0),
 	 ('Daniel Sorin',31.0),
 	 ('Daour',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dario Rafael',31.0),
 	 ('Darvin',31.0),
 	 ('Darwin Roberto',31.0),
@@ -20381,7 +20381,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Humberto',31.0),
 	 ('David Leandro',31.0),
 	 ('Dawud',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Demetrio Manuel',31.0),
 	 ('Denis Alberto',31.0),
 	 ('Derlis Ramon',31.0),
@@ -20392,7 +20392,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Cristian',31.0),
 	 ('Diego Pascual',31.0),
 	 ('Diego Vinicio',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dilip',31.0),
 	 ('Dilyan',31.0),
 	 ('Dimas Jesus',31.0),
@@ -20403,7 +20403,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Oswaldo',31.0),
 	 ('Edison Rolando',31.0),
 	 ('Eduardo Damian',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo German',31.0),
 	 ('Efren Antonio',31.0),
 	 ('Eidam',31.0),
@@ -20414,7 +20414,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elvin Antonio',31.0),
 	 ('Emanuel Gabriel',31.0),
 	 ('Emilio Felix',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emmanuel Antonio',31.0),
 	 ('Enok',31.0),
 	 ('Enrique Armando',31.0),
@@ -20425,7 +20425,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Santiago',31.0),
 	 ('Eulogio Jesus',31.0),
 	 ('Eusebio Carlos',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eusebio Ramon',31.0),
 	 ('Evgheni',31.0),
 	 ('Exuperio',31.0),
@@ -20436,7 +20436,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fauzi',31.0),
 	 ('Fawaz',31.0),
 	 ('Fayez',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fayçal',31.0),
 	 ('Federico Rafael',31.0),
 	 ('Fernando Eloy',31.0),
@@ -20447,7 +20447,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Abelardo',31.0),
 	 ('Francisco Baltasar',31.0),
 	 ('Francisco Jabier',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Saturnino',31.0),
 	 ('Franco Javier',31.0),
 	 ('Franklin Roberto',31.0),
@@ -20458,7 +20458,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaspard',31.0),
 	 ('Genaro Jose',31.0),
 	 ('George Ciprian',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('George Constantin',31.0),
 	 ('Giraldo',31.0),
 	 ('Girolamo',31.0),
@@ -20469,7 +20469,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Graham William',31.0),
 	 ('Guangming',31.0),
 	 ('Guillermo Hernan',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gumersindo Manuel',31.0),
 	 ('Guobin',31.0),
 	 ('Guoguang',31.0),
@@ -20480,7 +20480,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Haoyi',31.0),
 	 ('Haritza',31.0),
 	 ('Harley',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Abel',31.0),
 	 ('Hector Josue',31.0),
 	 ('Hector Sebastian',31.0),
@@ -20491,7 +20491,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ierai',31.0),
 	 ('Ignacio Borja',31.0),
 	 ('Ignacio Pascual',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Igon',31.0),
 	 ('Ioan Dumitru',31.0),
 	 ('Ion Cosmin',31.0),
@@ -20502,7 +20502,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Josue',31.0),
 	 ('Iñigo Xabier',31.0),
 	 ('Jaime Marcos',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('James Frederick',31.0),
 	 ('James Stuart',31.0),
 	 ('Jaskirat',31.0),
@@ -20513,7 +20513,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeison David',31.0),
 	 ('Jep',31.0),
 	 ('Jeremy Alejandro',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Abelardo',31.0),
 	 ('Jesus Aday',31.0),
 	 ('Jesus Anselmo',31.0),
@@ -20524,7 +20524,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jialin',31.0),
 	 ('Jianan',31.0),
 	 ('Jinfeng',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Llorenç',31.0),
 	 ('Joao Marcos',31.0),
 	 ('Joaquin Gonzalo',31.0),
@@ -20535,7 +20535,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johathan',31.0),
 	 ('Jonathan Martin',31.0),
 	 ('Jorge Lucas',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Roman',31.0),
 	 ('Jorge Xavier',31.0),
 	 ('Jose Cosme',31.0),
@@ -20546,7 +20546,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joseba Patxi',31.0),
 	 ('Josep Pau',31.0),
 	 ('Joshua Manuel',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josue Aaron',31.0),
 	 ('Josue Isaac',31.0),
 	 ('Jovani',31.0),
@@ -20557,7 +20557,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Emmanuel',31.0),
 	 ('Juan Josep',31.0),
 	 ('Juan Pelayo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Hector',31.0),
 	 ('Junior David',31.0),
 	 ('Justin David',31.0),
@@ -20568,7 +20568,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Jonathan',31.0),
 	 ('Kevin Richard',31.0),
 	 ('Kevin Rodrigo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kilian David',31.0),
 	 ('Larosi',31.0),
 	 ('Leandro Enrique',31.0),
@@ -20579,7 +20579,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lennart',31.0),
 	 ('Leodan',31.0),
 	 ('Leonardo Augusto',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leonardo Cesar',31.0),
 	 ('Leonida',31.0),
 	 ('Leopoldo Luis',31.0),
@@ -20590,7 +20590,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Pablo',31.0),
 	 ('Luciano Gabriel',31.0),
 	 ('Luis Cesareo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Heriberto',31.0),
 	 ('Magec',31.0),
 	 ('Mahfoudh',31.0),
@@ -20601,7 +20601,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Efrain',31.0),
 	 ('Manuel Hector',31.0),
 	 ('Manuel Rene',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Venancio',31.0),
 	 ('Marcelo Carlos',31.0),
 	 ('Marcial Francisco',31.0),
@@ -20612,7 +20612,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marius Eduard',31.0),
 	 ('Marius Razvan',31.0),
 	 ('Mark Thomas',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marlon Eduardo',31.0),
 	 ('Martin Tomas',31.0),
 	 ('Martires',31.0),
@@ -20623,7 +20623,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximiliano Nicolas',31.0),
 	 ('Maximo Angel',31.0),
 	 ('Maximo Enrique',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Rafael',31.0),
 	 ('Mazin',31.0),
 	 ('Mher',31.0),
@@ -20634,7 +20634,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mihael',31.0),
 	 ('Mihai Razvan',31.0),
 	 ('Mijael',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mikel Ander',31.0),
 	 ('Mikita',31.0),
 	 ('Milton David',31.0),
@@ -20645,7 +20645,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mon',31.0),
 	 ('Montassir',31.0),
 	 ('Montserrat',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mouhamadou Mansour',31.0),
 	 ('Mountaga',31.0),
 	 ('Mountassir',31.0),
@@ -20656,7 +20656,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelson Humberto',31.0),
 	 ('Nelson Raul',31.0),
 	 ('Nemesio Jose',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Rafael',31.0),
 	 ('Nestor Ramon',31.0),
 	 ('Nfaly',31.0),
@@ -20667,7 +20667,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Noreddin',31.0),
 	 ('Nouraddin',31.0),
 	 ('Omar Alfonso',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Omar Santiago',31.0),
 	 ('Onai',31.0),
 	 ('Onan',31.0),
@@ -20678,7 +20678,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Owais',31.0),
 	 ('Oways',31.0),
 	 ('Pablo Alvaro',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pal',31.0),
 	 ('Patricio David',31.0),
 	 ('Paul Charles',31.0),
@@ -20689,7 +20689,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Qiao',31.0),
 	 ('Rachyd',31.0),
 	 ('Rafael Jeronimo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raimundo Javier',31.0),
 	 ('Ramon Bernardo',31.0),
 	 ('Ramon Cristobal',31.0),
@@ -20700,7 +20700,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Reinaldo Andres',31.0),
 	 ('Remigi',31.0),
 	 ('Rene Fernando',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Reynaldo Jose',31.0),
 	 ('Ricardo Patricio',31.0),
 	 ('Robert Manuel',31.0),
@@ -20711,7 +20711,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Vicente',31.0),
 	 ('Ruben Adolfo',31.0),
 	 ('Ruben Gustavo',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Hector',31.0),
 	 ('Ruixuan',31.0),
 	 ('Sadou',31.0),
@@ -20722,7 +20722,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Gabriel',31.0),
 	 ('Samuel Rafael',31.0),
 	 ('Santiago Damian',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Jaime',31.0),
 	 ('Santos Maria',31.0),
 	 ('Sarr',31.0),
@@ -20733,7 +20733,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Adolfo',31.0),
 	 ('Sergio Joel',31.0),
 	 ('Shengwei',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shu',31.0),
 	 ('Sinisa',31.0),
 	 ('Stavros',31.0),
@@ -20744,7 +20744,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sumaila',31.0),
 	 ('Surya',31.0),
 	 ('Sylwester',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tarsilo',31.0),
 	 ('Taufik',31.0),
 	 ('Tengiz',31.0),
@@ -20755,7 +20755,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Valentin Ramon',31.0),
 	 ('Vicent Ramon',31.0),
 	 ('Vicente Fabian',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Guillermo',31.0),
 	 ('Victor Abraham',31.0),
 	 ('Victor Modesto',31.0),
@@ -20766,7 +20766,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vivek',31.0),
 	 ('Wali',31.0),
 	 ('Walter Alexis',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter Gustavo',31.0),
 	 ('Walter Ruben',31.0),
 	 ('Waris',31.0),
@@ -20777,7 +20777,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Frederick',31.0),
 	 ('William Roberto',31.0),
 	 ('Willington',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Leonardo',31.0),
 	 ('Xiaohui',31.0),
 	 ('Xinkai',31.0),
@@ -20788,7 +20788,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yousif',31.0),
 	 ('Ysidro',31.0),
 	 ('Yu Chen',31.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yuqi',31.0),
 	 ('Zaher',31.0),
 	 ('Zayan',31.0),
@@ -20799,7 +20799,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zoher',31.0),
 	 ('Abdeljalal',30.0),
 	 ('Abdo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdoullah',30.0),
 	 ('Abdulkarim',30.0),
 	 ('Abelio',30.0),
@@ -20810,7 +20810,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aitor Andres',30.0),
 	 ('Al Amin',30.0),
 	 ('Alain Jose',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alasana',30.0),
 	 ('Alberto Gerardo',30.0),
 	 ('Alberto Isidro',30.0),
@@ -20821,7 +20821,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Ricardo',30.0),
 	 ('Ali Haider',30.0),
 	 ('Alon',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alphonse',30.0),
 	 ('Alvaro Isidro',30.0),
 	 ('Alvaro Mauricio',30.0),
@@ -20832,7 +20832,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Diego',30.0),
 	 ('Andres Josue',30.0),
 	 ('Andrew Philip',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Aitor',30.0),
 	 ('Angel Gaspar',30.0),
 	 ('Angel Gines',30.0),
@@ -20843,7 +20843,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Octavio',30.0),
 	 ('Angel Xavier',30.0),
 	 ('Antonio Baltasar',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Casimiro',30.0),
 	 ('Antonio Constantino',30.0),
 	 ('Antonio Demetrio',30.0),
@@ -20854,7 +20854,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ashiq',30.0),
 	 ('Ass',30.0),
 	 ('Atanas Ivanov',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Atlas',30.0),
 	 ('Axel Javier',30.0),
 	 ('Azaan',30.0),
@@ -20865,7 +20865,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benigno Javier',30.0),
 	 ('Benito Alberto',30.0),
 	 ('Bernadi',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Besiki',30.0),
 	 ('Bitor',30.0),
 	 ('Bogdan George',30.0),
@@ -20876,7 +20876,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Dionisio',30.0),
 	 ('Carlos Jeronimo',30.0),
 	 ('Carlos Maximo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Oliver',30.0),
 	 ('Carlos Wilson',30.0),
 	 ('Carmelo Agustin',30.0),
@@ -20887,7 +20887,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cheikhou Oumar',30.0),
 	 ('Chi',30.0),
 	 ('Christiam',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christian Carlos',30.0),
 	 ('Christian Geovanny',30.0),
 	 ('Christian John',30.0),
@@ -20898,7 +20898,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Constantin Liviu',30.0),
 	 ('Crispiniano',30.0),
 	 ('Cristea',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Cosmin',30.0),
 	 ('Cristian Leandro',30.0),
 	 ('Cristoffer',30.0),
@@ -20909,7 +20909,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dan Adrian',30.0),
 	 ('Daniel Damian',30.0),
 	 ('Daniel Lucian',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Viorel',30.0),
 	 ('Danny Xavier',30.0),
 	 ('Dany Daniel',30.0),
@@ -20920,7 +20920,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Darwin Josue',30.0),
 	 ('Darwin Vinicio',30.0),
 	 ('David Matias',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dawit',30.0),
 	 ('Dei',30.0),
 	 ('Deivi',30.0),
@@ -20931,7 +20931,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Mateo',30.0),
 	 ('Dioscorides',30.0),
 	 ('Django',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Domingo Ivan',30.0),
 	 ('Douglas Alberto',30.0),
 	 ('Dragos Adrian',30.0),
@@ -20942,7 +20942,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Armando',30.0),
 	 ('Edison Enrique',30.0),
 	 ('Edwin Alfonso',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Arturo',30.0),
 	 ('Edwin Giovanny',30.0),
 	 ('Edwin Raul',30.0),
@@ -20953,7 +20953,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elguja',30.0),
 	 ('Elhadji Mamadou',30.0),
 	 ('Ellande',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eloy Gonzalo',30.0),
 	 ('Elver',30.0),
 	 ('Enaut',30.0),
@@ -20964,7 +20964,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Erick Steven',30.0),
 	 ('Esteban Domingo',30.0),
 	 ('Esteban Pablo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ezequiel Andres',30.0),
 	 ('Ezequiel Manuel',30.0),
 	 ('Fabio David',30.0),
@@ -20975,7 +20975,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Falilou',30.0),
 	 ('Felipe Roberto',30.0),
 	 ('Felipe Segundo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felix Adolfo',30.0),
 	 ('Felix Jorge',30.0),
 	 ('Fernando Blas',30.0),
@@ -20986,7 +20986,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Amado',30.0),
 	 ('Francisco Isaias',30.0),
 	 ('Franco Manuel',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frank Alberto',30.0),
 	 ('Franklin Orlando',30.0),
 	 ('Frederick John',30.0),
@@ -20997,7 +20997,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gaofeng',30.0),
 	 ('Gary Robert',30.0),
 	 ('Gaspare',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaston Andres',30.0),
 	 ('George Henry',30.0),
 	 ('George James',30.0),
@@ -21008,7 +21008,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Adolfo',30.0),
 	 ('Gero',30.0),
 	 ('Gianmaria',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Godfred',30.0),
 	 ('Gonzalo Ariel',30.0),
 	 ('Gregorio Daniel',30.0),
@@ -21019,7 +21019,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillem Joan',30.0),
 	 ('Guillermo Jaime',30.0),
 	 ('Gustavo Anibal',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Rodolfo',30.0),
 	 ('Haimadou',30.0),
 	 ('Halid',30.0),
@@ -21030,7 +21030,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hazem',30.0),
 	 ('Hector German',30.0),
 	 ('Hector Pedro',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Xavier',30.0),
 	 ('Hennadii',30.0),
 	 ('Hercules',30.0),
@@ -21041,7 +21041,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian Nicolas',30.0),
 	 ('Ignacio Carmelo',30.0),
 	 ('Ignacio Gonzalo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Ruben',30.0),
 	 ('Ilie Alexandru',30.0),
 	 ('Ioan Dan',30.0),
@@ -21052,7 +21052,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ion Iulian',30.0),
 	 ('Irshad',30.0),
 	 ('Isaac Eduardo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ismael Pedro',30.0),
 	 ('Itzae',30.0),
 	 ('Iulian Adrian',30.0),
@@ -21063,7 +21063,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iñaki Joseba',30.0),
 	 ('Jaime Cristobal',30.0),
 	 ('Jaime Ismael',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Julian',30.0),
 	 ('Jaime Pascual',30.0),
 	 ('Jairo Ivan',30.0),
@@ -21074,7 +21074,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jean Daniel',30.0),
 	 ('Jefferson Steven',30.0),
 	 ('Jeicob',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeremy Daniel',30.0),
 	 ('Jesus Eulogio',30.0),
 	 ('Jesus Hernan',30.0),
@@ -21085,7 +21085,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinpeng',30.0),
 	 ('Jinyong',30.0),
 	 ('Joab',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Alexandre',30.0),
 	 ('Joan Emili',30.0),
 	 ('Joan Oriol',30.0),
@@ -21096,7 +21096,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johannes Hendrikus',30.0),
 	 ('Johannes Jacobus',30.0),
 	 ('John Douglas',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Johnny Jose',30.0),
 	 ('Jojo',30.0),
 	 ('Jordan Andres',30.0),
@@ -21107,7 +21107,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Artemio',30.0),
 	 ('Jose Belisario',30.0),
 	 ('Jose Ciriaco',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Arnau',30.0),
 	 ('Josep Marti',30.0),
 	 ('Josep Miguel',30.0),
@@ -21118,7 +21118,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Ruperto',30.0),
 	 ('Juan Saul',30.0),
 	 ('Juan Steban',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Anibal',30.0),
 	 ('Julio Leonardo',30.0),
 	 ('Junlin',30.0),
@@ -21129,7 +21129,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Khatri',30.0),
 	 ('Kilian Manuel',30.0),
 	 ('Klaas',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kristoffer',30.0),
 	 ('Kulvir',30.0),
 	 ('Kyran',30.0),
@@ -21140,7 +21140,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Liam Jesus',30.0),
 	 ('Ling',30.0),
 	 ('Lino Javier',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Linwei',30.0),
 	 ('Lisard',30.0),
 	 ('Lisheng',30.0),
@@ -21151,7 +21151,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorenzo Fernando',30.0),
 	 ('Lucas Angel',30.0),
 	 ('Lucas Felipe',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luciano Agustin',30.0),
 	 ('Luis Christian',30.0),
 	 ('Luis Emanuel',30.0),
@@ -21162,7 +21162,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luiz Antonio',30.0),
 	 ('Luke James',30.0),
 	 ('Maiu',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maksims',30.0),
 	 ('Malle',30.0),
 	 ('Mamudu',30.0),
@@ -21173,7 +21173,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marco Rodrigo',30.0),
 	 ('Marcos Andrei',30.0),
 	 ('Marcos Israel',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Laurentiu',30.0),
 	 ('Mariano Carmelo',30.0),
 	 ('Mariano Emilio',30.0),
@@ -21184,7 +21184,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Guillermo',30.0),
 	 ('Martin Ivan',30.0),
 	 ('Mateo Joaquin',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Juan',30.0),
 	 ('Matthew Charles',30.0),
 	 ('Mauricio Miguel',30.0),
@@ -21195,7 +21195,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mikolaj',30.0),
 	 ('Milton Antonio',30.0),
 	 ('Milton Ivan',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mingming',30.0),
 	 ('Miodrag',30.0),
 	 ('Mohamed Adil',30.0),
@@ -21206,7 +21206,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nguyen',30.0),
 	 ('Nicolas Benjamin',30.0),
 	 ('Nicolas Mariano',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Maximiliano',30.0),
 	 ('Nicolas Rodrigo',30.0),
 	 ('Nivardo',30.0),
@@ -21217,7 +21217,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Isidro',30.0),
 	 ('Oscar Ismael',30.0),
 	 ('Oscar Sergio',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ovidiu Marian',30.0),
 	 ('Pablo Carmelo',30.0),
 	 ('Pargat',30.0),
@@ -21228,7 +21228,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paul Jose',30.0),
 	 ('Paul Vasile',30.0),
 	 ('Paulo Andre',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Clemente',30.0),
 	 ('Pedro Maximo',30.0),
 	 ('Pedro Modesto',30.0),
@@ -21239,7 +21239,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Placido Jesus',30.0),
 	 ('Radu Adrian',30.0),
 	 ('Radu Florin',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Radu Nicolae',30.0),
 	 ('Rafael Benjamin',30.0),
 	 ('Rafael Eloy',30.0),
@@ -21250,7 +21250,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Marcos',30.0),
 	 ('Raul Ruben',30.0),
 	 ('Rayco Javier',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ren',30.0),
 	 ('Ricard Josep',30.0),
 	 ('Ricardo Aurelio',30.0),
@@ -21261,7 +21261,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Horacio',30.0),
 	 ('Rocky',30.0),
 	 ('Rodrigo Matias',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roger Charles',30.0),
 	 ('Roger Fernando',30.0),
 	 ('Romuald',30.0),
@@ -21272,7 +21272,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roy William',30.0),
 	 ('Ruben Alonso',30.0),
 	 ('Ruben Domingo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Guillermo',30.0),
 	 ('Russell John',30.0),
 	 ('Saiba',30.0),
@@ -21283,7 +21283,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santiago Benito',30.0),
 	 ('Santiago Joel',30.0),
 	 ('Santiago Oscar',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Paul',30.0),
 	 ('Saturnino Jose',30.0),
 	 ('Saturnino Manuel',30.0),
@@ -21294,7 +21294,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shamil',30.0),
 	 ('Sharjeel',30.0),
 	 ('Silvan',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sinue',30.0),
 	 ('Siradio',30.0),
 	 ('Soriba',30.0),
@@ -21305,7 +21305,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Terence James',30.0),
 	 ('Thales',30.0),
 	 ('Thiago Mateo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thierno Mamadou',30.0),
 	 ('Thierno Souleymane',30.0),
 	 ('Thomas Robert',30.0),
@@ -21316,7 +21316,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Elias',30.0),
 	 ('Victor Carmelo',30.0),
 	 ('Victor Federico',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victorino Jose',30.0),
 	 ('Wadii',30.0),
 	 ('Walter Ernesto',30.0),
@@ -21327,7 +21327,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Oswaldo',30.0),
 	 ('Wilmer Alexis',30.0),
 	 ('Wilmer Eduardo',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilmer Rafael',30.0),
 	 ('Wilson Miguel',30.0),
 	 ('Wim',30.0),
@@ -21338,7 +21338,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xose Francisco',30.0),
 	 ('Yaacoub',30.0),
 	 ('Yamadou',30.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yassel',30.0),
 	 ('Yilong',30.0),
 	 ('Yin',30.0),
@@ -21349,7 +21349,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhonghua',30.0),
 	 ('Zidan',30.0),
 	 ('Aamar',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Sebastian',29.0),
 	 ('Aba',29.0),
 	 ('Abdalla',29.0),
@@ -21360,7 +21360,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abel Eduardo',29.0),
 	 ('Abel Maria',29.0),
 	 ('Adalbert',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Admir',29.0),
 	 ('Adolfo Daniel',29.0),
 	 ('Adolfo Pedro',29.0),
@@ -21371,7 +21371,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Victor',29.0),
 	 ('Alan Martin',29.0),
 	 ('Alan Peter',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Albert Antoni',29.0),
 	 ('Alberto German',29.0),
 	 ('Alberto Hugo',29.0),
@@ -21382,7 +21382,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Paul',29.0),
 	 ('Alejo Jose',29.0),
 	 ('Alessandro Jose',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Xavier',29.0),
 	 ('Alexandru Ionel',29.0),
 	 ('Alexeis',29.0),
@@ -21393,7 +21393,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfredo Ernesto',29.0),
 	 ('Alhaji',29.0),
 	 ('Alirio Jose',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Allan David',29.0),
 	 ('Amador Francisco',29.0),
 	 ('Anakin',29.0),
@@ -21404,7 +21404,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Efren',29.0),
 	 ('Angel Steven',29.0),
 	 ('Anthony Rafael',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Valeriano',29.0),
 	 ('Antony James',29.0),
 	 ('Antony John',29.0),
@@ -21415,7 +21415,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Armandas',29.0),
 	 ('Arnas',29.0),
 	 ('Arshak',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arturo Maria',29.0),
 	 ('Arvydas',29.0),
 	 ('Asdrubal Jose',29.0),
@@ -21426,7 +21426,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Avinash',29.0),
 	 ('Badi',29.0),
 	 ('Balwinder Singh',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benito Carlos',29.0),
 	 ('Benvingut',29.0),
 	 ('Bernardino Manuel',29.0),
@@ -21437,7 +21437,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Borja Ramon',29.0),
 	 ('Boro',29.0),
 	 ('Boukhayar',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brahin',29.0),
 	 ('Brayan Felipe',29.0),
 	 ('Brian Arthur',29.0),
@@ -21448,7 +21448,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Candido Miguel',29.0),
 	 ('Candido Ramon',29.0),
 	 ('Carles Francesc',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlo Alberto',29.0),
 	 ('Carlos Albeiro',29.0),
 	 ('Carlos Alejo',29.0),
@@ -21459,7 +21459,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cayetano Javier',29.0),
 	 ('Celiano',29.0),
 	 ('Cesar Damian',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Hernan',29.0),
 	 ('Cesar Junior',29.0),
 	 ('Charles John',29.0),
@@ -21470,7 +21470,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Claudio Ariel',29.0),
 	 ('Claudio Eduardo',29.0),
 	 ('Claudio Jorge',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudio Nicolas',29.0),
 	 ('Constantin Cornel',29.0),
 	 ('Cristian Tomas',29.0),
@@ -21481,7 +21481,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Cristobal',29.0),
 	 ('Daniel Ovidiu',29.0),
 	 ('Danny Gabriel',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Danny Manuel',29.0),
 	 ('Dario Angel',29.0),
 	 ('Darren Michael',29.0),
@@ -21492,7 +21492,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Isidro',29.0),
 	 ('David Kenneth',29.0),
 	 ('David Philip',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Roman',29.0),
 	 ('David Ronald',29.0),
 	 ('David Walter',29.0),
@@ -21503,7 +21503,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dimitriy',29.0),
 	 ('Domingo Maria',29.0),
 	 ('Domingos Manuel',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Douglas Alexander',29.0),
 	 ('Dylan Samuel',29.0),
 	 ('Edgar Rodrigo',29.0),
@@ -21514,7 +21514,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edward Joseph',29.0),
 	 ('Efrain Jesus',29.0),
 	 ('Eghosa',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elias Eduardo',29.0),
 	 ('Elias Vicente',29.0),
 	 ('Eliud',29.0),
@@ -21525,7 +21525,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Ernesto',29.0),
 	 ('Enrique Leonardo',29.0),
 	 ('Eric Cristian',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erik Antonio',29.0),
 	 ('Erwan',29.0),
 	 ('Esteban Mauricio',29.0),
@@ -21536,7 +21536,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Nahuel',29.0),
 	 ('Felipe Pablo',29.0),
 	 ('Fernando Anibal',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Hugo',29.0),
 	 ('Fernando Lucas',29.0),
 	 ('Fidel Francisco',29.0),
@@ -21547,7 +21547,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Demetrio',29.0),
 	 ('Francisco Marcelino',29.0),
 	 ('Francisco Noel',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Padua',29.0),
 	 ('Francisco Paul',29.0),
 	 ('Francisco Urbano',29.0),
@@ -21558,7 +21558,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gareth John',29.0),
 	 ('Gary Anthony',29.0),
 	 ('Gaspar Francisco',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaston Alberto',29.0),
 	 ('Genar',29.0),
 	 ('Georgi Nikolov',29.0),
@@ -21569,7 +21569,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gian Luigi',29.0),
 	 ('Giancarlos',29.0),
 	 ('Giorgian',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Giovanni Alberto',29.0),
 	 ('Gopal',29.0),
 	 ('Gregorio Julian',29.0),
@@ -21580,7 +21580,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Mauricio',29.0),
 	 ('Hamida',29.0),
 	 ('Hans Rudolf',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hans Werner',29.0),
 	 ('Haocheng',29.0),
 	 ('Hardeep Singh',29.0),
@@ -21591,7 +21591,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hilario Francisco',29.0),
 	 ('Hipolit',29.0),
 	 ('Hipolito Jesus',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hommad',29.0),
 	 ('Houssaine',29.0),
 	 ('Hristo Ivanov',29.0),
@@ -21602,7 +21602,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ian Miguel',29.0),
 	 ('Ignacio Ariel',29.0),
 	 ('Ignacio Gregorio',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker Alexis',29.0),
 	 ('Ilie Iulian',29.0),
 	 ('Ioan Stefan',29.0),
@@ -21613,7 +21613,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isidro Tomas',29.0),
 	 ('Ismael Maria',29.0),
 	 ('Ismayl',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ismet',29.0),
 	 ('Issey',29.0),
 	 ('Ivan Augusto',29.0),
@@ -21624,7 +21624,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Alvaro',29.0),
 	 ('Jaime Julio',29.0),
 	 ('Jaime Ramiro',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jair Alexander',29.0),
 	 ('James Arthur',29.0),
 	 ('James Martin',29.0),
@@ -21635,7 +21635,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jean Piero',29.0),
 	 ('Jefrey',29.0),
 	 ('Jerson David',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Lucio',29.0),
 	 ('Jesus Reinaldo',29.0),
 	 ('Jhon Alberto',29.0),
@@ -21646,7 +21646,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jiayang',29.0),
 	 ('Jimmy Antonio',29.0),
 	 ('Jinbo',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jinguo',29.0),
 	 ('Jingwei',29.0),
 	 ('Jinjie',29.0),
@@ -21657,7 +21657,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joel Gabriel',29.0),
 	 ('Joel Ivan',29.0),
 	 ('Joel Santiago',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Johan Antonio',29.0),
 	 ('Johannes Petrus',29.0),
 	 ('John Frank',29.0),
@@ -21668,7 +21668,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Robert',29.0),
 	 ('Jonay David',29.0),
 	 ('Jorge Abraham',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Benjamin',29.0),
 	 ('Jorge Bruno',29.0),
 	 ('Jorge Emiliano',29.0),
@@ -21679,7 +21679,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Neftali',29.0),
 	 ('Jose Porfirio',29.0),
 	 ('Jose Valero',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Vladimir',29.0),
 	 ('Josep Rafael',29.0),
 	 ('Josue Emmanuel',29.0),
@@ -21690,7 +21690,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Maximiliano',29.0),
 	 ('Juan Noel',29.0),
 	 ('Juan Rolando',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Ulises',29.0),
 	 ('Julian Guillermo',29.0),
 	 ('Julian Jorge',29.0),
@@ -21701,7 +21701,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Karamjit',29.0),
 	 ('Kelvin Rafael',29.0),
 	 ('Kendry',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kenneth Robert',29.0),
 	 ('Kento',29.0),
 	 ('Kevin Ernesto',29.0),
@@ -21712,7 +21712,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kuldeep Singh',29.0),
 	 ('Ladislau',29.0),
 	 ('Lang',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Larabas',29.0),
 	 ('Lasse',29.0),
 	 ('Laurentiu Adrian',29.0),
@@ -21723,7 +21723,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lhousseine',29.0),
 	 ('Liangliang',29.0),
 	 ('Linos',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Liviu Vasile',29.0),
 	 ('Loqman',29.0),
 	 ('Lucas Emmanuel',29.0),
@@ -21734,7 +21734,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Arsenio',29.0),
 	 ('Luis Edison',29.0),
 	 ('Luis Giovanni',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Rufino',29.0),
 	 ('Mabrouk',29.0),
 	 ('Macire',29.0),
@@ -21745,7 +21745,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marc Andrei',29.0),
 	 ('Marcelo Rodrigo',29.0),
 	 ('Marcial Manuel',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marco Esteban',29.0),
 	 ('Marco Fabian',29.0),
 	 ('Marco Nicolas',29.0),
@@ -21756,7 +21756,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Abel',29.0),
 	 ('Mario Diego',29.0),
 	 ('Mario Isaac',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Junior',29.0),
 	 ('Mario Rolando',29.0),
 	 ('Martin Alexis',29.0),
@@ -21767,7 +21767,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mass',29.0),
 	 ('Matas',29.0),
 	 ('Mathias Jose',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matia',29.0),
 	 ('Matias German',29.0),
 	 ('Maur',29.0),
@@ -21778,7 +21778,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael Manuel',29.0),
 	 ('Mikel Angel',29.0),
 	 ('Moh Lamin',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Hassan',29.0),
 	 ('Mohamed Ismael',29.0),
 	 ('Mohamed Iyad',29.0),
@@ -21789,7 +21789,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Adnan',29.0),
 	 ('Muhammad Amir',29.0),
 	 ('Muhammad Taha',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mulay',29.0),
 	 ('Naman',29.0),
 	 ('Natale',29.0),
@@ -21800,7 +21800,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicasio Manuel',29.0),
 	 ('Nicolas Andre',29.0),
 	 ('Nicolas Damian',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Leonardo',29.0),
 	 ('Nicolas Salvador',29.0),
 	 ('Noel Enrique',29.0),
@@ -21811,7 +21811,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Onisim',29.0),
 	 ('Oprea',29.0),
 	 ('Oscar Cesar',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Efren',29.0),
 	 ('Oscar Victor',29.0),
 	 ('Oswaldo Manuel',29.0),
@@ -21822,7 +21822,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Parviz',29.0),
 	 ('Paul George',29.0),
 	 ('Paul Steven',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Dionisio',29.0),
 	 ('Pedro Florencio',29.0),
 	 ('Pedro Marino',29.0),
@@ -21833,7 +21833,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Philippe Pierre',29.0),
 	 ('Plamen Georgiev',29.0),
 	 ('Qasir',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rached',29.0),
 	 ('Raffaello',29.0),
 	 ('Rakan',29.0),
@@ -21844,7 +21844,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Lluis',29.0),
 	 ('Ramon Nonato',29.0),
 	 ('Rashpal',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Gerardo',29.0),
 	 ('Raymond Charles',29.0),
 	 ('Raymond George',29.0),
@@ -21855,7 +21855,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Xavier',29.0),
 	 ('Rick',29.0),
 	 ('Robert Eduardo',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Enrique',29.0),
 	 ('Robert Patrick',29.0),
 	 ('Roberto Belarmino',29.0),
@@ -21866,7 +21866,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rossano',29.0),
 	 ('Ruben Leonardo',29.0),
 	 ('Rufino Javier',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salvador Agustin',29.0),
 	 ('Samih',29.0),
 	 ('Samuel Miguel',29.0),
@@ -21877,7 +21877,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saturnino Jesus',29.0),
 	 ('Sebastian Alexandru',29.0),
 	 ('Sebastian Emilio',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastian Maria',29.0),
 	 ('Sebastian Santiago',29.0),
 	 ('Seif Eddine',29.0),
@@ -21888,7 +21888,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Mariano',29.0),
 	 ('Seydina',29.0),
 	 ('Shaban',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shaul',29.0),
 	 ('Sheikh',29.0),
 	 ('Sikander',29.0),
@@ -21899,7 +21899,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Stefan Ivanov',29.0),
 	 ('Stevan',29.0),
 	 ('Steven Jose',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stuart William',29.0),
 	 ('Sukhjit',29.0),
 	 ('Tahiche',29.0),
@@ -21910,7 +21910,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Timothee',29.0),
 	 ('Tomas Benjamin',29.0),
 	 ('Tomas Roberto',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tudor Andrei',29.0),
 	 ('Ursicinio',29.0),
 	 ('Valdir',29.0),
@@ -21921,7 +21921,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vesselin',29.0),
 	 ('Vicente Alexander',29.0),
 	 ('Vicente Gonzalo',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Sergio',29.0),
 	 ('Vlad Ioan',29.0),
 	 ('Waldir',29.0),
@@ -21932,7 +21932,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wigberto',29.0),
 	 ('William Andrew',29.0),
 	 ('William Francisco',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Willian Fernando',29.0),
 	 ('Wilson Roberto',29.0),
 	 ('Xeber',29.0),
@@ -21943,7 +21943,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yerko',29.0),
 	 ('Yian',29.0),
 	 ('Yilin',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yomar',29.0),
 	 ('Yosua',29.0),
 	 ('Younous',29.0),
@@ -21954,7 +21954,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zian',29.0),
 	 ('Ziqi',29.0),
 	 ('Zlatan',29.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron Michael',28.0),
 	 ('Abdelakrim',28.0),
 	 ('Abdelazize',28.0),
@@ -21965,7 +21965,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abrahan Jose',28.0),
 	 ('Adrian Cristo',28.0),
 	 ('Adrian Viorel',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adriano Antonio',28.0),
 	 ('Agustin Damian',28.0),
 	 ('Ahmed Yassine',28.0),
@@ -21976,7 +21976,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alan Alexander',28.0),
 	 ('Alan Leslie',28.0),
 	 ('Alberto Alexis',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Alfredo',28.0),
 	 ('Alberto Pascual',28.0),
 	 ('Alejandro Emanuel',28.0),
@@ -21987,7 +21987,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Marian',28.0),
 	 ('Alexander Mauricio',28.0),
 	 ('Alexander Robert',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Benito',28.0),
 	 ('Alfonso Carmelo',28.0),
 	 ('Alfredo Agustin',28.0),
@@ -21998,7 +21998,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alister',28.0),
 	 ('Alvaro Eugenio',28.0),
 	 ('Alvaro Valentin',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amador Angel',28.0),
 	 ('Amarjeet',28.0),
 	 ('Amaurys',28.0),
@@ -22009,7 +22009,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Bruno',28.0),
 	 ('Angel Demetrio',28.0),
 	 ('Angel Joan',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Jonatan',28.0),
 	 ('Angel Ventura',28.0),
 	 ('Anicet',28.0),
@@ -22020,7 +22020,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Omar',28.0),
 	 ('Antony David',28.0),
 	 ('Aquilino Jose',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arey',28.0),
 	 ('Argider',28.0),
 	 ('Arismendy',28.0),
@@ -22031,7 +22031,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Artsiom',28.0),
 	 ('Artur Manuel',28.0),
 	 ('Arturo Cesar',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Artus',28.0),
 	 ('Augusto Alejandro',28.0),
 	 ('Axel Manuel',28.0),
@@ -22042,7 +22042,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Balint',28.0),
 	 ('Bekaye',28.0),
 	 ('Benachir',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Beniamino',28.0),
 	 ('Berardo',28.0),
 	 ('Brandon Javier',28.0),
@@ -22053,7 +22053,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bryan Ricardo',28.0),
 	 ('Bryan Sebastian',28.0),
 	 ('Burhan',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Camilo Arturo',28.0),
 	 ('Carles Miquel',28.0),
 	 ('Carlos Avelino',28.0),
@@ -22064,7 +22064,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Herminio',28.0),
 	 ('Carlos Jonay',28.0),
 	 ('Carlos Narciso',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Raimundo',28.0),
 	 ('Carmelo Jorge',28.0),
 	 ('Casper',28.0),
@@ -22075,7 +22075,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Domingo',28.0),
 	 ('Cesar Mario',28.0),
 	 ('Cesar Oscar',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesareo Antonio',28.0),
 	 ('Charafeddine',28.0),
 	 ('Charalampos',28.0),
@@ -22086,7 +22086,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chunhua',28.0),
 	 ('Cinto',28.0),
 	 ('Ciro Antonio',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Clarencio',28.0),
 	 ('Claudio Juan',28.0),
 	 ('Claudio Ramon',28.0),
@@ -22097,7 +22097,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristhian Felipe',28.0),
 	 ('Cristian Agustin',28.0),
 	 ('Cristian Bogdan',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Dan',28.0),
 	 ('Cristian Danilo',28.0),
 	 ('Dan Gabriel',28.0),
@@ -22108,7 +22108,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Danny Paul',28.0),
 	 ('Danut Marian',28.0),
 	 ('Dario David',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darlin',28.0),
 	 ('Darren Paul',28.0),
 	 ('Darwin Oswaldo',28.0),
@@ -22119,7 +22119,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Keith',28.0),
 	 ('David Leon',28.0),
 	 ('David Rodrigo',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Santos',28.0),
 	 ('Daylo',28.0),
 	 ('Dayong',28.0),
@@ -22130,7 +22130,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dilan Santiago',28.0),
 	 ('Diogo Alexandre',28.0),
 	 ('Dioulde',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Divino',28.0),
 	 ('Domingo Pablo',28.0),
 	 ('Dominykas',28.0),
@@ -22141,7 +22141,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dumitru Danut',28.0),
 	 ('Edison Leonardo',28.0),
 	 ('Edison Raul',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edrick',28.0),
 	 ('Eduard Alexander',28.0),
 	 ('Einer',28.0),
@@ -22152,7 +22152,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Makki',28.0),
 	 ('Eladio Miguel',28.0),
 	 ('Elias Nicolas',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eliecer Jesus',28.0),
 	 ('Eliseo Javier',28.0),
 	 ('Eliseo Jesus',28.0),
@@ -22163,7 +22163,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enio',28.0),
 	 ('Enmanuel Jose',28.0),
 	 ('Enzo Sebastian',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Leonardo',28.0),
 	 ('Esteban Raul',28.0),
 	 ('Esteban Tomas',28.0),
@@ -22174,7 +22174,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fadili',28.0),
 	 ('Faruq',28.0),
 	 ('Federico Pedro',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Tomas',28.0),
 	 ('Felix Damian',28.0),
 	 ('Felix Mario',28.0),
@@ -22185,7 +22185,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Liviu',28.0),
 	 ('Francesc Vicent',28.0),
 	 ('Francis Javier',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Alejo',28.0),
 	 ('Francisco Assis',28.0),
 	 ('Francisco Leoncio',28.0),
@@ -22196,7 +22196,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Friedhelm',28.0),
 	 ('Gabriel Alessandro',28.0),
 	 ('Gabriel Claudiu',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Gerardo',28.0),
 	 ('Gabriel German',28.0),
 	 ('Galo Enrique',28.0),
@@ -22207,7 +22207,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Genadio',28.0),
 	 ('George Anthony',28.0),
 	 ('George Sebastian',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Georgi Hristov',28.0),
 	 ('Gerardo Agustin',28.0),
 	 ('Gerardus Johannes',28.0),
@@ -22218,7 +22218,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Giovanny Alexander',28.0),
 	 ('Gonçalo Nuno',28.0),
 	 ('Graham Peter',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gregorio Agustin',28.0),
 	 ('Gregorio Ignacio',28.0),
 	 ('Guanghui',28.0),
@@ -22229,7 +22229,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Ricardo',28.0),
 	 ('Gytis',28.0),
 	 ('Habibur',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haizam',28.0),
 	 ('Hanafi',28.0),
 	 ('Hanza',28.0),
@@ -22240,7 +22240,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Heinz Jurgen',28.0),
 	 ('Henry Junior',28.0),
 	 ('Hernan Luis',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Higinio Jesus',28.0),
 	 ('Hiscio',28.0),
 	 ('Hitesh',28.0),
@@ -22251,7 +22251,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iago Jose',28.0),
 	 ('Ianis Nicolas',28.0),
 	 ('Ibrahem',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Fermin',28.0),
 	 ('Ilie Adrian',28.0),
 	 ('Ilie Daniel',28.0),
@@ -22262,7 +22262,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ion Laurentiu',28.0),
 	 ('Ionel Gabriel',28.0),
 	 ('Iordache',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isaac Juan',28.0),
 	 ('Isaias Antonio',28.0),
 	 ('Ishfaq',28.0),
@@ -22273,7 +22273,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izan Alexander',28.0),
 	 ('Izan Miguel',28.0),
 	 ('Jacinto Juan',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaime Eugenio',28.0),
 	 ('Jairo Alfonso',28.0),
 	 ('Jairo Luis',28.0),
@@ -22284,7 +22284,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeisson Andres',28.0),
 	 ('Jeremy Josue',28.0),
 	 ('Jesus Delfin',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Eliseo',28.0),
 	 ('Jesus Emanuel',28.0),
 	 ('Jesus Hernando',28.0),
@@ -22295,7 +22295,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon Alexis',28.0),
 	 ('Jhon Brayan',28.0),
 	 ('Jhon Wilson',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jianliang',28.0),
 	 ('Jimmy Daniel',28.0),
 	 ('Joan Javier',28.0),
@@ -22306,7 +22306,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joel Ricardo',28.0),
 	 ('Johan Carlos',28.0),
 	 ('Johannes Adrianus',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Eduard',28.0),
 	 ('John Samuel',28.0),
 	 ('Jonathan Orlando',28.0),
@@ -22317,7 +22317,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Ali',28.0),
 	 ('Jose Amilcar',28.0),
 	 ('Jose Bladimir',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Florian',28.0),
 	 ('Jose Fredy',28.0),
 	 ('Jose Leocadio',28.0),
@@ -22328,7 +22328,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Valerio',28.0),
 	 ('Joseph James',28.0),
 	 ('Juan Cancio',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Constantino',28.0),
 	 ('Juan Emanuel',28.0),
 	 ('Juan Jonay',28.0),
@@ -22339,7 +22339,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justo Fernando',28.0),
 	 ('Kapil',28.0),
 	 ('Karapet',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Keith Anthony',28.0),
 	 ('Keith Richard',28.0),
 	 ('Kenneth Alexander',28.0),
@@ -22350,7 +22350,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lars Erik',28.0),
 	 ('Lazaro Luis',28.0),
 	 ('Leandro Agustin',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lebdaoui',28.0),
 	 ('Lehcen',28.0),
 	 ('Leonardo Ernesto',28.0),
@@ -22361,7 +22361,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Liviu Ioan',28.0),
 	 ('Liviu Mihai',28.0),
 	 ('Llorian',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lloyd',28.0),
 	 ('Lluis Gonzaga',28.0),
 	 ('Lorenzo Alejandro',28.0),
@@ -22372,7 +22372,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Ioan',28.0),
 	 ('Lucian Alexandru',28.0),
 	 ('Lucindo',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Bryan',28.0),
 	 ('Luis Edwin',28.0),
 	 ('Luis Hugo',28.0),
@@ -22383,7 +22383,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manole',28.0),
 	 ('Manuel Adriano',28.0),
 	 ('Manuel Efren',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Jonathan',28.0),
 	 ('Manuel Marino',28.0),
 	 ('Marcelo Claudio',28.0),
@@ -22394,7 +22394,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Hugo',28.0),
 	 ('Marcos Junior',28.0),
 	 ('Marian Mihai',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Razvan',28.0),
 	 ('Mariano Gaston',28.0),
 	 ('Mario Andre',28.0),
@@ -22405,7 +22405,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mark Francis',28.0),
 	 ('Mark Philip',28.0),
 	 ('Martin Domingo',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateo Adrian',28.0),
 	 ('Mateo Angel',28.0),
 	 ('Mateo Rafael',28.0),
@@ -22416,7 +22416,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauricio Roberto',28.0),
 	 ('Michael Philip',28.0),
 	 ('Miguel Octavio',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mihai Ovidiu',28.0),
 	 ('Mingjie',28.0),
 	 ('Mitchel',28.0),
@@ -22427,7 +22427,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mudasar',28.0),
 	 ('Muhammad Adeel',28.0),
 	 ('Muhammad Shahid',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Shoaib',28.0),
 	 ('Muhammed Lamin',28.0),
 	 ('Mujtaba',28.0),
@@ -22438,7 +22438,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Naveen',28.0),
 	 ('Nazam',28.0),
 	 ('Neil Anthony',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Adrian',28.0),
 	 ('Nicolae Mihai',28.0),
 	 ('Nicolas German',28.0),
@@ -22449,7 +22449,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Noe David',28.0),
 	 ('Noussair',28.0),
 	 ('Nuri',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Octavio Enrique',28.0),
 	 ('Oian',28.0),
 	 ('Orson',28.0),
@@ -22460,7 +22460,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oswald',28.0),
 	 ('Otari',28.0),
 	 ('Pablo Fidel',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pablo Isidoro',28.0),
 	 ('Parveen',28.0),
 	 ('Pateh',28.0),
@@ -22471,7 +22471,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paulo Daniel',28.0),
 	 ('Pedro Basilio',28.0),
 	 ('Pedro Cruz',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Hilario',28.0),
 	 ('Pengpeng',28.0),
 	 ('Peter Frederick',28.0),
@@ -22482,7 +22482,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rajvir',28.0),
 	 ('Ramiz',28.0),
 	 ('Ramon Damian',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rares Mihai',28.0),
 	 ('Rasheed',28.0),
 	 ('Raul Bogdan',28.0),
@@ -22493,7 +22493,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Razzaq',28.0),
 	 ('Reyes Manuel',28.0),
 	 ('Ricardo Diego',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Omar',28.0),
 	 ('Roberto Orlando',28.0),
 	 ('Roberto Xavier',28.0),
@@ -22504,7 +22504,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Israel',28.0),
 	 ('Rupinder',28.0),
 	 ('Ryan James',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sadibou',28.0),
 	 ('Safi',28.0),
 	 ('Sajad',28.0),
@@ -22515,7 +22515,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Thomas',28.0),
 	 ('Sankung',28.0),
 	 ('Santiago Cristobal',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Emanuel',28.0),
 	 ('Santiago Isaac',28.0),
 	 ('Savino',28.0),
@@ -22526,7 +22526,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sekou Oumar',28.0),
 	 ('Sergio Abel',28.0),
 	 ('Sergio Alexandre',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Matias',28.0),
 	 ('Sergiu Mihai',28.0),
 	 ('Serigne Mor',28.0),
@@ -22537,7 +22537,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Silvestre Antonio',28.0),
 	 ('Simon Luis',28.0),
 	 ('Spiridon',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stalin Javier',28.0),
 	 ('Stephen Alexander',28.0),
 	 ('Steven Anthony',28.0),
@@ -22548,7 +22548,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Teofilo Jesus',28.0),
 	 ('Teofilo Jose',28.0),
 	 ('Thiago Luis',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Thomas Andrew',28.0),
 	 ('Thomas Francis',28.0),
 	 ('Tomas Alexander',28.0),
@@ -22559,7 +22559,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Raul',28.0),
 	 ('Toseef',28.0),
 	 ('Uladzislau',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ulises David',28.0),
 	 ('Ulises Jesus',28.0),
 	 ('Valentin Alejandro',28.0),
@@ -22570,7 +22570,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Gheorghe',28.0),
 	 ('Vesko',28.0),
 	 ('Vicente Cristobal',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Ismael',28.0),
 	 ('Victor Alexandre',28.0),
 	 ('Victor Alvaro',28.0),
@@ -22581,7 +22581,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Walter Hernan',28.0),
 	 ('Wangjun',28.0),
 	 ('Washington Fernando',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Armando',28.0),
 	 ('Wilson Rolando',28.0),
 	 ('Wilver',28.0),
@@ -22592,7 +22592,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yanick',28.0),
 	 ('Yanis Gabriel',28.0),
 	 ('Yannik',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yassa',28.0),
 	 ('Yauheni',28.0),
 	 ('Yedir',28.0),
@@ -22603,7 +22603,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zac',28.0),
 	 ('Zafar Iqbal',28.0),
 	 ('Zaka',28.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zan',28.0),
 	 ('Zhiguo',28.0),
 	 ('Zijie',28.0),
@@ -22614,7 +22614,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdou Lahad',27.0),
 	 ('Abel Dario',27.0),
 	 ('Abel Ignacio',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abraham Francisco',27.0),
 	 ('Abulai',27.0),
 	 ('Acoran Jesus',27.0),
@@ -22625,7 +22625,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adoney',27.0),
 	 ('Adrian Alin',27.0),
 	 ('Adrian Elias',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Jorge',27.0),
 	 ('Adrian Omar',27.0),
 	 ('Adrian Petru',27.0),
@@ -22636,7 +22636,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aieko',27.0),
 	 ('Airton',27.0),
 	 ('Aitor Alexander',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aitor Gabriel',27.0),
 	 ('Alain Jean',27.0),
 	 ('Alan Antonio',27.0),
@@ -22647,7 +22647,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Samuel',27.0),
 	 ('Alberto Santos',27.0),
 	 ('Albi',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alcides Ramon',27.0),
 	 ('Aldric',27.0),
 	 ('Alejandro Benjamin',27.0),
@@ -22658,7 +22658,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Ovidiu',27.0),
 	 ('Alexis Adrian',27.0),
 	 ('Alfredo Domingo',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfredo Ivan',27.0),
 	 ('Algirdas',27.0),
 	 ('Alluitz',27.0),
@@ -22669,7 +22669,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrei Eduard',27.0),
 	 ('Andres Benito',27.0),
 	 ('Andres Marcos',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andy Alexander',27.0),
 	 ('Angel Narciso',27.0),
 	 ('Angel Norberto',27.0),
@@ -22680,7 +22680,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antar',27.0),
 	 ('Anthony Xavier',27.0),
 	 ('Antonio Aday',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Gil',27.0),
 	 ('Antonio Wenceslao',27.0),
 	 ('Antony Alexander',27.0),
@@ -22691,7 +22691,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arturo Santiago',27.0),
 	 ('Asbel',27.0),
 	 ('Ashkan',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Asparuh',27.0),
 	 ('Aurel Florin',27.0),
 	 ('Avelli',27.0),
@@ -22702,7 +22702,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Baljinder Singh',27.0),
 	 ('Balwant',27.0),
 	 ('Bartolome Luis',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Basili',27.0),
 	 ('Basilio Jesus',27.0),
 	 ('Belatz',27.0),
@@ -22713,7 +22713,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bertomeu',27.0),
 	 ('Bienvenido Jesus',27.0),
 	 ('Blagoy',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Boutayeb',27.0),
 	 ('Brian Eduardo',27.0),
 	 ('Brian Patrick',27.0),
@@ -22724,7 +22724,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Byron Enrique',27.0),
 	 ('Byron Paul',27.0),
 	 ('Carim',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Danilo',27.0),
 	 ('Carlos Leon',27.0),
 	 ('Carlos Stiven',27.0),
@@ -22735,7 +22735,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Aurelio',27.0),
 	 ('Changqing',27.0),
 	 ('Charles Alexander',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chenjie',27.0),
 	 ('Christian Aaron',27.0),
 	 ('Christopher Alejandro',27.0),
@@ -22746,7 +22746,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Claudio Angel',27.0),
 	 ('Claudio Omar',27.0),
 	 ('Clive John',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Colin George',27.0),
 	 ('Cosmin Alin',27.0),
 	 ('Craciun',27.0),
@@ -22757,7 +22757,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristo Ramon',27.0),
 	 ('Cristobal Maria',27.0),
 	 ('Cristobal Pedro',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristopher Jesus',27.0),
 	 ('Custodio Manuel',27.0),
 	 ('Damian Angel',27.0),
@@ -22768,7 +22768,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Danis',27.0),
 	 ('Dario Martin',27.0),
 	 ('Darwin Alfredo',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darwin Francisco',27.0),
 	 ('Darwin Ivan',27.0),
 	 ('David Bernardo',27.0),
@@ -22779,7 +22779,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Davinder Singh',27.0),
 	 ('Denis Fabian',27.0),
 	 ('Diabel',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Anibal',27.0),
 	 ('Diego Emanuel',27.0),
 	 ('Dionisio Angel',27.0),
@@ -22790,7 +22790,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Domingo Nicolas',27.0),
 	 ('Domingo Raul',27.0),
 	 ('Dongsheng',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Drago',27.0),
 	 ('Dylan Alberto',27.0),
 	 ('Dylan Francisco',27.0),
@@ -22801,7 +22801,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison Gabriel',27.0),
 	 ('Eduardo Henrique',27.0),
 	 ('Eduardo Moises',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduvigis',27.0),
 	 ('Edwin Alonso',27.0),
 	 ('Edwin Ernesto',27.0),
@@ -22812,7 +22812,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elias Enrique',27.0),
 	 ('Elio Manuel',27.0),
 	 ('Elmustapha',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elohim',27.0),
 	 ('Elvis Alexander',27.0),
 	 ('Elvis Enrique',27.0),
@@ -22823,7 +22823,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eric Samuel',27.0),
 	 ('Erick Paul',27.0),
 	 ('Erickson',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ernestino',27.0),
 	 ('Ernesto Alonso',27.0),
 	 ('Ernesto Pablo',27.0),
@@ -22834,7 +22834,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Ignacio',27.0),
 	 ('Evander',27.0),
 	 ('Eyal',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabio Javier',27.0),
 	 ('Famory',27.0),
 	 ('Fausto Rodrigo',27.0),
@@ -22845,7 +22845,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Gonzalo',27.0),
 	 ('Felix Marcos',27.0),
 	 ('Fernand',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Isidoro',27.0),
 	 ('Fernando Joel',27.0),
 	 ('Fernando Junior',27.0),
@@ -22856,7 +22856,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Narciso',27.0),
 	 ('Francisco Silvestre',27.0),
 	 ('Frank Antonio',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frank Eduardo',27.0),
 	 ('Frank Ernesto',27.0),
 	 ('Frank Manuel',27.0),
@@ -22867,7 +22867,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabino Jose',27.0),
 	 ('Gabriel Alin',27.0),
 	 ('Gabriel Gonzalo',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Josue',27.0),
 	 ('Gerardo Carlos',27.0),
 	 ('Gergo',27.0),
@@ -22878,7 +22878,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ghislain',27.0),
 	 ('Gildo',27.0),
 	 ('Gioacchino',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Giosue',27.0),
 	 ('Gokhan',27.0),
 	 ('Gonzalo Arturo',27.0),
@@ -22889,7 +22889,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gregorio Pablo',27.0),
 	 ('Grigol',27.0),
 	 ('Guery',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Victor',27.0),
 	 ('Gundemaro',27.0),
 	 ('Gurcharan',27.0),
@@ -22900,7 +22900,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Henry Joel',27.0),
 	 ('Henry Leonardo',27.0),
 	 ('Heren',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Heriberto Jesus',27.0),
 	 ('Hernan Daniel',27.0),
 	 ('Horacio Jesus',27.0),
@@ -22911,7 +22911,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Humberto Rafael',27.0),
 	 ('Ian Andrew',27.0),
 	 ('Ibrain',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iker Aitor',27.0),
 	 ('Iker Xabier',27.0),
 	 ('Ildefonso Francisco',27.0),
@@ -22922,7 +22922,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Paul',27.0),
 	 ('Ionut David',27.0),
 	 ('Ionut George',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ireneusz',27.0),
 	 ('Ismael Adrian',27.0),
 	 ('Ismael Luis',27.0),
@@ -22933,7 +22933,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Mateo',27.0),
 	 ('Jaime Omar',27.0),
 	 ('James Matthew',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('James Philip',27.0),
 	 ('Jan Hendrik',27.0),
 	 ('Jan Peter',27.0),
@@ -22944,7 +22944,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Marcelino',27.0),
 	 ('Javier Rodolfo',27.0),
 	 ('Javier Sergio',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jefersson',27.0),
 	 ('Jeriel',27.0),
 	 ('Jesus Cristo',27.0),
@@ -22955,7 +22955,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhonny David',27.0),
 	 ('Jianqiang',27.0),
 	 ('Joan Bernat',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Bosco',27.0),
 	 ('Joaquim Fernando',27.0),
 	 ('Joaquin Blas',27.0),
@@ -22966,7 +22966,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johan Gabriel',27.0),
 	 ('Johan Miguel',27.0),
 	 ('John Esteban',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Fabio',27.0),
 	 ('John Felipe',27.0),
 	 ('John Leonard',27.0),
@@ -22977,7 +22977,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Marcelo',27.0),
 	 ('Jonathan Nicolas',27.0),
 	 ('Jonathan Omar',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Stiven',27.0),
 	 ('Joost',27.0),
 	 ('Jordi Gabriel',27.0),
@@ -22988,7 +22988,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Luciano',27.0),
 	 ('Jorge Segundo',27.0),
 	 ('Jose Antonio Manuel',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Arnoldo',27.0),
 	 ('Jose Darwin',27.0),
 	 ('Jose Jeremias',27.0),
@@ -22999,7 +22999,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Yesid',27.0),
 	 ('Josep Alexandre',27.0),
 	 ('Joseph Edward',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jou',27.0),
 	 ('Joussef',27.0),
 	 ('Juan Baldomero',27.0),
@@ -23010,7 +23010,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Estanislao',27.0),
 	 ('Juan Herminio',27.0),
 	 ('Juan Jonas',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Oswaldo',27.0),
 	 ('Juan Paul',27.0),
 	 ('Juan Victorio',27.0),
@@ -23021,7 +23021,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Samuel',27.0),
 	 ('Junchen',27.0),
 	 ('Justo Carlos',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kaan',27.0),
 	 ('Kail',27.0),
 	 ('Kaled',27.0),
@@ -23032,7 +23032,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kristof',27.0),
 	 ('Lakhbir',27.0),
 	 ('Lalit',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lautaro Nicolas',27.0),
 	 ('Leandro Fabian',27.0),
 	 ('Leiva',27.0),
@@ -23043,7 +23043,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lolo',27.0),
 	 ('Lucas Gonzalo',27.0),
 	 ('Lucas Tomas',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucian Daniel',27.0),
 	 ('Lucian Gabriel',27.0),
 	 ('Luciano Ezequiel',27.0),
@@ -23054,7 +23054,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Stalin',27.0),
 	 ('Luiz Eduardo',27.0),
 	 ('Lyon',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Madalin Gabriel',27.0),
 	 ('Mahyub',27.0),
 	 ('Maikel Alexander',27.0),
@@ -23065,7 +23065,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manjinder Singh',27.0),
 	 ('Manjot',27.0),
 	 ('Manuel Amable',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Baltasar',27.0),
 	 ('Manuel Lino',27.0),
 	 ('Manuel Pelayo',27.0),
@@ -23076,7 +23076,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcel Daniel',27.0),
 	 ('Marco Raul',27.0),
 	 ('Marcos Carlos',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcu',27.0),
 	 ('Mariano Jorge',27.0),
 	 ('Mariano Salvador',27.0),
@@ -23087,7 +23087,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maroan',27.0),
 	 ('Martos',27.0),
 	 ('Mateo Alexandru',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mateos',27.0),
 	 ('Matthew Joseph',27.0),
 	 ('Matyas',27.0),
@@ -23098,7 +23098,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mesbah',27.0),
 	 ('Mian Muhammad',27.0),
 	 ('Michael Frank',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Stuart',27.0),
 	 ('Michell',27.0),
 	 ('Miguel Cayetano',27.0),
@@ -23109,7 +23109,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mircea Florin',27.0),
 	 ('Modestas',27.0),
 	 ('Modesto Francisco',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moez',27.0),
 	 ('Mohamed El Mehdi',27.0),
 	 ('Mohamed Imran',27.0),
@@ -23120,7 +23120,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Arslan',27.0),
 	 ('Muhammad Haider',27.0),
 	 ('Muhammad Haroon',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Hashim',27.0),
 	 ('Muhammad Mohsin',27.0),
 	 ('Muhammad Subhan',27.0),
@@ -23131,7 +23131,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nao',27.0),
 	 ('Natnael',27.0),
 	 ('Naum',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Neil Robert',27.0),
 	 ('Nelson Arturo',27.0),
 	 ('Nelson Augusto',27.0),
@@ -23142,7 +23142,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicer',27.0),
 	 ('Nicolaas',27.0),
 	 ('Nicolae Laurentiu',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Leandro',27.0),
 	 ('Nicolas Victor',27.0),
 	 ('Noah Alexander',27.0),
@@ -23153,7 +23153,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Olivo',27.0),
 	 ('Orlando Gabriel',27.0),
 	 ('Oscar Federico',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Matias',27.0),
 	 ('Oscar Osvaldo',27.0),
 	 ('Osvaldo Javier',27.0),
@@ -23164,7 +23164,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Alonso',27.0),
 	 ('Pablo Benito',27.0),
 	 ('Pablo Cristobal',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Parmenio',27.0),
 	 ('Patrick Alexander',27.0),
 	 ('Patrick Jean',27.0),
@@ -23175,7 +23175,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paulo Alejandro',27.0),
 	 ('Paulo Renato',27.0),
 	 ('Pedro Arsenio',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Norberto',27.0),
 	 ('Pedro Ventura',27.0),
 	 ('Philip William',27.0),
@@ -23186,7 +23186,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Qingfeng',27.0),
 	 ('Radu Bogdan',27.0),
 	 ('Radu Gheorghe',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raducu',27.0),
 	 ('Radwane',27.0),
 	 ('Rafael Octavio',27.0),
@@ -23197,7 +23197,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Razak',27.0),
 	 ('Remedios',27.0),
 	 ('Rezki',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Josue',27.0),
 	 ('Ricardo Mariano',27.0),
 	 ('Richard Anderson',27.0),
@@ -23208,7 +23208,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Junior',27.0),
 	 ('Roberto Pascual',27.0),
 	 ('Rodrigo Augusto',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodrigo Gaston',27.0),
 	 ('Rodrigo German',27.0),
 	 ('Rogelio Alberto',27.0),
@@ -23219,7 +23219,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Cesar',27.0),
 	 ('Ruben Gonzalo',27.0),
 	 ('Rubin',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruiqi',27.0),
 	 ('Ruyman Jesus',27.0),
 	 ('Ryan John',27.0),
@@ -23230,7 +23230,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sandro Manuel',27.0),
 	 ('Santiago Abel',27.0),
 	 ('Santiago Fabian',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Pascual',27.0),
 	 ('Sarunas',27.0),
 	 ('Sarwan',27.0),
@@ -23241,7 +23241,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Segundo Alejandro',27.0),
 	 ('Segundo Andres',27.0),
 	 ('Segundo Julio',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergiu Adrian',27.0),
 	 ('Sergiu Vasile',27.0),
 	 ('Serigne Babacar',27.0),
@@ -23252,7 +23252,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shengyi',27.0),
 	 ('Simon Alexander',27.0),
 	 ('Solomane',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Soltan',27.0),
 	 ('Stefan Mihai',27.0),
 	 ('Stefan Sebastian',27.0),
@@ -23263,7 +23263,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas Christopher',27.0),
 	 ('Thomas Oliver',27.0),
 	 ('Tiberius',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Titus',27.0),
 	 ('Tomas Ivan',27.0),
 	 ('Tonet',27.0),
@@ -23274,7 +23274,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasco Manuel',27.0),
 	 ('Vasile Sebastian',27.0),
 	 ('Vicent Francesc',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Diego',27.0),
 	 ('Vicente Fermin',27.0),
 	 ('Victor Alexandru',27.0),
@@ -23285,7 +23285,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vijay Kumar',27.0),
 	 ('Virgili',27.0),
 	 ('Virgilio Manuel',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter Damian',27.0),
 	 ('Walter Orlando',27.0),
 	 ('Wensheng',27.0),
@@ -23296,7 +23296,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yahve',27.0),
 	 ('Yani',27.0),
 	 ('Yareth',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yoann',27.0),
 	 ('Yongfu',27.0),
 	 ('Yordani',27.0),
@@ -23307,7 +23307,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yuval',27.0),
 	 ('Zhenwei',27.0),
 	 ('Zhixin',27.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zilong',27.0),
 	 ('Aaron Fernando',26.0),
 	 ('Abdelazis',26.0),
@@ -23318,7 +23318,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdennaim',26.0),
 	 ('Abdul Basit',26.0),
 	 ('Abel Andres',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abel Javier',26.0),
 	 ('Abraham Alejandro',26.0),
 	 ('Adam Daniel',26.0),
@@ -23329,7 +23329,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Mauricio',26.0),
 	 ('Adrian Michael',26.0),
 	 ('Agamjot',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aguinaldo',26.0),
 	 ('Agustin Esteban',26.0),
 	 ('Aian',26.0),
@@ -23340,7 +23340,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Akos',26.0),
 	 ('Aladin',26.0),
 	 ('Albert Stefan',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Cristian',26.0),
 	 ('Alberto Leonardo',26.0),
 	 ('Alberto Rodrigo',26.0),
@@ -23351,7 +23351,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Simon',26.0),
 	 ('Alejandro Xavier',26.0),
 	 ('Alexandru Florian',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Laurentiu',26.0),
 	 ('Alexis Damian',26.0),
 	 ('Alexy',26.0),
@@ -23362,7 +23362,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Borja',26.0),
 	 ('Amador Manuel',26.0),
 	 ('Amando Jose',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amanuel',26.0),
 	 ('Americo Jose',26.0),
 	 ('Amirhossein',26.0),
@@ -23373,7 +23373,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrei Alin',26.0),
 	 ('Andres Adrian',26.0),
 	 ('Andres Ismael',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrew Christopher',26.0),
 	 ('Andy Jesus',26.0),
 	 ('Aneudy',26.0),
@@ -23384,7 +23384,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Hector',26.0),
 	 ('Angel Leonel',26.0),
 	 ('Angelico',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anthony Brian',26.0),
 	 ('Antonel',26.0),
 	 ('Antonin',26.0),
@@ -23395,7 +23395,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Rosendo',26.0),
 	 ('Apostolos',26.0),
 	 ('Archie',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Esteban',26.0),
 	 ('Ariel Francisco',26.0),
 	 ('Armando Gabriel',26.0),
@@ -23406,7 +23406,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aurken',26.0),
 	 ('Axel Andres',26.0),
 	 ('Azddin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Balbino Jose',26.0),
 	 ('Baldomero Jose',26.0),
 	 ('Bangali',26.0),
@@ -23417,7 +23417,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Becaye',26.0),
 	 ('Benissa',26.0),
 	 ('Benjamin Javier',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bennasser',26.0),
 	 ('Bent',26.0),
 	 ('Bhupinder Singh',26.0),
@@ -23428,7 +23428,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bogdan Valentin',26.0),
 	 ('Boris Alexander',26.0),
 	 ('Borja Santiago',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Branimir',26.0),
 	 ('Byron Santiago',26.0),
 	 ('Carles Joan',26.0),
@@ -23439,7 +23439,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Noe',26.0),
 	 ('Casimiro Antonio',26.0),
 	 ('Castiel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Catalin Iulian',26.0),
 	 ('Catalin Valentin',26.0),
 	 ('Cedrick',26.0),
@@ -23450,7 +23450,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Rolando',26.0),
 	 ('Changsheng',26.0),
 	 ('Charles Joseph',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cheikh Ahmed',26.0),
 	 ('Chong',26.0),
 	 ('Christian Giovanni',26.0),
@@ -23461,7 +23461,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cosmin Marius',26.0),
 	 ('Cristhian Leonardo',26.0),
 	 ('Cristian Alonso',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Catalin',26.0),
 	 ('Cristian Emilio',26.0),
 	 ('Cristian Gerardo',26.0),
@@ -23472,7 +23472,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Yeray',26.0),
 	 ('Cristopher Daniel',26.0),
 	 ('Cristopher Josue',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cruz Angel',26.0),
 	 ('Damaso Antonio',26.0),
 	 ('Damian Luis',26.0),
@@ -23483,7 +23483,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Eric',26.0),
 	 ('David Gordon',26.0),
 	 ('David Lee',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Davy',26.0),
 	 ('Deepak Kumar',26.0),
 	 ('Demetrio Antonio',26.0),
@@ -23494,7 +23494,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Doro',26.0),
 	 ('Dumitru Alin',26.0),
 	 ('Dylan Ismael',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Michael',26.0),
 	 ('Ederson',26.0),
 	 ('Edison Orlando',26.0),
@@ -23505,7 +23505,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edwin Humberto',26.0),
 	 ('Eimantas',26.0),
 	 ('El Akil',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Hossein',26.0),
 	 ('Elhoucine',26.0),
 	 ('Elias Ramon',26.0),
@@ -23516,7 +23516,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eric Francisco',26.0),
 	 ('Ericson',26.0),
 	 ('Ermes',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ernesto Fidel',26.0),
 	 ('Ernesto Joaquin',26.0),
 	 ('Ernesto Salvador',26.0),
@@ -23527,7 +23527,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ezequiel Fernando',26.0),
 	 ('Fabian Ernesto',26.0),
 	 ('Fabian Francisco',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabricio Alejandro',26.0),
 	 ('Fahmi',26.0),
 	 ('Federico Adrian',26.0),
@@ -23538,7 +23538,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Pascual',26.0),
 	 ('Felix Roman',26.0),
 	 ('Felix Santos',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fenix',26.0),
 	 ('Fernando Cristobal',26.0),
 	 ('Fernando Gaston',26.0),
@@ -23549,7 +23549,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Benigno',26.0),
 	 ('Francisco Horacio',26.0),
 	 ('Francisco Mauricio',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frank Michael',26.0),
 	 ('Frankie',26.0),
 	 ('Franklin Joel',26.0),
@@ -23560,7 +23560,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Lorenzo',26.0),
 	 ('Gabriel Roberto',26.0),
 	 ('Gabriel Sorin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Victor',26.0),
 	 ('Geir',26.0),
 	 ('Geoffrey William',26.0),
@@ -23571,7 +23571,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerrit Jan',26.0),
 	 ('Gheorghe Claudiu',26.0),
 	 ('Gheorghe Ovidiu',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Jaime',26.0),
 	 ('Gordiano',26.0),
 	 ('Gordon William',26.0),
@@ -23582,7 +23582,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Felix',26.0),
 	 ('Guillermo Gonzalo',26.0),
 	 ('Guillermo Julio',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Marcelo',26.0),
 	 ('Gurpinder',26.0),
 	 ('Gustavo Arturo',26.0),
@@ -23593,7 +23593,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Gerardo',26.0),
 	 ('Hedi',26.0),
 	 ('Helder Antonio',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Henok',26.0),
 	 ('Hernan Manuel',26.0),
 	 ('Hizan',26.0),
@@ -23604,7 +23604,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Dario',26.0),
 	 ('Hugo German',26.0),
 	 ('Hugo Samuel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Humberto Ramon',26.0),
 	 ('Iacopo',26.0),
 	 ('Idalberto',26.0),
@@ -23615,7 +23615,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iker Josue',26.0),
 	 ('Inderjeet',26.0),
 	 ('Ioan Mircea',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionel Catalin',26.0),
 	 ('Ionut Aurel',26.0),
 	 ('Ionut Nicolae',26.0),
@@ -23626,7 +23626,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iñigo Miguel',26.0),
 	 ('Jacinto Alberto',26.0),
 	 ('Jacobo Antonio',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jacomar',26.0),
 	 ('Jader',26.0),
 	 ('Jahir',26.0),
@@ -23637,7 +23637,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Junior',26.0),
 	 ('Jairo Gabriel',26.0),
 	 ('Jairo Rafael',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jaiver',26.0),
 	 ('Jakir',26.0),
 	 ('James Douglas',26.0),
@@ -23648,7 +23648,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jefferson Mauricio',26.0),
 	 ('Jefferson Patricio',26.0),
 	 ('Jeison Alexander',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeremy Joel',26.0),
 	 ('Jesus Baltasar',26.0),
 	 ('Jesus Horacio',26.0),
@@ -23659,7 +23659,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jiawen',26.0),
 	 ('Jiaxuan',26.0),
 	 ('Jinsong',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Fernando',26.0),
 	 ('Joao Baptista',26.0),
 	 ('Joao Felipe',26.0),
@@ -23670,7 +23670,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('John Byron',26.0),
 	 ('Jon Karlos',26.0),
 	 ('Jonas Jesus',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Roberto',26.0),
 	 ('Jonathan Vicente',26.0),
 	 ('Jordi Vicent',26.0),
@@ -23681,7 +23681,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Yeray',26.0),
 	 ('Jose Agostinho',26.0),
 	 ('Jose Angeles',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Desiderio',26.0),
 	 ('Jose Didier',26.0),
 	 ('Jose Lamberto',26.0),
@@ -23692,7 +23692,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Severiano',26.0),
 	 ('Jose Silvino',26.0),
 	 ('Jose Stalin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Pasqual',26.0),
 	 ('Joseph Steven',26.0),
 	 ('Joshua Daniel',26.0),
@@ -23703,7 +23703,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Gabino',26.0),
 	 ('Juan Gil',26.0),
 	 ('Juan Urbano',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Oscar',26.0),
 	 ('Julian Roberto',26.0),
 	 ('Julio Abel',26.0),
@@ -23714,7 +23714,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Keith David',26.0),
 	 ('Kevin Andre',26.0),
 	 ('Kevin Jair',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Leonel',26.0),
 	 ('Kevin Robert',26.0),
 	 ('Khamis',26.0),
@@ -23725,7 +23725,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Laurentiu Valentin',26.0),
 	 ('Laurentzi',26.0),
 	 ('Lazaro Alberto',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lazaro Alejandro',26.0),
 	 ('Lazaro David',26.0),
 	 ('Leonard Gabriel',26.0),
@@ -23736,7 +23736,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lili',26.0),
 	 ('Lisardo Jose',26.0),
 	 ('Lluis Manuel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lorenzo Pedro',26.0),
 	 ('Lucas Isaac',26.0),
 	 ('Lucas Leonel',26.0),
@@ -23747,7 +23747,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Oliver',26.0),
 	 ('Luiz Claudio',26.0),
 	 ('Majdi',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mamadou Cellou',26.0),
 	 ('Mamadou Moussa',26.0),
 	 ('Manuel Arsenio',26.0),
@@ -23758,7 +23758,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marco Anibal',26.0),
 	 ('Marco Cesar',26.0),
 	 ('Marco Eduardo',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marco Fidel',26.0),
 	 ('Marco Rafael',26.0),
 	 ('Marcos Emanuel',26.0),
@@ -23769,7 +23769,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mark Ian',26.0),
 	 ('Marlon Francisco',26.0),
 	 ('Martin Eugenio',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marvin Javier',26.0),
 	 ('Marvin Santiago',26.0),
 	 ('Mateo Eduardo',26.0),
@@ -23780,7 +23780,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mauro Fernando',26.0),
 	 ('Maximiliano David',26.0),
 	 ('Maximilien',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Maximo Andres',26.0),
 	 ('Maximo Ramon',26.0),
 	 ('Maximus',26.0),
@@ -23791,7 +23791,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Clemente',26.0),
 	 ('Miguel Junior',26.0),
 	 ('Miguel Leon',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Sergio',26.0),
 	 ('Mihai Gheorghe',26.0),
 	 ('Mikel Iñaki',26.0),
@@ -23802,7 +23802,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohammed Abdul',26.0),
 	 ('Moises Carlos',26.0),
 	 ('Moises Fernando',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Montaser',26.0),
 	 ('Muhammad Afzal',26.0),
 	 ('Muhammad Junaid',26.0),
@@ -23813,7 +23813,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nasrullah',26.0),
 	 ('Nassar',26.0),
 	 ('Nayin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Neil Andrew',26.0),
 	 ('Neptali',26.0),
 	 ('Neri',26.0),
@@ -23824,7 +23824,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolae Viorel',26.0),
 	 ('Nicolas Augusto',26.0),
 	 ('Nicolas Gaston',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Hernan',26.0),
 	 ('Nicolas Mauricio',26.0),
 	 ('Niki',26.0),
@@ -23835,7 +23835,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ofelio',26.0),
 	 ('Omar Ivan',26.0),
 	 ('Omar Miguel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Orlando Luis',26.0),
 	 ('Oscar Fabricio',26.0),
 	 ('Oswaldo Rafael',26.0),
@@ -23846,7 +23846,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paolo Antonio',26.0),
 	 ('Papa Malick',26.0),
 	 ('Papa Samba',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Parsa',26.0),
 	 ('Patrick Gerard',26.0),
 	 ('Patrick Robert',26.0),
@@ -23857,7 +23857,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Candido',26.0),
 	 ('Pengxiang',26.0),
 	 ('Pierre Yves',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pritpal',26.0),
 	 ('Quimey',26.0),
 	 ('Radames',26.0),
@@ -23868,7 +23868,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rares Alexandru',26.0),
 	 ('Rares Stefan',26.0),
 	 ('Raul Catalin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Vasile',26.0),
 	 ('Razvan Stefan',26.0),
 	 ('Regalado',26.0),
@@ -23879,7 +23879,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ricardo Joel',26.0),
 	 ('Richard Orlando',26.0),
 	 ('Ripon',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rob',26.0),
 	 ('Robel',26.0),
 	 ('Roberto Adolfo',26.0),
@@ -23890,7 +23890,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Nahuel',26.0),
 	 ('Roger Luis',26.0),
 	 ('Rolando Rafael',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rolf Dieter',26.0),
 	 ('Rolly',26.0),
 	 ('Roman David',26.0),
@@ -23901,7 +23901,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saed',26.0),
 	 ('Salvador Ivan',26.0),
 	 ('Sama',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Samuel Arturo',26.0),
 	 ('Samuel Joseph',26.0),
 	 ('Santokh',26.0),
@@ -23912,7 +23912,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Elias',26.0),
 	 ('Sebastian Guillermo',26.0),
 	 ('Sebastian Marian',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastian Stefan',26.0),
 	 ('Segundo Alfonso',26.0),
 	 ('Segundo Oswaldo',26.0),
@@ -23923,7 +23923,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergiu Daniel',26.0),
 	 ('Serigne Cheikh',26.0),
 	 ('Severino Manuel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Seydina Mohamed',26.0),
 	 ('Silvio Alejandro',26.0),
 	 ('Silviu Gabriel',26.0),
@@ -23934,7 +23934,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sohayl',26.0),
 	 ('Stanel',26.0),
 	 ('Starling',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Steeven',26.0),
 	 ('Steven Eduardo',26.0),
 	 ('Sukhraj',26.0),
@@ -23945,7 +23945,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tito Jose',26.0),
 	 ('Todor Ivanov',26.0),
 	 ('Tomas Gonzalo',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Trond',26.0),
 	 ('Ulf',26.0),
 	 ('Unatz',26.0),
@@ -23956,7 +23956,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Dorin',26.0),
 	 ('Vazha',26.0),
 	 ('Vicent Miquel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Leonardo',26.0),
 	 ('Vicente Patricio',26.0),
 	 ('Vicente Roman',26.0),
@@ -23967,7 +23967,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Rolando',26.0),
 	 ('Victoriano Miguel',26.0),
 	 ('Viorel Gabriel',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Virgilio Jesus',26.0),
 	 ('Vlad Stefan',26.0),
 	 ('Walter Patricio',26.0),
@@ -23978,7 +23978,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xavier Manuel',26.0),
 	 ('Xiangdong',26.0),
 	 ('Xianping',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xuanyu',26.0),
 	 ('Yago Manuel',26.0),
 	 ('Yakuba',26.0),
@@ -23989,7 +23989,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yered',26.0),
 	 ('Yiyi',26.0),
 	 ('Yongbin',26.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yongkang',26.0),
 	 ('Yony',26.0),
 	 ('Youssuf',26.0),
@@ -24000,7 +24000,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zugaitz',26.0),
 	 ('Aadel',25.0),
 	 ('Aaron Alberto',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdelbarie',25.0),
 	 ('Abdelhalak',25.0),
 	 ('Abdeloihed',25.0),
@@ -24011,7 +24011,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adolfo Ricardo',25.0),
 	 ('Adrian Danut',25.0),
 	 ('Adrian Nicusor',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Razvan',25.0),
 	 ('Adrian Rodrigo',25.0),
 	 ('Adrian Ruben',25.0),
@@ -24022,7 +24022,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ahamadou',25.0),
 	 ('Ailton',25.0),
 	 ('Airong',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aivaras',25.0),
 	 ('Akhlaq',25.0),
 	 ('Alaitz',25.0),
@@ -24033,7 +24033,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aldo Ramon',25.0),
 	 ('Alejandro Aurelio',25.0),
 	 ('Alejandro Constantin',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alessandro Antonio',25.0),
 	 ('Alex Florin',25.0),
 	 ('Alex Raul',25.0),
@@ -24044,7 +24044,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Mario',25.0),
 	 ('Alfredo Alfonso',25.0),
 	 ('Alio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alonso David',25.0),
 	 ('Alvaro Josue',25.0),
 	 ('Alvaro Leonardo',25.0),
@@ -24055,7 +24055,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Amilcar Jose',25.0),
 	 ('Aminul',25.0),
 	 ('Amir Hossein',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andre Miguel',25.0),
 	 ('Andres Hernan',25.0),
 	 ('Andres Israel',25.0),
@@ -24066,7 +24066,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Celestino',25.0),
 	 ('Angel Christian',25.0),
 	 ('Angel Claudio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Evaristo',25.0),
 	 ('Angel Hilario',25.0),
 	 ('Angel Hugo',25.0),
@@ -24077,7 +24077,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Remigio',25.0),
 	 ('Angel Rigoberto',25.0),
 	 ('Anibal Andres',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antelmo',25.0),
 	 ('Anthony Adrian',25.0),
 	 ('Anthony Junior',25.0),
@@ -24088,7 +24088,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Horacio',25.0),
 	 ('Antonio Norberto',25.0),
 	 ('Antonio Octavio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Urbano',25.0),
 	 ('Arael',25.0),
 	 ('Aridane Jose',25.0),
@@ -24099,7 +24099,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aurelio Juan',25.0),
 	 ('Aurelio Vicente',25.0),
 	 ('Axel Eduardo',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Axel Jose',25.0),
 	 ('Aymeric',25.0),
 	 ('Ayur',25.0),
@@ -24110,7 +24110,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Balvinder',25.0),
 	 ('Banaras',25.0),
 	 ('Banu',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Barry William',25.0),
 	 ('Bassel',25.0),
 	 ('Baye Dame',25.0),
@@ -24121,7 +24121,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bizen',25.0),
 	 ('Blas Maria',25.0),
 	 ('Bledar',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bogdan Cosmin',25.0),
 	 ('Borja Juan',25.0),
 	 ('Boutaher',25.0),
@@ -24132,7 +24132,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bryan Fabricio',25.0),
 	 ('Bryan Michael',25.0),
 	 ('Campio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Arsenio',25.0),
 	 ('Carlos Cipriano',25.0),
 	 ('Carlos Eliseo',25.0),
@@ -24143,7 +24143,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carmelo Eduardo',25.0),
 	 ('Cebria',25.0),
 	 ('Cesar Gregorio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesidio',25.0),
 	 ('Charbel',25.0),
 	 ('Charles Michael',25.0),
@@ -24154,7 +24154,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chunlei',25.0),
 	 ('Claudiu Iulian',25.0),
 	 ('Colin William',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Constantin Ioan',25.0),
 	 ('Constantino Javier',25.0),
 	 ('Cornelius',25.0),
@@ -24165,7 +24165,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Moises',25.0),
 	 ('Cristian Petru',25.0),
 	 ('Cristian Vicente',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristobal Eduardo',25.0),
 	 ('Cristofer Alexander',25.0),
 	 ('Cristofer Jesus',25.0),
@@ -24176,7 +24176,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Charles',25.0),
 	 ('Daniel Cristo',25.0),
 	 ('Daniel Joan',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Michel',25.0),
 	 ('Danut Gabriel',25.0),
 	 ('Dato',25.0),
@@ -24187,7 +24187,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Ramiro',25.0),
 	 ('Delfin Jose',25.0),
 	 ('Demid',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Denis David',25.0),
 	 ('Denis Francisco',25.0),
 	 ('Denis Manuel',25.0),
@@ -24198,7 +24198,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diaw',25.0),
 	 ('Dimitar Petrov',25.0),
 	 ('Domingo Mario',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dominic Andrei',25.0),
 	 ('Dragos Nicolae',25.0),
 	 ('Dylan Leonel',25.0),
@@ -24209,7 +24209,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Hernan',25.0),
 	 ('Edil',25.0),
 	 ('Edison Jesus',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edison Oswaldo',25.0),
 	 ('Edivaldo',25.0),
 	 ('Eduardo Omar',25.0),
@@ -24220,7 +24220,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elias Ezequiel',25.0),
 	 ('Elicerio',25.0),
 	 ('Elisio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emanuel Florin',25.0),
 	 ('Emiliano Gabriel',25.0),
 	 ('Emmanuel Andres',25.0),
@@ -24231,7 +24231,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ercan',25.0),
 	 ('Erick Enrique',25.0),
 	 ('Erick Ivan',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erminio',25.0),
 	 ('Ernesto Maria',25.0),
 	 ('Esteban Emilio',25.0),
@@ -24242,7 +24242,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian Gustavo',25.0),
 	 ('Fabian Ignacio',25.0),
 	 ('Fabian Rodrigo',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabricio Daniel',25.0),
 	 ('Facundo Tomas',25.0),
 	 ('Federico Esteban',25.0),
@@ -24253,7 +24253,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fermin Enrique',25.0),
 	 ('Fernando Ramiro',25.0),
 	 ('Fernando Rene',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Flavio Augusto',25.0),
 	 ('Flaviu',25.0),
 	 ('Florin George',25.0),
@@ -24264,7 +24264,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Antolin',25.0),
 	 ('Francisco Eleuterio',25.0),
 	 ('Francisco Faustino',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Ildefonso',25.0),
 	 ('Frank Anthony',25.0),
 	 ('Frank Enrique',25.0),
@@ -24275,7 +24275,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Benjamin',25.0),
 	 ('Gabriel Lucian',25.0),
 	 ('Gabriel Moises',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gael Jose',25.0),
 	 ('Galass',25.0),
 	 ('Galaye',25.0),
@@ -24286,7 +24286,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Genesis',25.0),
 	 ('Gentian',25.0),
 	 ('Georgi Angelov',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Georgi Atanasov',25.0),
 	 ('Georgi Todorov',25.0),
 	 ('Geovani',25.0),
@@ -24297,7 +24297,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Gustavo',25.0),
 	 ('Geroni',25.0),
 	 ('Gerson Daniel',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ghailan',25.0),
 	 ('Gharib',25.0),
 	 ('Gheorghe Constantin',25.0),
@@ -24308,7 +24308,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Giovanni Alejandro',25.0),
 	 ('Giovanni Maria',25.0),
 	 ('Giovany',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Alvaro',25.0),
 	 ('Gonzalo Roberto',25.0),
 	 ('Gregorio Esteban',25.0),
@@ -24319,7 +24319,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guoxin',25.0),
 	 ('Gurami',25.0),
 	 ('Gurlal',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gustavo Ezequiel',25.0),
 	 ('Gustavo Omar',25.0),
 	 ('Haiming',25.0),
@@ -24330,7 +24330,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Tomas',25.0),
 	 ('Heiner',25.0),
 	 ('Henry Alfonso',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Henry Fabian',25.0),
 	 ('Hermilo',25.0),
 	 ('Hernani',25.0),
@@ -24341,7 +24341,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Humberto Miguel',25.0),
 	 ('Ian Fernando',25.0),
 	 ('Iban Jose',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ibo',25.0),
 	 ('Iddrisu',25.0),
 	 ('Ignacio Aitor',25.0),
@@ -24352,7 +24352,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ilario',25.0),
 	 ('Imanol Mirena',25.0),
 	 ('Ioan Marcel',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ion Alin',25.0),
 	 ('Ionut Aurelian',25.0),
 	 ('Isaac Luis',25.0),
@@ -24363,7 +24363,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isidro Maria',25.0),
 	 ('Isrrael',25.0),
 	 ('Isshak',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iulian Ionut',25.0),
 	 ('Ivan Yeray',25.0),
 	 ('Ivans',25.0),
@@ -24374,7 +24374,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Fabian',25.0),
 	 ('Jaime Gregorio',25.0),
 	 ('James Andres',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jason Michael',25.0),
 	 ('Jaume Lluis',25.0),
 	 ('Javed Iqbal',25.0),
@@ -24385,7 +24385,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jean Antoine',25.0),
 	 ('Jean Pablo',25.0),
 	 ('Jean Pier',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jefferson Enrique',25.0),
 	 ('Jefferson Manuel',25.0),
 	 ('Jelle',25.0),
@@ -24396,7 +24396,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jherson',25.0),
 	 ('Jhonier',25.0),
 	 ('Jhonny Daniel',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhordan',25.0),
 	 ('Jia Cheng',25.0),
 	 ('Jiahe',25.0),
@@ -24407,7 +24407,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jingxuan',25.0),
 	 ('Joao Eduardo',25.0),
 	 ('Johan Javier',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Johan Santiago',25.0),
 	 ('John Jader',25.0),
 	 ('John Mauricio',25.0),
@@ -24418,7 +24418,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Amado',25.0),
 	 ('Jorge Jacinto',25.0),
 	 ('Jorge Luiz',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Alain',25.0),
 	 ('Jose Asensio',25.0),
 	 ('Jose Aythami',25.0),
@@ -24429,7 +24429,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Tanausu',25.0),
 	 ('Jose Willian',25.0),
 	 ('Joseba Julen',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Ricard',25.0),
 	 ('Joseph Louis',25.0),
 	 ('Josue Benjamin',25.0),
@@ -24440,7 +24440,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Inocencio',25.0),
 	 ('Juan Jonathan',25.0),
 	 ('Juan Reinaldo',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Rene',25.0),
 	 ('Juan Teofilo',25.0),
 	 ('Jugraj',25.0),
@@ -24451,7 +24451,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Moises',25.0),
 	 ('Julio Santos',25.0),
 	 ('Junhan',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Junhua',25.0),
 	 ('Junming',25.0),
 	 ('Justo Ignacio',25.0),
@@ -24462,7 +24462,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kelyan',25.0),
 	 ('Keven',25.0),
 	 ('Kevin Alexandru',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Andrew',25.0),
 	 ('Kevin Carlos',25.0),
 	 ('Kevin Mario',25.0),
@@ -24473,7 +24473,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Laurentiu Mihai',25.0),
 	 ('Lautaro Martin',25.0),
 	 ('Leandro Carlos',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leon Felipe',25.0),
 	 ('Leonardo Dario',25.0),
 	 ('Leonardo German',25.0),
@@ -24484,7 +24484,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lirio',25.0),
 	 ('Lorenzo Nicolas',25.0),
 	 ('Louai',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Salvador',25.0),
 	 ('Luciano Enrique',25.0),
 	 ('Luciano Luis',25.0),
@@ -24495,7 +24495,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Rosendo',25.0),
 	 ('Luis Victoriano',25.0),
 	 ('Luke Anthony',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Madalin Florin',25.0),
 	 ('Mahieddine',25.0),
 	 ('Mamadou Korka',25.0),
@@ -24506,7 +24506,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Bernardino',25.0),
 	 ('Manuel Bruno',25.0),
 	 ('Manuel Hernan',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Jose Maria',25.0),
 	 ('Manuel Perfecto',25.0),
 	 ('Manuel Rolando',25.0),
@@ -24517,7 +24517,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelino Pedro',25.0),
 	 ('Marcelo Agustin',25.0),
 	 ('Marcelo Esteban',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Ciprian',25.0),
 	 ('Marian George',25.0),
 	 ('Marian Robert',25.0),
@@ -24528,7 +24528,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marlon Ivan',25.0),
 	 ('Marlon Jesus',25.0),
 	 ('Martin Anthony',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Thomas',25.0),
 	 ('Marvin Alexis',25.0),
 	 ('Matias Oscar',25.0),
@@ -24539,7 +24539,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mazhar Iqbal',25.0),
 	 ('Merabi',25.0),
 	 ('Michael Dennis',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Ian',25.0),
 	 ('Michael Leonard',25.0),
 	 ('Michael Steve',25.0),
@@ -24550,7 +24550,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Marcelo',25.0),
 	 ('Miguel Mauricio',25.0),
 	 ('Mihai Nicolae',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Milagros',25.0),
 	 ('Milesio',25.0),
 	 ('Milton Enrique',25.0),
@@ -24561,7 +24561,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Modesto Angel',25.0),
 	 ('Modesto Luis',25.0),
 	 ('Mohamed Abdellahi',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Aly',25.0),
 	 ('Mohamed El Moctar',25.0),
 	 ('Moises Andres',25.0),
@@ -24572,7 +24572,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mouhameth',25.0),
 	 ('Mounsef',25.0),
 	 ('Muhammad Arshad',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Kamran',25.0),
 	 ('Muhammad Noman',25.0),
 	 ('Muhammad Zeeshan',25.0),
@@ -24583,7 +24583,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Arturo',25.0),
 	 ('Nicolas Bari',25.0),
 	 ('Nicolas Diego',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Gustavo',25.0),
 	 ('Niculita',25.0),
 	 ('Niel',25.0),
@@ -24594,7 +24594,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Norberto Francisco',25.0),
 	 ('Noredine',25.0),
 	 ('Olay',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oleksander',25.0),
 	 ('Osazee',25.0),
 	 ('Oscar Marcos',25.0),
@@ -24605,7 +24605,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ovidiu Alexandru',25.0),
 	 ('Pablo Gines',25.0),
 	 ('Pablo Leandro',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Papa Demba',25.0),
 	 ('Pascual Juan',25.0),
 	 ('Pascual Rafael',25.0),
@@ -24616,7 +24616,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pau Albert',25.0),
 	 ('Pau Lluis',25.0),
 	 ('Paul Constantin',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Frederick',25.0),
 	 ('Paul Stuart',25.0),
 	 ('Pedro Claudio',25.0),
@@ -24627,7 +24627,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Peijun',25.0),
 	 ('Pep Lluis',25.0),
 	 ('Pervaiz',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Petru Alexandru',25.0),
 	 ('Petru Marius',25.0),
 	 ('Philippe Andre',25.0),
@@ -24638,7 +24638,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rafayel',25.0),
 	 ('Ramon Orlando',25.0),
 	 ('Ramon Raul',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Reyes',25.0),
 	 ('Rana Muhammad',25.0),
 	 ('Rares Gabriel',25.0),
@@ -24649,7 +24649,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raul Osvaldo',25.0),
 	 ('Raul Rodrigo',25.0),
 	 ('Remigio Jose',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Renaud',25.0),
 	 ('Rene Luis',25.0),
 	 ('Ricardo Anibal',25.0),
@@ -24660,7 +24660,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robert Eduard',25.0),
 	 ('Roberto Samuel',25.0),
 	 ('Roberto Sergio',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodrigo Angel',25.0),
 	 ('Roman Angel',25.0),
 	 ('Ronald Rafael',25.0),
@@ -24671,7 +24671,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Moises',25.0),
 	 ('Sabbir',25.0),
 	 ('Sahid',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saif Ullah',25.0),
 	 ('Sajawal',25.0),
 	 ('Salahdine',25.0),
@@ -24682,7 +24682,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Ivan',25.0),
 	 ('Samuel Pedro',25.0),
 	 ('Samuel Ricardo',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Marcelo',25.0),
 	 ('Santos Vicente',25.0),
 	 ('Sarmad',25.0),
@@ -24693,7 +24693,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Cristobal',25.0),
 	 ('Sergio Leon',25.0),
 	 ('Sergiu Ioan',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Serigne Bassirou',25.0),
 	 ('Shai',25.0),
 	 ('Sheriffo',25.0),
@@ -24704,7 +24704,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Soso',25.0),
 	 ('Stancho',25.0),
 	 ('Stefan Cosmin',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stefanel',25.0),
 	 ('Steven Gerard',25.0),
 	 ('Steven Manuel',25.0),
@@ -24715,7 +24715,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Takeshi',25.0),
 	 ('Talib',25.0),
 	 ('Tayron',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tejinder',25.0),
 	 ('Teodoro Angel',25.0),
 	 ('Theophilus',25.0),
@@ -24726,7 +24726,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Utman',25.0),
 	 ('Valentin Nicolas',25.0),
 	 ('Vasile Calin',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vasile Dumitru',25.0),
 	 ('Vasile Liviu',25.0),
 	 ('Vazgen',25.0),
@@ -24737,7 +24737,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vicente Samuel',25.0),
 	 ('Vicente Valentin',25.0),
 	 ('Victor Andre',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor John',25.0),
 	 ('Victor Ramiro',25.0),
 	 ('Victoriano Angel',25.0),
@@ -24748,7 +24748,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Walter Rafael',25.0),
 	 ('Weicheng',25.0),
 	 ('Wenhai',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wenwei',25.0),
 	 ('Wenzhong',25.0),
 	 ('William Peter',25.0),
@@ -24759,7 +24759,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilmer Omar',25.0),
 	 ('Wilson Ramon',25.0),
 	 ('Wilson Ricardo',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xavier Ramon',25.0),
 	 ('Xianmin',25.0),
 	 ('Xuping',25.0),
@@ -24770,7 +24770,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yoelvis',25.0),
 	 ('Yongguang',25.0),
 	 ('Yongmin',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('You',25.0),
 	 ('Ysmael',25.0),
 	 ('Yuli',25.0),
@@ -24781,7 +24781,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yuxin',25.0),
 	 ('Zebensuy',25.0),
 	 ('Zhigang',25.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhilong',25.0),
 	 ('Zhixiong',25.0),
 	 ('Ziqiang',25.0),
@@ -24792,7 +24792,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdel Jalil',24.0),
 	 ('Abdel Mounaim',24.0),
 	 ('Abdelnour',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdenaji',24.0),
 	 ('Abdenassar',24.0),
 	 ('Abdrahman',24.0),
@@ -24803,7 +24803,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abraham Miguel',24.0),
 	 ('Abrahan David',24.0),
 	 ('Adan Antonio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aday Antonio',24.0),
 	 ('Adjutori',24.0),
 	 ('Adrian Emil',24.0),
@@ -24814,7 +24814,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agustin Raul',24.0),
 	 ('Airan Jesus',24.0),
 	 ('Akli',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alaadin',24.0),
 	 ('Alain Michel',24.0),
 	 ('Alamgir',24.0),
@@ -24825,7 +24825,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Magno',24.0),
 	 ('Alejandro Maximo',24.0),
 	 ('Alejo Antonio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejo Jesus',24.0),
 	 ('Aleksej',24.0),
 	 ('Alex James',24.0),
@@ -24836,7 +24836,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexandru Paul',24.0),
 	 ('Alexis Ricardo',24.0),
 	 ('Alfonso Ivan',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonso Sebastian',24.0),
 	 ('Alfredo Eugenio',24.0),
 	 ('Alfredo Guillermo',24.0),
@@ -24847,7 +24847,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alonso Enrique',24.0),
 	 ('Alvaro Alfredo',24.0),
 	 ('Amado Antonio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amadou Bailo',24.0),
 	 ('Amauri',24.0),
 	 ('Amauris',24.0),
@@ -24858,7 +24858,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Fabricio',24.0),
 	 ('Andres Omar',24.0),
 	 ('Andres Orlando',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andrew Nicholas',24.0),
 	 ('Anesio',24.0),
 	 ('Angel Dimitrov',24.0),
@@ -24869,7 +24869,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anselmo Luis',24.0),
 	 ('Antenor',24.0),
 	 ('Antonio Bruno',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Hector',24.0),
 	 ('Antonio Higinio',24.0),
 	 ('Antonio Zacarias',24.0),
@@ -24880,7 +24880,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Argimiro Jose',24.0),
 	 ('Arquimides',24.0),
 	 ('Arsenio Luis',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Artavazd',24.0),
 	 ('Arturo Guillermo',24.0),
 	 ('Asier Alejandro',24.0),
@@ -24891,7 +24891,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Basim',24.0),
 	 ('Benito Fernando',24.0),
 	 ('Benjamin Alberto',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benjamin Angel',24.0),
 	 ('Bernabe Jesus',24.0),
 	 ('Bernardino Antonio',24.0),
@@ -24902,7 +24902,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bonifacio Jose',24.0),
 	 ('Borja Fernando',24.0),
 	 ('Borja Vicente',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Boubeker',24.0),
 	 ('Boyi',24.0),
 	 ('Bradley James',24.0),
@@ -24913,7 +24913,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Calixto Jose',24.0),
 	 ('Candido Alberto',24.0),
 	 ('Carles Antoni',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Alcides',24.0),
 	 ('Carlos Celso',24.0),
 	 ('Carlos Hipolito',24.0),
@@ -24924,7 +24924,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Abraham',24.0),
 	 ('Cesar Edgardo',24.0),
 	 ('Cesar Tulio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Valentin',24.0),
 	 ('Charles James',24.0),
 	 ('Chirag',24.0),
@@ -24935,7 +24935,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Ramon',24.0),
 	 ('Chunming',24.0),
 	 ('Cicero',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudinei',24.0),
 	 ('Claudiu Sorin',24.0),
 	 ('Climaco',24.0),
@@ -24946,7 +24946,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Craig John',24.0),
 	 ('Cristhian Adrian',24.0),
 	 ('Cristhian Xavier',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Ernesto',24.0),
 	 ('Cristo Yeray',24.0),
 	 ('Cristobal Santiago',24.0),
@@ -24957,7 +24957,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Eloy',24.0),
 	 ('Danijel',24.0),
 	 ('Danny Josue',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Danny Santiago',24.0),
 	 ('Darwin Omar',24.0),
 	 ('Darwin Rafael',24.0),
@@ -24968,7 +24968,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Jordi',24.0),
 	 ('Dayro',24.0),
 	 ('Demetri',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Denis Ioan',24.0),
 	 ('Desheng',24.0),
 	 ('Diagne',24.0),
@@ -24979,7 +24979,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dumitru Mihai',24.0),
 	 ('Dylan Alessandro',24.0),
 	 ('Dylan Gerard',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dylan Paul',24.0),
 	 ('Edgar Omar',24.0),
 	 ('Edison Miguel',24.0),
@@ -24990,7 +24990,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edwin Gonzalo',24.0),
 	 ('Efim',24.0),
 	 ('El Boudali',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Gharras',24.0),
 	 ('El Hafid',24.0),
 	 ('Eladio Ramon',24.0),
@@ -25001,7 +25001,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emanuel Cristian',24.0),
 	 ('Emilio Damian',24.0),
 	 ('Emilio Eugenio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emilio German',24.0),
 	 ('Emilio Lorenzo',24.0),
 	 ('Emilio Mariano',24.0),
@@ -25012,7 +25012,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Blas',24.0),
 	 ('Enrique Mateo',24.0),
 	 ('Enrique Moises',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Simon',24.0),
 	 ('Eric Paul',24.0),
 	 ('Ernesto Ignacio',24.0),
@@ -25023,7 +25023,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eulogio Francisco',24.0),
 	 ('Evelio Antonio',24.0),
 	 ('Exuperancio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabian Alexis',24.0),
 	 ('Fabian Daniel',24.0),
 	 ('Fabio Ramon',24.0),
@@ -25034,7 +25034,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Ariel',24.0),
 	 ('Federico Damian',24.0),
 	 ('Federico Gustavo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Julian',24.0),
 	 ('Felipe Alfredo',24.0),
 	 ('Felix Bernardo',24.0),
@@ -25045,7 +25045,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Filipe Alexandre',24.0),
 	 ('Florentino Jesus',24.0),
 	 ('Francisco Aridane',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Camilo',24.0),
 	 ('Francisco Florentino',24.0),
 	 ('Francisco Jose Maria',24.0),
@@ -25056,7 +25056,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Venancio',24.0),
 	 ('Freddy Ricardo',24.0),
 	 ('Frederick Charles',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fredy Alonso',24.0),
 	 ('Gabriel Mateo',24.0),
 	 ('Gael Antonio',24.0),
@@ -25067,7 +25067,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('George Antonio',24.0),
 	 ('George John',24.0),
 	 ('George Thomas',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('German Diego',24.0),
 	 ('German Ezequiel',24.0),
 	 ('German Gonzalo',24.0),
@@ -25078,7 +25078,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gohar',24.0),
 	 ('Gonzalo German',24.0),
 	 ('Gonzalo Patricio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Salvador',24.0),
 	 ('Gregoire',24.0),
 	 ('Guido Alberto',24.0),
@@ -25089,7 +25089,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Mario',24.0),
 	 ('Guiomar',24.0),
 	 ('Guomin',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gurshan',24.0),
 	 ('Gustav',24.0),
 	 ('Gustavo Sergio',24.0),
@@ -25100,7 +25100,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Domingo',24.0),
 	 ('Hector Humberto',24.0),
 	 ('Hector Isaac',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Joel',24.0),
 	 ('Heinz Dieter',24.0),
 	 ('Henry Arturo',24.0),
@@ -25111,7 +25111,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Heping',24.0),
 	 ('Heriberto Manuel',24.0),
 	 ('Herminio Javier',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hernan Alfredo',24.0),
 	 ('Hernan Ricardo',24.0),
 	 ('Hlal',24.0),
@@ -25122,7 +25122,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hugo Adolfo',24.0),
 	 ('Hugo Ferney',24.0),
 	 ('Hugo Pablo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Ramiro',24.0),
 	 ('Hugo Tomas',24.0),
 	 ('Ian Edward',24.0),
@@ -25133,7 +25133,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Augusto',24.0),
 	 ('Ignacio Diego',24.0),
 	 ('Iker Unai',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ildar',24.0),
 	 ('Ildefonso Maria',24.0),
 	 ('Indra',24.0),
@@ -25144,7 +25144,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isaac Josue',24.0),
 	 ('Isaias David',24.0),
 	 ('Ishaan',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isidoro Juan',24.0),
 	 ('Isidoro Miguel',24.0),
 	 ('Islem',24.0),
@@ -25155,7 +25155,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ivan Mariano',24.0),
 	 ('Ivanov',24.0),
 	 ('Ives',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Izan Alejandro',24.0),
 	 ('Jack Anthony',24.0),
 	 ('Jackson Jose',24.0),
@@ -25166,7 +25166,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('James Alberto',24.0),
 	 ('James George',24.0),
 	 ('Janier',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jannik',24.0),
 	 ('Jatinder Singh',24.0),
 	 ('Jaume Xavier',24.0),
@@ -25177,7 +25177,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Consuelo',24.0),
 	 ('Jesus Donato',24.0),
 	 ('Jesus Hector',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Noel',24.0),
 	 ('Jesus Salud',24.0),
 	 ('Jhonny Antonio',24.0),
@@ -25188,7 +25188,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinxing',24.0),
 	 ('Jitendra',24.0),
 	 ('Joan Camilo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Victor',24.0),
 	 ('Joao Deus',24.0),
 	 ('Joaquin Adolfo',24.0),
@@ -25199,7 +25199,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johnny Manuel',24.0),
 	 ('Jon Erramun',24.0),
 	 ('Jon Miren',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonadab',24.0),
 	 ('Jonatan Francisco',24.0),
 	 ('Jonathan Carlos',24.0),
@@ -25210,7 +25210,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Edmundo',24.0),
 	 ('Jorge Manrique',24.0),
 	 ('Jorge Marcelino',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Maximo',24.0),
 	 ('Jose Alan',24.0),
 	 ('Jose Atanasio',24.0),
@@ -25221,7 +25221,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Luis Carlos',24.0),
 	 ('Jose Luis Vicente',24.0),
 	 ('Jose Manuel Antonio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Maria Angel',24.0),
 	 ('Jose Maria Pedro',24.0),
 	 ('Jose Mikel',24.0),
@@ -25232,7 +25232,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josip',24.0),
 	 ('Josue Elias',24.0),
 	 ('Josue Rafael',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josue Samuel',24.0),
 	 ('Jovany',24.0),
 	 ('Juan Bienvenido',24.0),
@@ -25243,7 +25243,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Onofre',24.0),
 	 ('Juan Ribera',24.0),
 	 ('Juan Tadeo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Carmelo',24.0),
 	 ('Julian Lorenzo',24.0),
 	 ('Julian Matias',24.0),
@@ -25254,7 +25254,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justas',24.0),
 	 ('Justin Alejandro',24.0),
 	 ('Kaoussou',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Keith Edward',24.0),
 	 ('Kenneth Charles',24.0),
 	 ('Kenneth Michael',24.0),
@@ -25265,7 +25265,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Tomas',24.0),
 	 ('Kristijan',24.0),
 	 ('Kristopher',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kuljit',24.0),
 	 ('Laureano Javier',24.0),
 	 ('Leo James',24.0),
@@ -25276,7 +25276,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lihao',24.0),
 	 ('Liman',24.0),
 	 ('Liqiang',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lluis Carles',24.0),
 	 ('Lluis Manel',24.0),
 	 ('Lorenzo Julian',24.0),
@@ -25287,7 +25287,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucas Ricardo',24.0),
 	 ('Lucas Roberto',24.0),
 	 ('Lucian Adrian',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luciano Alessandro',24.0),
 	 ('Luis Alexandre',24.0),
 	 ('Luis Amadeo',24.0),
@@ -25298,7 +25298,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Estuardo',24.0),
 	 ('Luis Higinio',24.0),
 	 ('Luis Hilario',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Homero',24.0),
 	 ('Lyazid',24.0),
 	 ('Macrino',24.0),
@@ -25309,7 +25309,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mamary',24.0),
 	 ('Manan',24.0),
 	 ('Manding',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manjit Singh',24.0),
 	 ('Manuel Adan',24.0),
 	 ('Manuel Amadeo',24.0),
@@ -25320,7 +25320,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcelino Ramon',24.0),
 	 ('Marcos Federico',24.0),
 	 ('Marcos Martin',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marian Ionel',24.0),
 	 ('Marian Sebastian',24.0),
 	 ('Marian Stefan',24.0),
@@ -25331,7 +25331,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Denis',24.0),
 	 ('Mario Edgardo',24.0),
 	 ('Mario Pablo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Samuel',24.0),
 	 ('Marius Cornel',24.0),
 	 ('Maro',24.0),
@@ -25342,7 +25342,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mateo Valentin',24.0),
 	 ('Matias Emiliano',24.0),
 	 ('Matias Guillermo',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Martin',24.0),
 	 ('Matias Pablo',24.0),
 	 ('Mauro Damian',24.0),
@@ -25353,7 +25353,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Migel',24.0),
 	 ('Miguel Faustino',24.0),
 	 ('Miguel Leandro',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Moises',24.0),
 	 ('Mihai George',24.0),
 	 ('Mikalai',24.0),
@@ -25364,7 +25364,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mircea Constantin',24.0),
 	 ('Mkrtich',24.0),
 	 ('Mohamad Amin',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohamed Jalal',24.0),
 	 ('Mohamed Saber',24.0),
 	 ('Mohamed Sghir',24.0),
@@ -25375,7 +25375,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mouha',24.0),
 	 ('Mousaab',24.0),
 	 ('Muhammad Abubakar',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Asim',24.0),
 	 ('Muhammad Haseeb',24.0),
 	 ('Muhammad Suleman',24.0),
@@ -25386,7 +25386,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nast',24.0),
 	 ('Nedelcho',24.0),
 	 ('Negu',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Neizan Jose',24.0),
 	 ('Nerio',24.0),
 	 ('Nestor Alonso',24.0),
@@ -25397,7 +25397,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicholas Michael',24.0),
 	 ('Nicolas Alexandre',24.0),
 	 ('Nicolas Alonso',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Dario',24.0),
 	 ('Nicolas Domingo',24.0),
 	 ('Nicolas Emmanuel',24.0),
@@ -25408,7 +25408,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nita',24.0),
 	 ('Noel David',24.0),
 	 ('Noriel',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Noufal',24.0),
 	 ('Nouhou',24.0),
 	 ('Nuo',24.0),
@@ -25419,7 +25419,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oliver William',24.0),
 	 ('Omaru',24.0),
 	 ('Orelvis',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oren',24.0),
 	 ('Oscar Alvaro',24.0),
 	 ('Oscar Bernardo',24.0),
@@ -25430,7 +25430,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Humberto',24.0),
 	 ('Pablo Leonel',24.0),
 	 ('Pablo Rene',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pan',24.0),
 	 ('Pascual Fernando',24.0),
 	 ('Pascual Pedro',24.0),
@@ -25441,7 +25441,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paul Stefan',24.0),
 	 ('Pedro Anselmo',24.0),
 	 ('Pedro Hector',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Leandro',24.0),
 	 ('Pedro Rene',24.0),
 	 ('Pep Toni',24.0),
@@ -25452,7 +25452,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Petru Ioan',24.0),
 	 ('Phillip John',24.0),
 	 ('Piotr Andrzej',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Proculo',24.0),
 	 ('Raciel',24.0),
 	 ('Radu Constantin',24.0),
@@ -25463,7 +25463,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raja Muhammad',24.0),
 	 ('Ramon Anibal',24.0),
 	 ('Ramon Aristides',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Celso',24.0),
 	 ('Ranvir',24.0),
 	 ('Rayco David',24.0),
@@ -25474,7 +25474,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Reynel',24.0),
 	 ('Ricardo Gregorio',24.0),
 	 ('Ricardo Horacio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richard Junior',24.0),
 	 ('Robert Brian',24.0),
 	 ('Robert Lee',24.0),
@@ -25485,7 +25485,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Dario',24.0),
 	 ('Roberto Victor',24.0),
 	 ('Rodolfo Martin',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodolfo Oscar',24.0),
 	 ('Rodrigo Joaquin',24.0),
 	 ('Roger Anthony',24.0),
@@ -25496,7 +25496,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roque Mario',24.0),
 	 ('Rosendo Javier',24.0),
 	 ('Ruben Damian',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruben Gerardo',24.0),
 	 ('Ruben Samuel',24.0),
 	 ('Rui Jose',24.0),
@@ -25507,7 +25507,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Martin',24.0),
 	 ('Santiago Gerardo',24.0),
 	 ('Santos Ramon',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sarim',24.0),
 	 ('Sassi',24.0),
 	 ('Satiro',24.0),
@@ -25518,7 +25518,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Segundo Bolivar',24.0),
 	 ('Segundo Elias',24.0),
 	 ('Segundo Enrique',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Segundo Guillermo',24.0),
 	 ('Segundo Pablo',24.0),
 	 ('Segundo Roberto',24.0),
@@ -25529,7 +25529,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Patricio',24.0),
 	 ('Sergio Rene',24.0),
 	 ('Serigne Mbaye',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Servio',24.0),
 	 ('Shamir',24.0),
 	 ('Shiva',24.0),
@@ -25540,7 +25540,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Silly',24.0),
 	 ('Silviu Alexandru',24.0),
 	 ('Silviu Mihai',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Simon Eduardo',24.0),
 	 ('Sixte',24.0),
 	 ('Skander',24.0),
@@ -25551,7 +25551,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Srdan',24.0),
 	 ('Stefanos',24.0),
 	 ('Stephen Alan',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stephen Roy',24.0),
 	 ('Steven Mark',24.0),
 	 ('Stoil',24.0),
@@ -25562,7 +25562,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas Gabriel',24.0),
 	 ('Tilo',24.0),
 	 ('Tito Antonio',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Elias',24.0),
 	 ('Tomas Julio',24.0),
 	 ('Tubal',24.0),
@@ -25573,7 +25573,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Urbano Jesus',24.0),
 	 ('Urcesino',24.0),
 	 ('Ussama',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valentin Juan',24.0),
 	 ('Vasile Constantin',24.0),
 	 ('Vicente Alexis',24.0),
@@ -25584,7 +25584,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victorian',24.0),
 	 ('Viorel Adrian',24.0),
 	 ('Virginijus',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter Humberto',24.0),
 	 ('Walter Vicente',24.0),
 	 ('Washington Daniel',24.0),
@@ -25595,7 +25595,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wenhui',24.0),
 	 ('Wesam',24.0),
 	 ('Wilfredo Jesus',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Esteban',24.0),
 	 ('Willian Alexander',24.0),
 	 ('Willian Jesus',24.0),
@@ -25606,7 +25606,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xavier David',24.0),
 	 ('Xerman',24.0),
 	 ('Xiangyang',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xinlong',24.0),
 	 ('Xinrui',24.0),
 	 ('Xuewei',24.0),
@@ -25617,7 +25617,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Younnes',24.0),
 	 ('Zaryab',24.0),
 	 ('Zaur',24.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhaoyang',24.0),
 	 ('Zhehao',24.0),
 	 ('Zhisheng',24.0),
@@ -25628,7 +25628,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aaron Paul',23.0),
 	 ('Aaron Samuel',23.0),
 	 ('Abdel Latif',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdel Majid',23.0),
 	 ('Abdelfadil',23.0),
 	 ('Abdelmoumene',23.0),
@@ -25639,7 +25639,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abu Baker',23.0),
 	 ('Acoidan Jesus',23.0),
 	 ('Adam Mohamed',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adelo',23.0),
 	 ('Adrian Augusto',23.0),
 	 ('Adrian Lorenzo',23.0),
@@ -25650,7 +25650,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aidas',23.0),
 	 ('Aide',23.0),
 	 ('Aihen',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aitor Ivan',23.0),
 	 ('Akil',23.0),
 	 ('Ala Eddine',23.0),
@@ -25661,7 +25661,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Albert Manuel',23.0),
 	 ('Alberto Adolfo',23.0),
 	 ('Alberto Benito',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alberto Carmelo',23.0),
 	 ('Alberto Dario',23.0),
 	 ('Alberto Moises',23.0),
@@ -25672,7 +25672,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Isidro',23.0),
 	 ('Alejandro Leonel',23.0),
 	 ('Alex Marcelo',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alex Mihai',23.0),
 	 ('Alex Rolando',23.0),
 	 ('Alex Ruben',23.0),
@@ -25683,7 +25683,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfredo Victor',23.0),
 	 ('Alin Gheorghe',23.0),
 	 ('Alisson',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aliyan',23.0),
 	 ('Alonso Carlos',23.0),
 	 ('Alvaro Elias',23.0),
@@ -25694,7 +25694,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andrei Adrian',23.0),
 	 ('Andrei Darius',23.0),
 	 ('Andres Santos',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Stiven',23.0),
 	 ('Andrew Ian',23.0),
 	 ('Andrew Stuart',23.0),
@@ -25705,7 +25705,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angel Gilberto',23.0),
 	 ('Angel Mathias',23.0),
 	 ('Anibal Francisco',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aniceto Jose',23.0),
 	 ('Anselmo Antonio',23.0),
 	 ('Anthony Mark',23.0),
@@ -25716,7 +25716,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Bernardino',23.0),
 	 ('Antonio Junior',23.0),
 	 ('Antonio Lino',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Paula',23.0),
 	 ('Antonio Pio',23.0),
 	 ('Antonio Placido',23.0),
@@ -25727,7 +25727,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arcesio',23.0),
 	 ('Areg',23.0),
 	 ('Arturo Emilio',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arturo Sebastian',23.0),
 	 ('Ashwani',23.0),
 	 ('Assem',23.0),
@@ -25738,7 +25738,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Badrdin',23.0),
 	 ('Badre Eddine',23.0),
 	 ('Banda',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Baris',23.0),
 	 ('Barry Edward',23.0),
 	 ('Basiliano',23.0),
@@ -25749,7 +25749,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Benjamin Luis',23.0),
 	 ('Benjamin Paul',23.0),
 	 ('Bennacer',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benoni',23.0),
 	 ('Bernardino Jesus',23.0),
 	 ('Bernardo Tomas',23.0),
@@ -25760,7 +25760,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bourahima',23.0),
 	 ('Bourema',23.0),
 	 ('Brahem',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brayam',23.0),
 	 ('Briam',23.0),
 	 ('Bruno Ivan',23.0),
@@ -25771,7 +25771,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Claudio',23.0),
 	 ('Carlos Henry',23.0),
 	 ('Carlos Lucas',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Michael',23.0),
 	 ('Carlos Nelson',23.0),
 	 ('Carlos Noel',23.0),
@@ -25782,7 +25782,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carmelo Fernando',23.0),
 	 ('Carmelo Pedro',23.0),
 	 ('Carmelo Tomas',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cataldo',23.0),
 	 ('Catalin Cristian',23.0),
 	 ('Caue',23.0),
@@ -25793,7 +25793,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cesar Moises',23.0),
 	 ('Cesar Osvaldo',23.0),
 	 ('Cesar Sebastian',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chafi',23.0),
 	 ('Cheikh Sadibou',23.0),
 	 ('Christian Angel',23.0),
@@ -25804,7 +25804,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christopher Stephen',23.0),
 	 ('Claudio Carlos',23.0),
 	 ('Claudio Esteban',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudio Guillermo',23.0),
 	 ('Clever',23.0),
 	 ('Conrado Antonio',23.0),
@@ -25815,7 +25815,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Costel Marius',23.0),
 	 ('Coulibaly',23.0),
 	 ('Crecencio',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristhian Marcelo',23.0),
 	 ('Cristhian Paul',23.0),
 	 ('Cristian Joaquin',23.0),
@@ -25826,7 +25826,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daler',23.0),
 	 ('Damian Carlos',23.0),
 	 ('Damian Fernando',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dan Andrei',23.0),
 	 ('Daniel Aurel',23.0),
 	 ('Daniel Jacob',23.0),
@@ -25837,7 +25837,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Darius Vasile',23.0),
 	 ('Darwin Joel',23.0),
 	 ('Darwin Orlando',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darwin Rene',23.0),
 	 ('David Aitor',23.0),
 	 ('David Gerard',23.0),
@@ -25848,7 +25848,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dennis Gabriel',23.0),
 	 ('Derek Alan',23.0),
 	 ('Derek Alejandro',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Camilo',23.0),
 	 ('Diego Efrain',23.0),
 	 ('Diko',23.0),
@@ -25859,7 +25859,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Douga',23.0),
 	 ('Douglas Enrique',23.0),
 	 ('Dumitru Ionut',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dumitru Valentin',23.0),
 	 ('Dumitru Vasile',23.0),
 	 ('Eddy Alexander',23.0),
@@ -25870,7 +25870,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduart',23.0),
 	 ('Edwar Andres',23.0),
 	 ('Edwin German',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edwin Giovanni',23.0),
 	 ('Ekam',23.0),
 	 ('El Bekkaye',23.0),
@@ -25881,7 +25881,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elmer Antonio',23.0),
 	 ('Eloy Rafael',23.0),
 	 ('Eloy Ramon',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elvis David',23.0),
 	 ('Elvis Jesus',23.0),
 	 ('Emanuel Jesus',23.0),
@@ -25892,7 +25892,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Isaac',23.0),
 	 ('Enrique Ruben',23.0),
 	 ('Eric Robert',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Patricio',23.0),
 	 ('Erick Ricardo',23.0),
 	 ('Erick Xavier',23.0),
@@ -25903,7 +25903,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Estarlin',23.0),
 	 ('Etien',23.0),
 	 ('Eugeniusz',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eulogi',23.0),
 	 ('Eustoquio',23.0),
 	 ('Evghenii',23.0),
@@ -25914,7 +25914,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fausto Fernando',23.0),
 	 ('Favian',23.0),
 	 ('Faycel',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felipe Gregorio',23.0),
 	 ('Felisardo',23.0),
 	 ('Felix Aurelio',23.0),
@@ -25925,7 +25925,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Flemming',23.0),
 	 ('Florin Ion',23.0),
 	 ('Francesc Manuel',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francis Alberto',23.0),
 	 ('Francisco Celestino',23.0),
 	 ('Francisco Donato',23.0),
@@ -25936,7 +25936,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Franciszek',23.0),
 	 ('Frank Junior',23.0),
 	 ('Freddy Francisco',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Freddy Oswaldo',23.0),
 	 ('Gabriel Andre',23.0),
 	 ('Gabriel Gheorghe',23.0),
@@ -25947,7 +25947,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Geoffrey Michael',23.0),
 	 ('George Claudiu',23.0),
 	 ('George Eduard',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gerard David',23.0),
 	 ('Gerardo Ariel',23.0),
 	 ('Gerardo Damian',23.0),
@@ -25958,7 +25958,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('German Roberto',23.0),
 	 ('Gersom',23.0),
 	 ('Gilberto Luis',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gregorio Emilio',23.0),
 	 ('Gregory James',23.0),
 	 ('Guangwei',23.0),
@@ -25969,7 +25969,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guofu',23.0),
 	 ('Gurman',23.0),
 	 ('Gustavo Pedro',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haiou',23.0),
 	 ('Hamdy',23.0),
 	 ('Haru',23.0),
@@ -25980,7 +25980,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Henry Santiago',23.0),
 	 ('Herculano',23.0),
 	 ('Herlan',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hiro',23.0),
 	 ('Houdayfa',23.0),
 	 ('Hristo Georgiev',23.0),
@@ -25991,7 +25991,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Humberto Francisco',23.0),
 	 ('Hutman',23.0),
 	 ('Hyusein',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Iacov',23.0),
 	 ('Ian Anthony',23.0),
 	 ('Igor Jose',23.0),
@@ -26002,7 +26002,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Marin',23.0),
 	 ('Ioan Raul',23.0),
 	 ('Ionel Valentin',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Liviu',23.0),
 	 ('Iouri',23.0),
 	 ('Isaac Sebastian',23.0),
@@ -26013,7 +26013,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ismain',23.0),
 	 ('Israel Eduardo',23.0),
 	 ('Ittai',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Israel',23.0),
 	 ('Ivan Matias',23.0),
 	 ('Izan Gael',23.0),
@@ -26024,7 +26024,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaison',23.0),
 	 ('Jakue',23.0),
 	 ('James Alan',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('James Albert',23.0),
 	 ('James Antonio',23.0),
 	 ('James Brian',23.0),
@@ -26035,7 +26035,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jason Mark',23.0),
 	 ('Jaume Enric',23.0),
 	 ('Javier Cruz',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier German',23.0),
 	 ('Javier Junior',23.0),
 	 ('Jehova',23.0),
@@ -26046,7 +26046,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Demetrio',23.0),
 	 ('Jesus Enmanuel',23.0),
 	 ('Jesus Evelio',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Genaro',23.0),
 	 ('Jesus Isaias',23.0),
 	 ('Jesus Narciso',23.0),
@@ -26057,7 +26057,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon Fabio',23.0),
 	 ('Jhon Robert',23.0),
 	 ('Jhonatan Jose',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jiabo',23.0),
 	 ('Jiahua',23.0),
 	 ('Jianfu',23.0),
@@ -26068,7 +26068,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joan Alberto',23.0),
 	 ('Joan Alexis',23.0),
 	 ('Joan Arnau',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joan Guillem',23.0),
 	 ('Joan Paul',23.0),
 	 ('Joaquin Arturo',23.0),
@@ -26079,7 +26079,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Johanny',23.0),
 	 ('John Enrique',23.0),
 	 ('John Gordon',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Keith',23.0),
 	 ('John Stanley',23.0),
 	 ('Jon Asier',23.0),
@@ -26090,7 +26090,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jordi Angel',23.0),
 	 ('Jordy Alejandro',23.0),
 	 ('Jorge Edwin',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Leon',23.0),
 	 ('Jorge Leonel',23.0),
 	 ('Jorge Michael',23.0),
@@ -26101,7 +26101,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Luis Pedro',23.0),
 	 ('Jose Maria Andres',23.0),
 	 ('Jose Napoleon',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joseba Txomin',23.0),
 	 ('Josep Sebastia',23.0),
 	 ('Joseph Andres',23.0),
@@ -26112,7 +26112,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Karlos',23.0),
 	 ('Jubal',23.0),
 	 ('Julian Alonso',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julian Armando',23.0),
 	 ('Julian Marcos',23.0),
 	 ('Julio Dario',23.0),
@@ -26123,7 +26123,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kenneth Joseph',23.0),
 	 ('Kevin Charles',23.0),
 	 ('Kevin Damian',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Ezequiel',23.0),
 	 ('Kevin Francis',23.0),
 	 ('Kevin Mark',23.0),
@@ -26134,7 +26134,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Klever Antonio',23.0),
 	 ('Koji',23.0),
 	 ('Koldobika Mikel',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kourosh',23.0),
 	 ('Krassimir',23.0),
 	 ('Lamnouar',23.0),
@@ -26145,7 +26145,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leandro Federico',23.0),
 	 ('Leandro Nahuel',23.0),
 	 ('Leendert',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leo Manuel',23.0),
 	 ('Leomar',23.0),
 	 ('Leon Angel',23.0),
@@ -26156,7 +26156,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Liam John',23.0),
 	 ('Lidong',23.0),
 	 ('Lihua',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Linhao',23.0),
 	 ('Lohan',23.0),
 	 ('Lucas Constantin',23.0),
@@ -26167,7 +26167,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luigi Antonio',23.0),
 	 ('Luis Fausto',23.0),
 	 ('Luis Gael',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Giovanny',23.0),
 	 ('Luis Remigio',23.0),
 	 ('Luis Reynaldo',23.0),
@@ -26178,7 +26178,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Damaso',23.0),
 	 ('Manuel Delfin',23.0),
 	 ('Manuel Melchor',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Saturnino',23.0),
 	 ('Marcelo Alexander',23.0),
 	 ('Marcelo Ezequiel',23.0),
@@ -26189,7 +26189,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marco Santiago',23.0),
 	 ('Marco Sebastian',23.0),
 	 ('Marcos Fidel',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marcos German',23.0),
 	 ('Marian Costel',23.0),
 	 ('Marian Gheorghe',23.0),
@@ -26200,7 +26200,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Florin',23.0),
 	 ('Mario Lorenzo',23.0),
 	 ('Mario Marcos',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mario Ramiro',23.0),
 	 ('Mariusz Piotr',23.0),
 	 ('Marjan',23.0),
@@ -26211,7 +26211,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matei Andrei',23.0),
 	 ('Mateo Josue',23.0),
 	 ('Mateo Vicente',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Carlos',23.0),
 	 ('Matias Emmanuel',23.0),
 	 ('Matias Ernesto',23.0),
@@ -26222,7 +26222,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matin',23.0),
 	 ('Mauricio Ezequiel',23.0),
 	 ('Mauricio Francisco',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauricio Raul',23.0),
 	 ('Mauro Francisco',23.0),
 	 ('Maximo Alexander',23.0),
@@ -26233,7 +26233,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Michael Kenneth',23.0),
 	 ('Michael Martin',23.0),
 	 ('Michael Vincent',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Walter',23.0),
 	 ('Miguel Borja',23.0),
 	 ('Miguel Candido',23.0),
@@ -26244,7 +26244,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Simon',23.0),
 	 ('Mihai David',23.0),
 	 ('Milton Manuel',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Milton Ramiro',23.0),
 	 ('Minjie',23.0),
 	 ('Mircea Mihai',23.0),
@@ -26255,7 +26255,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Wassim',23.0),
 	 ('Moises Gabriel',23.0),
 	 ('Moises Pedro',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mouhamadou Falilou',23.0),
 	 ('Muhammad Azan',23.0),
 	 ('Muhammad Faisal',23.0),
@@ -26266,7 +26266,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nahuel Agustin',23.0),
 	 ('Nar',23.0),
 	 ('Narcis Ionut',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nathan John',23.0),
 	 ('Neil James',23.0),
 	 ('Nelson Felipe',23.0),
@@ -26277,7 +26277,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicholas Mark',23.0),
 	 ('Nicolae Danut',23.0),
 	 ('Nicolae Sebastian',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicusor Adrian',23.0),
 	 ('Nikolay Nikolaev',23.0),
 	 ('Nimai',23.0),
@@ -26288,7 +26288,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Noufel',23.0),
 	 ('Nour Din',23.0),
 	 ('Octavio Juan',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oday',23.0),
 	 ('Okba',23.0),
 	 ('Olegario Jose',23.0),
@@ -26299,7 +26299,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Onelio',23.0),
 	 ('Osbel',23.0),
 	 ('Oscar Benito',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oscar Bruno',23.0),
 	 ('Pablo Abraham',23.0),
 	 ('Pablo Henrique',23.0),
@@ -26310,7 +26310,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Patrick Charles',23.0),
 	 ('Patrick Francis',23.0),
 	 ('Paul Lucian',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paulo Luis',23.0),
 	 ('Pawel Jan',23.0),
 	 ('Payam',23.0),
@@ -26321,7 +26321,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Rodolfo',23.0),
 	 ('Pedro Rolando',23.0),
 	 ('Pedro Rufino',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pekka Juhani',23.0),
 	 ('Peter Graham',23.0),
 	 ('Peter Leslie',23.0),
@@ -26332,7 +26332,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Porfidio',23.0),
 	 ('Primitivo Jose',23.0),
 	 ('Qais',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Qihao',23.0),
 	 ('Qiu',23.0),
 	 ('Qixuan',23.0),
@@ -26343,7 +26343,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Eloy',23.0),
 	 ('Randhir',23.0),
 	 ('Ranses',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raul Elias',23.0),
 	 ('Raul Nicolae',23.0),
 	 ('Raul Rodolfo',23.0),
@@ -26354,7 +26354,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Renato Antonio',23.0),
 	 ('Renato Jose',23.0),
 	 ('Reymundo',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ricardo Hernan',23.0),
 	 ('Ricardo Junior',23.0),
 	 ('Richard Gustavo',23.0),
@@ -26365,7 +26365,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rigoberto Antonio',23.0),
 	 ('Robert Douglas',23.0),
 	 ('Robert Frederick',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roberto Aurelio',23.0),
 	 ('Roberto Isaac',23.0),
 	 ('Roberto Ismael',23.0),
@@ -26376,7 +26376,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Rodrigo Emanuel',23.0),
 	 ('Rodrigo Felipe',23.0),
 	 ('Rodrigo Tomas',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rolando Andres',23.0),
 	 ('Ronald Francisco',23.0),
 	 ('Ronald Josue',23.0),
@@ -26387,7 +26387,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruijie',23.0),
 	 ('Saadeddine',23.0),
 	 ('Saif Din',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salahadin',23.0),
 	 ('Salahddine',23.0),
 	 ('Saleck',23.0),
@@ -26398,7 +26398,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Tomas',23.0),
 	 ('Santiago Samuel',23.0),
 	 ('Santos Pedro',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santos Tomas',23.0),
 	 ('Sarfaraz',23.0),
 	 ('Sarkis',23.0),
@@ -26409,7 +26409,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Segundo Ernesto',23.0),
 	 ('Segundo Jaime',23.0),
 	 ('Seif',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Selma',23.0),
 	 ('Senda',23.0),
 	 ('Senent',23.0),
@@ -26420,7 +26420,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Rolando',23.0),
 	 ('Serigne Moustapha',23.0),
 	 ('Serni',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Severino Antonio',23.0),
 	 ('Sezgin',23.0),
 	 ('Sham',23.0),
@@ -26431,7 +26431,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Solaimane',23.0),
 	 ('Souheil',23.0),
 	 ('Starlin',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stefan Razvan',23.0),
 	 ('Stefan Robert',23.0),
 	 ('Stefanita',23.0),
@@ -26442,7 +26442,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sulpicio',23.0),
 	 ('Surahata',23.0),
 	 ('Svetlozar',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tariq Mahmood',23.0),
 	 ('Teofanes',23.0),
 	 ('Terence Charles',23.0),
@@ -26453,7 +26453,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tomas Federico',23.0),
 	 ('Tomas Mariano',23.0),
 	 ('Tonino',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tonny',23.0),
 	 ('Tristany',23.0),
 	 ('Tsotne',23.0),
@@ -26464,7 +26464,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Vasile Marcel',23.0),
 	 ('Velin',23.0),
 	 ('Vicente Armando',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Ernesto',23.0),
 	 ('Vicente Israel',23.0),
 	 ('Vicente Moises',23.0),
@@ -26475,7 +26475,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Segundo',23.0),
 	 ('Victoriano Juan',23.0),
 	 ('Victoriano Ramon',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vidmantas',23.0),
 	 ('Viorel Ionut',23.0),
 	 ('Walberto',23.0),
@@ -26486,7 +26486,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Alexis',23.0),
 	 ('William Arthur',23.0),
 	 ('William Felipe',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('William Ivan',23.0),
 	 ('William Xavier',23.0),
 	 ('Wilmar Alexander',23.0),
@@ -26497,7 +26497,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xavier Jesus',23.0),
 	 ('Xianbin',23.0),
 	 ('Xianfeng',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xiaoling',23.0),
 	 ('Xinfeng',23.0),
 	 ('Xinyang',23.0),
@@ -26508,7 +26508,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yakubu',23.0),
 	 ('Yancarlos',23.0),
 	 ('Yarei',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yeison Fernando',23.0),
 	 ('Yi Fan',23.0),
 	 ('Yihad',23.0),
@@ -26519,7 +26519,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Younass',23.0),
 	 ('Yunan',23.0),
 	 ('Yusif',23.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhiguang',23.0),
 	 ('Zhilin',23.0),
 	 ('Zhongmin',23.0),
@@ -26530,7 +26530,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelkarime',22.0),
 	 ('Abderrahmene',22.0),
 	 ('Abdessadak',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdul Hamid',22.0),
 	 ('Abdurahman',22.0),
 	 ('Abidin',22.0),
@@ -26541,7 +26541,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adrian Emanuel',22.0),
 	 ('Adrian Laurentiu',22.0),
 	 ('Adrian Lucas',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Adrian Oscar',22.0),
 	 ('Afnan',22.0),
 	 ('Agenor',22.0),
@@ -26552,7 +26552,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aithamy',22.0),
 	 ('Aitor Alberto',22.0),
 	 ('Aitor Fernando',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aitor Iñaki',22.0),
 	 ('Alae Eddin',22.0),
 	 ('Alastair',22.0),
@@ -26563,7 +26563,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Lucas',22.0),
 	 ('Alberto Mauricio',22.0),
 	 ('Alberto Roman',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Albino Manuel',22.0),
 	 ('Aldo Luis',22.0),
 	 ('Alex Armando',22.0),
@@ -26574,7 +26574,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alexander Ramon',22.0),
 	 ('Alexandru Dragos',22.0),
 	 ('Alexandru Emanuel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexis Juan',22.0),
 	 ('Alexis Paul',22.0),
 	 ('Alfa',22.0),
@@ -26585,7 +26585,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfredo Lorenzo',22.0),
 	 ('Ali Asghar',22.0),
 	 ('Alin George',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aliou Badara',22.0),
 	 ('Alvaro Hugo',22.0),
 	 ('Amad',22.0),
@@ -26596,7 +26596,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Anar',22.0),
 	 ('Anderson Antonio',22.0),
 	 ('Andrei Ovidiu',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Andres Emiliano',22.0),
 	 ('Andres Fermin',22.0),
 	 ('Andres Jeronimo',22.0),
@@ -26607,7 +26607,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andris',22.0),
 	 ('Andriyan',22.0),
 	 ('Andrzej Stanislaw',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Basilio',22.0),
 	 ('Angel Cecilio',22.0),
 	 ('Angel Dios',22.0),
@@ -26618,7 +26618,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angelo Javier',22.0),
 	 ('Anguel',22.0),
 	 ('Anibal Fernando',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Anil Kumar',22.0),
 	 ('Anmolpreet',22.0),
 	 ('Antonie',22.0),
@@ -26629,7 +26629,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antoniu',22.0),
 	 ('Arcangelo',22.0),
 	 ('Ariel Nicolas',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ariel Omar',22.0),
 	 ('Ariful',22.0),
 	 ('Arnal',22.0),
@@ -26640,7 +26640,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Arvinder',22.0),
 	 ('Asensi',22.0),
 	 ('Asensio Jose',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Asier Jose',22.0),
 	 ('Aston',22.0),
 	 ('Audaz',22.0),
@@ -26651,7 +26651,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ayoze David',22.0),
 	 ('Bari',22.0),
 	 ('Bartolome Manuel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bastiaan',22.0),
 	 ('Bebe',22.0),
 	 ('Benigno Luis',22.0),
@@ -26662,7 +26662,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bernard John',22.0),
 	 ('Bernard Joseph',22.0),
 	 ('Bernardo Joaquin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bertino',22.0),
 	 ('Bertol',22.0),
 	 ('Bikash',22.0),
@@ -26673,7 +26673,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Blessed',22.0),
 	 ('Boris Alejandro',22.0),
 	 ('Borja Enrique',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brahime',22.0),
 	 ('Brayan Leonardo',22.0),
 	 ('Brayan Manuel',22.0),
@@ -26684,7 +26684,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Camilo Fernando',22.0),
 	 ('Candido Vicente',22.0),
 	 ('Carlo Antonio',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Adalberto',22.0),
 	 ('Carlos Iban',22.0),
 	 ('Carlos Isaias',22.0),
@@ -26695,7 +26695,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carmelo Domingo',22.0),
 	 ('Castor Manuel',22.0),
 	 ('Catalin Costel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cecilio Miguel',22.0),
 	 ('Celestino Jesus',22.0),
 	 ('Cesar Ismael',22.0),
@@ -26706,7 +26706,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chadli',22.0),
 	 ('Cheikh Ibra',22.0),
 	 ('Chengyu',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Christiaan',22.0),
 	 ('Christian Jacques',22.0),
 	 ('Christopher Peter',22.0),
@@ -26717,7 +26717,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Coralio',22.0),
 	 ('Cosmin Stefan',22.0),
 	 ('Courage',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristhian Geovanny',22.0),
 	 ('Cristhian Omar',22.0),
 	 ('Cristian Eduard',22.0),
@@ -26728,7 +26728,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dai',22.0),
 	 ('Damian Miguel',22.0),
 	 ('Damian Rafael',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dan Ionut',22.0),
 	 ('Daniel Fermin',22.0),
 	 ('Daniel Ilie',22.0),
@@ -26739,7 +26739,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daoiz',22.0),
 	 ('Dariush',22.0),
 	 ('Darwin Gabriel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Darwin Leonardo',22.0),
 	 ('Darwin Ricardo',22.0),
 	 ('Darwin Santiago',22.0),
@@ -26750,7 +26750,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('David Marius',22.0),
 	 ('David Matthew',22.0),
 	 ('David Noel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Xavier',22.0),
 	 ('Delfin Manuel',22.0),
 	 ('Denis Emanuel',22.0),
@@ -26761,7 +26761,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dilan Steven',22.0),
 	 ('Dilson',22.0),
 	 ('Dimas Jose',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dimitar Dimitrov',22.0),
 	 ('Dioscoro',22.0),
 	 ('Dolores',22.0),
@@ -26772,7 +26772,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dylan James',22.0),
 	 ('Eberhard',22.0),
 	 ('Eddy Javier',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Edgar Efrain',22.0),
 	 ('Edgar German',22.0),
 	 ('Edgar Santiago',22.0),
@@ -26783,7 +26783,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eduard Sebastian',22.0),
 	 ('Eduardo Borja',22.0),
 	 ('Eduardo Eloy',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Fermin',22.0),
 	 ('Eduardo Isaac',22.0),
 	 ('Eduardo Mateo',22.0),
@@ -26794,7 +26794,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eirian',22.0),
 	 ('El Hacen',22.0),
 	 ('El Hachemi',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Hadji Mamadou',22.0),
 	 ('El Houssien',22.0),
 	 ('Eladio Angel',22.0),
@@ -26805,7 +26805,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elkin Dario',22.0),
 	 ('Eloino',22.0),
 	 ('Elvis Rafael',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Elyan',22.0),
 	 ('Emil Marian',22.0),
 	 ('Emilio Marcos',22.0),
@@ -26816,7 +26816,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enmanuel Antonio',22.0),
 	 ('Enrique Camilo',22.0),
 	 ('Enrique Elias',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Enrique Fabian',22.0),
 	 ('Ensa',22.0),
 	 ('Enzo Adrian',22.0),
@@ -26827,7 +26827,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Erick Fabian',22.0),
 	 ('Erick Leonel',22.0),
 	 ('Erick Omar',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Roberto',22.0),
 	 ('Erik Eduardo',22.0),
 	 ('Erik Sebastian',22.0),
@@ -26838,7 +26838,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eugenio Gabriel',22.0),
 	 ('Eulogio Antonio',22.0),
 	 ('Eynar',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ezequiel Agustin',22.0),
 	 ('Fabian Carlos',22.0),
 	 ('Fabio Adrian',22.0),
@@ -26849,7 +26849,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fausto Andres',22.0),
 	 ('Fausto Patricio',22.0),
 	 ('Fawad',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Federico Alfonso',22.0),
 	 ('Federico Emilio',22.0),
 	 ('Federico Raul',22.0),
@@ -26860,7 +26860,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felix Victor',22.0),
 	 ('Fermin Pedro',22.0),
 	 ('Fernando Hector',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fernando Luciano',22.0),
 	 ('Fernando Paul',22.0),
 	 ('Fernando Walter',22.0),
@@ -26871,7 +26871,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Florin Eugen',22.0),
 	 ('Florin Paul',22.0),
 	 ('Florin Sebastian',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Bienvenido',22.0),
 	 ('Francisco Emanuel',22.0),
 	 ('Francisco Emmanuel',22.0),
@@ -26882,7 +26882,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('François Pierre',22.0),
 	 ('Freddy Gustavo',22.0),
 	 ('Freddy Omar',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frederick George',22.0),
 	 ('Fredy Mauricio',22.0),
 	 ('Fuhao',22.0),
@@ -26893,7 +26893,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gary Michael',22.0),
 	 ('Gary Steven',22.0),
 	 ('Gaspar Luis',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaston Jose',22.0),
 	 ('Gentil',22.0),
 	 ('George Luis',22.0),
@@ -26904,7 +26904,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Ernesto',22.0),
 	 ('Gerardo Ivan',22.0),
 	 ('Gerardo Joaquin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gerardo Pablo',22.0),
 	 ('German Alexis',22.0),
 	 ('German Guillermo',22.0),
@@ -26915,7 +26915,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gonzalo Adolfo',22.0),
 	 ('Gonzalo Diego',22.0),
 	 ('Gonzalo Domingo',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Gaston',22.0),
 	 ('Gonzalo Ruben',22.0),
 	 ('Goodluck',22.0),
@@ -26926,7 +26926,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guillermo Benjamin',22.0),
 	 ('Guohong',22.0),
 	 ('Guolin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guoyong',22.0),
 	 ('Gurtej',22.0),
 	 ('Haithem',22.0),
@@ -26937,7 +26937,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hao Jie',22.0),
 	 ('Haojun',22.0),
 	 ('Haowen',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haralambie',22.0),
 	 ('Harold Daniel',22.0),
 	 ('Harshdeep',22.0),
@@ -26948,7 +26948,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Herminsul',22.0),
 	 ('Hernan Rafael',22.0),
 	 ('Hilton',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Holmes',22.0),
 	 ('Horacio Miguel',22.0),
 	 ('Hoummada',22.0),
@@ -26959,7 +26959,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ignacio Benjamin',22.0),
 	 ('Ignasi Josep',22.0),
 	 ('Iker Aaron',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Inge',22.0),
 	 ('Ioan Dorel',22.0),
 	 ('Ioan Iulian',22.0),
@@ -26970,7 +26970,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isidro Alejandro',22.0),
 	 ('Isidro Alfonso',22.0),
 	 ('Israel Andres',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Israel Javier',22.0),
 	 ('Israel Miguel',22.0),
 	 ('Iulian Catalin',22.0),
@@ -26981,7 +26981,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Izan Mateo',22.0),
 	 ('Izkander',22.0),
 	 ('Izortz',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jack Alexander',22.0),
 	 ('Jack David',22.0),
 	 ('Jacobo Alejandro',22.0),
@@ -26992,7 +26992,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Valentin',22.0),
 	 ('Jair Andres',22.0),
 	 ('Jairo Mauricio',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jake Alexander',22.0),
 	 ('James Oliver',22.0),
 	 ('Jamshid',22.0),
@@ -27003,7 +27003,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Josue',22.0),
 	 ('Javier Leopoldo',22.0),
 	 ('Javier Teodoro',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jean Rene',22.0),
 	 ('Jean Sebastien',22.0),
 	 ('Jeferson David',22.0),
@@ -27014,7 +27014,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jenel',22.0),
 	 ('Jeremy Javier',22.0),
 	 ('Jerian',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jerson Andres',22.0),
 	 ('Jesus Albeiro',22.0),
 	 ('Jesus Camilo',22.0),
@@ -27025,7 +27025,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jesus Rene',22.0),
 	 ('Jesus Segundo',22.0),
 	 ('Jhamil',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhon Eduar',22.0),
 	 ('Jhon Luis',22.0),
 	 ('Jiajing',22.0),
@@ -27036,7 +27036,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jinbin',22.0),
 	 ('Jitender',22.0),
 	 ('Joan Joaquim',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joaquim Jorge',22.0),
 	 ('Joaquin Abel',22.0),
 	 ('Joaquin Ismael',22.0),
@@ -27047,7 +27047,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joel Carlos',22.0),
 	 ('Joel Steven',22.0),
 	 ('Johannes Gerardus',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('John Bernard',22.0),
 	 ('John Dennis',22.0),
 	 ('John Matthew',22.0),
@@ -27058,7 +27058,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jonathan Ruben',22.0),
 	 ('Jordan Alexis',22.0),
 	 ('Jordi Juan',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jordi Miguel',22.0),
 	 ('Jordi Salvador',22.0),
 	 ('Jorge Anselmo',22.0),
@@ -27069,7 +27069,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Carlo',22.0),
 	 ('Jose Crisanto',22.0),
 	 ('Jose Fortunato',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Galo',22.0),
 	 ('Jose Geronimo',22.0),
 	 ('Jose Luis Juan',22.0),
@@ -27080,7 +27080,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Obdulio',22.0),
 	 ('Jose Roger',22.0),
 	 ('Jose Steven',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josep Adria',22.0),
 	 ('Joseph Fernando',22.0),
 	 ('Joseph Francis',22.0),
@@ -27091,7 +27091,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Bautista Jose',22.0),
 	 ('Juan Conrado',22.0),
 	 ('Juan Dimas',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Epifanio',22.0),
 	 ('Juan Jacob',22.0),
 	 ('Juan Jose Ramon',22.0),
@@ -27102,7 +27102,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Juan Sahagun',22.0),
 	 ('Juan Severino',22.0),
 	 ('Juan Simeon',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Stevan',22.0),
 	 ('Juan Trinidad',22.0),
 	 ('Juan Wenceslao',22.0),
@@ -27113,7 +27113,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julio Ramiro',22.0),
 	 ('Julio Rene',22.0),
 	 ('Julio Roman',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Junqi',22.0),
 	 ('Justo Rafael',22.0),
 	 ('Kadialy',22.0),
@@ -27124,7 +27124,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Andrey',22.0),
 	 ('Kevin Marcelo',22.0),
 	 ('Kevin Nahuel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kevin Steve',22.0),
 	 ('Kewin',22.0),
 	 ('Khadir',22.0),
@@ -27135,7 +27135,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leandro Hernan',22.0),
 	 ('Lenin Alberto',22.0),
 	 ('Lenin Jose',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lennox',22.0),
 	 ('Leo Daniel',22.0),
 	 ('Leo David',22.0),
@@ -27146,7 +27146,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lijian',22.0),
 	 ('Lino Alberto',22.0),
 	 ('Lino Jesus',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Liyi',22.0),
 	 ('Lounis',22.0),
 	 ('Lucas Alfonso',22.0),
@@ -27157,7 +27157,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luciano David',22.0),
 	 ('Lucio Fernando',22.0),
 	 ('Luis Alejo',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Ambrosio',22.0),
 	 ('Luis Constantino',22.0),
 	 ('Luis Franklin',22.0),
@@ -27168,7 +27168,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Ovidio',22.0),
 	 ('Luis Vinicio',22.0),
 	 ('Madai',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mahamadou Lamin',22.0),
 	 ('Mahammadou',22.0),
 	 ('Mahamud',22.0),
@@ -27179,7 +27179,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mame Thierno',22.0),
 	 ('Mames',22.0),
 	 ('Manuel Aaron',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Amancio',22.0),
 	 ('Manuel Eleuterio',22.0),
 	 ('Manuel Inocencio',22.0),
@@ -27190,7 +27190,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcel Alejandro',22.0),
 	 ('Marcel Ioan',22.0),
 	 ('Marco Andrea',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marco Ignacio',22.0),
 	 ('Marcos Adolfo',22.0),
 	 ('Marcos Andre',22.0),
@@ -27201,7 +27201,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mario Oswaldo',22.0),
 	 ('Marius Dorin',22.0),
 	 ('Marlon Fabricio',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Adolfo',22.0),
 	 ('Martin Oscar',22.0),
 	 ('Mary',22.0),
@@ -27212,7 +27212,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matias Joel',22.0),
 	 ('Matias Raul',22.0),
 	 ('Mauricio Agustin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauricio Ariel',22.0),
 	 ('Mauricio Ramon',22.0),
 	 ('Mauricio Ricardo',22.0),
@@ -27223,7 +27223,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Melvin Jose',22.0),
 	 ('Michael Terence',22.0),
 	 ('Michel Antoine',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michel Joseph',22.0),
 	 ('Miguel Cecilio',22.0),
 	 ('Miguel Cristian',22.0),
@@ -27234,7 +27234,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mirian',22.0),
 	 ('Mobarak',22.0),
 	 ('Modesto Vicente',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moh Salem',22.0),
 	 ('Mohammad Asif',22.0),
 	 ('Mohammad Hassan',22.0),
@@ -27245,7 +27245,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mojtaba',22.0),
 	 ('Mokhles',22.0),
 	 ('Monssif',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moshe',22.0),
 	 ('Muhammad Azaan',22.0),
 	 ('Muhammad Azam',22.0),
@@ -27256,7 +27256,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Shayan',22.0),
 	 ('Muhammad Wali',22.0),
 	 ('Muhammad Waseem',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Zahid',22.0),
 	 ('Muzammil',22.0),
 	 ('Nacim',22.0),
@@ -27267,7 +27267,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Neagu',22.0),
 	 ('Nedim',22.0),
 	 ('Nelson Santiago',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Anibal',22.0),
 	 ('Nestor Armando',22.0),
 	 ('Nestor Felipe',22.0),
@@ -27278,7 +27278,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolae Razvan',22.0),
 	 ('Nicolae Robert',22.0),
 	 ('Nicolas Stefan',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nigel James',22.0),
 	 ('Noah Daniel',22.0),
 	 ('Noamane',22.0),
@@ -27289,7 +27289,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nuno Gonçalo',22.0),
 	 ('Oliver Michael',22.0),
 	 ('Oliver Nicolas',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Omar Ismael',22.0),
 	 ('Omar Sebastian',22.0),
 	 ('Orlando Augusto',22.0),
@@ -27300,7 +27300,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Hector',22.0),
 	 ('Oscar Steven',22.0),
 	 ('Ou',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oubaida',22.0),
 	 ('Ovidiu Lucian',22.0),
 	 ('Pablo Leon',22.0),
@@ -27311,7 +27311,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paul Bernard',22.0),
 	 ('Paulica',22.0),
 	 ('Paulin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paulino Angel',22.0),
 	 ('Pedro Avelino',22.0),
 	 ('Pedro Genaro',22.0),
@@ -27322,7 +27322,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Rogelio',22.0),
 	 ('Pencho',22.0),
 	 ('Peter Leonard',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Petrache',22.0),
 	 ('Petru Alin',22.0),
 	 ('Pierino',22.0),
@@ -27333,7 +27333,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Qiming',22.0),
 	 ('Qixiang',22.0),
 	 ('Radion',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rafael Anibal',22.0),
 	 ('Rafael Dionisio',22.0),
 	 ('Rafael Eusebio',22.0),
@@ -27344,7 +27344,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Adrian',22.0),
 	 ('Ramon Dionisio',22.0),
 	 ('Ramon Isidoro',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Ismael',22.0),
 	 ('Raul Samuel',22.0),
 	 ('Rehmat',22.0),
@@ -27355,7 +27355,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richard Armando',22.0),
 	 ('Richard Leonardo',22.0),
 	 ('Richard Stephen',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rifat',22.0),
 	 ('River',22.0),
 	 ('Robert Christopher',22.0),
@@ -27366,7 +27366,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roberto Fermin',22.0),
 	 ('Roberto Gonzalo',22.0),
 	 ('Rodolfo Alexander',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodrigo Alfredo',22.0),
 	 ('Rodrigo Leonardo',22.0),
 	 ('Rodrigo Marcelo',22.0),
@@ -27377,7 +27377,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ronel',22.0),
 	 ('Rongguang',22.0),
 	 ('Roque Jacinto',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rosend',22.0),
 	 ('Rosendo Jesus',22.0),
 	 ('Ruben Gregorio',22.0),
@@ -27388,7 +27388,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ryan David',22.0),
 	 ('Sabino Antonio',22.0),
 	 ('Salahddin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Salhi',22.0),
 	 ('Salou',22.0),
 	 ('Salvador Martin',22.0),
@@ -27399,7 +27399,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sauro',22.0),
 	 ('Sayed',22.0),
 	 ('Sebastian Augusto',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sebastian George',22.0),
 	 ('Sebastian Leonardo',22.0),
 	 ('Sebastian Paul',22.0),
@@ -27410,7 +27410,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Bernardo',22.0),
 	 ('Sergio Diego',22.0),
 	 ('Sergio Henrique',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sergio Junior',22.0),
 	 ('Shahidul',22.0),
 	 ('Shanti',22.0),
@@ -27421,7 +27421,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shukri',22.0),
 	 ('Siamak',22.0),
 	 ('Silvio Manuel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Simon Nicholas',22.0),
 	 ('Siny',22.0),
 	 ('Siyu',22.0),
@@ -27432,7 +27432,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Souleimane',22.0),
 	 ('Stalin Andres',22.0),
 	 ('Stefan Lucian',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stig',22.0),
 	 ('Sukhman',22.0),
 	 ('Svein',22.0),
@@ -27443,7 +27443,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thiago Joel',22.0),
 	 ('Thiago Rafael',22.0),
 	 ('Thierno Abdoulaye',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Till',22.0),
 	 ('Toby',22.0),
 	 ('Todor Georgiev',22.0),
@@ -27454,7 +27454,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Unais',22.0),
 	 ('Urritz',22.0),
 	 ('Vadims',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valentin Pablo',22.0),
 	 ('Valentine',22.0),
 	 ('Valerio Jose',22.0),
@@ -27465,7 +27465,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Eusebio',22.0),
 	 ('Victor Leonel',22.0),
 	 ('Victor Manel',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Victor Marcos',22.0),
 	 ('Victor Mihai',22.0),
 	 ('Victor Simon',22.0),
@@ -27476,7 +27476,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Viorel Constantin',22.0),
 	 ('Viorel Nicolae',22.0),
 	 ('Vlad Constantin',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Walter Alfonso',22.0),
 	 ('Walter Mario',22.0),
 	 ('Walter Ricardo',22.0),
@@ -27487,7 +27487,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('William Omar',22.0),
 	 ('William Patrick',22.0),
 	 ('William Santiago',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilmer Orlando',22.0),
 	 ('Wilson Dario',22.0),
 	 ('Wilson German',22.0),
@@ -27498,7 +27498,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xueliang',22.0),
 	 ('Yadwinder',22.0),
 	 ('Yeiner',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yeisson',22.0),
 	 ('Yeray Daniel',22.0),
 	 ('Yeshua',22.0),
@@ -27509,7 +27509,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Youri',22.0),
 	 ('Youseef',22.0),
 	 ('Yuba',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yulian Andres',22.0),
 	 ('Yussif',22.0),
 	 ('Zak',22.0),
@@ -27520,7 +27520,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zelin',22.0),
 	 ('Zeno',22.0),
 	 ('Zhengjie',22.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zhora',22.0),
 	 ('Abdel Malek',21.0),
 	 ('Abdelbassat',21.0),
@@ -27531,7 +27531,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdul Salam',21.0),
 	 ('Abdulaye',21.0),
 	 ('Abel Adrian',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abraham Mateo',21.0),
 	 ('Adam Gabriel',21.0),
 	 ('Adam Michael',21.0),
@@ -27542,7 +27542,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Adriano Jesus',21.0),
 	 ('Adryan',21.0),
 	 ('Agustin Benito',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Agustin Guillermo',21.0),
 	 ('Agustin Ivan',21.0),
 	 ('Aiguang',21.0),
@@ -27553,7 +27553,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alan Samuel',21.0),
 	 ('Alan Victor',21.0),
 	 ('Albert Alexander',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Albert David',21.0),
 	 ('Albert John',21.0),
 	 ('Alberto Armando',21.0),
@@ -27564,7 +27564,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alejandro Aaron',21.0),
 	 ('Alejandro Abraham',21.0),
 	 ('Alejandro Cristobal',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alejandro Eloy',21.0),
 	 ('Alejandro Leon',21.0),
 	 ('Alejandro Rodolfo',21.0),
@@ -27575,7 +27575,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Giovanni',21.0),
 	 ('Alex Robert',21.0),
 	 ('Alex Valentin',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexander Samuel',21.0),
 	 ('Alexis Luis',21.0),
 	 ('Alexis Rodrigo',21.0),
@@ -27586,7 +27586,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfredo Mario',21.0),
 	 ('Ali Mohamed',21.0),
 	 ('Alix',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Allan James',21.0),
 	 ('Allan Josue',21.0),
 	 ('Almahdi',21.0),
@@ -27597,7 +27597,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Lorenzo',21.0),
 	 ('Alvaro Xavier',21.0),
 	 ('Alveiro',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alvino',21.0),
 	 ('Amrit Pal',21.0),
 	 ('Ananda',21.0),
@@ -27608,7 +27608,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andres Aurelio',21.0),
 	 ('Andres Cesar',21.0),
 	 ('Andrew Steven',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Gael',21.0),
 	 ('Angel Horacio',21.0),
 	 ('Angel Ivanov',21.0),
@@ -27619,7 +27619,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Angelo Paolo',21.0),
 	 ('Anibal Carlos',21.0),
 	 ('Anish',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antal',21.0),
 	 ('Anthony Philip',21.0),
 	 ('Anthony Samuel',21.0),
@@ -27630,7 +27630,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aoued',21.0),
 	 ('Aquilino Manuel',21.0),
 	 ('Arcadio Manuel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aref',21.0),
 	 ('Ariel Alfredo',21.0),
 	 ('Armando Raul',21.0),
@@ -27641,7 +27641,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Augusto Rafael',21.0),
 	 ('Aurelio Carlos',21.0),
 	 ('Avelino Javier',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Axel Antonio',21.0),
 	 ('Ayun',21.0),
 	 ('Azariel',21.0),
@@ -27652,7 +27652,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Basile',21.0),
 	 ('Bechir',21.0),
 	 ('Beltran Maria',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benito Alfonso',21.0),
 	 ('Benito Enrique',21.0),
 	 ('Benito Vicente',21.0),
@@ -27663,7 +27663,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Berk',21.0),
 	 ('Bernardo Alejandro',21.0),
 	 ('Bernat Josep',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Binod',21.0),
 	 ('Blessing',21.0),
 	 ('Bogdan Dumitru',21.0),
@@ -27674,7 +27674,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Braulio Miguel',21.0),
 	 ('Brian Joel',21.0),
 	 ('Bruno Enrique',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bruno Ignacio',21.0),
 	 ('Bryan Rene',21.0),
 	 ('Byron Mauricio',21.0),
@@ -27685,7 +27685,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Anselmo',21.0),
 	 ('Carlos Estuardo',21.0),
 	 ('Carlos Freddy',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Genaro',21.0),
 	 ('Carlos Michel',21.0),
 	 ('Carlos Urbano',21.0),
@@ -27696,7 +27696,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Celino',21.0),
 	 ('Cem',21.0),
 	 ('Cesar Leonel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cesar Marcos',21.0),
 	 ('Cesar Rene',21.0),
 	 ('Cesar Salvador',21.0),
@@ -27707,7 +27707,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Christian Steven',21.0),
 	 ('Christoffer',21.0),
 	 ('Christophe Jean',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chuang',21.0),
 	 ('Ciprian Daniel',21.0),
 	 ('Cipriano Antonio',21.0),
@@ -27718,7 +27718,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cosmin Lucian',21.0),
 	 ('Costel Ionut',21.0),
 	 ('Cristhian Alexis',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristhian Ivan',21.0),
 	 ('Cristian Bernardo',21.0),
 	 ('Cristian Isaac',21.0),
@@ -27729,7 +27729,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristopher Jose',21.0),
 	 ('Dailos Manuel',21.0),
 	 ('Daming',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Aitor',21.0),
 	 ('Daniel Nicusor',21.0),
 	 ('Daniel Roger',21.0),
@@ -27740,7 +27740,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dapeng',21.0),
 	 ('Dario Eduardo',21.0),
 	 ('Darwin Stalin',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dashiell',21.0),
 	 ('David Bartolome',21.0),
 	 ('David Jacobo',21.0),
@@ -27751,7 +27751,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Deian',21.0),
 	 ('Delvis',21.0),
 	 ('Demetrio Javier',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Derek Jesus',21.0),
 	 ('Diego Benjamin',21.0),
 	 ('Diego Cristobal',21.0),
@@ -27762,7 +27762,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ding',21.0),
 	 ('Dioncounda',21.0),
 	 ('Dione',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dirceu',21.0),
 	 ('Dirk Jan',21.0),
 	 ('Divine',21.0),
@@ -27773,7 +27773,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Donato Jose',21.0),
 	 ('Dorin Ioan',21.0),
 	 ('Dragos Catalin',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Drame',21.0),
 	 ('Duguneh',21.0),
 	 ('Dylan Aitor',21.0),
@@ -27784,7 +27784,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edison Gustavo',21.0),
 	 ('Edison Ivan',21.0),
 	 ('Edison Rodrigo',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduardo Cristian',21.0),
 	 ('Eduardo Hugo',21.0),
 	 ('Eduardo Isidro',21.0),
@@ -27795,7 +27795,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Hanafi',21.0),
 	 ('El Hasan',21.0),
 	 ('El Hosain',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('El Hossine',21.0),
 	 ('Elhadj',21.0),
 	 ('Elias Benjamin',21.0),
@@ -27806,7 +27806,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Emilio Adrian',21.0),
 	 ('Emilio Gregorio',21.0),
 	 ('Encho',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Endaitz',21.0),
 	 ('Engracio',21.0),
 	 ('Enmanuel Alejandro',21.0),
@@ -27817,7 +27817,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrique Octavio',21.0),
 	 ('Enzo Andres',21.0),
 	 ('Eric William',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eric Xavier',21.0),
 	 ('Erick Junior',21.0),
 	 ('Ernesto Agustin',21.0),
@@ -27828,7 +27828,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Eudoxio',21.0),
 	 ('Eugenio Domingo',21.0),
 	 ('Eugenio Salvador',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ever Alexander',21.0),
 	 ('Ezequiel Alberto',21.0),
 	 ('Fabian Arturo',21.0),
@@ -27839,7 +27839,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian Vicente',21.0),
 	 ('Fabio Francisco',21.0),
 	 ('Fabio Henrique',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fabricio Antonio',21.0),
 	 ('Facundo Andres',21.0),
 	 ('Facundo Ariel',21.0),
@@ -27850,7 +27850,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Federico Ivan',21.0),
 	 ('Federico Maximiliano',21.0),
 	 ('Felipe Gonzalo',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Felipe Gustavo',21.0),
 	 ('Felix Diego',21.0),
 	 ('Fermin Andres',21.0),
@@ -27861,7 +27861,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fidel Ignacio',21.0),
 	 ('Florian Adrian',21.0),
 	 ('Florin Cornel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Florin Ilie',21.0),
 	 ('Francisco Aniceto',21.0),
 	 ('Francisco Arsenio',21.0),
@@ -27872,7 +27872,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Jose Luis',21.0),
 	 ('Francisco Junior',21.0),
 	 ('Francisco Lucio',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francisco Pastor',21.0),
 	 ('Francisco Ulises',21.0),
 	 ('Francisco Valeriano',21.0),
@@ -27883,7 +27883,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Franklin Leonardo',21.0),
 	 ('Freddy Fabian',21.0),
 	 ('Gabriel Antoni',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gabriel Emanuel',21.0),
 	 ('Gabriel Federico',21.0),
 	 ('Gabriel Madalin',21.0),
@@ -27894,7 +27894,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Galo Francisco',21.0),
 	 ('Gareth David',21.0),
 	 ('Gary Lee',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gaston Ignacio',21.0),
 	 ('Gaston Matias',21.0),
 	 ('Gaumet',21.0),
@@ -27905,7 +27905,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Felipe',21.0),
 	 ('Gerardo Ignacio',21.0),
 	 ('Gerardo Tomas',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Getulio',21.0),
 	 ('Gheorghe Mircea',21.0),
 	 ('Gholamreza',21.0),
@@ -27916,7 +27916,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Golam',21.0),
 	 ('Gordon James',21.0),
 	 ('Gospodin',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gregorio Santiago',21.0),
 	 ('Guanjun',21.0),
 	 ('Guido Antonio',21.0),
@@ -27927,7 +27927,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gulab',21.0),
 	 ('Guowei',21.0),
 	 ('Gurdeep Singh',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gursharan',21.0),
 	 ('Gustavo Federico',21.0),
 	 ('Gustavo Ismael',21.0),
@@ -27938,7 +27938,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hailong',21.0),
 	 ('Hamdan',21.0),
 	 ('Hammoun',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hans Gunter',21.0),
 	 ('Hans Juergen',21.0),
 	 ('Haowei',21.0),
@@ -27949,7 +27949,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hector Bolivar',21.0),
 	 ('Hector Lorenzo',21.0),
 	 ('Hector Saul',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hemant',21.0),
 	 ('Hendrikus',21.0),
 	 ('Hendrikus Johannes',21.0),
@@ -27960,7 +27960,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hernan Matias',21.0),
 	 ('Hesham',21.0),
 	 ('Horatiu',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Huafeng',21.0),
 	 ('Huber',21.0),
 	 ('Hudson',21.0),
@@ -27971,7 +27971,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Iaia',21.0),
 	 ('Ian Douglas',21.0),
 	 ('Iftikhar Ahmed',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ihtisham',21.0),
 	 ('Ikechukwu',21.0),
 	 ('Iker Alessandro',21.0),
@@ -27982,7 +27982,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Imerio',21.0),
 	 ('Immanuel',21.0),
 	 ('Imraan',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ion Ciprian',21.0),
 	 ('Ion Gurutz',21.0),
 	 ('Ion Mihai',21.0),
@@ -27993,7 +27993,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Isaac Benjamin',21.0),
 	 ('Isaac Ignacio',21.0),
 	 ('Isaac Maria',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Isaac Moises',21.0),
 	 ('Isaque',21.0),
 	 ('Isay',21.0),
@@ -28004,7 +28004,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Itay',21.0),
 	 ('Ivan Angelov',21.0),
 	 ('Ivan Armando',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ivan Hugo',21.0),
 	 ('Izan Andres',21.0),
 	 ('Izan Joel',21.0),
@@ -28015,7 +28015,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaime Anibal',21.0),
 	 ('Jaime Bartolome',21.0),
 	 ('Jaime Mariano',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jairo Humberto',21.0),
 	 ('Jamal Eddin',21.0),
 	 ('James Charles',21.0),
@@ -28026,7 +28026,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jaspal Singh',21.0),
 	 ('Jaspreet Singh',21.0),
 	 ('Javier Avelino',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Javier Blas',21.0),
 	 ('Javier Florencio',21.0),
 	 ('Javier Isidoro',21.0),
@@ -28037,7 +28037,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jefferson Alberto',21.0),
 	 ('Jenica',21.0),
 	 ('Jeremias Daniel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeremy Gabriel',21.0),
 	 ('Jeremy Paul',21.0),
 	 ('Jeronimo Andres',21.0),
@@ -28048,7 +28048,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jethro',21.0),
 	 ('Jeyco',21.0),
 	 ('Jeycob',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jheremy',21.0),
 	 ('Jhonatan Fernando',21.0),
 	 ('Jhonatan Steven',21.0),
@@ -28059,7 +28059,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jimmy Patricio',21.0),
 	 ('Jimmy Paul',21.0),
 	 ('Jinhong',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jinxiang',21.0),
 	 ('Jinxuan',21.0),
 	 ('Jinyi',21.0),
@@ -28070,7 +28070,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joao Rafael',21.0),
 	 ('Joaquin Alexander',21.0),
 	 ('Joaquin Augusto',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joel Ernesto',21.0),
 	 ('John Antony',21.0),
 	 ('John Derek',21.0),
@@ -28081,7 +28081,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jon Erik',21.0),
 	 ('Jon Iñigo',21.0),
 	 ('Jonata',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonatan Alberto',21.0),
 	 ('Jonathan Emmanuel',21.0),
 	 ('Jonathan Ernesto',21.0),
@@ -28092,7 +28092,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Adan',21.0),
 	 ('Jorge Arnaldo',21.0),
 	 ('Jorge Clemente',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jorge Danilo',21.0),
 	 ('Jorge Edgar',21.0),
 	 ('Jorge Josue',21.0),
@@ -28103,7 +28103,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Franco',21.0),
 	 ('Jose Gildardo',21.0),
 	 ('Jose Heliodoro',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Jonas',21.0),
 	 ('Jose Luis Javier',21.0),
 	 ('Jose Olmedo',21.0),
@@ -28114,7 +28114,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joxe Mari',21.0),
 	 ('Juan Angeles',21.0),
 	 ('Juan Jose Francisco',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Juan Lino',21.0),
 	 ('Juan Nelson',21.0),
 	 ('Juan Nicanor',21.0),
@@ -28125,7 +28125,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Bernardo',21.0),
 	 ('Julian Sebastian',21.0),
 	 ('Julio Alvaro',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Julian',21.0),
 	 ('Julio Sergio',21.0),
 	 ('Jun Yi',21.0),
@@ -28136,7 +28136,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Justo Alejandro',21.0),
 	 ('Kaidi',21.0),
 	 ('Kailash',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kangwei',21.0),
 	 ('Kareem',21.0),
 	 ('Keith Alan',21.0),
@@ -28147,7 +28147,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kevin Felipe',21.0),
 	 ('Kevin Matias',21.0),
 	 ('Kiryl',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kristjan',21.0),
 	 ('Krzysztof Piotr',21.0),
 	 ('Labdaoui',21.0),
@@ -28158,7 +28158,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lamkadem',21.0),
 	 ('Laurentiu Alexandru',21.0),
 	 ('Laurentiu Andrei',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laurentiu Vasile',21.0),
 	 ('Leandro Adrian',21.0),
 	 ('Lenin Andres',21.0),
@@ -28169,7 +28169,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leonardo Xavier',21.0),
 	 ('Leonel Fernando',21.0),
 	 ('Leri',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Liam Santiago',21.0),
 	 ('Libero',21.0),
 	 ('Lichun',21.0),
@@ -28180,7 +28180,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lorand',21.0),
 	 ('Lorenzo Felipe',21.0),
 	 ('Lorenzo Joaquin',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lorenzo Salvador',21.0),
 	 ('Lorenzo Tomas',21.0),
 	 ('Luard',21.0),
@@ -28191,7 +28191,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lucio Luis',21.0),
 	 ('Luis Baltasar',21.0),
 	 ('Luis Bruno',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Luis Isaias',21.0),
 	 ('Luis Leoncio',21.0),
 	 ('Luis Luciano',21.0),
@@ -28202,7 +28202,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luisito',21.0),
 	 ('Magomed',21.0),
 	 ('Mahrez',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mairu',21.0),
 	 ('Mamadou Yero',21.0),
 	 ('Mamdouh',21.0),
@@ -28213,7 +28213,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Fulgencio',21.0),
 	 ('Manuel Hugo',21.0),
 	 ('Manuel Teofilo',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Manuel Valeriano',21.0),
 	 ('Marc Joseph',21.0),
 	 ('Marcel Florin',21.0),
@@ -28224,7 +28224,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Diego',21.0),
 	 ('Marcos Isaac',21.0),
 	 ('Marcos Mateo',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marek Jan',21.0),
 	 ('Marian Ion',21.0),
 	 ('Marian Liviu',21.0),
@@ -28235,7 +28235,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marius Emanuel',21.0),
 	 ('Marius Octavian',21.0),
 	 ('Marlon Mauricio',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marlon Omar',21.0),
 	 ('Marlon Stiven',21.0),
 	 ('Martin Andrew',21.0),
@@ -28246,7 +28246,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marvin Joel',21.0),
 	 ('Matene',21.0),
 	 ('Matias Jorge',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Matias Julian',21.0),
 	 ('Matias Leandro',21.0),
 	 ('Matis',21.0),
@@ -28257,7 +28257,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maximo Alfredo',21.0),
 	 ('Mballo',21.0),
 	 ('Michael Aaron',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Michael Angel',21.0),
 	 ('Michael Bryan',21.0),
 	 ('Michael Lee',21.0),
@@ -28268,7 +28268,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Miguel Hugo',21.0),
 	 ('Miguel Israel',21.0),
 	 ('Miguel Josue',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Miguel Segundo',21.0),
 	 ('Mihalache',21.0),
 	 ('Mikail',21.0),
@@ -28279,7 +28279,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Minghua',21.0),
 	 ('Mingyang',21.0),
 	 ('Miquel Andreu',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mircea Gabriel',21.0),
 	 ('Missoum',21.0),
 	 ('Moazam',21.0),
@@ -28290,7 +28290,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Yasir',21.0),
 	 ('Mohammed Rachid',21.0),
 	 ('Mohammed Sghir',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Moises Alfredo',21.0),
 	 ('Moises Santiago',21.0),
 	 ('Moktar',21.0),
@@ -28301,7 +28301,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Shahbaz',21.0),
 	 ('Muhammad Sohail',21.0),
 	 ('Naresh Kumar',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nelson Ernesto',21.0),
 	 ('Ngouda',21.0),
 	 ('Nicholas Robert',21.0),
@@ -28312,7 +28312,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nicolas Armando',21.0),
 	 ('Nicolas Ernesto',21.0),
 	 ('Nicolas Ionut',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas Sergio',21.0),
 	 ('Nikolaj',21.0),
 	 ('Noel Alberto',21.0),
@@ -28323,7 +28323,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nukri',21.0),
 	 ('Nuno Andre',21.0),
 	 ('Ohian',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Olimpiu',21.0),
 	 ('Oliver Juan',21.0),
 	 ('Oliverio Jesus',21.0),
@@ -28334,7 +28334,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Osvaldo Raul',21.0),
 	 ('Oswaldo Alexander',21.0),
 	 ('Oswaldo David',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Otis',21.0),
 	 ('Ouais',21.0),
 	 ('Ovidiu Dumitru',21.0),
@@ -28345,7 +28345,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pablo Christian',21.0),
 	 ('Pablo Emiliano',21.0),
 	 ('Pablo Jacinto',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Parvaiz',21.0),
 	 ('Pasqualino',21.0),
 	 ('Patricio Esteban',21.0),
@@ -28356,7 +28356,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Paun',21.0),
 	 ('Pedro Abelardo',21.0),
 	 ('Pedro Andre',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pedro Camilo',21.0),
 	 ('Pedro Claver',21.0),
 	 ('Pedro Gilberto',21.0),
@@ -28367,7 +28367,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Victoriano',21.0),
 	 ('Pedro Virgilio',21.0),
 	 ('Perfecto Manuel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pervez',21.0),
 	 ('Peter Christian',21.0),
 	 ('Peter Ronald',21.0),
@@ -28378,7 +28378,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Quinidio',21.0),
 	 ('Quinti',21.0),
 	 ('Qunfeng',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Radik',21.0),
 	 ('Raimundo Luis',21.0),
 	 ('Rais',21.0),
@@ -28389,7 +28389,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Isaac',21.0),
 	 ('Ramon Marcelino',21.0),
 	 ('Ramon Ruben',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Randy Jose',21.0),
 	 ('Raul Anibal',21.0),
 	 ('Raul Fabian',21.0),
@@ -28400,7 +28400,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Reyes Jose',21.0),
 	 ('Ricardo Carmelo',21.0),
 	 ('Ricardo Isidro',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richard Marcelo',21.0),
 	 ('Richard Oswaldo',21.0),
 	 ('Rimvydas',21.0),
@@ -28411,7 +28411,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robinson Alexander',21.0),
 	 ('Robinson Jesus',21.0),
 	 ('Rodolfo David',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodolfo Ramon',21.0),
 	 ('Rodrigo Maximiliano',21.0),
 	 ('Rodrigo Oscar',21.0),
@@ -28422,7 +28422,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Roman Daniel',21.0),
 	 ('Roman Enrique',21.0),
 	 ('Roman Maria',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Romulo Jose',21.0),
 	 ('Ronny David',21.0),
 	 ('Roque Alejandro',21.0),
@@ -28433,7 +28433,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ruben Ismael',21.0),
 	 ('Ruichen',21.0),
 	 ('Ruixiang',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ruiyang',21.0),
 	 ('Sabino Manuel',21.0),
 	 ('Salvador Alexis',21.0),
@@ -28444,7 +28444,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Augusto',21.0),
 	 ('Sandro Antonio',21.0),
 	 ('Sandro Miguel',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santacruz',21.0),
 	 ('Sante',21.0),
 	 ('Santiago Gonzalo',21.0),
@@ -28455,7 +28455,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Santos Rafael',21.0),
 	 ('Sartaj',21.0),
 	 ('Saturnino Javier',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Savelii',21.0),
 	 ('Saveliy',21.0),
 	 ('Sayah',21.0),
@@ -28466,7 +28466,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebensui',21.0),
 	 ('Segundo Gabriel',21.0),
 	 ('Segundo Mariano',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Segundo Victor',21.0),
 	 ('Sensen',21.0),
 	 ('Sergio Cristian',21.0),
@@ -28477,7 +28477,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Shafiqul',21.0),
 	 ('Shahriar',21.0),
 	 ('Shawn',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Shay',21.0),
 	 ('Shi',21.0),
 	 ('Shivam',21.0),
@@ -28488,7 +28488,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sneyder',21.0),
 	 ('Soheil',21.0),
 	 ('Sokol',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Stalin Daniel',21.0),
 	 ('Stefan Alexander',21.0),
 	 ('Stefan David',21.0),
@@ -28499,7 +28499,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sydney',21.0),
 	 ('Tajammal',21.0),
 	 ('Tamazi',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Teng',21.0),
 	 ('Teodoro Miguel',21.0),
 	 ('Teresiano',21.0),
@@ -28510,7 +28510,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Tolentino',21.0),
 	 ('Tomas Mario',21.0),
 	 ('Tomas Matias',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomasz Andrzej',21.0),
 	 ('Toumi',21.0),
 	 ('Tulio Cesar',21.0),
@@ -28521,7 +28521,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ustaritz',21.0),
 	 ('Uzman',21.0),
 	 ('Valentin Laurentiu',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valeriano Antonio',21.0),
 	 ('Vasile Laurentiu',21.0),
 	 ('Vicent Antoni',21.0),
@@ -28532,7 +28532,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Victor Octavio',21.0),
 	 ('Victor Rodolfo',21.0),
 	 ('Vidar',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vlad Daniel',21.0),
 	 ('Vladimir Antonio',21.0),
 	 ('Voicu',21.0),
@@ -28543,7 +28543,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilfredo Enrique',21.0),
 	 ('Willian Alberto',21.0),
 	 ('Wilson Guillermo',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Wilson Xavier',21.0),
 	 ('Wilzon',21.0),
 	 ('Xaloc',21.0),
@@ -28554,7 +28554,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xiaopeng',21.0),
 	 ('Xiaoyang',21.0),
 	 ('Ximun',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xinqiang',21.0),
 	 ('Xuebin',21.0),
 	 ('Yadir',21.0),
@@ -28565,7 +28565,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yeray Alexander',21.0),
 	 ('Yeray Miguel',21.0),
 	 ('Yeromy',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yohan Manuel',21.0),
 	 ('Yonathan Jose',21.0),
 	 ('Yongchao',21.0),
@@ -28576,7 +28576,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yukun',21.0),
 	 ('Yumin',21.0),
 	 ('Yunjie',21.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yuwei',21.0),
 	 ('Yuxi',21.0),
 	 ('Zenoviy',21.0),
@@ -28587,7 +28587,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhirong',21.0),
 	 ('Zi Han',21.0),
 	 ('Aarab',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aaron John',20.0),
 	 ('Abdel Hafid',20.0),
 	 ('Abdelghafar',20.0),
@@ -28598,7 +28598,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abdelwafi',20.0),
 	 ('Abderhim',20.0),
 	 ('Abderrazik',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abdessamia',20.0),
 	 ('Abdoul Wahab',20.0),
 	 ('Abdul Lah',20.0),
@@ -28609,7 +28609,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Abolfazl',20.0),
 	 ('Abraham Alberto',20.0),
 	 ('Abraham Eduardo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Abul Kalam',20.0),
 	 ('Acaimo',20.0),
 	 ('Adae',20.0),
@@ -28620,7 +28620,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Agustin Joaquin',20.0),
 	 ('Agustin Julio',20.0),
 	 ('Agustin Oscar',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ahmed Reda',20.0),
 	 ('Ahmed Said',20.0),
 	 ('Ainur',20.0),
@@ -28631,7 +28631,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aitor Xabier',20.0),
 	 ('Ajay Kumar',20.0),
 	 ('Alaa Eddin',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aladdin',20.0),
 	 ('Alain Daniel',20.0),
 	 ('Albert Andrei',20.0),
@@ -28642,7 +28642,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alberto Gines',20.0),
 	 ('Alberto Josue',20.0),
 	 ('Alcides Jose',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aldo Fabian',20.0),
 	 ('Aldo Jesus',20.0),
 	 ('Alejandro Alvaro',20.0),
@@ -28653,7 +28653,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alex Israel',20.0),
 	 ('Alex Stefan',20.0),
 	 ('Alexander Joel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alexandru Dan',20.0),
 	 ('Alexandru Eugen',20.0),
 	 ('Alexandru Radu',20.0),
@@ -28664,7 +28664,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alfonso Gerardo',20.0),
 	 ('Alfonso Lorenzo',20.0),
 	 ('Alfonso Rodrigo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Alfonzo',20.0),
 	 ('Alfredo Leonardo',20.0),
 	 ('Algassimou',20.0),
@@ -28675,7 +28675,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Alvaro Paul',20.0),
 	 ('Alvaro Ramiro',20.0),
 	 ('Ambrosio Manuel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Amil',20.0),
 	 ('Amilkar',20.0),
 	 ('Amrani',20.0),
@@ -28686,7 +28686,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Andy Josue',20.0),
 	 ('Angel Bernabe',20.0),
 	 ('Angel Constantino',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Angel Honorio',20.0),
 	 ('Angelberto',20.0),
 	 ('Angelo Giovanni',20.0),
@@ -28697,7 +28697,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Antonio Adan',20.0),
 	 ('Antonio Andrei',20.0),
 	 ('Antonio Baldomero',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Antonio Braulio',20.0),
 	 ('Antonio Herminio',20.0),
 	 ('Antonio Hugo',20.0),
@@ -28708,7 +28708,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Aquilino Antonio',20.0),
 	 ('Arda',20.0),
 	 ('Aristides Jesus',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Arjen',20.0),
 	 ('Arlo',20.0),
 	 ('Armando Alejandro',20.0),
@@ -28719,7 +28719,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Atanas Georgiev',20.0),
 	 ('Athan',20.0),
 	 ('Auger',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Aurelio David',20.0),
 	 ('Aurelio Fernando',20.0),
 	 ('Axel Ariel',20.0),
@@ -28730,7 +28730,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bandjougou',20.0),
 	 ('Banna',20.0),
 	 ('Bartolome Carlos',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Bartolome David',20.0),
 	 ('Bartolomeo',20.0),
 	 ('Bautista Jose',20.0),
@@ -28741,7 +28741,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ben Ahmed',20.0),
 	 ('Bencomo',20.0),
 	 ('Benhur',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Benjamin Eduardo',20.0),
 	 ('Benjamin Miguel',20.0),
 	 ('Benjamin Robert',20.0),
@@ -28752,7 +28752,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Bogdan Petru',20.0),
 	 ('Bolivar Antonio',20.0),
 	 ('Boris Luis',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Borja Andres',20.0),
 	 ('Boudjemaa',20.0),
 	 ('Brahim El Khalil',20.0),
@@ -28763,7 +28763,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Brian Frederick',20.0),
 	 ('Brian Josue',20.0),
 	 ('Brian Leslie',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Brian Paul',20.0),
 	 ('Bruno Adrian',20.0),
 	 ('Bruno Santiago',20.0),
@@ -28774,7 +28774,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Camilo Alfredo',20.0),
 	 ('Camilo Sebastian',20.0),
 	 ('Candi',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Candid',20.0),
 	 ('Candido David',20.0),
 	 ('Carlos Amadeo',20.0),
@@ -28785,7 +28785,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Carlos Melchor',20.0),
 	 ('Carlos Nahuel',20.0),
 	 ('Carlos Reyes',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Carlos Silvestre',20.0),
 	 ('Catalin Ion',20.0),
 	 ('Cesar Paul',20.0),
@@ -28796,7 +28796,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Chen Yu',20.0),
 	 ('Chengcheng',20.0),
 	 ('Chengwei',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Chenjun',20.0),
 	 ('Chester',20.0),
 	 ('Christhian',20.0),
@@ -28807,7 +28807,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cirino',20.0),
 	 ('Claudio Felipe',20.0),
 	 ('Claudio Hernan',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Claudio Mauricio',20.0),
 	 ('Constantin Danut',20.0),
 	 ('Constantin Vasile',20.0),
@@ -28818,7 +28818,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Cristian Fabricio',20.0),
 	 ('Cristian Hugo',20.0),
 	 ('Cristian Ilie',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Cristian Marcos',20.0),
 	 ('Cristian Oswaldo',20.0),
 	 ('Cristian Rolando',20.0),
@@ -28829,7 +28829,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Curial',20.0),
 	 ('Cyrus',20.0),
 	 ('Dalai',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dalbir',20.0),
 	 ('Damaso Jesus',20.0),
 	 ('Damian Agustin',20.0),
@@ -28840,7 +28840,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Daniel Gerard',20.0),
 	 ('Daniel Petru',20.0),
 	 ('Daniel Reyes',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Daniel Rodolfo',20.0),
 	 ('Daniel Romeo',20.0),
 	 ('Danny Andres',20.0),
@@ -28851,7 +28851,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dasiel',20.0),
 	 ('David Eusebio',20.0),
 	 ('David Marc',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('David Neil',20.0),
 	 ('David Octavio',20.0),
 	 ('David Wayne',20.0),
@@ -28862,7 +28862,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dennis Michael',20.0),
 	 ('Deny',20.0),
 	 ('Dereck Alexander',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Derek Anthony',20.0),
 	 ('Derek David',20.0),
 	 ('Derek Michael',20.0),
@@ -28873,7 +28873,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Diego Andrei',20.0),
 	 ('Diego Edinson',20.0),
 	 ('Diego Fermin',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Diego Hernando',20.0),
 	 ('Dieudonne',20.0),
 	 ('Dilan Gabriel',20.0),
@@ -28884,7 +28884,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Dragos Bogdan',20.0),
 	 ('Dragos George',20.0),
 	 ('Dragos Iulian',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Dragos Valentin',20.0),
 	 ('Dwayne',20.0),
 	 ('Dylan Ariel',20.0),
@@ -28895,7 +28895,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Edgar Samuel',20.0),
 	 ('Edison Francisco',20.0),
 	 ('Edison Rene',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eduard Jose',20.0),
 	 ('Eduardo Benjamin',20.0),
 	 ('Eduardo Vinicio',20.0),
@@ -28906,7 +28906,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('El Aziz',20.0),
 	 ('El Kabir',20.0),
 	 ('Eleazar Jesus',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Eleo',20.0),
 	 ('Eleodoro',20.0),
 	 ('Elisandro',20.0),
@@ -28917,7 +28917,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Elvis Alberto',20.0),
 	 ('Emanuel Andrei',20.0),
 	 ('Emeric',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Emil Daniel',20.0),
 	 ('Emiliano Carlos',20.0),
 	 ('Emilio Ernesto',20.0),
@@ -28928,7 +28928,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Enrrique',20.0),
 	 ('Eran',20.0),
 	 ('Erick Gael',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Erick Samuel',20.0),
 	 ('Erik Francisco',20.0),
 	 ('Erno',20.0),
@@ -28939,7 +28939,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Fabian Javier',20.0),
 	 ('Fabian Orlando',20.0),
 	 ('Facundo Damian',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Farouq',20.0),
 	 ('Faustino Francisco',20.0),
 	 ('Faustino Juan',20.0),
@@ -28950,7 +28950,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Felipe Jaime',20.0),
 	 ('Felipe Julio',20.0),
 	 ('Felix Alexis',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Fermin Santiago',20.0),
 	 ('Fernando Humberto',20.0),
 	 ('Fernando Rodolfo',20.0),
@@ -28961,7 +28961,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Flavio Miguel',20.0),
 	 ('Florentino Antonio',20.0),
 	 ('Florin Dorel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Francesco Giuseppe',20.0),
 	 ('Francisco A',20.0),
 	 ('Francisco Baldomero',20.0),
@@ -28972,7 +28972,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Francisco Paulo',20.0),
 	 ('Franco Damian',20.0),
 	 ('Franco Rodrigo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Frank Robert',20.0),
 	 ('Freddy Hernan',20.0),
 	 ('Frederick James',20.0),
@@ -28983,7 +28983,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gabriel Orlando',20.0),
 	 ('Gaby',20.0),
 	 ('Galo Antonio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gary Andrew',20.0),
 	 ('Geoffrey Charles',20.0),
 	 ('George Albert',20.0),
@@ -28994,7 +28994,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gerardo Pedro',20.0),
 	 ('Gerardo Santiago',20.0),
 	 ('Gerardo Sebastian',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gerardus',20.0),
 	 ('German Raul',20.0),
 	 ('Ghalem',20.0),
@@ -29005,7 +29005,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Giovanni David',20.0),
 	 ('Glauco',20.0),
 	 ('Gonzalo Alexander',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Gonzalo Augusto',20.0),
 	 ('Graham Arthur',20.0),
 	 ('Graham Leslie',20.0),
@@ -29016,7 +29016,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Guangrong',20.0),
 	 ('Guido Nicolas',20.0),
 	 ('Guillermo Eloy',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Guillermo Eugenio',20.0),
 	 ('Guillermo Humberto',20.0),
 	 ('Guillermo Leonardo',20.0),
@@ -29027,7 +29027,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Gustavo Elias',20.0),
 	 ('Gustavo Humberto',20.0),
 	 ('Habil',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Haihua',20.0),
 	 ('Hailin',20.0),
 	 ('Hairong',20.0),
@@ -29038,7 +29038,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hans Jorg',20.0),
 	 ('Hao Ran',20.0),
 	 ('Haokai',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hector Mariano',20.0),
 	 ('Hector Valentin',20.0),
 	 ('Henry Oswaldo',20.0),
@@ -29049,7 +29049,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Higinio Antonio',20.0),
 	 ('Higor',20.0),
 	 ('Honorat',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Honorio Jesus',20.0),
 	 ('Horacio Enrique',20.0),
 	 ('Horacio Francisco',20.0),
@@ -29060,7 +29060,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Hovsep',20.0),
 	 ('Hugo Alexis',20.0),
 	 ('Hugo Federico',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Hugo Felipe',20.0),
 	 ('Hugo Gustavo',20.0),
 	 ('Hugo Matias',20.0),
@@ -29071,7 +29071,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Idrees',20.0),
 	 ('Ifeanyi',20.0),
 	 ('Ignacio Aurelio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ignacio Cesar',20.0),
 	 ('Ignacio Mateo',20.0),
 	 ('Iker Fabian',20.0),
@@ -29082,7 +29082,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ildefonso Juan',20.0),
 	 ('Ildefonso Luis',20.0),
 	 ('Ilyess',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Imadeddine',20.0),
 	 ('Indigo',20.0),
 	 ('Inigo',20.0),
@@ -29093,7 +29093,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ioan Robert',20.0),
 	 ('Ion Constantin',20.0),
 	 ('Ionel Viorel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ionut Dumitru',20.0),
 	 ('Ionut Silviu',20.0),
 	 ('Isaac Aaron',20.0),
@@ -29104,7 +29104,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ismael Isaac',20.0),
 	 ('Israel Enrique',20.0),
 	 ('Israel Maria',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Israel Santiago',20.0),
 	 ('Ivan Adolfo',20.0),
 	 ('Ivan Carmelo',20.0),
@@ -29115,7 +29115,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jacinto David',20.0),
 	 ('Jackson Alexander',20.0),
 	 ('Jagir',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jagmohan',20.0),
 	 ('Jahanzaib',20.0),
 	 ('Jailson',20.0),
@@ -29126,7 +29126,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jairo Joel',20.0),
 	 ('Jan Pieter',20.0),
 	 ('Janai',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jani',20.0),
 	 ('Janio',20.0),
 	 ('Jarol',20.0),
@@ -29137,7 +29137,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Javier Basilio',20.0),
 	 ('Javier Cayetano',20.0),
 	 ('Jean David',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jeferson Alexander',20.0),
 	 ('Jefferson Gabriel',20.0),
 	 ('Jefferson Omar',20.0),
@@ -29148,7 +29148,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jeremy Isaac',20.0),
 	 ('Jeremy James',20.0),
 	 ('Jeronimo Santiago',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jesus Amadeo',20.0),
 	 ('Jesus Aquilino',20.0),
 	 ('Jesus Jonatan',20.0),
@@ -29159,7 +29159,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jhon Ander',20.0),
 	 ('Jhon Brandon',20.0),
 	 ('Jhon Jaider',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jhon Wilmar',20.0),
 	 ('Jhonatan Stiven',20.0),
 	 ('Jhonathan Alexander',20.0),
@@ -29170,7 +29170,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jiaxi',20.0),
 	 ('Jiaxu',20.0),
 	 ('Jiekai',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jimmy Santiago',20.0),
 	 ('Jindong',20.0),
 	 ('Joan Eduard',20.0),
@@ -29181,7 +29181,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Joaquin Fermin',20.0),
 	 ('Joe Alexander',20.0),
 	 ('Joel Aaron',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Joel Alfredo',20.0),
 	 ('Johan Paul',20.0),
 	 ('Johany',20.0),
@@ -29192,7 +29192,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jon Xarles',20.0),
 	 ('Jonatan Alejandro',20.0),
 	 ('Jonatan Miguel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jonathan Andrew',20.0),
 	 ('Jonathan Kevin',20.0),
 	 ('Jonay Miguel',20.0),
@@ -29203,7 +29203,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jorge Saul',20.0),
 	 ('Jorge Simon',20.0),
 	 ('Jose Angelo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Bryan',20.0),
 	 ('Jose Elmer',20.0),
 	 ('Jose Eutimio',20.0),
@@ -29214,7 +29214,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Jose Medardo',20.0),
 	 ('Jose Neptali',20.0),
 	 ('Jose Romulo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Jose Telesforo',20.0),
 	 ('Jose Timoteo',20.0),
 	 ('Jose Tito',20.0),
@@ -29225,7 +29225,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Josep Emili',20.0),
 	 ('Josep Rafel',20.0),
 	 ('Joshua Michael',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Josu Jon',20.0),
 	 ('Josue Eduardo',20.0),
 	 ('Juan Abdon',20.0),
@@ -29236,7 +29236,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Julian Jaime',20.0),
 	 ('Julian Santos',20.0),
 	 ('Julio Benigno',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Julio Benjamin',20.0),
 	 ('Julio Eloy',20.0),
 	 ('Julio Israel',20.0),
@@ -29247,7 +29247,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Junjun',20.0),
 	 ('Jurij',20.0),
 	 ('Justo Andres',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Justo Santiago',20.0),
 	 ('Kalani',20.0),
 	 ('Kari Juhani',20.0),
@@ -29258,7 +29258,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Kendall',20.0),
 	 ('Kent',20.0),
 	 ('Kenta',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Keny',20.0),
 	 ('Kevin Christian',20.0),
 	 ('Kevin Johan',20.0),
@@ -29269,7 +29269,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Khaldoun',20.0),
 	 ('Khalid Mahmood',20.0),
 	 ('Kinda',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Kleber Patricio',20.0),
 	 ('Krishna Prasad',20.0),
 	 ('Kui',20.0),
@@ -29280,7 +29280,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Lance',20.0),
 	 ('Lars Peter',20.0),
 	 ('Lartaun',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Laurentiu Catalin',20.0),
 	 ('Lazaro Rafael',20.0),
 	 ('Lazreg',20.0),
@@ -29291,7 +29291,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Leo Jose',20.0),
 	 ('Leon Jesus',20.0),
 	 ('Leonardo Mauricio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Leoncio Antonio',20.0),
 	 ('Leslie William',20.0),
 	 ('Lhoussayn',20.0),
@@ -29302,7 +29302,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luca Adrian',20.0),
 	 ('Luca Ioan',20.0),
 	 ('Lucas Emilio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lucas Gustavo',20.0),
 	 ('Lucian Marius',20.0),
 	 ('Luciano Matias',20.0),
@@ -29313,7 +29313,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Luis Leonel',20.0),
 	 ('Luis Michel',20.0),
 	 ('Luis Serafin',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Lupercio',20.0),
 	 ('Luyi',20.0),
 	 ('Luzdivino',20.0),
@@ -29324,7 +29324,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Maikel Jose',20.0),
 	 ('Maiko',20.0),
 	 ('Mamadou Alimou',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mandip',20.0),
 	 ('Mankirat',20.0),
 	 ('Mansa',20.0),
@@ -29335,7 +29335,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Manuel Secundino',20.0),
 	 ('Manuel Zacarias',20.0),
 	 ('Marc Aureli',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Marc Ivan',20.0),
 	 ('Marc Miquel',20.0),
 	 ('Marcelo Cesar',20.0),
@@ -29346,7 +29346,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Marcos Orlando',20.0),
 	 ('Marcos Yeray',20.0),
 	 ('Mariano Adolfo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mariano Lorenzo',20.0),
 	 ('Mario Ariel',20.0),
 	 ('Mario Gregorio',20.0),
@@ -29357,7 +29357,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Martin Damian',20.0),
 	 ('Martin George',20.0),
 	 ('Martin Gregorio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Martin Leandro',20.0),
 	 ('Martin Nahuel',20.0),
 	 ('Martin Osvaldo',20.0),
@@ -29368,7 +29368,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Matija',20.0),
 	 ('Matthew Peter',20.0),
 	 ('Matus',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mauricio Orlando',20.0),
 	 ('Mauricio Xavier',20.0),
 	 ('Mauro Miguel',20.0),
@@ -29379,7 +29379,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Md Saiful',20.0),
 	 ('Mehamed',20.0),
 	 ('Melvin Javier',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Menouar',20.0),
 	 ('Mhamad',20.0),
 	 ('Michael Eric',20.0),
@@ -29390,7 +29390,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mihai Dumitru',20.0),
 	 ('Mihai Eduard',20.0),
 	 ('Mihaila',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mikel Jose',20.0),
 	 ('Mircea Catalin',20.0),
 	 ('Mircea Marian',20.0),
@@ -29401,7 +29401,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Mohamed Nassim',20.0),
 	 ('Mohamed Seghir',20.0),
 	 ('Mohamed Tarik',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Mohammad Afzal',20.0),
 	 ('Mohammed Islam',20.0),
 	 ('Mohammed Nabil',20.0),
@@ -29412,7 +29412,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Muhammad Hasnain',20.0),
 	 ('Muhammad Saeed',20.0),
 	 ('Muhammad Saim',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Muhammad Waleed',20.0),
 	 ('Nafia',20.0),
 	 ('Naimi',20.0),
@@ -29423,7 +29423,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nelson Carlos',20.0),
 	 ('Nelson Nicolas',20.0),
 	 ('Nelson Ramiro',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nestor Angel',20.0),
 	 ('Nestor Augusto',20.0),
 	 ('Nestor Gustavo',20.0),
@@ -29434,7 +29434,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Nestor Sebastian',20.0),
 	 ('Nicholas George',20.0),
 	 ('Nicholas Peter',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Nicolas John',20.0),
 	 ('Niculaie',20.0),
 	 ('Nikolay Hristov',20.0),
@@ -29445,7 +29445,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Octavio Rafael',20.0),
 	 ('Odair Jose',20.0),
 	 ('Oliver Carlos',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Oliver Santiago',20.0),
 	 ('Oliver Sebastian',20.0),
 	 ('Olivier Pierre',20.0),
@@ -29456,7 +29456,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Oscar Geovanny',20.0),
 	 ('Osian',20.0),
 	 ('Ossian',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Osvaldo Martin',20.0),
 	 ('Ovidio Antonio',20.0),
 	 ('Pablo Cayetano',20.0),
@@ -29467,7 +29467,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Patricio Juan',20.0),
 	 ('Patricio Xavier',20.0),
 	 ('Paul Arthur',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Paul Kenneth',20.0),
 	 ('Paul Manuel',20.0),
 	 ('Paul Santiago',20.0),
@@ -29478,7 +29478,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pedro Cecilio',20.0),
 	 ('Pedro Eulogio',20.0),
 	 ('Pedro Leoncio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pei',20.0),
 	 ('Pelegri',20.0),
 	 ('Petar Petrov',20.0),
@@ -29489,7 +29489,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Pierre Alexandre',20.0),
 	 ('Pierre Henri',20.0),
 	 ('Porfirio Antonio',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Pranav',20.0),
 	 ('Qingwei',20.0),
 	 ('Qirui',20.0),
@@ -29500,7 +29500,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Raffi',20.0),
 	 ('Rahmani',20.0),
 	 ('Rainiero',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Raiyan',20.0),
 	 ('Rakesh Kumar',20.0),
 	 ('Ramesh Kumar',20.0),
@@ -29511,7 +29511,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ramon Eusebio',20.0),
 	 ('Ramon Humberto',20.0),
 	 ('Ramon Miquel',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Ramon Santos',20.0),
 	 ('Ramon Sergio',20.0),
 	 ('Ranjodh Singh',20.0),
@@ -29522,7 +29522,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Reimundo',20.0),
 	 ('Reinaldo Rafael',20.0),
 	 ('Remus Andrei',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rene Arturo',20.0),
 	 ('Ricardo Ezequiel',20.0),
 	 ('Ricardo Israel',20.0),
@@ -29533,7 +29533,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Richard Arthur',20.0),
 	 ('Richard Brian',20.0),
 	 ('Richard Francisco',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Richard Frederick',20.0),
 	 ('Richard Nicolas',20.0),
 	 ('Richard Ramon',20.0),
@@ -29544,7 +29544,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robert Alberto',20.0),
 	 ('Robert Christian',20.0),
 	 ('Robert Junior',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Robert Mario',20.0),
 	 ('Robert Sorin',20.0),
 	 ('Roberto Gerardo',20.0),
@@ -29555,7 +29555,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Robinson Antonio',20.0),
 	 ('Rodolfo Gabriel',20.0),
 	 ('Rodolfo Juan',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Rodolfo Rafael',20.0),
 	 ('Rodrigo Pedro',20.0),
 	 ('Rodulfo',20.0),
@@ -29566,7 +29566,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Romualdas',20.0),
 	 ('Ronald Edward',20.0),
 	 ('Roosevelt',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Roque Miguel',20.0),
 	 ('Ruan',20.0),
 	 ('Ruben Emanuel',20.0),
@@ -29577,7 +29577,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saadi',20.0),
 	 ('Sael',20.0),
 	 ('Sahibjot',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Saja',20.0),
 	 ('Salah Adin',20.0),
 	 ('Salah Edin',20.0),
@@ -29588,7 +29588,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Samuel Jorge',20.0),
 	 ('Samuel William',20.0),
 	 ('Sandro Jesus',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Santiago Bernardo',20.0),
 	 ('Santiago Humberto',20.0),
 	 ('Santiago Isidro',20.0),
@@ -29599,7 +29599,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Saturnino Antonio',20.0),
 	 ('Satwant',20.0),
 	 ('Saul Rafael',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Sayfeddine',20.0),
 	 ('Sebastian Adolfo',20.0),
 	 ('Sebastian Alessandro',20.0),
@@ -29610,7 +29610,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sebastian Vasile',20.0),
 	 ('Segundo David',20.0),
 	 ('Segundo Lorenzo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Segundo Santiago',20.0),
 	 ('Sepehr',20.0),
 	 ('Sergio Blas',20.0),
@@ -29621,7 +29621,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sergio Isidro',20.0),
 	 ('Sergio Mateo',20.0),
 	 ('Serigne Khadim',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Servan',20.0),
 	 ('Servando Antonio',20.0),
 	 ('Servio Tulio',20.0),
@@ -29632,7 +29632,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sidali',20.0),
 	 ('Sidi Brahim',20.0),
 	 ('Sidia',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Silverio Antonio',20.0),
 	 ('Silviu Andrei',20.0),
 	 ('Simon Daniel',20.0),
@@ -29643,7 +29643,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Sitapha',20.0),
 	 ('Som',20.0),
 	 ('Sorin Ion',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Soumana',20.0),
 	 ('Stanislas',20.0),
 	 ('Stefan Petrov',20.0),
@@ -29654,7 +29654,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Steven Richard',20.0),
 	 ('Sugar',20.0),
 	 ('Sule',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Suresh Kumar',20.0),
 	 ('Suwei',20.0),
 	 ('Syuleyman',20.0),
@@ -29665,7 +29665,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Teodor Daniel',20.0),
 	 ('Teodor Florin',20.0),
 	 ('Teodoro Juan',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Teofilo Antonio',20.0),
 	 ('Terenciano',20.0),
 	 ('Thanh',20.0),
@@ -29676,7 +29676,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Thomas Benjamin',20.0),
 	 ('Timothy Michael',20.0),
 	 ('Tobia',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Tomas Adrian',20.0),
 	 ('Tomy',20.0),
 	 ('Toni Joan',20.0),
@@ -29687,7 +29687,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Uztaritz',20.0),
 	 ('Vachagan',20.0),
 	 ('Valdecir',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Valdemir',20.0),
 	 ('Valentin Andres',20.0),
 	 ('Valentin Ivanov',20.0),
@@ -29698,7 +29698,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Ventura Manuel',20.0),
 	 ('Vicente Benito',20.0),
 	 ('Vicente Mateo',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Vicente Matias',20.0),
 	 ('Vicente Sergio',20.0),
 	 ('Victor Aitor',20.0),
@@ -29709,7 +29709,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Viktors',20.0),
 	 ('Vilius',20.0),
 	 ('Vilmar',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Viorel Gheorghe',20.0),
 	 ('Vladimir Alexander',20.0),
 	 ('Wally',20.0),
@@ -29720,7 +29720,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wangjie',20.0),
 	 ('Wangwei',20.0),
 	 ('Wanli',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Washington Rodrigo',20.0),
 	 ('Weiqi',20.0),
 	 ('Weixiang',20.0),
@@ -29731,7 +29731,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Wilson Marcelo',20.0),
 	 ('Wilson Vicente',20.0),
 	 ('Xabier Andoni',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Xabier Iñaki',20.0),
 	 ('Xandro',20.0),
 	 ('Xavier Fernando',20.0),
@@ -29742,7 +29742,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Xiaoqun',20.0),
 	 ('Xose Henrique',20.0),
 	 ('Xumai',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yamen',20.0),
 	 ('Yanfeng',20.0),
 	 ('Yangfan',20.0),
@@ -29753,7 +29753,7 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Yijian',20.0),
 	 ('Yizhong',20.0),
 	 ('Yoel Alejandro',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Yoel David',20.0),
 	 ('Yoel Jose',20.0),
 	 ('Yousouf',20.0),
@@ -29764,5 +29764,5 @@ INSERT INTO public.names_es (name,freq) VALUES
 	 ('Zhengrong',20.0),
 	 ('Ziang',20.0),
 	 ('Ziyan',20.0);
-INSERT INTO public.names_es (name,freq) VALUES
+INSERT INTO names_es ("name", freq) VALUES
 	 ('Zulfiqar Ali',20.0);

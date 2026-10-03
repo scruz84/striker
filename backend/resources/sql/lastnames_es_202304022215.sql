@@ -1,4 +1,4 @@
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rodriguez',927.67),
 	 ('Gonzalez',924.321),
 	 ('Fernandez',905.914),
@@ -9,7 +9,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardil',233.0),
 	 ('Sucino',195.0),
 	 ('Pepe',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dufour',122.0),
 	 ('Zabarte',115.0),
 	 ('Soudani',109.0),
@@ -20,7 +20,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Martin',482.916),
 	 ('Jimenez',395.5),
 	 ('Hernandez',368.058);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz',366.188),
 	 ('Diaz',341.845),
 	 ('Moreno',321.129),
@@ -31,7 +31,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alonso',193.403),
 	 ('Navarro',177.189),
 	 ('Torres',172.342);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dominguez',157.105),
 	 ('Ramos',146.038),
 	 ('Vazquez',145.921),
@@ -42,7 +42,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molina',122.479),
 	 ('Blanco',121.977),
 	 ('Suarez',120.627);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castro',117.773),
 	 ('Ortega',117.622),
 	 ('Delgado',117.413),
@@ -53,7 +53,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanz',91.0),
 	 ('Medina',90.483),
 	 ('Iglesias',87.615);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castillo',87.432),
 	 ('Cortes',86.901),
 	 ('Garrido',84.709),
@@ -64,7 +64,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mendez',73.876),
 	 ('Cruz',73.846),
 	 ('Prieto',72.874);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Flores',72.794),
 	 ('Herrera',71.823),
 	 ('Peña',70.224),
@@ -75,7 +75,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calvo',68.649),
 	 ('Vidal',67.903),
 	 ('Campos',66.657);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reyes',65.085),
 	 ('Vega',65.029),
 	 ('Fuentes',64.373),
@@ -86,7 +86,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nieto',60.016),
 	 ('Santana',58.265),
 	 ('Pascual',56.84);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herrero',56.635),
 	 ('Vargas',56.533),
 	 ('Gimenez',56.401),
@@ -97,7 +97,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ibañez',54.388),
 	 ('Duran',54.278),
 	 ('Benitez',54.243);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferrer',53.598),
 	 ('Arias',53.508),
 	 ('Mora',53.417),
@@ -108,7 +108,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Crespo',48.926),
 	 ('Roman',48.44),
 	 ('Pastor',47.164);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Velasco',46.602),
 	 ('Parra',46.256),
 	 ('Saez',46.2),
@@ -119,7 +119,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rivera',44.465),
 	 ('Esteban',44.209),
 	 ('Pardo',43.348);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Silva',43.296),
 	 ('Franco',43.242),
 	 ('Rivas',42.851),
@@ -130,7 +130,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mendoza',40.916),
 	 ('Vera',40.741),
 	 ('Izquierdo',40.613);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rios',40.43),
 	 ('Arroyo',39.634),
 	 ('Casado',39.456),
@@ -141,7 +141,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rey',38.945),
 	 ('Galan',38.934),
 	 ('Carrillo',38.623);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otero',38.548),
 	 ('Segura',38.448),
 	 ('Heredia',36.949),
@@ -152,7 +152,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marti',35.897),
 	 ('Palacios',35.557),
 	 ('Valero',35.47);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Contreras',35.432),
 	 ('Vila',34.841),
 	 ('Macias',34.772),
@@ -163,7 +163,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Miranda',33.782),
 	 ('Roldan',33.746),
 	 ('Benito',33.704);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mateo',33.533),
 	 ('Bueno',33.467),
 	 ('Andres',33.176),
@@ -174,7 +174,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salazar',31.879),
 	 ('Mateos',31.797),
 	 ('Acosta',31.643);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Padilla',31.443),
 	 ('Calderon',31.348),
 	 ('Rivero',31.303),
@@ -185,7 +185,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estevez',30.231),
 	 ('Salas',30.198),
 	 ('Galvez',30.192);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bermudez',30.008),
 	 ('Menendez',29.732),
 	 ('Rico',29.727),
@@ -196,7 +196,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Plaza',28.961),
 	 ('Abad',28.956),
 	 ('Gracia',28.849);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Avila',28.742),
 	 ('Hurtado',28.48),
 	 ('Trujillo',28.299),
@@ -207,7 +207,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santamaria',27.92),
 	 ('Villanueva',27.882),
 	 ('Costa',27.863);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roca',27.797),
 	 ('Rueda',27.503),
 	 ('Serra',27.153),
@@ -218,7 +218,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luna',26.389),
 	 ('De La Fuente',26.268),
 	 ('Simon',26.159);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castaño',26.043),
 	 ('Alarcon',26.004),
 	 ('Del Rio',25.989),
@@ -229,7 +229,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pons',25.696),
 	 ('Chen',25.655),
 	 ('Paredes',25.58);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sancho',25.566),
 	 ('Montoya',25.219),
 	 ('Bautista',24.834),
@@ -240,7 +240,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ballesteros',24.407),
 	 ('De La Cruz',24.391),
 	 ('Valverde',24.36);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oliva',23.936),
 	 ('Valle',23.935),
 	 ('Murillo',23.847),
@@ -251,7 +251,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amador',23.056),
 	 ('Ordoñez',22.975),
 	 ('Valencia',22.953);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pozo',22.79),
 	 ('Rodrigo',22.787),
 	 ('Barrera',22.723),
@@ -262,7 +262,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juan',22.349),
 	 ('Barroso',22.168),
 	 ('Quesada',22.153);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Torre',21.981),
 	 ('Pulido',21.736),
 	 ('Navas',21.61),
@@ -273,7 +273,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabello',21.354),
 	 ('Singh',21.228),
 	 ('Mena',21.156);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galindo',21.089),
 	 ('Corral',20.959),
 	 ('Soria',20.947),
@@ -284,7 +284,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gimeno',20.78),
 	 ('Aguado',20.711),
 	 ('Paz',20.629);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escribano',20.613),
 	 ('Puig',20.552),
 	 ('Naranjo',20.551),
@@ -295,7 +295,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Domingo',20.399),
 	 ('Mata',20.305),
 	 ('Asensio',20.295);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reina',20.241),
 	 ('Polo',20.219),
 	 ('Ojeda',20.037),
@@ -306,7 +306,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sosa',19.86),
 	 ('Burgos',19.432),
 	 ('Mohamed',19.363);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cardenas',19.184),
 	 ('Caceres',19.12),
 	 ('Carretero',18.941),
@@ -317,7 +317,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oliver',18.409),
 	 ('Cordoba',18.339),
 	 ('Carrion',18.115);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castellano',18.112),
 	 ('Quintero',18.095),
 	 ('Pineda',18.09),
@@ -328,7 +328,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clemente',17.759),
 	 ('Velazquez',17.65),
 	 ('Juarez',17.622);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roig',17.6),
 	 ('Carrera',17.415),
 	 ('Toledo',17.41),
@@ -339,7 +339,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barrios',17.183),
 	 ('Villegas',17.131),
 	 ('Cobo',17.129);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salgado',17.076),
 	 ('Ferreira',16.899),
 	 ('Camara',16.822),
@@ -350,7 +350,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Domenech',16.558),
 	 ('Sevilla',16.501),
 	 ('Llorente',16.477);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alfonso',16.427),
 	 ('Carbonell',16.412),
 	 ('Requena',16.336),
@@ -361,7 +361,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olivares',16.162),
 	 ('Luis',16.062),
 	 ('Pinto',16.034);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cardona',16.029),
 	 ('Carballo',15.982),
 	 ('Arribas',15.98),
@@ -372,7 +372,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perea',15.56),
 	 ('Marrero',15.416),
 	 ('Esteve',15.397);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Palma',15.371),
 	 ('Da Silva',15.323),
 	 ('Arevalo',15.314),
@@ -383,7 +383,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bosch',15.044),
 	 ('Porras',14.998),
 	 ('Cid',14.912);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ballester',14.881),
 	 ('Baena',14.838),
 	 ('Pino',14.828),
@@ -394,7 +394,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ventura',14.571),
 	 ('Wang',14.532),
 	 ('Angulo',14.522);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nicolas',14.52),
 	 ('Velez',14.517),
 	 ('Barba',14.454),
@@ -405,7 +405,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Madrid',14.308),
 	 ('Cobos',14.239),
 	 ('Peralta',14.184);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sala',14.152),
 	 ('Cabezas',14.089),
 	 ('Muñiz',14.085),
@@ -416,7 +416,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lin',13.934),
 	 ('Duarte',13.916),
 	 ('Estrada',13.888);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barreiro',13.877),
 	 ('Cuadrado',13.865),
 	 ('Alfaro',13.856),
@@ -427,7 +427,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vaquero',13.745),
 	 ('Vergara',13.734),
 	 ('Tapia',13.701);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ocaña',13.694),
 	 ('Cervera',13.692),
 	 ('Alcantara',13.663),
@@ -438,7 +438,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fajardo',13.347),
 	 ('Mejias',13.257),
 	 ('Carvajal',13.172);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rosales',13.112),
 	 ('Toro',13.087),
 	 ('Falcon',13.087),
@@ -449,7 +449,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ahmed',12.98),
 	 ('Figueroa',12.965),
 	 ('Barragan',12.963);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Valenzuela',12.953),
 	 ('Campo',12.927),
 	 ('Pujol',12.913),
@@ -460,7 +460,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruano',12.819),
 	 ('Amaya',12.781),
 	 ('Huertas',12.781);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sastre',12.691),
 	 ('Rovira',12.675),
 	 ('Cerezo',12.631),
@@ -471,7 +471,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cebrian',12.571),
 	 ('Fraile',12.563),
 	 ('Borrego',12.544);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morillo',12.537),
 	 ('Arjona',12.495),
 	 ('Duque',12.487),
@@ -482,7 +482,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guijarro',12.3),
 	 ('Valdes',12.259),
 	 ('Aznar',12.224);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zhang',12.212),
 	 ('Peinado',12.205),
 	 ('Mosquera',12.203),
@@ -493,7 +493,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alcaide',12.059),
 	 ('Galvan',12.037),
 	 ('Melero',12.034);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gordillo',12.007),
 	 ('Jorge',11.966),
 	 ('Tirado',11.954),
@@ -504,7 +504,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sole',11.868),
 	 ('Solano',11.813),
 	 ('Tejero',11.813);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Real',11.812),
 	 ('Mejia',11.787),
 	 ('Chamorro',11.775),
@@ -515,7 +515,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Frias',11.567),
 	 ('Grande',11.547),
 	 ('Andrade',11.542);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Freire',11.524),
 	 ('Araujo',11.507),
 	 ('Olmedo',11.503),
@@ -526,7 +526,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moyano',11.447),
 	 ('Pizarro',11.446),
 	 ('Brito',11.436);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garzon',11.377),
 	 ('De Miguel',11.372),
 	 ('Aviles',11.345),
@@ -537,7 +537,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alcala',11.211),
 	 ('Noguera',11.201),
 	 ('Serna',11.157);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calleja',11.154),
 	 ('Alcazar',11.138),
 	 ('Chavez',11.134),
@@ -548,7 +548,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tena',11.006),
 	 ('Pla',10.995),
 	 ('Del Pozo',10.994);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferrero',10.994),
 	 ('Alcalde',10.986),
 	 ('Arce',10.958),
@@ -559,7 +559,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llorens',10.765),
 	 ('Rebollo',10.743),
 	 ('Poveda',10.642);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lafuente',10.618),
 	 ('Heras',10.61),
 	 ('Pena',10.597),
@@ -570,7 +570,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palomino',10.498),
 	 ('Barranco',10.498),
 	 ('Quiros',10.496);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Valiente',10.456),
 	 ('Li',10.447),
 	 ('Olmo',10.442),
@@ -581,7 +581,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabeza',10.366),
 	 ('Acevedo',10.35),
 	 ('Valles',10.335);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carreño',10.297),
 	 ('Laguna',10.296),
 	 ('Ceballos',10.264),
@@ -592,7 +592,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leiva',10.175),
 	 ('Llopis',10.157),
 	 ('Giner',10.153);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Molero',10.145),
 	 ('Barcelo',10.138),
 	 ('Souto',10.122),
@@ -603,7 +603,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Castillo',10.065),
 	 ('Palomares',10.06),
 	 ('Vilchez',10.059);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bilbao',9.997),
 	 ('Maestre',9.959),
 	 ('Del Pino',9.927),
@@ -614,7 +614,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Castello',9.749),
 	 ('Olmos',9.709),
 	 ('Zafra',9.696);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ribas',9.686),
 	 ('Murcia',9.686),
 	 ('Kaur',9.635),
@@ -625,7 +625,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bellido',9.613),
 	 ('Felipe',9.601),
 	 ('Puertas',9.584);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vizcaino',9.548),
 	 ('De Leon',9.543),
 	 ('Prats',9.539),
@@ -636,7 +636,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Minguez',9.42),
 	 ('Orellana',9.404),
 	 ('Baez',9.399);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaragoza',9.385),
 	 ('Carreras',9.383),
 	 ('Valera',9.378),
@@ -647,7 +647,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ledesma',9.305),
 	 ('Montoro',9.278),
 	 ('Campillo',9.263);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Castro',9.261),
 	 ('Luengo',9.255),
 	 ('Sebastian',9.253),
@@ -658,7 +658,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañas',9.192),
 	 ('Peris',9.192),
 	 ('Patiño',9.146);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monge',9.141),
 	 ('Liu',9.127),
 	 ('Baños',9.119),
@@ -669,7 +669,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arteaga',9.024),
 	 ('Giraldo',9.007),
 	 ('Jaramillo',9.005);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fuster',8.984),
 	 ('Batista',8.964),
 	 ('Jerez',8.956),
@@ -680,7 +680,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cazorla',8.895),
 	 ('Armas',8.887),
 	 ('Nadal',8.885);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salmeron',8.88),
 	 ('Maya',8.854),
 	 ('Sanjuan',8.829),
@@ -691,7 +691,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lobo',8.767),
 	 ('Perdomo',8.734),
 	 ('Bejarano',8.731);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Conesa',8.726),
 	 ('Padron',8.717),
 	 ('Espinoza',8.694),
@@ -702,7 +702,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ferre',8.613),
 	 ('Barea',8.6),
 	 ('Verdu',8.591);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canales',8.562),
 	 ('Barrero',8.533),
 	 ('Moron',8.529),
@@ -713,7 +713,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mayor',8.485),
 	 ('Ripoll',8.47),
 	 ('Veiga',8.465);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tortosa',8.458),
 	 ('Moro',8.437),
 	 ('Taboada',8.435),
@@ -724,7 +724,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Catala',8.418),
 	 ('San Martin',8.408),
 	 ('Ferrando',8.406);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Infante',8.372),
 	 ('Ayuso',8.356),
 	 ('Manrique',8.351),
@@ -735,7 +735,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dieguez',8.208),
 	 ('Barros',8.205),
 	 ('Mota',8.167);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galera',8.154),
 	 ('Alves',8.145),
 	 ('Medrano',8.099),
@@ -746,7 +746,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lucena',8.076),
 	 ('Nogales',8.073),
 	 ('Yuste',8.065);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cerda',8.062),
 	 ('Maroto',8.04),
 	 ('Pinilla',8.035),
@@ -757,7 +757,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zhou',7.936),
 	 ('Ibarra',7.889),
 	 ('Villena',7.881);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atienza',7.875),
 	 ('Bolaños',7.872),
 	 ('Dueñas',7.872),
@@ -768,7 +768,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ribera',7.821),
 	 ('Manzanares',7.808),
 	 ('Ubeda',7.785);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montilla',7.784),
 	 ('Quevedo',7.771),
 	 ('Raya',7.767),
@@ -779,7 +779,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viñas',7.729),
 	 ('Almagro',7.729),
 	 ('Miro',7.728);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ortuño',7.713),
 	 ('España',7.704),
 	 ('Novoa',7.696),
@@ -790,7 +790,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodrigues',7.654),
 	 ('De Los Santos',7.652),
 	 ('Melendez',7.646);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Las Heras',7.613),
 	 ('Francisco',7.612),
 	 ('Morillas',7.601),
@@ -801,7 +801,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Checa',7.565),
 	 ('Acedo',7.537),
 	 ('Trigo',7.51);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tellez',7.509),
 	 ('Guevara',7.506),
 	 ('Acuña',7.488),
@@ -812,7 +812,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Diego',7.41),
 	 ('Coronado',7.398),
 	 ('Puerta',7.389);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monzon',7.377),
 	 ('Macia',7.371),
 	 ('Herreros',7.368),
@@ -823,7 +823,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Velasquez',7.334),
 	 ('Valdivia',7.333),
 	 ('Arana',7.311);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Palacio',7.311),
 	 ('Hermida',7.299),
 	 ('Balaguer',7.299),
@@ -834,7 +834,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pina',7.209),
 	 ('Buendia',7.198),
 	 ('Tome',7.198);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peral',7.185),
 	 ('Cervantes',7.166),
 	 ('Cubero',7.151),
@@ -845,7 +845,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molinero',7.12),
 	 ('Bernabeu',7.107),
 	 ('Melian',7.083);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lamas',7.079),
 	 ('Prat',7.077),
 	 ('Cuellar',7.062),
@@ -856,7 +856,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cespedes',7.016),
 	 ('Giron',6.998),
 	 ('Pedraza',6.976);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torre',6.972),
 	 ('Rodenas',6.965),
 	 ('Fariña',6.961),
@@ -867,7 +867,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badia',6.917),
 	 ('Lloret',6.917),
 	 ('Peiro',6.904);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costas',6.901),
 	 ('Ureña',6.895),
 	 ('Mariscal',6.891),
@@ -878,7 +878,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Piqueras',6.815),
 	 ('Boix',6.797),
 	 ('Andujar',6.774);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quiles',6.773),
 	 ('Camps',6.768),
 	 ('Parada',6.748),
@@ -889,7 +889,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fidalgo',6.659),
 	 ('Cañadas',6.636),
 	 ('Quiroga',6.632);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Florez',6.621),
 	 ('Mir',6.601),
 	 ('Perera',6.591),
@@ -900,7 +900,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Picazo',6.557),
 	 ('Mera',6.556),
 	 ('Goñi',6.553);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lema',6.545),
 	 ('Sales',6.545),
 	 ('Riquelme',6.503),
@@ -911,7 +911,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amor',6.459),
 	 ('Vilches',6.452),
 	 ('Vegas',6.451);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gordo',6.448),
 	 ('Amores',6.44),
 	 ('Alamo',6.434),
@@ -922,7 +922,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nieves',6.388),
 	 ('Palau',6.388),
 	 ('Antunez',6.387);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Solana',6.38),
 	 ('Mestre',6.372),
 	 ('Lora',6.372),
@@ -933,7 +933,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Adan',6.33),
 	 ('Calatayud',6.321),
 	 ('Botella',6.32);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Codina',6.317),
 	 ('De Dios',6.317),
 	 ('Quero',6.317),
@@ -944,7 +944,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arnau',6.271),
 	 ('Nevado',6.259),
 	 ('Abreu',6.252);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Novo',6.252),
 	 ('Hermoso',6.248),
 	 ('Piña',6.247),
@@ -955,7 +955,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chico',6.216),
 	 ('Cantos',6.197),
 	 ('Oliveira',6.189);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herraiz',6.182),
 	 ('Zheng',6.179),
 	 ('Revilla',6.177),
@@ -966,7 +966,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jimeno',6.11),
 	 ('Postigo',6.107),
 	 ('Del Moral',6.104);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pellicer',6.096),
 	 ('Belda',6.094),
 	 ('Vico',6.081),
@@ -977,7 +977,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quiñones',6.064),
 	 ('Verdugo',6.061),
 	 ('Carranza',6.058);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Megias',6.052),
 	 ('Torralba',6.035),
 	 ('Vaca',6.025),
@@ -988,7 +988,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llanos',6.0),
 	 ('Cornejo',5.994),
 	 ('Farre',5.986);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sousa',5.983),
 	 ('Galiano',5.979),
 	 ('Elvira',5.96),
@@ -999,7 +999,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabanillas',5.922),
 	 ('Alemany',5.907),
 	 ('Canto',5.901);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uriarte',5.88),
 	 ('Chaparro',5.874),
 	 ('Berrocal',5.873),
@@ -1010,7 +1010,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aroca',5.844),
 	 ('Colomer',5.823),
 	 ('Cañizares',5.814);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Feijoo',5.777),
 	 ('Gilabert',5.776),
 	 ('Capdevila',5.761),
@@ -1021,7 +1021,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lima',5.737),
 	 ('Portela',5.711),
 	 ('Trillo',5.705);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rosello',5.701),
 	 ('Sans',5.681),
 	 ('Rus',5.674),
@@ -1032,7 +1032,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torrejon',5.657),
 	 ('Carpio',5.657),
 	 ('Amado',5.636);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mañas',5.631),
 	 ('Aliaga',5.629),
 	 ('Monteagudo',5.617),
@@ -1043,7 +1043,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muriel',5.586),
 	 ('Betancor',5.577),
 	 ('San Juan',5.573);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rio',5.555),
 	 ('Campoy',5.542),
 	 ('Amat',5.536),
@@ -1054,7 +1054,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seco',5.502),
 	 ('Valderrama',5.491),
 	 ('Meseguer',5.487);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bastida',5.478),
 	 ('Holgado',5.47),
 	 ('Morilla',5.468),
@@ -1065,7 +1065,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gavilan',5.427),
 	 ('Julian',5.425),
 	 ('Escalante',5.411);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barbosa',5.403),
 	 ('Anaya',5.377),
 	 ('Camino',5.373),
@@ -1076,7 +1076,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chica',5.357),
 	 ('Daza',5.355),
 	 ('Valcarcel',5.346);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Samper',5.329),
 	 ('Morera',5.321),
 	 ('Ruz',5.3),
@@ -1087,7 +1087,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ferreras',5.29),
 	 ('Gaspar',5.286),
 	 ('De Haro',5.266);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elias',5.264),
 	 ('Benavente',5.26),
 	 ('Florido',5.253),
@@ -1098,7 +1098,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gallo',5.239),
 	 ('Urrutia',5.232),
 	 ('Dorta',5.209);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morato',5.199),
 	 ('Arrieta',5.19),
 	 ('Coello',5.19),
@@ -1109,7 +1109,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lorca',5.142),
 	 ('Martins',5.138),
 	 ('Salamanca',5.131);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pereda',5.13),
 	 ('Huang',5.128),
 	 ('Gomis',5.126),
@@ -1120,7 +1120,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Higueras',5.084),
 	 ('Calzada',5.083),
 	 ('Meneses',5.083);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reche',5.082),
 	 ('Sanabria',5.075),
 	 ('Pajares',5.066),
@@ -1131,7 +1131,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gonzales',5.035),
 	 ('Jover',5.035),
 	 ('Tur',5.028);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agullo',5.028),
 	 ('Deniz',5.026),
 	 ('Candela',5.013),
@@ -1142,7 +1142,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valladares',5.001),
 	 ('Cabrero',4.994),
 	 ('Conejo',4.987);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matias',4.979),
 	 ('De La Peña',4.978),
 	 ('Ropero',4.966),
@@ -1153,7 +1153,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albaladejo',4.944),
 	 ('Bernardo',4.941),
 	 ('Mato',4.93);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Amo',4.917),
 	 ('Esparza',4.908),
 	 ('Corbacho',4.906),
@@ -1164,7 +1164,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Puga',4.876),
 	 ('Cerro',4.875),
 	 ('Aragones',4.871);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llorca',4.861),
 	 ('Triviño',4.861),
 	 ('Bayon',4.856),
@@ -1175,7 +1175,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espinar',4.842),
 	 ('Torrado',4.833),
 	 ('De La Vega',4.817);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rius',4.811),
 	 ('Simo',4.804),
 	 ('Vadillo',4.8),
@@ -1186,7 +1186,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iriarte',4.781),
 	 ('Jiang',4.777),
 	 ('Monje',4.765);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tormo',4.759),
 	 ('Henriquez',4.757),
 	 ('De Andres',4.757),
@@ -1197,7 +1197,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Donoso',4.742),
 	 ('Pita',4.739),
 	 ('Montalban',4.731);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blas',4.729),
 	 ('Mancebo',4.724),
 	 ('Casanovas',4.721),
@@ -1208,7 +1208,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clavijo',4.712),
 	 ('Angel',4.71),
 	 ('De Pablo',4.703);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Donaire',4.697),
 	 ('Bou',4.688),
 	 ('Rama',4.685),
@@ -1219,7 +1219,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larrañaga',4.652),
 	 ('Molla',4.649),
 	 ('Popa',4.648);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Capilla',4.64),
 	 ('Escalona',4.631),
 	 ('Zorrilla',4.628),
@@ -1230,7 +1230,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Busto',4.616),
 	 ('Uribe',4.611),
 	 ('Sabate',4.611);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Portero',4.61),
 	 ('Albarran',4.61),
 	 ('Castillejo',4.609),
@@ -1241,7 +1241,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Antequera',4.586),
 	 ('Valentin',4.582),
 	 ('Torrent',4.581);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sarabia',4.575),
 	 ('Cuervo',4.571),
 	 ('Utrera',4.569),
@@ -1252,7 +1252,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gregorio',4.534),
 	 ('Amigo',4.531),
 	 ('Palmero',4.525);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miquel',4.521),
 	 ('Jin',4.521),
 	 ('Rabadan',4.52),
@@ -1263,7 +1263,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañada',4.49),
 	 ('Caraballo',4.49),
 	 ('Cascales',4.483);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pelayo',4.474),
 	 ('Tenorio',4.47),
 	 ('Val',4.466),
@@ -1274,7 +1274,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garrote',4.44),
 	 ('Terron',4.44),
 	 ('Roncero',4.434);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berlanga',4.432),
 	 ('Monroy',4.43),
 	 ('Roda',4.426),
@@ -1285,7 +1285,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Granda',4.408),
 	 ('Blanch',4.406),
 	 ('Carbajo',4.405);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miguelez',4.397),
 	 ('Jodar',4.395),
 	 ('Almansa',4.395),
@@ -1296,7 +1296,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bayo',4.385),
 	 ('Cepeda',4.38),
 	 ('Priego',4.373);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zambrana',4.367),
 	 ('Escriva',4.363),
 	 ('Puche',4.362),
@@ -1307,7 +1307,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Piñol',4.347),
 	 ('Lluch',4.347),
 	 ('Rosario',4.341);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morgado',4.341),
 	 ('Coronel',4.34),
 	 ('Reguera',4.331),
@@ -1318,7 +1318,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Triguero',4.308),
 	 ('Bazan',4.308),
 	 ('Raposo',4.305);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morante',4.303),
 	 ('Moraleda',4.303),
 	 ('Aguera',4.299),
@@ -1329,7 +1329,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arcas',4.282),
 	 ('Infantes',4.28),
 	 ('Morell',4.264);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Plata',4.257),
 	 ('Peñas',4.25),
 	 ('Maqueda',4.225),
@@ -1340,7 +1340,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abella',4.204),
 	 ('Rangel',4.202),
 	 ('Romano',4.201);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pomares',4.199),
 	 ('De Paz',4.197),
 	 ('Asencio',4.193),
@@ -1351,7 +1351,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Teixeira',4.174),
 	 ('Trinidad',4.173),
 	 ('Restrepo',4.171);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roque',4.169),
 	 ('Castejon',4.167),
 	 ('Baron',4.167),
@@ -1362,7 +1362,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Granero',4.15),
 	 ('Mulero',4.149),
 	 ('Almazan',4.146);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carracedo',4.145),
 	 ('Arango',4.144),
 	 ('Rosillo',4.141),
@@ -1373,7 +1373,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Canton',4.134),
 	 ('Maria',4.132),
 	 ('Barco',4.122);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rocamora',4.12),
 	 ('Macho',4.118),
 	 ('Alcon',4.096),
@@ -1384,7 +1384,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carbo',4.073),
 	 ('Felix',4.065),
 	 ('Tornero',4.064);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castell',4.058),
 	 ('Vilas',4.051),
 	 ('Funes',4.051),
@@ -1395,7 +1395,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Posada',4.037),
 	 ('Arregui',4.037),
 	 ('Aguayo',4.029);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arguelles',4.028),
 	 ('Moliner',4.027),
 	 ('Pantoja',4.027),
@@ -1406,7 +1406,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Loureiro',3.993),
 	 ('Urbina',3.992),
 	 ('Borges',3.987);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torrijos',3.971),
 	 ('Traore',3.968),
 	 ('Galeano',3.959),
@@ -1417,7 +1417,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yanes',3.949),
 	 ('Lledo',3.946),
 	 ('Parras',3.945);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ocampo',3.945),
 	 ('Ribeiro',3.944),
 	 ('Artiles',3.942),
@@ -1428,7 +1428,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seijas',3.932),
 	 ('Motos',3.929),
 	 ('Conejero',3.927);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abadia',3.921),
 	 ('Cuartero',3.92),
 	 ('Canal',3.911),
@@ -1439,7 +1439,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mangas',3.887),
 	 ('Londoño',3.883),
 	 ('Del Barrio',3.882);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fabregat',3.881),
 	 ('Armengol',3.881),
 	 ('Quintas',3.877),
@@ -1450,7 +1450,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oller',3.864),
 	 ('Balde',3.862),
 	 ('Iñiguez',3.861);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bejar',3.861),
 	 ('Parrado',3.861),
 	 ('Monfort',3.861),
@@ -1461,7 +1461,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vilariño',3.856),
 	 ('Barrena',3.851),
 	 ('Nicolau',3.851);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casillas',3.845),
 	 ('Pedrero',3.844),
 	 ('Alsina',3.843),
@@ -1472,7 +1472,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morata',3.835),
 	 ('Abascal',3.834),
 	 ('Colom',3.827);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canals',3.825),
 	 ('Quilez',3.822),
 	 ('Aguila',3.818),
@@ -1483,7 +1483,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Izaguirre',3.814),
 	 ('Fontan',3.811),
 	 ('Barcia',3.801);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orts',3.8),
 	 ('Galiana',3.799),
 	 ('Ivanov',3.799),
@@ -1494,7 +1494,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lavado',3.778),
 	 ('Pablo',3.775),
 	 ('Andrades',3.77);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torrente',3.769),
 	 ('Camarero',3.764),
 	 ('Rendon',3.76),
@@ -1505,7 +1505,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gonzalvez',3.742),
 	 ('Busquets',3.741),
 	 ('Rua',3.733);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nebot',3.729),
 	 ('Viana',3.725),
 	 ('Torrecilla',3.721),
@@ -1516,7 +1516,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cases',3.691),
 	 ('Higuera',3.688),
 	 ('San Roman',3.687);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zarate',3.687),
 	 ('Toscano',3.687),
 	 ('Aramburu',3.686),
@@ -1527,7 +1527,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gadea',3.67),
 	 ('De Juan',3.668),
 	 ('Torrico',3.666);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Radu',3.665),
 	 ('Liebana',3.661),
 	 ('Melo',3.657),
@@ -1538,7 +1538,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iborra',3.645),
 	 ('Vicent',3.64),
 	 ('Alguacil',3.638);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tabares',3.635),
 	 ('Lastra',3.633),
 	 ('Graña',3.632),
@@ -1549,7 +1549,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pastrana',3.62),
 	 ('Amo',3.62),
 	 ('Avalos',3.609);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Rey',3.608),
 	 ('Rossello',3.604),
 	 ('Ospina',3.603),
@@ -1560,7 +1560,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romeo',3.594),
 	 ('Gaitan',3.593),
 	 ('Mendizabal',3.592);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bas',3.591),
 	 ('Regalado',3.584),
 	 ('Ferrandiz',3.583),
@@ -1571,7 +1571,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Blanes',3.552),
 	 ('Blanca',3.551),
 	 ('Masip',3.551);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moll',3.549),
 	 ('Arrabal',3.545),
 	 ('Curbelo',3.543),
@@ -1582,7 +1582,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Navalon',3.525),
 	 ('Mendes',3.525),
 	 ('Vivancos',3.523);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ortigosa',3.52),
 	 ('Barral',3.519),
 	 ('Gamboa',3.517),
@@ -1593,7 +1593,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Liñan',3.502),
 	 ('Tercero',3.501),
 	 ('Barquero',3.499);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rozas',3.499),
 	 ('Matilla',3.495),
 	 ('Canet',3.493),
@@ -1604,7 +1604,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gamarra',3.474),
 	 ('Pombo',3.463),
 	 ('Coto',3.459);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chinchilla',3.459),
 	 ('Valdez',3.454),
 	 ('Mondejar',3.451),
@@ -1615,7 +1615,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pintor',3.438),
 	 ('Selles',3.435),
 	 ('Olea',3.435);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cruces',3.435),
 	 ('Romeu',3.434),
 	 ('Villarroel',3.433),
@@ -1626,7 +1626,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Lucas',3.422),
 	 ('Curto',3.414),
 	 ('Pagan',3.411);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ji',3.411),
 	 ('Almendros',3.409),
 	 ('Llinares',3.408),
@@ -1637,7 +1637,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Feliu',3.402),
 	 ('Albero',3.401),
 	 ('Keita',3.4);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Franch',3.392),
 	 ('Aceituno',3.391),
 	 ('Da Costa',3.388),
@@ -1648,7 +1648,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pachon',3.379),
 	 ('Bernardez',3.375),
 	 ('De Blas',3.373);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salado',3.369),
 	 ('Mate',3.365),
 	 ('Corcoles',3.364),
@@ -1659,7 +1659,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pajuelo',3.356),
 	 ('Cuadros',3.354),
 	 ('Meza',3.352);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pimentel',3.351),
 	 ('Dumitru',3.35),
 	 ('Fresneda',3.347),
@@ -1670,7 +1670,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berrio',3.34),
 	 ('Mulet',3.338),
 	 ('Tejeda',3.331);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Losa',3.328),
 	 ('Alegria',3.324),
 	 ('Hita',3.322),
@@ -1681,7 +1681,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bayona',3.312),
 	 ('Bernad',3.31),
 	 ('Bajo',3.309);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galisteo',3.309),
 	 ('Varona',3.308),
 	 ('Colmenero',3.306),
@@ -1692,7 +1692,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gabaldon',3.295),
 	 ('Noya',3.293),
 	 ('Gijon',3.286);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calabuig',3.283),
 	 ('Marchena',3.281),
 	 ('Alcocer',3.281),
@@ -1703,7 +1703,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Piedra',3.27),
 	 ('De La Hoz',3.267),
 	 ('Lopes',3.266);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('March',3.263),
 	 ('Paton',3.262),
 	 ('Castellon',3.261),
@@ -1714,7 +1714,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Callejas',3.246),
 	 ('Guillamon',3.243),
 	 ('Llado',3.243);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iqbal',3.242),
 	 ('Herraez',3.24),
 	 ('Sun',3.24),
@@ -1725,7 +1725,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borreguero',3.228),
 	 ('Mancera',3.228),
 	 ('Trigueros',3.226);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rego',3.221),
 	 ('Galarza',3.221),
 	 ('Leyva',3.22),
@@ -1736,7 +1736,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barrachina',3.204),
 	 ('Rodero',3.204),
 	 ('Azorin',3.197);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quintela',3.196),
 	 ('Boza',3.195),
 	 ('Escolano',3.195),
@@ -1747,7 +1747,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molano',3.178),
 	 ('Moncada',3.177),
 	 ('Matute',3.176);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pose',3.174),
 	 ('Pitarch',3.174),
 	 ('Balboa',3.167),
@@ -1758,7 +1758,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baro',3.158),
 	 ('Monedero',3.157),
 	 ('Castiñeira',3.155);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Asensi',3.155),
 	 ('Somoza',3.153),
 	 ('Larrosa',3.147),
@@ -1769,7 +1769,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Etxeberria',3.137),
 	 ('Magan',3.136),
 	 ('Del Cerro',3.136);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chamizo',3.136),
 	 ('Zarco',3.136),
 	 ('Vivo',3.132),
@@ -1780,7 +1780,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Malagon',3.125),
 	 ('Cejudo',3.117),
 	 ('Hevia',3.114);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Troncoso',3.111),
 	 ('Torralbo',3.11),
 	 ('Seijo',3.109),
@@ -1791,7 +1791,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barcena',3.1),
 	 ('Machuca',3.099),
 	 ('Callejo',3.098);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Melgarejo',3.095),
 	 ('Barrul',3.095),
 	 ('Lopera',3.094),
@@ -1802,7 +1802,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gallegos',3.085),
 	 ('Puentes',3.085),
 	 ('Requejo',3.082);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Comesaña',3.082),
 	 ('Estepa',3.081),
 	 ('Pou',3.074),
@@ -1813,7 +1813,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tortajada',3.063),
 	 ('Obregon',3.063),
 	 ('Pelegrin',3.062);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Flor',3.061),
 	 ('Armenteros',3.061),
 	 ('Del Hoyo',3.058),
@@ -1824,7 +1824,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cubas',3.046),
 	 ('Batlle',3.042),
 	 ('Brotons',3.041);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cruzado',3.039),
 	 ('Sicilia',3.039),
 	 ('Prades',3.033),
@@ -1835,7 +1835,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agusti',3.012),
 	 ('Cabral',3.011),
 	 ('Bernat',3.009);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llop',3.006),
 	 ('Gasco',3.006),
 	 ('Gelabert',3.005),
@@ -1846,7 +1846,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Henao',2.992),
 	 ('Collazo',2.992),
 	 ('Qiu',2.99);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dios',2.988),
 	 ('Mesas',2.985),
 	 ('Caicedo',2.985),
@@ -1857,7 +1857,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montañez',2.976),
 	 ('Lumbreras',2.975),
 	 ('Miñana',2.974);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rayo',2.972),
 	 ('Candel',2.964),
 	 ('Novillo',2.954),
@@ -1868,7 +1868,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Sousa',2.945),
 	 ('Galdon',2.944),
 	 ('Villalon',2.941);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ciudad',2.94),
 	 ('Darias',2.94),
 	 ('Berbel',2.937),
@@ -1879,7 +1879,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aquino',2.925),
 	 ('Bouzas',2.924),
 	 ('Adame',2.917);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Enrique',2.916),
 	 ('Madueño',2.915),
 	 ('Troya',2.914),
@@ -1890,7 +1890,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Reverte',2.9),
 	 ('Varas',2.897),
 	 ('Viña',2.893);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rioja',2.888),
 	 ('Garate',2.884),
 	 ('Oliveros',2.883),
@@ -1901,7 +1901,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gavira',2.877),
 	 ('Fandiño',2.877),
 	 ('David',2.877);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Batalla',2.873),
 	 ('Espi',2.871),
 	 ('Montserrat',2.87),
@@ -1912,7 +1912,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gomariz',2.866),
 	 ('Illan',2.865),
 	 ('Pintos',2.865);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cañellas',2.863),
 	 ('Larios',2.86),
 	 ('Boada',2.858),
@@ -1923,7 +1923,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belenguer',2.855),
 	 ('Arredondo',2.851),
 	 ('Sow',2.851);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orihuela',2.846),
 	 ('Sarr',2.846),
 	 ('Claveria',2.844),
@@ -1934,7 +1934,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ricart',2.837),
 	 ('Jones',2.836),
 	 ('Ivars',2.835);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roura',2.835),
 	 ('Canosa',2.834),
 	 ('Etxebarria',2.834),
@@ -1945,7 +1945,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fabregas',2.827),
 	 ('Piera',2.827),
 	 ('Bocanegra',2.827);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guaman',2.827),
 	 ('Puebla',2.826),
 	 ('Uria',2.825),
@@ -1956,7 +1956,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bohorquez',2.818),
 	 ('Cantarero',2.816),
 	 ('Laborda',2.816);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pont',2.815),
 	 ('Agustin',2.814),
 	 ('Stan',2.813),
@@ -1967,7 +1967,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lasheras',2.809),
 	 ('Lechuga',2.809),
 	 ('Muela',2.807);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espinola',2.803),
 	 ('Bonillo',2.803),
 	 ('Trueba',2.8),
@@ -1978,7 +1978,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Justicia',2.793),
 	 ('Bruno',2.788),
 	 ('Salvado',2.784);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Palacin',2.783),
 	 ('Padin',2.783),
 	 ('Boluda',2.782),
@@ -1989,7 +1989,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escalera',2.777),
 	 ('Elena',2.775),
 	 ('Adell',2.775);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Folch',2.774),
 	 ('Pallas',2.773),
 	 ('Cisse',2.771),
@@ -2000,7 +2000,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Insua',2.766),
 	 ('Ceron',2.766),
 	 ('Cacho',2.764);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rubiales',2.764),
 	 ('Mamani',2.763),
 	 ('Palenzuela',2.762),
@@ -2011,7 +2011,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Terol',2.75),
 	 ('Doblas',2.746),
 	 ('Peñaranda',2.745);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouza',2.744),
 	 ('Ahmad',2.743),
 	 ('Adrover',2.742),
@@ -2022,7 +2022,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llobet',2.732),
 	 ('Nogues',2.732),
 	 ('Gomila',2.729);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Magaña',2.727),
 	 ('Estrella',2.725),
 	 ('Armero',2.724),
@@ -2033,7 +2033,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Capel',2.719),
 	 ('Suero',2.717),
 	 ('Arnedo',2.716);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cavero',2.714),
 	 ('Elorza',2.713),
 	 ('Gual',2.712),
@@ -2044,7 +2044,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corominas',2.697),
 	 ('De Souza',2.696),
 	 ('Calviño',2.695);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villalta',2.692),
 	 ('Diarra',2.69),
 	 ('Aldea',2.687),
@@ -2055,7 +2055,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Astorga',2.665),
 	 ('Menacho',2.664),
 	 ('Gala',2.664);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abarca',2.663),
 	 ('Riesco',2.661),
 	 ('Mihai',2.66),
@@ -2066,7 +2066,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zapico',2.658),
 	 ('Carazo',2.656),
 	 ('Molins',2.656);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gordon',2.656),
 	 ('Risco',2.649),
 	 ('Monsalve',2.648),
@@ -2077,7 +2077,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rubia',2.639),
 	 ('Paños',2.639),
 	 ('Quiroz',2.637);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juez',2.636),
 	 ('Vigil',2.633),
 	 ('Elizalde',2.633),
@@ -2088,7 +2088,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olivas',2.628),
 	 ('Marfil',2.626),
 	 ('Carceles',2.626);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campuzano',2.625),
 	 ('Gaya',2.623),
 	 ('Vasile',2.623),
@@ -2099,7 +2099,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ariño',2.608),
 	 ('Gheorghe',2.605),
 	 ('Avendaño',2.604);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Granell',2.604),
 	 ('Santaella',2.603),
 	 ('Tarin',2.603),
@@ -2110,7 +2110,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Poyatos',2.6),
 	 ('Caño',2.599),
 	 ('Novas',2.595);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aldana',2.595),
 	 ('Chavarria',2.595),
 	 ('Malo',2.594),
@@ -2121,7 +2121,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guo',2.586),
 	 ('Bataller',2.582),
 	 ('Riba',2.578);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pol',2.577),
 	 ('Odriozola',2.577),
 	 ('Teixido',2.577),
@@ -2132,7 +2132,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arriaga',2.57),
 	 ('Armendariz',2.567),
 	 ('Colorado',2.565);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pichardo',2.563),
 	 ('Ezquerra',2.561),
 	 ('Cabaleiro',2.558),
@@ -2143,7 +2143,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Claros',2.547),
 	 ('Doval',2.547),
 	 ('Dopico',2.547);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Limon',2.546),
 	 ('Pedreira',2.546),
 	 ('Mancilla',2.546),
@@ -2154,7 +2154,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rojano',2.54),
 	 ('Sesma',2.536),
 	 ('Domene',2.535);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pires',2.529),
 	 ('Chinea',2.525),
 	 ('Colas',2.523),
@@ -2165,7 +2165,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanguino',2.519),
 	 ('Cara',2.518),
 	 ('Humanes',2.517);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garrigos',2.516),
 	 ('Montaner',2.516),
 	 ('Molto',2.515),
@@ -2176,7 +2176,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Camarasa',2.506),
 	 ('Piris',2.504),
 	 ('Soares',2.497);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Artola',2.496),
 	 ('Valenciano',2.493),
 	 ('Fleitas',2.492),
@@ -2187,7 +2187,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vivar',2.483),
 	 ('Cubillo',2.479),
 	 ('Sanjurjo',2.479);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gibert',2.479),
 	 ('Madariaga',2.478),
 	 ('Bailon',2.478),
@@ -2198,7 +2198,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mozo',2.474),
 	 ('Gamiz',2.473),
 	 ('Pares',2.472);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Aguila',2.471),
 	 ('Arrizabalaga',2.469),
 	 ('Pernas',2.469),
@@ -2209,7 +2209,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Capitan',2.465),
 	 ('Zapatero',2.463),
 	 ('Buzon',2.462);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estruch',2.46),
 	 ('Bañon',2.46),
 	 ('Arencibia',2.458),
@@ -2220,7 +2220,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montaña',2.444),
 	 ('Manchon',2.443),
 	 ('Benet',2.443);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lorite',2.435),
 	 ('Llabres',2.433),
 	 ('Saucedo',2.432),
@@ -2231,7 +2231,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garijo',2.427),
 	 ('Merlo',2.427),
 	 ('Esquinas',2.426);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montejo',2.426),
 	 ('Dolz',2.425),
 	 ('Jaume',2.423),
@@ -2242,7 +2242,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ba',2.42),
 	 ('Olle',2.419),
 	 ('Gay',2.417);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barquin',2.412),
 	 ('Fortuny',2.411),
 	 ('Villalonga',2.41),
@@ -2253,7 +2253,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Blesa',2.4),
 	 ('Villen',2.399),
 	 ('Recuero',2.397);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mauri',2.397),
 	 ('Lagares',2.395),
 	 ('Esquivel',2.395),
@@ -2264,7 +2264,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Amrani',2.393),
 	 ('San Emeterio',2.39),
 	 ('Georgiev',2.388);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jose',2.386),
 	 ('Del Alamo',2.382),
 	 ('De Prado',2.382),
@@ -2275,7 +2275,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Verges',2.378),
 	 ('Niang',2.376),
 	 ('Roma',2.375);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Igual',2.374),
 	 ('Gras',2.374),
 	 ('De La Paz',2.371),
@@ -2286,7 +2286,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benjumea',2.361),
 	 ('Bru',2.361),
 	 ('Barajas',2.358);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Largo',2.358),
 	 ('Couso',2.357),
 	 ('Kumar',2.357),
@@ -2297,7 +2297,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Briz',2.35),
 	 ('Carnicero',2.348),
 	 ('Feria',2.347);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alameda',2.347),
 	 ('Ugalde',2.345),
 	 ('Andreo',2.343),
@@ -2308,7 +2308,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belinchon',2.334),
 	 ('Vivanco',2.333),
 	 ('Menor',2.332);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zayas',2.331),
 	 ('Filgueira',2.331),
 	 ('He',2.331),
@@ -2319,7 +2319,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marañon',2.324),
 	 ('Ravelo',2.323),
 	 ('Casellas',2.322);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Irigoyen',2.321),
 	 ('Amate',2.319),
 	 ('Ardila',2.318),
@@ -2330,7 +2330,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garro',2.309),
 	 ('Alejandre',2.308),
 	 ('Jarque',2.307);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fresno',2.306),
 	 ('Mingorance',2.304),
 	 ('Lagos',2.304),
@@ -2341,7 +2341,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rusu',2.299),
 	 ('Berzosa',2.294),
 	 ('Bielsa',2.292);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Payan',2.291),
 	 ('Queralt',2.291),
 	 ('Cerrillo',2.289),
@@ -2352,7 +2352,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Miñarro',2.286),
 	 ('Zazo',2.283),
 	 ('Fructuoso',2.282);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olivan',2.279),
 	 ('Doblado',2.279),
 	 ('Lacalle',2.272),
@@ -2363,7 +2363,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Girones',2.267),
 	 ('Naharro',2.267),
 	 ('Boronat',2.265);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vecino',2.264),
 	 ('Olmeda',2.263),
 	 ('Manuel',2.261),
@@ -2374,7 +2374,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coma',2.257),
 	 ('Gabriel',2.255),
 	 ('Palao',2.254);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moncayo',2.252),
 	 ('Loaiza',2.251),
 	 ('Roche',2.251),
@@ -2385,7 +2385,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iturbe',2.243),
 	 ('Vilela',2.242),
 	 ('Acebes',2.242);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moragues',2.239),
 	 ('Preciado',2.235),
 	 ('Añon',2.234),
@@ -2396,7 +2396,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Luis',2.225),
 	 ('Cardozo',2.224),
 	 ('Arbelo',2.221);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yanez',2.22),
 	 ('Santin',2.22),
 	 ('Castan',2.217),
@@ -2407,7 +2407,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Beneyto',2.212),
 	 ('Morote',2.212),
 	 ('Bujan',2.211);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Giralt',2.209),
 	 ('Bachiller',2.208),
 	 ('Pi',2.208),
@@ -2418,7 +2418,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pinar',2.203),
 	 ('Morejon',2.201),
 	 ('Blaya',2.2);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Prior',2.199),
 	 ('Alos',2.197),
 	 ('Balbuena',2.195),
@@ -2429,7 +2429,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sande',2.187),
 	 ('Nogueras',2.186),
 	 ('Masa',2.184);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Celdran',2.181),
 	 ('Cartagena',2.18),
 	 ('Morte',2.18),
@@ -2440,7 +2440,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vicedo',2.175),
 	 ('Soro',2.174),
 	 ('Juanes',2.173);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Armesto',2.171),
 	 ('Cecilia',2.17),
 	 ('Pardos',2.17),
@@ -2451,7 +2451,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pamies',2.168),
 	 ('Fabrega',2.167),
 	 ('Lazar',2.167);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sahuquillo',2.166),
 	 ('Atencia',2.164),
 	 ('Najera',2.164),
@@ -2462,7 +2462,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torrents',2.158),
 	 ('Dos Anjos',2.158),
 	 ('Dimitrova',2.158);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guitart',2.157),
 	 ('Moles',2.155),
 	 ('Aizpurua',2.155),
@@ -2473,7 +2473,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serban',2.152),
 	 ('Lahuerta',2.151),
 	 ('Mederos',2.148);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monteiro',2.147),
 	 ('Thomas',2.147),
 	 ('Sayago',2.146),
@@ -2484,7 +2484,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mazon',2.142),
 	 ('Armada',2.14),
 	 ('Faus',2.14);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leo',2.14),
 	 ('Meca',2.14),
 	 ('Alberto',2.139),
@@ -2495,7 +2495,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fores',2.134),
 	 ('De Arriba',2.134),
 	 ('Gragera',2.133);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berges',2.132),
 	 ('Quezada',2.13),
 	 ('De Vega',2.13),
@@ -2506,7 +2506,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Formoso',2.121),
 	 ('Burillo',2.12),
 	 ('Corzo',2.12);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rondon',2.118),
 	 ('Correia',2.117),
 	 ('Balsera',2.114),
@@ -2517,7 +2517,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monasterio',2.109),
 	 ('Gayoso',2.109),
 	 ('Avellaneda',2.104);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Socorro',2.101),
 	 ('Abal',2.101),
 	 ('Stefan',2.1),
@@ -2528,7 +2528,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albiol',2.097),
 	 ('Lucero',2.097),
 	 ('Fayos',2.096);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Botana',2.096),
 	 ('Pazo',2.096),
 	 ('Yebra',2.094),
@@ -2539,7 +2539,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cores',2.09),
 	 ('Benali',2.089),
 	 ('Diouf',2.089);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castrillon',2.088),
 	 ('Cabanas',2.088),
 	 ('Muelas',2.086),
@@ -2550,7 +2550,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Selva',2.08),
 	 ('Fortea',2.08),
 	 ('De Gracia',2.077);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bascuñana',2.077),
 	 ('De Pablos',2.077),
 	 ('Olano',2.074),
@@ -2561,7 +2561,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fort',2.07),
 	 ('Alias',2.069),
 	 ('Aparisi',2.067);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abdeselam',2.062),
 	 ('Lazo',2.06),
 	 ('Naya',2.059),
@@ -2572,7 +2572,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doña',2.055),
 	 ('Cintas',2.055),
 	 ('Enciso',2.055);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fabian',2.054),
 	 ('Cevallos',2.054),
 	 ('Biosca',2.054),
@@ -2583,7 +2583,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llanes',2.049),
 	 ('Penas',2.049),
 	 ('Lores',2.048);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escandell',2.046),
 	 ('Soldevila',2.044),
 	 ('Forner',2.043),
@@ -2594,7 +2594,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabezuelo',2.036),
 	 ('Artacho',2.034),
 	 ('Marugan',2.033);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cosano',2.032),
 	 ('Pique',2.03),
 	 ('German',2.029),
@@ -2605,7 +2605,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maneiro',2.014),
 	 ('Rossi',2.014),
 	 ('Colon',2.013);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abbas',2.013),
 	 ('Brunet',2.01),
 	 ('Bragado',2.01),
@@ -2616,7 +2616,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ballestero',2.002),
 	 ('Farres',2.0),
 	 ('Roger',1.999);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barry',1.999),
 	 ('Lendinez',1.998),
 	 ('Sojo',1.996),
@@ -2627,7 +2627,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quijano',1.988),
 	 ('Capella',1.988),
 	 ('Fofana',1.988);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Algarra',1.987),
 	 ('Ruiperez',1.987),
 	 ('Goya',1.986),
@@ -2638,7 +2638,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belloso',1.983),
 	 ('Vallina',1.982),
 	 ('Amar',1.98);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tabernero',1.98),
 	 ('Peñate',1.979),
 	 ('Cañamero',1.978),
@@ -2649,7 +2649,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Revert',1.977),
 	 ('Tejerina',1.97),
 	 ('Siguenza',1.97);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calles',1.969),
 	 ('Lucio',1.969),
 	 ('Almela',1.968),
@@ -2660,7 +2660,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Negro',1.965),
 	 ('Pujante',1.965),
 	 ('Alzate',1.962);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vieites',1.962),
 	 ('Velilla',1.961),
 	 ('Buil',1.959),
@@ -2671,7 +2671,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rigo',1.955),
 	 ('Rando',1.953),
 	 ('Abdelkader',1.953);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Imaz',1.951),
 	 ('Puchades',1.948),
 	 ('Herran',1.945),
@@ -2682,7 +2682,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baño',1.939),
 	 ('Reguero',1.937),
 	 ('Colomina',1.937);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabero',1.937),
 	 ('Maso',1.936),
 	 ('Macarro',1.934),
@@ -2693,7 +2693,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valiño',1.928),
 	 ('Escamez',1.928),
 	 ('Figuerola',1.926);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Encarnacion',1.924),
 	 ('Uranga',1.924),
 	 ('Dopazo',1.923),
@@ -2704,7 +2704,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villarrubia',1.919),
 	 ('Calvillo',1.916),
 	 ('Lee',1.916);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabezon',1.915),
 	 ('Sena',1.915),
 	 ('Baca',1.914),
@@ -2715,7 +2715,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calonge',1.91),
 	 ('Verdaguer',1.91),
 	 ('Langa',1.91);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andueza',1.91),
 	 ('Mancheño',1.909),
 	 ('Huarte',1.907),
@@ -2726,7 +2726,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marchal',1.903),
 	 ('Cantalejo',1.903),
 	 ('Cumplido',1.902);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monton',1.902),
 	 ('Manzanera',1.9),
 	 ('Barrantes',1.9),
@@ -2737,7 +2737,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Claramunt',1.897),
 	 ('Linde',1.895),
 	 ('Barredo',1.894);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Repiso',1.893),
 	 ('Ferron',1.892),
 	 ('Lidon',1.891),
@@ -2748,7 +2748,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eslava',1.886),
 	 ('Sueiro',1.886),
 	 ('Mancha',1.885);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argudo',1.883),
 	 ('Peguero',1.883),
 	 ('Peon',1.882),
@@ -2759,7 +2759,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hormigo',1.879),
 	 ('Betancort',1.878),
 	 ('Arriaza',1.878);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Astudillo',1.877),
 	 ('Bastos',1.876),
 	 ('Aponte',1.876),
@@ -2770,7 +2770,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bayarri',1.874),
 	 ('Muiños',1.872),
 	 ('Varea',1.872);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Torres',1.872),
 	 ('Ramallo',1.871),
 	 ('Masso',1.87),
@@ -2781,7 +2781,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nova',1.859),
 	 ('Garde',1.859),
 	 ('Alejandro',1.858);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gonzalvo',1.857),
 	 ('Español',1.857),
 	 ('Dacosta',1.857),
@@ -2792,7 +2792,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torne',1.853),
 	 ('Anta',1.853),
 	 ('Nieva',1.852);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corrochano',1.851),
 	 ('Celis',1.85),
 	 ('Vilaseca',1.847),
@@ -2803,7 +2803,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moñino',1.843),
 	 ('Forcada',1.843),
 	 ('Grima',1.843);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Consuegra',1.842),
 	 ('Lizana',1.842),
 	 ('De Benito',1.842),
@@ -2814,7 +2814,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barbeito',1.838),
 	 ('Vilella',1.838),
 	 ('Maillo',1.837);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Negrete',1.833),
 	 ('Tudor',1.833),
 	 ('Lacruz',1.832),
@@ -2825,7 +2825,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pomar',1.828),
 	 ('Plazas',1.827),
 	 ('Lojo',1.826);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iriondo',1.824),
 	 ('Marimon',1.823),
 	 ('Carratala',1.822),
@@ -2836,7 +2836,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valderas',1.817),
 	 ('Bordon',1.815),
 	 ('Espigares',1.814);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viñuela',1.812),
 	 ('Estupiñan',1.811),
 	 ('Sandu',1.81),
@@ -2847,7 +2847,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dahmani',1.803),
 	 ('Creus',1.801),
 	 ('Bolado',1.801);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beitia',1.8),
 	 ('Raga',1.799),
 	 ('Piñera',1.799),
@@ -2858,7 +2858,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Celada',1.793),
 	 ('Socas',1.79),
 	 ('Veloso',1.79);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cazalla',1.79),
 	 ('Mbaye',1.789),
 	 ('Lazcano',1.788),
@@ -2869,7 +2869,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albacete',1.783),
 	 ('Iturralde',1.782),
 	 ('Nacher',1.781);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nunes',1.781),
 	 ('Muller',1.781),
 	 ('Novella',1.78),
@@ -2880,7 +2880,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clares',1.778),
 	 ('Vigara',1.775),
 	 ('Gañan',1.774);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cala',1.773),
 	 ('Lemus',1.773),
 	 ('Pozas',1.773),
@@ -2891,7 +2891,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casañas',1.77),
 	 ('Ogando',1.77),
 	 ('Mantilla',1.77);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jeronimo',1.77),
 	 ('Mercadal',1.769),
 	 ('Mezquita',1.768),
@@ -2902,7 +2902,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valerio',1.765),
 	 ('Civera',1.764),
 	 ('Murga',1.764);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jorquera',1.762),
 	 ('De Mingo',1.761),
 	 ('Cerezuela',1.76),
@@ -2913,7 +2913,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rentero',1.753),
 	 ('Cabre',1.752),
 	 ('De Santiago',1.75);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quiñonero',1.749),
 	 ('Celaya',1.749),
 	 ('Bea',1.748),
@@ -2924,7 +2924,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hoyo',1.746),
 	 ('Petrova',1.743),
 	 ('Orenes',1.742);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Egaña',1.741),
 	 ('Morais',1.741),
 	 ('Alaminos',1.74),
@@ -2935,7 +2935,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Raventos',1.735),
 	 ('Raja',1.735),
 	 ('Rabanal',1.734);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Masia',1.734),
 	 ('Abuin',1.733),
 	 ('Monforte',1.733),
@@ -2946,7 +2946,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rull',1.728),
 	 ('Talens',1.728),
 	 ('Jane',1.728);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suñe',1.727),
 	 ('Robaina',1.726),
 	 ('Tubio',1.725),
@@ -2957,7 +2957,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodes',1.721),
 	 ('Terrones',1.718),
 	 ('Berenguel',1.718);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Morena',1.718),
 	 ('El Ouahabi',1.718),
 	 ('Muresan',1.718),
@@ -2968,7 +2968,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luzon',1.714),
 	 ('Remon',1.714),
 	 ('Mosteiro',1.714);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cots',1.713),
 	 ('Traver',1.713),
 	 ('Florit',1.711),
@@ -2979,7 +2979,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Petit',1.709),
 	 ('Honrubia',1.707),
 	 ('Suñer',1.706);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blay',1.706),
 	 ('Recasens',1.705),
 	 ('Femenia',1.704),
@@ -2990,7 +2990,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portas',1.702),
 	 ('Munar',1.702),
 	 ('Centelles',1.702);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olaizola',1.702),
 	 ('Lu',1.701),
 	 ('Cesar',1.7),
@@ -3001,7 +3001,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villarino',1.696),
 	 ('Olvera',1.694),
 	 ('Cidoncha',1.694);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Serantes',1.694),
 	 ('Claver',1.693),
 	 ('Morey',1.693),
@@ -3012,7 +3012,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balsalobre',1.691),
 	 ('Sorribes',1.691),
 	 ('Toma',1.689);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juncal',1.687),
 	 ('Primo',1.687),
 	 ('Gato',1.686),
@@ -3023,7 +3023,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarres',1.679),
 	 ('Caba',1.678),
 	 ('Miret',1.678);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fuste',1.677),
 	 ('Urquijo',1.676),
 	 ('Llompart',1.676),
@@ -3034,7 +3034,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Riu',1.672),
 	 ('Ziani',1.672),
 	 ('Justiniano',1.671);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borrajo',1.671),
 	 ('Velo',1.67),
 	 ('Fenoll',1.67),
@@ -3045,7 +3045,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Liñares',1.668),
 	 ('Tarrago',1.666),
 	 ('Corchado',1.665);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abajo',1.664),
 	 ('Subirana',1.664),
 	 ('Mujica',1.663),
@@ -3056,7 +3056,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montoliu',1.659),
 	 ('Villacorta',1.659),
 	 ('Bengoechea',1.658);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vallecillo',1.658),
 	 ('Varga',1.657),
 	 ('Lasso',1.656),
@@ -3067,7 +3067,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gancedo',1.651),
 	 ('Bandera',1.65),
 	 ('Azcarate',1.649);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alava',1.649),
 	 ('Ortego',1.648),
 	 ('Aparici',1.648),
@@ -3078,7 +3078,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casquero',1.644),
 	 ('Bedmar',1.644),
 	 ('Pastoriza',1.644);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fons',1.643),
 	 ('Portales',1.643),
 	 ('Gayo',1.642),
@@ -3089,7 +3089,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calvete',1.64),
 	 ('Mantecon',1.639),
 	 ('Tort',1.636);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cervilla',1.635),
 	 ('Estudillo',1.634),
 	 ('Morocho',1.634),
@@ -3100,7 +3100,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('San Pedro',1.63),
 	 ('Obando',1.63),
 	 ('Varon',1.63);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Riva',1.63),
 	 ('Quintans',1.629),
 	 ('Barriuso',1.629),
@@ -3111,7 +3111,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruibal',1.627),
 	 ('Diakite',1.627),
 	 ('Carcelen',1.626);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juste',1.626),
 	 ('Tamargo',1.626),
 	 ('Tardio',1.626),
@@ -3122,7 +3122,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carballeira',1.624),
 	 ('Wilson',1.624),
 	 ('Lera',1.622);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peco',1.621),
 	 ('Gomar',1.621),
 	 ('Maseda',1.621),
@@ -3133,7 +3133,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lupu',1.617),
 	 ('Osa',1.616),
 	 ('Simbaña',1.615);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cervero',1.614),
 	 ('Ara',1.614),
 	 ('Rubi',1.613),
@@ -3144,7 +3144,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Custodio',1.611),
 	 ('Corcuera',1.609),
 	 ('Argente',1.609);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Souza',1.608),
 	 ('Zabalza',1.608),
 	 ('Doñate',1.607),
@@ -3155,7 +3155,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Prego',1.605),
 	 ('Vaquer',1.604),
 	 ('Ivorra',1.604);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barona',1.604),
 	 ('Capote',1.603),
 	 ('Forero',1.603),
@@ -3166,7 +3166,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Asin',1.599),
 	 ('Orduña',1.597),
 	 ('Ojea',1.596);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garnica',1.596),
 	 ('Calin',1.594),
 	 ('Rengel',1.593),
@@ -3177,7 +3177,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mendo',1.591),
 	 ('Lapuente',1.591),
 	 ('Carles',1.59);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Selma',1.59),
 	 ('Stanciu',1.59),
 	 ('Senra',1.589),
@@ -3188,7 +3188,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Harrak',1.588),
 	 ('Eizaguirre',1.587),
 	 ('Cela',1.586);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lado',1.586),
 	 ('Ostos',1.586),
 	 ('San Millan',1.586),
@@ -3199,7 +3199,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Silveira',1.583),
 	 ('Furio',1.582),
 	 ('Pascua',1.582);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dong',1.581),
 	 ('Abenza',1.58),
 	 ('Marichal',1.579),
@@ -3210,7 +3210,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aymerich',1.579),
 	 ('Freitas',1.578),
 	 ('Morro',1.577);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fenoy',1.577),
 	 ('Albertos',1.577),
 	 ('Teixidor',1.576),
@@ -3221,7 +3221,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llull',1.572),
 	 ('Temprano',1.571),
 	 ('Oriol',1.571);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perdiguero',1.57),
 	 ('Ripolles',1.57),
 	 ('Gili',1.569),
@@ -3232,7 +3232,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Felices',1.567),
 	 ('Castellvi',1.564),
 	 ('Botello',1.563);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montejano',1.563),
 	 ('Bascon',1.562),
 	 ('Carbonero',1.56),
@@ -3243,7 +3243,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cordeiro',1.558),
 	 ('Herce',1.556),
 	 ('Sarasola',1.556);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cedres',1.556),
 	 ('Serradilla',1.556),
 	 ('Felip',1.556),
@@ -3254,7 +3254,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serena',1.553),
 	 ('Ordas',1.552),
 	 ('Carneiro',1.55);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quiñonez',1.55),
 	 ('Mesquida',1.55),
 	 ('Escalada',1.55),
@@ -3265,7 +3265,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarifa',1.545),
 	 ('Sarda',1.545),
 	 ('Cerrada',1.545);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barcala',1.545),
 	 ('Butron',1.544),
 	 ('Signes',1.543),
@@ -3276,7 +3276,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fullana',1.54),
 	 ('Cambronero',1.539),
 	 ('Casamayor',1.538);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faye',1.537),
 	 ('Dragomir',1.536),
 	 ('Zubillaga',1.534),
@@ -3287,7 +3287,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Caride',1.528),
 	 ('Luaces',1.527),
 	 ('Faura',1.525);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calatrava',1.524),
 	 ('Parrondo',1.523),
 	 ('Arruti',1.522),
@@ -3298,7 +3298,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Margalef',1.521),
 	 ('Rozalen',1.52),
 	 ('Armario',1.52);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sotillo',1.519),
 	 ('Barquilla',1.518),
 	 ('Ucles',1.518),
@@ -3309,7 +3309,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soldado',1.514),
 	 ('Alferez',1.513),
 	 ('Romay',1.512);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bujalance',1.512),
 	 ('Neagu',1.511),
 	 ('Sotos',1.51),
@@ -3320,7 +3320,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rengifo',1.506),
 	 ('Milian',1.506),
 	 ('Lungu',1.505);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Melguizo',1.504),
 	 ('Guadalupe',1.504),
 	 ('Jornet',1.503),
@@ -3331,7 +3331,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Shahzad',1.498),
 	 ('Anguera',1.497),
 	 ('Murias',1.496);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Allue',1.495),
 	 ('Paul',1.495),
 	 ('Ferragut',1.493),
@@ -3342,7 +3342,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baixauli',1.492),
 	 ('Polonio',1.491),
 	 ('Insa',1.491);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hermosa',1.49),
 	 ('Chiva',1.49),
 	 ('Begum',1.489),
@@ -3353,7 +3353,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ignacio',1.488),
 	 ('Sancha',1.487),
 	 ('Llerena',1.487);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Albalat',1.487),
 	 ('Ionita',1.487),
 	 ('Solaz',1.486),
@@ -3364,7 +3364,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elorriaga',1.483),
 	 ('Colomo',1.483),
 	 ('De Armas',1.482);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mehmood',1.482),
 	 ('Palos',1.481),
 	 ('Pancorbo',1.481),
@@ -3375,7 +3375,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Richart',1.479),
 	 ('Morin',1.479),
 	 ('Pinel',1.479);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escuder',1.479),
 	 ('Barrasa',1.479),
 	 ('Risquez',1.478),
@@ -3386,7 +3386,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cladera',1.476),
 	 ('Cabot',1.476),
 	 ('Llopart',1.476);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tizon',1.474),
 	 ('El Bakkali',1.474),
 	 ('Viso',1.473),
@@ -3397,7 +3397,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villodres',1.47),
 	 ('Barron',1.47),
 	 ('Lourido',1.469);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Crego',1.469),
 	 ('Elizondo',1.468),
 	 ('Sutil',1.468),
@@ -3408,7 +3408,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zelaya',1.466),
 	 ('Cubells',1.464),
 	 ('Comes',1.464);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escola',1.463),
 	 ('Pavia',1.463),
 	 ('Santiso',1.463),
@@ -3419,7 +3419,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coves',1.46),
 	 ('Escriche',1.459),
 	 ('Forte',1.459);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cegarra',1.459),
 	 ('Loro',1.458),
 	 ('Puchol',1.458),
@@ -3430,7 +3430,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zornoza',1.457),
 	 ('Thiam',1.457),
 	 ('Picado',1.456);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cirera',1.456),
 	 ('Compte',1.456),
 	 ('Catalina',1.455),
@@ -3441,7 +3441,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santa',1.452),
 	 ('Sixto',1.451),
 	 ('Mendia',1.45);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guillermo',1.45),
 	 ('Comellas',1.45),
 	 ('Dieng',1.45),
@@ -3452,7 +3452,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badillo',1.447),
 	 ('Canedo',1.447),
 	 ('Cerviño',1.447);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nebreda',1.446),
 	 ('Abello',1.446),
 	 ('Brun',1.446),
@@ -3463,7 +3463,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Breton',1.444),
 	 ('Barandiaran',1.442),
 	 ('Penades',1.442);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vanegas',1.441),
 	 ('Blanquez',1.441),
 	 ('Rafael',1.441),
@@ -3474,7 +3474,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buron',1.44),
 	 ('Mella',1.44),
 	 ('Aarab',1.439);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ionescu',1.439),
 	 ('Taberner',1.437),
 	 ('Balbas',1.437),
@@ -3485,7 +3485,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eguia',1.432),
 	 ('Sillah',1.432),
 	 ('Cai',1.432);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aibar',1.431),
 	 ('Reus',1.431),
 	 ('Forteza',1.431),
@@ -3496,7 +3496,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paulino',1.428),
 	 ('Artal',1.428),
 	 ('Torra',1.428);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Isasi',1.428),
 	 ('Bolaño',1.427),
 	 ('Manzaneque',1.427),
@@ -3507,7 +3507,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escartin',1.425),
 	 ('Fanjul',1.425),
 	 ('Umpierrez',1.424);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almonte',1.424),
 	 ('Couceiro',1.423),
 	 ('Concha',1.422),
@@ -3518,7 +3518,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabrejas',1.421),
 	 ('Craciun',1.421),
 	 ('Cotelo',1.42);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Robledillo',1.419),
 	 ('Besada',1.418),
 	 ('Sagredo',1.418),
@@ -3529,7 +3529,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carcel',1.415),
 	 ('Usero',1.414),
 	 ('Bernardino',1.414);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alberti',1.414),
 	 ('Posadas',1.413),
 	 ('Tellechea',1.412),
@@ -3540,7 +3540,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vieitez',1.41),
 	 ('Leis',1.41),
 	 ('Pacho',1.41);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ladron De Guevara',1.41),
 	 ('Caldera',1.409),
 	 ('Bennasar',1.409),
@@ -3551,7 +3551,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bisbal',1.406),
 	 ('Algar',1.406),
 	 ('Aleixandre',1.406);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Robert',1.405),
 	 ('Agut',1.404),
 	 ('Ortiz De Zarate',1.402),
@@ -3562,7 +3562,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Irastorza',1.399),
 	 ('Murua',1.399),
 	 ('Moussaoui',1.398);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ndong',1.398),
 	 ('Kaddouri',1.397),
 	 ('Barbu',1.397),
@@ -3573,7 +3573,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badea',1.393),
 	 ('Oyarzabal',1.392),
 	 ('Del Saz',1.392);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ureta',1.392),
 	 ('Redon',1.392),
 	 ('Arrufat',1.392),
@@ -3584,7 +3584,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palomeque',1.39),
 	 ('Bedia',1.39),
 	 ('Peces',1.39);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costales',1.389),
 	 ('Galeote',1.389),
 	 ('Bakkali',1.389),
@@ -3595,7 +3595,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cernadas',1.387),
 	 ('De La Hera',1.386),
 	 ('Onieva',1.386);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nolasco',1.385),
 	 ('Horcajo',1.384),
 	 ('Rivilla',1.384),
@@ -3606,7 +3606,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Mansouri',1.38),
 	 ('Gabarron',1.379),
 	 ('Chavero',1.379);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Siverio',1.376),
 	 ('Cantera',1.376),
 	 ('Beteta',1.375),
@@ -3617,7 +3617,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iza',1.373),
 	 ('Camprubi',1.373),
 	 ('Mayans',1.371);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santamarina',1.371),
 	 ('Amezcua',1.37),
 	 ('Bueso',1.37),
@@ -3628,7 +3628,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Asri',1.37),
 	 ('Jarillo',1.369),
 	 ('Tocino',1.369);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santillan',1.369),
 	 ('Hermo',1.368),
 	 ('Barcenilla',1.368),
@@ -3639,7 +3639,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barranquero',1.365),
 	 ('Santome',1.365),
 	 ('Rotger',1.363);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cascon',1.363),
 	 ('Puertolas',1.362),
 	 ('Millet',1.362),
@@ -3650,7 +3650,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Filip',1.357),
 	 ('Vlad',1.357),
 	 ('Negre',1.356);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cardenes',1.355),
 	 ('Alcoba',1.355),
 	 ('Ascanio',1.355),
@@ -3661,7 +3661,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lancho',1.352),
 	 ('Yago',1.351),
 	 ('Arrocha',1.35);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchiz',1.35),
 	 ('Caballer',1.35),
 	 ('Rahman',1.35),
@@ -3672,7 +3672,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viudez',1.348),
 	 ('De Lamo',1.347),
 	 ('Pinazo',1.346);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arbona',1.346),
 	 ('Mohammad',1.346),
 	 ('Mahmood',1.346),
@@ -3683,7 +3683,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albiñana',1.344),
 	 ('Santonja',1.344),
 	 ('Casasola',1.343);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Badenes',1.343),
 	 ('Coman',1.342),
 	 ('Melon',1.341),
@@ -3694,7 +3694,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llaurado',1.339),
 	 ('Turon',1.338),
 	 ('Manteca',1.338);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chillon',1.338),
 	 ('De Gregorio',1.338),
 	 ('Davies',1.338),
@@ -3705,7 +3705,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santandreu',1.336),
 	 ('Chicano',1.335),
 	 ('Claro',1.334);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campoverde',1.334),
 	 ('Riestra',1.334),
 	 ('Bastante',1.333),
@@ -3716,7 +3716,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mut',1.331),
 	 ('Tanase',1.331),
 	 ('Racero',1.329);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Treviño',1.329),
 	 ('Ciria',1.329),
 	 ('Vilardell',1.329),
@@ -3727,7 +3727,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valdivielso',1.327),
 	 ('Maceiras',1.326),
 	 ('Cañaveras',1.326);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castel',1.326),
 	 ('Islam',1.326),
 	 ('De Almeida',1.325),
@@ -3738,7 +3738,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Penedo',1.322),
 	 ('Quinto',1.321),
 	 ('Lucia',1.321);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marcano',1.321),
 	 ('Munarriz',1.321),
 	 ('Torner',1.321),
@@ -3749,7 +3749,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Homs',1.316),
 	 ('Barreno',1.315),
 	 ('Resina',1.315);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dragan',1.315),
 	 ('Eugenio',1.314),
 	 ('Madroñal',1.314),
@@ -3760,7 +3760,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Travieso',1.311),
 	 ('Colado',1.311),
 	 ('Almiñana',1.311);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maiz',1.311),
 	 ('Descalzo',1.31),
 	 ('Colomar',1.31),
@@ -3771,7 +3771,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fraguas',1.309),
 	 ('Tadeo',1.308),
 	 ('Tarrio',1.308);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campano',1.307),
 	 ('Barja',1.307),
 	 ('Marmolejo',1.307),
@@ -3782,7 +3782,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Patricio',1.305),
 	 ('Tristan',1.304),
 	 ('Casanueva',1.304);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Piñar',1.304),
 	 ('Mocanu',1.304),
 	 ('Masegosa',1.303),
@@ -3793,7 +3793,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Freixas',1.302),
 	 ('Moros',1.302),
 	 ('Urquiza',1.302);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lomba',1.302),
 	 ('Kane',1.302),
 	 ('Galian',1.301),
@@ -3804,7 +3804,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabezudo',1.3),
 	 ('Masdeu',1.3),
 	 ('Monllor',1.3);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galea',1.3),
 	 ('Panizo',1.299),
 	 ('Ciscar',1.298),
@@ -3815,7 +3815,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bolea',1.295),
 	 ('Iordache',1.295),
 	 ('Andino',1.294);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bordas',1.294),
 	 ('Leira',1.293),
 	 ('Uson',1.293),
@@ -3826,7 +3826,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuerda',1.292),
 	 ('Sarango',1.291),
 	 ('Pous',1.291);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monclus',1.291),
 	 ('Vilaro',1.291),
 	 ('Baldo',1.29),
@@ -3837,7 +3837,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santalla',1.288),
 	 ('Carmena',1.288),
 	 ('Civico',1.288);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viqueira',1.288),
 	 ('Cancio',1.287),
 	 ('Rollan',1.287),
@@ -3848,7 +3848,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rubira',1.281),
 	 ('Urbaneja',1.281),
 	 ('Hilario',1.281);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ternero',1.281),
 	 ('Olivar',1.281),
 	 ('De La Osa',1.281),
@@ -3859,7 +3859,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abalos',1.278),
 	 ('Karim',1.278),
 	 ('Cedillo',1.277);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azurmendi',1.277),
 	 ('Riego',1.277),
 	 ('Lozoya',1.277),
@@ -3870,7 +3870,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valcarce',1.275),
 	 ('Monterrubio',1.275),
 	 ('Hortal',1.275);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabana',1.273),
 	 ('Rabasco',1.273),
 	 ('Eguiluz',1.273),
@@ -3881,7 +3881,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leston',1.272),
 	 ('Yepez',1.271),
 	 ('Segade',1.271);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chicote',1.27),
 	 ('Imbernon',1.27),
 	 ('Lizarralde',1.27),
@@ -3892,7 +3892,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Liaño',1.269),
 	 ('Cortizo',1.269),
 	 ('Vergel',1.268);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caselles',1.268),
 	 ('Parro',1.268),
 	 ('Dapena',1.268),
@@ -3903,7 +3903,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Camiña',1.265),
 	 ('Esparcia',1.265),
 	 ('Ferris',1.265);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aja',1.263),
 	 ('Candelas',1.263),
 	 ('Montagut',1.261),
@@ -3914,7 +3914,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hellin',1.26),
 	 ('Ruzafa',1.259),
 	 ('De La Llave',1.259);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urbieta',1.258),
 	 ('Alacid',1.258),
 	 ('Moratilla',1.258),
@@ -3925,7 +3925,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marino',1.256),
 	 ('Encabo',1.256),
 	 ('Colmenares',1.255);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blanquer',1.255),
 	 ('Hornero',1.254),
 	 ('Baranda',1.253),
@@ -3936,7 +3936,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montesino',1.25),
 	 ('Obrador',1.25),
 	 ('Guaita',1.248);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Planes',1.247),
 	 ('Diagne',1.247),
 	 ('Luca',1.247),
@@ -3947,7 +3947,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fito',1.245),
 	 ('Granada',1.244),
 	 ('Oroz',1.244);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('San Vicente',1.243),
 	 ('Deza',1.243),
 	 ('Bonmati',1.243),
@@ -3958,7 +3958,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sarasa',1.241),
 	 ('Grillo',1.24),
 	 ('Terrazas',1.24);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bescos',1.24),
 	 ('Ferradas',1.24),
 	 ('Said',1.24),
@@ -3969,7 +3969,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Huaman',1.237),
 	 ('Janeiro',1.236),
 	 ('Partida',1.236);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villasante',1.236),
 	 ('Baltasar',1.235),
 	 ('Saa',1.235),
@@ -3980,7 +3980,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cortazar',1.233),
 	 ('Jordana',1.233),
 	 ('Alquezar',1.233);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marquinez',1.232),
 	 ('Agreda',1.232),
 	 ('Porro',1.231),
@@ -3991,7 +3991,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Beas',1.23),
 	 ('Mulas',1.229),
 	 ('Seara',1.228);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boyero',1.227),
 	 ('Almaraz',1.226),
 	 ('Espeso',1.226),
@@ -4002,7 +4002,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Caracuel',1.223),
 	 ('Arriero',1.22),
 	 ('Monte',1.22);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Menchon',1.22),
 	 ('Timon',1.22),
 	 ('Salvat',1.219),
@@ -4013,7 +4013,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('San Sebastian',1.216),
 	 ('Grela',1.216),
 	 ('Sanso',1.215);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estevan',1.215),
 	 ('Burguera',1.215),
 	 ('Cabedo',1.215),
@@ -4024,7 +4024,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Modrego',1.213),
 	 ('Punzano',1.212),
 	 ('Toapanta',1.212);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barcelona',1.212),
 	 ('Pindado',1.212),
 	 ('Montoto',1.212),
@@ -4035,7 +4035,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Galvis',1.211),
 	 ('Belmar',1.211),
 	 ('Brull',1.21);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grigore',1.21),
 	 ('Calderin',1.209),
 	 ('Munguia',1.208),
@@ -4046,7 +4046,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rebollar',1.207),
 	 ('Muntean',1.206),
 	 ('Pousa',1.205);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Romaguera',1.205),
 	 ('Grajales',1.204),
 	 ('Vizoso',1.204),
@@ -4057,7 +4057,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Silvan',1.203),
 	 ('Boo',1.202),
 	 ('Dols',1.202);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cañavate',1.202),
 	 ('Capellan',1.202),
 	 ('Becerro',1.201),
@@ -4068,7 +4068,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mariano',1.198),
 	 ('Pedroche',1.198),
 	 ('Osma',1.195);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grimalt',1.195),
 	 ('Laserna',1.195),
 	 ('Soliz',1.194),
@@ -4079,7 +4079,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boullosa',1.192),
 	 ('Cojocaru',1.192),
 	 ('Carrilero',1.191);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campa',1.19),
 	 ('Vich',1.19),
 	 ('Alfaya',1.19),
@@ -4090,7 +4090,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Reixach',1.186),
 	 ('Thompson',1.185),
 	 ('Zorita',1.183);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villavicencio',1.183),
 	 ('Aneiros',1.183),
 	 ('Margarit',1.183),
@@ -4101,7 +4101,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Silla',1.181),
 	 ('Rubiano',1.18),
 	 ('Llobera',1.18);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ajenjo',1.18),
 	 ('Zuazo',1.18),
 	 ('Voicu',1.18),
@@ -4112,7 +4112,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orea',1.177),
 	 ('Ibarrola',1.176),
 	 ('Cañon',1.176);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mohand',1.176),
 	 ('Alabau',1.175),
 	 ('Lo',1.175),
@@ -4123,7 +4123,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morano',1.174),
 	 ('Pacios',1.173),
 	 ('Cortada',1.173);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villacampa',1.173),
 	 ('Bestard',1.172),
 	 ('Dembele',1.172),
@@ -4134,7 +4134,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peñalba',1.17),
 	 ('Alconchel',1.17),
 	 ('Pera',1.17);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Acebo',1.169),
 	 ('Aloy',1.169),
 	 ('Marcelo',1.169),
@@ -4145,7 +4145,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berral',1.167),
 	 ('Santolaria',1.167),
 	 ('Alcivar',1.166);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Botia',1.166),
 	 ('Sarrio',1.166),
 	 ('Vidales',1.165),
@@ -4156,7 +4156,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santillana',1.162),
 	 ('Bover',1.162),
 	 ('Basterra',1.161);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campelo',1.161),
 	 ('Mahiques',1.16),
 	 ('Herruzo',1.16),
@@ -4167,7 +4167,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Limones',1.16),
 	 ('Liria',1.159),
 	 ('Galarraga',1.159);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caballo',1.159),
 	 ('Zanon',1.159),
 	 ('Costea',1.159),
@@ -4178,7 +4178,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moret',1.155),
 	 ('Luz',1.154),
 	 ('Cerdeira',1.154);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cantillo',1.153),
 	 ('Oca',1.153),
 	 ('Ganuza',1.153),
@@ -4189,7 +4189,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salomon',1.152),
 	 ('Arraez',1.152),
 	 ('Lain',1.151);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montane',1.151),
 	 ('Velayos',1.151),
 	 ('Narro',1.151),
@@ -4200,7 +4200,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mañe',1.15),
 	 ('Cabal',1.15),
 	 ('Stoian',1.15);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cossio',1.149),
 	 ('Brizuela',1.149),
 	 ('Carabias',1.149),
@@ -4211,7 +4211,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abalde',1.148),
 	 ('Linero',1.148),
 	 ('Alia',1.148);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corbella',1.147),
 	 ('Fu',1.147),
 	 ('Moneo',1.145),
@@ -4222,7 +4222,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gari',1.144),
 	 ('Suazo',1.144),
 	 ('Olazabal',1.144);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aissaoui',1.144),
 	 ('Manzanedo',1.143),
 	 ('Piquero',1.143),
@@ -4233,7 +4233,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abelenda',1.141),
 	 ('Cagigas',1.141),
 	 ('Evangelista',1.141);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Todorova',1.141),
 	 ('Nicolae',1.141),
 	 ('Brocal',1.14),
@@ -4244,7 +4244,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Riveros',1.138),
 	 ('Todorov',1.138),
 	 ('Aizpuru',1.137);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Entrena',1.137),
 	 ('Dieste',1.137),
 	 ('Manea',1.137),
@@ -4255,7 +4255,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Renteria',1.136),
 	 ('Valenti',1.136),
 	 ('Ibarz',1.134);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Teba',1.134),
 	 ('Ron',1.134),
 	 ('Pericas',1.134),
@@ -4266,7 +4266,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viñuales',1.134),
 	 ('Julve',1.133),
 	 ('Lupion',1.132);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gene',1.131),
 	 ('Cayon',1.131),
 	 ('Armijo',1.13),
@@ -4277,7 +4277,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nortes',1.128),
 	 ('Ribelles',1.128),
 	 ('Vaamonde',1.128);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Acebal',1.127),
 	 ('Boveda',1.127),
 	 ('Vasileva',1.127),
@@ -4288,7 +4288,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quinteiro',1.124),
 	 ('Del Barco',1.123),
 	 ('Del Sol',1.123);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buades',1.123),
 	 ('Arca',1.123),
 	 ('Sendin',1.123),
@@ -4299,7 +4299,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pavel',1.122),
 	 ('Roses',1.121),
 	 ('Louro',1.12);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olivo',1.12),
 	 ('Benedito',1.12),
 	 ('Mina',1.12),
@@ -4310,7 +4310,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buisan',1.117),
 	 ('Vicioso',1.117),
 	 ('Bardaji',1.117);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tacoronte',1.117),
 	 ('Cereceda',1.116),
 	 ('Diaby',1.116),
@@ -4321,7 +4321,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lirio',1.114),
 	 ('Marroquin',1.114),
 	 ('Aisa',1.114);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bordes',1.114),
 	 ('Nolla',1.114),
 	 ('Miller',1.114),
@@ -4332,7 +4332,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chafer',1.113),
 	 ('Corbi',1.113),
 	 ('Rubert',1.113);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lasarte',1.113),
 	 ('White',1.113),
 	 ('Mbengue',1.113),
@@ -4343,7 +4343,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Almiron',1.11),
 	 ('Borrull',1.11),
 	 ('Copado',1.109);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dasi',1.109),
 	 ('Reviriego',1.109),
 	 ('Weng',1.108),
@@ -4354,7 +4354,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agenjo',1.106),
 	 ('Robinson',1.106),
 	 ('Masero',1.105);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sall',1.105),
 	 ('Frade',1.104),
 	 ('Verano',1.103),
@@ -4365,7 +4365,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lino',1.103),
 	 ('Encinar',1.103),
 	 ('Padros',1.102);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabra',1.102),
 	 ('Lizaso',1.102),
 	 ('Cambeiro',1.102),
@@ -4376,7 +4376,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garrigues',1.099),
 	 ('Aldaz',1.099),
 	 ('Altes',1.098);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gamo',1.098),
 	 ('Orejuela',1.098),
 	 ('Ossorio',1.098),
@@ -4387,7 +4387,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guemes',1.096),
 	 ('Fresco',1.095),
 	 ('Ribalta',1.095);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chulia',1.095),
 	 ('Correro',1.094),
 	 ('Ciurana',1.094),
@@ -4398,7 +4398,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Subira',1.093),
 	 ('Doce',1.093),
 	 ('Touil',1.093);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sorroche',1.092),
 	 ('Bouzon',1.092),
 	 ('De La Cal',1.092),
@@ -4409,7 +4409,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larrazabal',1.09),
 	 ('Casañ',1.09),
 	 ('Paradela',1.089);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tierno',1.089),
 	 ('Calpe',1.089),
 	 ('Gasca',1.089),
@@ -4420,7 +4420,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Such',1.088),
 	 ('Viloria',1.088),
 	 ('Andia',1.088);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gine',1.087),
 	 ('Sene',1.087),
 	 ('Alcedo',1.086),
@@ -4431,7 +4431,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esteva',1.084),
 	 ('Nadales',1.084),
 	 ('Curado',1.084);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cambero',1.084),
 	 ('Cayetano',1.083),
 	 ('Muriana',1.083),
@@ -4442,7 +4442,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yan',1.082),
 	 ('Segundo',1.081),
 	 ('Albizu',1.081);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Real',1.081),
 	 ('Rondan',1.08),
 	 ('Bellot',1.08),
@@ -4453,7 +4453,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leonardo',1.078),
 	 ('Juanola',1.077),
 	 ('Pilar',1.077);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tapiador',1.077),
 	 ('Mouzo',1.076),
 	 ('Sissoko',1.076),
@@ -4464,7 +4464,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Membrives',1.073),
 	 ('Freiria',1.073),
 	 ('Ferres',1.072);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Farras',1.072),
 	 ('Lirola',1.072),
 	 ('Del Puerto',1.072),
@@ -4475,7 +4475,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Canseco',1.071),
 	 ('Boto',1.071),
 	 ('Enrich',1.071);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nita',1.071),
 	 ('Jaimez',1.07),
 	 ('Mila',1.07),
@@ -4486,7 +4486,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berga',1.067),
 	 ('Villaseñor',1.067),
 	 ('Louzao',1.067);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pellon',1.066),
 	 ('Pabon',1.066),
 	 ('Carneros',1.066),
@@ -4497,7 +4497,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calvache',1.065),
 	 ('Abrante',1.064),
 	 ('Raboso',1.062);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otegui',1.061),
 	 ('De Gea',1.06),
 	 ('Montagud',1.06),
@@ -4508,7 +4508,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leandro',1.059),
 	 ('Messaoudi',1.059),
 	 ('Antona',1.058);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Florencio',1.057),
 	 ('Olveira',1.057),
 	 ('Tajuelo',1.057),
@@ -4519,7 +4519,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burguete',1.055),
 	 ('Amorin',1.055),
 	 ('Rubiño',1.055);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lindo',1.055),
 	 ('Navascues',1.054),
 	 ('Cerqueira',1.054),
@@ -4530,7 +4530,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanfelix',1.053),
 	 ('Garcia Moreno',1.053),
 	 ('Lerin',1.052);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chavarri',1.052),
 	 ('Chaoui',1.052),
 	 ('Horta',1.051),
@@ -4541,7 +4541,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tienda',1.05),
 	 ('Konate',1.05),
 	 ('Ibars',1.049);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Magariños',1.048),
 	 ('Montealegre',1.048),
 	 ('Castresana',1.047),
@@ -4552,7 +4552,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Etxabe',1.046),
 	 ('Davo',1.045),
 	 ('Cansino',1.045);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Duval',1.045),
 	 ('Idrissi',1.045),
 	 ('Vegara',1.044),
@@ -4563,7 +4563,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zaplana',1.043),
 	 ('Oreja',1.043),
 	 ('Mansouri',1.043);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Haba',1.042),
 	 ('Francos',1.041),
 	 ('Manteiga',1.041),
@@ -4574,7 +4574,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Simion',1.04),
 	 ('Espasandin',1.039),
 	 ('Jañez',1.039);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castillero',1.039),
 	 ('Ovalle',1.039),
 	 ('Toboso',1.039),
@@ -4585,7 +4585,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aira',1.038),
 	 ('Portal',1.036),
 	 ('Pousada',1.036);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cubillas',1.035),
 	 ('Torices',1.034),
 	 ('Campillos',1.034),
@@ -4596,7 +4596,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borge',1.033),
 	 ('Barreras',1.032),
 	 ('Solares',1.032);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anido',1.032),
 	 ('Arruabarrena',1.03),
 	 ('Vozmediano',1.03),
@@ -4607,7 +4607,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Faro',1.029),
 	 ('Sanmiguel',1.028),
 	 ('Pelegri',1.028);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echeverri',1.028),
 	 ('Rica',1.028),
 	 ('Bordoy',1.028),
@@ -4618,7 +4618,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Betanzos',1.027),
 	 ('Yordanov',1.026),
 	 ('Kasmi',1.026);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sentis',1.025),
 	 ('Ramil',1.024),
 	 ('Trilla',1.024),
@@ -4629,7 +4629,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villanova',1.022),
 	 ('Cocera',1.022),
 	 ('Caja',1.021);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bombin',1.021),
 	 ('Aguinaga',1.021),
 	 ('Illanes',1.02),
@@ -4640,7 +4640,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chia',1.018),
 	 ('Aramendi',1.018),
 	 ('Covelo',1.018);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paterna',1.018),
 	 ('El Khamlichi',1.018),
 	 ('Uddin',1.018),
@@ -4651,7 +4651,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dionisio',1.016),
 	 ('Massanet',1.016),
 	 ('Candelario',1.016);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Intriago',1.015),
 	 ('Noguero',1.015),
 	 ('Artigues',1.015),
@@ -4662,7 +4662,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carrasquilla',1.012),
 	 ('Reales',1.012),
 	 ('Del Hierro',1.012);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cuñat',1.012),
 	 ('Jallow',1.012),
 	 ('Salar',1.011),
@@ -4673,7 +4673,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nogueiras',1.01),
 	 ('Loayza',1.01),
 	 ('Raña',1.009);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guillot',1.009),
 	 ('Xiang',1.009),
 	 ('Ribo',1.008),
@@ -4684,7 +4684,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albelda',1.006),
 	 ('Xie',1.006),
 	 ('Jaimes',1.005);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amil',1.005),
 	 ('Moriano',1.005),
 	 ('Alomar',1.005),
@@ -4695,7 +4695,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paramio',1.004),
 	 ('Farran',1.003),
 	 ('Planton',1.003);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pichel',1.003),
 	 ('Zea',1.003),
 	 ('Rubin',1.003),
@@ -4706,7 +4706,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espinel',1.002),
 	 ('Bringas',1.002),
 	 ('Esclapez',1.001);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marcelino',1.0),
 	 ('Ingelmo',1.0),
 	 ('Rotaru',1.0),
@@ -4717,7 +4717,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albuixech',998.0),
 	 ('Caldentey',998.0),
 	 ('Dengra',998.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arvelo',998.0),
 	 ('Morena',997.0),
 	 ('Abadias',997.0),
@@ -4728,7 +4728,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pedrera',996.0),
 	 ('Cotan',995.0),
 	 ('Lluis',995.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ormeño',995.0),
 	 ('Eiroa',995.0),
 	 ('Coelho',994.0),
@@ -4739,7 +4739,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corraliza',992.0),
 	 ('Del Corral',992.0),
 	 ('Cienfuegos',992.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morcuende',992.0),
 	 ('Arroniz',991.0),
 	 ('Eguizabal',991.0),
@@ -4750,7 +4750,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carrizosa',990.0),
 	 ('Piñas',990.0),
 	 ('Tabuenca',990.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galceran',990.0),
 	 ('Caneda',989.0),
 	 ('Alda',989.0),
@@ -4761,7 +4761,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villaplana',987.0),
 	 ('Aceña',987.0),
 	 ('Torremocha',987.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hornos',987.0),
 	 ('Shan',987.0),
 	 ('Elices',986.0),
@@ -4772,7 +4772,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olid',985.0),
 	 ('Castanedo',985.0),
 	 ('Olteanu',985.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('San Andres',984.0),
 	 ('Macedo',984.0),
 	 ('Portugues',984.0),
@@ -4783,7 +4783,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borjas',983.0),
 	 ('Tobias',983.0),
 	 ('Orrego',983.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Madruga',983.0),
 	 ('Seisdedos',983.0),
 	 ('Alamillo',982.0),
@@ -4794,7 +4794,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vizcaya',982.0),
 	 ('Zaidi',982.0),
 	 ('Rosu',982.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herreras',981.0),
 	 ('Herguedas',981.0),
 	 ('Esteso',981.0),
@@ -4805,7 +4805,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calafat',980.0),
 	 ('Jardon',980.0),
 	 ('Rabal',980.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chaib',980.0),
 	 ('Parente',979.0),
 	 ('Forcadell',979.0),
@@ -4816,7 +4816,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molpeceres',978.0),
 	 ('Lacambra',977.0),
 	 ('Cerpa',977.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azofra',977.0),
 	 ('Reynes',977.0),
 	 ('Green',977.0),
@@ -4827,7 +4827,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pijuan',976.0),
 	 ('Municio',976.0),
 	 ('Garza',976.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soteras',975.0),
 	 ('Año',975.0),
 	 ('Conte',975.0),
@@ -4838,7 +4838,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pola',973.0),
 	 ('Casarrubios',973.0),
 	 ('Lecumberri',973.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cebria',973.0),
 	 ('Ponce De Leon',973.0),
 	 ('Imran',973.0),
@@ -4849,7 +4849,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aziz',972.0),
 	 ('Callado',971.0),
 	 ('Movilla',971.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soliño',971.0),
 	 ('Toquero',970.0),
 	 ('Galicia',970.0),
@@ -4860,7 +4860,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Joaquin',969.0),
 	 ('Touriño',969.0),
 	 ('Suescun',968.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Payeras',968.0),
 	 ('Juaristi',968.0),
 	 ('Esteves',968.0),
@@ -4871,7 +4871,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aragoneses',967.0),
 	 ('Almanza',966.0),
 	 ('Terres',966.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Artime',966.0),
 	 ('Arrojo',966.0),
 	 ('Dia',966.0),
@@ -4882,7 +4882,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Triano',964.0),
 	 ('Villora',964.0),
 	 ('Servan',964.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cañibano',964.0),
 	 ('Hill',964.0),
 	 ('Mballo',964.0),
@@ -4893,7 +4893,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Lima',962.0),
 	 ('Azpiroz',962.0),
 	 ('Viciana',962.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Riaza',962.0),
 	 ('Alcorta',961.0),
 	 ('Calahorro',961.0),
@@ -4904,7 +4904,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mocholi',961.0),
 	 ('Almirall',961.0),
 	 ('Massana',961.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sospedra',961.0),
 	 ('Scott',961.0),
 	 ('Fueyo',960.0),
@@ -4915,7 +4915,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seva',959.0),
 	 ('Guisasola',959.0),
 	 ('Sorribas',959.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gavin',959.0),
 	 ('Yusta',959.0),
 	 ('Burguillos',958.0),
@@ -4926,7 +4926,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barril',957.0),
 	 ('Hijano',956.0),
 	 ('Arilla',956.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Munne',956.0),
 	 ('Gandullo',956.0),
 	 ('Lobon',956.0),
@@ -4937,7 +4937,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Reino',954.0),
 	 ('Niebla',954.0),
 	 ('Archilla',954.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taibo',953.0),
 	 ('Enseñat',953.0),
 	 ('Grasa',952.0),
@@ -4948,7 +4948,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Unzueta',951.0),
 	 ('Ardura',951.0),
 	 ('Dasilva',951.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ondo',951.0),
 	 ('Moraru',951.0),
 	 ('Casasnovas',950.0),
@@ -4959,7 +4959,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Placeres',949.0),
 	 ('Gali',949.0),
 	 ('Marcu',949.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bertolin',948.0),
 	 ('Gesto',948.0),
 	 ('Guallar',948.0),
@@ -4970,7 +4970,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benages',946.0),
 	 ('Rejon',946.0),
 	 ('Simal',946.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lebrero',946.0),
 	 ('Maicas',946.0),
 	 ('Meijide',946.0),
@@ -4981,7 +4981,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lison',945.0),
 	 ('Zerouali',945.0),
 	 ('Riobo',944.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argemi',944.0),
 	 ('Nikolov',944.0),
 	 ('Nguema',944.0),
@@ -4992,7 +4992,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basurto',941.0),
 	 ('Mojica',941.0),
 	 ('Miño',941.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cogolludo',940.0),
 	 ('Camus',940.0),
 	 ('Honrado',940.0),
@@ -5003,7 +5003,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zamfir',939.0),
 	 ('Marcet',938.0),
 	 ('Do Nascimento',937.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Araña',937.0),
 	 ('Araya',937.0),
 	 ('Rodado',937.0),
@@ -5014,7 +5014,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Curt',936.0),
 	 ('Corroto',935.0),
 	 ('Figuera',935.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Irazabal',935.0),
 	 ('Abeledo',934.0),
 	 ('Remacha',934.0),
@@ -5025,7 +5025,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albareda',933.0),
 	 ('Cia',933.0),
 	 ('Lajara',933.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viteri',933.0),
 	 ('Slimani',933.0),
 	 ('Mardones',932.0),
@@ -5036,7 +5036,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Rosal',932.0),
 	 ('Ramo',931.0),
 	 ('Bañez',931.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bada',931.0),
 	 ('Masana',931.0),
 	 ('Garvi',931.0),
@@ -5047,7 +5047,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nogue',929.0),
 	 ('Denia',929.0),
 	 ('Bonastre',929.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Javaloyes',929.0),
 	 ('Ibrahim',929.0),
 	 ('Juncosa',928.0),
@@ -5058,7 +5058,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Harris',927.0),
 	 ('Ursu',927.0),
 	 ('Galilea',926.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bernaldez',926.0),
 	 ('Madrona',926.0),
 	 ('Illera',926.0),
@@ -5069,7 +5069,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valades',925.0),
 	 ('De La Serna',925.0),
 	 ('Clua',924.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clapes',924.0),
 	 ('Dacal',923.0),
 	 ('Llobregat',923.0),
@@ -5080,7 +5080,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nguyen',923.0),
 	 ('Azuaga',922.0),
 	 ('Rocher',922.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Meco',921.0),
 	 ('Iturriaga',921.0),
 	 ('Couce',921.0),
@@ -5091,7 +5091,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jebari',921.0),
 	 ('Baciu',921.0),
 	 ('Obrero',920.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zarraga',920.0),
 	 ('Alaez',920.0),
 	 ('Orriols',920.0),
@@ -5102,7 +5102,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marta',919.0),
 	 ('Albo',918.0),
 	 ('Fenollar',918.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Obiols',918.0),
 	 ('Carol',918.0),
 	 ('Tenreiro',918.0),
@@ -5113,7 +5113,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mataix',917.0),
 	 ('Roson',917.0),
 	 ('Bernardos',917.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Angelova',917.0),
 	 ('Butt',917.0),
 	 ('Irles',916.0),
@@ -5124,7 +5124,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grisales',915.0),
 	 ('Genoves',915.0),
 	 ('Pazmiño',915.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abid',915.0),
 	 ('Vivero',914.0),
 	 ('Viguera',914.0),
@@ -5135,7 +5135,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bellmunt',913.0),
 	 ('Lista',913.0),
 	 ('Garcia Consuegra',913.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bove',913.0),
 	 ('Chentouf',913.0),
 	 ('Sbai',913.0),
@@ -5146,7 +5146,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cancelo',911.0),
 	 ('Santoyo',911.0),
 	 ('Brañas',911.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reveron',911.0),
 	 ('Arlandis',911.0),
 	 ('Larumbe',911.0),
@@ -5157,7 +5157,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ashraf',910.0),
 	 ('Escorihuela',909.0),
 	 ('Pradillo',909.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garrucho',909.0),
 	 ('Flecha',909.0),
 	 ('Ferra',908.0),
@@ -5168,7 +5168,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esmoris',907.0),
 	 ('James',906.0),
 	 ('Mairena',905.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Junyent',905.0),
 	 ('Cubo',905.0),
 	 ('Paucar',905.0),
@@ -5179,7 +5179,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tiscar',904.0),
 	 ('Balseiro',903.0),
 	 ('Mourelle',903.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espinos',903.0),
 	 ('Peribañez',903.0),
 	 ('Plans',902.0),
@@ -5190,7 +5190,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calzadilla',901.0),
 	 ('Calduch',901.0),
 	 ('El Amri',901.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Luo',901.0),
 	 ('Bazo',900.0),
 	 ('Atienzar',900.0),
@@ -5201,7 +5201,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Magallanes',900.0),
 	 ('Llavero',900.0),
 	 ('El Amraoui',900.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vaduva',900.0),
 	 ('Najarro',899.0),
 	 ('Escuer',899.0),
@@ -5212,7 +5212,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escabias',898.0),
 	 ('Boned',898.0),
 	 ('Rahmouni',898.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arshad',898.0),
 	 ('Arrillaga',897.0),
 	 ('Marcote',897.0),
@@ -5223,7 +5223,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Angelov',897.0),
 	 ('Seye',897.0),
 	 ('Verge',896.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcaina',896.0),
 	 ('Aranburu',896.0),
 	 ('Bota',896.0),
@@ -5234,7 +5234,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viveros',894.0),
 	 ('Presas',894.0),
 	 ('Albiach',894.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anderson',894.0),
 	 ('Bulnes',893.0),
 	 ('Gran',893.0),
@@ -5245,7 +5245,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Joven',892.0),
 	 ('Castedo',892.0),
 	 ('Gabilondo',891.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruescas',891.0),
 	 ('Burriel',891.0),
 	 ('Zaldua',891.0),
@@ -5256,7 +5256,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguilella',890.0),
 	 ('Jauregi',890.0),
 	 ('Allali',890.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Davis',890.0),
 	 ('Lechon',889.0),
 	 ('Arcila',889.0),
@@ -5267,7 +5267,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Box',889.0),
 	 ('El Hasnaoui',889.0),
 	 ('Mainar',888.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tortola',888.0),
 	 ('Tang',888.0),
 	 ('Zaharia',888.0),
@@ -5278,7 +5278,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lepe',886.0),
 	 ('Allegue',886.0),
 	 ('Urda',886.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corbera',885.0),
 	 ('Alcaine',885.0),
 	 ('Graells',885.0),
@@ -5289,7 +5289,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portugal',884.0),
 	 ('Arrue',884.0),
 	 ('Benaiges',884.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corredoira',884.0),
 	 ('Urueña',883.0),
 	 ('Escude',883.0),
@@ -5300,7 +5300,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mokhtari',883.0),
 	 ('Ezcurra',882.0),
 	 ('De La Plaza',882.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zamarreño',882.0),
 	 ('Maceira',882.0),
 	 ('Feal',882.0),
@@ -5311,7 +5311,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bernet',881.0),
 	 ('Santolaya',881.0),
 	 ('Salmon',881.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tenza',880.0),
 	 ('Sardon',880.0),
 	 ('Villafañe',880.0),
@@ -5322,7 +5322,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Granizo',879.0),
 	 ('Podadera',879.0),
 	 ('Arregi',879.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kelly',879.0),
 	 ('Edwards',879.0),
 	 ('Echave',878.0),
@@ -5333,7 +5333,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Penin',878.0),
 	 ('Tatay',878.0),
 	 ('Zannouti',878.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Balda',877.0),
 	 ('Pontes',877.0),
 	 ('Quirante',877.0),
@@ -5344,7 +5344,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Periñan',876.0),
 	 ('Tavira',876.0),
 	 ('Rejas',876.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hincapie',876.0),
 	 ('Brahim',876.0),
 	 ('Retamal',876.0),
@@ -5355,7 +5355,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañadillas',875.0),
 	 ('Murphy',875.0),
 	 ('Huesca',874.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcacer',874.0),
 	 ('Lou',874.0),
 	 ('Lagar',873.0),
@@ -5366,7 +5366,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abeijon',872.0),
 	 ('Monterroso',872.0),
 	 ('Pujols',872.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arocena',872.0),
 	 ('Beceiro',872.0),
 	 ('Pumar',871.0),
@@ -5377,7 +5377,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonache',870.0),
 	 ('Bruguera',869.0),
 	 ('Candil',869.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Troitiño',869.0),
 	 ('Perdigones',869.0),
 	 ('Ramilo',869.0),
@@ -5388,7 +5388,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruan',869.0),
 	 ('Robayna',868.0),
 	 ('Besteiro',868.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garduño',868.0),
 	 ('Vasallo',867.0),
 	 ('Santibañez',867.0),
@@ -5399,7 +5399,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Wei',867.0),
 	 ('Burguillo',866.0),
 	 ('Ibarrondo',866.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ahedo',865.0),
 	 ('Blanc',865.0),
 	 ('Schneider',865.0),
@@ -5410,7 +5410,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palazuelos',864.0),
 	 ('Carulla',864.0),
 	 ('Janer',864.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sorolla',863.0),
 	 ('Basterrechea',863.0),
 	 ('Bau',863.0),
@@ -5421,7 +5421,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llovera',862.0),
 	 ('Rodil',862.0),
 	 ('Ayats',862.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Terroba',862.0),
 	 ('Sendino',862.0),
 	 ('Alzamora',861.0),
@@ -5432,7 +5432,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mirete',859.0),
 	 ('Gasulla',859.0),
 	 ('Dolera',859.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Esquiva',859.0),
 	 ('Rami',859.0),
 	 ('Agredano',858.0),
@@ -5443,7 +5443,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boj',857.0),
 	 ('Frasquet',857.0),
 	 ('Afzal',857.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arancibia',856.0),
 	 ('Saborit',856.0),
 	 ('Cohen',856.0),
@@ -5454,7 +5454,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sabido',855.0),
 	 ('Yao',855.0),
 	 ('Jambrina',854.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clavel',854.0),
 	 ('Sirera',854.0),
 	 ('Rollon',854.0),
@@ -5465,7 +5465,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Medinilla',853.0),
 	 ('Pila',853.0),
 	 ('Victorio',852.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roncal',852.0),
 	 ('Cando',852.0),
 	 ('Zudaire',852.0),
@@ -5476,7 +5476,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Figuereo',851.0),
 	 ('Muros',851.0),
 	 ('Javed',851.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corro',850.0),
 	 ('Arroba',850.0),
 	 ('Escrihuela',850.0),
@@ -5487,7 +5487,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Queipo',849.0),
 	 ('Miah',849.0),
 	 ('Muniesa',848.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pelaz',848.0),
 	 ('Cardeña',848.0),
 	 ('Castrejon',848.0),
@@ -5498,7 +5498,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Echeverry',847.0),
 	 ('Puñal',847.0),
 	 ('Selfa',846.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gama',846.0),
 	 ('Lerena',846.0),
 	 ('Hong',846.0),
@@ -5509,7 +5509,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Legarreta',845.0),
 	 ('Gozalbo',845.0),
 	 ('Molist',845.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Verdeguer',845.0),
 	 ('Capelo',845.0),
 	 ('Yordanova',845.0),
@@ -5520,7 +5520,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Merinero',843.0),
 	 ('Prudencio',843.0),
 	 ('Tajes',842.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bizcocho',842.0),
 	 ('Andrino',842.0),
 	 ('Outeiral',842.0),
@@ -5531,7 +5531,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doumbia',842.0),
 	 ('Remiro',841.0),
 	 ('Colmenarejo',841.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vioque',841.0),
 	 ('Bardon',841.0),
 	 ('Senent',841.0),
@@ -5542,7 +5542,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sesmero',840.0),
 	 ('Cote',840.0),
 	 ('Melgosa',840.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tunkara',840.0),
 	 ('Hughes',840.0),
 	 ('Sangare',840.0),
@@ -5553,7 +5553,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moline',839.0),
 	 ('Rodiño',839.0),
 	 ('Dumitrescu',839.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cotrina',838.0),
 	 ('Morla',838.0),
 	 ('Puigvert',838.0),
@@ -5564,7 +5564,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soltero',837.0),
 	 ('Baigorri',837.0),
 	 ('Pujalte',837.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pedregal',837.0),
 	 ('Quintano',837.0),
 	 ('Mendivil',837.0),
@@ -5575,7 +5575,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olabarria',836.0),
 	 ('Guitian',836.0),
 	 ('Alzola',836.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marian',836.0),
 	 ('Babiano',835.0),
 	 ('Picos',835.0),
@@ -5586,7 +5586,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lleixa',834.0),
 	 ('Montosa',834.0),
 	 ('Haddad',834.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hortiguela',833.0),
 	 ('Puy',833.0),
 	 ('Padro',833.0),
@@ -5597,7 +5597,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pestana',832.0),
 	 ('Franquesa',832.0),
 	 ('Angeles',832.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garreta',832.0),
 	 ('Clara',832.0),
 	 ('Bergua',831.0),
@@ -5608,7 +5608,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernando',830.0),
 	 ('Monteserin',830.0),
 	 ('Ilieva',830.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pensado',829.0),
 	 ('Agramunt',829.0),
 	 ('Mero',829.0),
@@ -5619,7 +5619,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gurruchaga',828.0),
 	 ('Lancharro',827.0),
 	 ('Baptista',827.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Nuez',827.0),
 	 ('Aviño',827.0),
 	 ('Uzal',826.0),
@@ -5630,7 +5630,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bianchi',825.0),
 	 ('Han',825.0),
 	 ('Obispo',824.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zahonero',824.0),
 	 ('Alday',824.0),
 	 ('Galbis',824.0),
@@ -5641,7 +5641,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bazaga',823.0),
 	 ('La Rosa',823.0),
 	 ('Fontanals',823.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yarza',823.0),
 	 ('Villagran',823.0),
 	 ('De Prada',823.0),
@@ -5652,7 +5652,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Igartua',822.0),
 	 ('Balsells',822.0),
 	 ('Santacana',822.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcantud',821.0),
 	 ('Enguita',821.0),
 	 ('Delgadillo',821.0),
@@ -5663,7 +5663,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alanis',821.0),
 	 ('Albalate',820.0),
 	 ('Espasa',820.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clar',820.0),
 	 ('Bernaus',820.0),
 	 ('Vigueras',820.0),
@@ -5674,7 +5674,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ines',818.0),
 	 ('Segurola',818.0),
 	 ('Pelegrina',818.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Antoli',818.0),
 	 ('Vanrell',818.0),
 	 ('Panades',818.0),
@@ -5685,7 +5685,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Remedios',817.0),
 	 ('Celda',817.0),
 	 ('De Cabo',817.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bodi',817.0),
 	 ('Vindel',817.0),
 	 ('Lleonart',817.0),
@@ -5696,7 +5696,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goyanes',816.0),
 	 ('El Founti',816.0),
 	 ('Parramon',815.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Civit',815.0),
 	 ('Mehdi',815.0),
 	 ('Lahera',814.0),
@@ -5707,7 +5707,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Minguet',814.0),
 	 ('Felguera',814.0),
 	 ('Calcerrada',813.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ces',813.0),
 	 ('Mozas',813.0),
 	 ('Roset',813.0),
@@ -5718,7 +5718,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gabas',811.0),
 	 ('Tojo',811.0),
 	 ('Corte',811.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pimienta',811.0),
 	 ('Azzi',811.0),
 	 ('Cherkaoui',811.0),
@@ -5729,7 +5729,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Uriz',810.0),
 	 ('Meyer',810.0),
 	 ('Hervias',809.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcobendas',809.0),
 	 ('Suso',809.0),
 	 ('Malpica',809.0),
@@ -5740,7 +5740,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gigante',808.0),
 	 ('Trujillano',808.0),
 	 ('Bua',808.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roel',808.0),
 	 ('Torrubia',808.0),
 	 ('Coy',808.0),
@@ -5751,7 +5751,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lanau',806.0),
 	 ('Torreño',806.0),
 	 ('Toyos',806.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puras',806.0),
 	 ('Pinteño',806.0),
 	 ('Tripiana',805.0),
@@ -5762,7 +5762,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaconu',805.0),
 	 ('Alvez',804.0),
 	 ('Barcenas',804.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argiles',804.0),
 	 ('Sadaba',804.0),
 	 ('Añez',804.0),
@@ -5773,7 +5773,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Visiedo',803.0),
 	 ('Penalba',803.0),
 	 ('Labella',803.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Girbes',803.0),
 	 ('El Khattabi',803.0),
 	 ('Sampol',802.0),
@@ -5784,7 +5784,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nin',802.0),
 	 ('Burgues',801.0),
 	 ('Orosa',801.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferrin',801.0),
 	 ('Capell',801.0),
 	 ('Mori',801.0),
@@ -5795,7 +5795,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toader',800.0),
 	 ('Marine',799.0),
 	 ('Meizoso',799.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mimun',799.0),
 	 ('Fischer',799.0),
 	 ('Morgan',799.0),
@@ -5806,7 +5806,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Huelva',798.0),
 	 ('Raimundo',798.0),
 	 ('Bellas',798.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canelo',798.0),
 	 ('Carne',798.0),
 	 ('Grandio',798.0),
@@ -5817,7 +5817,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fradejas',797.0),
 	 ('Repullo',797.0),
 	 ('Del Bosque',797.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marinov',797.0),
 	 ('Diestro',796.0),
 	 ('Escandon',796.0),
@@ -5828,7 +5828,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romero De Avila',795.0),
 	 ('Beraza',795.0),
 	 ('Andaluz',794.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ramal',794.0),
 	 ('Arratibel',794.0),
 	 ('Almeda',794.0),
@@ -5839,7 +5839,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Solbes',793.0),
 	 ('Porcuna',793.0),
 	 ('Marijuan',793.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Stoyanov',793.0),
 	 ('Labarta',792.0),
 	 ('Rilo',792.0),
@@ -5850,7 +5850,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorostiaga',791.0),
 	 ('Mohammed',791.0),
 	 ('Sadik',791.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Josa',790.0),
 	 ('Labrada',790.0),
 	 ('Villamar',790.0),
@@ -5861,7 +5861,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Castellar',789.0),
 	 ('Cañedo',789.0),
 	 ('Laiz',789.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tostado',789.0),
 	 ('Baltanas',789.0),
 	 ('Khalid',789.0),
@@ -5872,7 +5872,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mauricio',787.0),
 	 ('Guio',787.0),
 	 ('Calabria',787.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blasi',787.0),
 	 ('Turegano',787.0),
 	 ('Ayadi',787.0),
@@ -5883,7 +5883,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Secades',785.0),
 	 ('Adelantado',785.0),
 	 ('Ferrus',785.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Deltell',784.0),
 	 ('Torvisco',784.0),
 	 ('Escrich',784.0),
@@ -5894,7 +5894,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lesmes',784.0),
 	 ('Colombo',784.0),
 	 ('El Mourabit',784.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Patino',783.0),
 	 ('Saldarriaga',783.0),
 	 ('Facal',783.0),
@@ -5905,7 +5905,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rosca',783.0),
 	 ('Brioso',782.0),
 	 ('Echegaray',782.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Niubo',782.0),
 	 ('Fita',782.0),
 	 ('Collar',781.0),
@@ -5916,7 +5916,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campon',780.0),
 	 ('Sanfeliu',780.0),
 	 ('Miragaya',780.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quinteros',780.0),
 	 ('Samadi',780.0),
 	 ('Roza',779.0),
@@ -5927,7 +5927,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torruella',778.0),
 	 ('Calahorra',778.0),
 	 ('Canos',778.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benegas',778.0),
 	 ('Sellares',778.0),
 	 ('Berjano',777.0),
@@ -5938,7 +5938,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Malpartida',776.0),
 	 ('Sanchez Migallon',776.0),
 	 ('Yela',776.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benayas',776.0),
 	 ('Pereiras',775.0),
 	 ('Roales',775.0),
@@ -5949,7 +5949,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azkue',774.0),
 	 ('Allen',774.0),
 	 ('Ardanaz',773.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Monte',773.0),
 	 ('Maroño',773.0),
 	 ('Berraquero',773.0),
@@ -5960,7 +5960,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amieva',771.0),
 	 ('Chivite',771.0),
 	 ('Agrelo',770.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calvar',770.0),
 	 ('Quishpe',770.0),
 	 ('Remirez',770.0),
@@ -5971,7 +5971,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Falero',769.0),
 	 ('Rufian',769.0),
 	 ('Frontera',769.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gainza',769.0),
 	 ('Talon',769.0),
 	 ('Fortuño',769.0),
@@ -5982,7 +5982,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moise',768.0),
 	 ('Rufete',767.0),
 	 ('Bes',767.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Parveen',767.0),
 	 ('Baque',766.0),
 	 ('Vaya',766.0),
@@ -5993,7 +5993,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peran',766.0),
 	 ('Mola',766.0),
 	 ('Devora',766.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Young',766.0),
 	 ('Nogal',765.0),
 	 ('Caldero',765.0),
@@ -6004,7 +6004,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Munilla',765.0),
 	 ('Castañe',765.0),
 	 ('Viñolo',765.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mangado',764.0),
 	 ('Torresano',764.0),
 	 ('De La Chica',764.0),
@@ -6015,7 +6015,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ibarguren',763.0),
 	 ('Garceran',763.0),
 	 ('Horna',763.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Haya',763.0),
 	 ('Piedrafita',763.0),
 	 ('Femenias',762.0),
@@ -6026,7 +6026,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diana',762.0),
 	 ('Balleste',762.0),
 	 ('Baztan',762.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz De Cerio',762.0),
 	 ('Sampere',762.0),
 	 ('Matarranz',762.0),
@@ -6037,7 +6037,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orte',761.0),
 	 ('Lasierra',761.0),
 	 ('Panero',761.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sieiro',761.0),
 	 ('Arbiol',761.0),
 	 ('Pestaña',760.0),
@@ -6048,7 +6048,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leza',760.0),
 	 ('Nascimento',760.0),
 	 ('Charles',760.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baker',760.0),
 	 ('Moragon',759.0),
 	 ('Baña',759.0),
@@ -6059,7 +6059,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fanlo',759.0),
 	 ('Gundin',759.0),
 	 ('Beltra',759.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Neacsu',759.0),
 	 ('Zambudio',758.0),
 	 ('Robredo',758.0),
@@ -6070,7 +6070,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azzouzi',758.0),
 	 ('Botero',757.0),
 	 ('Segador',757.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taveras',757.0),
 	 ('Collell',757.0),
 	 ('Alloza',757.0),
@@ -6081,7 +6081,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ahijado',756.0),
 	 ('Obeso',756.0),
 	 ('Cloquell',756.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sas',756.0),
 	 ('Sauri',755.0),
 	 ('Poblete',755.0),
@@ -6092,7 +6092,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sane',755.0),
 	 ('Venteo',754.0),
 	 ('Fontalba',754.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Burbano',754.0),
 	 ('Aranzabal',754.0),
 	 ('Gumiel',754.0),
@@ -6103,7 +6103,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llagostera',752.0),
 	 ('Romagosa',752.0),
 	 ('El Messaoudi',752.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaiteh',752.0),
 	 ('Ward',752.0),
 	 ('Casino',751.0),
@@ -6114,7 +6114,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Denis',751.0),
 	 ('Nitu',751.0),
 	 ('Valdepeñas',750.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tari',750.0),
 	 ('Loren',750.0),
 	 ('Bolos',750.0),
@@ -6125,7 +6125,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cendrero',749.0),
 	 ('Legido',748.0),
 	 ('De La Guia',748.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Badenas',748.0),
 	 ('Arambarri',748.0),
 	 ('Guinot',748.0),
@@ -6136,7 +6136,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gris',747.0),
 	 ('Ybarra',747.0),
 	 ('Amghar',747.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rastrollo',746.0),
 	 ('Cortegoso',746.0),
 	 ('Duart',746.0),
@@ -6147,7 +6147,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Queiruga',745.0),
 	 ('Cañadilla',745.0),
 	 ('Pamplona',745.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matarin',745.0),
 	 ('Bejerano',745.0),
 	 ('Genis',745.0),
@@ -6158,7 +6158,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Medialdea',744.0),
 	 ('Gestal',744.0),
 	 ('Mauleon',744.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gorrochategui',744.0),
 	 ('Lucea',744.0),
 	 ('Sota',744.0),
@@ -6169,7 +6169,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sapena',743.0),
 	 ('Alises',743.0),
 	 ('Bezares',743.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Poblador',742.0),
 	 ('Tubau',742.0),
 	 ('Cepas',742.0),
@@ -6180,7 +6180,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roige',742.0),
 	 ('Tornay',742.0),
 	 ('Clement',742.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chakir',742.0),
 	 ('Su',742.0),
 	 ('Rejano',741.0),
@@ -6191,7 +6191,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esono',741.0),
 	 ('Zou',741.0),
 	 ('Poyo',740.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Resano',740.0),
 	 ('Villacis',740.0),
 	 ('Perarnau',740.0),
@@ -6202,7 +6202,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rendo',739.0),
 	 ('Sorli',739.0),
 	 ('Salo',739.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salles',739.0),
 	 ('Sima',739.0),
 	 ('Badosa',738.0),
@@ -6213,7 +6213,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pilo',737.0),
 	 ('Retamosa',737.0),
 	 ('Burdalo',737.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sainz De La Maza',737.0),
 	 ('Moreiras',737.0),
 	 ('Galache',737.0),
@@ -6224,7 +6224,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sendon',736.0),
 	 ('Brasero',736.0),
 	 ('Echavarria',736.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Motilla',736.0),
 	 ('Galofre',736.0),
 	 ('Arenillas',736.0),
@@ -6235,7 +6235,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corvo',735.0),
 	 ('Cadavid',735.0),
 	 ('Peñalva',735.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Najar',735.0),
 	 ('Araez',734.0),
 	 ('Oropesa',734.0),
@@ -6246,7 +6246,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gamazo',734.0),
 	 ('Sarasua',734.0),
 	 ('Rahmani',734.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escuredo',733.0),
 	 ('Alustiza',733.0),
 	 ('Banderas',733.0),
@@ -6257,7 +6257,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Argueta',732.0),
 	 ('Lete',732.0),
 	 ('Legorburu',732.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mitjans',732.0),
 	 ('Castellote',732.0),
 	 ('De La Orden',732.0),
@@ -6268,7 +6268,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bencomo',731.0),
 	 ('Panisello',731.0),
 	 ('Loeches',731.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ronco',731.0),
 	 ('Bonifacio',731.0),
 	 ('Mitchell',731.0),
@@ -6279,7 +6279,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basilio',729.0),
 	 ('Da Cunha',729.0),
 	 ('Arcones',729.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ten',729.0),
 	 ('Sapiña',729.0),
 	 ('Palanco',729.0),
@@ -6290,7 +6290,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bondia',727.0),
 	 ('Padillo',727.0),
 	 ('Baselga',727.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soare',727.0),
 	 ('Horcas',726.0),
 	 ('Navarlaz',726.0),
@@ -6301,7 +6301,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Malave',726.0),
 	 ('Chiriac',726.0),
 	 ('Sabina',725.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arriazu',725.0),
 	 ('Forns',725.0),
 	 ('Salaberria',725.0),
@@ -6312,7 +6312,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albesa',725.0),
 	 ('De Tena',725.0),
 	 ('Montull',725.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sabin',725.0),
 	 ('Sagarra',725.0),
 	 ('Redin',725.0),
@@ -6323,7 +6323,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Parellada',724.0),
 	 ('Naji',724.0),
 	 ('Draghici',724.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castillejos',723.0),
 	 ('Caña',723.0),
 	 ('Jativa',723.0),
@@ -6334,7 +6334,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Merchante',722.0),
 	 ('Cermeño',722.0),
 	 ('De Manuel',722.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Lorenzo',722.0),
 	 ('Kamal',722.0),
 	 ('Gamito',721.0),
@@ -6345,7 +6345,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gasull',721.0),
 	 ('Barrenetxea',721.0),
 	 ('Cachon',720.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordoño',720.0),
 	 ('Cachero',720.0),
 	 ('Mauriz',720.0),
@@ -6356,7 +6356,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Savall',719.0),
 	 ('Estebaranz',719.0),
 	 ('Sali',719.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alles',718.0),
 	 ('Fos',718.0),
 	 ('Argandoña',718.0),
@@ -6367,7 +6367,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Atanasova',718.0),
 	 ('El Morabit',718.0),
 	 ('Pendon',717.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paloma',717.0),
 	 ('Montijano',717.0),
 	 ('Manga',717.0),
@@ -6378,7 +6378,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mañogil',716.0),
 	 ('Triay',716.0),
 	 ('Proaño',716.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Belver',716.0),
 	 ('Cot',716.0),
 	 ('De La Guardia',716.0),
@@ -6389,7 +6389,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Revelles',715.0),
 	 ('Camuñez',715.0),
 	 ('Larralde',715.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Freijo',715.0),
 	 ('Ripa',715.0),
 	 ('Figueiredo',715.0),
@@ -6400,7 +6400,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toril',714.0),
 	 ('Portell',714.0),
 	 ('Armentia',714.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rubiera',714.0),
 	 ('Artetxe',714.0),
 	 ('Trawally',714.0),
@@ -6411,7 +6411,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perucho',713.0),
 	 ('Espinosa De Los Monteros',713.0),
 	 ('Akter',713.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gener',712.0),
 	 ('Aybar',712.0),
 	 ('Bigas',712.0),
@@ -6422,7 +6422,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lavandeira',711.0),
 	 ('Reigosa',711.0),
 	 ('Oyarbide',711.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Parralejo',711.0),
 	 ('Hormigos',711.0),
 	 ('Muiña',711.0),
@@ -6433,7 +6433,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viñes',710.0),
 	 ('Arandia',710.0),
 	 ('Godinez',710.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Longueira',710.0),
 	 ('Picallo',710.0),
 	 ('Peñaloza',710.0),
@@ -6444,7 +6444,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Landeta',709.0),
 	 ('Hontoria',709.0),
 	 ('De La Ossa',709.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ghaddari',709.0),
 	 ('Berdejo',708.0),
 	 ('Vallespir',708.0),
@@ -6455,7 +6455,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meziane',708.0),
 	 ('Kante',708.0),
 	 ('Arboledas',707.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Menchaca',707.0),
 	 ('Tobio',707.0),
 	 ('Lasala',707.0),
@@ -6466,7 +6466,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ormaechea',706.0),
 	 ('Gestoso',706.0),
 	 ('Correcher',706.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pertiñez',706.0),
 	 ('Baamonde',706.0),
 	 ('Cuaresma',706.0),
@@ -6477,7 +6477,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peredo',705.0),
 	 ('Carreto',705.0),
 	 ('Collins',705.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dumitrache',705.0),
 	 ('Recarey',704.0),
 	 ('Garcinuño',704.0),
@@ -6488,7 +6488,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paradas',703.0),
 	 ('Poncela',703.0),
 	 ('Queral',703.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galante',703.0),
 	 ('Hansen',703.0),
 	 ('Nica',703.0),
@@ -6499,7 +6499,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ponz',702.0),
 	 ('Damaso',701.0),
 	 ('Raton',701.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Samperio',701.0),
 	 ('Poley',701.0),
 	 ('Monzonis',701.0),
@@ -6510,7 +6510,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chang',701.0),
 	 ('Baba',701.0),
 	 ('Meilan',700.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olaso',700.0),
 	 ('Calado',700.0),
 	 ('Colell',700.0),
@@ -6521,7 +6521,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Echenique',699.0),
 	 ('Lacal',699.0),
 	 ('Bordallo',699.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caldes',699.0),
 	 ('Corres',699.0),
 	 ('Ors',699.0),
@@ -6532,7 +6532,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cami',699.0),
 	 ('Piqueres',698.0),
 	 ('Lominchar',698.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Cueva',698.0),
 	 ('Tores',698.0),
 	 ('Poves',697.0),
@@ -6543,7 +6543,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molleda',697.0),
 	 ('Abel',697.0),
 	 ('Colman',696.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rebolo',696.0),
 	 ('Peñalosa',696.0),
 	 ('Tella',696.0),
@@ -6554,7 +6554,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luceño',695.0),
 	 ('Artiaga',695.0),
 	 ('Berrios',695.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Simoes',695.0),
 	 ('Malonda',695.0),
 	 ('Cimadevilla',695.0),
@@ -6565,7 +6565,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guanche',694.0),
 	 ('Urteaga',694.0),
 	 ('Anson',694.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coya',694.0),
 	 ('Valin',694.0),
 	 ('Amarillo',694.0),
@@ -6576,7 +6576,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villamizar',693.0),
 	 ('Barbadillo',693.0),
 	 ('Rodelgo',693.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salcines',693.0),
 	 ('Bernaldo De Quiros',693.0),
 	 ('Anwar',693.0),
@@ -6587,7 +6587,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tafalla',692.0),
 	 ('Del Estal',692.0),
 	 ('Alonzo',692.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jensen',692.0),
 	 ('Natera',691.0),
 	 ('Borrella',691.0),
@@ -6598,7 +6598,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rehman',690.0),
 	 ('Camas',689.0),
 	 ('Aso',689.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vital',689.0),
 	 ('Oleaga',689.0),
 	 ('Trilles',689.0),
@@ -6609,7 +6609,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torcal',689.0),
 	 ('Landin',689.0),
 	 ('Peleteiro',689.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Drissi',689.0),
 	 ('Rachdi',689.0),
 	 ('Permuy',688.0),
@@ -6620,7 +6620,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lezama',688.0),
 	 ('Franquet',688.0),
 	 ('Antunes',688.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Los Angeles',687.0),
 	 ('Atanes',687.0),
 	 ('Cabarcos',687.0),
@@ -6631,7 +6631,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soneira',686.0),
 	 ('Javega',686.0),
 	 ('Molinuevo',686.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bergada',686.0),
 	 ('Ciprian',685.0),
 	 ('Panduro',685.0),
@@ -6642,7 +6642,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trincado',684.0),
 	 ('Isidoro',684.0),
 	 ('Ciruelos',684.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herrezuelo',684.0),
 	 ('Vallet',684.0),
 	 ('Parodi',684.0),
@@ -6653,7 +6653,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borraz',683.0),
 	 ('Lis',683.0),
 	 ('Allaoui',683.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manole',683.0),
 	 ('Herreria',682.0),
 	 ('Rebull',682.0),
@@ -6664,7 +6664,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hamza',682.0),
 	 ('Pascu',682.0),
 	 ('Balastegui',681.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viu',681.0),
 	 ('Baza',681.0),
 	 ('Dosil',681.0),
@@ -6675,7 +6675,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Banus',680.0),
 	 ('Temiño',680.0),
 	 ('Gamonal',680.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boyer',680.0),
 	 ('Salmi',680.0),
 	 ('Dahbi',680.0),
@@ -6686,7 +6686,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cucarella',679.0),
 	 ('Bachir',679.0),
 	 ('Harrison',679.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espuny',678.0),
 	 ('Castillon',678.0),
 	 ('Mañero',678.0),
@@ -6697,7 +6697,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Loyola',678.0),
 	 ('De Mora',678.0),
 	 ('Silverio',678.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Camejo',678.0),
 	 ('Latasa',678.0),
 	 ('Forcen',678.0),
@@ -6708,7 +6708,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lagoa',677.0),
 	 ('Zuloaga',677.0),
 	 ('Moratinos',677.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taibi',677.0),
 	 ('Pirvu',677.0),
 	 ('Mouriz',676.0),
@@ -6719,7 +6719,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Akram',676.0),
 	 ('Limia',675.0),
 	 ('Muga',675.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castañares',675.0),
 	 ('Febrero',675.0),
 	 ('Cabeza De Vaca',675.0),
@@ -6730,7 +6730,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bolufer',674.0),
 	 ('Ampuero',674.0),
 	 ('Arija',674.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olabarrieta',674.0),
 	 ('Mancho',674.0),
 	 ('Suay',674.0),
@@ -6741,7 +6741,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rementeria',673.0),
 	 ('Viñuelas',673.0),
 	 ('Cousillas',673.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Basabe',673.0),
 	 ('Saumell',672.0),
 	 ('Rabago',672.0),
@@ -6752,7 +6752,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badal',671.0),
 	 ('Farrais',671.0),
 	 ('Tobalina',671.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Server',671.0),
 	 ('Morral',671.0),
 	 ('Carballar',671.0),
@@ -6763,7 +6763,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Florentin',670.0),
 	 ('Padrino',670.0),
 	 ('Ardelean',670.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canut',669.0),
 	 ('Viñolas',669.0),
 	 ('Outon',669.0),
@@ -6774,7 +6774,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mane',669.0),
 	 ('Arzola',668.0),
 	 ('Solas',668.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tuero',668.0),
 	 ('Moraza',668.0),
 	 ('Echeveste',667.0),
@@ -6785,7 +6785,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valderrey',667.0),
 	 ('Novell',666.0),
 	 ('Ozores',666.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mascaraque',666.0),
 	 ('Martell',666.0),
 	 ('Collaguazo',666.0),
@@ -6796,7 +6796,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Membrive',665.0),
 	 ('Madurga',665.0),
 	 ('Morros',665.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berbegal',665.0),
 	 ('Elguezabal',665.0),
 	 ('Del Palacio',665.0),
@@ -6807,7 +6807,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aboy',664.0),
 	 ('Bagur',663.0),
 	 ('Astasio',663.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zubiaurre',663.0),
 	 ('Loscos',663.0),
 	 ('Carreton',663.0),
@@ -6818,7 +6818,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espiño',662.0),
 	 ('Ostolaza',662.0),
 	 ('Matallana',662.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coba',662.0),
 	 ('Rancaño',662.0),
 	 ('Burgoa',662.0),
@@ -6829,7 +6829,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Susin',662.0),
 	 ('El Allali',662.0),
 	 ('Aguerri',661.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Porrero',661.0),
 	 ('Casales',661.0),
 	 ('Jarana',661.0),
@@ -6840,7 +6840,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oriola',660.0),
 	 ('Tutusaus',660.0),
 	 ('Villota',660.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Panes',660.0),
 	 ('Cajal',660.0),
 	 ('Merce',660.0),
@@ -6851,7 +6851,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bolinches',659.0),
 	 ('Llach',659.0),
 	 ('Raigon',659.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urtiaga',659.0),
 	 ('Uña',659.0),
 	 ('Caeiro',659.0),
@@ -6862,7 +6862,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moragas',658.0),
 	 ('Triñanes',658.0),
 	 ('San Julian',658.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Asorey',658.0),
 	 ('Berdasco',658.0),
 	 ('Navidad',658.0),
@@ -6873,7 +6873,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Budia',657.0),
 	 ('Zepeda',657.0),
 	 ('Benites',657.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aldecoa',657.0),
 	 ('Quereda',657.0),
 	 ('Migueles',657.0),
@@ -6884,7 +6884,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corcobado',656.0),
 	 ('Boado',656.0),
 	 ('Ardid',656.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Araujo',655.0),
 	 ('Jumbo',655.0),
 	 ('Gamon',655.0),
@@ -6895,7 +6895,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alfonsin',655.0),
 	 ('Dima',655.0),
 	 ('Chust',654.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alabarce',654.0),
 	 ('Acien',654.0),
 	 ('Jardi',654.0),
@@ -6906,7 +6906,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agraz',653.0),
 	 ('Prim',653.0),
 	 ('Marrodan',653.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mijares',653.0),
 	 ('Devis',653.0),
 	 ('Poquet',653.0),
@@ -6917,7 +6917,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Minguela',652.0),
 	 ('Alzaga',652.0),
 	 ('Centellas',652.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Merenciano',652.0),
 	 ('Popovici',652.0),
 	 ('Lecina',651.0),
@@ -6928,7 +6928,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zuleta',651.0),
 	 ('Oliete',651.0),
 	 ('Arguedas',651.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rodeiro',651.0),
 	 ('Noble',651.0),
 	 ('Fatima',651.0),
@@ -6939,7 +6939,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ogalla',650.0),
 	 ('Ibrahimi',650.0),
 	 ('Llort',649.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Riol',649.0),
 	 ('Morello',649.0),
 	 ('Afan',649.0),
@@ -6950,7 +6950,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chango',648.0),
 	 ('Farooq',648.0),
 	 ('Mediero',647.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miramontes',647.0),
 	 ('Roso',647.0),
 	 ('Moraño',647.0),
@@ -6961,7 +6961,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kousar',647.0),
 	 ('Senabre',647.0),
 	 ('Oltean',647.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echebarria',646.0),
 	 ('Borrachero',646.0),
 	 ('Zubiri',646.0),
@@ -6972,7 +6972,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nastase',646.0),
 	 ('Ignat',646.0),
 	 ('Seda',645.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bracero',645.0),
 	 ('Elorduy',645.0),
 	 ('Piernas',645.0),
@@ -6983,7 +6983,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Alaoui',645.0),
 	 ('Khalil',645.0),
 	 ('De La Rica',644.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ageitos',644.0),
 	 ('Torralvo',644.0),
 	 ('Digon',644.0),
@@ -6994,7 +6994,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Otaño',644.0),
 	 ('Freixes',644.0),
 	 ('Laza',644.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herman',644.0),
 	 ('Olave',643.0),
 	 ('Coronas',643.0),
@@ -7005,7 +7005,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Broto',642.0),
 	 ('Adeva',642.0),
 	 ('Morado',642.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ñiguez',642.0),
 	 ('Bares',642.0),
 	 ('Tavarez',642.0),
@@ -7016,7 +7016,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonete',641.0),
 	 ('Huertos',641.0),
 	 ('Mayayo',641.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salort',641.0),
 	 ('Leguizamon',641.0),
 	 ('Phillips',641.0),
@@ -7027,7 +7027,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Micu',640.0),
 	 ('Colque',639.0),
 	 ('Areces',639.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alarcos',639.0),
 	 ('Careaga',639.0),
 	 ('Logroño',639.0),
@@ -7038,7 +7038,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valente',639.0),
 	 ('Pincay',638.0),
 	 ('Arenaza',638.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Seguin',638.0),
 	 ('Monago',638.0),
 	 ('El Ouardi',638.0),
@@ -7049,7 +7049,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yelo',637.0),
 	 ('Estany',637.0),
 	 ('Cullell',637.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Stitou',637.0),
 	 ('Casademont',636.0),
 	 ('Doya',636.0),
@@ -7060,7 +7060,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morandeira',636.0),
 	 ('El Ghazi',636.0),
 	 ('Cansado',635.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calvelo',635.0),
 	 ('Espuña',635.0),
 	 ('Peñuelas',635.0),
@@ -7071,7 +7071,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sagasti',634.0),
 	 ('Grimaldos',634.0),
 	 ('Montalvan',634.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anes',634.0),
 	 ('De Hoyos',634.0),
 	 ('Uso',634.0),
@@ -7082,7 +7082,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Liebanas',633.0),
 	 ('Gatell',633.0),
 	 ('Zaera',633.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Senovilla',633.0),
 	 ('Pruna',633.0),
 	 ('Wagner',633.0),
@@ -7093,7 +7093,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bugarin',632.0),
 	 ('Pedrol',632.0),
 	 ('Vilarrasa',632.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borreda',632.0),
 	 ('Tobon',632.0),
 	 ('Andion',631.0),
@@ -7104,7 +7104,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Navacerrada',631.0),
 	 ('Anguis',631.0),
 	 ('Chasco',630.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Silgado',630.0),
 	 ('Pecino',630.0),
 	 ('Espartero',630.0),
@@ -7115,7 +7115,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Justel',629.0),
 	 ('Tobarra',629.0),
 	 ('Bordera',629.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marrufo',629.0),
 	 ('Ayesa',629.0),
 	 ('Celi',629.0),
@@ -7126,7 +7126,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Maria',629.0),
 	 ('Moussa',629.0),
 	 ('Trejos',628.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Basalo',628.0),
 	 ('Salces',628.0),
 	 ('Cedron',628.0),
@@ -7137,7 +7137,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corvillo',627.0),
 	 ('Ausina',627.0),
 	 ('Pedroso',627.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abos',627.0),
 	 ('Cogollos',627.0),
 	 ('Sadiki',627.0),
@@ -7148,7 +7148,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bosquet',626.0),
 	 ('Fang',626.0),
 	 ('Castuera',625.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Veiras',625.0),
 	 ('De Soto',625.0),
 	 ('Cacabelos',625.0),
@@ -7159,7 +7159,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torrelles',625.0),
 	 ('John',625.0),
 	 ('Liang',625.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Malmierca',624.0),
 	 ('Lacarcel',624.0),
 	 ('Antolinez',624.0),
@@ -7170,7 +7170,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Julian',624.0),
 	 ('Bernaola',624.0),
 	 ('Gas',624.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berto',624.0),
 	 ('Maruri',624.0),
 	 ('Alaoui',624.0),
@@ -7181,7 +7181,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urios',623.0),
 	 ('Rescalvo',623.0),
 	 ('Celestino',623.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aleu',623.0),
 	 ('Nassiri',623.0),
 	 ('Apostol',623.0),
@@ -7192,7 +7192,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muguerza',622.0),
 	 ('Lizan',622.0),
 	 ('Villafuerte',622.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chocarro',622.0),
 	 ('Sanclemente',622.0),
 	 ('Ricarte',622.0),
@@ -7203,7 +7203,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llaguno',621.0),
 	 ('Jaso',621.0),
 	 ('Azagra',621.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ocio',621.0),
 	 ('Chan',621.0),
 	 ('Ordax',620.0),
@@ -7214,7 +7214,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juarros',620.0),
 	 ('Valledor',620.0),
 	 ('Carrete',620.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zarzuelo',620.0),
 	 ('Tornos',620.0),
 	 ('Meis',620.0),
@@ -7225,7 +7225,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soutullo',620.0),
 	 ('Pros',620.0),
 	 ('Yugueros',620.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Asif',620.0),
 	 ('Del Peso',619.0),
 	 ('Alhama',619.0),
@@ -7236,7 +7236,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rizzo',619.0),
 	 ('El Yahyaoui',619.0),
 	 ('Fathi',619.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mihaila',619.0),
 	 ('De Carvalho',618.0),
 	 ('Barbara',618.0),
@@ -7247,7 +7247,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nacarino',618.0),
 	 ('Harrak',618.0),
 	 ('Cavia',617.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bastardo',617.0),
 	 ('Gotor',617.0),
 	 ('Moleon',617.0),
@@ -7258,7 +7258,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azizi',617.0),
 	 ('Dumitrascu',617.0),
 	 ('Magadan',616.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alarcia',616.0),
 	 ('Sos',616.0),
 	 ('Apellaniz',616.0),
@@ -7269,7 +7269,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Privado',616.0),
 	 ('Bassas',616.0),
 	 ('Petcu',616.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reñe',615.0),
 	 ('Alcarria',615.0),
 	 ('Gorgojo',615.0),
@@ -7280,7 +7280,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bañares',614.0),
 	 ('Veira',614.0),
 	 ('Lloria',614.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arroyave',614.0),
 	 ('Reviejo',614.0),
 	 ('Falla',614.0),
@@ -7291,7 +7291,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Aouni',614.0),
 	 ('Amaral',613.0),
 	 ('Moris',613.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Holguera',613.0),
 	 ('Pardines',613.0),
 	 ('Baiges',613.0),
@@ -7302,7 +7302,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brion',612.0),
 	 ('Chorda',612.0),
 	 ('Huergo',612.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Colchero',612.0),
 	 ('Rolo',612.0),
 	 ('Aldazabal',612.0),
@@ -7313,7 +7313,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oms',611.0),
 	 ('Codesido',611.0),
 	 ('Ortiz De Urbina',611.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ojer',611.0),
 	 ('El Haddouchi',611.0),
 	 ('Savu',611.0),
@@ -7324,7 +7324,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Henche',610.0),
 	 ('Reguilon',610.0),
 	 ('Baragaño',610.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rifa',609.0),
 	 ('Ugartemendia',609.0),
 	 ('Armenta',609.0),
@@ -7335,7 +7335,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Park',609.0),
 	 ('Narciso',608.0),
 	 ('Irazusta',608.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rioboo',608.0),
 	 ('Jabalera',608.0),
 	 ('Budiño',608.0),
@@ -7346,7 +7346,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sauceda',607.0),
 	 ('Gaitero',607.0),
 	 ('Fornas',607.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Codesal',607.0),
 	 ('Pagador',607.0),
 	 ('Galban',607.0),
@@ -7357,7 +7357,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hens',607.0),
 	 ('Gozalvez',607.0),
 	 ('Talavan',607.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Turmo',607.0),
 	 ('Idigoras',607.0),
 	 ('Aurrekoetxea',607.0),
@@ -7368,7 +7368,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorostidi',606.0),
 	 ('Erice',606.0),
 	 ('Baladron',606.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Henarejos',606.0),
 	 ('Biurrun',606.0),
 	 ('Cook',606.0),
@@ -7379,7 +7379,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pleite',605.0),
 	 ('Sequeiros',605.0),
 	 ('Landaluce',605.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pampliega',604.0),
 	 ('Invernon',604.0),
 	 ('Zarzo',604.0),
@@ -7390,7 +7390,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Levy',604.0),
 	 ('Bergas',603.0),
 	 ('Zomeño',603.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arean',603.0),
 	 ('Arraiza',603.0),
 	 ('Longas',603.0),
@@ -7401,7 +7401,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moga',602.0),
 	 ('Bennett',602.0),
 	 ('Stewart',602.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Turnes',601.0),
 	 ('Dianez',601.0),
 	 ('Rol',601.0),
@@ -7412,7 +7412,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bassols',601.0),
 	 ('Escot',601.0),
 	 ('Ayad',601.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santa Maria',600.0),
 	 ('Rigau',600.0),
 	 ('Zapirain',600.0),
@@ -7423,7 +7423,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Villa',600.0),
 	 ('Colet',600.0),
 	 ('Canillas',600.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salah',600.0),
 	 ('Abdul',600.0),
 	 ('Xue',600.0),
@@ -7434,7 +7434,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aunion',599.0),
 	 ('Dobarro',599.0),
 	 ('Torrella',599.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bague',599.0),
 	 ('Aceves',599.0),
 	 ('Marcuello',599.0),
@@ -7445,7 +7445,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leiros',598.0),
 	 ('Frechilla',598.0),
 	 ('Arumi',598.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Acebron',597.0),
 	 ('Mosqueda',597.0),
 	 ('Rausell',597.0),
@@ -7456,7 +7456,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Epelde',596.0),
 	 ('Mellinas',596.0),
 	 ('Balibrea',596.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cunillera',596.0),
 	 ('Buedo',596.0),
 	 ('Shen',596.0),
@@ -7467,7 +7467,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Imedio',595.0),
 	 ('Alvira',595.0),
 	 ('Michel',595.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Joseph',595.0),
 	 ('El Hadri',595.0),
 	 ('Bashir',595.0),
@@ -7478,7 +7478,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Massot',594.0),
 	 ('Jamardo',594.0),
 	 ('Pascal',594.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boulaich',594.0),
 	 ('Huamani',593.0),
 	 ('Cardador',593.0),
@@ -7489,7 +7489,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguirrezabal',593.0),
 	 ('Partal',593.0),
 	 ('Ramas',593.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ghailan',593.0),
 	 ('Yeboah',593.0),
 	 ('Huanca',592.0),
@@ -7500,7 +7500,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trepat',592.0),
 	 ('Casadesus',592.0),
 	 ('Bratu',592.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Piedras',591.0),
 	 ('Calaf',591.0),
 	 ('Chillaron',591.0),
@@ -7511,7 +7511,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abanades',591.0),
 	 ('Paiva',590.0),
 	 ('Zamanillo',590.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dorca',590.0),
 	 ('Matoses',590.0),
 	 ('Ceballo',590.0),
@@ -7522,7 +7522,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ridruejo',590.0),
 	 ('Salvia',590.0),
 	 ('Szabo',590.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Neto',589.0),
 	 ('Baizan',589.0),
 	 ('Parcero',589.0),
@@ -7533,7 +7533,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tuñas',589.0),
 	 ('Gismero',589.0),
 	 ('Severino',589.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fite',589.0),
 	 ('Montano',588.0),
 	 ('Lardies',588.0),
@@ -7544,7 +7544,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ben Amar',588.0),
 	 ('Niculae',588.0),
 	 ('Iruretagoyena',587.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canteli',587.0),
 	 ('Canudas',587.0),
 	 ('Cacheiro',587.0),
@@ -7555,7 +7555,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fan',587.0),
 	 ('Pedrola',586.0),
 	 ('Arena',586.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cebollero',586.0),
 	 ('Lamadrid',586.0),
 	 ('Ganfornina',586.0),
@@ -7566,7 +7566,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jodra',585.0),
 	 ('Tijeras',585.0),
 	 ('Serralvo',585.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Covaci',585.0),
 	 ('Tavera',584.0),
 	 ('Peralvarez',584.0),
@@ -7577,7 +7577,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borbolla',584.0),
 	 ('Vaello',584.0),
 	 ('Inclan',584.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ramdani',584.0),
 	 ('Kebe',584.0),
 	 ('Cancelas',583.0),
@@ -7588,7 +7588,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gibaja',583.0),
 	 ('Sarro',583.0),
 	 ('Ndao',583.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lamana',582.0),
 	 ('Fonte',582.0),
 	 ('Tilve',582.0),
@@ -7599,7 +7599,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuberos',582.0),
 	 ('Zaman',582.0),
 	 ('Cicuendez',581.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morate',581.0),
 	 ('Gondar',581.0),
 	 ('Azuara',581.0),
@@ -7610,7 +7610,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Abbassi',581.0),
 	 ('Yousfi',581.0),
 	 ('Baldovi',580.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Osorno',580.0),
 	 ('Atance',580.0),
 	 ('Perrino',580.0),
@@ -7621,7 +7621,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vizcarro',580.0),
 	 ('Planell',580.0),
 	 ('Grandes',580.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nadeem',580.0),
 	 ('Turcu',580.0),
 	 ('Cebada',579.0),
@@ -7632,7 +7632,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esbri',579.0),
 	 ('Graupera',579.0),
 	 ('Juzgado',579.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tudorache',579.0),
 	 ('La Torre',578.0),
 	 ('Alcudia',578.0),
@@ -7643,7 +7643,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eizmendi',578.0),
 	 ('Dolcet',578.0),
 	 ('Sansaloni',578.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trancon',578.0),
 	 ('Garoz',578.0),
 	 ('El Miri',578.0),
@@ -7654,7 +7654,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valiña',577.0),
 	 ('Tobal',577.0),
 	 ('Crisostomo',577.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Murray',577.0),
 	 ('Carballa',576.0),
 	 ('Montemayor',576.0),
@@ -7665,7 +7665,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cosma',576.0),
 	 ('Retortillo',575.0),
 	 ('Mariblanca',575.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gayol',575.0),
 	 ('Barrueco',575.0),
 	 ('Astiz',575.0),
@@ -7676,7 +7676,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bevia',574.0),
 	 ('De Lera',574.0),
 	 ('Villas',574.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carrique',574.0),
 	 ('Manzanal',574.0),
 	 ('Reinaldos',574.0),
@@ -7687,7 +7687,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vallez',573.0),
 	 ('Valdelvira',573.0),
 	 ('Albeniz',573.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cardos',572.0),
 	 ('Amela',572.0),
 	 ('Sanchez Crespo',572.0),
@@ -7698,7 +7698,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benomar',572.0),
 	 ('Parker',572.0),
 	 ('Albadalejo',571.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Neyra',571.0),
 	 ('Llanas',571.0),
 	 ('Osinaga',571.0),
@@ -7709,7 +7709,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Placer',571.0),
 	 ('Apaza',570.0),
 	 ('Panal',570.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fulgencio',570.0),
 	 ('Areste',570.0),
 	 ('Peixoto',570.0),
@@ -7720,7 +7720,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ugidos',569.0),
 	 ('Cadierno',569.0),
 	 ('Gamundi',569.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordaz',569.0),
 	 ('Fresquet',569.0),
 	 ('Reinares',569.0),
@@ -7731,7 +7731,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fradera',569.0),
 	 ('Hasan',569.0),
 	 ('Carter',569.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tito',568.0),
 	 ('Gorreta',568.0),
 	 ('Ossa',568.0),
@@ -7742,7 +7742,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Subires',568.0),
 	 ('Azkarate',568.0),
 	 ('Llodra',567.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arriba',567.0),
 	 ('Agulla',567.0),
 	 ('Pecci',567.0),
@@ -7753,7 +7753,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Negru',567.0),
 	 ('Utiel',566.0),
 	 ('Cumbreras',566.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cotarelo',566.0),
 	 ('Bagan',566.0),
 	 ('Gandarias',566.0),
@@ -7764,7 +7764,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rabassa',566.0),
 	 ('Peteiro',566.0),
 	 ('Hafidi',566.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yahyaoui',566.0),
 	 ('Croitoru',566.0),
 	 ('Arin',565.0),
@@ -7775,7 +7775,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zubiaur',565.0),
 	 ('Lardin',565.0),
 	 ('Ben Ali',565.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hilali',565.0),
 	 ('Bouazza',565.0),
 	 ('Richardson',565.0),
@@ -7786,7 +7786,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cue',564.0),
 	 ('Casabella',564.0),
 	 ('Fornies',564.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Madinabeitia',564.0),
 	 ('Puigserver',564.0),
 	 ('Dato',564.0),
@@ -7797,7 +7797,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Omar',563.0),
 	 ('Florentino',563.0),
 	 ('Judez',563.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Esteras',563.0),
 	 ('Puiggros',563.0),
 	 ('Amine',563.0),
@@ -7808,7 +7808,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borobia',562.0),
 	 ('Correal',562.0),
 	 ('Boldu',562.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaraiz',562.0),
 	 ('Paraiso',562.0),
 	 ('Orduna',562.0),
@@ -7819,7 +7819,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coro',561.0),
 	 ('Molinas',561.0),
 	 ('Guarch',561.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vallespin',561.0),
 	 ('Zunzunegui',561.0),
 	 ('Barbe',561.0),
@@ -7830,7 +7830,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zurro',560.0),
 	 ('Quirantes',560.0),
 	 ('Rusiñol',560.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lafarga',560.0),
 	 ('Escorial',560.0),
 	 ('Melcon',560.0),
@@ -7841,7 +7841,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saho',560.0),
 	 ('Salama',560.0),
 	 ('Gill',560.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Malki',560.0),
 	 ('Pana',560.0),
 	 ('Boga',559.0),
@@ -7852,7 +7852,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sen',559.0),
 	 ('Alborch',559.0),
 	 ('Estirado',559.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Traverso',559.0),
 	 ('Torrescusa',559.0),
 	 ('Soleto',559.0),
@@ -7863,7 +7863,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urien',558.0),
 	 ('Petkov',558.0),
 	 ('Haider',558.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beloqui',557.0),
 	 ('Minguell',557.0),
 	 ('Estelrich',557.0),
@@ -7874,7 +7874,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mayer',557.0),
 	 ('Buda',557.0),
 	 ('Algora',556.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trabado',556.0),
 	 ('Valdeolivas',556.0),
 	 ('Montalva',556.0),
@@ -7885,7 +7885,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pardina',555.0),
 	 ('Chirino',555.0),
 	 ('Bernado',555.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gassama',555.0),
 	 ('Larrarte',554.0),
 	 ('Cañal',554.0),
@@ -7896,7 +7896,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Antolinos',554.0),
 	 ('Catedra',554.0),
 	 ('Conti',554.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amatriain',553.0),
 	 ('Balbin',553.0),
 	 ('Agramonte',553.0),
@@ -7907,7 +7907,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amin',553.0),
 	 ('Canaves',552.0),
 	 ('Carbajales',552.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estacio',552.0),
 	 ('Sais',552.0),
 	 ('Collada',552.0),
@@ -7918,7 +7918,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanles',551.0),
 	 ('Terrado',551.0),
 	 ('Alario',551.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lizano',551.0),
 	 ('Sayas',551.0),
 	 ('Mañanes',551.0),
@@ -7929,7 +7929,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belarbi',551.0),
 	 ('Zeng',551.0),
 	 ('Charneco',550.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jacobo',550.0),
 	 ('Mairal',550.0),
 	 ('Farnos',550.0),
@@ -7940,7 +7940,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarragona',550.0),
 	 ('Perles',550.0),
 	 ('Garralda',550.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ladron',549.0),
 	 ('Buenaventura',549.0),
 	 ('Ibarguen',549.0),
@@ -7951,7 +7951,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pujals',549.0),
 	 ('Seren',549.0),
 	 ('Kovacs',549.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sansegundo',548.0),
 	 ('Lobaton',548.0),
 	 ('Briongos',548.0),
@@ -7962,7 +7962,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Da Conceicao',548.0),
 	 ('Anso',547.0),
 	 ('Cesteros',547.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vieco',547.0),
 	 ('Creo',547.0),
 	 ('Barrigon',547.0),
@@ -7973,7 +7973,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rapado',547.0),
 	 ('De La Barrera',547.0),
 	 ('Guilera',547.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ojanguren',547.0),
 	 ('Palet',547.0),
 	 ('Chirila',547.0),
@@ -7984,7 +7984,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanjose',546.0),
 	 ('Dorrego',546.0),
 	 ('Balasch',546.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zavaleta',546.0),
 	 ('Bofarull',546.0),
 	 ('Orge',546.0),
@@ -7995,7 +7995,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viadero',545.0),
 	 ('De Arcos',545.0),
 	 ('Duce',545.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cordovilla',545.0),
 	 ('El Ouali',545.0),
 	 ('Ren',545.0),
@@ -8006,7 +8006,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alcina',544.0),
 	 ('Magaz',544.0),
 	 ('Tafur',544.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bengochea',544.0),
 	 ('Sabando',543.0),
 	 ('Guajardo',543.0),
@@ -8017,7 +8017,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lacarra',543.0),
 	 ('Poo',543.0),
 	 ('Moratal',543.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clavell',543.0),
 	 ('Verger',543.0),
 	 ('Lekuona',543.0),
@@ -8028,7 +8028,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coral',542.0),
 	 ('Constantino',542.0),
 	 ('Piles',542.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Domingues',542.0),
 	 ('Georgescu',542.0),
 	 ('Bancalero',541.0),
@@ -8039,7 +8039,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roqueta',541.0),
 	 ('Yeguas',541.0),
 	 ('Casajus',541.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vaque',541.0),
 	 ('De La Coba',541.0),
 	 ('Baldeon',541.0),
@@ -8050,7 +8050,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Camara',540.0),
 	 ('Lombarte',540.0),
 	 ('Casasus',540.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leva',540.0),
 	 ('Lliso',540.0),
 	 ('Rubianes',540.0),
@@ -8061,7 +8061,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quiceno',539.0),
 	 ('De Sande',539.0),
 	 ('Mohamedi',539.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soliva',539.0),
 	 ('Chouza',539.0),
 	 ('Ayerra',539.0),
@@ -8072,7 +8072,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Babio',539.0),
 	 ('Baig',539.0),
 	 ('Llata',538.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Delfa',538.0),
 	 ('Pacha',538.0),
 	 ('Escorza',538.0),
@@ -8083,7 +8083,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodon',538.0),
 	 ('Mesones',538.0),
 	 ('Vaqueiro',538.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caralt',538.0),
 	 ('Deu',538.0),
 	 ('Fabeiro',538.0),
@@ -8094,7 +8094,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ben Moussa',538.0),
 	 ('El Ghoufairi',538.0),
 	 ('Istrate',538.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gurung',538.0),
 	 ('Espiga',537.0),
 	 ('Trapote',537.0),
@@ -8105,7 +8105,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pereña',537.0),
 	 ('Liz',537.0),
 	 ('Marshall',537.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Loja',536.0),
 	 ('Igea',536.0),
 	 ('Millas',536.0),
@@ -8116,7 +8116,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belloch',536.0),
 	 ('Alemañ',535.0),
 	 ('Corts',535.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Longares',535.0),
 	 ('Zubiria',535.0),
 	 ('Carayol',535.0),
@@ -8127,7 +8127,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gilsanz',534.0),
 	 ('Lence',534.0),
 	 ('Alexandre',534.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ballestin',534.0),
 	 ('Franganillo',534.0),
 	 ('Petrescu',534.0),
@@ -8138,7 +8138,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aylagas',533.0),
 	 ('Nanclares',533.0),
 	 ('Avello',533.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carballeda',533.0),
 	 ('Foix',532.0),
 	 ('Isaza',532.0),
@@ -8149,7 +8149,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Merin',532.0),
 	 ('Spinola',532.0),
 	 ('De La Horra',532.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otazu',532.0),
 	 ('Mabrouk',532.0),
 	 ('De Andrade',531.0),
@@ -8160,7 +8160,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mahia',531.0),
 	 ('Tojeiro',531.0),
 	 ('Paula',531.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Izarra',531.0),
 	 ('Villaseca',531.0),
 	 ('Cutanda',531.0),
@@ -8171,7 +8171,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muntada',530.0),
 	 ('Cornella',530.0),
 	 ('Tolosana',530.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bollo',530.0),
 	 ('Maireles',530.0),
 	 ('Condado',530.0),
@@ -8182,7 +8182,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abselam',530.0),
 	 ('Henry',530.0),
 	 ('Maimouni',530.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Owusu',530.0),
 	 ('Raducanu',530.0),
 	 ('Cagigal',529.0),
@@ -8193,7 +8193,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cataño',529.0),
 	 ('Toranzo',529.0),
 	 ('Saro',529.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salem',529.0),
 	 ('El Khayat',529.0),
 	 ('Klein',529.0),
@@ -8204,7 +8204,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garzo',528.0),
 	 ('Fumanal',528.0),
 	 ('De Juana',528.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perramon',528.0),
 	 ('San Frutos',528.0),
 	 ('Monjas',528.0),
@@ -8215,7 +8215,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Veizaga',527.0),
 	 ('Moura',527.0),
 	 ('Cartes',527.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bachs',527.0),
 	 ('Ferragud',527.0),
 	 ('Boixader',527.0),
@@ -8226,7 +8226,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ridaura',526.0),
 	 ('Ansorena',526.0),
 	 ('Mallorquin',526.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pasamontes',526.0),
 	 ('Farto',526.0),
 	 ('Sanda',526.0),
@@ -8237,7 +8237,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marcial',525.0),
 	 ('Abian',525.0),
 	 ('Faraldo',525.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jarauta',525.0),
 	 ('Melich',525.0),
 	 ('Cama',525.0),
@@ -8248,7 +8248,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soage',524.0),
 	 ('Cajas',524.0),
 	 ('Gauna',524.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ramirez De Arellano',524.0),
 	 ('Amezaga',524.0),
 	 ('Basallote',524.0),
@@ -8259,7 +8259,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Echezarreta',523.0),
 	 ('Escutia',523.0),
 	 ('Medero',523.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gavila',523.0),
 	 ('Fillol',523.0),
 	 ('Clausell',523.0),
@@ -8270,7 +8270,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bilal',523.0),
 	 ('Cazacu',523.0),
 	 ('Virseda',522.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Navarra',522.0),
 	 ('Laparra',522.0),
 	 ('Iñesta',522.0),
@@ -8281,7 +8281,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yagues',522.0),
 	 ('Unamuno',522.0),
 	 ('Bergara',522.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hamzaoui',522.0),
 	 ('Banu',522.0),
 	 ('De La Corte',521.0),
@@ -8292,7 +8292,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcimartin',521.0),
 	 ('Gilbert',521.0),
 	 ('Azpitarte',520.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Apesteguia',520.0),
 	 ('Blanque',520.0),
 	 ('Periago',520.0),
@@ -8303,7 +8303,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Geli',520.0),
 	 ('Taleb',520.0),
 	 ('Marinescu',520.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estrany',519.0),
 	 ('Vea',519.0),
 	 ('Olivenza',519.0),
@@ -8314,7 +8314,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Querejeta',519.0),
 	 ('Iturbide',519.0),
 	 ('Telletxea',519.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hajjaj',519.0),
 	 ('Nielsen',519.0),
 	 ('De Rojas',518.0),
@@ -8325,7 +8325,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maguregui',518.0),
 	 ('Gumbau',518.0),
 	 ('Guerras',518.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rudilla',518.0),
 	 ('Alderete',518.0),
 	 ('Pillajo',518.0),
@@ -8336,7 +8336,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rashid',518.0),
 	 ('Abilleira',517.0),
 	 ('Obon',517.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Huici',517.0),
 	 ('Barneto',517.0),
 	 ('Ballus',517.0),
@@ -8347,7 +8347,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paulo',517.0),
 	 ('Zardoya',517.0),
 	 ('El Hajji',517.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chapman',517.0),
 	 ('Musat',517.0),
 	 ('Danila',517.0),
@@ -8358,7 +8358,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fornells',516.0),
 	 ('Perpiñan',516.0),
 	 ('Tasende',516.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montava',516.0),
 	 ('Manzanos',516.0),
 	 ('Pestano',516.0),
@@ -8369,7 +8369,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gavela',515.0),
 	 ('Urquizu',515.0),
 	 ('Puntas',515.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moix',515.0),
 	 ('Margallo',515.0),
 	 ('Garcia Abadillo',515.0),
@@ -8380,7 +8380,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aurrecoechea',514.0),
 	 ('Aguirrezabala',514.0),
 	 ('Sitja',514.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Poblet',514.0),
 	 ('Cebreiro',514.0),
 	 ('Arizaga',514.0),
@@ -8391,7 +8391,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grajera',513.0),
 	 ('Valtierra',513.0),
 	 ('Centenera',513.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Navas',513.0),
 	 ('Egusquiza',513.0),
 	 ('Lechado',513.0),
@@ -8402,7 +8402,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ricoy',512.0),
 	 ('Dorantes',512.0),
 	 ('Barrabes',512.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morras',512.0),
 	 ('Turcios',512.0),
 	 ('Servian',512.0),
@@ -8413,7 +8413,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gamella',512.0),
 	 ('Hospital',511.0),
 	 ('Avero',511.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Illarramendi',511.0),
 	 ('Cerdeño',511.0),
 	 ('Teira',511.0),
@@ -8424,7 +8424,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rofes',511.0),
 	 ('Guinovart',511.0),
 	 ('Cobelo',511.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mayorgas',511.0),
 	 ('Robres',511.0),
 	 ('Xavier',511.0),
@@ -8435,7 +8435,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moriche',510.0),
 	 ('Nuin',510.0),
 	 ('Gomez Pimpollo',510.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Copa',510.0),
 	 ('Viladrich',510.0),
 	 ('Rasines',510.0),
@@ -8446,7 +8446,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Touceda',509.0),
 	 ('Lens',509.0),
 	 ('Casacuberta',509.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Masedo',509.0),
 	 ('Cascante',509.0),
 	 ('Larena',508.0),
@@ -8457,7 +8457,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viola',508.0),
 	 ('Flaquer',508.0),
 	 ('Malet',508.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bey',508.0),
 	 ('Quindos',508.0),
 	 ('Rayon',508.0),
@@ -8468,7 +8468,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salaverria',507.0),
 	 ('Ayza',507.0),
 	 ('Barbas',507.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salord',507.0),
 	 ('Aberasturi',507.0),
 	 ('Blat',507.0),
@@ -8479,7 +8479,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morago',507.0),
 	 ('Bullido',507.0),
 	 ('Tonda',507.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fondon',507.0),
 	 ('Veintimilla',507.0),
 	 ('Rams',506.0),
@@ -8490,7 +8490,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alorda',506.0),
 	 ('Quirant',506.0),
 	 ('Soley',506.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouali',506.0),
 	 ('Zulaica',505.0),
 	 ('Auge',505.0),
@@ -8501,7 +8501,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balea',505.0),
 	 ('Foster',505.0),
 	 ('Zafar',505.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rostas',505.0),
 	 ('Villan',504.0),
 	 ('De Bustos',504.0),
@@ -8512,7 +8512,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marsa',504.0),
 	 ('Solves',504.0),
 	 ('Hortas',504.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espelt',504.0),
 	 ('Flamarique',504.0),
 	 ('De Tomas',504.0),
@@ -8523,7 +8523,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carsi',503.0),
 	 ('Broseta',503.0),
 	 ('Subiela',503.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aristegui',503.0),
 	 ('Fiestas',503.0),
 	 ('El Badaoui',503.0),
@@ -8534,7 +8534,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Siquier',502.0),
 	 ('Zumeta',502.0),
 	 ('Puigdemont',502.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moriñigo',502.0),
 	 ('Amraoui',502.0),
 	 ('Lacosta',501.0),
@@ -8545,7 +8545,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arrom',501.0),
 	 ('Vizan',501.0),
 	 ('Gosalvez',501.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Breijo',501.0),
 	 ('Cucala',501.0),
 	 ('Failde',501.0),
@@ -8556,7 +8556,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lineros',500.0),
 	 ('Torreira',500.0),
 	 ('Doñoro',500.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tejedo',500.0),
 	 ('Zacarias',500.0),
 	 ('Esgueva',500.0),
@@ -8567,7 +8567,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gavrila',500.0),
 	 ('Reinosa',499.0),
 	 ('Reoyo',499.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bajaña',499.0),
 	 ('Zurutuza',499.0),
 	 ('Busquet',499.0),
@@ -8578,7 +8578,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Huedo',499.0),
 	 ('Axpe',499.0),
 	 ('Osoro',499.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabada',499.0),
 	 ('De Mena',499.0),
 	 ('Cherif',499.0),
@@ -8589,7 +8589,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Carpintero',498.0),
 	 ('Moras',498.0),
 	 ('Tenllado',498.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cornet',498.0),
 	 ('Torrell',498.0),
 	 ('Cedeira',498.0),
@@ -8600,7 +8600,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cieza',497.0),
 	 ('Familia',497.0),
 	 ('Chapa',497.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gost',497.0),
 	 ('Mimoun',497.0),
 	 ('Lezaun',497.0),
@@ -8611,7 +8611,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Samitier',496.0),
 	 ('Puyal',496.0),
 	 ('Navazo',496.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zuazua',496.0),
 	 ('Esperanza',496.0),
 	 ('Higon',496.0),
@@ -8622,7 +8622,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Hamri',496.0),
 	 ('Ansa',495.0),
 	 ('Chazarra',495.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abellaneda',495.0),
 	 ('Sagarzazu',495.0),
 	 ('Llao',495.0),
@@ -8633,7 +8633,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nagore',495.0),
 	 ('Etxezarreta',495.0),
 	 ('Sunyer',495.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jabbi',495.0),
 	 ('Reynolds',495.0),
 	 ('Gamarro',494.0),
@@ -8644,7 +8644,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belvis',494.0),
 	 ('Betran',494.0),
 	 ('Arnas',494.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alzueta',494.0),
 	 ('Churruca',493.0),
 	 ('Chocano',493.0),
@@ -8655,7 +8655,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Norte',492.0),
 	 ('Polvillo',492.0),
 	 ('Guijosa',492.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Peral',492.0),
 	 ('Rodicio',492.0),
 	 ('Ardanuy',492.0),
@@ -8666,7 +8666,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ovelar',492.0),
 	 ('Zhuo',492.0),
 	 ('Fojo',491.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ballabriga',491.0),
 	 ('Galende',491.0),
 	 ('Gavidia',491.0),
@@ -8677,7 +8677,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rozados',491.0),
 	 ('Corpa',491.0),
 	 ('Charco',491.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Madina',491.0),
 	 ('Mitxelena',491.0),
 	 ('Mimouni',491.0),
@@ -8688,7 +8688,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Celemin',490.0),
 	 ('Osca',490.0),
 	 ('Camon',490.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salat',490.0),
 	 ('Mazouzi',490.0),
 	 ('Guimaraes',489.0),
@@ -8699,7 +8699,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Crespin',489.0),
 	 ('Redo',489.0),
 	 ('Betoret',489.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beamonte',489.0),
 	 ('Para',489.0),
 	 ('Teijeira',489.0),
@@ -8710,7 +8710,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lapuerta',488.0),
 	 ('Pasadas',488.0),
 	 ('Nina',488.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Plou',488.0),
 	 ('Menes',488.0),
 	 ('Hornillos',488.0),
@@ -8721,7 +8721,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Virlan',488.0),
 	 ('Saber',488.0),
 	 ('Laarbi',487.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pizarroso',487.0),
 	 ('Lacuesta',487.0),
 	 ('Deulofeu',487.0),
@@ -8732,7 +8732,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Loidi',487.0),
 	 ('Vique',487.0),
 	 ('El Attar',487.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Russell',487.0),
 	 ('Aliste',486.0),
 	 ('Palero',486.0),
@@ -8743,7 +8743,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ferruz',486.0),
 	 ('Faure',486.0),
 	 ('Salvatella',486.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chesa',486.0),
 	 ('Monso',486.0),
 	 ('Cervan',486.0),
@@ -8754,7 +8754,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goiri',485.0),
 	 ('Moronta',485.0),
 	 ('Novales',485.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aristu',485.0),
 	 ('Marinero',485.0),
 	 ('Oporto',485.0),
@@ -8765,7 +8765,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santas',485.0),
 	 ('Tuya',485.0),
 	 ('Recuerda',485.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brox',485.0),
 	 ('Atmani',485.0),
 	 ('Pal',485.0),
@@ -8776,7 +8776,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valldeperez',484.0),
 	 ('Irurzun',484.0),
 	 ('Terradas',484.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ganga',484.0),
 	 ('Caviedes',484.0),
 	 ('Modino',484.0),
@@ -8787,7 +8787,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuadro',484.0),
 	 ('Ferraro',484.0),
 	 ('Giordano',484.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ratia',483.0),
 	 ('Camean',483.0),
 	 ('Barato',483.0),
@@ -8798,7 +8798,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rosano',483.0),
 	 ('Sanchez Arevalo',483.0),
 	 ('Hoffmann',483.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cachafeiro',482.0),
 	 ('Huelves',482.0),
 	 ('Jordi',482.0),
@@ -8809,7 +8809,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ortas',482.0),
 	 ('Lallana',482.0),
 	 ('Otermin',482.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alfonzo',482.0),
 	 ('Cantin',482.0),
 	 ('Fabelo',482.0),
@@ -8820,7 +8820,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lloris',481.0),
 	 ('Llido',481.0),
 	 ('Cendoya',481.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urbanos',481.0),
 	 ('Briales',481.0),
 	 ('Meira',481.0),
@@ -8831,7 +8831,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Delso',481.0),
 	 ('Maiza',481.0),
 	 ('Bausa',481.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boukraa',481.0),
 	 ('Toumi',481.0),
 	 ('El Maataoui',481.0),
@@ -8842,7 +8842,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Posse',480.0),
 	 ('Chover',480.0),
 	 ('De Ramon',480.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Compañ',479.0),
 	 ('Iturria',479.0),
 	 ('Eroles',479.0),
@@ -8853,7 +8853,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erviti',479.0),
 	 ('Bustillos',479.0),
 	 ('Cantabrana',479.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferret',479.0),
 	 ('Muruzabal',479.0),
 	 ('Robleda',479.0),
@@ -8864,7 +8864,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Filali',479.0),
 	 ('Melnyk',479.0),
 	 ('Urroz',478.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cardero',478.0),
 	 ('Zabalegui',478.0),
 	 ('Pujana',478.0),
@@ -8875,7 +8875,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abengozar',478.0),
 	 ('Vecina',477.0),
 	 ('Doctor',477.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peñarrocha',477.0),
 	 ('Carramiñana',477.0),
 	 ('Ulecia',477.0),
@@ -8886,7 +8886,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eiriz',477.0),
 	 ('Porter',477.0),
 	 ('Daoud',477.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marouan',477.0),
 	 ('Tahir',477.0),
 	 ('Manrubia',476.0),
@@ -8897,7 +8897,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elejalde',476.0),
 	 ('Nogueroles',476.0),
 	 ('Figols',476.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buenestado',476.0),
 	 ('Caracena',476.0),
 	 ('Sabata',476.0),
@@ -8908,7 +8908,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mimbrero',475.0),
 	 ('Arpon',475.0),
 	 ('Plano',475.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibor',475.0),
 	 ('Villadangos',475.0),
 	 ('Peruga',475.0),
@@ -8919,7 +8919,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dumont',475.0),
 	 ('De Martin',475.0),
 	 ('Achahbar',475.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Patrascu',475.0),
 	 ('Peñin',474.0),
 	 ('Onaindia',474.0),
@@ -8930,7 +8930,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mont',474.0),
 	 ('Ausejo',474.0),
 	 ('Tamames',474.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Begue',474.0),
 	 ('Seller',474.0),
 	 ('Ayarza',474.0),
@@ -8941,7 +8941,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sobron',473.0),
 	 ('Odena',473.0),
 	 ('Rabazo',473.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moguer',473.0),
 	 ('Puertollano',473.0),
 	 ('Cortinas',473.0),
@@ -8952,7 +8952,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chemlal',473.0),
 	 ('Ka',473.0),
 	 ('Khachatryan',473.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Robertson',473.0),
 	 ('Ranero',472.0),
 	 ('Zueco',472.0),
@@ -8963,7 +8963,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llosa',472.0),
 	 ('Albuerne',472.0),
 	 ('Gascueña',472.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barrau',472.0),
 	 ('Botias',472.0),
 	 ('Del Riego',472.0),
@@ -8974,7 +8974,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pañeda',472.0),
 	 ('Nasri',472.0),
 	 ('Krasimirov',472.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borao',471.0),
 	 ('Ametller',471.0),
 	 ('Partido',471.0),
@@ -8985,7 +8985,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Blancafort',471.0),
 	 ('Lenis',471.0),
 	 ('Kamara',471.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mensah',471.0),
 	 ('Manolache',471.0),
 	 ('Foz',470.0),
@@ -8996,7 +8996,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Porrua',470.0),
 	 ('Lapaz',470.0),
 	 ('Ambite',470.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sabaris',470.0),
 	 ('Nafria',470.0),
 	 ('Abrego',470.0),
@@ -9007,7 +9007,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Butler',470.0),
 	 ('Haddouti',470.0),
 	 ('Cubiles',469.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lucha',469.0),
 	 ('Vides',469.0),
 	 ('Casielles',469.0),
@@ -9018,7 +9018,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amondarain',468.0),
 	 ('Escañuela',468.0),
 	 ('Crujeiras',468.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cajamarca',468.0),
 	 ('Cinca',468.0),
 	 ('Pedroza',468.0),
@@ -9029,7 +9029,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balderas',468.0),
 	 ('Jaldo',468.0),
 	 ('Ameneiro',468.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Krasimirova',468.0),
 	 ('Dascalu',468.0),
 	 ('Rogado',467.0),
@@ -9040,7 +9040,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palanques',467.0),
 	 ('Brey',467.0),
 	 ('Canalejas',467.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lertxundi',467.0),
 	 ('Tamas',467.0),
 	 ('Periz',466.0),
@@ -9051,7 +9051,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jumilla',466.0),
 	 ('Olabarri',466.0),
 	 ('Sio',466.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moumni',466.0),
 	 ('Laaraj',466.0),
 	 ('Anchundia',465.0),
@@ -9062,7 +9062,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Matellanes',465.0),
 	 ('Lajo',465.0),
 	 ('Pey',465.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hitos',465.0),
 	 ('Sargsyan',465.0),
 	 ('Negrea',465.0),
@@ -9073,7 +9073,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Faba',464.0),
 	 ('Melus',464.0),
 	 ('Maeztu',464.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vinent',464.0),
 	 ('Inga',464.0),
 	 ('De La Sierra',464.0),
@@ -9084,7 +9084,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Bouazzaoui',464.0),
 	 ('Valadez',463.0),
 	 ('De La Parte',463.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jubany',463.0),
 	 ('Iañez',463.0),
 	 ('Bartra',463.0),
@@ -9095,7 +9095,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meiriño',462.0),
 	 ('Goyeneche',462.0),
 	 ('Villasevil',462.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Riudavets',462.0),
 	 ('Barranca',462.0),
 	 ('Harana',462.0),
@@ -9106,7 +9106,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Osborne',462.0),
 	 ('Lamkadmi',462.0),
 	 ('Maier',462.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Danciu',462.0),
 	 ('Natal',461.0),
 	 ('Hijosa',461.0),
@@ -9117,7 +9117,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bennassar',461.0),
 	 ('Paga',461.0),
 	 ('Millon',461.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Burga',461.0),
 	 ('Loreto',461.0),
 	 ('Bonell',461.0),
@@ -9128,7 +9128,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bai',461.0),
 	 ('Oreiro',460.0),
 	 ('Saus',460.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Acal',460.0),
 	 ('Romon',460.0),
 	 ('Usabiaga',460.0),
@@ -9139,7 +9139,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Simonet',460.0),
 	 ('Cortecero',460.0),
 	 ('Hamadi',460.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chergui',460.0),
 	 ('Rahali',460.0),
 	 ('Marginean',460.0),
@@ -9150,7 +9150,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oterino',459.0),
 	 ('Lombao',459.0),
 	 ('Texeira',459.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jato',459.0),
 	 ('Carot',459.0),
 	 ('Redruello',459.0),
@@ -9161,7 +9161,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perez Cejuela',458.0),
 	 ('Rosel',458.0),
 	 ('Umbert',458.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Penelas',458.0),
 	 ('Herbas',458.0),
 	 ('Indurain',458.0),
@@ -9172,7 +9172,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nazabal',458.0),
 	 ('De La Higuera',458.0),
 	 ('Akoudad',458.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kirilova',458.0),
 	 ('El Haddadi',458.0),
 	 ('Gomera',457.0),
@@ -9183,7 +9183,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Negron',457.0),
 	 ('Falces',457.0),
 	 ('Maroñas',457.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bone',457.0),
 	 ('Paniego',457.0),
 	 ('Carabali',457.0),
@@ -9194,7 +9194,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Majano',456.0),
 	 ('Misas',456.0),
 	 ('Martagon',456.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reca',456.0),
 	 ('Arpa',456.0),
 	 ('Galeas',456.0),
@@ -9205,7 +9205,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berrueta',455.0),
 	 ('Menjibar',455.0),
 	 ('Terren',455.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bobillo',455.0),
 	 ('Carbonel',455.0),
 	 ('Constenla',455.0),
@@ -9216,7 +9216,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Renart',454.0),
 	 ('Menargues',454.0),
 	 ('Monar',454.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Labandeira',454.0),
 	 ('Ryan',454.0),
 	 ('Saleem',454.0),
@@ -9227,7 +9227,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guill',453.0),
 	 ('Pesado',453.0),
 	 ('Ansede',453.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laguardia',453.0),
 	 ('Loarte',453.0),
 	 ('Mahmoud',453.0),
@@ -9238,7 +9238,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barberena',452.0),
 	 ('Tura',452.0),
 	 ('Micol',452.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miramon',452.0),
 	 ('Bendicho',452.0),
 	 ('Ibero',452.0),
@@ -9249,7 +9249,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mills',452.0),
 	 ('Rogers',452.0),
 	 ('Ichim',452.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sagrado',451.0),
 	 ('Beorlegui',451.0),
 	 ('Cuña',451.0),
@@ -9260,7 +9260,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Taberna',451.0),
 	 ('Valgañon',451.0),
 	 ('Laguarda',451.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arnoso',451.0),
 	 ('Basco',451.0),
 	 ('Monerris',451.0),
@@ -9271,7 +9271,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Plazaola',450.0),
 	 ('Paladines',450.0),
 	 ('Martin Arroyo',450.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Albares',450.0),
 	 ('Torron',450.0),
 	 ('Brugues',450.0),
@@ -9282,7 +9282,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Liron',450.0),
 	 ('Garcia Calvo',450.0),
 	 ('Cotano',450.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chaudhry',450.0),
 	 ('Richards',450.0),
 	 ('Samake',450.0),
@@ -9293,7 +9293,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alguero',449.0),
 	 ('Todoli',449.0),
 	 ('Casabona',449.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Las Cuevas',449.0),
 	 ('Guindo',449.0),
 	 ('Llor',449.0),
@@ -9304,7 +9304,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albujar',448.0),
 	 ('Muria',448.0),
 	 ('Irazu',448.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pisonero',448.0),
 	 ('Arreaza',448.0),
 	 ('Baiget',448.0),
@@ -9315,7 +9315,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toth',448.0),
 	 ('Wilkinson',448.0),
 	 ('Defez',447.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quirce',447.0),
 	 ('Dantas',447.0),
 	 ('Zajara',447.0),
@@ -9326,7 +9326,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lobillo',447.0),
 	 ('Megido',447.0),
 	 ('Goberna',447.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bertrand',447.0),
 	 ('Robledano',447.0),
 	 ('Moralo',447.0),
@@ -9337,7 +9337,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calvin',446.0),
 	 ('Contador',446.0),
 	 ('Veres',446.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bayad',446.0),
 	 ('Kennedy',446.0),
 	 ('Stevens',446.0),
@@ -9348,7 +9348,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Revidiego',445.0),
 	 ('Seseña',445.0),
 	 ('Altube',445.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guadaño',445.0),
 	 ('Cortizas',445.0),
 	 ('Gudiel',445.0),
@@ -9359,7 +9359,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sagarna',445.0),
 	 ('Bergaz',445.0),
 	 ('Bernard',445.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laplaza',444.0),
 	 ('Aixala',444.0),
 	 ('Tola',444.0),
@@ -9370,7 +9370,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Yamani',444.0),
 	 ('Usman',444.0),
 	 ('Ding',444.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carpi',443.0),
 	 ('Bienzobas',443.0),
 	 ('Sanzo',443.0),
@@ -9381,7 +9381,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bacardit',443.0),
 	 ('Freijeiro',443.0),
 	 ('Rois',443.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cora',443.0),
 	 ('Farinango',443.0),
 	 ('Bordonado',443.0),
@@ -9392,7 +9392,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ordinas',442.0),
 	 ('Cardell',442.0),
 	 ('Redrado',442.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cajaraville',442.0),
 	 ('Arufe',442.0),
 	 ('Corchuelo',442.0),
@@ -9403,7 +9403,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sangiao',442.0),
 	 ('Kanteh',442.0),
 	 ('Dieye',442.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Colmena',441.0),
 	 ('Sangrador',441.0),
 	 ('Chilet',441.0),
@@ -9414,7 +9414,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nuñez De Arenas',441.0),
 	 ('Jansa',441.0),
 	 ('Bricio',441.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mollinedo',441.0),
 	 ('Corell',441.0),
 	 ('Aldrey',441.0),
@@ -9425,7 +9425,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Parra',440.0),
 	 ('Cucalon',440.0),
 	 ('Bustinza',440.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villahoz',440.0),
 	 ('Sabroso',440.0),
 	 ('Tinajero',440.0),
@@ -9436,7 +9436,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urbiola',440.0),
 	 ('Guarino',440.0),
 	 ('Chaibi',440.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Ouafi',440.0),
 	 ('Carriedo',439.0),
 	 ('Cestero',439.0),
@@ -9447,7 +9447,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escanez',439.0),
 	 ('Iraizoz',439.0),
 	 ('Trevejo',439.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casteleiro',439.0),
 	 ('Aresti',439.0),
 	 ('Marsol',439.0),
@@ -9458,7 +9458,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casaña',438.0),
 	 ('Bereciartua',438.0),
 	 ('Barreales',438.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lobeto',438.0),
 	 ('Fuentetaja',438.0),
 	 ('Acera',438.0),
@@ -9469,7 +9469,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Labarga',438.0),
 	 ('Cavalle',438.0),
 	 ('Hazas',438.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almandoz',438.0),
 	 ('Beobide',438.0),
 	 ('Represa',438.0),
@@ -9480,7 +9480,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tocon',437.0),
 	 ('Rue',437.0),
 	 ('Mouro',437.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mascaros',437.0),
 	 ('Tutor',437.0),
 	 ('Carrasquer',437.0),
@@ -9491,7 +9491,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Frago',437.0),
 	 ('Uzcategui',437.0),
 	 ('Berrocoso',437.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Velazco',437.0),
 	 ('Santiuste',437.0),
 	 ('Familiar',437.0),
@@ -9502,7 +9502,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cheema',437.0),
 	 ('Koubaa',437.0),
 	 ('Bourass',437.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peters',437.0),
 	 ('Burlacu',437.0),
 	 ('Xiao',437.0),
@@ -9513,7 +9513,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arcediano',436.0),
 	 ('Alvarellos',436.0),
 	 ('Llenas',436.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sierras',436.0),
 	 ('Geraldo',436.0),
 	 ('De Matos',436.0),
@@ -9524,7 +9524,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garrocho',435.0),
 	 ('Povea',435.0),
 	 ('Rielo',435.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rullo',435.0),
 	 ('Señorans',435.0),
 	 ('Labajo',435.0),
@@ -9535,7 +9535,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lamrini',435.0),
 	 ('El Hachimi',435.0),
 	 ('Kadfi',435.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Scurtu',435.0),
 	 ('Tarazaga',434.0),
 	 ('Amundarain',434.0),
@@ -9546,7 +9546,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Denche',434.0),
 	 ('Camin',434.0),
 	 ('Remis',434.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gurpegui',434.0),
 	 ('Fluxa',434.0),
 	 ('De La Nava',434.0),
@@ -9557,7 +9557,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balta',434.0),
 	 ('George',434.0),
 	 ('Hamidi',434.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vicaria',433.0),
 	 ('Conrado',433.0),
 	 ('Gandoy',433.0),
@@ -9568,7 +9568,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Punzon',433.0),
 	 ('Guilarte',433.0),
 	 ('Perulero',433.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ormaza',433.0),
 	 ('Garriz',433.0),
 	 ('Morella',433.0),
@@ -9579,7 +9579,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Irfan',433.0),
 	 ('Samos',432.0),
 	 ('Robayo',432.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canca',432.0),
 	 ('Espinilla',432.0),
 	 ('Belzunce',432.0),
@@ -9590,7 +9590,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lorda',432.0),
 	 ('De Esteban',432.0),
 	 ('Charef',432.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chulvi',431.0),
 	 ('Picas',431.0),
 	 ('Prunera',431.0),
@@ -9601,7 +9601,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valdenebro',431.0),
 	 ('Blade',431.0),
 	 ('Bouso',431.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Falgueras',431.0),
 	 ('Masnou',431.0),
 	 ('Mallon',431.0),
@@ -9612,7 +9612,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Donis',430.0),
 	 ('Suria',430.0),
 	 ('Lerchundi',430.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mohino',430.0),
 	 ('Lopez Cepero',430.0),
 	 ('Quito',430.0),
@@ -9623,7 +9623,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muti',430.0),
 	 ('Dubon',429.0),
 	 ('Cespon',429.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aladro',429.0),
 	 ('Cenizo',429.0),
 	 ('Salla',429.0),
@@ -9634,7 +9634,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viles',429.0),
 	 ('Moumen',429.0),
 	 ('Bauer',429.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zarouali',429.0),
 	 ('Abdi',429.0),
 	 ('Benhaddou',429.0),
@@ -9645,7 +9645,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bodelon',428.0),
 	 ('Atero',428.0),
 	 ('Monter',428.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibiza',428.0),
 	 ('Ponsoda',428.0),
 	 ('Aristondo',428.0),
@@ -9656,7 +9656,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hasnaoui',428.0),
 	 ('Pasca',428.0),
 	 ('Cucu',428.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villalva',427.0),
 	 ('Miñon',427.0),
 	 ('Larraga',427.0),
@@ -9667,7 +9667,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llena',427.0),
 	 ('Rugama',427.0),
 	 ('Aulet',427.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Forjan',427.0),
 	 ('Garcia Morato',427.0),
 	 ('Dragoi',427.0),
@@ -9678,7 +9678,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dans',426.0),
 	 ('Estigarribia',426.0),
 	 ('Pesqueira',426.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Usandizaga',426.0),
 	 ('Reillo',426.0),
 	 ('Comeron',426.0),
@@ -9689,7 +9689,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alfocea',425.0),
 	 ('Liendo',425.0),
 	 ('Cotilla',425.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Falguera',425.0),
 	 ('Ballart',425.0),
 	 ('Morer',425.0),
@@ -9700,7 +9700,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sin',425.0),
 	 ('Oulad',425.0),
 	 ('Macovei',425.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ituarte',424.0),
 	 ('Terrades',424.0),
 	 ('Ansola',424.0),
@@ -9711,7 +9711,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bersabe',424.0),
 	 ('Conchillo',424.0),
 	 ('Brazo',424.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Montes',424.0),
 	 ('Cob',424.0),
 	 ('Toba',424.0),
@@ -9722,7 +9722,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dehesa',423.0),
 	 ('Cumbicus',423.0),
 	 ('Peraita',423.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jarrin',423.0),
 	 ('Pasamar',423.0),
 	 ('Maestu',423.0),
@@ -9733,7 +9733,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marroqui',423.0),
 	 ('Dono',423.0),
 	 ('Marro',423.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corton',423.0),
 	 ('Escario',423.0),
 	 ('Batlles',423.0),
@@ -9744,7 +9744,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zitouni',423.0),
 	 ('De Caso',422.0),
 	 ('Cuquejo',422.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ansotegui',422.0),
 	 ('Villazon',422.0),
 	 ('Isach',422.0),
@@ -9755,7 +9755,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Samso',422.0),
 	 ('Touza',422.0),
 	 ('Matthews',422.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tudose',422.0),
 	 ('Grigoras',422.0),
 	 ('Castroviejo',421.0),
@@ -9766,7 +9766,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Colera',420.0),
 	 ('Chornet',420.0),
 	 ('Citores',420.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beleña',420.0),
 	 ('Oto',420.0),
 	 ('Osorto',420.0),
@@ -9777,7 +9777,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chillida',420.0),
 	 ('Lescano',420.0),
 	 ('Talibi',420.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Mrabet',420.0),
 	 ('Jebbour',420.0),
 	 ('Ouadi',420.0),
@@ -9788,7 +9788,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gilarte',419.0),
 	 ('Fachal',419.0),
 	 ('Mingot',419.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Callen',419.0),
 	 ('Burgui',419.0),
 	 ('Mardaras',419.0),
@@ -9799,7 +9799,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tolentino',419.0),
 	 ('Arnez',419.0),
 	 ('Bezos',419.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lanzarote',419.0),
 	 ('Nelson',419.0),
 	 ('Madani',419.0),
@@ -9810,7 +9810,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Losantos',418.0),
 	 ('Milena',418.0),
 	 ('Porlan',418.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Seguer',418.0),
 	 ('Centella',418.0),
 	 ('Toraño',418.0),
@@ -9821,7 +9821,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quilon',418.0),
 	 ('Gibello',418.0),
 	 ('Orueta',418.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cuadras',418.0),
 	 ('Canorea',418.0),
 	 ('Orbea',418.0),
@@ -9832,7 +9832,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ogayar',417.0),
 	 ('Gaton',417.0),
 	 ('Vallbona',417.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gravalos',417.0),
 	 ('Remuiñan',417.0),
 	 ('Bascoy',417.0),
@@ -9843,7 +9843,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quelle',417.0),
 	 ('Prosper',417.0),
 	 ('Babarro',417.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Molares',417.0),
 	 ('Chacha',417.0),
 	 ('Yachou',417.0),
@@ -9854,7 +9854,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palmes',416.0),
 	 ('Cuena',416.0),
 	 ('Barrocal',416.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elustondo',416.0),
 	 ('Tarruella',416.0),
 	 ('Chamero',416.0),
@@ -9865,7 +9865,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Touzani',416.0),
 	 ('De Brito',415.0),
 	 ('Colilla',415.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garfia',415.0),
 	 ('Flotats',415.0),
 	 ('Galocha',415.0),
@@ -9876,7 +9876,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Labiad',415.0),
 	 ('Solomon',415.0),
 	 ('Sharif',415.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zahid',415.0),
 	 ('Necula',415.0),
 	 ('Laucirica',414.0),
@@ -9887,7 +9887,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cholbi',414.0),
 	 ('Esquer',414.0),
 	 ('Yedra',414.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Akhrif',414.0),
 	 ('Ford',414.0),
 	 ('Wen',414.0),
@@ -9898,7 +9898,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Medin',413.0),
 	 ('Oscoz',413.0),
 	 ('Lusquiños',413.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chamon',413.0),
 	 ('Boya',413.0),
 	 ('Teso',413.0),
@@ -9909,7 +9909,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Obradors',413.0),
 	 ('Baques',413.0),
 	 ('Sivera',413.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lafont',413.0),
 	 ('Taco',413.0),
 	 ('Arqueros',413.0),
@@ -9920,7 +9920,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Verbo',412.0),
 	 ('Exojo',412.0),
 	 ('Gaztelu',412.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saizar',412.0),
 	 ('Guia',412.0),
 	 ('Pasto',412.0),
@@ -9931,7 +9931,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cerqueiro',412.0),
 	 ('Hunt',412.0),
 	 ('Tenas',411.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Melo',411.0),
 	 ('Camiño',411.0),
 	 ('Algarin',411.0),
@@ -9942,7 +9942,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arnaldo',411.0),
 	 ('Lachica',411.0),
 	 ('Perlado',411.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santero',411.0),
 	 ('Uzquiano',411.0),
 	 ('Mourelo',411.0),
@@ -9953,7 +9953,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bahri',411.0),
 	 ('Azam',411.0),
 	 ('Rijo',410.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boquera',410.0),
 	 ('Cuende',410.0),
 	 ('Escala',410.0),
@@ -9964,7 +9964,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alzugaray',410.0),
 	 ('Luquero',410.0),
 	 ('Almecija',410.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lalaguna',410.0),
 	 ('Zancada',410.0),
 	 ('Soguero',410.0),
@@ -9975,7 +9975,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nimo',409.0),
 	 ('Yenes',409.0),
 	 ('Sueiras',409.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rabuñal',409.0),
 	 ('Chana',409.0),
 	 ('Aliende',409.0),
@@ -9986,7 +9986,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jansen',409.0),
 	 ('Saeed',409.0),
 	 ('Holmes',409.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uruñuela',408.0),
 	 ('Cordo',408.0),
 	 ('Alas',408.0),
@@ -9997,7 +9997,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Somovilla',408.0),
 	 ('De Lama',408.0),
 	 ('Fragueiro',408.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cadarso',408.0),
 	 ('Arimany',408.0),
 	 ('Letran',408.0),
@@ -10008,7 +10008,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gross',408.0),
 	 ('Pavlova',408.0),
 	 ('Rachidi',408.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Spencer',408.0),
 	 ('Jayo',407.0),
 	 ('Laureano',407.0),
@@ -10019,7 +10019,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Abajo',407.0),
 	 ('Landero',407.0),
 	 ('Descals',407.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tristancho',407.0),
 	 ('Prida',407.0),
 	 ('Reigada',407.0),
@@ -10030,7 +10030,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Knight',407.0),
 	 ('Fisher',407.0),
 	 ('Prodan',407.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beguiristain',406.0),
 	 ('Leiton',406.0),
 	 ('Satrustegui',406.0),
@@ -10041,7 +10041,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olleta',406.0),
 	 ('Truyols',406.0),
 	 ('Lopez Rey',406.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Massaguer',406.0),
 	 ('Perellon',406.0),
 	 ('Cuestas',406.0),
@@ -10052,7 +10052,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hamdan',406.0),
 	 ('Reid',406.0),
 	 ('Odero',405.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaurrieta',405.0),
 	 ('Zurano',405.0),
 	 ('Sandonis',405.0),
@@ -10063,7 +10063,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oronoz',405.0),
 	 ('Veciana',405.0),
 	 ('Queralto',405.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iban',405.0),
 	 ('De Sola',405.0),
 	 ('Chisvert',405.0),
@@ -10074,7 +10074,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rocafull',405.0),
 	 ('Giribet',405.0),
 	 ('Obama',405.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hichou',405.0),
 	 ('Berger',405.0),
 	 ('Perich',404.0),
@@ -10085,7 +10085,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hontanilla',404.0),
 	 ('Pruñonosa',404.0),
 	 ('Pañella',404.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beloso',404.0),
 	 ('Del Viso',404.0),
 	 ('Purroy',404.0),
@@ -10096,7 +10096,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Outeiriño',404.0),
 	 ('Suriñach',404.0),
 	 ('Perez De Albeniz',404.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Braun',404.0),
 	 ('Talhaoui',404.0),
 	 ('Naim',404.0),
@@ -10107,7 +10107,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Señor',403.0),
 	 ('Berlinches',403.0),
 	 ('Ontañon',403.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oliden',403.0),
 	 ('Amiano',403.0),
 	 ('Barbuzano',403.0),
@@ -10118,7 +10118,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Natividad',403.0),
 	 ('Cueli',403.0),
 	 ('Clari',403.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Posso',403.0),
 	 ('Gavara',403.0),
 	 ('Naz',403.0),
@@ -10129,7 +10129,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Munir',403.0),
 	 ('Groza',403.0),
 	 ('Salillas',402.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fervenza',402.0),
 	 ('Rabasa',402.0),
 	 ('Rusillo',402.0),
@@ -10140,7 +10140,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bardanca',402.0),
 	 ('Carregal',402.0),
 	 ('Baldrich',402.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santaren',402.0),
 	 ('Gilgado',402.0),
 	 ('Tresserras',402.0),
@@ -10151,7 +10151,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pintea',402.0),
 	 ('Cirstea',402.0),
 	 ('Canuto',401.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Padrosa',401.0),
 	 ('Eguez',401.0),
 	 ('Altaba',401.0),
@@ -10162,7 +10162,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sasiain',401.0),
 	 ('Cester',401.0),
 	 ('Morga',401.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morlanes',401.0),
 	 ('Graell',401.0),
 	 ('Del Baño',401.0),
@@ -10173,7 +10173,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aljama',401.0),
 	 ('Cerrejon',401.0),
 	 ('Antuñano',401.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jawo',401.0),
 	 ('Powell',401.0),
 	 ('Ibarbia',400.0),
@@ -10184,7 +10184,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Raluy',400.0),
 	 ('Tomala',400.0),
 	 ('Orell',400.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tesouro',400.0),
 	 ('Piñuela',400.0),
 	 ('Del Brio',400.0),
@@ -10195,7 +10195,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mañana',400.0),
 	 ('Benayad',400.0),
 	 ('Mirea',400.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reglero',399.0),
 	 ('Aguaron',399.0),
 	 ('Esquivias',399.0),
@@ -10206,7 +10206,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urdaniz',399.0),
 	 ('Zalba',399.0),
 	 ('Rafart',399.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Valeiras',399.0),
 	 ('Guachamin',399.0),
 	 ('Gonzalez Mohino',399.0),
@@ -10217,7 +10217,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cercadillo',399.0),
 	 ('Megino',399.0),
 	 ('Popova',399.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amri',399.0),
 	 ('Bouhou',399.0),
 	 ('Duta',399.0),
@@ -10228,7 +10228,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goti',398.0),
 	 ('Bacas',398.0),
 	 ('Timoneda',398.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carranco',398.0),
 	 ('Peiteado',398.0),
 	 ('Allepuz',398.0),
@@ -10239,7 +10239,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estalayo',398.0),
 	 ('Salavert',398.0),
 	 ('De Nova',398.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andersen',398.0),
 	 ('Greco',398.0),
 	 ('Seydi',398.0),
@@ -10250,7 +10250,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larraza',397.0),
 	 ('Cobeña',397.0),
 	 ('Colchon',397.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Toimil',397.0),
 	 ('Menduiña',397.0),
 	 ('Baroja',397.0),
@@ -10261,7 +10261,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ximenez',397.0),
 	 ('Jandula',397.0),
 	 ('Carbayo',397.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Virues',397.0),
 	 ('Astrain',397.0),
 	 ('Hakobyan',397.0),
@@ -10272,7 +10272,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alamar',396.0),
 	 ('Solozabal',396.0),
 	 ('Pruaño',396.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baraja',396.0),
 	 ('Garcete',396.0),
 	 ('Escalas',396.0),
@@ -10283,7 +10283,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sudupe',396.0),
 	 ('Beaumont',396.0),
 	 ('Pasarin',396.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez De Tudela',396.0),
 	 ('Garitaonandia',396.0),
 	 ('Cucurull',396.0),
@@ -10294,7 +10294,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nowak',396.0),
 	 ('Gormaz',395.0),
 	 ('Gajete',395.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ania',395.0),
 	 ('Bachero',395.0),
 	 ('Lustres',395.0),
@@ -10305,7 +10305,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardevol',395.0),
 	 ('Mihaylova',395.0),
 	 ('Pallardo',395.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arabi',395.0),
 	 ('Kostadinova',395.0),
 	 ('El Bakali',395.0),
@@ -10316,7 +10316,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bujor',395.0),
 	 ('Asins',394.0),
 	 ('Borruel',394.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santo Tomas',394.0),
 	 ('Tajada',394.0),
 	 ('Martin Caro',394.0),
@@ -10327,7 +10327,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gallifa',394.0),
 	 ('Lazarte',394.0),
 	 ('Camp',394.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saunders',394.0),
 	 ('Maxim',394.0),
 	 ('Alza',393.0),
@@ -10338,7 +10338,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Filloy',393.0),
 	 ('Pinta',393.0),
 	 ('Carboneras',393.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cobaleda',393.0),
 	 ('Gomez Del Pulgar',393.0),
 	 ('Gorrotxategi',393.0),
@@ -10349,7 +10349,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carrascoso',392.0),
 	 ('Calsina',392.0),
 	 ('Montesa',392.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bon',392.0),
 	 ('Rubal',392.0),
 	 ('Baldomir',392.0),
@@ -10360,7 +10360,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azouagh',392.0),
 	 ('Francis',392.0),
 	 ('Arab',392.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Badji',392.0),
 	 ('Nouri',392.0),
 	 ('Yousaf',392.0),
@@ -10371,7 +10371,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dugo',391.0),
 	 ('Meler',391.0),
 	 ('Congost',391.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Parareda',391.0),
 	 ('Rustarazo',391.0),
 	 ('Bros',391.0),
@@ -10382,7 +10382,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ceberio',390.0),
 	 ('Recatala',390.0),
 	 ('Vallinas',390.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Landeras',390.0),
 	 ('Segales',390.0),
 	 ('Laseca',390.0),
@@ -10393,7 +10393,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Satue',390.0),
 	 ('Buenavida',390.0),
 	 ('Petisco',390.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Baquero',390.0),
 	 ('Moreton',390.0),
 	 ('Ricci',390.0),
@@ -10404,7 +10404,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monagas',389.0),
 	 ('Palomeras',389.0),
 	 ('Correyero',389.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fadon',389.0),
 	 ('Cuni',389.0),
 	 ('Reza',389.0),
@@ -10415,7 +10415,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Bouhali',389.0),
 	 ('El Jaouhari',389.0),
 	 ('Gibson',389.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corea',388.0),
 	 ('Descarrega',388.0),
 	 ('Asperilla',388.0),
@@ -10426,7 +10426,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bolumar',388.0),
 	 ('Aguinaco',388.0),
 	 ('Cibeira',388.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saperas',388.0),
 	 ('Ovejas',388.0),
 	 ('Noblejas',388.0),
@@ -10437,7 +10437,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escapa',387.0),
 	 ('Macarron',387.0),
 	 ('Perdiz',387.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faubel',387.0),
 	 ('Oribe',387.0),
 	 ('Punti',387.0),
@@ -10448,7 +10448,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Somavilla',387.0),
 	 ('Farell',387.0),
 	 ('Grabulosa',387.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Altemir',387.0),
 	 ('Abraldes',387.0),
 	 ('Martin De Vidales',387.0),
@@ -10459,7 +10459,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gherman',387.0),
 	 ('Mezquida',386.0),
 	 ('Torello',386.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Codorniu',386.0),
 	 ('Urmeneta',386.0),
 	 ('Peromingo',386.0),
@@ -10470,7 +10470,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romacho',386.0),
 	 ('Filella',386.0),
 	 ('Cirer',386.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castrillejo',386.0),
 	 ('Maniega',386.0),
 	 ('Obiang',386.0),
@@ -10481,7 +10481,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mantiñan',385.0),
 	 ('Valtueña',385.0),
 	 ('Errazquin',385.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Macanas',385.0),
 	 ('Igoa',385.0),
 	 ('Albores',385.0),
@@ -10492,7 +10492,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saceda',385.0),
 	 ('Matencio',385.0),
 	 ('Omil',385.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tijero',385.0),
 	 ('Bigorra',385.0),
 	 ('Ispizua',385.0),
@@ -10503,7 +10503,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cavas',385.0),
 	 ('Dahman',385.0),
 	 ('Mamouni',385.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Negoita',385.0),
 	 ('Cardeñoso',384.0),
 	 ('Carbia',384.0),
@@ -10514,7 +10514,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sobreviela',384.0),
 	 ('Mele',384.0),
 	 ('Gondra',384.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Semitiel',384.0),
 	 ('Urbizu',384.0),
 	 ('Beloki',384.0),
@@ -10525,7 +10525,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Howard',384.0),
 	 ('Ayoubi',384.0),
 	 ('Peño',383.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aizpun',383.0),
 	 ('Suberviola',383.0),
 	 ('Palomas',383.0),
@@ -10536,7 +10536,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Novelle',383.0),
 	 ('Llados',383.0),
 	 ('Sagarduy',383.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Encarnacion',383.0),
 	 ('Mollar',383.0),
 	 ('Tiburcio',383.0),
@@ -10547,7 +10547,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cissokho',383.0),
 	 ('Kiss',383.0),
 	 ('Iñarra',382.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marticorena',382.0),
 	 ('Debon',382.0),
 	 ('Alesanco',382.0),
@@ -10558,7 +10558,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Isusi',382.0),
 	 ('Amodeo',382.0),
 	 ('Clavo',382.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordiñana',382.0),
 	 ('Chapado',382.0),
 	 ('Faz',382.0),
@@ -10569,7 +10569,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saleh',382.0),
 	 ('Juwara',382.0),
 	 ('Aharram',382.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fadili',382.0),
 	 ('Costin',382.0),
 	 ('Garres',381.0),
@@ -10580,7 +10580,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Teno',381.0),
 	 ('Rosua',381.0),
 	 ('Brage',381.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juanas',381.0),
 	 ('Villacres',381.0),
 	 ('Vicho',381.0),
@@ -10591,7 +10591,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lincan',381.0),
 	 ('Gahete',380.0),
 	 ('Terraza',380.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marcillo',380.0),
 	 ('Piñan',380.0),
 	 ('Viegas',380.0),
@@ -10602,7 +10602,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trullols',380.0),
 	 ('Garzas',380.0),
 	 ('Mendiburu',380.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barderas',380.0),
 	 ('Domingos',380.0),
 	 ('Mounir',380.0),
@@ -10613,7 +10613,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carias',379.0),
 	 ('Carus',379.0),
 	 ('Zuriaga',379.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ayerdi',379.0),
 	 ('Murguia',379.0),
 	 ('Camos',379.0),
@@ -10624,7 +10624,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Kharraz',379.0),
 	 ('El Youssfi',379.0),
 	 ('El Haouari',379.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Haida',379.0),
 	 ('Naveed',379.0),
 	 ('Maiztegui',378.0),
@@ -10635,7 +10635,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mendaza',378.0),
 	 ('Fillat',378.0),
 	 ('Balza',378.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viader',378.0),
 	 ('Portabella',378.0),
 	 ('Duaso',378.0),
@@ -10646,7 +10646,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ateca',378.0),
 	 ('Omedes',378.0),
 	 ('Soroa',378.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcoceba',378.0),
 	 ('El Otmani',378.0),
 	 ('Bouda',378.0),
@@ -10657,7 +10657,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vispo',377.0),
 	 ('Arreaga',377.0),
 	 ('Arraras',377.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estaun',377.0),
 	 ('Feu',377.0),
 	 ('Ibarreche',377.0),
@@ -10668,7 +10668,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ursua',377.0),
 	 ('Ribagorda',377.0),
 	 ('Garmon',377.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gordaliza',377.0),
 	 ('Rufas',377.0),
 	 ('Coimbra',377.0),
@@ -10679,7 +10679,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pertierra',376.0),
 	 ('Trochez',376.0),
 	 ('Villoldo',376.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nestares',376.0),
 	 ('Tudanca',376.0),
 	 ('Andrango',376.0),
@@ -10690,7 +10690,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Male',376.0),
 	 ('Velardo',376.0),
 	 ('Carriles',376.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Segu',376.0),
 	 ('Menasalvas',376.0),
 	 ('Zaton',376.0),
@@ -10701,7 +10701,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ivascu',376.0),
 	 ('Mihalcea',376.0),
 	 ('Shahbaz',376.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chans',375.0),
 	 ('Niso',375.0),
 	 ('Terceño',375.0),
@@ -10712,7 +10712,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esplugas',375.0),
 	 ('Villamediana',375.0),
 	 ('Alcubilla',375.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Novalbos',375.0),
 	 ('Naula',375.0),
 	 ('Tirapu',375.0),
@@ -10723,7 +10723,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Murria',375.0),
 	 ('Gallastegi',375.0),
 	 ('Lahrach',375.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elliott',375.0),
 	 ('Ciobotaru',375.0),
 	 ('Regaña',374.0),
@@ -10734,7 +10734,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Pavon',374.0),
 	 ('Vizarraga',374.0),
 	 ('Mortes',374.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laguillo',374.0),
 	 ('Celeiro',374.0),
 	 ('De Llano',374.0),
@@ -10745,7 +10745,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sajid',374.0),
 	 ('Potes',373.0),
 	 ('Betancourth',373.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agud',373.0),
 	 ('De Ana',373.0),
 	 ('Gatica',373.0),
@@ -10756,7 +10756,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molleja',373.0),
 	 ('Bernier',373.0),
 	 ('Piferrer',373.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otegi',373.0),
 	 ('Bernues',373.0),
 	 ('Verastegui',373.0),
@@ -10767,7 +10767,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fustero',372.0),
 	 ('Bruque',372.0),
 	 ('Arrechea',372.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ricon',372.0),
 	 ('Alfonseca',372.0),
 	 ('Isart',372.0),
@@ -10778,7 +10778,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ajo',372.0),
 	 ('Esquiroz',372.0),
 	 ('Calbo',372.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galbarro',372.0),
 	 ('Minguito',372.0),
 	 ('Flix',372.0),
@@ -10789,7 +10789,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Karroum',372.0),
 	 ('Makhlouf',372.0),
 	 ('Chira',372.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ayesta',371.0),
 	 ('Indias',371.0),
 	 ('Sanchez Fortun',371.0),
@@ -10800,7 +10800,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corbelle',371.0),
 	 ('Martinez Losa',371.0),
 	 ('Ciaurriz',371.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mendioroz',371.0),
 	 ('Colunga',371.0),
 	 ('Bocero',371.0),
@@ -10811,7 +10811,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cons',371.0),
 	 ('Hereu',371.0),
 	 ('Parisi',371.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Ouakili',371.0),
 	 ('Nazir',371.0),
 	 ('Zaoui',371.0),
@@ -10822,7 +10822,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abizanda',370.0),
 	 ('Mourin',370.0),
 	 ('Estupiña',370.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abadin',370.0),
 	 ('Anda',370.0),
 	 ('Galloso',370.0),
@@ -10833,7 +10833,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hurtado De Mendoza',370.0),
 	 ('Noreen',370.0),
 	 ('El Baghdadi',370.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaratiegui',369.0),
 	 ('Sariñena',369.0),
 	 ('Muns',369.0),
@@ -10844,7 +10844,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Unanua',369.0),
 	 ('San Gil',369.0),
 	 ('Fragua',369.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olcoz',369.0),
 	 ('Berne',369.0),
 	 ('Laita',369.0),
@@ -10855,7 +10855,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santurde',369.0),
 	 ('Yagual',369.0),
 	 ('Abecia',369.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Eraña',369.0),
 	 ('Tsvetanova',369.0),
 	 ('Keller',369.0),
@@ -10866,7 +10866,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garabito',368.0),
 	 ('Lolo',368.0),
 	 ('Bohigas',368.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Praena',368.0),
 	 ('Zabal',368.0),
 	 ('Camañes',368.0),
@@ -10877,7 +10877,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ibiricu',368.0),
 	 ('Antolino',368.0),
 	 ('Nocete',368.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hayani',368.0),
 	 ('Taybi',368.0),
 	 ('El Hamdi',368.0),
@@ -10888,7 +10888,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Soba',367.0),
 	 ('Romojaro',367.0),
 	 ('Represas',367.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torcuato',367.0),
 	 ('Ruiz De La Hermosa',367.0),
 	 ('Barrancos',367.0),
@@ -10899,7 +10899,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sauras',367.0),
 	 ('Saenz De Tejada',367.0),
 	 ('Bohoyo',367.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andonegui',367.0),
 	 ('Pujades',367.0),
 	 ('Choulli',367.0),
@@ -10910,7 +10910,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Galiñanes',366.0),
 	 ('Quizhpe',366.0),
 	 ('Los Arcos',366.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aris',366.0),
 	 ('Berengue',366.0),
 	 ('Abolafio',366.0),
@@ -10921,7 +10921,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Korta',366.0),
 	 ('Hadi',366.0),
 	 ('Brooks',366.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Man',366.0),
 	 ('Ilyas',366.0),
 	 ('Boubeta',365.0),
@@ -10932,7 +10932,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Asua',365.0),
 	 ('Yaguana',365.0),
 	 ('Armengou',365.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aomar',365.0),
 	 ('Comella',365.0),
 	 ('Ozaeta',365.0),
@@ -10943,7 +10943,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nieto Marquez',365.0),
 	 ('Mohamed Salem',365.0),
 	 ('Isac',365.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mitkov',365.0),
 	 ('Mboup',365.0),
 	 ('Ijaz',365.0),
@@ -10954,7 +10954,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sahun',364.0),
 	 ('Gomez Escalonilla',364.0),
 	 ('Gete',364.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carreiro',364.0),
 	 ('Fuenmayor',364.0),
 	 ('Sabadell',364.0),
@@ -10965,7 +10965,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toja',364.0),
 	 ('Bufi',364.0),
 	 ('Gistau',364.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Luque',364.0),
 	 ('Cayo',364.0),
 	 ('Campanero',364.0),
@@ -10976,7 +10976,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boutaleb',364.0),
 	 ('El Manssouri',364.0),
 	 ('Pulpon',363.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rafecas',363.0),
 	 ('Paracuellos',363.0),
 	 ('Contioso',363.0),
@@ -10987,7 +10987,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arrastia',363.0),
 	 ('Llaves',363.0),
 	 ('Movellan',363.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Avelino',363.0),
 	 ('Diaz Flores',363.0),
 	 ('De Torre',363.0),
@@ -10998,7 +10998,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Modesto',363.0),
 	 ('Sesar',363.0),
 	 ('Vijande',363.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lamrani',363.0),
 	 ('D''Angelo',363.0),
 	 ('Kadiri',363.0),
@@ -11009,7 +11009,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alacreu',362.0),
 	 ('Penco',362.0),
 	 ('San Agustin',362.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lasaosa',362.0),
 	 ('Ibarlucea',362.0),
 	 ('Astilleros',362.0),
@@ -11020,7 +11020,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Binimelis',362.0),
 	 ('Chilleron',362.0),
 	 ('Arcusa',362.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Vara',362.0),
 	 ('Escacena',362.0),
 	 ('Ponga',362.0),
@@ -11031,7 +11031,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Qi',362.0),
 	 ('Lanas',361.0),
 	 ('Calaforra',361.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordiz',361.0),
 	 ('Pociello',361.0),
 	 ('Breña',361.0),
@@ -11042,7 +11042,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tajadura',361.0),
 	 ('Hebrero',361.0),
 	 ('Sbert',361.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arcelus',361.0),
 	 ('Beade',361.0),
 	 ('Albendin',361.0),
@@ -11053,7 +11053,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Florescu',361.0),
 	 ('Moracho',360.0),
 	 ('Verdeja',360.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sardinero',360.0),
 	 ('Sauco',360.0),
 	 ('Curros',360.0),
@@ -11064,7 +11064,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rubial',360.0),
 	 ('Nualart',360.0),
 	 ('Ubieto',360.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Basarte',360.0),
 	 ('Gallar',360.0),
 	 ('Morodo',360.0),
@@ -11075,7 +11075,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruzo',360.0),
 	 ('Majoral',360.0),
 	 ('Garvia',360.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arizcuren',360.0),
 	 ('Gartzia',360.0),
 	 ('Bensaad',360.0),
@@ -11086,7 +11086,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casademunt',359.0),
 	 ('Villafaina',359.0),
 	 ('Casariego',359.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guadarrama',359.0),
 	 ('Cañar',359.0),
 	 ('Mintegui',359.0),
@@ -11097,7 +11097,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trull',359.0),
 	 ('Cabezos',359.0),
 	 ('Tezanos',359.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perna',359.0),
 	 ('Vizcay',359.0),
 	 ('Juve',359.0),
@@ -11108,7 +11108,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gale',359.0),
 	 ('Cheikh',359.0),
 	 ('Dali',359.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mhamdi',359.0),
 	 ('Makhloufi',359.0),
 	 ('Doyle',359.0),
@@ -11119,7 +11119,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Busto',358.0),
 	 ('Albiac',358.0),
 	 ('Vigon',358.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pomes',358.0),
 	 ('Contento',358.0),
 	 ('Samudio',358.0),
@@ -11130,7 +11130,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salicio',358.0),
 	 ('Santacatalina',358.0),
 	 ('Mugarza',358.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tayebi',358.0),
 	 ('Day',358.0),
 	 ('Deng',358.0),
@@ -11141,7 +11141,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lombraña',357.0),
 	 ('Pingarron',357.0),
 	 ('Lasaga',357.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Solomando',357.0),
 	 ('Viaplana',357.0),
 	 ('Rosete',357.0),
@@ -11152,7 +11152,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balladares',357.0),
 	 ('Daimiel',357.0),
 	 ('Bages',357.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Rojo',357.0),
 	 ('Margaix',357.0),
 	 ('Paradinas',357.0),
@@ -11163,7 +11163,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciuca',357.0),
 	 ('Albor',356.0),
 	 ('Paleo',356.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Erquicia',356.0),
 	 ('Mojon',356.0),
 	 ('Sanglas',356.0),
@@ -11174,7 +11174,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Tendero',356.0),
 	 ('Rizos',356.0),
 	 ('Utreras',356.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vas',356.0),
 	 ('Arrasate',356.0),
 	 ('De La Lastra',356.0),
@@ -11185,7 +11185,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Omaña',356.0),
 	 ('Abaurrea',356.0),
 	 ('Casasayas',356.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Solar',356.0),
 	 ('El Mokhtari',356.0),
 	 ('Asan',356.0),
@@ -11196,7 +11196,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Egurrola',355.0),
 	 ('Viver',355.0),
 	 ('Barris',355.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olaria',355.0),
 	 ('Olguin',355.0),
 	 ('Gutiez',355.0),
@@ -11207,7 +11207,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanfiel',355.0),
 	 ('Juncos',355.0),
 	 ('Rocafort',355.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ceinos',355.0),
 	 ('Bayod',355.0),
 	 ('Juanpere',355.0),
@@ -11218,7 +11218,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Fakir',355.0),
 	 ('Lamkadem',355.0),
 	 ('O''Neill',355.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mangue',354.0),
 	 ('Verdun',354.0),
 	 ('Trabanco',354.0),
@@ -11229,7 +11229,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Artiga',354.0),
 	 ('Portet',354.0),
 	 ('Soza',354.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espitia',354.0),
 	 ('Reta',354.0),
 	 ('Poleo',354.0),
@@ -11240,7 +11240,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Limeres',354.0),
 	 ('Del Cueto',354.0),
 	 ('Baya',354.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pich',354.0),
 	 ('Velastegui',354.0),
 	 ('Iparragirre',354.0),
@@ -11251,7 +11251,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mariezcurrena',353.0),
 	 ('Cazon',353.0),
 	 ('De Heras',353.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcober',353.0),
 	 ('Chito',353.0),
 	 ('Arnandis',353.0),
@@ -11262,7 +11262,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sar',353.0),
 	 ('Aldonza',353.0),
 	 ('Gaite',353.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Petrus',353.0),
 	 ('Moncunill',353.0),
 	 ('Larraya',353.0),
@@ -11273,7 +11273,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Issaoui',353.0),
 	 ('Antonova',353.0),
 	 ('Mazouz',353.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abdullah',353.0),
 	 ('Alique',352.0),
 	 ('Fabuel',352.0),
@@ -11284,7 +11284,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clave',352.0),
 	 ('Tarraso',352.0),
 	 ('Araguas',352.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Girela',352.0),
 	 ('Valdueza',352.0),
 	 ('Veganzones',352.0),
@@ -11295,7 +11295,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escuela',352.0),
 	 ('Manceras',352.0),
 	 ('Sineiro',352.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Graus',352.0),
 	 ('Bayer',352.0),
 	 ('Fava',352.0),
@@ -11306,7 +11306,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aouragh',352.0),
 	 ('Carp',352.0),
 	 ('Loinaz',351.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Idarraga',351.0),
 	 ('Bardales',351.0),
 	 ('Tolsa',351.0),
@@ -11317,7 +11317,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leiras',351.0),
 	 ('Muras',351.0),
 	 ('Olloqui',351.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berrueco',351.0),
 	 ('Mampel',351.0),
 	 ('Cuervas',351.0),
@@ -11328,7 +11328,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seivane',351.0),
 	 ('Sistiaga',351.0),
 	 ('Endrino',351.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anaut',351.0),
 	 ('Ulldemolins',351.0),
 	 ('Callizo',351.0),
@@ -11339,7 +11339,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boutahar',351.0),
 	 ('Charki',351.0),
 	 ('Parapar',350.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gorraiz',350.0),
 	 ('Albella',350.0),
 	 ('Casorran',350.0),
@@ -11350,7 +11350,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barrufet',350.0),
 	 ('Barbazan',350.0),
 	 ('Escalonilla',350.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tierraseca',350.0),
 	 ('Giganto',350.0),
 	 ('Terry',350.0),
@@ -11361,7 +11361,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorriti',349.0),
 	 ('Ulibarri',349.0),
 	 ('Cochon',349.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gavilanez',349.0),
 	 ('Fonts',349.0),
 	 ('Olascoaga',349.0),
@@ -11372,7 +11372,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorria',349.0),
 	 ('Lluna',349.0),
 	 ('Ipiña',349.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz Peinado',349.0),
 	 ('Cascajo',349.0),
 	 ('Cantizano',349.0),
@@ -11383,7 +11383,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Voinea',349.0),
 	 ('Marrades',348.0),
 	 ('Almanzar',348.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Montaña',348.0),
 	 ('Sanvicente',348.0),
 	 ('Moranta',348.0),
@@ -11394,7 +11394,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santirso',348.0),
 	 ('Olucha',348.0),
 	 ('Fiuza',348.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cartas',348.0),
 	 ('Fernandez De Retana',348.0),
 	 ('Izaga',348.0),
@@ -11405,7 +11405,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doral',347.0),
 	 ('Cuetara',347.0),
 	 ('Arraiz',347.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bogas',347.0),
 	 ('Espona',347.0),
 	 ('Aguin',347.0),
@@ -11416,7 +11416,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Gasco',347.0),
 	 ('Berja',347.0),
 	 ('Del Arbol',347.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mirasol',347.0),
 	 ('Jubera',347.0),
 	 ('Andersson',347.0),
@@ -11427,7 +11427,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Barros',346.0),
 	 ('Baides',346.0),
 	 ('Losana',346.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alama',346.0),
 	 ('Zarazaga',346.0),
 	 ('Baonza',346.0),
@@ -11438,7 +11438,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agraso',346.0),
 	 ('Menayo',346.0),
 	 ('Mayora',346.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Princep',346.0),
 	 ('Viniegra',346.0),
 	 ('Esain',346.0),
@@ -11449,7 +11449,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mancini',346.0),
 	 ('Diakhate',346.0),
 	 ('Horvath',346.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maftei',346.0),
 	 ('Contrera',345.0),
 	 ('Corchete',345.0),
@@ -11460,7 +11460,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pladevall',345.0),
 	 ('De Grado',345.0),
 	 ('Huesa',345.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matheu',345.0),
 	 ('Fas',345.0),
 	 ('Legua',345.0),
@@ -11471,7 +11471,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Landaburu',345.0),
 	 ('Sotelino',345.0),
 	 ('Migoya',345.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chocron',345.0),
 	 ('Lang',345.0),
 	 ('Konteh',345.0),
@@ -11482,7 +11482,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Farray',344.0),
 	 ('Avivar',344.0),
 	 ('Caldito',344.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Legaspi',344.0),
 	 ('Calmaestra',344.0),
 	 ('Terceros',344.0),
@@ -11493,7 +11493,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peraire',344.0),
 	 ('Durantez',344.0),
 	 ('De Las Peñas',344.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Valdecasas',344.0),
 	 ('Tarradas',344.0),
 	 ('Krubally',344.0),
@@ -11504,7 +11504,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lizandra',343.0),
 	 ('Bayes',343.0),
 	 ('Muedra',343.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabria',343.0),
 	 ('Caruncho',343.0),
 	 ('Escura',343.0),
@@ -11515,7 +11515,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fijo',343.0),
 	 ('Rodo',343.0),
 	 ('Asian',343.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Picardo',343.0),
 	 ('Retegui',343.0),
 	 ('Rebato',343.0),
@@ -11526,7 +11526,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Puiu',343.0),
 	 ('Iorga',343.0),
 	 ('Nielfa',342.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Choez',342.0),
 	 ('Leunda',342.0),
 	 ('Estadella',342.0),
@@ -11537,7 +11537,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Mateos',342.0),
 	 ('Amurrio',342.0),
 	 ('Escale',342.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mendi',342.0),
 	 ('Sangil',342.0),
 	 ('Fortun',342.0),
@@ -11548,7 +11548,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calderero',342.0),
 	 ('Boti',342.0),
 	 ('Pane',342.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Pardo',342.0),
 	 ('Diez De Los Rios',342.0),
 	 ('Vincent',342.0),
@@ -11559,7 +11559,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Veny',341.0),
 	 ('Frades',341.0),
 	 ('Barruetabeña',341.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gardon',341.0),
 	 ('Villalain',341.0),
 	 ('Barraso',341.0),
@@ -11570,7 +11570,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cires',341.0),
 	 ('Fikri',341.0),
 	 ('Johnston',341.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rebanal',340.0),
 	 ('Atucha',340.0),
 	 ('Habas',340.0),
@@ -11581,7 +11581,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lanaspa',340.0),
 	 ('Oset',340.0),
 	 ('Ouviña',340.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puch',340.0),
 	 ('Branco',340.0),
 	 ('Toronjo',340.0),
@@ -11592,7 +11592,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goas',340.0),
 	 ('Rodriguez De Guzman',340.0),
 	 ('Porte',340.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Basagoiti',340.0),
 	 ('Mejdoubi',340.0),
 	 ('Belkaid',340.0),
@@ -11603,7 +11603,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benavidez',339.0),
 	 ('Masachs',339.0),
 	 ('Martin Bejarano',339.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Contero',339.0),
 	 ('Daviu',339.0),
 	 ('Escuderos',339.0),
@@ -11614,7 +11614,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grijalvo',339.0),
 	 ('Ulla',339.0),
 	 ('Semper',339.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lascano',339.0),
 	 ('Campoamor',339.0),
 	 ('Sumareh',339.0),
@@ -11625,7 +11625,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Busuioc',339.0),
 	 ('You',339.0),
 	 ('Cortiella',338.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lamban',338.0),
 	 ('Aldave',338.0),
 	 ('Cristaldo',338.0),
@@ -11636,7 +11636,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orosco',338.0),
 	 ('Bahon',338.0),
 	 ('Carasa',338.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jusdado',338.0),
 	 ('Satorre',338.0),
 	 ('Manfredi',338.0),
@@ -11647,7 +11647,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ais',338.0),
 	 ('Gallach',338.0),
 	 ('Floriano',338.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gonell',338.0),
 	 ('Oncala',338.0),
 	 ('Bran',338.0),
@@ -11658,7 +11658,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Armstrong',338.0),
 	 ('Nasir',338.0),
 	 ('Kanoute',338.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alunda',337.0),
 	 ('Viamonte',337.0),
 	 ('Saldias',337.0),
@@ -11669,7 +11669,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viturro',337.0),
 	 ('Icart',337.0),
 	 ('Codoñer',337.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taroncher',337.0),
 	 ('Compan',337.0),
 	 ('Fontova',337.0),
@@ -11680,7 +11680,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quintairos',337.0),
 	 ('Sabaly',337.0),
 	 ('Candanedo',336.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soldan',336.0),
 	 ('Miralpeix',336.0),
 	 ('Aguirregomezcorta',336.0),
@@ -11691,7 +11691,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juiz',336.0),
 	 ('Barandalla',336.0),
 	 ('Tablado',336.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costumero',336.0),
 	 ('Bech',336.0),
 	 ('Arriaran',336.0),
@@ -11702,7 +11702,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Copovi',336.0),
 	 ('Zulaika',336.0),
 	 ('Brand',336.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Draoui',336.0),
 	 ('Larsen',336.0),
 	 ('Jamal',336.0),
@@ -11713,7 +11713,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pricop',336.0),
 	 ('Tian',336.0),
 	 ('Jia',336.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Cervigon',335.0),
 	 ('Regalon',335.0),
 	 ('Lietor',335.0),
@@ -11724,7 +11724,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serrada',335.0),
 	 ('Borbon',335.0),
 	 ('Parla',335.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tienza',335.0),
 	 ('Pardillos',335.0),
 	 ('Amunarriz',335.0),
@@ -11735,7 +11735,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Solaun',335.0),
 	 ('Beardo',335.0),
 	 ('Youssef',335.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jellouli',335.0),
 	 ('Gherasim',335.0),
 	 ('Paduraru',335.0),
@@ -11746,7 +11746,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gamir',334.0),
 	 ('Pallicer',334.0),
 	 ('Otaduy',334.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mañosa',334.0),
 	 ('Naveros',334.0),
 	 ('Torronteras',334.0),
@@ -11757,7 +11757,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Achutegui',334.0),
 	 ('Biot',334.0),
 	 ('Gelado',334.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grobas',334.0),
 	 ('Sanchez De Leon',334.0),
 	 ('Pirez',334.0),
@@ -11768,7 +11768,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sitges',334.0),
 	 ('Pallero',334.0),
 	 ('Oron',334.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Naimi',334.0),
 	 ('Sadiq',334.0),
 	 ('Sacko',334.0),
@@ -11779,7 +11779,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saldivar',333.0),
 	 ('Hombrados',333.0),
 	 ('Balaguero',333.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brisa',333.0),
 	 ('Urdiain',333.0),
 	 ('Iturregui',333.0),
@@ -11790,7 +11790,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erena',333.0),
 	 ('Talero',333.0),
 	 ('De Mier',333.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moiron',333.0),
 	 ('Beunza',333.0),
 	 ('Cadavieco',333.0),
@@ -11801,7 +11801,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ubeira',333.0),
 	 ('Urkia',333.0),
 	 ('Pisano',333.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ben Hammou',333.0),
 	 ('Salsamendi',332.0),
 	 ('Jaldin',332.0),
@@ -11812,7 +11812,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zenteno',332.0),
 	 ('Tey',332.0),
 	 ('Pesquero',332.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Eguino',332.0),
 	 ('Nonell',332.0),
 	 ('Valdeon',332.0),
@@ -11823,7 +11823,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estrade',332.0),
 	 ('Valdecantos',332.0),
 	 ('Jarne',332.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Octavio',332.0),
 	 ('Minguella',332.0),
 	 ('Sampalo',332.0),
@@ -11834,7 +11834,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Choi',332.0),
 	 ('El Ouazzani',332.0),
 	 ('Zouine',332.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sowe',332.0),
 	 ('Oujo',331.0),
 	 ('Goyenechea',331.0),
@@ -11845,7 +11845,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Munduate',331.0),
 	 ('Do Carmo',331.0),
 	 ('Fombellida',331.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caudevilla',331.0),
 	 ('Pio',331.0),
 	 ('Luelmo',331.0),
@@ -11856,7 +11856,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Betrian',331.0),
 	 ('Moposita',331.0),
 	 ('Pollan',331.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Constante',331.0),
 	 ('Barchin',331.0),
 	 ('Navaridas',331.0),
@@ -11867,7 +11867,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arnold',331.0),
 	 ('Petrache',331.0),
 	 ('Molanes',330.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Meco',330.0),
 	 ('Arceo',330.0),
 	 ('Aguedo',330.0),
@@ -11878,7 +11878,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gomez De La Torre',330.0),
 	 ('Barniol',330.0),
 	 ('Orrit',330.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bezerra',330.0),
 	 ('Toste',330.0),
 	 ('Vilan',330.0),
@@ -11889,7 +11889,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molinares',330.0),
 	 ('Monteso',330.0),
 	 ('Planaguma',330.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cambre',330.0),
 	 ('Cotanda',330.0),
 	 ('Gelpi',330.0),
@@ -11900,7 +11900,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Taravillo',329.0),
 	 ('Martelo',329.0),
 	 ('Cividanes',329.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faya',329.0),
 	 ('Lopez Brea',329.0),
 	 ('Pitarque',329.0),
@@ -11911,7 +11911,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barnils',329.0),
 	 ('Albano',329.0),
 	 ('Kostadinov',329.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ben Said',329.0),
 	 ('Sultan',329.0),
 	 ('Azirar',329.0),
@@ -11922,7 +11922,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muniz',328.0),
 	 ('Landivar',328.0),
 	 ('Botet',328.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zoilo',328.0),
 	 ('Rastrilla',328.0),
 	 ('Moraes',328.0),
@@ -11933,7 +11933,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Royan',328.0),
 	 ('Baeta',328.0),
 	 ('Abaigar',328.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Deya',328.0),
 	 ('Arcega',328.0),
 	 ('Guardo',328.0),
@@ -11944,7 +11944,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Simeonov',328.0),
 	 ('Aharchi',328.0),
 	 ('Shahzadi',328.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faouzi',328.0),
 	 ('El Haddaoui',328.0),
 	 ('Din',328.0),
@@ -11955,7 +11955,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Labra',327.0),
 	 ('Corralejo',327.0),
 	 ('Almohalla',327.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferreduela',327.0),
 	 ('Floro',327.0),
 	 ('Muruaga',327.0),
@@ -11966,7 +11966,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villadoniga',327.0),
 	 ('Cambil',327.0),
 	 ('Fiallos',327.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espiña',327.0),
 	 ('Chavarrias',327.0),
 	 ('Cocho',327.0),
@@ -11977,7 +11977,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Francesch',327.0),
 	 ('Barri',327.0),
 	 ('Aucejo',327.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bohigues',327.0),
 	 ('Salvi',327.0),
 	 ('De La Herran',327.0),
@@ -11988,7 +11988,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baran',327.0),
 	 ('Liparteliani',327.0),
 	 ('Arano',326.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cubilla',326.0),
 	 ('Cuiñas',326.0),
 	 ('Campomar',326.0),
@@ -11999,7 +11999,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jerico',326.0),
 	 ('Santorum',326.0),
 	 ('Moragrega',326.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bañeres',326.0),
 	 ('Fau',326.0),
 	 ('Colin',326.0),
@@ -12010,7 +12010,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mentxaka',326.0),
 	 ('Bobis',326.0),
 	 ('Azdad',326.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caruso',326.0),
 	 ('Lawrence',326.0),
 	 ('Emilov',326.0),
@@ -12021,7 +12021,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muñio',325.0),
 	 ('Bandin',325.0),
 	 ('Hermelo',325.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Muzo',325.0),
 	 ('Gouveia',325.0),
 	 ('Gualoto',325.0),
@@ -12032,7 +12032,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuellas',325.0),
 	 ('Alcoholado',325.0),
 	 ('Castañera',325.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vasconez',325.0),
 	 ('Trespalacios',325.0),
 	 ('Idoate',325.0),
@@ -12043,7 +12043,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mesado',325.0),
 	 ('Monteverde',325.0),
 	 ('Picher',325.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manau',325.0),
 	 ('Vinyals',325.0),
 	 ('Azougagh',325.0),
@@ -12054,7 +12054,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pacin',324.0),
 	 ('Varillas',324.0),
 	 ('Banzo',324.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cartelle',324.0),
 	 ('Lasuen',324.0),
 	 ('Castizo',324.0),
@@ -12065,7 +12065,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sances',324.0),
 	 ('Boria',324.0),
 	 ('Curra',324.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garofano',324.0),
 	 ('Mones',324.0),
 	 ('Longarela',324.0),
@@ -12076,7 +12076,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Karapetyan',324.0),
 	 ('Kovalchuk',324.0),
 	 ('Irujo',323.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urquidi',323.0),
 	 ('Alpañez',323.0),
 	 ('Macazaga',323.0),
@@ -12087,7 +12087,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orjuela',323.0),
 	 ('Vilamajo',323.0),
 	 ('Lalinde',323.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roteta',323.0),
 	 ('Vidueira',323.0),
 	 ('Ganado',323.0),
@@ -12098,7 +12098,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quemada',323.0),
 	 ('Anselmo',323.0),
 	 ('Meabe',323.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Varilla',323.0),
 	 ('El Haddouti',323.0),
 	 ('Ghazi',323.0),
@@ -12109,7 +12109,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Sa',322.0),
 	 ('Lusarreta',322.0),
 	 ('Cardosa',322.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sobejano',322.0),
 	 ('Tamaral',322.0),
 	 ('Toala',322.0),
@@ -12120,7 +12120,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pupo',322.0),
 	 ('Casbas',322.0),
 	 ('Tazon',322.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Poceiro',322.0),
 	 ('Gacio',322.0),
 	 ('Laka',322.0),
@@ -12131,7 +12131,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tambo',322.0),
 	 ('Geniz',322.0),
 	 ('Cordido',322.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez De Arenaza',322.0),
 	 ('Cosa',322.0),
 	 ('Werner',322.0),
@@ -12142,7 +12142,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abed',322.0),
 	 ('El Mir',322.0),
 	 ('Assou',322.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cole',322.0),
 	 ('Burton',322.0),
 	 ('Molnar',322.0),
@@ -12153,7 +12153,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Algeciras',321.0),
 	 ('Reimundez',321.0),
 	 ('Kostova',321.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gentil',321.0),
 	 ('Caramazana',321.0),
 	 ('Leonor',321.0),
@@ -12164,7 +12164,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nogueron',321.0),
 	 ('Egia',321.0),
 	 ('Pajon',321.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fierrez',321.0),
 	 ('Artalejo',321.0),
 	 ('Maurel',321.0),
@@ -12175,7 +12175,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Loscertales',321.0),
 	 ('Alvarez De Toledo',321.0),
 	 ('Martin Maestro',321.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garabal',321.0),
 	 ('Gevorgyan',321.0),
 	 ('Nedelea',321.0),
@@ -12186,7 +12186,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Machon',320.0),
 	 ('Clopes',320.0),
 	 ('Ester',320.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corbal',320.0),
 	 ('Goizueta',320.0),
 	 ('Cedenilla',320.0),
@@ -12197,7 +12197,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ortegon',320.0),
 	 ('Sucarrats',320.0),
 	 ('Boente',320.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abio',320.0),
 	 ('Ibisate',320.0),
 	 ('Saturnino',320.0),
@@ -12208,7 +12208,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Beneroso',319.0),
 	 ('Cruañes',319.0),
 	 ('Vinces',319.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bonito',319.0),
 	 ('Lezana',319.0),
 	 ('Avia',319.0),
@@ -12219,7 +12219,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viñambres',319.0),
 	 ('Meda',319.0),
 	 ('Cairo',319.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quintin',319.0),
 	 ('Gorris',319.0),
 	 ('Brezmes',319.0),
@@ -12230,7 +12230,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jenkins',319.0),
 	 ('Urruticoechea',318.0),
 	 ('Velandia',318.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soles',318.0),
 	 ('De La Mano',318.0),
 	 ('De Val',318.0),
@@ -12241,7 +12241,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Linaza',318.0),
 	 ('Jiron',318.0),
 	 ('Moñux',318.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yarritu',318.0),
 	 ('Abenojar',318.0),
 	 ('Tomeo',318.0),
@@ -12252,7 +12252,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benaicha',318.0),
 	 ('Gasmi',318.0),
 	 ('Sajjad',318.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boca',318.0),
 	 ('Antia',317.0),
 	 ('Agorreta',317.0),
@@ -12263,7 +12263,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villaron',317.0),
 	 ('Arrospide',317.0),
 	 ('Romea',317.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tortolero',317.0),
 	 ('Balmon',317.0),
 	 ('Vert',317.0),
@@ -12274,7 +12274,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berjillos',317.0),
 	 ('Alcain',317.0),
 	 ('Garcia De Blas',317.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Serpa',317.0),
 	 ('Reboreda',317.0),
 	 ('Alenda',317.0),
@@ -12285,7 +12285,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Smaili',317.0),
 	 ('Ilies',317.0),
 	 ('Abolafia',316.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Raudales',316.0),
 	 ('De Cozar',316.0),
 	 ('Mialdea',316.0),
@@ -12296,7 +12296,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodriguez Rey',316.0),
 	 ('Mene',316.0),
 	 ('Medranda',316.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garrofe',316.0),
 	 ('Cortezon',316.0),
 	 ('Sumariva',316.0),
@@ -12307,7 +12307,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Añibarro',316.0),
 	 ('Folgoso',316.0),
 	 ('Casanellas',316.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argiz',316.0),
 	 ('Sanuy',316.0),
 	 ('Mozota',316.0),
@@ -12318,7 +12318,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tunez',315.0),
 	 ('Tundidor',315.0),
 	 ('De Mesa',315.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pendas',315.0),
 	 ('Santo Domingo',315.0),
 	 ('Sadornil',315.0),
@@ -12329,7 +12329,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Argumanez',315.0),
 	 ('Cirac',315.0),
 	 ('Perrote',315.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agulleiro',315.0),
 	 ('Luengos',315.0),
 	 ('Cormenzana',315.0),
@@ -12340,7 +12340,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Picatoste',315.0),
 	 ('Sendarrubias',315.0),
 	 ('Fernandez De Pinedo',315.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibarretxe',315.0),
 	 ('El Hani',315.0),
 	 ('Ndour',315.0),
@@ -12351,7 +12351,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barallobre',314.0),
 	 ('Ciganda',314.0),
 	 ('Espeja',314.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bosqued',314.0),
 	 ('Beriain',314.0),
 	 ('Plaja',314.0),
@@ -12362,7 +12362,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eres',314.0),
 	 ('Boceta',314.0),
 	 ('Sidi',314.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vilamala',314.0),
 	 ('Ariz',314.0),
 	 ('Lanchares',314.0),
@@ -12373,7 +12373,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Souidi',314.0),
 	 ('Brahimi',314.0),
 	 ('Konare',314.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mombiela',313.0),
 	 ('De La Gala',313.0),
 	 ('Conchado',313.0),
@@ -12384,7 +12384,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gestido',313.0),
 	 ('Mazario',313.0),
 	 ('Sampaio',313.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Genovart',313.0),
 	 ('Arevalillo',313.0),
 	 ('Continente',313.0),
@@ -12395,7 +12395,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Verdura',313.0),
 	 ('Cornide',313.0),
 	 ('Lorido',313.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olague',313.0),
 	 ('Lejarraga',313.0),
 	 ('Azpillaga',313.0),
@@ -12406,7 +12406,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Atxa',313.0),
 	 ('Machancoses',313.0),
 	 ('Huber',313.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amara',313.0),
 	 ('Mellouk',313.0),
 	 ('Sabbar',313.0),
@@ -12417,7 +12417,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ostariz',312.0),
 	 ('Pulpillo',312.0),
 	 ('Orcajada',312.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guntin',312.0),
 	 ('Castarnado',312.0),
 	 ('Candalija',312.0),
@@ -12428,7 +12428,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorroño',312.0),
 	 ('De La Poza',312.0),
 	 ('Rubido',312.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Comba',312.0),
 	 ('Pilligua',312.0),
 	 ('Mostajo',312.0),
@@ -12439,7 +12439,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manubens',312.0),
 	 ('Alayo',312.0),
 	 ('Otxoa',312.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lloyd',312.0),
 	 ('Amjad',312.0),
 	 ('Zouggaghi',312.0),
@@ -12450,7 +12450,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tangarife',311.0),
 	 ('Cerezales',311.0),
 	 ('Lizarbe',311.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beldad',311.0),
 	 ('Ogallar',311.0),
 	 ('Burguet',311.0),
@@ -12461,7 +12461,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguinagalde',311.0),
 	 ('Arquelladas',311.0),
 	 ('Ullan',311.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quilumba',311.0),
 	 ('Ortigueira',311.0),
 	 ('Cerdeña',311.0),
@@ -12472,7 +12472,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hinostroza',311.0),
 	 ('Bria',311.0),
 	 ('Marcus',311.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lombardi',311.0),
 	 ('Jung',311.0),
 	 ('Andrews',311.0),
@@ -12483,7 +12483,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bruzos',310.0),
 	 ('Atanasio',310.0),
 	 ('Zarranz',310.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perlaza',310.0),
 	 ('Cejuela',310.0),
 	 ('Ramio',310.0),
@@ -12494,7 +12494,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leone',310.0),
 	 ('Hayoun',310.0),
 	 ('Smirnova',310.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Thapa',310.0),
 	 ('Achim',310.0),
 	 ('Rizea',310.0),
@@ -12505,7 +12505,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Plesa',310.0),
 	 ('Tames',309.0),
 	 ('Soengas',309.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hevilla',309.0),
 	 ('Carriazo',309.0),
 	 ('Abelaira',309.0),
@@ -12516,7 +12516,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pinelo',309.0),
 	 ('Cartaña',309.0),
 	 ('Vieiro',309.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urquizar',309.0),
 	 ('Gregores',309.0),
 	 ('Nerin',309.0),
@@ -12527,7 +12527,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cherta',309.0),
 	 ('Miota',309.0),
 	 ('Barat',309.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaquez',309.0),
 	 ('Lekue',309.0),
 	 ('Sagrista',309.0),
@@ -12538,7 +12538,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laplana',308.0),
 	 ('Momparler',308.0),
 	 ('Arbelaiz',308.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baquerizo',308.0),
 	 ('Farreny',308.0),
 	 ('Macario',308.0),
@@ -12549,7 +12549,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ainsa',308.0),
 	 ('Aperador',308.0),
 	 ('Puigbo',308.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mucientes',308.0),
 	 ('Zotes',308.0),
 	 ('Berrozpe',308.0),
@@ -12560,7 +12560,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ungur',308.0),
 	 ('Patru',308.0),
 	 ('Reigadas',307.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torrontegui',307.0),
 	 ('Perurena',307.0),
 	 ('Alvarez Ossorio',307.0),
@@ -12571,7 +12571,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sainero',307.0),
 	 ('Amante',307.0),
 	 ('Corada',307.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llavador',307.0),
 	 ('Bouziane',307.0),
 	 ('Hart',307.0),
@@ -12582,7 +12582,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Atehortua',306.0),
 	 ('Uran',306.0),
 	 ('Babiloni',306.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diarte',306.0),
 	 ('Anllo',306.0),
 	 ('Corado',306.0),
@@ -12593,7 +12593,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lostao',306.0),
 	 ('Silvosa',306.0),
 	 ('Almudever',306.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chueco',306.0),
 	 ('Barbany',306.0),
 	 ('Refojos',306.0),
@@ -12604,7 +12604,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lakhdar',306.0),
 	 ('Khalloufi',306.0),
 	 ('Soumare',306.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escanero',305.0),
 	 ('Rato',305.0),
 	 ('Modenes',305.0),
@@ -12615,7 +12615,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cristino',305.0),
 	 ('Permanyer',305.0),
 	 ('Mardomingo',305.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urruchi',305.0),
 	 ('Eseverri',305.0),
 	 ('Azañedo',305.0),
@@ -12626,7 +12626,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ore',305.0),
 	 ('Morquecho',305.0),
 	 ('Fajula',305.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Renovell',305.0),
 	 ('Corcoba',305.0),
 	 ('Henderson',305.0),
@@ -12637,7 +12637,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cinta',304.0),
 	 ('De Cruz',304.0),
 	 ('Rocio',304.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bellerin',304.0),
 	 ('Zamarro',304.0),
 	 ('Pardeiro',304.0),
@@ -12648,7 +12648,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amboage',304.0),
 	 ('Verd',304.0),
 	 ('Villace',304.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gulin',304.0),
 	 ('Lagunilla',304.0),
 	 ('Laosa',304.0),
@@ -12659,7 +12659,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Narbaiza',304.0),
 	 ('Felgueroso',304.0),
 	 ('Mirallas',304.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vilallonga',304.0),
 	 ('Ennaji',304.0),
 	 ('Sheikh',304.0),
@@ -12670,7 +12670,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barbolla',303.0),
 	 ('Bolta',303.0),
 	 ('Petralanda',303.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barambio',303.0),
 	 ('Touris',303.0),
 	 ('Aradilla',303.0),
@@ -12681,7 +12681,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Priegue',303.0),
 	 ('Borrazas',303.0),
 	 ('Camelo',303.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanjorge',303.0),
 	 ('Sabiote',303.0),
 	 ('Liras',303.0),
@@ -12692,7 +12692,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gallur',303.0),
 	 ('Isorna',303.0),
 	 ('Rata',303.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dukureh',303.0),
 	 ('Chahlal',303.0),
 	 ('Habibi',303.0),
@@ -12703,7 +12703,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Qian',303.0),
 	 ('Durac',303.0),
 	 ('Cascajosa',302.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hinchado',302.0),
 	 ('Luño',302.0),
 	 ('Borau',302.0),
@@ -12714,7 +12714,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arminio',302.0),
 	 ('Bras',302.0),
 	 ('Franqueira',302.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fontaiña',302.0),
 	 ('Berros',302.0),
 	 ('Bonel',302.0),
@@ -12725,7 +12725,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Lama',302.0),
 	 ('Espes',302.0),
 	 ('Gredilla',302.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grifoll',302.0),
 	 ('Senande',302.0),
 	 ('Forcelledo',302.0),
@@ -12736,7 +12736,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Achour',302.0),
 	 ('Ben Youssef',302.0),
 	 ('Quinn',302.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atkinson',302.0),
 	 ('Staicu',302.0),
 	 ('Gazulla',301.0),
@@ -12747,7 +12747,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portocarrero',301.0),
 	 ('Capuz',301.0),
 	 ('Renom',301.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibaibarriaga',301.0),
 	 ('Usan',301.0),
 	 ('Lorences',301.0),
@@ -12758,7 +12758,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rubinat',301.0),
 	 ('Peche',301.0),
 	 ('Pedemonte',301.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manera',301.0),
 	 ('Cebrero',301.0),
 	 ('Pradanos',301.0),
@@ -12769,7 +12769,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De Bobadilla',301.0),
 	 ('Bala',301.0),
 	 ('Bouchnafa',301.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olariu',301.0),
 	 ('Dobrin',301.0),
 	 ('Marlasca',300.0),
@@ -12780,7 +12780,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chevez',300.0),
 	 ('Montalvillo',300.0),
 	 ('Urreta',300.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bados',300.0),
 	 ('Laborde',300.0),
 	 ('Salvago',300.0),
@@ -12791,7 +12791,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tico',300.0),
 	 ('Aradas',300.0),
 	 ('Areta',300.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guido',300.0),
 	 ('Tabar',300.0),
 	 ('Gorina',300.0),
@@ -12802,7 +12802,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez De Armentia',300.0),
 	 ('Puigdollers',300.0),
 	 ('Termes',300.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Belaid',300.0),
 	 ('Zaim',300.0),
 	 ('Bougtib',300.0),
@@ -12813,7 +12813,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iztueta',299.0),
 	 ('Chimbo',299.0),
 	 ('Giralda',299.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ladino',299.0),
 	 ('Morea',299.0),
 	 ('Septien',299.0),
@@ -12824,7 +12824,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jorro',299.0),
 	 ('Viruez',299.0),
 	 ('Baulenas',299.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atorrasagasti',299.0),
 	 ('Sagasta',299.0),
 	 ('Zamarra',299.0),
@@ -12835,7 +12835,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Blanca',299.0),
 	 ('Cebey',299.0),
 	 ('Lareu',299.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roser',299.0),
 	 ('Cavanillas',299.0),
 	 ('Camaron',299.0),
@@ -12846,7 +12846,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boixadera',299.0),
 	 ('Aranzana',299.0),
 	 ('Arzoz',299.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sestelo',299.0),
 	 ('Sellami',299.0),
 	 ('Chadli',299.0),
@@ -12857,7 +12857,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cardeñas',298.0),
 	 ('Juvanteny',298.0),
 	 ('Barandica',298.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pageo',298.0),
 	 ('Aizcorbe',298.0),
 	 ('Navalpotro',298.0),
@@ -12868,7 +12868,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Butragueño',298.0),
 	 ('Codony',298.0),
 	 ('Mahamud',298.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('San Bartolome',298.0),
 	 ('Perozo',298.0),
 	 ('Hedrera',298.0),
@@ -12879,7 +12879,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seco De Herrera',298.0),
 	 ('Muntal',298.0),
 	 ('Dodero',298.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Simeonova',298.0),
 	 ('Busca',298.0),
 	 ('Herzog',298.0),
@@ -12890,7 +12890,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Thioune',298.0),
 	 ('Atif',298.0),
 	 ('Payne',298.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Frunza',298.0),
 	 ('Lan',298.0),
 	 ('Tanasa',298.0),
@@ -12901,7 +12901,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yucra',297.0),
 	 ('Sisniega',297.0),
 	 ('Villarraso',297.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Servia',297.0),
 	 ('Agell',297.0),
 	 ('Temporal',297.0),
@@ -12912,7 +12912,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Opazo',297.0),
 	 ('Faundez',297.0),
 	 ('Aburto',297.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gabasa',297.0),
 	 ('Ibernon',297.0),
 	 ('Chova',297.0),
@@ -12923,7 +12923,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saghir',297.0),
 	 ('Karimi',297.0),
 	 ('Mkrtchyan',297.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blaga',297.0),
 	 ('Dosal',296.0),
 	 ('Gemar',296.0),
@@ -12934,7 +12934,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chiriboga',296.0),
 	 ('Artuñedo',296.0),
 	 ('Burcio',296.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estrems',296.0),
 	 ('Freile',296.0),
 	 ('Del Jesus',296.0),
@@ -12945,7 +12945,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Seco',296.0),
 	 ('Solleiro',296.0),
 	 ('Casinos',296.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Milano',296.0),
 	 ('Arcenegui',296.0),
 	 ('Berron',296.0),
@@ -12956,7 +12956,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cantudo',296.0),
 	 ('Ruiloba',296.0),
 	 ('Ona',296.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andreeva',296.0),
 	 ('Zaid',296.0),
 	 ('Ferrara',296.0),
@@ -12967,7 +12967,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kassimi',296.0),
 	 ('Shevchenko',296.0),
 	 ('Cornea',296.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Birsan',296.0),
 	 ('Giurgiu',296.0),
 	 ('Gazapo',295.0),
@@ -12978,7 +12978,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toldra',295.0),
 	 ('Firvida',295.0),
 	 ('Sirgo',295.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perandones',295.0),
 	 ('Canoves',295.0),
 	 ('Galdamez',295.0),
@@ -12989,7 +12989,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Artabe',295.0),
 	 ('Molet',295.0),
 	 ('Chanza',295.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Horneros',295.0),
 	 ('Eirin',295.0),
 	 ('Frey',295.0),
@@ -13000,7 +13000,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zumel',295.0),
 	 ('Ruf',295.0),
 	 ('Sainz Pardo',295.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dormido',295.0),
 	 ('Balo',295.0),
 	 ('Serratosa',295.0),
@@ -13011,7 +13011,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Janssen',295.0),
 	 ('Savin',295.0),
 	 ('Boukabous',295.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barrales',294.0),
 	 ('Correoso',294.0),
 	 ('Mengod',294.0),
@@ -13022,7 +13022,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gilaberte',294.0),
 	 ('Randez',294.0),
 	 ('Mogrovejo',294.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abadal',294.0),
 	 ('Benede',294.0),
 	 ('Damia',294.0),
@@ -13033,7 +13033,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villacreces',294.0),
 	 ('Cantavella',294.0),
 	 ('Tamame',294.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Bernardo',294.0),
 	 ('Durana',294.0),
 	 ('Esquerra',294.0),
@@ -13044,7 +13044,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gabiola',293.0),
 	 ('Pastora',293.0),
 	 ('Marqueño',293.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Usano',293.0),
 	 ('Ayerza',293.0),
 	 ('Valdezate',293.0),
@@ -13055,7 +13055,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espla',293.0),
 	 ('Toaquiza',293.0),
 	 ('Caldeiro',293.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Valdepeñas',293.0),
 	 ('Chanca',293.0),
 	 ('Viguer',293.0),
@@ -13066,7 +13066,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berasategi',293.0),
 	 ('Aros',293.0),
 	 ('Deiros',293.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montfort',293.0),
 	 ('Chisbert',293.0),
 	 ('Trabazo',293.0),
@@ -13077,7 +13077,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Farissi',293.0),
 	 ('Kang',293.0),
 	 ('Nemes',293.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Petrea',293.0),
 	 ('Ecenarro',292.0),
 	 ('Pecos',292.0),
@@ -13088,7 +13088,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cubi',292.0),
 	 ('Fernandez Arroyo',292.0),
 	 ('Flo',292.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trobat',292.0),
 	 ('Antoni',292.0),
 	 ('Pedrazo',292.0),
@@ -13099,7 +13099,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('San Pablo',292.0),
 	 ('Tardaguila',292.0),
 	 ('Gardeazabal',292.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aceiton',292.0),
 	 ('Rado',292.0),
 	 ('Ruesca',292.0),
@@ -13110,7 +13110,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lasfar',292.0),
 	 ('Adnan',292.0),
 	 ('Cimiano',291.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kaddur',291.0),
 	 ('Bartoll',291.0),
 	 ('Gangoiti',291.0),
@@ -13121,7 +13121,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mirones',291.0),
 	 ('Canda',291.0),
 	 ('Sarroca',291.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Figaredo',291.0),
 	 ('Bragulat',291.0),
 	 ('Salomo',291.0),
@@ -13132,7 +13132,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roquet',291.0),
 	 ('Peirats',291.0),
 	 ('Villanua',291.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Adroher',291.0),
 	 ('Garaboa',291.0),
 	 ('Issa',291.0),
@@ -13143,7 +13143,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boukhriss',291.0),
 	 ('Driouich',291.0),
 	 ('Rafiq',291.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bennouna',291.0),
 	 ('Kabouri',291.0),
 	 ('Alexa',291.0),
@@ -13154,7 +13154,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tremps',290.0),
 	 ('Cereza',290.0),
 	 ('Azpiri',290.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lascorz',290.0),
 	 ('Morrondo',290.0),
 	 ('Escariz',290.0),
@@ -13165,7 +13165,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badas',290.0),
 	 ('Guillin',290.0),
 	 ('Fontiveros',290.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sagardoy',290.0),
 	 ('Gaibor',290.0),
 	 ('Pamos',290.0),
@@ -13176,7 +13176,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llibre',290.0),
 	 ('Mataro',290.0),
 	 ('Azouz',290.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nasser',290.0),
 	 ('Ahrouch',290.0),
 	 ('Zariouh',290.0),
@@ -13187,7 +13187,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valentinov',290.0),
 	 ('Litago',289.0),
 	 ('Rujas',289.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Useche',289.0),
 	 ('Sanchez De La Nieta',289.0),
 	 ('Lay',289.0),
@@ -13198,7 +13198,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boulahfa',289.0),
 	 ('Bamba',289.0),
 	 ('Perry',289.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fellah',289.0),
 	 ('Lal',289.0),
 	 ('Burns',289.0),
@@ -13209,7 +13209,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Dedo',288.0),
 	 ('Rech',288.0),
 	 ('Cufi',288.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nodal',288.0),
 	 ('Fontestad',288.0),
 	 ('Rumayor',288.0),
@@ -13220,7 +13220,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trassierra',288.0),
 	 ('Albelo',288.0),
 	 ('Arbide',288.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villaecija',288.0),
 	 ('Guadalajara',288.0),
 	 ('Ontaneda',288.0),
@@ -13231,7 +13231,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aranibar',288.0),
 	 ('Estallo',288.0),
 	 ('Virgos',288.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bastian',288.0),
 	 ('Fernandez Bravo',288.0),
 	 ('Uribesalgo',288.0),
@@ -13242,7 +13242,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boujakhrout',288.0),
 	 ('Adjei',288.0),
 	 ('Meng',288.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canelada',287.0),
 	 ('Tarrero',287.0),
 	 ('Carrodeguas',287.0),
@@ -13253,7 +13253,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Minguillan',287.0),
 	 ('Abades',287.0),
 	 ('Olivet',287.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sorando',287.0),
 	 ('Altares',287.0),
 	 ('Pirla',287.0),
@@ -13264,7 +13264,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Encinoso',287.0),
 	 ('Soblechero',287.0),
 	 ('Onis',287.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canelas',287.0),
 	 ('De Casas',287.0),
 	 ('Jaya',287.0),
@@ -13275,7 +13275,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tene',287.0),
 	 ('Lamazares',287.0),
 	 ('Marciel',287.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Augustin',287.0),
 	 ('Lazcoz',287.0),
 	 ('Barbieri',287.0),
@@ -13286,7 +13286,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Milea',287.0),
 	 ('De Caceres',286.0),
 	 ('Sagastume',286.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ladrero',286.0),
 	 ('Urzaiz',286.0),
 	 ('Ibar',286.0),
@@ -13297,7 +13297,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Avedillo',286.0),
 	 ('Lantaron',286.0),
 	 ('Agis',286.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herrer',286.0),
 	 ('Venzal',286.0),
 	 ('Royano',286.0),
@@ -13308,7 +13308,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campabadal',286.0),
 	 ('Piedrola',286.0),
 	 ('Tribo',286.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ismaili',286.0),
 	 ('Azar',286.0),
 	 ('Bondarenko',286.0),
@@ -13319,7 +13319,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barez',285.0),
 	 ('Cardama',285.0),
 	 ('Izurieta',285.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gorosabel',285.0),
 	 ('Salamo',285.0),
 	 ('Macua',285.0),
@@ -13330,7 +13330,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Castiello',285.0),
 	 ('Berni',285.0),
 	 ('Samino',285.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Altabas',285.0),
 	 ('Guarner',285.0),
 	 ('Menguiano',285.0),
@@ -13341,7 +13341,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muza',285.0),
 	 ('Dahmouni',285.0),
 	 ('Hamdani',285.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Litim',285.0),
 	 ('Butnaru',285.0),
 	 ('Petrisor',285.0),
@@ -13352,7 +13352,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fanega',284.0),
 	 ('Jul',284.0),
 	 ('Almuiña',284.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tribaldo',284.0),
 	 ('Mieles',284.0),
 	 ('Bogarin',284.0),
@@ -13363,7 +13363,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esquirol',284.0),
 	 ('Cerecedo',284.0),
 	 ('Cascan',284.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reguillo',284.0),
 	 ('Parcerisas',284.0),
 	 ('Sarobe',284.0),
@@ -13374,7 +13374,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cifrian',284.0),
 	 ('Barriendos',284.0),
 	 ('Waggeh',284.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Khalifi',284.0),
 	 ('Lange',284.0),
 	 ('Marini',284.0),
@@ -13385,7 +13385,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esperilla',283.0),
 	 ('Cordal',283.0),
 	 ('Venancio',283.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Angelats',283.0),
 	 ('Liesa',283.0),
 	 ('De Amo',283.0),
@@ -13396,7 +13396,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lutzardo',283.0),
 	 ('Sabe',283.0),
 	 ('Viesca',283.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hijazo',283.0),
 	 ('Leno',283.0),
 	 ('Romasanta',283.0),
@@ -13407,7 +13407,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tobes',283.0),
 	 ('Gortazar',283.0),
 	 ('Garralon',283.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Cuerda',283.0),
 	 ('Yeves',283.0),
 	 ('Mensa',283.0),
@@ -13418,7 +13418,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gharbaoui',283.0),
 	 ('Lita',283.0),
 	 ('El Bouziani',283.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jmili',283.0),
 	 ('El Hamdouni',283.0),
 	 ('Maizi',283.0),
@@ -13429,7 +13429,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Glaria',282.0),
 	 ('Cerrajero',282.0),
 	 ('Corporan',282.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Eliche',282.0),
 	 ('Lacarta',282.0),
 	 ('Mambrilla',282.0),
@@ -13440,7 +13440,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Veredas',282.0),
 	 ('Mentado',282.0),
 	 ('Senen',282.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sigler',282.0),
 	 ('Velez De Mendizabal',282.0),
 	 ('Leceta',282.0),
@@ -13451,7 +13451,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toda',282.0),
 	 ('Valldosera',282.0),
 	 ('Basart',282.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marazuela',282.0),
 	 ('Izal',282.0),
 	 ('Noel',282.0),
@@ -13462,7 +13462,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gumaneh',282.0),
 	 ('El Hassouni',282.0),
 	 ('Moussaid',282.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bennani',282.0),
 	 ('Osei',282.0),
 	 ('Devia',281.0),
@@ -13473,7 +13473,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yustos',281.0),
 	 ('Escortell',281.0),
 	 ('Ondiviela',281.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aljarilla',281.0),
 	 ('Basora',281.0),
 	 ('Caballol',281.0),
@@ -13484,7 +13484,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Osle',281.0),
 	 ('Rosino',281.0),
 	 ('Singla',281.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Del Rio',281.0),
 	 ('Zumarraga',281.0),
 	 ('El Ahmadi',281.0),
@@ -13495,7 +13495,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basagaña',280.0),
 	 ('Dañobeitia',280.0),
 	 ('Colao',280.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Daganzo',280.0),
 	 ('Pellin',280.0),
 	 ('Puertes',280.0),
@@ -13506,7 +13506,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cirilo',280.0),
 	 ('Martin Gil',280.0),
 	 ('Moncusi',280.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chaler',280.0),
 	 ('Corbo',280.0),
 	 ('Salarich',280.0),
@@ -13517,7 +13517,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Planet',280.0),
 	 ('Benlliure',280.0),
 	 ('Pombar',280.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salesa',280.0),
 	 ('Carbone',280.0),
 	 ('Khatib',280.0),
@@ -13528,7 +13528,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Loachamin',279.0),
 	 ('Lanzuela',279.0),
 	 ('Moto',279.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Albillo',279.0),
 	 ('Del Coso',279.0),
 	 ('Nieblas',279.0),
@@ -13539,7 +13539,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iruretagoiena',279.0),
 	 ('Mendinueta',279.0),
 	 ('Albir',279.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aliaño',279.0),
 	 ('Rosalen',279.0),
 	 ('Almendras',279.0),
@@ -13550,7 +13550,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garri',279.0),
 	 ('Rilova',279.0),
 	 ('Iscar',279.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berra',279.0),
 	 ('Sanchez De La Campa',279.0),
 	 ('Alperi',279.0),
@@ -13561,7 +13561,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Appiah',279.0),
 	 ('Lowe',279.0),
 	 ('Buta',279.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baco',278.0),
 	 ('Chantada',278.0),
 	 ('Almerich',278.0),
@@ -13572,7 +13572,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trenco',278.0),
 	 ('Zelada',278.0),
 	 ('Angos',278.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cezon',278.0),
 	 ('Requeni',278.0),
 	 ('Trabal',278.0),
@@ -13583,7 +13583,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olles',278.0),
 	 ('Cembranos',278.0),
 	 ('Roc',278.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trancoso',278.0),
 	 ('Della',278.0),
 	 ('Cañizo',278.0),
@@ -13594,7 +13594,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salaberri',278.0),
 	 ('Lam',278.0),
 	 ('Zarrouk',278.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Arbaoui',278.0),
 	 ('Omari',278.0),
 	 ('Sakho',278.0),
@@ -13605,7 +13605,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fuillerat',277.0),
 	 ('Lombera',277.0),
 	 ('Ramila',277.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Riopedre',277.0),
 	 ('Orgeira',277.0),
 	 ('Barriguete',277.0),
@@ -13616,7 +13616,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carriqui',277.0),
 	 ('Domarco',277.0),
 	 ('Garcia Nieto',277.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Delis',277.0),
 	 ('Galobart',277.0),
 	 ('Gabirondo',277.0),
@@ -13627,7 +13627,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barrueta',277.0),
 	 ('Garicano',277.0),
 	 ('Alberquilla',277.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urraco',277.0),
 	 ('Sauca',277.0),
 	 ('Lalwani',277.0),
@@ -13638,7 +13638,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lahlali',277.0),
 	 ('Duca',277.0),
 	 ('Udrea',277.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cercel',277.0),
 	 ('Pujolras',276.0),
 	 ('Buyo',276.0),
@@ -13649,7 +13649,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bartroli',276.0),
 	 ('Pertejo',276.0),
 	 ('Turrillas',276.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fuentevilla',276.0),
 	 ('Balanta',276.0),
 	 ('Moradillo',276.0),
@@ -13660,7 +13660,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Terricabras',276.0),
 	 ('Clerigues',276.0),
 	 ('Gerona',276.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rael',276.0),
 	 ('Cidre',276.0),
 	 ('Cadiñanos',276.0),
@@ -13671,7 +13671,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brasa',276.0),
 	 ('Cebral',276.0),
 	 ('Godayol',276.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reboso',276.0),
 	 ('Carpente',276.0),
 	 ('Turull',276.0),
@@ -13682,7 +13682,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trasmonte',276.0),
 	 ('Biarge',276.0),
 	 ('Rodellar',276.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faiz',276.0),
 	 ('Kadi',276.0),
 	 ('Raji',276.0),
@@ -13693,7 +13693,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Añaños',275.0),
 	 ('Layos',275.0),
 	 ('Adanez',275.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lidueña',275.0),
 	 ('Oter',275.0),
 	 ('Grilo',275.0),
@@ -13704,7 +13704,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Galnares',275.0),
 	 ('Gemio',275.0),
 	 ('Ortuondo',275.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grimaldo',275.0),
 	 ('Iribarne',275.0),
 	 ('Iso',275.0),
@@ -13715,7 +13715,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gonzalez De La Aleja',275.0),
 	 ('Nestar',275.0),
 	 ('Bereziartua',275.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bratos',275.0),
 	 ('Collet',275.0),
 	 ('Adraoui',275.0),
@@ -13726,7 +13726,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brigido',274.0),
 	 ('Quintian',274.0),
 	 ('Erasun',274.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cumbreño',274.0),
 	 ('Urruela',274.0),
 	 ('Castañeira',274.0),
@@ -13737,7 +13737,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pedrouzo',274.0),
 	 ('Arbulu',274.0),
 	 ('Daura',274.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gangoso',274.0),
 	 ('Cabido',274.0),
 	 ('Regodon',274.0),
@@ -13748,7 +13748,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia De Mateos',274.0),
 	 ('Quiñoy',274.0),
 	 ('Mite',274.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Astorgano',274.0),
 	 ('Hugas',274.0),
 	 ('Pinadero',274.0),
@@ -13759,7 +13759,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Regis',274.0),
 	 ('Olsen',274.0),
 	 ('Sonko',274.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Murguiondo',273.0),
 	 ('Pulleiro',273.0),
 	 ('Pozos',273.0),
@@ -13770,7 +13770,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campal',273.0),
 	 ('Presmanes',273.0),
 	 ('Palerm',273.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casany',273.0),
 	 ('Larrabeiti',273.0),
 	 ('Riolobos',273.0),
@@ -13781,7 +13781,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rochera',273.0),
 	 ('Irazoqui',273.0),
 	 ('Plomer',273.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rodriguez Bobada',273.0),
 	 ('Truchado',273.0),
 	 ('Zorzo',273.0),
@@ -13792,7 +13792,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corripio',273.0),
 	 ('Montala',273.0),
 	 ('Brugue',273.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martin Mora',273.0),
 	 ('Padulles',273.0),
 	 ('Mahmud',273.0),
@@ -13803,7 +13803,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Petri',273.0),
 	 ('Derouich',273.0),
 	 ('El Gharbi',273.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mouslim',273.0),
 	 ('Macdonald',273.0),
 	 ('Barrett',273.0),
@@ -13814,7 +13814,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Noa',272.0),
 	 ('Muzas',272.0),
 	 ('Vinader',272.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salon',272.0),
 	 ('Letamendia',272.0),
 	 ('Perosanz',272.0),
@@ -13825,7 +13825,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Najas',272.0),
 	 ('Filiu',272.0),
 	 ('Martin Delgado',272.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brime',272.0),
 	 ('Pravia',272.0),
 	 ('Vilda',272.0),
@@ -13836,7 +13836,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Neagoe',272.0),
 	 ('Beso',271.0),
 	 ('De La Llana',271.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alfranca',271.0),
 	 ('Emperador',271.0),
 	 ('Mondaca',271.0),
@@ -13847,7 +13847,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pividal',271.0),
 	 ('Miracle',271.0),
 	 ('Membreño',271.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Consul',271.0),
 	 ('Tresgallo',271.0),
 	 ('Lires',271.0),
@@ -13858,7 +13858,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oran',271.0),
 	 ('Mundet',271.0),
 	 ('Orcha',271.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matamalas',271.0),
 	 ('Chumilla',271.0),
 	 ('Cortabitarte',271.0),
@@ -13869,7 +13869,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hamido',271.0),
 	 ('Urrutikoetxea',271.0),
 	 ('Fakir',271.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Djalo',271.0),
 	 ('Nour',271.0),
 	 ('Antonov',271.0),
@@ -13880,7 +13880,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gradinaru',271.0),
 	 ('Almunia',270.0),
 	 ('Ulacia',270.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Resua',270.0),
 	 ('Camarillo',270.0),
 	 ('Senso',270.0),
@@ -13891,7 +13891,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ariznabarreta',270.0),
 	 ('Vilardebo',270.0),
 	 ('Monis',270.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rubinos',270.0),
 	 ('Loyarte',270.0),
 	 ('Tomillero',270.0),
@@ -13902,7 +13902,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corchon',270.0),
 	 ('Cortadellas',270.0),
 	 ('Alzina',270.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Algara',270.0),
 	 ('Crehuet',270.0),
 	 ('Larreategui',270.0),
@@ -13913,7 +13913,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aouissi',270.0),
 	 ('Fatty',270.0),
 	 ('Hamri',270.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baicu',270.0),
 	 ('Barberia',269.0),
 	 ('Peramo',269.0),
@@ -13924,7 +13924,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basoa',269.0),
 	 ('Sagra',269.0),
 	 ('Balmes',269.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chulian',269.0),
 	 ('Pedrido',269.0),
 	 ('Garcia De La Rosa',269.0),
@@ -13935,7 +13935,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carracelas',269.0),
 	 ('Arrua',269.0),
 	 ('Triado',269.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Larroya',269.0),
 	 ('Angelina',269.0),
 	 ('Linaje',269.0),
@@ -13946,7 +13946,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kuznetsova',269.0),
 	 ('Benabdellah',269.0),
 	 ('El Majjaoui',269.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abou',269.0),
 	 ('Newton',269.0),
 	 ('Ke',269.0),
@@ -13957,7 +13957,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruales',268.0),
 	 ('Lecanda',268.0),
 	 ('Albar',268.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Farrero',268.0),
 	 ('Pereto',268.0),
 	 ('Regaño',268.0),
@@ -13968,7 +13968,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fabero',268.0),
 	 ('Reinado',268.0),
 	 ('Cosmen',268.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castañar',268.0),
 	 ('Sanandres',268.0),
 	 ('Ayen',268.0),
@@ -13979,7 +13979,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Siqueira',268.0),
 	 ('Liñeira',268.0),
 	 ('Merello',268.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tranche',268.0),
 	 ('Alaves',268.0),
 	 ('Manneh',268.0),
@@ -13990,7 +13990,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boudra',268.0),
 	 ('Jabrane',268.0),
 	 ('Raileanu',268.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pelado',267.0),
 	 ('Otalvaro',267.0),
 	 ('Sayavera',267.0),
@@ -14001,7 +14001,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gresa',267.0),
 	 ('Organista',267.0),
 	 ('Ardon',267.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zuriarrain',267.0),
 	 ('Gasset',267.0),
 	 ('Gorgues',267.0),
@@ -14012,7 +14012,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paulano',267.0),
 	 ('Tonato',267.0),
 	 ('Tecles',267.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ameller',267.0),
 	 ('Cavadas',267.0),
 	 ('Royes',267.0),
@@ -14023,7 +14023,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seres',267.0),
 	 ('Pay',267.0),
 	 ('Mallor',267.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mendibil',267.0),
 	 ('Cereto',267.0),
 	 ('De Burgos',267.0),
@@ -14034,7 +14034,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Douiri',267.0),
 	 ('El Habchi',267.0),
 	 ('Allam',267.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ansar',267.0),
 	 ('Dudea',267.0),
 	 ('Rizwan',267.0),
@@ -14045,7 +14045,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trasancos',266.0),
 	 ('Yelmo',266.0),
 	 ('Maximo',266.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santiesteban',266.0),
 	 ('Sendros',266.0),
 	 ('Curtido',266.0),
@@ -14056,7 +14056,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Personat',266.0),
 	 ('Armoa',266.0),
 	 ('Barbecho',266.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rivarola',266.0),
 	 ('Talegon',266.0),
 	 ('Lodos',266.0),
@@ -14067,7 +14067,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sarri',266.0),
 	 ('Tabuyo',266.0),
 	 ('Conill',266.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oyonarte',266.0),
 	 ('Barreal',266.0),
 	 ('Garcia De Vinuesa',266.0),
@@ -14078,7 +14078,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hanif',266.0),
 	 ('Maris',266.0),
 	 ('Burke',266.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rasool',266.0),
 	 ('Cazan',266.0),
 	 ('Ifrim',266.0),
@@ -14089,7 +14089,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Susaeta',265.0),
 	 ('Viota',265.0),
 	 ('Molinera',265.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vegue',265.0),
 	 ('Coterillo',265.0),
 	 ('Villazan',265.0),
@@ -14100,7 +14100,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Combarros',265.0),
 	 ('Villellas',265.0),
 	 ('Aldon',265.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Burlo',265.0),
 	 ('Quintanal',265.0),
 	 ('Biarnes',265.0),
@@ -14111,7 +14111,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urtizberea',265.0),
 	 ('Errandonea',265.0),
 	 ('Arnay',265.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sotodosos',265.0),
 	 ('Arzamendia',265.0),
 	 ('Agueros',265.0),
@@ -14122,7 +14122,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Unda',265.0),
 	 ('Berbis',265.0),
 	 ('Ubeda Portugues',265.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arman',265.0),
 	 ('Ayat',265.0),
 	 ('Khatiri',265.0),
@@ -14133,7 +14133,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garlito',264.0),
 	 ('Patallo',264.0),
 	 ('Aboitiz',264.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bardallo',264.0),
 	 ('Faneca',264.0),
 	 ('Anguix',264.0),
@@ -14144,7 +14144,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garaizabal',264.0),
 	 ('Echaide',264.0),
 	 ('Romans',264.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zueras',264.0),
 	 ('Balseca',264.0),
 	 ('Belaustegui',264.0),
@@ -14155,7 +14155,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Huelga',264.0),
 	 ('Regos',264.0),
 	 ('Bra',264.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maita',264.0),
 	 ('Escarra',264.0),
 	 ('Igarza',264.0),
@@ -14166,7 +14166,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baldomero',264.0),
 	 ('Mosquero',264.0),
 	 ('Ruiz Ruano',264.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Foguet',264.0),
 	 ('Cabarrocas',264.0),
 	 ('Elexpuru',264.0),
@@ -14177,7 +14177,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laghzaoui',264.0),
 	 ('Faraji',264.0),
 	 ('Chiguer',264.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guettaf',264.0),
 	 ('Winter',264.0),
 	 ('Stone',264.0),
@@ -14188,7 +14188,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casao',263.0),
 	 ('Cadahia',263.0),
 	 ('Gomez Limon',263.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Eugui',263.0),
 	 ('Gantes',263.0),
 	 ('Malaver',263.0),
@@ -14199,7 +14199,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Michavila',263.0),
 	 ('Valdeolmillos',263.0),
 	 ('Casatejada',263.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Prohens',263.0),
 	 ('Tortella',263.0),
 	 ('Cirauqui',263.0),
@@ -14210,7 +14210,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garatea',263.0),
 	 ('Aicart',263.0),
 	 ('Cucurella',263.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lavara',263.0),
 	 ('Martinez De La Casa',263.0),
 	 ('Aranzadi',263.0),
@@ -14221,7 +14221,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pegueroles',263.0),
 	 ('Rina',263.0),
 	 ('Sienes',263.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Susarte',263.0),
 	 ('Ballo',263.0),
 	 ('Bajaha',263.0),
@@ -14232,7 +14232,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baghdadi',263.0),
 	 ('Mcdonald',263.0),
 	 ('Ikken',263.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Webster',263.0),
 	 ('Spiridon',263.0),
 	 ('Remacho',262.0),
@@ -14243,7 +14243,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Playa',262.0),
 	 ('Ochotorena',262.0),
 	 ('Dilme',262.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hueto',262.0),
 	 ('Rasilla',262.0),
 	 ('Castellot',262.0),
@@ -14254,7 +14254,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aduriz',262.0),
 	 ('Picart',262.0),
 	 ('Badorrey',262.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bedialauneta',262.0),
 	 ('Arus',262.0),
 	 ('Abeleira',262.0),
@@ -14265,7 +14265,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escobero',262.0),
 	 ('Larreta',262.0),
 	 ('Baucells',262.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Umaña',262.0),
 	 ('Abraira',262.0),
 	 ('Bolet',262.0),
@@ -14276,7 +14276,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Merillas',262.0),
 	 ('Casto',262.0),
 	 ('Abdelaziz',262.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rocca',262.0),
 	 ('Ghulam',262.0),
 	 ('Belghazi',262.0),
@@ -14287,7 +14287,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cross',262.0),
 	 ('Black',262.0),
 	 ('Iliescu',262.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chitu',262.0),
 	 ('Sarbu',262.0),
 	 ('Lopez Cozar',261.0),
@@ -14298,7 +14298,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Del Campo',261.0),
 	 ('Samanes',261.0),
 	 ('Justes',261.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Luces',261.0),
 	 ('Masramon',261.0),
 	 ('Rodriguez Peral',261.0),
@@ -14309,7 +14309,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Macipe',261.0),
 	 ('Mollo',261.0),
 	 ('Tosar',261.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oromi',261.0),
 	 ('Rotela',261.0),
 	 ('Amezquita',261.0),
@@ -14320,7 +14320,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hernansaiz',261.0),
 	 ('Grado',261.0),
 	 ('Guanoluisa',261.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grullon',261.0),
 	 ('Pagazaurtundua',261.0),
 	 ('Valldeperas',261.0),
@@ -14331,7 +14331,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erra',261.0),
 	 ('El Outmani',261.0),
 	 ('Rinaldi',261.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Habti',261.0),
 	 ('Hilali',261.0),
 	 ('Avetisyan',261.0),
@@ -14342,7 +14342,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coego',260.0),
 	 ('Daras',260.0),
 	 ('Cucharero',260.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zuheros',260.0),
 	 ('Traveria',260.0),
 	 ('Priede',260.0),
@@ -14353,7 +14353,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sarmentero',260.0),
 	 ('Alocen',260.0),
 	 ('Mimbrera',260.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vecilla',260.0),
 	 ('Itarte',260.0),
 	 ('Alted',260.0),
@@ -14364,7 +14364,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodriguez Rabadan',260.0),
 	 ('Capita',260.0),
 	 ('Goris',260.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lanzos',260.0),
 	 ('De La Mora',260.0),
 	 ('Galaz',260.0),
@@ -14375,7 +14375,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Issaoui',260.0),
 	 ('Ruggiero',260.0),
 	 ('Ariztegui',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gerena',259.0),
 	 ('Gabernet',259.0),
 	 ('Marinho',259.0),
@@ -14386,7 +14386,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Niza',259.0),
 	 ('Lizundia',259.0),
 	 ('Serral',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llucia',259.0),
 	 ('Manotas',259.0),
 	 ('Viñaras',259.0),
@@ -14397,7 +14397,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casqueiro',259.0),
 	 ('Taracido',259.0),
 	 ('Cristofol',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sant',259.0),
 	 ('Gallent',259.0),
 	 ('Pinales',259.0),
@@ -14408,7 +14408,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Añover',259.0),
 	 ('Merencio',259.0),
 	 ('Gonzalez Roman',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pisabarro',259.0),
 	 ('Trocoli',259.0),
 	 ('Rebenaque',259.0),
@@ -14419,7 +14419,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lleida',259.0),
 	 ('Artaza',259.0),
 	 ('Burgada',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Krasteva',259.0),
 	 ('Krastev',259.0),
 	 ('Abdallah',259.0),
@@ -14430,7 +14430,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nadir',259.0),
 	 ('Higgins',259.0),
 	 ('Harkaoui',259.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Jong',259.0),
 	 ('Miu',259.0),
 	 ('Razzaq',259.0),
@@ -14441,7 +14441,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cotaina',258.0),
 	 ('Uriondo',258.0),
 	 ('Verdia',258.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carrere',258.0),
 	 ('Aedo',258.0),
 	 ('Farpon',258.0),
@@ -14452,7 +14452,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nacimiento',258.0),
 	 ('Cubino',258.0),
 	 ('Paniello',258.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Betanco',258.0),
 	 ('Rigat',258.0),
 	 ('Garcia Mochales',258.0),
@@ -14463,7 +14463,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodriguez Manzaneque',258.0),
 	 ('Edrosa',258.0),
 	 ('Aix',258.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lasso De La Vega',258.0),
 	 ('Diaz Malaguilla',258.0),
 	 ('Pica',258.0),
@@ -14474,7 +14474,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Noor',258.0),
 	 ('Badiane',258.0),
 	 ('Ram',258.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lagostena',257.0),
 	 ('Avilez',257.0),
 	 ('Recouso',257.0),
@@ -14485,7 +14485,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pison',257.0),
 	 ('Alende',257.0),
 	 ('Culiañez',257.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Masache',257.0),
 	 ('Sitjar',257.0),
 	 ('Ayan',257.0),
@@ -14496,7 +14496,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ranilla',257.0),
 	 ('Monterrey',257.0),
 	 ('Canelles',257.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canora',257.0),
 	 ('Sors',257.0),
 	 ('Rionda',257.0),
@@ -14507,7 +14507,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Corro',257.0),
 	 ('Cosialls',257.0),
 	 ('Carrascon',257.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vellon',257.0),
 	 ('Casafont',257.0),
 	 ('Valmaseda',257.0),
@@ -14518,7 +14518,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alcoy',257.0),
 	 ('Landrove',257.0),
 	 ('Anrango',257.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borjabad',257.0),
 	 ('El Azzaoui',257.0),
 	 ('Samhi',257.0),
@@ -14529,7 +14529,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Safdar',257.0),
 	 ('Echeberria',256.0),
 	 ('Arillo',256.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sogas',256.0),
 	 ('Montellano',256.0),
 	 ('Vidigal',256.0),
@@ -14540,7 +14540,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Gomar',256.0),
 	 ('Fermoselle',256.0),
 	 ('Ibabe',256.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mahecha',256.0),
 	 ('Arandiga',256.0),
 	 ('Orna',256.0),
@@ -14551,7 +14551,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carbones',256.0),
 	 ('Cabau',256.0),
 	 ('Landaeta',256.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anderez',256.0),
 	 ('Evangelio',256.0),
 	 ('Cope',256.0),
@@ -14562,7 +14562,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boujida',256.0),
 	 ('Haddadi',256.0),
 	 ('Abdessamie',256.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Timofte',256.0),
 	 ('Carcavilla',255.0),
 	 ('Barrones',255.0),
@@ -14573,7 +14573,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amorrortu',255.0),
 	 ('Cabaña',255.0),
 	 ('Villamañan',255.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Solier',255.0),
 	 ('Gorbea',255.0),
 	 ('Buelga',255.0),
@@ -14584,7 +14584,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Camuña',255.0),
 	 ('Garaizar',255.0),
 	 ('Fantova',255.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benimeli',255.0),
 	 ('Arguimbau',255.0),
 	 ('Cabalgante',255.0),
@@ -14595,7 +14595,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urzelai',255.0),
 	 ('Valsera',255.0),
 	 ('Iragorri',255.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lugilde',255.0),
 	 ('Sambruno',255.0),
 	 ('Marty',255.0),
@@ -14606,7 +14606,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Maaroufi',255.0),
 	 ('Ilea',255.0),
 	 ('Schiopu',255.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Vargas',254.0),
 	 ('Noria',254.0),
 	 ('Escanilla',254.0),
@@ -14617,7 +14617,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palomanes',254.0),
 	 ('Garmilla',254.0),
 	 ('Tirados',254.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mongay',254.0),
 	 ('Bellvis',254.0),
 	 ('Goldaracena',254.0),
@@ -14628,7 +14628,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bascuñan',254.0),
 	 ('Lanceta',254.0),
 	 ('Ablanedo',254.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Murube',254.0),
 	 ('Pallin',254.0),
 	 ('Lanchazo',254.0),
@@ -14639,7 +14639,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Repetto',254.0),
 	 ('Renuncio',254.0),
 	 ('Bay',254.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Magaldi',254.0),
 	 ('Costan',254.0),
 	 ('El Khaldi',254.0),
@@ -14650,7 +14650,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaconescu',254.0),
 	 ('Abdeslam',253.0),
 	 ('Condon',253.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Victoriano',253.0),
 	 ('Oblanca',253.0),
 	 ('Matador',253.0),
@@ -14661,7 +14661,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Angueira',253.0),
 	 ('De Frias',253.0),
 	 ('Galafate',253.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tahar',253.0),
 	 ('Ganzo',253.0),
 	 ('Leguina',253.0),
@@ -14672,7 +14672,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meno',253.0),
 	 ('Cardoza',253.0),
 	 ('Sestayo',253.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Civicos',253.0),
 	 ('Moreno Arrones',253.0),
 	 ('Machicado',253.0),
@@ -14683,7 +14683,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sambola',253.0),
 	 ('Tesoro',253.0),
 	 ('Cabos',253.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Govea',253.0),
 	 ('Aguadero',253.0),
 	 ('Armisen',253.0),
@@ -14694,7 +14694,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rafi',253.0),
 	 ('Bensalah',253.0),
 	 ('El Massoudi',253.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saoudi',253.0),
 	 ('Beck',253.0),
 	 ('Tache',253.0),
@@ -14705,7 +14705,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ribero',252.0),
 	 ('Teruelo',252.0),
 	 ('Avi',252.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ochovo',252.0),
 	 ('Junquero',252.0),
 	 ('Lamiel',252.0),
@@ -14716,7 +14716,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bayot',252.0),
 	 ('Boigues',252.0),
 	 ('Posado',252.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nebro',252.0),
 	 ('Rosaleny',252.0),
 	 ('Majada',252.0),
@@ -14727,7 +14727,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rebaque',252.0),
 	 ('Licona',252.0),
 	 ('Peyro',252.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matta',252.0),
 	 ('Beiroa',252.0),
 	 ('Teijo',252.0),
@@ -14738,7 +14738,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aizpitarte',252.0),
 	 ('Beza',252.0),
 	 ('El Majdoubi',252.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chahbi',252.0),
 	 ('Rahaoui',252.0),
 	 ('Mazur',252.0),
@@ -14749,7 +14749,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mariñelarena',251.0),
 	 ('Vias',251.0),
 	 ('Litran',251.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaragozi',251.0),
 	 ('Legazpi',251.0),
 	 ('Ceide',251.0),
@@ -14760,7 +14760,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Caelles',251.0),
 	 ('Fortis',251.0),
 	 ('Garcia De Paredes',251.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azuaje',251.0),
 	 ('Añino',251.0),
 	 ('Andrea',251.0),
@@ -14771,7 +14771,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vilana',251.0),
 	 ('De Cea',251.0),
 	 ('Vilata',251.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Redero',251.0),
 	 ('Pardellas',251.0),
 	 ('Carcas',251.0),
@@ -14782,7 +14782,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molina Prados',251.0),
 	 ('Erauskin',251.0),
 	 ('Solchaga',251.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fontanillo',251.0),
 	 ('Sequi',251.0),
 	 ('Garofalo',251.0),
@@ -14793,7 +14793,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belkacem',251.0),
 	 ('Zouhair',251.0),
 	 ('Gardner',251.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Surdu',251.0),
 	 ('Dragota',251.0),
 	 ('Rotariu',251.0),
@@ -14804,7 +14804,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larrainzar',250.0),
 	 ('Ballen',250.0),
 	 ('Malillos',250.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pierna',250.0),
 	 ('Villafañez',250.0),
 	 ('Fincias',250.0),
@@ -14815,7 +14815,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zalacain',250.0),
 	 ('Guallart',250.0),
 	 ('Remartinez',250.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Donadeu',250.0),
 	 ('Espuelas',250.0),
 	 ('De Mateo',250.0),
@@ -14826,7 +14826,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baila',250.0),
 	 ('Sellers',250.0),
 	 ('Kabba',250.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martinez Abarca',250.0),
 	 ('Salmoun',250.0),
 	 ('Karlsson',250.0),
@@ -14837,7 +14837,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zoubir',250.0),
 	 ('Faty',250.0),
 	 ('Grancha',249.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bertoa',249.0),
 	 ('Tristante',249.0),
 	 ('Caubet',249.0),
@@ -14848,7 +14848,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Polvorinos',249.0),
 	 ('Icaza',249.0),
 	 ('Mañeru',249.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brandao',249.0),
 	 ('Pasero',249.0),
 	 ('Fonta',249.0),
@@ -14859,7 +14859,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Colsa',249.0),
 	 ('Pujado',249.0),
 	 ('Arciniegas',249.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galbany',249.0),
 	 ('Anfruns',249.0),
 	 ('Chuquimarca',249.0),
@@ -14870,7 +14870,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arisa',249.0),
 	 ('Bastero',249.0),
 	 ('Joan',249.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pare',249.0),
 	 ('Espuig',249.0),
 	 ('Fernandez De La Puebla',249.0),
@@ -14881,7 +14881,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Contijoch',249.0),
 	 ('Bendriss',249.0),
 	 ('Addou',249.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fiore',249.0),
 	 ('Hawkins',249.0),
 	 ('Balint',249.0),
@@ -14892,7 +14892,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zorrozua',248.0),
 	 ('Ochaita',248.0),
 	 ('Gilete',248.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Algarrada',248.0),
 	 ('Pellisa',248.0),
 	 ('Mogena',248.0),
@@ -14903,7 +14903,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arabaolaza',248.0),
 	 ('Furundarena',248.0),
 	 ('Gallud',248.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agurto',248.0),
 	 ('Oceja',248.0),
 	 ('Ladra',248.0),
@@ -14914,7 +14914,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruscalleda',248.0),
 	 ('Ardao',248.0),
 	 ('Garabato',248.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bacigalupe',248.0),
 	 ('Lamparero',248.0),
 	 ('Llongueras',248.0),
@@ -14925,7 +14925,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mo',248.0),
 	 ('Jalil',248.0),
 	 ('Marsou',248.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chakkour',248.0),
 	 ('Boughaba',248.0),
 	 ('El Younoussi',248.0),
@@ -14936,7 +14936,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Prian',247.0),
 	 ('Muntadas',247.0),
 	 ('Badell',247.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pruneda',247.0),
 	 ('Perruca',247.0),
 	 ('Abarrategui',247.0),
@@ -14947,7 +14947,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Relloso',247.0),
 	 ('Alex',247.0),
 	 ('De Oleo',247.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oyaga',247.0),
 	 ('Embuena',247.0),
 	 ('Trindade',247.0),
@@ -14958,7 +14958,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nebrera',247.0),
 	 ('Supervia',247.0),
 	 ('Pierola',247.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manzo',247.0),
 	 ('Martin Lorente',247.0),
 	 ('Gornes',247.0),
@@ -14969,7 +14969,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vladimirov',247.0),
 	 ('Alilou',247.0),
 	 ('Kozak',247.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moroz',247.0),
 	 ('Postolache',247.0),
 	 ('Dobos',247.0),
@@ -14980,7 +14980,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Outerelo',246.0),
 	 ('Mayas',246.0),
 	 ('Felipez',246.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Besga',246.0),
 	 ('Clofent',246.0),
 	 ('Alastrue',246.0),
@@ -14991,7 +14991,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escusa',246.0),
 	 ('Herguido',246.0),
 	 ('Aldavero',246.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Branchadell',246.0),
 	 ('Leache',246.0),
 	 ('Romaris',246.0),
@@ -15002,7 +15002,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lombana',246.0),
 	 ('Lotero',246.0),
 	 ('Chimborazo',246.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez De Landa',246.0),
 	 ('Saba',246.0),
 	 ('Guibert',246.0),
@@ -15013,7 +15013,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Bahri',246.0),
 	 ('Fadli',246.0),
 	 ('Chafik',246.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dunn',246.0),
 	 ('Aouad',246.0),
 	 ('Kovalenko',246.0),
@@ -15024,7 +15024,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Novac',246.0),
 	 ('Craia',246.0),
 	 ('Lopategui',245.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canes',245.0),
 	 ('Bonome',245.0),
 	 ('Plagaro',245.0),
@@ -15035,7 +15035,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Puya',245.0),
 	 ('Da Luz',245.0),
 	 ('Crusat',245.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Declara',245.0),
 	 ('Aracama',245.0),
 	 ('Coarasa',245.0),
@@ -15046,7 +15046,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Higueruela',245.0),
 	 ('Hidalga',245.0),
 	 ('Villasuso',245.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suñen',245.0),
 	 ('Sanchez Gil',245.0),
 	 ('Germade',245.0),
@@ -15057,7 +15057,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bozada',245.0),
 	 ('Azon',245.0),
 	 ('Bures',245.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carnice',245.0),
 	 ('Capape',245.0),
 	 ('Resta',245.0),
@@ -15068,7 +15068,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Khlifi',245.0),
 	 ('Coleman',245.0),
 	 ('Vitale',245.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dione',245.0),
 	 ('Sullivan',245.0),
 	 ('Booth',245.0),
@@ -15079,7 +15079,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oregui',244.0),
 	 ('Elduayen',244.0),
 	 ('Turiño',244.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laina',244.0),
 	 ('Prunes',244.0),
 	 ('Estañol',244.0),
@@ -15090,7 +15090,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Giler',244.0),
 	 ('Reines',244.0),
 	 ('Amaguaña',244.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gonzalez Albo',244.0),
 	 ('Calveras',244.0),
 	 ('Niz',244.0),
@@ -15101,7 +15101,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rabanillo',244.0),
 	 ('Bonafonte',244.0),
 	 ('Serer',244.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Calzada',244.0),
 	 ('Cilveti',244.0),
 	 ('Urabayen',244.0),
@@ -15112,7 +15112,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Dueña',244.0),
 	 ('Hartmann',244.0),
 	 ('El Ghzaoui',244.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Touati',244.0),
 	 ('Ferguson',244.0),
 	 ('Wan',244.0),
@@ -15123,7 +15123,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pinal',243.0),
 	 ('Dourado',243.0),
 	 ('Seguro',243.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jurio',243.0),
 	 ('Ichaso',243.0),
 	 ('Galiot',243.0),
@@ -15134,7 +15134,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pozueta',243.0),
 	 ('Analuisa',243.0),
 	 ('Ondarra',243.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Delfin',243.0),
 	 ('Asuero',243.0),
 	 ('Ayas',243.0),
@@ -15145,7 +15145,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Docon',243.0),
 	 ('Monlleo',243.0),
 	 ('Llario',243.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Babot',243.0),
 	 ('Abeal',243.0),
 	 ('Malon',243.0),
@@ -15156,7 +15156,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vaccaro',243.0),
 	 ('Ouahbi',243.0),
 	 ('Miles',243.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Davidson',243.0),
 	 ('Griffin',243.0),
 	 ('Precup',243.0),
@@ -15167,7 +15167,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mimoso',242.0),
 	 ('Palla',242.0),
 	 ('Aracena',242.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Adamez',242.0),
 	 ('Onsurbe',242.0),
 	 ('Auyanet',242.0),
@@ -15178,7 +15178,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarrazo',242.0),
 	 ('Chaos',242.0),
 	 ('Rosquete',242.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bordetas',242.0),
 	 ('Parral',242.0),
 	 ('Barandela',242.0),
@@ -15189,7 +15189,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vertiz',242.0),
 	 ('Jaudenes',242.0),
 	 ('Garcia De Leon',242.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Libano',242.0),
 	 ('Suris',242.0),
 	 ('Torrandell',242.0),
@@ -15200,7 +15200,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saoud',242.0),
 	 ('Houari',242.0),
 	 ('Boussaid',242.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dahbani',242.0),
 	 ('Watts',242.0),
 	 ('Mihailescu',242.0),
@@ -15211,7 +15211,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Patilla',241.0),
 	 ('Sisternas',241.0),
 	 ('Espinazo',241.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castera',241.0),
 	 ('Berroa',241.0),
 	 ('Astobiza',241.0),
@@ -15222,7 +15222,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aramburo',241.0),
 	 ('Tirador',241.0),
 	 ('Used',241.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echevarrieta',241.0),
 	 ('Somarriba',241.0),
 	 ('Tacon',241.0),
@@ -15233,7 +15233,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marmaneu',241.0),
 	 ('Saenz De Urturi',241.0),
 	 ('Benktib',241.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ouaali',241.0),
 	 ('Fuchs',241.0),
 	 ('O''Donnell',241.0),
@@ -15244,7 +15244,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Stevenson',241.0),
 	 ('Puscas',241.0),
 	 ('Matillas',240.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aranguena',240.0),
 	 ('Gonzalves',240.0),
 	 ('Pascuet',240.0),
@@ -15255,7 +15255,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nobrega',240.0),
 	 ('Folla',240.0),
 	 ('Sanchez Pascuala',240.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Daponte',240.0),
 	 ('Fisas',240.0),
 	 ('Solanellas',240.0),
@@ -15266,7 +15266,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mijan',240.0),
 	 ('Taborga',240.0),
 	 ('Urgiles',240.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ceba',240.0),
 	 ('Masmitja',240.0),
 	 ('Camello',240.0),
@@ -15277,7 +15277,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cecilio',240.0),
 	 ('Touriñan',240.0),
 	 ('Genestar',240.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Raimundez',240.0),
 	 ('Reneses',240.0),
 	 ('Comi',240.0),
@@ -15288,7 +15288,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ennaciri',240.0),
 	 ('Carr',240.0),
 	 ('Sanyang',240.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chambers',240.0),
 	 ('Bagayoko',240.0),
 	 ('Murariu',240.0),
@@ -15299,7 +15299,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albizua',239.0),
 	 ('Llerandi',239.0),
 	 ('De La Red',239.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Monereo',239.0),
 	 ('Ruvira',239.0),
 	 ('Amestoy',239.0),
@@ -15310,7 +15310,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pardell',239.0),
 	 ('Montmany',239.0),
 	 ('Carrobles',239.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castanera',239.0),
 	 ('Pasantes',239.0),
 	 ('Garcia Uceda',239.0),
@@ -15321,7 +15321,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alcelay',239.0),
 	 ('Sangenis',239.0),
 	 ('Matabuena',239.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tugues',239.0),
 	 ('Saguillo',239.0),
 	 ('Oubel',239.0),
@@ -15332,7 +15332,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buhigas',239.0),
 	 ('Sanllehi',239.0),
 	 ('Sopelana',239.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aldekoa',239.0),
 	 ('Raiss',239.0),
 	 ('Derraz',239.0),
@@ -15343,7 +15343,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Onofrei',239.0),
 	 ('Turcanu',239.0),
 	 ('Buga',239.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villareal',238.0),
 	 ('Armiñana',238.0),
 	 ('Barchino',238.0),
@@ -15354,7 +15354,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zunzarren',238.0),
 	 ('Contelles',238.0),
 	 ('Fungueiriño',238.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aventin',238.0),
 	 ('Ybañez',238.0),
 	 ('Culla',238.0),
@@ -15365,7 +15365,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Capellades',238.0),
 	 ('Garcia Vaquero',238.0),
 	 ('Atencio',238.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campama',238.0),
 	 ('Zuazu',238.0),
 	 ('Ahuir',238.0),
@@ -15376,7 +15376,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bastias',238.0),
 	 ('Garcia De Quiros',238.0),
 	 ('Lacave',238.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coscolin',238.0),
 	 ('Fauli',238.0),
 	 ('Viñe',238.0),
@@ -15387,7 +15387,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cadaval',238.0),
 	 ('Borra',238.0),
 	 ('Minchon',238.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gomez Acebo',238.0),
 	 ('Bailach',238.0),
 	 ('Braz',238.0),
@@ -15398,7 +15398,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pellus',238.0),
 	 ('Magrans',238.0),
 	 ('Samuel',238.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amakran',238.0),
 	 ('Sorrentino',238.0),
 	 ('Simons',238.0),
@@ -15409,7 +15409,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nicholson',238.0),
 	 ('Grama',238.0),
 	 ('San Luis',237.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argumosa',237.0),
 	 ('Frejo',237.0),
 	 ('Anuncibay',237.0),
@@ -15420,7 +15420,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cedena',237.0),
 	 ('Muste',237.0),
 	 ('Nine',237.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arizmendiarrieta',237.0),
 	 ('Arnillas',237.0),
 	 ('Sanfiz',237.0),
@@ -15431,7 +15431,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pamblanco',237.0),
 	 ('Lopez Tello',237.0),
 	 ('Alandes',237.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ansio',237.0),
 	 ('Rotllan',237.0),
 	 ('Chichon',237.0),
@@ -15442,7 +15442,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Miner',237.0),
 	 ('Otano',237.0),
 	 ('Amato',237.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Baraka',237.0),
 	 ('Bouayad',237.0),
 	 ('Otmani',237.0),
@@ -15453,7 +15453,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urquiaga',236.0),
 	 ('Pollo',236.0),
 	 ('Ocerin',236.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Bermejo',236.0),
 	 ('Arganda',236.0),
 	 ('Jaques',236.0),
@@ -15464,7 +15464,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ganaza',236.0),
 	 ('Mereles',236.0),
 	 ('Merideño',236.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Regas',236.0),
 	 ('Diestre',236.0),
 	 ('Tenesaca',236.0),
@@ -15475,7 +15475,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Turu',236.0),
 	 ('Diaz Parreño',236.0),
 	 ('Flaque',236.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Principal',236.0),
 	 ('Ribote',236.0),
 	 ('Angullo',236.0),
@@ -15486,7 +15486,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mitja',236.0),
 	 ('Aboal',236.0),
 	 ('Abete',236.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Busnadiego',236.0),
 	 ('Aijon',236.0),
 	 ('Alajarin',236.0),
@@ -15497,7 +15497,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lascu',236.0),
 	 ('Burruezo',235.0),
 	 ('Laviana',235.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ures',235.0),
 	 ('Borobio',235.0),
 	 ('Jaureguizar',235.0),
@@ -15508,7 +15508,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ortiga',235.0),
 	 ('Osado',235.0),
 	 ('Ceamanos',235.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Irure',235.0),
 	 ('Viruel',235.0),
 	 ('Grijota',235.0),
@@ -15519,7 +15519,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ojados',235.0),
 	 ('Fernandez Baillo',235.0),
 	 ('Orrantia',235.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guzon',235.0),
 	 ('Alis',235.0),
 	 ('Cebrino',235.0),
@@ -15530,7 +15530,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esquerre',235.0),
 	 ('Mahtani',235.0),
 	 ('Estrugo',235.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dupuy',235.0),
 	 ('Manssouri',235.0),
 	 ('Kada',235.0),
@@ -15541,7 +15541,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nan',235.0),
 	 ('Vasiliu',235.0),
 	 ('Cimpean',235.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alecu',235.0),
 	 ('Goldaraz',234.0),
 	 ('Vicandi',234.0),
@@ -15552,7 +15552,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Truyol',234.0),
 	 ('Tuñez',234.0),
 	 ('Zurriaga',234.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Recaj',234.0),
 	 ('Subiros',234.0),
 	 ('Rituerto',234.0),
@@ -15563,7 +15563,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serrudo',234.0),
 	 ('Galey',234.0),
 	 ('Fariza',234.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vilaboy',234.0),
 	 ('Velert',234.0),
 	 ('Solaguren',234.0),
@@ -15574,7 +15574,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Porroche',234.0),
 	 ('Bendaña',234.0),
 	 ('Egiguren',234.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Venzala',234.0),
 	 ('Choya',234.0),
 	 ('Muñecas',234.0),
@@ -15585,7 +15585,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Jose',234.0),
 	 ('Rahal',234.0),
 	 ('El Moussati',234.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Haidar',234.0),
 	 ('Dieme',234.0),
 	 ('Addi',234.0),
@@ -15596,7 +15596,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brugada',233.0),
 	 ('Corbaton',233.0),
 	 ('Fiaño',233.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ascension',233.0),
 	 ('Sabado',233.0),
 	 ('Talarn',233.0),
@@ -15607,7 +15607,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iradi',233.0),
 	 ('Ogueta',233.0),
 	 ('Baldonedo',233.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Del Castillo',233.0),
 	 ('Arnan',233.0),
 	 ('Polvorosa',233.0),
@@ -15618,7 +15618,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peset',233.0),
 	 ('Grisaleña',233.0),
 	 ('Lambarri',233.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Renilla',233.0),
 	 ('Fages',233.0),
 	 ('Esquembre',233.0),
@@ -15629,7 +15629,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chahbouni',233.0),
 	 ('Rabah',233.0),
 	 ('Zouhri',233.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Haji',233.0),
 	 ('Ashfaq',233.0),
 	 ('Andronache',233.0),
@@ -15640,7 +15640,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yurrebaso',232.0),
 	 ('Bidegain',232.0),
 	 ('Eixarch',232.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pradilla',232.0),
 	 ('Razola',232.0),
 	 ('Abendaño',232.0),
@@ -15651,7 +15651,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mairata',232.0),
 	 ('Benach',232.0),
 	 ('Terradez',232.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Follana',232.0),
 	 ('Ubero',232.0),
 	 ('Arreche',232.0),
@@ -15662,7 +15662,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baleato',232.0),
 	 ('Igeño',232.0),
 	 ('Arroyos',232.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barge',232.0),
 	 ('Bazarra',232.0),
 	 ('Dosuna',232.0),
@@ -15673,7 +15673,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gainzarain',232.0),
 	 ('Farina',232.0),
 	 ('El Ghalbzouri',232.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maamri',232.0),
 	 ('Ouhaddou',232.0),
 	 ('Ziane',232.0),
@@ -15684,7 +15684,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Opoku',232.0),
 	 ('Jianu',232.0),
 	 ('Andries',232.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Duñabeitia',231.0),
 	 ('Riquel',231.0),
 	 ('Graiño',231.0),
@@ -15695,7 +15695,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fresnedo',231.0),
 	 ('Rotaeche',231.0),
 	 ('Rajado',231.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Outes',231.0),
 	 ('Torrillas',231.0),
 	 ('Baraldes',231.0),
@@ -15706,7 +15706,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cobarro',231.0),
 	 ('Mangana',231.0),
 	 ('Reja',231.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agapito',231.0),
 	 ('Arcis',231.0),
 	 ('Trancho',231.0),
@@ -15717,7 +15717,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sayol',231.0),
 	 ('Rufat',231.0),
 	 ('Cascant',231.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taus',231.0),
 	 ('Galobardes',231.0),
 	 ('Pequerul',231.0),
@@ -15728,7 +15728,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roquer',231.0),
 	 ('Sanchez Palencia',231.0),
 	 ('Elizburu',231.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Rosa',231.0),
 	 ('Castanyer',231.0),
 	 ('Haji',231.0),
@@ -15739,7 +15739,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buzatu',231.0),
 	 ('Barbarroja',230.0),
 	 ('Cibrian',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Goyes',230.0),
 	 ('Colmenarez',230.0),
 	 ('Garasa',230.0),
@@ -15750,7 +15750,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luceron',230.0),
 	 ('Leton',230.0),
 	 ('Farrerons',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lares',230.0),
 	 ('Mainez',230.0),
 	 ('Gurtubay',230.0),
@@ -15761,7 +15761,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garavito',230.0),
 	 ('Montecino',230.0),
 	 ('Generelo',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alumbreros',230.0),
 	 ('De La Viña',230.0),
 	 ('Sitjes',230.0),
@@ -15772,7 +15772,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez De Rojas',230.0),
 	 ('Touzon',230.0),
 	 ('Ranedo',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Todo',230.0),
 	 ('Salegi',230.0),
 	 ('Moñiz',230.0),
@@ -15783,7 +15783,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Egues',230.0),
 	 ('Laderas',230.0),
 	 ('Jaio',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salek',230.0),
 	 ('Bos',230.0),
 	 ('Andreev',230.0),
@@ -15794,7 +15794,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carroll',230.0),
 	 ('Rhodes',230.0),
 	 ('Dragos',230.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gong',230.0),
 	 ('Aguilocho',229.0),
 	 ('Buezo',229.0),
@@ -15805,7 +15805,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cagide',229.0),
 	 ('Estragues',229.0),
 	 ('Sesto',229.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Camazon',229.0),
 	 ('Leiza',229.0),
 	 ('Monllau',229.0),
@@ -15816,7 +15816,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz De Arbulo',229.0),
 	 ('Garcia De Albeniz',229.0),
 	 ('Salvany',229.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ylla',229.0),
 	 ('Sayalero',229.0),
 	 ('Escayola',229.0),
@@ -15827,7 +15827,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hervada',229.0),
 	 ('Carra',229.0),
 	 ('Sainz De Baranda',229.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cintrano',229.0),
 	 ('Iturrate',229.0),
 	 ('Cañigueral',229.0),
@@ -15838,7 +15838,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Farsi',229.0),
 	 ('Okafor',229.0),
 	 ('Anjum',229.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calota',229.0),
 	 ('Guarro',228.0),
 	 ('Asanza',228.0),
@@ -15849,7 +15849,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lizasoain',228.0),
 	 ('Baudet',228.0),
 	 ('Cuella',228.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Seuba',228.0),
 	 ('Quisbert',228.0),
 	 ('Lascurain',228.0),
@@ -15860,7 +15860,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Traid',228.0),
 	 ('Adalia',228.0),
 	 ('Arroita',228.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canterla',228.0),
 	 ('Prous',228.0),
 	 ('Goig',228.0),
@@ -15871,7 +15871,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juguera',228.0),
 	 ('Retolaza',228.0),
 	 ('Taña',228.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grimau',228.0),
 	 ('Moroño',228.0),
 	 ('Basante',228.0),
@@ -15882,7 +15882,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salichs',228.0),
 	 ('Gorostizaga',228.0),
 	 ('Juesas',228.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oyono',228.0),
 	 ('Hanna',228.0),
 	 ('El Hajoui',228.0),
@@ -15893,7 +15893,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monja',227.0),
 	 ('Muñoz Quiros',227.0),
 	 ('Larizgoitia',227.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atenza',227.0),
 	 ('Yabar',227.0),
 	 ('Parafita',227.0),
@@ -15904,7 +15904,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Badajoz',227.0),
 	 ('Cuerpo',227.0),
 	 ('Planellas',227.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yupanqui',227.0),
 	 ('Carlavilla',227.0),
 	 ('Viscasillas',227.0),
@@ -15915,7 +15915,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buznego',227.0),
 	 ('Ruigomez',227.0),
 	 ('Isanta',227.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suanes',227.0),
 	 ('Viton',227.0),
 	 ('Chocero',227.0),
@@ -15926,7 +15926,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pedrayes',227.0),
 	 ('Llimona',227.0),
 	 ('Uche',227.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rom',227.0),
 	 ('Cham',227.0),
 	 ('El Achhab',227.0),
@@ -15937,7 +15937,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Masgrau',226.0),
 	 ('Maurin',226.0),
 	 ('Aguillo',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Radua',226.0),
 	 ('Soraluce',226.0),
 	 ('Atoche',226.0),
@@ -15948,7 +15948,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Troncho',226.0),
 	 ('Palmas',226.0),
 	 ('Zanuy',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marfa',226.0),
 	 ('Garcia Mascaraque',226.0),
 	 ('Cabanellas',226.0),
@@ -15959,7 +15959,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Majadas',226.0),
 	 ('Almendarez',226.0),
 	 ('Villalpando',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ayuela',226.0),
 	 ('Crujera',226.0),
 	 ('Goiriena',226.0),
@@ -15970,7 +15970,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lucas Torres',226.0),
 	 ('Barrada',226.0),
 	 ('Caseiro',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chauca',226.0),
 	 ('Chacin',226.0),
 	 ('Sansalvador',226.0),
@@ -15981,7 +15981,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ponti',226.0),
 	 ('Erostarbe',226.0),
 	 ('Devi',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Toval',226.0),
 	 ('Masclans',226.0),
 	 ('Moller',226.0),
@@ -15992,7 +15992,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rouaz',226.0),
 	 ('Farkas',226.0),
 	 ('Bors',226.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lawson',226.0),
 	 ('Tanveer',226.0),
 	 ('Eddaoudi',226.0),
@@ -16003,7 +16003,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Omeñaca',225.0),
 	 ('Orovio',225.0),
 	 ('Fuentenebro',225.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rique',225.0),
 	 ('Carmen',225.0),
 	 ('Chanivet',225.0),
@@ -16014,7 +16014,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chorques',225.0),
 	 ('Bernuz',225.0),
 	 ('Cortejosa',225.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mujal',225.0),
 	 ('Grueiro',225.0),
 	 ('Vite',225.0),
@@ -16025,7 +16025,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Piro',225.0),
 	 ('Cordellat',225.0),
 	 ('Espiritu',225.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anastasio',225.0),
 	 ('Belsue',225.0),
 	 ('Freites',225.0),
@@ -16036,7 +16036,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Andivia',225.0),
 	 ('Medio',225.0),
 	 ('Cost',225.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cenador',225.0),
 	 ('Rocabado',225.0),
 	 ('Martinez De Albeniz',225.0),
@@ -16047,7 +16047,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saddiki',225.0),
 	 ('Saenz De Santa Maria',225.0),
 	 ('Oulhaj',225.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ourkia',225.0),
 	 ('Cameron',225.0),
 	 ('Lane',225.0),
@@ -16058,7 +16058,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muniente',224.0),
 	 ('Ponseti',224.0),
 	 ('Baltazar',224.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suelves',224.0),
 	 ('Corbillon',224.0),
 	 ('Radio',224.0),
@@ -16069,7 +16069,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Equisoain',224.0),
 	 ('Ortal',224.0),
 	 ('Corvalan',224.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bayas',224.0),
 	 ('Majuelos',224.0),
 	 ('Sarralde',224.0),
@@ -16080,7 +16080,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alors',224.0),
 	 ('Bendala',224.0),
 	 ('Gomez Rico',224.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gall',224.0),
 	 ('Acitores',224.0),
 	 ('Membrillo',224.0),
@@ -16091,7 +16091,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lakbir',224.0),
 	 ('Salman',224.0),
 	 ('Amzil',224.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Veselinova',224.0),
 	 ('Thiaw',224.0),
 	 ('Ghinea',224.0),
@@ -16102,7 +16102,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Echauri',223.0),
 	 ('Mougan',223.0),
 	 ('Bellanco',223.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otazo',223.0),
 	 ('Gort',223.0),
 	 ('Tosco',223.0),
@@ -16113,7 +16113,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sellan',223.0),
 	 ('Zoroa',223.0),
 	 ('Guantes',223.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Busom',223.0),
 	 ('Gonfaus',223.0),
 	 ('Florenciano',223.0),
@@ -16124,7 +16124,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basantes',223.0),
 	 ('Castiblanque',223.0),
 	 ('Ventayol',223.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iravedra',223.0),
 	 ('Sort',223.0),
 	 ('Muixi',223.0),
@@ -16135,7 +16135,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chong',223.0),
 	 ('Ortiz De Guinea',223.0),
 	 ('Olivier',223.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Raissouni',223.0),
 	 ('Hamdoun',223.0),
 	 ('Malek',223.0),
@@ -16146,7 +16146,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanogo',223.0),
 	 ('Matache',223.0),
 	 ('Ciurea',223.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaren',222.0),
 	 ('Iceta',222.0),
 	 ('Araquistain',222.0),
@@ -16157,7 +16157,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chinchurreta',222.0),
 	 ('Serrallonga',222.0),
 	 ('Mazuela',222.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lladro',222.0),
 	 ('Matalobos',222.0),
 	 ('Masias',222.0),
@@ -16168,7 +16168,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Masaquiza',222.0),
 	 ('Calama',222.0),
 	 ('Hernandiz',222.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chaques',222.0),
 	 ('Berengueras',222.0),
 	 ('Lladosa',222.0),
@@ -16179,7 +16179,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Costafreda',222.0),
 	 ('Dimova',222.0),
 	 ('Sanz De Galdeano',222.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Luzarraga',222.0),
 	 ('Fors',222.0),
 	 ('Margareto',222.0),
@@ -16190,7 +16190,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sicre',222.0),
 	 ('Benallal',222.0),
 	 ('Negri',222.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zahri',222.0),
 	 ('Bougrine',222.0),
 	 ('Akachar',222.0),
@@ -16201,7 +16201,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fraser',222.0),
 	 ('Kerr',222.0),
 	 ('Doucoure',222.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Wheeler',222.0),
 	 ('De Azevedo',221.0),
 	 ('Unica',221.0),
@@ -16212,7 +16212,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llufriu',221.0),
 	 ('Aragay',221.0),
 	 ('Samarra',221.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soret',221.0),
 	 ('De La Encina',221.0),
 	 ('Terciado',221.0),
@@ -16223,7 +16223,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torrento',221.0),
 	 ('Hosta',221.0),
 	 ('Meras',221.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villameriel',221.0),
 	 ('Liceaga',221.0),
 	 ('Cabanilles',221.0),
@@ -16234,7 +16234,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mani',221.0),
 	 ('Escarre',221.0),
 	 ('Alou',221.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Teles',221.0),
 	 ('Riverola',221.0),
 	 ('Zinkunegi',221.0),
@@ -16245,7 +16245,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Afia',221.0),
 	 ('Le',221.0),
 	 ('Kruger',221.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yassine',221.0),
 	 ('Chaouch',221.0),
 	 ('Tkachenko',221.0),
@@ -16256,7 +16256,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mateescu',221.0),
 	 ('Mocan',221.0),
 	 ('State',221.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aina',220.0),
 	 ('Guindos',220.0),
 	 ('Da Rosa',220.0),
@@ -16267,7 +16267,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orgiles',220.0),
 	 ('Bret',220.0),
 	 ('Pallo',220.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Salazar',220.0),
 	 ('Higes',220.0),
 	 ('Joglar',220.0),
@@ -16278,7 +16278,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tornes',220.0),
 	 ('Bedon',220.0),
 	 ('Uzkudun',220.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caballeria',220.0),
 	 ('Lorea',220.0),
 	 ('Folque',220.0),
@@ -16289,7 +16289,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yumar',220.0),
 	 ('Amezqueta',220.0),
 	 ('Faraco',220.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Genzor',220.0),
 	 ('Civeira',220.0),
 	 ('Israel',220.0),
@@ -16300,7 +16300,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amesti',220.0),
 	 ('Trillas',220.0),
 	 ('Martin Aragon',220.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Guerra',220.0),
 	 ('Zalbidea',220.0),
 	 ('Pahissa',220.0),
@@ -16311,7 +16311,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santi',220.0),
 	 ('Gatti',220.0),
 	 ('Benkaddour',220.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gruber',220.0),
 	 ('Ozcoidi',219.0),
 	 ('Vior',219.0),
@@ -16322,7 +16322,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Acemel',219.0),
 	 ('Bolon',219.0),
 	 ('Obis',219.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elguea',219.0),
 	 ('Araus',219.0),
 	 ('Arazola',219.0),
@@ -16333,7 +16333,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boque',219.0),
 	 ('Robas',219.0),
 	 ('Fabres',219.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moraña',219.0),
 	 ('Trapaga',219.0),
 	 ('Cortegana',219.0),
@@ -16344,7 +16344,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sauret',219.0),
 	 ('Roji',219.0),
 	 ('Abeso',219.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bernades',219.0),
 	 ('Urretabizkaia',219.0),
 	 ('Cantelar',219.0),
@@ -16355,7 +16355,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Hachmi',219.0),
 	 ('Hofmann',219.0),
 	 ('Missaoui',219.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Essaadi',219.0),
 	 ('Mahdi',219.0),
 	 ('El Ammari',219.0),
@@ -16366,7 +16366,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moh',218.0),
 	 ('Cristobo',218.0),
 	 ('Albañil',218.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puertos',218.0),
 	 ('Barenys',218.0),
 	 ('Garachana',218.0),
@@ -16377,7 +16377,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fulleda',218.0),
 	 ('Pintiado',218.0),
 	 ('Verjano',218.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aseguinolaza',218.0),
 	 ('Pieras',218.0),
 	 ('Ivern',218.0),
@@ -16388,7 +16388,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguaded',218.0),
 	 ('Egidos',218.0),
 	 ('Tricas',218.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abietar',218.0),
 	 ('Ilzarbe',218.0),
 	 ('Tarela',218.0),
@@ -16399,7 +16399,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berlanas',218.0),
 	 ('Archiles',218.0),
 	 ('Santigosa',218.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Morales',218.0),
 	 ('Haz',218.0),
 	 ('Cullere',218.0),
@@ -16410,7 +16410,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pierre',218.0),
 	 ('Azaoum',218.0),
 	 ('El Moumni',218.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jbari',218.0),
 	 ('Essafi',218.0),
 	 ('Pagano',218.0),
@@ -16421,7 +16421,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabrelles',217.0),
 	 ('Paches',217.0),
 	 ('Bresco',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Ama',217.0),
 	 ('Vinardell',217.0),
 	 ('Garcia Talavera',217.0),
@@ -16432,7 +16432,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alarte',217.0),
 	 ('Freijomil',217.0),
 	 ('Friera',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bujeda',217.0),
 	 ('Caparroz',217.0),
 	 ('Duo',217.0),
@@ -16443,7 +16443,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vielma',217.0),
 	 ('Lopez De Luzuriaga',217.0),
 	 ('Tain',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Condal',217.0),
 	 ('Gurbindo',217.0),
 	 ('Javaloy',217.0),
@@ -16454,7 +16454,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brazales',217.0),
 	 ('Baldominos',217.0),
 	 ('Aguion',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peig',217.0),
 	 ('Liñero',217.0),
 	 ('Alaniz',217.0),
@@ -16465,7 +16465,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quiñoa',217.0),
 	 ('Charlez',217.0),
 	 ('Goldar',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mazuelos',217.0),
 	 ('Melendre',217.0),
 	 ('Osayande',217.0),
@@ -16476,7 +16476,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ameur',217.0),
 	 ('Sokolova',217.0),
 	 ('Mekkaoui',217.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouazama',217.0),
 	 ('Ferdi',217.0),
 	 ('Walton',217.0),
@@ -16487,7 +16487,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Beneite',216.0),
 	 ('Niell',216.0),
 	 ('Fontdevila',216.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Piella',216.0),
 	 ('Loyo',216.0),
 	 ('Acerete',216.0),
@@ -16498,7 +16498,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mompart',216.0),
 	 ('Cuchillo',216.0),
 	 ('Fontsere',216.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gaudes',216.0),
 	 ('Cascudo',216.0),
 	 ('Gerardo',216.0),
@@ -16509,7 +16509,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonada',216.0),
 	 ('Basarrate',216.0),
 	 ('Anchuelo',216.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urkizu',216.0),
 	 ('Hierrezuelo',216.0),
 	 ('Urigoitia',216.0),
@@ -16520,7 +16520,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Genes',216.0),
 	 ('Aranbarri',216.0),
 	 ('Delas',216.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Micha',216.0),
 	 ('Azkona',216.0),
 	 ('Arbib',216.0),
@@ -16531,7 +16531,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berrada',216.0),
 	 ('Duncan',216.0),
 	 ('Chikri',216.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kumari',216.0),
 	 ('Borislavova',216.0),
 	 ('Bouhamid',216.0),
@@ -16542,7 +16542,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jurca',216.0),
 	 ('Ou',216.0),
 	 ('Talamantes',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hombre',215.0),
 	 ('Adanero',215.0),
 	 ('Agrasar',215.0),
@@ -16553,7 +16553,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorostegui',215.0),
 	 ('Suriel',215.0),
 	 ('Bernadas',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Novais',215.0),
 	 ('Gimena',215.0),
 	 ('Fosch',215.0),
@@ -16564,7 +16564,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Joga',215.0),
 	 ('Pararols',215.0),
 	 ('Milagro',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carapeto',215.0),
 	 ('Ordorica',215.0),
 	 ('Villazala',215.0),
@@ -16575,7 +16575,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bienvenido',215.0),
 	 ('Lavid',215.0),
 	 ('Bagaria',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Erkiaga',215.0),
 	 ('Aissa',215.0),
 	 ('Almuzara',215.0),
@@ -16586,7 +16586,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laroussi',215.0),
 	 ('Orpez',215.0),
 	 ('El Gourari',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Attou',215.0),
 	 ('Talib',215.0),
 	 ('Schafer',215.0),
@@ -16597,7 +16597,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Umar',215.0),
 	 ('Curtis',215.0),
 	 ('Uta',215.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miclea',215.0),
 	 ('Mascuñan',214.0),
 	 ('Tenedor',214.0),
@@ -16608,7 +16608,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Antonino',214.0),
 	 ('Surribas',214.0),
 	 ('Colodrero',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Capllonch',214.0),
 	 ('Ardaya',214.0),
 	 ('Arina',214.0),
@@ -16619,7 +16619,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguilarte',214.0),
 	 ('Esquerda',214.0),
 	 ('Gismera',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Telo',214.0),
 	 ('Pallarols',214.0),
 	 ('Larzabal',214.0),
@@ -16630,7 +16630,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lindao',214.0),
 	 ('Cadelo',214.0),
 	 ('Recaman',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sein',214.0),
 	 ('Basulto',214.0),
 	 ('Buenaga',214.0),
@@ -16641,7 +16641,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sasot',214.0),
 	 ('Aragoncillo',214.0),
 	 ('Garoña',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Isa',214.0),
 	 ('Sanchez Cabezudo',214.0),
 	 ('Orpi',214.0),
@@ -16652,7 +16652,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sisa',214.0),
 	 ('Susmozas',214.0),
 	 ('De Alvaro',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez De Sevilla',214.0),
 	 ('Mayenco',214.0),
 	 ('Fossati',214.0),
@@ -16663,7 +16663,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yagoubi',214.0),
 	 ('Majid',214.0),
 	 ('Saadaoui',214.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Ouadi',214.0),
 	 ('Moutaouakil',214.0),
 	 ('Hutchinson',214.0),
@@ -16674,7 +16674,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chelaru',214.0),
 	 ('Apresa',213.0),
 	 ('Ochandorena',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guiance',213.0),
 	 ('Gonzalez Nicolas',213.0),
 	 ('Chabrera',213.0),
@@ -16685,7 +16685,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aguirregabiria',213.0),
 	 ('Lomo',213.0),
 	 ('Bellorin',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rayego',213.0),
 	 ('Verdezoto',213.0),
 	 ('Gorchs',213.0),
@@ -16696,7 +16696,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aymami',213.0),
 	 ('Raba',213.0),
 	 ('Sanchez Guijaldo',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Madejon',213.0),
 	 ('Tembras',213.0),
 	 ('Gargantilla',213.0),
@@ -16707,7 +16707,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azpeleta',213.0),
 	 ('Holgueras',213.0),
 	 ('Rigueiro',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Valeros',213.0),
 	 ('Almoril',213.0),
 	 ('Mingueza',213.0),
@@ -16718,7 +16718,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valldeoriola',213.0),
 	 ('Brando',213.0),
 	 ('Franconetti',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanin',213.0),
 	 ('Bruño',213.0),
 	 ('Figueiro',213.0),
@@ -16729,7 +16729,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Sebastian',213.0),
 	 ('De Dompablo',213.0),
 	 ('Punsola',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Panea',213.0),
 	 ('Vassallo',213.0),
 	 ('Senhaji',213.0),
@@ -16740,7 +16740,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kharbach',213.0),
 	 ('Asrih',213.0),
 	 ('Samba',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nabil',213.0),
 	 ('Jaouad',213.0),
 	 ('Benyahia',213.0),
@@ -16751,7 +16751,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Daly',213.0),
 	 ('Taki',213.0),
 	 ('Senghor',213.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Merzouki',213.0),
 	 ('Mbathie',213.0),
 	 ('Vieru',213.0),
@@ -16762,7 +16762,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arenilla',212.0),
 	 ('Boy',212.0),
 	 ('Dobao',212.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tronco',212.0),
 	 ('Geada',212.0),
 	 ('Obaya',212.0),
@@ -16773,7 +16773,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casalta',212.0),
 	 ('Quincoces',212.0),
 	 ('Gomez Valades',212.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rivares',212.0),
 	 ('Dovao',212.0),
 	 ('Buforn',212.0),
@@ -16784,7 +16784,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Camins',212.0),
 	 ('Sanesteban',212.0),
 	 ('Domeque',212.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villagordo',212.0),
 	 ('Portu',212.0),
 	 ('Guenaga',212.0),
@@ -16795,7 +16795,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rolle',212.0),
 	 ('Cordente',212.0),
 	 ('Serrano De La Cruz',212.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carcaboso',212.0),
 	 ('Vancells',212.0),
 	 ('Gubern',212.0),
@@ -16806,7 +16806,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Safi',212.0),
 	 ('Hamada',212.0),
 	 ('Volkova',212.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Abbadi',212.0),
 	 ('Aboufaris',212.0),
 	 ('De Vries',212.0),
@@ -16817,7 +16817,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardeleanu',212.0),
 	 ('Regulez',211.0),
 	 ('Cejalvo',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moscosio',211.0),
 	 ('Sampablo',211.0),
 	 ('Bazurto',211.0),
@@ -16828,7 +16828,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mourenza',211.0),
 	 ('De La Roza',211.0),
 	 ('Almenta',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manalo',211.0),
 	 ('Franquis',211.0),
 	 ('De La Campa',211.0),
@@ -16839,7 +16839,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañamaque',211.0),
 	 ('Lada',211.0),
 	 ('Lamo',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fabo',211.0),
 	 ('Perojo',211.0),
 	 ('Bodes',211.0),
@@ -16850,7 +16850,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montiano',211.0),
 	 ('Ripol',211.0),
 	 ('Genesca',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sison',211.0),
 	 ('Canle',211.0),
 	 ('Figueruelo',211.0),
@@ -16861,7 +16861,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lagarda',211.0),
 	 ('Vasconcellos',211.0),
 	 ('Lantero',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laencina',211.0),
 	 ('Verdon',211.0),
 	 ('Yankov',211.0),
@@ -16872,7 +16872,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('D''Amico',211.0),
 	 ('El Arabi',211.0),
 	 ('Souare',211.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marzouki',211.0),
 	 ('El Asraoui',211.0),
 	 ('Todea',211.0),
@@ -16883,7 +16883,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Apostu',211.0),
 	 ('Mazhar',211.0),
 	 ('De Molina',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Modia',210.0),
 	 ('Arteseros',210.0),
 	 ('Guinda',210.0),
@@ -16894,7 +16894,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gudin',210.0),
 	 ('Carabante',210.0),
 	 ('Garretas',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rocabert',210.0),
 	 ('Pericacho',210.0),
 	 ('Gordejuela',210.0),
@@ -16905,7 +16905,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cociña',210.0),
 	 ('Gastañaga',210.0),
 	 ('Belza',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taisma',210.0),
 	 ('Carriches',210.0),
 	 ('Nazco',210.0),
@@ -16916,7 +16916,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ransanz',210.0),
 	 ('Villasenin',210.0),
 	 ('Farriol',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Planchuelo',210.0),
 	 ('Enjamio',210.0),
 	 ('De La Jara',210.0),
@@ -16927,7 +16927,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balbontin',210.0),
 	 ('Laveda',210.0),
 	 ('Sanchez Manjavacas',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aguete',210.0),
 	 ('Lallave',210.0),
 	 ('Motoso',210.0),
@@ -16938,7 +16938,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ghanem',210.0),
 	 ('Taheri',210.0),
 	 ('El Khatib',210.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Harchi',210.0),
 	 ('Reed',210.0),
 	 ('El Arfaoui',210.0),
@@ -16949,7 +16949,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ur Rehman',210.0),
 	 ('Sarnago',209.0),
 	 ('Falque',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lejardi',209.0),
 	 ('Corporales',209.0),
 	 ('Pandiella',209.0),
@@ -16960,7 +16960,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sibaja',209.0),
 	 ('Santasusana',209.0),
 	 ('Frechoso',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aravena',209.0),
 	 ('Pradillos',209.0),
 	 ('Queiroz',209.0),
@@ -16971,7 +16971,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bartolo',209.0),
 	 ('Bañobre',209.0),
 	 ('Faja',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puello',209.0),
 	 ('Artillo',209.0),
 	 ('Rabat',209.0),
@@ -16982,7 +16982,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('San Lorenzo',209.0),
 	 ('Gamisans',209.0),
 	 ('Feced',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Usoz',209.0),
 	 ('Villasana',209.0),
 	 ('Estero',209.0),
@@ -16993,7 +16993,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oliveres',209.0),
 	 ('Candelaria',209.0),
 	 ('Almudi',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sodupe',209.0),
 	 ('Mars',209.0),
 	 ('Pero',209.0),
@@ -17004,7 +17004,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mladenov',209.0),
 	 ('Caputo',209.0),
 	 ('Graf',209.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Daki',209.0),
 	 ('Stef',209.0),
 	 ('Cociu',209.0),
@@ -17015,7 +17015,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Llavona',208.0),
 	 ('Uris',208.0),
 	 ('Resines',208.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villasmil',208.0),
 	 ('Caguana',208.0),
 	 ('Sanchez Ocaña',208.0),
@@ -17026,7 +17026,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia De Dionisio',208.0),
 	 ('Caudeli',208.0),
 	 ('Diaz De Guereñu',208.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordeig',208.0),
 	 ('Abderrahman',208.0),
 	 ('Sacedon',208.0),
@@ -17037,7 +17037,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Recolons',208.0),
 	 ('Almajano',208.0),
 	 ('Cutrin',208.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saraguro',208.0),
 	 ('Martinez De Morentin',208.0),
 	 ('Mormeneo',208.0),
@@ -17048,7 +17048,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Ser',208.0),
 	 ('Zarzalejo',208.0),
 	 ('Urgoiti',208.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gerico',208.0),
 	 ('Garcia De Castro',208.0),
 	 ('Abaga',208.0),
@@ -17059,7 +17059,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanhaji',208.0),
 	 ('Fleming',208.0),
 	 ('Hammani',208.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bakker',208.0),
 	 ('Jabbari',208.0),
 	 ('Benserya',208.0),
@@ -17070,7 +17070,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mecic',208.0),
 	 ('Casermeiro',207.0),
 	 ('Cincunegui',207.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reboiras',207.0),
 	 ('Broceño',207.0),
 	 ('Audi',207.0),
@@ -17081,7 +17081,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ibarzo',207.0),
 	 ('Barcon',207.0),
 	 ('Wert',207.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Godes',207.0),
 	 ('Aljaro',207.0),
 	 ('De Aza',207.0),
@@ -17092,7 +17092,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mascort',207.0),
 	 ('Monescillo',207.0),
 	 ('Lander',207.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tusell',207.0),
 	 ('Carabel',207.0),
 	 ('Cornelles',207.0),
@@ -17103,7 +17103,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Riezu',207.0),
 	 ('Araoz',207.0),
 	 ('Ochoa De Eribe',207.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tarilonte',207.0),
 	 ('Del Buey',207.0),
 	 ('Sarrate',207.0),
@@ -17114,7 +17114,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mechbal',207.0),
 	 ('Zerrouki',207.0),
 	 ('Kamel',207.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cattaneo',207.0),
 	 ('El Massaoudi',207.0),
 	 ('Baumann',207.0),
@@ -17125,7 +17125,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cortines',206.0),
 	 ('Ruana',206.0),
 	 ('Astondoa',206.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buela',206.0),
 	 ('Xamena',206.0),
 	 ('Hodar',206.0),
@@ -17136,7 +17136,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pombal',206.0),
 	 ('Marroyo',206.0),
 	 ('Matoso',206.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Veleiro',206.0),
 	 ('Torta',206.0),
 	 ('Betegon',206.0),
@@ -17147,7 +17147,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Txurruka',206.0),
 	 ('Quejido',206.0),
 	 ('Ushiña',206.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Techera',206.0),
 	 ('Garcia De Cortazar',206.0),
 	 ('Arquellada',206.0),
@@ -17158,7 +17158,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portellano',206.0),
 	 ('Ruiz De Galarreta',206.0),
 	 ('Rapun',206.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Donderis',206.0),
 	 ('Filter',206.0),
 	 ('Mela',206.0),
@@ -17169,7 +17169,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Majidi',206.0),
 	 ('Olsson',206.0),
 	 ('Abbadi',206.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ayoub',206.0),
 	 ('Jebbari',206.0),
 	 ('Imtiaz',206.0),
@@ -17180,7 +17180,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mañueco',205.0),
 	 ('Hoyuelos',205.0),
 	 ('Sagardia',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Domeño',205.0),
 	 ('Baleztena',205.0),
 	 ('Orellano',205.0),
@@ -17191,7 +17191,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calderer',205.0),
 	 ('Eguskiza',205.0),
 	 ('Tagle',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peralba',205.0),
 	 ('Garrigo',205.0),
 	 ('Prellezo',205.0),
@@ -17202,7 +17202,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maynou',205.0),
 	 ('Mirabent',205.0),
 	 ('Izaguerri',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bornay',205.0),
 	 ('Uzcudun',205.0),
 	 ('Arizaleta',205.0),
@@ -17213,7 +17213,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bareas',205.0),
 	 ('Barriento',205.0),
 	 ('Chiachio',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perals',205.0),
 	 ('Llusa',205.0),
 	 ('Valado',205.0),
@@ -17224,7 +17224,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santaclara',205.0),
 	 ('Lloves',205.0),
 	 ('Veci',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guiot',205.0),
 	 ('Jueguen',205.0),
 	 ('Orri',205.0),
@@ -17235,7 +17235,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Schwartz',205.0),
 	 ('Trapiella',205.0),
 	 ('El Bali',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Afilal',205.0),
 	 ('Papa',205.0),
 	 ('Lafriakh',205.0),
@@ -17246,7 +17246,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mouhib',205.0),
 	 ('Rasheed',205.0),
 	 ('Dragut',205.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bekhakh',205.0),
 	 ('Cernat',205.0),
 	 ('Grozav',205.0),
@@ -17257,7 +17257,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarrason',204.0),
 	 ('Liñeiro',204.0),
 	 ('Perandres',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aguirrebengoa',204.0),
 	 ('Agras',204.0),
 	 ('Pobes',204.0),
@@ -17268,7 +17268,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Piedra',204.0),
 	 ('Rivada',204.0),
 	 ('Piernagorda',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Francas',204.0),
 	 ('Munt',204.0),
 	 ('Soledispa',204.0),
@@ -17279,7 +17279,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campusano',204.0),
 	 ('Ordeñana',204.0),
 	 ('Cabases',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quel',204.0),
 	 ('Fernandez De Castro',204.0),
 	 ('Dongil',204.0),
@@ -17290,7 +17290,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chiloeches',204.0),
 	 ('Vilacoba',204.0),
 	 ('Arboix',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Finol',204.0),
 	 ('Laburu',204.0),
 	 ('Posa',204.0),
@@ -17301,7 +17301,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pregal',204.0),
 	 ('Monerri',204.0),
 	 ('Urkidi',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cascado',204.0),
 	 ('Viela',204.0),
 	 ('Etxebarrieta',204.0),
@@ -17312,7 +17312,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rasmussen',204.0),
 	 ('Larsson',204.0),
 	 ('Zekhnini',204.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Demeter',204.0),
 	 ('Rafai',204.0),
 	 ('D''Agostino',204.0),
@@ -17323,7 +17323,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Semedo',203.0),
 	 ('Nicasio',203.0),
 	 ('Picañol',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alvares',203.0),
 	 ('La O',203.0),
 	 ('Salagre',203.0),
@@ -17334,7 +17334,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gobernado',203.0),
 	 ('Mallea',203.0),
 	 ('Garcia Alcala',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cazador',203.0),
 	 ('Arechavala',203.0),
 	 ('Polit',203.0),
@@ -17345,7 +17345,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clot',203.0),
 	 ('Fuguet',203.0),
 	 ('Ricos',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Capin',203.0),
 	 ('Araño',203.0),
 	 ('Novel',203.0),
@@ -17356,7 +17356,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Anchel',203.0),
 	 ('Torondel',203.0),
 	 ('Leralta',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cañamas',203.0),
 	 ('Aspa',203.0),
 	 ('Capellas',203.0),
@@ -17367,7 +17367,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dillana',203.0),
 	 ('Brunete',203.0),
 	 ('Martin De La Sierra',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chapero',203.0),
 	 ('Marset',203.0),
 	 ('Zarioh',203.0),
@@ -17378,7 +17378,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abdou',203.0),
 	 ('Fitzgerald',203.0),
 	 ('Bahraoui',203.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Djitte',203.0),
 	 ('Vilcu',203.0),
 	 ('Stanica',203.0),
@@ -17389,7 +17389,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Osada',202.0),
 	 ('Fernadez',202.0),
 	 ('Zorraquino',202.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coscojuela',202.0),
 	 ('Lopez Ibarra',202.0),
 	 ('Martinez Conde',202.0),
@@ -17400,7 +17400,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cifo',202.0),
 	 ('Llimos',202.0),
 	 ('Perez De La Lastra',202.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Altuzarra',202.0),
 	 ('Valpuesta',202.0),
 	 ('Orradre',202.0),
@@ -17411,7 +17411,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urquizo',202.0),
 	 ('Artiñano',202.0),
 	 ('Narvaiza',202.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ballon',202.0),
 	 ('Nierga',202.0),
 	 ('Rabaza',202.0),
@@ -17422,7 +17422,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Olariaga',202.0),
 	 ('Meleiro',202.0),
 	 ('Chenlo',202.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arizon',202.0),
 	 ('Laiglesia',202.0),
 	 ('Bajona',202.0),
@@ -17433,7 +17433,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Taha',202.0),
 	 ('Mourad',202.0),
 	 ('Zine',202.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Santis',202.0),
 	 ('Bouhjira',202.0),
 	 ('Es Salhi',202.0),
@@ -17444,7 +17444,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peracaula',201.0),
 	 ('Cillan',201.0),
 	 ('Gobantes',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Balletbo',201.0),
 	 ('Orga',201.0),
 	 ('Marba',201.0),
@@ -17455,7 +17455,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tumbaco',201.0),
 	 ('Lop',201.0),
 	 ('Iriso',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Letamendi',201.0),
 	 ('Julca',201.0),
 	 ('Malanda',201.0),
@@ -17466,7 +17466,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pisco',201.0),
 	 ('Perez Serrano',201.0),
 	 ('Regue',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sotolongo',201.0),
 	 ('Cotado',201.0),
 	 ('Castañ',201.0),
@@ -17477,7 +17477,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yarnoz',201.0),
 	 ('Garros',201.0),
 	 ('Repolles',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Balle',201.0),
 	 ('Baidal',201.0),
 	 ('Arronis',201.0),
@@ -17488,7 +17488,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Travesi',201.0),
 	 ('Diaz Toledo',201.0),
 	 ('Lostal',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Airas',201.0),
 	 ('Cleries',201.0),
 	 ('Leivas',201.0),
@@ -17499,7 +17499,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bispo',201.0),
 	 ('Garcia Casarrubios',201.0),
 	 ('Labaka',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fraj',201.0),
 	 ('Zian',201.0),
 	 ('Power',201.0),
@@ -17510,7 +17510,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bouchikhi',201.0),
 	 ('Krause',201.0),
 	 ('Boudlal',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maamar',201.0),
 	 ('Haidara',201.0),
 	 ('El Hamidi',201.0),
@@ -17521,7 +17521,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dicu',201.0),
 	 ('Ursache',201.0),
 	 ('Mitroi',201.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caricol',200.0),
 	 ('Villasclaras',200.0),
 	 ('Oncins',200.0),
@@ -17532,7 +17532,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trastoy',200.0),
 	 ('Lorrio',200.0),
 	 ('Cosp',200.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sancerni',200.0),
 	 ('Fauro',200.0),
 	 ('Gomez Pastrana',200.0),
@@ -17543,7 +17543,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Per',200.0),
 	 ('Llamedo',200.0),
 	 ('Ons',200.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcuña',200.0),
 	 ('Cogollo',200.0),
 	 ('Sadia',200.0),
@@ -17554,7 +17554,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Realpe',200.0),
 	 ('Cumba',200.0),
 	 ('Eguillor',200.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Lucio',200.0),
 	 ('Rubias',200.0),
 	 ('Rich',200.0),
@@ -17565,7 +17565,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ajbar',200.0),
 	 ('Kuhn',200.0),
 	 ('Attar',200.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hajjami',200.0),
 	 ('Belkhir',200.0),
 	 ('Achalhi',200.0),
@@ -17576,7 +17576,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vaida',200.0),
 	 ('Furdui',200.0),
 	 ('De Morais',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lencero',199.0),
 	 ('Agredo',199.0),
 	 ('Oruña',199.0),
@@ -17587,7 +17587,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elizo',199.0),
 	 ('Sangucho',199.0),
 	 ('Sorrosal',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canalias',199.0),
 	 ('Cornes',199.0),
 	 ('Enri',199.0),
@@ -17598,7 +17598,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Renda',199.0),
 	 ('Cubria',199.0),
 	 ('Hornillo',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castellana',199.0),
 	 ('Aya',199.0),
 	 ('Alvargonzalez',199.0),
@@ -17609,7 +17609,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molin',199.0),
 	 ('Uralde',199.0),
 	 ('Coedo',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Oiarbide',199.0),
 	 ('Asuar',199.0),
 	 ('Limpias',199.0),
@@ -17620,7 +17620,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serrahima',199.0),
 	 ('Aquerreta',199.0),
 	 ('Villoro',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Darnes',199.0),
 	 ('Tagarro',199.0),
 	 ('Forcano',199.0),
@@ -17631,7 +17631,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bogdanova',199.0),
 	 ('Bouanani',199.0),
 	 ('Van',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouziani',199.0),
 	 ('Belghiti',199.0),
 	 ('Banks',199.0),
@@ -17642,7 +17642,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mitu',199.0),
 	 ('Savchuk',199.0),
 	 ('Botea',199.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hammu',198.0),
 	 ('Cianca',198.0),
 	 ('Bascaran',198.0),
@@ -17653,7 +17653,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sangros',198.0),
 	 ('Valdemoro',198.0),
 	 ('Alijas',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bercianos',198.0),
 	 ('Clavaguera',198.0),
 	 ('Silvano',198.0),
@@ -17664,7 +17664,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saca',198.0),
 	 ('Buenadicha',198.0),
 	 ('Pizana',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elexpe',198.0),
 	 ('Buetas',198.0),
 	 ('Busta',198.0),
@@ -17675,7 +17675,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ginovart',198.0),
 	 ('Satorra',198.0),
 	 ('Panta',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Balandin',198.0),
 	 ('Artajona',198.0),
 	 ('Martiañez',198.0),
@@ -17686,7 +17686,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arola',198.0),
 	 ('Nache',198.0),
 	 ('Resmella',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bringue',198.0),
 	 ('Pellico',198.0),
 	 ('Cornudella',198.0),
@@ -17697,7 +17697,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Copano',198.0),
 	 ('Fernandez Palacios',198.0),
 	 ('Nassar',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coste',198.0),
 	 ('Barakat',198.0),
 	 ('De Angelis',198.0),
@@ -17708,7 +17708,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rai',198.0),
 	 ('Haque',198.0),
 	 ('Dorobantu',198.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Genicio',197.0),
 	 ('Lopez Menchero',197.0),
 	 ('Polinario',197.0),
@@ -17719,7 +17719,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cameno',197.0),
 	 ('Gabancho',197.0),
 	 ('Ecay',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mejido',197.0),
 	 ('Margeli',197.0),
 	 ('Mallorqui',197.0),
@@ -17730,7 +17730,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Troche',197.0),
 	 ('Silvela',197.0),
 	 ('Gubau',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costoso',197.0),
 	 ('Cuiña',197.0),
 	 ('Dapia',197.0),
@@ -17741,7 +17741,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz De Velasco',197.0),
 	 ('Verduguez',197.0),
 	 ('Asprilla',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chala',197.0),
 	 ('Cachaldora',197.0),
 	 ('Bode',197.0),
@@ -17752,7 +17752,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valldecabres',197.0),
 	 ('Charry',197.0),
 	 ('Laureiro',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mel',197.0),
 	 ('Fontseca',197.0),
 	 ('Larroy',197.0),
@@ -17763,7 +17763,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Igualador',197.0),
 	 ('Fole',197.0),
 	 ('Salec',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Apezetxea',197.0),
 	 ('Fatah',197.0),
 	 ('Ben Aissa',197.0),
@@ -17774,7 +17774,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hartley',197.0),
 	 ('Deme',197.0),
 	 ('Tkachuk',197.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Slater',197.0),
 	 ('Olarra',196.0),
 	 ('Cabanilla',196.0),
@@ -17785,7 +17785,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gradin',196.0),
 	 ('Zamacona',196.0),
 	 ('Galeron',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fortanet',196.0),
 	 ('Galletero',196.0),
 	 ('De La Concha',196.0),
@@ -17796,7 +17796,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sallan',196.0),
 	 ('Endara',196.0),
 	 ('Ayuste',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Abenoza',196.0),
 	 ('Albaina',196.0),
 	 ('Lauroba',196.0),
@@ -17807,7 +17807,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torijano',196.0),
 	 ('Tijerin',196.0),
 	 ('Altimasveres',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tofe',196.0),
 	 ('Calaza',196.0),
 	 ('Cutiño',196.0),
@@ -17818,7 +17818,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez Marcote',196.0),
 	 ('Hipola',196.0),
 	 ('Verea',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Polledo',196.0),
 	 ('Lombo',196.0),
 	 ('Astacio',196.0),
@@ -17829,7 +17829,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardanza',196.0),
 	 ('Fuset',196.0),
 	 ('Castelblanque',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orobitg',196.0),
 	 ('Sabucedo',196.0),
 	 ('Lehbib',196.0),
@@ -17840,7 +17840,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aberkan',196.0),
 	 ('El Mazani',196.0),
 	 ('Manu',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bassou',196.0),
 	 ('Novikova',196.0),
 	 ('Miroslavova',196.0),
@@ -17851,7 +17851,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mukhtar',196.0),
 	 ('Ahsan',196.0),
 	 ('Gruia',196.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Qasim',196.0),
 	 ('Muñana',195.0),
 	 ('Cruañas',195.0),
@@ -17862,7 +17862,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trabadelo',195.0),
 	 ('Masid',195.0),
 	 ('Sende',195.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gares',195.0),
 	 ('Betriu',195.0),
 	 ('Ull',195.0),
@@ -17873,7 +17873,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Donas',195.0),
 	 ('Menocal',195.0),
 	 ('Tera',195.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gendra',195.0),
 	 ('Almario',195.0),
 	 ('Forga',195.0),
@@ -17884,7 +17884,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sobrin',195.0),
 	 ('Mindeguia',195.0),
 	 ('Degano',195.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laime',195.0),
 	 ('Chacartegui',195.0),
 	 ('Pelicano',195.0),
@@ -17895,7 +17895,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chenoll',195.0),
 	 ('Toll',195.0),
 	 ('Damiano',195.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peri',195.0),
 	 ('Bernardi',195.0),
 	 ('El Ouardani',195.0),
@@ -17906,7 +17906,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Stephens',195.0),
 	 ('El Bazi',195.0),
 	 ('Boyle',195.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ani',195.0),
 	 ('Cirpaci',195.0),
 	 ('Thiare',195.0),
@@ -17917,7 +17917,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larrey',194.0),
 	 ('Lobeiras',194.0),
 	 ('Guillorme',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tupiza',194.0),
 	 ('Amandi',194.0),
 	 ('Garceso',194.0),
@@ -17928,7 +17928,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuartango',194.0),
 	 ('Lujano',194.0),
 	 ('Yegros',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cruza',194.0),
 	 ('Trescastro',194.0),
 	 ('Ezkurra',194.0),
@@ -17939,7 +17939,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erades',194.0),
 	 ('Marias',194.0),
 	 ('Lafoz',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leites',194.0),
 	 ('Sustacha',194.0),
 	 ('Infanzon',194.0),
@@ -17950,7 +17950,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clerigo',194.0),
 	 ('Diloy',194.0),
 	 ('Jorcano',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pata',194.0),
 	 ('Chafino',194.0),
 	 ('Dugarte',194.0),
@@ -17961,7 +17961,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lugones',194.0),
 	 ('Portuondo',194.0),
 	 ('Amarante',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benzaquen',194.0),
 	 ('Spasova',194.0),
 	 ('Barua',194.0),
@@ -17972,7 +17972,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Spinelli',194.0),
 	 ('Sandhu',194.0),
 	 ('Dale',194.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Niculescu',194.0),
 	 ('Warner',194.0),
 	 ('Sandor',194.0),
@@ -17983,7 +17983,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Astiazaran',193.0),
 	 ('Grandez',193.0),
 	 ('Arozena',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marles',193.0),
 	 ('Pilataxi',193.0),
 	 ('Noche',193.0),
@@ -17994,7 +17994,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De Mera',193.0),
 	 ('Fraca',193.0),
 	 ('Gabari',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estopiñan',193.0),
 	 ('Damota',193.0),
 	 ('Periche',193.0),
@@ -18005,7 +18005,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lechiguero',193.0),
 	 ('Puyalto',193.0),
 	 ('Bessa',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espiau',193.0),
 	 ('Trenzano',193.0),
 	 ('Cachan',193.0),
@@ -18016,7 +18016,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vallribera',193.0),
 	 ('Casaban',193.0),
 	 ('Miranzo',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bolsico',193.0),
 	 ('Etxegarai',193.0),
 	 ('Ruiz Del Portal',193.0),
@@ -18027,7 +18027,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Khalfi',193.0),
 	 ('Allan',193.0),
 	 ('Allay',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mahjoubi',193.0),
 	 ('Austin',193.0),
 	 ('Palumbo',193.0),
@@ -18038,7 +18038,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mustata',193.0),
 	 ('Barnett',193.0),
 	 ('Pitigoi',193.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suquillo',192.0),
 	 ('De La Granja',192.0),
 	 ('Codinachs',192.0),
@@ -18049,7 +18049,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Martin Nieto',192.0),
 	 ('Caloto',192.0),
 	 ('Pordomingo',192.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fuego',192.0),
 	 ('Samano',192.0),
 	 ('Rabionet',192.0),
@@ -18060,7 +18060,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carpizo',192.0),
 	 ('Matheus',192.0),
 	 ('De La Sota',192.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gabiña',192.0),
 	 ('Miteva',192.0),
 	 ('Barnola',192.0),
@@ -18071,7 +18071,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Curos',192.0),
 	 ('Ortigoza',192.0),
 	 ('Bumedien',192.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beiras',192.0),
 	 ('Osinalde',192.0),
 	 ('Saenz De Miera',192.0),
@@ -18082,7 +18082,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Segorbe',192.0),
 	 ('Peñalvo',192.0),
 	 ('Renero',192.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rocas',192.0),
 	 ('Yern',192.0),
 	 ('Fernandez Calvillo',192.0),
@@ -18093,7 +18093,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Smit',192.0),
 	 ('Svensson',192.0),
 	 ('Bouhlal',192.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Parkinson',192.0),
 	 ('O''Sullivan',192.0),
 	 ('Rees',192.0),
@@ -18104,7 +18104,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Waheed',192.0),
 	 ('Silaghi',192.0),
 	 ('Ciruelo',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez De Letona',191.0),
 	 ('Caldelas',191.0),
 	 ('Testillano',191.0),
@@ -18115,7 +18115,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Suano',191.0),
 	 ('Iturmendi',191.0),
 	 ('Gualotuña',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cantano',191.0),
 	 ('Mauriño',191.0),
 	 ('Tsvetkov',191.0),
@@ -18126,7 +18126,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campiñez',191.0),
 	 ('Montardit',191.0),
 	 ('Aguirrebeitia',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villalibre',191.0),
 	 ('Escanellas',191.0),
 	 ('Xicola',191.0),
@@ -18137,7 +18137,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Servando',191.0),
 	 ('Tamara',191.0),
 	 ('Vilarnau',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Picapiedra',191.0),
 	 ('Rebate',191.0),
 	 ('Mayal',191.0),
@@ -18148,7 +18148,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Labian',191.0),
 	 ('Penayo',191.0),
 	 ('Santaeulalia',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Emazabel',191.0),
 	 ('Garfella',191.0),
 	 ('Luiz',191.0),
@@ -18159,7 +18159,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goterris',191.0),
 	 ('Extremo',191.0),
 	 ('Chambo',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jabbouri',191.0),
 	 ('Chung',191.0),
 	 ('Metodieva',191.0),
@@ -18170,7 +18170,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campan',191.0),
 	 ('Palmieri',191.0),
 	 ('Pellegrino',191.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Danfakha',191.0),
 	 ('Majeed',191.0),
 	 ('Willis',191.0),
@@ -18181,7 +18181,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baillo',190.0),
 	 ('Abdellah',190.0),
 	 ('Algas',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santaularia',190.0),
 	 ('Ferrada',190.0),
 	 ('Alzas',190.0),
@@ -18192,7 +18192,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarodo',190.0),
 	 ('Viñan',190.0),
 	 ('Chavarro',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Regordan',190.0),
 	 ('Sanza',190.0),
 	 ('Grano De Oro',190.0),
@@ -18203,7 +18203,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elgarresta',190.0),
 	 ('Estarelles',190.0),
 	 ('Arozarena',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aristimuño',190.0),
 	 ('Arnejo',190.0),
 	 ('Zofio',190.0),
@@ -18214,7 +18214,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valldaura',190.0),
 	 ('Gutierrez Solana',190.0),
 	 ('Casali',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saladrigas',190.0),
 	 ('Tuda',190.0),
 	 ('Deras',190.0),
@@ -18225,7 +18225,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Combarro',190.0),
 	 ('Perdiguer',190.0),
 	 ('Buldain',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santorio',190.0),
 	 ('Fedriani',190.0),
 	 ('Libreros',190.0),
@@ -18236,7 +18236,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amian',190.0),
 	 ('El Jebari',190.0),
 	 ('Yahia',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kraus',190.0),
 	 ('Rabii',190.0),
 	 ('Stein',190.0),
@@ -18247,7 +18247,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Asare',190.0),
 	 ('Tatar',190.0),
 	 ('Lica',190.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Adu',190.0),
 	 ('Covaciu',190.0),
 	 ('Banciu',190.0),
@@ -18258,7 +18258,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paulete',189.0),
 	 ('Claverol',189.0),
 	 ('Arnedillo',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almuedo',189.0),
 	 ('Causape',189.0),
 	 ('Capetillo',189.0),
@@ -18269,7 +18269,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villavieja',189.0),
 	 ('Basaldua',189.0),
 	 ('Grifo',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Visier',189.0),
 	 ('Barinaga',189.0),
 	 ('Verdeal',189.0),
@@ -18280,7 +18280,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nole',189.0),
 	 ('Beramendi',189.0),
 	 ('Anitua',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chain',189.0),
 	 ('Palas',189.0),
 	 ('Zunino',189.0),
@@ -18291,7 +18291,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rafael De La Cruz',189.0),
 	 ('Antoran',189.0),
 	 ('Altayo',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Videira',189.0),
 	 ('Meire',189.0),
 	 ('Zeberio',189.0),
@@ -18302,7 +18302,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alutiz',189.0),
 	 ('Girard',189.0),
 	 ('Lachiri',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Guennouni',189.0),
 	 ('Akil',189.0),
 	 ('Volpe',189.0),
@@ -18313,7 +18313,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leach',189.0),
 	 ('El Majdoub',189.0),
 	 ('Arakelyan',189.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Craig',189.0),
 	 ('Daraban',189.0),
 	 ('Raicu',189.0),
@@ -18324,7 +18324,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calabozo',188.0),
 	 ('Framil',188.0),
 	 ('Ajona',188.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Tio',188.0),
 	 ('Garcia Velasco',188.0),
 	 ('Cabodevilla',188.0),
@@ -18335,7 +18335,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belart',188.0),
 	 ('Rite',188.0),
 	 ('Seuma',188.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fresnadillo',188.0),
 	 ('Buenosvinos',188.0),
 	 ('Posligua',188.0),
@@ -18346,7 +18346,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guivernau',188.0),
 	 ('Timiraos',188.0),
 	 ('Arnabat',188.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Claus',188.0),
 	 ('Prestamo',188.0),
 	 ('Bolo',188.0),
@@ -18357,7 +18357,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vellarino',188.0),
 	 ('Moray',188.0),
 	 ('Larra',188.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vallhonrat',188.0),
 	 ('Zacares',188.0),
 	 ('Garcia Heras',188.0),
@@ -18368,7 +18368,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campdepadros',188.0),
 	 ('Poladura',188.0),
 	 ('Chelh',188.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Karmoun',188.0),
 	 ('Hammouda',188.0),
 	 ('Marroun',188.0),
@@ -18379,7 +18379,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marica',188.0),
 	 ('Herbello',187.0),
 	 ('Belloc',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Letosa',187.0),
 	 ('Marmolejos',187.0),
 	 ('Sifuentes',187.0),
@@ -18390,7 +18390,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jutglar',187.0),
 	 ('Bartol',187.0),
 	 ('Frojan',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rastoll',187.0),
 	 ('Vilagran',187.0),
 	 ('Erencia',187.0),
@@ -18401,7 +18401,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viceira',187.0),
 	 ('Moneva',187.0),
 	 ('Froilan',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puigmal',187.0),
 	 ('Fontane',187.0),
 	 ('Llantada',187.0),
@@ -18412,7 +18412,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Regil',187.0),
 	 ('Lopez De Guereñu',187.0),
 	 ('Lorigados',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Longarte',187.0),
 	 ('Azcon',187.0),
 	 ('Quera',187.0),
@@ -18423,7 +18423,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dulce',187.0),
 	 ('Hiniesto',187.0),
 	 ('Benguria',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alijo',187.0),
 	 ('Sellam',187.0),
 	 ('Bombardo',187.0),
@@ -18434,7 +18434,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bakhti',187.0),
 	 ('El Mohammadi',187.0),
 	 ('El Yemlahi',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sankareh',187.0),
 	 ('O''Reilly',187.0),
 	 ('Gassa',187.0),
@@ -18445,7 +18445,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Todor',187.0),
 	 ('Luchian',187.0),
 	 ('Axinte',187.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcay',186.0),
 	 ('Carballedo',186.0),
 	 ('Tamborero',186.0),
@@ -18456,7 +18456,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Xucla',186.0),
 	 ('Fossas',186.0),
 	 ('Majuelo',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boleda',186.0),
 	 ('Larruscain',186.0),
 	 ('Colliga',186.0),
@@ -18467,7 +18467,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Carnerero',186.0),
 	 ('Andradas',186.0),
 	 ('Esclapes',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escar',186.0),
 	 ('Funcia',186.0),
 	 ('Laforga',186.0),
@@ -18478,7 +18478,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nora',186.0),
 	 ('Osto',186.0),
 	 ('Ruanova',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Piñel',186.0),
 	 ('Lendines',186.0),
 	 ('Garcia Del Pozo',186.0),
@@ -18489,7 +18489,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jimenez De Los Galanes',186.0),
 	 ('Loba',186.0),
 	 ('Lapetra',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Olza',186.0),
 	 ('Fernandez De Larrinoa',186.0),
 	 ('Sequero',186.0),
@@ -18500,7 +18500,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nart',186.0),
 	 ('Campana',186.0),
 	 ('Markova',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Akther',186.0),
 	 ('Maes',186.0),
 	 ('El Fassi',186.0),
@@ -18511,7 +18511,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Halim',186.0),
 	 ('Hanafi',186.0),
 	 ('Michael',186.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fusco',186.0),
 	 ('Catalano',186.0),
 	 ('Boukhanfra',186.0),
@@ -18522,7 +18522,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roua',186.0),
 	 ('Blaj',186.0),
 	 ('Torrea',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ajila',185.0),
 	 ('Juanena',185.0),
 	 ('Martinez De Antoñana',185.0),
@@ -18533,7 +18533,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Curquejo',185.0),
 	 ('Alagon',185.0),
 	 ('Virtus',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hoyuela',185.0),
 	 ('Cubeles',185.0),
 	 ('Gigirey',185.0),
@@ -18544,7 +18544,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Asenjo',185.0),
 	 ('Romalde',185.0),
 	 ('Gazo',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bellota',185.0),
 	 ('Larburu',185.0),
 	 ('Servat',185.0),
@@ -18555,7 +18555,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sotres',185.0),
 	 ('Guarachi',185.0),
 	 ('Fauste',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Deaño',185.0),
 	 ('Zori',185.0),
 	 ('Bononad',185.0),
@@ -18566,7 +18566,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morenza',185.0),
 	 ('Vilarrubias',185.0),
 	 ('Aali',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Spasov',185.0),
 	 ('Dupont',185.0),
 	 ('Hamoudan',185.0),
@@ -18577,7 +18577,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chourak',185.0),
 	 ('Herrmann',185.0),
 	 ('El Hamdani',185.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arthur',185.0),
 	 ('Paterson',185.0),
 	 ('Van Den Berg',185.0),
@@ -18588,7 +18588,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Moraes',184.0),
 	 ('Mayta',184.0),
 	 ('Liviano',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almendares',184.0),
 	 ('Pechuan',184.0),
 	 ('Peiroten',184.0),
@@ -18599,7 +18599,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aras',184.0),
 	 ('Queijas',184.0),
 	 ('Sangines',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ascasibar',184.0),
 	 ('Baladon',184.0),
 	 ('Gasque',184.0),
@@ -18610,7 +18610,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Condo',184.0),
 	 ('Outeiro',184.0),
 	 ('Beti',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Batllo',184.0),
 	 ('Oliu',184.0),
 	 ('Gorrita',184.0),
@@ -18621,7 +18621,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hernica',184.0),
 	 ('Iturraspe',184.0),
 	 ('Labairu',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mazuera',184.0),
 	 ('Compadre',184.0),
 	 ('Fornaguera',184.0),
@@ -18632,7 +18632,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciurans',184.0),
 	 ('Ruas',184.0),
 	 ('Alvis',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rubiato',184.0),
 	 ('Martiño',184.0),
 	 ('Temsamani',184.0),
@@ -18643,7 +18643,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz De La Torre',184.0),
 	 ('Bobe',184.0),
 	 ('Torguet',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ger',184.0),
 	 ('Montanya',184.0),
 	 ('Boucetta',184.0),
@@ -18654,7 +18654,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Regrag',184.0),
 	 ('Darif',184.0),
 	 ('El Aouad',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peeters',184.0),
 	 ('Qamar',184.0),
 	 ('Zirar',184.0),
@@ -18665,7 +18665,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saou',184.0),
 	 ('Diane',184.0),
 	 ('Zubair',184.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Ibrahimi',184.0),
 	 ('Ge',184.0),
 	 ('Capra',184.0),
@@ -18676,7 +18676,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Limorte',183.0),
 	 ('Argomaniz',183.0),
 	 ('Recamales',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maure',183.0),
 	 ('Liberato',183.0),
 	 ('Fabrellas',183.0),
@@ -18687,7 +18687,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruger',183.0),
 	 ('Guerendiain',183.0),
 	 ('Gabeiras',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azuar',183.0),
 	 ('Diez De Ulzurrun',183.0),
 	 ('Espinales',183.0),
@@ -18698,7 +18698,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Escribano',183.0),
 	 ('Baranco',183.0),
 	 ('De Velasco',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ubiña',183.0),
 	 ('Sinues',183.0),
 	 ('Cetina',183.0),
@@ -18709,7 +18709,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Inciarte',183.0),
 	 ('Gomez Carreño',183.0),
 	 ('Sauce',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dolader',183.0),
 	 ('Ovide',183.0),
 	 ('Viadel',183.0),
@@ -18720,7 +18720,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonanad',183.0),
 	 ('Gamba',183.0),
 	 ('Gutierro',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baturone',183.0),
 	 ('Munzon',183.0),
 	 ('Prenafeta',183.0),
@@ -18731,7 +18731,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cherradi',183.0),
 	 ('Owono',183.0),
 	 ('El Karkri',183.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faris',183.0),
 	 ('Tijani',183.0),
 	 ('Patterson',183.0),
@@ -18742,7 +18742,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nash',183.0),
 	 ('Ezcurdia',182.0),
 	 ('Lentijo',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manzanilla',182.0),
 	 ('Gimon',182.0),
 	 ('Sangroniz',182.0),
@@ -18753,7 +18753,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pertegal',182.0),
 	 ('Langarica',182.0),
 	 ('Gabarain',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sulbaran',182.0),
 	 ('Alarza',182.0),
 	 ('Lovillo',182.0),
@@ -18764,7 +18764,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mesejo',182.0),
 	 ('Porrino',182.0),
 	 ('Estruga',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ozcariz',182.0),
 	 ('Gelis',182.0),
 	 ('Vares',182.0),
@@ -18775,7 +18775,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Solvas',182.0),
 	 ('Ayuga',182.0),
 	 ('Vitas',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yustas',182.0),
 	 ('Señoran',182.0),
 	 ('Valmorisco',182.0),
@@ -18786,7 +18786,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escauriaza',182.0),
 	 ('Larrad',182.0),
 	 ('Garagarza',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Freniche',182.0),
 	 ('Sanchez Garrido',182.0),
 	 ('Navarre',182.0),
@@ -18797,7 +18797,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palaci',182.0),
 	 ('Burrieza',182.0),
 	 ('Kichouhi',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hajjioui',182.0),
 	 ('Brennan',182.0),
 	 ('Qotbi',182.0),
@@ -18808,7 +18808,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Schaefer',182.0),
 	 ('Boualam',182.0),
 	 ('Duda',182.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chand',182.0),
 	 ('Mohatar',181.0),
 	 ('Embarek',181.0),
@@ -18819,7 +18819,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Broullon',181.0),
 	 ('Arcocha',181.0),
 	 ('Barnadas',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mazarro',181.0),
 	 ('Marteles',181.0),
 	 ('Mirantes',181.0),
@@ -18830,7 +18830,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fe',181.0),
 	 ('Tejeria',181.0),
 	 ('Bolsa',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martin Forero',181.0),
 	 ('Izeta',181.0),
 	 ('Bemposta',181.0),
@@ -18841,7 +18841,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corbin',181.0),
 	 ('Irago',181.0),
 	 ('Lazpita',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Cortes',181.0),
 	 ('Guldris',181.0),
 	 ('Manovel',181.0),
@@ -18852,7 +18852,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ubalde',181.0),
 	 ('Ortiz De Galisteo',181.0),
 	 ('Rumeu',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berasain',181.0),
 	 ('Soutelo',181.0),
 	 ('Zalve',181.0),
@@ -18863,7 +18863,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ayelo',181.0),
 	 ('Ullauri',181.0),
 	 ('Bartel',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juanatey',181.0),
 	 ('Ben Allal',181.0),
 	 ('Grossi',181.0),
@@ -18874,7 +18874,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boumaaza',181.0),
 	 ('Bendaoud',181.0),
 	 ('Visser',181.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chtioui',181.0),
 	 ('El Hajjaji',181.0),
 	 ('Norris',181.0),
@@ -18885,7 +18885,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Parvez',181.0),
 	 ('Arjol',180.0),
 	 ('Abollo',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bandeira',180.0),
 	 ('Boal',180.0),
 	 ('Iguacel',180.0),
@@ -18896,7 +18896,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fustel',180.0),
 	 ('Cajigas',180.0),
 	 ('Genero',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zubelzu',180.0),
 	 ('Lopez Doriga',180.0),
 	 ('Mirambell',180.0),
@@ -18907,7 +18907,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Centenero',180.0),
 	 ('Alberch',180.0),
 	 ('Berdote',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mitjana',180.0),
 	 ('Arpal',180.0),
 	 ('Ramonet',180.0),
@@ -18918,7 +18918,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Simba',180.0),
 	 ('Echanove',180.0),
 	 ('Subirachs',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orantos',180.0),
 	 ('Zalvez',180.0),
 	 ('Retes',180.0),
@@ -18929,7 +18929,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Policarpo',180.0),
 	 ('Sanchez Alarcos',180.0),
 	 ('Viñado',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galardi',180.0),
 	 ('Pastelero',180.0),
 	 ('Pardiño',180.0),
@@ -18940,7 +18940,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lucano',180.0),
 	 ('Moscatel',180.0),
 	 ('Merizalde',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Leon',180.0),
 	 ('Jamai',180.0),
 	 ('Doukkali',180.0),
@@ -18951,7 +18951,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Franklin',180.0),
 	 ('El Fadili',180.0),
 	 ('Houghton',180.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kamil',180.0),
 	 ('Sayah',180.0),
 	 ('Kabbouri',180.0),
@@ -18962,7 +18962,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arsene',180.0),
 	 ('Ratiu',180.0),
 	 ('Edesa',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bastarrica',179.0),
 	 ('Rogla',179.0),
 	 ('Cousiño',179.0),
@@ -18973,7 +18973,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Velicia',179.0),
 	 ('Concejero',179.0),
 	 ('Ciborro',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ceruelo',179.0),
 	 ('Covian',179.0),
 	 ('Ascencio',179.0),
@@ -18984,7 +18984,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ospino',179.0),
 	 ('Riosalido',179.0),
 	 ('Millos',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaular',179.0),
 	 ('Resurreccion',179.0),
 	 ('Gasa',179.0),
@@ -18995,7 +18995,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corti',179.0),
 	 ('Tueros',179.0),
 	 ('Canovaca',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Achalandabaso',179.0),
 	 ('Ventos',179.0),
 	 ('Santabarbara',179.0),
@@ -19006,7 +19006,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez Linares',179.0),
 	 ('Badias',179.0),
 	 ('Cardoner',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iradier',179.0),
 	 ('Ojinaga',179.0),
 	 ('No',179.0),
@@ -19017,7 +19017,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meruelo',179.0),
 	 ('Ventero',179.0),
 	 ('Xaus',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mladenova',179.0),
 	 ('Barneda',179.0),
 	 ('Martinez Carrasco',179.0),
@@ -19028,7 +19028,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sinclair',179.0),
 	 ('El Lyazidi',179.0),
 	 ('Erraji',179.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blake',179.0),
 	 ('Alouani',179.0),
 	 ('Khadim',179.0),
@@ -19039,7 +19039,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arduengo',178.0),
 	 ('Labaca',178.0),
 	 ('Castiblanco',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mancia',178.0),
 	 ('Olivert',178.0),
 	 ('Mosegue',178.0),
@@ -19050,7 +19050,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Preto',178.0),
 	 ('Sarriegui',178.0),
 	 ('Lacoba',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ameal',178.0),
 	 ('Silveria',178.0),
 	 ('Nido',178.0),
@@ -19061,7 +19061,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zorio',178.0),
 	 ('Vilasuso',178.0),
 	 ('Luchena',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Humbert',178.0),
 	 ('Llunell',178.0),
 	 ('Ibarburu',178.0),
@@ -19072,7 +19072,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carricajo',178.0),
 	 ('Nañez',178.0),
 	 ('Viladomiu',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estival',178.0),
 	 ('Sotil',178.0),
 	 ('Garcia Donas',178.0),
@@ -19083,7 +19083,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Taracena',178.0),
 	 ('Lizaran',178.0),
 	 ('Mitev',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berdeal',178.0),
 	 ('Espinach',178.0),
 	 ('Urgeles',178.0),
@@ -19094,7 +19094,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Ayachi',178.0),
 	 ('Artaraz',178.0),
 	 ('Bouzian',178.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orban',178.0),
 	 ('El Khadir',178.0),
 	 ('Yaya',178.0),
@@ -19105,7 +19105,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rauf',178.0),
 	 ('Ionel',178.0),
 	 ('Cepedal',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carollo',177.0),
 	 ('Palliser',177.0),
 	 ('Sarries',177.0),
@@ -19116,7 +19116,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabarga',177.0),
 	 ('Marguello',177.0),
 	 ('Goicolea',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Inchaurraga',177.0),
 	 ('Nicuesa',177.0),
 	 ('Villamandos',177.0),
@@ -19127,7 +19127,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Muela',177.0),
 	 ('Archs',177.0),
 	 ('Eguilaz',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Muñumer',177.0),
 	 ('Cofrades',177.0),
 	 ('Rigueira',177.0),
@@ -19138,7 +19138,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Timoteo',177.0),
 	 ('Victori',177.0),
 	 ('Mos',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabrillo',177.0),
 	 ('Ribon',177.0),
 	 ('Belaunzaran',177.0),
@@ -19149,7 +19149,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sandia',177.0),
 	 ('Sanjaime',177.0),
 	 ('Camafreita',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez De Los Cobos',177.0),
 	 ('Sorell',177.0),
 	 ('Bobet',177.0),
@@ -19160,7 +19160,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maron',177.0),
 	 ('Nazar',177.0),
 	 ('Goiria',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fontanella',177.0),
 	 ('Redolar',177.0),
 	 ('Barbier',177.0),
@@ -19171,7 +19171,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Awan',177.0),
 	 ('El Kassimi',177.0),
 	 ('Engonga',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Persson',177.0),
 	 ('El Azouzi',177.0),
 	 ('Zammouri',177.0),
@@ -19182,7 +19182,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chahmout',177.0),
 	 ('Baxter',177.0),
 	 ('Rudenko',177.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Mahdaoui',177.0),
 	 ('El Asry',177.0),
 	 ('Merzoug',177.0),
@@ -19193,7 +19193,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lyubomirova',177.0),
 	 ('La Fuente',176.0),
 	 ('Allal',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez Pastor',176.0),
 	 ('Quicios',176.0),
 	 ('Del Pilar',176.0),
@@ -19204,7 +19204,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pampanas',176.0),
 	 ('Anacleto',176.0),
 	 ('Riscos',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pujal',176.0),
 	 ('Perancho',176.0),
 	 ('Chale',176.0),
@@ -19215,7 +19215,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zalazar',176.0),
 	 ('Besoli',176.0),
 	 ('Gion',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corvera',176.0),
 	 ('Villeda',176.0),
 	 ('Malca',176.0),
@@ -19226,7 +19226,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardit',176.0),
 	 ('Debasa',176.0),
 	 ('Yaque',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Camina',176.0),
 	 ('Cubillana',176.0),
 	 ('Cardelle',176.0),
@@ -19237,7 +19237,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pradell',176.0),
 	 ('Ibargoyen',176.0),
 	 ('Mimo',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Climente',176.0),
 	 ('Rincones',176.0),
 	 ('Chamosa',176.0),
@@ -19248,7 +19248,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saseta',176.0),
 	 ('Bazalo',176.0),
 	 ('Zangroniz',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Driss',176.0),
 	 ('Pareras',176.0),
 	 ('Puigventos',176.0),
@@ -19259,7 +19259,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sami',176.0),
 	 ('Cho',176.0),
 	 ('Hammouchi',176.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chafai',176.0),
 	 ('Mitrica',176.0),
 	 ('Melinte',176.0),
@@ -19270,7 +19270,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Faria',175.0),
 	 ('Manich',175.0),
 	 ('Lazareno',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sibajas',175.0),
 	 ('Anasagasti',175.0),
 	 ('Barre',175.0),
@@ -19281,7 +19281,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sarasqueta',175.0),
 	 ('Doz',175.0),
 	 ('Biota',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bigorda',175.0),
 	 ('Illamola',175.0),
 	 ('Llabata',175.0),
@@ -19292,7 +19292,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Veses',175.0),
 	 ('Labrandero',175.0),
 	 ('Sabajanes',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Selgas',175.0),
 	 ('Arcon',175.0),
 	 ('Junoy',175.0),
@@ -19303,7 +19303,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Redondo',175.0),
 	 ('Valoria',175.0),
 	 ('Almacellas',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gurrera',175.0),
 	 ('Blanchart',175.0),
 	 ('Ortuñez',175.0),
@@ -19314,7 +19314,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chevalier',175.0),
 	 ('Astolfi',175.0),
 	 ('Sibon',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouzekri',175.0),
 	 ('Sunday',175.0),
 	 ('Chellaf',175.0),
@@ -19325,7 +19325,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zahaf',175.0),
 	 ('Doumbouya',175.0),
 	 ('Gibbs',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baghdasaryan',175.0),
 	 ('Rao',175.0),
 	 ('Turcan',175.0),
@@ -19336,7 +19336,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Padurean',175.0),
 	 ('Comsa',175.0),
 	 ('Vidican',175.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mijarra',174.0),
 	 ('Marente',174.0),
 	 ('Monclova',174.0),
@@ -19347,7 +19347,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buixeda',174.0),
 	 ('Higuita',174.0),
 	 ('Balarezo',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baus',174.0),
 	 ('Orza',174.0),
 	 ('Vello',174.0),
@@ -19358,7 +19358,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doello',174.0),
 	 ('Perez De Heredia',174.0),
 	 ('Rigall',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llordes',174.0),
 	 ('Samon',174.0),
 	 ('Calve',174.0),
@@ -19369,7 +19369,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pedrazas',174.0),
 	 ('Porron',174.0),
 	 ('Roade',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sucunza',174.0),
 	 ('Arquimbau',174.0),
 	 ('Piron',174.0),
@@ -19380,7 +19380,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guadalix',174.0),
 	 ('Zango',174.0),
 	 ('Perez De Villar',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tarano',174.0),
 	 ('Bocija',174.0),
 	 ('Tinto',174.0),
@@ -19391,7 +19391,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Obelleiro',174.0),
 	 ('Corsino',174.0),
 	 ('Berti',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bacariza',174.0),
 	 ('Pikabea',174.0),
 	 ('Cabreira',174.0),
@@ -19402,7 +19402,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benazzouz',174.0),
 	 ('Blanchard',174.0),
 	 ('El Bahraoui',174.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('D''Alessandro',174.0),
 	 ('Law',174.0),
 	 ('Driouech',174.0),
@@ -19413,7 +19413,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bido',173.0),
 	 ('Altarejos',173.0),
 	 ('Pulupa',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almau',173.0),
 	 ('Gilo',173.0),
 	 ('Cidad',173.0),
@@ -19424,7 +19424,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aleson',173.0),
 	 ('Freixanet',173.0),
 	 ('Valeri',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aldabo',173.0),
 	 ('Foruria',173.0),
 	 ('Parte',173.0),
@@ -19435,7 +19435,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Artano',173.0),
 	 ('Izard',173.0),
 	 ('De La Muñoza',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pedrozo',173.0),
 	 ('Cotoli',173.0),
 	 ('Juarranz',173.0),
@@ -19446,7 +19446,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanfrutos',173.0),
 	 ('Da Mota',173.0),
 	 ('Vibora',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urones',173.0),
 	 ('Nomen',173.0),
 	 ('Ricaurte',173.0),
@@ -19457,7 +19457,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clavera',173.0),
 	 ('Zeron',173.0),
 	 ('Moñivas',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Forca',173.0),
 	 ('Esquibel',173.0),
 	 ('Robador',173.0),
@@ -19468,7 +19468,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sardi',173.0),
 	 ('Lasri',173.0),
 	 ('Boussif',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fatmi',173.0),
 	 ('Mballow',173.0),
 	 ('El Kanfoudi',173.0),
@@ -19479,7 +19479,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Norman',173.0),
 	 ('Kay',173.0),
 	 ('Field',173.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pritchard',173.0),
 	 ('Ban',173.0),
 	 ('Boiko',173.0),
@@ -19490,7 +19490,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carmelo',172.0),
 	 ('Pirela',172.0),
 	 ('Berrade',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cirion',172.0),
 	 ('Huercano',172.0),
 	 ('Orra',172.0),
@@ -19501,7 +19501,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ventosinos',172.0),
 	 ('Gadella',172.0),
 	 ('Corento',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Obra',172.0),
 	 ('Chafla',172.0),
 	 ('Torea',172.0),
@@ -19512,7 +19512,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Euba',172.0),
 	 ('Salicru',172.0),
 	 ('Siscart',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Soto',172.0),
 	 ('Serentill',172.0),
 	 ('Usle',172.0),
@@ -19523,7 +19523,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Canchado',172.0),
 	 ('Amiama',172.0),
 	 ('Urtaran',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Indart',172.0),
 	 ('Orihuel',172.0),
 	 ('Veleda',172.0),
@@ -19534,7 +19534,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aliu',172.0),
 	 ('Lamuño',172.0),
 	 ('Baras',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barella',172.0),
 	 ('Pasan',172.0),
 	 ('Lisboa',172.0),
@@ -19545,7 +19545,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goyoaga',172.0),
 	 ('Chara',172.0),
 	 ('Martir',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reboll',172.0),
 	 ('Del Pico',172.0),
 	 ('Accion',172.0),
@@ -19556,7 +19556,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rekalde',172.0),
 	 ('Tibau',172.0),
 	 ('Sopa',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matutano',172.0),
 	 ('Circujano',172.0),
 	 ('Sistac',172.0),
@@ -19567,7 +19567,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Abbad',172.0),
 	 ('Manta',172.0),
 	 ('Martens',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Jilali',172.0),
 	 ('Calabrese',172.0),
 	 ('Allou',172.0),
@@ -19578,7 +19578,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Asad',172.0),
 	 ('Grad',172.0),
 	 ('Ionascu',172.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bora',172.0),
 	 ('Furtuna',172.0),
 	 ('Domper',171.0),
@@ -19589,7 +19589,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arandilla',171.0),
 	 ('Buleo',171.0),
 	 ('Ninot',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reynaldo',171.0),
 	 ('Alzuria',171.0),
 	 ('Quinga',171.0),
@@ -19600,7 +19600,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sarandeses',171.0),
 	 ('Portomeñe',171.0),
 	 ('Donamaria',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paderne',171.0),
 	 ('Ezquer',171.0),
 	 ('Villasur',171.0),
@@ -19611,7 +19611,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albericio',171.0),
 	 ('Vidaller',171.0),
 	 ('Gutierrez Barquin',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anto',171.0),
 	 ('Embarec',171.0),
 	 ('Boter',171.0),
@@ -19622,7 +19622,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sabas',171.0),
 	 ('Tipantuña',171.0),
 	 ('De Oses',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Insaurralde',171.0),
 	 ('Baliño',171.0),
 	 ('Akarregi',171.0),
@@ -19633,7 +19633,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Emilio',171.0),
 	 ('Aretxabaleta',171.0),
 	 ('Arronte',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lucini',171.0),
 	 ('Mesia',171.0),
 	 ('Azkune',171.0),
@@ -19644,7 +19644,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Schroeder',171.0),
 	 ('Dkhissi',171.0),
 	 ('Antar',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Johansen',171.0),
 	 ('Jaafari',171.0),
 	 ('Aparecida',171.0),
@@ -19655,7 +19655,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balaban',171.0),
 	 ('Paunescu',171.0),
 	 ('Badescu',171.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Raducu',171.0),
 	 ('Burca',171.0),
 	 ('Arencon',170.0),
@@ -19666,7 +19666,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chinchon',170.0),
 	 ('Novio',170.0),
 	 ('Ferrio',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santolalla',170.0),
 	 ('Mosteirin',170.0),
 	 ('Gurri',170.0),
@@ -19677,7 +19677,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Roelas',170.0),
 	 ('Adorno',170.0),
 	 ('Fonticoba',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rayos',170.0),
 	 ('Amatria',170.0),
 	 ('De La Gandara',170.0),
@@ -19688,7 +19688,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casi',170.0),
 	 ('Muguiro',170.0),
 	 ('Victorino',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Nuevo',170.0),
 	 ('Gambarte',170.0),
 	 ('Saguer',170.0),
@@ -19699,7 +19699,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molner',170.0),
 	 ('Baltrons',170.0),
 	 ('Esclusa',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Catota',170.0),
 	 ('Abuelo',170.0),
 	 ('Arreba',170.0),
@@ -19710,7 +19710,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montoy',170.0),
 	 ('Alvarez De Arcaya',170.0),
 	 ('Torrabadella',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pastorino',170.0),
 	 ('Irurtia',170.0),
 	 ('Ubis',170.0),
@@ -19721,7 +19721,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Basualdo',170.0),
 	 ('Sanchez Tembleque',170.0),
 	 ('De Gabriel',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rebole',170.0),
 	 ('Amatller',170.0),
 	 ('Maspons',170.0),
@@ -19732,7 +19732,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maiga',170.0),
 	 ('El Maach',170.0),
 	 ('Boudaoud',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Stanley',170.0),
 	 ('Loum',170.0),
 	 ('Frost',170.0),
@@ -19743,7 +19743,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morosan',170.0),
 	 ('Sabou',170.0),
 	 ('Cocos',170.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lyu',170.0),
 	 ('Bujia',169.0),
 	 ('Tellaeche',169.0),
@@ -19754,7 +19754,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Candial',169.0),
 	 ('Bonales',169.0),
 	 ('Outomuro',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mandaluniz',169.0),
 	 ('Jimenez Galanes',169.0),
 	 ('Piguave',169.0),
@@ -19765,7 +19765,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Puigpinos',169.0),
 	 ('Virosta',169.0),
 	 ('Cuño',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mosegui',169.0),
 	 ('Cerveron',169.0),
 	 ('Piniella',169.0),
@@ -19776,7 +19776,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Txintxurreta',169.0),
 	 ('Mocha',169.0),
 	 ('Perero',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ainaga',169.0),
 	 ('Canduela',169.0),
 	 ('Peteira',169.0),
@@ -19787,7 +19787,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarda',169.0),
 	 ('Greus',169.0),
 	 ('Artos',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lluva',169.0),
 	 ('Barrezueta',169.0),
 	 ('Menezo',169.0),
@@ -19798,7 +19798,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De Larrea',169.0),
 	 ('Figal',169.0),
 	 ('Razkin',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dorribo',169.0),
 	 ('Lagartera',169.0),
 	 ('Lurueña',169.0),
@@ -19809,7 +19809,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zouaoui',169.0),
 	 ('Seddiki',169.0),
 	 ('Summers',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aouraghe',169.0),
 	 ('Archer',169.0),
 	 ('Bahida',169.0),
@@ -19820,7 +19820,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Radoslavov',169.0),
 	 ('Koutaibi',169.0),
 	 ('Charafi',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tong',169.0),
 	 ('Browne',169.0),
 	 ('Maarad',169.0),
@@ -19831,7 +19831,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Preston',169.0),
 	 ('Mabrouki',169.0),
 	 ('Lyons',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pacurar',169.0),
 	 ('Mititelu',169.0),
 	 ('Baldwin',169.0),
@@ -19842,7 +19842,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Obreja',169.0),
 	 ('Duna',169.0),
 	 ('Voica',169.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Huerto',168.0),
 	 ('Llansola',168.0),
 	 ('Secaduras',168.0),
@@ -19853,7 +19853,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Catalinas',168.0),
 	 ('Sanisidro',168.0),
 	 ('Ojuel',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Cardenas',168.0),
 	 ('Olañeta',168.0),
 	 ('Casani',168.0),
@@ -19864,7 +19864,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mirada',168.0),
 	 ('Nunez',168.0),
 	 ('Ciriaco',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Irurita',168.0),
 	 ('Arzallus',168.0),
 	 ('Mecias',168.0),
@@ -19875,7 +19875,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Resco',168.0),
 	 ('Coret',168.0),
 	 ('Sotorrio',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cadalso',168.0),
 	 ('Celimendiz',168.0),
 	 ('Jalle',168.0),
@@ -19886,7 +19886,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estefano',168.0),
 	 ('Trobo',168.0),
 	 ('Frontado',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beca',168.0),
 	 ('Ezeiza',168.0),
 	 ('Ferradans',168.0),
@@ -19897,7 +19897,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aquilino',168.0),
 	 ('Lojano',168.0),
 	 ('Bañasco',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fullaondo',168.0),
 	 ('Naudin',168.0),
 	 ('Doble',168.0),
@@ -19908,7 +19908,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Seldas',168.0),
 	 ('Lizarza',168.0),
 	 ('Paguillo',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bozzo',168.0),
 	 ('Joly',168.0),
 	 ('Akalai',168.0),
@@ -19919,7 +19919,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mouhou',168.0),
 	 ('Sidhu',168.0),
 	 ('Benyahya',168.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hammoudi',168.0),
 	 ('Laoukili',168.0),
 	 ('Weston',168.0),
@@ -19930,7 +19930,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dragusin',168.0),
 	 ('Bargo',167.0),
 	 ('Juana',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salaverri',167.0),
 	 ('Justribo',167.0),
 	 ('Peralo',167.0),
@@ -19941,7 +19941,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ochandiano',167.0),
 	 ('Carcasona',167.0),
 	 ('Urias',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Subiñas',167.0),
 	 ('Gramunt',167.0),
 	 ('Basadre',167.0),
@@ -19952,7 +19952,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lijeron',167.0),
 	 ('Palmi',167.0),
 	 ('Llorden',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arimon',167.0),
 	 ('Ciorraga',167.0),
 	 ('Fidel',167.0),
@@ -19963,7 +19963,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calabia',167.0),
 	 ('Canitrot',167.0),
 	 ('Arnaus',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villasol',167.0),
 	 ('Trulls',167.0),
 	 ('Erroz',167.0),
@@ -19974,7 +19974,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laino',167.0),
 	 ('Millera',167.0),
 	 ('Imizcoz',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borbor',167.0),
 	 ('Bonacasa',167.0),
 	 ('Rubiralta',167.0),
@@ -19985,7 +19985,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gharbi',167.0),
 	 ('Massaoudi',167.0),
 	 ('Prince',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('D''Ambrosio',167.0),
 	 ('Leroy',167.0),
 	 ('Stella',167.0),
@@ -19996,7 +19996,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sissoho',167.0),
 	 ('Papp',167.0),
 	 ('Morton',167.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Krim',167.0),
 	 ('Ishaq',167.0),
 	 ('Boukhabza',167.0),
@@ -20007,7 +20007,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romaniuc',167.0),
 	 ('Perianez',166.0),
 	 ('Martillo',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Claveras',166.0),
 	 ('Burch',166.0),
 	 ('Alaya',166.0),
@@ -20018,7 +20018,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Menaya',166.0),
 	 ('Altea',166.0),
 	 ('Yaben',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Araluce',166.0),
 	 ('Chalan',166.0),
 	 ('Sarasibar',166.0),
@@ -20029,7 +20029,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pellise',166.0),
 	 ('Suquia',166.0),
 	 ('Muerza',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juncadella',166.0),
 	 ('Murgoitio',166.0),
 	 ('Agui',166.0),
@@ -20040,7 +20040,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alujas',166.0),
 	 ('Marsiñach',166.0),
 	 ('Cudeiro',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soca',166.0),
 	 ('Relats',166.0),
 	 ('Sanchez Cano',166.0),
@@ -20051,7 +20051,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Caloca',166.0),
 	 ('Arnaz',166.0),
 	 ('Navasquillo',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atan',166.0),
 	 ('Muley',166.0),
 	 ('Hermano',166.0),
@@ -20062,7 +20062,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monteoliva',166.0),
 	 ('Udaondo',166.0),
 	 ('Urkiza',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Goday',166.0),
 	 ('Accensi',166.0),
 	 ('Llebaria',166.0),
@@ -20073,7 +20073,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urkiaga',166.0),
 	 ('Lordan',166.0),
 	 ('Hedo',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gasparin',166.0),
 	 ('Sanzol',166.0),
 	 ('Dos Ramos',166.0),
@@ -20084,7 +20084,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Wolff',166.0),
 	 ('Didi',166.0),
 	 ('Essaddiki',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Akrouh',166.0),
 	 ('Dakir',166.0),
 	 ('Achahboun',166.0),
@@ -20095,7 +20095,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Afakir',166.0),
 	 ('Jovanovic',166.0),
 	 ('Nicolescu',166.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bardeci',165.0),
 	 ('Gajon',165.0),
 	 ('Arabia',165.0),
@@ -20106,7 +20106,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pauls',165.0),
 	 ('Foche',165.0),
 	 ('Maigua',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Secall',165.0),
 	 ('Figueroba',165.0),
 	 ('Cisnero',165.0),
@@ -20117,7 +20117,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bahia',165.0),
 	 ('Herbosa',165.0),
 	 ('Arriagada',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Labari',165.0),
 	 ('Paradeda',165.0),
 	 ('Lede',165.0),
@@ -20128,7 +20128,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Albisua',165.0),
 	 ('Cucart',165.0),
 	 ('Bernales',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miqueleiz',165.0),
 	 ('Javato',165.0),
 	 ('Vallmitjana',165.0),
@@ -20139,7 +20139,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mumbru',165.0),
 	 ('Arzamendi',165.0),
 	 ('Guillaumes',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Illanas',165.0),
 	 ('Ronquete',165.0),
 	 ('Villasanta',165.0),
@@ -20150,7 +20150,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escoms',165.0),
 	 ('Subijana',165.0),
 	 ('Sainz De Murieta',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Teresa',165.0),
 	 ('Pizcueta',165.0),
 	 ('Emmanuel',165.0),
@@ -20161,7 +20161,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hammouri',165.0),
 	 ('Lahfa',165.0),
 	 ('Gadiaga',165.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Asante',165.0),
 	 ('El Mahfoudi',165.0),
 	 ('Gherghel',165.0),
@@ -20172,7 +20172,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Xiong',165.0),
 	 ('La Cruz',164.0),
 	 ('Sanguña',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aguiño',164.0),
 	 ('Palles',164.0),
 	 ('Agesta',164.0),
@@ -20183,7 +20183,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meitin',164.0),
 	 ('Jarilla',164.0),
 	 ('Gayubo',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echandi',164.0),
 	 ('Quisilema',164.0),
 	 ('Guarido',164.0),
@@ -20194,7 +20194,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mogro',164.0),
 	 ('Orera',164.0),
 	 ('Allas',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argoitia',164.0),
 	 ('Asco',164.0),
 	 ('Chena',164.0),
@@ -20205,7 +20205,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amill',164.0),
 	 ('Talayero',164.0),
 	 ('Deusa',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fabado',164.0),
 	 ('Mohamed Fadel',164.0),
 	 ('Granadal',164.0),
@@ -20216,7 +20216,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Palacio',164.0),
 	 ('Requerey',164.0),
 	 ('Camarzana',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Eguinoa',164.0),
 	 ('Ganso',164.0),
 	 ('Bardo',164.0),
@@ -20227,7 +20227,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sagarminaga',164.0),
 	 ('Miana',164.0),
 	 ('Donazar',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Logrosan',164.0),
 	 ('Bitrian',164.0),
 	 ('Monfillo',164.0),
@@ -20238,7 +20238,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonjorn',164.0),
 	 ('Monells',164.0),
 	 ('Serralle',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sornosa',164.0),
 	 ('Cabane',164.0),
 	 ('Peramato',164.0),
@@ -20249,7 +20249,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bardi',164.0),
 	 ('Domato',164.0),
 	 ('Magallares',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Castelli',164.0),
 	 ('Abba',164.0),
 	 ('Ahamed',164.0),
@@ -20260,7 +20260,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Khatri',164.0),
 	 ('Basile',164.0),
 	 ('Bouzalmat',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hajjam',164.0),
 	 ('Liaqat',164.0),
 	 ('Tangara',164.0),
@@ -20271,7 +20271,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fateh',164.0),
 	 ('Ionica',164.0),
 	 ('Stephenson',164.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Obeng',164.0),
 	 ('Lian',164.0),
 	 ('Asim',164.0),
@@ -20282,7 +20282,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Miranda',163.0),
 	 ('Maimon',163.0),
 	 ('Menea',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ejea',163.0),
 	 ('De Ganzo',163.0),
 	 ('Ratero',163.0),
@@ -20293,7 +20293,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciriero',163.0),
 	 ('Sifontes',163.0),
 	 ('Campmajo',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Terrats',163.0),
 	 ('Lamprea',163.0),
 	 ('Tris',163.0),
@@ -20304,7 +20304,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monell',163.0),
 	 ('Arbaizar',163.0),
 	 ('Ingunza',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lanao',163.0),
 	 ('Lambas',163.0),
 	 ('Anza',163.0),
@@ -20315,7 +20315,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chumpitaz',163.0),
 	 ('Olasolo',163.0),
 	 ('Payno',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arrobo',163.0),
 	 ('Basoco',163.0),
 	 ('Porra',163.0),
@@ -20326,7 +20326,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Compes',163.0),
 	 ('Montells',163.0),
 	 ('Rave',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arita',163.0),
 	 ('Carandell',163.0),
 	 ('Untoria',163.0),
@@ -20337,7 +20337,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Noci',163.0),
 	 ('Cotrino',163.0),
 	 ('Torreras',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perol',163.0),
 	 ('De La Uz',163.0),
 	 ('Yance',163.0),
@@ -20348,7 +20348,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ferreiroa',163.0),
 	 ('Periscal',163.0),
 	 ('Aznal',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mirat',163.0),
 	 ('Draper',163.0),
 	 ('Flox',163.0),
@@ -20359,7 +20359,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ghazal',163.0),
 	 ('Ouedraogo',163.0),
 	 ('Poghosyan',163.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rahoui',163.0),
 	 ('Sadeq',163.0),
 	 ('Ogbeide',163.0),
@@ -20370,7 +20370,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciss',163.0),
 	 ('Karzazi',163.0),
 	 ('Ada',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tapiz',162.0),
 	 ('Meireles',162.0),
 	 ('Gomez Rey',162.0),
@@ -20381,7 +20381,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ortes',162.0),
 	 ('Iguiño',162.0),
 	 ('Jabardo',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Godos',162.0),
 	 ('Cebreros',162.0),
 	 ('Chiliquinga',162.0),
@@ -20392,7 +20392,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañizal',162.0),
 	 ('Azcune',162.0),
 	 ('Esturo',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chagas',162.0),
 	 ('Galvao',162.0),
 	 ('Puñet',162.0),
@@ -20403,7 +20403,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Prieta',162.0),
 	 ('Cascajares',162.0),
 	 ('Polan',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manen',162.0),
 	 ('Pinho',162.0),
 	 ('Tolsada',162.0),
@@ -20414,7 +20414,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruestes',162.0),
 	 ('De Cara',162.0),
 	 ('De Leyva',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Papio',162.0),
 	 ('Ozalla',162.0),
 	 ('Palacino',162.0),
@@ -20425,7 +20425,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Imbaquingo',162.0),
 	 ('Olesti',162.0),
 	 ('Sobreira',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez De Troconiz',162.0),
 	 ('Formenti',162.0),
 	 ('Chinesta',162.0),
@@ -20436,7 +20436,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salt',162.0),
 	 ('Pereles',162.0),
 	 ('Garcia Escudero',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kanwal',162.0),
 	 ('Valecillos',162.0),
 	 ('Benziane',162.0),
@@ -20447,7 +20447,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Knowles',162.0),
 	 ('Makarova',162.0),
 	 ('Ouaissa',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benjelloun',162.0),
 	 ('Es Sadki',162.0),
 	 ('Ait Ali',162.0),
@@ -20458,7 +20458,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Et Tamimi',162.0),
 	 ('Hicham',162.0),
 	 ('Ling',162.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lukacs',162.0),
 	 ('Cobzaru',162.0),
 	 ('Vitan',162.0),
@@ -20469,7 +20469,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Susoho',162.0),
 	 ('Mascato',161.0),
 	 ('Lizarribar',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moncalvillo',161.0),
 	 ('Irache',161.0),
 	 ('Añorga',161.0),
@@ -20480,7 +20480,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Altet',161.0),
 	 ('Calmet',161.0),
 	 ('Elso',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calamardo',161.0),
 	 ('Ruiz Berdejo',161.0),
 	 ('Serramia',161.0),
@@ -20491,7 +20491,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pinza',161.0),
 	 ('Peleato',161.0),
 	 ('Verdecia',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cuixart',161.0),
 	 ('Gelada',161.0),
 	 ('Sienra',161.0),
@@ -20502,7 +20502,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Palmada',161.0),
 	 ('Macon',161.0),
 	 ('Pitel',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Patos',161.0),
 	 ('Virgil',161.0),
 	 ('Daparte',161.0),
@@ -20513,7 +20513,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vilardaga',161.0),
 	 ('Asturiano',161.0),
 	 ('Refojo',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ameijenda',161.0),
 	 ('Suquilanda',161.0),
 	 ('Valdearcos',161.0),
@@ -20524,7 +20524,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barzano',161.0),
 	 ('Cuso',161.0),
 	 ('Sellas',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suros',161.0),
 	 ('Fontrodona',161.0),
 	 ('Grases',161.0),
@@ -20535,7 +20535,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morion',161.0),
 	 ('Places',161.0),
 	 ('Pomer',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lazarov',161.0),
 	 ('Testera',161.0),
 	 ('Irazustabarrena',161.0),
@@ -20546,7 +20546,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laguens',161.0),
 	 ('Saddik',161.0),
 	 ('Mahboub',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pisani',161.0),
 	 ('Konig',161.0),
 	 ('D''Andrea',161.0),
@@ -20557,7 +20557,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Battaglia',161.0),
 	 ('Farrell',161.0),
 	 ('Najjari',161.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Adel',161.0),
 	 ('Sellak',161.0),
 	 ('Essabbar',161.0),
@@ -20568,7 +20568,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciubotariu',161.0),
 	 ('Mascareño',160.0),
 	 ('Pepiol',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buchaca',160.0),
 	 ('Funcasta',160.0),
 	 ('Guemez',160.0),
@@ -20579,7 +20579,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ilarregui',160.0),
 	 ('Lagua',160.0),
 	 ('Montoyo',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tiban',160.0),
 	 ('Benes',160.0),
 	 ('Aregall',160.0),
@@ -20590,7 +20590,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garciarena',160.0),
 	 ('Cibreiro',160.0),
 	 ('Morito',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fouce',160.0),
 	 ('Sacasa',160.0),
 	 ('Velicias',160.0),
@@ -20601,7 +20601,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zarca',160.0),
 	 ('Lijarcio',160.0),
 	 ('Sencion',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vizarro',160.0),
 	 ('Fora',160.0),
 	 ('Tarridas',160.0),
@@ -20612,7 +20612,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arenaz',160.0),
 	 ('Catarineu',160.0),
 	 ('Suntaxi',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tenezaca',160.0),
 	 ('Sancosmed',160.0),
 	 ('Treus',160.0),
@@ -20623,7 +20623,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boixeda',160.0),
 	 ('Besalu',160.0),
 	 ('Fernandez De Valderrama',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaldo',160.0),
 	 ('Arcentales',160.0),
 	 ('Ruiz De Valdivia',160.0),
@@ -20634,7 +20634,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Limonchi',160.0),
 	 ('Bernete',160.0),
 	 ('Golbano',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez De Aberasturi',160.0),
 	 ('Urizarbarrena',160.0),
 	 ('Oficialdegui',160.0),
@@ -20645,7 +20645,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mbomio',160.0),
 	 ('Ncogo',160.0),
 	 ('Ziyani',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hilal',160.0),
 	 ('Mallouk',160.0),
 	 ('Chrifi',160.0),
@@ -20656,7 +20656,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jied',160.0),
 	 ('Nuta',160.0),
 	 ('Shvets',160.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hanganu',160.0),
 	 ('Lup',160.0),
 	 ('Almazo',159.0),
@@ -20667,7 +20667,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Echaburu',159.0),
 	 ('Gogorza',159.0),
 	 ('Saleta',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Larequi',159.0),
 	 ('Matienzo',159.0),
 	 ('Bogajo',159.0),
@@ -20678,7 +20678,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Galito',159.0),
 	 ('Navascuez',159.0),
 	 ('Blecua',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berenjeno',159.0),
 	 ('Enero',159.0),
 	 ('Marecos',159.0),
@@ -20689,7 +20689,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lavirgen',159.0),
 	 ('Recoder',159.0),
 	 ('Fenech',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salterain',159.0),
 	 ('Zalbide',159.0),
 	 ('Ferrel',159.0),
@@ -20700,7 +20700,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Molis',159.0),
 	 ('Lebon',159.0),
 	 ('Morreres',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galdames',159.0),
 	 ('Propin',159.0),
 	 ('Freijedo',159.0),
@@ -20711,7 +20711,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perez De Mendiola',159.0),
 	 ('Lapresa',159.0),
 	 ('Lavayen',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llago',159.0),
 	 ('Cofrade',159.0),
 	 ('Zuza',159.0),
@@ -20722,7 +20722,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Haouari',159.0),
 	 ('Merabet',159.0),
 	 ('El Ouazghari',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Essadiki',159.0),
 	 ('Fitzpatrick',159.0),
 	 ('Ikram',159.0),
@@ -20733,7 +20733,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ouyang',159.0),
 	 ('Chifor',159.0),
 	 ('Arslan',159.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iturzaeta',158.0),
 	 ('Peñagaricano',158.0),
 	 ('Dorrio',158.0),
@@ -20744,7 +20744,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vielva',158.0),
 	 ('Rubalcaba',158.0),
 	 ('Tocado',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grageda',158.0),
 	 ('Carabelos',158.0),
 	 ('Correderas',158.0),
@@ -20755,7 +20755,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gallemi',158.0),
 	 ('Zato',158.0),
 	 ('Hinestroza',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibarguengoitia',158.0),
 	 ('Orrios',158.0),
 	 ('Piñeros',158.0),
@@ -20766,7 +20766,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ortuno',158.0),
 	 ('Gamell',158.0),
 	 ('Cariñanos',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Malde',158.0),
 	 ('Falip',158.0),
 	 ('Imperial',158.0),
@@ -20777,7 +20777,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boguña',158.0),
 	 ('Genua',158.0),
 	 ('Grangel',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zuasti',158.0),
 	 ('Casan',158.0),
 	 ('Reine',158.0),
@@ -20788,7 +20788,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baliña',158.0),
 	 ('Pizano',158.0),
 	 ('Apestegui',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morueco',158.0),
 	 ('Olmedillas',158.0),
 	 ('Foraster',158.0),
@@ -20799,7 +20799,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Ballesteros',158.0),
 	 ('Mireles',158.0),
 	 ('Espriu',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Emaldi',158.0),
 	 ('Lopez Pintor',158.0),
 	 ('Imbert',158.0),
@@ -20810,7 +20810,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estal',158.0),
 	 ('Varez',158.0),
 	 ('Villaitodo',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barrejon',158.0),
 	 ('Fernandez Aviles',158.0),
 	 ('Ayoso',158.0),
@@ -20821,7 +20821,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ben Ahmed',158.0),
 	 ('Oliveri',158.0),
 	 ('Chaudhary',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agirrezabal',158.0),
 	 ('De Angel',158.0),
 	 ('Masson',158.0),
@@ -20832,7 +20832,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tamba',158.0),
 	 ('Douieb',158.0),
 	 ('Fedorova',158.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nolan',158.0),
 	 ('Halloumi',158.0),
 	 ('Horvat',158.0),
@@ -20843,7 +20843,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orodea',157.0),
 	 ('Sorozabal',157.0),
 	 ('Orpinell',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaquete',157.0),
 	 ('Martiñan',157.0),
 	 ('Elortegui',157.0),
@@ -20854,7 +20854,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Oyuela',157.0),
 	 ('Crecente',157.0),
 	 ('Larrabe',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Higueruelo',157.0),
 	 ('Perez Grueso',157.0),
 	 ('Megina',157.0),
@@ -20865,7 +20865,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salso',157.0),
 	 ('Bistuer',157.0),
 	 ('Yebes',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anel',157.0),
 	 ('Gosp',157.0),
 	 ('Escurra',157.0),
@@ -20876,7 +20876,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tarife',157.0),
 	 ('Estebas',157.0),
 	 ('Servent',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Anidos',157.0),
 	 ('Dadin',157.0),
 	 ('Dobrev',157.0),
@@ -20887,7 +20887,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mesegue',157.0),
 	 ('Esparis',157.0),
 	 ('Gibanel',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martinez De Marigorta',157.0),
 	 ('Loran',157.0),
 	 ('Minayo',157.0),
@@ -20898,7 +20898,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fina',157.0),
 	 ('Vidosa',157.0),
 	 ('Bentue',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peret',157.0),
 	 ('Buelta',157.0),
 	 ('Solanich',157.0),
@@ -20909,7 +20909,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Delcan',157.0),
 	 ('Basallo',157.0),
 	 ('Jociles',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Banqueri',157.0),
 	 ('Andaloussi',157.0),
 	 ('Lahyani',157.0),
@@ -20920,7 +20920,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lyubenov',157.0),
 	 ('Boyd',157.0),
 	 ('Marchetti',157.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sattar',157.0),
 	 ('Laaziri',157.0),
 	 ('Parvu',157.0),
@@ -20931,7 +20931,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zoltan',157.0),
 	 ('Mizzian',156.0),
 	 ('Oyague',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Recena',156.0),
 	 ('Aige',156.0),
 	 ('Painceira',156.0),
@@ -20942,7 +20942,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Relucio',156.0),
 	 ('Goez',156.0),
 	 ('Almarche',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gurucharri',156.0),
 	 ('Turbi',156.0),
 	 ('Cumbres',156.0),
@@ -20953,7 +20953,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Terribas',156.0),
 	 ('Beistegui',156.0),
 	 ('Castilleja',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nivela',156.0),
 	 ('Polidura',156.0),
 	 ('Mendaro',156.0),
@@ -20964,7 +20964,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juli',156.0),
 	 ('Pradel',156.0),
 	 ('Sanchez Mayoral',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Albuquerque',156.0),
 	 ('Huerva',156.0),
 	 ('Pujazon',156.0),
@@ -20975,7 +20975,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Petisme',156.0),
 	 ('Hojas',156.0),
 	 ('De La Pisa',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pertegas',156.0),
 	 ('Mendibe',156.0),
 	 ('Gomez De Aguero',156.0),
@@ -20986,7 +20986,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Clemot',156.0),
 	 ('Garcia Mora',156.0),
 	 ('Rubirola',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Oro',156.0),
 	 ('Martinavarro',156.0),
 	 ('Marturet',156.0),
@@ -20997,7 +20997,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manco',156.0),
 	 ('Bañeras',156.0),
 	 ('Lopez De Mota',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Velazquez De Castro',156.0),
 	 ('Hacha',156.0),
 	 ('Olaetxea',156.0),
@@ -21008,7 +21008,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Artigao',156.0),
 	 ('Mendiz',156.0),
 	 ('Pradana',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Izuzquiza',156.0),
 	 ('Hereza',156.0),
 	 ('Framit',156.0),
@@ -21019,7 +21019,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De Mesa',156.0),
 	 ('Venturini',156.0),
 	 ('Madurell',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Eiros',156.0),
 	 ('Khtira',156.0),
 	 ('Perrin',156.0),
@@ -21030,7 +21030,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grassi',156.0),
 	 ('Saada',156.0),
 	 ('Hassouni',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benahmed',156.0),
 	 ('Ahmadi',156.0),
 	 ('El Khattab',156.0),
@@ -21041,7 +21041,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bouragba',156.0),
 	 ('Boutayeb',156.0),
 	 ('Niane',156.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alali',156.0),
 	 ('Mbacke',156.0),
 	 ('Koita',156.0),
@@ -21052,7 +21052,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nichita',156.0),
 	 ('Sher',156.0),
 	 ('Carballares',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blandino',155.0),
 	 ('Rimbau',155.0),
 	 ('Ortiz De Pinedo',155.0),
@@ -21063,7 +21063,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cañadell',155.0),
 	 ('Colillas',155.0),
 	 ('Fontalva',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Presencia',155.0),
 	 ('Teijon',155.0),
 	 ('Fernandez Peinado',155.0),
@@ -21074,7 +21074,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pire',155.0),
 	 ('Aular',155.0),
 	 ('Estomba',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Retamozo',155.0),
 	 ('Baixeras',155.0),
 	 ('Juaniz',155.0),
@@ -21085,7 +21085,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Conforme',155.0),
 	 ('Carragal',155.0),
 	 ('Langreo',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pumarega',155.0),
 	 ('De Isidro',155.0),
 	 ('Monjardin',155.0),
@@ -21096,7 +21096,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portaz',155.0),
 	 ('Cubides',155.0),
 	 ('Serras',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maruny',155.0),
 	 ('Carregui',155.0),
 	 ('Ruiz Alejos',155.0),
@@ -21107,7 +21107,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gafo',155.0),
 	 ('Melones',155.0),
 	 ('Garcia Bermejo',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mehand',155.0),
 	 ('Callarisa',155.0),
 	 ('Lamora',155.0),
@@ -21118,7 +21118,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Intxaurraga',155.0),
 	 ('Unceta',155.0),
 	 ('Nonay',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Pozuelo',155.0),
 	 ('Larrieta',155.0),
 	 ('Cerrolaza',155.0),
@@ -21129,7 +21129,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bogdanov',155.0),
 	 ('Guija',155.0),
 	 ('Sadek',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moulay',155.0),
 	 ('Jagana',155.0),
 	 ('Hammada',155.0),
@@ -21140,7 +21140,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Todd',155.0),
 	 ('Fuller',155.0),
 	 ('El Yahiaoui',155.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saifi',155.0),
 	 ('Yi',155.0),
 	 ('Skinner',155.0),
@@ -21151,7 +21151,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ouabi',155.0),
 	 ('Boils',154.0),
 	 ('Fillola',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cursach',154.0),
 	 ('Lizaur',154.0),
 	 ('De La Vieja',154.0),
@@ -21162,7 +21162,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pomposo',154.0),
 	 ('Muenala',154.0),
 	 ('Charlo',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Calvillo',154.0),
 	 ('Lalangui',154.0),
 	 ('Sumalla',154.0),
@@ -21173,7 +21173,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sorio',154.0),
 	 ('Dacasa',154.0),
 	 ('Radeva',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alcorlo',154.0),
 	 ('Videgain',154.0),
 	 ('Pocino',154.0),
@@ -21184,7 +21184,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eustaquio',154.0),
 	 ('Almaida',154.0),
 	 ('Malavia',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ramirez Arellano',154.0),
 	 ('Sela',154.0),
 	 ('Azaola',154.0),
@@ -21195,7 +21195,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pasaron',154.0),
 	 ('Serneguet',154.0),
 	 ('Tremosa',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Neo',154.0),
 	 ('Abarzuza',154.0),
 	 ('Oroza',154.0),
@@ -21206,7 +21206,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vinues',154.0),
 	 ('Martiartu',154.0),
 	 ('Oeo',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sainz De Aja',154.0),
 	 ('Teller',154.0),
 	 ('Berdullas',154.0),
@@ -21217,7 +21217,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chic',154.0),
 	 ('Perez Aradros',154.0),
 	 ('Gañete',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tubia',154.0),
 	 ('Payer',154.0),
 	 ('Prunell',154.0),
@@ -21228,7 +21228,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mariner',154.0),
 	 ('Lainz',154.0),
 	 ('Parody',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bisbe',154.0),
 	 ('Seddik',154.0),
 	 ('Antepazo',154.0),
@@ -21239,7 +21239,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lamine',154.0),
 	 ('Taoufik',154.0),
 	 ('Belhadri',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Radoslavova',154.0),
 	 ('Zahra',154.0),
 	 ('Godwin',154.0),
@@ -21250,7 +21250,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Errahali',154.0),
 	 ('Konateh',154.0),
 	 ('Melnychuk',154.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Davtyan',154.0),
 	 ('Gurau',154.0),
 	 ('Agyei',154.0),
@@ -21261,7 +21261,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bregon',153.0),
 	 ('Gogenola',153.0),
 	 ('Lacabe',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Larracoechea',153.0),
 	 ('Subiran',153.0),
 	 ('Lopez De Haro',153.0),
@@ -21272,7 +21272,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cantal',153.0),
 	 ('Tabla',153.0),
 	 ('Eguen',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Novau',153.0),
 	 ('Boutureira',153.0),
 	 ('Choza',153.0),
@@ -21283,7 +21283,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Torroja',153.0),
 	 ('Jaria',153.0),
 	 ('Fortunez',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quimi',153.0),
 	 ('Viruega',153.0),
 	 ('Berlana',153.0),
@@ -21294,7 +21294,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villayandre',153.0),
 	 ('Garbi',153.0),
 	 ('De Tapia',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corpuz',153.0),
 	 ('Canicoba',153.0),
 	 ('Carchi',153.0),
@@ -21305,7 +21305,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Magriz',153.0),
 	 ('Sainz Ezquerra',153.0),
 	 ('Molne',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ojosnegros',153.0),
 	 ('Alemañy',153.0),
 	 ('Gortari',153.0),
@@ -21316,7 +21316,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corma',153.0),
 	 ('Iribarnegaray',153.0),
 	 ('Mollfulleda',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herrarte',153.0),
 	 ('Leñador',153.0),
 	 ('Aveiro',153.0),
@@ -21327,7 +21327,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Monico',153.0),
 	 ('Garcia Ramos',153.0),
 	 ('Bundo',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cimorra',153.0),
 	 ('Penide',153.0),
 	 ('Mita',153.0),
@@ -21338,7 +21338,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Folques',153.0),
 	 ('Espildora',153.0),
 	 ('Uber',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barthe',153.0),
 	 ('Berdie',153.0),
 	 ('Auba',153.0),
@@ -21349,7 +21349,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Froufe',153.0),
 	 ('Leonardi',153.0),
 	 ('Tabet',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yamani',153.0),
 	 ('Afailal',153.0),
 	 ('Canale',153.0),
@@ -21360,7 +21360,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hahn',153.0),
 	 ('Ammi',153.0),
 	 ('Bali',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Horn',153.0),
 	 ('Bousbaa',153.0),
 	 ('Fouad',153.0),
@@ -21371,7 +21371,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buruiana',153.0),
 	 ('Mortabit',153.0),
 	 ('Jarvis',153.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lautaru',153.0),
 	 ('Bulgaru',153.0),
 	 ('Serbanescu',153.0),
@@ -21382,7 +21382,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guerro',152.0),
 	 ('Anuarbe',152.0),
 	 ('Sabanes',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vinue',152.0),
 	 ('Rujano',152.0),
 	 ('Piosa',152.0),
@@ -21393,7 +21393,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Millara',152.0),
 	 ('Manjon Cabeza',152.0),
 	 ('Garabote',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orella',152.0),
 	 ('Vitaller',152.0),
 	 ('Sanchez Maroto',152.0),
@@ -21404,7 +21404,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luizaga',152.0),
 	 ('Cassinello',152.0),
 	 ('Gracian',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Orobengoa',152.0),
 	 ('Sanchez De Castro',152.0),
 	 ('Vall Llovera',152.0),
@@ -21415,7 +21415,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urdin',152.0),
 	 ('Tenaguillo',152.0),
 	 ('Aineto',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argudin',152.0),
 	 ('Gonzalez Del Campo',152.0),
 	 ('Mar',152.0),
@@ -21426,7 +21426,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paso',152.0),
 	 ('Fonolla',152.0),
 	 ('Aucacama',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Basurco',152.0),
 	 ('Mante',152.0),
 	 ('Garabatos',152.0),
@@ -21437,7 +21437,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benzina',152.0),
 	 ('Naseem',152.0),
 	 ('Lambarki',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boudraa',152.0),
 	 ('Kerzazi',152.0),
 	 ('El Youbi',152.0),
@@ -21448,7 +21448,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sweeney',152.0),
 	 ('Bruma',152.0),
 	 ('Minca',152.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otvos',152.0),
 	 ('Abbott',152.0),
 	 ('Memis',152.0),
@@ -21459,7 +21459,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agulles',151.0),
 	 ('Cunquero',151.0),
 	 ('Venega',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Heriz',151.0),
 	 ('Larran',151.0),
 	 ('Raspall',151.0),
@@ -21470,7 +21470,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sornoza',151.0),
 	 ('Benasco',151.0),
 	 ('Sandemetrio',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Soilan',151.0),
 	 ('Mellid',151.0),
 	 ('Litardo',151.0),
@@ -21481,7 +21481,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rimada',151.0),
 	 ('Rebelles',151.0),
 	 ('Picola',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sara',151.0),
 	 ('Waliño',151.0),
 	 ('Sabugueiro',151.0),
@@ -21492,7 +21492,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bascope',151.0),
 	 ('Cortasa',151.0),
 	 ('Fatjo',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tudon',151.0),
 	 ('Cobollo',151.0),
 	 ('Piney',151.0),
@@ -21503,7 +21503,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grabalosa',151.0),
 	 ('Cotobal',151.0),
 	 ('Urkijo',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boticario',151.0),
 	 ('Riadigos',151.0),
 	 ('Lopez Davalillo',151.0),
@@ -21514,7 +21514,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mey',151.0),
 	 ('Macau',151.0),
 	 ('Daunis',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Filipov',151.0),
 	 ('Amoroso',151.0),
 	 ('El Emrani',151.0),
@@ -21525,7 +21525,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Daghmoumi',151.0),
 	 ('Dahan',151.0),
 	 ('Dardour',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rifai',151.0),
 	 ('Idehen',151.0),
 	 ('Chorfi',151.0),
@@ -21536,7 +21536,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Daif',151.0),
 	 ('Valerieva',151.0),
 	 ('Heath',151.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Smart',151.0),
 	 ('Essadik',151.0),
 	 ('Hovsepyan',151.0),
@@ -21547,7 +21547,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nastasa',151.0),
 	 ('Margullon',150.0),
 	 ('Maisterra',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Vado',150.0),
 	 ('Mordillo',150.0),
 	 ('Gaso',150.0),
@@ -21558,7 +21558,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Miyares',150.0),
 	 ('De Aguiar',150.0),
 	 ('Fabrego',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Del Campo',150.0),
 	 ('Sacie',150.0),
 	 ('Yanci',150.0),
@@ -21569,7 +21569,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Suller',150.0),
 	 ('Rabanos',150.0),
 	 ('Refolio',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Argeles',150.0),
 	 ('Taule',150.0),
 	 ('Elu',150.0),
@@ -21580,7 +21580,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cosmo',150.0),
 	 ('Pigueiras',150.0),
 	 ('Cedano',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aspano',150.0),
 	 ('Canzobre',150.0),
 	 ('Lagaron',150.0),
@@ -21591,7 +21591,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabriada',150.0),
 	 ('Maridueña',150.0),
 	 ('Vado',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lombas',150.0),
 	 ('Torcida',150.0),
 	 ('Torollo',150.0),
@@ -21602,7 +21602,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Freyre',150.0),
 	 ('Reinon',150.0),
 	 ('Bozas',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Meiras',150.0),
 	 ('Fuentesal',150.0),
 	 ('Benedico',150.0),
@@ -21613,7 +21613,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laines',150.0),
 	 ('Roe',150.0),
 	 ('Ahicart',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carneado',150.0),
 	 ('Helices',150.0),
 	 ('Nanton',150.0),
@@ -21624,7 +21624,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Andon',150.0),
 	 ('Garcia Mauriño',150.0),
 	 ('Lissen',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Siñeriz',150.0),
 	 ('Garcia De La Reina',150.0),
 	 ('Calso',150.0),
@@ -21635,7 +21635,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Idahosa',150.0),
 	 ('Haddi',150.0),
 	 ('Gourari',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Horga',150.0),
 	 ('Chokri',150.0),
 	 ('Boukhzar',150.0),
@@ -21646,7 +21646,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rabi',150.0),
 	 ('Maazouz',150.0),
 	 ('Zanetti',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Fechtali',150.0),
 	 ('Belbachir',150.0),
 	 ('Danailova',150.0),
@@ -21657,7 +21657,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barlow',150.0),
 	 ('Smyth',150.0),
 	 ('Cimpeanu',150.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Burtea',150.0),
 	 ('Chiru',150.0),
 	 ('Suita',149.0),
@@ -21668,7 +21668,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Amuriza',149.0),
 	 ('Honores',149.0),
 	 ('Nazareno',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Belalcazar',149.0),
 	 ('Aranzamendi',149.0),
 	 ('Raigada',149.0),
@@ -21679,7 +21679,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romualdo',149.0),
 	 ('Zaragueta',149.0),
 	 ('Bastardas',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rejo',149.0),
 	 ('Aymar',149.0),
 	 ('Conradi',149.0),
@@ -21690,7 +21690,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carame',149.0),
 	 ('Joyas',149.0),
 	 ('Navasa',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Falceto',149.0),
 	 ('Abargues',149.0),
 	 ('Guindel',149.0),
@@ -21701,7 +21701,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gromaz',149.0),
 	 ('Terente',149.0),
 	 ('Arantzamendi',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaurin',149.0),
 	 ('Lopez De Heredia',149.0),
 	 ('Paraja',149.0),
@@ -21712,7 +21712,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jaurena',149.0),
 	 ('Aldaya',149.0),
 	 ('Grajeda',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gibernau',149.0),
 	 ('Bernuy',149.0),
 	 ('Baldero',149.0),
@@ -21723,7 +21723,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Queijeiro',149.0),
 	 ('De Gispert',149.0),
 	 ('Milia',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vallo',149.0),
 	 ('Gonzalez De Zarate',149.0),
 	 ('Balon',149.0),
@@ -21734,7 +21734,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Facenda',149.0),
 	 ('Marinelli',149.0),
 	 ('Ramli',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ognyanov',149.0),
 	 ('Zaimi',149.0),
 	 ('Boujemaoui',149.0),
@@ -21745,7 +21745,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bekkali',149.0),
 	 ('Okeke',149.0),
 	 ('Briggs',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Simonyan',149.0),
 	 ('Raoudi',149.0),
 	 ('Ben Brahim',149.0),
@@ -21756,7 +21756,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Assam',149.0),
 	 ('El Haloui',149.0),
 	 ('Mbow',149.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouzizoua',149.0),
 	 ('Ben Moula',149.0),
 	 ('Mclean',149.0),
@@ -21767,7 +21767,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Paval',149.0),
 	 ('Aurre',148.0),
 	 ('Marruedo',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chipana',148.0),
 	 ('Piston',148.0),
 	 ('Iracheta',148.0),
@@ -21778,7 +21778,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hontañon',148.0),
 	 ('Lamuela',148.0),
 	 ('Orduñez',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ovin',148.0),
 	 ('Peraba',148.0),
 	 ('Subiranas',148.0),
@@ -21789,7 +21789,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Assis',148.0),
 	 ('Sisquella',148.0),
 	 ('Tortonda',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galdran',148.0),
 	 ('Lalin',148.0),
 	 ('Sanchez Pastor',148.0),
@@ -21800,7 +21800,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Almon',148.0),
 	 ('Escanio',148.0),
 	 ('Barjollo',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dumas',148.0),
 	 ('Papi',148.0),
 	 ('Manquillo',148.0),
@@ -21811,7 +21811,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belanche',148.0),
 	 ('Cotino',148.0),
 	 ('Unamunzaga',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lizancos',148.0),
 	 ('Vial',148.0),
 	 ('Currius',148.0),
@@ -21822,7 +21822,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Portaña',148.0),
 	 ('Ubiedo',148.0),
 	 ('Gasion',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lizuain',148.0),
 	 ('Chazo',148.0),
 	 ('Leonet',148.0),
@@ -21833,7 +21833,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Martin Doimeadios',148.0),
 	 ('Muyo',148.0),
 	 ('Molada',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moleres',148.0),
 	 ('Canfran',148.0),
 	 ('Hera',148.0),
@@ -21844,7 +21844,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tabara',148.0),
 	 ('Cullen',148.0),
 	 ('Sani',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gueorguiev',148.0),
 	 ('Bouajaja',148.0),
 	 ('Riffi',148.0),
@@ -21855,7 +21855,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zouini',148.0),
 	 ('Ng',148.0),
 	 ('El Omrani',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Bahi',148.0),
 	 ('Belkacemi',148.0),
 	 ('Bendada',148.0),
@@ -21866,7 +21866,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eze',148.0),
 	 ('Mataich',148.0),
 	 ('Dennis',148.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sapkota',148.0),
 	 ('El Kalai',148.0),
 	 ('Maqsood',148.0),
@@ -21877,7 +21877,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Savchenko',148.0),
 	 ('Casanoves',147.0),
 	 ('Guarde',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jama',147.0),
 	 ('Bendezu',147.0),
 	 ('Parriego',147.0),
@@ -21888,7 +21888,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Leirado',147.0),
 	 ('Rugel',147.0),
 	 ('Verez',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dorna',147.0),
 	 ('Purificacion',147.0),
 	 ('Trabazos',147.0),
@@ -21899,7 +21899,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sautua',147.0),
 	 ('Prisco',147.0),
 	 ('Corriente',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lahosa',147.0),
 	 ('Villapalos',147.0),
 	 ('Vernis',147.0),
@@ -21910,7 +21910,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ramalho',147.0),
 	 ('Teniente',147.0),
 	 ('Alay',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Barayazarra',147.0),
 	 ('Carchano',147.0),
 	 ('Aured',147.0),
@@ -21921,7 +21921,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baye',147.0),
 	 ('Fachado',147.0),
 	 ('Goiricelaya',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ariznavarreta',147.0),
 	 ('Dago',147.0),
 	 ('Huelin',147.0),
@@ -21932,7 +21932,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zumalacarregui',147.0),
 	 ('Autet',147.0),
 	 ('Tellols',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Placido',147.0),
 	 ('Borgoñon',147.0),
 	 ('Cachimuel',147.0),
@@ -21943,7 +21943,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Ufano',147.0),
 	 ('Soucase',147.0),
 	 ('Ganzarain',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Trujillo',147.0),
 	 ('Erce',147.0),
 	 ('Huelmo',147.0),
@@ -21954,7 +21954,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iruarrizaga',147.0),
 	 ('Godrid',147.0),
 	 ('Bagdad',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Louah',147.0),
 	 ('Salam',147.0),
 	 ('Doniga',147.0),
@@ -21965,7 +21965,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chilah',147.0),
 	 ('Wojcik',147.0),
 	 ('Ruggeri',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Silvestri',147.0),
 	 ('Di Marco',147.0),
 	 ('El Fathi',147.0),
@@ -21976,7 +21976,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Masood',147.0),
 	 ('El Iysaouy',147.0),
 	 ('Smirnov',147.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Middleton',147.0),
 	 ('Romanyuk',147.0),
 	 ('Tincu',147.0),
@@ -21987,7 +21987,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ganchozo',146.0),
 	 ('Iñiguez De Heredia',146.0),
 	 ('Zambruno',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Redrejo',146.0),
 	 ('Ibañez De Garayo',146.0),
 	 ('Eimil',146.0),
@@ -21998,7 +21998,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Areas',146.0),
 	 ('Santurio',146.0),
 	 ('Compaño',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sayar',146.0),
 	 ('Candeleda',146.0),
 	 ('Martin Moyano',146.0),
@@ -22009,7 +22009,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Maroto',146.0),
 	 ('Garcia Quiros',146.0),
 	 ('Ximenis',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saenz De Ugarte',146.0),
 	 ('Agustino',146.0),
 	 ('Diaz Benito',146.0),
@@ -22020,7 +22020,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Graño',146.0),
 	 ('Mojonero',146.0),
 	 ('Pernil',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bodon',146.0),
 	 ('Rosiñol',146.0),
 	 ('Masanes',146.0),
@@ -22031,7 +22031,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estradera',146.0),
 	 ('Lopez De Murillas',146.0),
 	 ('Puchau',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Armendia',146.0),
 	 ('Chiquillo',146.0),
 	 ('Sobrero',146.0),
@@ -22042,7 +22042,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zotano',146.0),
 	 ('Erdoiza',146.0),
 	 ('Barbeitos',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabieces',146.0),
 	 ('Sambad',146.0),
 	 ('Gardeñes',146.0),
@@ -22053,7 +22053,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escolante',146.0),
 	 ('Borruey',146.0),
 	 ('Carcoba',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Hierro',146.0),
 	 ('Hortigon',146.0),
 	 ('Rierola',146.0),
@@ -22064,7 +22064,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gojenola',146.0),
 	 ('San Narciso',146.0),
 	 ('Lopez Bravo',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Painceiras',146.0),
 	 ('Pipo',146.0),
 	 ('Hajaj',146.0),
@@ -22075,7 +22075,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bouasria',146.0),
 	 ('Boubker',146.0),
 	 ('Winkler',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azmani',146.0),
 	 ('Bakri',146.0),
 	 ('Balogh',146.0),
@@ -22086,7 +22086,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Faress',146.0),
 	 ('Townsend',146.0),
 	 ('Balog',146.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saqib',146.0),
 	 ('Salagean',146.0),
 	 ('Radut',146.0),
@@ -22097,7 +22097,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ases',145.0),
 	 ('Nueno',145.0),
 	 ('Aixa',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tapioles',145.0),
 	 ('Ercoreca',145.0),
 	 ('Doñas',145.0),
@@ -22108,7 +22108,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fargallo',145.0),
 	 ('Corao',145.0),
 	 ('Luchoro',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sintas',145.0),
 	 ('Ijurco',145.0),
 	 ('Ramires',145.0),
@@ -22119,7 +22119,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Armental',145.0),
 	 ('Manriquez',145.0),
 	 ('Do Nascimiento',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pedruelo',145.0),
 	 ('Dabrio',145.0),
 	 ('Garcia Aranda',145.0),
@@ -22130,7 +22130,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chivato',145.0),
 	 ('Facila',145.0),
 	 ('Perez De Ciriza',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Achurra',145.0),
 	 ('Cenarruzabeitia',145.0),
 	 ('Cortacero',145.0),
@@ -22141,7 +22141,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cotero',145.0),
 	 ('Bodegas',145.0),
 	 ('Pasquin',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brescia',145.0),
 	 ('Virella',145.0),
 	 ('Treinta',145.0),
@@ -22152,7 +22152,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Romero Del Hombrebueno',145.0),
 	 ('Torinos',145.0),
 	 ('Tabora',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llacuna',145.0),
 	 ('De Anton',145.0),
 	 ('Campanera',145.0),
@@ -22163,7 +22163,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chillagana',145.0),
 	 ('Ayra',145.0),
 	 ('Anievas',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morlas',145.0),
 	 ('Del Alcazar',145.0),
 	 ('San Leandro',145.0),
@@ -22174,7 +22174,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manouach',145.0),
 	 ('Bartal',145.0),
 	 ('Hamdane',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taoussi',145.0),
 	 ('Boujaada',145.0),
 	 ('De Simone',145.0),
@@ -22185,7 +22185,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marzak',145.0),
 	 ('Bradshaw',145.0),
 	 ('Lucan',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tounsi',145.0),
 	 ('Plesca',145.0),
 	 ('Waters',145.0),
@@ -22196,7 +22196,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Comanescu',145.0),
 	 ('Stokes',145.0),
 	 ('Cioaca',145.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vladu',145.0),
 	 ('Gorgan',145.0),
 	 ('Brazal',144.0),
@@ -22207,7 +22207,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perela',144.0),
 	 ('Preixens',144.0),
 	 ('Juara',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Pintado',144.0),
 	 ('Penis',144.0),
 	 ('Rozadilla',144.0),
@@ -22218,7 +22218,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berdayes',144.0),
 	 ('Doyague',144.0),
 	 ('Bances',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bruned',144.0),
 	 ('Zubiarrain',144.0),
 	 ('Sanchez Noriega',144.0),
@@ -22229,7 +22229,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arrones',144.0),
 	 ('Del Santo',144.0),
 	 ('Herms',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rizaldos',144.0),
 	 ('Buergo',144.0),
 	 ('Chancay',144.0),
@@ -22240,7 +22240,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Herbella',144.0),
 	 ('Extremiana',144.0),
 	 ('Lasterra',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Valentines',144.0),
 	 ('Vilageliu',144.0),
 	 ('Sanhueza',144.0),
@@ -22251,7 +22251,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Iguiñiz',144.0),
 	 ('Marcer',144.0),
 	 ('Juanals',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Merinas',144.0),
 	 ('Cuart',144.0),
 	 ('Arigita',144.0),
@@ -22262,7 +22262,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Almarcegui',144.0),
 	 ('Ade',144.0),
 	 ('Ayarzaguena',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bomba',144.0),
 	 ('Lopez Reina',144.0),
 	 ('Arnela',144.0),
@@ -22273,7 +22273,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coaquira',144.0),
 	 ('Cappa',144.0),
 	 ('Carabajal',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Donnay',144.0),
 	 ('Lamoso',144.0),
 	 ('Kortabitarte',144.0),
@@ -22284,7 +22284,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aginaga',144.0),
 	 ('Bot',144.0),
 	 ('Wahbi',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mbitil',144.0),
 	 ('Mahdad',144.0),
 	 ('Bouharrat',144.0),
@@ -22295,7 +22295,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baroudi',144.0),
 	 ('De Groot',144.0),
 	 ('Semenova',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chibani',144.0),
 	 ('Khalladi',144.0),
 	 ('Souissi',144.0),
@@ -22306,7 +22306,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Demian',144.0),
 	 ('Bulai',144.0),
 	 ('Stana',144.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ehsan',144.0),
 	 ('Morosanu',144.0),
 	 ('Brillas',143.0),
@@ -22317,7 +22317,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Praxedes',143.0),
 	 ('Radigales',143.0),
 	 ('Polegre',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez De Leon',143.0),
 	 ('Sorazu',143.0),
 	 ('Alpiste',143.0),
@@ -22328,7 +22328,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Selvi',143.0),
 	 ('Corzon',143.0),
 	 ('Sossa',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cierco',143.0),
 	 ('Rieiro',143.0),
 	 ('Balduz',143.0),
@@ -22339,7 +22339,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Armiño',143.0),
 	 ('Hijarrubia',143.0),
 	 ('Luca De Tena',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faubell',143.0),
 	 ('Sanmillan',143.0),
 	 ('Barreros',143.0),
@@ -22350,7 +22350,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Beruete',143.0),
 	 ('Escriva De Romani',143.0),
 	 ('Bertholet',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caritg',143.0),
 	 ('Abdelkrim',143.0),
 	 ('Cortacans',143.0),
@@ -22361,7 +22361,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gomez Pulgar',143.0),
 	 ('Sigcho',143.0),
 	 ('Amills',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carrandi',143.0),
 	 ('Baldres',143.0),
 	 ('Da Cuña',143.0),
@@ -22372,7 +22372,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vilarrubla',143.0),
 	 ('Orcero',143.0),
 	 ('Tubilleja',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Magalhaes',143.0),
 	 ('Almache',143.0),
 	 ('Montas',143.0),
@@ -22383,7 +22383,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Miralda',143.0),
 	 ('Azkorra',143.0),
 	 ('Remiseiro',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vallinot',143.0),
 	 ('Fontaine',143.0),
 	 ('Slavov',143.0),
@@ -22394,7 +22394,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Egharevba',143.0),
 	 ('Saha',143.0),
 	 ('El Meziani',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yasin',143.0),
 	 ('Cheddad',143.0),
 	 ('Bond',143.0),
@@ -22405,7 +22405,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Choudna',143.0),
 	 ('Lyubomirov',143.0),
 	 ('Deaconu',143.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manning',143.0),
 	 ('Bourassi',143.0),
 	 ('Baluta',143.0),
@@ -22416,7 +22416,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cusme',142.0),
 	 ('Gascons',142.0),
 	 ('Ramonell',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gallizo',142.0),
 	 ('Molias',142.0),
 	 ('Laperal',142.0),
@@ -22427,7 +22427,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('San Clemente',142.0),
 	 ('Caellas',142.0),
 	 ('Abin',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grech',142.0),
 	 ('Galbete',142.0),
 	 ('Ugia',142.0),
@@ -22438,7 +22438,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peraile',142.0),
 	 ('San Gines',142.0),
 	 ('Dobaño',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taieb',142.0),
 	 ('Formento',142.0),
 	 ('De Las Fuentes',142.0),
@@ -22449,7 +22449,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sequeda',142.0),
 	 ('Caza',142.0),
 	 ('Eleta',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zucar',142.0),
 	 ('Moza',142.0),
 	 ('Remolina',142.0),
@@ -22460,7 +22460,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sandalinas',142.0),
 	 ('Caero',142.0),
 	 ('Cotallo',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matus',142.0),
 	 ('Oitaven',142.0),
 	 ('Alvarez De Lara',142.0),
@@ -22471,7 +22471,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hispan',142.0),
 	 ('Martinez De Salinas',142.0),
 	 ('Huacon',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peruyero',142.0),
 	 ('Arrabe',142.0),
 	 ('Port',142.0),
@@ -22482,7 +22482,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Lozar',142.0),
 	 ('Sires',142.0),
 	 ('Pales',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costillo',142.0),
 	 ('Autonell',142.0),
 	 ('Belarte',142.0),
@@ -22493,7 +22493,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sommer',142.0),
 	 ('Bihi',142.0),
 	 ('Jacquet',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Basri',142.0),
 	 ('Laachiri',142.0),
 	 ('Aloui',142.0),
@@ -22504,7 +22504,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Farih',142.0),
 	 ('Conway',142.0),
 	 ('Reilly',142.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hayrapetyan',142.0),
 	 ('Maxwell',142.0),
 	 ('Bob',142.0),
@@ -22515,7 +22515,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yasir',142.0),
 	 ('Obejo',141.0),
 	 ('Dieppa',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Almachi',141.0),
 	 ('Gaubeca',141.0),
 	 ('Saldise',141.0),
@@ -22526,7 +22526,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Apecechea',141.0),
 	 ('Victory',141.0),
 	 ('Lesende',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Molio',141.0),
 	 ('Tapial',141.0),
 	 ('Arenes',141.0),
@@ -22537,7 +22537,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gazol',141.0),
 	 ('Martinez De Osaba',141.0),
 	 ('Salsench',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sargatal',141.0),
 	 ('Stanev',141.0),
 	 ('Garcia Diego',141.0),
@@ -22548,7 +22548,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Colias',141.0),
 	 ('Ostale',141.0),
 	 ('Sibina',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arambul',141.0),
 	 ('Tobarias',141.0),
 	 ('Mostacero',141.0),
@@ -22559,7 +22559,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Suardiaz',141.0),
 	 ('Carabe',141.0),
 	 ('Pis',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Artiach',141.0),
 	 ('Conchilla',141.0),
 	 ('Villacian',141.0),
@@ -22570,7 +22570,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Atochero',141.0),
 	 ('Icardo',141.0),
 	 ('Martirena',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Muntañola',141.0),
 	 ('Sancristobal',141.0),
 	 ('Zumalde',141.0),
@@ -22581,7 +22581,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gifreu',141.0),
 	 ('Iragui',141.0),
 	 ('Severiche',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garbisu',141.0),
 	 ('Verdiell',141.0),
 	 ('Anello',141.0),
@@ -22592,7 +22592,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villarias',141.0),
 	 ('Cuichan',141.0),
 	 ('Talavero',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Freixinet',141.0),
 	 ('Mill',141.0),
 	 ('Atxurra',141.0),
@@ -22603,7 +22603,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boixados',141.0),
 	 ('Codeseda',141.0),
 	 ('Fernandez Peña',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uya',141.0),
 	 ('Slavcheva',141.0),
 	 ('Gauthier',141.0),
@@ -22614,7 +22614,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Charradi',141.0),
 	 ('El Kandoussi',141.0),
 	 ('Nhari',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Allach',141.0),
 	 ('Rizzi',141.0),
 	 ('El Fatmi',141.0),
@@ -22625,7 +22625,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Najmi',141.0),
 	 ('Soufi',141.0),
 	 ('Chaabi',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Willems',141.0),
 	 ('Barkani',141.0),
 	 ('Labib',141.0),
@@ -22636,7 +22636,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ouaziz',141.0),
 	 ('Vulpe',141.0),
 	 ('Padurariu',141.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hao',141.0),
 	 ('Amariei',141.0),
 	 ('Dina',141.0),
@@ -22647,7 +22647,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jares',140.0),
 	 ('Oroquieta',140.0),
 	 ('Canellas',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bedos',140.0),
 	 ('Anibarro',140.0),
 	 ('Herasme',140.0),
@@ -22658,7 +22658,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laranga',140.0),
 	 ('Gilar',140.0),
 	 ('Luquez',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salanueva',140.0),
 	 ('Manzueta',140.0),
 	 ('Aledon',140.0),
@@ -22669,7 +22669,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jimenez Ortiz',140.0),
 	 ('Barazal',140.0),
 	 ('Lavall',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sobredo',140.0),
 	 ('Vallcaneras',140.0),
 	 ('Guillena',140.0),
@@ -22680,7 +22680,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ansia',140.0),
 	 ('Cabiedas',140.0),
 	 ('Faña',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bergera',140.0),
 	 ('Ariso',140.0),
 	 ('Bellostas',140.0),
@@ -22691,7 +22691,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pantion',140.0),
 	 ('Saballs',140.0),
 	 ('Martin Viveros',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Fraile',140.0),
 	 ('Urkola',140.0),
 	 ('Magarzo',140.0),
@@ -22702,7 +22702,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Girau',140.0),
 	 ('Iraolagoitia',140.0),
 	 ('Volta',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaguirre',140.0),
 	 ('Madico',140.0),
 	 ('Labadia',140.0),
@@ -22713,7 +22713,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arzac',140.0),
 	 ('Ballina',140.0),
 	 ('Barinagarrementeria',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moina',140.0),
 	 ('Chine',140.0),
 	 ('Inca',140.0),
@@ -22724,7 +22724,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vallano',140.0),
 	 ('Betanzo',140.0),
 	 ('Lancina',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rabanedo',140.0),
 	 ('Estivalis',140.0),
 	 ('Terra',140.0),
@@ -22735,7 +22735,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eransus',140.0),
 	 ('Sarceda',140.0),
 	 ('Sard',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roca De Togores',140.0),
 	 ('Foradada',140.0),
 	 ('Maidagan',140.0),
@@ -22746,7 +22746,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Catarino',140.0),
 	 ('Arretxe',140.0),
 	 ('De La Carrera',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laskurain',140.0),
 	 ('Oquiñena',140.0),
 	 ('Fopiani',140.0),
@@ -22757,7 +22757,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Turco',140.0),
 	 ('Quecedo',140.0),
 	 ('De Jaime',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rousseau',140.0),
 	 ('Choudhry',140.0),
 	 ('Perez De Vargas',140.0),
@@ -22768,7 +22768,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zait',140.0),
 	 ('Hermann',140.0),
 	 ('Souiri',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taouati',140.0),
 	 ('Zelaoui',140.0),
 	 ('Muradyan',140.0),
@@ -22779,7 +22779,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ellahi',140.0),
 	 ('Hayward',140.0),
 	 ('Capraru',140.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Purice',140.0),
 	 ('Macarie',140.0),
 	 ('Ventsislavov',140.0),
@@ -22790,7 +22790,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Melendro',139.0),
 	 ('Esparraga',139.0),
 	 ('Garraza',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nebril',139.0),
 	 ('Traveset',139.0),
 	 ('Corcoy',139.0),
@@ -22801,7 +22801,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Meran',139.0),
 	 ('Tuhami',139.0),
 	 ('Moraguez',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echarren',139.0),
 	 ('Citoler',139.0),
 	 ('Civil',139.0),
@@ -22812,7 +22812,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jabaloyas',139.0),
 	 ('Garcia Del Pino',139.0),
 	 ('Antonell',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viguria',139.0),
 	 ('Hachero',139.0),
 	 ('Combalia',139.0),
@@ -22823,7 +22823,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burrel',139.0),
 	 ('Juanhuix',139.0),
 	 ('Barambones',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Velilla',139.0),
 	 ('Finestres',139.0),
 	 ('San Bruno',139.0),
@@ -22834,7 +22834,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bartres',139.0),
 	 ('De Los Llanos',139.0),
 	 ('De Dueñas',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estopiña',139.0),
 	 ('Tielve',139.0),
 	 ('Cabello De Alba',139.0),
@@ -22845,7 +22845,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Endrina',139.0),
 	 ('Valen',139.0),
 	 ('Bizarraga',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Moreno',139.0),
 	 ('Saez De Vicuña',139.0),
 	 ('Vinos',139.0),
@@ -22856,7 +22856,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espiniella',139.0),
 	 ('Ibañez De Opacua',139.0),
 	 ('Henrique',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lumeras',139.0),
 	 ('Pilatuña',139.0),
 	 ('Pericet',139.0),
@@ -22867,7 +22867,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Canivell',139.0),
 	 ('Nayem',139.0),
 	 ('Drudis',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rusev',139.0),
 	 ('Lamarti',139.0),
 	 ('Roncel',139.0),
@@ -22878,7 +22878,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laamiri',139.0),
 	 ('Benhaddi',139.0),
 	 ('Agostini',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chennouf',139.0),
 	 ('Dillon',139.0),
 	 ('Petrenko',139.0),
@@ -22889,7 +22889,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kenny',139.0),
 	 ('Steele',139.0),
 	 ('Szasz',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ouacha',139.0),
 	 ('Bejenaru',139.0),
 	 ('Karki',139.0),
@@ -22900,7 +22900,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Atkins',139.0),
 	 ('Tkach',139.0),
 	 ('Chereches',139.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Qaisar',139.0),
 	 ('Meddich',139.0),
 	 ('Waqar',139.0),
@@ -22911,7 +22911,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bola',138.0),
 	 ('Entonado',138.0),
 	 ('Rotella',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Udaeta',138.0),
 	 ('Larrabide',138.0),
 	 ('Querencia',138.0),
@@ -22922,7 +22922,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lovelle',138.0),
 	 ('Viade',138.0),
 	 ('Delclos',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jodas',138.0),
 	 ('Bronchalo',138.0),
 	 ('Sanchez Herrera',138.0),
@@ -22933,7 +22933,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fullola',138.0),
 	 ('Serapio',138.0),
 	 ('Aguirreurreta',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ayape',138.0),
 	 ('Romeralo',138.0),
 	 ('Alabarces',138.0),
@@ -22944,7 +22944,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Mayordomo',138.0),
 	 ('Amas',138.0),
 	 ('Urraza',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Medall',138.0),
 	 ('Semis',138.0),
 	 ('Pujantell',138.0),
@@ -22955,7 +22955,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez De La Vieja',138.0),
 	 ('Marzok',138.0),
 	 ('Gor',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Damea',138.0),
 	 ('Pasquier',138.0),
 	 ('Lougedo',138.0),
@@ -22966,7 +22966,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aballe',138.0),
 	 ('Bieto',138.0),
 	 ('Linazasoro',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Guerrero',138.0),
 	 ('Sonseca',138.0),
 	 ('Canteras',138.0),
@@ -22977,7 +22977,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Novejarque',138.0),
 	 ('Posas',138.0),
 	 ('Uguet',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Viscarra',138.0),
 	 ('Guedella',138.0),
 	 ('Robado',138.0),
@@ -22988,7 +22988,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Moreno',138.0),
 	 ('Moreo',138.0),
 	 ('Torti',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Regla',138.0),
 	 ('Carcelle',138.0),
 	 ('Bertola',138.0),
@@ -22999,7 +22999,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trifonova',138.0),
 	 ('Rian',138.0),
 	 ('Hung',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Pines',138.0),
 	 ('Rapallo',138.0),
 	 ('Gospodinova',138.0),
@@ -23010,7 +23010,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mackay',138.0),
 	 ('Serhir',138.0),
 	 ('Frolova',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Norton',138.0),
 	 ('Napolitano',138.0),
 	 ('Omorodion',138.0),
@@ -23021,7 +23021,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mbodji',138.0),
 	 ('Di Lorenzo',138.0),
 	 ('El Kamouni',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chamberlain',138.0),
 	 ('Negraj',138.0),
 	 ('Benamara',138.0),
@@ -23032,7 +23032,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brinza',138.0),
 	 ('Ingram',138.0),
 	 ('Andone',138.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Takyi',138.0),
 	 ('Todoran',138.0),
 	 ('Balaceanu',138.0),
@@ -23043,7 +23043,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De La Puente',137.0),
 	 ('Lopez De Ayala',137.0),
 	 ('Galviz',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vidagany',137.0),
 	 ('Andorra',137.0),
 	 ('Diañez',137.0),
@@ -23054,7 +23054,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aleo',137.0),
 	 ('Sanchez Prieto',137.0),
 	 ('Echalecu',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santa Barbara',137.0),
 	 ('Bernus',137.0),
 	 ('Inestroza',137.0),
@@ -23065,7 +23065,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yugo',137.0),
 	 ('Arcal',137.0),
 	 ('Senciales',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alanzor',137.0),
 	 ('Duatis',137.0),
 	 ('Carrazana',137.0),
@@ -23076,7 +23076,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arroyal',137.0),
 	 ('Lacida',137.0),
 	 ('Bozalongo',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ezenarro',137.0),
 	 ('Jorna',137.0),
 	 ('Botelho',137.0),
@@ -23087,7 +23087,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mieses',137.0),
 	 ('Vaz Romero',137.0),
 	 ('Calas',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canicio',137.0),
 	 ('Estevanez',137.0),
 	 ('Rabinal',137.0),
@@ -23098,7 +23098,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cruchaga',137.0),
 	 ('Torrubias',137.0),
 	 ('Alcahut',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez De Labastida',137.0),
 	 ('Canive',137.0),
 	 ('Arboles',137.0),
@@ -23109,7 +23109,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laporte',137.0),
 	 ('Bonoso',137.0),
 	 ('Espliego',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Achon',137.0),
 	 ('Freixenet',137.0),
 	 ('Santa Eufemia',137.0),
@@ -23120,7 +23120,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chouati',137.0),
 	 ('Marchand',137.0),
 	 ('Ognyanova',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sander',137.0),
 	 ('Benabbou',137.0),
 	 ('El Mamoun',137.0),
@@ -23131,7 +23131,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Antonelli',137.0),
 	 ('Aouichi',137.0),
 	 ('Nagel',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Okoye',137.0),
 	 ('Galstyan',137.0),
 	 ('Stepanova',137.0),
@@ -23142,7 +23142,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lysenko',137.0),
 	 ('Tita',137.0),
 	 ('Jiao',137.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lahrour',137.0),
 	 ('Ghica',137.0),
 	 ('Muraru',137.0),
@@ -23153,7 +23153,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rabanaque',136.0),
 	 ('Sanchez Arjona',136.0),
 	 ('Tubilla',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mellina',136.0),
 	 ('Albistur',136.0),
 	 ('Ceferino',136.0),
@@ -23164,7 +23164,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escarp',136.0),
 	 ('Sirerol',136.0),
 	 ('Aguirreche',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arincon',136.0),
 	 ('Concellon',136.0),
 	 ('Esco',136.0),
@@ -23175,7 +23175,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benigno',136.0),
 	 ('Esmel',136.0),
 	 ('Saenz Diez',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arrabali',136.0),
 	 ('Condeminas',136.0),
 	 ('Manonelles',136.0),
@@ -23186,7 +23186,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azua',136.0),
 	 ('Bereau',136.0),
 	 ('Bilbatua',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caron',136.0),
 	 ('Zaforas',136.0),
 	 ('Fajin',136.0),
@@ -23197,7 +23197,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Martin Loeches',136.0),
 	 ('Visanzay',136.0),
 	 ('Rodellas',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montraveta',136.0),
 	 ('Berengena',136.0),
 	 ('Cordovez',136.0),
@@ -23208,7 +23208,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Cordoba',136.0),
 	 ('Socarras',136.0),
 	 ('Cazas',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cernada',136.0),
 	 ('Bolorino',136.0),
 	 ('Bootello',136.0),
@@ -23219,7 +23219,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agundo',136.0),
 	 ('Dolon',136.0),
 	 ('Silvoso',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Grañena',136.0),
 	 ('Mayobre',136.0),
 	 ('Gasquez',136.0),
@@ -23230,7 +23230,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Capellin',136.0),
 	 ('Ceñera',136.0),
 	 ('Lalanda',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sonet',136.0),
 	 ('Aberturas',136.0),
 	 ('Lauzurica',136.0),
@@ -23241,7 +23241,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pavez',136.0),
 	 ('Santaeufemia',136.0),
 	 ('Valois',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Erenchun',136.0),
 	 ('Perez De Obanos',136.0),
 	 ('Mathieu',136.0),
@@ -23252,7 +23252,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boudhan',136.0),
 	 ('Navalmoral',136.0),
 	 ('Scholz',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Qureshi',136.0),
 	 ('Latrache',136.0),
 	 ('Alem',136.0),
@@ -23263,7 +23263,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ngo',136.0),
 	 ('Tine',136.0),
 	 ('El Kharroubi',136.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Peterson',136.0),
 	 ('Gliga',136.0),
 	 ('Howe',136.0),
@@ -23274,7 +23274,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dudau',136.0),
 	 ('Sykes',136.0),
 	 ('Claraso',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Compains',135.0),
 	 ('Cañueto',135.0),
 	 ('Corbeira',135.0),
@@ -23285,7 +23285,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Requeno',135.0),
 	 ('Borillo',135.0),
 	 ('Muxika',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Antepara',135.0),
 	 ('Llevot',135.0),
 	 ('Alcario',135.0),
@@ -23296,7 +23296,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doncel Moriano',135.0),
 	 ('Hontangas',135.0),
 	 ('Aveiga',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Secanell',135.0),
 	 ('Garibo',135.0),
 	 ('Epalza',135.0),
@@ -23307,7 +23307,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Anduix',135.0),
 	 ('Cabrita',135.0),
 	 ('Cantoral',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pelay',135.0),
 	 ('Garcia De Leaniz',135.0),
 	 ('Luiña',135.0),
@@ -23318,7 +23318,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sardiñas',135.0),
 	 ('Escourido',135.0),
 	 ('Ruenes',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cahuana',135.0),
 	 ('Yustes',135.0),
 	 ('Casique',135.0),
@@ -23329,7 +23329,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quibus',135.0),
 	 ('Abrantes',135.0),
 	 ('Milud',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vegazo',135.0),
 	 ('Eguileor',135.0),
 	 ('Jordao',135.0),
@@ -23340,7 +23340,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Germa',135.0),
 	 ('Contesti',135.0),
 	 ('Tel',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Micaelo',135.0),
 	 ('Orrico',135.0),
 	 ('Villaret',135.0),
@@ -23351,7 +23351,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lanzon',135.0),
 	 ('Martinez Falero',135.0),
 	 ('Motrel',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nubla',135.0),
 	 ('Monegro',135.0),
 	 ('Tubella',135.0),
@@ -23362,7 +23362,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gaita',135.0),
 	 ('Morgaz',135.0),
 	 ('Perez De San Roman',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Cuvillo',135.0),
 	 ('Mayne',135.0),
 	 ('Sanchez De Las Matas',135.0),
@@ -23373,7 +23373,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vega De Seoane',135.0),
 	 ('Louis',135.0),
 	 ('Bosco',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Redondo',135.0),
 	 ('El Bakouri',135.0),
 	 ('Lachheb',135.0),
@@ -23384,7 +23384,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Reda',135.0),
 	 ('Sahel',135.0),
 	 ('Mehdaoui',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Albrecht',135.0),
 	 ('Sutherland',135.0),
 	 ('Graziano',135.0),
@@ -23395,7 +23395,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Baghati',135.0),
 	 ('Fariss',135.0),
 	 ('Taran',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Creta',135.0),
 	 ('Attaf',135.0),
 	 ('Aron',135.0),
@@ -23406,7 +23406,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Butcher',135.0),
 	 ('Tanasie',135.0),
 	 ('Chindris',135.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Macareno',134.0),
 	 ('Obieta',134.0),
 	 ('Plua',134.0),
@@ -23417,7 +23417,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Doñe',134.0),
 	 ('Sampron',134.0),
 	 ('Doiz',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gil De Muro',134.0),
 	 ('Cribeiro',134.0),
 	 ('Pisos',134.0),
@@ -23428,7 +23428,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manobanda',134.0),
 	 ('Toyas',134.0),
 	 ('Moratiel',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uhia',134.0),
 	 ('Quichimbo',134.0),
 	 ('Xargay',134.0),
@@ -23439,7 +23439,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viciedo',134.0),
 	 ('Nagua',134.0),
 	 ('Escalero',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gairin',134.0),
 	 ('Grijalbo',134.0),
 	 ('Arriscado',134.0),
@@ -23450,7 +23450,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ramirez De Verger',134.0),
 	 ('Almale',134.0),
 	 ('Graullera',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arrontes',134.0),
 	 ('Felipo',134.0),
 	 ('Giraldes',134.0),
@@ -23461,7 +23461,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Merle',134.0),
 	 ('Lendrino',134.0),
 	 ('Balbona',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iturrieta',134.0),
 	 ('Llofriu',134.0),
 	 ('Ambroj',134.0),
@@ -23472,7 +23472,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Infestas',134.0),
 	 ('Maguiña',134.0),
 	 ('Armengot',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caleya',134.0),
 	 ('Sariol',134.0),
 	 ('Parames',134.0),
@@ -23483,7 +23483,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nacar',134.0),
 	 ('Armingol',134.0),
 	 ('Garayar',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Candea',134.0),
 	 ('Nates',134.0),
 	 ('Bahamontes',134.0),
@@ -23494,7 +23494,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moser',134.0),
 	 ('Togores',134.0),
 	 ('Ricca',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Caramelo',134.0),
 	 ('Kalai',134.0),
 	 ('Andikoetxea',134.0),
@@ -23505,7 +23505,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Korchi',134.0),
 	 ('Ayach',134.0),
 	 ('Abderrahim',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nali',134.0),
 	 ('Boyanova',134.0),
 	 ('El Masoudi',134.0),
@@ -23516,7 +23516,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kowalczyk',134.0),
 	 ('Benchikh',134.0),
 	 ('Hay',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lharrak',134.0),
 	 ('Dunne',134.0),
 	 ('Gasparyan',134.0),
@@ -23527,7 +23527,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hatim',134.0),
 	 ('Lakatos',134.0),
 	 ('Rodgers',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mamadou',134.0),
 	 ('Basharat',134.0),
 	 ('Bordeianu',134.0),
@@ -23538,7 +23538,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Goodman',134.0),
 	 ('Milos',134.0),
 	 ('Tosun',134.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Pueblo',133.0),
 	 ('Carravilla',133.0),
 	 ('Ansuategui',133.0),
@@ -23549,7 +23549,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aldaco',133.0),
 	 ('Arahuetes',133.0),
 	 ('Carcaño',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cartujo',133.0),
 	 ('Suaña',133.0),
 	 ('Darne',133.0),
@@ -23560,7 +23560,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Madureira',133.0),
 	 ('Narejos',133.0),
 	 ('Buscato',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tamay',133.0),
 	 ('Bajon',133.0),
 	 ('Lariz',133.0),
@@ -23571,7 +23571,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belisario',133.0),
 	 ('Belastegui',133.0),
 	 ('Afan De Rivera',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alhaja',133.0),
 	 ('De Rozas',133.0),
 	 ('Reborido',133.0),
@@ -23582,7 +23582,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estors',133.0),
 	 ('Botejara',133.0),
 	 ('Rasillo',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trenor',133.0),
 	 ('Vilavedra',133.0),
 	 ('Navaza',133.0),
@@ -23593,7 +23593,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rivadeneyra',133.0),
 	 ('Echazarreta',133.0),
 	 ('Juvera',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Camprodon',133.0),
 	 ('Mallart',133.0),
 	 ('Botaya',133.0),
@@ -23604,7 +23604,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escrigas',133.0),
 	 ('Malmagro',133.0),
 	 ('Asso',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Quismondo',133.0),
 	 ('Lupon',133.0),
 	 ('Alejano',133.0),
@@ -23615,7 +23615,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Constanzo',133.0),
 	 ('Diaz De Lezana',133.0),
 	 ('Urricelqui',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maira',133.0),
 	 ('Lopez De Goicoechea',133.0),
 	 ('Froiz',133.0),
@@ -23626,7 +23626,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tenrero',133.0),
 	 ('Feas',133.0),
 	 ('Gistas',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lleyda',133.0),
 	 ('Cosentino',133.0),
 	 ('M''Hamed',133.0),
@@ -23637,7 +23637,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sebbar',133.0),
 	 ('Guida',133.0),
 	 ('Ayachi',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Madi',133.0),
 	 ('Gori',133.0),
 	 ('Ghouzali',133.0),
@@ -23648,7 +23648,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aiello',133.0),
 	 ('Yaagoubi',133.0),
 	 ('Lahssini',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Natale',133.0),
 	 ('Kaufmann',133.0),
 	 ('Sambe',133.0),
@@ -23659,7 +23659,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Balazs',133.0),
 	 ('Ceban',133.0),
 	 ('Samih',133.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hicks',133.0),
 	 ('Nanu',133.0),
 	 ('Condurache',133.0),
@@ -23670,7 +23670,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aladid',132.0),
 	 ('Arista',132.0),
 	 ('Angamarca',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pildain',132.0),
 	 ('Masgoret',132.0),
 	 ('Farrera',132.0),
@@ -23681,7 +23681,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gigorro',132.0),
 	 ('Calasanz',132.0),
 	 ('Sellens',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernan',132.0),
 	 ('Gordito',132.0),
 	 ('Ochoa De Alda',132.0),
@@ -23692,7 +23692,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toiran',132.0),
 	 ('Solan',132.0),
 	 ('Capapey',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cuzco',132.0),
 	 ('Gimbernat',132.0),
 	 ('Peñarrieta',132.0),
@@ -23703,7 +23703,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cembrero',132.0),
 	 ('Arniz',132.0),
 	 ('Lopez De Ipiña',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Miura',132.0),
 	 ('Mazarico',132.0),
 	 ('Amariles',132.0),
@@ -23714,7 +23714,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aleña',132.0),
 	 ('Penilla',132.0),
 	 ('Laure',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paño',132.0),
 	 ('De La Cova',132.0),
 	 ('Sule',132.0),
@@ -23725,7 +23725,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buqueras',132.0),
 	 ('Cardesa',132.0),
 	 ('Galles',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cerqueda',132.0),
 	 ('Pomata',132.0),
 	 ('Agoiz',132.0),
@@ -23736,7 +23736,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arobes',132.0),
 	 ('Merlan',132.0),
 	 ('Veledo',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Desviat',132.0),
 	 ('Cane',132.0),
 	 ('Orizales',132.0),
@@ -23747,7 +23747,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Acarregui',132.0),
 	 ('Labad',132.0),
 	 ('Torrescasana',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Reguero',132.0),
 	 ('Regatos',132.0),
 	 ('Cariño',132.0),
@@ -23758,7 +23758,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Farriols',132.0),
 	 ('Martin De Bernardo',132.0),
 	 ('Mojio',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Askasibar',132.0),
 	 ('Achaerandio',132.0),
 	 ('Fara',132.0),
@@ -23769,7 +23769,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arnaud',132.0),
 	 ('Medal',132.0),
 	 ('Gonzalez De Canales',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hamma',132.0),
 	 ('Pardo De Santayana',132.0),
 	 ('Mouloud',132.0),
@@ -23780,7 +23780,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maurer',132.0),
 	 ('Yakoubi',132.0),
 	 ('Erradi',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Riad',132.0),
 	 ('Akodad',132.0),
 	 ('Forbes',132.0),
@@ -23791,7 +23791,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sayed',132.0),
 	 ('Boujtat',132.0),
 	 ('Pace',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Serbouti',132.0),
 	 ('Nejjari',132.0),
 	 ('Barrak',132.0),
@@ -23802,7 +23802,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dickinson',132.0),
 	 ('Hurst',132.0),
 	 ('Diakhaby',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buzdugan',132.0),
 	 ('Curca',132.0),
 	 ('Cuc',132.0),
@@ -23813,7 +23813,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cismaru',132.0),
 	 ('Szilagyi',132.0),
 	 ('Velicu',132.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Priala',132.0),
 	 ('Zorroza',131.0),
 	 ('Zugadi',131.0),
@@ -23824,7 +23824,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guntiñas',131.0),
 	 ('Navines',131.0),
 	 ('Bogo',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Calventus',131.0),
 	 ('Tuarez',131.0),
 	 ('Cobalea',131.0),
@@ -23835,7 +23835,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lestayo',131.0),
 	 ('Vivian',131.0),
 	 ('Ellacuria',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Goranova',131.0),
 	 ('Tabarez',131.0),
 	 ('Millor',131.0),
@@ -23846,7 +23846,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manzanet',131.0),
 	 ('Puigarnau',131.0),
 	 ('Cerqueiras',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carela',131.0),
 	 ('Vacacela',131.0),
 	 ('Noriego',131.0),
@@ -23857,7 +23857,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Taladrid',131.0),
 	 ('Centol',131.0),
 	 ('Martin De Lucia',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salvachua',131.0),
 	 ('Ochoa De Retana',131.0),
 	 ('Loshuertos',131.0),
@@ -23868,7 +23868,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berloso',131.0),
 	 ('Aguerre',131.0),
 	 ('Mendonça',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Deive',131.0),
 	 ('Gerones',131.0),
 	 ('Martes',131.0),
@@ -23879,7 +23879,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lecegui',131.0),
 	 ('Motero',131.0),
 	 ('Polop',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Misol',131.0),
 	 ('Macarulla',131.0),
 	 ('Pluma',131.0),
@@ -23890,7 +23890,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Archanco',131.0),
 	 ('Gramuntell',131.0),
 	 ('Chiguano',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mora Gil',131.0),
 	 ('Fernandez De Las Heras',131.0),
 	 ('Pelluz',131.0),
@@ -23901,7 +23901,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Longobardo',131.0),
 	 ('Moa',131.0),
 	 ('Saquete',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Elias',131.0),
 	 ('Aldarias',131.0),
 	 ('Briñez',131.0),
@@ -23912,7 +23912,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Di Carlo',131.0),
 	 ('Eddahmani',131.0),
 	 ('Jeddi',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benaouda',131.0),
 	 ('Chouaib',131.0),
 	 ('Fagrouch',131.0),
@@ -23923,7 +23923,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Randall',131.0),
 	 ('Lazzaoui',131.0),
 	 ('Guenfoudi',131.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hobbs',131.0),
 	 ('Masih',131.0),
 	 ('Connor',131.0),
@@ -23934,7 +23934,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cimpoeru',131.0),
 	 ('Maye',130.0),
 	 ('Seijido',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laguno',130.0),
 	 ('Querejazu',130.0),
 	 ('Azcorra',130.0),
@@ -23945,7 +23945,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mouron',130.0),
 	 ('Azcutia',130.0),
 	 ('Gifre',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lequerica',130.0),
 	 ('Maltas',130.0),
 	 ('Cabrilla',130.0),
@@ -23956,7 +23956,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Voltes',130.0),
 	 ('Guadamillas',130.0),
 	 ('Torga',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Veramendi',130.0),
 	 ('Oporta',130.0),
 	 ('Chedas',130.0),
@@ -23967,7 +23967,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Junque',130.0),
 	 ('Sanchez Montañez',130.0),
 	 ('Lafaja',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Redondas',130.0),
 	 ('Batanas',130.0),
 	 ('Cabetas',130.0),
@@ -23978,7 +23978,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diez Madroñero',130.0),
 	 ('Allauca',130.0),
 	 ('Patarro',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gallarreta',130.0),
 	 ('Lines',130.0),
 	 ('Sebastianes',130.0),
@@ -23989,7 +23989,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sandoya',130.0),
 	 ('Grondona',130.0),
 	 ('Garnero',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azkarraga',130.0),
 	 ('Carcaba',130.0),
 	 ('Cubertorer',130.0),
@@ -24000,7 +24000,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Toasa',130.0),
 	 ('Rufes',130.0),
 	 ('Zamarripa',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bardes',130.0),
 	 ('Concheso',130.0),
 	 ('Lus',130.0),
@@ -24011,7 +24011,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz Orejon',130.0),
 	 ('Gardeta',130.0),
 	 ('Lopez Barajas',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amich',130.0),
 	 ('Diges',130.0),
 	 ('Nve',130.0),
@@ -24022,7 +24022,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chargui',130.0),
 	 ('Najem',130.0),
 	 ('Bensalem',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Croce',130.0),
 	 ('Yermak',130.0),
 	 ('Jaatit',130.0),
@@ -24033,7 +24033,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Magrach',130.0),
 	 ('Niass',130.0),
 	 ('Arguig',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mezouar',130.0),
 	 ('Bouayadi',130.0),
 	 ('Di Pietro',130.0),
@@ -24044,7 +24044,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hanson',130.0),
 	 ('Hsaini',130.0),
 	 ('Joyce',130.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Schofield',130.0),
 	 ('Condrea',130.0),
 	 ('Thorpe',130.0),
@@ -24055,7 +24055,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ciurariu',130.0),
 	 ('Mirchev',129.0),
 	 ('Hebles',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Belmont',129.0),
 	 ('Veigas',129.0),
 	 ('Esandi',129.0),
@@ -24066,7 +24066,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burrull',129.0),
 	 ('Forneiro',129.0),
 	 ('Lacerda',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Godos',129.0),
 	 ('Barraca',129.0),
 	 ('Arangoa',129.0),
@@ -24077,7 +24077,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berruguete',129.0),
 	 ('Quitian',129.0),
 	 ('Ozcoz',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ibanco',129.0),
 	 ('Mugarra',129.0),
 	 ('Sediles',129.0),
@@ -24088,7 +24088,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vilarchao',129.0),
 	 ('Lostado',129.0),
 	 ('Samit',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lusilla',129.0),
 	 ('Peñagarikano',129.0),
 	 ('Rionegro',129.0),
@@ -24099,7 +24099,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mouta',129.0),
 	 ('De Rioja',129.0),
 	 ('Villapol',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Contera',129.0),
 	 ('Tobeña',129.0),
 	 ('Alaejos',129.0),
@@ -24110,7 +24110,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salete',129.0),
 	 ('Torredemer',129.0),
 	 ('Arzalluz',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cepedano',129.0),
 	 ('Serdio',129.0),
 	 ('Pauta',129.0),
@@ -24121,7 +24121,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gutierrez Rave',129.0),
 	 ('Ogea',129.0),
 	 ('Morallon',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Magide',129.0),
 	 ('Baraut',129.0),
 	 ('Pinart',129.0),
@@ -24132,7 +24132,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lobez',129.0),
 	 ('Guajardo Fajardo',129.0),
 	 ('Martinez Alcocer',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ouazzani',129.0),
 	 ('Fanegas',129.0),
 	 ('Vinaches',129.0),
@@ -24143,7 +24143,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Omorogbe',129.0),
 	 ('Mohamad',129.0),
 	 ('Edjang',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dani',129.0),
 	 ('El Mahmoudi',129.0),
 	 ('Rouchdi',129.0),
@@ -24154,7 +24154,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berrad',129.0),
 	 ('Feher',129.0),
 	 ('Bak',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Costantini',129.0),
 	 ('Iamandi',129.0),
 	 ('Benyaagoub',129.0),
@@ -24165,7 +24165,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dragne',129.0),
 	 ('Taranu',129.0),
 	 ('Enciu',129.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Istoc',129.0),
 	 ('Stamate',129.0),
 	 ('Duet',128.0),
@@ -24176,7 +24176,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Casaponsa',128.0),
 	 ('Antigua',128.0),
 	 ('Borragan',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saornil',128.0),
 	 ('Castroagudin',128.0),
 	 ('Gardoqui',128.0),
@@ -24187,7 +24187,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calza',128.0),
 	 ('Tacero',128.0),
 	 ('Marguenda',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cinto',128.0),
 	 ('Gorgoso',128.0),
 	 ('Vitutia',128.0),
@@ -24198,7 +24198,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montado',128.0),
 	 ('Colmeiro',128.0),
 	 ('Artamendi',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Saburido',128.0),
 	 ('Ñañez',128.0),
 	 ('Salvanes',128.0),
@@ -24209,7 +24209,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Esquilas',128.0),
 	 ('Garcia Saavedra',128.0),
 	 ('Castrosin',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Escudeiro',128.0),
 	 ('Marigo',128.0),
 	 ('Carañana',128.0),
@@ -24220,7 +24220,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Castrodeza',128.0),
 	 ('Diaz Santos',128.0),
 	 ('Hervalejo',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez Juana',128.0),
 	 ('Fojon',128.0),
 	 ('Charte',128.0),
@@ -24231,7 +24231,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fraire',128.0),
 	 ('Tebas',128.0),
 	 ('Arpi',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nobre',128.0),
 	 ('Resende',128.0),
 	 ('Samboni',128.0),
@@ -24242,7 +24242,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gerique',128.0),
 	 ('Celigueta',128.0),
 	 ('Payes',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz Moyano',128.0),
 	 ('Cedran',128.0),
 	 ('Agualongo',128.0),
@@ -24253,7 +24253,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villamisar',128.0),
 	 ('Cortorreal',128.0),
 	 ('Caiz',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Coutado',128.0),
 	 ('Ñeco',128.0),
 	 ('Gonzalez De Lara',128.0),
@@ -24264,7 +24264,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rolland',128.0),
 	 ('Dastis',128.0),
 	 ('Gonzalez De Chaves',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Amosa',128.0),
 	 ('Joy',128.0),
 	 ('Fazio',128.0),
@@ -24275,7 +24275,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ndaw',128.0),
 	 ('El Yacoubi',128.0),
 	 ('El Marzguioui',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ngomo',128.0),
 	 ('Ahaddouch',128.0),
 	 ('El Abdouni',128.0),
@@ -24286,7 +24286,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lamnaouar',128.0),
 	 ('Petrut',128.0),
 	 ('Van Leeuwen',128.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Geana',128.0),
 	 ('Truta',128.0),
 	 ('Mihu',128.0),
@@ -24297,7 +24297,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Curte',128.0),
 	 ('Nares',127.0),
 	 ('Zorro',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arbilla',127.0),
 	 ('Sieso',127.0),
 	 ('Gens',127.0),
@@ -24308,7 +24308,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tierz',127.0),
 	 ('Quina',127.0),
 	 ('Doallo',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lor',127.0),
 	 ('Sivila',127.0),
 	 ('Gurt',127.0),
@@ -24319,7 +24319,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mercant',127.0),
 	 ('Usategui',127.0),
 	 ('Jabon',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Loya',127.0),
 	 ('Silvo',127.0),
 	 ('Zubicaray',127.0),
@@ -24330,7 +24330,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hormeño',127.0),
 	 ('Mahave',127.0),
 	 ('Perille',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Foncea',127.0),
 	 ('Alzuri',127.0),
 	 ('Marzabal',127.0),
@@ -24341,7 +24341,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Roncero',127.0),
 	 ('Escoin',127.0),
 	 ('Martinicorena',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moquete',127.0),
 	 ('Seixas',127.0),
 	 ('Zallo',127.0),
@@ -24352,7 +24352,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perez De Mendiguren',127.0),
 	 ('Aubets',127.0),
 	 ('Castander',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Geira',127.0),
 	 ('Sanduvete',127.0),
 	 ('Diaz Miguel',127.0),
@@ -24363,7 +24363,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Riado',127.0),
 	 ('Rocabruna',127.0),
 	 ('Gonzalez Ortega',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guervos',127.0),
 	 ('Restituto',127.0),
 	 ('Ala',127.0),
@@ -24374,7 +24374,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espigol',127.0),
 	 ('Ezponda',127.0),
 	 ('Turrero',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gaseni',127.0),
 	 ('Peron',127.0),
 	 ('Bangueses',127.0),
@@ -24385,7 +24385,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Narrillos',127.0),
 	 ('Ninou',127.0),
 	 ('Slavova',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Greses',127.0),
 	 ('Criville',127.0),
 	 ('Arraztoa',127.0),
@@ -24396,7 +24396,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sobalvarro',127.0),
 	 ('Ussia',127.0),
 	 ('Bardan',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cauqui',127.0),
 	 ('Sarroukh',127.0),
 	 ('Soberats',127.0),
@@ -24407,7 +24407,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vogt',127.0),
 	 ('El Harras',127.0),
 	 ('Bendris',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nejjar',127.0),
 	 ('El Ghazali',127.0),
 	 ('Maghraoui',127.0),
@@ -24418,7 +24418,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Hallaoui',127.0),
 	 ('Rice',127.0),
 	 ('Valentini',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Fellah',127.0),
 	 ('El Youssoufi',127.0),
 	 ('Agyemang',127.0),
@@ -24429,7 +24429,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Antwi',127.0),
 	 ('Gning',127.0),
 	 ('Davey',127.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Adhikari',127.0),
 	 ('Ghalmi',127.0),
 	 ('Hlal',127.0),
@@ -24440,7 +24440,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Madrid',126.0),
 	 ('Angorrilla',126.0),
 	 ('Uribelarrea',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tutiven',126.0),
 	 ('Caurel',126.0),
 	 ('Pailos',126.0),
@@ -24451,7 +24451,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Staneva',126.0),
 	 ('Rifon',126.0),
 	 ('Jalda',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berben',126.0),
 	 ('Elio',126.0),
 	 ('Quixal',126.0),
@@ -24462,7 +24462,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carnacea',126.0),
 	 ('Tarongi',126.0),
 	 ('Albenca',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dobato',126.0),
 	 ('Sanchez Porro',126.0),
 	 ('Larramona',126.0),
@@ -24473,7 +24473,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sigalat',126.0),
 	 ('Tasias',126.0),
 	 ('Suañez',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gayon',126.0),
 	 ('Poca',126.0),
 	 ('Stankova',126.0),
@@ -24484,7 +24484,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lituma',126.0),
 	 ('Alemparte',126.0),
 	 ('Bausili',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baceiredo',126.0),
 	 ('Bossa',126.0),
 	 ('Cenitagoya',126.0),
@@ -24495,7 +24495,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Grijuela',126.0),
 	 ('Rebellon',126.0),
 	 ('Agustiño',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Angulo',126.0),
 	 ('Arxe',126.0),
 	 ('Amoretti',126.0),
@@ -24506,7 +24506,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alite',126.0),
 	 ('De Rodrigo',126.0),
 	 ('Givica',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beguer',126.0),
 	 ('Cerban',126.0),
 	 ('De La Cierva',126.0),
@@ -24517,7 +24517,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Campanales',126.0),
 	 ('Mecha',126.0),
 	 ('Corcostegui',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llasera',126.0),
 	 ('Lopez De La Torre',126.0),
 	 ('Ruber',126.0),
@@ -24528,7 +24528,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arrais',126.0),
 	 ('Tribiño',126.0),
 	 ('Aniento',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Salvador',126.0),
 	 ('Atxutegi',126.0),
 	 ('Fritz',126.0),
@@ -24539,7 +24539,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Morabiti',126.0),
 	 ('Falcone',126.0),
 	 ('Haas',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Bouhssini',126.0),
 	 ('Benalla',126.0),
 	 ('El Abboudi',126.0),
@@ -24550,7 +24550,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belouafi',126.0),
 	 ('El Haddar',126.0),
 	 ('Santangelo',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Doudou',126.0),
 	 ('Wahab',126.0),
 	 ('Kouyate',126.0),
@@ -24561,7 +24561,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tanasescu',126.0),
 	 ('Ventsislavova',126.0),
 	 ('Javaid',126.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lahmer',126.0),
 	 ('Floarea',126.0),
 	 ('Papan',126.0),
@@ -24572,7 +24572,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lesaca',125.0),
 	 ('Erezuma',125.0),
 	 ('De Ugarte',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gelma',125.0),
 	 ('Mellen',125.0),
 	 ('Muries',125.0),
@@ -24583,7 +24583,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Peregrino',125.0),
 	 ('Tantiña',125.0),
 	 ('Aroz',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chincolla',125.0),
 	 ('Farnes',125.0),
 	 ('Camio',125.0),
@@ -24594,7 +24594,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quizhpi',125.0),
 	 ('Sencianes',125.0),
 	 ('Cañes',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mariana',125.0),
 	 ('Ruiz De Larramendi',125.0),
 	 ('Sotero',125.0),
@@ -24605,7 +24605,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bernis',125.0),
 	 ('Gontad',125.0),
 	 ('Riau',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reves',125.0),
 	 ('Amagua',125.0),
 	 ('Stankov',125.0),
@@ -24616,7 +24616,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cajiao',125.0),
 	 ('Choy',125.0),
 	 ('Gonzalez Gallego',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elordui',125.0),
 	 ('Del Nido',125.0),
 	 ('Garrigosa',125.0),
@@ -24627,7 +24627,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cantarino',125.0),
 	 ('Llusia',125.0),
 	 ('Modelo',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Condoy',125.0),
 	 ('Garcia Noblejas',125.0),
 	 ('Viladevall',125.0),
@@ -24638,7 +24638,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gomez Hidalgo',125.0),
 	 ('Massegur',125.0),
 	 ('Mislata',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berdiel',125.0),
 	 ('Forradellas',125.0),
 	 ('Plantada',125.0),
@@ -24649,7 +24649,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Telmo',125.0),
 	 ('Basil',125.0),
 	 ('Caiño',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gallego De La Sacristana',125.0),
 	 ('Kamenova',125.0),
 	 ('Nardiz',125.0),
@@ -24660,7 +24660,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Castillo Olivares',125.0),
 	 ('Bouker',125.0),
 	 ('Cuadron',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sarraseca',125.0),
 	 ('Ouass',125.0),
 	 ('Gagliardi',125.0),
@@ -24671,7 +24671,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Khlifa',125.0),
 	 ('Cavallo',125.0),
 	 ('Bourazza',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Morari',125.0),
 	 ('Abakhti',125.0),
 	 ('Nikitina',125.0),
@@ -24682,7 +24682,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Ouarti',125.0),
 	 ('Masaoudi',125.0),
 	 ('Aidara',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Harrou',125.0),
 	 ('Davison',125.0),
 	 ('Gibbons',125.0),
@@ -24693,7 +24693,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Graur',125.0),
 	 ('Lamb',125.0),
 	 ('Stanculescu',125.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cucos',125.0),
 	 ('Ciornei',125.0),
 	 ('Craiu',125.0),
@@ -24704,7 +24704,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urionabarrenechea',124.0),
 	 ('Iturre',124.0),
 	 ('Botines',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouzamayor',124.0),
 	 ('Erquiaga',124.0),
 	 ('Autor',124.0),
@@ -24715,7 +24715,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zarrias',124.0),
 	 ('Arbonies',124.0),
 	 ('Baste',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Porqueres',124.0),
 	 ('Alvela',124.0),
 	 ('Sivill',124.0),
@@ -24726,7 +24726,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Porras',124.0),
 	 ('Garcia Del Real',124.0),
 	 ('Manibardo',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rivacoba',124.0),
 	 ('Urgal',124.0),
 	 ('Barreres',124.0),
@@ -24737,7 +24737,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Villanustre',124.0),
 	 ('Lapresta',124.0),
 	 ('Hernan Gomez',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jaraices',124.0),
 	 ('Diaz De Garayo',124.0),
 	 ('Porca',124.0),
@@ -24748,7 +24748,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carabaña',124.0),
 	 ('Urrecho',124.0),
 	 ('Uliaque',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Piguillem',124.0),
 	 ('Xaubet',124.0),
 	 ('Guaraca',124.0),
@@ -24759,7 +24759,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De La Dehesa',124.0),
 	 ('Peramos',124.0),
 	 ('Gorostola',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Turrientes',124.0),
 	 ('Deira',124.0),
 	 ('Brufal',124.0),
@@ -24770,7 +24770,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alkain',124.0),
 	 ('Egeda',124.0),
 	 ('Fanals',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uribe Echevarria',124.0),
 	 ('Alberjon',124.0),
 	 ('Lamagrande',124.0),
@@ -24781,7 +24781,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moreyra',124.0),
 	 ('Raymond',124.0),
 	 ('Baldelomar',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Porquer',124.0),
 	 ('Prima',124.0),
 	 ('Cadafalch',124.0),
@@ -24792,7 +24792,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pelegero',124.0),
 	 ('Velikov',124.0),
 	 ('Sanchez Matamoros',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Navareño',124.0),
 	 ('Barrie',124.0),
 	 ('Kessler',124.0),
@@ -24803,7 +24803,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benhari',124.0),
 	 ('Stuart',124.0),
 	 ('Pouye',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ouachikh',124.0),
 	 ('Badr',124.0),
 	 ('Louzari',124.0),
@@ -24814,7 +24814,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jatta',124.0),
 	 ('Abbasi',124.0),
 	 ('Bennis',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Wallis',124.0),
 	 ('El Bakkouri',124.0),
 	 ('El Hamraoui',124.0),
@@ -24825,7 +24825,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chait',124.0),
 	 ('Zain',124.0),
 	 ('Aboufaras',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Hooper',124.0),
 	 ('Rguig',124.0),
 	 ('El Maazouzi',124.0),
@@ -24836,7 +24836,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Petrica',124.0),
 	 ('Wagne',124.0),
 	 ('Zaheer',124.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bouaichat',124.0),
 	 ('Ejaz',124.0),
 	 ('Braco',123.0),
@@ -24847,7 +24847,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perdones',123.0),
 	 ('Turiegano',123.0),
 	 ('Pintanel',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tomasa',123.0),
 	 ('Baticon',123.0),
 	 ('Rendal',123.0),
@@ -24858,7 +24858,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montblanch',123.0),
 	 ('Guijas',123.0),
 	 ('Argilaga',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canti',123.0),
 	 ('Llamera',123.0),
 	 ('Sabalza',123.0),
@@ -24869,7 +24869,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santos Garcia',123.0),
 	 ('Garcia Zarco',123.0),
 	 ('Alarma',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campdelacreu',123.0),
 	 ('Entrenas',123.0),
 	 ('Crovetto',123.0),
@@ -24880,7 +24880,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez De Sabando',123.0),
 	 ('Perla',123.0),
 	 ('Constanza',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azcuenaga',123.0),
 	 ('Brichs',123.0),
 	 ('Mifsud',123.0),
@@ -24891,7 +24891,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coyago',123.0),
 	 ('Parrot',123.0),
 	 ('Broton',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Frontaura',123.0),
 	 ('Palatsi',123.0),
 	 ('Recha',123.0),
@@ -24902,7 +24902,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erkoreka',123.0),
 	 ('Mimenza',123.0),
 	 ('Belategui',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Canta',123.0),
 	 ('Garda',123.0),
 	 ('Cals',123.0),
@@ -24913,7 +24913,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('La Chica',123.0),
 	 ('Balmont',123.0),
 	 ('Iguaz',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Etxezarraga',123.0),
 	 ('De La Torriente',123.0),
 	 ('Luzan',123.0),
@@ -24924,7 +24924,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ricou',123.0),
 	 ('Gastearena',123.0),
 	 ('Lauria',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zizaoui',123.0),
 	 ('Fragio',123.0),
 	 ('Bometon',123.0),
@@ -24935,7 +24935,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rossetti',123.0),
 	 ('Agmir',123.0),
 	 ('Faraj',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Clemente',123.0),
 	 ('Corazon',123.0),
 	 ('Bentaher',123.0),
@@ -24946,7 +24946,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azouzi',123.0),
 	 ('Cira',123.0),
 	 ('Bensarghin',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Moujahid',123.0),
 	 ('Goudiaby',123.0),
 	 ('Belghanou',123.0),
@@ -24957,7 +24957,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ricciardi',123.0),
 	 ('Meskini',123.0),
 	 ('Marchenko',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Radouani',123.0),
 	 ('Hyde',123.0),
 	 ('Chandler',123.0),
@@ -24968,7 +24968,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Raj',123.0),
 	 ('Androne',123.0),
 	 ('Bumbu',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Wild',123.0),
 	 ('Eremia',123.0),
 	 ('Gelashvili',123.0),
@@ -24979,7 +24979,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tugui',123.0),
 	 ('Hmimou',123.0),
 	 ('Bozga',123.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Mendoza',122.0),
 	 ('Diaz De Los Bernardos',122.0),
 	 ('Ganchegui',122.0),
@@ -24990,7 +24990,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brinquis',122.0),
 	 ('Barriales',122.0),
 	 ('Benajes',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Facorro',122.0),
 	 ('Patier',122.0),
 	 ('Cuelliga',122.0),
@@ -25001,7 +25001,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chantre',122.0),
 	 ('Galguera',122.0),
 	 ('Mayoz',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Pablo',122.0),
 	 ('Lagomazzini',122.0),
 	 ('Benete',122.0),
@@ -25012,7 +25012,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Yauri',122.0),
 	 ('Cabalga',122.0),
 	 ('Legazpe',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ordoqui',122.0),
 	 ('Villodas',122.0),
 	 ('De Aguirre',122.0),
@@ -25023,7 +25023,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rodriguez Borlado',122.0),
 	 ('Felpete',122.0),
 	 ('Mellizo',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nula',122.0),
 	 ('Pladellorens',122.0),
 	 ('Rodriguez De Tembleque',122.0),
@@ -25034,7 +25034,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carrau',122.0),
 	 ('Barrenengoa',122.0),
 	 ('Trujillos',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cerisuelo',122.0),
 	 ('Jaquero',122.0),
 	 ('Motino',122.0),
@@ -25045,7 +25045,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eulogio',122.0),
 	 ('Ipiales',122.0),
 	 ('Ruesta',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Incertis',122.0),
 	 ('Vengut',122.0),
 	 ('Masmano',122.0),
@@ -25056,7 +25056,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Enes',122.0),
 	 ('Aliño',122.0),
 	 ('Romao',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Taher',122.0),
 	 ('Lli',122.0),
 	 ('Almerge',122.0),
@@ -25067,7 +25067,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santamera',122.0),
 	 ('Setuain',122.0),
 	 ('Pedrals',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mendez De Vigo',122.0),
 	 ('Salavera',122.0),
 	 ('San Rafael',122.0),
@@ -25078,7 +25078,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pipio',122.0),
 	 ('Guillaume',122.0),
 	 ('Chuquin',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cobertera',122.0),
 	 ('Garcia De La Mora',122.0),
 	 ('Rusca',122.0),
@@ -25089,7 +25089,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jean',122.0),
 	 ('Madsen',122.0),
 	 ('Akhdim',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vitali',122.0),
 	 ('Wahid',122.0),
 	 ('Lizeaga',122.0),
@@ -25100,7 +25100,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lindner',122.0),
 	 ('Rkiouak',122.0),
 	 ('Schubert',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kern',122.0),
 	 ('El Hatimi',122.0),
 	 ('Mercer',122.0),
@@ -25111,7 +25111,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Housni',122.0),
 	 ('El Boukili',122.0),
 	 ('Ezzahraoui',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kerroum',122.0),
 	 ('Yuliyanova',122.0),
 	 ('Taouaf',122.0),
@@ -25122,7 +25122,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hagiu',122.0),
 	 ('Hancock',122.0),
 	 ('El Harda',122.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nutu',122.0),
 	 ('Zidaru',122.0),
 	 ('Boa',121.0),
@@ -25133,7 +25133,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aspe',121.0),
 	 ('Marful',121.0),
 	 ('Viñau',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Minguillan',121.0),
 	 ('Montalar',121.0),
 	 ('Tosina',121.0),
@@ -25144,7 +25144,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chaviano',121.0),
 	 ('Ducar',121.0),
 	 ('Espiago',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sandua',121.0),
 	 ('Glera',121.0),
 	 ('Montsant',121.0),
@@ -25155,7 +25155,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Espartosa',121.0),
 	 ('Pacifico',121.0),
 	 ('Pascuas',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perote',121.0),
 	 ('Camprecios',121.0),
 	 ('Espilla',121.0),
@@ -25166,7 +25166,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Durba',121.0),
 	 ('Olondriz',121.0),
 	 ('Tabueña',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Bueno',121.0),
 	 ('Tocados',121.0),
 	 ('Cotacachi',121.0),
@@ -25177,7 +25177,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cirbian',121.0),
 	 ('Sarciat',121.0),
 	 ('Juy',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leche',121.0),
 	 ('Lopez De Silanes',121.0),
 	 ('Pociño',121.0),
@@ -25188,7 +25188,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Malaxetxebarria',121.0),
 	 ('Oderiz',121.0),
 	 ('Massegu',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vigaray',121.0),
 	 ('Bronte',121.0),
 	 ('Gaig',121.0),
@@ -25199,7 +25199,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Armadans',121.0),
 	 ('Cegri',121.0),
 	 ('Filiberto',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Poll',121.0),
 	 ('Santurtun',121.0),
 	 ('Diaz Portales',121.0),
@@ -25210,7 +25210,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arcaz',121.0),
 	 ('Mainz',121.0),
 	 ('Moutinho',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aurell',121.0),
 	 ('Cebamanos',121.0),
 	 ('Arizti',121.0),
@@ -25221,7 +25221,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bela',121.0),
 	 ('Grañana',121.0),
 	 ('Akkar',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sarsri',121.0),
 	 ('Moses',121.0),
 	 ('Ghali',121.0),
@@ -25232,7 +25232,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ursa',121.0),
 	 ('Bourgeois',121.0),
 	 ('Hamman',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Baraka',121.0),
 	 ('Santini',121.0),
 	 ('Hali',121.0),
@@ -25243,7 +25243,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laachir',121.0),
 	 ('Dyer',121.0),
 	 ('Chari',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Khaffane',121.0),
 	 ('Lupo',121.0),
 	 ('Puglisi',121.0),
@@ -25254,7 +25254,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tutu',121.0),
 	 ('Morley',121.0),
 	 ('Perca',121.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Shang',121.0),
 	 ('Ul Haq',121.0),
 	 ('Trofin',121.0),
@@ -25265,7 +25265,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lamigueiro',120.0),
 	 ('Gabardino',120.0),
 	 ('De Aguilar',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Respaldiza',120.0),
 	 ('Barran',120.0),
 	 ('Roitegui',120.0),
@@ -25276,7 +25276,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Triadu',120.0),
 	 ('Catot',120.0),
 	 ('Mascareñas',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marigomez',120.0),
 	 ('Rezende',120.0),
 	 ('Daranas',120.0),
@@ -25287,7 +25287,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Minda',120.0),
 	 ('Rivela',120.0),
 	 ('Sastron',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Altelarrea',120.0),
 	 ('Algue',120.0),
 	 ('Fontirroig',120.0),
@@ -25298,7 +25298,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bolibar',120.0),
 	 ('Chomon',120.0),
 	 ('Walo',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Araguz',120.0),
 	 ('Castreje',120.0),
 	 ('Tosas',120.0),
@@ -25309,7 +25309,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Busoms',120.0),
 	 ('Oroval',120.0),
 	 ('Grandoso',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ahufinger',120.0),
 	 ('Jolis',120.0),
 	 ('Macicior',120.0),
@@ -25320,7 +25320,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escudier',120.0),
 	 ('Espinas',120.0),
 	 ('Huayta',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aoiz',120.0),
 	 ('Bregua',120.0),
 	 ('Bujons',120.0),
@@ -25331,7 +25331,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bri',120.0),
 	 ('Ealo',120.0),
 	 ('Furriol',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gustran',120.0),
 	 ('Petro',120.0),
 	 ('Aymat',120.0),
@@ -25342,7 +25342,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ordozgoiti',120.0),
 	 ('Ortilles',120.0),
 	 ('Sanchez Miguel',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sibila',120.0),
 	 ('Lleal',120.0),
 	 ('Pagadizabal',120.0),
@@ -25353,7 +25353,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Senserrich',120.0),
 	 ('Beni',120.0),
 	 ('Lafon',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Llasat',120.0),
 	 ('Hostalet',120.0),
 	 ('Capdepon',120.0),
@@ -25364,7 +25364,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Masats',120.0),
 	 ('Imafidon',120.0),
 	 ('Biondi',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pignatelli',120.0),
 	 ('Tami',120.0),
 	 ('Cheung',120.0),
@@ -25375,7 +25375,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boulahya',120.0),
 	 ('Guidi',120.0),
 	 ('El Mouhib',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Murgia',120.0),
 	 ('Bouabdellah',120.0),
 	 ('El Mourabet',120.0),
@@ -25386,7 +25386,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Janssens',120.0),
 	 ('Attaoui',120.0),
 	 ('Srhir',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ditta',120.0),
 	 ('Khayali',120.0),
 	 ('Lakehal',120.0),
@@ -25397,7 +25397,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gamra',120.0),
 	 ('Laghrissi',120.0),
 	 ('Sidki',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bull',120.0),
 	 ('Ciorba',120.0),
 	 ('Mabtoul',120.0),
@@ -25408,7 +25408,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cernea',120.0),
 	 ('Stavarache',120.0),
 	 ('Macalou',120.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ioana',120.0),
 	 ('Musca',120.0),
 	 ('Arrastio',119.0),
@@ -25419,7 +25419,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Capsir',119.0),
 	 ('Engra',119.0),
 	 ('Carmuega',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Moreno Palancas',119.0),
 	 ('Del Pueyo',119.0),
 	 ('Motato',119.0),
@@ -25430,7 +25430,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barrigas',119.0),
 	 ('Lapena',119.0),
 	 ('Macero',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vitales',119.0),
 	 ('Latienda',119.0),
 	 ('Tazo',119.0),
@@ -25441,7 +25441,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tombo',119.0),
 	 ('De Prados',119.0),
 	 ('Padua',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Upegui',119.0),
 	 ('Gumbao',119.0),
 	 ('Rosiña',119.0),
@@ -25452,7 +25452,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Subies',119.0),
 	 ('Porquet',119.0),
 	 ('Ruiz De Alda',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gomez Caro',119.0),
 	 ('Lechosa',119.0),
 	 ('Barcones',119.0),
@@ -25463,7 +25463,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guerenabarrena',119.0),
 	 ('Saludas',119.0),
 	 ('Mangut',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brunat',119.0),
 	 ('Castosa',119.0),
 	 ('Pinzolas',119.0),
@@ -25474,7 +25474,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Melle',119.0),
 	 ('Porti',119.0),
 	 ('Bollullo',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Otavalo',119.0),
 	 ('Bustio',119.0),
 	 ('Guiscafre',119.0),
@@ -25485,7 +25485,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bramon',119.0),
 	 ('Burdiel',119.0),
 	 ('Canete',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Maya',119.0),
 	 ('Buen',119.0),
 	 ('Canon',119.0),
@@ -25496,7 +25496,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arcangel',119.0),
 	 ('De La Escalera',119.0),
 	 ('Neff',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rebe',119.0),
 	 ('Cavestany',119.0),
 	 ('Beret',119.0),
@@ -25507,7 +25507,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tobares',119.0),
 	 ('De La Vallina',119.0),
 	 ('Dona',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arambulo',119.0),
 	 ('Goded',119.0),
 	 ('Lekerika',119.0),
@@ -25518,7 +25518,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Otiniano',119.0),
 	 ('Hermana',119.0),
 	 ('De Las Nieves',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arias Camison',119.0),
 	 ('Laakel',119.0),
 	 ('Multani',119.0),
@@ -25529,7 +25529,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('O''Callaghan',119.0),
 	 ('Hannou',119.0),
 	 ('Pagani',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ehigie',119.0),
 	 ('El Ouazizi',119.0),
 	 ('Bakour',119.0),
@@ -25540,7 +25540,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gargiulo',119.0),
 	 ('Moutawakil',119.0),
 	 ('Chiran',119.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Humphreys',119.0),
 	 ('Lindsay',119.0),
 	 ('El Bahja',119.0),
@@ -25551,7 +25551,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mudassar',119.0),
 	 ('Vartolomei',119.0),
 	 ('Passos',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rocillo',118.0),
 	 ('Senlle',118.0),
 	 ('Juango',118.0),
@@ -25562,7 +25562,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Joval',118.0),
 	 ('Provedo',118.0),
 	 ('Lopez De La Rica',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alor',118.0),
 	 ('Avileo',118.0),
 	 ('Quinche',118.0),
@@ -25573,7 +25573,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maderal',118.0),
 	 ('Cidras',118.0),
 	 ('Grimaltos',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Irnan',118.0),
 	 ('Belar',118.0),
 	 ('Ducay',118.0),
@@ -25584,7 +25584,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Edroso',118.0),
 	 ('Bartulos',118.0),
 	 ('Procas',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Armangue',118.0),
 	 ('Motilva',118.0),
 	 ('De Barrio',118.0),
@@ -25595,7 +25595,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz De Corcuera',118.0),
 	 ('Ferretjans',118.0),
 	 ('Sampera',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arruebarrena',118.0),
 	 ('Gausachs',118.0),
 	 ('Chopo',118.0),
@@ -25606,7 +25606,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Muxi',118.0),
 	 ('Eugercios',118.0),
 	 ('Fabios',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Luena',118.0),
 	 ('De Mera',118.0),
 	 ('Betances',118.0),
@@ -25617,7 +25617,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chilla',118.0),
 	 ('Abdelah',118.0),
 	 ('Berrotaran',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fa',118.0),
 	 ('Ceño',118.0),
 	 ('Mozun',118.0),
@@ -25628,7 +25628,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez De Vicuña',118.0),
 	 ('Colcha',118.0),
 	 ('Constant',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Galleguillos',118.0),
 	 ('Ordines',118.0),
 	 ('Carande',118.0),
@@ -25639,7 +25639,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Raigoso',118.0),
 	 ('Terrassa',118.0),
 	 ('Amillano',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Blanca',118.0),
 	 ('Sumillera',118.0),
 	 ('Bocigas',118.0),
@@ -25650,7 +25650,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Causin',118.0),
 	 ('Gutierrez Del Alamo',118.0),
 	 ('Suja',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guich',118.0),
 	 ('Lafuerza',118.0),
 	 ('Ruiz De Villa',118.0),
@@ -25661,7 +25661,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pavesio',118.0),
 	 ('Arkotxa',118.0),
 	 ('Tojar',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suleiman',118.0),
 	 ('Salvan',118.0),
 	 ('Zarzana',118.0),
@@ -25672,7 +25672,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dick',118.0),
 	 ('Ftouh',118.0),
 	 ('Dahi',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Hariri',118.0),
 	 ('Tadlaoui',118.0),
 	 ('Faik',118.0),
@@ -25683,7 +25683,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Hatmi',118.0),
 	 ('Mia',118.0),
 	 ('Amrouch',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Halimi',118.0),
 	 ('Baddou',118.0),
 	 ('Top',118.0),
@@ -25694,7 +25694,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Erhabor',118.0),
 	 ('Mezei',118.0),
 	 ('El Archi',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maguire',118.0),
 	 ('Mckenna',118.0),
 	 ('Cristescu',118.0),
@@ -25705,7 +25705,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lacatusu',118.0),
 	 ('Sheppard',118.0),
 	 ('Baboi',118.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Budeanu',118.0),
 	 ('Prisacaru',118.0),
 	 ('Sheng',118.0),
@@ -25716,7 +25716,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guergue',117.0),
 	 ('Barricarte',117.0),
 	 ('Garcia Patron',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Meñaca',117.0),
 	 ('Guerricabeitia',117.0),
 	 ('Magunacelaya',117.0),
@@ -25727,7 +25727,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Montemuiño',117.0),
 	 ('Viñets',117.0),
 	 ('Usarralde',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urtubia',117.0),
 	 ('Utset',117.0),
 	 ('Corbeto',117.0),
@@ -25738,7 +25738,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jubero',117.0),
 	 ('Maritorena',117.0),
 	 ('Chilan',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Herra',117.0),
 	 ('Echemendia',117.0),
 	 ('Puchaicela',117.0),
@@ -25749,7 +25749,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Labao',117.0),
 	 ('Pielago',117.0),
 	 ('Antero',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Franzon',117.0),
 	 ('Cobelas',117.0),
 	 ('Santivañez',117.0),
@@ -25760,7 +25760,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zanabria',117.0),
 	 ('Machacon',117.0),
 	 ('Monrroy',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Gordejuela',117.0),
 	 ('Oanes',117.0),
 	 ('Balduque',117.0),
@@ -25771,7 +25771,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gonzalez Calero',117.0),
 	 ('Reloba',117.0),
 	 ('Collera',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Del Caso',117.0),
 	 ('Pampols',117.0),
 	 ('Argent',117.0),
@@ -25782,7 +25782,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carramal',117.0),
 	 ('Frigolet',117.0),
 	 ('Fornis',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Naharros',117.0),
 	 ('Vecin',117.0),
 	 ('Somaza',117.0),
@@ -25793,7 +25793,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Perez Castejon',117.0),
 	 ('Migueliz',117.0),
 	 ('De La Arada',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Palle',117.0),
 	 ('Pombero',117.0),
 	 ('Juanmarti',117.0),
@@ -25804,7 +25804,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carcar',117.0),
 	 ('Corbero',117.0),
 	 ('Labarra',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tregon',117.0),
 	 ('Melwani',117.0),
 	 ('Henestrosa',117.0),
@@ -25815,7 +25815,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Borona',117.0),
 	 ('Enfeddal',117.0),
 	 ('Autran',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Quiterio',117.0),
 	 ('Admetlla',117.0),
 	 ('Cañis',117.0),
@@ -25826,7 +25826,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lopez De Ocariz',117.0),
 	 ('Casis',117.0),
 	 ('Fuica',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Main',117.0),
 	 ('Sarriegi',117.0),
 	 ('Case',117.0),
@@ -25837,7 +25837,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rafa',117.0),
 	 ('Hamani',117.0),
 	 ('N''Diaye',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Christiansen',117.0),
 	 ('Zbakh',117.0),
 	 ('Gerard',117.0),
@@ -25848,7 +25848,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Wozniak',117.0),
 	 ('Fane',117.0),
 	 ('Gakou',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ait Addi',117.0),
 	 ('Mountassir',117.0),
 	 ('Azarfane',117.0),
@@ -25859,7 +25859,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dodd',117.0),
 	 ('Kirby',117.0),
 	 ('Romaniuk',117.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Waller',117.0),
 	 ('Chikar',117.0),
 	 ('Mogos',117.0),
@@ -25870,7 +25870,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lloro',116.0),
 	 ('Goldero',116.0),
 	 ('Amayuelas',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tinaquero',116.0),
 	 ('Acuñas',116.0),
 	 ('Arrizubieta',116.0),
@@ -25881,7 +25881,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Orrequia',116.0),
 	 ('Gorrindo',116.0),
 	 ('Azcoaga',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corteguera',116.0),
 	 ('Aleix',116.0),
 	 ('Goncet',116.0),
@@ -25892,7 +25892,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jorajuria',116.0),
 	 ('Juanino',116.0),
 	 ('Trabada',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cubiella',116.0),
 	 ('Lon',116.0),
 	 ('Masdemont',116.0),
@@ -25903,7 +25903,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gemez',116.0),
 	 ('Couque',116.0),
 	 ('De La Losa',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sauto',116.0),
 	 ('Tarafa',116.0),
 	 ('Garcia Bravo',116.0),
@@ -25914,7 +25914,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barillas',116.0),
 	 ('De Pinto',116.0),
 	 ('Marfull',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sauque',116.0),
 	 ('Zuñeda',116.0),
 	 ('Semprun',116.0),
@@ -25925,7 +25925,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Auguet',116.0),
 	 ('Raset',116.0),
 	 ('Amblas',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estop',116.0),
 	 ('Vilarmau',116.0),
 	 ('Garabaya',116.0),
@@ -25936,7 +25936,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cecilla',116.0),
 	 ('Fauria',116.0),
 	 ('Malagelada',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marquilles',116.0),
 	 ('Nosas',116.0),
 	 ('Mirpuri',116.0),
@@ -25947,7 +25947,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanoja',116.0),
 	 ('Madriz',116.0),
 	 ('De San Nicolas',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ferrao',116.0),
 	 ('Ordeix',116.0),
 	 ('Parque',116.0),
@@ -25958,7 +25958,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Estefanell',116.0),
 	 ('Monistrol',116.0),
 	 ('Guiseris',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perin',116.0),
 	 ('Aleixos',116.0),
 	 ('Cendal',116.0),
@@ -25969,7 +25969,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pulet',116.0),
 	 ('Pacheca',116.0),
 	 ('Surian',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ginabreda',116.0),
 	 ('Buscarons',116.0),
 	 ('Barot',116.0),
@@ -25980,7 +25980,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Rama',116.0),
 	 ('Cortiguera',116.0),
 	 ('Zubicoa',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Filgaira',116.0),
 	 ('Maduro',116.0),
 	 ('Llamusi',116.0),
@@ -25991,7 +25991,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Koster',116.0),
 	 ('Collin',116.0),
 	 ('Aidi',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Kallali',116.0),
 	 ('Talla',116.0),
 	 ('Hagen',116.0),
@@ -26002,7 +26002,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bouhmidi',116.0),
 	 ('El Ayoubi',116.0),
 	 ('Arramdani',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Akka',116.0),
 	 ('Harchaoui',116.0),
 	 ('Gupta',116.0),
@@ -26013,7 +26013,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Stroie',116.0),
 	 ('Anghelescu',116.0),
 	 ('Enescu',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laanani',116.0),
 	 ('Charai',116.0),
 	 ('Es Saidi',116.0),
@@ -26024,7 +26024,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cozac',116.0),
 	 ('Purcarea',116.0),
 	 ('Bairam',116.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vladescu',116.0),
 	 ('Kurasbediani',116.0),
 	 ('Oyana',115.0),
@@ -26035,7 +26035,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quirosa',115.0),
 	 ('Rachon',115.0),
 	 ('Lahasen',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tramoyeres',115.0),
 	 ('Anento',115.0),
 	 ('Tiedra',115.0),
@@ -26046,7 +26046,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Trulla',115.0),
 	 ('Carenas',115.0),
 	 ('Rivadas',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laviada',115.0),
 	 ('Eiro',115.0),
 	 ('Unzu',115.0),
@@ -26057,7 +26057,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nande',115.0),
 	 ('Cercado',115.0),
 	 ('Marivela',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leoncio',115.0),
 	 ('Gallon',115.0),
 	 ('Marraco',115.0),
@@ -26068,7 +26068,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bidaurrazaga',115.0),
 	 ('Martinez Raposo',115.0),
 	 ('Alcoberro',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Momplet',115.0),
 	 ('Talan',115.0),
 	 ('Alcodori',115.0),
@@ -26079,7 +26079,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dopacio',115.0),
 	 ('Pescuezo',115.0),
 	 ('Badimon',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cornellana',115.0),
 	 ('Lanciego',115.0),
 	 ('Amarelo',115.0),
@@ -26090,7 +26090,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chiralt',115.0),
 	 ('Espinosa Monteros',115.0),
 	 ('Margall',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andana',115.0),
 	 ('Nogaledo',115.0),
 	 ('Orro',115.0),
@@ -26101,7 +26101,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Carafi',115.0),
 	 ('Dito',115.0),
 	 ('Parreira',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ubiergo',115.0),
 	 ('Vilacha',115.0),
 	 ('Rochas',115.0),
@@ -26112,7 +26112,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Uyaguari',115.0),
 	 ('Utande',115.0),
 	 ('Marengo',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Aguelo',115.0),
 	 ('Redorta',115.0),
 	 ('Ballaz',115.0),
@@ -26123,7 +26123,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urdillo',115.0),
 	 ('Fabio',115.0),
 	 ('Jimenez De Cisneros',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Blanquero',115.0),
 	 ('Bartos',115.0),
 	 ('Carballas',115.0),
@@ -26134,7 +26134,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baydal',115.0),
 	 ('Garcia De Veas',115.0),
 	 ('Gueimonde',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Gonzalo',115.0),
 	 ('Ballespi',115.0),
 	 ('Sarsanedas',115.0),
@@ -26145,7 +26145,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Uribe Etxebarria',115.0),
 	 ('Berrouhou',115.0),
 	 ('Bouzit',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Landaluze',115.0),
 	 ('Wizner',115.0),
 	 ('El Azrak',115.0),
@@ -26156,7 +26156,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bosio',115.0),
 	 ('Hanin',115.0),
 	 ('Kuzmina',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benkirane',115.0),
 	 ('El Battioui',115.0),
 	 ('Talhi',115.0),
@@ -26167,7 +26167,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buck',115.0),
 	 ('Lakraa',115.0),
 	 ('Dahl',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Romanov',115.0),
 	 ('Aguili',115.0),
 	 ('Dalouh',115.0),
@@ -26178,7 +26178,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Boychuk',115.0),
 	 ('Blanaru',115.0),
 	 ('Berrag',115.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ciolan',115.0),
 	 ('Iovan',115.0),
 	 ('Tufail',115.0),
@@ -26189,7 +26189,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juganaru',115.0),
 	 ('Cindea',115.0),
 	 ('Renovales',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gorgal',114.0),
 	 ('De La Piedad',114.0),
 	 ('Escusol',114.0),
@@ -26200,7 +26200,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Crespo',114.0),
 	 ('Olivos',114.0),
 	 ('Canelon',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mello',114.0),
 	 ('Panales',114.0),
 	 ('Alsua',114.0),
@@ -26211,7 +26211,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maguregi',114.0),
 	 ('Rioz',114.0),
 	 ('Rodeja',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ajamil',114.0),
 	 ('Torrades',114.0),
 	 ('Ilarduya',114.0),
@@ -26222,7 +26222,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guerao',114.0),
 	 ('Aroco',114.0),
 	 ('Fortin',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Osso',114.0),
 	 ('Terrel',114.0),
 	 ('Curay',114.0),
@@ -26233,7 +26233,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Velencoso',114.0),
 	 ('Bosacoma',114.0),
 	 ('Pasion',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Luezas',114.0),
 	 ('Carriba',114.0),
 	 ('Navedo',114.0),
@@ -26244,7 +26244,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sabrido',114.0),
 	 ('Legasa',114.0),
 	 ('Viartola',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Suils',114.0),
 	 ('Montegordo',114.0),
 	 ('Garanto',114.0),
@@ -26255,7 +26255,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz De La Cuesta',114.0),
 	 ('Aiestaran',114.0),
 	 ('Sellabona',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Archila',114.0),
 	 ('Bruquetas',114.0),
 	 ('Garcia Castro',114.0),
@@ -26266,7 +26266,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sauces',114.0),
 	 ('Capurro',114.0),
 	 ('Ferraces',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Franques',114.0),
 	 ('Aldamiz Echevarria',114.0),
 	 ('Crucera',114.0),
@@ -26277,7 +26277,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanabrias',114.0),
 	 ('Jalvo',114.0),
 	 ('Sanabre',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Loygorri',114.0),
 	 ('Pupiales',114.0),
 	 ('Burgas',114.0),
@@ -26288,7 +26288,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coucheiro',114.0),
 	 ('Barjau',114.0),
 	 ('Saldivia',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabel',114.0),
 	 ('Avargues',114.0),
 	 ('Guananga',114.0),
@@ -26299,7 +26299,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maresca',114.0),
 	 ('Stoycheva',114.0),
 	 ('Stoychev',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Thovar',114.0),
 	 ('Aztiria',114.0),
 	 ('Calcagno',114.0),
@@ -26310,7 +26310,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Wahabi',114.0),
 	 ('Villani',114.0),
 	 ('Amesnaou',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Gharib',114.0),
 	 ('Lamberti',114.0),
 	 ('Schultz',114.0),
@@ -26321,7 +26321,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gano',114.0),
 	 ('Aissi',114.0),
 	 ('Sharpe',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Mghari',114.0),
 	 ('Khalaf',114.0),
 	 ('Sikora',114.0),
@@ -26332,7 +26332,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Johnstone',114.0),
 	 ('Lees',114.0),
 	 ('Ben Kacem',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ait Lahcen',114.0),
 	 ('Avagyan',114.0),
 	 ('Mallali',114.0),
@@ -26343,7 +26343,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vrinceanu',114.0),
 	 ('Galatanu',114.0),
 	 ('Oprisan',114.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cruceru',114.0),
 	 ('Torrejimeno',113.0),
 	 ('Mosteo',113.0),
@@ -26354,7 +26354,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Panchon',113.0),
 	 ('Ceberino',113.0),
 	 ('Celadilla',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lablanca',113.0),
 	 ('Boraita',113.0),
 	 ('Moncasi',113.0),
@@ -26365,7 +26365,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Majolero',113.0),
 	 ('Raro',113.0),
 	 ('Ochavo',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rodenes',113.0),
 	 ('Buenacasa',113.0),
 	 ('De Lis',113.0),
@@ -26376,7 +26376,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Guaillas',113.0),
 	 ('Calabres',113.0),
 	 ('Ruiz De Castroviejo',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Estanislao',113.0),
 	 ('Balufo',113.0),
 	 ('Tartera',113.0),
@@ -26387,7 +26387,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Artus',113.0),
 	 ('Izpura',113.0),
 	 ('Lanaquera',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez De Castro',113.0),
 	 ('Risquete',113.0),
 	 ('Riambau',113.0),
@@ -26398,7 +26398,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pauli',113.0),
 	 ('Reventos',113.0),
 	 ('Alabarta',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Avellano',113.0),
 	 ('Iturgaiz',113.0),
 	 ('Reyeros',113.0),
@@ -26409,7 +26409,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Del Oro',113.0),
 	 ('Berrendo',113.0),
 	 ('Jabega',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ansino',113.0),
 	 ('Fouces',113.0),
 	 ('Horas',113.0),
@@ -26420,7 +26420,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Core',113.0),
 	 ('Rambaud',113.0),
 	 ('Fraguio',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Circuns',113.0),
 	 ('Txakartegi',113.0),
 	 ('Zuaznabar',113.0),
@@ -26431,7 +26431,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saubi',113.0),
 	 ('Onecha',113.0),
 	 ('De Austria',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Buges',113.0),
 	 ('Pargaray',113.0),
 	 ('Lecca',113.0),
@@ -26442,7 +26442,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Embi',113.0),
 	 ('Parama',113.0),
 	 ('Pastran',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Alonso',113.0),
 	 ('Lopez De Coca',113.0),
 	 ('Baigorria',113.0),
@@ -26453,7 +26453,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vigiola',113.0),
 	 ('Celedonio',113.0),
 	 ('Martret',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agar',113.0),
 	 ('Cacela',113.0),
 	 ('De Isla',113.0),
@@ -26464,7 +26464,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bakkar',113.0),
 	 ('Viviani',113.0),
 	 ('El Khattouti',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benameur',113.0),
 	 ('El Yamlahi',113.0),
 	 ('Franchi',113.0),
@@ -26475,7 +26475,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Zamani',113.0),
 	 ('Rizki',113.0),
 	 ('Kuznetsov',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Atiki',113.0),
 	 ('Kilouli',113.0),
 	 ('De Boer',113.0),
@@ -26486,7 +26486,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Karmaoui',113.0),
 	 ('Levchenko',113.0),
 	 ('Vasilica',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Wilkins',113.0),
 	 ('Abboubi',113.0),
 	 ('Hdidou',113.0),
@@ -26497,7 +26497,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kouhati',113.0),
 	 ('Oprean',113.0),
 	 ('Salajan',113.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Andreescu',113.0),
 	 ('Hangan',113.0),
 	 ('Ababei',113.0),
@@ -26508,7 +26508,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Novalio',112.0),
 	 ('Oblitas',112.0),
 	 ('Herenas',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Areitioaurtena',112.0),
 	 ('Miserachs',112.0),
 	 ('Badules',112.0),
@@ -26519,7 +26519,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mesto',112.0),
 	 ('Forcat',112.0),
 	 ('Guillemat',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanmiquel',112.0),
 	 ('Barrot',112.0),
 	 ('Herreiz',112.0),
@@ -26530,7 +26530,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dorao',112.0),
 	 ('Alcarraz',112.0),
 	 ('Maneu',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cabreja',112.0),
 	 ('Cubelos',112.0),
 	 ('Herena',112.0),
@@ -26541,7 +26541,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alomoto',112.0),
 	 ('Grandas',112.0),
 	 ('Cadorniga',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Osset',112.0),
 	 ('Buenafe',112.0),
 	 ('Laje',112.0),
@@ -26552,7 +26552,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Caravia',112.0),
 	 ('Gejo',112.0),
 	 ('Lojan',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lava',112.0),
 	 ('Condom',112.0),
 	 ('Caliani',112.0),
@@ -26563,7 +26563,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Larregola',112.0),
 	 ('Quishpi',112.0),
 	 ('Da Vila',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Incio',112.0),
 	 ('Meraz',112.0),
 	 ('Paquet',112.0),
@@ -26574,7 +26574,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Diaz Faes',112.0),
 	 ('Fernandez Nespral',112.0),
 	 ('Sinobas',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Apiñaniz',112.0),
 	 ('Sarasate',112.0),
 	 ('Estangui',112.0),
@@ -26585,7 +26585,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bertolez',112.0),
 	 ('Flordelis',112.0),
 	 ('Vigil Escalera',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arequipa',112.0),
 	 ('Valentin Gamazo',112.0),
 	 ('Andarias',112.0),
@@ -26596,7 +26596,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cuesto',112.0),
 	 ('Otones',112.0),
 	 ('Reposo',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Puglla',112.0),
 	 ('Beneto',112.0),
 	 ('Jarama',112.0),
@@ -26607,7 +26607,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bayano',112.0),
 	 ('Garcia Pliego',112.0),
 	 ('Castet',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bellisco',112.0),
 	 ('Garcia Del Rio',112.0),
 	 ('Fontoba',112.0),
@@ -26618,7 +26618,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Minchev',112.0),
 	 ('Dahrouch',112.0),
 	 ('Guibelalde',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Salame',112.0),
 	 ('Barti',112.0),
 	 ('Casaubon',112.0),
@@ -26629,7 +26629,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Petrovic',112.0),
 	 ('Buza',112.0),
 	 ('Furlan',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nasiri',112.0),
 	 ('Osifo',112.0),
 	 ('Imade',112.0),
@@ -26640,7 +26640,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rguigue',112.0),
 	 ('El Azmani',112.0),
 	 ('Atik',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bourahla',112.0),
 	 ('Adib',112.0),
 	 ('Drif',112.0),
@@ -26651,7 +26651,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alekseeva',112.0),
 	 ('Zaaj',112.0),
 	 ('Tuta',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Bacha',112.0),
 	 ('Ait Aissa',112.0),
 	 ('Bhuiyan',112.0),
@@ -26662,7 +26662,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lupsa',112.0),
 	 ('Najdi',112.0),
 	 ('Antohi',112.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mclaughlin',112.0),
 	 ('Vancea',112.0),
 	 ('Holloway',112.0),
@@ -26673,7 +26673,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marabot',111.0),
 	 ('Mosquea',111.0),
 	 ('Da Silveira',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jardiel',111.0),
 	 ('Gallinat',111.0),
 	 ('Ustariz',111.0),
@@ -26684,7 +26684,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elgueta',111.0),
 	 ('Malea',111.0),
 	 ('Ortiz De Guzman',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Areso',111.0),
 	 ('Almor',111.0),
 	 ('Saez De Tejada',111.0),
@@ -26695,7 +26695,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cutrina',111.0),
 	 ('Tornil',111.0),
 	 ('Velay',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Balfego',111.0),
 	 ('Cerceda',111.0),
 	 ('Ontalvilla',111.0),
@@ -26706,7 +26706,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Juliana',111.0),
 	 ('Magne',111.0),
 	 ('Osanz',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Penche',111.0),
 	 ('Matallin',111.0),
 	 ('Rubiella',111.0),
@@ -26717,7 +26717,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Auque',111.0),
 	 ('Currais',111.0),
 	 ('Chocho',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez Pablo',111.0),
 	 ('Morao',111.0),
 	 ('De La Bandera',111.0),
@@ -26728,7 +26728,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Treig',111.0),
 	 ('Sanguinetti',111.0),
 	 ('Vitalla',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Delgado',111.0),
 	 ('Illodo',111.0),
 	 ('Mayrata',111.0),
@@ -26739,7 +26739,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De Aguirre',111.0),
 	 ('Chej',111.0),
 	 ('Lindoso',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montanero',111.0),
 	 ('Planiol',111.0),
 	 ('Embarba',111.0),
@@ -26750,7 +26750,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barcojo',111.0),
 	 ('Vialas',111.0),
 	 ('Monio',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sesa',111.0),
 	 ('Siruela',111.0),
 	 ('Ugaz',111.0),
@@ -26761,7 +26761,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Reymundo',111.0),
 	 ('Erauzkin',111.0),
 	 ('Diest',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Matachana',111.0),
 	 ('Alburqueque',111.0),
 	 ('Gomez Coronado',111.0),
@@ -26772,7 +26772,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Mehdi',111.0),
 	 ('Labordeta',111.0),
 	 ('Ovelleiro',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rucandio',111.0),
 	 ('Comalada',111.0),
 	 ('Abregu',111.0),
@@ -26783,7 +26783,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Nchaso',111.0),
 	 ('Farhane',111.0),
 	 ('Blanche',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carlier',111.0),
 	 ('Radillo',111.0),
 	 ('Sag',111.0),
@@ -26794,7 +26794,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Anguela',111.0),
 	 ('De Federico',111.0),
 	 ('Nana',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Figuera',111.0),
 	 ('Boufous',111.0),
 	 ('Framiñan',111.0),
@@ -26805,7 +26805,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Hadad',111.0),
 	 ('Urruzuno',111.0),
 	 ('Alieva',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Mousaoui',111.0),
 	 ('El Aidi',111.0),
 	 ('Schwab',111.0),
@@ -26816,7 +26816,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bachmann',111.0),
 	 ('Marong',111.0),
 	 ('Adler',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ben Hamza',111.0),
 	 ('Osaro',111.0),
 	 ('Douma',111.0),
@@ -26827,7 +26827,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jawad',111.0),
 	 ('Laksir',111.0),
 	 ('Zeggaf',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pitt',111.0),
 	 ('Napoli',111.0),
 	 ('Cirillo',111.0),
@@ -26838,7 +26838,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Makrini',111.0),
 	 ('Petrovici',111.0),
 	 ('Vesa',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zaaraoui',111.0),
 	 ('Tahraoui',111.0),
 	 ('Zhivkov',111.0),
@@ -26849,7 +26849,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Floroiu',111.0),
 	 ('Kis',111.0),
 	 ('Doroftei',111.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bancila',111.0),
 	 ('Chirca',111.0),
 	 ('Pirvulescu',111.0),
@@ -26860,7 +26860,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Royon',110.0),
 	 ('Mamblona',110.0),
 	 ('Pechero',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gabarra',110.0),
 	 ('Rizquez',110.0),
 	 ('Capuchino',110.0),
@@ -26871,7 +26871,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Inchaurbe',110.0),
 	 ('Arrola',110.0),
 	 ('Papell',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sachez',110.0),
 	 ('Goicoa',110.0),
 	 ('Muñez',110.0),
@@ -26882,7 +26882,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cezar',110.0),
 	 ('Candales',110.0),
 	 ('Merediz',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Campodarve',110.0),
 	 ('Cerdeiriña',110.0),
 	 ('Barriel',110.0),
@@ -26893,7 +26893,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Madiedo',110.0),
 	 ('Berriatua',110.0),
 	 ('San',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Niñoles',110.0),
 	 ('Valvidares',110.0),
 	 ('Villamiel',110.0),
@@ -26904,7 +26904,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cosido',110.0),
 	 ('Pastells',110.0),
 	 ('Alcobe',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Farrando',110.0),
 	 ('Santabaya',110.0),
 	 ('Salavedra',110.0),
@@ -26915,7 +26915,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez Vega',110.0),
 	 ('Albornos',110.0),
 	 ('Cholvi',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pitalua',110.0),
 	 ('Ardisana',110.0),
 	 ('Freijanes',110.0),
@@ -26926,7 +26926,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Melet',110.0),
 	 ('Gruas',110.0),
 	 ('Cibran',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Segurana',110.0),
 	 ('Garberi',110.0),
 	 ('Landesa',110.0),
@@ -26937,7 +26937,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bariain',110.0),
 	 ('Garcia Calderon',110.0),
 	 ('Undiano',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cebreiros',110.0),
 	 ('Gilperez',110.0),
 	 ('Nicas',110.0),
@@ -26948,7 +26948,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Izquierdo',110.0),
 	 ('Palavecino',110.0),
 	 ('Troconis',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Kayser',110.0),
 	 ('Buena',110.0),
 	 ('Arego',110.0),
@@ -26959,7 +26959,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urceira',110.0),
 	 ('Festa',110.0),
 	 ('Arans',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Botta',110.0),
 	 ('Firmino',110.0),
 	 ('Lavia',110.0),
@@ -26970,7 +26970,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bober',110.0),
 	 ('Garcia Arroba',110.0),
 	 ('Chahdi',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chelli',110.0),
 	 ('Bass',110.0),
 	 ('Susan',110.0),
@@ -26981,7 +26981,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mazzeo',110.0),
 	 ('Ben Azzouz',110.0),
 	 ('Abellanas',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Leoni',110.0),
 	 ('Milkova',110.0),
 	 ('Amnad',110.0),
@@ -26992,7 +26992,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorman',110.0),
 	 ('Di Benedetto',110.0),
 	 ('Atifi',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marouane',110.0),
 	 ('Fettah',110.0),
 	 ('Alouane',110.0),
@@ -27003,7 +27003,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Shafiq',110.0),
 	 ('Berrouho',110.0),
 	 ('Abdelali',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Placinta',110.0),
 	 ('Baban',110.0),
 	 ('Minasyan',110.0),
@@ -27014,7 +27014,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ashiq',110.0),
 	 ('Demir',110.0),
 	 ('Soumah',110.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chadwick',110.0),
 	 ('Diomande',110.0),
 	 ('Ruja',110.0),
@@ -27025,7 +27025,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Almaguer',109.0),
 	 ('Carnal',109.0),
 	 ('Zaforteza',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Carreon',109.0),
 	 ('Talleda',109.0),
 	 ('Tondo',109.0),
@@ -27036,7 +27036,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Len',109.0),
 	 ('Vellve',109.0),
 	 ('Dombriz',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tinitana',109.0),
 	 ('Albandea',109.0),
 	 ('Carrocera',109.0),
@@ -27047,7 +27047,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Formiga',109.0),
 	 ('Barzallo',109.0),
 	 ('Samartino',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guitarte',109.0),
 	 ('Lameiras',109.0),
 	 ('Petrirena',109.0),
@@ -27058,7 +27058,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Haces',109.0),
 	 ('Agarrado',109.0),
 	 ('Palomer',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yugcha',109.0),
 	 ('Arisqueta',109.0),
 	 ('Beracoechea',109.0),
@@ -27069,7 +27069,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Demera',109.0),
 	 ('Omedas',109.0),
 	 ('Puntero',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fernandez Mayoralas',109.0),
 	 ('Leciñana',109.0),
 	 ('Abellas',109.0),
@@ -27080,7 +27080,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garcia Plata',109.0),
 	 ('Javaloyas',109.0),
 	 ('Llontop',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sobrevia',109.0),
 	 ('Lansac',109.0),
 	 ('Carrica',109.0),
@@ -27091,7 +27091,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mondaza',109.0),
 	 ('Ortinez',109.0),
 	 ('Ubric',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zulet',109.0),
 	 ('Aceituna',109.0),
 	 ('Barrosa',109.0),
@@ -27102,7 +27102,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arbiza',109.0),
 	 ('Perilla',109.0),
 	 ('Viseras',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Nobrega',109.0),
 	 ('Jaunarena',109.0),
 	 ('Piloñeta',109.0),
@@ -27113,7 +27113,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gilibert',109.0),
 	 ('Muñozo',109.0),
 	 ('Galayo',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De La Loma',109.0),
 	 ('Garcia Pelayo',109.0),
 	 ('Massanas',109.0),
@@ -27124,7 +27124,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barbena',109.0),
 	 ('Montllor',109.0),
 	 ('Velloso',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Codo',109.0),
 	 ('Ambres',109.0),
 	 ('Renales',109.0),
@@ -27135,7 +27135,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Viñayo',109.0),
 	 ('Hossein',109.0),
 	 ('Argerey',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Faner',109.0),
 	 ('Vaquerizas',109.0),
 	 ('Barange',109.0),
@@ -27146,7 +27146,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aglio',109.0),
 	 ('Bikuña',109.0),
 	 ('Menta',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez De Calle',109.0),
 	 ('Kanjaa',109.0),
 	 ('Toni',109.0),
@@ -27157,7 +27157,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lechhab',109.0),
 	 ('Lopez Hazas',109.0),
 	 ('Aznag',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Marchirant',109.0),
 	 ('Azhir',109.0),
 	 ('De Lazaro',109.0),
@@ -27168,7 +27168,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cheddadi',109.0),
 	 ('Tanaka',109.0),
 	 ('Labrouzi',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Achir',109.0),
 	 ('Azhari',109.0),
 	 ('Zhivkova',109.0),
@@ -27179,7 +27179,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Selmani',109.0),
 	 ('Ferretti',109.0),
 	 ('Zhukova',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Tarik',109.0),
 	 ('Susso',109.0),
 	 ('Jabir',109.0),
@@ -27190,7 +27190,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Fakrouni',109.0),
 	 ('Stoicescu',109.0),
 	 ('Ulici',109.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casu',109.0),
 	 ('Rotari',109.0),
 	 ('Ciuraru',109.0),
@@ -27201,7 +27201,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Arahal',108.0),
 	 ('Carrasquel',108.0),
 	 ('Personal',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Parazuelo',108.0),
 	 ('Dominguis',108.0),
 	 ('Derteano',108.0),
@@ -27212,7 +27212,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Simil',108.0),
 	 ('Aynes',108.0),
 	 ('Motellon',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cees',108.0),
 	 ('Guañuna',108.0),
 	 ('Moy',108.0),
@@ -27223,7 +27223,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ulles',108.0),
 	 ('Llanera',108.0),
 	 ('Fino',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Espacio',108.0),
 	 ('Lanzadera',108.0),
 	 ('Parreu',108.0),
@@ -27234,7 +27234,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gelvez',108.0),
 	 ('Brogeras',108.0),
 	 ('Galant',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paccha',108.0),
 	 ('Sainz De Vicuña',108.0),
 	 ('Sarduy',108.0),
@@ -27245,7 +27245,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bochons',108.0),
 	 ('Basols',108.0),
 	 ('Wals',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bucarat',108.0),
 	 ('Eskisabel',108.0),
 	 ('Borderias',108.0),
@@ -27256,7 +27256,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sinoga',108.0),
 	 ('Acasuso',108.0),
 	 ('Potrero',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Subirada',108.0),
 	 ('Daguerre',108.0),
 	 ('Abrisketa',108.0),
@@ -27267,7 +27267,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Azaceta',108.0),
 	 ('Berasarte',108.0),
 	 ('Rodeño',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azurza',108.0),
 	 ('Ortoneda',108.0),
 	 ('San Roque',108.0),
@@ -27278,7 +27278,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burgaz',108.0),
 	 ('Ochogavia',108.0),
 	 ('Señoret',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Entrambasaguas',108.0),
 	 ('Arasil',108.0),
 	 ('Berrizbeitia',108.0),
@@ -27289,7 +27289,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Agilda',108.0),
 	 ('Ballell',108.0),
 	 ('De La Antonia',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz Bravo',108.0),
 	 ('Zamarriego',108.0),
 	 ('Entrecanales',108.0),
@@ -27300,7 +27300,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Morando',108.0),
 	 ('Del Cano',108.0),
 	 ('Faes',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arambillet',108.0),
 	 ('Alum',108.0),
 	 ('Fernandez De Marcos',108.0),
@@ -27311,7 +27311,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santos Orejon',108.0),
 	 ('Eloy',108.0),
 	 ('Akel',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sorarrain',108.0),
 	 ('Guijorro',108.0),
 	 ('Alvarez Sala',108.0),
@@ -27322,7 +27322,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marotta',108.0),
 	 ('Yazid',108.0),
 	 ('Khayati',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Randazzo',108.0),
 	 ('Bender',108.0),
 	 ('Dehbi',108.0),
@@ -27333,7 +27333,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belkhiri',108.0),
 	 ('El Amriti',108.0),
 	 ('Francois',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Jacques',108.0),
 	 ('Ott',108.0),
 	 ('Hammi',108.0),
@@ -27344,7 +27344,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Allouche',108.0),
 	 ('Laazibi',108.0),
 	 ('Nadiri',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sahnoun',108.0),
 	 ('Dobson',108.0),
 	 ('Onu',108.0),
@@ -27355,7 +27355,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bryan',108.0),
 	 ('Moody',108.0),
 	 ('Benabdallah',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Antonescu',108.0),
 	 ('Zakaryan',108.0),
 	 ('Korol',108.0),
@@ -27366,7 +27366,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Buturuga',108.0),
 	 ('Maruntelu',108.0),
 	 ('Neata',108.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Iftode',108.0),
 	 ('Mohsin',108.0),
 	 ('Gudiña',107.0),
@@ -27377,7 +27377,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pellicero',107.0),
 	 ('Trufero',107.0),
 	 ('Lereu',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Torbado',107.0),
 	 ('Garcia De La Plaza',107.0),
 	 ('Llovell',107.0),
@@ -27388,7 +27388,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Berrezueta',107.0),
 	 ('Gañarul',107.0),
 	 ('Boil',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Larrayad',107.0),
 	 ('Morientes',107.0),
 	 ('Arruda',107.0),
@@ -27399,7 +27399,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bermeosolo',107.0),
 	 ('De Pedraza',107.0),
 	 ('Dasca',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Echenagusia',107.0),
 	 ('Ben Mohamed',107.0),
 	 ('Evia',107.0),
@@ -27410,7 +27410,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Crusells',107.0),
 	 ('Tabas',107.0),
 	 ('Cardesin',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martin Peñasco',107.0),
 	 ('Calvo Fernandez',107.0),
 	 ('Clapers',107.0),
@@ -27421,7 +27421,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fernandez De La Reguera',107.0),
 	 ('Gomez De Aranda',107.0),
 	 ('Baldiviezo',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martin Rubio',107.0),
 	 ('Balsategui',107.0),
 	 ('De Corral',107.0),
@@ -27432,7 +27432,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Febrel',107.0),
 	 ('Sares',107.0),
 	 ('Castellsague',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lopez De Subijana',107.0),
 	 ('Manito',107.0),
 	 ('Fernandino',107.0),
@@ -27443,7 +27443,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bedate',107.0),
 	 ('Guiñales',107.0),
 	 ('Bacho',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clausi',107.0),
 	 ('Sanchez Ferragut',107.0),
 	 ('Erruz',107.0),
@@ -27454,7 +27454,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Garra',107.0),
 	 ('Fialho',107.0),
 	 ('Led',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casella',107.0),
 	 ('Fontdecaba',107.0),
 	 ('Saenz De Pipaon',107.0),
@@ -27465,7 +27465,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Julien',107.0),
 	 ('Sarriugarte',107.0),
 	 ('Maati',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De Ory',107.0),
 	 ('Liñayo',107.0),
 	 ('Ascorbe',107.0),
@@ -27476,7 +27476,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Elkoro',107.0),
 	 ('Kunz',107.0),
 	 ('Montabes',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beres',107.0),
 	 ('Ignatova',107.0),
 	 ('Schilling',107.0),
@@ -27487,7 +27487,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Wilhelm',107.0),
 	 ('El Bouchti',107.0),
 	 ('Kuzmenko',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bounou',107.0),
 	 ('Costello',107.0),
 	 ('El Attabi',107.0),
@@ -27498,7 +27498,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Milenov',107.0),
 	 ('Markovic',107.0),
 	 ('Sokhona',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laghdas',107.0),
 	 ('Ferrante',107.0),
 	 ('Nwachukwu',107.0),
@@ -27509,7 +27509,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Jouhri',107.0),
 	 ('Kirk',107.0),
 	 ('Bachiren',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bellamchich',107.0),
 	 ('Dobrea',107.0),
 	 ('Swift',107.0),
@@ -27520,7 +27520,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burciu',107.0),
 	 ('Sabraoui',107.0),
 	 ('Mckenzie',107.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Borcea',107.0),
 	 ('Bumbar',107.0),
 	 ('Irasuegui',106.0),
@@ -27531,7 +27531,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Valdazo',106.0),
 	 ('Jausoro',106.0),
 	 ('Lacuey',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Diaz Madroñero',106.0),
 	 ('Olsina',106.0),
 	 ('Martinez De Murguia',106.0),
@@ -27542,7 +27542,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hiciano',106.0),
 	 ('Santacoloma',106.0),
 	 ('Viadas',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Beltran De Guevara',106.0),
 	 ('Miñes',106.0),
 	 ('Mascuñana',106.0),
@@ -27553,7 +27553,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Robustillo',106.0),
 	 ('Bonaño',106.0),
 	 ('Ongil',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trojaola',106.0),
 	 ('De Solis',106.0),
 	 ('Sielva',106.0),
@@ -27564,7 +27564,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sayols',106.0),
 	 ('Ubillus',106.0),
 	 ('Bergondo',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cavalcanti',106.0),
 	 ('Subiri',106.0),
 	 ('Escarrer',106.0),
@@ -27575,7 +27575,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Calla',106.0),
 	 ('Florencia',106.0),
 	 ('Valleros',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Astoreca',106.0),
 	 ('Cargol',106.0),
 	 ('Mandingorra',106.0),
@@ -27586,7 +27586,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Jaraquemada',106.0),
 	 ('Sandes',106.0),
 	 ('Verduga',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Juscafresa',106.0),
 	 ('Cerdeiro',106.0),
 	 ('Comisaña',106.0),
@@ -27597,7 +27597,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Brezo',106.0),
 	 ('Ariztia',106.0),
 	 ('Carasusan',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Montins',106.0),
 	 ('Quinzaños',106.0),
 	 ('Yustres',106.0),
@@ -27608,7 +27608,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Enriquez De Salamanca',106.0),
 	 ('Mifsut',106.0),
 	 ('Estrelles',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sainz De Los Terreros',106.0),
 	 ('Barguilla',106.0),
 	 ('Garcia Peñuela',106.0),
@@ -27619,7 +27619,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Saraiba',106.0),
 	 ('Argento',106.0),
 	 ('De Goñi',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ebro',106.0),
 	 ('Perez De Viñaspre',106.0),
 	 ('Abdon',106.0),
@@ -27630,7 +27630,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ruiz Carrillo',106.0),
 	 ('Cardells',106.0),
 	 ('Gasanz',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Clariso',106.0),
 	 ('Roizo',106.0),
 	 ('Tos',106.0),
@@ -27641,7 +27641,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Geraldes',106.0),
 	 ('Lopez Manzanara',106.0),
 	 ('Franchy',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chaure',106.0),
 	 ('Egoavil',106.0),
 	 ('Ibarria',106.0),
@@ -27652,7 +27652,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Burdio',106.0),
 	 ('Mehmedova',106.0),
 	 ('Canonico',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Firpo',106.0),
 	 ('Valia',106.0),
 	 ('Guennoun',106.0),
@@ -27663,7 +27663,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benmessaoud',106.0),
 	 ('Shaban',106.0),
 	 ('Bajwa',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ikponmwosa',106.0),
 	 ('Bondoc',106.0),
 	 ('Whyte',106.0),
@@ -27674,7 +27674,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bartha',106.0),
 	 ('Delaney',106.0),
 	 ('Brett',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Manca',106.0),
 	 ('Fulop',106.0),
 	 ('Mian',106.0),
@@ -27685,7 +27685,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Eftimie',106.0),
 	 ('Feier',106.0),
 	 ('Patras',106.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pantiru',106.0),
 	 ('Mihalca',106.0),
 	 ('Nacu',106.0),
@@ -27696,7 +27696,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Marsilla',105.0),
 	 ('Gascue',105.0),
 	 ('Zapateria',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Elcoro',105.0),
 	 ('Provecho',105.0),
 	 ('Uribarrena',105.0),
@@ -27707,7 +27707,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Alquegui',105.0),
 	 ('Sagaste',105.0),
 	 ('De Loma',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Comelles',105.0),
 	 ('Privat',105.0),
 	 ('Aced',105.0),
@@ -27718,7 +27718,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ravira',105.0),
 	 ('Rodilana',105.0),
 	 ('Barrao',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Postiguillo',105.0),
 	 ('Sabiron',105.0),
 	 ('Salada',105.0),
@@ -27729,7 +27729,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Quintiana',105.0),
 	 ('Toron',105.0),
 	 ('Basurte',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Brunso',105.0),
 	 ('Cambray',105.0),
 	 ('Reol',105.0),
@@ -27740,7 +27740,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aixela',105.0),
 	 ('Bombillar',105.0),
 	 ('Moso',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Cambronero',105.0),
 	 ('Astobieta',105.0),
 	 ('Sanchez Toledo',105.0),
@@ -27751,7 +27751,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mansito',105.0),
 	 ('Golmayo',105.0),
 	 ('Dotras',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alpera',105.0),
 	 ('Guallarte',105.0),
 	 ('Maymi',105.0),
@@ -27762,7 +27762,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escuriola',105.0),
 	 ('Lazpiur',105.0),
 	 ('Perez Hita',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ricis',105.0),
 	 ('Tarrillo',105.0),
 	 ('Sanchez Miranda',105.0),
@@ -27773,7 +27773,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Martinez De Marañon',105.0),
 	 ('Alvariñas',105.0),
 	 ('Parent',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Trobajo',105.0),
 	 ('Colete',105.0),
 	 ('Causo',105.0),
@@ -27784,7 +27784,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Candamo',105.0),
 	 ('Falquet',105.0),
 	 ('Rivaya',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arrivi',105.0),
 	 ('Caras',105.0),
 	 ('Sabuquillo',105.0),
@@ -27795,7 +27795,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Canibe',105.0),
 	 ('Lizalde',105.0),
 	 ('Tarraguel',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Berche',105.0),
 	 ('Corriols',105.0),
 	 ('Ladevesa',105.0),
@@ -27806,7 +27806,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Matres',105.0),
 	 ('Galapero',105.0),
 	 ('Rivet',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Medes',105.0),
 	 ('Albusac',105.0),
 	 ('Gonzalez De Heredia',105.0),
@@ -27817,7 +27817,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sargues',105.0),
 	 ('Stampa',105.0),
 	 ('Bailly',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ubani',105.0),
 	 ('Baroni',105.0),
 	 ('Ito',105.0),
@@ -27828,7 +27828,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benouda',105.0),
 	 ('Bock',105.0),
 	 ('Bellamy',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Haroun',105.0),
 	 ('Chikh',105.0),
 	 ('Ezzine',105.0),
@@ -27839,7 +27839,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Hammoud',105.0),
 	 ('Rybak',105.0),
 	 ('Al Bakali',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sana',105.0),
 	 ('Campagna',105.0),
 	 ('Bouazzati',105.0),
@@ -27850,7 +27850,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Milenova',105.0),
 	 ('Rebroub',105.0),
 	 ('Archidi',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Benhalima',105.0),
 	 ('Deliu',105.0),
 	 ('Ghafoor',105.0),
@@ -27861,7 +27861,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Corbett',105.0),
 	 ('Nazaryan',105.0),
 	 ('Pletea',105.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Usurelu',105.0),
 	 ('Garazo',104.0),
 	 ('Santovenia',104.0),
@@ -27872,7 +27872,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Donayre',104.0),
 	 ('Gallurt',104.0),
 	 ('Sallago',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Santiañez',104.0),
 	 ('Massuet',104.0),
 	 ('Urchaga',104.0),
@@ -27883,7 +27883,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aizpiri',104.0),
 	 ('Seliva',104.0),
 	 ('Taramona',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Charcan',104.0),
 	 ('Areales',104.0),
 	 ('Meneces',104.0),
@@ -27894,7 +27894,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escurin',104.0),
 	 ('Soutiño',104.0),
 	 ('Maranges',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Camañez',104.0),
 	 ('Ariceta',104.0),
 	 ('Barria',104.0),
@@ -27905,7 +27905,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Da Veiga',104.0),
 	 ('Bragaña',104.0),
 	 ('Gese',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Potel',104.0),
 	 ('Mastache',104.0),
 	 ('Sagnier',104.0),
@@ -27916,7 +27916,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tresaco',104.0),
 	 ('Sanchez De Medina',104.0),
 	 ('Aranberri',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Chandia',104.0),
 	 ('Concejal',104.0),
 	 ('Orgilles',104.0),
@@ -27927,7 +27927,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Galgo',104.0),
 	 ('Albets',104.0),
 	 ('Bonich',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Emiliano',104.0),
 	 ('Bailador',104.0),
 	 ('Belascoain',104.0),
@@ -27938,7 +27938,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cantolla',104.0),
 	 ('Conchello',104.0),
 	 ('Lucientes',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Uchuari',104.0),
 	 ('Nanwani',104.0),
 	 ('Fontas',104.0),
@@ -27949,7 +27949,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Astals',104.0),
 	 ('Garcia Delgado',104.0),
 	 ('Usobiaga',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cazo',104.0),
 	 ('Guerricagoitia',104.0),
 	 ('Olaortua',104.0),
@@ -27960,7 +27960,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bollullos',104.0),
 	 ('Calani',104.0),
 	 ('Calderay',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cinza',104.0),
 	 ('Gorrachategui',104.0),
 	 ('Montanchez',104.0),
@@ -27971,7 +27971,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belaustegi',104.0),
 	 ('Cazurro',104.0),
 	 ('Albitre',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gesti',104.0),
 	 ('Loizate',104.0),
 	 ('Bereijo',104.0),
@@ -27982,7 +27982,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Pajero',104.0),
 	 ('Lopez Infantes',104.0),
 	 ('Loste',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sart',104.0),
 	 ('Ocoro',104.0),
 	 ('Buyema',104.0),
@@ -27993,7 +27993,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Moncadas',104.0),
 	 ('Falquina',104.0),
 	 ('Hadad',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dupre',104.0),
 	 ('Ruiz Cabello',104.0),
 	 ('Wadhwani',104.0),
@@ -28004,7 +28004,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Imrany',104.0),
 	 ('Sasheva',104.0),
 	 ('Bucci',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Ftouh',104.0),
 	 ('Langer',104.0),
 	 ('Stern',104.0),
@@ -28015,7 +28015,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mouna',104.0),
 	 ('Tachfint',104.0),
 	 ('Barkaoui',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Derdabi',104.0),
 	 ('Hilton',104.0),
 	 ('Hachlaf',104.0),
@@ -28026,7 +28026,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Jebary',104.0),
 	 ('Saadouni',104.0),
 	 ('Mertens',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Khayari',104.0),
 	 ('Rahmoun',104.0),
 	 ('Dang',104.0),
@@ -28037,7 +28037,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Laanaya',104.0),
 	 ('El Kihal',104.0),
 	 ('Yoon',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cavallaro',104.0),
 	 ('Altaf',104.0),
 	 ('Khallouki',104.0),
@@ -28048,7 +28048,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lepadatu',104.0),
 	 ('Leu',104.0),
 	 ('Ofori',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Thakur',104.0),
 	 ('Buzea',104.0),
 	 ('De Vita',104.0),
@@ -28059,7 +28059,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kusi',104.0),
 	 ('Burduja',104.0),
 	 ('Pope',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mccann',104.0),
 	 ('Runcan',104.0),
 	 ('Suteu',104.0),
@@ -28070,7 +28070,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Singhateh',104.0),
 	 ('Sfetcu',104.0),
 	 ('Sirb',104.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Stroescu',104.0),
 	 ('Ancheta',103.0),
 	 ('Jan',103.0),
@@ -28081,7 +28081,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mutiloa',103.0),
 	 ('Verdial',103.0),
 	 ('Carola',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cueco',103.0),
 	 ('De Puig',103.0),
 	 ('Ocheda',103.0),
@@ -28092,7 +28092,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Munguira',103.0),
 	 ('Cadaveira',103.0),
 	 ('Del Collado',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Casana',103.0),
 	 ('Harriero',103.0),
 	 ('Covisa',103.0),
@@ -28103,7 +28103,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Truchero',103.0),
 	 ('Fruto',103.0),
 	 ('Capriles',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ascacibar',103.0),
 	 ('Benseny',103.0),
 	 ('Levia',103.0),
@@ -28114,7 +28114,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Escajadillo',103.0),
 	 ('Isusquiza',103.0),
 	 ('De La Bella',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sanchez Toril',103.0),
 	 ('Zufiaur',103.0),
 	 ('Espligares',103.0),
@@ -28125,7 +28125,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Deudero',103.0),
 	 ('Garcia Filoso',103.0),
 	 ('Navallas',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Alomia',103.0),
 	 ('Arcilla',103.0),
 	 ('Taulats',103.0),
@@ -28136,7 +28136,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Urtaza',103.0),
 	 ('Pinuaga',103.0),
 	 ('Barace',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Paca',103.0),
 	 ('Sel Lam',103.0),
 	 ('Sentamans',103.0),
@@ -28147,7 +28147,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maleta',103.0),
 	 ('Mojena',103.0),
 	 ('Sobero',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Mayench',103.0),
 	 ('Bartomeus',103.0),
 	 ('Bausells',103.0),
@@ -28158,7 +28158,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Coveñas',103.0),
 	 ('Ferrater',103.0),
 	 ('Tiago',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('De San Pedro',103.0),
 	 ('Ferrarons',103.0),
 	 ('Saenz De Santamaria',103.0),
@@ -28169,7 +28169,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Osorio',103.0),
 	 ('Ezkurdia',103.0),
 	 ('Stancheva',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Urribarri',103.0),
 	 ('Grigorov',103.0),
 	 ('Alogo',103.0),
@@ -28180,7 +28180,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Harjani',103.0),
 	 ('Seghir',103.0),
 	 ('De Rafael',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Guanotasig',103.0),
 	 ('Guiberteau',103.0),
 	 ('Barthelemy',103.0),
@@ -28191,7 +28191,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baratech',103.0),
 	 ('Serafim',103.0),
 	 ('Velichkov',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Stanchev',103.0),
 	 ('Carrara',103.0),
 	 ('Passarell',103.0),
@@ -28202,7 +28202,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sion',103.0),
 	 ('Jalloh',103.0),
 	 ('Ugiagbe',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bojang',103.0),
 	 ('Mehmedov',103.0),
 	 ('Maas',103.0),
@@ -28213,7 +28213,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sibari',103.0),
 	 ('Ziadi',103.0),
 	 ('Mahir',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('O''Hara',103.0),
 	 ('Abarkane',103.0),
 	 ('Abboud',103.0),
@@ -28224,7 +28224,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Severin',103.0),
 	 ('Amoah',103.0),
 	 ('Leigh',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Yilmaz',103.0),
 	 ('Barseghyan',103.0),
 	 ('Montgomery',103.0),
@@ -28235,7 +28235,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Luta',103.0),
 	 ('El Beghdadi',103.0),
 	 ('Radford',103.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cotea',103.0),
 	 ('Stir',103.0),
 	 ('Valtuille',102.0),
@@ -28246,7 +28246,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('La Calle',102.0),
 	 ('Berdala',102.0),
 	 ('Ontalba',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ripado',102.0),
 	 ('Ferruelo',102.0),
 	 ('Barrieras',102.0),
@@ -28257,7 +28257,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bonavida',102.0),
 	 ('Mayorquin',102.0),
 	 ('De Cossio',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Folleco',102.0),
 	 ('Tejados',102.0),
 	 ('Tejea',102.0),
@@ -28268,7 +28268,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mescua',102.0),
 	 ('Saenz De Navarrete',102.0),
 	 ('Sanvicens',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cola',102.0),
 	 ('Muncunill',102.0),
 	 ('Alzuguren',102.0),
@@ -28279,7 +28279,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sanchez Roldan',102.0),
 	 ('Lumbier',102.0),
 	 ('Balao',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lejarcegui',102.0),
 	 ('Casablancas',102.0),
 	 ('Urdangaray',102.0),
@@ -28290,7 +28290,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Messa',102.0),
 	 ('Mijas',102.0),
 	 ('Chulca',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ilarraza',102.0),
 	 ('Monco',102.0),
 	 ('Diaz Delgado',102.0),
@@ -28301,7 +28301,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Belsa',102.0),
 	 ('Bochaca',102.0),
 	 ('Celix',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Reclusa',102.0),
 	 ('Grive',102.0),
 	 ('Pasin',102.0),
@@ -28312,7 +28312,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lairon',102.0),
 	 ('Rins',102.0),
 	 ('Muyulema',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Villero',102.0),
 	 ('Villeta',102.0),
 	 ('Cartro',102.0),
@@ -28323,7 +28323,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sagre',102.0),
 	 ('Andero',102.0),
 	 ('Estibalez',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Pascual',102.0),
 	 ('Sanchez Cid',102.0),
 	 ('Duchi',102.0),
@@ -28334,7 +28334,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Che',102.0),
 	 ('Albaiges',102.0),
 	 ('Buzzian',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cervetto',102.0),
 	 ('De Sancho',102.0),
 	 ('Mollet',102.0),
@@ -28345,7 +28345,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ardeo',102.0),
 	 ('Consentino',102.0),
 	 ('Mallarin',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lavalle',102.0),
 	 ('Sanjuas',102.0),
 	 ('Contamina',102.0),
@@ -28356,7 +28356,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gorro',102.0),
 	 ('Granger',102.0),
 	 ('Maritxalar',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Rodriguez De Rivera',102.0),
 	 ('Alabadi',102.0),
 	 ('Rucio',102.0),
@@ -28367,7 +28367,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Net',102.0),
 	 ('Saula',102.0),
 	 ('Briso Montiano',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gallego Sacristana',102.0),
 	 ('Guerra Librero',102.0),
 	 ('Boukaddour',102.0),
@@ -28378,7 +28378,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Puig De La Bellacasa',102.0),
 	 ('Martinez De Lagos',102.0),
 	 ('Tuca',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Garcia Del Prado',102.0),
 	 ('Reyner',102.0),
 	 ('Aichi',102.0),
@@ -28389,7 +28389,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Baidi',102.0),
 	 ('Eworo',102.0),
 	 ('Brunetti',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Agho',102.0),
 	 ('Bounouar',102.0),
 	 ('Blal',102.0),
@@ -28400,7 +28400,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Benchrif',102.0),
 	 ('Ait Said',102.0),
 	 ('Pappalardo',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Laasri',102.0),
 	 ('Jawneh',102.0),
 	 ('Hamham',102.0),
@@ -28411,7 +28411,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mestour',102.0),
 	 ('El Mahfoud',102.0),
 	 ('Jeong',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Larabi',102.0),
 	 ('El Makhtari',102.0),
 	 ('Bray',102.0),
@@ -28422,7 +28422,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Fabbri',102.0),
 	 ('Kassou',102.0),
 	 ('Srour',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Zairi',102.0),
 	 ('Moroianu',102.0),
 	 ('Tu',102.0),
@@ -28433,7 +28433,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Millad',102.0),
 	 ('Zaib',102.0),
 	 ('Niu',102.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Safsaf',102.0),
 	 ('Socaciu',102.0),
 	 ('Cirlan',102.0),
@@ -28444,7 +28444,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Bouare',102.0),
 	 ('Porumbaru',102.0),
 	 ('De Medina',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz Santa Quiteria',101.0),
 	 ('Sallares',101.0),
 	 ('Sistero',101.0),
@@ -28455,7 +28455,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('De Oñate',101.0),
 	 ('Raigosa',101.0),
 	 ('Arenga',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Vilaso',101.0),
 	 ('Perveen',101.0),
 	 ('Torneiro',101.0),
@@ -28466,7 +28466,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Igarzabal',101.0),
 	 ('Buenavista',101.0),
 	 ('Caros',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Corullon',101.0),
 	 ('Ruza',101.0),
 	 ('Aparcero',101.0),
@@ -28477,7 +28477,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ojopi',101.0),
 	 ('Penacho',101.0),
 	 ('Cotorruelo',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bañolas',101.0),
 	 ('Diaz De Espada',101.0),
 	 ('Travez',101.0),
@@ -28488,7 +28488,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Melgoso',101.0),
 	 ('Morcate',101.0),
 	 ('Dilone',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Roncancio',101.0),
 	 ('Alvare',101.0),
 	 ('Adarraga',101.0),
@@ -28499,7 +28499,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mindan',101.0),
 	 ('Vaqueriza',101.0),
 	 ('Agrela',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Bareño',101.0),
 	 ('Casadiego',101.0),
 	 ('Turell',101.0),
@@ -28510,7 +28510,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Gigosos',101.0),
 	 ('Marcobal',101.0),
 	 ('Muñoz Cruzado',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ruiz De Zarate',101.0),
 	 ('Becana',101.0),
 	 ('Menjon',101.0),
@@ -28521,7 +28521,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Aurensanz',101.0),
 	 ('Aylon',101.0),
 	 ('Bulla',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fontano',101.0),
 	 ('Griñolo',101.0),
 	 ('Loma Osorio',101.0),
@@ -28532,7 +28532,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Virtudes',101.0),
 	 ('Inchusta',101.0),
 	 ('Lantes',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martin De Hijas',101.0),
 	 ('Zamarbide',101.0),
 	 ('Embun',101.0),
@@ -28543,7 +28543,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cabruja',101.0),
 	 ('Burches',101.0),
 	 ('Leranoz',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lluma',101.0),
 	 ('Risalde',101.0),
 	 ('Rosines',101.0),
@@ -28554,7 +28554,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Cesari',101.0),
 	 ('Fernandez De Betoño',101.0),
 	 ('Gomez Pardo',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Gomez Millan',101.0),
 	 ('Saltor',101.0),
 	 ('Cantonero',101.0),
@@ -28565,7 +28565,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Mughal',101.0),
 	 ('Gasto',101.0),
 	 ('Lloses',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Briñon',101.0),
 	 ('Sanchez Marin',101.0),
 	 ('Elich',101.0),
@@ -28576,7 +28576,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Manias',101.0),
 	 ('Oscar',101.0),
 	 ('Mille',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Perez De Gracia',101.0),
 	 ('Beard',101.0),
 	 ('Kacimi',101.0),
@@ -28587,7 +28587,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Farhaoui',101.0),
 	 ('El Hasnaouy',101.0),
 	 ('Huma',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Ajayi',101.0),
 	 ('Amrane',101.0),
 	 ('Agdi',101.0),
@@ -28598,7 +28598,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sumbundu',101.0),
 	 ('Dhaliwal',101.0),
 	 ('Chaou',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Nemeth',101.0),
 	 ('Boulahia',101.0),
 	 ('Khalili',101.0),
@@ -28609,7 +28609,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Maali',101.0),
 	 ('Tachallait',101.0),
 	 ('Acheampong',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Azmi',101.0),
 	 ('Khayi',101.0),
 	 ('Sabatino',101.0),
@@ -28620,7 +28620,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Souaidi',101.0),
 	 ('Firth',101.0),
 	 ('Pike',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Duman',101.0),
 	 ('Corbu',101.0),
 	 ('Farmer',101.0),
@@ -28631,7 +28631,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Ursachi',101.0),
 	 ('Errossafi',101.0),
 	 ('Jadiani',101.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Muscalu',101.0),
 	 ('Lucaciu',101.0),
 	 ('Negoescu',101.0),
@@ -28642,7 +28642,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Rivodigo',100.0),
 	 ('Hilinger',100.0),
 	 ('Traserra',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Artidiello',100.0),
 	 ('Do Amaral',100.0),
 	 ('Reizabal',100.0),
@@ -28653,7 +28653,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Tiñena',100.0),
 	 ('Desiderio',100.0),
 	 ('Pamias',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cures',100.0),
 	 ('Baldor',100.0),
 	 ('Ruiz De Aguirre',100.0),
@@ -28664,7 +28664,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Camayo',100.0),
 	 ('Sustaeta',100.0),
 	 ('Romero Salazar',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lairado',100.0),
 	 ('Ullastres',100.0),
 	 ('Usatorre',100.0),
@@ -28675,7 +28675,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Armentero',100.0),
 	 ('Arqued',100.0),
 	 ('Aulinas',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dolset',100.0),
 	 ('Motas',100.0),
 	 ('Callol',100.0),
@@ -28686,7 +28686,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Salavarria',100.0),
 	 ('Lasquibar',100.0),
 	 ('Mohamed Ali',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Arizcun',100.0),
 	 ('Arnelas',100.0),
 	 ('Carrazoni',100.0),
@@ -28697,7 +28697,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Retamino',100.0),
 	 ('Lacon',100.0),
 	 ('Peg',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cuberta',100.0),
 	 ('Lova',100.0),
 	 ('Sanchez De Puerta',100.0),
@@ -28708,7 +28708,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Patus',100.0),
 	 ('Ancela',100.0),
 	 ('Zanoguera',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Sebrango',100.0),
 	 ('Candamil',100.0),
 	 ('Costillas',100.0),
@@ -28719,7 +28719,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Serrulla',100.0),
 	 ('Casaos',100.0),
 	 ('Silles',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Pepio',100.0),
 	 ('Reascos',100.0),
 	 ('Rein',100.0),
@@ -28730,7 +28730,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sollero',100.0),
 	 ('Alcauza',100.0),
 	 ('Guiles',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Lezameta',100.0),
 	 ('Solinis',100.0),
 	 ('Candeira',100.0),
@@ -28741,7 +28741,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Santosjuanes',100.0),
 	 ('Cañola',100.0),
 	 ('França',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Maury',100.0),
 	 ('Saez De Adana',100.0),
 	 ('Teijelo',100.0),
@@ -28752,7 +28752,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Chenel',100.0),
 	 ('Guilloto',100.0),
 	 ('Lices',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Cerejido',100.0),
 	 ('Iturricha',100.0),
 	 ('Etxenike',100.0),
@@ -28763,7 +28763,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Almendrote',100.0),
 	 ('Banach',100.0),
 	 ('De La Marta',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fontbona',100.0),
 	 ('Sobrinos',100.0),
 	 ('Campaya',100.0),
@@ -28774,7 +28774,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Barbeyto',100.0),
 	 ('Raposeiras',100.0),
 	 ('Tremols',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Martinez De Espronceda',100.0),
 	 ('Coli',100.0),
 	 ('Gomez Caminero',100.0),
@@ -28785,7 +28785,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('El Maymouni',100.0),
 	 ('Ben Sellam',100.0),
 	 ('Busch',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Silven',100.0),
 	 ('Hoffman',100.0),
 	 ('Sacares',100.0),
@@ -28796,7 +28796,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Vella',100.0),
 	 ('Boukar',100.0),
 	 ('Montanari',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('El Bay',100.0),
 	 ('Janati',100.0),
 	 ('El Khalloufi',100.0),
@@ -28807,7 +28807,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Sabatini',100.0),
 	 ('El Fahmi',100.0),
 	 ('Aigbe',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Best',100.0),
 	 ('Boulayoun',100.0),
 	 ('Hajjami',100.0),
@@ -28818,7 +28818,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Dinar',100.0),
 	 ('Zirari',100.0),
 	 ('Stepien',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Boussetta',100.0),
 	 ('Schuller',100.0),
 	 ('Tucci',100.0),
@@ -28829,7 +28829,7 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Kassi',100.0),
 	 ('Barr',100.0),
 	 ('Nicolaescu',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Dedu',100.0),
 	 ('Charroud',100.0),
 	 ('Svetoslavova',100.0),
@@ -28840,6 +28840,6 @@ INSERT INTO public.lastnames_es (lastname,freq) VALUES
 	 ('Lapadat',100.0),
 	 ('Nati',100.0),
 	 ('Voinescu',100.0);
-INSERT INTO public.lastnames_es (lastname,freq) VALUES
+INSERT INTO lastnames_es (lastname, freq) VALUES
 	 ('Fulga',100.0),
 	 ('Zaharie',100.0);
