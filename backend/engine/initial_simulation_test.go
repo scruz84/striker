@@ -104,3 +104,26 @@ func TestCalculateMidfield_ReadsFromTheMidfieldGroupNotDefense(t *testing.T) {
 		t.Fatalf("expected calculateMidfield to sum the midfield group's Midfield stat (90), got %v", got)
 	}
 }
+
+// calculateLateralAttack used to only ever read its first ("striker") argument - fine for
+// formations like 4-4-2 whose wide attacking outlet is the lateral midfielder passed into that
+// slot at the call site, but a 4-3-3 fields its wide attacker at LATERAL_STRIKER_LEFT/RIGHT
+// instead (see formation.go), which that same call site passed into the unused "mid" argument -
+// silently zeroing a 4-3-3's entire flank attack rating. This pins the fix: whichever of the two
+// positions is actually occupied should count.
+func TestCalculateLateralAttack_FallsBackBetweenStrikerAndMidfieldSlots(t *testing.T) {
+	players := map[int64]common.Player{
+		1: {Id: 1, Lateral: 80, Shot: 60}, // a 4-3-3 wide forward (LATERAL_STRIKER_LEFT/RIGHT)
+		2: {Id: 2, Lateral: 40, Shot: 20}, // a 4-4-2 winger (LATERAL_MIDFIELD_LEFT/RIGHT)
+	}
+
+	// 4-3-3 shape: only the striker slot is populated.
+	if got := calculateLateralAttack([]int64{1}, nil, &players); got != 70 {
+		t.Fatalf("expected the wide forward's own Lateral/Shot blend (70) when only the striker slot is filled, got %v", got)
+	}
+
+	// 4-4-2 shape: only the midfield slot is populated.
+	if got := calculateLateralAttack(nil, []int64{2}, &players); got != 30 {
+		t.Fatalf("expected a fallback to the winger's Lateral/Shot blend (30) when the striker slot is empty, got %v", got)
+	}
+}

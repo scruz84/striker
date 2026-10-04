@@ -70,9 +70,9 @@ func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, play
 
 	//attack
 	rawLeftAttack := calculateLateralAttack(
-		(*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], (*playersByPosition)[common.LATERAL_STRIKER_LEFT], players)
+		(*playersByPosition)[common.LATERAL_STRIKER_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
 	rawRightAttack := calculateLateralAttack(
-		(*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], (*playersByPosition)[common.LATERAL_STRIKER_RIGHT], players)
+		(*playersByPosition)[common.LATERAL_STRIKER_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
 	strikers := (*playersByPosition)[common.STRIKER]
 	rawAttack := calculateAttack(strikers, (*playersByPosition)[common.MIDFIELD], players)
 	teamQua.LeftAttack, teamQua.Attack, teamQua.RightAttach =
@@ -142,11 +142,19 @@ func calculateMidfield(def []int64, mid []int64, players *map[int64]common.Playe
 	return value
 }
 
+// calculateLateralAttack rates a flank's attacking threat from whichever position actually plays
+// there: a 4-3-3's wide forward (LATERAL_STRIKER_LEFT/RIGHT) if the formation has one, otherwise
+// the wide midfielder/winger (LATERAL_MIDFIELD_LEFT/RIGHT) that formations like 4-4-2 use instead -
+// a formation only ever fields one of the two (see FormationPositionCounts), never both.
 func calculateLateralAttack(striker []int64, mid []int64, players *map[int64]common.Player) float32 {
-	if len(striker) == 0 {
+	wide := striker
+	if len(wide) == 0 {
+		wide = mid
+	}
+	if len(wide) == 0 {
 		return 0
 	}
-	value := float32((*players)[striker[0]].Lateral)*0.5 + float32((*players)[striker[0]].Shot)*0.5
+	value := float32((*players)[wide[0]].Lateral)*0.5 + float32((*players)[wide[0]].Shot)*0.5
 	return value
 }
 
