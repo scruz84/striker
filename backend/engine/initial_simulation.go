@@ -73,10 +73,24 @@ func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, play
 		(*playersByPosition)[common.LATERAL_STRIKER_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
 	rawRightAttack := calculateLateralAttack(
 		(*playersByPosition)[common.LATERAL_STRIKER_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
+	// allStrikers folds LATERAL_STRIKER_LEFT/RIGHT into the central attack pool alongside STRIKER.
+	// Unlike LATERAL_DEFENSE (a full-back, a different job from a central defender) or
+	// LATERAL_MIDFIELD (a winger, a different job from a central midfielder), a 4-3-3's wide
+	// forward is still a forward by trade - just stationed wide - so it should count toward the
+	// team's overall central scoring presence the same way a 3-4-3's third central striker does,
+	// in addition to the dedicated flank rating it already earns above via calculateLateralAttack.
+	// Without this, swapping a formation's second central striker for two wide forwards (4-3-3)
+	// read as a pure attack downgrade versus 4-4-2 despite fielding an extra nominal striker,
+	// since blendLine scales a line's center by how many players occupy it (see its doc comment)
+	// and only the lone central STRIKER slot was ever counted.
 	strikers := (*playersByPosition)[common.STRIKER]
-	rawAttack := calculateAttack(strikers, (*playersByPosition)[common.MIDFIELD], players)
+	allStrikers := make([]int64, 0, len(strikers)+2)
+	allStrikers = append(allStrikers, strikers...)
+	allStrikers = append(allStrikers, (*playersByPosition)[common.LATERAL_STRIKER_LEFT]...)
+	allStrikers = append(allStrikers, (*playersByPosition)[common.LATERAL_STRIKER_RIGHT]...)
+	rawAttack := calculateAttack(allStrikers, (*playersByPosition)[common.MIDFIELD], players)
 	teamQua.LeftAttack, teamQua.Attack, teamQua.RightAttach =
-		blendLine(rawLeftAttack, rawAttack, len(strikers), rawRightAttack)
+		blendLine(rawLeftAttack, rawAttack, len(allStrikers), rawRightAttack)
 }
 
 // ZoneSpillover is how much of a three-zone line's (defense, midfield, or attack) strength leaks

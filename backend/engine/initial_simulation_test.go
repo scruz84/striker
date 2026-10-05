@@ -127,3 +127,69 @@ func TestCalculateLateralAttack_FallsBackBetweenStrikerAndMidfieldSlots(t *testi
 		t.Fatalf("expected a fallback to the winger's Lateral/Shot blend (30) when the striker slot is empty, got %v", got)
 	}
 }
+
+// calculateQua's central Attack line used to sum only the STRIKER group, so a 4-3-3's two wide
+// forwards (LATERAL_STRIKER_LEFT/RIGHT) counted solely toward their own flank rating and never
+// toward the team's overall central scoring presence - unlike a 3-4-3's third central striker,
+// which the STRIKER group already picks up. Since blendLine scales a line's center by how many
+// players occupy it (see its doc comment), that left a 4-3-3 with only one central striker's
+// worth of weight versus a 4-4-2's two, so fielding three forwards (4-3-3) rated as a WEAKER
+// attack than fielding two (4-4-2) despite the extra nominal striker - the exact complaint the
+// LATERAL_STRIKER/LATERAL_MIDFIELD flank-zeroing fix above didn't address. This pins the fix:
+// a 4-3-3's wide forwards are still forwards by trade (unlike a full-back or a winger, whose
+// central counterpart is a genuinely different job), so they now also count toward the central
+// Attack pool, bringing a 4-3-3 with three forwards back in line with a 3-4-3's three forwards
+// and above a 4-4-2's two, instead of below it.
+func TestCalculateQua_FourThreeThreeWideForwardsCountTowardCentralAttack(t *testing.T) {
+	mkPlayers := func(ids []int64) map[int64]common.Player {
+		m := map[int64]common.Player{}
+		for _, id := range ids {
+			m[id] = common.Player{Id: id, Shot: 70, Lateral: 70, Defense: 70, Midfield: 70, Pass: 70, Dribbling: 70}
+		}
+		return m
+	}
+	weightedAttack := func(pbp map[int][]int64) float32 {
+		players := mkPlayers([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
+		qua := &common.TeamQualification{}
+		calculateQua(qua, nil, &pbp, &players)
+		return 0.5*qua.Attack + 0.25*qua.LeftAttack + 0.25*qua.RightAttach
+	}
+
+	balanced := weightedAttack(map[int][]int64{ // 4-4-2: two central strikers
+		common.GOALKEEPER:             {1},
+		common.DEFENSE:                {2, 3},
+		common.LATERAL_DEFENSE_LEFT:   {4},
+		common.LATERAL_DEFENSE_RIGHT:  {5},
+		common.MIDFIELD:               {6, 7},
+		common.LATERAL_MIDFIELD_LEFT:  {8},
+		common.LATERAL_MIDFIELD_RIGHT: {9},
+		common.STRIKER:                {10, 11},
+	})
+	attacking := weightedAttack(map[int][]int64{ // 3-4-3: three central strikers
+		common.GOALKEEPER:             {1},
+		common.DEFENSE:                {2},
+		common.LATERAL_DEFENSE_LEFT:   {3},
+		common.LATERAL_DEFENSE_RIGHT:  {4},
+		common.MIDFIELD:               {5, 6},
+		common.LATERAL_MIDFIELD_LEFT:  {7},
+		common.LATERAL_MIDFIELD_RIGHT: {8},
+		common.STRIKER:                {9, 10, 11},
+	})
+	fourThreeThree := weightedAttack(map[int][]int64{ // 4-3-3: one central + two wide forwards
+		common.GOALKEEPER:            {1},
+		common.DEFENSE:               {2, 3},
+		common.LATERAL_DEFENSE_LEFT:  {4},
+		common.LATERAL_DEFENSE_RIGHT: {5},
+		common.MIDFIELD:              {6, 7, 8},
+		common.STRIKER:               {9},
+		common.LATERAL_STRIKER_LEFT:  {10},
+		common.LATERAL_STRIKER_RIGHT: {11},
+	})
+
+	if fourThreeThree <= balanced {
+		t.Fatalf("expected a 4-3-3's three forwards to out-rate a 4-4-2's two, got 4-3-3=%v 4-4-2=%v", fourThreeThree, balanced)
+	}
+	if math.Abs(float64(fourThreeThree-attacking)) > 0.01 {
+		t.Fatalf("expected a 4-3-3's three forwards to rate the same as a 3-4-3's three forwards, got 4-3-3=%v 3-4-3=%v", fourThreeThree, attacking)
+	}
+}
