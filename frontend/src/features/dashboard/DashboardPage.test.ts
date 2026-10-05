@@ -106,6 +106,28 @@ describe('currentStanding', () => {
 
     expect(currentStanding(div, 1)?.points).toBe(13)
   })
+
+  // Reproduces the reported bug: a match is simulated (and flips `played` true) up to 15 minutes
+  // before its own scheduled matchDate, so the dashboard's league-position chip must still show
+  // the pre-match standing in that window, not jump ahead of the match's own advertised kickoff.
+  it('reverts the team row for a match simulated minutes before its own kickoff', () => {
+    const div = division({
+      classification: {
+        positions: [
+          position({ teamId: 1, points: 13, matches: 5, wins: 4, draws: 1, losses: 0, goalsScored: 10, goalsReceived: 3 }),
+        ],
+      },
+      previousWeekMatches: [
+        match({ home: 1, away: 2, homeGoals: 2, awayGoals: 0, matchDate: new Date(Date.now() + 10 * 60 * 1000).toISOString() }),
+      ],
+    })
+
+    const standing = currentStanding(div, 1)
+
+    expect(standing?.points).toBe(10)
+    expect(standing?.matches).toBe(4)
+    expect(standing?.wins).toBe(3)
+  })
 })
 
 describe('selectRecentForm', () => {

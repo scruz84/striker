@@ -85,6 +85,57 @@ func TestBroadcastMatchLive_GoalReflectedImmediately(t *testing.T) {
 	}
 }
 
+// TestBroadcastMatchLive_OnCompleteWaitsForKickoff pins the timing invariant simulateMatch/
+// simulateCupTie/simulateFriendly now rely on: a match is fully simulated and persisted up to 15
+// minutes before its own advertised kickoff (see GetSimulableMatchesStmtSql/
+// GetSimulableFriendliesStmtSql), and their onComplete callback is where they defer every bit of
+// state a team owner could notice outside this match's own live-gated page - the result
+// notification, but also (since this fix) new injuries/suspensions (UpdatePlayerAvailability) and
+// skill growth (updateSkillsAfterPlayedMatch, including the NOTIFICATION_PROGRESSION push it can
+// send). None of that is safe to run before matchDate itself has arrived, or a user checking the
+// league table, their squad, or their players' evolutions minutes before kickoff would already see
+// the post-match state - the exact bug this test guards against.
+func TestBroadcastMatchLive_OnCompleteWaitsForKickoff(t *testing.T) {
+	hub := common.NewLiveMatchHub()
+	if err := hub.Ping(); err != nil {
+		t.Skipf("redis not reachable, skipping: %s", err)
+	}
+
+	channel := "test-broadcast-early-simulation"
+	sub, unsubscribe := hub.Subscribe(channel)
+	defer unsubscribe()
+
+	events := []common.Event{}
+	instants := []common.MatchInstant{{Minute: 1, HomeGoals: 0, AwayGoals: 0}}
+	match := &common.MatchSimulation{Events: &events, MatchInstants: &instants}
+
+	// Mirrors a match claimed for simulation ahead of its own kickoff - 3 seconds here (instead of
+	// up to 15 real minutes) to keep the test fast.
+	matchDate := time.Now().Add(3 * time.Second)
+
+	done := make(chan struct{})
+	dbCtx := &common.DatabaseContext{LiveHub: hub}
+	BroadcastMatchLive(dbCtx, channel, match, matchDate, func() { close(done) })
+
+	select {
+	case msg := <-sub:
+		t.Fatalf("got a broadcast message before kickoff: %+v - nothing published, and nothing deferred to onComplete, may happen before matchDate", msg)
+	case <-done:
+		t.Fatal("onComplete fired before kickoff")
+	case <-time.After(1500 * time.Millisecond):
+		// Halfway to kickoff, nothing has fired yet - correct.
+	}
+
+	select {
+	case msg := <-sub:
+		if msg.Type != "instant" || msg.Instant.Minute != 1 {
+			t.Fatalf("expected the minute-1 instant once kickoff arrived, got %+v", msg)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("timed out waiting for the minute-1 instant after kickoff")
+	}
+}
+
 func awaitBroadcastMessage(t *testing.T, ch chan common.LiveMatchMessage) common.LiveMatchMessage {
 	t.Helper()
 	select {

@@ -30,7 +30,6 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 
 	UpdatePlayedMatch(dbCtx, matchSimulation)
 	UpdateClassification(dbCtx, matchSimulation)
-	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
 	// Wages track league match cadence, not cup ties or friendlies (see PayMatchdayWages) - a
 	// round-robin schedule gives every team exactly one league match per round, so this fires
@@ -39,8 +38,16 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	PayMatchdayWages(dbCtx, matchSimulation.Home)
 	PayMatchdayWages(dbCtx, matchSimulation.Away)
 	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
-	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
+	// UpdatePlayerAvailability (new injuries/suspensions) and updateSkillsAfterPlayedMatch (skill
+	// growth, plus the NOTIFICATION_PROGRESSION push it can fire) both change state a team owner
+	// can see outside this match's own live-gated page - the squad list, a player's page, the
+	// evolutions report - same as the match result itself. Deferred into onComplete for the exact
+	// reason NotifyMatchResult already is (see BroadcastMatchLive's doc comment): a match is
+	// simulated and marked played up to 15 minutes before its advertised kickoff, so running these
+	// here would leak an injury or a skill jump before the match has even nominally started.
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, match.MatchDate, func() {
+		UpdatePlayerAvailability(dbCtx, matchSimulation)
+		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 		NotifyMatchResult(dbCtx, matchSimulation)
 	})
 	common.RecordMatchSimulated(context.Background(), "league", matchSimulation.HomeGoals, matchSimulation.AwayGoals)

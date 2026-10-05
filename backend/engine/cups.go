@@ -326,11 +326,15 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 		return err
 	}
 
-	UpdatePlayerAvailability(dbCtx, matchSimulation)
 	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
-	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
+	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
+	// as simulateMatch - see its own comment. A tie is simulated and marked played up to 15
+	// minutes before its advertised kickoff, so running these here would leak an injury or skill
+	// jump before the tie has even nominally started.
 	BroadcastMatchLive(dbCtx, common.CupTieChannel(matchSimulation.Id), matchSimulation, *tie.MatchDate, func() {
+		UpdatePlayerAvailability(dbCtx, matchSimulation)
+		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 		notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)
 	})
 	common.RecordMatchSimulated(context.Background(), "cup", matchSimulation.HomeGoals, matchSimulation.AwayGoals)

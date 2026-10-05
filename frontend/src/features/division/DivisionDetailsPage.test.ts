@@ -92,4 +92,24 @@ describe('hideStillLiveResults', () => {
 
     expect(hideStillLiveResults(positions, matches)).toEqual(positions)
   })
+
+  // Reproduces the reported bug: a match is simulated (and flips `played` true) up to 15 minutes
+  // before its own scheduled matchDate, so a manager checking the table in that window must still
+  // see it reverted, exactly as if the match hadn't been simulated yet.
+  it('reverts a match simulated minutes before its own kickoff', () => {
+    const positions = [
+      position({ teamId: 1, position: 1, points: 13, matches: 5, wins: 4, draws: 1, losses: 0, goalsScored: 10, goalsReceived: 3 }),
+      position({ teamId: 2, position: 2, points: 10, matches: 5, wins: 3, draws: 1, losses: 1, goalsScored: 8, goalsReceived: 5 }),
+    ]
+    const matches = [
+      match({ home: 1, away: 2, homeGoals: 2, awayGoals: 0, matchDate: new Date(Date.now() + 10 * 60 * 1000).toISOString() }),
+    ]
+
+    const result = hideStillLiveResults(positions, matches)
+
+    const team1 = result.find((r) => r.teamId === 1)!
+    expect(team1.points).toBe(10)
+    expect(team1.matches).toBe(4)
+    expect(team1.wins).toBe(3)
+  })
 })

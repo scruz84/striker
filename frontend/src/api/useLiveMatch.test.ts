@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useLiveMatch } from './useLiveMatch'
+import { mightStillBeLive, useLiveMatch } from './useLiveMatch'
 
 // A minimal fake WebSocket that behaves like the real one for what this hook actually uses:
 // onopen/onmessage/onerror/onclose handlers assigned after construction, plus close(). Tracks
@@ -87,5 +87,42 @@ describe('useLiveMatch', () => {
 
     expect(result.current.events).toHaveLength(1)
     expect(result.current.homeGoals).toBe(1)
+  })
+})
+
+describe('mightStillBeLive', () => {
+  // A league match or friendly is read into simulation (and flips `played` true) up to 15 minutes
+  // before its own scheduled matchDate - see GetSimulableFriendliesStmtSql/
+  // GetSimulableMatchesStmtSql. A manager who opens the standings, their squad, or a player's page
+  // in that window must still see the pre-match state: this is the exact bug reported (the league
+  // table, team streak, injuries, and skill updates all showed the post-match state 10 minutes
+  // before kickoff).
+  it('is true for a match simulated minutes before its own kickoff', () => {
+    const matchDate = new Date(Date.now() + 10 * 60 * 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(true)
+  })
+
+  it('is true right at the edge of the early-simulation window', () => {
+    const matchDate = new Date(Date.now() + 15 * 60 * 1000 - 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(true)
+  })
+
+  it('is false for a match further than 15 minutes from kickoff', () => {
+    const matchDate = new Date(Date.now() + 20 * 60 * 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(false)
+  })
+
+  it('is true right at kickoff', () => {
+    expect(mightStillBeLive(new Date().toISOString())).toBe(true)
+  })
+
+  it('is true while the broadcast could still be in progress after kickoff', () => {
+    const matchDate = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(true)
+  })
+
+  it('is false once the broadcast has certainly finished', () => {
+    const matchDate = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(false)
   })
 })

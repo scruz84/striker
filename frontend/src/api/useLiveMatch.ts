@@ -99,15 +99,19 @@ const reconnectDelayMs = 3000
 // correctly either way - see serveLiveMatch - this is purely to skip the pointless round trip).
 const maxLiveBroadcastWindowMs = 2 * 60 * 60 * 1000
 
+// maxEarlySimulationMs mirrors the backend's own early-claim window (see
+// GetSimulableFriendliesStmtSql/GetSimulableMatchesStmtSql): a match can be simulated, and flip
+// `played` true, up to 15 minutes before its own scheduled matchDate. mightStillBeLive has to
+// treat that whole pre-kickoff window as "still live" too, not just the time after kickoff - every
+// caller here pairs this with `played` precisely to decide whether a result (the score, a
+// classification effect, a recent-form entry) is safe to reveal yet, and a match simulated minutes
+// before its advertised kickoff is exactly the case that still needs hiding (issue: classification/
+// streak/injuries/skill updates visible before kickoff).
+const maxEarlySimulationMs = 15 * 60 * 1000
+
 export function mightStillBeLive(matchDate: string): boolean {
   const elapsedMs = Date.now() - new Date(matchDate).getTime()
-  // A friendly or league match is read into simulation up to 15 minutes before its scheduled
-  // matchDate (see GetSimulableFriendliesStmtSql/GetSimulableMatchesStmtSql), so `played` can
-  // already be true while matchDate itself is still in the future. Without the elapsedMs >= 0
-  // guard, that negative elapsed time trivially satisfies "< maxLiveBroadcastWindowMs" and every
-  // caller pairing this with `played` (the live banner, "LIVE" chips, recent-form results) would
-  // treat a match as in progress, or already decided, before its advertised kickoff has arrived.
-  return elapsedMs >= 0 && elapsedMs < maxLiveBroadcastWindowMs
+  return elapsedMs >= -maxEarlySimulationMs && elapsedMs < maxLiveBroadcastWindowMs
 }
 
 // isPast reports whether the given ISO timestamp has already arrived. Callers use this instead

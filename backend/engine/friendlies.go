@@ -96,9 +96,13 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 		return err
 	}
 
-	UpdatePlayerAvailability(dbCtx, matchSimulation)
-	updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
+	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
+	// as simulateMatch - see its own comment. A friendly is simulated and marked played up to 15
+	// minutes before its advertised kickoff, so running these here would leak an injury or skill
+	// jump before the friendly has even nominally started.
 	BroadcastMatchLive(dbCtx, common.FriendlyMatchChannel(matchSimulation.Id), matchSimulation, friendly.MatchDate, func() {
+		UpdatePlayerAvailability(dbCtx, matchSimulation)
+		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
 		notifyFriendlyResult(dbCtx, matchSimulation)
 	})
 	common.RecordMatchSimulated(context.Background(), "friendly", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
