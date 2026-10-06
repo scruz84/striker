@@ -86,22 +86,32 @@ func TicketRevenue(attendance int, ticketPrice int) int64 {
 	return int64(attendance) * int64(ticketPrice)
 }
 
-// creditTicketRevenue pays the home team its matchday gate receipts - see
-// UpdateTeamFinancesAfterMatch, which is the only caller (both league matches and cup ties route
-// through it, so both generate ticket revenue for the home side). Returns the attendance figure
-// it computed (0 if the stadium lookup failed or the stadium is empty) so a league match's report
-// (see common.UpdateMatchFlavor) can show the exact same crowd size rather than drawing its own,
-// independent random attendance that could disagree with this transaction's own description.
-func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
+// stadiumAttendanceAndRevenue draws one home match's crowd size and resulting gate revenue from
+// homeTeamId's own stadium (capacity and ticket price) - shared by creditTicketRevenue (which
+// pays the home side the full amount) and creditFriendlyTicketRevenue (which splits it in two).
+// Returns a zero attendance/revenue pair, rather than erroring, when the stadium lookup fails -
+// callers treat that the same as a genuinely empty house.
+func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) (int, int64) {
 	stadium, err := common.GetStadium(dbCtx, homeTeamId)
 	if err != nil {
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
-		return 0
+		return 0, 0
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, r)
-	revenue := TicketRevenue(attendance, stadium.TicketPrice)
+	return attendance, TicketRevenue(attendance, stadium.TicketPrice)
+}
+
+// creditTicketRevenue pays the home team its matchday gate receipts - see
+// UpdateTeamFinancesAfterMatch, which is the only caller (both league matches and cup ties route
+// through it, so both generate ticket revenue for the home side only). Returns the attendance
+// figure it computed (0 if the stadium lookup failed or the stadium is empty) so a league match's
+// report (see common.UpdateMatchFlavor) can show the exact same crowd size rather than drawing
+// its own, independent random attendance that could disagree with this transaction's own
+// description.
+func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
+	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId)
 	if revenue == 0 {
 		return attendance
 	}
@@ -111,4 +121,39 @@ func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
 		log.Errorf("error crediting ticket revenue for team %d: %s", homeTeamId, err)
 	}
 	return attendance
+}
+
+// creditFriendlyTicketRevenue pays both sides of a friendly half of the home team's own matchday
+// gate receipts each - see engine.simulateFriendly, the only caller. Unlike a league match or cup
+// tie (see creditTicketRevenue above), where the away side gets nothing, a friendly's away team
+// travels purely as a favor to the home side rather than for any competitive stake, so the gate it
+// helped draw is split evenly instead of going entirely to the home side. Any odd unit from
+// splitting an odd total stays with the home side, whose stadium actually generated it. Returns
+// the attendance figure it computed (0 if the stadium lookup failed or the stadium is empty),
+// same convention as creditTicketRevenue, even though no friendly report currently displays it.
+func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64) int {
+	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId)
+	if revenue == 0 {
+		return attendance
+	}
+
+	homeShare, awayShare := splitRevenueEvenly(revenue)
+
+	description := fmt.Sprintf("Friendly ticket revenue (%d attendance, half share)", attendance)
+	if err := common.AdjustTeamBudget(dbCtx, homeTeamId, homeShare, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
+		log.Errorf("error crediting friendly ticket revenue for home team %d: %s", homeTeamId, err)
+	}
+	if err := common.AdjustTeamBudget(dbCtx, awayTeamId, awayShare, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
+		log.Errorf("error crediting friendly ticket revenue for away team %d: %s", awayTeamId, err)
+	}
+	return attendance
+}
+
+// splitRevenueEvenly divides revenue into two integer shares that sum back to revenue exactly -
+// any odd unit (an integer division always rounds toward zero, never the other way) goes to the
+// first (home) share, so a stray cent never just vanishes from the two sides' combined total.
+func splitRevenueEvenly(revenue int64) (homeShare int64, awayShare int64) {
+	awayShare = revenue / 2
+	homeShare = revenue - awayShare
+	return
 }

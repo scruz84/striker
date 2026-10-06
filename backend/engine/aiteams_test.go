@@ -3,6 +3,7 @@ package engine
 import (
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/scruz84/striker/common"
 )
@@ -176,6 +177,35 @@ func TestFilterAiManagedTeams(t *testing.T) {
 	got := filterAiManagedTeams(teams)
 	if len(got) != 2 || got[0].Id != 1 || got[1].Id != 4 {
 		t.Errorf("expected teams [1 4], got %v", got)
+	}
+}
+
+// ProbAiLocalActivityPerTick must stay a valid probability (0,1] - a regression here (e.g. the
+// activity window shrinking to zero width) would otherwise silently turn every roll into a
+// division-by-zero NaN/Inf instead of failing loudly.
+func TestProbAiLocalActivityPerTick_IsValidProbability(t *testing.T) {
+	if ProbAiLocalActivityPerTick <= 0 || ProbAiLocalActivityPerTick > 1 {
+		t.Fatalf("ProbAiLocalActivityPerTick = %v, want a value in (0, 1]", ProbAiLocalActivityPerTick)
+	}
+}
+
+// awakeTeamIds must drop a team whose own country's local clock is outside the activity window
+// at the given instant, even though the team is otherwise AI-managed and eligible - this is what
+// stops RunAiTeamDailyActivity from matching an awake challenger into a friendly against an
+// opponent whose own local time is the middle of the night (the gap the original timezone PR
+// left open: only the challenger's own window was checked, never the candidate opponent's).
+func TestAwakeTeamIds_ExcludesTeamsOutsideTheirOwnLocalWindow(t *testing.T) {
+	// 03:00 UTC: night in Spain (Europe/Madrid, UTC+1/+2), afternoon in Japan (Asia/Tokyo, UTC+9).
+	now := time.Date(2026, 6, 15, 3, 0, 0, 0, time.UTC)
+	teams := []*common.Team{
+		{Id: 1, Country: "es"},
+		{Id: 2, Country: "jp"},
+	}
+
+	got := awakeTeamIds(now, teams)
+
+	if len(got) != 1 || got[0] != 2 {
+		t.Fatalf("expected only the Japanese team (id 2), got %v", got)
 	}
 }
 

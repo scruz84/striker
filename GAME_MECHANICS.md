@@ -387,10 +387,15 @@ sums every positive transaction by reason into horizontal bars.
 `common/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
 ties route through after a result: it credits the home side's ticket revenue, credits sponsorship
 to both sides, and triggers `RunAITeamManagement` for either side that's currently unowned (see
-below). Friendlies deliberately skip all of this - no ticket revenue, no sponsorship, no
-*per-match* AI upkeep hook - since a friendly isn't a competitive result with financial stakes
-(skill growth is the one exception - see "Player skill progression" above). A CPU team's market
-upkeep isn't actually gated on this hook firing, though - see the daily scheduler described in the
+below). Friendlies deliberately skip all of this - no sponsorship (tied to goals scored in a
+result that actually matters, which a friendly's never is), no *per-match* AI upkeep hook - since
+a friendly isn't a competitive result (skill growth is one exception - see "Player skill
+progression" above). Ticket revenue is the other: `engine/friendlies.go`'s `simulateFriendly`
+calls `creditFriendlyTicketRevenue` instead, which draws attendance/revenue from the home side's
+own stadium exactly like `creditTicketRevenue` does, but splits the gate evenly between both
+sides instead of paying it entirely to the home side - the away side showed up purely as a favor
+for a non-competitive match, so it isn't left empty-handed. A CPU team's market upkeep isn't
+actually gated on the per-match hook firing, though - see the daily scheduler described in the
 next section.
 
 ## Notifications

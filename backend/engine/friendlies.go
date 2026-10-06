@@ -61,15 +61,19 @@ func simulateFriendliesNow(dbCtx *common.DatabaseContext, friendlies []common.Fr
 }
 
 // simulateFriendly runs the shared match engine and persists the result, but deliberately skips
-// UpdateTeamFinancesAfterMatch (no ticket revenue/sponsorship for a friendly - see
-// init26_friendlies.sql) and any per-match AI-team management hook (a friendly result itself is
-// not something an AI manager needs to react to - see RunAiTeamDailyActivity in aiteams.go for the
-// separate, match-independent scheduler that now covers CPU market upkeep instead).
+// UpdateTeamFinancesAfterMatch and any per-match AI-team management hook (a friendly result
+// itself is not something an AI manager needs to react to - see RunAiTeamDailyActivity in
+// aiteams.go for the separate, match-independent scheduler that now covers CPU market upkeep
+// instead). It still credits gate receipts, split evenly between both sides (see
+// creditFriendlyTicketRevenue) - unlike a competitive match's ticket revenue (home side only, see
+// creditTicketRevenue), which this deliberately does not reuse - but there's still no
+// sponsorship income, since that's tied to goals scored in a result that actually matters (see
+// creditSponsorship), which a friendly's never is.
 // Injuries still apply via UpdatePlayerAvailability, same as any other simulated match, and so
 // does skill growth (updateSkillsAfterPlayedMatch) - a friendly still develops the players who
-// feature in it, even with no financial stakes attached. Red cards, however, carry no suspension
-// at all when picked up in a friendly (see DisciplineSimulation.Apply) - a friendly has nothing
-// competitive to sanction.
+// feature in it, even with no competitive stakes attached. Red cards, however, carry no
+// suspension at all when picked up in a friendly (see DisciplineSimulation.Apply) - a friendly
+// has nothing competitive to sanction.
 func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMatch) error {
 	lineups, err := common.GetLineupsForFriendly(dbCtx, friendly.MatchId, []int64{friendly.HomeTeamId, friendly.AwayTeamId})
 	if err != nil {
@@ -95,6 +99,12 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 		matchSimulation.AwayGoals, *matchSimulation.Events, *matchSimulation.MatchInstants); err != nil {
 		return err
 	}
+
+	// Credited immediately rather than deferred to onComplete below, same as
+	// UpdateTeamFinancesAfterMatch for a league match/cup tie (see simulateMatch) - a budget
+	// change isn't the kind of visible-outside-this-page state (an injury, a skill jump, a
+	// notification) that needs to wait for the friendly's advertised kickoff to actually arrive.
+	creditFriendlyTicketRevenue(dbCtx, friendly.HomeTeamId, friendly.AwayTeamId)
 
 	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
 	// as simulateMatch - see its own comment. A friendly is simulated and marked played up to 15

@@ -69,9 +69,11 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 // playing. Shared by league matches and cup ties (see simulateMatch/simulateCupTie), unlike
 // wages: those are charged separately, only from simulateMatch (see PayMatchdayWages), so a cup
 // tie played in the same round as a league match doesn't charge a team's wage bill twice.
-// This is also the once-per-match hook point for any unowned team's AI upkeep (see
-// RunAITeamManagement) - matches are the natural cadence for that, and reusing this call site
-// avoids a separate scheduler job for it.
+// This is also the once-per-match hook point for any unowned team's baseline AI reaction (see
+// RunAITeamMatchReaction) - matches are the natural cadence for that, and reusing this call site
+// avoids a separate scheduler job for it. Proactive market/roster action (signings, listings,
+// buying, renewals) deliberately stays off this call site - see RunAITeamManagement's own doc
+// comment on why it only ever runs from the local-hour-gated daily tick instead.
 //
 // Returns the home side's computed attendance (see creditTicketRevenue) - simulateMatch reuses
 // this exact figure for the match's report flavor rather than drawing a second, independent one.
@@ -79,8 +81,8 @@ func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 	attendance := creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
 	creditSponsorship(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
-	RunAITeamManagement(dbCtx, match.Home)
-	RunAITeamManagement(dbCtx, match.Away)
+	RunAITeamMatchReaction(dbCtx, match.Home)
+	RunAITeamMatchReaction(dbCtx, match.Away)
 	return attendance
 }
 

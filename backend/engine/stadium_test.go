@@ -99,3 +99,24 @@ func TestTicketRevenue(t *testing.T) {
 		t.Fatalf("expected 0 revenue for 0 attendance, got %d", got)
 	}
 }
+
+func TestSplitRevenueEvenly(t *testing.T) {
+	tests := []struct {
+		revenue  int64
+		wantHome int64
+		wantAway int64
+	}{
+		{0, 0, 0},
+		{10000, 5000, 5000},
+		{10001, 5001, 5000}, // odd unit stays with home
+	}
+	for _, tt := range tests {
+		home, away := splitRevenueEvenly(tt.revenue)
+		if home != tt.wantHome || away != tt.wantAway {
+			t.Errorf("splitRevenueEvenly(%d) = (%d, %d), want (%d, %d)", tt.revenue, home, away, tt.wantHome, tt.wantAway)
+		}
+		if home+away != tt.revenue {
+			t.Errorf("splitRevenueEvenly(%d): shares %d+%d don't sum back to the original revenue", tt.revenue, home, away)
+		}
+	}
+}

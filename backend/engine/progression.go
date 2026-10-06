@@ -518,9 +518,10 @@ func ProgressFreeAgents(dbCtx *common.DatabaseContext) {
 // (both just above) change its squad: retirees are already dropped from default_lineup_positions
 // (see RetirePlayer), leaving the team fielding fewer than 11 players, and new academy players
 // would never be selected at all. Delegates to refreshAiTeamLineup (engine/aiteams.go) - the same
-// function RunAITeamManagement calls every match - rather than duplicating its own copy of the
-// lineup/formation selection, so the two can never drift into picking differently for the same
-// squad. Unlike RunAITeamManagement, this doesn't gate on isAiManagedTeam (AiLevel >=
+// function every per-match/per-tick AI reaction calls (see aiTeamBaselineReaction) - rather than
+// duplicating its own copy of the lineup/formation selection, so the two can never drift into
+// picking differently for the same squad. Unlike RunAITeamMatchReaction/RunAITeamManagement,
+// this doesn't gate on isAiManagedTeam (AiLevel >=
 // AiLevelCaretaker): a team that's unowned but hasn't been assigned an AI level yet (AiLevel 0 -
 // e.g. one not yet reached by BackfillAiLevels) still needs its lineup refreshed here or it would
 // simply go stale forever, and refreshAiTeamLineup/formationRankForAiLevel already treat AiLevel 0

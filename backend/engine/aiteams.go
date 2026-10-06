@@ -11,47 +11,75 @@ import (
 
 // isAiManagedTeam reports whether a team is both unowned and has an AI level entitling it to any
 // automated behavior at all (see common.AiLevelCaretaker/Manager/Director) - the one gate shared
-// by every entry point into AI-team automation (RunAITeamManagement, RespondToAllPendingOffers,
-// RunAiTeamDailyActivity), so the definition of "AI-managed" can't drift between them.
+// by every entry point into AI-team automation (RunAITeamManagement, RunAITeamMatchReaction,
+// RespondToAllPendingOffers, RunAiTeamDailyActivity), so the definition of "AI-managed" can't
+// drift between them.
 func isAiManagedTeam(team *common.Team) bool {
 	return team.OwnerId <= 0 && team.AiLevel >= common.AiLevelCaretaker
 }
 
-// RunAITeamManagement drives every automatic action an unowned team's AI level entitles it to -
-// called once per match for each side involved (see UpdateTeamFinancesAfterMatch), and once more
-// a day (on average) for every AI-managed team regardless of match activity (see
-// RunAiTeamDailyActivity/StartAiActivityScheduler) - safe to call redundantly since every action
-// inside is itself a no-op once there's nothing left to do (nothing to renew, no surplus to list,
-// etc.). See common.AiLevelCaretaker/Manager/Director for what each tier adds on top of the one
-// below it; a no-op for any team with a real owner.
-func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
+// aiTeamBaselineReaction fetches teamId and, if it's AI-managed, runs the baseline reaction every
+// AI-managed team takes regardless of when it runs: refresh its default lineup from the current
+// squad, and answer any offer sitting on its own players. Shared by RunAITeamMatchReaction and
+// RunAITeamManagement so the two can't silently drift apart on this shared baseline - each adds
+// its own extra behavior on top (or none, for RunAITeamMatchReaction). Returns the fetched team
+// and whether it actually ran (false, nil-safe to use, for a fetch error or a non-AI-managed
+// team) so a caller that needs the team for more than this baseline doesn't have to fetch it
+// twice.
+func aiTeamBaselineReaction(dbCtx *common.DatabaseContext, teamId int64) (*common.Team, bool) {
 	team, err := common.GetTeamById(teamId, dbCtx)
 	if err != nil {
-		log.Errorf("error fetching team %d for AI management: %s", teamId, err)
-		return
+		log.Errorf("error fetching team %d for AI reaction: %s", teamId, err)
+		return nil, false
 	}
 	if !isAiManagedTeam(team) {
-		return
+		return team, false
 	}
 
 	refreshAiTeamLineup(dbCtx, teamId, team.AiLevel)
-	// Responding to incoming offers is baseline Caretaker-level behavior (see
-	// AiLevelCaretaker/Manager/Director's own doc comment: "Caretaker only reacts ... accepts
-	// clearly-good incoming offers") - it belongs here, unconditional at every AI level, not
-	// gated behind Manager inside manageRosterIfManager the way it used to be. Before this, a
-	// human's offer on a Caretaker-level AI team's player got no automated response at all and
-	// sat pending forever (issue #61).
 	respondToReceivedOffers(dbCtx, team.Id)
+	return team, true
+}
+
+// RunAITeamMatchReaction runs the baseline, time-insensitive reaction every AI-managed team takes
+// right after one of its own matches simulates (see UpdateTeamFinancesAfterMatch, its only
+// caller) - reactive to something that just happened to this team specifically, so it doesn't
+// need to wait for the local-hour-gated daily tick the way initiating new market/roster action
+// does (see RunAITeamManagement). Responding to incoming offers is baseline Caretaker-level
+// behavior (see AiLevelCaretaker/Manager/Director's own doc comment: "Caretaker only reacts ...
+// accepts clearly-good incoming offers") - unconditional at every AI level, not gated behind
+// Manager. Before this, a human's offer on a Caretaker-level AI team's player got no automated
+// response at all and sat pending forever (issue #61). A no-op for any team with a real owner.
+func RunAITeamMatchReaction(dbCtx *common.DatabaseContext, teamId int64) {
+	aiTeamBaselineReaction(dbCtx, teamId)
+}
+
+// RunAITeamManagement drives every proactive market/roster action an unowned team's AI level
+// entitles it to - called only from the local-hour-gated daily tick (see
+// RunAiTeamDailyActivity/StartAiActivityScheduler), never synchronously off a match result, so
+// that every AI-managed team's own country's local awake hours decide when it initiates new
+// market activity rather than all of them firing together at whatever single hour the admin-
+// configured match schedule happens to use (see common.GetMatchSchedule). Safe to call
+// redundantly since every action inside is itself a no-op once there's nothing left to do
+// (nothing to renew, no surplus to list, etc.). See common.AiLevelCaretaker/Manager/Director for
+// what each tier adds on top of the one below it; a no-op for any team with a real owner.
+func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
+	team, ran := aiTeamBaselineReaction(dbCtx, teamId)
+	if !ran {
+		return
+	}
+
 	manageRosterIfManager(dbCtx, team)
 	manageMarketIfDirector(dbCtx, team)
 }
 
 // RespondToAllPendingOffers sweeps every unowned team's pending incoming transfer offers once or
 // twice a day (see engine.StartOfferResponseScheduler), independent of match activity.
-// RunAITeamManagement above only fires when that team's own match is simulated, which could
-// otherwise leave a human's offer on an AI-managed team unanswered for as long as that team goes
-// between matches - issue #61 ("no news from the CPU team ... the offer can remain one or two
-// days, then the club must respond").
+// RunAITeamMatchReaction above only fires when that team's own match is simulated, and
+// RunAITeamManagement only within its own local-hour window, either of which could otherwise
+// leave a human's offer on an AI-managed team unanswered for as long as that team goes between
+// matches and never happens to roll its daily tick - issue #61 ("no news from the CPU team ...
+// the offer can remain one or two days, then the club must respond").
 func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 	teamIds, err := common.GetAllTeamIds(dbCtx)
 	if err != nil {
@@ -175,7 +203,8 @@ func promoteFromAcademyForWeakestPosition(dbCtx *common.DatabaseContext, teamId 
 const minAcceptableTransferFeeWageMultiplier = 20
 
 // respondToReceivedOffers judges every pending offer on an AI-managed team's own players (any AI
-// level, Caretaker and up - see RunAITeamManagement/RespondToAllPendingOffers, its two callers):
+// level, Caretaker and up - see RunAITeamMatchReaction/RunAITeamManagement/
+// RespondToAllPendingOffers, its three callers):
 // accept a fee that clears minAcceptableTransferFeeWageMultiplier (the personal terms are already
 // settled - see MakeTransferOffer, which never even creates an offer the player themself wouldn't
 // accept), reject anything less.
@@ -603,46 +632,54 @@ func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64, aiLevel in
 	}
 }
 
-// aiActivityTicksPerDay is how many times StartAiActivityScheduler's job fires per day (every 5
-// minutes - see its own comment) - the denominator ProbAiDailyActivityPerTick is built from.
-const aiActivityTicksPerDay = 24 * 60 / 5
+// localActivityWindowTicksPerDay is how many of StartAiActivityScheduler's 5-minute ticks fall
+// inside a team's own local awake-hours window (see common.LocalActivityStartHour/EndHour) on any
+// given day - the denominator ProbAiLocalActivityPerTick is built from.
+const localActivityWindowTicksPerDay = (common.LocalActivityEndHour - common.LocalActivityStartHour) * 60 / 5
 
-// ProbAiDailyActivityPerTick is calibrated so each eligible team's chance of triggering on any
-// given tick averages out to once a day - spread randomly across it (whichever tick happens to
-// roll true first) rather than every team acting in lockstep at the same fixed hour, the same way
-// a single shared probability already spreads out per-minute match events (see e.g.
-// engine.ProbChance) instead of scheduling them deterministically.
-const ProbAiDailyActivityPerTick = float32(1) / float32(aiActivityTicksPerDay)
+// ProbAiLocalActivityPerTick is calibrated so each eligible team's chance of triggering on any
+// given tick that falls inside its own local awake-hours window (see
+// common.IsWithinLocalActivityWindow) averages out to once a day - spread randomly across that
+// window (whichever tick happens to roll true first) rather than every team acting in lockstep at
+// the same fixed hour, the same way a single shared probability already spreads out per-minute
+// match events (see e.g. engine.ProbChance) instead of scheduling them deterministically. Gating
+// on the window first, rather than just lowering this probability to cover the full 24h, is what
+// keeps a team's own activity out of its local small hours.
+const ProbAiLocalActivityPerTick = float32(1) / float32(localActivityWindowTicksPerDay)
 
-// aiFriendlyChallengeAttemptsPerDay is how many expected dice rolls a day's worth of ticks gives
-// an eligible team to challenge another AI-managed team to a friendly - ProbAiDailyActivityPerTick
-// averaging out to a single attempt a day is fine for market management (skipping a day there
-// costs nothing), but a skipped day here is a wasted friendly slot that issue #... complains about:
-// CPU teams sitting on an unused weekly allowance instead of actually playing through it. At this
-// rate the chance of a whole day passing with zero attempts is negligible (~(1 -
-// aiFriendlyChallengeAttemptsPerDay/aiActivityTicksPerDay)^aiActivityTicksPerDay ≈ e^-10, well
-// under 0.01%), while still landing at a randomly-timed tick rather than deterministically at the
-// day's first one. challengeAiTeamToFriendly's own "already has one today" guard is what actually
-// keeps this to one per day despite the many rolls, and what lets the days a team's weekly cap
-// isn't yet spent actually get used, one per day, instead of a few lucky days exhausting the whole
-// week's allowance while the rest go without.
+// aiFriendlyChallengeAttemptsPerDay is how many expected dice rolls a team's own local
+// awake-hours window gives it to challenge another AI-managed team to a friendly -
+// ProbAiLocalActivityPerTick averaging out to a single attempt a day is fine for market
+// management (skipping a day there costs nothing), but a skipped day here is a wasted friendly
+// slot: CPU teams sitting on an unused weekly allowance instead of actually playing through it.
+// At this rate the chance of a whole window passing with zero attempts is negligible (~(1 -
+// aiFriendlyChallengeAttemptsPerDay/localActivityWindowTicksPerDay)^localActivityWindowTicksPerDay
+// ≈ e^-10, well under 0.01%), while still landing at a randomly-timed tick rather than
+// deterministically at the window's first one. challengeAiTeamToFriendly's own "already has one
+// today" guard is what actually keeps this to one per day despite the many rolls, and what lets
+// the days a team's weekly cap isn't yet spent actually get used, one per day, instead of a few
+// lucky days exhausting the whole week's allowance while the rest go without.
 const aiFriendlyChallengeAttemptsPerDay = 10
 
-// ProbAiFriendlyChallengePerTick is the per-tick dice an eligible team rolls to attempt a friendly
-// challenge - see aiFriendlyChallengeAttemptsPerDay for why it's set much higher than
-// ProbAiDailyActivityPerTick.
-const ProbAiFriendlyChallengePerTick = float32(aiFriendlyChallengeAttemptsPerDay) / float32(aiActivityTicksPerDay)
+// ProbAiFriendlyChallengePerTick is the per-tick dice an eligible team rolls, while inside its own
+// local awake-hours window, to attempt a friendly challenge - see
+// aiFriendlyChallengeAttemptsPerDay for why it's set much higher than ProbAiLocalActivityPerTick.
+const ProbAiFriendlyChallengePerTick = float32(aiFriendlyChallengeAttemptsPerDay) / float32(localActivityWindowTicksPerDay)
 
 // RunAiTeamDailyActivity gives every AI-managed team (see isAiManagedTeam) an independent,
-// randomly-timed chance each tick (see StartAiActivityScheduler) to run its full market
-// management pass and to challenge another AI-managed team to a friendly - both entirely
-// decoupled from match simulation, unlike RunAITeamManagement's per-match trigger. Before this, a
-// freshly created world's CPU teams sat completely idle in the transfer market (and never played
-// each other) until their very first league/cup match was simulated; this guarantees market
-// activity - and a friendly habit - from day one, whether or not any competitive match has been
-// played yet. A friendly opponent is deliberately only ever another AI-managed team, never a
-// human's - a human still only ever gets challenged by another human (see ChallengeToFriendly),
-// so this can't spam a manager's inbox with unsolicited CPU challenges.
+// randomly-timed chance - once its own country's local clock is inside common.LocalActivityStart/
+// EndHour (see common.IsWithinLocalActivityWindow) - to run its full market management pass and
+// to challenge another AI-managed team to a friendly, both entirely decoupled from match
+// simulation (see RunAITeamManagement's doc comment: it's only ever called from here). Before
+// this existed at all, a freshly created world's CPU teams sat completely idle in the transfer
+// market (and never played each other) until their very first league/cup match was simulated;
+// this guarantees market activity - and a friendly habit - from day one, whether or not any
+// competitive match has been played yet, and keeps it landing at a plausible local hour for each
+// team's own country rather than any UTC instant at random (or, before RunAITeamManagement moved
+// here exclusively, in lockstep with every other team at the single global match-schedule hour -
+// see common.GetMatchSchedule). A friendly opponent is deliberately only ever another AI-managed
+// team, never a human's - a human still only ever gets challenged by another human (see
+// ChallengeToFriendly), so this can't spam a manager's inbox with unsolicited CPU challenges.
 //
 // Teams that already have a friendly kicking off today (see common.GetTeamsWithFriendlyToday) are
 // left out of the friendly round entirely - neither offered as an opponent nor allowed to
@@ -667,27 +704,46 @@ func RunAiTeamDailyActivity(dbCtx *common.DatabaseContext) {
 	}
 
 	eligible := filterAiManagedTeams(teams)
-	eligibleIds := make([]int64, len(eligible))
-	for i, team := range eligible {
-		eligibleIds[i] = team.Id
-	}
 
 	playedToday, err := common.GetTeamsWithFriendlyToday(dbCtx)
 	if err != nil {
 		log.Errorf("error checking today's friendlies for AI daily activity: %s", err)
 		playedToday = map[int64]bool{}
 	}
-	availableForFriendly := excludeTeamIds(eligibleIds, playedToday)
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	now := time.Now()
+	// Narrowed once per tick, up front, to teams currently inside their own country's local
+	// window - so a team on the awake side of this check is never matched into a friendly
+	// against one that isn't (the opponent's own plausible local hour matters exactly as much as
+	// the challenger's own) - then further excludes anyone already playing a friendly today.
+	awakeForFriendly := excludeTeamIds(awakeTeamIds(now, eligible), playedToday)
+
+	r := rand.New(rand.NewSource(now.UnixNano()))
 	for _, team := range eligible {
-		if r.Float32() < ProbAiDailyActivityPerTick {
+		if !common.IsWithinLocalActivityWindow(now, team.Country) {
+			continue
+		}
+		if r.Float32() < ProbAiLocalActivityPerTick {
 			RunAITeamManagement(dbCtx, team.Id)
 		}
 		if !playedToday[team.Id] && r.Float32() < ProbAiFriendlyChallengePerTick {
-			challengeAiTeamToFriendly(dbCtx, r, team.Id, availableForFriendly)
+			challengeAiTeamToFriendly(dbCtx, r, team.Id, awakeForFriendly)
 		}
 	}
+}
+
+// awakeTeamIds returns the ids of every team currently inside its own country's local activity
+// window (see common.IsWithinLocalActivityWindow) at the instant now - the pool
+// RunAiTeamDailyActivity draws a friendly opponent from, so a team never gets matched into a
+// friendly against one whose own local clock reads the middle of the night.
+func awakeTeamIds(now time.Time, teams []*common.Team) []int64 {
+	ids := make([]int64, 0, len(teams))
+	for _, team := range teams {
+		if common.IsWithinLocalActivityWindow(now, team.Country) {
+			ids = append(ids, team.Id)
+		}
+	}
+	return ids
 }
 
 // excludeTeamIds returns ids minus every id present (and true) in excluded.
@@ -728,9 +784,10 @@ func pickRandomOpponent(r *rand.Rand, teamIds []int64, exclude int64) (int64, bo
 }
 
 // challengeAiTeamToFriendly has teamId challenge a random other AI-managed team (from
-// candidateIds, which RunAiTeamDailyActivity has already narrowed down to teams with no friendly
-// kicking off today) to a friendly. Both sides being unowned means ChallengeToFriendly auto-accepts
-// on the spot (see its own doc comment) - there's nobody who'd otherwise need to act on it.
+// candidateIds, which RunAiTeamDailyActivity has already narrowed down to teams currently inside
+// their own country's local activity window, with no friendly kicking off today) to a friendly.
+// Both sides being unowned means ChallengeToFriendly auto-accepts on the spot (see its own doc
+// comment) - there's nobody who'd otherwise need to act on it.
 // ErrFriendlyLimitReached (either side already at its weekly cap - the default is just 1) and
 // ErrFriendlyChallengeAlreadyExists (a pending challenge between this exact pair still
 // outstanding, which shouldn't happen between two auto-accepting sides but costs nothing to guard
