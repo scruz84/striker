@@ -81,6 +81,11 @@ export function MatchDetailsPage() {
         homePosition={positionOf(division, match.home)}
         awayPosition={positionOf(division, match.away)}
         matchDate={match.matchDate}
+        weather={match.weather}
+        attendance={match.attendance}
+        refereeName={match.refereeName}
+        assistant1Name={match.assistant1Name}
+        assistant2Name={match.assistant2Name}
         team={isParticipant ? userTeam?.team : undefined}
         players={isParticipant ? userTeam?.players : undefined}
         played={match.played}
@@ -102,6 +107,11 @@ function LiveMatch({
   homePosition,
   awayPosition,
   matchDate,
+  weather,
+  attendance,
+  refereeName,
+  assistant1Name,
+  assistant2Name,
   team,
   players,
   played,
@@ -116,6 +126,14 @@ function LiveMatch({
   homePosition?: number
   awayPosition?: number
   matchDate: string
+  // Match-report flavor (see MatchEventsReport) - already known by the time a viewer reaches the
+  // live view, since a match is fully simulated (and UpdateMatchFlavor persisted) before its live
+  // broadcast starts pacing events out - see backend engine.simulateMatch/UpdateMatchFlavor.
+  weather?: string
+  attendance?: number
+  refereeName?: string
+  assistant1Name?: string
+  assistant2Name?: string
   team?: Team
   players?: Player[]
   played: boolean
@@ -223,7 +241,18 @@ function LiveMatch({
         </>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={liveEvents} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
+        <MatchEventsReport
+          events={liveEvents}
+          homeId={homeId}
+          homeName={homeName}
+          awayId={awayId}
+          awayName={awayName}
+          weather={weather}
+          attendance={attendance}
+          refereeName={refereeName}
+          assistant1Name={assistant1Name}
+          assistant2Name={assistant2Name}
+        />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
