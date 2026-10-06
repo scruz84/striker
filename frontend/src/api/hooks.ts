@@ -1009,6 +1009,13 @@ export function useAdminAdjustBudget() {
   })
 }
 
+export function useAdminInjectAllTeamsBudget() {
+  return useMutation({
+    mutationFn: ({ amount, description }: { amount: number; description: string }) =>
+      api.post<{ message: string; teamsAffected: number }>('/v1/admin/teams/inject-all', { amount, description }),
+  })
+}
+
 export function useAdminSetAiLevel() {
   return useMutation({
     mutationFn: ({ teamId, aiLevel }: { teamId: number; aiLevel: number }) =>

@@ -819,6 +819,16 @@
       "success": "Budget adjusted.",
       "error": "Failed to adjust budget."
     },
+    "injectAllTeamsBudget": {
+      "title": "Inject money into all teams",
+      "amount": "Amount per team",
+      "amountHelper": "negative to deduct from everyone",
+      "description": "Description",
+      "confirm": "Add {{amount}} to every existing team's budget? This affects all {{teamCount}} teams at once.",
+      "apply": "Inject into all teams",
+      "success": "Budget adjusted for {{teamCount}} teams.",
+      "error": "Failed to inject money into all teams."
+    },
     "setAiLevel": {
       "title": "Set team AI level",
       "description": "Only affects unowned teams - has no effect once a team has a real owner.",

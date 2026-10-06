@@ -227,6 +227,12 @@ const DeleteExpiredUnavailabilityStmtSql = "DELETE FROM player_unavailability WH
 
 const GetTeamBudgetStmtSql = "SELECT budget FROM teams WHERE team_id = $1"
 const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE team_id = $2"
+const UpdateAllTeamsBudgetStmtSql = "UPDATE teams SET budget = budget + $1"
+
+// InsertTeamTransactionForAllTeamsStmtSql logs the same mass adjustment against every team's own
+// ledger, one row per team_id, so a mass injection isn't invisible to any team's owner.
+const InsertTeamTransactionForAllTeamsStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) " +
+	"SELECT team_id, $1, $2, $3, NULL FROM teams"
 
 // player_id is nullable - only a transaction about one specific player (a transfer, a release)
 // sets it; team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
@@ -1724,6 +1730,33 @@ func AdjustTeamBudget(dbCtx *DatabaseContext, teamId int64, amount int64, reason
 		return err
 	}
 	return tx.Commit()
+}
+
+// AdjustAllTeamsBudget changes every team's budget by `amount` (negative for a deduction) and
+// records the adjustment in each team's own ledger, atomically. It returns how many teams were
+// affected.
+func AdjustAllTeamsBudget(dbCtx *DatabaseContext, amount int64, reason int, description string) (int64, error) {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	result, err := tx.Exec(UpdateAllTeamsBudgetStmtSql, amount)
+	if err != nil {
+		return 0, err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	if _, err := tx.Exec(InsertTeamTransactionForAllTeamsStmtSql, amount, reason, description); err != nil {
+		return 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return affected, nil
 }
 
 func GetTeamTransactions(dbCtx *DatabaseContext, teamId int64, limit int) ([]TeamTransaction, error) {

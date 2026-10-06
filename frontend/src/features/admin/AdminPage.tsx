@@ -35,6 +35,7 @@ import {
   useAdminAdvanceSeason,
   useAdminCountries,
   useAdminFinishStuckMatches,
+  useAdminInjectAllTeamsBudget,
   useAdminInjectFreeAgentsNow,
   useAdminLeagues,
   useAdminOverview,
@@ -181,10 +182,13 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
   const payWagesNow = useAdminPayWagesNow()
   const injectFreeAgentsNow = useAdminInjectFreeAgentsNow()
   const adjustBudget = useAdminAdjustBudget()
+  const injectAllTeamsBudget = useAdminInjectAllTeamsBudget()
   const setTransferWindow = useSetTransferWindow()
   const [teamId, setTeamId] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
+  const [allTeamsAmount, setAllTeamsAmount] = useState('')
+  const [allTeamsDescription, setAllTeamsDescription] = useState('')
 
   const handleSimulateNow = async () => {
     const ok = await confirm({ message: t('admin.actions.confirmRunSimulation'), destructive: true })
@@ -256,6 +260,29 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
     adjustBudget.mutate(
       { teamId: teamIdNum, amount: amountNum, description },
       { onSuccess: () => setDescription('') },
+    )
+  }
+
+  const handleInjectAllTeamsBudget = async (event: FormEvent) => {
+    event.preventDefault()
+    const amountNum = Number(allTeamsAmount)
+    if (!amountNum || !allTeamsDescription) {
+      return
+    }
+    const ok = await confirm({
+      message: t('admin.injectAllTeamsBudget.confirm', {
+        amount: formatCurrency(amountNum),
+        teamCount: overview.teamCount,
+      }),
+      confirmLabel: t('admin.injectAllTeamsBudget.apply'),
+      destructive: true,
+    })
+    if (!ok) {
+      return
+    }
+    injectAllTeamsBudget.mutate(
+      { amount: amountNum, description: allTeamsDescription },
+      { onSuccess: () => setAllTeamsDescription('') },
     )
   }
 
@@ -344,6 +371,38 @@ function Actions({ overview }: { overview: NonNullable<ReturnType<typeof useAdmi
           </Stack>
           {adjustBudget.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.adjustBudget.success')}</Alert>}
           {adjustBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.adjustBudget.error')}</Alert>}
+        </Box>
+
+        <Box component="form" onSubmit={handleInjectAllTeamsBudget}>
+          <Typography variant="subtitle1" gutterBottom>
+            {t('admin.injectAllTeamsBudget.title')}
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <TextField
+              label={t('admin.injectAllTeamsBudget.amount')}
+              size="small"
+              value={allTeamsAmount}
+              onChange={(e) => setAllTeamsAmount(e.target.value)}
+              helperText={t('admin.injectAllTeamsBudget.amountHelper')}
+              sx={{ width: 140 }}
+            />
+            <TextField
+              label={t('admin.injectAllTeamsBudget.description')}
+              size="small"
+              value={allTeamsDescription}
+              onChange={(e) => setAllTeamsDescription(e.target.value)}
+              sx={{ width: 260 }}
+            />
+            <Button type="submit" variant="contained" color="warning" disabled={injectAllTeamsBudget.isPending}>
+              {t('admin.injectAllTeamsBudget.apply')}
+            </Button>
+          </Stack>
+          {injectAllTeamsBudget.isSuccess && (
+            <Alert severity="success" sx={{ mt: 1 }}>
+              {t('admin.injectAllTeamsBudget.success', { teamCount: injectAllTeamsBudget.data.teamsAffected })}
+            </Alert>
+          )}
+          {injectAllTeamsBudget.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.injectAllTeamsBudget.error')}</Alert>}
         </Box>
 
         <SetAiLevelForm />

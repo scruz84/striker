@@ -819,6 +819,16 @@
       "success": "Presupuesto ajustado.",
       "error": "No se pudo ajustar el presupuesto."
     },
+    "injectAllTeamsBudget": {
+      "title": "Inyectar dinero a todos los equipos",
+      "amount": "Importe por equipo",
+      "amountHelper": "negativo para restar a todos",
+      "description": "Descripción",
+      "confirm": "¿Añadir {{amount}} al presupuesto de todos los equipos existentes? Esto afecta a los {{teamCount}} equipos a la vez.",
+      "apply": "Inyectar a todos los equipos",
+      "success": "Presupuesto ajustado para {{teamCount}} equipos.",
+      "error": "No se pudo inyectar dinero a todos los equipos."
+    },
     "setAiLevel": {
       "title": "Establecer nivel de IA del equipo",
       "description": "Solo afecta a equipos sin dueño - no tiene efecto una vez que un equipo tiene un dueño real.",

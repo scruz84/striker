@@ -279,6 +279,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.PUT("/free-agent-injections-per-week", handlers.AdminSetFreeAgentInjectionsPerWeekHandler(dbCtx))
 	v1AdminGroup.PUT("/offer-negotiation-window", handlers.AdminSetOfferNegotiationWindowHandler(dbCtx))
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
+	v1AdminGroup.POST("/teams/inject-all", handlers.AdminInjectAllTeamsBudgetHandler(dbCtx))
 	v1AdminGroup.PUT("/teams/:"+handlers.ID+"/ai-level", handlers.AdminSetTeamAiLevelHandler(dbCtx))
 	v1AdminGroup.PUT("/transfer-window", handlers.AdminSetTransferWindowHandler(dbCtx))
 	v1AdminGroup.PUT("/match-schedule", handlers.AdminSetMatchScheduleHandler(dbCtx))

@@ -40,18 +40,19 @@ const UNAVAILABLE_SUSPENSION = 0
 const UNAVAILABLE_INJURY = 1
 
 // team_transactions.reason
-const TRANSACTION_TRANSFER_IN = 0      // sold a player - income
-const TRANSACTION_TRANSFER_OUT = 1     // bought a player - expense
-const TRANSACTION_WAGES = 2            // wage bill for a played match - expense
-const TRANSACTION_ADMIN_ADJUSTMENT = 3 // a commissioner's manual budget correction
-const TRANSACTION_TICKET_REVENUE = 4   // matchday ticket sales for a home match - income
-const TRANSACTION_PRIZE_MONEY = 5      // season league-position or cup prize money - income
-const TRANSACTION_SPONSORSHIP = 6      // per-match sponsorship income - income
-const TRANSACTION_STADIUM_UPGRADE = 7  // capacity expansion - expense
-const TRANSACTION_CONTRACT_RELEASE = 8 // severance paid to release a player early - expense
-const TRANSACTION_TRAINER_WAGES = 9    // wage bill for an employed head coach, paid alongside player wages - expense
-const TRANSACTION_SEASON_TICKETS = 10  // once-a-season lump sum paid for stadium capacity, at rollover - income
-const TRANSACTION_MERCHANDISING = 11   // once-a-season shirt/merchandise income by league position, at rollover - income
+const TRANSACTION_TRANSFER_IN = 0           // sold a player - income
+const TRANSACTION_TRANSFER_OUT = 1          // bought a player - expense
+const TRANSACTION_WAGES = 2                 // wage bill for a played match - expense
+const TRANSACTION_ADMIN_ADJUSTMENT = 3      // a commissioner's manual budget correction
+const TRANSACTION_TICKET_REVENUE = 4        // matchday ticket sales for a home match - income
+const TRANSACTION_PRIZE_MONEY = 5           // season league-position or cup prize money - income
+const TRANSACTION_SPONSORSHIP = 6           // per-match sponsorship income - income
+const TRANSACTION_STADIUM_UPGRADE = 7       // capacity expansion - expense
+const TRANSACTION_CONTRACT_RELEASE = 8      // severance paid to release a player early - expense
+const TRANSACTION_TRAINER_WAGES = 9         // wage bill for an employed head coach, paid alongside player wages - expense
+const TRANSACTION_SEASON_TICKETS = 10       // once-a-season lump sum paid for stadium capacity, at rollover - income
+const TRANSACTION_MERCHANDISING = 11        // once-a-season shirt/merchandise income by league position, at rollover - income
+const TRANSACTION_ADMIN_MASS_INJECTION = 12 // a commissioner's budget adjustment applied to every team at once
 
 // DefaultStadiumCapacity is every new team's starting stadium capacity (see the initializer's
 // createTeam), regardless of the league tier it starts in - flat and fixed rather than random, so

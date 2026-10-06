@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/engine"
@@ -268,6 +269,41 @@ func AdminAdjustBudgetHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "budget adjusted"})
+	}
+}
+
+type injectAllTeamsBudgetRequest struct {
+	Amount      int64  `json:"amount" binding:"required"`
+	Description string `json:"description" binding:"required"`
+}
+
+type injectAllTeamsBudgetResponse struct {
+	Message       string `json:"message"`
+	TeamsAffected int64  `json:"teamsAffected"`
+}
+
+// AdminInjectAllTeamsBudgetHandler applies the same budget adjustment to every existing team at
+// once - positive to grant funds league-wide, negative to deduct from everyone - logged to each
+// team's own ledger like any other transaction so the injection isn't invisible to any owner.
+func AdminInjectAllTeamsBudgetHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req injectAllTeamsBudgetRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "amount and description are required"))
+			return
+		}
+
+		affected, err := common.AdjustAllTeamsBudget(dbCtx, req.Amount, common.TRANSACTION_ADMIN_MASS_INJECTION, req.Description)
+		if err != nil {
+			log.Errorf("error applying mass budget injection to all teams: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, injectAllTeamsBudgetResponse{
+			Message:       fmt.Sprintf("budget adjusted for %d teams", affected),
+			TeamsAffected: affected,
+		})
 	}
 }
 
