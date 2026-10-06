@@ -145,6 +145,29 @@ teams' finances are updated once the full 90 minutes resolve (ticket revenue, sp
 "Economy" below) and any unowned team involved gets its automatic AI upkeep run (see the CPU
 transfer-market section).
 
+### Suspended/injured players never actually take the field
+
+Before any of the above runs, `excludeUnavailablePlayers` (`engine/simulation.go`) strips every
+player still serving a suspension or injury (`common.GetUnavailablePlayerIds`/
+`GetUnavailablePlayerIdsForFriendly`) out of the saved starting lineup, even if the manager never
+updated it - so a banned or injured player simply can't appear, whatever the lineup says.
+`backfillEmptyPositions` then tries to restore each thinned position back to its original
+headcount from the rest of the squad (the next-best eligible player by `common.PositionValue`,
+mirroring a real substitute coming off the bench); if the squad doesn't have enough fit players
+left to fill every slot, the position is simply left short rather than fielding someone twice or
+someone unavailable - the match is played with fewer players on that side instead.
+
+### Forfeit when a side runs out of players
+
+`applyForfeitIfUnderstaffed` (`engine/simulation.go`) checks, before kickoff and again after every
+simulated minute, whether either side has fallen to `MinPlayersToContinueMatch` (7, goalkeeper
+included) or fewer - whether from a squad crisis the pre-kickoff backfill above couldn't cover, or
+from unreplaced red cards/injuries during the match. The moment it does, the match ends right
+there: the actual scoreline up to that point is discarded in favor of a flat `ForfeitGoals`-0 (3-0)
+win for the side still standing, a `common.MATCH_ABANDONED` event records it, and no further
+minutes are simulated - the same way a real match gets abandoned and awarded rather than played out
+short-handed.
+
 ## Player skill progression
 
 Skills drift match-by-match, not once a season: right after every league match, cup tie, or

@@ -155,6 +155,88 @@ func TestBackfillEmptyPositions_LeavesPositionShortWhenSquadExhausted(t *testing
 	}
 }
 
+func TestApplyForfeitIfUnderstaffed_NoForfeitAboveThreshold(t *testing.T) {
+	match := &common.MatchSimulation{
+		Home:                  1,
+		Away:                  2,
+		HomeGoals:             1,
+		AwayGoals:             0,
+		HomePlayersByPosition: &map[int][]int64{common.GOALKEEPER: {1}, common.DEFENSE: {2, 3, 4, 5, 6, 7, 8, 9}},
+		AwayPlayersByPosition: &map[int][]int64{common.GOALKEEPER: {10}, common.DEFENSE: {11, 12, 13, 14, 15, 16, 17, 18}},
+		Events:                &[]common.Event{},
+	}
+
+	if applyForfeitIfUnderstaffed(match) {
+		t.Fatalf("expected no forfeit with both sides above %d players", MinPlayersToContinueMatch)
+	}
+	if match.HomeGoals != 1 || match.AwayGoals != 0 {
+		t.Fatalf("expected score left untouched, got %d-%d", match.HomeGoals, match.AwayGoals)
+	}
+	if len(*match.Events) != 0 {
+		t.Fatalf("expected no event recorded, got %v", *match.Events)
+	}
+}
+
+func TestApplyForfeitIfUnderstaffed_AwardsForfeitToOpponentWhenHomeFallsToThreshold(t *testing.T) {
+	match := &common.MatchSimulation{
+		Minute:                63,
+		Home:                  1,
+		Away:                  2,
+		HomeGoals:             2,
+		AwayGoals:             1,
+		HomePlayersByPosition: &map[int][]int64{common.GOALKEEPER: {1}, common.DEFENSE: {2, 3, 4, 5, 6, 7}},
+		AwayPlayersByPosition: &map[int][]int64{common.GOALKEEPER: {10}, common.DEFENSE: {11, 12, 13, 14, 15, 16, 17, 18}},
+		Events:                &[]common.Event{},
+	}
+
+	if !applyForfeitIfUnderstaffed(match) {
+		t.Fatalf("expected forfeit once the home side drops to %d players", MinPlayersToContinueMatch)
+	}
+	if match.HomeGoals != 0 || match.AwayGoals != ForfeitGoals {
+		t.Fatalf("expected away awarded a %d-0 forfeit win, got %d-%d", ForfeitGoals, match.HomeGoals, match.AwayGoals)
+	}
+	events := *match.Events
+	if len(events) != 1 || events[0].EventType != common.MATCH_ABANDONED || events[0].TeamOwner != match.Home || events[0].OtherTeam != match.Away {
+		t.Fatalf("expected one MATCH_ABANDONED event naming home as the short-handed side, got %v", events)
+	}
+}
+
+func TestApplyForfeitIfUnderstaffed_AwardsForfeitToOpponentWhenAwayFallsToThreshold(t *testing.T) {
+	match := &common.MatchSimulation{
+		Home:                  1,
+		Away:                  2,
+		HomePlayersByPosition: &map[int][]int64{common.GOALKEEPER: {1}, common.DEFENSE: {2, 3, 4, 5, 6, 7, 8, 9}},
+		AwayPlayersByPosition: &map[int][]int64{common.GOALKEEPER: {10}, common.DEFENSE: {11, 12, 13, 14, 15, 16}},
+		Events:                &[]common.Event{},
+	}
+
+	if !applyForfeitIfUnderstaffed(match) {
+		t.Fatalf("expected forfeit once the away side drops to %d players", MinPlayersToContinueMatch)
+	}
+	if match.HomeGoals != ForfeitGoals || match.AwayGoals != 0 {
+		t.Fatalf("expected home awarded a %d-0 forfeit win, got %d-%d", ForfeitGoals, match.HomeGoals, match.AwayGoals)
+	}
+}
+
+func TestApplyForfeitIfUnderstaffed_NeitherSideAwardedWhenBothCollapseAtOnce(t *testing.T) {
+	match := &common.MatchSimulation{
+		Home:                  1,
+		Away:                  2,
+		HomeGoals:             0,
+		AwayGoals:             0,
+		HomePlayersByPosition: &map[int][]int64{common.GOALKEEPER: {1}, common.DEFENSE: {2, 3, 4, 5, 6}},
+		AwayPlayersByPosition: &map[int][]int64{common.GOALKEEPER: {10}, common.DEFENSE: {11, 12, 13, 14, 15}},
+		Events:                &[]common.Event{},
+	}
+
+	if applyForfeitIfUnderstaffed(match) {
+		t.Fatalf("expected no forfeit awarded when both sides collapse at once")
+	}
+	if len(*match.Events) != 0 {
+		t.Fatalf("expected no event recorded, got %v", *match.Events)
+	}
+}
+
 func TestBackfillEmptyPositions_AlreadyAtWantCountIsNoOp(t *testing.T) {
 	positions := map[int][]int64{common.MIDFIELD: {1, 2}}
 	wantCounts := map[int]int{common.MIDFIELD: 2}

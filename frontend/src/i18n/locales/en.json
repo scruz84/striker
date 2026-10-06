@@ -728,6 +728,11 @@
         "{{team}} make a change: {{outPlayer}} makes way for {{inPlayer}}.",
         "Substitution for {{team}} - {{inPlayer}} replaces {{outPlayer}}.",
         "{{outPlayer}} comes off, {{inPlayer}} comes on for {{team}}."
+      ],
+      "abandoned": [
+        "{{team}} can no longer field enough players to continue - the match is abandoned, and {{opponent}} are awarded the win.",
+        "With too few players left on the pitch, {{team}}'s match is called off - {{opponent}} take it 3-0.",
+        "The referee abandons the match: {{team}} are down to too few players to carry on, and {{opponent}} are awarded a 3-0 win."
       ]
     },
     "positionBattle": {

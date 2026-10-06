@@ -35,6 +35,11 @@ const RED_CARD = 3
 const INJURY = 4
 const SUBSTITUTION = 5
 
+// MATCH_ABANDONED marks a match ended early because one side could no longer field enough
+// players to continue (see engine.applyForfeitIfUnderstaffed) - TeamOwner is the side left
+// short-handed, OtherTeam the side awarded the forfeit win.
+const MATCH_ABANDONED = 6
+
 // player_unavailability.reason
 const UNAVAILABLE_SUSPENSION = 0
 const UNAVAILABLE_INJURY = 1

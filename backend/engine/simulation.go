@@ -7,6 +7,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// MinPlayersToContinueMatch is the fewest players (goalkeeper included) a side can have on the
+// pitch and still carry on - the real-football "7 players" rule. Dropping to this many or fewer,
+// whether that's a pre-kickoff squad crisis (excludeUnavailablePlayers couldn't backfill enough
+// eligible players) or a mid-match collapse (unreplaced red cards/injuries - see
+// applyForfeitIfUnderstaffed), ends the match immediately as a forfeit rather than letting it play
+// out short-handed.
+const MinPlayersToContinueMatch = 7
+
+// ForfeitGoals is the scoreline awarded to the side still standing when the other is forfeited
+// for falling to MinPlayersToContinueMatch or fewer players - the match's actual score up to that
+// point is discarded in favor of this fixed result, same as a real abandoned match.
+const ForfeitGoals = 3
+
 func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
 	lineups, err := common.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
 	if err != nil {
@@ -146,6 +159,13 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	matchSimulation.HomeUnavailablePlayers = homeUnavailable
 	matchSimulation.AwayUnavailablePlayers = awayUnavailable
 
+	// A squad crisis can leave a side unable to even kick off with enough players (the backfill
+	// above only ever restores what the squad actually has available) - checked before a single
+	// minute is simulated, same threshold as the mid-match check below.
+	if applyForfeitIfUnderstaffed(matchSimulation) {
+		return matchSimulation, nil
+	}
+
 	simulations := make([]Simulation, 0)
 	simulations = append(simulations, SubstitutionSimulation{}, StaminaSimulation{}, InitialSimulation{}, NewScorerSimulation(), NewDisciplineSimulation(), NewInjurySimulation())
 	pipeline := SimulationPipelineImpl{
@@ -163,9 +183,61 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		// *PlayersByPosition before this point in the same minute.
 		trackMinutesByPosition(matchSimulation.HomePlayersByPosition, matchSimulation.HomeMinutesByPosition)
 		trackMinutesByPosition(matchSimulation.AwayPlayersByPosition, matchSimulation.AwayMinutesByPosition)
+
+		// A red card (never replaced) or an injury with no scheduled substitutions left (see
+		// DisciplineSimulation/InjurySimulation) can thin a side below MinPlayersToContinueMatch
+		// mid-match - stop right there rather than simulating the rest of the match with a side
+		// that, in a real match, would have already been abandoned.
+		if applyForfeitIfUnderstaffed(matchSimulation) {
+			break
+		}
 	}
 
 	return matchSimulation, nil
+}
+
+// countOnPitch totals every player currently occupying any position slot (goalkeeper included -
+// playersByPosition's own map always carries a common.GOALKEEPER entry, see the playersByPosition
+// helper below) for one side.
+func countOnPitch(playersByPosition *map[int][]int64) int {
+	count := 0
+	for _, ids := range *playersByPosition {
+		count += len(ids)
+	}
+	return count
+}
+
+// applyForfeitIfUnderstaffed checks whether either side has fallen to MinPlayersToContinueMatch
+// players or fewer and, if so, ends the match immediately: the actual scoreline up to that point
+// is discarded in favor of a flat ForfeitGoals-0 win for the side still standing (real football
+// awards an abandoned match this way rather than freezing the score as played), and a
+// common.MATCH_ABANDONED event records it. Returns whether the match was abandoned, so the caller
+// knows to stop simulating further minutes. If both sides have collapsed at once (a degenerate
+// case that should never actually happen) neither is awarded a forfeit win and the match plays on.
+func applyForfeitIfUnderstaffed(match *common.MatchSimulation) bool {
+	homeShort := countOnPitch(match.HomePlayersByPosition) <= MinPlayersToContinueMatch
+	awayShort := countOnPitch(match.AwayPlayersByPosition) <= MinPlayersToContinueMatch
+	if homeShort == awayShort {
+		return false
+	}
+
+	shortTeam, otherTeam := match.Home, match.Away
+	if homeShort {
+		match.HomeGoals, match.AwayGoals = 0, ForfeitGoals
+	} else {
+		shortTeam, otherTeam = match.Away, match.Home
+		match.HomeGoals, match.AwayGoals = ForfeitGoals, 0
+	}
+
+	*match.Events = append(*match.Events, common.Event{
+		EventType: common.MATCH_ABANDONED,
+		Minute:    match.Minute,
+		TeamOwner: shortTeam,
+		OtherTeam: otherTeam,
+		HomeGoals: match.HomeGoals,
+		AwayGoals: match.AwayGoals,
+	})
+	return true
 }
 
 // trackMinutesByPosition credits every player currently occupying a position slot with one more

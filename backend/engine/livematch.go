@@ -156,6 +156,12 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 				})
 			}
 		}
+		// Falls back to the match's own authoritative final score rather than whatever the last
+		// event happened to leave homeGoals/awayGoals at - the two always agree except when the
+		// match was abandoned before kickoff for a side falling to MinPlayersToContinueMatch (see
+		// applyForfeitIfUnderstaffed), which leaves `instants` empty and the loop above never runs,
+		// so homeGoals/awayGoals would otherwise still be sitting at their initial 0-0 here.
+		homeGoals, awayGoals = match.HomeGoals, match.AwayGoals
 		dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 			Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals,
 		})

@@ -285,6 +285,7 @@ export const EVENT_TYPE_YELLOW_CARD = 2
 export const EVENT_TYPE_RED_CARD = 3
 export const EVENT_TYPE_INJURY = 4
 export const EVENT_TYPE_SUBSTITUTION = 5
+export const EVENT_TYPE_MATCH_ABANDONED = 6
 
 // TeamQualification is a team's per-zone strength for one minute of simulation - see
 // backend/common/fmstructs.go. These are the actual numbers the simulation compares (a team's

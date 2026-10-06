@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
+  EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
@@ -23,6 +24,7 @@ const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_SUBSTITUTION,
+  EVENT_TYPE_MATCH_ABANDONED,
 ]
 
 interface TeamStats {
@@ -239,6 +241,8 @@ function iconFor(eventType: number): string | null {
       return '🚑'
     case EVENT_TYPE_SUBSTITUTION:
       return '🔄'
+    case EVENT_TYPE_MATCH_ABANDONED:
+      return '⛔'
     default:
       return null
   }

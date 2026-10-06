@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
+  EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
@@ -18,6 +19,7 @@ const COMMENTARY_KEYS: Partial<Record<number, string>> = {
   [EVENT_TYPE_RED_CARD]: 'match.commentary.redCard',
   [EVENT_TYPE_INJURY]: 'match.commentary.injury',
   [EVENT_TYPE_SUBSTITUTION]: 'match.commentary.substitution',
+  [EVENT_TYPE_MATCH_ABANDONED]: 'match.commentary.abandoned',
 }
 
 // Picks a stable index into a list of phrasing variants from a few small integers - the same
@@ -110,6 +112,15 @@ export function commentaryFor(
       opponent: { text: opponentName, teamId: opponentId },
       outPlayer: { text: playerNames[0], playerId: playerIds[0] },
       inPlayer: { text: playerNames[1], playerId: playerIds[1] },
+    })
+  }
+
+  // Unlike every other event type, an abandoned match names no player - just the short-handed
+  // team (event.teamOwner, resolved to team/teamName by the caller) and the side awarded the win.
+  if (event.eventType === EVENT_TYPE_MATCH_ABANDONED) {
+    return interpolateNodes(template, {
+      team: { text: teamName, teamId },
+      opponent: { text: opponentName, teamId: opponentId },
     })
   }
 

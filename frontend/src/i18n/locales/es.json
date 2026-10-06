@@ -728,6 +728,11 @@
         "Cambio en {{team}}: {{outPlayer}} deja su lugar a {{inPlayer}}.",
         "Sustitución en {{team}} - {{inPlayer}} entra por {{outPlayer}}.",
         "{{outPlayer}} sale, {{inPlayer}} entra en {{team}}."
+      ],
+      "abandoned": [
+        "{{team}} se queda sin suficientes jugadores para continuar - el partido se suspende y {{opponent}} se lleva la victoria.",
+        "Con muy pocos jugadores en el campo, el partido de {{team}} se da por finalizado - {{opponent}} se lo lleva por 3-0.",
+        "El árbitro suspende el encuentro: {{team}} se queda con muy pocos jugadores para seguir, y {{opponent}} es declarado ganador por 3-0."
       ]
     },
     "positionBattle": {
