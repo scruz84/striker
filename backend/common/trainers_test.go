@@ -8,8 +8,8 @@ func TestTrainerWageFromSkill_ScalesWithSkill(t *testing.T) {
 	if high <= low {
 		t.Fatal("expected a higher-skilled trainer to cost more wage")
 	}
-	if got := TrainerWageFromSkill(50); got != 50*TrainerWagePerSkillPoint {
-		t.Errorf("TrainerWageFromSkill(50) = %d, want %d", got, 50*TrainerWagePerSkillPoint)
+	if got := TrainerWageFromSkill(50); got != 50*TrainerWagePerSkillPointNumerator/TrainerWagePerSkillPointDenominator {
+		t.Errorf("TrainerWageFromSkill(50) = %d, want %d", got, 50*TrainerWagePerSkillPointNumerator/TrainerWagePerSkillPointDenominator)
 	}
 }
 

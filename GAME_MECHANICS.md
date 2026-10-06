@@ -329,17 +329,25 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   match per round, so this fires exactly once per round), as the sum of every squad player's wage
   (`GetTeamWageBill`) plus the team's trainer's wage if it has one. A player's own wage is derived
   from their skills (`common.PlayerWageFromSkills`): the sum of all seven core skills ×
-  `WagePerSkillPoint` (5) - a higher-rated player costs more to keep, with no separate negotiation
-  needed for the baseline figure (negotiated wages on signing/renewal are checked against this as
-  a floor - see `common.MaxAcceptableRenewalYears`/offer-acceptance logic in
-  `common/contracts.go`). This used to fire on a fixed real-calendar cron (Monday 00:00 UTC)
-  regardless of how many rounds a league actually played that week - since ticket revenue and
-  sponsorship are paid per match, a league scheduled to play daily could earn up to 7x a weekly
-  league's income in the same real week while paying the same, cadence-independent wage bill (a
-  season's fixed number of rounds costing a fraction of the wages once compressed into fewer real
-  weeks). Tying the charge to the same per-round cadence the income side already follows removes
-  that gap: a season's total wage cost is now proportional to its total match count, the same way
-  ticket/sponsorship income already is, regardless of which weekdays a league's schedule uses.
+  `WagePerSkillPointNumerator` (5) ÷ `WagePerSkillPointDenominator` (7) - a higher-rated player
+  costs more to keep, with no separate negotiation needed for the baseline figure (negotiated
+  wages on signing/renewal are checked against this as a floor - see
+  `common.MaxAcceptableRenewalYears`/offer-acceptance logic in `common/contracts.go`). This used
+  to fire on a fixed real-calendar cron (Monday 00:00 UTC) regardless of how many rounds a league
+  actually played that week - since ticket revenue and sponsorship are paid per match, a league
+  scheduled to play daily could earn up to 7x a weekly league's income in the same real week while
+  paying the same, cadence-independent wage bill (a season's fixed number of rounds costing a
+  fraction of the wages once compressed into fewer real weeks). Tying the charge to the same
+  per-round cadence the income side already follows removes that gap, so a season's total wage
+  cost is proportional to its total match count the same way ticket/sponsorship income already is
+  - but the old flat per-skill-point rate (previously just `WagePerSkillPoint` = 5) also needed to
+  come down by the same ÷7 once the charge itself moved from once a week to once a round under the
+  default daily schedule, or the per-round bill would simply be the old weekly bill charged up to
+  7x as often. That second half of the fix landed later than the cadence change (see
+  `resources/sql/init65_rescale_wages_to_match_cadence.sql`, which also recalculates every
+  pre-existing player's/trainer's stored wage - freshly created ones get the corrected rate
+  automatically); until then, a daily-schedule team's payroll really was up to 7x too high
+  relative to its income, which is what drained the in-game economy.
 - **Transfers** - a fixed-price listing (`common/transfers.go`) or an accepted negotiated offer
   (`common/offers.go`) debits the buyer and credits the seller the agreed fee in one atomic
   transaction; a free-agent signing costs nothing but the player's wage.

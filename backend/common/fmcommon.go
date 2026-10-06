@@ -48,10 +48,20 @@ func StringToInt64(val string) (int64, error) {
 // PlayerWageFromSkills derives a per-match wage from a player's core skills - higher-rated
 // players cost more to keep. Used both at squad creation and when player progression
 // (see engine season rollover) drifts a player's attributes.
-const WagePerSkillPoint = 5
+//
+// WagePerSkillPointNumerator/Denominator replace the old flat WagePerSkillPoint = 5: that rate
+// was calibrated for a wage bill charged once per real calendar week (see teams.budget's comment
+// in resources/sql/init.sql, still "~28,350/week" for an average 18-player squad), but
+// engine.PayMatchdayWages now charges the full bill once per round instead, and the default
+// league schedule (common.DefaultMatchScheduleWeekdaysMask) plays a round every day of the week.
+// Left at 5, that turned a ~28,350/week payroll into up to 7x that per real week, without any
+// matching rise on the income side - dividing by 7 here keeps a squad's weekly wage total close to
+// its original, intended figure under the default daily schedule.
+const WagePerSkillPointNumerator = 5
+const WagePerSkillPointDenominator = 7
 
 func PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) int {
-	return (goalKeeper + defense + lateral + pass + midfield + dribbling + shot) * WagePerSkillPoint
+	return (goalKeeper + defense + lateral + pass + midfield + dribbling + shot) * WagePerSkillPointNumerator / WagePerSkillPointDenominator
 }
 
 // https://github.com/golang/net/blob/6fe76317780b8d2ed1fdd43e5fb8eaf5c584f5d2/gotrack.go

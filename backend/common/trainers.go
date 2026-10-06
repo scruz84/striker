@@ -16,13 +16,19 @@ const TrainerSkillMin, TrainerSkillMax = 30, 90
 // so the coaching pool grows in step with the world's size instead of ever running dry.
 const TrainerCandidatesPerTeam = 1
 
-// TrainerWagePerSkillPoint prices a trainer steeper per skill point than a single player's
-// WagePerSkillPoint, since one trainer's effect (see engine.ProgressPlayers) spans the whole
-// squad rather than one position.
-const TrainerWagePerSkillPoint = 8
+// TrainerWagePerSkillPointNumerator/Denominator price a trainer steeper per skill point than a
+// single player's WagePerSkillPointNumerator/Denominator, since one trainer's effect (see
+// engine.ProgressPlayers) spans the whole squad rather than one position. Divided by
+// TrainerWagePerSkillPointDenominator for the same reason WagePerSkillPoint was split into a
+// numerator/denominator pair (see common.PlayerWageFromSkills): the trainer wage is charged
+// alongside player wages, once per round (see engine.deductTrainerWage), so the old flat
+// per-skill-point rate needs the same correction to avoid being 7x too high under the default
+// daily match schedule.
+const TrainerWagePerSkillPointNumerator = 8
+const TrainerWagePerSkillPointDenominator = 7
 
 func TrainerWageFromSkill(skill int) int {
-	return skill * TrainerWagePerSkillPoint
+	return skill * TrainerWagePerSkillPointNumerator / TrainerWagePerSkillPointDenominator
 }
 
 var ErrTrainerNotFound = errors.New("trainer not found")

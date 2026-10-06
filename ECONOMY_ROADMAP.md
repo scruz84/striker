@@ -7,6 +7,17 @@ start reading in the code.
 
 ## Status
 
+- **Wage/cadence rescale bug: FIXED.** `PayMatchdayWages` started charging a team's full wage
+  bill once per round instead of once a real calendar week, but `WagePerSkillPoint`/
+  `TrainerWagePerSkillPoint` were never scaled down to match - under the default daily league
+  schedule (`common.DefaultMatchScheduleWeekdaysMask` = every weekday) that left payroll up to 7x
+  its intended size relative to per-match ticket/sponsorship income, steadily draining
+  `teams.budget` across the whole game (visible as `striker.economy.total_budget` trending down -
+  see `backend/common/telemetry.go`). Fixed by splitting both constants into a numerator/
+  denominator pair (`common/fmcommon.go`, `common/trainers.go`) so the per-round rate is the old
+  weekly rate ÷ 7, plus a migration (`resources/sql/init65_rescale_wages_to_match_cadence.sql`)
+  recalculating every already-existing player's/trainer's stored wage the same way. See the
+  "Wages" bullet in `GAME_MECHANICS.md`'s Economy section for the full explanation.
 - **Phase 1 - Contracts & free agency: DONE.** See `backend/README.md`'s "Player contracts &
   free agency" section, `backend/common/contracts.go`, and commit `e902b50` on
   `claude/repo-overview-4di58f`. Players now have a contract length that expires to free agency;
