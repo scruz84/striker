@@ -48,21 +48,23 @@ func calculateDiffs(match *common.MatchSimulation) {
 
 func calculateQua(teamQua *common.TeamQualification, lineup *common.Lineup, playersByPosition *map[int][]int64,
 	players *map[int64]common.Player) {
+	centralDefenders := (*playersByPosition)[common.DEFENSE]
+	centralDefenderCount := len(centralDefenders)
+
 	//defense
 	rawLeftDefense := calculateLateralDefense(
-		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
+		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players, centralDefenderCount)
 	rawRightDefense := calculateLateralDefense(
-		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
-	centralDefenders := (*playersByPosition)[common.DEFENSE]
+		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players, centralDefenderCount)
 	rawDefense := calculateDefense(centralDefenders, (*playersByPosition)[common.MIDFIELD], players)
 	teamQua.LeftDefense, teamQua.Defense, teamQua.RightDefense =
-		blendLine(rawLeftDefense, rawDefense, len(centralDefenders), rawRightDefense)
+		blendLine(rawLeftDefense, rawDefense, centralDefenderCount, rawRightDefense)
 
 	//midfield
 	rawLeftMidfield := calculateLateralMidfield(
-		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players)
+		(*playersByPosition)[common.LATERAL_DEFENSE_LEFT], (*playersByPosition)[common.LATERAL_MIDFIELD_LEFT], players, centralDefenderCount)
 	rawRightMidfield := calculateLateralMidfield(
-		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players)
+		(*playersByPosition)[common.LATERAL_DEFENSE_RIGHT], (*playersByPosition)[common.LATERAL_MIDFIELD_RIGHT], players, centralDefenderCount)
 	centralMidfielders := (*playersByPosition)[common.MIDFIELD]
 	rawMidfield := calculateMidfield((*playersByPosition)[common.DEFENSE], centralMidfielders, players)
 	teamQua.LeftMidfield, teamQua.Midfield, teamQua.RightMidfield =
@@ -123,12 +125,25 @@ func blendLine(left float32, centerTotal float32, centerCount int, right float32
 	return blendedLeft, blendedCenter, blendedRight
 }
 
-func calculateLateralDefense(def []int64, mid []int64, players *map[int64]common.Player) float32 {
+// backThreeCentralDefenderCount is how many DEFENSE-slot players a back-three formation fields
+// (FormationAttacking's 3-4-3 and FormationThreeFiveTwo's 3-5-2 both set DEFENSE to 1, see
+// formation.go) - with only one true centre-back, the two lateral defenders are wing-backs who
+// tuck in to cover centrally rather than a back-four's fullbacks, who already have two centre-backs
+// behind them and can commit further forward. calculateLateralDefense/calculateLateralMidfield use
+// this to detect that shape structurally, from the DEFENSE slot's own player count, instead of
+// threading the formation ID through.
+const backThreeCentralDefenderCount = 1
+
+func calculateLateralDefense(def []int64, mid []int64, players *map[int64]common.Player, centralDefenderCount int) float32 {
 	if len(def) == 0 {
 		// the lateral defender was sent off (see DisciplineSimulation) - nobody covers that flank
 		return 0
 	}
-	value := float32((*players)[def[0]].Lateral)*0.5 + float32((*players)[def[0]].Defense)*0.5
+	lateralWeight, defenseWeight := float32(0.5), float32(0.5)
+	if centralDefenderCount == backThreeCentralDefenderCount {
+		lateralWeight, defenseWeight = 0.35, 0.65
+	}
+	value := float32((*players)[def[0]].Lateral)*lateralWeight + float32((*players)[def[0]].Defense)*defenseWeight
 	return value
 }
 
@@ -140,11 +155,15 @@ func calculateDefense(def []int64, mid []int64, players *map[int64]common.Player
 	return value
 }
 
-func calculateLateralMidfield(def []int64, mid []int64, players *map[int64]common.Player) float32 {
+func calculateLateralMidfield(def []int64, mid []int64, players *map[int64]common.Player, centralDefenderCount int) float32 {
 	if len(def) == 0 {
 		return 0
 	}
-	value := float32((*players)[def[0]].Lateral)*0.5 + float32((*players)[def[0]].Midfield)*0.5
+	lateralWeight, midfieldWeight := float32(0.5), float32(0.5)
+	if centralDefenderCount == backThreeCentralDefenderCount {
+		lateralWeight, midfieldWeight = 0.65, 0.35
+	}
+	value := float32((*players)[def[0]].Lateral)*lateralWeight + float32((*players)[def[0]].Midfield)*midfieldWeight
 	return value
 }
 

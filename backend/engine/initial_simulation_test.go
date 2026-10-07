@@ -193,3 +193,61 @@ func TestCalculateQua_FourThreeThreeWideForwardsCountTowardCentralAttack(t *test
 		t.Fatalf("expected a 4-3-3's three forwards to rate the same as a 3-4-3's three forwards, got 4-3-3=%v 3-4-3=%v", fourThreeThree, attacking)
 	}
 }
+
+// A back-three's lone centre-back (DEFENSE count 1, as in FormationAttacking's 3-4-3 and
+// FormationThreeFiveTwo's 3-5-2 - see formation.go) left the central Defense score far below a
+// back-four's, since the lateral defenders never fed it beyond blendLine's fixed 15% zone
+// spillover. Wing-backs in that shape tuck in to cover centrally rather than push on like a
+// back-four's fullback, so calculateLateralDefense/calculateLateralMidfield now weight a lateral
+// defender's attributes more toward Defense (and less toward Midfield) specifically when the
+// central defender count is 1. This pins both halves of that shift.
+func TestCalculateLateralFunctions_BackThreeWeightsLateralsTowardDefense(t *testing.T) {
+	players := map[int64]common.Player{
+		1: {Id: 1, Lateral: 40, Defense: 80, Midfield: 80},
+	}
+	def := []int64{1}
+
+	backFourDefense := calculateLateralDefense(def, nil, &players, 2)
+	backThreeDefense := calculateLateralDefense(def, nil, &players, 1)
+	if backThreeDefense <= backFourDefense {
+		t.Fatalf("expected a back-three's lateral defender to rate higher on the flank-defense blend (more Defense weight) than a back-four's, got backThree=%v backFour=%v", backThreeDefense, backFourDefense)
+	}
+
+	backFourMidfield := calculateLateralMidfield(def, nil, &players, 2)
+	backThreeMidfield := calculateLateralMidfield(def, nil, &players, 1)
+	if backThreeMidfield >= backFourMidfield {
+		t.Fatalf("expected a back-three's lateral defender to rate lower on the flank-midfield blend (less Midfield weight) than a back-four's, got backThree=%v backFour=%v", backThreeMidfield, backFourMidfield)
+	}
+}
+
+// End-to-end through calculateQua: a 3-4-3's central Defense score should benefit from the
+// lateral defenders leaning more defensive, relative to simply halving the central defender count
+// with unchanged lateral weights.
+func TestCalculateQua_BackThreeCentralDefenseBenefitsFromDefensiveLaterals(t *testing.T) {
+	players := map[int64]common.Player{}
+	for _, id := range []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11} {
+		players[id] = common.Player{Id: id, Shot: 60, Lateral: 40, Defense: 80, Midfield: 60, Pass: 60, Dribbling: 60}
+	}
+
+	pbp := map[int][]int64{ // 3-4-3: one central defender, two lateral defenders
+		common.GOALKEEPER:             {1},
+		common.DEFENSE:                {2},
+		common.LATERAL_DEFENSE_LEFT:   {3},
+		common.LATERAL_DEFENSE_RIGHT:  {4},
+		common.MIDFIELD:               {5, 6},
+		common.LATERAL_MIDFIELD_LEFT:  {7},
+		common.LATERAL_MIDFIELD_RIGHT: {8},
+		common.STRIKER:                {9, 10, 11},
+	}
+	qua := &common.TeamQualification{}
+	calculateQua(qua, nil, &pbp, &players)
+
+	// Reference point using the old, formation-blind 50/50 lateral weighting.
+	oldRawLateralDefense := float32(players[3].Lateral)*0.5 + float32(players[3].Defense)*0.5
+	oldRawDefense := float32(players[2].Defense)
+	_, oldCenter, _ := blendLine(oldRawLateralDefense, oldRawDefense, 1, oldRawLateralDefense)
+
+	if qua.Defense <= oldCenter {
+		t.Fatalf("expected the back-three's reweighted laterals to lift the central Defense score above the old 50/50 blend (%v), got %v", oldCenter, qua.Defense)
+	}
+}

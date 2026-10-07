@@ -54,10 +54,10 @@ func TestPickOutfieldPlayer_NoEligiblePlayers(t *testing.T) {
 func TestCalculateLateralFunctions_EmptySliceDoesNotPanic(t *testing.T) {
 	players := map[int64]common.Player{}
 
-	if v := calculateLateralDefense(nil, nil, &players); v != 0 {
+	if v := calculateLateralDefense(nil, nil, &players, 2); v != 0 {
 		t.Fatalf("expected 0 for empty lateral defense, got %v", v)
 	}
-	if v := calculateLateralMidfield(nil, nil, &players); v != 0 {
+	if v := calculateLateralMidfield(nil, nil, &players, 2); v != 0 {
 		t.Fatalf("expected 0 for empty lateral midfield, got %v", v)
 	}
 	if v := calculateLateralAttack(nil, nil, &players); v != 0 {
