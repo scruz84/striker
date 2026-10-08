@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
@@ -135,11 +137,16 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// TeamLatestEvolutionsHandler lists the caller's own squad's most recent match-triggered
-// progression results (see common.GetLatestPlayerEvolutionsForTeam) - each player's latest
-// skill drift, applied right after whichever competitive match they most recently featured in
-// (see engine.updatePlayerSkillsAfterMatch). Always scoped to the caller's own team; there's no
-// equivalent for browsing another team's evolutions.
+// TeamLatestEvolutionsHandler lists the caller's own squad's progression results (see
+// engine.updatePlayerSkillsAfterMatch). With a logIds query param (the comma-separated
+// player_progression_log ids a NOTIFICATION_PROGRESSION notification's link carries - see
+// engine.updateTeamPlayersAfterMatch), it returns exactly those rows: the player(s) who evolved
+// after that one specific match, scoped to the caller's own team so one manager can't pull up
+// another team's players just by guessing ids (see common.GetPlayerEvolutionsForTeamByLogIds).
+// With no logIds (direct navigation, no particular match in mind), it falls back to every current
+// squad player's own most recent progression run (see common.GetLatestPlayerEvolutionsForTeam) -
+// a browsing view, not a report of any one match. Always scoped to the caller's own team; there's
+// no equivalent for browsing another team's evolutions.
 func TeamLatestEvolutionsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -152,6 +159,23 @@ func TeamLatestEvolutionsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc 
 			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
 			return
 		}
+
+		if logIdsParam := c.Query("logIds"); logIdsParam != "" {
+			logIds, err := parseInt64List(logIdsParam)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, GetError(0, "invalid logIds"))
+				return
+			}
+			evolutions, err := common.GetPlayerEvolutionsForTeamByLogIds(dbCtx, team.Id, logIds)
+			if err != nil {
+				log.Errorf("error loading evolutions for team %d log ids: %s", team.Id, err)
+				c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+				return
+			}
+			c.JSON(http.StatusOK, evolutions)
+			return
+		}
+
 		evolutions, err := common.GetLatestPlayerEvolutionsForTeam(dbCtx, team.Id)
 		if err != nil {
 			log.Errorf("error loading latest evolutions for team %d: %s", team.Id, err)
@@ -160,4 +184,20 @@ func TeamLatestEvolutionsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc 
 		}
 		c.JSON(http.StatusOK, evolutions)
 	}
+}
+
+// parseInt64List parses a comma-separated list of integers (e.g. a logIds query param) into
+// int64s, rejecting the whole list if any entry doesn't parse - a malformed id here is a bad
+// request, not a reason to silently drop it and return someone else's rows.
+func parseInt64List(s string) ([]int64, error) {
+	parts := strings.Split(s, ",")
+	ids := make([]int64, 0, len(parts))
+	for _, part := range parts {
+		id, err := strconv.ParseInt(strings.TrimSpace(part), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

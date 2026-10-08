@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/scruz84/striker/common"
@@ -295,12 +297,12 @@ func matchRatingsForProgression(match *common.MatchSimulation) map[int64]float64
 // every squad player regardless - up for whoever played (more so with a good rating, see
 // driftFormPlayed), down for whoever sat out the match entirely (see driftFormBenched). When at
 // least one player's core skills actually evolve, the team's owner gets a NOTIFICATION_PROGRESSION
-// notification linking to /players/evolutions - the squad-wide report showing each affected
-// player's before/after skill state (see common.GetLatestPlayerEvolutionsForTeam and the
-// frontend's LatestEvolutionsPage), so an evolution isn't only visible by happening to open a
-// player's own page. Stamina/Form drift silently (no notification) - unlike the seven core
-// skills, they're expected to move after nearly every match, so a notification for them would
-// lose all signal value.
+// notification linking to /players/evolutions?logIds=... - the exact player_progression_log rows
+// this match produced (see common.GetPlayerEvolutionsForTeamByLogIds and the frontend's
+// LatestEvolutionsPage), so the report only ever shows the player(s) who actually evolved after
+// this specific match rather than every squad player's own all-time latest row. Stamina/Form drift
+// silently (no notification) - unlike the seven core skills, they're expected to move after
+// nearly every match, so a notification for them would lose all signal value.
 func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, players *map[int64]common.Player,
 	minutesByPosition map[int64]map[int]int, ratings map[int64]float64, season int, r *rand.Rand) {
 	if players == nil || len(*players) == 0 {
@@ -324,7 +326,7 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 		skillCaps = map[int64]common.PlayerSkillCaps{}
 	}
 
-	evolvedCount := 0
+	evolvedLogIds := make([]int64, 0)
 
 	for playerId, player := range *players {
 		minutesAtPosition, playedThisMatch := minutesByPosition[playerId]
@@ -376,19 +378,21 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 			log.Errorf("error updating match progression for player %d: %s", player.Id, err)
 			continue
 		}
-		if err := common.LogPlayerProgression(dbCtx, player.Id, season, player.Age, player.Age,
+		logId, err := common.LogPlayerProgression(dbCtx, player.Id, season, player.Age, player.Age,
 			player.GoalKeeper, goalKeeper, player.Defense, defense, player.Lateral, lateral,
 			player.Pass, pass, player.Midfield, midfield, player.Dribbling, dribbling,
-			player.Shot, shot); err != nil {
+			player.Shot, shot)
+		if err != nil {
 			log.Errorf("error logging match progression for player %d: %s", player.Id, err)
 			continue
 		}
-		evolvedCount++
+		evolvedLogIds = append(evolvedLogIds, logId)
 	}
 
-	if evolvedCount == 0 {
+	if len(evolvedLogIds) == 0 {
 		return
 	}
+	evolvedCount := len(evolvedLogIds)
 	msg := common.NotificationMessage{
 		Text: fmt.Sprintf("%d of your players developed after the match - check their latest evolutions", evolvedCount),
 		Key:  "notifications.messages.playerEvolutions",
@@ -396,9 +400,22 @@ func updateTeamPlayersAfterMatch(dbCtx *common.DatabaseContext, teamId int64, pl
 			"count": evolvedCount,
 		},
 	}
-	if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, msg, "/players/evolutions"); err != nil {
+	link := "/players/evolutions?logIds=" + joinInt64s(evolvedLogIds)
+	if err := common.NotifyTeamOwnerWithLink(dbCtx, teamId, common.NOTIFICATION_PROGRESSION, msg, link); err != nil {
 		log.Errorf("error notifying team %d owner of player evolutions: %s", teamId, err)
 	}
+}
+
+// joinInt64s renders evolvedLogIds as a comma-separated query-string value - the
+// "/players/evolutions?logIds=..." link identifies exactly the player_progression_log rows this
+// one match's progression run produced (see GetPlayerEvolutionsForTeamByLogIds), rather than every
+// squad player's all-time latest row, which can span many unrelated matches.
+func joinInt64s(ids []int64) string {
+	parts := make([]string, len(ids))
+	for i, id := range ids {
+		parts[i] = strconv.FormatInt(id, 10)
+	}
+	return strings.Join(parts, ",")
 }
 
 // ProgressPlayers advances every player on every team by one season: retirees are removed, and

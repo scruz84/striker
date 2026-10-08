@@ -213,8 +213,11 @@ For each player who took the field this match, on the side they played for:
    `/players/evolutions`, unchanged, just now fed by many small match-triggered updates across a
    season instead of one big batch at rollover. When at least one of a team's players evolved this
    match, its owner also gets a `NOTIFICATION_PROGRESSION` notification (how many players
-   developed, linking to `/players/evolutions`) so the change is visible without having to think
-   to check a player's page.
+   developed, linking to `/players/evolutions?logIds=...` - the exact `player_progression_log`
+   row ids this match produced) so the change is visible without having to think to check a
+   player's page. The `logIds` link scopes that page to precisely the player(s) who evolved after
+   this one match - opened without `logIds` (direct navigation), it instead falls back to every
+   current squad player's own all-time latest row, which can span many unrelated matches.
 
 **Stamina and Form** are two further per-player attributes (0-99, alongside the seven core
 skills), both updated in the same `updateTeamPlayersAfterMatch` pass but on their own rules -

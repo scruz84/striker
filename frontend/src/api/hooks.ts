@@ -57,7 +57,7 @@ export const queryKeys = {
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
   player: (id: string) => ['player', id] as const,
-  teamEvolutions: ['teamEvolutions'] as const,
+  teamEvolutions: (logIds: string) => ['teamEvolutions', logIds] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
@@ -237,12 +237,18 @@ export function usePlayerDetails(playerId: string | undefined) {
   })
 }
 
-// The caller's own squad's most recent season-end progression results - the page a
-// NOTIFICATION_PROGRESSION notification links to.
-export function useTeamLatestEvolutions(enabled: boolean) {
+// The caller's own squad's progression results - the page a NOTIFICATION_PROGRESSION notification
+// links to. logIds, when given (from that notification's own link - see
+// engine.updateTeamPlayersAfterMatch), scopes this to exactly the players who evolved after that
+// one specific match; omitted, it falls back to every current squad player's own all-time latest
+// progression run.
+export function useTeamLatestEvolutions(enabled: boolean, logIds?: string) {
   return useQuery({
-    queryKey: queryKeys.teamEvolutions,
-    queryFn: () => api.get<TeamPlayerEvolution[]>('/v1/teams/team/evolutions'),
+    queryKey: queryKeys.teamEvolutions(logIds ?? ''),
+    queryFn: () =>
+      api.get<TeamPlayerEvolution[]>(
+        logIds ? `/v1/teams/team/evolutions?logIds=${encodeURIComponent(logIds)}` : '/v1/teams/team/evolutions'
+      ),
     enabled,
   })
 }
