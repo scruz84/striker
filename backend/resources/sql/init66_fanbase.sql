@@ -1,0 +1,12 @@
+-- Adds a team-level "Fanbase" index (0-99, the same scale as every other rateable attribute in
+-- this game - skills, Stamina, Form), representing how big/loyal a team's supporter base
+-- currently is. Drifts slowly match by match based on league/cup results rather than being a
+-- static number - see engine/fanbase.go (driftFanbaseForResult/driftFanbaseTierPull, called from
+-- engine.UpdateTeamFinancesAfterMatch) - and feeds a multiplier into matchday attendance
+-- (engine/stadium.go's fanbaseAttendanceFactor), sponsorship, and season tickets/merchandising
+-- (engine.fanbaseCommercialFactor). See GAME_MECHANICS.md's "Fanbase" section.
+--
+-- DEFAULT 50 is common.DefaultFanbase, the same neutral-midpoint convention common.DefaultForm
+-- uses for a 0-99 attribute with no real history to derive a starting value from - every
+-- pre-existing team lands here too, same as a freshly created one.
+ALTER TABLE teams ADD COLUMN IF NOT EXISTS fanbase smallint NOT NULL DEFAULT 50;

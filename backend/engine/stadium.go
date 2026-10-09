@@ -63,14 +63,31 @@ func optimalTicketPrice() int {
 	return best
 }
 
-// CalculateAttendance derives one home match's crowd size from a team's stadium capacity and its
-// current ticket price (see demandRate) - a higher price now genuinely costs some attendance,
-// rather than attendance being independent of price.
-func CalculateAttendance(capacity int, ticketPrice int, r *rand.Rand) int {
+// FanbaseAttendanceMinFactor/MaxFactor bound how much Fanbase can scale a team's base occupancy
+// rate (see fanbaseAttendanceFactor) before price/jitter apply on top - 0.5x at Fanbase 0 up to
+// 1.5x at Fanbase 99, a real, noticeable swing (comparable in size to OccupancyJitter's own)
+// without letting either extreme dominate price itself. common.DefaultFanbase (50) lands almost
+// exactly at 1.0x, so an unestablished team's attendance behaves the same as before Fanbase
+// existed.
+const FanbaseAttendanceMinFactor = 0.5
+const FanbaseAttendanceMaxFactor = 1.5
+
+// fanbaseAttendanceFactor maps a 0-99 Fanbase value onto [FanbaseAttendanceMinFactor,
+// FanbaseAttendanceMaxFactor] - see CalculateAttendance, which multiplies demandRate's own
+// price-based rate by this before applying jitter/clamping.
+func fanbaseAttendanceFactor(fanbase int) float64 {
+	return FanbaseAttendanceMinFactor + float64(fanbase)/99.0*(FanbaseAttendanceMaxFactor-FanbaseAttendanceMinFactor)
+}
+
+// CalculateAttendance derives one home match's crowd size from a team's stadium capacity, its
+// current ticket price (see demandRate - a higher price costs some attendance), and its Fanbase
+// (see fanbaseAttendanceFactor - a bigger supporter base fills more of the same stadium at the
+// same price).
+func CalculateAttendance(capacity int, ticketPrice int, fanbase int, r *rand.Rand) int {
 	if capacity <= 0 {
 		return 0
 	}
-	rate := demandRate(ticketPrice) + (r.Float64()*2-1)*OccupancyJitter
+	rate := demandRate(ticketPrice)*fanbaseAttendanceFactor(fanbase) + (r.Float64()*2-1)*OccupancyJitter
 	if rate < MinOccupancyRate {
 		rate = MinOccupancyRate
 	}
@@ -97,9 +114,14 @@ func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
 		return 0, 0
 	}
+	fanbase, err := common.GetFanbase(dbCtx, homeTeamId)
+	if err != nil {
+		log.Errorf("error getting fanbase for team %d, using the neutral default: %s", homeTeamId, err)
+		fanbase = common.DefaultFanbase
+	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, r)
+	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, fanbase, r)
 	return attendance, TicketRevenue(attendance, stadium.TicketPrice)
 }
 

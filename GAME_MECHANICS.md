@@ -410,19 +410,81 @@ balance backward from the current budget across the visible transaction window (
 line chart, the same convention `SeasonPositionChart` already established) and `IncomeBreakdownChart`
 sums every positive transaction by reason into horizontal bars.
 
-`common/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
+`engine/database.go`'s `UpdateTeamFinancesAfterMatch` is the one place both league matches and cup
 ties route through after a result: it credits the home side's ticket revenue, credits sponsorship
-to both sides, and triggers `RunAITeamManagement` for either side that's currently unowned (see
-below). Friendlies deliberately skip all of this - no sponsorship (tied to goals scored in a
-result that actually matters, which a friendly's never is), no *per-match* AI upkeep hook - since
-a friendly isn't a competitive result (skill growth is one exception - see "Player skill
-progression" above). Ticket revenue is the other: `engine/friendlies.go`'s `simulateFriendly`
-calls `creditFriendlyTicketRevenue` instead, which draws attendance/revenue from the home side's
-own stadium exactly like `creditTicketRevenue` does, but splits the gate evenly between both
-sides instead of paying it entirely to the home side - the away side showed up purely as a favor
-for a non-competitive match, so it isn't left empty-handed. A CPU team's market upkeep isn't
-actually gated on the per-match hook firing, though - see the daily scheduler described in the
-next section.
+to both sides, drifts each side's Fanbase (see below), and triggers `RunAITeamMatchReaction` for
+either side that's currently unowned (see below). Friendlies deliberately skip all of this - no
+sponsorship (tied to goals scored in a result that actually matters, which a friendly's never is),
+no Fanbase drift, no *per-match* AI upkeep hook - since a friendly isn't a competitive result
+(skill growth is one exception - see "Player skill progression" above). Ticket revenue is the
+other: `engine/friendlies.go`'s `simulateFriendly` calls `creditFriendlyTicketRevenue` instead,
+which draws attendance/revenue from the home side's own stadium exactly like `creditTicketRevenue`
+does, but splits the gate evenly between both sides instead of paying it entirely to the home side
+- the away side showed up purely as a favor for a non-competitive match, so it isn't left
+empty-handed. A CPU team's market upkeep isn't actually gated on the per-match hook firing, though
+- see the daily scheduler described in the next section.
+
+### Fanbase
+
+Every team also has a Fanbase index (`teams.fanbase`, 0-99 - the same scale as every other
+rateable attribute in this game: skills, Stamina, Form), representing how big/loyal its supporter
+base currently is. Unlike those, it's a team-level stat, not a player one, and it never appears in
+`player_progression_log` or any `NOTIFICATION_PROGRESSION` notification - it has its own type
+instead (`NOTIFICATION_FANBASE`, see below). New teams, and every team that existed before this
+feature shipped, start at `common.DefaultFanbase` (50, the same neutral-midpoint convention
+`common.DefaultForm` uses).
+
+Fanbase drifts slowly, not every match - `engine/fanbase.go`'s `applyFanbaseDrift` runs from the
+same `UpdateTeamFinancesAfterMatch` hook sponsorship uses (league matches and cup ties only, never
+friendlies), and rolls two independent, deliberately rare per-match chances:
+
+- **Result drift** (`driftFanbaseForResult`, `FanbaseResultDriftProbability` = 15% chance per
+  match) - a win moves it `+FanbaseWinDelta` (1), a loss `FanbaseLossDelta` (-1), a draw never
+  moves it even when the roll succeeds. Rare on purpose: a club's Fanbase is a slow-moving
+  identity, not a weekly mood the way Form is (Form moves every single match a player features
+  in - see "Player skill progression" above).
+- **Tier pull** (`driftFanbaseTierPull`, `FanbaseTierPullProbability` = 5% chance per match) -
+  independent of this match's result, nudges Fanbase one point toward wherever its current
+  division tier's own target sits (`FanbaseTierTarget`: 80/50/30 for tiers 1/2/3, falling back to
+  tier 3's target for anything deeper). This is what gives promotion/relegation a slow,
+  multi-season effect on crowd size on top of the immediate prize-money/sponsorship-tier jump they
+  already cause (see "Season awards" above).
+
+Both rolls are independent pure functions (directly unit tested without a database, same
+`driftStamina`/`driftFormPlayed`-style split as player attribute drift above), clamped to `[1, 99]`
+the same way every other 0-99 attribute is. If a match's drift actually changes the value, the
+owner is told via `NOTIFICATION_FANBASE` - but only when it crosses into a new *ten-point band*
+(e.g. 47 -> 51, or 53 -> 49, see `notifyFanbaseMilestone`), not on every single one-point move
+(most of which don't even happen, given how rare both rolls are) - frequent enough to notice a
+real trend, rare enough not to spam.
+
+What it actually affects:
+
+- **Matchday attendance** (`engine/stadium.go`'s `fanbaseAttendanceFactor`) - multiplies
+  `demandRate`'s own price-based occupancy rate by a factor linearly mapped from Fanbase's 0-99
+  range onto `[FanbaseAttendanceMinFactor, FanbaseAttendanceMaxFactor]` (0.5x-1.5x) before jitter
+  and the usual `[MinOccupancyRate, MaxOccupancyRate]` clamp apply - `common.DefaultFanbase` (50)
+  lands almost exactly at 1.0x, so an unestablished team's attendance behaves the same as it did
+  before Fanbase existed. This is the gap `demandRate`'s own original doc comment used to name
+  explicitly ("no attempt to model anything else that would plausibly drive that swing - recent
+  form, rivalry, weather").
+- **Sponsorship** (`engine/sponsorship.go`'s `creditSponsorship`) and **season tickets/
+  merchandising** (`engine/seasonincome.go`'s `awardSeasonTicketsAndMerchandising`) - each
+  multiplies its own base figure by `engine/fanbase.go`'s `fanbaseCommercialFactor`, a gentler
+  `[FanbaseCommercialMinFactor, FanbaseCommercialMaxFactor]` (0.8x-1.2x) swing than attendance
+  gets, since a sponsor or season-ticket buyer already cares most about which tier a team plays in
+  or how big its stadium is - a bigger Fanbase just makes an otherwise-identical club a somewhat
+  more attractive commercial partner on top of that. `SponsorDealPreviews` (what `FinancesPage.tsx`
+  shows before a manager commits to a deal) takes the team's current Fanbase as a parameter now,
+  so the previewed numbers match what will actually be paid.
+
+Deliberately **not** affected (at least not yet): match simulation itself. The simulator has no
+"home advantage"/crowd-noise concept at all today, and giving Fanbase one would be a separate,
+bigger design decision - see `ECONOMY_ROADMAP.md`.
+
+Public via `common.TeamDetails.Fanbase` (any team's page - same visibility tier as `StadiumSummary`)
+and `FinancesResponse.Fanbase` (the owner's own finances page, shown alongside Stadium/Budget in a
+small `FanbaseCard`, same pattern `StadiumCard`/`SponsorDealCard` use).
 
 ## Notifications
 

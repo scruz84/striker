@@ -232,6 +232,9 @@ export interface TeamDetails {
   // same as unavailability. See backend common.TeamDetails.TransferListedPlayerIds.
   transferListedPlayerIds?: number[]
   stadium?: StadiumSummary
+  // This team's current 0-99 supporter-base index - see backend common.GetFanbase. Public, same
+  // visibility tier as stadium's own public fields.
+  fanbase: number
 }
 
 // One player's current suspension or injury - reason is UNAVAILABLE_SUSPENSION or
@@ -642,6 +645,9 @@ export interface FinancesResponse {
   // True once this team has already chosen a deal for the current season - see
   // backend common.SetSponsorDeal, which then rejects any further change until next season.
   sponsorDealLocked: boolean
+  // This team's current 0-99 supporter-base index - see backend common.GetFanbase. Feeds into
+  // matchday attendance, sponsorDealOptions above, and season-ticket/merchandising income.
+  fanbase: number
 }
 
 // One row of FinancesResponse.sponsorDealOptions - see backend engine.SponsorDealPreview.
@@ -1059,6 +1065,7 @@ export const NOTIFICATION_FRIENDLY = 6
 export const NOTIFICATION_ACADEMY_PROMOTION = 7
 export const NOTIFICATION_PROGRESSION = 8
 export const NOTIFICATION_AWARD = 9
+export const NOTIFICATION_FANBASE = 11
 
 export interface Notification {
   notificationId: number

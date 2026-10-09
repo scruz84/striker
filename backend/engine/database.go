@@ -75,12 +75,18 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 // buying, renewals) deliberately stays off this call site - see RunAITeamManagement's own doc
 // comment on why it only ever runs from the local-hour-gated daily tick instead.
 //
+// Also where each side's Fanbase drifts for this result (see applyFanbaseDrift) - same
+// event-driven, competitive-result-only reasoning as sponsorship, and the same reason friendlies
+// never reach this function at all.
+//
 // Returns the home side's computed attendance (see creditTicketRevenue) - simulateMatch reuses
 // this exact figure for the match's report flavor rather than drawing a second, independent one.
 func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) int {
 	attendance := creditTicketRevenue(dbCtx, match.Home)
 	creditSponsorship(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
 	creditSponsorship(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
+	applyFanbaseDrift(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
+	applyFanbaseDrift(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
 	RunAITeamMatchReaction(dbCtx, match.Home)
 	RunAITeamMatchReaction(dbCtx, match.Away)
 	return attendance

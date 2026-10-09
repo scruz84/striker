@@ -89,19 +89,20 @@ type SponsorDealPreview struct {
 }
 
 // SponsorDealPreviews computes what each of the three sponsor deals actually pays per match for
-// a team currently playing in tier, one row per deal - lets the finance page show real numbers
-// before a manager commits to one for the season (issue #70), instead of just a label and a
-// one-line description.
-func SponsorDealPreviews(tier int) []SponsorDealPreview {
+// a team currently playing in tier with the given Fanbase (see fanbaseCommercialFactor), one row
+// per deal - lets the finance page show real numbers before a manager commits to one for the
+// season (issue #70), instead of just a label and a one-line description.
+func SponsorDealPreviews(tier int, fanbase int) []SponsorDealPreview {
 	base := sponsorshipForTier(tier)
+	factor := fanbaseCommercialFactor(fanbase)
 	deals := []common.SponsorDeal{common.SponsorDealSteady, common.SponsorDealBalanced, common.SponsorDealPerformance}
 	previews := make([]SponsorDealPreview, len(deals))
 	for i, deal := range deals {
 		previews[i] = SponsorDealPreview{
 			Deal: deal,
-			Win:  sponsorshipAmount(base, deal, outcomeWin),
-			Draw: sponsorshipAmount(base, deal, outcomeDraw),
-			Loss: sponsorshipAmount(base, deal, outcomeLoss),
+			Win:  int64(float64(sponsorshipAmount(base, deal, outcomeWin)) * factor),
+			Draw: int64(float64(sponsorshipAmount(base, deal, outcomeDraw)) * factor),
+			Loss: int64(float64(sponsorshipAmount(base, deal, outcomeLoss)) * factor),
 		}
 	}
 	return previews
@@ -118,7 +119,13 @@ func creditSponsorship(dbCtx *common.DatabaseContext, teamId int64, goalsFor int
 		log.Errorf("error getting sponsor deal for team %d: %s", teamId, err)
 		return
 	}
+	fanbase, err := common.GetFanbase(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting fanbase for team %d sponsorship, using the neutral default: %s", teamId, err)
+		fanbase = common.DefaultFanbase
+	}
 	amount := sponsorshipAmount(sponsorshipForTier(tier), deal, outcomeFor(goalsFor, goalsAgainst))
+	amount = int64(float64(amount) * fanbaseCommercialFactor(fanbase))
 	if err := common.AdjustTeamBudget(dbCtx, teamId, amount, common.TRANSACTION_SPONSORSHIP, "Matchday sponsorship"); err != nil {
 		log.Errorf("error crediting sponsorship for team %d: %s", teamId, err)
 	}

@@ -21,6 +21,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useRenameStadium, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import {
@@ -40,6 +41,7 @@ import {
 import { useConfirm } from '../../components/confirmDialogContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { ratingTierColor } from '../../utils/playerRating'
 import { BudgetOverTimeChart } from './BudgetOverTimeChart'
 import { CashFlowForecastCard } from './CashFlowForecastCard'
 import { IncomeBreakdownChart } from './IncomeBreakdownChart'
@@ -66,7 +68,7 @@ export function FinancesPage() {
       )}
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="overline" color="text.secondary">
@@ -78,7 +80,10 @@ export function FinancesPage() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <FanbaseCard fanbase={finances.fanbase} />
+        </Grid>
       </Grid>
 
       <SponsorDealCard sponsorDeal={finances.sponsorDeal} options={finances.sponsorDealOptions} locked={finances.sponsorDealLocked} />
@@ -215,6 +220,30 @@ function SponsorDealCard({
             {t('finances.sponsorDeal.error')}
           </Alert>
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// FanbaseCard shows this team's current 0-99 supporter-base index (see backend common.GetFanbase)
+// - read-only, unlike SponsorDealCard/StadiumCard, since Fanbase drifts on its own from match
+// results rather than being something a manager directly sets.
+function FanbaseCard({ fanbase }: { fanbase: number }) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+
+  return (
+    <Card sx={{ height: '100%' }}>
+      <CardContent>
+        <Typography variant="overline" color="text.secondary">
+          {t('finances.fanbase.title')}
+        </Typography>
+        <Typography variant="h4" sx={{ color: ratingTierColor(fanbase, theme.palette) }}>
+          {fanbase}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t('finances.fanbase.description')}
+        </Typography>
       </CardContent>
     </Card>
   )

@@ -338,6 +338,10 @@ type TeamDetails struct {
 	// pending upgrades - which stay owner-only on GetFinancesHandler), the same way a real club's
 	// stadium and attendance figures are.
 	Stadium *StadiumSummary `json:"stadium,omitempty"`
+	// Fanbase is this team's current 0-99 supporter-base index (see GetFanbase) - public, same
+	// visibility tier as Stadium's own public fields, the way a real club's attendance figures
+	// are public knowledge.
+	Fanbase int `json:"fanbase"`
 	// Unavailability lists the squad's currently suspended/injured players - only filled in for
 	// the caller's own team (see GetFullTeamDetailsByUser), where the lineup editors use it to
 	// flag who can't be fielded. Never cached (unlike GetTeamDetails' views), since it changes

@@ -83,7 +83,9 @@
       "playerEvolutions_one": "{{count}} of your players developed after the match - check their latest evolutions",
       "playerEvolutions_other": "{{count}} of your players developed after the match - check their latest evolutions",
       "goldenBoot": "{{name}} won the Golden Boot with {{goals}} goals!",
-      "playerOfSeason": "{{name}} was named Player of the Season!"
+      "playerOfSeason": "{{name}} was named Player of the Season!",
+      "fanbaseGrew": "Your fanbase has grown to {{fanbase}}",
+      "fanbaseShrank": "Your fanbase has shrunk to {{fanbase}}"
     }
   },
   "home": {
@@ -282,6 +284,10 @@
     "budget": "Budget",
     "insolvent": "Your budget is too far in debt - buying, signing, and borrowing players on loan are blocked until it recovers. Selling or releasing players is still open.",
     "stadium": "Stadium",
+    "fanbase": {
+      "title": "Fanbase",
+      "description": "Rises with wins, falls with losses - feeds into attendance, sponsorship, and end-of-season income."
+    },
     "seats": "seats",
     "newSeats": "New seats",
     "expand": "Expand",
@@ -562,6 +568,7 @@
   "team": {
     "competitions": "Competitions:",
     "classificationPosition": "Position {{position}} in the classification",
+    "fanbase": "Fanbase:",
     "cup": {
       "domestic": "Cup",
       "international": "International cup",

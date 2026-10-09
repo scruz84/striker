@@ -125,3 +125,7 @@ const NOTIFICATION_AWARD = 9
 // club - see common.RejectOffer, which links it straight back to the player's page so the buyer
 // can renegotiate with new terms without hunting for the player again.
 const NOTIFICATION_OFFER_DECLINED = 10
+
+// NOTIFICATION_FANBASE tells a team's owner their Fanbase crossed into a new ten-point band
+// (grew or shrank) - see engine.notifyFanbaseMilestone.
+const NOTIFICATION_FANBASE = 11

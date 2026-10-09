@@ -43,14 +43,23 @@ func merchandisingForPosition(pool int64, position int, teamCount int) int64 {
 
 // awardSeasonTicketsAndMerchandising pays every team in one league's final standings its season-
 // ticket lump sum (stadium capacity x SeasonTicketRevenuePerSeat) and merchandising share (see
-// merchandisingForPosition) - called from applyPromotionRelegation alongside
+// merchandisingForPosition), both scaled by the team's own Fanbase (see fanbaseCommercialFactor -
+// season-ticket holders and shirt sales are exactly the kind of commercial activity a bigger
+// supporter base should lift) - called from applyPromotionRelegation alongside
 // awardLeaguePrizeMoney, which already has each league's ranked final standings on hand.
 func awardSeasonTicketsAndMerchandising(dbCtx *common.DatabaseContext, tier int, standings []common.TeamStanding) {
 	merchandisingPool := merchandisingPoolForTier(tier)
 	for i, team := range standings {
-		awardSeasonTickets(dbCtx, team.TeamId)
+		fanbase, err := common.GetFanbase(dbCtx, team.TeamId)
+		if err != nil {
+			log.Errorf("error getting fanbase for team %d season income, using the neutral default: %s", team.TeamId, err)
+			fanbase = common.DefaultFanbase
+		}
+		factor := fanbaseCommercialFactor(fanbase)
 
-		merchandisingAmount := merchandisingForPosition(merchandisingPool, i+1, len(standings))
+		awardSeasonTickets(dbCtx, team.TeamId, factor)
+
+		merchandisingAmount := int64(float64(merchandisingForPosition(merchandisingPool, i+1, len(standings))) * factor)
 		if merchandisingAmount == 0 {
 			continue
 		}
@@ -60,13 +69,13 @@ func awardSeasonTicketsAndMerchandising(dbCtx *common.DatabaseContext, tier int,
 	}
 }
 
-func awardSeasonTickets(dbCtx *common.DatabaseContext, teamId int64) {
+func awardSeasonTickets(dbCtx *common.DatabaseContext, teamId int64, fanbaseFactor float64) {
 	stadium, err := common.GetStadium(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching stadium for team %d season tickets: %s", teamId, err)
 		return
 	}
-	amount := int64(stadium.Capacity * SeasonTicketRevenuePerSeat)
+	amount := int64(float64(stadium.Capacity*SeasonTicketRevenuePerSeat) * fanbaseFactor)
 	if err := common.AdjustTeamBudget(dbCtx, teamId, amount, common.TRANSACTION_SEASON_TICKETS, "Season ticket sales"); err != nil {
 		log.Errorf("error paying season tickets to team %d: %s", teamId, err)
 	}

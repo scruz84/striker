@@ -45,6 +45,13 @@ start reading in the code.
   (`FinancesResponse.maxDebt`) so the forecast doesn't have to hardcode the debt ceiling a second
   time.
 - Phase 4 is proposed, not started.
+- **Fanbase: DONE.** Every team now has a 0-99 Fanbase index (`teams.fanbase`) that drifts slowly
+  from league/cup results and feeds a multiplier into matchday attendance, sponsorship, and season
+  tickets/merchandising - closing the gap `engine/stadium.go`'s `demandRate` doc comment used to
+  name explicitly ("no model for what else should drive attendance"). See `GAME_MECHANICS.md`'s
+  "Fanbase" section and `backend/engine/fanbase.go`. A match-simulation effect (home advantage/
+  crowd noise) was deliberately left out - the simulator has no such concept today, and adding one
+  is a separate, bigger design decision.
 
 ## Existing economy building blocks (for context)
 
@@ -65,6 +72,9 @@ start reading in the code.
 - **Prize money**: `backend/engine/prizemoney.go` - league position + cup round payouts.
 - **Transfer windows**: `backend/common/database.go`'s `IsTransferWindowOpen` - one global flag,
   admin-toggled.
+- **Fanbase**: `backend/common/fanbase.go` (storage) + `backend/engine/fanbase.go` (drift,
+  attendance/commercial multipliers) - a 0-99 per-team index that feeds into attendance,
+  sponsorship, and season tickets/merchandising.
 
 ## Phase 2 - Financial consequences (insolvency) - DONE, see Status above
 

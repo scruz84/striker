@@ -1462,10 +1462,15 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	if err != nil {
 		return nil, err
 	}
+	fanbase, err := GetFanbase(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
 
 	return &TeamDetails{
 		Team:    team,
 		Players: *players,
+		Fanbase: fanbase,
 		Stadium: &StadiumSummary{
 			Name:          stadium.Name,
 			Capacity:      stadium.Capacity,

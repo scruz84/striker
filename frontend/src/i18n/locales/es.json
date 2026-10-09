@@ -83,7 +83,9 @@
       "playerEvolutions_one": "{{count}} de tus jugadores ha evolucionado tras el partido - revisa sus últimas evoluciones",
       "playerEvolutions_other": "{{count}} de tus jugadores han evolucionado tras el partido - revisa sus últimas evoluciones",
       "goldenBoot": "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
-      "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!"
+      "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!",
+      "fanbaseGrew": "Tu afición ha crecido a {{fanbase}}",
+      "fanbaseShrank": "Tu afición ha bajado a {{fanbase}}"
     }
   },
   "home": {
@@ -282,6 +284,10 @@
     "budget": "Presupuesto",
     "insolvent": "Tu presupuesto está demasiado en números rojos - fichar, firmar jugadores y pedirlos cedidos está bloqueado hasta que se recupere. Vender o liberar jugadores sigue disponible.",
     "stadium": "Estadio",
+    "fanbase": {
+      "title": "Afición",
+      "description": "Sube con las victorias, baja con las derrotas - influye en la asistencia, el patrocinio y los ingresos de fin de temporada."
+    },
     "seats": "asientos",
     "newSeats": "Asientos nuevos",
     "expand": "Ampliar",
@@ -562,6 +568,7 @@
   "team": {
     "competitions": "Competiciones:",
     "classificationPosition": "Posición {{position}} en la clasificación",
+    "fanbase": "Afición:",
     "cup": {
       "domestic": "Copa",
       "international": "Copa internacional",

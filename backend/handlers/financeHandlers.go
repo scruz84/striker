@@ -32,6 +32,11 @@ type FinancesResponse struct {
 	// SponsorDealLocked is true once this team has already chosen a deal for the current season -
 	// see common.SetSponsorDeal/IsSponsorDealLocked.
 	SponsorDealLocked bool `json:"sponsorDealLocked"`
+	// Fanbase is this team's current 0-99 supporter-base index - see common.GetFanbase. Also
+	// public on TeamDetails (common.GetTeamDetailsById), but repeated here so the finance page
+	// doesn't need a second request just to show it alongside the stadium/sponsorship cards it
+	// actually affects.
+	Fanbase int `json:"fanbase"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and full
@@ -96,13 +101,21 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		fanbase, err := common.GetFanbase(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting fanbase for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
 			Insolvent:          budget < -common.MaxDebt,
 			MaxDebt:            common.MaxDebt,
 			SponsorDeal:        sponsorDeal,
-			SponsorDealOptions: engine.SponsorDealPreviews(tier),
+			SponsorDealOptions: engine.SponsorDealPreviews(tier, fanbase),
 			SponsorDealLocked:  sponsorDealLocked,
+			Fanbase:            fanbase,
 		})
 	}
 }

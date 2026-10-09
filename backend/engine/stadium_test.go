@@ -11,7 +11,7 @@ func TestCalculateAttendance_WithinBounds(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	capacity := 10000
 	for i := 0; i < 1000; i++ {
-		attendance := CalculateAttendance(capacity, common.DefaultTicketPrice, r)
+		attendance := CalculateAttendance(capacity, common.DefaultTicketPrice, common.DefaultFanbase, r)
 		if attendance < 0 || attendance > capacity {
 			t.Fatalf("attendance %d out of bounds for capacity %d", attendance, capacity)
 		}
@@ -20,7 +20,7 @@ func TestCalculateAttendance_WithinBounds(t *testing.T) {
 
 func TestCalculateAttendance_ZeroCapacity(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
-	if got := CalculateAttendance(0, common.DefaultTicketPrice, r); got != 0 {
+	if got := CalculateAttendance(0, common.DefaultTicketPrice, common.DefaultFanbase, r); got != 0 {
 		t.Fatalf("expected 0 attendance for 0 capacity, got %d", got)
 	}
 }
@@ -31,9 +31,11 @@ func TestCalculateAttendance_AveragesNearBaseRate(t *testing.T) {
 	total := 0
 	const trials = 5000
 	for i := 0; i < trials; i++ {
-		// demandRate(DefaultTicketPrice) == BaseOccupancyRate exactly by construction - this is
-		// the one price at which attendance should still average out to the historical baseline.
-		total += CalculateAttendance(capacity, common.DefaultTicketPrice, r)
+		// demandRate(DefaultTicketPrice) == BaseOccupancyRate exactly by construction, and
+		// fanbaseAttendanceFactor(common.DefaultFanbase) is ~1.0 by the same kind of
+		// construction - this is the one price/fanbase combination where attendance should still
+		// average out to the historical baseline.
+		total += CalculateAttendance(capacity, common.DefaultTicketPrice, common.DefaultFanbase, r)
 	}
 	average := float64(total) / float64(trials)
 	expected := float64(capacity) * BaseOccupancyRate
@@ -55,7 +57,7 @@ func TestCalculateAttendance_HigherPriceReducesAttendance(t *testing.T) {
 		r := rand.New(rand.NewSource(7))
 		total := 0
 		for i := 0; i < trials; i++ {
-			total += CalculateAttendance(capacity, price, r)
+			total += CalculateAttendance(capacity, price, common.DefaultFanbase, r)
 		}
 		return float64(total) / float64(trials)
 	}
@@ -64,6 +66,29 @@ func TestCalculateAttendance_HigherPriceReducesAttendance(t *testing.T) {
 	expensive := average(common.MaxTicketPrice)
 	if expensive >= cheap {
 		t.Fatalf("expected average attendance at max price (%.0f) to be lower than at min price (%.0f)", expensive, cheap)
+	}
+}
+
+// TestCalculateAttendance_BiggerFanbaseIncreasesAttendance guards the whole point of
+// fanbaseAttendanceFactor: two teams with identical stadiums/prices should draw different crowds
+// once their Fanbase differs.
+func TestCalculateAttendance_BiggerFanbaseIncreasesAttendance(t *testing.T) {
+	capacity := 10000
+	const trials = 5000
+
+	average := func(fanbase int) float64 {
+		r := rand.New(rand.NewSource(7))
+		total := 0
+		for i := 0; i < trials; i++ {
+			total += CalculateAttendance(capacity, common.DefaultTicketPrice, fanbase, r)
+		}
+		return float64(total) / float64(trials)
+	}
+
+	small := average(1)
+	big := average(99)
+	if big <= small {
+		t.Fatalf("expected average attendance at fanbase 99 (%.0f) to be higher than at fanbase 1 (%.0f)", big, small)
 	}
 }
 

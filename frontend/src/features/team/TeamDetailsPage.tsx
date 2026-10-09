@@ -116,6 +116,7 @@ function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): numbe
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
+  const theme = useTheme()
   const { id } = useParams<{ id: string }>()
   const { data: loggedUser } = useMe()
   const { data: teamDetails, isLoading } = useTeamDetails(id)
@@ -195,6 +196,14 @@ export function TeamDetailsPage() {
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
         <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
+      </Stack>
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('team.fanbase')}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(teamDetails.fanbase, theme.palette) }}>
+          {teamDetails.fanbase}
+        </Typography>
       </Stack>
 
       {teamDetails.stadium && (
