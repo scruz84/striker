@@ -262,6 +262,8 @@ var nameTableSuffixByCountry = map[string]string{
 	"br": "br", "ar": "ar", "mx": "mx", "co": "co", "cl": "cl", "pe": "pe",
 	"uy": "uy", "us": "us", "ca": "ca", "ec": "ec",
 	"be": "be", "tr": "tr", "at": "at", "ve": "ve", "py": "py", "bo": "bo",
+	"sco": "sco", "wal": "wal", "ie": "ie", "ru": "ru", "rs": "rs", "hr": "hr",
+	"ba": "ba", "si": "si", "mk": "mk", "me": "me", "xk": "xk",
 	"jp": "jp", "kr": "kr", "cn": "cn", "in": "in", "th": "th", "vn": "vn",
 	"id": "id", "ph": "ph", "sa": "sa", "ir": "ir",
 	"qa": "qa", "ae": "ae", "uz": "uz",

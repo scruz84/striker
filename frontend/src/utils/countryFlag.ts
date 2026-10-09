@@ -48,6 +48,22 @@ const COUNTRY_FLAGS: Record<string, string> = {
   be: '🇧🇪',
   tr: '🇹🇷',
   at: '🇦🇹',
+  // Scotland/Wales have no ISO 3166-1 code and thus no regional-indicator flag emoji - only
+  // multi-codepoint "tag sequence" subdivision flags exist for them, which hit the same
+  // blank-box rendering problem noted above for England, so they reuse the UK flag too.
+  sco: '🇬🇧',
+  wal: '🇬🇧',
+  ie: '🇮🇪',
+  ru: '🇷🇺',
+  rs: '🇷🇸',
+  hr: '🇭🇷',
+  ba: '🇧🇦',
+  si: '🇸🇮',
+  mk: '🇲🇰',
+  me: '🇲🇪',
+  // Kosovo has no ISO 3166-1 code either, but 🇽🇰 (built from the commonly-used user-assigned
+  // "XK" code) is the de facto flag widely supported on modern platforms, unlike a tag sequence.
+  xk: '🇽🇰',
   ve: '🇻🇪',
   py: '🇵🇾',
   bo: '🇧🇴',
