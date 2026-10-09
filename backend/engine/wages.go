@@ -44,17 +44,32 @@ func PayAllTeamsWagesNow(dbCtx *common.DatabaseContext) {
 	}
 }
 
+// deductWages charges teamId its own wage bill (already net of whatever portion a lender is
+// covering for any player out on loan to teamId - see common.GetTeamWageBill) plus, separately,
+// whatever portion teamId itself has committed to keep covering for players it has loaned out
+// elsewhere (see common.GetTeamLoanWageContribution) - two independent debits so each side's
+// ledger shows its own cost rather than one team's wage bill silently absorbing the other's.
 func deductWages(dbCtx *common.DatabaseContext, teamId int64) {
 	wageBill, err := common.GetTeamWageBill(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error getting wage bill for team %d: %s", teamId, err)
 		return
 	}
-	if wageBill == 0 {
+	if wageBill > 0 {
+		if err := common.AdjustTeamBudget(dbCtx, teamId, -wageBill, common.TRANSACTION_WAGES, "matchday wages"); err != nil {
+			log.Errorf("error deducting wages for team %d: %s", teamId, err)
+		}
+	}
+
+	contribution, err := common.GetTeamLoanWageContribution(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting loan wage contribution for team %d: %s", teamId, err)
 		return
 	}
-	if err := common.AdjustTeamBudget(dbCtx, teamId, -wageBill, common.TRANSACTION_WAGES, "matchday wages"); err != nil {
-		log.Errorf("error deducting wages for team %d: %s", teamId, err)
+	if contribution > 0 {
+		if err := common.AdjustTeamBudget(dbCtx, teamId, -contribution, common.TRANSACTION_LOAN_WAGE_CONTRIBUTION, "wage contribution for loaned-out players"); err != nil {
+			log.Errorf("error deducting loan wage contribution for team %d: %s", teamId, err)
+		}
 	}
 }
 

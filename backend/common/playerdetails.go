@@ -66,12 +66,17 @@ type PlayerStatus struct {
 	OnLoanFromTeamId            *int64  `json:"onLoanFromTeamId,omitempty"`
 	OnLoanFromTeamName          *string `json:"onLoanFromTeamName,omitempty"`
 	OnLoanReturnSeason          *int    `json:"onLoanReturnSeason,omitempty"`
-	TransferListingAskingPrice  *int64  `json:"transferListingAskingPrice,omitempty"`
-	LoanListingDurationSeasons  *int    `json:"loanListingDurationSeasons,omitempty"`
+	// OnLoanWageContributionPercent/OnLoanBuyOptionFee are only set when the loan actually carries
+	// that term (see common.CreateLoanListing) - nil, not zero, when it doesn't, so the frontend
+	// can tell "no buy option" apart from "buy option fee of zero".
+	OnLoanWageContributionPercent *int   `json:"onLoanWageContributionPercent,omitempty"`
+	OnLoanBuyOptionFee            *int64 `json:"onLoanBuyOptionFee,omitempty"`
+	TransferListingAskingPrice    *int64 `json:"transferListingAskingPrice,omitempty"`
+	LoanListingDurationSeasons    *int   `json:"loanListingDurationSeasons,omitempty"`
 }
 
 const getPlayerUnavailabilityStmtSql = "SELECT reason, matches_remaining FROM player_unavailability WHERE player_id = $1"
-const getPlayerActiveLoanStmtSql = "SELECT pl.from_team_id, t.name, pl.return_season " +
+const getPlayerActiveLoanStmtSql = "SELECT pl.from_team_id, t.name, pl.return_season, pl.wage_contribution_percent, pl.buy_option_fee " +
 	"FROM player_loans pl JOIN teams t ON t.team_id = pl.from_team_id WHERE pl.player_id = $1"
 const getPlayerTransferListingPriceStmtSql = "SELECT asking_price FROM transfer_listings WHERE player_id = $1"
 const getPlayerLoanListingDurationStmtSql = "SELECT duration_seasons FROM loan_listings WHERE player_id = $1"
@@ -93,12 +98,19 @@ func GetPlayerStatus(dbCtx *DatabaseContext, playerId int64) (PlayerStatus, erro
 
 	var fromTeamId int64
 	var fromTeamName string
-	var returnSeason int
-	err = dbCtx.Db.QueryRow(getPlayerActiveLoanStmtSql, playerId).Scan(&fromTeamId, &fromTeamName, &returnSeason)
+	var returnSeason, wageContributionPercent int
+	var buyOptionFee int64
+	err = dbCtx.Db.QueryRow(getPlayerActiveLoanStmtSql, playerId).Scan(&fromTeamId, &fromTeamName, &returnSeason, &wageContributionPercent, &buyOptionFee)
 	if err == nil {
 		status.OnLoanFromTeamId = &fromTeamId
 		status.OnLoanFromTeamName = &fromTeamName
 		status.OnLoanReturnSeason = &returnSeason
+		if wageContributionPercent > 0 {
+			status.OnLoanWageContributionPercent = &wageContributionPercent
+		}
+		if buyOptionFee > 0 {
+			status.OnLoanBuyOptionFee = &buyOptionFee
+		}
 	} else if err != sql.ErrNoRows {
 		return status, err
 	}

@@ -691,6 +691,10 @@ export interface LoanListing {
   lendingTeamId: number
   lendingTeamName: string
   durationSeasons: number
+  // All three are optional loan terms (zero/off by default) - see backend common.CreateLoanListing.
+  loanFee: number
+  wageContributionPercent: number
+  buyOptionFee: number
   listedAt: string
 }
 
@@ -762,6 +766,9 @@ export interface PlayerDetails extends Player {
   onLoanFromTeamId?: number
   onLoanFromTeamName?: string
   onLoanReturnSeason?: number
+  // Only present when the loan actually carries that term - see backend common.PlayerStatus.
+  onLoanWageContributionPercent?: number
+  onLoanBuyOptionFee?: number
   transferListingAskingPrice?: number
   loanListingDurationSeasons?: number
   history: TeamTransaction[]

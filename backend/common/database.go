@@ -242,8 +242,14 @@ const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reas
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
 
 // Academy prospects are excluded - they draw no wage until actually promoted (see
-// PromoteFromAcademy), same reasoning as GetPlayersFromTeamStmtSql.
-const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(wage), 0) FROM players WHERE team_id = $1 AND in_academy = false"
+// PromoteFromAcademy), same reasoning as GetPlayersFromTeamStmtSql. A player currently on loan to
+// teamId only charges teamId the slice of their wage the lender isn't covering (see
+// player_loans.wage_contribution_percent, set via common.CreateLoanListing/AcceptLoan) - the
+// lender is charged the covered remainder separately (see GetTeamLoanWageContribution and
+// engine.deductWages), so the two sides always add up to exactly the player's full wage.
+const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(p.wage * (100 - COALESCE(pl.wage_contribution_percent, 0)) / 100), 0) " +
+	"FROM players p LEFT JOIN player_loans pl ON pl.player_id = p.player_id AND pl.to_team_id = p.team_id " +
+	"WHERE p.team_id = $1 AND p.in_academy = false"
 
 // nameTableSuffixByCountry maps a seeded country code to its names_<suffix>/lastnames_<suffix>
 // table pair (see resources/sql/init.sql). Table names can't

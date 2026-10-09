@@ -13,44 +13,88 @@ var ErrCannotAcceptOwnLoan = errors.New("cannot accept a loan for your own playe
 var ErrPlayerOnLoan = errors.New("player is currently out on loan")
 var ErrPlayerNotLoanListedByTeam = errors.New("player is not listed for loan by your team")
 var ErrInvalidLoanDuration = errors.New("loan duration out of range")
+var ErrInvalidLoanFee = errors.New("loan fee must not be negative")
+var ErrInvalidWageContributionPercent = errors.New("wage contribution percent must be between 0 and 100")
+var ErrInvalidBuyOptionFee = errors.New("buy option fee must not be negative")
+var ErrPlayerNotOnLoan = errors.New("player is not currently on loan")
+var ErrPlayerNotOnLoanToTeam = errors.New("player is not out on loan to your team")
+var ErrNoBuyOptionOnLoan = errors.New("this loan has no buy-option fee attached")
 
 // MinLoanDurationSeasons/MaxLoanDurationSeasons bound how long a lender can offer a loan for.
 const MinLoanDurationSeasons = 1
 const MaxLoanDurationSeasons = 3
 
-// LoanListing is an open offer to loan a player out - see GetActiveLoanListings.
+// MinWageContributionPercent/MaxWageContributionPercent bound how much of a loaned player's wage
+// a lender can keep covering while they're out on loan - see CreateLoanListing.
+const MinWageContributionPercent = 0
+const MaxWageContributionPercent = 100
+
+// LoanListing is an open offer to loan a player out - see GetActiveLoanListings. LoanFee,
+// WageContributionPercent, and BuyOptionFee are all optional (zero = off) economic terms the
+// lender can attach - see CreateLoanListing.
 type LoanListing struct {
-	ListingId       int64     `json:"listingId"`
-	Player          Player    `json:"player"`
-	LendingTeamId   int64     `json:"lendingTeamId"`
-	LendingTeamName string    `json:"lendingTeamName"`
-	DurationSeasons int       `json:"durationSeasons"`
-	ListedAt        time.Time `json:"listedAt"`
+	ListingId       int64  `json:"listingId"`
+	Player          Player `json:"player"`
+	LendingTeamId   int64  `json:"lendingTeamId"`
+	LendingTeamName string `json:"lendingTeamName"`
+	DurationSeasons int    `json:"durationSeasons"`
+	LoanFee         int64  `json:"loanFee"`
+	// WageContributionPercent is how much of the player's wage the lender keeps covering for the
+	// duration of the loan - see engine.deductWages.
+	WageContributionPercent int `json:"wageContributionPercent"`
+	// BuyOptionFee, when non-zero, is the fixed fee the borrower can pay at any time during the
+	// loan to make the move permanent - see ExerciseLoanBuyOption. Zero means no buy option.
+	BuyOptionFee int64     `json:"buyOptionFee"`
+	ListedAt     time.Time `json:"listedAt"`
 }
 
 // PlayerLoan is an active loan - the player currently belongs (team_id) to ToTeamId, and is due
 // back at FromTeamId once the current season reaches ReturnSeason - see
-// engine.ReturnExpiredLoans.
+// engine.ReturnExpiredLoans. WageContributionPercent/BuyOptionFee are copied from the originating
+// LoanListing at accept time (see AcceptLoan), since the listing row itself is deleted.
 type PlayerLoan struct {
-	LoanId       int64 `json:"loanId"`
-	PlayerId     int64 `json:"playerId"`
-	FromTeamId   int64 `json:"fromTeamId"`
-	ToTeamId     int64 `json:"toTeamId"`
-	ReturnSeason int   `json:"returnSeason"`
+	LoanId                  int64 `json:"loanId"`
+	PlayerId                int64 `json:"playerId"`
+	FromTeamId              int64 `json:"fromTeamId"`
+	ToTeamId                int64 `json:"toTeamId"`
+	ReturnSeason            int   `json:"returnSeason"`
+	WageContributionPercent int   `json:"wageContributionPercent"`
+	BuyOptionFee            int64 `json:"buyOptionFee"`
 }
 
-const InsertLoanListingStmtSql = "INSERT INTO loan_listings (player_id, lending_team_id, duration_seasons) VALUES ($1, $2, $3)"
+const InsertLoanListingStmtSql = "INSERT INTO loan_listings (player_id, lending_team_id, duration_seasons, loan_fee, wage_contribution_percent, buy_option_fee) " +
+	"VALUES ($1, $2, $3, $4, $5, $6)"
 const DeleteLoanListingByPlayerAndTeamStmtSql = "DELETE FROM loan_listings WHERE player_id = $1 AND lending_team_id = $2"
-const GetLoanListingForUpdateStmtSql = "SELECT player_id, lending_team_id, duration_seasons FROM loan_listings WHERE listing_id = $1 " + ForUpdate
+const GetLoanListingForUpdateStmtSql = "SELECT player_id, lending_team_id, duration_seasons, loan_fee, wage_contribution_percent, buy_option_fee " +
+	"FROM loan_listings WHERE listing_id = $1 " + ForUpdate
 const DeleteLoanListingStmtSql = "DELETE FROM loan_listings WHERE listing_id = $1"
-const GetActiveLoanListingsStmtSql = "SELECT ll.listing_id, ll.player_id, ll.lending_team_id, t.name, ll.duration_seasons, ll.listed_at " +
+const GetActiveLoanListingsStmtSql = "SELECT ll.listing_id, ll.player_id, ll.lending_team_id, t.name, ll.duration_seasons, " +
+	"ll.loan_fee, ll.wage_contribution_percent, ll.buy_option_fee, ll.listed_at " +
 	"FROM loan_listings ll JOIN teams t ON t.team_id = ll.lending_team_id ORDER BY ll.listed_at DESC"
 const IsPlayerLoanListedStmtSql = "SELECT 1 FROM loan_listings WHERE player_id = $1"
 const IsPlayerOnActiveLoanStmtSql = "SELECT loan_id FROM player_loans WHERE player_id = $1"
 
-const InsertPlayerLoanStmtSql = "INSERT INTO player_loans (player_id, from_team_id, to_team_id, return_season) VALUES ($1, $2, $3, $4)"
+const InsertPlayerLoanStmtSql = "INSERT INTO player_loans (player_id, from_team_id, to_team_id, return_season, wage_contribution_percent, buy_option_fee) " +
+	"VALUES ($1, $2, $3, $4, $5, $6)"
 const DeletePlayerLoanStmtSql = "DELETE FROM player_loans WHERE loan_id = $1"
 const GetExpiredLoansStmtSql = "SELECT loan_id, player_id, from_team_id, to_team_id, return_season FROM player_loans WHERE return_season <= $1"
+const GetActiveLoanForPlayerForUpdateStmtSql = "SELECT loan_id, from_team_id, to_team_id, buy_option_fee FROM player_loans WHERE player_id = $1 " + ForUpdate
+
+// GetTeamLoanWageContributionStmtSql sums, for every player teamId currently has out on loan with
+// a wage_contribution_percent > 0, the slice of that player's wage teamId (the lender) keeps
+// covering - see engine.deductWages, which charges this separately from the borrower's own
+// (already-reduced) wage bill so the two sides add up to exactly the player's full wage.
+const GetTeamLoanWageContributionStmtSql = "SELECT COALESCE(SUM(p.wage * pl.wage_contribution_percent / 100), 0) " +
+	"FROM player_loans pl JOIN players p ON p.player_id = pl.player_id " +
+	"WHERE pl.from_team_id = $1 AND pl.wage_contribution_percent > 0"
+
+// GetTeamLoanWageContribution returns how much teamId owes this round covering part of the wage
+// of every player it currently has out on loan under a wage-contribution split.
+func GetTeamLoanWageContribution(dbCtx *DatabaseContext, teamId int64) (int64, error) {
+	var total int64
+	err := dbCtx.Db.QueryRow(GetTeamLoanWageContributionStmtSql, teamId).Scan(&total)
+	return total, err
+}
 
 // IsPlayerOnActiveLoan reports whether playerId is currently out on loan - used to stop a
 // borrowing team from transfer-listing or re-loaning a player that isn't really theirs to sell.
@@ -73,12 +117,28 @@ func IsPlayerLoanListed(dbCtx *DatabaseContext, playerId int64) (bool, error) {
 	return err == nil, err
 }
 
-// CreateLoanListing offers a player out on loan for durationSeasons. Rejects a player that's
-// already out on loan (ErrPlayerOnLoan - a borrowing team can't re-loan what isn't theirs) or
-// already transfer-listed (ErrPlayerAlreadyListed - the two markets are mutually exclusive).
-func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int64, durationSeasons int) error {
+// CreateLoanListing offers a player out on loan for durationSeasons, with three independent,
+// all-optional economic terms (see ECONOMY_ROADMAP.md's Phase 4 "loan money" item): loanFee (a
+// one-time fee the borrower pays when the loan is accepted - zero means free, the original
+// behavior), wageContributionPercent (how much of the wage the lender keeps covering for the
+// loan's duration - zero means the borrower pays it all, same as before), and buyOptionFee (a
+// fixed fee the borrower can later pay to make the move permanent - zero means no buy option).
+// Rejects a player that's already out on loan (ErrPlayerOnLoan - a borrowing team can't re-loan
+// what isn't theirs) or already transfer-listed (ErrPlayerAlreadyListed - the two markets are
+// mutually exclusive).
+func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int64, durationSeasons int,
+	loanFee int64, wageContributionPercent int, buyOptionFee int64) error {
 	if durationSeasons < MinLoanDurationSeasons || durationSeasons > MaxLoanDurationSeasons {
 		return ErrInvalidLoanDuration
+	}
+	if loanFee < 0 {
+		return ErrInvalidLoanFee
+	}
+	if wageContributionPercent < MinWageContributionPercent || wageContributionPercent > MaxWageContributionPercent {
+		return ErrInvalidWageContributionPercent
+	}
+	if buyOptionFee < 0 {
+		return ErrInvalidBuyOptionFee
 	}
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
@@ -98,7 +158,7 @@ func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int
 		return ErrPlayerAlreadyListed
 	}
 
-	_, err = dbCtx.Db.Exec(InsertLoanListingStmtSql, playerId, lendingTeamId, durationSeasons)
+	_, err = dbCtx.Db.Exec(InsertLoanListingStmtSql, playerId, lendingTeamId, durationSeasons, loanFee, wageContributionPercent, buyOptionFee)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return ErrPlayerAlreadyLoanListed
@@ -141,7 +201,8 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 	for rows.Next() {
 		var r row
 		if err := rows.Scan(&r.listing.ListingId, &r.playerId, &r.listing.LendingTeamId,
-			&r.listing.LendingTeamName, &r.listing.DurationSeasons, &r.listing.ListedAt); err != nil {
+			&r.listing.LendingTeamName, &r.listing.DurationSeasons, &r.listing.LoanFee,
+			&r.listing.WageContributionPercent, &r.listing.BuyOptionFee, &r.listing.ListedAt); err != nil {
 			return nil, err
 		}
 		pending = append(pending, r)
@@ -162,9 +223,12 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 
 // AcceptLoan brings a listed player onto borrowingTeamId's squad for the listing's duration:
 // moves the player, clears them from the lender's default lineup (mirrors ExecuteTransfer -
-// they're no longer at that team, wherever they were slotted), records the loan (who it's
-// owed back to and when), and drops the listing - all atomically. The listing row is locked
-// (SELECT ... FOR UPDATE) so two simultaneous accepts of the same listing can't both succeed.
+// they're no longer at that team, wherever they were slotted), charges the listing's loan fee (if
+// any - like a mini transfer fee, paid once, upfront), records the loan (who it's owed back to
+// and when, plus whatever wage-contribution/buy-option terms the listing carried), and drops the
+// listing - all atomically. The listing row and (when a fee applies) the borrower's budget row
+// are locked (SELECT ... FOR UPDATE) so two simultaneous accepts, or an accept racing a
+// budget-changing operation, can't both succeed.
 func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) error {
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
@@ -180,9 +244,10 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	}
 	defer tx.Rollback()
 
-	var playerId, lendingTeamId int64
-	var durationSeasons int
-	err = tx.QueryRow(GetLoanListingForUpdateStmtSql, listingId).Scan(&playerId, &lendingTeamId, &durationSeasons)
+	var playerId, lendingTeamId, loanFee, buyOptionFee int64
+	var durationSeasons, wageContributionPercent int
+	err = tx.QueryRow(GetLoanListingForUpdateStmtSql, listingId).Scan(&playerId, &lendingTeamId, &durationSeasons,
+		&loanFee, &wageContributionPercent, &buyOptionFee)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrLoanListingNotFound
 	}
@@ -191,6 +256,16 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	}
 	if lendingTeamId == borrowingTeamId {
 		return ErrCannotAcceptOwnLoan
+	}
+
+	if loanFee > 0 {
+		var borrowerBudget int64
+		if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, borrowingTeamId).Scan(&borrowerBudget); err != nil {
+			return err
+		}
+		if borrowerBudget < loanFee {
+			return ErrInsufficientBudget
+		}
 	}
 
 	if err := movePlayerToTeam(tx, borrowingTeamId, playerId); err != nil {
@@ -203,8 +278,40 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		return err
 	}
 	returnSeason := currentSeason + durationSeasons
-	if _, err := tx.Exec(InsertPlayerLoanStmtSql, playerId, lendingTeamId, borrowingTeamId, returnSeason); err != nil {
+	if _, err := tx.Exec(InsertPlayerLoanStmtSql, playerId, lendingTeamId, borrowingTeamId, returnSeason,
+		wageContributionPercent, buyOptionFee); err != nil {
 		return err
+	}
+
+	if loanFee > 0 {
+		player, err := GetPlayerById(dbCtx, playerId)
+		if err != nil {
+			return err
+		}
+		lendingTeam, err := GetTeamById(lendingTeamId, dbCtx)
+		if err != nil {
+			return err
+		}
+		borrowingTeam, err := GetTeamById(borrowingTeamId, dbCtx)
+		if err != nil {
+			return err
+		}
+		playerName := player.FirstName + " " + player.LastName
+
+		if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -loanFee, borrowingTeamId); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(UpdateTeamBudgetStmtSql, loanFee, lendingTeamId); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(InsertTeamTransactionStmtSql, borrowingTeamId, -loanFee, TRANSACTION_LOAN_FEE,
+			"Loan fee for "+playerName+" to "+lendingTeam.TeamName, playerId); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(InsertTeamTransactionStmtSql, lendingTeamId, loanFee, TRANSACTION_LOAN_FEE,
+			"Loan fee for "+playerName+" from "+borrowingTeam.TeamName, playerId); err != nil {
+			return err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -213,6 +320,105 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 
 	LoansAcceptedCounter.Add(context.Background(), 1)
 	notifyLoanAccepted(dbCtx, playerId, lendingTeamId, borrowingTeamId)
+	return nil
+}
+
+// ExerciseLoanBuyOption lets a borrowing team make a loaned-in player's move permanent by paying
+// the buy-option fee attached to the loan (see CreateLoanListing's buyOptionFee) - the same money
+// movement and bookkeeping as ExecuteTransfer, except the player already belongs (team_id) to
+// the borrowing team, so there's nothing to move: just the fee, the club-history record, and
+// dropping the now-settled loan row. The loan row and the borrower's budget row are locked
+// (SELECT ... FOR UPDATE) for the duration.
+func ExerciseLoanBuyOption(dbCtx *DatabaseContext, playerId int64, borrowingTeamId int64) error {
+	if !IsTransferWindowOpen(dbCtx) {
+		return ErrTransferWindowClosed
+	}
+	if !IsTeamSolvent(dbCtx, borrowingTeamId) {
+		return ErrTeamInsolvent
+	}
+
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var loanId, lendingTeamId, actualBorrowingTeamId, buyOptionFee int64
+	err = tx.QueryRow(GetActiveLoanForPlayerForUpdateStmtSql, playerId).Scan(&loanId, &lendingTeamId, &actualBorrowingTeamId, &buyOptionFee)
+	if errors.Is(err, sql.ErrNoRows) {
+		return ErrPlayerNotOnLoan
+	}
+	if err != nil {
+		return err
+	}
+	if actualBorrowingTeamId != borrowingTeamId {
+		return ErrPlayerNotOnLoanToTeam
+	}
+	if buyOptionFee <= 0 {
+		return ErrNoBuyOptionOnLoan
+	}
+
+	var borrowerBudget int64
+	if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, borrowingTeamId).Scan(&borrowerBudget); err != nil {
+		return err
+	}
+	if borrowerBudget < buyOptionFee {
+		return ErrInsufficientBudget
+	}
+
+	player, err := GetPlayerById(dbCtx, playerId)
+	if err != nil {
+		return err
+	}
+	lendingTeam, err := GetTeamById(lendingTeamId, dbCtx)
+	if err != nil {
+		return err
+	}
+	borrowingTeam, err := GetTeamById(borrowingTeamId, dbCtx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -buyOptionFee, borrowingTeamId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, buyOptionFee, lendingTeamId); err != nil {
+		return err
+	}
+	if err := RecordPlayerClubHistory(tx, playerId, borrowingTeamId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeletePlayerLoanStmtSql, loanId); err != nil {
+		return err
+	}
+
+	playerName := player.FirstName + " " + player.LastName
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, borrowingTeamId, -buyOptionFee, TRANSACTION_TRANSFER_OUT,
+		"Exercised buy option for "+playerName+" from "+lendingTeam.TeamName, playerId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, lendingTeamId, buyOptionFee, TRANSACTION_TRANSFER_IN,
+		"Buy option exercised for "+playerName+" by "+borrowingTeam.TeamName, playerId); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	RecordTransferCompleted(context.Background(), buyOptionFee)
+
+	_ = NotifyTeamOwner(dbCtx, lendingTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   borrowingTeam.TeamName + " exercised their buy option for " + playerName,
+		Key:    "notifications.messages.loanBuyOptionExercised",
+		Params: map[string]any{"player": playerName, "team": borrowingTeam.TeamName},
+	})
+	_ = NotifyTeamOwner(dbCtx, borrowingTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Signed " + playerName + " permanently from " + lendingTeam.TeamName,
+		Key:    "notifications.messages.loanBuyOptionUsed",
+		Params: map[string]any{"player": playerName, "team": lendingTeam.TeamName},
+	})
+
 	return nil
 }
 

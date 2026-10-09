@@ -153,6 +153,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/list", handlers.UnlistPlayerHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/loan-list", handlers.ListPlayerForLoanHandler(dbCtx))
 	v1UserGroup.DELETE("/team/players/:"+handlers.ID+"/loan-list", handlers.UnlistPlayerForLoanHandler(dbCtx))
+	v1UserGroup.POST("/team/players/:"+handlers.ID+"/exercise-loan-buy-option", handlers.ExerciseLoanBuyOptionHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/renew-contract", handlers.RenewContractHandler(dbCtx))
 	v1UserGroup.POST("/team/players/:"+handlers.ID+"/release", handlers.ReleasePlayerHandler(dbCtx))
 	v1UserGroup.GET("/team/academy", handlers.GetAcademyHandler(dbCtx))

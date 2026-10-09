@@ -376,7 +376,25 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   relative to its income, which is what drained the in-game economy.
 - **Transfers** - a fixed-price listing (`common/transfers.go`) or an accepted negotiated offer
   (`common/offers.go`) debits the buyer and credits the seller the agreed fee in one atomic
-  transaction; a free-agent signing costs nothing but the player's wage.
+  transaction; a free-agent signing costs nothing but the player's wage. `GetOffersReceived`
+  already returns every pending offer from every interested buyer (at most one per team, enforced
+  by a unique constraint on `transfer_offers`); the Offers tab's `ReceivedOffersByPlayer`
+  (`TransferMarketPage.tsx`) groups a player's competing offers together, sorted by amount, so a
+  seller comparing bids sees them side by side instead of interleaved by date with every other
+  player's offers (Economy Phase 4, "auction/bidding").
+- **Loan money** (`common/loans.go`, Economy Phase 4) - `AcceptLoan` used to move no money at
+  all; a lender can now attach three independent, all-optional terms to a loan listing
+  (`CreateLoanListing`), each zero/off by default so an existing loan-listing flow is unaffected:
+  a `loanFee` the borrower pays the lender once, upfront, when the loan is accepted (like a mini
+  transfer fee); a `wageContributionPercent` the lender keeps covering for the loan's duration -
+  the borrower's own wage bill (`GetTeamWageBill`) already excludes that slice, and the lender is
+  charged it separately each matchday (`GetTeamLoanWageContribution`, `engine.deductWages`,
+  `TRANSACTION_LOAN_WAGE_CONTRIBUTION`) so the two sides always add up to exactly the player's full
+  wage; and a `buyOptionFee` the borrower can pay at any time during the loan to make the move
+  permanent (`common.ExerciseLoanBuyOption`) - the same money movement as a normal transfer, minus
+  moving the player, since they already play for the borrower. A player's own page shows an
+  "Exercise buy option" button when the viewer's team is the current borrower and the loan carries
+  one (`PlayerStatus.OnLoanBuyOptionFee`).
 - **Stadium expansion** (`UpgradeStadium`, `common/stadium.go`) - adds an owner-chosen number of
   seats, between `MinStadiumUpgradeSeats` (100) and `MaxStadiumUpgradeSeats` (5,000), costing
   current capacity × `StadiumUpgradeCostPerCurrentSeat` (10) × seats requested ÷

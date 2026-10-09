@@ -469,11 +469,43 @@ export function useLoanListings(enabled: boolean) {
 export function useListPlayerForLoan() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ playerId, durationSeasons }: { playerId: number; durationSeasons: number }) =>
-      api.post(`/v1/user/team/players/${playerId}/loan-list`, { durationSeasons }),
+    mutationFn: ({
+      playerId,
+      durationSeasons,
+      loanFee,
+      wageContributionPercent,
+      buyOptionFee,
+    }: {
+      playerId: number
+      durationSeasons: number
+      loanFee?: number
+      wageContributionPercent?: number
+      buyOptionFee?: number
+    }) =>
+      api.post(`/v1/user/team/players/${playerId}/loan-list`, {
+        durationSeasons,
+        loanFee: loanFee ?? 0,
+        wageContributionPercent: wageContributionPercent ?? 0,
+        buyOptionFee: buyOptionFee ?? 0,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.loans })
       void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+    },
+  })
+}
+
+// Lets the caller's team make permanent a loaned-in player's move by paying the loan's
+// buy-option fee (see player.onLoanBuyOptionFee) - same money movement as buying a listed
+// player, so it refreshes the same queries useBuyListing does.
+export function useExerciseLoanBuyOption() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.post(`/v1/user/team/players/${playerId}/exercise-loan-buy-option`),
+    onSuccess: (_data, playerId) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.player(String(playerId)) })
     },
   })
 }

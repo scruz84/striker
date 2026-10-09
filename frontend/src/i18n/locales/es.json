@@ -85,7 +85,9 @@
       "goldenBoot": "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
       "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!",
       "fanbaseGrew": "Tu afición ha crecido a {{fanbase}}",
-      "fanbaseShrank": "Tu afición ha bajado a {{fanbase}}"
+      "fanbaseShrank": "Tu afición ha bajado a {{fanbase}}",
+      "loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
+      "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}"
     }
   },
   "home": {
@@ -354,6 +356,7 @@
   "transfers": {
     "confirmBuy": "¿Comprar a {{name}} por {{price}}? Se descuenta de tu presupuesto de inmediato.",
     "confirmAcceptLoan": "¿Fichar a {{name}} cedido durante {{seasons}} temporada(s)?",
+    "confirmAcceptLoanWithFee": "¿Fichar a {{name}} cedido durante {{seasons}} temporada(s)? Se descontará de tu presupuesto una cesión de {{fee}} de inmediato.",
     "confirmAcceptOffer": "¿Aceptar la oferta de {{team}} de {{amount}} por {{name}}? Saldrá de tu plantilla de inmediato.",
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
@@ -391,7 +394,8 @@
       "terms": "Condiciones personales",
       "rating": "Valoración",
       "position": "Pos",
-      "salary": "Salario"
+      "salary": "Salario",
+      "loanTerms": "Condiciones de cesión"
     },
     "filters": {
       "search": "Buscar jugador",
@@ -414,8 +418,15 @@
     "buy": "Comprar",
     "offerLoan": {
       "title": "Ceder un jugador",
-      "subtitle": "Gratis, sin comisión - el jugador vuelve automáticamente al terminar la cesión.",
-      "error": "No se pudo listar a ese jugador para cesión."
+      "subtitle": "El jugador vuelve automáticamente al terminar la cesión - la cesión con cuota, la contribución al salario y la opción de compra son todas opcionales.",
+      "error": "No se pudo listar a ese jugador para cesión.",
+      "loanFee": "Cuota de cesión (opcional)",
+      "wageContributionPercent": "% de contribución al salario (opcional)",
+      "buyOptionFee": "Cuota de opción de compra (opcional)",
+      "free": "Cesión gratuita - sin cuota",
+      "loanFeeSummary": "Cuota de cesión: {{amount}}",
+      "wageContributionSummary": "Contribución al salario: {{percent}}%",
+      "buyOptionSummary": "Opción de compra: {{amount}}"
     },
     "duration": "Duración",
     "seasonCount_one": "{{count}} temporada",
@@ -430,7 +441,10 @@
       "noPending": "No hay ofertas pendientes.",
       "yourOffers": "Tus ofertas",
       "noneSent": "Aún no has hecho ninguna oferta.",
-      "acceptableAt": "Se podrá aceptar desde las {{date}}"
+      "acceptableAt": "Se podrá aceptar desde las {{date}}",
+      "competingCount_one": "{{count}} oferta",
+      "competingCount_other": "{{count}} ofertas en competencia",
+      "bestOffer": "Mejor oferta"
     },
     "reject": "Rechazar",
     "withdraw": "Retirar",
@@ -1050,10 +1064,15 @@
       "suspended_one": "Sancionado - baja para {{count}} partido más",
       "suspended_other": "Sancionado - baja para {{count}} partidos más",
       "onLoan": "Cedido por {{team}} - vuelve en la temporada {{season}}",
+      "onLoanWithContribution": "Cedido por {{team}} - vuelve en la temporada {{season}} ({{team}} cubre el {{percent}}% del salario)",
       "listedForTransfer": "En venta - precio de venta {{price}}",
       "listedForTransferShort": "En venta",
       "listedForLoan_one": "Disponible en cesión - {{count}} temporada",
       "listedForLoan_other": "Disponible en cesión - {{count}} temporadas"
+    },
+    "buyOption": {
+      "button": "Ejecutar opción de compra",
+      "confirm": "¿Pagar {{fee}} para fichar a {{name}} de forma permanente? Se descuenta de tu presupuesto de inmediato."
     },
     "history": {
       "title": "Historial de traspasos",

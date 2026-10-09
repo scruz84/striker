@@ -12,12 +12,13 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useTransferWindowStatus } from '../api/hooks'
+import { useExerciseLoanBuyOption, useTransferWindowStatus } from '../api/hooks'
 import { COUNTRY_NAME_KEYS, POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
 import { overallRating, ratingTierColor } from '../utils/playerRating'
 import { countryFlag } from '../utils/countryFlag'
 import { daysUntilNextBirthday } from '../utils/playerBirthday'
 import { formatCurrency } from '../utils/formatCurrency'
+import { useConfirm } from './confirmDialogContext'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
 import { TeamBadge } from './TeamBadge'
@@ -87,6 +88,26 @@ export function PlayerProfileRail({
   // of only after navigating to that player's team page first.
   const canMakeOffer = !canSeeFinancials
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
+
+  // A buy-option fee only appears on PlayerStatus when the viewer's own team is the one
+  // currently borrowing this player (see backend common.GetPlayerStatus/ExerciseLoanBuyOption) -
+  // canSeeFinancials is already gated the same way the rest of this page gates owner-only info.
+  const confirm = useConfirm()
+  const exerciseBuyOption = useExerciseLoanBuyOption()
+  const canExerciseBuyOption = canSeeFinancials && player.onLoanBuyOptionFee !== undefined
+  const handleExerciseBuyOption = async () => {
+    const ok = await confirm({
+      message: t('playerPage.buyOption.confirm', {
+        name: `${player.firstName} ${player.lastName}`,
+        fee: formatCurrency(player.onLoanBuyOptionFee ?? 0),
+      }),
+      confirmLabel: t('playerPage.buyOption.button'),
+      destructive: true,
+    })
+    if (ok) {
+      exerciseBuyOption.mutate(player.id)
+    }
+  }
 
   useEffect(() => {
     if (autoOpenOffer && canMakeOffer) {
@@ -250,6 +271,11 @@ export function PlayerProfileRail({
             {t('team.makeOffer')}
           </Button>
         )}
+        {canExerciseBuyOption && (
+          <Button size="small" variant="contained" fullWidth disabled={exerciseBuyOption.isPending} onClick={handleExerciseBuyOption}>
+            {t('playerPage.buyOption.button')} ({formatCurrency(player.onLoanBuyOptionFee ?? 0)})
+          </Button>
+        )}
       </Stack>
       <ListPlayerForTransferDialog player={player} open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
       {canMakeOffer && <TransferOfferDialog player={player} open={offerDialogOpen} onClose={() => setOfferDialogOpen(false)} />}
@@ -285,10 +311,15 @@ function PlayerStatusAlerts({ player }: { player: PlayerDetails }) {
     alerts.push({ key: 'unavailable', severity: 'warning', text: t(key, { count: player.unavailableMatchesRemaining }) })
   }
   if (player.onLoanFromTeamName) {
+    const key = player.onLoanWageContributionPercent ? 'playerPage.status.onLoanWithContribution' : 'playerPage.status.onLoan'
     alerts.push({
       key: 'loan',
       severity: 'info',
-      text: t('playerPage.status.onLoan', { team: player.onLoanFromTeamName, season: player.onLoanReturnSeason }),
+      text: t(key, {
+        team: player.onLoanFromTeamName,
+        season: player.onLoanReturnSeason,
+        percent: player.onLoanWageContributionPercent,
+      }),
     })
   }
   if (player.transferListingAskingPrice !== undefined) {

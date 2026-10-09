@@ -52,6 +52,18 @@ start reading in the code.
   "Fanbase" section and `backend/engine/fanbase.go`. A match-simulation effect (home advantage/
   crowd noise) was deliberately left out - the simulator has no such concept today, and adding one
   is a separate, bigger design decision.
+- **Phase 4, "loan money": DONE.** `AcceptLoan` used to move no money at all. A lender can now
+  attach a one-time loan fee, a wage-contribution split (the lender keeps covering a percentage of
+  the player's wage for the loan's duration), and/or a buy-option fee (the borrower can make the
+  move permanent at any time) to a loan listing - all independent and optional, zero/off by
+  default. See `GAME_MECHANICS.md`'s "Loan money" bullet, `backend/common/loans.go`, and
+  `backend/engine/wages.go`'s `deductWages`.
+- **Phase 4, "auction/bidding": DONE.** `GetOffersReceived` already returned every pending offer
+  on a player from every interested buyer; the Offers tab now groups a player's competing offers
+  together (sorted by amount) instead of interleaving them with every other player's by date, so
+  a seller can actually compare before accepting one. See `TransferMarketPage.tsx`'s
+  `ReceivedOffersByPlayer` - no backend/schema change was needed. "Amortized transfer fees" (the
+  remaining Phase 4 item) is still proposed, not started.
 
 ## Existing economy building blocks (for context)
 
@@ -63,8 +75,9 @@ start reading in the code.
   rows `FOR UPDATE`, validate inside the lock, mutate, two ledger inserts, commit, then
   best-effort notify). `common.contracts.go`'s `SignFreeAgent`/`RenewPlayerContract`/
   `ReleasePlayer` mirror this pattern and are the most recent example to copy from.
-- **Loans**: `backend/common/loans.go` - free, fixed duration, mutually exclusive with an active
-  transfer listing.
+- **Loans**: `backend/common/loans.go` - fixed duration, mutually exclusive with an active
+  transfer listing, with an optional one-time fee, wage-contribution split, and buy-option fee
+  (see "Phase 4, loan money" in Status above).
 - **Sponsorship**: `backend/engine/sponsorship.go` - per-match amount by league tier, shaped by
   each team's chosen `common.SponsorDeal` (`common/sponsordeal.go`).
 - **Stadium/tickets**: `backend/common/stadium.go` + `backend/engine/stadium.go` - capacity,
@@ -90,23 +103,14 @@ shows the debt ceiling alone isn't enough friction.
   in one ledger line, spread it over the buyer's contract length (now that Phase 1 gives every
   player one). Needs a new table (e.g. `transfer_amortization`) tracking remaining
   fee-per-season, debited during `engine/database.go`'s `UpdateTeamFinancesAfterMatch` alongside
-  wages.
-- **Loan money**: `common/loans.go`'s `AcceptLoan` currently moves no money at all. Add an
-  optional loan fee (paid once, like a mini transfer) and/or the parent club covering a
-  percentage of wages during the loan (would need `UpdateTeamFinancesAfterMatch` to split the
-  wage debit between `player_loans.from_team_id` and `to_team_id`). Also consider a buy-option
-  clause recorded on `player_loans` that the borrower can exercise like a fixed-price
-  `ExecuteTransfer`.
-- **Auction/bidding**: `transfer_offers` already supports arbitrary counter-prices from any team
-  on any player - a real auction would mean the seller can see and compare multiple simultaneous
-  offers before accepting one, which the current `GetOffersReceived` listing already supports
-  without schema changes; this is mostly a frontend grouping/comparison change in
-  `TransferMarketPage.tsx`'s `OffersTab`.
+  wages. Still proposed, not started.
+- **Loan money: DONE**, see Status above.
+- **Auction/bidding: DONE**, see Status above.
 
 ## Phase 5 - Planning tools (frontend-heavy) - DONE, see Status above
 
 ## Suggested order
 
-Phases 1, 2, 3, and 5 are done. What's left is Phase 4 (transfer economics depth) - its three
-items are independent of each other, take in any order, or skip if the user prefers to prioritize
-non-economy features instead.
+Phases 1, 2, 3, and 5 are done. Phase 4's "loan money" and "auction/bidding" items are done too;
+only "amortized transfer fees" is left, independent of everything else - take it next or skip if
+the user prefers to prioritize non-economy features instead.

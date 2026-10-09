@@ -837,6 +837,9 @@ function LoansTab() {
 
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
   const [duration, setDuration] = useState<number>(1)
+  const [loanFee, setLoanFee] = useState('')
+  const [wageContributionPercent, setWageContributionPercent] = useState('')
+  const [buyOptionFee, setBuyOptionFee] = useState('')
 
   const [search, setSearch] = usePersistedFilter<string>('lSearch', '')
   const [minAge, setMinAge] = usePersistedFilter<string>('lMinAge', '')
@@ -903,19 +906,30 @@ function LoansTab() {
       return
     }
     listForLoan.mutate(
-      { playerId: selectedPlayerId, durationSeasons: duration },
-      { onSuccess: () => setSelectedPlayerId('') },
+      {
+        playerId: selectedPlayerId,
+        durationSeasons: duration,
+        loanFee: loanFee ? Number(loanFee) : 0,
+        wageContributionPercent: wageContributionPercent ? Number(wageContributionPercent) : 0,
+        buyOptionFee: buyOptionFee ? Number(buyOptionFee) : 0,
+      },
+      {
+        onSuccess: () => {
+          setSelectedPlayerId('')
+          setLoanFee('')
+          setWageContributionPercent('')
+          setBuyOptionFee('')
+        },
+      },
     )
   }
 
   const handleAcceptLoan = async (listing: LoanListing) => {
-    const ok = await confirm({
-      message: t('transfers.confirmAcceptLoan', {
-        name: `${listing.player.firstName} ${listing.player.lastName}`,
-        seasons: listing.durationSeasons,
-      }),
-      confirmLabel: t('transfers.accept'),
-    })
+    const name = `${listing.player.firstName} ${listing.player.lastName}`
+    const message = listing.loanFee
+      ? t('transfers.confirmAcceptLoanWithFee', { name, seasons: listing.durationSeasons, fee: formatCurrency(listing.loanFee) })
+      : t('transfers.confirmAcceptLoan', { name, seasons: listing.durationSeasons })
+    const ok = await confirm({ message, confirmLabel: t('transfers.accept'), destructive: !!listing.loanFee })
     if (ok) {
       acceptLoan.mutate(listing.listingId)
     }
@@ -971,6 +985,33 @@ function LoansTab() {
                 ))}
               </Select>
             </FormControl>
+          </Grid>
+          <Grid size={{ xs: 4, sm: 6 }}>
+            <TextField
+              fullWidth
+              label={t('transfers.offerLoan.loanFee')}
+              type="number"
+              value={loanFee}
+              onChange={(event) => setLoanFee(event.target.value)}
+            />
+          </Grid>
+          <Grid size={{ xs: 4, sm: 3 }}>
+            <TextField
+              fullWidth
+              label={t('transfers.offerLoan.wageContributionPercent')}
+              type="number"
+              value={wageContributionPercent}
+              onChange={(event) => setWageContributionPercent(event.target.value)}
+            />
+          </Grid>
+          <Grid size={{ xs: 4, sm: 3 }}>
+            <TextField
+              fullWidth
+              label={t('transfers.offerLoan.buyOptionFee')}
+              type="number"
+              value={buyOptionFee}
+              onChange={(event) => setBuyOptionFee(event.target.value)}
+            />
           </Grid>
           <Grid size={{ xs: 4, sm: 2 }}>
             <Button fullWidth variant="contained" disabled={selectedPlayerId === '' || listForLoan.isPending} onClick={handleList}>
@@ -1098,6 +1139,39 @@ interface LoanListingsTableProps {
   onSort?: (field: LoanSortField) => void
 }
 
+// A compact read of a loan listing's optional economic terms (ECONOMY_ROADMAP.md's Phase 4
+// "loan money" item) - "free" when none were set (the original, still-default behavior), each
+// present term on its own line otherwise.
+function LoanTermsSummary({ listing }: { listing: LoanListing }) {
+  const { t } = useTranslation()
+  if (!listing.loanFee && !listing.wageContributionPercent && !listing.buyOptionFee) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        {t('transfers.offerLoan.free')}
+      </Typography>
+    )
+  }
+  return (
+    <Stack spacing={0}>
+      {!!listing.loanFee && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.loanFeeSummary', { amount: formatCurrency(listing.loanFee) })}
+        </Typography>
+      )}
+      {!!listing.wageContributionPercent && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.wageContributionSummary', { percent: listing.wageContributionPercent })}
+        </Typography>
+      )}
+      {!!listing.buyOptionFee && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.buyOptionSummary', { amount: formatCurrency(listing.buyOptionFee) })}
+        </Typography>
+      )}
+    </Stack>
+  )
+}
+
 function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort }: LoanListingsTableProps) {
   const { t } = useTranslation()
   const sortable = !!onSort
@@ -1162,6 +1236,9 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 {t('transfers.table.duration')}
               </TableCell>
             )}
+            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
+              {t('transfers.table.loanTerms')}
+            </TableCell>
             <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} />
           </TableRow>
         </TableHead>
@@ -1179,6 +1256,9 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
               </TableCell>
               <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
+              <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                <LoanTermsSummary listing={listing} />
+              </TableCell>
               <TableCell align="right">{renderAction(listing)}</TableCell>
             </TableRow>
           ))}
@@ -1233,9 +1313,8 @@ function OffersTab() {
             {t('transfers.offers.noPending')}
           </Typography>
         ) : (
-          <OffersTable
+          <ReceivedOffersByPlayer
             offers={received}
-            teamColumn="from"
             renderAction={(offer) => {
               const acceptReady = isPast(offer.acceptableAt)
               return (
@@ -1287,6 +1366,97 @@ function OffersTab() {
         )}
       </Paper>
     </Box>
+  )
+}
+
+// Groups offers received on your own players by player (ECONOMY_ROADMAP.md's Phase 4
+// "auction/bidding" item) - GetOffersReceived already returns every pending offer from every
+// interested buyer, each at most one per team (backend enforces that uniquely); this is purely
+// how they're laid out, so a seller comparing bids for the same player sees them side by side
+// instead of interleaved by date with every other player's offers. Sorted by amount desc within
+// each group, so the best offer always leads.
+function ReceivedOffersByPlayer({
+  offers,
+  renderAction,
+}: {
+  offers: TransferOffer[]
+  renderAction: (offer: TransferOffer) => React.ReactNode
+}) {
+  const { t } = useTranslation()
+  const groups: TransferOffer[][] = []
+  const groupIndexByPlayerId = new Map<number, number>()
+  for (const offer of offers) {
+    const existingIndex = groupIndexByPlayerId.get(offer.player.id)
+    if (existingIndex === undefined) {
+      groupIndexByPlayerId.set(offer.player.id, groups.length)
+      groups.push([offer])
+    } else {
+      groups[existingIndex].push(offer)
+    }
+  }
+  for (const group of groups) {
+    group.sort((a, b) => b.amount - a.amount)
+  }
+
+  return (
+    <Stack spacing={1.5} sx={{ p: 2 }}>
+      {groups.map((group) => {
+        const player = group[0].player
+        return (
+          <Paper key={player.id} variant="outlined" sx={{ p: 1.5 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
+              <Link
+                component={RouterLink}
+                to={`/player/${player.id}`}
+                underline="hover"
+                color="inherit"
+                sx={{ fontWeight: 600 }}
+              >
+                {player.firstName} {player.lastName}
+              </Link>
+              {group.length > 1 && <Chip size="small" label={t('transfers.offers.competingCount', { count: group.length })} />}
+            </Stack>
+            <Stack spacing={1}>
+              {group.map((offer, index) => (
+                <Stack
+                  key={offer.offerId}
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={0.5}
+                  sx={{
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    justifyContent: 'space-between',
+                    pt: index === 0 ? 0 : 1,
+                    borderTop: index === 0 ? 0 : 1,
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Stack spacing={0.125} sx={{ minWidth: 0 }}>
+                    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                      <TeamNameLink teamId={offer.fromTeamId} variant="body2" sx={{ fontWeight: 600 }}>
+                        {offer.fromTeamName}
+                      </TeamNameLink>
+                      {index === 0 && group.length > 1 && (
+                        <Chip size="small" color="success" variant="outlined" label={t('transfers.offers.bestOffer')} sx={{ height: 18, fontSize: '0.65rem' }} />
+                      )}
+                    </Stack>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatCurrency(offer.offeredWage)} · {t('team.contractDialog.yearsOption', { count: offer.offeredYears })} ·{' '}
+                      {formatDateTime(offer.createdAt)}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                      {formatCurrency(offer.amount)}
+                    </Typography>
+                    {renderAction(offer)}
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          </Paper>
+        )
+      })}
+    </Stack>
   )
 }
 

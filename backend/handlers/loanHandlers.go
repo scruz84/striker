@@ -10,11 +10,17 @@ import (
 
 type ListPlayerForLoanRequest struct {
 	DurationSeasons int `json:"durationSeasons"`
+	// LoanFee/WageContributionPercent/BuyOptionFee are all optional (default zero/off) - see
+	// common.CreateLoanListing.
+	LoanFee                 int64 `json:"loanFee"`
+	WageContributionPercent int   `json:"wageContributionPercent"`
+	BuyOptionFee            int64 `json:"buyOptionFee"`
 }
 
 // ListPlayerForLoanHandler offers one of the caller's own players out on loan for a fixed
-// number of seasons (see common.MinLoanDurationSeasons/MaxLoanDurationSeasons) - free, no fee,
-// auto-returned once the duration elapses.
+// number of seasons (see common.MinLoanDurationSeasons/MaxLoanDurationSeasons), optionally with a
+// one-time loan fee, a wage-contribution split, and/or a buy-option fee - auto-returned once the
+// duration elapses regardless of which of those terms were set.
 func ListPlayerForLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -51,9 +57,13 @@ func ListPlayerForLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		if err := common.CreateLoanListing(dbCtx, playerId, team.Id, req.DurationSeasons); err != nil {
+		if err := common.CreateLoanListing(dbCtx, playerId, team.Id, req.DurationSeasons,
+			req.LoanFee, req.WageContributionPercent, req.BuyOptionFee); err != nil {
 			switch {
 			case errors.Is(err, common.ErrInvalidLoanDuration),
+				errors.Is(err, common.ErrInvalidLoanFee),
+				errors.Is(err, common.ErrInvalidWageContributionPercent),
+				errors.Is(err, common.ErrInvalidBuyOptionFee),
 				errors.Is(err, common.ErrPlayerOnLoan),
 				errors.Is(err, common.ErrPlayerAlreadyListed),
 				errors.Is(err, common.ErrPlayerAlreadyLoanListed),
@@ -145,12 +155,52 @@ func AcceptLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusOK, common.HttpResponse{Message: "loan accepted"})
 		case errors.Is(err, common.ErrLoanListingNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrCannotAcceptOwnLoan), errors.Is(err, common.ErrTeamInsolvent):
+		case errors.Is(err, common.ErrCannotAcceptOwnLoan), errors.Is(err, common.ErrTeamInsolvent), errors.Is(err, common.ErrInsufficientBudget):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrTransferWindowClosed):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting loan listing %d for team %d: %s", listingId, team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		}
+	}
+}
+
+// ExerciseLoanBuyOptionHandler lets the caller's team make permanent the loan of one of its
+// currently loaned-in players, paying the buy-option fee the lender attached to the loan (see
+// common.ExerciseLoanBuyOption).
+func ExerciseLoanBuyOptionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+
+		playerId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid player id"))
+			return
+		}
+
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+
+		err = common.ExerciseLoanBuyOption(dbCtx, playerId, team.Id)
+		switch {
+		case err == nil:
+			c.JSON(http.StatusOK, common.HttpResponse{Message: "buy option exercised"})
+		case errors.Is(err, common.ErrPlayerNotOnLoan), errors.Is(err, common.ErrPlayerNotOnLoanToTeam), errors.Is(err, common.ErrNoBuyOptionOnLoan):
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		case errors.Is(err, common.ErrTeamInsolvent), errors.Is(err, common.ErrInsufficientBudget):
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		case errors.Is(err, common.ErrTransferWindowClosed):
+			c.JSON(http.StatusConflict, GetError(0, err.Error()))
+		default:
+			log.Errorf("error exercising loan buy option for player %d, team %d: %s", playerId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 		}
 	}
