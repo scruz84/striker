@@ -133,6 +133,18 @@ export const COUNTRY_NAME_KEYS: Record<string, string> = {
   ma: 'countries.ma',
   dz: 'countries.dz',
   ke: 'countries.ke',
+  be: 'countries.be',
+  tr: 'countries.tr',
+  at: 'countries.at',
+  ve: 'countries.ve',
+  py: 'countries.py',
+  bo: 'countries.bo',
+  qa: 'countries.qa',
+  ae: 'countries.ae',
+  uz: 'countries.uz',
+  tn: 'countries.tn',
+  tz: 'countries.tz',
+  ml: 'countries.ml',
 }
 
 // Mirrors backend/common.ContractRenewalOffer - the outcome of proposing new contract terms to

@@ -934,7 +934,8 @@ export function useAdminCountries(enabled: boolean) {
 export function useAdminAddCountry() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (code: string) => api.post('/v1/admin/countries', { code }),
+    mutationFn: ({ code, kickoffHour, kickoffMinute }: { code: string; kickoffHour?: number; kickoffMinute?: number }) =>
+      api.post('/v1/admin/countries', { code, kickoffHour, kickoffMinute }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })

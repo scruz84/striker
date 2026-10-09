@@ -55,6 +55,18 @@ var placeNamesByCountry = map[string][]string{
 		"Kastroupoli", "Petralona", "Argostoli", "Xylokastro", "Vryssoula", "Ammoudia",
 		"Filotheo", "Kalamaki", "Drymona", "Elatochori", "Ampeli", "Kryoneri",
 	},
+	"be": {
+		"Veldburcht", "Molenhoven", "Boshoek", "Lindendal", "Hoogveld", "Groenbrug",
+		"Steenhaven", "Dalbeek", "Rozendal", "Kastelein", "Vlierhof", "Berkenveld",
+	},
+	"tr": {
+		"Karatas", "Guneykoy", "Yesilova", "Akdere", "Bozdag", "Sarikale",
+		"Beyazkent", "Golbasi", "Kizilcay", "Mavikoy", "Topraktepe", "Sutasi",
+	},
+	"at": {
+		"Bergheim", "Talmoos", "Sonnental", "Wiesenberg", "Felsbach", "Lindhof",
+		"Gruenwald", "Seebrunn", "Alpenfeld", "Rosenbach", "Falkenstein", "Tannenbach",
+	},
 	"br": {
 		"Novaterra", "Serrafundo", "Riopreto", "Campolindo", "Vistalegre", "Montenovo",
 		"Vargedo", "Pedraverde", "Fontenova", "Riograna", "Serramar", "Valfundo",
@@ -96,6 +108,18 @@ var placeNamesByCountry = map[string][]string{
 		"Riosol", "Vallenorte", "Cerroluz", "Puertoazul", "Montesagrado", "Costaflor",
 		"Andesalto", "Selvaverde", "Bahiadelsol", "Tierrasol", "Valleoro", "Riomanabi",
 	},
+	"ve": {
+		"Montellano", "Riomiel", "Vallealto", "Cerromonte", "Playaverde", "Sabanagrande",
+		"Lagoverde", "Puertoluz", "Floresta", "Costadorada", "Altollano", "Valleclaro",
+	},
+	"py": {
+		"Villasol", "Yerbamar", "Cerroguazu", "Riobello", "Monteclaro", "Campoverde",
+		"Costaazul", "Taraguira", "Lomabella", "Guaviral", "Fortinluz", "Esperanzal",
+	},
+	"bo": {
+		"Altoplano", "Cerroverde", "Vallenuevo", "Montealto", "Riofrio", "Lagoazul",
+		"Sierranieve", "Puebloalto", "Collasuyo", "Pampaverde", "Tierrafria", "Yungasol",
+	},
 	"jp": {
 		"Kazehara", "Sorayama", "Tsukikawa", "Hoshizaki", "Yumemori", "Kagetaki",
 		"Minamizora", "Akaneyama", "Fuyuzaki", "Harukawa", "Midorisaka", "Yozora",
@@ -135,6 +159,18 @@ var placeNamesByCountry = map[string][]string{
 	"ir": {
 		"Golshahr", "Shirvan", "Baharan", "Ferdows", "Sepidan", "Zaringol",
 		"Nasrabad", "Kohsar", "Deylaman", "Sabzevaran", "Mehrshahr", "Delfan",
+	},
+	"qa": {
+		"Rawdatal", "Zubarahi", "Dukhanil", "Khawri", "Faridan", "Simaisma",
+		"Luqtawi", "Wakrahiya", "Mesaieedi", "Umsalal", "Dafnawi", "Ruwaysi",
+	},
+	"ae": {
+		"Wahatnoor", "Ramlahadi", "Khawrsalam", "Faydasahra", "Najdaliya", "Suhailiya",
+		"Marwaniya", "Dibbashams", "Hatasun", "Burjaliya", "Sahlaniya", "Qasriya",
+	},
+	"uz": {
+		"Gulbogh", "Toshkoy", "Chinorabad", "Sardoba", "Oltinsoy", "Bogibolo",
+		"Siryop", "Farhodtepa", "Gulrang", "Mehnatobod", "Bakhtiyor", "Chamanzor",
 	},
 	"ng": {
 		"Ajumobi", "Odusanya", "Egbedun", "Okwudili", "Adukwu", "Bakori",
@@ -176,6 +212,18 @@ var placeNamesByCountry = map[string][]string{
 		"Naivama", "Kerichu", "Nyeria", "Machakama", "Kitalea", "Garissama",
 		"Malinda", "Eldorana", "Voia", "Nakurama", "Embua", "Kajiada",
 	},
+	"tn": {
+		"Ouedsafran", "Jebelnoor", "Hammamzeit", "Menzelqods", "Borjlila", "Ksarnejma",
+		"Sidihana", "Rasalnaj", "Dartlazur", "Aynzeitoun", "Beniaman", "Zaytounia",
+	},
+	"tz": {
+		"Mlimasafi", "Ziwaupepo", "Mashamba", "Mwambaoni", "Kijiweni", "Msituupya",
+		"Pwaniazuri", "Nyikani", "Baharini", "Vijijini", "Milimani", "Dalalini",
+	},
+	"ml": {
+		"Sigirato", "Bancouma", "Faradjan", "Kolokoro", "Dougoufie", "Samanfara",
+		"Banikara", "Segoubani", "Tomboura", "Kayesso", "Sikasana", "Niorokoro",
+	},
 }
 
 // %s is replaced with a place name from placeNamesByCountry.
@@ -190,6 +238,9 @@ var teamNamePatternsByCountry = map[string][]string{
 	"se": {"%s IF", "%s FF", "IFK %s", "%s BK"},
 	"pl": {"%s FC", "KS %s", "%s United", "Polonia %s"},
 	"gr": {"%s FC", "AO %s", "PAE %s", "%s AE"},
+	"be": {"%s FC", "KV %s", "RSC %s", "Royal %s", "Union %s", "%s United"},
+	"tr": {"%s FK", "%s Spor", "Genclik %s", "%s Genclerbirligi", "Buyuksehir %s"},
+	"at": {"SK %s", "%s FC", "SV %s", "Austria %s", "Rapid %s"},
 	"br": {"%s FC", "Esporte Clube %s", "Atletico %s", "%s AC", "Gremio %s", "%s Futebol Clube", "Sociedade %s"},
 	"ar": {"%s FC", "Club Atletico %s", "Deportivo %s", "%s Juniors", "Atletico %s"},
 	"mx": {"%s FC", "Deportivo %s", "Atletico %s", "Club %s", "%s Atletico"},
@@ -200,6 +251,9 @@ var teamNamePatternsByCountry = map[string][]string{
 	"us": {"%s FC", "%s United", "%s SC", "Real %s"},
 	"ca": {"%s FC", "%s United", "%s SC"},
 	"ec": {"%s FC", "Deportivo %s", "Independiente %s", "Club %s"},
+	"ve": {"%s FC", "Deportivo %s", "Atletico %s", "Union %s", "Club %s"},
+	"py": {"%s FC", "Club %s", "Deportivo %s", "Sportivo %s", "General %s"},
+	"bo": {"%s FC", "Club %s", "Deportivo %s", "Real %s", "Atletico %s"},
 	"jp": {"%s FC", "%s United", "%s SC", "Vento %s", "%s Vulcan", "%s Fiore"},
 	"kr": {"%s FC", "%s United", "%s City"},
 	"cn": {"%s FC", "%s United"},
@@ -210,6 +264,9 @@ var teamNamePatternsByCountry = map[string][]string{
 	"ph": {"%s FC", "%s United"},
 	"sa": {"Al %s", "%s FC", "Nadi %s"},
 	"ir": {"%s FC", "%s SC"},
+	"qa": {"Al %s", "%s SC", "Nadi %s", "%s Sports Club"},
+	"ae": {"Al %s", "%s FC", "Nadi %s", "%s Club"},
+	"uz": {"%s FK", "Dinamo %s", "%s United", "FK %s", "Lokomotiv %s"},
 	"ng": {"%s FC", "%s United", "%s Warriors", "Royal %s", "%s Stars", "%s City"},
 	"eg": {"Nadi %s", "%s SC", "Al %s"},
 	"gh": {"%s FC", "%s United", "%s Stars"},
@@ -220,6 +277,9 @@ var teamNamePatternsByCountry = map[string][]string{
 	"ma": {"%s AC", "%s FC", "Chabab %s"},
 	"dz": {"%s FC", "USM %s", "Chabab %s"},
 	"ke": {"%s FC", "%s United", "%s Stars"},
+	"tn": {"Club %s", "Etoile %s", "Union %s", "Esperance %s", "%s SC"},
+	"tz": {"%s FC", "Young %s", "%s United", "%s Stars"},
+	"ml": {"%s AC", "Stade %s", "Union %s", "%s FC"},
 }
 
 // RandomTeamName generates a realistic-sounding club name for country - an invented place name

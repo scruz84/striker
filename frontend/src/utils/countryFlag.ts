@@ -45,6 +45,18 @@ const COUNTRY_FLAGS: Record<string, string> = {
   ma: '🇲🇦',
   dz: '🇩🇿',
   ke: '🇰🇪',
+  be: '🇧🇪',
+  tr: '🇹🇷',
+  at: '🇦🇹',
+  ve: '🇻🇪',
+  py: '🇵🇾',
+  bo: '🇧🇴',
+  qa: '🇶🇦',
+  ae: '🇦🇪',
+  uz: '🇺🇿',
+  tn: '🇹🇳',
+  tz: '🇹🇿',
+  ml: '🇲🇱',
 }
 
 export function countryFlag(code?: string): string | undefined {

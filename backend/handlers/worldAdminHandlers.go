@@ -88,12 +88,18 @@ func AdminListCountriesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 type addCountryRequest struct {
 	Code string `json:"code" binding:"required"`
+	// KickoffHour/KickoffMinute is the time of day this country's matches are played, in the
+	// country's own local time (see common.CountryTimezone) - not the server's/viewer's. Both nil
+	// defaults to common.DefaultKickoffHour/DefaultKickoffMinute (14:00 local).
+	KickoffHour   *int `json:"kickoffHour"`
+	KickoffMinute *int `json:"kickoffMinute"`
 }
 
 // AdminAddCountryHandler activates one of the known-but-inactive countries (see
-// common.KnownCountries): creates its leagues and teams per the current world config, generates
-// this season's fixtures for just those new leagues, and starts its cup - all without touching
-// any other country's data.
+// common.KnownCountries): creates its leagues and teams per the current world config, sets every
+// new league's match schedule to kick off at the requested (or default 14:00) local time of day
+// (see common.LocalTimeToServerSchedule), generates this season's fixtures for just those new
+// leagues, and starts its cup - all without touching any other country's data.
 func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req addCountryRequest
@@ -104,6 +110,18 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		code := strings.ToLower(strings.TrimSpace(req.Code))
 		if !common.IsKnownCountry(code) {
 			c.JSON(http.StatusBadRequest, GetError(0, "unknown country code"))
+			return
+		}
+
+		kickoffHour, kickoffMinute := common.DefaultKickoffHour, common.DefaultKickoffMinute
+		if req.KickoffHour != nil {
+			kickoffHour = *req.KickoffHour
+		}
+		if req.KickoffMinute != nil {
+			kickoffMinute = *req.KickoffMinute
+		}
+		if kickoffHour < 0 || kickoffHour > 23 || kickoffMinute < 0 || kickoffMinute > 59 {
+			c.JSON(http.StatusBadRequest, GetError(0, "kickoff time must be between 00:00 and 23:59"))
 			return
 		}
 
@@ -133,6 +151,15 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+
+		serverHour, serverMinute := common.LocalTimeToServerSchedule(code, kickoffHour, kickoffMinute)
+		schedule := common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask, Hour: serverHour, Minute: serverMinute}
+		for _, leagueId := range leagueIds {
+			if err := common.SetLeagueSchedule(dbCtx, leagueId, schedule); err != nil {
+				log.Errorf("error setting kickoff schedule for league %d of newly added country %s: %s", leagueId, code, err)
+			}
+		}
+
 		if err := engine.GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
 			log.Errorf("error generating fixtures for newly added country %s: %s", code, err)
 		}

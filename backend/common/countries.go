@@ -40,6 +40,9 @@ var KnownCountries = []CountryInfo{
 	{Code: "se", Name: "Sweden"},
 	{Code: "pl", Name: "Poland"},
 	{Code: "gr", Name: "Greece"},
+	{Code: "be", Name: "Belgium"},
+	{Code: "tr", Name: "Turkey"},
+	{Code: "at", Name: "Austria"},
 	// Americas
 	{Code: "br", Name: "Brazil"},
 	{Code: "ar", Name: "Argentina"},
@@ -51,6 +54,9 @@ var KnownCountries = []CountryInfo{
 	{Code: "us", Name: "United States"},
 	{Code: "ca", Name: "Canada"},
 	{Code: "ec", Name: "Ecuador"},
+	{Code: "ve", Name: "Venezuela"},
+	{Code: "py", Name: "Paraguay"},
+	{Code: "bo", Name: "Bolivia"},
 	// Asia
 	{Code: "jp", Name: "Japan"},
 	{Code: "kr", Name: "South Korea"},
@@ -62,6 +68,9 @@ var KnownCountries = []CountryInfo{
 	{Code: "ph", Name: "Philippines"},
 	{Code: "sa", Name: "Saudi Arabia"},
 	{Code: "ir", Name: "Iran"},
+	{Code: "qa", Name: "Qatar"},
+	{Code: "ae", Name: "United Arab Emirates"},
+	{Code: "uz", Name: "Uzbekistan"},
 	// Africa
 	{Code: "ng", Name: "Nigeria"},
 	{Code: "eg", Name: "Egypt"},
@@ -73,6 +82,9 @@ var KnownCountries = []CountryInfo{
 	{Code: "ma", Name: "Morocco"},
 	{Code: "dz", Name: "Algeria"},
 	{Code: "ke", Name: "Kenya"},
+	{Code: "tn", Name: "Tunisia"},
+	{Code: "tz", Name: "Tanzania"},
+	{Code: "ml", Name: "Mali"},
 }
 
 // IsKnownCountry reports whether code has the name-pool/team-naming data needed to generate a

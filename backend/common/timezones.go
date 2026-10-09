@@ -19,6 +19,9 @@ var CountryTimezone = map[string]string{
 	"se": "Europe/Stockholm",
 	"pl": "Europe/Warsaw",
 	"gr": "Europe/Athens",
+	"be": "Europe/Brussels",
+	"tr": "Europe/Istanbul",
+	"at": "Europe/Vienna",
 	"br": "America/Sao_Paulo",
 	"ar": "America/Argentina/Buenos_Aires",
 	"mx": "America/Mexico_City",
@@ -29,6 +32,9 @@ var CountryTimezone = map[string]string{
 	"us": "America/New_York",
 	"ca": "America/Toronto",
 	"ec": "America/Guayaquil",
+	"ve": "America/Caracas",
+	"py": "America/Asuncion",
+	"bo": "America/La_Paz",
 	"jp": "Asia/Tokyo",
 	"kr": "Asia/Seoul",
 	"cn": "Asia/Shanghai",
@@ -39,6 +45,9 @@ var CountryTimezone = map[string]string{
 	"ph": "Asia/Manila",
 	"sa": "Asia/Riyadh",
 	"ir": "Asia/Tehran",
+	"qa": "Asia/Qatar",
+	"ae": "Asia/Dubai",
+	"uz": "Asia/Tashkent",
 	"ng": "Africa/Lagos",
 	"eg": "Africa/Cairo",
 	"gh": "Africa/Accra",
@@ -49,6 +58,9 @@ var CountryTimezone = map[string]string{
 	"ma": "Africa/Casablanca",
 	"dz": "Africa/Algiers",
 	"ke": "Africa/Nairobi",
+	"tn": "Africa/Tunis",
+	"tz": "Africa/Dar_es_Salaam",
+	"ml": "Africa/Bamako",
 }
 
 // LocalActivityStartHour/LocalActivityEndHour bound the local "awake hours" window (end
@@ -86,6 +98,34 @@ func countryLocation(code string) *time.Location {
 		return loc
 	}
 	return time.UTC
+}
+
+// DefaultKickoffHour/DefaultKickoffMinute is the kickoff time a newly added country's leagues
+// default to, expressed in that country's own local time (see LocalTimeToServerSchedule) - a
+// plausible mid-afternoon matchday slot rather than a hardcoded server-time hour that would land
+// oddly early or late depending on the country's timezone.
+const (
+	DefaultKickoffHour   = 14
+	DefaultKickoffMinute = 0
+)
+
+// LocalTimeToServerSchedule converts an hour:minute expressed in countryCode's own local time
+// (see CountryTimezone) to the equivalent hour:minute in the server process's own local time zone
+// - the same time zone ComputeFixtureDates/NextScheduledOccurrence build fixture dates in (UTC on
+// every deployment this project documents, see frontend/src/utils/scheduleTime.ts). Used by
+// handlers.AdminAddCountryHandler so a country's matches kick off at the requested local time of
+// day rather than whatever hour that number happens to be on the server's own clock.
+//
+// Anchored to today's date, like that frontend's own equivalent conversion, so it reflects
+// whichever side of a daylight-saving transition is in effect right now rather than some fixed
+// arbitrary date - the same practical tradeoff, not a perfect year-round mapping across a DST
+// boundary.
+func LocalTimeToServerSchedule(countryCode string, hour, minute int) (int, int) {
+	loc := countryLocation(countryCode)
+	now := time.Now().In(loc)
+	local := time.Date(now.Year(), now.Month(), now.Day(), hour, minute, 0, 0, loc)
+	server := local.Local()
+	return server.Hour(), server.Minute()
 }
 
 // IsWithinLocalActivityWindow reports whether now falls within countryCode's local awake-hours

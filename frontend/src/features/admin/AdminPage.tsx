@@ -900,16 +900,7 @@ function CountriesSection() {
   const { data: leagues } = useAdminLeagues(true)
   const addCountry = useAdminAddCountry()
   const addDivision = useAdminAddDivision()
-
-  const handleAdd = async (country: CountryStatus) => {
-    const ok = await confirm({
-      message: t('admin.countries.confirmAdd', { name: country.name }),
-      confirmLabel: t('admin.countries.add'),
-    })
-    if (ok) {
-      addCountry.mutate(country.code)
-    }
-  }
+  const [addingCountry, setAddingCountry] = useState<CountryStatus | null>(null)
 
   const handleAddDivision = async (country: CountryStatus, tier: TierConfig, withMatches: boolean) => {
     const ok = await confirm({
@@ -959,7 +950,7 @@ function CountriesSection() {
                 {country.active ? (
                   <Chip size="small" color="success" label={t('admin.countries.active')} />
                 ) : (
-                  <Button size="small" variant="outlined" onClick={() => handleAdd(country)} disabled={addCountry.isPending}>
+                  <Button size="small" variant="outlined" onClick={() => setAddingCountry(country)} disabled={addCountry.isPending}>
                     {t('admin.countries.add')}
                   </Button>
                 )}
@@ -985,7 +976,59 @@ function CountriesSection() {
       {addCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addError')}</Alert>}
       {addDivision.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addDivisionError')}</Alert>}
       {addDivision.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.addDivisionSuccess')}</Alert>}
+      {addingCountry && <AddCountryDialog country={addingCountry} onClose={() => setAddingCountry(null)} />}
     </Paper>
+  )
+}
+
+// AddCountryDialog lets the commissioner pick what local time of day country's matches kick off
+// at (see common.DefaultKickoffHour/LocalTimeToServerSchedule on the backend) before activating
+// it - defaulting to 14:00 in that country's own time zone, not the viewer's, since that's the
+// whole point of asking (unlike LeagueScheduleDialog's time field, which does convert to/from the
+// viewer's local time because that field's wire format is server-time, not country-time).
+function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClose: () => void }) {
+  const { t } = useTranslation()
+  const addCountry = useAdminAddCountry()
+  const [time, setTime] = useState('14:00')
+
+  const handleAdd = () => {
+    if (!time) {
+      return
+    }
+    const [hourStr, minuteStr] = time.split(':')
+    addCountry.mutate(
+      { code: country.code, kickoffHour: Number(hourStr), kickoffMinute: Number(minuteStr) },
+      { onSuccess: onClose },
+    )
+  }
+
+  return (
+    <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>{t('admin.countries.addDialogTitle', { name: country.name })}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('admin.countries.addDialogDescription', { name: country.name })}
+          </Typography>
+          <TextField
+            label={t('admin.countries.kickoffLabel')}
+            type="time"
+            size="small"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            helperText={t('admin.countries.kickoffHelp', { name: country.name })}
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          {addCountry.isError && <Alert severity="error">{t('admin.countries.addError')}</Alert>}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button onClick={handleAdd} variant="contained" disabled={!time || addCountry.isPending}>
+          {t('admin.countries.add')}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 

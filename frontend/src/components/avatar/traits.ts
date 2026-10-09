@@ -72,6 +72,18 @@ const COUNTRY_REGIONS: Record<string, Region> = {
   ma: 'africa',
   dz: 'africa',
   ke: 'africa',
+  be: 'europe',
+  tr: 'europe',
+  at: 'europe',
+  ve: 'americas',
+  py: 'americas',
+  bo: 'americas',
+  qa: 'asia',
+  ae: 'asia',
+  uz: 'asia',
+  tn: 'africa',
+  tz: 'africa',
+  ml: 'africa',
 }
 
 export function regionForCountry(countryCode?: string): Region {

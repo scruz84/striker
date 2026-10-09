@@ -68,3 +68,33 @@ func TestIsWithinLocalActivityWindow_UnknownCountryFallsBackToUTC(t *testing.T) 
 		t.Error("expected an unmapped country code to fall back to UTC and judge 15:00 UTC as within window")
 	}
 }
+
+// LocalTimeToServerSchedule's whole point is that converting a country-local hour:minute to the
+// server's own time zone and back lands on the same hour:minute it started from - whatever that
+// server time zone actually is wherever this test runs (see its own doc comment: it always
+// builds off time.Now(), it can't be handed a fixed instant to assert an exact expected hour
+// against without also hardcoding the test's assumed server time zone).
+func TestLocalTimeToServerSchedule_RoundTripsBackToOriginalLocalTime(t *testing.T) {
+	for _, country := range []string{"es", "jp", "us", "ae"} {
+		wantHour, wantMinute := 14, 0
+		serverHour, serverMinute := LocalTimeToServerSchedule(country, wantHour, wantMinute)
+
+		now := time.Now()
+		server := time.Date(now.Year(), now.Month(), now.Day(), serverHour, serverMinute, 0, 0, time.Local)
+		gotLocal := server.In(countryLocation(country))
+
+		if gotLocal.Hour() != wantHour || gotLocal.Minute() != wantMinute {
+			t.Errorf("LocalTimeToServerSchedule(%q, %d, %d) = (%d, %d), converting back to local gave %02d:%02d, want %02d:%02d",
+				country, wantHour, wantMinute, serverHour, serverMinute, gotLocal.Hour(), gotLocal.Minute(), wantHour, wantMinute)
+		}
+	}
+}
+
+func TestLocalTimeToServerSchedule_UnknownCountryFallsBackToUTC(t *testing.T) {
+	gotHour, gotMinute := LocalTimeToServerSchedule("zz", 14, 0)
+	wantHour, wantMinute := LocalTimeToServerSchedule("__utc_reference__", 14, 0)
+	if gotHour != wantHour || gotMinute != wantMinute {
+		t.Errorf("expected an unmapped country code to fall back to UTC same as any other unmapped code, got (%d,%d) vs (%d,%d)",
+			gotHour, gotMinute, wantHour, wantMinute)
+	}
+}

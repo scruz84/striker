@@ -18,6 +18,9 @@ var countryRegions = map[string]string{
 	"se": "europe",
 	"pl": "europe",
 	"gr": "europe",
+	"be": "europe",
+	"tr": "europe",
+	"at": "europe",
 	// Americas
 	"br": "americas",
 	"ar": "americas",
@@ -29,6 +32,9 @@ var countryRegions = map[string]string{
 	"us": "americas",
 	"ca": "americas",
 	"ec": "americas",
+	"ve": "americas",
+	"py": "americas",
+	"bo": "americas",
 	// Asia
 	"jp": "asia",
 	"kr": "asia",
@@ -40,6 +46,9 @@ var countryRegions = map[string]string{
 	"ph": "asia",
 	"sa": "asia",
 	"ir": "asia",
+	"qa": "asia",
+	"ae": "asia",
+	"uz": "asia",
 	// Africa
 	"ng": "africa",
 	"eg": "africa",
@@ -51,6 +60,9 @@ var countryRegions = map[string]string{
 	"ma": "africa",
 	"dz": "africa",
 	"ke": "africa",
+	"tn": "africa",
+	"tz": "africa",
+	"ml": "africa",
 }
 
 // RegionForCountry returns country's region, defaulting to "europe" for an unrecognized code -
