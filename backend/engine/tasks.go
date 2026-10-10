@@ -64,6 +64,11 @@ func (pj *CupJob) Execute(context.Context) error {
 	log.Info("Cup progression job")
 	SimulateCupTies(pj.dbCtx)
 	AdvanceCups(pj.dbCtx)
+	// A World Cup's knockout stage is itself an ordinary cup, advanced by the call above; this
+	// additionally moves a World Cup from its group stage into that knockout stage once every
+	// group match is played, and marks one completed once its knockout cup is - see
+	// AdvanceWorldCups.
+	AdvanceWorldCups(pj.dbCtx)
 	return nil
 }
 

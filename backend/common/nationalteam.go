@@ -157,29 +157,59 @@ func GetPlayersByBirthCountry(dbCtx *DatabaseContext, country string) ([]*Player
 	return players, rows.Err()
 }
 
-// SetNationalTeamLineup picks country's current best eligible XI (see GetPlayersByBirthCountry/
-// SelectBestLineup) and persists it as teamId's override lineup for matchId (see
-// SetFriendlyLineup) - always an explicit override, since a national team has no real roster of
-// its own to fall back to the way a club's BestLineupForTeam does (see GetLineupsForFriendly).
-// This saved lineup is also where international caps are counted from later (see
-// GetPlayerCareerStats) - a player appears in it regardless of which club actually employs them.
-func SetNationalTeamLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, country string) error {
+// selectNationalSquadLineup is SetNationalTeamLineup/SetNationalTeamCupTieLineup's shared first
+// step: fetch country's current eligible pool and pick its best XI (see GetPlayersByBirthCountry/
+// SelectBestLineup). Returned alongside the flattened positions so the caller can still look up
+// each selected player's name/club for the call-up notification without a second query.
+func selectNationalSquadLineup(dbCtx *DatabaseContext, country string) ([]*Player, []LineupPosition, error) {
 	players, err := GetPlayersByBirthCountry(dbCtx, country)
+	if err != nil {
+		return nil, nil, err
+	}
+	return players, FlattenLineup(SelectBestLineup(players)), nil
+}
+
+// SetNationalTeamLineup picks country's current best eligible XI and persists it as teamId's
+// override lineup for matchId, a friendly (see SetFriendlyLineup) - always an explicit override,
+// since a national team has no real roster of its own to fall back to the way a club's
+// BestLineupForTeam does (see GetLineupsForFriendly). This saved lineup is also where
+// international caps are counted from later (see GetPlayerCareerStats) - a player appears in it
+// regardless of which club actually employs them.
+func SetNationalTeamLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, country string) error {
+	players, positions, err := selectNationalSquadLineup(dbCtx, country)
 	if err != nil {
 		return err
 	}
-	positions := FlattenLineup(SelectBestLineup(players))
 	if err := SetFriendlyLineup(dbCtx, matchId, teamId, FormationBalanced, positions, []LineupSubstitution{}); err != nil {
 		return err
 	}
-	notifyCalledUpPlayers(dbCtx, players, positions, country)
+	notifyCalledUpPlayers(dbCtx, players, positions, country, "/friendlies/"+strconv.FormatInt(matchId, 10))
+	return nil
+}
+
+// SetNationalTeamCupTieLineup is SetNationalTeamLineup's World Cup knockout-stage counterpart:
+// same squad selection, persisted instead as teamId's override lineup for cup tie tieId (see
+// SetCupTieLineup) - called from engine.createRoundTies for every tie a national team is part of,
+// covering every knockout round the same way SetNationalTeamLineup covers every weekly friendly.
+func SetNationalTeamCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, country string) error {
+	players, positions, err := selectNationalSquadLineup(dbCtx, country)
+	if err != nil {
+		return err
+	}
+	if err := SetCupTieLineup(dbCtx, tieId, teamId, FormationBalanced, positions, []LineupSubstitution{}); err != nil {
+		return err
+	}
+	notifyCalledUpPlayers(dbCtx, players, positions, country, "/cup/ties/"+strconv.FormatInt(tieId, 10))
 	return nil
 }
 
 // notifyCalledUpPlayers tells each selected player's actual club (not the national team, which
 // has no owner) that their player was called up - best-effort, same as every other notification
-// site, since a failed notification must never undo the lineup that was just saved.
-func notifyCalledUpPlayers(dbCtx *DatabaseContext, players []*Player, positions []LineupPosition, country string) {
+// site, since a failed notification must never undo the lineup that was just saved. link points
+// at the match itself (a friendly or a cup tie, whichever the caller is setting a lineup for)
+// rather than the player's own page, so a click leads straight to the fixture they were called up
+// for.
+func notifyCalledUpPlayers(dbCtx *DatabaseContext, players []*Player, positions []LineupPosition, country string, link string) {
 	playersById := make(map[int64]*Player, len(players))
 	for _, player := range players {
 		playersById[player.Id] = player
@@ -197,10 +227,121 @@ func notifyCalledUpPlayers(dbCtx *DatabaseContext, players []*Player, positions 
 			Key:    "notifications.messages.calledUp",
 			Params: map[string]any{"player": playerName, "team": teamName},
 		}
-		if err := NotifyTeamOwnerWithLink(dbCtx, player.TeamId, NOTIFICATION_CALL_UP, msg, "/player/"+strconv.FormatInt(player.Id, 10)); err != nil {
+		if err := NotifyTeamOwnerWithLink(dbCtx, player.TeamId, NOTIFICATION_CALL_UP, msg, link); err != nil {
 			log.Errorf("error notifying team %d of call-up for player %d: %s", player.TeamId, player.Id, err)
 		}
 	}
+}
+
+const getNationalTeamCountryStmtSql = "SELECT country FROM teams WHERE team_id = $1 AND is_national_team = true"
+
+// GetNationalTeamCountry reports whether teamId is a national team and, if so, its country - used
+// by engine.createRoundTies to decide, for any cup tie it creates, whether either side needs its
+// lineup auto-selected (see SetNationalTeamCupTieLineup) rather than left for a manager to set.
+func GetNationalTeamCountry(dbCtx *DatabaseContext, teamId int64) (country string, isNationalTeam bool, err error) {
+	err = dbCtx.Db.QueryRow(getNationalTeamCountryStmtSql, teamId).Scan(&country)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", false, nil
+	}
+	return country, err == nil, err
+}
+
+const getUpcomingNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
+	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE ht.is_national_team = true AND fm.match_date > now() ORDER BY fm.match_date ASC LIMIT $1"
+
+const getRecentNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
+	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE ht.is_national_team = true AND fm.played = true ORDER BY fm.match_date DESC LIMIT $1"
+
+// GetUpcomingNationalTeamFriendlies lists every national team's upcoming friendly, soonest
+// first - the global, any-country counterpart to GetUpcomingFriendlies (which is scoped to one
+// club), since no single club "owns" a national-team fixture the friendlies page could otherwise
+// filter by.
+func GetUpcomingNationalTeamFriendlies(dbCtx *DatabaseContext, limit int) ([]FriendlyMatch, error) {
+	rows, err := dbCtx.Db.Query(getUpcomingNationalTeamFriendliesStmtSql, limit)
+	if err != nil {
+		return nil, err
+	}
+	return scanFriendlyMatches(rows)
+}
+
+// GetRecentNationalTeamFriendlies is GetUpcomingNationalTeamFriendlies' played counterpart, most
+// recent first.
+func GetRecentNationalTeamFriendlies(dbCtx *DatabaseContext, limit int) ([]FriendlyMatch, error) {
+	rows, err := dbCtx.Db.Query(getRecentNationalTeamFriendliesStmtSql, limit)
+	if err != nil {
+		return nil, err
+	}
+	return scanFriendlyMatches(rows)
+}
+
+// NationalTeamCallUp is one row in a player's "recent call-ups" list on their profile page - a
+// national-team friendly or World Cup knockout tie this player started for their birth country,
+// most recent first. Kind tells the frontend which detail page to link to ("friendly" ->
+// /friendlies/:id, "cupTie" -> /cup/ties/:id), since the two live in entirely separate tables
+// (friendly_matches vs cup_ties) - see GetRecentNationalTeamCallUps.
+type NationalTeamCallUp struct {
+	Kind         string    `json:"kind"`
+	MatchId      int64     `json:"matchId"`
+	TeamName     string    `json:"teamName"`
+	OpponentName string    `json:"opponentName"`
+	MatchDate    time.Time `json:"matchDate"`
+	Played       bool      `json:"played"`
+	GoalsFor     int       `json:"goalsFor"`
+	GoalsAgainst int       `json:"goalsAgainst"`
+}
+
+// getRecentNationalTeamCallUpsStmtSql unions playerId's starting call-ups from both places a
+// national team ever plays - a weekly friendly and a World Cup knockout tie (see
+// SetNationalTeamLineup/SetNationalTeamCupTieLineup, the only writers of friendly_lineup_positions/
+// cup_tie_lineup_positions for a team flagged is_national_team) - each side resolved to
+// "team/opponent/goals for/against" from that player's own national team's perspective rather
+// than home/away, the same reorientation GetPlayerRecentMatches does for league matches.
+const getRecentNationalTeamCallUpsStmtSql = "SELECT kind, match_id, team_name, opponent_name, match_date, played, goals_for, goals_against FROM (" +
+	"SELECT 'friendly' AS kind, fm.match_id AS match_id, t.name AS team_name, " +
+	"CASE WHEN fl.team_id = fm.home_team_id THEN ta.name ELSE th.name END AS opponent_name, " +
+	"fm.match_date AS match_date, fm.played AS played, " +
+	"CASE WHEN fl.team_id = fm.home_team_id THEN fm.home_goals ELSE fm.away_goals END AS goals_for, " +
+	"CASE WHEN fl.team_id = fm.home_team_id THEN fm.away_goals ELSE fm.home_goals END AS goals_against " +
+	"FROM friendly_lineup_positions flp " +
+	"JOIN friendly_lineup fl ON fl.lineup_id = flp.lineup_id " +
+	"JOIN friendly_matches fm ON fm.match_id = fl.match_id " +
+	"JOIN teams t ON t.team_id = fl.team_id " +
+	"JOIN teams th ON th.team_id = fm.home_team_id JOIN teams ta ON ta.team_id = fm.away_team_id " +
+	"WHERE flp.player_id = $1 AND t.is_national_team = true " +
+	"UNION ALL " +
+	"SELECT 'cupTie' AS kind, ct.tie_id AS match_id, t.name AS team_name, " +
+	"CASE WHEN ctl.team_id = ct.home_team_id THEN ta.name ELSE th.name END AS opponent_name, " +
+	"ct.match_date AS match_date, ct.played AS played, " +
+	"CASE WHEN ctl.team_id = ct.home_team_id THEN ct.home_goals ELSE ct.away_goals END AS goals_for, " +
+	"CASE WHEN ctl.team_id = ct.home_team_id THEN ct.away_goals ELSE ct.home_goals END AS goals_against " +
+	"FROM cup_tie_lineup_positions ctlp " +
+	"JOIN cup_tie_lineup ctl ON ctl.lineup_id = ctlp.lineup_id " +
+	"JOIN cup_ties ct ON ct.tie_id = ctl.tie_id " +
+	"JOIN teams t ON t.team_id = ctl.team_id " +
+	"JOIN teams th ON th.team_id = ct.home_team_id JOIN teams ta ON ta.team_id = ct.away_team_id " +
+	"WHERE ctlp.player_id = $1 AND t.is_national_team = true" +
+	") combined ORDER BY match_date DESC LIMIT $2"
+
+// GetRecentNationalTeamCallUps lists playerId's most recent national-team call-ups (friendly or
+// World Cup knockout tie, most recent first, capped at limit) - see NationalTeamCallUp.
+func GetRecentNationalTeamCallUps(dbCtx *DatabaseContext, playerId int64, limit int) ([]NationalTeamCallUp, error) {
+	rows, err := dbCtx.Db.Query(getRecentNationalTeamCallUpsStmtSql, playerId, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	callUps := make([]NationalTeamCallUp, 0)
+	for rows.Next() {
+		var c NationalTeamCallUp
+		if err := rows.Scan(&c.Kind, &c.MatchId, &c.TeamName, &c.OpponentName, &c.MatchDate, &c.Played, &c.GoalsFor, &c.GoalsAgainst); err != nil {
+			return nil, err
+		}
+		callUps = append(callUps, c)
+	}
+	return callUps, rows.Err()
 }
 
 // pairNationalTeamCountries pairs up countries for one week's national-team friendlies,
@@ -249,7 +390,20 @@ func pairNationalTeamCountries(countries []string, r *rand.Rand) [][2]string {
 // deliberately bypasses), and immediately persists each side's starting XI (see
 // SetNationalTeamLineup) so there's a lineup ready for the normal friendly simulation scheduler to
 // pick up, and to count international caps from once it's played.
+//
+// Skips the whole week while a World Cup is running (see HasActiveWorldCup): a real international
+// calendar pauses ordinary friendlies around a tournament rather than double-booking a country's
+// national team in the same week, and group-stage/knockout fixtures already give every active
+// country as much national-team action as a weekly friendly would anyway.
 func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
+	hasWorldCup, err := HasActiveWorldCup(dbCtx)
+	if err != nil {
+		return err
+	}
+	if hasWorldCup {
+		return nil
+	}
+
 	active, err := GetActiveCountries(dbCtx)
 	if err != nil {
 		return err

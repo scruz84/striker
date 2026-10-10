@@ -21,6 +21,7 @@ import { HomePage } from '../features/home/HomePage'
 import { LeaguesPage } from '../features/leagues/LeaguesPage'
 import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
 import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
+import { NationalTeamsPage } from '../features/nationalteams/NationalTeamsPage'
 import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
 import { LatestEvolutionsPage } from '../features/player/LatestEvolutionsPage'
 import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/international-cup" element={<InternationalCupPage />} />
                     <Route path="/friendlies" element={<FriendliesPage />} />
                     <Route path="/friendlies/:id" element={<FriendlyMatchPage />} />
+                    <Route path="/national-teams" element={<NationalTeamsPage />} />
                     <Route path="/groups" element={<GroupsPage />} />
                     <Route path="/help" element={<HelpPage />} />
                     <Route path="/admin" element={<AdminPage />} />

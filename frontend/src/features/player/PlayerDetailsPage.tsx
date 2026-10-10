@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
-import { TRANSACTION_REASON_KEYS, type PlayerMatchSummary } from '../../api/types'
+import { TRANSACTION_REASON_KEYS, type NationalTeamCallUp, type PlayerMatchSummary } from '../../api/types'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
@@ -128,6 +128,28 @@ export function PlayerDetailsPage() {
         </Stack>
       )}
 
+      {player.recentCallUps.length > 0 && (
+        <Stack spacing={1}>
+          <Typography variant="h6">{t('playerPage.callUps.title')}</Typography>
+          <TableContainer component={Paper}>
+            <Table size="small" aria-label="National team call-ups">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('playerPage.callUps.date')}</TableCell>
+                  <TableCell>{t('playerPage.callUps.fixture')}</TableCell>
+                  <TableCell align="right">{t('playerPage.callUps.result')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {player.recentCallUps.map((callUp) => (
+                  <CallUpRow key={`${callUp.kind}-${callUp.matchId}`} callUp={callUp} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Stack>
+      )}
+
       {canSeeFinancials && (
         <Stack spacing={1}>
           <Typography variant="h6">{t('playerPage.history.title')}</Typography>
@@ -167,6 +189,25 @@ export function PlayerDetailsPage() {
         </Stack>
       )}
     </Stack>
+  )
+}
+
+// Rows link to the fixture itself - a friendly's own detail page, or (for a World Cup knockout
+// tie) the cup tie page - rather than a static read-only row, so a manager can jump straight from
+// "my player got called up" to the match.
+function CallUpRow({ callUp }: { callUp: NationalTeamCallUp }) {
+  const { t } = useTranslation()
+  const to = callUp.kind === 'friendly' ? `/friendlies/${callUp.matchId}` : `/cup/ties/${callUp.matchId}`
+  return (
+    <TableRow component={RouterLink} to={to} hover sx={{ cursor: 'pointer', '& td': { border: 0 } }}>
+      <TableCell>{formatDayTime(callUp.matchDate)}</TableCell>
+      <TableCell>
+        {callUp.teamName} {t('playerPage.callUps.vs')} {callUp.opponentName}
+      </TableCell>
+      <TableCell align="right">
+        {callUp.played ? `${callUp.goalsFor} - ${callUp.goalsAgainst}` : <Chip size="small" label={t('playerPage.callUps.upcoming')} />}
+      </TableCell>
+    </TableRow>
   )
 }
 

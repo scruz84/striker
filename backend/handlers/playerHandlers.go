@@ -20,6 +20,10 @@ const PlayerHistoryLimit = 20
 // their profile page.
 const PlayerRecentMatchesLimit = 5
 
+// PlayerRecentCallUpsLimit bounds how many of the player's recent national-team call-ups show on
+// their profile page.
+const PlayerRecentCallUpsLimit = 10
+
 // PlayerDetailsHandler returns a single player's full profile - base attributes, current team,
 // career stats (appearances/goals/cards), current status (on loan, listed, unavailable), and
 // transfer history. See common.PlayerDetails.
@@ -93,6 +97,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			log.Errorf("error loading recent matches for player %d: %s", playerId, err)
 		} else {
 			details.RecentMatches = recentMatches
+		}
+
+		if callUps, err := common.GetRecentNationalTeamCallUps(dbCtx, playerId, PlayerRecentCallUpsLimit); err != nil {
+			log.Errorf("error loading national-team call-ups for player %d: %s", playerId, err)
+		} else {
+			details.RecentCallUps = callUps
 		}
 
 		// A rostered player's contract length and financial transaction history are the owning

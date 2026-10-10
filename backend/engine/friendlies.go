@@ -100,6 +100,13 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 		return err
 	}
 
+	// A no-op for the overwhelming majority of friendlies, which aren't a World Cup group fixture
+	// at all - see UpdateWorldCupStandingsAfterMatch.
+	if err := common.UpdateWorldCupStandingsAfterMatch(dbCtx, friendly.MatchId, friendly.HomeTeamId,
+		friendly.AwayTeamId, matchSimulation.HomeGoals, matchSimulation.AwayGoals); err != nil {
+		log.Errorf("error updating World Cup standings for friendly %d: %s", friendly.MatchId, err)
+	}
+
 	// Credited immediately rather than deferred to onComplete below, same as
 	// UpdateTeamFinancesAfterMatch for a league match/cup tie (see simulateMatch) - a budget
 	// change isn't the kind of visible-outside-this-page state (an injury, a skill jump, a

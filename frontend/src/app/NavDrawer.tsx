@@ -4,6 +4,7 @@ import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSetting
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone'
 import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
+import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone'
@@ -68,6 +69,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
     { to: '/leagues', label: t('header.nav.leagues'), icon: <PublicTwoToneIcon /> },
     { to: '/cup', label: t('header.nav.cup'), icon: <EmojiEventsTwoToneIcon /> },
     { to: '/international-cup', label: t('header.nav.internationalCup'), icon: <WorkspacePremiumTwoToneIcon /> },
+    { to: '/national-teams', label: t('header.nav.nationalTeams'), icon: <FlagTwoToneIcon /> },
     { to: '/friendlies', label: t('header.nav.friendlies'), icon: <HandshakeTwoToneIcon /> },
     { to: '/groups', label: t('header.nav.friendGroups'), icon: <GroupsTwoToneIcon /> },
     { to: '/search', label: t('header.nav.search'), icon: <SearchTwoToneIcon /> },

@@ -251,6 +251,12 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1FriendlyGroup.PUT("/:"+handlers.ID+"/lineup", handlers.SetFriendlyLineupHandler(dbCtx))
 	v1FriendlyGroup.GET("/:"+handlers.ID+"/lineup", handlers.GetFriendlyLineupHandler(dbCtx))
 
+	v1NationalTeamGroup := v1Group.Group("/national-teams")
+	v1NationalTeamGroup.Use(authMiddleware.MiddlewareFunc())
+	v1NationalTeamGroup.GET("/friendlies/upcoming", handlers.UpcomingNationalTeamFriendliesHandler(dbCtx))
+	v1NationalTeamGroup.GET("/friendlies/recent", handlers.RecentNationalTeamFriendliesHandler(dbCtx))
+	v1NationalTeamGroup.GET("/world-cup/current", handlers.CurrentWorldCupHandler(dbCtx))
+
 	v1CupGroup := v1Group.Group("/cups")
 	v1CupGroup.Use(authMiddleware.MiddlewareFunc())
 	v1CupGroup.GET("/latest/:country", handlers.LatestCupHandler(dbCtx))

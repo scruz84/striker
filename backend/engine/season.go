@@ -43,6 +43,9 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	// the one just started, to find each country's tier-1 champion (see
 	// StartInternationalCupsForNewSeason).
 	StartInternationalCupsForNewSeason(dbCtx, newSeason)
+	// Only actually starts one every WorldCupFrequencySeasons seasons, and only while no other
+	// World Cup is still running - see StartWorldCupForNewSeason.
+	StartWorldCupForNewSeason(dbCtx, newSeason)
 
 	leagueIds, err := common.GetAllLeagueIds(dbCtx)
 	if err != nil {

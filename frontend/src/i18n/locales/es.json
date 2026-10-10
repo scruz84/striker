@@ -40,6 +40,7 @@
       "leagues": "Ligas",
       "cup": "Copa",
       "internationalCup": "Copa Internacional",
+      "nationalTeams": "Selecciones",
       "friendlies": "Amistosos",
       "friendGroups": "Grupos de amigos",
       "search": "Buscar",
@@ -503,6 +504,34 @@
     "pensWinner": "{{team}} avanza tras ganar en la tanda de penaltis",
     "tbd": "Por determinar",
     "lineup": { "title": "Alineación de {{teamName}} para esta eliminatoria" }
+  },
+  "nationalTeams": {
+    "title": "Selecciones",
+    "subtitle": "Sigue la selección de cada país - los amistosos semanales y, cuando haya uno en marcha, el Mundial.",
+    "tabs": {
+      "friendlies": "Amistosos",
+      "worldCup": "Mundial"
+    },
+    "friendlies": {
+      "upcoming": "Próximos",
+      "upcomingEmpty": "No hay amistosos de selecciones próximamente.",
+      "recent": "Resultados recientes",
+      "recentEmpty": "Aún no se ha jugado ningún amistoso de selecciones."
+    },
+    "worldCup": {
+      "none": "Ahora mismo no hay ningún Mundial en marcha.",
+      "titleWithSeason": "{{name}} - temporada {{season}}",
+      "champion": "¡{{name}} son los campeones!",
+      "groupStage": "Fase de grupos",
+      "knockoutStage": "Fase de eliminatorias",
+      "group": "Grupo {{name}}",
+      "standings": {
+        "team": "Equipo",
+        "played": "PJ",
+        "goalDifference": "DG",
+        "points": "Pts"
+      }
+    }
   },
   "friendlies": {
     "title": "Amistosos",
@@ -1099,6 +1128,14 @@
       "rating": "Calificación",
       "homeTag": "L",
       "awayTag": "V"
+    },
+    "callUps": {
+      "title": "Convocatorias con la selección",
+      "date": "Fecha",
+      "fixture": "Partido",
+      "result": "Resultado",
+      "vs": "vs",
+      "upcoming": "Próximo"
     }
   },
   "countries": {

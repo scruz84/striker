@@ -13,6 +13,7 @@ import type {
   CountryStatus,
   CupDetails,
   CupTieDetails,
+  CurrentWorldCup,
   DevUser,
   DivisionDetails,
   FinancesResponse,
@@ -76,6 +77,9 @@ export const queryKeys = {
   friendlyChallengesSent: ['friendlyChallengesSent'] as const,
   upcomingFriendlies: ['upcomingFriendlies'] as const,
   recentFriendlies: ['recentFriendlies'] as const,
+  upcomingNationalTeamFriendlies: ['upcomingNationalTeamFriendlies'] as const,
+  recentNationalTeamFriendlies: ['recentNationalTeamFriendlies'] as const,
+  currentWorldCup: ['currentWorldCup'] as const,
   friendlySchedule: ['friendlySchedule'] as const,
   friendlyMatch: (id: string) => ['friendlyMatch', id] as const,
   friendlyLineup: (id: string) => ['friendlyLineup', id] as const,
@@ -1180,6 +1184,35 @@ export function useRecentFriendlies(enabled: boolean) {
     queryKey: queryKeys.recentFriendlies,
     queryFn: () => api.get<FriendlyMatch[]>('/v1/friendlies/recent'),
     enabled,
+  })
+}
+
+// The global, any-country counterpart to useUpcomingFriendlies/useRecentFriendlies - no logged-in
+// manager's own team is ever one side of a national-team fixture, so these aren't scoped to one.
+export function useUpcomingNationalTeamFriendlies(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.upcomingNationalTeamFriendlies,
+    queryFn: () => api.get<FriendlyMatch[]>('/v1/national-teams/friendlies/upcoming'),
+    enabled,
+  })
+}
+
+export function useRecentNationalTeamFriendlies(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.recentNationalTeamFriendlies,
+    queryFn: () => api.get<FriendlyMatch[]>('/v1/national-teams/friendlies/recent'),
+    enabled,
+  })
+}
+
+// The most recently started World Cup - groups/standings/fixtures, plus (once the group stage is
+// done) its knockout cup id, fetched separately via the existing useCupDetails(cupId).
+export function useCurrentWorldCup(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.currentWorldCup,
+    queryFn: () => api.get<CurrentWorldCup>('/v1/national-teams/world-cup/current'),
+    enabled,
+    retry: false,
   })
 }
 

@@ -818,6 +818,23 @@ export interface PlayerDetails extends Player {
   // This player's current team's most recent played league matches - see
   // backend/common/playermatches.go's GetPlayerRecentMatches.
   recentMatches: PlayerMatchSummary[]
+  // This player's most recent national-team call-ups (friendly or World Cup knockout tie) - see
+  // backend common.GetRecentNationalTeamCallUps.
+  recentCallUps: NationalTeamCallUp[]
+}
+
+// Mirrors backend common.NationalTeamCallUp - one row in a player's "recent call-ups" list.
+// `kind` picks which detail page to link to: "friendly" -> /friendlies/:matchId, "cupTie" ->
+// /cup/ties/:matchId.
+export interface NationalTeamCallUp {
+  kind: 'friendly' | 'cupTie'
+  matchId: number
+  teamName: string
+  opponentName: string
+  matchDate: string
+  played: boolean
+  goalsFor: number
+  goalsAgainst: number
 }
 
 export interface PlayerClubHistoryEntry {
@@ -1038,6 +1055,60 @@ export interface CupDetails {
 // CupTieDetails is a single cup tie's full profile - the tie itself plus its event timeline and
 // both teams' lineups/rosters, the cup equivalent of WeekMatch. Only populated (lineups/players)
 // once the tie has two real teams - see backend/common.GetCupTieDetails.
+// Mirrors backend common.WorldCup - one edition's top-level record. knockoutCupId is null while
+// stage is "groups"; once it's set, that cup's bracket is fetched through the existing
+// useCupDetails(cupId) hook, same as any other cup.
+export interface WorldCup {
+  worldCupId: number
+  season: number
+  name: string
+  stage: 'groups' | 'knockout'
+  completed: boolean
+  championTeamId: number | null
+  championTeamName: string
+  knockoutCupId: number | null
+}
+
+// Mirrors backend common.WorldCupGroupStanding - one team's running record in a group, already
+// ranked (points, then goal difference, then goals for) by the backend.
+export interface WorldCupGroupStanding {
+  teamId: number
+  teamName: string
+  played: number
+  won: number
+  drawn: number
+  lost: number
+  goalsFor: number
+  goalsAgainst: number
+}
+
+// Mirrors backend common.WorldCupGroupMatch - one group fixture.
+export interface WorldCupGroupMatch {
+  matchId: number
+  round: number
+  homeTeamId: number
+  homeTeamName: string
+  awayTeamId: number
+  awayTeamName: string
+  played: boolean
+  homeGoals: number
+  awayGoals: number
+}
+
+// Mirrors backend common.WorldCupGroup.
+export interface WorldCupGroup {
+  groupId: number
+  groupName: string
+  standings: WorldCupGroupStanding[]
+  matches: WorldCupGroupMatch[]
+}
+
+// Response shape of GET /v1/national-teams/world-cup/current.
+export interface CurrentWorldCup {
+  worldCup: WorldCup
+  groups: WorldCupGroup[]
+}
+
 export interface CupTieDetails extends CupTie {
   events: MatchEvent[] | null
   homeLineup: Lineup | null

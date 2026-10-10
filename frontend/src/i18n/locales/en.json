@@ -40,6 +40,7 @@
       "leagues": "Leagues",
       "cup": "Cup",
       "internationalCup": "International Cup",
+      "nationalTeams": "National teams",
       "friendlies": "Friendlies",
       "friendGroups": "Friend groups",
       "search": "Search",
@@ -503,6 +504,34 @@
     "pensWinner": "{{team}} advances after winning the penalty shootout",
     "tbd": "TBD",
     "lineup": { "title": "{{teamName}}'s lineup for this cup tie" }
+  },
+  "nationalTeams": {
+    "title": "National teams",
+    "subtitle": "Follow every country's national team - weekly friendlies, and, once one is running, the World Cup.",
+    "tabs": {
+      "friendlies": "Friendlies",
+      "worldCup": "World Cup"
+    },
+    "friendlies": {
+      "upcoming": "Upcoming",
+      "upcomingEmpty": "No upcoming national-team friendlies.",
+      "recent": "Recent results",
+      "recentEmpty": "No national-team friendlies played yet."
+    },
+    "worldCup": {
+      "none": "No World Cup is running right now.",
+      "titleWithSeason": "{{name}} - season {{season}}",
+      "champion": "{{name}} are champions!",
+      "groupStage": "Group stage",
+      "knockoutStage": "Knockout stage",
+      "group": "Group {{name}}",
+      "standings": {
+        "team": "Team",
+        "played": "P",
+        "goalDifference": "GD",
+        "points": "Pts"
+      }
+    }
   },
   "friendlies": {
     "title": "Friendlies",
@@ -1099,6 +1128,14 @@
       "rating": "Rating",
       "homeTag": "H",
       "awayTag": "A"
+    },
+    "callUps": {
+      "title": "National team call-ups",
+      "date": "Date",
+      "fixture": "Fixture",
+      "result": "Result",
+      "vs": "vs",
+      "upcoming": "Upcoming"
     }
   },
   "countries": {

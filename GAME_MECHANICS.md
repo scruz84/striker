@@ -687,12 +687,73 @@ roster to fall back to the way `BestLineupForTeam` provides for a real team. Fro
 ordinary friendly: picked up and simulated by the same per-minute `StartFriendlyScheduler`, and
 (being a friendly) still counts for skill growth for whoever featured, same as any other friendly.
 
-**International caps**: a player's profile shows how many played national-team friendlies they
-were selected to start (`PlayerCareerStats.Caps`, `GetPlayerCareerStats`) - counted from
-`friendly_lineup_positions` rows on a national team's side of a played friendly, since an
-appearance alone (not a goal/card action) is what a cap actually is, unlike the event-based
-`match_events` queries the rest of that function's stats use. Being selected is the whole
-simplification here (the same "best XI by raw skill" selection `SetNationalTeamLineup` always
-makes, not any notion of current form/fitness/actual call-up history) - it doesn't check whether
-the player was actually fit to play that week, the same tolerance the engine already affords any
-saved default lineup that happens to include an unavailable player.
+**International caps**: a player's profile shows how many national-team appearances they were
+selected to start (`PlayerCareerStats.Caps`, `GetPlayerCareerStats`) - counted from
+`friendly_lineup_positions` rows on a national team's side of a played friendly, plus (since the
+World Cup below added a second way to be capped) `cup_tie_lineup_positions` rows on a national
+team's side of a played knockout tie. An appearance alone (not a goal/card action) is what a cap
+actually is, unlike the event-based `match_events` queries the rest of that function's stats use.
+Being selected is the whole simplification here (the same "best XI by raw skill" selection
+`SetNationalTeamLineup`/`SetNationalTeamCupTieLineup` always makes, not any notion of current
+form/fitness/actual call-up history) - it doesn't check whether the player was actually fit to
+play that week, the same tolerance the engine already affords any saved default lineup that
+happens to include an unavailable player.
+
+**Call-up notifications**: whenever `SetNationalTeamLineup`/`SetNationalTeamCupTieLineup` saves a
+lineup, every selected player's actual club owner (not the national team, which has no owner) is
+notified (`NOTIFICATION_CALL_UP`) with a link straight to the fixture - the friendly or cup tie
+itself, not the player's own page - so a click leads directly to the match they were called up
+for.
+
+**Frontend**: `/national-teams` (`NationalTeamsPage.tsx`) is where any of this is actually watched
+- a manager's own team is never one side of a national-team fixture, so none of it could otherwise
+surface through a team-scoped page the way club friendlies do through `/friendlies`. It has two
+tabs: a global upcoming/recent national-team friendlies feed (`GET
+/v1/national-teams/friendlies/{upcoming,recent}`, the any-country counterpart to
+`GetUpcomingFriendlies`/`GetRecentFriendlies`), and the World Cup section below. A player's own
+profile additionally lists their own recent call-ups (`GetRecentNationalTeamCallUps`), each
+linking straight to that friendly or cup tie.
+
+## World Cup
+
+Every `WorldCupFrequencySeasons` (4) completed seasons, if no World Cup is currently running and
+at least `MinWorldCupCountries` (8) countries are active, a new one starts
+(`engine.StartWorldCupForNewSeason`, called from `AdvanceSeasonIfComplete` alongside
+`StartInternationalCupsForNewSeason`) - a `world_cups` row (`init72_world_cup.sql`) plus a group
+stage: active countries are split into balanced groups of ~4 (`common.AssignWorldCupGroups`, every
+group's size within one of every other's), each scheduled a full round-robin (the classic "circle
+method", `common.BuildRoundRobinRounds`) one matchday a week apart. Every group fixture is a plain
+`friendly_matches` row (so `/friendlies/:id` renders it with no changes needed, and it's picked up
+by the ordinary per-minute friendly scheduler) with both sides' lineups set immediately via the
+existing `SetNationalTeamLineup` - a World Cup group match is, mechanically, just a national-team
+friendly that happens to also be linked to a `world_cup_group_matches` row.
+
+Once a linked friendly is simulated, `UpdateWorldCupStandingsAfterMatch` (hooked into
+`simulateFriendly`, a no-op for every other friendly) updates both sides' running
+`world_cup_group_teams` record. Every tick (`CupJob`, alongside `AdvanceCups`),
+`engine.AdvanceWorldCups` checks every active World Cup: once every group match is played
+(`IsWorldCupGroupStageComplete`), it seeds the knockout stage from each group's top two
+(`RankGroupStandings`: points, then goal difference, then goals for, then team name as a last
+deterministic tiebreak) as an *ordinary* `Cup` (`CreateInternationalCup`, region `"world"`) -
+`startWorldCupKnockout` shuffles the qualifiers (no attempt at a real tournament's seeded bracket,
+since this game has no strength ranking to seed by) and hands them to the exact same
+`BuildFirstRoundPairings`/`createRoundTies`/`AdvanceCups`/`SimulateCupTies` machinery every other
+cup already uses. The one addition needed there: `createRoundTies` now checks, for a real tie's
+each side, whether that team is a national team (`GetNationalTeamCountry`) and if so auto-selects
+its lineup (`SetNationalTeamCupTieLineup`) for every round the knockout stage generates - a
+national team has no manager to do that itself, the same reason `SetNationalTeamLineup` exists for
+the group stage/weekly friendlies. A club cup's ties are entirely unaffected (the check is simply
+false for every one of them). Once that `Cup` itself completes, `AdvanceWorldCups` copies its
+champion back onto the `world_cups` row.
+
+While a World Cup is running, the ordinary weekly national-team friendly cadence
+(`ScheduleNationalTeamFriendlies`) pauses entirely (`HasActiveWorldCup`) - a simplification over a
+real international calendar, which only pauses the countries actually still in the tournament, but
+avoids double-booking a country's national team in the same week without having to track which
+teams have already been eliminated.
+
+Frontend: `GET /v1/national-teams/world-cup/current` returns the latest World Cup plus its groups
+(standings and fixtures); the knockout bracket, once it exists, is fetched separately through the
+existing `GET /v1/cups/:id` and rendered with `CupPage`'s own exports (`groupByRound`/`roundName`/
+`TieRow`) - a tie is a tie regardless of which competition it belongs to, same reuse
+`InternationalCupPage` already makes.

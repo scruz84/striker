@@ -109,17 +109,21 @@ func CreateInternationalCup(dbCtx *DatabaseContext, region string, season int, n
 	return cupId, err
 }
 
-// CreateCupTie inserts one bracket slot. A nil awayTeamId with a non-nil homeTeamId is a bye:
-// it's recorded as already won by the home team, with no match to simulate.
-func CreateCupTie(dbCtx *DatabaseContext, cupId int64, round int, slotNumber int, homeTeamId *int64, awayTeamId *int64, matchDate *time.Time) error {
+// CreateCupTie inserts one bracket slot and returns its tie id. A nil awayTeamId with a non-nil
+// homeTeamId is a bye: it's recorded as already won by the home team, with no match to simulate.
+// The returned tie id lets a caller that just created a real (non-bye) tie immediately act on it
+// - see engine.createRoundTies, which uses it to auto-select a lineup for either side that turns
+// out to be a national team (see GetNationalTeamCountry/SetNationalTeamCupTieLineup).
+func CreateCupTie(dbCtx *DatabaseContext, cupId int64, round int, slotNumber int, homeTeamId *int64, awayTeamId *int64, matchDate *time.Time) (int64, error) {
 	var winnerTeamId *int64
 	played := false
 	if homeTeamId != nil && awayTeamId == nil {
 		winnerTeamId = homeTeamId
 		played = true
 	}
-	_, err := dbCtx.Db.Exec(InsertCupTieStmtSql, cupId, round, slotNumber, homeTeamId, awayTeamId, matchDate, played, winnerTeamId)
-	return err
+	var tieId int64
+	err := dbCtx.Db.QueryRow(InsertCupTieStmtSql, cupId, round, slotNumber, homeTeamId, awayTeamId, matchDate, played, winnerTeamId).Scan(&tieId)
+	return tieId, err
 }
 
 func GetActiveCups(dbCtx *DatabaseContext) ([]Cup, error) {

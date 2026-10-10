@@ -170,7 +170,12 @@ func startInternationalCupForRegion(dbCtx *common.DatabaseContext, region string
 const cupRoundGap = 24 * time.Hour
 
 // createRoundTies persists one round's pairings as cup_ties. A pairing with a bye (one side is
-// ByeTeamId) is recorded as already resolved, with no match_date - see common.CreateCupTie.
+// ByeTeamId) is recorded as already resolved, with no match_date - see common.CreateCupTie. For a
+// real tie, any side that turns out to be a national team (true only for a World Cup's knockout
+// bracket - see engine.startWorldCupKnockout) immediately gets its lineup auto-selected, the same
+// way SetNationalTeamLineup does for a weekly friendly - a national team has no manager to set one
+// otherwise, and this covers every round a World Cup's knockout stage generates, not just its
+// first.
 func createRoundTies(dbCtx *common.DatabaseContext, cupId int64, round int, pairs [][2]int64) error {
 	matchDate := time.Now().Add(cupRoundGap)
 	for i, pair := range pairs {
@@ -179,11 +184,33 @@ func createRoundTies(dbCtx *common.DatabaseContext, cupId int64, round int, pair
 		if home != nil && away != nil {
 			scheduledAt = &matchDate
 		}
-		if err := common.CreateCupTie(dbCtx, cupId, round, i+1, home, away, scheduledAt); err != nil {
+		tieId, err := common.CreateCupTie(dbCtx, cupId, round, i+1, home, away, scheduledAt)
+		if err != nil {
 			return err
+		}
+		if home != nil && away != nil {
+			setNationalTeamLineupForTieIfNeeded(dbCtx, tieId, *home)
+			setNationalTeamLineupForTieIfNeeded(dbCtx, tieId, *away)
 		}
 	}
 	return nil
+}
+
+// setNationalTeamLineupForTieIfNeeded is createRoundTies' per-side hook: a no-op for every club
+// team (the overwhelming majority of cup ties), and otherwise sets teamId's lineup for tieId via
+// common.SetNationalTeamCupTieLineup.
+func setNationalTeamLineupForTieIfNeeded(dbCtx *common.DatabaseContext, tieId int64, teamId int64) {
+	country, isNationalTeam, err := common.GetNationalTeamCountry(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error checking whether team %d is a national team for tie %d: %s", teamId, tieId, err)
+		return
+	}
+	if !isNationalTeam {
+		return
+	}
+	if err := common.SetNationalTeamCupTieLineup(dbCtx, tieId, teamId, country); err != nil {
+		log.Errorf("error setting national-team lineup for team %d tie %d: %s", teamId, tieId, err)
+	}
 }
 
 func asTeamIdPtr(teamId int64) *int64 {

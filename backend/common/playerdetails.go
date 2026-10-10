@@ -40,14 +40,22 @@ const countPlayerEventStmtSql = "SELECT count(*) FROM match_events me JOIN match
 const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
 	"WHERE me.event_type = $1 AND me.team_players = $2 AND me.team_owner = $3 AND m.match_date <= $4"
 
-// countPlayerCapsStmtSql counts played national-team friendlies playerId was selected to start -
-// see common.SetNationalTeamLineup, which is the only writer of friendly_lineup_positions for a
-// team flagged is_national_team.
-const countPlayerCapsStmtSql = "SELECT count(*) FROM friendly_lineup_positions flp " +
+// countPlayerCapsStmtSql counts played national-team appearances playerId was selected to
+// start - a weekly friendly (see common.SetNationalTeamLineup, friendly_lineup_positions) plus a
+// World Cup knockout tie (see common.SetNationalTeamCupTieLineup, cup_tie_lineup_positions); both
+// are the only writers of their respective lineup-positions table for a team flagged
+// is_national_team, so this covers every way a cap can happen.
+const countPlayerCapsStmtSql = "SELECT " +
+	"(SELECT count(*) FROM friendly_lineup_positions flp " +
 	"JOIN friendly_lineup fl ON fl.lineup_id = flp.lineup_id " +
 	"JOIN friendly_matches fm ON fm.match_id = fl.match_id " +
 	"JOIN teams t ON t.team_id = fl.team_id " +
-	"WHERE flp.player_id = $1 AND t.is_national_team = true AND fm.played = true"
+	"WHERE flp.player_id = $1 AND t.is_national_team = true AND fm.played = true) + " +
+	"(SELECT count(*) FROM cup_tie_lineup_positions ctlp " +
+	"JOIN cup_tie_lineup ctl ON ctl.lineup_id = ctlp.lineup_id " +
+	"JOIN cup_ties ct ON ct.tie_id = ctl.tie_id " +
+	"JOIN teams t2 ON t2.team_id = ctl.team_id " +
+	"WHERE ctlp.player_id = $1 AND t2.is_national_team = true AND ct.played = true)"
 
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
 // in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
@@ -213,6 +221,11 @@ type PlayerDetails struct {
 	// Empty for a free agent. Unlike History/skills, this is never redacted: a team's results and
 	// which matches a player featured in are public the same way ClubHistory is.
 	RecentMatches []PlayerMatchSummary `json:"recentMatches"`
+	// RecentCallUps is this player's most recent national-team call-ups, most recent first - see
+	// GetRecentNationalTeamCallUps. Empty for a player never selected. Never redacted, same
+	// reasoning as RecentMatches/ClubHistory: a call-up is public the moment it happens (see
+	// NotifyTeamOwnerWithLink in SetNationalTeamLineup/SetNationalTeamCupTieLineup).
+	RecentCallUps []NationalTeamCallUp `json:"recentCallUps"`
 	// LatestEvolution is this player's most recent match-triggered progression run (see
 	// GetLatestPlayerEvolution and engine.updatePlayerSkillsAfterMatch) - nil if they've never
 	// been through one, or (like skills generally, see RedactSkills) if the viewer isn't the
