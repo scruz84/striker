@@ -155,6 +155,38 @@ func GetPlayerEvolutionsForTeamByLogIds(dbCtx *DatabaseContext, teamId int64, lo
 	return scanTeamPlayerEvolutions(rows)
 }
 
+// SkillTrendFromEvolution reduces one progression run to a single signed figure - positive if the
+// seven core skills' combined total rose, negative if it fell, 0 for a nil evolution (a player who
+// hasn't been through a progression run yet). Used by PlayerSkillTrend and kept as its own pure
+// function, independent of any database read, so a contract negotiation's trend-reaction math (see
+// ExpectedWageWithIntelligence/MaxAcceptableRenewalYearsWithIntelligence) is unit-testable against
+// a fabricated PlayerEvolution rather than a live player_progression_log row.
+func SkillTrendFromEvolution(e *PlayerEvolution) int {
+	if e == nil {
+		return 0
+	}
+	before := e.GoalKeeper.Before + e.Defense.Before + e.Lateral.Before + e.Pass.Before +
+		e.Midfield.Before + e.Dribbling.Before + e.Shot.Before
+	after := e.GoalKeeper.After + e.Defense.After + e.Lateral.After + e.Pass.After +
+		e.Midfield.After + e.Dribbling.After + e.Shot.After
+	return after - before
+}
+
+// PlayerSkillTrend is how much a player's combined seven core skills changed in their most
+// recently logged progression run (see GetLatestPlayerEvolution) - the signal a contract
+// negotiation reacts to, scaled by the player's own intelligence tier (see
+// ExpectedWageWithIntelligence/MaxAcceptableRenewalYearsWithIntelligence). 0 for a player who's
+// never been through a progression run (too new, or never featured in a match since this table
+// started tracking) - same as a flat trend, so their negotiation behaves exactly as it did before
+// this feature shipped.
+func PlayerSkillTrend(dbCtx *DatabaseContext, playerId int64) (int, error) {
+	evolution, err := GetLatestPlayerEvolution(dbCtx, playerId)
+	if err != nil {
+		return 0, err
+	}
+	return SkillTrendFromEvolution(evolution), nil
+}
+
 func scanTeamPlayerEvolutions(rows *sql.Rows) ([]TeamPlayerEvolution, error) {
 	evolutions := make([]TeamPlayerEvolution, 0)
 	for rows.Next() {

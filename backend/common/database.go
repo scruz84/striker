@@ -132,9 +132,9 @@ const InsertMatch = "INSERT INTO matches (league_id, season, week_number, match_
 const InsertNewPlayerStmtSql = "INSERT INTO players (team_id, first_name, last_name, birth_day, " +
 	"goal_keeper, defense, \"lateral\", pass, midfield, dribbling, shot, header, quick," +
 	" creative, technical, avatar, wage, age, contract_years_remaining, birth_country, in_academy, shirt_number, stamina, form, " +
-	"goal_keeper_max, defense_max, lateral_max, pass_max, midfield_max, dribbling_max, shot_max) " +
+	"goal_keeper_max, defense_max, lateral_max, pass_max, midfield_max, dribbling_max, shot_max, intelligence) " +
 	"values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, " +
-	"$25, $26, $27, $28, $29, $30, $31) " +
+	"$25, $26, $27, $28, $29, $30, $31, $32) " +
 	"RETURNING player_id"
 
 const InsertDefaultLineupPositionsStmtSql = "INSERT INTO default_lineup_positions (team_id, player_id, position) values ($1, $2, $3)"
@@ -487,7 +487,8 @@ func doCreatePlayers(dbCtx *DatabaseContext, teamId int64, insertStmt *sql.Stmt,
 			passMax,
 			midfieldMax,
 			dribblingMax,
-			shotMax).Scan(&newPlayerId)
+			shotMax,
+			RandomIntelligence()).Scan(&newPlayerId)
 		if err != nil {
 			log.Errorf("error creating player for team %d: %s", teamId, err)
 			continue

@@ -206,9 +206,17 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if err != nil {
 		return nil, err
 	}
-	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot)
-	maxYears := MaxAcceptableRenewalYears(player.Age)
+	intelligence, err := GetPlayerIntelligence(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	trend, err := PlayerSkillTrend(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	expectedWage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
+	maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend)
 
 	result := &FreeAgentSigningResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
@@ -302,10 +310,18 @@ func SignFreeAgentAtMarketRate(dbCtx *DatabaseContext, playerId int64, teamId in
 	if err != nil {
 		return nil, err
 	}
-	wage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot)
+	intelligence, err := GetPlayerIntelligence(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	trend, err := PlayerSkillTrend(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	wage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
 	years := RandomContractYears()
-	if maxYears := MaxAcceptableRenewalYears(player.Age); years > maxYears {
+	if maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend); years > maxYears {
 		years = maxYears
 	}
 	return SignFreeAgent(dbCtx, playerId, teamId, wage, years)
@@ -343,15 +359,64 @@ func MaxAcceptableRenewalYears(age int) int {
 	}
 }
 
+// DeclineSkillPointsPerExtraRenewalYear sets how much a declining player's willingness to commit
+// grows: every this many points of combined skill lost (see PlayerSkillTrend) buys one extra
+// season of acceptable term, at a Mastermind's full reaction (see IntelligenceReactionFactor) -
+// see MaxAcceptableRenewalYearsWithIntelligence. 5 mirrors the scale of a single skill drifting a
+// handful of points, since that's the typical size of one logged progression run (see
+// engine.driftSkill) - a player would need a real, sustained decline, not one unlucky match, to
+// meaningfully extend what they'll accept.
+const DeclineSkillPointsPerExtraRenewalYear = 5
+
+// MaxAcceptableRenewalYearsWithIntelligence extends MaxAcceptableRenewalYears for a player whose
+// combined skills have been falling (trend < 0, see PlayerSkillTrend): trading job security for a
+// cheaper deal is the flip side of ExpectedWageWithIntelligence's raise demand, so the same
+// per-tier reaction factor applies here too. A rising or flat trend changes nothing - this never
+// shrinks the age-based figure, only ever grows it, capped at MaxContractYearsRemaining the same
+// as every other renewal offer. intelligence 0 (not yet backfilled) or trend >= 0 reproduces
+// MaxAcceptableRenewalYears exactly.
+func MaxAcceptableRenewalYearsWithIntelligence(age, intelligence, trend int) int {
+	base := MaxAcceptableRenewalYears(age)
+	if trend >= 0 {
+		return base
+	}
+	decline := -trend
+	extraYears := int(float64(decline) * IntelligenceReactionFactor(intelligence) / float64(DeclineSkillPointsPerExtraRenewalYear))
+	years := base + extraYears
+	if years > MaxContractYearsRemaining {
+		return MaxContractYearsRemaining
+	}
+	return years
+}
+
+// ExpectedWageWithIntelligence extends PlayerWageFromSkills for a player whose combined skills
+// have been rising (trend > 0, see PlayerSkillTrend): the raise they demand is exactly what a
+// brand-new player with that much extra skill would command (reusing
+// WagePerSkillPointNumerator/Denominator, the same rate PlayerWageFromSkills itself charges),
+// scaled down by how strongly their own intelligence tier reacts to it (see
+// IntelligenceReactionFactor) - a Naive player (factor 0) never notices their own improvement. A
+// falling or flat trend changes nothing - this never lowers the skill-only figure, only ever
+// raises it. intelligence 0 (not yet backfilled) or trend <= 0 reproduces PlayerWageFromSkills
+// exactly.
+func ExpectedWageWithIntelligence(goalKeeper, defense, lateral, pass, midfield, dribbling, shot, intelligence, trend int) int {
+	base := PlayerWageFromSkills(goalKeeper, defense, lateral, pass, midfield, dribbling, shot)
+	if trend <= 0 {
+		return base
+	}
+	raise := int(float64(trend) * IntelligenceReactionFactor(intelligence) * float64(WagePerSkillPointNumerator) / float64(WagePerSkillPointDenominator))
+	return base + raise
+}
+
 // MakeContractRenewalOffer proposes offeredWage/offeredYears to one of the team's own players.
-// The player judges it against their own market wage (PlayerWageFromSkills - what a
-// similarly-skilled player earns) and their age-appropriate maximum term
-// (MaxAcceptableRenewalYears); there's no other condition, no fee, and no cost to the team
-// beyond the wage itself once accepted. A declined offer changes nothing in the database and
-// reports the player's real expectations, so the team can immediately retry with better terms.
-// Rejects a player currently out on loan (ErrPlayerOnLoan) for the same reason as
-// ReleasePlayer - team_id belongs to the borrower for the loan's duration, but the contract
-// belongs to the parent club, not them.
+// The player judges it against their own market wage (ExpectedWageWithIntelligence - what a
+// similarly-skilled player earns, nudged up if they've recently been improving) and their
+// age-appropriate maximum term (MaxAcceptableRenewalYearsWithIntelligence - nudged up, i.e. more
+// seasons they'll accept, if they've recently been declining); there's no other condition, no
+// fee, and no cost to the team beyond the wage itself once accepted. A declined offer changes
+// nothing in the database and reports the player's real expectations, so the team can immediately
+// retry with better terms. Rejects a player currently out on loan (ErrPlayerOnLoan) for the same
+// reason as ReleasePlayer - team_id belongs to the borrower for the loan's duration, but the
+// contract belongs to the parent club, not them.
 func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int) (*ContractRenewalOffer, error) {
 	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
 		return nil, ErrInvalidRenewalOffer
@@ -385,9 +450,17 @@ func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int
 	if err != nil {
 		return nil, err
 	}
-	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot)
-	maxYears := MaxAcceptableRenewalYears(player.Age)
+	intelligence, err := GetPlayerIntelligence(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	trend, err := PlayerSkillTrend(dbCtx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	expectedWage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
+		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
+	maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend)
 
 	result := &ContractRenewalOffer{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
