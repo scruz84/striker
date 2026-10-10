@@ -796,6 +796,9 @@ export interface PlayerDetails extends Player {
   yellowCards: number
   redCards: number
   goalsForTeam: number
+  // How many played national-team friendlies this player was selected to start - see backend
+  // common.SetNationalTeamLineup/GetPlayerCareerStats.
+  caps: number
   unavailableReason?: number
   unavailableMatchesRemaining?: number
   onLoanFromTeamId?: number

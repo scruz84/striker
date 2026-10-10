@@ -24,6 +24,11 @@ type PlayerCareerStats struct {
 	// player (0 for a free agent, who currently plays for none) - narrower than Goals, which
 	// counts every team a player has ever scored for across their whole career.
 	GoalsForTeam int `json:"goalsForTeam"`
+	// Caps is how many played national-team friendlies this player was selected to start (see
+	// common.SetNationalTeamLineup/ScheduleNationalTeamFriendlies) - counted from
+	// friendly_lineup_positions rather than match_events, since an appearance alone (not a
+	// goal/card action) is what a cap actually is.
+	Caps int `json:"caps"`
 }
 
 // match_date <= $3 excludes an event from a match still inside its live-broadcast window (see
@@ -34,6 +39,15 @@ const countPlayerEventStmtSql = "SELECT count(*) FROM match_events me JOIN match
 	"WHERE me.event_type = $1 AND me.team_players = $2 AND m.match_date <= $3"
 const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
 	"WHERE me.event_type = $1 AND me.team_players = $2 AND me.team_owner = $3 AND m.match_date <= $4"
+
+// countPlayerCapsStmtSql counts played national-team friendlies playerId was selected to start -
+// see common.SetNationalTeamLineup, which is the only writer of friendly_lineup_positions for a
+// team flagged is_national_team.
+const countPlayerCapsStmtSql = "SELECT count(*) FROM friendly_lineup_positions flp " +
+	"JOIN friendly_lineup fl ON fl.lineup_id = flp.lineup_id " +
+	"JOIN friendly_matches fm ON fm.match_id = fl.match_id " +
+	"JOIN teams t ON t.team_id = fl.team_id " +
+	"WHERE flp.player_id = $1 AND t.is_national_team = true AND fm.played = true"
 
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
 // in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
@@ -52,6 +66,9 @@ func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64, teamId int64) 
 		return stats, err
 	}
 	if err := dbCtx.Db.QueryRow(countPlayerEventForTeamStmtSql, GOAL, marker, teamId, cutoff).Scan(&stats.GoalsForTeam); err != nil {
+		return stats, err
+	}
+	if err := dbCtx.Db.QueryRow(countPlayerCapsStmtSql, playerId).Scan(&stats.Caps); err != nil {
 		return stats, err
 	}
 	return stats, nil

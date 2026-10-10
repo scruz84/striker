@@ -255,6 +255,7 @@ export function PlayerProfileRail({
             <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
           )}
           <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />
+          <SpecRow label={t('playerPage.stats.caps')} value={player.caps} />
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
           {!isFreeAgent && <SpecRow label={t('playerPage.stats.goalsForTeam')} value={player.goalsForTeam} />}
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />

@@ -145,6 +145,12 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		createCountryLeagues(dbCtx, code, common.GetWorldConfig(dbCtx))
 
+		// Gives the newly active country a national team right away rather than waiting for the
+		// next service restart's BackfillNationalTeams sweep - see common.CreateNationalTeam.
+		if _, err := common.CreateNationalTeam(dbCtx, code); err != nil {
+			log.Errorf("error creating national team for newly added country %s: %s", code, err)
+		}
+
 		leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, code)
 		if err != nil {
 			log.Errorf("error listing leagues for newly added country %s: %s", code, err)

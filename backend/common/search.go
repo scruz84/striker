@@ -49,9 +49,13 @@ type SearchResults struct {
 	Stadiums []StadiumSearchResult `json:"stadiums"`
 }
 
+// is_national_team excluded explicitly (unlike most other team listings in this codebase, this
+// one has no league join that would already filter it out for free - see
+// init71_national_teams.sql) - a national team isn't a club a player can be scouted to or
+// transferred from, so it has no business showing up in a player/team/stadium search.
 var SearchTeamsStmtSql = "SELECT t.team_id, t.name, t.country, COALESCE(l.name, '') " +
 	"FROM teams t LEFT JOIN leagues l ON l.league_id = t.league_id " +
-	"WHERE t.name ILIKE $1 ORDER BY t.name LIMIT " + strconv.Itoa(SearchResultLimit)
+	"WHERE t.name ILIKE $1 AND t.is_national_team = false ORDER BY t.name LIMIT " + strconv.Itoa(SearchResultLimit)
 
 var SearchPlayersStmtSql = "SELECT p.player_id, p.first_name, p.last_name, COALESCE(p.team_id, 0), COALESCE(t.name, '') " +
 	"FROM players p LEFT JOIN teams t ON t.team_id = p.team_id " +

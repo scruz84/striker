@@ -91,6 +91,25 @@ func StartFriendlyScheduler(friendlyJob quartz.Job) {
 	}
 }
 
+func StartNationalTeamFriendlyScheduler(nationalTeamFriendlyJob quartz.Job) {
+	sched.Start(ctx)
+	// A real calendar week, independent of match simulation - Sunday 03:00 UTC, clear of
+	// StartFreeAgentInjectionScheduler's 00:00 and StartBirthdayScheduler's 01:00 Sunday slots.
+	// The weekly cron itself is the "once per week" cadence here - unlike club friendlies there's
+	// no human to challenge/accept, so there's no per-team cap to enforce instead (see
+	// common.ScheduleNationalTeamFriendlies).
+	cronTrigger, err := quartz.NewCronTrigger("0 0 3 ? * SUN")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(nationalTeamFriendlyJob.Description())
+	jobDetail := quartz.NewJobDetail(nationalTeamFriendlyJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func StartOfferResponseScheduler(offerResponseJob quartz.Job) {
 	sched.Start(ctx)
 	// Twice a day (midnight and noon UTC) is enough to keep the "the club must respond within a

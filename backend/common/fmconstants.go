@@ -144,3 +144,7 @@ const NOTIFICATION_OFFER_DECLINED = 10
 // NOTIFICATION_FANBASE tells a team's owner their Fanbase crossed into a new ten-point band
 // (grew or shrank) - see engine.notifyFanbaseMilestone.
 const NOTIFICATION_FANBASE = 11
+
+// NOTIFICATION_CALL_UP tells a club their player was called up to their national team's starting
+// lineup for this week's international friendly - see common.SetNationalTeamLineup.
+const NOTIFICATION_CALL_UP = 12

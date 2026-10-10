@@ -87,7 +87,8 @@
       "fanbaseGrew": "Tu afición ha crecido a {{fanbase}}",
       "fanbaseShrank": "Tu afición ha bajado a {{fanbase}}",
       "loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
-      "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}"
+      "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}",
+      "calledUp": "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana"
     }
   },
   "home": {
@@ -1052,6 +1053,7 @@
       "formHint": "Actuaciones recientes - sube jugando partidos y con buenas actuaciones, baja si se queda en el banquillo."
     },
     "stats": {
+      "caps": "Internacionalidades",
       "goals": "Goles en su carrera",
       "goalsForTeam": "Goles con este equipo",
       "yellowCards": "Tarjetas amarillas",

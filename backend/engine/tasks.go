@@ -123,6 +123,31 @@ func NewFriendlyJob(dbCtx *common.DatabaseContext) *FriendlyJob {
 	return &FriendlyJob{desc: "friendly matches job", dbCtx: dbCtx}
 }
 
+// NationalTeamFriendlyJob implements the quartz.Job interface: once a week, schedules a fresh
+// round of national-team friendlies (see common.ScheduleNationalTeamFriendlies) - the fixtures it
+// creates are then picked up and simulated by the ordinary FriendlyJob above like any other
+// friendly, so this job's only responsibility is creating that week's pairings and lineups.
+type NationalTeamFriendlyJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (nj *NationalTeamFriendlyJob) Description() string {
+	return nj.desc
+}
+
+func (nj *NationalTeamFriendlyJob) Execute(context.Context) error {
+	log.Info("National team friendlies job")
+	if err := common.ScheduleNationalTeamFriendlies(nj.dbCtx); err != nil {
+		log.Errorf("error scheduling national team friendlies: %s", err)
+	}
+	return nil
+}
+
+func NewNationalTeamFriendlyJob(dbCtx *common.DatabaseContext) *NationalTeamFriendlyJob {
+	return &NationalTeamFriendlyJob{desc: "national team friendlies job", dbCtx: dbCtx}
+}
+
 // OfferResponseJob implements the quartz.Job interface: sweeps every unowned team's pending
 // incoming transfer offers, on a real-calendar-time schedule independent of match simulation -
 // see engine.RespondToAllPendingOffers.

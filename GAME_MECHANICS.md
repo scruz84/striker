@@ -659,3 +659,40 @@ Every one of these calls the same production code path a human manager would use
 `common.AcceptOffer`/`RejectOffer`, `common.ExecuteTransfer`, `common.UpgradeStadium`,
 `common.HireTrainer`) - an AI team gets no special-cased shortcuts or exemptions from the same
 validation (budget, transfer window, contract state) a human's action would have to pass.
+
+## National team friendlies
+
+Every active country has a national team - a real, unowned `teams` row (flagged
+`is_national_team`, `backend/common/nationalteam.go`) rather than any club, standing in for a
+virtual squad of that country's best eligible players by birth country (`GetPlayersByBirthCountry`
+- currently on a club's senior squad, not an academy prospect or free agent, ranked by overall
+skill and capped at `NationalSquadPoolSize` (40)). It's deliberately financially/competitively
+inert: zero budget, zero stadium capacity (so the one money flow a friendly ever triggers - gate
+receipts off the home side's stadium - is always zero), no real league, and an `ai_level` of 0, the
+same combination that already keeps every other unowned-team system (new-user assignment, AI-level
+backfill, AI market/friendly automation) from ever touching it - see that file's own comments for
+exactly which existing queries this piggybacks on for free versus the one explicit exclusion it
+does need (`common.Search`'s team listing, which has no league to filter it out through).
+
+Once a real calendar week (`engine.StartNationalTeamFriendlyScheduler`, Sunday 03:00 UTC - the cron
+cadence itself is the "once a week," there's no per-team cap to enforce the way club friendlies
+need one, since there's no human on either side to challenge/accept), every active country is
+paired off for a friendly (`common.ScheduleNationalTeamFriendlies`): same-region pairings are
+preferred (`pairNationalTeamCountries`, mirroring how the international club cup already groups by
+region), with any country left over within its own region pooled across regions so at most one
+country site-wide sits out in a given week. Each fixture is created directly in `friendly_matches`
+(no challenge/accept dance) and each side's starting XI is picked and persisted immediately
+(`SetNationalTeamLineup`) as that match's `friendly_lineup_positions` override - there's no club
+roster to fall back to the way `BestLineupForTeam` provides for a real team. From there it's an
+ordinary friendly: picked up and simulated by the same per-minute `StartFriendlyScheduler`, and
+(being a friendly) still counts for skill growth for whoever featured, same as any other friendly.
+
+**International caps**: a player's profile shows how many played national-team friendlies they
+were selected to start (`PlayerCareerStats.Caps`, `GetPlayerCareerStats`) - counted from
+`friendly_lineup_positions` rows on a national team's side of a played friendly, since an
+appearance alone (not a goal/card action) is what a cap actually is, unlike the event-based
+`match_events` queries the rest of that function's stats use. Being selected is the whole
+simplification here (the same "best XI by raw skill" selection `SetNationalTeamLineup` always
+makes, not any notion of current form/fitness/actual call-up history) - it doesn't check whether
+the player was actually fit to play that week, the same tolerance the engine already affords any
+saved default lineup that happens to include an unavailable player.

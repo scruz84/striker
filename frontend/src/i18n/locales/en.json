@@ -87,7 +87,8 @@
       "fanbaseGrew": "Your fanbase has grown to {{fanbase}}",
       "fanbaseShrank": "Your fanbase has shrunk to {{fanbase}}",
       "loanBuyOptionExercised": "{{team}} exercised their buy option for {{player}}",
-      "loanBuyOptionUsed": "Signed {{player}} permanently from {{team}}"
+      "loanBuyOptionUsed": "Signed {{player}} permanently from {{team}}",
+      "calledUp": "{{player}} was called up to {{team}} for this week's international friendly"
     }
   },
   "home": {
@@ -1052,6 +1053,7 @@
       "formHint": "Recent performances - rises with playing time and good ratings, falls when benched."
     },
     "stats": {
+      "caps": "International caps",
       "goals": "Career goals",
       "goalsForTeam": "Goals for this club",
       "yellowCards": "Yellow cards",
