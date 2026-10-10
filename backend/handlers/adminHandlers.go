@@ -138,10 +138,11 @@ func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFu
 	}
 }
 
-// AdminPayWagesNowHandler force-charges every team's current wage bill on demand - wages are
-// tied to league match cadence now (see engine.PayMatchdayWages), not a recurring scheduler, so
-// this is purely a manual testing convenience for seeing a wage payment happen without waiting
-// for a league's next round to simulate.
+// AdminPayWagesNowHandler force-charges every team's current wage bill (and, since it also runs
+// through PayMatchdayWages, its stadium maintenance) on demand - both are tied to league match
+// cadence now (see engine.PayMatchdayWages), not a recurring scheduler, so this is purely a
+// manual testing convenience for seeing those charges happen without waiting for a league's next
+// round to simulate.
 func AdminPayWagesNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered manual wage payment")

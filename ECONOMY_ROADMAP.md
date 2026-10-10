@@ -64,6 +64,11 @@ start reading in the code.
   a seller can actually compare before accepting one. See `TransferMarketPage.tsx`'s
   `ReceivedOffersByPlayer` - no backend/schema change was needed. "Amortized transfer fees" (the
   remaining Phase 4 item) is still proposed, not started.
+- **Stadium maintenance: DONE.** A bigger stadium used to be pure upside once its one-time
+  `UpgradeStadium` cost was paid - no ongoing cost ever scaled with capacity. Every team now pays
+  upkeep once per round, linear in current capacity (`engine.StadiumMaintenanceCost`, charged from
+  the same `PayMatchdayWages` call site wages already use, for the same cadence reasoning). See
+  `GAME_MECHANICS.md`'s "Stadium maintenance" bullet and `backend/engine/stadium.go`.
 
 ## Existing economy building blocks (for context)
 
@@ -81,7 +86,8 @@ start reading in the code.
 - **Sponsorship**: `backend/engine/sponsorship.go` - per-match amount by league tier, shaped by
   each team's chosen `common.SponsorDeal` (`common/sponsordeal.go`).
 - **Stadium/tickets**: `backend/common/stadium.go` + `backend/engine/stadium.go` - capacity,
-  ticket price, attendance-driven matchday revenue.
+  ticket price, attendance-driven matchday revenue, and per-round maintenance upkeep (see "Stadium
+  maintenance" in Status above).
 - **Prize money**: `backend/engine/prizemoney.go` - league position + cup round payouts.
 - **Transfer windows**: `backend/common/database.go`'s `IsTransferWindowOpen` - one global flag,
   admin-toggled.

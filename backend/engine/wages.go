@@ -25,9 +25,14 @@ import (
 // meant to track, and a team already gets exactly one league match per round (a round-robin
 // schedule has no byes), so this fires exactly once per round per team, matching the cadence the
 // income side of the ledger already follows.
+//
+// Also where stadium maintenance is charged (see deductStadiumMaintenance, stadium.go) - not a
+// wage at all, but piggybacking on this same per-round call site for the same cadence reason
+// wages moved here in the first place, rather than needing a second scheduler hook.
 func PayMatchdayWages(dbCtx *common.DatabaseContext, teamId int64) {
 	deductWages(dbCtx, teamId)
 	deductTrainerWage(dbCtx, teamId)
+	deductStadiumMaintenance(dbCtx, teamId)
 }
 
 // PayAllTeamsWagesNow charges every team its current wage bill on demand - used by

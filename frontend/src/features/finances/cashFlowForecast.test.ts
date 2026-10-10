@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { TRANSACTION_SPONSORSHIP, TRANSACTION_TICKET_REVENUE, TRANSACTION_TRANSFER_OUT, TRANSACTION_WAGES, type TeamTransaction } from '../../api/types'
+import {
+  TRANSACTION_SPONSORSHIP,
+  TRANSACTION_STADIUM_MAINTENANCE,
+  TRANSACTION_TICKET_REVENUE,
+  TRANSACTION_TRANSFER_OUT,
+  TRANSACTION_WAGES,
+  type TeamTransaction,
+} from '../../api/types'
 import { computeCashFlowForecast } from './cashFlowForecast'
 
 function tx(overrides: Partial<TeamTransaction>): TeamTransaction {
@@ -85,5 +92,16 @@ describe('computeCashFlowForecast', () => {
     // 7 charges of 1000 spanning exactly one week = 7000/week, not the 1000 a "most recent
     // transaction" reading would have given.
     expect(forecast!.weeklyWages).toBeCloseTo(7000, 0)
+  })
+
+  it('folds stadium maintenance charges into the same weekly wage-bill figure', () => {
+    const transactions = [
+      tx({ reason: TRANSACTION_WAGES, amount: -5000, createdAt: '2026-03-01T00:00:00Z' }),
+      tx({ reason: TRANSACTION_STADIUM_MAINTENANCE, amount: -100, createdAt: '2026-03-01T00:00:00Z' }),
+    ]
+
+    const forecast = computeCashFlowForecast(transactions, 100000, 200000)
+
+    expect(forecast!.weeklyWages).toBe(5100)
   })
 })

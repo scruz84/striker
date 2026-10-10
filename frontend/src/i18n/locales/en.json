@@ -291,6 +291,7 @@
       "description": "Rises with wins, falls with losses - feeds into attendance, sponsorship, and end-of-season income."
     },
     "seats": "seats",
+    "maintenanceCost": "Maintenance: {{cost}}/round",
     "newSeats": "New seats",
     "expand": "Expand",
     "expandSeatsRange": "Between {{min}} and {{max}} seats",
@@ -350,6 +351,7 @@
       "trainerWages": "Trainer wages",
       "seasonTickets": "Season ticket sales",
       "merchandising": "Merchandising revenue",
+      "stadiumMaintenance": "Stadium maintenance",
       "other": "Other"
     }
   },

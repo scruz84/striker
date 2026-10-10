@@ -578,6 +578,7 @@ export const TRANSACTION_CONTRACT_RELEASE = 8
 export const TRANSACTION_TRAINER_WAGES = 9
 export const TRANSACTION_SEASON_TICKETS = 10
 export const TRANSACTION_MERCHANDISING = 11
+export const TRANSACTION_STADIUM_MAINTENANCE = 15
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
 // t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
@@ -594,6 +595,7 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_TRAINER_WAGES]: 'finances.reasons.trainerWages',
   [TRANSACTION_SEASON_TICKETS]: 'finances.reasons.seasonTickets',
   [TRANSACTION_MERCHANDISING]: 'finances.reasons.merchandising',
+  [TRANSACTION_STADIUM_MAINTENANCE]: 'finances.reasons.stadiumMaintenance',
 }
 
 export interface TeamTransaction {
@@ -648,6 +650,16 @@ export const STADIUM_UPGRADE_SEATS_BASELINE = 500
 
 export function calculateStadiumUpgradeCost(currentCapacity: number, seats: number): number {
   return Math.floor((currentCapacity * STADIUM_UPGRADE_COST_PER_CURRENT_SEAT * seats) / STADIUM_UPGRADE_SEATS_BASELINE)
+}
+
+// Stadium maintenance cost per round - mirrors the backend's engine.StadiumMaintenanceCost:
+// linear in capacity, so a bigger stadium costs more to run every round, not just more to build.
+// Used to show the ongoing cost on the stadium card - the backend remains the source of truth.
+export const STADIUM_MAINTENANCE_COST_PER_SEAT = 1
+export const STADIUM_MAINTENANCE_COST_DIVISOR = 10
+
+export function calculateStadiumMaintenanceCost(capacity: number): number {
+  return Math.floor((capacity * STADIUM_MAINTENANCE_COST_PER_SEAT) / STADIUM_MAINTENANCE_COST_DIVISOR)
 }
 
 export interface FinancesResponse {

@@ -125,6 +125,25 @@ func TestTicketRevenue(t *testing.T) {
 	}
 }
 
+func TestStadiumMaintenanceCost_ZeroCapacity(t *testing.T) {
+	if got := StadiumMaintenanceCost(0); got != 0 {
+		t.Fatalf("expected 0 maintenance cost for 0 capacity, got %d", got)
+	}
+}
+
+// TestStadiumMaintenanceCost_ScalesWithCapacity guards the whole point of this feature: a bigger
+// stadium must cost strictly more to maintain than a smaller one, not just more to build.
+func TestStadiumMaintenanceCost_ScalesWithCapacity(t *testing.T) {
+	small := StadiumMaintenanceCost(1000)
+	big := StadiumMaintenanceCost(5000)
+	if big <= small {
+		t.Fatalf("expected maintenance cost to increase with capacity, got %d for 1000 and %d for 5000", small, big)
+	}
+	if big != small*5 {
+		t.Fatalf("expected maintenance cost to scale linearly with capacity, got %d for 1000 and %d for 5000", small, big)
+	}
+}
+
 func TestSplitRevenueEvenly(t *testing.T) {
 	tests := []struct {
 		revenue  int64

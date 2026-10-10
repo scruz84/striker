@@ -25,6 +25,7 @@ import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { useFinances, useMe, useRenameStadium, useSetSponsorDeal, useSetTicketPrice, useUpgradeStadium } from '../../api/hooks'
 import {
+  calculateStadiumMaintenanceCost,
   calculateStadiumUpgradeCost,
   DEFAULT_STADIUM_UPGRADE_SEATS,
   MAX_STADIUM_UPGRADE_SEATS,
@@ -345,6 +346,9 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
             {t('finances.seats')}
           </Typography>
         </Stack>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          {t('finances.maintenanceCost', { cost: formatCurrency(calculateStadiumMaintenanceCost(stadium.capacity)) })}
+        </Typography>
         {upgradePending ? (
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
             {t('finances.expandInProgress', {

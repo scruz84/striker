@@ -1,5 +1,6 @@
 import {
   TRANSACTION_SPONSORSHIP,
+  TRANSACTION_STADIUM_MAINTENANCE,
   TRANSACTION_TICKET_REVENUE,
   TRANSACTION_TRAINER_WAGES,
   TRANSACTION_WAGES,
@@ -23,11 +24,14 @@ export interface CashFlowForecast {
 // needed, since the numbers those would return are already implicit in the transactions
 // PayMatchdayWages/creditTicketRevenue/awardSponsorship already write.
 //
-// weeklyWages is the average of WAGES and TRAINER_WAGES transactions over however many weeks the
-// visible window spans, the same way weeklyIncome already averages ticket/sponsorship - wages are
-// charged once per league match now (see engine.PayMatchdayWages), not once a calendar week, so a
-// league scheduled to play more than once a week would otherwise make reading the single most
-// recent wage transaction as "the weekly bill" undercount how often it actually recurs.
+// weeklyWages is the average of WAGES, TRAINER_WAGES, and STADIUM_MAINTENANCE transactions over
+// however many weeks the visible window spans, the same way weeklyIncome already averages
+// ticket/sponsorship - all three are charged once per league match now (see
+// engine.PayMatchdayWages), not once a calendar week, so a league scheduled to play more than
+// once a week would otherwise make reading the single most recent transaction of each as "the
+// weekly bill" undercount how often it actually recurs. Stadium maintenance isn't a wage at all,
+// but it's folded into the same bucket here rather than given its own line, since both are
+// recurring per-round expenses this forecast nets against income the same way.
 // weeklyIncome is the true average of TICKET_REVENUE and SPONSORSHIP transactions (the two
 // genuinely recurring, roughly-weekly income sources) over however many weeks the visible
 // transaction window actually spans - deliberately excluding once-a-season lumps (prize money,
@@ -38,7 +42,9 @@ export function computeCashFlowForecast(transactions: TeamTransaction[], budget:
     return null
   }
 
-  const wageTransactions = transactions.filter((tx) => tx.reason === TRANSACTION_WAGES || tx.reason === TRANSACTION_TRAINER_WAGES)
+  const wageTransactions = transactions.filter(
+    (tx) => tx.reason === TRANSACTION_WAGES || tx.reason === TRANSACTION_TRAINER_WAGES || tx.reason === TRANSACTION_STADIUM_MAINTENANCE,
+  )
   const weeklyWages = Math.abs(averagePerWeek(wageTransactions))
 
   const recurringIncome = transactions.filter((tx) => tx.reason === TRANSACTION_TICKET_REVENUE || tx.reason === TRANSACTION_SPONSORSHIP)

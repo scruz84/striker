@@ -60,6 +60,7 @@ const TRANSACTION_MERCHANDISING = 11          // once-a-season shirt/merchandise
 const TRANSACTION_ADMIN_MASS_INJECTION = 12   // a commissioner's budget adjustment applied to every team at once
 const TRANSACTION_LOAN_FEE = 13               // one-time fee paid by a borrower to accept a loan - expense for the borrower, income for the lender
 const TRANSACTION_LOAN_WAGE_CONTRIBUTION = 14 // a parent club covering part of a loaned-out player's wage - expense for the lender
+const TRANSACTION_STADIUM_MAINTENANCE = 15    // upkeep charged once per round, scaled to the stadium's current capacity - expense
 
 // DefaultStadiumCapacity is every new team's starting stadium capacity (see the initializer's
 // createTeam), regardless of the league tier it starts in - flat and fixed rather than random, so
@@ -94,6 +95,18 @@ const StadiumUpgradeSeats = 500
 const MinStadiumUpgradeSeats = 100
 const MaxStadiumUpgradeSeats = 5000
 const StadiumUpgradeCostPerCurrentSeat = 10
+
+// StadiumMaintenanceCostPerSeat/StadiumMaintenanceCostDivisor price a stadium's upkeep linearly
+// in its current capacity - see engine.StadiumMaintenanceCost - so a bigger ground costs more to
+// run every round, not just more to build (UpgradeStadium above was previously the only cost tied
+// to size, making "upgrade forever" a free lunch). Charged once per round alongside wages (see
+// engine.PayMatchdayWages), for the same cadence reason wages are: tying it to the league's own
+// match cadence keeps a season's total upkeep proportional to its total match count rather than
+// to real calendar time. At DefaultStadiumCapacity (1000) this is 100/round - a real but modest
+// bite, roughly in line with a mid-skill trainer's own per-round wage rather than a whole squad's;
+// needs balancing/playtesting like every other economy constant here.
+const StadiumMaintenanceCostPerSeat = 1
+const StadiumMaintenanceCostDivisor = 10
 
 // StadiumUpgradeDuration is how long a paid-for stadium upgrade takes to finish construction
 // before UpgradeStadium's extra seats actually become usable - a real week, not tied to match

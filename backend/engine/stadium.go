@@ -103,6 +103,34 @@ func TicketRevenue(attendance int, ticketPrice int) int64 {
 	return int64(attendance) * int64(ticketPrice)
 }
 
+// StadiumMaintenanceCost returns one round's upkeep bill for a stadium of the given capacity -
+// linear in capacity (see common.StadiumMaintenanceCostPerSeat/StadiumMaintenanceCostDivisor), so
+// a bigger stadium costs more to run every round regardless of whether it's actually full, not
+// just more to build in the first place (see common.UpgradeStadium).
+func StadiumMaintenanceCost(capacity int) int64 {
+	return int64(capacity) * common.StadiumMaintenanceCostPerSeat / common.StadiumMaintenanceCostDivisor
+}
+
+// deductStadiumMaintenance charges teamId its stadium's upkeep for the round - see
+// StadiumMaintenanceCost. Called from PayMatchdayWages (wages.go) rather than getting its own
+// scheduler hook, for the same cadence reason wages are: piggybacking on the same per-round call
+// site that already fires exactly once per league match keeps this proportional to match count
+// instead of real calendar time.
+func deductStadiumMaintenance(dbCtx *common.DatabaseContext, teamId int64) {
+	stadium, err := common.GetStadium(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting stadium for team %d: %s", teamId, err)
+		return
+	}
+	cost := StadiumMaintenanceCost(stadium.Capacity)
+	if cost <= 0 {
+		return
+	}
+	if err := common.AdjustTeamBudget(dbCtx, teamId, -cost, common.TRANSACTION_STADIUM_MAINTENANCE, "stadium maintenance"); err != nil {
+		log.Errorf("error deducting stadium maintenance for team %d: %s", teamId, err)
+	}
+}
+
 // stadiumAttendanceAndRevenue draws one home match's crowd size and resulting gate revenue from
 // homeTeamId's own stadium (capacity and ticket price) - shared by creditTicketRevenue (which
 // pays the home side the full amount) and creditFriendlyTicketRevenue (which splits it in two).

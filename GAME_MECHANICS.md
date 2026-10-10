@@ -400,6 +400,12 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
   current capacity × `StadiumUpgradeCostPerCurrentSeat` (10) × seats requested ÷
   `StadiumUpgradeSeats` (500) - so both a bigger stadium and a bigger expansion cost more in
   absolute terms. AI-managed teams always request the `StadiumUpgradeSeats` default.
+- **Stadium maintenance** (`StadiumMaintenanceCost`, `engine/stadium.go`) - deducted once per
+  round alongside wages (`deductStadiumMaintenance`, called from `PayMatchdayWages`), linear in
+  the stadium's current capacity: capacity × `StadiumMaintenanceCostPerSeat` (1) ÷
+  `StadiumMaintenanceCostDivisor` (10) - 100/round at `DefaultStadiumCapacity` (1,000). Gives
+  capacity an ongoing cost, not just a one-time purchase price - before this, `UpgradeStadium`
+  above was the only cost tied to size, so a bigger stadium was pure upside once paid for.
 - **Contract renewal/release** - a renewal offered at or above the player's own market wage is
   accepted for free; releasing a player early before their contract expires costs a severance (see
   `common.EarlyReleaseWageMultiplier` in `common/contracts.go`).

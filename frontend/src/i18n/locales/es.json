@@ -291,6 +291,7 @@
       "description": "Sube con las victorias, baja con las derrotas - influye en la asistencia, el patrocinio y los ingresos de fin de temporada."
     },
     "seats": "asientos",
+    "maintenanceCost": "Mantenimiento: {{cost}}/jornada",
     "newSeats": "Asientos nuevos",
     "expand": "Ampliar",
     "expandSeatsRange": "Entre {{min}} y {{max}} asientos",
@@ -350,6 +351,7 @@
       "trainerWages": "Salario del entrenador",
       "seasonTickets": "Venta de abonos",
       "merchandising": "Ingresos por merchandising",
+      "stadiumMaintenance": "Mantenimiento del estadio",
       "other": "Otro"
     }
   },
