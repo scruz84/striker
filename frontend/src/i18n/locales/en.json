@@ -410,6 +410,11 @@
       "minSkill": "Min rating",
       "maxSkill": "Max rating",
       "maxDuration": "Max duration",
+      "skill": "Skill",
+      "minSkillValue": "Min value",
+      "minCaps": "Min caps",
+      "capsCount_one": "{{count}} cap",
+      "capsCount_other": "{{count}} caps",
       "position": "Position",
       "allPositions": "All positions",
       "any": "Any",
@@ -1309,6 +1314,10 @@
             "a": "Buy a listed player outright at their asking price - the fee is deducted from your budget immediately."
           },
           {
+            "q": "How do I search for specific players on the market?",
+            "a": "Besides filtering by age, price, position and overall rating, you can require a minimum in one specific skill (e.g. at least 70 shot) and a minimum number of international caps - available on transfers, loans and free agents alike."
+          },
+          {
             "q": "How do transfer offers work?",
             "a": "From a player's page, or on a market listing, propose a fee to their club plus the wage and contract length you're offering the player. The player judges the personal terms on the spot, before their club ever sees the fee. An accepted offer needs to sit open for a minimum time first, so the seller has a chance to compare it against other offers before committing."
           },
@@ -1350,6 +1359,10 @@
             "a": "Offer a wage and contract length; the player decides on the spot based on what they think they're worth and how many seasons they're willing to commit to. Releasing a player ends their contract immediately and they can't be brought back."
           },
           {
+            "q": "What is contract-negotiation intelligence?",
+            "a": "When renewing or signing, a player weighs not just their current skills but their recent trend: an improving player asks for more years and a better wage, while a declining one settles for more modest terms."
+          },
+          {
             "q": "Do players age and retire?",
             "a": "Yes - every player ages over time, developing early in their career and declining as they approach retirement, so your squad needs constant refreshing through the academy and transfer market."
           }
@@ -1369,6 +1382,10 @@
           {
             "q": "How do I expand my stadium?",
             "a": "Choose a new seat count within the allowed range. The cost is deducted immediately, and construction takes about a week before the extra capacity is ready."
+          },
+          {
+            "q": "What is stadium maintenance?",
+            "a": "Every round your club pays an upkeep cost proportional to your stadium's size and upgrades - a bigger stadium earns more matchday revenue, but costs more to maintain too."
           },
           {
             "q": "Can I change my ticket price?",
@@ -1394,6 +1411,10 @@
           {
             "q": "What do the standings columns mean?",
             "a": "Points, average, wins, draws, and losses, plus goals for and against - the usual league-table numbers, updated after every matchday."
+          },
+          {
+            "q": "Do more countries become available over time?",
+            "a": "Yes, the administration periodically expands the catalog of playable countries - for example, Scotland, Wales, Ireland, Russia and the former Yugoslav republics were added recently."
           }
         ]
       },
@@ -1424,6 +1445,23 @@
           {
             "q": "What days can friendlies kick off on?",
             "a": "Whichever weekdays are enabled by the admins. An accepted challenge is scheduled as soon as possible, pushed forward to the next allowed day if needed."
+          }
+        ]
+      },
+      "nationalTeams": {
+        "title": "National teams",
+        "items": [
+          {
+            "q": "What's the national teams page?",
+            "a": "It shows the weekly friendlies between national teams and, once one is running, the national-team World Cup: its group stage and knockout bracket. It's a spectator feature - you don't manage the national team yourself."
+          },
+          {
+            "q": "How does a national team call up my players?",
+            "a": "Each national team automatically calls up the best eligible players born in that country, regardless of which club they play for. If one of your players is called up and starts, your club gets a notification."
+          },
+          {
+            "q": "What are international caps?",
+            "a": "How many friendlies and national-team World Cup matches a player has started for their country - another signal of their quality, shown on their profile and now available as a transfer-market filter too."
           }
         ]
       },

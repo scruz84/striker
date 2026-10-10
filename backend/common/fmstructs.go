@@ -292,6 +292,10 @@ type TeamTransaction struct {
 type FreeAgentListing struct {
 	Player
 	LastTeamName string `json:"lastTeamName,omitempty"`
+	// Caps is this player's international caps count (see GetPlayerCapsBatch) - resolved once
+	// here, batched across the whole listing, rather than per player, so the free agents tab can
+	// offer a "minimum caps" filter without looking each one up itself.
+	Caps int `json:"caps"`
 }
 
 // TransferListing is a player up for transfer, bought instantly at AskingPrice (no bidding).
@@ -302,6 +306,10 @@ type TransferListing struct {
 	SellingTeamName string    `json:"sellingTeamName"`
 	AskingPrice     int64     `json:"askingPrice"`
 	ListedAt        time.Time `json:"listedAt"`
+	// Caps is this listing's player's international caps count (see GetPlayerCapsBatch) - lets
+	// the transfer market's search offer a "minimum caps" filter without the frontend looking
+	// each listed player up individually.
+	Caps int `json:"caps"`
 }
 
 type PlayerAvatar struct {

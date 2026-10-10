@@ -66,7 +66,7 @@ import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
-import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
@@ -329,6 +329,32 @@ function PositionFilterSelect({ value, onChange }: { value: number | ''; onChang
   )
 }
 
+// Shared "which skill" dropdown for the market's "minimum skill value" filter, reused by every
+// browsable listings tab - paired with a plain number TextField (the minimum itself) rather than
+// folded into this component, so it lays out as two ordinary filterGridSx cells like every other
+// filter pair (e.g. minAge/maxAge) instead of a bespoke one. Unlike minSkill/maxSkill (which
+// filter by overallRating, the seven skills averaged together), this targets one named skill.
+function SkillFieldSelect({ value, onChange }: { value: (typeof SKILL_FIELDS)[number]; onChange: (value: (typeof SKILL_FIELDS)[number]) => void }) {
+  const { t } = useTranslation()
+  return (
+    <FormControl size="small" sx={pillFilterSx}>
+      <InputLabel id="skill-field-filter-label">{t('transfers.filters.skill')}</InputLabel>
+      <Select
+        labelId="skill-field-filter-label"
+        label={t('transfers.filters.skill')}
+        value={value}
+        onChange={(event: SelectChangeEvent) => onChange(event.target.value as (typeof SKILL_FIELDS)[number])}
+      >
+        {SKILL_FIELDS.map((field) => (
+          <MenuItem key={field} value={field}>
+            {t(SKILL_LABEL_KEYS[field])}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  )
+}
+
 // Order matches the <Tab> elements below - used to deep-link a specific tab (e.g. `?tab=coaching`
 // from TeamDetailsPage's coach card), rather than always landing on the first one.
 const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching'] as const
@@ -480,6 +506,10 @@ function TransfersTab() {
   const [maxPrice, setMaxPrice] = usePersistedFilter<string>('tMaxPrice', '')
   const [minSkill, setMinSkill] = usePersistedFilter<string>('tMinSkill', '')
   const [maxSkill, setMaxSkill] = usePersistedFilter<string>('tMaxSkill', '')
+  const [skillFieldStr, setSkillFieldStr] = usePersistedFilter<string>('tSkillField', SKILL_FIELDS[0])
+  const skillField = skillFieldStr as (typeof SKILL_FIELDS)[number]
+  const [minSkillValue, setMinSkillValue] = usePersistedFilter<string>('tMinSkillValue', '')
+  const [minCaps, setMinCaps] = usePersistedFilter<string>('tMinCaps', '')
   const [positionStr, setPositionStr] = usePersistedFilter<string>('tPosition', '')
   const position = positionStr === '' ? '' : Number(positionStr)
   const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
@@ -496,7 +526,9 @@ function TransfersTab() {
   const myListings = listings.filter((l) => l.sellingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.sellingTeamId !== myTeamId)
 
-  const hasActiveFilters = !!(search || minAge || maxAge || minPrice || maxPrice || minSkill || maxSkill || position !== '')
+  const hasActiveFilters = !!(
+    search || minAge || maxAge || minPrice || maxPrice || minSkill || maxSkill || minSkillValue || minCaps || position !== ''
+  )
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
@@ -505,6 +537,8 @@ function TransfersTab() {
     setMaxPrice('')
     setMinSkill('')
     setMaxSkill('')
+    setMinSkillValue('')
+    setMinCaps('')
     setPosition('')
   }
 
@@ -518,6 +552,8 @@ function TransfersTab() {
       if (maxPrice && l.askingPrice > Number(maxPrice)) return false
       if (minSkill && overallRating(l.player) < Number(minSkill)) return false
       if (maxSkill && overallRating(l.player) > Number(maxSkill)) return false
+      if (minSkillValue && l.player[skillField] < Number(minSkillValue)) return false
+      if (minCaps && l.caps < Number(minCaps)) return false
       if (position !== '' && bestCorePosition(l.player) !== position) return false
       return true
     })
@@ -723,6 +759,23 @@ function TransfersTab() {
                 onChange={(e) => setMaxSkill(e.target.value)}
                 sx={pillFilterSx}
               />
+              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minSkillValue')}
+                value={minSkillValue}
+                onChange={(e) => setMinSkillValue(e.target.value)}
+                sx={pillFilterSx}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minCaps')}
+                value={minCaps}
+                onChange={(e) => setMinCaps(e.target.value)}
+                sx={pillFilterSx}
+              />
               <PositionFilterSelect value={position} onChange={setPosition} />
               <SortControl<TransferSortField>
                 value={sortField}
@@ -750,7 +803,21 @@ function TransfersTab() {
             ) : (
               <Paginated
                 rows={filteredMarketListings}
-                resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, minSkill, maxSkill, position, sortField, sortDir])}
+                resetKey={JSON.stringify([
+                  search,
+                  minAge,
+                  maxAge,
+                  minPrice,
+                  maxPrice,
+                  minSkill,
+                  maxSkill,
+                  skillField,
+                  minSkillValue,
+                  minCaps,
+                  position,
+                  sortField,
+                  sortDir,
+                ])}
               >
                 {(pageListings) => (
                   <Stack spacing={1}>
@@ -771,6 +838,14 @@ function TransfersTab() {
                             <Typography variant="caption" color="text.secondary">
                               {formatCurrency(listing.player.wage)}
                             </Typography>
+                            {listing.caps > 0 && (
+                              <>
+                                <MetaDot />
+                                <Typography variant="caption" color="text.secondary">
+                                  {t('transfers.filters.capsCount', { count: listing.caps })}
+                                </Typography>
+                              </>
+                            )}
                             <MetaDot />
                             <Typography variant="caption" color="text.secondary">
                               {formatDateTime(listing.listedAt)}
@@ -847,6 +922,10 @@ function LoansTab() {
   const [maxDurationStr, setMaxDurationStr] = usePersistedFilter<string>('lMaxDuration', '')
   const maxDuration = maxDurationStr === '' ? '' : Number(maxDurationStr)
   const setMaxDuration = (value: number | '') => setMaxDurationStr(value === '' ? '' : String(value))
+  const [skillFieldStr, setSkillFieldStr] = usePersistedFilter<string>('lSkillField', SKILL_FIELDS[0])
+  const skillField = skillFieldStr as (typeof SKILL_FIELDS)[number]
+  const [minSkillValue, setMinSkillValue] = usePersistedFilter<string>('lMinSkillValue', '')
+  const [minCaps, setMinCaps] = usePersistedFilter<string>('lMinCaps', '')
   const [positionStr, setPositionStr] = usePersistedFilter<string>('lPosition', '')
   const position = positionStr === '' ? '' : Number(positionStr)
   const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
@@ -863,12 +942,14 @@ function LoansTab() {
   const myListings = listings.filter((l) => l.lendingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.lendingTeamId !== myTeamId)
 
-  const hasActiveFilters = !!(search || minAge || maxAge || maxDuration || position !== '')
+  const hasActiveFilters = !!(search || minAge || maxAge || maxDuration || minSkillValue || minCaps || position !== '')
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
     setMaxAge('')
     setMaxDuration('')
+    setMinSkillValue('')
+    setMinCaps('')
     setPosition('')
   }
 
@@ -879,6 +960,8 @@ function LoansTab() {
       if (minAge && l.player.age < Number(minAge)) return false
       if (maxAge && l.player.age > Number(maxAge)) return false
       if (maxDuration && l.durationSeasons > Number(maxDuration)) return false
+      if (minSkillValue && l.player[skillField] < Number(minSkillValue)) return false
+      if (minCaps && l.caps < Number(minCaps)) return false
       if (position !== '' && bestCorePosition(l.player) !== position) return false
       return true
     })
@@ -1091,6 +1174,23 @@ function LoansTab() {
                   ))}
                 </Select>
               </FormControl>
+              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minSkillValue')}
+                value={minSkillValue}
+                onChange={(e) => setMinSkillValue(e.target.value)}
+                sx={pillFilterSx}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minCaps')}
+                value={minCaps}
+                onChange={(e) => setMinCaps(e.target.value)}
+                sx={pillFilterSx}
+              />
               <PositionFilterSelect value={position} onChange={setPosition} />
               {hasActiveFilters && (
                 <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
@@ -1103,7 +1203,10 @@ function LoansTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <Paginated rows={filteredMarketListings} resetKey={JSON.stringify([search, minAge, maxAge, maxDuration, position, sortField, sortDir])}>
+              <Paginated
+                rows={filteredMarketListings}
+                resetKey={JSON.stringify([search, minAge, maxAge, maxDuration, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
+              >
                 {(pageListings) => (
                   <LoanListingsTable
                     listings={pageListings}
@@ -1252,7 +1355,14 @@ function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort 
                 <TeamNameLink teamId={listing.lendingTeamId}>{listing.lendingTeamName}</TeamNameLink>
               </TableCell>
               <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                {listing.player.age}
+                <Stack spacing={0}>
+                  <span>{listing.player.age}</span>
+                  {listing.caps > 0 && (
+                    <Typography variant="caption" color="text.secondary" component="span">
+                      {t('transfers.filters.capsCount', { count: listing.caps })}
+                    </Typography>
+                  )}
+                </Stack>
               </TableCell>
               <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(listing.listedAt)}</TableCell>
               <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
@@ -1535,6 +1645,10 @@ function FreeAgentsTab() {
   const [positionStr, setPositionStr] = usePersistedFilter<string>('faPosition', '')
   const position = positionStr === '' ? '' : Number(positionStr)
   const setPosition = (value: number | '') => setPositionStr(value === '' ? '' : String(value))
+  const [skillFieldStr, setSkillFieldStr] = usePersistedFilter<string>('faSkillField', SKILL_FIELDS[0])
+  const skillField = skillFieldStr as (typeof SKILL_FIELDS)[number]
+  const [minSkillValue, setMinSkillValue] = usePersistedFilter<string>('faMinSkillValue', '')
+  const [minCaps, setMinCaps] = usePersistedFilter<string>('faMinCaps', '')
   const [sortField, setSortField] = usePersistedFilter<FreeAgentSortField>('faSort', 'wage')
   const [sortDir, setSortDir] = usePersistedFilter<SortDirection>('faDir', 'desc')
 
@@ -1542,11 +1656,13 @@ function FreeAgentsTab() {
     return <Skeleton variant="rectangular" height={300} />
   }
 
-  const hasActiveFilters = !!(search || minAge || maxAge || position !== '')
+  const hasActiveFilters = !!(search || minAge || maxAge || minSkillValue || minCaps || position !== '')
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
     setMaxAge('')
+    setMinSkillValue('')
+    setMinCaps('')
     setPosition('')
   }
 
@@ -1556,6 +1672,8 @@ function FreeAgentsTab() {
       if (term && !`${p.firstName} ${p.lastName}`.toLowerCase().includes(term)) return false
       if (minAge && p.age < Number(minAge)) return false
       if (maxAge && p.age > Number(maxAge)) return false
+      if (minSkillValue && p[skillField] < Number(minSkillValue)) return false
+      if (minCaps && p.caps < Number(minCaps)) return false
       if (position !== '' && bestCorePosition(p) !== position) return false
       return true
     })
@@ -1600,6 +1718,23 @@ function FreeAgentsTab() {
                 onChange={(e) => setMaxAge(e.target.value)}
                 sx={pillFilterSx}
               />
+              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minSkillValue')}
+                value={minSkillValue}
+                onChange={(e) => setMinSkillValue(e.target.value)}
+                sx={pillFilterSx}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label={t('transfers.filters.minCaps')}
+                value={minCaps}
+                onChange={(e) => setMinCaps(e.target.value)}
+                sx={pillFilterSx}
+              />
               <PositionFilterSelect value={position} onChange={setPosition} />
               <SortControl<FreeAgentSortField>
                 value={sortField}
@@ -1622,7 +1757,10 @@ function FreeAgentsTab() {
                 {t('transfers.filters.noResults')}
               </Typography>
             ) : (
-              <Paginated rows={filteredFreeAgents} resetKey={JSON.stringify([search, minAge, maxAge, position, sortField, sortDir])}>
+              <Paginated
+                rows={filteredFreeAgents}
+                resetKey={JSON.stringify([search, minAge, maxAge, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
+              >
                 {(pageFreeAgents) => (
                   <Stack spacing={1}>
                     {pageFreeAgents.map((player) => (
@@ -1636,9 +1774,19 @@ function FreeAgentsTab() {
                           ) : undefined
                         }
                         meta={
-                          <Typography variant="caption" color="text.secondary">
-                            {t('transfers.table.age')} {player.age}
-                          </Typography>
+                          <>
+                            <Typography variant="caption" color="text.secondary">
+                              {t('transfers.table.age')} {player.age}
+                            </Typography>
+                            {player.caps > 0 && (
+                              <>
+                                <MetaDot />
+                                <Typography variant="caption" color="text.secondary">
+                                  {t('transfers.filters.capsCount', { count: player.caps })}
+                                </Typography>
+                              </>
+                            )}
+                          </>
                         }
                         priceLabel={t('transfers.freeAgents.wage')}
                         priceValue={formatCurrency(player.wage)}

@@ -103,6 +103,18 @@ func GetFreeAgentListings(dbCtx *DatabaseContext) ([]*FreeAgentListing, error) {
 		l.BirthCountry = birthCountry.String
 		listings = append(listings, &l)
 	}
+
+	playerIds := make([]int64, len(listings))
+	for i, l := range listings {
+		playerIds[i] = l.Id
+	}
+	caps, err := GetPlayerCapsBatch(dbCtx, playerIds)
+	if err != nil {
+		return nil, err
+	}
+	for _, l := range listings {
+		l.Caps = caps[l.Id]
+	}
 	return listings, nil
 }
 

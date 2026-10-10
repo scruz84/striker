@@ -185,6 +185,15 @@ func GetActiveTransferListings(dbCtx *DatabaseContext) ([]TransferListing, error
 	}
 	rows.Close()
 
+	playerIds := make([]int64, len(pending))
+	for i, r := range pending {
+		playerIds[i] = r.playerId
+	}
+	caps, err := GetPlayerCapsBatch(dbCtx, playerIds)
+	if err != nil {
+		return nil, err
+	}
+
 	listings := make([]TransferListing, 0, len(pending))
 	for _, r := range pending {
 		player, err := GetPlayerById(dbCtx, r.playerId)
@@ -192,6 +201,7 @@ func GetActiveTransferListings(dbCtx *DatabaseContext) ([]TransferListing, error
 			continue
 		}
 		r.listing.Player = *player
+		r.listing.Caps = caps[r.playerId]
 		listings = append(listings, r.listing)
 	}
 	return listings, nil

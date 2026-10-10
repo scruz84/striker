@@ -34,6 +34,7 @@ const SECTIONS: { key: string; icon: SvgIconComponent }[] = [
   { key: 'leagues', icon: PublicTwoToneIcon },
   { key: 'cup', icon: EmojiEventsTwoToneIcon },
   { key: 'friendlies', icon: HandshakeTwoToneIcon },
+  { key: 'nationalTeams', icon: FlagTwoToneIcon },
   { key: 'groups', icon: GroupsTwoToneIcon },
 ]
 

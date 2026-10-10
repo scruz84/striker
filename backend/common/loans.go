@@ -46,6 +46,10 @@ type LoanListing struct {
 	// loan to make the move permanent - see ExerciseLoanBuyOption. Zero means no buy option.
 	BuyOptionFee int64     `json:"buyOptionFee"`
 	ListedAt     time.Time `json:"listedAt"`
+	// Caps is this listing's player's international caps count (see common.GetPlayerCapsBatch) -
+	// lets the loan market's search offer a "minimum caps" filter without the frontend looking
+	// each listed player up individually.
+	Caps int `json:"caps"`
 }
 
 // PlayerLoan is an active loan - the player currently belongs (team_id) to ToTeamId, and is due
@@ -209,6 +213,15 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 	}
 	rows.Close()
 
+	playerIds := make([]int64, len(pending))
+	for i, r := range pending {
+		playerIds[i] = r.playerId
+	}
+	caps, err := GetPlayerCapsBatch(dbCtx, playerIds)
+	if err != nil {
+		return nil, err
+	}
+
 	listings := make([]LoanListing, 0, len(pending))
 	for _, r := range pending {
 		player, err := GetPlayerById(dbCtx, r.playerId)
@@ -216,6 +229,7 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 			continue
 		}
 		r.listing.Player = *player
+		r.listing.Caps = caps[r.playerId]
 		listings = append(listings, r.listing)
 	}
 	return listings, nil

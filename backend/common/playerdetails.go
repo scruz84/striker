@@ -57,6 +57,49 @@ const countPlayerCapsStmtSql = "SELECT " +
 	"JOIN teams t2 ON t2.team_id = ctl.team_id " +
 	"WHERE ctlp.player_id = $1 AND t2.is_national_team = true AND ct.played = true)"
 
+// getPlayerCapsBatchStmtSql is countPlayerCapsStmtSql's batched counterpart - one query for a
+// whole set of players (player_id = ANY($1)) instead of one round trip per player, grouping the
+// same two union'd sources (played friendly lineups, played cup-tie lineups) by player_id. See
+// GetPlayerCapsBatch.
+const getPlayerCapsBatchStmtSql = "SELECT player_id, count(*) FROM (" +
+	"SELECT flp.player_id FROM friendly_lineup_positions flp " +
+	"JOIN friendly_lineup fl ON fl.lineup_id = flp.lineup_id " +
+	"JOIN friendly_matches fm ON fm.match_id = fl.match_id " +
+	"JOIN teams t ON t.team_id = fl.team_id " +
+	"WHERE flp.player_id = ANY($1) AND t.is_national_team = true AND fm.played = true " +
+	"UNION ALL " +
+	"SELECT ctlp.player_id FROM cup_tie_lineup_positions ctlp " +
+	"JOIN cup_tie_lineup ctl ON ctl.lineup_id = ctlp.lineup_id " +
+	"JOIN cup_ties ct ON ct.tie_id = ctl.tie_id " +
+	"JOIN teams t2 ON t2.team_id = ctl.team_id " +
+	"WHERE ctlp.player_id = ANY($1) AND t2.is_national_team = true AND ct.played = true" +
+	") caps GROUP BY player_id"
+
+// GetPlayerCapsBatch batch-fetches international caps (see countPlayerCapsStmtSql) for a set of
+// players, keyed by player_id - used to show caps on every row of a market listing (the transfer,
+// loan and free-agent tabs) without a query per listed player. A player id with no caps simply
+// has no entry in the returned map; callers treat that as zero.
+func GetPlayerCapsBatch(dbCtx *DatabaseContext, playerIds []int64) (map[int64]int, error) {
+	caps := make(map[int64]int, len(playerIds))
+	if len(playerIds) == 0 {
+		return caps, nil
+	}
+	rows, err := dbCtx.Db.Query(getPlayerCapsBatchStmtSql, playerIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var playerId int64
+		var count int
+		if err := rows.Scan(&playerId, &count); err != nil {
+			return nil, err
+		}
+		caps[playerId] = count
+	}
+	return caps, rows.Err()
+}
+
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
 // in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
 // player's current team - see PlayerDetails.TeamId).

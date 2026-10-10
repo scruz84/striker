@@ -410,6 +410,11 @@
       "minSkill": "Valoración mín.",
       "maxSkill": "Valoración máx.",
       "maxDuration": "Duración máx.",
+      "skill": "Habilidad",
+      "minSkillValue": "Valor mín.",
+      "minCaps": "Internac. mín.",
+      "capsCount_one": "{{count}} internacionalidad",
+      "capsCount_other": "{{count}} internacionalidades",
       "position": "Posición",
       "allPositions": "Todas las posiciones",
       "any": "Cualquiera",
@@ -1309,6 +1314,10 @@
             "a": "Puedes comprar directamente un jugador listado por su precio de venta - el importe se descuenta de tu presupuesto de inmediato."
           },
           {
+            "q": "¿Cómo busco jugadores concretos en el mercado?",
+            "a": "Además de filtrar por edad, precio, posición y valoración general, puedes exigir un mínimo en una habilidad concreta (por ejemplo, un tiro mínimo de 70) y un mínimo de internacionalidades - disponible tanto en traspasos como en préstamos y agentes libres."
+          },
+          {
             "q": "¿Cómo funcionan las ofertas de traspaso?",
             "a": "Desde la ficha de un jugador, o sobre un anuncio del mercado, propones una cantidad a su club junto con el salario y la duración del contrato que le ofreces al jugador. El jugador valora las condiciones personales al instante, antes de que su club vea la oferta económica. Una oferta debe permanecer abierta un tiempo mínimo antes de poder aceptarse, para que el vendedor pueda comparar otras ofertas antes de decidir."
           },
@@ -1350,6 +1359,10 @@
             "a": "Propón un salario y una duración; el jugador decide al instante según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse. Rescindir el contrato de un jugador lo saca de tu plantilla de inmediato y no se puede recuperar."
           },
           {
+            "q": "¿Qué es la inteligencia de negociación de contratos?",
+            "a": "Al renovar o firmar, el jugador no solo mira sus habilidades actuales sino su tendencia reciente: si está mejorando, pide más años y mejor salario; si está en declive, se conforma con condiciones más modestas."
+          },
+          {
             "q": "¿Los jugadores envejecen y se retiran?",
             "a": "Sí: todos los jugadores envejecen con el tiempo, mejorando al principio de su carrera y declinando a medida que se acercan al retiro, por lo que tu plantilla necesita renovarse constantemente a través de la cantera y el mercado de fichajes."
           }
@@ -1369,6 +1382,10 @@
           {
             "q": "¿Cómo amplío mi estadio?",
             "a": "Elige una nueva capacidad dentro del rango permitido. El coste se descuenta de inmediato y la construcción tarda alrededor de una semana en estar lista."
+          },
+          {
+            "q": "¿Qué es el mantenimiento del estadio?",
+            "a": "Cada jornada tu club paga un coste de mantenimiento proporcional al tamaño de tu estadio y sus mejoras - uno más grande genera más ingresos por entradas, pero también cuesta más mantenerlo."
           },
           {
             "q": "¿Puedo cambiar el precio de las entradas?",
@@ -1394,6 +1411,10 @@
           {
             "q": "¿Qué significan las columnas de la clasificación?",
             "a": "Puntos, promedio, victorias, empates y derrotas, además de goles a favor y en contra - los datos habituales de una tabla de liga, actualizados después de cada jornada."
+          },
+          {
+            "q": "¿Hay más países disponibles con el tiempo?",
+            "a": "Sí, la administración amplía periódicamente el catálogo de países jugables - por ejemplo, Escocia, Gales, Irlanda, Rusia y las antiguas repúblicas yugoslavas se añadieron recientemente."
           }
         ]
       },
@@ -1424,6 +1445,23 @@
           {
             "q": "¿Qué días pueden jugarse los amistosos?",
             "a": "Los días de la semana que la administración tenga habilitados. Un reto aceptado se programa lo antes posible, aplazándose al siguiente día permitido si hace falta."
+          }
+        ]
+      },
+      "nationalTeams": {
+        "title": "Selecciones nacionales",
+        "items": [
+          {
+            "q": "¿Qué es la página de selecciones nacionales?",
+            "a": "Muestra los amistosos semanales entre selecciones nacionales y, una vez en marcha, el Mundial de selecciones: su fase de grupos y el cuadro eliminatorio. Es un espectáculo automático - no gestionas la selección tú mismo."
+          },
+          {
+            "q": "¿Cómo convoca una selección a mis jugadores?",
+            "a": "Cada selección nacional convoca automáticamente a los mejores jugadores elegibles nacidos en ese país, sin importar en qué club juegan. Si uno de tus jugadores es convocado y titular, tu club recibe una notificación."
+          },
+          {
+            "q": "¿Qué son las internacionalidades?",
+            "a": "El número de amistosos y partidos del Mundial de selecciones en los que un jugador ha sido titular con su selección - otro indicador de su calidad, visible en su ficha y, ahora, como filtro en el mercado de fichajes."
           }
         ]
       },

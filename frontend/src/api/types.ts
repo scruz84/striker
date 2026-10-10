@@ -87,6 +87,8 @@ export interface Player {
 // so the market page doesn't have to look up lastTeamId one team at a time.
 export interface FreeAgentListing extends Player {
   lastTeamName?: string
+  // This player's international caps count - see backend common.GetPlayerCapsBatch.
+  caps: number
 }
 
 // Every country code the game can generate players/teams for (mirrors backend
@@ -718,6 +720,8 @@ export interface TransferListing {
   sellingTeamName: string
   askingPrice: number
   listedAt: string
+  // This listing's player's international caps count - see backend common.GetPlayerCapsBatch.
+  caps: number
 }
 
 export interface LoanListing {
@@ -731,6 +735,8 @@ export interface LoanListing {
   wageContributionPercent: number
   buyOptionFee: number
   listedAt: string
+  // This listing's player's international caps count - see backend common.GetPlayerCapsBatch.
+  caps: number
 }
 
 export interface Group {
