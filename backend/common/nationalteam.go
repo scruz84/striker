@@ -442,6 +442,78 @@ func GetCountriesWithPendingNationalTeamFriendly(dbCtx *DatabaseContext) (map[st
 	return pending, rows.Err()
 }
 
+const getPendingNationalTeamFriendlyMatchIdsStmtSql = "SELECT fm.match_id FROM friendly_matches fm " +
+	"JOIN teams ht ON ht.team_id = fm.home_team_id " +
+	"JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE fm.played = false AND ht.is_national_team = true AND at.is_national_team = true " +
+	"AND (ht.country = ANY($1) OR at.country = ANY($1))"
+
+const deleteFriendlyLineupPositionsForMatchesStmtSql = "DELETE FROM friendly_lineup_positions WHERE lineup_id IN (" +
+	"SELECT lineup_id FROM friendly_lineup WHERE match_id = ANY($1))"
+const deleteFriendlyLineupSubstitutionsForMatchesStmtSql = "DELETE FROM friendly_lineup_substitutions WHERE match_id = ANY($1)"
+const deleteFriendlyLineupForMatchesStmtSql = "DELETE FROM friendly_lineup WHERE match_id = ANY($1)"
+const deleteFriendlyMatchesByIdStmtSql = "DELETE FROM friendly_matches WHERE match_id = ANY($1)"
+
+// CancelPendingNationalTeamFriendlies deletes every still-unplayed national-team friendly
+// (a weekly friendly - a World Cup fixture is never "pending" at this point, since
+// engine.StartWorldCupForNewSeason calls this before creating any) involving any of countries,
+// along with any lineup already saved for it (CallUpNationalTeamSquads can close a call-up up to
+// a day before kickoff, so one can exist even for a fixture that's days away). Called by
+// engine.StartWorldCupForNewSeason right before entering countries into a fresh World Cup's
+// groups: without this, a country that still had an ordinary weekly friendly pending when the
+// tournament starts would end up scheduled into that AND its first group match at once - both
+// landing on the same home-country Saturday 21:00 local kickoff (see
+// NationalTeamFriendlyKickoffHour/Minute), since both are computed the exact same way. A real
+// international calendar clears itself for a tournament instead of double-booking a country this
+// way (see ScheduleNationalTeamFriendlies's own "skips entirely while a World Cup is running" doc
+// comment for the other half of that same rule).
+func CancelPendingNationalTeamFriendlies(dbCtx *DatabaseContext, countries []string) error {
+	if len(countries) == 0 {
+		return nil
+	}
+
+	rows, err := dbCtx.Db.Query(getPendingNationalTeamFriendlyMatchIdsStmtSql, countries)
+	if err != nil {
+		return err
+	}
+	matchIds := make([]int64, 0)
+	for rows.Next() {
+		var matchId int64
+		if err := rows.Scan(&matchId); err != nil {
+			rows.Close()
+			return err
+		}
+		matchIds = append(matchIds, matchId)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if len(matchIds) == 0 {
+		return nil
+	}
+
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(deleteFriendlyLineupPositionsForMatchesStmtSql, matchIds); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(deleteFriendlyLineupSubstitutionsForMatchesStmtSql, matchIds); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(deleteFriendlyLineupForMatchesStmtSql, matchIds); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(deleteFriendlyMatchesByIdStmtSql, matchIds); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 // ScheduleNationalTeamFriendlies is the national-team friendly pairing pass (see
 // engine.StartNationalTeamFriendlyScheduler, run frequently rather than on a rigid weekly
 // timestamp) - pairs up every active country that isn't already waiting on a fixture (see

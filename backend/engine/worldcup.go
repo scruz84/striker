@@ -23,7 +23,10 @@ const worldCupGroupMatchdayGap = 7 * 24 * time.Hour
 // StartWorldCupForNewSeason starts a fresh World Cup for season if it's actually time for one
 // (see WorldCupFrequencySeasons), none is already running (see common.HasActiveWorldCup), and
 // enough countries are active to form at least two groups (see common.MinWorldCupCountries).
-// Called once per season rollover, alongside StartInternationalCupsForNewSeason - see
+// Every active country enters, including one that still has an ordinary weekly friendly pending
+// from before the tournament started - common.CancelPendingNationalTeamFriendlies clears any such
+// fixture first, so that country doesn't end up double-booked into both it and its first group
+// match. Called once per season rollover, alongside StartInternationalCupsForNewSeason - see
 // AdvanceSeasonIfComplete.
 func StartWorldCupForNewSeason(dbCtx *common.DatabaseContext, season int) {
 	if season%WorldCupFrequencySeasons != 0 {
@@ -45,6 +48,11 @@ func StartWorldCupForNewSeason(dbCtx *common.DatabaseContext, season int) {
 		return
 	}
 	if len(active) < common.MinWorldCupCountries {
+		return
+	}
+
+	if err := common.CancelPendingNationalTeamFriendlies(dbCtx, active); err != nil {
+		log.Errorf("error cancelling pending national-team friendlies before starting season %d's World Cup: %s", season, err)
 		return
 	}
 
