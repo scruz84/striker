@@ -183,6 +183,21 @@ func FlattenLineup(lineup map[int][]int64) []LineupPosition {
 	return positions
 }
 
+// LineupPlayerIds returns every player id referenced in lineup's starting positions - nil-safe,
+// and empty rather than erroring when lineup itself is nil. Used to resolve a national team's
+// called-up players by id (see GetPlayersForMatchTeam), since they're never on the national
+// team's own roster the way GetPlayersFromTeamId expects.
+func LineupPlayerIds(lineup *Lineup) []int64 {
+	if lineup == nil {
+		return nil
+	}
+	ids := make([]int64, len(lineup.Positions))
+	for i, p := range lineup.Positions {
+		ids[i] = p.PlayerId
+	}
+	return ids
+}
+
 // BestLineupForTeam computes teamId's current strongest available XI fresh from its full squad
 // (see SelectBestLineup), rather than reading back whatever was last saved as the team's standing
 // default lineup - used to give a friendly a sensible starting XI by default (see

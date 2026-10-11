@@ -92,6 +92,33 @@ func TestFlattenLineup(t *testing.T) {
 	}
 }
 
+func TestLineupPlayerIds(t *testing.T) {
+	lineup := &Lineup{Positions: []LineupPosition{
+		{PlayerId: 1, Position: GOALKEEPER},
+		{PlayerId: 2, Position: DEFENSE},
+		{PlayerId: 3, Position: DEFENSE},
+	}}
+
+	ids := LineupPlayerIds(lineup)
+
+	if len(ids) != 3 {
+		t.Fatalf("expected 3 player ids, got %d", len(ids))
+	}
+	seen := map[int64]bool{}
+	for _, id := range ids {
+		seen[id] = true
+	}
+	if !seen[1] || !seen[2] || !seen[3] {
+		t.Fatalf("unexpected player ids: %v", ids)
+	}
+}
+
+func TestLineupPlayerIds_NilLineupReturnsNilNotPanic(t *testing.T) {
+	if ids := LineupPlayerIds(nil); ids != nil {
+		t.Fatalf("expected nil ids for a nil lineup, got %v", ids)
+	}
+}
+
 func TestPositionValue_CoversEveryPosition(t *testing.T) {
 	p := Player{GoalKeeper: 10, Defense: 20, Lateral: 30, Pass: 40, Midfield: 50, Dribbling: 60, Shot: 70}
 

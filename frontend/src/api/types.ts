@@ -219,6 +219,11 @@ export interface Team {
   // Only meaningfully populated on the caller's own team (GET /v1/user/team) - see
   // useRenameTeam. Elsewhere it's just the zero value, false.
   nameChanged: boolean
+  // True for a country's unowned national team (see backend common.CreateNationalTeam) - no
+  // division, stadium, or manager, and its "players" below are the country's current pool of
+  // eligible players rather than a real roster. Only ever true coming back from
+  // GET /v1/teams/team/:id/, since that's the only lookup that can resolve to a national team.
+  isNationalTeam?: boolean
 }
 
 export const AI_LEVEL_CARETAKER = 1
@@ -260,6 +265,10 @@ export interface TeamDetails {
   // This team's current 0-99 supporter-base index - see backend common.GetFanbase. Public, same
   // visibility tier as stadium's own public fields.
   fanbase: number
+  // This team's current head coach, or absent if it hasn't hired one (or is a national team,
+  // which never has one) - see backend common.TeamDetails.Trainer. Public, same visibility tier
+  // as stadium/fanbase; only the hire/fire actions themselves stay owner-only.
+  trainer?: Trainer
 }
 
 // One player's current suspension or injury - reason is UNAVAILABLE_SUSPENSION or

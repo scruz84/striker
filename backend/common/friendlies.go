@@ -904,14 +904,14 @@ func EnrichPlayedFriendly(dbCtx *DatabaseContext, match *FriendlyMatch) error {
 	match.HomeLineup = (*lineups)[match.HomeTeamId]
 	match.AwayLineup = (*lineups)[match.AwayTeamId]
 
-	homePlayers, err := GetPlayersFromTeamId(dbCtx, match.HomeTeamId)
+	homePlayers, err := GetPlayersForMatchTeam(dbCtx, match.HomeTeamId, match.HomeLineup)
 	if err != nil {
 		return err
 	}
 	homeMap := playerListToMap(homePlayers)
 	match.HomePlayers = &homeMap
 
-	awayPlayers, err := GetPlayersFromTeamId(dbCtx, match.AwayTeamId)
+	awayPlayers, err := GetPlayersForMatchTeam(dbCtx, match.AwayTeamId, match.AwayLineup)
 	if err != nil {
 		return err
 	}

@@ -1411,6 +1411,14 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 }
 
 func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*TeamDetails, error) {
+	country, isNationalTeam, errNational := GetNationalTeamCountry(dbCtx, teamId)
+	if errNational != nil {
+		return nil, errNational
+	}
+	if isNationalTeam {
+		return getNationalTeamDetails(dbCtx, teamId, country)
+	}
+
 	team, errTeam := GetTeamById(teamId, dbCtx)
 	if errTeam != nil {
 		return nil, errTeam
@@ -1478,6 +1486,10 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	if err != nil {
 		return nil, err
 	}
+	trainer, err := GetTeamTrainer(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
 
 	return &TeamDetails{
 		Team:    team,
@@ -1488,6 +1500,49 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 			Capacity:      stadium.Capacity,
 			LastHomeMatch: lastHomeMatch,
 		},
+		Trainer: trainer,
+	}, nil
+}
+
+const GetNationalTeamNameStmtSql = "SELECT name FROM teams WHERE team_id = $1 AND is_national_team = true"
+
+// getNationalTeamDetails is GetTeamDetailsById's national-team counterpart (issue: a national
+// team's page should show its recent matches, players, and coach) - a national team has no real
+// league standing, stadium, or persistent roster of its own (see common/nationalteam.go), so
+// GetTeamById's division JOIN would fail for it (league_id stays at -1) and GetPlayersFromTeamId
+// would come back empty (its actual players never leave their real clubs' rosters). Its "squad" is
+// shown instead as the country's current pool of eligible players by birth country (see
+// GetPlayersByBirthCountry) - the same pool a weekly friendly's lineup is picked from - redacted
+// the same way any other team's squad is for a visitor (GetTeamDetailsById's own !isOwner branch).
+// There's deliberately no coach: a national team has no manager to hire one (see
+// GAME_MECHANICS.md's "National team friendlies" section), so the frontend simply never shows a
+// CoachCard for it, the same way it already doesn't for any team that isn't the caller's own.
+func getNationalTeamDetails(dbCtx *DatabaseContext, teamId int64, country string) (*TeamDetails, error) {
+	var name string
+	if err := dbCtx.Db.QueryRow(GetNationalTeamNameStmtSql, teamId).Scan(&name); err != nil {
+		return nil, err
+	}
+
+	players, err := GetPlayersByBirthCountry(dbCtx, country)
+	if err != nil {
+		return nil, err
+	}
+	for _, p := range players {
+		p.AverageSkill = AverageSkill(*p)
+		wage := p.Wage
+		p.RedactFinancials()
+		p.Wage = wage
+		p.RedactSkills(false)
+	}
+
+	return &TeamDetails{
+		Team: &Team{
+			Id:             teamId,
+			Country:        country,
+			TeamName:       name,
+			IsNationalTeam: true,
+		},
+		Players: players,
 	}, nil
 }
 
@@ -1886,6 +1941,75 @@ func GetPlayersFromTeamId(dbCtx *DatabaseContext, teamId int64) (*[]*Player, err
 		}
 	}
 	return &players, nil
+}
+
+const GetPlayersByIdsStmtSql = "SELECT player_id, COALESCE(team_id, 0), first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
+	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
+	"COALESCE(shirt_number, 0), stamina, form " +
+	"FROM players WHERE player_id = ANY($1)"
+
+// GetPlayersByIds batch-fetches a specific set of players by id, regardless of which team any of
+// them currently belongs to - unlike GetPlayersFromTeamId, which filters by team_id and so would
+// come back empty for a national team's called-up players (they stay on their own real clubs'
+// rosters rather than ever moving onto the national team's own team_id, see
+// SetNationalTeamLineup). Used wherever a national team's lineup needs resolving to full player
+// records - see GetPlayersForMatchTeam.
+func GetPlayersByIds(dbCtx *DatabaseContext, playerIds []int64) (*[]*Player, error) {
+	players := make([]*Player, 0, len(playerIds))
+	if len(playerIds) == 0 {
+		return &players, nil
+	}
+
+	rows, err := dbCtx.Db.Query(GetPlayersByIdsStmtSql, playerIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var playerId, teamId int64
+	var firstName, lastName string
+	var birthDay int64
+	var goalKeeper, defense, lateral, pass, midfield, dribbling, shot int
+	var header, quick, creative, technical bool
+	var wage, age int
+	var avatar string
+	var contractYearsRemaining int
+	var birthCountry sql.NullString
+	var shirtNumber, stamina, form int
+	for rows.Next() {
+		if err := rows.Scan(&playerId, &teamId, &firstName, &lastName, &birthDay, &goalKeeper, &defense, &lateral, &pass,
+			&midfield, &dribbling, &shot, &header, &quick, &creative, &technical, &wage, &age, &avatar,
+			&contractYearsRemaining, &birthCountry, &shirtNumber, &stamina, &form); err != nil {
+			return nil, err
+		}
+		players = append(players, &Player{
+			Id:                     playerId,
+			TeamId:                 teamId,
+			FirstName:              firstName,
+			LastName:               lastName,
+			BirthDay:               time.UnixMilli(birthDay),
+			GoalKeeper:             goalKeeper,
+			Defense:                defense,
+			Lateral:                lateral,
+			Pass:                   pass,
+			Midfield:               midfield,
+			Dribbling:              dribbling,
+			Shot:                   shot,
+			Header:                 header,
+			Quick:                  quick,
+			Creative:               creative,
+			Technical:              technical,
+			Wage:                   wage,
+			Age:                    age,
+			Avatar:                 GetAvatarFromString(avatar),
+			ContractYearsRemaining: contractYearsRemaining,
+			BirthCountry:           birthCountry.String,
+			ShirtNumber:            shirtNumber,
+			Stamina:                stamina,
+			Form:                   form,
+		})
+	}
+	return &players, rows.Err()
 }
 
 const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams"

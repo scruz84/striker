@@ -71,6 +71,24 @@ func GetPlayersFromTeam(dbCtx *common.DatabaseContext, teamId int64) (*[]*common
 	return teamDetails, nil
 }
 
+// resolveMatchTeamPlayers is runMatchSimulation's own GetPlayersForMatchTeam - teamId's cached
+// squad (see GetPlayersFromTeam) for an ordinary club, or, when teamId is a national team, lineup's
+// called-up players fetched by id (see common.GetPlayersByIds), since a national team keeps no
+// roster of its own under its own team_id for GetPlayersFromTeam's cache to ever find (see
+// common.SetNationalTeamLineup). Kept separate from common.GetPlayersForMatchTeam so a club match
+// still benefits from GetPlayersFromTeam's cache; only a national-team match skips it, since its
+// called-up squad is resolved fresh from that week's lineup anyway.
+func resolveMatchTeamPlayers(dbCtx *common.DatabaseContext, teamId int64, lineup *common.Lineup) (*[]*common.Player, error) {
+	_, isNationalTeam, err := common.GetNationalTeamCountry(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	if !isNationalTeam {
+		return GetPlayersFromTeam(dbCtx, teamId)
+	}
+	return common.GetPlayersByIds(dbCtx, common.LineupPlayerIds(lineup))
+}
+
 func GetPlayerFullName(dbCtx *common.DatabaseContext, playerId int64) (string, error) {
 	key := PlayerNameKey + strconv.FormatInt(playerId, 10)
 	v, _ := dbCtx.ObjectCache.GetValue(key)

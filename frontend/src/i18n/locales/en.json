@@ -628,6 +628,10 @@
       "champion": "Champion"
     },
     "squad": "Squad",
+    "nationalTeam": {
+      "subtitle": "National team - no league, cup, or stadium of its own.",
+      "squadNote": "The country's current pool of eligible players by birth, not a fixed roster - national teams have no manager to assign one."
+    },
     "sortBy": "Sort by",
     "player": "Player",
     "age": "Age",

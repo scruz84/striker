@@ -36,7 +36,6 @@ import {
   useTeamDetails,
   useTeamHistory,
   useTeamMatches,
-  useTeamTrainer,
   useUserTeam,
 } from '../../api/hooks'
 import {
@@ -47,6 +46,7 @@ import {
   type PlayerUnavailability,
   type SeasonHistoryEntry,
   type StadiumSummary,
+  type Trainer,
 } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { regionForCountry } from '../../components/avatar/traits'
@@ -128,7 +128,11 @@ export function TeamDetailsPage() {
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [challengeOpen, setChallengeOpen] = useState(false)
 
-  const teamCountry = teamDetails?.team.country
+  // A national team has no league or club-cup campaign of its own (see Team.isNationalTeam) -
+  // skip fetching any of that for one, rather than pulling its country's unrelated domestic/
+  // international club-cup standings.
+  const isNationalTeam = !!teamDetails?.team.isNationalTeam
+  const teamCountry = !isNationalTeam ? teamDetails?.team.country : undefined
   const { data: latestCup } = useLatestCupId(teamCountry)
   const { data: cupDetails } = useCupDetails(latestCup?.cupId)
   const region = teamCountry ? regionForCountry(teamCountry) : undefined
@@ -170,13 +174,13 @@ export function TeamDetailsPage() {
             </Tooltip>
           )}
         </Stack>
-        {!isOwnTeam && userTeam && (
+        {!isOwnTeam && userTeam && !isNationalTeam && (
           <Button variant="outlined" size="small" onClick={() => setChallengeOpen(true)}>
             {t('friendlies.challenge.challengeTeam')}
           </Button>
         )}
       </Stack>
-      {!isOwnTeam && userTeam && (
+      {!isOwnTeam && userTeam && !isNationalTeam && (
         <ChallengeToFriendlyDialog
           opponentTeamId={teamDetails.team.id}
           opponentTeamName={teamDetails.team.name}
@@ -184,27 +188,35 @@ export function TeamDetailsPage() {
           onClose={() => setChallengeOpen(false)}
         />
       )}
-      <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-        <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
-          {teamDetails.team.divisionName}
-        </Link>
+      {isNationalTeam ? (
         <Typography variant="body2" color="text.secondary">
-          {t('team.classificationPosition', { position: teamDetails.team.classificationPosition })}
+          {t('team.nationalTeam.subtitle')}
         </Typography>
-      </Stack>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
-        <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
-      </Stack>
-      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('team.fanbase')}
-        </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(teamDetails.fanbase, theme.palette) }}>
-          {teamDetails.fanbase}
-        </Typography>
-      </Stack>
+      ) : (
+        <>
+          <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
+              {teamDetails.team.divisionName}
+            </Link>
+            <Typography variant="body2" color="text.secondary">
+              {t('team.classificationPosition', { position: teamDetails.team.classificationPosition })}
+            </Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+            <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
+            <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
+          </Stack>
+          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              {t('team.fanbase')}
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(teamDetails.fanbase, theme.palette) }}>
+              {teamDetails.fanbase}
+            </Typography>
+          </Stack>
+        </>
+      )}
 
       {teamDetails.stadium && (
         <Box sx={{ mt: 1 }}>
@@ -219,6 +231,11 @@ export function TeamDetailsPage() {
       <Typography variant="h6" sx={{ mt: 2 }}>
         {t('team.squad')}
       </Typography>
+      {isNationalTeam && (
+        <Typography variant="body2" color="text.secondary">
+          {t('team.nationalTeam.squadNote')}
+        </Typography>
+      )}
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="squad-sort-label">{t('team.sortBy')}</InputLabel>
@@ -250,9 +267,9 @@ export function TeamDetailsPage() {
         ))}
       </Stack>
 
-      {isOwnTeam && (
+      {!isNationalTeam && (
         <Box sx={{ mt: 2 }}>
-          <CoachCard />
+          <CoachCard trainer={teamDetails.trainer} isOwnTeam={isOwnTeam} />
         </Box>
       )}
 
@@ -263,19 +280,23 @@ export function TeamDetailsPage() {
         </Box>
       )}
 
-      <Typography variant="h6" sx={{ mt: 2 }}>
-        {t('team.trophyCabinet')}
-      </Typography>
-      {historyLoading || !history ? (
-        <Skeleton variant="rectangular" height={100} />
-      ) : (
+      {!isNationalTeam && (
         <>
-          <SeasonPositionChart history={history} />
-          <TrophyCabinet history={history} />
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            {t('team.trophyCabinet')}
+          </Typography>
+          {historyLoading || !history ? (
+            <Skeleton variant="rectangular" height={100} />
+          ) : (
+            <>
+              <SeasonPositionChart history={history} />
+              <TrophyCabinet history={history} />
+            </>
+          )}
         </>
       )}
 
-      {!isOwnTeam && userTeam && (
+      {!isOwnTeam && userTeam && !isNationalTeam && (
         <Box sx={{ mt: 2 }}>
           <HeadToHeadCard
             teamAId={userTeam.team.id}
@@ -402,18 +423,15 @@ function RecentMatchesCard({ teamId }: { teamId: number }) {
   )
 }
 
-// CoachCard shows the caller's own team's currently employed head coach (if any) right on the
-// team page - hiring/firing itself still only happens from the Coaching tab of the transfer
-// market (see TransferMarketPage.CoachingTab), which this links straight to via `?tab=coaching`
-// rather than duplicating that flow here (issue #58: a hired coach was otherwise only ever
-// visible on the market page, nowhere on the team that actually employs them).
-function CoachCard() {
+// CoachCard shows a team's currently employed head coach (if any) right on the team page - any
+// team's, not just the caller's own (#67: a rival's page showed no coach at all, even though the
+// backend already resolves one generically - see common.GetTeamDetailsById). Hiring/firing itself
+// still only happens from the Coaching tab of the transfer market (see
+// TransferMarketPage.CoachingTab), which this links straight to via `?tab=coaching` rather than
+// duplicating that flow here (issue #58) - and only for the caller's own team, since that's the
+// only one they're allowed to hire/fire for.
+function CoachCard({ trainer, isOwnTeam }: { trainer?: Trainer; isOwnTeam: boolean }) {
   const { t } = useTranslation()
-  const { data: trainer, isLoading } = useTeamTrainer(true)
-
-  if (isLoading) {
-    return <Skeleton variant="rectangular" height={72} />
-  }
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -437,18 +455,22 @@ function CoachCard() {
             </Typography>
             <Typography variant="body1">{formatCurrency(trainer.wage)}</Typography>
           </Box>
-          <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
-            {t('team.coach.manage')}
-          </Link>
+          {isOwnTeam && (
+            <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
+              {t('team.coach.manage')}
+            </Link>
+          )}
         </Stack>
       ) : (
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mt: 0.5 }}>
           <Typography variant="body2" color="text.secondary">
             {t('team.coach.none')}
           </Typography>
-          <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
-            {t('team.coach.hire')}
-          </Link>
+          {isOwnTeam && (
+            <Link component={RouterLink} to="/transfers?tab=coaching" underline="hover">
+              {t('team.coach.hire')}
+            </Link>
+          )}
         </Stack>
       )}
     </Paper>

@@ -628,6 +628,10 @@
       "champion": "Campeón"
     },
     "squad": "Plantilla",
+    "nationalTeam": {
+      "subtitle": "Selección nacional - sin liga, copa ni estadio propios.",
+      "squadNote": "El grupo actual de jugadores elegibles por país de nacimiento, no una plantilla fija - las selecciones no tienen un entrenador que la designe."
+    },
     "sortBy": "Ordenar por",
     "player": "Jugador",
     "age": "Edad",

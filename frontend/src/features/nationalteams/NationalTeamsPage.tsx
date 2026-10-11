@@ -20,6 +20,7 @@ import { useCupDetails, useCurrentWorldCup, useRecentNationalTeamFriendlies, use
 import type { FriendlyMatch, WorldCupGroup, WorldCupGroupMatch } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
 import { groupByRound, roundName, TieRow } from '../cup/CupPage'
+import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
 
 /** Where a manager watches the parts of the game no single club owns: the weekly national-team
  * friendlies (see backend engine.ScheduleNationalTeamFriendlies) and, once one is running, the
@@ -114,15 +115,15 @@ function FriendlyMatchList({
               spacing={1}
               sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
             >
-              <Typography variant="body2" sx={{ flex: 1 }}>
+              <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
                 {m.homeTeamName}
-              </Typography>
+              </NestedTeamNameLink>
               <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
                 {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
               </Typography>
-              <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
+              <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
                 {m.awayTeamName}
-              </Typography>
+              </NestedTeamNameLink>
             </Stack>
           ))}
         </Stack>
@@ -217,7 +218,9 @@ function WorldCupGroupCard({ group }: { group: WorldCupGroup }) {
           <TableBody>
             {group.standings.map((standing, i) => (
               <TableRow key={standing.teamId} sx={{ fontWeight: i < 2 ? 700 : 400 }}>
-                <TableCell sx={{ fontWeight: i < 2 ? 700 : 400 }}>{standing.teamName}</TableCell>
+                <TableCell sx={{ fontWeight: i < 2 ? 700 : 400 }}>
+                  <TeamNameLink teamId={standing.teamId}>{standing.teamName}</TeamNameLink>
+                </TableCell>
                 <TableCell align="right">{standing.played}</TableCell>
                 <TableCell align="right">{standing.goalsFor - standing.goalsAgainst}</TableCell>
                 <TableCell align="right">{standing.won * 3 + standing.drawn}</TableCell>
@@ -245,15 +248,15 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
       spacing={1}
       sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
     >
-      <Typography variant="caption" sx={{ flex: 1 }}>
+      <NestedTeamNameLink teamId={match.homeTeamId} variant="caption" sx={{ flex: 1 }}>
         {match.homeTeamName}
-      </Typography>
+      </NestedTeamNameLink>
       <Typography variant="caption" sx={{ minWidth: 60, textAlign: 'center' }}>
         {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '—'}
       </Typography>
-      <Typography variant="caption" sx={{ flex: 1, textAlign: 'right' }}>
+      <NestedTeamNameLink teamId={match.awayTeamId} variant="caption" sx={{ flex: 1, textAlign: 'right' }}>
         {match.awayTeamName}
-      </Typography>
+      </NestedTeamNameLink>
     </Stack>
   )
 }

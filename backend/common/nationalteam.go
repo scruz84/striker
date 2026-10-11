@@ -233,6 +233,25 @@ func notifyCalledUpPlayers(dbCtx *DatabaseContext, players []*Player, positions 
 	}
 }
 
+// GetPlayersForMatchTeam resolves every player who should count as teamId's roster for one
+// match, for both simulation and match-detail display - an ordinary club's full squad (see
+// GetPlayersFromTeamId), or, when teamId is a national team (see GetNationalTeamCountry), the
+// specific players the saved lineup called up, fetched by id (see GetPlayersByIds) since they
+// stay on their own real clubs' rosters rather than ever moving onto the national team's own
+// team_id. Without this, GetPlayersFromTeamId silently comes back empty for a national team,
+// leaving a played friendly or World Cup tie with a saved lineup but no player records to resolve
+// it against - see engine.runMatchSimulation/EnrichPlayedFriendly/GetCupTieDetails.
+func GetPlayersForMatchTeam(dbCtx *DatabaseContext, teamId int64, lineup *Lineup) (*[]*Player, error) {
+	_, isNationalTeam, err := GetNationalTeamCountry(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	if !isNationalTeam {
+		return GetPlayersFromTeamId(dbCtx, teamId)
+	}
+	return GetPlayersByIds(dbCtx, LineupPlayerIds(lineup))
+}
+
 const getNationalTeamCountryStmtSql = "SELECT country FROM teams WHERE team_id = $1 AND is_national_team = true"
 
 // GetNationalTeamCountry reports whether teamId is a national team and, if so, its country - used

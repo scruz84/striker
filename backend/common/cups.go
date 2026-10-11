@@ -504,13 +504,13 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	details.HomeLineup = (*lineups)[*tie.HomeTeamId]
 	details.AwayLineup = (*lineups)[*tie.AwayTeamId]
 
-	homePlayers, err := GetPlayersFromTeamId(dbCtx, *tie.HomeTeamId)
+	homePlayers, err := GetPlayersForMatchTeam(dbCtx, *tie.HomeTeamId, details.HomeLineup)
 	if err != nil {
 		return nil, err
 	}
 	details.HomePlayers = playerListToMap(homePlayers)
 
-	awayPlayers, err := GetPlayersFromTeamId(dbCtx, *tie.AwayTeamId)
+	awayPlayers, err := GetPlayersForMatchTeam(dbCtx, *tie.AwayTeamId, details.AwayLineup)
 	if err != nil {
 		return nil, err
 	}

@@ -136,11 +136,16 @@ func ApplySubstitutionToLineup(lineup *Lineup, event Event) {
 }
 
 type Team struct {
-	Id                     int64  `json:"id"`
-	OwnerId                int64  `json:"ownerId"`
-	OwnerName              string `json:"ownerName"`
-	Country                string `json:"country"`
-	TeamName               string `json:"name"`
+	Id        int64  `json:"id"`
+	OwnerId   int64  `json:"ownerId"`
+	OwnerName string `json:"ownerName"`
+	Country   string `json:"country"`
+	TeamName  string `json:"name"`
+	// IsNationalTeam marks a country's unowned national team (see common.CreateNationalTeam) -
+	// GetTeamDetailsById's one signal to the frontend that this team has no division, stadium, or
+	// manager, and that its "squad" is the country's current pool of eligible players rather than
+	// a real roster.
+	IsNationalTeam         bool   `json:"isNationalTeam,omitempty"`
 	DivisionId             int64  `json:"divisionId"`
 	DivisionName           string `json:"divisionName"`
 	ClassificationPosition int    `json:"classificationPosition"`
@@ -360,6 +365,11 @@ type TeamDetails struct {
 	// Unavailability, so the squad and lineup pages can flag them the same way an injured/
 	// suspended player is flagged.
 	TransferListedPlayerIds []int64 `json:"transferListedPlayerIds,omitempty"`
+	// Trainer is this team's current head coach (see GetTeamTrainer), or nil if it hasn't hired
+	// one - public, same visibility tier as Stadium/Fanbase (a real club's manager is public
+	// knowledge too), unlike the owner-only hire/fire actions themselves. Never populated for a
+	// national team (see getNationalTeamDetails), which has no manager to hire one.
+	Trainer *Trainer `json:"trainer,omitempty"`
 }
 
 // PlayerUnavailability is one player's current suspension or injury - Reason is

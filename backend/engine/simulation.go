@@ -104,11 +104,11 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // would otherwise reference different players) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
 func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool) (*common.MatchSimulation, error) {
-	homePlayers, err := GetPlayersFromTeam(dbCtx, homeTeamId)
+	homePlayers, err := resolveMatchTeamPlayers(dbCtx, homeTeamId, (*lineups)[homeTeamId])
 	if err != nil {
 		return nil, err
 	}
-	awayPlayers, err := GetPlayersFromTeam(dbCtx, awayTeamId)
+	awayPlayers, err := resolveMatchTeamPlayers(dbCtx, awayTeamId, (*lineups)[awayTeamId])
 	if err != nil {
 		return nil, err
 	}
