@@ -90,6 +90,36 @@ func TestLocalTimeToServerSchedule_RoundTripsBackToOriginalLocalTime(t *testing.
 	}
 }
 
+// NextLocalSaturdayKickoff should always land on a Saturday, at the requested local hour:minute,
+// and strictly in the future - the three properties ScheduleNationalTeamFriendlies relies on.
+func TestNextLocalSaturdayKickoff_LandsOnSaturdayAtTheRequestedLocalTime(t *testing.T) {
+	for _, country := range []string{"es", "jp", "us", "ae", "zz"} {
+		kickoff := NextLocalSaturdayKickoff(country, 21, 0)
+		local := kickoff.In(countryLocation(country))
+
+		if local.Weekday() != time.Saturday {
+			t.Errorf("NextLocalSaturdayKickoff(%q) = %v, want a Saturday (got %s)", country, kickoff, local.Weekday())
+		}
+		if local.Hour() != 21 || local.Minute() != 0 {
+			t.Errorf("NextLocalSaturdayKickoff(%q) local time = %02d:%02d, want 21:00", country, local.Hour(), local.Minute())
+		}
+		if !kickoff.After(time.Now()) {
+			t.Errorf("NextLocalSaturdayKickoff(%q) = %v, want a moment strictly after now", country, kickoff)
+		}
+	}
+}
+
+// Two countries far enough apart in UTC offset should get genuinely different kickoff instants
+// for "the same" Saturday 21:00 local - the whole point of computing it per country rather than
+// sharing one instant across every fixture in a weekly round.
+func TestNextLocalSaturdayKickoff_DiffersByCountry(t *testing.T) {
+	spain := NextLocalSaturdayKickoff("es", 21, 0)
+	japan := NextLocalSaturdayKickoff("jp", 21, 0)
+	if spain.Equal(japan) {
+		t.Errorf("expected Spain and Japan's Saturday 21:00 local kickoffs to be different instants, both were %v", spain)
+	}
+}
+
 func TestLocalTimeToServerSchedule_UnknownCountryFallsBackToUTC(t *testing.T) {
 	gotHour, gotMinute := LocalTimeToServerSchedule("zz", 14, 0)
 	wantHour, wantMinute := LocalTimeToServerSchedule("__utc_reference__", 14, 0)

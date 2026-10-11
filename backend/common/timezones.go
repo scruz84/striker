@@ -139,6 +139,25 @@ func LocalTimeToServerSchedule(countryCode string, hour, minute int) (int, int) 
 	return server.Hour(), server.Minute()
 }
 
+// NextLocalSaturdayKickoff returns the next Saturday at hour:minute in countryCode's local
+// timezone (see CountryTimezone), as an absolute instant - the kickoff a weekly international
+// friendly or World Cup group fixture targets (see common.ScheduleNationalTeamFriendlies/
+// engine.startWorldCupGroup), so two countries kick off at the same local hour but, in real UTC
+// terms, at two different instants rather than literally the same moment just because they were
+// paired in the same weekly round. Anchored to today's date in that timezone, like
+// LocalTimeToServerSchedule - if today already is that Saturday but hour:minute has already
+// passed there, rolls forward to the following week instead of returning a moment in the past.
+func NextLocalSaturdayKickoff(countryCode string, hour, minute int) time.Time {
+	loc := countryLocation(countryCode)
+	now := time.Now().In(loc)
+	daysUntilSaturday := (int(time.Saturday) - int(now.Weekday()) + 7) % 7
+	candidate := time.Date(now.Year(), now.Month(), now.Day(), hour, minute, 0, 0, loc).AddDate(0, 0, daysUntilSaturday)
+	if candidate.Before(now) {
+		candidate = candidate.AddDate(0, 0, 7)
+	}
+	return candidate
+}
+
 // IsWithinLocalActivityWindow reports whether now falls within countryCode's local awake-hours
 // window (see LocalActivityStartHour/LocalActivityEndHour) - the gate engine.RunAiTeamDailyActivity
 // checks before letting an AI-managed team initiate a friendly challenge or run its proactive

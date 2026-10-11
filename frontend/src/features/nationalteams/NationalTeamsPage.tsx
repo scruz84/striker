@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { useCupDetails, useCurrentWorldCup, useRecentNationalTeamFriendlies, useUpcomingNationalTeamFriendlies } from '../../api/hooks'
 import type { FriendlyMatch, WorldCupGroup, WorldCupGroupMatch } from '../../api/types'
 import { formatDateTime } from '../../utils/formatDate'
+import { localizedTeamName } from '../../utils/nationalTeamName'
 import { groupByRound, roundName, TieRow } from '../cup/CupPage'
 import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
 
@@ -80,6 +81,10 @@ function NationalTeamFriendlies() {
   )
 }
 
+// Every row on this page is a national team, by construction (useUpcomingNationalTeamFriendlies/
+// useRecentNationalTeamFriendlies/useCurrentWorldCup never return a club) - so localizedTeamName
+// is always safe to apply here, unlike a general match list that might also show a real club.
+
 function FriendlyMatchList({
   title,
   emptyLabel,
@@ -93,6 +98,7 @@ function FriendlyMatchList({
   isLoading: boolean
   showResult: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Typography variant="subtitle1" gutterBottom>
@@ -116,13 +122,13 @@ function FriendlyMatchList({
               sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
             >
               <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
-                {m.homeTeamName}
+                {localizedTeamName(t, m.homeTeamName)}
               </NestedTeamNameLink>
               <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
                 {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
               </Typography>
               <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-                {m.awayTeamName}
+                {localizedTeamName(t, m.awayTeamName)}
               </NestedTeamNameLink>
             </Stack>
           ))}
@@ -157,7 +163,10 @@ function WorldCupSection() {
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <Typography variant="h6">{t('nationalTeams.worldCup.titleWithSeason', { name: worldCup.name, season: worldCup.season })}</Typography>
         {worldCup.completed && (
-          <Chip color="success" label={t('nationalTeams.worldCup.champion', { name: worldCup.championTeamName })} />
+          <Chip
+            color="success"
+            label={t('nationalTeams.worldCup.champion', { name: localizedTeamName(t, worldCup.championTeamName) })}
+          />
         )}
       </Stack>
 
@@ -219,7 +228,7 @@ function WorldCupGroupCard({ group }: { group: WorldCupGroup }) {
             {group.standings.map((standing, i) => (
               <TableRow key={standing.teamId} sx={{ fontWeight: i < 2 ? 700 : 400 }}>
                 <TableCell sx={{ fontWeight: i < 2 ? 700 : 400 }}>
-                  <TeamNameLink teamId={standing.teamId}>{standing.teamName}</TeamNameLink>
+                  <TeamNameLink teamId={standing.teamId}>{localizedTeamName(t, standing.teamName)}</TeamNameLink>
                 </TableCell>
                 <TableCell align="right">{standing.played}</TableCell>
                 <TableCell align="right">{standing.goalsFor - standing.goalsAgainst}</TableCell>
@@ -240,6 +249,7 @@ function WorldCupGroupCard({ group }: { group: WorldCupGroup }) {
 }
 
 function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
+  const { t } = useTranslation()
   return (
     <Stack
       component={RouterLink}
@@ -249,13 +259,13 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
       sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
     >
       <NestedTeamNameLink teamId={match.homeTeamId} variant="caption" sx={{ flex: 1 }}>
-        {match.homeTeamName}
+        {localizedTeamName(t, match.homeTeamName)}
       </NestedTeamNameLink>
       <Typography variant="caption" sx={{ minWidth: 60, textAlign: 'center' }}>
         {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '—'}
       </Typography>
       <NestedTeamNameLink teamId={match.awayTeamId} variant="caption" sx={{ flex: 1, textAlign: 'right' }}>
-        {match.awayTeamName}
+        {localizedTeamName(t, match.awayTeamName)}
       </NestedTeamNameLink>
     </Stack>
   )

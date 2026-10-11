@@ -18,10 +18,16 @@ import (
 // enough to cover every position's depth without scanning a country's entire player pool.
 const NationalSquadPoolSize = 40
 
-// NationalTeamFriendlyKickoffDelay mirrors friendlyScheduleDelay (friendlies.go) - how soon after
-// being scheduled a national-team friendly kicks off, long enough to clear the simulation
-// scheduler's polling window (see GetSimulableFriendlies).
-const NationalTeamFriendlyKickoffDelay = 5 * time.Minute
+// NationalTeamFriendlyKickoffHour/NationalTeamFriendlyKickoffMinute is the local kickoff time a
+// weekly national-team friendly (or World Cup group fixture, see engine.startWorldCupGroup)
+// targets in its home country's own timezone (see NextLocalSaturdayKickoff) - a plausible
+// Saturday-evening international window, chosen so two countries paired in the same weekly round
+// never appear to kick off at literally the same real-world instant just because they share a
+// kickoff delay the way a same-day club friendly does.
+const (
+	NationalTeamFriendlyKickoffHour   = 21
+	NationalTeamFriendlyKickoffMinute = 0
+)
 
 const InsertNationalTeamStmtSql = "INSERT INTO teams (country, name, budget, stadium_capacity, is_national_team) " +
 	"VALUES ($1, $2, 0, 0, true) RETURNING team_id"
@@ -36,16 +42,21 @@ const GetPlayersByBirthCountryStmtSql = "SELECT player_id, team_id, first_name, 
 	"ORDER BY (goal_keeper + defense + \"lateral\" + pass + midfield + dribbling + shot) DESC " +
 	"LIMIT $2"
 
-// nationalTeamName looks up country's display name in KnownCountries for a readable team name
-// (e.g. "Spain National Team") - falling back to the bare code for anything not found there,
-// which should never actually happen since only a known, active country ever gets one.
+// nationalTeamName looks up country's display name in KnownCountries (e.g. "Spain") - falling
+// back to the bare upper-cased code for anything not found there, which should never actually
+// happen since only a known, active country ever gets one. Deliberately just the country's own
+// name, with no "National Team" suffix: this is the raw value stored in `teams.name` and used
+// verbatim by backend-authored text (notifications, this file's own log lines), but every list a
+// manager actually reads renders a national team's name through the frontend's own
+// localizedTeamName/COUNTRY_NAME_KEYS lookup by country code instead, so it shows in whichever
+// language the UI is already in rather than always in English.
 func nationalTeamName(country string) string {
 	for _, c := range KnownCountries {
 		if c.Code == country {
-			return c.Name + " National Team"
+			return c.Name
 		}
 	}
-	return strings.ToUpper(country) + " National Team"
+	return strings.ToUpper(country)
 }
 
 // GetNationalTeamId looks up country's national team - see CreateNationalTeam.
@@ -402,13 +413,50 @@ func pairNationalTeamCountries(countries []string, r *rand.Rand) [][2]string {
 	return pairs
 }
 
+const getCountriesWithPendingNationalTeamFriendlyStmtSql = "SELECT DISTINCT country FROM teams WHERE is_national_team = true AND team_id IN (" +
+	"SELECT home_team_id FROM friendly_matches WHERE played = false " +
+	"UNION SELECT away_team_id FROM friendly_matches WHERE played = false)"
+
+// GetCountriesWithPendingNationalTeamFriendly returns every country whose national team is
+// already part of an unplayed friendly - a weekly round's own fixture, or a World Cup group/
+// knockout match (both land in friendly_matches; see startWorldCupGroup's own comment on why a
+// group match is "just" a friendly under the hood). ScheduleNationalTeamFriendlies excludes all of
+// these from this week's pairing, so a country already waiting on a fixture that hasn't kicked
+// off or been simulated yet can never be paired again on top of it - without this guard, that
+// country's national team could end up with two friendlies scheduled at once.
+func GetCountriesWithPendingNationalTeamFriendly(dbCtx *DatabaseContext) (map[string]bool, error) {
+	rows, err := dbCtx.Db.Query(getCountriesWithPendingNationalTeamFriendlyStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	pending := make(map[string]bool)
+	for rows.Next() {
+		var country string
+		if err := rows.Scan(&country); err != nil {
+			return nil, err
+		}
+		pending[country] = true
+	}
+	return pending, rows.Err()
+}
+
 // ScheduleNationalTeamFriendlies is the weekly national-team friendly round (see
-// engine.StartNationalTeamFriendlyScheduler) - pairs up every active country (see
+// engine.StartNationalTeamFriendlyScheduler) - pairs up every active country that isn't already
+// waiting on a fixture (see GetCountriesWithPendingNationalTeamFriendly/
 // pairNationalTeamCountries), creates each fixture directly with no challenge/accept dance (there
 // is no human on either side to ask - see common.AcceptFriendlyChallenge for that flow, which this
 // deliberately bypasses), and immediately persists each side's starting XI (see
 // SetNationalTeamLineup) so there's a lineup ready for the normal friendly simulation scheduler to
 // pick up, and to count international caps from once it's played.
+//
+// Each fixture kicks off at NationalTeamFriendlyKickoffHour:Minute on the next Saturday in the
+// home side's own local timezone (see NextLocalSaturdayKickoff) - pairNationalTeamCountries'
+// shuffle already picks which side of a pair is "home" at random, so which country's timezone
+// anchors a given fixture is itself random. Two countries in different timezones consequently
+// kick off at different real-world instants even though they're both "Saturday evening", rather
+// than every fixture in the round landing on the exact same instant.
 //
 // Skips the whole week while a World Cup is running (see HasActiveWorldCup): a real international
 // calendar pauses ordinary friendlies around a tournament rather than double-booking a country's
@@ -427,13 +475,23 @@ func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
 	if err != nil {
 		return err
 	}
-	if len(active) < 2 {
+
+	pending, err := GetCountriesWithPendingNationalTeamFriendly(dbCtx)
+	if err != nil {
+		return err
+	}
+	eligible := make([]string, 0, len(active))
+	for _, country := range active {
+		if !pending[country] {
+			eligible = append(eligible, country)
+		}
+	}
+	if len(eligible) < 2 {
 		return nil
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pairs := pairNationalTeamCountries(active, r)
-	kickoff := time.Now().Add(NationalTeamFriendlyKickoffDelay)
+	pairs := pairNationalTeamCountries(eligible, r)
 
 	for _, pair := range pairs {
 		homeTeamId, err := ensureNationalTeam(dbCtx, pair[0])
@@ -446,6 +504,8 @@ func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
 			log.Errorf("error ensuring national team for %s: %s", pair[1], err)
 			continue
 		}
+
+		kickoff := NextLocalSaturdayKickoff(pair[0], NationalTeamFriendlyKickoffHour, NationalTeamFriendlyKickoffMinute)
 
 		var matchId int64
 		if err := dbCtx.Db.QueryRow(InsertNationalTeamFriendlyMatchStmtSql, homeTeamId, awayTeamId, kickoff).Scan(&matchId); err != nil {

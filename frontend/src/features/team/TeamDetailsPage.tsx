@@ -164,7 +164,8 @@ export function TeamDetailsPage() {
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
-            {teamDetails.team.name} ({teamDetails.team.id})
+            {isNationalTeam ? t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country) : teamDetails.team.name} (
+            {teamDetails.team.id})
           </Typography>
           {flag && (
             <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>

@@ -14,6 +14,7 @@ import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } f
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { formatDateTime } from '../../utils/formatDate'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
+import { localizedTeamName } from '../../utils/nationalTeamName'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
@@ -69,7 +70,7 @@ function ByeTie({ tie }: { tie: CupTieDetails }) {
   return (
     <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
       <Typography>{t('cup.bye')}</Typography>
-      <Typography color="text.secondary">{tie.homeTeamName || tie.awayTeamName}</Typography>
+      <Typography color="text.secondary">{localizedTeamName(t, tie.homeTeamName || tie.awayTeamName)}</Typography>
     </Paper>
   )
 }
@@ -97,6 +98,8 @@ function LiveTie({
   const queryClient = useQueryClient()
   const homeId = tie.homeTeamId ?? 0
   const awayId = tie.awayTeamId ?? 0
+  const homeName = localizedTeamName(t, tie.homeTeamName)
+  const awayName = localizedTeamName(t, tie.awayTeamName)
   // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
   // already subscribed and ready the moment the tie actually goes live, with no reconnect needed
   // (see useLiveMatch's own comment on backend/handlers/liveMatchHandlers.go subscribing a viewer
@@ -135,9 +138,9 @@ function LiveTie({
       <Box>
         <Scoreboard
           homeId={homeId}
-          homeName={tie.homeTeamName}
+          homeName={homeName}
           awayId={awayId}
-          awayName={tie.awayTeamName}
+          awayName={awayName}
           homeGoals={0}
           awayGoals={0}
           status="scheduled"
@@ -155,9 +158,9 @@ function LiveTie({
     <Box>
       <Scoreboard
         homeId={homeId}
-        homeName={tie.homeTeamName}
+        homeName={homeName}
         awayId={awayId}
-        awayName={tie.awayTeamName}
+        awayName={awayName}
         homeGoals={live.homeGoals}
         awayGoals={live.awayGoals}
         status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
@@ -177,14 +180,14 @@ function LiveTie({
         </Paper>
       )}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <MatchEventsReport events={liveEvents} homeId={homeId} homeName={tie.homeTeamName} awayId={awayId} awayName={tie.awayTeamName} />
+        <MatchEventsReport events={liveEvents} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
       </Paper>
       {live.instants.length > 0 && (
         <MatchMinuteZoneComparison
           homeId={homeId}
-          homeName={tie.homeTeamName}
+          homeName={homeName}
           awayId={awayId}
-          awayName={tie.awayTeamName}
+          awayName={awayName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
@@ -197,9 +200,9 @@ function LiveTie({
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
         <MatchMinuteRatings
           homeId={homeId}
-          homeName={tie.homeTeamName}
+          homeName={homeName}
           awayId={awayId}
-          awayName={tie.awayTeamName}
+          awayName={awayName}
           homeLineup={live.homeLineup}
           awayLineup={live.awayLineup}
           homePlayers={live.homePlayers}
@@ -214,7 +217,7 @@ function LiveTie({
         team &&
         players &&
         (isLineupLocked ? <LineupLockedNotice /> : <CupTieLineupSection tieId={id} team={team} players={players} />)}
-      <HeadToHeadCard teamAId={homeId} teamAName={tie.homeTeamName} teamBId={awayId} teamBName={tie.awayTeamName} />
+      <HeadToHeadCard teamAId={homeId} teamAName={homeName} teamBId={awayId} teamBName={awayName} />
     </Box>
   )
 }
@@ -249,7 +252,7 @@ function CupTieLineupSection({ tieId, team, players }: { tieId: string; team: Te
 // for a cup tie and left at their zero/null values - MatchReportTab never reads them, and a tie
 // doesn't carry weather/attendance/referee flavor either, so its report simply omits that intro
 // paragraph, same as a friendly's.
-function cupTieToWeekMatch(tie: CupTieDetails): WeekMatch {
+function cupTieToWeekMatch(tie: CupTieDetails, homeName: string, awayName: string): WeekMatch {
   return {
     matchId: tie.tieId,
     divisionId: 0,
@@ -259,10 +262,10 @@ function cupTieToWeekMatch(tie: CupTieDetails): WeekMatch {
     played: tie.played,
     inSimulation: false,
     home: tie.homeTeamId ?? 0,
-    homeName: tie.homeTeamName,
+    homeName,
     homeStadiumName: '',
     away: tie.awayTeamId ?? 0,
-    awayName: tie.awayTeamName,
+    awayName,
     homeGoals: tie.homeGoals,
     awayGoals: tie.awayGoals,
     events: tie.events,
@@ -279,16 +282,18 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
-  const weekMatch = cupTieToWeekMatch(tie)
+  const homeName = localizedTeamName(t, tie.homeTeamName)
+  const awayName = localizedTeamName(t, tie.awayTeamName)
+  const weekMatch = cupTieToWeekMatch(tie, homeName, awayName)
   const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
 
   return (
     <Box>
       <Scoreboard
         homeId={tie.homeTeamId ?? 0}
-        homeName={tie.homeTeamName}
+        homeName={homeName}
         awayId={tie.awayTeamId ?? 0}
-        awayName={tie.awayTeamName}
+        awayName={awayName}
         homeGoals={tie.homeGoals}
         awayGoals={tie.awayGoals}
         status="played"
@@ -296,7 +301,7 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
       />
       {tie.wentToPenalties && (
         <Typography color="text.secondary" align="center" sx={{ mb: 2 }}>
-          {penaltyWinnerName ? t('cup.pensWinner', { team: penaltyWinnerName }) : t('cup.pens')}
+          {penaltyWinnerName ? t('cup.pensWinner', { team: localizedTeamName(t, penaltyWinnerName) }) : t('cup.pens')}
         </Typography>
       )}
 
@@ -312,9 +317,9 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
           {tab === 2 && (
             <Lineups
               homeId={tie.homeTeamId ?? 0}
-              homeName={tie.homeTeamName}
+              homeName={homeName}
               awayId={tie.awayTeamId ?? 0}
-              awayName={tie.awayTeamName}
+              awayName={awayName}
               homeLineup={tie.homeLineup}
               awayLineup={tie.awayLineup}
               homePlayers={tie.homePlayers}
@@ -325,12 +330,7 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
           )}
         </Box>
       </Paper>
-      <HeadToHeadCard
-        teamAId={tie.homeTeamId ?? 0}
-        teamAName={tie.homeTeamName}
-        teamBId={tie.awayTeamId ?? 0}
-        teamBName={tie.awayTeamName}
-      />
+      <HeadToHeadCard teamAId={tie.homeTeamId ?? 0} teamAName={homeName} teamBId={tie.awayTeamId ?? 0} teamBName={awayName} />
     </Box>
   )
 }

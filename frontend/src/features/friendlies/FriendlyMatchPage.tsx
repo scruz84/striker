@@ -14,6 +14,7 @@ import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } f
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { formatDateTime } from '../../utils/formatDate'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
+import { localizedTeamName } from '../../utils/nationalTeamName'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
@@ -61,8 +62,10 @@ export function FriendlyMatchPage() {
 // MatchRatingsTab/Lineups expect, so a friendly's report can reuse the same components a league
 // match's report does (see MatchDetailsPage's PlayedMatch) instead of a separate reimplementation.
 // divisionId/season/weekNumber/inSimulation are meaningless for a friendly and left at their zero
-// values - none of the reused components read them.
-function friendlyToWeekMatch(match: FriendlyMatch): WeekMatch {
+// values - none of the reused components read them. homeName/awayName are passed in already
+// localized (see localizedTeamName) rather than read straight off match, since a national-team
+// friendly's stored name is in English and this function has no translator of its own to call.
+function friendlyToWeekMatch(match: FriendlyMatch, homeName: string, awayName: string): WeekMatch {
   return {
     matchId: match.matchId,
     divisionId: 0,
@@ -72,12 +75,12 @@ function friendlyToWeekMatch(match: FriendlyMatch): WeekMatch {
     played: match.played,
     inSimulation: false,
     home: match.homeTeamId,
-    homeName: match.homeTeamName,
+    homeName,
     // A friendly doesn't carry stadium flavor the way a league match does (see WeekMatch's own
     // comment) - Scoreboard simply omits the venue caption when this is empty.
     homeStadiumName: '',
     away: match.awayTeamId,
-    awayName: match.awayTeamName,
+    awayName,
     homeGoals: match.homeGoals,
     awayGoals: match.awayGoals,
     events: match.events ?? null,
@@ -94,15 +97,17 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
-  const weekMatch = friendlyToWeekMatch(match)
+  const homeName = localizedTeamName(t, match.homeTeamName)
+  const awayName = localizedTeamName(t, match.awayTeamName)
+  const weekMatch = friendlyToWeekMatch(match, homeName, awayName)
 
   return (
     <Box>
       <Scoreboard
         homeId={match.homeTeamId}
-        homeName={match.homeTeamName}
+        homeName={homeName}
         awayId={match.awayTeamId}
-        awayName={match.awayTeamName}
+        awayName={awayName}
         homeGoals={match.homeGoals}
         awayGoals={match.awayGoals}
         status="played"
@@ -121,9 +126,9 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
           {tab === 2 && (
             <Lineups
               homeId={match.homeTeamId}
-              homeName={match.homeTeamName}
+              homeName={homeName}
               awayId={match.awayTeamId}
-              awayName={match.awayTeamName}
+              awayName={awayName}
               homeLineup={weekMatch.homeLineup}
               awayLineup={weekMatch.awayLineup}
               homePlayers={weekMatch.homePlayers}
@@ -134,12 +139,7 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
           )}
         </Box>
       </Paper>
-      <HeadToHeadCard
-        teamAId={match.homeTeamId}
-        teamAName={match.homeTeamName}
-        teamBId={match.awayTeamId}
-        teamBName={match.awayTeamName}
-      />
+      <HeadToHeadCard teamAId={match.homeTeamId} teamAName={homeName} teamBId={match.awayTeamId} teamBName={awayName} />
     </Box>
   )
 }
@@ -161,6 +161,8 @@ function LiveFriendly({
 }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const homeName = localizedTeamName(t, match.homeTeamName)
+  const awayName = localizedTeamName(t, match.awayTeamName)
   // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
   // already subscribed and ready the moment the match actually goes live, with no reconnect
   // needed (see useLiveMatch's own comment on backend/handlers/liveMatchHandlers.go subscribing a
@@ -196,9 +198,9 @@ function LiveFriendly({
     <Box>
       <Scoreboard
         homeId={match.homeTeamId}
-        homeName={match.homeTeamName}
+        homeName={homeName}
         awayId={match.awayTeamId}
-        awayName={match.awayTeamName}
+        awayName={awayName}
         homeGoals={isDue ? live.homeGoals : 0}
         awayGoals={isDue ? live.awayGoals : 0}
         // Before kickoff, show "scheduled" rather than a premature "Live" label (issue #31) - the
@@ -223,21 +225,15 @@ function LiveFriendly({
       )}
       {isDue && (
         <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-          <MatchEventsReport
-            events={liveEvents}
-            homeId={match.homeTeamId}
-            homeName={match.homeTeamName}
-            awayId={match.awayTeamId}
-            awayName={match.awayTeamName}
-          />
+          <MatchEventsReport events={liveEvents} homeId={match.homeTeamId} homeName={homeName} awayId={match.awayTeamId} awayName={awayName} />
         </Paper>
       )}
       {isDue && live.instants.length > 0 && (
         <MatchMinuteZoneComparison
           homeId={match.homeTeamId}
-          homeName={match.homeTeamName}
+          homeName={homeName}
           awayId={match.awayTeamId}
-          awayName={match.awayTeamName}
+          awayName={awayName}
           // See MatchDetailsPage's identical reasoning: goalkeeper ratings aren't available live.
           homeGoalkeeperRating={0}
           awayGoalkeeperRating={0}
@@ -250,9 +246,9 @@ function LiveFriendly({
       {isDue && live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
         <MatchMinuteRatings
           homeId={match.homeTeamId}
-          homeName={match.homeTeamName}
+          homeName={homeName}
           awayId={match.awayTeamId}
-          awayName={match.awayTeamName}
+          awayName={awayName}
           homeLineup={live.homeLineup}
           awayLineup={live.awayLineup}
           homePlayers={live.homePlayers}
@@ -267,14 +263,7 @@ function LiveFriendly({
         team &&
         players &&
         (isLineupLocked ? <LineupLockedNotice /> : <FriendlyLineupEditor matchId={id} team={team} players={players} />)}
-      {isDue && (
-        <HeadToHeadCard
-          teamAId={match.homeTeamId}
-          teamAName={match.homeTeamName}
-          teamBId={match.awayTeamId}
-          teamBName={match.awayTeamName}
-        />
-      )}
+      {isDue && <HeadToHeadCard teamAId={match.homeTeamId} teamAName={homeName} teamBId={match.awayTeamId} teamBName={awayName} />}
     </Box>
   )
 }

@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+// nationalTeamName is stored verbatim in teams.name and must never carry the old " National
+// Team" suffix - every list localizes a national team's display name from its country code
+// instead (see this function's own doc comment), so the stored value itself has to be the bare
+// country name for that frontend lookup to actually match.
+func TestNationalTeamName_HasNoSuffix(t *testing.T) {
+	name := nationalTeamName("es")
+	if name != "Spain" {
+		t.Errorf("nationalTeamName(%q) = %q, want %q", "es", name, "Spain")
+	}
+}
+
+func TestNationalTeamName_UnknownCountryFallsBackToUpperCode(t *testing.T) {
+	name := nationalTeamName("zz")
+	if name != "ZZ" {
+		t.Errorf("nationalTeamName(%q) = %q, want %q", "zz", name, "ZZ")
+	}
+}
+
 func TestPairNationalTeamCountries_EveryCountryAppearsExactlyOnce(t *testing.T) {
 	countries := []string{"es", "en", "fr", "de", "br", "ar", "mx", "co"}
 	r := rand.New(rand.NewSource(1))

@@ -12,6 +12,7 @@ import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
+import { localizedTeamName } from '../../utils/nationalTeamName'
 
 // TeamMatchesSection lists every league match, cup tie, and friendly a team has played or has
 // scheduled - split into upcoming (soonest first) and played (most recent first), each row marked
@@ -107,7 +108,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
         sx={{ height: 20, width: 24, fontSize: '0.65rem', flexShrink: 0, '& .MuiChip-label': { px: 0 } }}
       />
       <NestedTeamNameLink teamId={match.opponentId} noWrap sx={{ flex: '1 1 60px', minWidth: 0, fontWeight: 500 }}>
-        {match.opponentName}
+        {localizedTeamName(t, match.opponentName)}
       </NestedTeamNameLink>
       {stillLive ? (
         <Chip label={t('match.live')} color="error" size="small" sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0, fontWeight: 700 }} />

@@ -13,6 +13,7 @@ import type { CupTie } from '../../api/types'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
+import { localizedTeamName } from '../../utils/nationalTeamName'
 
 export function CupPage() {
   const { t } = useTranslation()
@@ -79,6 +80,9 @@ export function TieRow({ tie }: { tie: CupTie }) {
   const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
   const homeWonPenalties = tie.wentToPenalties && tie.winnerTeamId === tie.homeTeamId
   const awayWonPenalties = tie.wentToPenalties && tie.winnerTeamId === tie.awayTeamId
+  // This bracket is shared by regular club cups and the World Cup knockout stage alike (see
+  // NationalTeamsPage's WorldCupSection) - localizedTeamName is a no-op for an ordinary club name,
+  // so it's always safe to apply here regardless of which one a given tie belongs to.
 
   return (
     <ButtonBase
@@ -90,7 +94,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
           {tie.homeTeamId ? (
             <NestedTeamNameLink teamId={tie.homeTeamId} sx={{ fontWeight: homeWonPenalties ? 700 : undefined }}>
-              {tie.homeTeamName}
+              {localizedTeamName(t, tie.homeTeamName)}
             </NestedTeamNameLink>
           ) : (
             t('cup.tbd')
@@ -106,7 +110,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
           {tie.awayTeamId ? (
             <NestedTeamNameLink teamId={tie.awayTeamId} sx={{ fontWeight: awayWonPenalties ? 700 : undefined }}>
-              {tie.awayTeamName}
+              {localizedTeamName(t, tie.awayTeamName)}
             </NestedTeamNameLink>
           ) : isBye ? (
             ''
@@ -115,7 +119,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
           )}
         </Typography>
         {!stillLive && tie.wentToPenalties && (
-          <Tooltip title={penaltyWinnerName ? t('cup.pensWinner', { team: penaltyWinnerName }) : ''}>
+          <Tooltip title={penaltyWinnerName ? t('cup.pensWinner', { team: localizedTeamName(t, penaltyWinnerName) }) : ''}>
             <Typography variant="caption" color="text.secondary">
               {t('cup.pens')}
             </Typography>

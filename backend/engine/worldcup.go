@@ -14,11 +14,10 @@ import (
 // does (see StartInternationalCupsForNewSeason).
 const WorldCupFrequencySeasons = 4
 
-// worldCupGroupMatchdayGap mirrors NationalTeamFriendlyKickoffDelay/cupRoundGap's own spacing
-// logic: a group's first matchday kicks off soon (clears the simulation scheduler's polling
-// window), and each subsequent matchday a full week after the previous one, so the group stage
-// visibly plays out "once a week" the same way ordinary national-team friendlies do rather than
-// all at once.
+// worldCupGroupMatchdayGap mirrors cupRoundGap's own spacing logic: a group's first matchday
+// kicks off on the nearest Saturday (see common.NextLocalSaturdayKickoff), and each subsequent
+// matchday a full week after that, so the group stage visibly plays out "once a week" the same
+// way ordinary national-team friendlies do rather than all at once.
 const worldCupGroupMatchdayGap = 7 * 24 * time.Hour
 
 // StartWorldCupForNewSeason starts a fresh World Cup for season if it's actually time for one
@@ -97,10 +96,14 @@ func startWorldCupGroup(dbCtx *common.DatabaseContext, worldCupId int64, groupNa
 
 	rounds := common.BuildRoundRobinRounds(len(teamIds))
 	for roundIndex, pairs := range rounds {
-		matchDate := time.Now().Add(common.NationalTeamFriendlyKickoffDelay).Add(time.Duration(roundIndex) * worldCupGroupMatchdayGap)
 		for _, pair := range pairs {
 			homeTeamId, awayTeamId := teamIds[pair[0]], teamIds[pair[1]]
 			homeCountry, awayCountry := countries[pair[0]], countries[pair[1]]
+			// Local to the home side, same as an ordinary weekly friendly (see
+			// common.ScheduleNationalTeamFriendlies) - each round lands on the Saturday
+			// roundIndex weeks out, so a team only ever plays one group match per round.
+			matchDate := common.NextLocalSaturdayKickoff(homeCountry, common.NationalTeamFriendlyKickoffHour, common.NationalTeamFriendlyKickoffMinute).
+				Add(time.Duration(roundIndex) * worldCupGroupMatchdayGap)
 
 			var matchId int64
 			if err := dbCtx.Db.QueryRow(common.InsertNationalTeamFriendlyMatchStmtSql, homeTeamId, awayTeamId, matchDate).Scan(&matchId); err != nil {
