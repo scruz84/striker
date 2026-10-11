@@ -93,17 +93,37 @@ func StartFriendlyScheduler(friendlyJob quartz.Job) {
 
 func StartNationalTeamFriendlyScheduler(nationalTeamFriendlyJob quartz.Job) {
 	sched.Start(ctx)
-	// A real calendar week, independent of match simulation - Sunday 03:00 UTC, clear of
-	// StartFreeAgentInjectionScheduler's 00:00 and StartBirthdayScheduler's 01:00 Sunday slots.
-	// The weekly cron itself is the "once per week" cadence here - unlike club friendlies there's
-	// no human to challenge/accept, so there's no per-team cap to enforce instead (see
-	// common.ScheduleNationalTeamFriendlies).
-	cronTrigger, err := quartz.NewCronTrigger("0 0 3 ? * SUN")
+	// Same cadence as StartAdvanceSeasonScheduler/StartAiActivityScheduler - cheap per tick (see
+	// common.ScheduleNationalTeamFriendlies's own doc comment for why this needs to run often
+	// rather than on a single fixed weekly timestamp: a country should be re-paired within
+	// minutes of its previous friendly being played, not however long is left until the next
+	// rigid weekly slot). Unlike club friendlies there's no human to challenge/accept, so there's
+	// no per-team cap to enforce instead - GetCountriesWithPendingNationalTeamFriendly's "already
+	// waiting on a fixture" check is what keeps this idempotent across ticks.
+	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
 	if err != nil {
 		log.Panic(err)
 	}
 	jobKey := quartz.NewJobKey(nationalTeamFriendlyJob.Description())
 	jobDetail := quartz.NewJobDetail(nationalTeamFriendlyJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
+func StartNationalTeamCallUpScheduler(nationalTeamCallUpJob quartz.Job) {
+	sched.Start(ctx)
+	// Same 5-minute cadence as StartNationalTeamFriendlyScheduler - frequent enough to close a
+	// national team's call-up (see common.CallUpNationalTeamSquads/common.nationalTeamCallUpWindow)
+	// within minutes of crossing the one-day-before-kickoff mark, without needing per-minute
+	// granularity the way kickoff-triggered friendly simulation does.
+	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(nationalTeamCallUpJob.Description())
+	jobDetail := quartz.NewJobDetail(nationalTeamCallUpJob, jobKey)
 	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
 	if errJob != nil {
 		log.Panic(errJob)

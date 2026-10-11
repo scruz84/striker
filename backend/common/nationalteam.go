@@ -442,14 +442,19 @@ func GetCountriesWithPendingNationalTeamFriendly(dbCtx *DatabaseContext) (map[st
 	return pending, rows.Err()
 }
 
-// ScheduleNationalTeamFriendlies is the weekly national-team friendly round (see
-// engine.StartNationalTeamFriendlyScheduler) - pairs up every active country that isn't already
-// waiting on a fixture (see GetCountriesWithPendingNationalTeamFriendly/
-// pairNationalTeamCountries), creates each fixture directly with no challenge/accept dance (there
-// is no human on either side to ask - see common.AcceptFriendlyChallenge for that flow, which this
-// deliberately bypasses), and immediately persists each side's starting XI (see
-// SetNationalTeamLineup) so there's a lineup ready for the normal friendly simulation scheduler to
-// pick up, and to count international caps from once it's played.
+// ScheduleNationalTeamFriendlies is the national-team friendly pairing pass (see
+// engine.StartNationalTeamFriendlyScheduler, run frequently rather than on a rigid weekly
+// timestamp) - pairs up every active country that isn't already waiting on a fixture (see
+// GetCountriesWithPendingNationalTeamFriendly/pairNationalTeamCountries) and creates each fixture
+// directly with no challenge/accept dance (there is no human on either side to ask - see
+// common.AcceptFriendlyChallenge for that flow, which this deliberately bypasses). Running this
+// often, instead of once a week, means a country is re-paired for its next fixture within minutes
+// of its previous one being marked played rather than however long is left until the next fixed
+// weekly slot - so there's (almost) always a future fixture for the match viewer to show, and no
+// country is left sitting out for however much of a week its own local kickoff happens to miss a
+// rigid weekly cron run by (see GetCountriesWithPendingNationalTeamFriendly's own doc comment).
+// Each side's starting XI is deliberately NOT selected here - see CallUpNationalTeamSquads for why
+// that's a separate pass closer to kickoff instead.
 //
 // Each fixture kicks off at NationalTeamFriendlyKickoffHour:Minute on the next Saturday in the
 // home side's own local timezone (see NextLocalSaturdayKickoff) - pairNationalTeamCountries'
@@ -458,7 +463,7 @@ func GetCountriesWithPendingNationalTeamFriendly(dbCtx *DatabaseContext) (map[st
 // kick off at different real-world instants even though they're both "Saturday evening", rather
 // than every fixture in the round landing on the exact same instant.
 //
-// Skips the whole week while a World Cup is running (see HasActiveWorldCup): a real international
+// Skips entirely while a World Cup is running (see HasActiveWorldCup): a real international
 // calendar pauses ordinary friendlies around a tournament rather than double-booking a country's
 // national team in the same week, and group-stage/knockout fixtures already give every active
 // country as much national-team action as a weekly friendly would anyway.
@@ -512,12 +517,63 @@ func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
 			log.Errorf("error creating national-team friendly between %s and %s: %s", pair[0], pair[1], err)
 			continue
 		}
+	}
+	return nil
+}
 
-		if err := SetNationalTeamLineup(dbCtx, matchId, homeTeamId, pair[0]); err != nil {
-			log.Errorf("error setting national-team lineup for %s (match %d): %s", pair[0], matchId, err)
+const getNationalTeamFriendliesNeedingCallUpStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.country FROM friendly_matches fm " +
+	"JOIN teams ht ON ht.team_id = fm.home_team_id " +
+	"WHERE ht.is_national_team = true AND fm.played = false AND fm.match_date <= $1 " +
+	"AND NOT EXISTS (SELECT 1 FROM friendly_lineup fl WHERE fl.match_id = fm.match_id AND fl.team_id = fm.home_team_id) " +
+	"UNION ALL " +
+	"SELECT fm.match_id, fm.away_team_id, at.country FROM friendly_matches fm " +
+	"JOIN teams at ON at.team_id = fm.away_team_id " +
+	"WHERE at.is_national_team = true AND fm.played = false AND fm.match_date <= $1 " +
+	"AND NOT EXISTS (SELECT 1 FROM friendly_lineup fl WHERE fl.match_id = fm.match_id AND fl.team_id = fm.away_team_id)"
+
+// nationalTeamCallUpWindow is how long before kickoff a national team's call-up (its starting XI
+// selection, see SetNationalTeamLineup) closes - a real squad is announced shortly before a match,
+// not the moment the fixture itself is scheduled (which, see ScheduleNationalTeamFriendlies, can
+// be days earlier) - so a player's current form/fitness at call-up time is actually current.
+const nationalTeamCallUpWindow = 24 * time.Hour
+
+// CallUpNationalTeamSquads is ScheduleNationalTeamFriendlies' squad-selection counterpart (see
+// engine.StartNationalTeamCallUpScheduler) - run frequently, it finds every unplayed
+// national-team friendly within nationalTeamCallUpWindow of kickoff that doesn't have a saved
+// lineup yet for one side or the other, and calls SetNationalTeamLineup for just that side. The
+// "doesn't have a lineup yet" check (a plain SQL NOT EXISTS against friendly_lineup) is what makes
+// this idempotent to call on every tick right up to kickoff: once a side's call-up is saved, that
+// row stops matching, so a player is never re-notified of the same call-up over and over, and a
+// side whose call-up already succeeded is left alone even if the other side's failed and still
+// needs retrying.
+func CallUpNationalTeamSquads(dbCtx *DatabaseContext) error {
+	cutoff := time.Now().Add(nationalTeamCallUpWindow)
+	rows, err := dbCtx.Db.Query(getNationalTeamFriendliesNeedingCallUpStmtSql, cutoff)
+	if err != nil {
+		return err
+	}
+	type callUp struct {
+		matchId int64
+		teamId  int64
+		country string
+	}
+	callUps := make([]callUp, 0)
+	for rows.Next() {
+		var c callUp
+		if err := rows.Scan(&c.matchId, &c.teamId, &c.country); err != nil {
+			rows.Close()
+			return err
 		}
-		if err := SetNationalTeamLineup(dbCtx, matchId, awayTeamId, pair[1]); err != nil {
-			log.Errorf("error setting national-team lineup for %s (match %d): %s", pair[1], matchId, err)
+		callUps = append(callUps, c)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	for _, c := range callUps {
+		if err := SetNationalTeamLineup(dbCtx, c.matchId, c.teamId, c.country); err != nil {
+			log.Errorf("error setting national-team lineup for %s (match %d): %s", c.country, c.matchId, err)
 		}
 	}
 	return nil

@@ -153,6 +153,31 @@ func NewNationalTeamFriendlyJob(dbCtx *common.DatabaseContext) *NationalTeamFrie
 	return &NationalTeamFriendlyJob{desc: "national team friendlies job", dbCtx: dbCtx}
 }
 
+// NationalTeamCallUpJob implements the quartz.Job interface: closes the call-up (starting XI
+// selection) for every national-team friendly within a day of kickoff that doesn't have one yet
+// (see common.CallUpNationalTeamSquads) - split out from NationalTeamFriendlyJob above so a
+// fixture can be created (and shown in the match viewer) well before its squad is actually picked.
+type NationalTeamCallUpJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (nj *NationalTeamCallUpJob) Description() string {
+	return nj.desc
+}
+
+func (nj *NationalTeamCallUpJob) Execute(context.Context) error {
+	log.Info("National team call-up job")
+	if err := common.CallUpNationalTeamSquads(nj.dbCtx); err != nil {
+		log.Errorf("error calling up national team squads: %s", err)
+	}
+	return nil
+}
+
+func NewNationalTeamCallUpJob(dbCtx *common.DatabaseContext) *NationalTeamCallUpJob {
+	return &NationalTeamCallUpJob{desc: "national team call-up job", dbCtx: dbCtx}
+}
+
 // OfferResponseJob implements the quartz.Job interface: sweeps every unowned team's pending
 // incoming transfer offers, on a real-calendar-time schedule independent of match simulation -
 // see engine.RespondToAllPendingOffers.

@@ -502,8 +502,17 @@ func GetFriendlyMatchById(dbCtx *DatabaseContext, matchId int64) (*FriendlyMatch
 	return &m, nil
 }
 
+// GetSimulableFriendliesStmtSql deliberately has no lower bound on match_date (unlike the upper
+// bound, which keeps this from ever grabbing something scheduled further out than the next 15
+// minutes) - a friendly whose 15-minute window was missed entirely (a brief restart or deploy
+// spanning its exact kickoff) must still be picked up on the very next tick once match_date is
+// back in the past, not left stranded at played = false forever. A permanently stuck friendly is
+// not just that one match unresolved: for a national team specifically, it also permanently blocks
+// GetCountriesWithPendingNationalTeamFriendly from ever pairing that country again (the "pending"
+// check has no notion of "this is hopelessly overdue, give up on it"), which is the most likely
+// explanation for a national team that's never played at all despite being active.
 const GetSimulableFriendliesStmtSql = "SELECT match_id, home_team_id, away_team_id, match_date FROM friendly_matches " +
-	"WHERE match_date > now() AND match_date < now() + interval '15 minutes' AND played = false AND in_simulation = false " + ForUpdate
+	"WHERE match_date < now() + interval '15 minutes' AND played = false AND in_simulation = false " + ForUpdate
 
 // GetSimulableFriendlies claims (marks in_simulation) and returns every friendly whose kickoff
 // has arrived, all within one transaction - the same atomic claim-then-return pattern

@@ -42,6 +42,7 @@ func StartEngine() {
 	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))
 	StartNationalTeamFriendlyScheduler(NewNationalTeamFriendlyJob(dbCtx))
+	StartNationalTeamCallUpScheduler(NewNationalTeamCallUpJob(dbCtx))
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
 	StartBirthdayScheduler(NewBirthdayJob(dbCtx))
 	StartAiActivityScheduler(NewAiActivityJob(dbCtx))
