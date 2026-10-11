@@ -130,6 +130,29 @@ func StartNationalTeamCallUpScheduler(nationalTeamCallUpJob quartz.Job) {
 	}
 }
 
+func StartFinishStuckSimulationsScheduler(finishStuckSimulationsJob quartz.Job) {
+	sched.Start(ctx)
+	// Deliberately slower than the other periodic jobs' 5-minute cadence: GetStuckMatches/
+	// GetStuckFriendlies have no "claimed at" timestamp to tell a genuinely abandoned
+	// in_simulation = true row (a crash mid-run) apart from one a normal simulation pass is still
+	// actively working through right now, so this can only lean on running rarely enough that a
+	// real simulation (in practice well under a second of in-process work) is never still running
+	// when a tick lands - 15 minutes keeps that collision essentially impossible while still
+	// turning "stuck until an admin happens to notice and hits the manual endpoint" into "self-heals
+	// within 15 minutes" (see engine.FinishStuckSimulations's own doc comment for why a single
+	// stuck national-team/World Cup match is worse than just that one match never finishing).
+	cronTrigger, err := quartz.NewCronTrigger("0 */15 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(finishStuckSimulationsJob.Description())
+	jobDetail := quartz.NewJobDetail(finishStuckSimulationsJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func StartOfferResponseScheduler(offerResponseJob quartz.Job) {
 	sched.Start(ctx)
 	// Twice a day (midnight and noon UTC) is enough to keep the "the club must respond within a

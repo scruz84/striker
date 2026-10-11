@@ -178,6 +178,38 @@ func NewNationalTeamCallUpJob(dbCtx *common.DatabaseContext) *NationalTeamCallUp
 	return &NationalTeamCallUpJob{desc: "national team call-up job", dbCtx: dbCtx}
 }
 
+// FinishStuckSimulationsJob implements the quartz.Job interface: automatically re-simulates every
+// league match and friendly left stuck at in_simulation = true (see FinishStuckSimulations) -
+// previously only ever run on demand via AdminFinishStuckMatchesHandler, which meant a match a
+// simulation pass claimed but never finished (a server crash/restart mid-run) stayed stuck until
+// an admin happened to notice and trigger that endpoint by hand. Left unnoticed on a national-team
+// friendly or a World Cup group match, that single stuck match also permanently blocks every
+// other national-team fixture: GetCountriesWithPendingNationalTeamFriendly treats it as still
+// pending forever, and, for a group match, IsWorldCupGroupStageComplete never sees the group
+// finish, so HasActiveWorldCup never clears and ScheduleNationalTeamFriendlies skips every
+// country indefinitely - not just the one actually stuck. Running this automatically closes that
+// gap instead of depending on manual intervention.
+type FinishStuckSimulationsJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (sj *FinishStuckSimulationsJob) Description() string {
+	return sj.desc
+}
+
+func (sj *FinishStuckSimulationsJob) Execute(context.Context) error {
+	result := FinishStuckSimulations(sj.dbCtx)
+	if result.LeagueMatches > 0 || result.Friendlies > 0 {
+		log.Infof("Finished stuck simulations job: %d league matches, %d friendlies", result.LeagueMatches, result.Friendlies)
+	}
+	return nil
+}
+
+func NewFinishStuckSimulationsJob(dbCtx *common.DatabaseContext) *FinishStuckSimulationsJob {
+	return &FinishStuckSimulationsJob{desc: "finish stuck simulations job", dbCtx: dbCtx}
+}
+
 // OfferResponseJob implements the quartz.Job interface: sweeps every unowned team's pending
 // incoming transfer offers, on a real-calendar-time schedule independent of match simulation -
 // see engine.RespondToAllPendingOffers.
