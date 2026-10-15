@@ -204,6 +204,26 @@ func StartAiActivityScheduler(aiActivityJob quartz.Job) {
 	}
 }
 
+func StartLiveBroadcastRecoveryScheduler(liveBroadcastRecoveryJob quartz.Job) {
+	sched.Start(ctx)
+	// Every 5 minutes is frequent enough to close a stale broadcast (see
+	// engine.RecoverStaleLiveBroadcasts) promptly after it crosses common.LiveMatchStaleTimeout
+	// (18 minutes) without needing per-minute granularity - staleness is itself only measured in
+	// minutes, so a few minutes' extra delay in detecting it is immaterial. Same cadence as
+	// StartAdvanceSeasonScheduler/StartAiActivityScheduler for the same reason: cheap per tick (a
+	// small, already-"live" set of matches plus a couple of Redis reads each).
+	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(liveBroadcastRecoveryJob.Description())
+	jobDetail := quartz.NewJobDetail(liveBroadcastRecoveryJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }

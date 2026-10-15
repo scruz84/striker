@@ -222,6 +222,57 @@ func TestLiveMatchHub_PublishAssignsStrictlyIncreasingSeq(t *testing.T) {
 	}
 }
 
+func TestLiveMatchHub_LastMessageReturnsTheMostRecentOne(t *testing.T) {
+	hub := liveHubForTest(t)
+	channel := LeagueMatchChannel(time.Now().UnixNano() + 3)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), lastPublishKey(channel)) })
+
+	if _, ok := hub.LastMessage(channel); ok {
+		t.Fatal("expected no last message before anything is published")
+	}
+
+	hub.Publish(channel, LiveMatchMessage{Type: "instant", HomeGoals: 1, AwayGoals: 0})
+	hub.Publish(channel, LiveMatchMessage{Type: "instant", HomeGoals: 2, AwayGoals: 0})
+	hub.Publish(channel, LiveMatchMessage{Type: "complete", HomeGoals: 2, AwayGoals: 1})
+
+	msg, ok := hub.LastMessage(channel)
+	if !ok {
+		t.Fatal("expected a last message after publishing")
+	}
+	if msg.Type != "complete" || msg.HomeGoals != 2 || msg.AwayGoals != 1 {
+		t.Fatalf("expected the most recently published message, got: %+v", msg)
+	}
+}
+
+func TestLiveMatchHub_LastPublishedAtTracksEachPublish(t *testing.T) {
+	hub := liveHubForTest(t)
+	channel := LeagueMatchChannel(time.Now().UnixNano() + 4)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), lastPublishKey(channel)) })
+
+	if _, ok := hub.LastPublishedAt(channel); ok {
+		t.Fatal("expected no last-publish time before anything is published")
+	}
+
+	before := time.Now()
+	hub.Publish(channel, LiveMatchMessage{Type: "instant"})
+	after := time.Now()
+
+	publishedAt, ok := hub.LastPublishedAt(channel)
+	if !ok {
+		t.Fatal("expected a last-publish time after publishing")
+	}
+	if publishedAt.Before(before) || publishedAt.After(after) {
+		t.Fatalf("expected last-publish time within [%s, %s], got %s", before, after, publishedAt)
+	}
+
+	time.Sleep(10 * time.Millisecond)
+	hub.Publish(channel, LiveMatchMessage{Type: "complete"})
+	secondPublishedAt, ok := hub.LastPublishedAt(channel)
+	if !ok || !secondPublishedAt.After(publishedAt) {
+		t.Fatalf("expected last-publish time to advance on a second publish: first %s, second %s", publishedAt, secondPublishedAt)
+	}
+}
+
 func TestLiveMatchHub_HasSubscribersReflectsSubscriptionState(t *testing.T) {
 	hub := liveHubForTest(t)
 	channel := LeagueMatchChannel(2)

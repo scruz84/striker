@@ -61,6 +61,13 @@ const liveMatchHistoryTTL = 4 * time.Hour
 
 func historyKey(channel string) string { return liveMatchKeyPrefix + "history:" + channel }
 
+// lastPublishKey namespaces the timestamp Publish records of its own most recent call for
+// channel - see LastPublishedAt, which is what RecoverStaleLiveBroadcasts reads to decide whether
+// a channel has gone quiet for too long. A separate key from historyKey's list rather than a
+// field on the stored message itself, so adding this doesn't touch the message schema every
+// existing consumer (the frontend's useLiveMatch, History's callers) already decodes.
+func lastPublishKey(channel string) string { return liveMatchKeyPrefix + "lastpublish:" + channel }
+
 // seqKey namespaces the atomic counter Publish uses to assign each channel's messages their own
 // strictly increasing Seq (see LiveMatchMessage.Seq) - a separate key from historyKey's list so
 // the counter (a single INCR) never has to agree with the list's own length, which would require
@@ -179,6 +186,10 @@ func (h *LiveMatchHub) Publish(channel string, msg LiveMatchMessage) {
 	} else if err := h.client.Expire(ctx, hKey, liveMatchHistoryTTL).Err(); err != nil {
 		log.Errorf("error setting live match history TTL for %s: %s", channel, err)
 	}
+	// Recorded alongside history, same TTL - see LastPublishedAt/lastPublishKey.
+	if err := h.client.Set(ctx, lastPublishKey(channel), time.Now().UnixNano(), liveMatchHistoryTTL).Err(); err != nil {
+		log.Errorf("error recording last-publish time for %s: %s", channel, err)
+	}
 	if err := h.client.Publish(ctx, liveMatchKeyPrefix+channel, payload).Err(); err != nil {
 		log.Errorf("error publishing live match message for %s: %s", channel, err)
 	}
@@ -204,4 +215,49 @@ func (h *LiveMatchHub) History(channel string) []LiveMatchMessage {
 		messages = append(messages, msg)
 	}
 	return messages
+}
+
+// LastMessage returns the most recently published message for channel, if any - the same source
+// of truth a live viewer's own connection (handlers.serveLiveMatch) ultimately reads off, used by
+// GetLiveMatchesOverview's dashboard suggestion so it reports the broadcast's actual current
+// state (minute, score, or "complete") instead of estimating one from elapsed real time (see
+// CurrentMatchMinute), which can drift from the real broadcast whenever it stalls, lags, or has
+// already finished. Reads only the list's tail (LRange ... -1 -1) rather than the whole history,
+// since every other caller of that already-published data is History's own, catch-up use case.
+func (h *LiveMatchHub) LastMessage(channel string) (LiveMatchMessage, bool) {
+	raw, err := h.client.LRange(context.Background(), historyKey(channel), -1, -1).Result()
+	if err != nil {
+		log.Errorf("error reading last live match message for %s: %s", channel, err)
+		return LiveMatchMessage{}, false
+	}
+	if len(raw) == 0 {
+		return LiveMatchMessage{}, false
+	}
+	var msg LiveMatchMessage
+	if err := json.Unmarshal([]byte(raw[0]), &msg); err != nil {
+		log.Errorf("error decoding last live match message for %s: %s", channel, err)
+		return LiveMatchMessage{}, false
+	}
+	return msg, true
+}
+
+// LastPublishedAt returns when Publish was last called for channel, if ever - see
+// RecoverStaleLiveBroadcasts, which uses this (rather than LastMessage's own content) to decide
+// whether a played match's broadcast has gone silent for longer than LiveMatchStaleTimeout,
+// including the case where nothing has ever been published for it at all (ok is false).
+func (h *LiveMatchHub) LastPublishedAt(channel string) (time.Time, bool) {
+	raw, err := h.client.Get(context.Background(), lastPublishKey(channel)).Result()
+	if err == redis.Nil {
+		return time.Time{}, false
+	}
+	if err != nil {
+		log.Errorf("error reading last-publish time for %s: %s", channel, err)
+		return time.Time{}, false
+	}
+	nanos, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil {
+		log.Errorf("error parsing last-publish time for %s: %s", channel, err)
+		return time.Time{}, false
+	}
+	return time.Unix(0, nanos), true
 }

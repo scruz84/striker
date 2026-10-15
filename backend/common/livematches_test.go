@@ -1,6 +1,10 @@
 package common
 
-import "testing"
+import (
+	"context"
+	"testing"
+	"time"
+)
 
 func TestPickRandomLiveMatch_Empty(t *testing.T) {
 	if _, ok := PickRandomLiveMatch(nil); ok {
@@ -68,5 +72,101 @@ func TestPickRandomLiveMatch_OnlyPicksAmongLowestTier(t *testing.T) {
 
 	if !seen[1] || !seen[2] {
 		t.Fatalf("expected both tier-2 matches to be picked at least once across attempts, got %v", seen)
+	}
+}
+
+func TestLiveMatchChannel_PicksTheRightNamespace(t *testing.T) {
+	cases := []struct {
+		match LiveMatchSummary
+		want  string
+	}{
+		{LiveMatchSummary{Kind: MatchKindLeague, MatchId: 7}, LeagueMatchChannel(7)},
+		{LiveMatchSummary{Kind: MatchKindCup, MatchId: 7}, CupTieChannel(7)},
+		{LiveMatchSummary{Kind: MatchKindFriendly, MatchId: 7}, FriendlyMatchChannel(7)},
+	}
+	for _, c := range cases {
+		if got := liveMatchChannel(c.match); got != c.want {
+			t.Errorf("liveMatchChannel(%+v) = %q, want %q", c.match, got, c.want)
+		}
+	}
+}
+
+func TestMinuteFromLiveMessage(t *testing.T) {
+	cases := []struct {
+		name       string
+		msg        LiveMatchMessage
+		wantMinute int
+		wantOk     bool
+	}{
+		{"instant", LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 23}}, 23, true},
+		{"event", LiveMatchMessage{Type: "event", Event: &Event{Minute: 67}}, 67, true},
+		{"halftime", LiveMatchMessage{Type: "halftime"}, liveMatchFirstHalfMinutes, true},
+		{"complete", LiveMatchMessage{Type: "complete"}, liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, true},
+		{"lineups has no minute yet", LiveMatchMessage{Type: "lineups"}, 0, false},
+		{"instant missing its payload", LiveMatchMessage{Type: "instant"}, 0, false},
+		{"event missing its payload", LiveMatchMessage{Type: "event"}, 0, false},
+	}
+	for _, c := range cases {
+		minute, ok := minuteFromLiveMessage(c.msg)
+		if minute != c.wantMinute || ok != c.wantOk {
+			t.Errorf("%s: minuteFromLiveMessage(%+v) = (%d, %v), want (%d, %v)", c.name, c.msg, minute, ok, c.wantMinute, c.wantOk)
+		}
+	}
+}
+
+// TestEnrichSuggestedLiveMatch_PrefersRealBroadcastOverFormula reproduces the reported dashboard
+// bug: the suggested-live-match card used to recompute its minute from elapsed real time
+// (CurrentMatchMinute) instead of reading the same source of truth the match's own live-viewer
+// page does (the channel's last published LiveMatchHub message). matchDate is picked so the
+// formula's own estimate would land nowhere near the real broadcast's last reported minute,
+// proving this reads the real message rather than estimating.
+func TestEnrichSuggestedLiveMatch_PrefersRealBroadcastOverFormula(t *testing.T) {
+	hub := liveHubForTest(t)
+	dbCtx := &DatabaseContext{LiveHub: hub}
+
+	match := LiveMatchSummary{Kind: MatchKindFriendly, MatchId: time.Now().UnixNano(), MatchDate: time.Now().Add(-70 * time.Minute)}
+	channel := FriendlyMatchChannel(match.MatchId)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), lastPublishKey(channel)) })
+
+	hub.Publish(channel, LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 12}, HomeGoals: 2, AwayGoals: 1})
+
+	if formulaMinute := CurrentMatchMinute(match.MatchDate); formulaMinute == 12 {
+		t.Fatalf("test setup invalid: the formula's own estimate (%d) must differ from the real broadcast minute to prove which one enrichSuggestedLiveMatch actually used", formulaMinute)
+	}
+
+	if err := enrichSuggestedLiveMatch(dbCtx, &match); err != nil {
+		t.Fatalf("enrichSuggestedLiveMatch returned an error: %s", err)
+	}
+	if match.Minute != 12 {
+		t.Errorf("expected Minute to come from the real broadcast message (12), got %d", match.Minute)
+	}
+	if match.HomeGoals != 2 || match.AwayGoals != 1 {
+		t.Errorf("expected goals from the real broadcast message (2-1), got %d-%d", match.HomeGoals, match.AwayGoals)
+	}
+}
+
+// TestEnrichSuggestedLiveMatch_CompleteMessageReportsFinalMinute checks the other end of the same
+// fix: once the broadcast has actually closed itself out (a normal "complete", or one
+// engine.RecoverStaleLiveBroadcasts published after a stale timeout), the dashboard card reports
+// the match as finished (minute 90) with the final score, instead of an estimate that could still
+// show an in-progress-looking minute for a match that's actually done.
+func TestEnrichSuggestedLiveMatch_CompleteMessageReportsFinalMinute(t *testing.T) {
+	hub := liveHubForTest(t)
+	dbCtx := &DatabaseContext{LiveHub: hub}
+
+	match := LiveMatchSummary{Kind: MatchKindFriendly, MatchId: time.Now().UnixNano() + 1, MatchDate: time.Now().Add(-10 * time.Minute)}
+	channel := FriendlyMatchChannel(match.MatchId)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), lastPublishKey(channel)) })
+
+	hub.Publish(channel, LiveMatchMessage{Type: "complete", HomeGoals: 3, AwayGoals: 0})
+
+	if err := enrichSuggestedLiveMatch(dbCtx, &match); err != nil {
+		t.Fatalf("enrichSuggestedLiveMatch returned an error: %s", err)
+	}
+	if want := liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes; match.Minute != want {
+		t.Errorf("expected Minute %d for a completed match, got %d", want, match.Minute)
+	}
+	if match.HomeGoals != 3 || match.AwayGoals != 0 {
+		t.Errorf("expected the final score (3-0), got %d-%d", match.HomeGoals, match.AwayGoals)
 	}
 }

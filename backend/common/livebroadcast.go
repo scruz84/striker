@@ -19,6 +19,21 @@ func LiveBroadcastCutoff() time.Time {
 	return time.Now().Add(-LiveBroadcastWindow)
 }
 
+// LiveMatchStaleTimeout bounds how long a live broadcast's channel can go without a new message
+// before it's treated as dead rather than merely between minutes - shared by
+// handlers.serveLiveMatch (which falls back to reporting the already-known final result to its
+// one open connection once this elapses) and engine.RecoverStaleLiveBroadcasts (which closes the
+// channel itself, for every current and future viewer at once, once it does). Lives here rather
+// than in either of those packages so both can reference the same value without a cycle (handlers
+// and engine both already import common). A backend crash or redeploy kills
+// engine.BroadcastMatchLive's goroutine outright, with nothing left to ever publish a "complete"
+// for that channel again.
+//
+// It has to clear the halftime pause (engine.liveMatchHalftimeDelay, 15 real minutes) by a
+// comfortable margin, or a perfectly healthy broadcast's halftime break would trip it - a var
+// rather than a const so tests can shrink it instead of waiting out the real duration.
+var LiveMatchStaleTimeout = 18 * time.Minute
+
 // liveMatchMinuteDelay/liveMatchHalftimeDelay mirror engine.liveMatchMinuteDelay/
 // liveMatchHalftimeDelay (backend/engine/livematch.go) - kept in sync manually since engine
 // already depends on common and importing it back here would cycle. They pace how real elapsed

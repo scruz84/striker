@@ -210,6 +210,26 @@ func NewFinishStuckSimulationsJob(dbCtx *common.DatabaseContext) *FinishStuckSim
 	return &FinishStuckSimulationsJob{desc: "finish stuck simulations job", dbCtx: dbCtx}
 }
 
+// LiveBroadcastRecoveryJob implements the quartz.Job interface: closes out any played match/cup
+// tie/friendly whose live broadcast has gone stale - see RecoverStaleLiveBroadcasts.
+type LiveBroadcastRecoveryJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (lj *LiveBroadcastRecoveryJob) Description() string {
+	return lj.desc
+}
+
+func (lj *LiveBroadcastRecoveryJob) Execute(context.Context) error {
+	RecoverStaleLiveBroadcasts(lj.dbCtx)
+	return nil
+}
+
+func NewLiveBroadcastRecoveryJob(dbCtx *common.DatabaseContext) *LiveBroadcastRecoveryJob {
+	return &LiveBroadcastRecoveryJob{desc: "live broadcast recovery job", dbCtx: dbCtx}
+}
+
 // OfferResponseJob implements the quartz.Job interface: sweeps every unowned team's pending
 // incoming transfer offers, on a real-calendar-time schedule independent of match simulation -
 // see engine.RespondToAllPendingOffers.

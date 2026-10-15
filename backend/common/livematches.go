@@ -146,14 +146,66 @@ const getCupTieScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM cup_
 const getFriendlyScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM friendly_events " +
 	"WHERE match_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
 
-// enrichSuggestedLiveMatch fills in Minute (see CurrentMatchMinute) and overwrites HomeGoals/
-// AwayGoals - freshly queried off matches/cup_ties/friendly_matches, they're already the final
-// result, which would spoil a match still supposedly in progress - with the score as of that
-// same minute, read back from whichever event table its Kind owns. Every event row (goal or not)
-// carries the running score at the moment it happened (see InsertMatchEventStmtSql), so the most
-// recent one at or before the current minute is exactly that snapshot; no event yet at or before
-// it means the match is still scoreless so far.
+// liveMatchChannel returns the LiveMatchHub channel match's own broadcast actually publishes to
+// (see LeagueMatchChannel/CupTieChannel/FriendlyMatchChannel) - the same one its own live-viewer
+// page (handlers.serveLiveMatch) subscribes to, so enrichSuggestedLiveMatch can read that exact
+// broadcast's own last message rather than a different estimate of it.
+func liveMatchChannel(match LiveMatchSummary) string {
+	switch match.Kind {
+	case MatchKindCup:
+		return CupTieChannel(match.MatchId)
+	case MatchKindFriendly:
+		return FriendlyMatchChannel(match.MatchId)
+	default:
+		return LeagueMatchChannel(match.MatchId)
+	}
+}
+
+// minuteFromLiveMessage extracts the match-minute msg actually represents, if any - "lineups"
+// (published once, before the broadcast's first real minute) has none, so callers fall back to
+// an estimate for that one brief case; every other type maps onto a concrete minute the same way
+// engine.BroadcastMatchLive paces them out.
+func minuteFromLiveMessage(msg LiveMatchMessage) (int, bool) {
+	switch msg.Type {
+	case "instant":
+		if msg.Instant != nil {
+			return msg.Instant.Minute, true
+		}
+	case "event":
+		if msg.Event != nil {
+			return msg.Event.Minute, true
+		}
+	case "halftime":
+		return liveMatchFirstHalfMinutes, true
+	case "complete":
+		return liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, true
+	}
+	return 0, false
+}
+
+// enrichSuggestedLiveMatch fills in Minute and overwrites HomeGoals/AwayGoals (freshly queried
+// off matches/cup_ties/friendly_matches, they're already the final result, which would spoil a
+// match still supposedly in progress) with the match's actual current state.
+//
+// Reads the real broadcast's own last published message (see LiveMatchHub.LastMessage) rather
+// than estimating from elapsed time, so this dashboard-wide suggestion always agrees with
+// whatever that match's own live-viewer page (handlers.serveLiveMatch) would show right now - a
+// time-based estimate (CurrentMatchMinute) drifts from the real broadcast whenever it stalls,
+// lags behind a scheduler backlog, or has already gone stale and been closed out (see
+// engine.RecoverStaleLiveBroadcasts), all of which the broadcast's own messages already reflect
+// without needing to be reasoned about separately here. Falls back to that same estimate, plus
+// the score-as-of-that-minute lookup this always used, only for the brief window before the
+// broadcast's first message has actually been published yet (match_date just passed) or (far
+// less likely) if Redis itself is unreachable.
 func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) error {
+	if msg, ok := dbCtx.LiveHub.LastMessage(liveMatchChannel(*match)); ok {
+		if minute, ok := minuteFromLiveMessage(msg); ok {
+			match.Minute = minute
+			match.HomeGoals, match.AwayGoals = msg.HomeGoals, msg.AwayGoals
+			return nil
+		}
+	}
+
 	match.Minute = CurrentMatchMinute(match.MatchDate)
 
 	var stmtSql string

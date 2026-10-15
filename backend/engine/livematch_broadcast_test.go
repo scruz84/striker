@@ -34,6 +34,11 @@ func TestBroadcastMatchLive_GoalReflectedImmediately(t *testing.T) {
 		{Minute: 2, HomeGoals: 0, AwayGoals: 0},
 	}
 	match := &common.MatchSimulation{
+		// The final authoritative score BroadcastMatchLive's "complete" message actually reports -
+		// must agree with the goal event above, or this test's own fixture (not the code under
+		// test) is what's wrong.
+		HomeGoals:     1,
+		AwayGoals:     0,
 		Events:        &events,
 		MatchInstants: &instants,
 	}

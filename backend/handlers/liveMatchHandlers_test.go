@@ -67,17 +67,17 @@ func readLiveMatchMessage(t *testing.T, conn *websocket.Conn, timeout time.Durat
 
 // TestServeLiveMatch_StaleBroadcastReportsFinalResult reproduces the reported bug: a live viewer
 // stuck showing a frozen minute forever. engine.BroadcastMatchLive runs as a bare goroutine with
-// no persisted "still alive" state (see liveMatchStaleTimeout's own comment), so a backend
+// no persisted "still alive" state (see common.LiveMatchStaleTimeout's own comment), so a backend
 // crash/redeploy mid-broadcast leaves serveLiveMatch's connection open with nothing left to ever
-// publish a "complete" for it. Once liveMatchStaleTimeout elapses with no further message,
+// publish a "complete" for it. Once common.LiveMatchStaleTimeout elapses with no further message,
 // serveLiveMatch must give up waiting and report the (already known, already correct) final score
 // instead of hanging until liveMatchMaxConnectionLifetime.
 func TestServeLiveMatch_StaleBroadcastReportsFinalResult(t *testing.T) {
 	redisReachableForTest(t)
 
-	old := liveMatchStaleTimeout
-	liveMatchStaleTimeout = 200 * time.Millisecond
-	t.Cleanup(func() { liveMatchStaleTimeout = old })
+	old := common.LiveMatchStaleTimeout
+	common.LiveMatchStaleTimeout = 200 * time.Millisecond
+	t.Cleanup(func() { common.LiveMatchStaleTimeout = old })
 
 	channel := common.LeagueMatchChannel(time.Now().UnixNano())
 	server, dbCtx := newLiveMatchTestServer(t, channel, true, 2, 1)
@@ -154,9 +154,9 @@ func TestServeLiveMatch_SecondMessageInSameMinuteSurvivesReconnectCatchUp(t *tes
 func TestServeLiveMatch_QuietBeforeKickoffIsNotStale(t *testing.T) {
 	redisReachableForTest(t)
 
-	old := liveMatchStaleTimeout
-	liveMatchStaleTimeout = 200 * time.Millisecond
-	t.Cleanup(func() { liveMatchStaleTimeout = old })
+	old := common.LiveMatchStaleTimeout
+	common.LiveMatchStaleTimeout = 200 * time.Millisecond
+	t.Cleanup(func() { common.LiveMatchStaleTimeout = old })
 
 	channel := common.LeagueMatchChannel(time.Now().UnixNano())
 	server, _ := newLiveMatchTestServer(t, channel, false, 0, 0)
