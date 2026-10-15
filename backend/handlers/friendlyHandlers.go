@@ -412,8 +412,11 @@ func FriendlyMatchHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 }
 
 // GetFriendlyLineupHandler returns the caller's team's saved lineup override for one friendly
-// (see common.GetFriendlyLineup), or its current default lineup if it hasn't saved one yet - the
-// same starting point the editor would show either way.
+// (see common.GetFriendlyLineup), or - if it hasn't saved one yet - its standing friendly-only
+// default lineup (see common.GetDefaultFriendlyLineup), or a freshly computed best available XI
+// if it hasn't set that up either. Same priority order as common.GetLineupsForFriendly, which is
+// what actually simulates the match, so the editor's starting point always matches what would be
+// fielded if the manager leaves this friendly untouched.
 func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -443,12 +446,21 @@ func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		// No override saved yet - hand back the team's current best available XI as the editor's
-		// starting point (see common.BestLineupForTeam), same shape as an override so the
-		// frontend doesn't need to know which one it got. Deliberately not the team's standing
-		// default lineup (unlike the league/cup equivalents): a friendly should be fulfilled by
-		// default with the strongest squad currently available, not whatever was last saved for
-		// competitive play.
+		friendlyDefault, err := common.GetDefaultFriendlyLineup(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting default friendly lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if len(friendlyDefault.Positions) > 0 {
+			friendlyDefault.MatchId = matchId
+			c.JSON(http.StatusOK, friendlyDefault)
+			return
+		}
+
+		// No override and no standing friendly default saved yet - hand back the team's current
+		// best available XI as the editor's starting point (see common.BestLineupForTeam), same
+		// shape as an override so the frontend doesn't need to know which one it got.
 		bestLineup, err := common.BestLineupForTeam(dbCtx, team.Id)
 		if err != nil {
 			log.Errorf("error getting best lineup for team %d: %s", team.Id, err)
