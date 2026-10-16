@@ -13,9 +13,10 @@ import (
 // and match_events this reads are still the just-finished season's (classification is reset in
 // place right after - see ResetClassificationForSeason - but match_events, keyed by season, are
 // never touched by rollover). Either award is skipped (not everyone wins every season) if nobody
-// qualifies - see common.GetTopScorers/GetPlayerOfTheSeason.
+// qualifies - see common.GetTopScorersFinal/GetPlayerOfTheSeason (both count the whole season, including
+// matches whose live broadcast is still running when the season closes).
 func awardSeasonHonors(dbCtx *common.DatabaseContext, leagueId int64, season int) {
-	scorers, err := common.GetTopScorers(dbCtx, leagueId, season, 1)
+	scorers, err := common.GetTopScorersFinal(dbCtx, leagueId, season, 1)
 	if err != nil {
 		log.Errorf("error getting golden boot candidate for league %d season %d: %s", leagueId, season, err)
 	} else if len(scorers) > 0 && scorers[0].Goals > 0 {

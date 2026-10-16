@@ -43,7 +43,13 @@ func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, sc
 		return nil
 	}
 
-	dates := ComputeFixtureDates(time.Now(), schedule, len(weekNumbers))
+	// A match already simulated (or being simulated) can still be dated up to 15 minutes ahead -
+	// the new rounds start after it, not on its minute.
+	latestStarted, err := common.GetLatestStartedMatchDate(dbCtx, leagueId, season)
+	if err != nil {
+		return err
+	}
+	dates := ComputeFixtureDates(FixtureStart(time.Now(), latestStarted), schedule, len(weekNumbers))
 	for i, week := range weekNumbers {
 		if _, err := dbCtx.Db.Exec(
 			"UPDATE matches SET match_date = $1 WHERE league_id = $2 AND season = $3 AND week_number = $4",

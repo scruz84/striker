@@ -38,3 +38,14 @@ func ComputeFixtureDates(from time.Time, schedule common.MatchSchedule, roundCou
 	}
 	return dates
 }
+
+// FixtureStart returns the instant fixture dates should be searched from: now, or one minute
+// after latestScheduled if that is later (nil means nothing to avoid). ComputeFixtureDates
+// returns the next occurrence at or after its `from`, so searching from a round that is itself
+// still in the future could return that very round's slot - two matches at the same minute.
+func FixtureStart(now time.Time, latestScheduled *time.Time) time.Time {
+	if latestScheduled != nil && !latestScheduled.Add(time.Minute).Before(now) {
+		return latestScheduled.Add(time.Minute)
+	}
+	return now
+}

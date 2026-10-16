@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"sort"
+	"time"
 )
 
 // ScorerStanding is one row of a league's top-scorers leaderboard - see GetTopScorers.
@@ -15,14 +16,16 @@ type ScorerStanding struct {
 	Goals     int    `json:"goals"`
 }
 
-// match_date <= $4 excludes goals from a match still inside its live-broadcast window (see
-// LiveBroadcastWindow) - match_events rows exist the instant a match is simulated, well before
-// its broadcast finishes, so without this a scorer's tally here would jump (and reveal that
-// their team just scored) before that match's own row shows anything but "LIVE" (issue: match
-// results review).
+// A non-NULL $4 excludes goals from a match whose match_date is after it - the public leaderboard
+// passes LiveBroadcastCutoff() (see LiveBroadcastWindow), since match_events rows exist the
+// instant a match is simulated, well before its broadcast finishes, so without it a scorer's
+// tally would jump (and reveal that their team just scored) before that match's own row shows
+// anything but "LIVE" (issue: match results review). A NULL $4 counts every simulated match,
+// which season awards need (see GetTopScorersFinal).
 const GetGoalEventScorersStmtSql = "SELECT me.team_players FROM match_events me " +
 	"JOIN matches m ON m.match_id = me.match_id " +
-	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type = $3 AND m.match_date <= $4"
+	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type = $3 " +
+	"AND ($4::timestamptz IS NULL OR m.match_date <= $4)"
 
 const GetPlayerTeamForScorerStmtSql = "SELECT p.first_name, p.last_name, p.team_id, t.name " +
 	"FROM players p JOIN teams t ON t.team_id = p.team_id WHERE p.player_id = $1"
@@ -59,12 +62,30 @@ func rankScorerStandings(standings []ScorerStanding, limit int) []ScorerStanding
 	return standings
 }
 
-// GetTopScorers returns a league's top `limit` goalscorers for the given season. Only players
-// still findable on a team's current roster are included - a scorer who has since retired (or
-// otherwise left the game entirely) has no row left to look their name/team up from, so this is
-// a "current squads" leaderboard rather than a full historical career record.
+// GetTopScorers returns a league's top `limit` goalscorers for the given season, leaving out
+// matches still inside their live-broadcast window (see LiveBroadcastWindow) so the public
+// leaderboard doesn't reveal a result before its broadcast finishes. Only players still findable
+// on a team's current roster are included - a scorer who has since retired (or otherwise left the
+// game entirely) has no row left to look their name/team up from, so this is a "current squads"
+// leaderboard rather than a full historical career record.
 func GetTopScorers(dbCtx *DatabaseContext, leagueId int64, season int, limit int) ([]ScorerStanding, error) {
-	rows, err := dbCtx.Db.Query(GetGoalEventScorersStmtSql, leagueId, season, GOAL, LiveBroadcastCutoff())
+	cutoff := LiveBroadcastCutoff()
+	return getTopScorers(dbCtx, leagueId, season, limit, &cutoff)
+}
+
+// GetTopScorersFinal is GetTopScorers counting every simulated match of the season, including ones
+// whose live broadcast is still running. For season awards (see engine.awardSeasonHonors): the
+// season closes as soon as the last match is simulated, which is before that match's broadcast
+// ends, so the live-broadcast cutoff would drop the final round's goals and could hand the Golden
+// Boot to the wrong player - and GetPlayerOfTheSeason counts those same matches.
+func GetTopScorersFinal(dbCtx *DatabaseContext, leagueId int64, season int, limit int) ([]ScorerStanding, error) {
+	return getTopScorers(dbCtx, leagueId, season, limit, nil)
+}
+
+// getTopScorers is the shared body of GetTopScorers/GetTopScorersFinal; a nil cutoff counts every
+// match (see GetGoalEventScorersStmtSql).
+func getTopScorers(dbCtx *DatabaseContext, leagueId int64, season int, limit int, cutoff *time.Time) ([]ScorerStanding, error) {
+	rows, err := dbCtx.Db.Query(GetGoalEventScorersStmtSql, leagueId, season, GOAL, cutoff)
 	if err != nil {
 		return nil, err
 	}

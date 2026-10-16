@@ -69,6 +69,16 @@ func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int6
 		overrides = nil
 	}
 
+	// Searched from once, before any league's fixtures are inserted: a season closes while its last
+	// round can still be dated in the future (matches are simulated 15 minutes ahead), and the new
+	// season must start after it. Only earlier seasons count, so a league added mid-season isn't
+	// pushed past the end of everyone else's current fixtures.
+	latestPrevious, err := common.GetLatestMatchDateBeforeSeason(dbCtx, season)
+	if err != nil {
+		log.Errorf("error finding the previous season's last match date, scheduling from now: %s", err)
+	}
+	from := FixtureStart(time.Now(), latestPrevious)
+
 	for _, leagueId := range leagueIds {
 		teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
 		if err != nil {
@@ -90,14 +100,14 @@ func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int6
 			schedule = override
 		}
 
-		weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule)
+		weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule, from)
 		//Insert the matches
 		_ = common.InsertMatches(dbCtx, weekMatches)
 	}
 }
 
 // Algorithm from: https://www.competize.com/blog/hacer-fixture-crear-calendario-liga-excel/
-func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64, schedule common.MatchSchedule) [][]*common.WeekMatch {
+func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64, schedule common.MatchSchedule, from time.Time) [][]*common.WeekMatch {
 	// Here we have a random sort for the teams
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	rand.Shuffle(len(*teamIds), func(i, j int) {
@@ -111,7 +121,6 @@ func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64, schedule 
 	teamIdxForMatchFromWeek := 0
 	teamIdxForRestMatchesFromWeek := len(*teamIds) - 2
 	latestTeamId := &(*teamIds)[len(*teamIds)-1]
-	now := time.Now()
 	for weekIdx := 0; weekIdx < nWeeks; weekIdx++ {
 		weeksMatches[weekIdx] = make([]*common.WeekMatch, nMatchesPerWeek)
 		for weekIndex := 0; weekIndex < nMatchesPerWeek; weekIndex++ {
@@ -148,7 +157,7 @@ func randomWeekMatches2(leagueId *int64, season int, teamIds *[]int64, schedule 
 			teamIdxForMatchFromWeek = (teamIdxForMatchFromWeek + 1) % (len(*teamIds) - 1)
 		}
 	}
-	roundDates := ComputeFixtureDates(now, schedule, nWeeks)
+	roundDates := ComputeFixtureDates(from, schedule, nWeeks)
 	for weekIdx, matches := range weeksMatches {
 		for _, match := range matches {
 			match.MatchDate = roundDates[weekIdx]

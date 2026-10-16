@@ -106,3 +106,41 @@ func TestComputeFixtureDates_ReturnsRequestedCount(t *testing.T) {
 		t.Fatalf("expected 3 dates, got %d", len(dates))
 	}
 }
+
+// A season closes at 15:50 while its last round (dated 16:00, simulated 15 minutes ahead) is still
+// in the future; with a daily 16:00 schedule the next season's round 1 used to land on that very
+// minute.
+func TestFixtureStart_NextSeasonStartsAfterLastRoundStillInTheFuture(t *testing.T) {
+	schedule := common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask, Hour: 16, Minute: 0}
+	now := time.Date(2026, 3, 2, 15, 50, 0, 0, time.UTC)
+	lastRound := time.Date(2026, 3, 2, 16, 0, 0, 0, time.UTC)
+
+	naive := ComputeFixtureDates(now, schedule, 1)[0]
+	if !naive.Equal(lastRound) {
+		t.Fatalf("test premise: searching from now should hit the last round's slot, got %v", naive)
+	}
+
+	dates := ComputeFixtureDates(FixtureStart(now, &lastRound), schedule, 2)
+	want := time.Date(2026, 3, 3, 16, 0, 0, 0, time.UTC)
+	if !dates[0].Equal(want) {
+		t.Fatalf("round 1: got %v, want %v", dates[0], want)
+	}
+	if !dates[0].After(lastRound) {
+		t.Fatalf("round 1 %v must be strictly after the last round %v", dates[0], lastRound)
+	}
+}
+
+func TestFixtureStart_IgnoresPastOrMissingMatches(t *testing.T) {
+	now := time.Date(2026, 3, 2, 15, 50, 0, 0, time.UTC)
+	if got := FixtureStart(now, nil); !got.Equal(now) {
+		t.Fatalf("no previous matches: got %v, want now", got)
+	}
+	past := now.Add(-48 * time.Hour)
+	if got := FixtureStart(now, &past); !got.Equal(now) {
+		t.Fatalf("long-finished previous season: got %v, want now", got)
+	}
+	future := now.Add(10 * time.Minute)
+	if got := FixtureStart(now, &future); !got.Equal(future.Add(time.Minute)) {
+		t.Fatalf("future last match: got %v, want one minute after it", got)
+	}
+}

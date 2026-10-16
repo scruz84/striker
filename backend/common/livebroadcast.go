@@ -10,7 +10,8 @@ import "time"
 // (correctly live-gated) page must exclude anything still inside this window, or it ends up
 // revealing a result that still looks "live" everywhere else (a past-meetings summary, a top
 // scorers table, a cup bracket's next round) - see GetHeadToHead, GetTopScorers,
-// GetPlayerCareerStats, and engine.IsCupRoundResolved.
+// GetPlayerCareerStats, and engine.IsCupRoundResolved. Season awards are the deliberate exception
+// (see GetTopScorersFinal).
 const LiveBroadcastWindow = 2 * time.Hour
 
 // LiveBroadcastCutoff is the match_date a match must be at or before to be safely treated as
