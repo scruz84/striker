@@ -1222,6 +1222,43 @@
     "title": "Ayuda y cómo jugar",
     "subtitle": "Todo lo que necesitas saber para dirigir tu club, desde reclamar un equipo hasta levantar la copa.",
     "sections": {
+      "access": {
+        "title": "Acceso e instalación",
+        "items": [
+          {
+            "q": "¿Cómo entro en Striker desde el navegador?",
+            "a": "Abre Chrome, Safari, Edge o Firefox y ve a https://striker.example.com. Inicia sesión con tu cuenta de Google. Para jugar no hace falta instalar nada: la web funciona igual en cualquier navegador."
+          },
+          {
+            "q": "¿Puedo tenerlo como una app más en el móvil?",
+            "a": "Sí. Striker se puede instalar en la pantalla de inicio de tu móvil: se abre a pantalla completa, sin la barra del navegador, y tiene su propio icono, como cualquier otra aplicación."
+          },
+          {
+            "q": "¿Cómo lo instalo en Android?",
+            "a": "Con Chrome, entra en striker.example.com, pulsa el menú (los tres puntos de la esquina superior) y elige «Instalar aplicación» o «Añadir a la pantalla de inicio». Confirma con «Instalar» y el icono aparecerá en tu pantalla de inicio."
+          },
+          {
+            "q": "¿Cómo lo instalo en iPhone o iPad?",
+            "a": "Abre la web en Safari, pulsa el botón Compartir (el cuadrado con una flecha hacia arriba), baja en la lista y elige «Añadir a pantalla de inicio». Después pulsa «Añadir» arriba a la derecha."
+          },
+          {
+            "q": "¿Y en el ordenador?",
+            "a": "En Chrome o Edge, pulsa el icono de instalación que aparece a la derecha de la barra de direcciones, o entra en el menú y elige «Instalar Striker». Se abrirá en su propia ventana, sin pestañas ni barra de navegación."
+          },
+          {
+            "q": "¿Las notificaciones funcionan con la app instalada?",
+            "a": "Sí. Actívalas desde la campana de la cabecera y el navegador te pedirá permiso. En iPhone y iPad, las notificaciones solo llegan si la app está instalada en la pantalla de inicio (iOS 16.4 o posterior)."
+          },
+          {
+            "q": "¿Funciona sin conexión?",
+            "a": "No. Striker necesita internet, porque los partidos en vivo, el mercado de fichajes y tus avisos cambian constantemente y se cargan siempre desde el servidor. La app instalada es solo un acceso directo, sin funciones sin conexión."
+          },
+          {
+            "q": "¿Cómo la desinstalo?",
+            "a": "Igual que cualquier app: mantén pulsado su icono y elige «Desinstalar» o «Quitar de la pantalla de inicio». Tu cuenta y tu club no se borran, porque están guardados en el servidor."
+          }
+        ]
+      },
       "gettingStarted": {
         "title": "Primeros pasos",
         "items": [

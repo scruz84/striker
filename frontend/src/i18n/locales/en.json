@@ -1222,6 +1222,43 @@
     "title": "Help & how to play",
     "subtitle": "Everything you need to know about running your club, from claiming a team to lifting the cup.",
     "sections": {
+      "access": {
+        "title": "Access and install",
+        "items": [
+          {
+            "q": "How do I open Striker in my browser?",
+            "a": "Open Chrome, Safari, Edge or Firefox and go to https://striker.example.com. Sign in with your Google account. You don't need to install anything to play: the website works the same in any browser."
+          },
+          {
+            "q": "Can I have it as an app on my phone?",
+            "a": "Yes. Striker can be installed on your phone's home screen: it opens full screen, without the browser bar, and has its own icon, just like any other app."
+          },
+          {
+            "q": "How do I install it on Android?",
+            "a": "In Chrome, go to striker.example.com, tap the menu (the three dots in the top corner) and choose \"Install app\" or \"Add to Home screen\". Confirm with \"Install\" and the icon will appear on your home screen."
+          },
+          {
+            "q": "How do I install it on iPhone or iPad?",
+            "a": "Open the website in Safari, tap the Share button (the square with an arrow pointing up), scroll down the list and choose \"Add to Home Screen\". Then tap \"Add\" in the top right."
+          },
+          {
+            "q": "What about on a computer?",
+            "a": "In Chrome or Edge, click the install icon on the right side of the address bar, or open the menu and choose \"Install Striker\". It opens in its own window, without tabs or a browser bar."
+          },
+          {
+            "q": "Do notifications work with the installed app?",
+            "a": "Yes. Turn them on from the bell in the header and your browser will ask for permission. On iPhone and iPad, notifications only arrive if the app is installed on the home screen (iOS 16.4 or later)."
+          },
+          {
+            "q": "Does it work offline?",
+            "a": "No. Striker needs an internet connection, because live matches, the transfer market and your alerts change constantly and are always loaded from the server. The installed app is just a shortcut, with no offline features."
+          },
+          {
+            "q": "How do I uninstall it?",
+            "a": "Like any app: press and hold its icon and choose \"Uninstall\" or \"Remove from Home screen\". Your account and your club are not deleted, because they are stored on the server."
+          }
+        ]
+      },
       "gettingStarted": {
         "title": "Getting started",
         "items": [

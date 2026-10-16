@@ -7,6 +7,7 @@ import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
 import SchoolTwoToneIcon from '@mui/icons-material/SchoolTwoTone'
+import SmartphoneTwoToneIcon from '@mui/icons-material/SmartphoneTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
 import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone'
 import Accordion from '@mui/material/Accordion'
@@ -24,6 +25,7 @@ interface HelpItem {
 }
 
 const SECTIONS: { key: string; icon: SvgIconComponent }[] = [
+  { key: 'access', icon: SmartphoneTwoToneIcon },
   { key: 'gettingStarted', icon: FlagTwoToneIcon },
   { key: 'dashboard', icon: DashboardTwoToneIcon },
   { key: 'lineup', icon: SportsSoccerTwoToneIcon },
