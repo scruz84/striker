@@ -13,7 +13,8 @@ import (
 // and every unowned one too (see ProgressFreeAgents), returns any loan whose duration has
 // elapsed, promotes/relegates teams based on the season's final standings, starts a new cup for
 // each country from the post-promotion tier-1 teams plus a new international cup per region from
-// each of its countries' just-finished tier-1 champions (see StartInternationalCupsForNewSeason),
+// each of its countries' just-finished tier-1 champions (captured before promotion, see
+// StartInternationalCupsForNewSeason),
 // resets each league's classification for the new season, bumps the season counter, and
 // regenerates fixtures. See ResetClassificationForSeason for why classification is reset in
 // place rather than archived per season.
@@ -34,15 +35,23 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	log.Infof("season %d complete (%d matches played), advancing to season %d", currentSeason, total, newSeason)
 	common.SeasonRolloversCounter.Add(context.Background(), 1)
 
+	// Read before applyPromotionRelegation below: promotion repoints the promoted teams'
+	// classification rows at the tier-1 league, after which rank 1 there is no longer the
+	// tier-1 champion.
+	champions, err := regionChampions(dbCtx)
+	if err != nil {
+		log.Errorf("error finding regional champions for international cups: %s", err)
+		champions = nil
+	}
+
 	ProgressPlayers(dbCtx)
 	ProgressFreeAgents(dbCtx)
 	ReturnExpiredLoans(dbCtx, newSeason)
 	applyPromotionRelegation(dbCtx, currentSeason)
 	StartCupsForNewSeason(dbCtx, newSeason)
-	// Must run before the classification reset below - it reads the season just finished, not
-	// the one just started, to find each country's tier-1 champion (see
-	// StartInternationalCupsForNewSeason).
-	StartInternationalCupsForNewSeason(dbCtx, newSeason)
+	// The entrants are the tier-1 champions captured above, before promotion/relegation moved
+	// anyone (see StartInternationalCupsForNewSeason).
+	StartInternationalCupsForNewSeason(dbCtx, newSeason, champions)
 	// Only actually starts one every WorldCupFrequencySeasons seasons, and only while no other
 	// World Cup is still running - see StartWorldCupForNewSeason.
 	StartWorldCupForNewSeason(dbCtx, newSeason)

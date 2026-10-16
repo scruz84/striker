@@ -94,18 +94,14 @@ func internationalCupName(region string) string {
 
 // StartInternationalCupsForNewSeason creates a fresh international cup for every region with at
 // least two active countries that each finished the just-completed season with a decided tier-1
-// champion, entrants being one team per country - that country's tier-1 champion. Must run after
-// applyPromotionRelegation but before this season's classification is reset (see
-// engine.AdvanceSeasonIfComplete): it reads the tier-1 standings' final positions to find each
-// country's champion, and ResetClassificationForSeason clears exactly that data right after this
-// returns. Mirrors StartCupsForNewSeason's per-country cup, one level up.
-func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season int) {
-	champions, err := regionChampions(dbCtx)
-	if err != nil {
-		log.Errorf("error finding regional champions for international cups: %s", err)
-		return
-	}
-
+// champion, entrants being one team per country - that country's tier-1 champion. `champions`
+// (see regionChampions) must have been captured BEFORE applyPromotionRelegation: promotion
+// repoints the promoted teams' classification rows at the tier-1 league, so reading standings
+// afterwards finds the freshly promoted tier-2 champion at rank 1 instead of the team that
+// actually won the tier-1 title (see engine.AdvanceSeasonIfComplete). The cup itself is created
+// after the rollover moves, which is fine - it only needs the team ids. Mirrors
+// StartCupsForNewSeason's per-country cup, one level up.
+func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season int, champions map[string][]int64) {
 	for region, teamIds := range champions {
 		if len(teamIds) < 2 {
 			continue // not enough countries in this region yet for a cup
@@ -118,7 +114,8 @@ func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season in
 
 // regionChampions returns, grouped by region, the team id of every active country's tier-1
 // champion (rank 1 of that country's tier-1 final standings) - see
-// StartInternationalCupsForNewSeason. A country with more than one tier-1 group (possible, if
+// StartInternationalCupsForNewSeason, which must be given this before promotion/relegation is
+// applied (see its doc comment). A country with more than one tier-1 group (possible, if
 // unusual, under an admin-edited world config - see common.ValidateWorldConfig) only ever
 // contributes its first group's champion, so it can't end up with two entrants.
 func regionChampions(dbCtx *common.DatabaseContext) (map[string][]int64, error) {
