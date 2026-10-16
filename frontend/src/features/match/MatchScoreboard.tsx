@@ -95,7 +95,11 @@ export function Scoreboard({
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <TeamBadge teamId={homeId} teamName={homeName} size={badgeSize} />
-              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{ fontWeight: 600, maxWidth: '100%', fontSize: { xs: '0.75rem', sm: '1rem' } }}
+              >
                 <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
               </Typography>
               {typeof homePosition === 'number' && (
@@ -116,7 +120,11 @@ export function Scoreboard({
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
               <TeamBadge teamId={awayId} teamName={awayName} size={badgeSize} />
-              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, maxWidth: '100%' }}>
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{ fontWeight: 600, maxWidth: '100%', fontSize: { xs: '0.75rem', sm: '1rem' } }}
+              >
                 <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
               </Typography>
               {typeof awayPosition === 'number' && (
