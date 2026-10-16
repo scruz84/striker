@@ -736,7 +736,9 @@
       "summary": {
         "title": "Resumen del partido",
         "chances": "Ocasiones",
-        "yellowCards": "Tarjetas amarillas",
+        "goldenBoots": "Botas de Oro",
+      "playerOfSeasons": "MVP de la temporada",
+      "yellowCards": "Tarjetas amarillas",
         "redCards": "Tarjetas rojas",
         "injuries": "Lesiones"
       }

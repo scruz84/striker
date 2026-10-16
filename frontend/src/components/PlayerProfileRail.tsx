@@ -258,6 +258,8 @@ export function PlayerProfileRail({
           <SpecRow label={t('playerPage.stats.caps')} value={player.caps} />
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
           {!isFreeAgent && <SpecRow label={t('playerPage.stats.goalsForTeam')} value={player.goalsForTeam} />}
+          <SpecRow label={t('playerPage.stats.goldenBoots')} value={player.seasonAwards.goldenBoots} />
+          <SpecRow label={t('playerPage.stats.playerOfSeasons')} value={player.seasonAwards.playerOfSeasons} />
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />
           <SpecRow label={t('playerPage.stats.redCards')} value={player.redCards} />
         </Stack>

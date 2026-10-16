@@ -294,6 +294,10 @@ champion) and linking to the winning player's page:
   "not a real performance model, just enough to make it feel earned" spirit as
   `ComputeMatchRatings`. Skipped if nobody's score comes out positive.
 
+Each winner is also saved permanently in `player_season_awards` (`common.RecordPlayerSeasonAward`;
+migration `init74` backfills seasons finished earlier from `match_events`), which feeds the
+"Golden Boots" / "MVP" counters on the player's profile page (`common.GetPlayerSeasonAwards`).
+
 Both read `match_events` for the season just finished, which classification's in-place reset
 never touches, so they can run at any point in `applyPromotionRelegation` regardless of the
 already-run `ProgressPlayers`/`ProgressFreeAgents` steps. Neither award is archived anywhere

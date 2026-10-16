@@ -1093,6 +1093,8 @@
     "stats": {
       "caps": "International caps",
       "goals": "Career goals",
+      "goldenBoots": "Golden Boots",
+      "playerOfSeasons": "Player of the Season (MVP)",
       "goalsForTeam": "Goals for this club",
       "yellowCards": "Yellow cards",
       "redCards": "Red cards",

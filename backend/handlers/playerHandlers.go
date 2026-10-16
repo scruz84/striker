@@ -75,6 +75,12 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.PlayerCareerStats = stats
 		}
 
+		if awards, err := common.GetPlayerSeasonAwards(dbCtx, playerId); err != nil {
+			log.Errorf("error loading season awards for player %d: %s", playerId, err)
+		} else {
+			details.SeasonAwards = awards
+		}
+
 		if status, err := common.GetPlayerStatus(dbCtx, playerId); err != nil {
 			log.Errorf("error computing status for player %d: %s", playerId, err)
 		} else {

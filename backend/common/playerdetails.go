@@ -254,7 +254,10 @@ type PlayerDetails struct {
 	AverageSkill int `json:"averageSkill"`
 	PlayerCareerStats
 	PlayerStatus
-	History []TeamTransaction `json:"history"`
+	// SeasonAwards is how many times this player has been their league's Golden Boot / Player of
+	// the Season - see GetPlayerSeasonAwards. Never redacted: the winners are announced publicly.
+	SeasonAwards PlayerSeasonAwards `json:"seasonAwards"`
+	History      []TeamTransaction  `json:"history"`
 	// ClubHistory is every club this player has permanently belonged to, most recent first - see
 	// GetPlayerClubHistory. Unlike History (financial transactions), this is never redacted: which
 	// clubs a player has played for is public the same way their transfer-market listing is.

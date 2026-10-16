@@ -824,6 +824,9 @@ export interface PlayerDetails extends Player {
   onLoanBuyOptionFee?: number
   transferListingAskingPrice?: number
   loanListingDurationSeasons?: number
+  // How many times this player has been their league's Golden Boot / Player of the Season - see
+  // backend common.GetPlayerSeasonAwards.
+  seasonAwards: { goldenBoots: number; playerOfSeasons: number }
   history: TeamTransaction[]
   latestEvolution?: PlayerEvolution
   // Every club this player has permanently belonged to, most recent first - unlike `history`,

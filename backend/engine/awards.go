@@ -20,6 +20,9 @@ func awardSeasonHonors(dbCtx *common.DatabaseContext, leagueId int64, season int
 	if err != nil {
 		log.Errorf("error getting golden boot candidate for league %d season %d: %s", leagueId, season, err)
 	} else if len(scorers) > 0 && scorers[0].Goals > 0 {
+		if err := common.RecordPlayerSeasonAward(dbCtx, leagueId, season, common.AwardGoldenBoot, scorers[0].PlayerId, scorers[0].Goals); err != nil {
+			log.Errorf("error recording golden boot for league %d season %d: %s", leagueId, season, err)
+		}
 		notifyGoldenBoot(dbCtx, scorers[0])
 	}
 
@@ -27,6 +30,9 @@ func awardSeasonHonors(dbCtx *common.DatabaseContext, leagueId int64, season int
 	if err != nil {
 		log.Errorf("error getting player of the season for league %d season %d: %s", leagueId, season, err)
 	} else if playerOfSeason != nil {
+		if err := common.RecordPlayerSeasonAward(dbCtx, leagueId, season, common.AwardPlayerOfSeason, playerOfSeason.PlayerId, playerOfSeason.Score); err != nil {
+			log.Errorf("error recording player of the season for league %d season %d: %s", leagueId, season, err)
+		}
 		notifyPlayerOfTheSeason(dbCtx, *playerOfSeason)
 	}
 }

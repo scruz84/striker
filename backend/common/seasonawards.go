@@ -118,3 +118,53 @@ func GetPlayerOfTheSeason(dbCtx *DatabaseContext, leagueId int64, season int) (*
 	}
 	return nil, nil
 }
+
+// Award codes stored in player_season_awards.award.
+const (
+	AwardGoldenBoot     = 1
+	AwardPlayerOfSeason = 2
+)
+
+const insertPlayerSeasonAwardStmtSql = "INSERT INTO player_season_awards (league_id, season, award, player_id, value) " +
+	"VALUES ($1, $2, $3, $4, $5) ON CONFLICT (league_id, season, award) DO NOTHING"
+
+// RecordPlayerSeasonAward permanently records playerId as leagueId's winner of award for season -
+// see engine.awardSeasonHonors. Idempotent per (league, season, award): a season is only ever
+// awarded once, so a repeat call is a no-op rather than overwriting the first winner.
+func RecordPlayerSeasonAward(dbCtx *DatabaseContext, leagueId int64, season int, award int, playerId int64, value int) error {
+	_, err := dbCtx.Db.Exec(insertPlayerSeasonAwardStmtSql, leagueId, season, award, playerId, value)
+	return err
+}
+
+// PlayerSeasonAwards counts how many times a player has won each season-end honor - see
+// GetPlayerSeasonAwards.
+type PlayerSeasonAwards struct {
+	GoldenBoots     int `json:"goldenBoots"`
+	PlayerOfSeasons int `json:"playerOfSeasons"`
+}
+
+const getPlayerSeasonAwardsStmtSql = "SELECT award, count(*) FROM player_season_awards WHERE player_id = $1 GROUP BY award"
+
+// GetPlayerSeasonAwards returns how many Golden Boots and Player of the Season awards playerId
+// has won across every league and season.
+func GetPlayerSeasonAwards(dbCtx *DatabaseContext, playerId int64) (PlayerSeasonAwards, error) {
+	var awards PlayerSeasonAwards
+	rows, err := dbCtx.Db.Query(getPlayerSeasonAwardsStmtSql, playerId)
+	if err != nil {
+		return awards, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var award, count int
+		if err := rows.Scan(&award, &count); err != nil {
+			return awards, err
+		}
+		switch award {
+		case AwardGoldenBoot:
+			awards.GoldenBoots = count
+		case AwardPlayerOfSeason:
+			awards.PlayerOfSeasons = count
+		}
+	}
+	return awards, rows.Err()
+}
