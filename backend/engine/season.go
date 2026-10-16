@@ -8,8 +8,8 @@ import (
 	"strconv"
 )
 
-// AdvanceSeasonIfComplete checks whether every match of the current season has been played
-// and, if so, rolls the game forward: it ages every rostered player a year (see ProgressPlayers)
+// AdvanceSeasonIfComplete checks whether every match of the current season has been played and
+// has finished its live broadcast (see common.LiveBroadcastWindow) and, if so, rolls the game forward: it ages every rostered player a year (see ProgressPlayers)
 // and every unowned one too (see ProgressFreeAgents), returns any loan whose duration has
 // elapsed, promotes/relegates teams based on the season's final standings, starts a new cup for
 // each country from the post-promotion tier-1 teams plus a new international cup per region from
@@ -28,6 +28,20 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	}
 	if total == 0 || unplayed > 0 {
 		// season never started yet, or still has matches left to play
+		return
+	}
+	// A match flips to played = true when it is simulated, up to LiveBroadcastWindow before its
+	// live broadcast finishes. Closing the season now would send the prize, promotion and
+	// relegation notifications (and compute the final standings) while the last round is still
+	// being watched, spoiling its result - so wait until every match has finished broadcasting.
+	// The next scheduler tick picks the rollover up.
+	broadcasting, err := common.CountSeasonMatchesStillBroadcasting(dbCtx, currentSeason)
+	if err != nil {
+		log.Errorf("error checking live broadcasts for season %d: %s", currentSeason, err)
+		return
+	}
+	if broadcasting > 0 {
+		log.Infof("season %d has all matches played but %d still broadcasting, postponing rollover", currentSeason, broadcasting)
 		return
 	}
 

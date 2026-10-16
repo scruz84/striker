@@ -153,7 +153,7 @@ func AdminPayWagesNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 // AdminAdvanceSeasonHandler force-checks whether the current season is complete and, if so,
 // rolls it over immediately instead of waiting for the scheduler's next tick (every 5 minutes -
-// see engine/scheduler.go). It's a no-op if matches remain unplayed.
+// see engine/scheduler.go). It's a no-op if matches remain unplayed or still broadcasting.
 func AdminAdvanceSeasonHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered season advance check")

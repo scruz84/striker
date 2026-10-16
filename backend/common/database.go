@@ -20,6 +20,8 @@ const GetAllLeagueIdsStmtSql = "SELECT league_id FROM leagues"
 
 const GetSeasonMatchCountsStmtSql = "SELECT count(*) FILTER (WHERE played = false), count(*) FROM matches WHERE season = $1"
 
+const CountSeasonMatchesStillBroadcastingStmtSql = "SELECT count(*) FROM matches WHERE season = $1 AND played = true AND match_date > $2"
+
 const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = $1, matches = 0, points = 0, wins = 0, " +
 	"losses = 0, draws = 0, goals_scored = 0, goals_received = 0 WHERE league_id = $2"
 
@@ -1615,6 +1617,15 @@ func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {
 func GetSeasonMatchCounts(dbCtx *DatabaseContext, season int) (total int, unplayed int, err error) {
 	err = dbCtx.Db.QueryRow(GetSeasonMatchCountsStmtSql, season).Scan(&unplayed, &total)
 	return total, unplayed, err
+}
+
+// CountSeasonMatchesStillBroadcasting returns how many already-simulated matches of a season
+// are still inside their live-broadcast window (see LiveBroadcastWindow): played = true, but
+// match_date is more recent than LiveBroadcastCutoff. A season whose last match is still being
+// broadcast is not safe to close yet - see engine.AdvanceSeasonIfComplete.
+func CountSeasonMatchesStillBroadcasting(dbCtx *DatabaseContext, season int) (count int, err error) {
+	err = dbCtx.Db.QueryRow(CountSeasonMatchesStillBroadcastingStmtSql, season, LiveBroadcastCutoff()).Scan(&count)
+	return count, err
 }
 
 // ResetClassificationForSeason rolls a league's existing classification rows into a new
