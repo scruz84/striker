@@ -42,9 +42,8 @@ var initFileNumberPattern = regexp.MustCompile(`^init(\d+)_`)
 // true numeric order, then anything else (the names_es_*/lastnames_es_* data dumps)
 // lexicographically after all of those - matching the dependency order these files are written
 // to require (each migration only ever references tables/columns created by init.sql or an
-// earlier-numbered migration). name may include a subdirectory prefix (see collectSchemaFiles -
-// old migrations get archived under history/ once every currently-supported database has already
-// applied them), so the pattern match itself always runs against the base filename alone.
+// earlier-numbered migration). The pattern match runs against the base filename alone, so a name
+// carrying a subdirectory prefix still sorts by its number.
 func schemaFileSortKey(name string) (int, string) {
 	base := path.Base(name)
 	if base == "init.sql" {
@@ -120,17 +119,15 @@ func EnsureSchema(dbCtx *DatabaseContext) error {
 	return nil
 }
 
-// collectSchemaFiles lists every embedded resources/sql/*.sql file, including ones tucked away in
-// subdirectories such as sql/history (old migrations get archived there once every
-// currently-supported database has already applied them - see the package doc comment on that
-// directory) - a plain fs.ReadDir only sees sql/'s immediate entries, which would silently drop
-// every archived migration from both EnsureSchema's fresh-database path and
-// applyPendingMigrations's incremental one, permanently starving any database that hasn't already
-// applied one of them (see resources/sql/history/init34_friendly_lineup.sql and
-// init35_free_agent_premium.sql, which is exactly what happened here: a database whose schema
-// predates their archival never got `friendly_lineup` or `players.last_team_id` at all). Returned
-// names are relative to sql/ itself (no leading "sql/"), matching applySchemaFile's own
-// convention.
+// schemaHistoryDir is the subdirectory of resources/sql/ where migrations get archived once
+// they've been folded into init.sql. Files there are never applied automatically: several aren't
+// idempotent (init21_contracts.sql's unguarded UPDATE re-randomizes every contract, init19/init22's
+// name-pool INSERTs duplicate rows), and init.sql already contains everything they did.
+const schemaHistoryDir = "history"
+
+// collectSchemaFiles lists the embedded resources/sql/*.sql files, including any in subdirectories
+// other than history/ (see schemaHistoryDir). Returned names are relative to sql/ itself (no
+// leading "sql/"), matching applySchemaFile's own convention.
 func collectSchemaFiles() ([]string, error) {
 	var names []string
 	err := fs.WalkDir(resources.SQLFiles, "sql", func(p string, d fs.DirEntry, err error) error {
@@ -138,6 +135,9 @@ func collectSchemaFiles() ([]string, error) {
 			return err
 		}
 		if d.IsDir() {
+			if d.Name() == schemaHistoryDir {
+				return fs.SkipDir
+			}
 			return nil
 		}
 		names = append(names, strings.TrimPrefix(p, "sql/"))
@@ -152,9 +152,10 @@ func collectSchemaFiles() ([]string, error) {
 // applyPendingMigrations re-applies every numbered "initN_*.sql" migration (see
 // initFileNumberPattern) against a database that already has a schema, so a new migration file
 // added on a branch gets picked up automatically on the next startup instead of needing the
-// manual psql step described in backend/README.md. Every one of these files is written to be
-// idempotent by convention (CREATE TABLE/ADD COLUMN/CREATE INDEX ... IF NOT EXISTS, UPDATE ...
-// WHERE x IS NULL), so re-running an already-applied one is harmless.
+// manual psql step described in backend/README.md. Every one of these files must be idempotent
+// (CREATE TABLE/ADD COLUMN/CREATE INDEX ... IF NOT EXISTS, UPDATE ... WHERE x IS NULL, INSERT ...
+// WHERE NOT EXISTS), because they run again on every startup. Archived migrations under history/
+// are never in names (see collectSchemaFiles).
 //
 // init.sql itself and the name-pool dumps (names_es_*.sql/lastnames_es_*.sql) are deliberately
 // excluded here, unlike in the fresh-database path above: init.sql's base CREATE TABLE statements

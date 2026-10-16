@@ -2,8 +2,8 @@ package common
 
 import (
 	"math/rand"
-	"path"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -37,62 +37,29 @@ func TestApplyPendingMigrations_SkipsNonNumberedFiles(t *testing.T) {
 	}
 }
 
-// TestCollectSchemaFiles_FindsArchivedMigrations guards against the exact bug reported in
-// production: resources/sql/history holds old numbered migrations (archived there once every
-// currently-supported database had already applied them - see applyPendingMigrations's doc
-// comment), and a plain fs.ReadDir("sql") only sees sql/'s immediate entries, silently skipping
-// all of them. A database whose schema predated the archival then permanently missed whatever
-// those files created (e.g. init34_friendly_lineup.sql's `friendly_lineup` table and
-// init35_free_agent_premium.sql's `players.last_team_id` column), because collectSchemaFiles is
-// the only thing that decides what applyPendingMigrations considers "pending".
-func TestCollectSchemaFiles_FindsArchivedMigrations(t *testing.T) {
+// TestCollectSchemaFiles_SkipsHistory guards against re-applying archived migrations on every
+// startup: resources/sql/history/ holds files that aren't idempotent (init21_contracts.sql's
+// unguarded UPDATE re-randomizes every player's contract; init19/init22 duplicate name-pool rows),
+// and init.sql already contains everything they did.
+func TestCollectSchemaFiles_SkipsHistory(t *testing.T) {
 	names, err := collectSchemaFiles()
 	if err != nil {
 		t.Fatalf("collectSchemaFiles: %s", err)
 	}
-	want := []string{
-		"history/init34_friendly_lineup.sql",
-		"history/init35_free_agent_premium.sql",
+	if len(names) == 0 {
+		t.Fatal("collectSchemaFiles returned no files")
 	}
-	for _, w := range want {
-		found := false
-		for _, n := range names {
-			if n == w {
-				found = true
-				break
-			}
+	hasInit := false
+	for _, n := range names {
+		if strings.HasPrefix(n, schemaHistoryDir+"/") {
+			t.Errorf("collectSchemaFiles returned archived file %q", n)
 		}
-		if !found {
-			t.Errorf("collectSchemaFiles didn't find archived migration %q in %v", w, names)
+		if n == "init.sql" {
+			hasInit = true
 		}
 	}
-}
-
-// TestApplyPendingMigrations_RecognizesArchivedFiles guards the other half of the same bug: even
-// once a file is found inside history/, it must still be recognized as a numbered migration by
-// its base filename, not skipped because the subdirectory prefix stops initFileNumberPattern's
-// anchored `^init` match.
-func TestApplyPendingMigrations_RecognizesArchivedFiles(t *testing.T) {
-	names := []string{
-		"init.sql",
-		"history/init34_friendly_lineup.sql",
-		"history/init35_free_agent_premium.sql",
-		"names_es_202304022215.sql",
-	}
-	var applied []string
-	for _, name := range names {
-		if initFileNumberPattern.MatchString(path.Base(name)) {
-			applied = append(applied, name)
-		}
-	}
-	want := []string{"history/init34_friendly_lineup.sql", "history/init35_free_agent_premium.sql"}
-	if len(applied) != len(want) {
-		t.Fatalf("got %v, want %v", applied, want)
-	}
-	for i := range want {
-		if applied[i] != want[i] {
-			t.Fatalf("got %v, want %v", applied, want)
-		}
+	if !hasInit {
+		t.Errorf("collectSchemaFiles didn't find init.sql in %v", names)
 	}
 }
 
