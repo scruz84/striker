@@ -74,6 +74,19 @@ func simulateFriendliesNow(dbCtx *common.DatabaseContext, friendlies []common.Fr
 // feature in it, even with no competitive stakes attached. Red cards, however, carry no
 // suspension at all when picked up in a friendly (see DisciplineSimulation.Apply) - a friendly
 // has nothing competitive to sanction.
+// persistFriendlyLineupSnapshot is persistResolvedLineupSnapshot's friendly equivalent, writing
+// into friendly_lineup/friendly_lineup_positions (via common.SetFriendlyLineup) instead of the
+// league-match tables, since a friendly's id space is kept deliberately separate (see
+// GetLineupsForFriendly's doc comment).
+func persistFriendlyLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+	if lineup == nil || len(lineup.Positions) == 0 {
+		return
+	}
+	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+		log.Errorf("error persisting resolved lineup snapshot for friendly %d team %d: %s", matchId, teamId, err)
+	}
+}
+
 func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMatch) error {
 	lineups, err := common.GetLineupsForFriendly(dbCtx, friendly.MatchId, []int64{friendly.HomeTeamId, friendly.AwayTeamId})
 	if err != nil {
@@ -90,6 +103,13 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	if err != nil {
 		return err
 	}
+	// Freeze today's resolution as this friendly's own permanent override - see
+	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForFriendly's fallback alone
+	// isn't enough to keep a played friendly's lineup showing correctly forever. A no-op for a
+	// national-team friendly, which already has an explicit override saved at call-up time (see
+	// common.SetNationalTeamLineup).
+	persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, friendly.HomeTeamId, (*lineups)[friendly.HomeTeamId], homeSubstitutions)
+	persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, friendly.AwayTeamId, (*lineups)[friendly.AwayTeamId], awaySubstitutions)
 	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true)
 	if err != nil {
 		return err

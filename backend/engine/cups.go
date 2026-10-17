@@ -361,6 +361,18 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 	wg.Wait()
 }
 
+// persistCupTieLineupSnapshot is persistResolvedLineupSnapshot's cup-tie equivalent, writing into
+// cup_tie_lineup/cup_tie_lineup_positions (via common.SetCupTieLineup) instead of the league-match
+// tables, since a tie's id space is its own (see SetCupTieLineup's doc comment).
+func persistCupTieLineupSnapshot(dbCtx *common.DatabaseContext, tieId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+	if lineup == nil || len(lineup.Positions) == 0 {
+		return
+	}
+	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+		log.Errorf("error persisting resolved lineup snapshot for cup tie %d team %d: %s", tieId, teamId, err)
+	}
+}
+
 func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	lineups, err := common.GetLineupsForCupTie(dbCtx, tie.TieId, []int64{*tie.HomeTeamId, *tie.AwayTeamId})
 	if err != nil {
@@ -377,6 +389,11 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	if err != nil {
 		return err
 	}
+	// Freeze today's resolution as this tie's own permanent override - see
+	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForCupTie's fallback alone
+	// isn't enough to keep a played tie's lineup showing correctly forever.
+	persistCupTieLineupSnapshot(dbCtx, tie.TieId, *tie.HomeTeamId, (*lineups)[*tie.HomeTeamId], homeSubstitutions)
+	persistCupTieLineupSnapshot(dbCtx, tie.TieId, *tie.AwayTeamId, (*lineups)[*tie.AwayTeamId], awaySubstitutions)
 	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false)
 	if err != nil {
 		return err

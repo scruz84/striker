@@ -20,6 +20,26 @@ const MinPlayersToContinueMatch = 7
 // point is discarded in favor of this fixed result, same as a real abandoned match.
 const ForfeitGoals = 3
 
+// persistResolvedLineupSnapshot writes the lineup a match is actually about to be simulated with
+// into that match's own lineup/lineup_positions override row, even when it was only resolved via
+// GetLineupsForMatch's fallback to the team's standing default_lineup_positions rather than an
+// explicit per-match override. Without this, a past match's "Lineups" tab (WeekMatchById) re-reads
+// GetLineupsForMatch fresh every time, so once a transfer/retirement deletes one of these starting
+// XI's players from default_lineup_positions (see DeletePlayerLineupPositionsStmtSql), or the
+// team's default lineup is simply reconfigured, an already-played match's lineup degrades or goes
+// fully blank - there was never a true historical record of who actually played, only whatever the
+// default lineup happens to look like right now. Calling this up front freezes today's resolution
+// as this match's own permanent override, mirroring the explicit snapshot
+// SetNationalTeamLineup/SetNationalTeamCupTieLineup already save for national-team fixtures.
+func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+	if lineup == nil || len(lineup.Positions) == 0 {
+		return
+	}
+	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+		log.Errorf("error persisting resolved lineup snapshot for match %d team %d: %s", matchId, teamId, err)
+	}
+}
+
 func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*common.MatchSimulation, error) {
 	lineups, err := common.GetLineupsForMatch(dbCtx, match.MatchId, &[]int64{match.Home, match.Away})
 	if err != nil {
@@ -36,6 +56,8 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	if err != nil {
 		return nil, err
 	}
+	persistResolvedLineupSnapshot(dbCtx, match.MatchId, match.Home, (*lineups)[match.Home], homeSubstitutions)
+	persistResolvedLineupSnapshot(dbCtx, match.MatchId, match.Away, (*lineups)[match.Away], awaySubstitutions)
 	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false)
 	if err != nil {
 		return nil, err

@@ -11,11 +11,10 @@ import (
 // (never a real list), so an exact string match on "[<id>]" finds their events without
 // decoding JSON per row.
 //
-// There's deliberately no "appearances" count here: nothing in this codebase ever persists a
-// per-match lineup (engine.runMatchSimulation's own doc comment notes InsertLineup always
-// targets default_lineup_positions, never a match-specific lineup/lineup_positions row - see
-// common.GetLineupsForMatch), so there's no historical record of who actually played in a given
-// already-simulated match to count, only each team's current default XI.
+// There's deliberately no "appearances" count here: counting one would need an index over every
+// lineup_positions/cup_tie_lineup_positions/friendly_lineup_positions row by player_id, and nothing
+// here needs that shape of lookup yet (see engine.persistResolvedLineupSnapshot and its cup-tie/
+// friendly equivalents for how those per-match rows end up populated).
 type PlayerCareerStats struct {
 	Goals       int `json:"goals"`
 	YellowCards int `json:"yellowCards"`
