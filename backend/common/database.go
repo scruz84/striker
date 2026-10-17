@@ -1300,14 +1300,14 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 			}
 		}
 	}
-	homePlayers, err := GetPlayersFromTeamId(dbCtx, match.Home)
+	homePlayers, err := GetPlayersForMatchTeam(dbCtx, match.Home, match.HomeLineup)
 	if err != nil {
 		log.Errorf("error getting home team players: %v", err)
 	} else {
 		pl := playerListToMap(homePlayers)
 		match.HomePlayers = &pl
 	}
-	awayPlayers, err := GetPlayersFromTeamId(dbCtx, match.Away)
+	awayPlayers, err := GetPlayersForMatchTeam(dbCtx, match.Away, match.AwayLineup)
 	if err != nil {
 		log.Errorf("error getting away team players: %v", err)
 	} else {

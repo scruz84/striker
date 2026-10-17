@@ -252,15 +252,43 @@ func notifyCalledUpPlayers(dbCtx *DatabaseContext, players []*Player, positions 
 // team_id. Without this, GetPlayersFromTeamId silently comes back empty for a national team,
 // leaving a played friendly or World Cup tie with a saved lineup but no player records to resolve
 // it against - see engine.runMatchSimulation/EnrichPlayedFriendly/GetCupTieDetails.
+//
+// For an ordinary club, lineup's own players are also backfilled by id (see GetPlayersByIds) on
+// top of the current squad - a played match's lineup is historical, so a player it named may
+// since have been sold, released or retired off teamId's roster, and would otherwise be missing
+// from a past match's report.
 func GetPlayersForMatchTeam(dbCtx *DatabaseContext, teamId int64, lineup *Lineup) (*[]*Player, error) {
 	_, isNationalTeam, err := GetNationalTeamCountry(dbCtx, teamId)
 	if err != nil {
 		return nil, err
 	}
-	if !isNationalTeam {
-		return GetPlayersFromTeamId(dbCtx, teamId)
+	if isNationalTeam {
+		return GetPlayersByIds(dbCtx, LineupPlayerIds(lineup))
 	}
-	return GetPlayersByIds(dbCtx, LineupPlayerIds(lineup))
+
+	players, err := GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	have := make(map[int64]bool, len(*players))
+	for _, p := range *players {
+		have[p.Id] = true
+	}
+	missing := make([]int64, 0)
+	for _, id := range LineupPlayerIds(lineup) {
+		if !have[id] {
+			missing = append(missing, id)
+		}
+	}
+	if len(missing) == 0 {
+		return players, nil
+	}
+	extra, err := GetPlayersByIds(dbCtx, missing)
+	if err != nil {
+		return nil, err
+	}
+	*players = append(*players, *extra...)
+	return players, nil
 }
 
 const getNationalTeamCountryStmtSql = "SELECT country FROM teams WHERE team_id = $1 AND is_national_team = true"
