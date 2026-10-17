@@ -737,9 +737,7 @@
       "summary": {
         "title": "Resumen del partido",
         "chances": "Ocasiones",
-        "goldenBoots": "Botas de Oro",
-      "playerOfSeasons": "MVP de la temporada",
-      "yellowCards": "Tarjetas amarillas",
+        "yellowCards": "Tarjetas amarillas",
         "redCards": "Tarjetas rojas",
         "injuries": "Lesiones"
       }
@@ -1101,6 +1099,8 @@
     "stats": {
       "caps": "Internacionalidades",
       "goals": "Goles en su carrera",
+      "goldenBoots": "Botas de Oro",
+      "playerOfSeasons": "MVP de la temporada",
       "goalsForTeam": "Goles con este equipo",
       "yellowCards": "Tarjetas amarillas",
       "redCards": "Tarjetas rojas",
