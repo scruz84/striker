@@ -15,15 +15,29 @@ import (
 // users/teams/matches exist.
 func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		season, err := engine.GetCurrentSeason(dbCtx)
+		activeCountries, err := common.GetActiveCountries(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		matchesTotal, matchesUnplayed, err := common.GetSeasonMatchCounts(dbCtx, season)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
-			return
+		seasons := make([]common.CountrySeason, 0, len(activeCountries))
+		for _, country := range activeCountries {
+			season, err := engine.GetCurrentSeason(dbCtx, country)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+				return
+			}
+			matchesTotal, matchesUnplayed, err := common.GetSeasonMatchCounts(dbCtx, country, season)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+				return
+			}
+			seasons = append(seasons, common.CountrySeason{
+				Country:         country,
+				Season:          season,
+				MatchesTotal:    matchesTotal,
+				MatchesUnplayed: matchesUnplayed,
+			})
 		}
 		stuckMatches, err := common.CountStuckSimulations(dbCtx)
 		if err != nil {
@@ -70,12 +84,10 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, common.AdminOverview{
-			Season:                        season,
+			Seasons:                       seasons,
 			UserCount:                     userCount,
 			TeamCount:                     teamCount,
 			LeagueCount:                   leagueCount,
-			MatchesTotal:                  matchesTotal,
-			MatchesUnplayed:               matchesUnplayed,
 			StuckMatches:                  stuckMatches,
 			ActiveCups:                    len(activeCups),
 			TransferWindowOpen:            common.IsTransferWindowOpen(dbCtx),
@@ -151,13 +163,14 @@ func AdminPayWagesNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-// AdminAdvanceSeasonHandler force-checks whether the current season is complete and, if so,
-// rolls it over immediately instead of waiting for the scheduler's next tick (every 5 minutes -
-// see engine/scheduler.go). It's a no-op if matches remain unplayed or still broadcasting.
+// AdminAdvanceSeasonHandler force-checks every active country's own season independently and
+// rolls over whichever ones are complete, immediately instead of waiting for the scheduler's
+// next tick (every 5 minutes - see engine/scheduler.go). It's a no-op for any country that still
+// has matches unplayed or still broadcasting.
 func AdminAdvanceSeasonHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered season advance check")
-		engine.AdvanceSeasonIfComplete(dbCtx)
+		engine.AdvanceSeasonsIfComplete(dbCtx)
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "season advance check triggered"})
 	}
 }

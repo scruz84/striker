@@ -842,6 +842,7 @@
     "title": "Administración",
     "noAccess": "No tienes acceso de administrador.",
     "overview": {
+      "country": "País",
       "season": "Temporada",
       "users": "Usuarios",
       "teams": "Equipos",

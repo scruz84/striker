@@ -128,47 +128,83 @@ export function AdminPage() {
 function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
   const { t } = useTranslation()
   const stats: { key: string; value: number }[] = [
-    { key: 'season', value: overview.season },
     { key: 'users', value: overview.userCount },
     { key: 'teams', value: overview.teamCount },
     { key: 'leagues', value: overview.leagueCount },
-    { key: 'matchesTotal', value: overview.matchesTotal },
-    { key: 'matchesUnplayed', value: overview.matchesUnplayed },
     { key: 'stuckMatches', value: overview.stuckMatches },
     { key: 'activeCups', value: overview.activeCups },
   ]
 
   return (
-    <Grid container spacing={2} sx={{ mb: 2 }}>
-      {stats.map((stat) => (
-        <Grid key={stat.key} size={{ xs: 6, sm: 4, md: 3 }}>
+    <>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        {stats.map((stat) => (
+          <Grid key={stat.key} size={{ xs: 6, sm: 4, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="overline" color="text.secondary">
+                  {t(`admin.overview.${stat.key}`)}
+                </Typography>
+                <Typography variant="h5">{stat.value}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+        <Grid size={{ xs: 6, sm: 4, md: 3 }}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">
-                {t(`admin.overview.${stat.key}`)}
+                {t('admin.overview.transferWindow')}
               </Typography>
-              <Typography variant="h5">{stat.value}</Typography>
+              <Box>
+                <Chip
+                  size="small"
+                  color={overview.transferWindowOpen ? 'success' : 'default'}
+                  label={overview.transferWindowOpen ? t('admin.overview.open') : t('admin.overview.closed')}
+                />
+              </Box>
             </CardContent>
           </Card>
         </Grid>
-      ))}
-      <Grid size={{ xs: 6, sm: 4, md: 3 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="overline" color="text.secondary">
-              {t('admin.overview.transferWindow')}
-            </Typography>
-            <Box>
-              <Chip
-                size="small"
-                color={overview.transferWindowOpen ? 'success' : 'default'}
-                label={overview.transferWindowOpen ? t('admin.overview.open') : t('admin.overview.closed')}
-              />
-            </Box>
-          </CardContent>
-        </Card>
       </Grid>
-    </Grid>
+      <SeasonsByCountryTable seasons={overview.seasons} />
+    </>
+  )
+}
+
+// SeasonsByCountryTable shows each country's own current season and match progress - current_
+// season now advances per country rather than globally (see api/types.ts's CountrySeason), so
+// there's no single season number left to show as one of the stat tiles above.
+function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<typeof useAdminOverview>['data']>['seasons'] }) {
+  const { t } = useTranslation()
+
+  if (seasons.length === 0) {
+    return null
+  }
+
+  return (
+    <TableContainer component={Paper} sx={{ mb: 2 }}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>{t('admin.overview.country')}</TableCell>
+            <TableCell>{t('admin.overview.season')}</TableCell>
+            <TableCell>{t('admin.overview.matchesTotal')}</TableCell>
+            <TableCell>{t('admin.overview.matchesUnplayed')}</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {seasons.map((countrySeason) => (
+            <TableRow key={countrySeason.country}>
+              <TableCell>{countrySeason.country.toUpperCase()}</TableCell>
+              <TableCell>{countrySeason.season}</TableCell>
+              <TableCell>{countrySeason.matchesTotal}</TableCell>
+              <TableCell>{countrySeason.matchesUnplayed}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

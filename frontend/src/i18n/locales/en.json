@@ -840,6 +840,7 @@
     "title": "Admin",
     "noAccess": "You don't have admin access.",
     "overview": {
+      "country": "Country",
       "season": "Season",
       "users": "Users",
       "teams": "Teams",

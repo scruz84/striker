@@ -13,9 +13,58 @@ import (
 // CupTier is the league tier a cup draws its entrants from (1 = top division).
 const CupTier = 1
 
+// InternationalCupCadence is how often, in real time, StartInternationalCupsIfDue actually
+// starts a new regional/international cup round - since countries no longer all finish their
+// domestic season together (see init75_season_per_country.sql), there's no single shared
+// rollover moment left to hang this on, so it runs on its own clock instead, standing in for
+// "roughly how long a domestic season takes" to play out.
+const InternationalCupCadence = 60 * 24 * time.Hour
+
+// StartInternationalCupsIfDue starts a new regional/international cup round (see
+// StartInternationalCupsForNewSeason) and, every WorldCupFrequencySeasons rounds, a new World
+// Cup (see StartWorldCupForNewSeason) - gated on InternationalCupCadence via
+// season.last_international_cup_check (see common.IsInternationalCupCheckDue), so this only
+// actually fires roughly that often even though the job polling it (see
+// StartInternationalCupScheduler) ticks far more frequently. Entrants are each country's most
+// recently completed season's tier-1 champion (see common.GetMostRecentTier1Champions), grouped
+// by region (see common.RegionForCountry) - not any one moment's live standings, since countries
+// can now be mid-season at wildly different points when this runs.
+func StartInternationalCupsIfDue(dbCtx *common.DatabaseContext) {
+	due, err := common.IsInternationalCupCheckDue(dbCtx, InternationalCupCadence)
+	if err != nil {
+		log.Errorf("error checking whether an international cup round is due: %s", err)
+		return
+	}
+	if !due {
+		return
+	}
+
+	newSeason, err := common.AdvanceInternationalCupSeason(dbCtx)
+	if err != nil {
+		log.Errorf("error advancing the international cup season counter: %s", err)
+		return
+	}
+
+	championsByCountry, err := common.GetMostRecentTier1Champions(dbCtx, InternationalCupTier)
+	if err != nil {
+		log.Errorf("error finding each country's most recent tier-1 champion for international cups: %s", err)
+		return
+	}
+	championsByRegion := make(map[string][]int64, len(championsByCountry))
+	for country, teamId := range championsByCountry {
+		region := common.RegionForCountry(country)
+		championsByRegion[region] = append(championsByRegion[region], teamId)
+	}
+
+	StartInternationalCupsForNewSeason(dbCtx, newSeason, championsByRegion)
+	StartWorldCupForNewSeason(dbCtx, newSeason)
+}
+
 // StartCupsForNewSeason creates a fresh single-elimination cup for every country, entrants
-// drawn from that country's tier-1 teams, and generates its first round. Called once per
-// season, alongside league fixtures - see AdvanceSeasonIfComplete.
+// drawn from that country's tier-1 teams, and generates its first round. Used for the
+// every-country-at-once case (a freshly initialized world - see handlers.InitializeGame); a
+// single country's own rollover calls StartCupForCountry directly instead (see
+// advanceCountrySeasonIfComplete).
 func StartCupsForNewSeason(dbCtx *common.DatabaseContext, season int) {
 	leagues, err := common.GetLeaguesWithTier(dbCtx)
 	if err != nil {
@@ -93,13 +142,11 @@ func internationalCupName(region string) string {
 }
 
 // StartInternationalCupsForNewSeason creates a fresh international cup for every region with at
-// least two active countries that each finished the just-completed season with a decided tier-1
-// champion, entrants being one team per country - that country's tier-1 champion. `champions`
-// (see regionChampions) must have been captured BEFORE applyPromotionRelegation: promotion
-// repoints the promoted teams' classification rows at the tier-1 league, so reading standings
-// afterwards finds the freshly promoted tier-2 champion at rank 1 instead of the team that
-// actually won the tier-1 title (see engine.AdvanceSeasonIfComplete). The cup itself is created
-// after the rollover moves, which is fine - it only needs the team ids. Mirrors
+// least two countries that have a recorded tier-1 champion, entrants being one team per country
+// - that country's most recently completed season's tier-1 champion. `champions` comes from
+// common.GetMostRecentTier1Champions, grouped by region (see StartInternationalCupsIfDue) -
+// reads persisted season_history rather than any one moment's live standings, since countries no
+// longer all finish their season together (see init75_season_per_country.sql). Mirrors
 // StartCupsForNewSeason's per-country cup, one level up.
 func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season int, champions map[string][]int64) {
 	for region, teamIds := range champions {
@@ -110,39 +157,6 @@ func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season in
 			log.Errorf("error starting international cup for region %s season %d: %s", region, season, err)
 		}
 	}
-}
-
-// regionChampions returns, grouped by region, the team id of every active country's tier-1
-// champion (rank 1 of that country's tier-1 final standings) - see
-// StartInternationalCupsForNewSeason, which must be given this before promotion/relegation is
-// applied (see its doc comment). A country with more than one tier-1 group (possible, if
-// unusual, under an admin-edited world config - see common.ValidateWorldConfig) only ever
-// contributes its first group's champion, so it can't end up with two entrants.
-func regionChampions(dbCtx *common.DatabaseContext) (map[string][]int64, error) {
-	leagues, err := common.GetLeaguesWithTier(dbCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	seenCountry := make(map[string]bool, len(leagues))
-	champions := make(map[string][]int64)
-	for _, league := range leagues {
-		if league.Tier != InternationalCupTier || seenCountry[league.Country] {
-			continue
-		}
-		standings, err := common.GetRankedClassification(dbCtx, league.LeagueId)
-		if err != nil {
-			log.Errorf("error getting standings for league %d: %s", league.LeagueId, err)
-			continue
-		}
-		if len(standings) == 0 {
-			continue
-		}
-		seenCountry[league.Country] = true
-		region := common.RegionForCountry(league.Country)
-		champions[region] = append(champions[region], standings[0].TeamId)
-	}
-	return champions, nil
 }
 
 func startInternationalCupForRegion(dbCtx *common.DatabaseContext, region string, season int, teamIds []int64) error {
@@ -234,7 +248,44 @@ func AdvanceCups(dbCtx *common.DatabaseContext) {
 	}
 }
 
+// advanceCup checks whether cupId's current round is fully resolved and, if so, either completes
+// the cup (a single winner left) or creates the next round's ties - a multi-step check-then-act
+// with no transaction of its own, since its steps (GetCupRoundWinners, SetCupCompleted,
+// createRoundTies, ...) each run their own separate statements against dbCtx.Db. Two --engine
+// replicas (a real, supported deployment shape - see docker-compose.yml) both running CupJob's
+// per-minute tick could otherwise both see the round resolved and both create a duplicate round
+// (or both complete the cup and double-award/double-notify its champion) before either one's
+// writes are visible to the other. Guarded by a non-blocking, session-level advisory lock on a
+// dedicated connection (same shape common.EnsureSchema's cross-process migration lock uses,
+// pg_try_ rather than blocking since a losing replica should just skip this tick, not wait) held
+// for the whole function body - unlike the single-transaction pg_try_advisory_xact_lock pattern
+// used elsewhere (see generateMatchesForOneLeague, common.SetDefaultLineup), this critical
+// section spans several independent statements/implicit transactions, so the lock needs to
+// outlive any one of them. Keyed on cupId alone, the same shared single-int-key convention
+// common.SetDefaultLineup (teamId) and generateMatchesForOneLeague (leagueId) already use.
 func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
+	ctx := context.Background()
+	conn, err := dbCtx.Db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	var acquired bool
+	if err := conn.QueryRowContext(ctx, "SELECT pg_try_advisory_lock($1)", cupId).Scan(&acquired); err != nil {
+		return err
+	}
+	if !acquired {
+		// Another replica is already advancing this cup this tick - whatever it leaves behind,
+		// the next tick picks up correctly.
+		return nil
+	}
+	defer func() {
+		if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_unlock($1)", cupId); err != nil {
+			log.Errorf("error releasing cup advance lock for cup %d: %s", cupId, err)
+		}
+	}()
+
 	round, err := common.GetMaxCupRound(dbCtx, cupId)
 	if err != nil || round == 0 {
 		return err

@@ -8,12 +8,16 @@ import (
 	"github.com/scruz84/striker/common"
 )
 
-// TestInternationalCup_EntrantsAreTierOneChampionsNotPromotedTeams runs against a real Postgres
-// (STRIKER_TEST_DB_DSN, a database not reused across runs; skipped when unset). Promotion
-// repoints the promoted teams' classification rows at the tier-1 league, so the champions have to
-// be read before it and handed to StartInternationalCupsForNewSeason - reading afterwards finds
-// the tier-2 champions at rank 1.
-func TestInternationalCup_EntrantsAreTierOneChampionsNotPromotedTeams(t *testing.T) {
+// TestInternationalCup_EntrantsAreMostRecentTier1Champions runs against a real Postgres
+// (STRIKER_TEST_DB_DSN; skipped when unset). Regional/international cups no longer read a
+// country's live classification table - countries now advance their own season independently
+// (see init75_season_per_country.sql), so there's no single moment when every country is
+// "between seasons" at once to read standings from. common.GetMostRecentTier1Champions reads
+// season_history instead (the persisted record of who actually won), and this pins that it picks
+// the right team even when a country's CURRENT classification table - already reset and reused
+// for a newer season, see common.ResetClassificationForSeason - shows something else entirely at
+// rank 1.
+func TestInternationalCup_EntrantsAreMostRecentTier1Champions(t *testing.T) {
 	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
 	if dsn == "" {
 		t.Skip("STRIKER_TEST_DB_DSN not set")
@@ -43,55 +47,43 @@ func TestInternationalCup_EntrantsAreTierOneChampionsNotPromotedTeams(t *testing
 		}
 	}
 
-	type country struct {
-		tier1, tier2, champion, runnerUp, promoted int64
-	}
 	// Two made-up countries: unknown codes fall back to the "europe" region (see
 	// common.RegionForCountry), so they share one international cup.
-	seed := func(code string) country {
+	seed := func(code string) (champion, stale int64) {
 		exec(`INSERT INTO countries (name) VALUES ($1) ON CONFLICT DO NOTHING`, code)
-		var c country
-		c.tier1 = scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'L1', 1) RETURNING league_id`, code)
-		c.tier2 = scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'L2', 2) RETURNING league_id`, code)
-		newTeam := func(name string, leagueId int64, points int) int64 {
-			teamId := scan(`INSERT INTO teams (name, country, league_id) VALUES ($1, $2, $3) RETURNING team_id`, name, code, leagueId)
-			exec(`INSERT INTO classification (league_id, team_id, season, points) VALUES ($1, $2, 1, $3)`, leagueId, teamId, points)
-			return teamId
-		}
-		c.champion = newTeam(code+" champion", c.tier1, 30)
-		c.runnerUp = newTeam(code+" runner-up", c.tier1, 10)
-		c.promoted = newTeam(code+" promoted", c.tier2, 40)
-		return c
-	}
-	countries := []country{seed("zq"), seed("zr")}
+		tier1 := scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'L1', 1) RETURNING league_id`, code)
+		champion = scan(`INSERT INTO teams (name, country, league_id) VALUES ($1, $2, $3) RETURNING team_id`, code+" champion", code, tier1)
+		stale = scan(`INSERT INTO teams (name, country, league_id) VALUES ($1, $2, $3) RETURNING team_id`, code+" stale-leader", code, tier1)
 
-	// What AdvanceSeasonIfComplete does, in order.
-	champions, err := regionChampions(dbCtx)
-	if err != nil {
-		t.Fatalf("regionChampions: %s", err)
+		// season_history: this country's season 1 ended with `champion` on top - the persisted
+		// fact GetMostRecentTier1Champions must read.
+		exec(`INSERT INTO season_history (team_id, season, league_id, final_position) VALUES ($1, 1, $2, 1)`, champion, tier1)
+
+		// The live classification table has since moved on to a newer season and shows `stale`
+		// at rank 1 instead - exactly what reading live standings (the old regionChampions) would
+		// wrongly pick, and exactly what this test must NOT pick.
+		exec(`INSERT INTO classification (league_id, team_id, season, points) VALUES ($1, $2, 2, 30)`, tier1, stale)
+		exec(`INSERT INTO classification (league_id, team_id, season, points) VALUES ($1, $2, 2, 10)`, tier1, champion)
+		return champion, stale
 	}
-	for _, c := range countries {
-		if err := common.UpdateTeamLeague(dbCtx, c.promoted, c.tier1); err != nil {
-			t.Fatalf("promoting: %s", err)
-		}
-		if err := common.UpdateClassificationLeague(dbCtx, c.promoted, c.tier1); err != nil {
-			t.Fatalf("repointing classification: %s", err)
-		}
+	champion1, stale1 := seed("zq")
+	champion2, stale2 := seed("zr")
+
+	champions, err := common.GetMostRecentTier1Champions(dbCtx, CupTier)
+	if err != nil {
+		t.Fatalf("GetMostRecentTier1Champions: %s", err)
+	}
+	if champions["zq"] != champion1 || champions["zr"] != champion2 {
+		t.Fatalf("GetMostRecentTier1Champions: got %v, want zq=%d zr=%d", champions, champion1, champion2)
 	}
 
-	// Premise of the bug: reading the standings now yields the promoted teams.
-	late, err := regionChampions(dbCtx)
-	if err != nil {
-		t.Fatalf("regionChampions after promotion: %s", err)
-	}
-	for _, c := range countries {
-		if !containsTeam(late["europe"], c.promoted) {
-			t.Fatalf("test premise: after promotion %d should rank first in its new league, got %v", c.promoted, late["europe"])
-		}
+	byRegion := make(map[string][]int64)
+	for country, teamId := range champions {
+		byRegion[common.RegionForCountry(country)] = append(byRegion[common.RegionForCountry(country)], teamId)
 	}
 
 	const season = 2
-	StartInternationalCupsForNewSeason(dbCtx, season, champions)
+	StartInternationalCupsForNewSeason(dbCtx, season, byRegion)
 
 	cupId := scan(`SELECT cup_id FROM cups WHERE region = 'europe' AND season = $1`, season)
 	ties, err := common.GetCupTies(dbCtx, cupId)
@@ -107,21 +99,12 @@ func TestInternationalCup_EntrantsAreTierOneChampionsNotPromotedTeams(t *testing
 			entrants[*tie.AwayTeamId] = true
 		}
 	}
-	for _, c := range countries {
+	for _, c := range []struct{ champion, stale int64 }{{champion1, stale1}, {champion2, stale2}} {
 		if !entrants[c.champion] {
 			t.Errorf("tier-1 champion %d is missing from the cup entrants %v", c.champion, entrants)
 		}
-		if entrants[c.promoted] {
-			t.Errorf("promoted team %d must not be a cup entrant (entrants %v)", c.promoted, entrants)
+		if entrants[c.stale] {
+			t.Errorf("stale live-standings team %d must not be a cup entrant (entrants %v)", c.stale, entrants)
 		}
 	}
-}
-
-func containsTeam(ids []int64, id int64) bool {
-	for _, v := range ids {
-		if v == id {
-			return true
-		}
-	}
-	return false
 }

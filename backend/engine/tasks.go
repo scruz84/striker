@@ -40,12 +40,58 @@ func (pj *AdvanceSeasonJob) Description() string {
 // Execute is called by a Scheduler when the Trigger associated with this job fires.
 func (pj *AdvanceSeasonJob) Execute(context.Context) error {
 	log.Info("Checking season completion job")
-	AdvanceSeasonIfComplete(pj.dbCtx)
+	AdvanceSeasonsIfComplete(pj.dbCtx)
 	return nil
 }
 
 func NewAdvanceSeasonJob(dbCtx *common.DatabaseContext) *AdvanceSeasonJob {
 	return &AdvanceSeasonJob{desc: "season rollover job", dbCtx: dbCtx}
+}
+
+// FreeAgentProgressionJob implements the quartz.Job interface: ages the unowned free-agent pool
+// (see ProgressFreeAgents) on its own real-calendar-time schedule - split out from the season
+// rollover (see AdvanceSeasonJob) because a free agent belongs to no team/league/country, so
+// there's no single country's season boundary left to hang it on now that seasons advance per
+// country (see init75_season_per_country.sql).
+type FreeAgentProgressionJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *FreeAgentProgressionJob) Description() string {
+	return pj.desc
+}
+
+func (pj *FreeAgentProgressionJob) Execute(context.Context) error {
+	log.Info("Free agent progression job")
+	ProgressFreeAgents(pj.dbCtx)
+	return nil
+}
+
+func NewFreeAgentProgressionJob(dbCtx *common.DatabaseContext) *FreeAgentProgressionJob {
+	return &FreeAgentProgressionJob{desc: "free agent progression job", dbCtx: dbCtx}
+}
+
+// InternationalCupJob implements the quartz.Job interface: starts a new regional/international
+// cup round, and (every WorldCupFrequencySeasons rounds) a new World Cup - see
+// StartInternationalCupsIfDue, which gates the actual cadence internally
+// (InternationalCupCadence) so this can tick far more often than it actually fires.
+type InternationalCupJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *InternationalCupJob) Description() string {
+	return pj.desc
+}
+
+func (pj *InternationalCupJob) Execute(context.Context) error {
+	StartInternationalCupsIfDue(pj.dbCtx)
+	return nil
+}
+
+func NewInternationalCupJob(dbCtx *common.DatabaseContext) *InternationalCupJob {
+	return &InternationalCupJob{desc: "international cup job", dbCtx: dbCtx}
 }
 
 // CupJob implements the quartz.Job interface: each tick, it simulates any due cup ties and

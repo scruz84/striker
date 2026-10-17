@@ -26,11 +26,11 @@ func ListUsersWithCountry(dbCtx *DatabaseContext) ([]UserCountry, error) {
 	return users, rows.Err()
 }
 
-// ResetCurrentSeason sets the season back to 1 in place (UPDATE, not delete+recreate) so the
-// season table's other columns - notably the admin-configured match_schedule_* default (see
-// GetMatchSchedule) - survive a leagues recreate untouched.
+// ResetCurrentSeason sets every country's season back to 1 in place (UPDATE, not delete+
+// recreate) so the season table's own global config - notably the admin-configured
+// match_schedule_* default (see GetMatchSchedule) - survives a leagues recreate untouched.
 func ResetCurrentSeason(dbCtx *DatabaseContext) error {
-	_, err := dbCtx.Db.Exec("UPDATE season SET current_season = 1")
+	_, err := dbCtx.Db.Exec("UPDATE countries SET current_season = 1")
 	return err
 }
 

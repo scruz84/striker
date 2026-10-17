@@ -8,7 +8,7 @@ import (
 )
 
 const ClassificationKey = "classDet_key"
-const CurrentSeasonKey = "currentSeason_key_"
+const CurrentSeasonKeyPrefix = "currentSeason_key_"
 const FullTeamDetailsKey = "fullTeamDet_key_"
 const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
@@ -25,8 +25,15 @@ func InvalidateTeamDetailsCache(dbCtx *common.DatabaseContext, teamId int64) {
 	dbCtx.ObjectCache.DeleteValue(TeamDetailsKey + idStr)
 }
 
-func GetCurrentSeason(dbCtx *common.DatabaseContext) (int, error) {
-	key := CurrentSeasonKey
+// CurrentSeasonKey is this cache's key for one country's current season - current_season now
+// lives on `countries` (see init75_season_per_country.sql), one counter per country, so the
+// cache key needs the country baked in too.
+func CurrentSeasonKey(country string) string {
+	return CurrentSeasonKeyPrefix + country
+}
+
+func GetCurrentSeason(dbCtx *common.DatabaseContext, country string) (int, error) {
+	key := CurrentSeasonKey(country)
 	v, _ := dbCtx.ObjectCache.GetValue(key)
 	if v != "" {
 		vint, err := strconv.Atoi(v)
@@ -34,16 +41,20 @@ func GetCurrentSeason(dbCtx *common.DatabaseContext) (int, error) {
 			return vint, nil
 		}
 	}
-	vint := common.GetCurrentSeason(dbCtx)
+	vint, err := common.GetCurrentSeasonForCountry(dbCtx, country)
+	if err != nil {
+		return 0, err
+	}
 	dbCtx.ObjectCache.SetValueLongDuration(key, strconv.Itoa(vint))
 	return vint, nil
 }
 
-// ResetCurrentSeasonCache overwrites the cached "current season" (see GetCurrentSeason above)
-// with the value a caller just wrote straight to the database - the same "refresh the cache
-// immediately after a direct write" pattern AdvanceSeasonIfComplete already uses after a normal
-// season rollover. handlers.InitializeGame and handlers.RecreateLeaguesKeepingUsers both reset
-// the season to 1 directly in Postgres; without this, a season number cached from a previous run
+// ResetCurrentSeasonCache overwrites the cached "current season" for one country (see
+// GetCurrentSeason above) with the value a caller just wrote straight to the database - the
+// same "refresh the cache immediately after a direct write" pattern
+// AdvanceSeasonsIfComplete already uses after a normal season rollover.
+// handlers.InitializeGame and handlers.RecreateLeaguesKeepingUsers both reset every country's
+// season to 1 directly in Postgres; without this, a season number cached from a previous run
 // (most plausible with an external Redis instance kept across a database reset - see issue #8)
 // would silently outlive the reset for up to the cache's own TTL. Worse than a transient
 // mismatch: GenerateMatches (called once, synchronously, right after) would tag the freshly
@@ -51,8 +62,8 @@ func GetCurrentSeason(dbCtx *common.DatabaseContext) (int, error) {
 // straight from the database - and nothing ever revisits "zero matches for the season the
 // database says it is" as a bug needing recovery, so the fixtures stay permanently orphaned
 // rather than the mismatch resolving itself once the cache entry expires.
-func ResetCurrentSeasonCache(dbCtx *common.DatabaseContext, season int) {
-	dbCtx.ObjectCache.SetValueLongDuration(CurrentSeasonKey, strconv.Itoa(season))
+func ResetCurrentSeasonCache(dbCtx *common.DatabaseContext, country string, season int) {
+	dbCtx.ObjectCache.SetValueLongDuration(CurrentSeasonKey(country), strconv.Itoa(season))
 }
 
 func GetPlayersFromTeam(dbCtx *common.DatabaseContext, teamId int64) (*[]*common.Player, error) {

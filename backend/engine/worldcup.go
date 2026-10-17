@@ -26,8 +26,8 @@ const worldCupGroupMatchdayGap = 7 * 24 * time.Hour
 // Every active country enters, including one that still has an ordinary weekly friendly pending
 // from before the tournament started - common.CancelPendingNationalTeamFriendlies clears any such
 // fixture first, so that country doesn't end up double-booked into both it and its first group
-// match. Called once per season rollover, alongside StartInternationalCupsForNewSeason - see
-// AdvanceSeasonIfComplete.
+// match. Called from StartInternationalCupsIfDue, alongside StartInternationalCupsForNewSeason,
+// on that job's own decoupled cadence rather than any one country's season rollover.
 func StartWorldCupForNewSeason(dbCtx *common.DatabaseContext, season int) {
 	if season%WorldCupFrequencySeasons != 0 {
 		return

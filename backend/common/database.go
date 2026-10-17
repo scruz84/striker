@@ -13,14 +13,26 @@ import (
 
 const ForUpdate = "FOR UPDATE"
 
-const GetCurrentSeasonStmtSql = "select current_season from season"
-const UpdateCurrentSeasonStmtSql = "UPDATE season SET current_season = $1"
+// current_season lives on `countries` (one counter per country - see
+// init75_season_per_country.sql) rather than on the old global `season` singleton, so each
+// country can advance its own season independently (see engine.AdvanceSeasonsIfComplete).
+const GetCurrentSeasonForCountryStmtSql = "SELECT current_season FROM countries WHERE name = $1"
+const SetCurrentSeasonForCountryStmtSql = "UPDATE countries SET current_season = $1 WHERE name = $2"
+const GetCurrentSeasonForLeagueStmtSql = "SELECT c.current_season FROM leagues l JOIN countries c ON c.name = l.country WHERE l.league_id = $1"
+const GetCurrentSeasonForTeamStmtSql = "SELECT c.current_season FROM teams t JOIN countries c ON c.name = t.country WHERE t.team_id = $1"
+const GetCountryForLeagueStmtSql = "SELECT country FROM leagues WHERE league_id = $1"
 
 const GetAllLeagueIdsStmtSql = "SELECT league_id FROM leagues"
 
-const GetSeasonMatchCountsStmtSql = "SELECT count(*) FILTER (WHERE played = false), count(*) FROM matches WHERE season = $1"
+// GetSeasonMatchCountsStmtSql/CountSeasonMatchesStillBroadcastingStmtSql are scoped to one
+// country's own leagues (see GetSeasonMatchCounts/CountSeasonMatchesStillBroadcasting) - a
+// season is now per-country, so "is season N complete" has to mean "complete for this one
+// country", not every match in the whole world.
+const GetSeasonMatchCountsStmtSql = "SELECT count(*) FILTER (WHERE m.played = false), count(*) FROM matches m " +
+	"JOIN leagues l ON l.league_id = m.league_id WHERE l.country = $1 AND m.season = $2"
 
-const CountSeasonMatchesStillBroadcastingStmtSql = "SELECT count(*) FROM matches WHERE season = $1 AND played = true AND match_date > $2"
+const CountSeasonMatchesStillBroadcastingStmtSql = "SELECT count(*) FROM matches m JOIN leagues l ON l.league_id = m.league_id " +
+	"WHERE l.country = $1 AND m.season = $2 AND m.played = true AND m.match_date > $3"
 
 const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = $1, matches = 0, points = 0, wins = 0, " +
 	"losses = 0, draws = 0, goals_scored = 0, goals_received = 0 WHERE league_id = $2"
@@ -86,8 +98,26 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 	"FROM teams t JOIN players p ON t.team_id = p.team_id " +
 	"WHERE t.team_id = $1 AND p.in_academy = false"
 
+// GetSimulableMatchesStmtSql deliberately has no lower bound on match_date (unlike the upper
+// bound, which keeps this from ever grabbing something scheduled further out than the next 15
+// minutes) - same reasoning as common.GetSimulableFriendliesStmtSql's identical widening: a match
+// whose 15-minute pre-kickoff window was missed entirely (a restart or deploy spanning its exact
+// claim window) must still be picked up on the very next tick once match_date is back in the
+// past, not left stranded at played = false, in_simulation = false forever - a state GetStuckMatches
+// can never see either, since that only covers a row already claimed (in_simulation = true) mid-crash.
+// A single such permanently stuck league match blocks its whole country's season from ever
+// advancing (see engine.AdvanceSeasonsIfComplete, which requires every match in a country's
+// season to be played before rolling that one country over) - the most likely explanation for a
+// season that never seems to finish.
+//
+// No `season = ...` filter: unlike before current_season moved onto `countries` (one counter per
+// country, see init75_season_per_country.sql), this query no longer looks up any one season
+// number at all. played = false already implies "belongs to its league's country's current
+// season" on its own - a country's season only advances once every one of its own matches is
+// played, and no new (future-season) fixtures exist until that happens - so filtering by season
+// here would be redundant even if there were still a single season number to filter by.
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
-	"home_goals, away_goals from matches where season = $1 and match_date > now() and match_date < now()+interval '15 minutes' and played is false and in_simulation is false order by league_id"
+	"home_goals, away_goals from matches where match_date < now()+interval '15 minutes' and played is false and in_simulation is false order by league_id"
 
 const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + ForUpdate
 
@@ -722,7 +752,6 @@ func GetMatchLineupOverride(dbCtx *DatabaseContext, matchId int64, teamId int64)
 }
 
 func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
-	currentSeason := GetCurrentSeason(dbCtx)
 	matches := make([]WeekMatch, 0)
 	var matchId int64
 	var divisionId int64
@@ -739,7 +768,7 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 		log.Errorf("error starting transaction for simulable matches: %s", err)
 		return nil, err
 	}
-	rows, err := tx.Query(GetSimulableMatchesStmtForUpdateSql, currentSeason)
+	rows, err := tx.Query(GetSimulableMatchesStmtForUpdateSql)
 	if err != nil {
 		log.Errorf("error getting matches for simulation: %s", err)
 		_ = tx.Rollback()
@@ -1062,7 +1091,10 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 	if err != nil {
 		return nil, err
 	}
-	currentSeason := GetCurrentSeason(dbCtx)
+	currentSeason, err := GetCurrentSeasonForLeague(dbCtx, leagueId)
+	if err != nil {
+		return nil, err
+	}
 
 	rows, err := dbCtx.Db.Query(GetDivisionDetailsStmtSql, leagueId, currentSeason)
 	if err != nil {
@@ -1435,7 +1467,11 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	// has no use for it) - filled in here instead, same current-season classification
 	// GetDivisionDetails ranks the whole league table from, so a team's page shows the real
 	// position instead of always reading 0.
-	position, err := GetTeamClassificationPosition(dbCtx, team.DivisionId, GetCurrentSeason(dbCtx), teamId)
+	currentSeason, err := GetCurrentSeasonForLeague(dbCtx, team.DivisionId)
+	if err != nil {
+		return nil, err
+	}
+	position, err := GetTeamClassificationPosition(dbCtx, team.DivisionId, currentSeason, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -1561,15 +1597,43 @@ func GetTeamOwner(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 	return userId, nil
 }
 
-func GetCurrentSeason(dbCtx *DatabaseContext) int {
+func GetCurrentSeasonForCountry(dbCtx *DatabaseContext, country string) (int, error) {
 	var season int
-	dbCtx.Db.QueryRow(GetCurrentSeasonStmtSql).Scan(&season)
-	return season
+	err := dbCtx.Db.QueryRow(GetCurrentSeasonForCountryStmtSql, country).Scan(&season)
+	return season, err
 }
 
-func SetCurrentSeason(dbCtx *DatabaseContext, season int) error {
-	_, err := dbCtx.Db.Exec(UpdateCurrentSeasonStmtSql, season)
+func SetCurrentSeasonForCountry(dbCtx *DatabaseContext, country string, season int) error {
+	_, err := dbCtx.Db.Exec(SetCurrentSeasonForCountryStmtSql, season, country)
 	return err
+}
+
+// GetCurrentSeasonForLeague resolves a league's own country's current season - for a caller
+// that has a leagueId but not the bare country code (see GetDivisionDetails,
+// engine.RescheduleUnplayedMatches).
+func GetCurrentSeasonForLeague(dbCtx *DatabaseContext, leagueId int64) (int, error) {
+	var season int
+	err := dbCtx.Db.QueryRow(GetCurrentSeasonForLeagueStmtSql, leagueId).Scan(&season)
+	return season, err
+}
+
+// GetCountryForLeague resolves a league's own country code - used by callers that only have a
+// leagueId in scope but need the country itself, not just its current season (see
+// engine.GenerateMatchesForLeagues).
+func GetCountryForLeague(dbCtx *DatabaseContext, leagueId int64) (string, error) {
+	var country string
+	err := dbCtx.Db.QueryRow(GetCountryForLeagueStmtSql, leagueId).Scan(&country)
+	return country, err
+}
+
+// GetCurrentSeasonForTeam resolves a team's own country's current season straight from
+// teams.country, without needing its league_id - works the same for a national team
+// (league_id = -1, but still a real teams.country) as for a club team. See AcceptLoan,
+// SetSponsorDeal/IsSponsorDealLocked, engine.updateSkillsAfterPlayedMatch.
+func GetCurrentSeasonForTeam(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	var season int
+	err := dbCtx.Db.QueryRow(GetCurrentSeasonForTeamStmtSql, teamId).Scan(&season)
+	return season, err
 }
 
 const GetTransferWindowOpenStmtSql = "SELECT transfer_window_open FROM season"
@@ -1593,6 +1657,36 @@ func SetTransferWindowOpen(dbCtx *DatabaseContext, open bool) error {
 	return err
 }
 
+// international_cup_season/last_international_cup_check (added by
+// init75_season_per_country.sql) drive the decoupled regional/international cup and World Cup
+// cadence (see engine.StartInternationalCupsIfDue) - unlike a domestic season, these can no
+// longer be tied to any one country's own rollover, so they get their own counter and their own
+// "when did we last check" timestamp instead.
+// $1 is the cadence in seconds (time.Duration.Seconds()) - built into an interval via
+// `* interval '1 second'` rather than relying on Postgres parsing Go's own Duration.String()
+// format, which isn't guaranteed to round-trip through interval's input parser.
+const IsInternationalCupCheckDueStmtSql = "SELECT last_international_cup_check IS NULL OR " +
+	"last_international_cup_check <= now() - ($1 * interval '1 second') FROM season"
+
+// IsInternationalCupCheckDue reports whether at least cadence has passed since the last
+// international-cup check (or none has ever run yet).
+func IsInternationalCupCheckDue(dbCtx *DatabaseContext, cadence time.Duration) (bool, error) {
+	var due bool
+	err := dbCtx.Db.QueryRow(IsInternationalCupCheckDueStmtSql, cadence.Seconds()).Scan(&due)
+	return due, err
+}
+
+const AdvanceInternationalCupSeasonStmtSql = "UPDATE season SET international_cup_season = international_cup_season + 1, " +
+	"last_international_cup_check = now() RETURNING international_cup_season"
+
+// AdvanceInternationalCupSeason increments the decoupled international-cup season counter and
+// stamps last_international_cup_check with now(), returning the new season number.
+func AdvanceInternationalCupSeason(dbCtx *DatabaseContext) (int, error) {
+	var season int
+	err := dbCtx.Db.QueryRow(AdvanceInternationalCupSeasonStmtSql).Scan(&season)
+	return season, err
+}
+
 func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {
 	rows, err := dbCtx.Db.Query(GetAllLeagueIdsStmtSql)
 	if err != nil {
@@ -1614,17 +1708,17 @@ func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {
 // GetSeasonMatchCounts returns how many matches exist for a season and how many of those
 // are still unplayed, so callers can tell "season complete" (total > 0, unplayed == 0) apart
 // from "season never started" (total == 0).
-func GetSeasonMatchCounts(dbCtx *DatabaseContext, season int) (total int, unplayed int, err error) {
-	err = dbCtx.Db.QueryRow(GetSeasonMatchCountsStmtSql, season).Scan(&unplayed, &total)
+func GetSeasonMatchCounts(dbCtx *DatabaseContext, country string, season int) (total int, unplayed int, err error) {
+	err = dbCtx.Db.QueryRow(GetSeasonMatchCountsStmtSql, country, season).Scan(&unplayed, &total)
 	return total, unplayed, err
 }
 
 // CountSeasonMatchesStillBroadcasting returns how many already-simulated matches of a season
 // are still inside their live-broadcast window (see LiveBroadcastWindow): played = true, but
 // match_date is more recent than LiveBroadcastCutoff. A season whose last match is still being
-// broadcast is not safe to close yet - see engine.AdvanceSeasonIfComplete.
-func CountSeasonMatchesStillBroadcasting(dbCtx *DatabaseContext, season int) (count int, err error) {
-	err = dbCtx.Db.QueryRow(CountSeasonMatchesStillBroadcastingStmtSql, season, LiveBroadcastCutoff()).Scan(&count)
+// broadcast is not safe to close yet - see engine.AdvanceSeasonsIfComplete.
+func CountSeasonMatchesStillBroadcasting(dbCtx *DatabaseContext, country string, season int) (count int, err error) {
+	err = dbCtx.Db.QueryRow(CountSeasonMatchesStillBroadcastingStmtSql, country, season, LiveBroadcastCutoff()).Scan(&count)
 	return count, err
 }
 
@@ -1642,6 +1736,29 @@ func ResetClassificationForSeason(dbCtx *DatabaseContext, leagueId int64, season
 // each country's promotion/relegation pyramid.
 func GetLeaguesWithTier(dbCtx *DatabaseContext) ([]LeagueTierInfo, error) {
 	rows, err := dbCtx.Db.Query(GetLeaguesWithTierStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	leagues := make([]LeagueTierInfo, 0)
+	for rows.Next() {
+		var info LeagueTierInfo
+		if err := rows.Scan(&info.LeagueId, &info.Country, &info.Tier); err != nil {
+			return nil, err
+		}
+		leagues = append(leagues, info)
+	}
+	return leagues, nil
+}
+
+const GetLeaguesWithTierForCountryStmtSql = "SELECT league_id, country, tier FROM leagues WHERE country = $1 ORDER BY tier, group_number"
+
+// GetLeaguesWithTierForCountry is GetLeaguesWithTier scoped to one country - used to build just
+// that country's own promotion/relegation pyramid when it rolls its season over on its own (see
+// engine.applyPromotionRelegation, engine.AdvanceSeasonsIfComplete).
+func GetLeaguesWithTierForCountry(dbCtx *DatabaseContext, country string) ([]LeagueTierInfo, error) {
+	rows, err := dbCtx.Db.Query(GetLeaguesWithTierForCountryStmtSql, country)
 	if err != nil {
 		return nil, err
 	}
@@ -2023,7 +2140,20 @@ func GetPlayersByIds(dbCtx *DatabaseContext, playerIds []int64) (*[]*Player, err
 	return &players, rows.Err()
 }
 
-const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams"
+// GetAllTeamIdsStmtSql excludes a national team (see init71_national_teams.sql) - every current
+// caller (RunAITeamManagement's and RunAiTeamDailyActivity's club-AI loops, RespondToAllPendingOffers,
+// PayAllTeamsWagesNow, TopUpTrainerMarket, and ProgressPlayers' season-end rollover) means "every
+// real, manageable club team," not a country's virtual representative squad - a national team has
+// no owner, no trainer, no wage bill, and (by design) no real roster of its own to top up from the
+// academy (its "squad" is picked fresh each call-up from GetPlayersByBirthCountry). Before this
+// exclusion, ProgressPlayers' per-team academy top-up saw a national team's always-empty player
+// count and generated it a full academy squad every season-end rollover - fake players that, having
+// a real team_id and birth_country matching the national team's own country, were then themselves
+// eligible to be called up alongside (or instead of) genuinely eligible club players (see
+// GetPlayersByBirthCountryStmtSql's "team_id IS NOT NULL" filter). The other callers merely logged
+// a harmless "no rows" error from GetTeamById (a national team has league_id = -1, so GetTeamById's
+// own league join finds nothing) and skipped it - no corruption there, just log noise.
+const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams WHERE is_national_team = false"
 
 // Excludes academy prospects - topUpAcademy uses this to decide how far below SquadSize a
 // team's senior squad has fallen, and a prospect sitting unpromoted in the cantera shouldn't
@@ -2062,6 +2192,32 @@ func rollSkillCap(startingSkill int) int {
 
 func GetAllTeamIds(dbCtx *DatabaseContext) ([]int64, error) {
 	rows, err := dbCtx.Db.Query(GetAllTeamIdsStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	teamIds := make([]int64, 0)
+	for rows.Next() {
+		var teamId int64
+		if err := rows.Scan(&teamId); err != nil {
+			return nil, err
+		}
+		teamIds = append(teamIds, teamId)
+	}
+	return teamIds, nil
+}
+
+// GetTeamIdsForCountryStmtSql excludes national teams for the same reason GetAllTeamIdsStmtSql
+// does (see its own doc comment) - a national team has no real roster of its own to age/top up.
+const GetTeamIdsForCountryStmtSql = "SELECT team_id FROM teams WHERE country = $1 AND is_national_team = false"
+
+// GetTeamIdsForCountry lists every real, manageable club team belonging to country - used to
+// scope season-end rollover work (player aging/academy top-up, expiring loans) to just the one
+// country that's actually rolling over, since current_season now advances per country rather
+// than globally (see engine.AdvanceSeasonsIfComplete).
+func GetTeamIdsForCountry(dbCtx *DatabaseContext, country string) ([]int64, error) {
+	rows, err := dbCtx.Db.Query(GetTeamIdsForCountryStmtSql, country)
 	if err != nil {
 		return nil, err
 	}
@@ -2239,8 +2395,13 @@ func GetTeamCountry(dbCtx *DatabaseContext, teamId int64) (string, error) {
 	return country, err
 }
 
-func InsertMatches(dbCtx *DatabaseContext, weekMatches [][]*WeekMatch) error {
-	stmt, err := dbCtx.Db.Prepare(InsertMatch)
+// InsertMatchesTx inserts weekMatches using the caller's already-open transaction, so the
+// insert happens inside the same transaction as whatever concurrency guard (e.g. the
+// pg_try_advisory_xact_lock in engine.generateMatchesForLeagueIds) protects the "has this
+// league already been generated" check that led to it - without that, two concurrent callers
+// could both pass the check before either one commits its inserts.
+func InsertMatchesTx(tx *sql.Tx, weekMatches [][]*WeekMatch) error {
+	stmt, err := tx.Prepare(InsertMatch)
 	if err != nil {
 		log.Errorf("error loading insert match statement: %s", err)
 		return err

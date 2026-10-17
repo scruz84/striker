@@ -48,6 +48,44 @@ func RecordSeasonHistoryCupResult(dbCtx *DatabaseContext, teamId int64, season i
 	return err
 }
 
+// GetMostRecentTier1ChampionsStmtSql picks, per country, the most recently recorded tier-1
+// champion (final_position = 1) regardless of what season number that country happens to be on
+// right now - see GetMostRecentTier1Champions. DISTINCT ON (l.country) with this ORDER BY keeps
+// exactly one row per country: the newest season, and among same-season ties (a country with
+// more than one tier-1 group - see common.ValidateWorldConfig) the lowest league_id, mirroring
+// the old live-standings version's "only ever contributes its first group's champion".
+const GetMostRecentTier1ChampionsStmtSql = `
+SELECT DISTINCT ON (l.country) l.country, sh.team_id
+FROM season_history sh
+JOIN leagues l ON l.league_id = sh.league_id
+WHERE l.tier = $1 AND sh.final_position = 1
+ORDER BY l.country, sh.season DESC, l.league_id ASC`
+
+// GetMostRecentTier1Champions returns, per country, the team id of its most recently completed
+// season's tier-1 champion - reads persisted history rather than a country's live
+// classification, so it works once countries no longer all roll over together (see
+// init75_season_per_country.sql, engine.AdvanceSeasonsIfComplete). Replaces the old
+// regionChampions, which had to be read synchronously during a single shared rollover moment
+// that no longer exists. A country that has never completed a season yet simply has no entry.
+func GetMostRecentTier1Champions(dbCtx *DatabaseContext, tier int) (map[string]int64, error) {
+	rows, err := dbCtx.Db.Query(GetMostRecentTier1ChampionsStmtSql, tier)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	champions := make(map[string]int64)
+	for rows.Next() {
+		var country string
+		var teamId int64
+		if err := rows.Scan(&country, &teamId); err != nil {
+			return nil, err
+		}
+		champions[country] = teamId
+	}
+	return champions, rows.Err()
+}
+
 // GetSeasonHistory returns every season a team has a recorded history entry for, newest first.
 func GetSeasonHistory(dbCtx *DatabaseContext, teamId int64) ([]SeasonHistoryEntry, error) {
 	rows, err := dbCtx.Db.Query(GetSeasonHistoryStmtSql, teamId)

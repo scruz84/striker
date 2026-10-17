@@ -73,10 +73,12 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 // engine/cups.go's simulateCupTie), and friendlies (see engine/friendlies.go's simulateFriendly) -
 // a friendly still develops the players who feature in it, even though (unlike a league match or
 // cup tie) it carries no financial stakes and doesn't trigger an unowned side's AI upkeep (see
-// UpdateTeamFinancesAfterMatch). Looks up the current season itself (see GetCurrentSeason) rather
-// than taking it as a parameter, since none of its three callers otherwise has it in scope.
+// UpdateTeamFinancesAfterMatch). Looks up the current season itself, from the home side's own
+// country (see common.GetCurrentSeasonForTeam - works the same whether match.Home is a club or
+// a national team), rather than taking it as a parameter, since none of its three callers
+// otherwise has it in scope.
 func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	season, err := GetCurrentSeason(dbCtx)
+	season, err := common.GetCurrentSeasonForTeam(dbCtx, match.Home)
 	if err != nil {
 		log.Errorf("error getting current season for match %d skill progression: %s", match.Id, err)
 		return

@@ -1227,13 +1227,21 @@ export interface NotificationPreferences {
   pushEnabled: boolean
 }
 
-export interface AdminOverview {
+// CountrySeason is one country's own current season and match progress - current_season now
+// advances per country rather than globally, so there's no single season number for the whole
+// game to show at once (see AdminOverview.seasons).
+export interface CountrySeason {
+  country: string
   season: number
+  matchesTotal: number
+  matchesUnplayed: number
+}
+
+export interface AdminOverview {
+  seasons: CountrySeason[]
   userCount: number
   teamCount: number
   leagueCount: number
-  matchesTotal: number
-  matchesUnplayed: number
   stuckMatches: number
   activeCups: number
   transferWindowOpen: boolean

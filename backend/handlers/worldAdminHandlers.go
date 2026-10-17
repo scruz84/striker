@@ -170,7 +170,7 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			log.Errorf("error generating fixtures for newly added country %s: %s", code, err)
 		}
 
-		season, err := engine.GetCurrentSeason(dbCtx)
+		season, err := engine.GetCurrentSeason(dbCtx, code)
 		if err != nil {
 			log.Errorf("error reading current season to start %s's cup: %s", code, err)
 		} else if err := engine.StartCupForCountry(dbCtx, code, season); err != nil {
@@ -198,9 +198,10 @@ type addDivisionRequest struct {
 //     finishes the season in step with everyone else and takes part in this season's
 //     promotion/relegation.
 //   - WithMatches=false: create the teams only. It sits out this season entirely (no fixtures at
-//     all) and is picked up automatically at the next season rollover, the same moment every
-//     other league gets its fresh fixtures generated (see engine.AdvanceSeasonIfComplete calling
-//     GenerateMatches) - engine.ComputePromotionRelegation already reads tiers straight from the
+//     all) and is picked up automatically at this country's next season rollover, the same
+//     moment every other of its leagues gets its fresh fixtures generated (see
+//     engine.advanceCountrySeasonIfComplete calling GenerateMatchesForLeagues) -
+//     engine.ComputePromotionRelegation already reads tiers straight from the
 //     leagues table, so no further plumbing is needed for it to join the promotion/relegation
 //     pyramid from that season on.
 func AdminAddDivisionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
@@ -277,7 +278,7 @@ func addDivisionMatchesNow(dbCtx *common.DatabaseContext, country string, tier i
 		return
 	}
 
-	season, err := engine.GetCurrentSeason(dbCtx)
+	season, err := engine.GetCurrentSeason(dbCtx, country)
 	if err != nil {
 		log.Errorf("error reading current season to backfill new division (country %s tier %d): %s", country, tier, err)
 		return

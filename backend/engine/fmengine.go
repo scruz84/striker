@@ -38,6 +38,8 @@ func StartEngine() {
 	//check actions
 	StartSimulateMatchesScheduler(NewSimulateMatchesJob(dbCtx))
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
+	StartFreeAgentProgressionScheduler(NewFreeAgentProgressionJob(dbCtx))
+	StartInternationalCupScheduler(NewInternationalCupJob(dbCtx))
 	StartCupScheduler(NewCupJob(dbCtx))
 	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))

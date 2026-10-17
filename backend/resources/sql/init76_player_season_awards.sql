@@ -18,7 +18,8 @@ CREATE INDEX IF NOT EXISTS idx_player_season_awards_player_id ON player_season_a
 -- -3 for the player of the season, ties broken by lowest player id, only players still on a
 -- team's roster). Only runs while the table is empty - once any award has been recorded (by this
 -- backfill or by a real season rollover) the file is a no-op when reapplied at startup - and only
--- covers seasons before the current one, since the current season's awards are still to be won.
+-- covers seasons before the current one of the league's own country (seasons are per country - see
+-- init75_season_per_country.sql), since that season's awards are still to be won.
 INSERT INTO player_season_awards (league_id, season, award, player_id, value)
 SELECT league_id, season, award, player_id, value FROM (
     SELECT s.league_id, s.season, s.award, s.player_id, s.value,
@@ -30,8 +31,10 @@ SELECT league_id, season, award, player_id, value FROM (
                count(*)::int AS value
         FROM match_events me
         JOIN matches m ON m.match_id = me.match_id
+        JOIN leagues l ON l.league_id = m.league_id
+        JOIN countries c ON c.name = l.country
         WHERE me.event_type = 0 AND me.team_players ~ '^\[\d+\]$'
-          AND m.season < (SELECT max(current_season) FROM season)
+          AND m.season < c.current_season
         GROUP BY m.league_id, m.season, substring(me.team_players FROM '^\[(\d+)\]$')::bigint
         UNION ALL
         SELECT m.league_id, m.season,
@@ -40,8 +43,10 @@ SELECT league_id, season, award, player_id, value FROM (
                sum(CASE me.event_type WHEN 0 THEN 3 WHEN 2 THEN -1 WHEN 3 THEN -3 ELSE 0 END)::int AS value
         FROM match_events me
         JOIN matches m ON m.match_id = me.match_id
+        JOIN leagues l ON l.league_id = m.league_id
+        JOIN countries c ON c.name = l.country
         WHERE me.event_type IN (0, 2, 3) AND me.team_players ~ '^\[\d+\]$'
-          AND m.season < (SELECT max(current_season) FROM season)
+          AND m.season < c.current_season
         GROUP BY m.league_id, m.season, substring(me.team_players FROM '^\[(\d+)\]$')::bigint
     ) s
     JOIN players p ON p.player_id = s.player_id AND p.team_id IS NOT NULL

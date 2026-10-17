@@ -110,13 +110,17 @@ func InitializeGame(dbCtx *common.DatabaseContext) error {
 
 	log.Info("initialize: creating season")
 	createSeason(dbCtx)
-	// See engine.ResetCurrentSeasonCache - without this, a season number cached from a previous
-	// run (most plausible with an external Redis instance kept across a database reset) would
-	// silently outlive the reset, and GenerateMatches below would tag fresh fixtures with it.
-	engine.ResetCurrentSeasonCache(dbCtx, 1)
 
 	log.Info("initialize: creating countries")
 	countries := createCountriesList(dbCtx, common.SeededCountries())
+	// See engine.ResetCurrentSeasonCache - without this, a season number cached from a previous
+	// run (most plausible with an external Redis instance kept across a database reset) would
+	// silently outlive the reset, and GenerateMatches below would tag fresh fixtures with it.
+	// Each country's current_season column defaults to 1 at creation (see
+	// init75_season_per_country.sql), matching the 1 reset into the cache here.
+	for _, country := range countries {
+		engine.ResetCurrentSeasonCache(dbCtx, country, 1)
+	}
 
 	log.Info("initialize: creating leagues, teams, and players - this is the slow part, one country at a time")
 	createTeams(dbCtx, countries, common.GetWorldConfig(dbCtx))
@@ -170,7 +174,9 @@ func RecreateLeaguesKeepingUsers(dbCtx *common.DatabaseContext) error {
 		return err
 	}
 	// See engine.ResetCurrentSeasonCache and InitializeGame's own call to it above.
-	engine.ResetCurrentSeasonCache(dbCtx, 1)
+	for _, country := range activeCountries {
+		engine.ResetCurrentSeasonCache(dbCtx, country, 1)
+	}
 
 	log.Info("recreate-leagues: creating leagues, teams, and players - this is the slow part, one country at a time")
 	createTeams(dbCtx, activeCountries, common.GetWorldConfig(dbCtx))
@@ -223,8 +229,12 @@ func createCountriesList(dbCtx *common.DatabaseContext, codes []string) []string
 	return countries
 }
 
+// createSeason inserts the singleton `season` config row, letting every column take its own
+// default - current_season no longer lives here (see init75_season_per_country.sql); each
+// country gets its own via its own `current_season DEFAULT 1` column, set the moment
+// createCountriesList inserts it.
 func createSeason(dbCtx *common.DatabaseContext) {
-	insertStmt, _ := dbCtx.Db.Prepare("INSERT INTO season (current_season) values(1)")
+	insertStmt, _ := dbCtx.Db.Prepare("INSERT INTO season DEFAULT VALUES")
 	insertStmt.Exec()
 	defer insertStmt.Close()
 }

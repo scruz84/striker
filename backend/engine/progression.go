@@ -431,15 +431,12 @@ func joinInt64s(ids []int64) string {
 // left short of a full squad (by either retirement or an expired contract) is topped back up
 // from the youth academy (see common.CreateAcademyPlayers, trainer-boosted). Also tops up the
 // open trainer market (see common.TopUpTrainerMarket). Meant to run once per season, from
-// AdvanceSeasonIfComplete.
-func ProgressPlayers(dbCtx *common.DatabaseContext) {
+// advanceCountrySeasonIfComplete, for just that one country's own teamIds (see
+// common.GetTeamIdsForCountry) - current_season now advances per country, not globally, so a
+// team in a country that hasn't finished its own season yet must not age every time some other
+// country rolls over.
+func ProgressPlayers(dbCtx *common.DatabaseContext, teamIds []int64) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
-
-	teamIds, err := common.GetAllTeamIds(dbCtx)
-	if err != nil {
-		log.Errorf("error listing teams for player progression: %s", err)
-		return
-	}
 
 	for _, teamId := range teamIds {
 		players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
@@ -493,8 +490,9 @@ func ProgressPlayers(dbCtx *common.DatabaseContext) {
 // consecutive seasons without a club - nobody stays a free agent forever. Either way they don't
 // simply vanish: common.RetireFreeAgentAsTrainer converts them into a fresh, unemployed trainer
 // candidate on the open market first, the same way a long, unresolved job search might end in a
-// career change rather than nothing at all. Meant to run once per season from
-// AdvanceSeasonIfComplete, alongside ProgressPlayers.
+// career change rather than nothing at all. Runs on its own independent daily cadence (see
+// FreeAgentProgressionJob) rather than from any one country's season rollover - a free agent
+// belongs to no team/league/country, so there's no single season boundary left to hang this on.
 func ProgressFreeAgents(dbCtx *common.DatabaseContext) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 

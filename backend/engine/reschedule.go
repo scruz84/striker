@@ -15,7 +15,7 @@ import (
 // (its own override, or the app-wide default for a league with none) so the change is felt
 // immediately rather than only by fixtures generated at the next season rollover (issue #67).
 func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, schedule common.MatchSchedule) error {
-	season, err := GetCurrentSeason(dbCtx)
+	season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueId)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
-	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -25,7 +24,7 @@ func TopScorersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		season, err := engine.GetCurrentSeason(dbCtx)
+		season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueId)
 		if err != nil {
 			log.Errorf("error getting current season for top scorers: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))

@@ -12,56 +12,58 @@ import (
 // simulable matches doesn't spawn unbounded goroutines each holding a DB connection.
 const maxConcurrentSimulations = 8
 
-// GenerateMatches Generates the matches for the leagues
+// GenerateMatches generates fixtures for every active country that needs them - a standalone
+// safety net covering every country at once (see handlers.InitializeGame/
+// RecreateLeaguesKeepingUsers, right after a fresh world is seeded), separate from the
+// per-country GenerateMatchesForLeagues call each country's own rollover already makes (see
+// advanceCountrySeasonIfComplete). Whether a given league actually needs fixtures is decided
+// per-league, inside generateMatchesForOneLeague's own lock - there's no single "does anyone
+// have upcoming matches" check left to make up front, since that would have to mean something
+// different for every country.
 func GenerateMatches(dbCtx *common.DatabaseContext) {
-	season, err := GetCurrentSeason(dbCtx)
+	countries, err := common.GetActiveCountries(dbCtx)
 	if err != nil {
-		log.Errorf("error checking for upcoming matches: %s", err)
+		log.Errorf("error listing active countries to generate matches: %s", err)
 		return
 	}
-	rows, err := dbCtx.Db.Query("select 1 as c from matches where season = $1 and match_date > now() limit 1", season)
-	defer rows.Close()
-	if err != nil {
-		log.Errorf("error checking for upcoming matches: %s", err)
-		return
-	}
-
-	if !rows.Next() {
-		//there are no upcoming matches, so we have to generate new ones
-		leagueRows, err := dbCtx.Db.Query("select league_id from leagues")
+	for _, country := range countries {
+		leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, country)
 		if err != nil {
-			log.Errorf("error finding leagues: %s", err)
-			return
+			log.Errorf("error listing leagues for %s to generate matches: %s", country, err)
+			continue
 		}
-		defer leagueRows.Close()
-		leagueIds := make([]int64, 0)
-		for leagueRows.Next() {
-			var leagueId int64
-			_ = leagueRows.Scan(&leagueId)
-			leagueIds = append(leagueIds, leagueId)
+		if err := GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
+			log.Errorf("error generating matches for %s: %s", country, err)
 		}
-		generateMatchesForLeagueIds(dbCtx, leagueIds, season)
 	}
 }
 
 // GenerateMatchesForLeagues generates the current season's fixtures for exactly the given
-// leagues, bypassing GenerateMatches' "does ANY league already have upcoming matches" guard -
-// needed when a league is added mid-season (see handlers.AdminAddCountryHandler), where every
-// other league already having fixtures scheduled would otherwise make GenerateMatches skip
-// straight past the new one.
+// leagues (which must all belong to the same country - every caller already has them scoped
+// that way, see advanceCountrySeasonIfComplete, handlers.AdminAddCountryHandler/
+// AdminAddDivisionHandler). Needed on its own, separate from GenerateMatches, when a league is
+// added mid-season: every other league in the game already having fixtures scheduled would
+// otherwise make a single "does anyone need fixtures" check skip straight past the new one.
 func GenerateMatchesForLeagues(dbCtx *common.DatabaseContext, leagueIds []int64) error {
-	season, err := GetCurrentSeason(dbCtx)
+	if len(leagueIds) == 0 {
+		return nil
+	}
+	season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueIds[0])
 	if err != nil {
 		return err
 	}
-	generateMatchesForLeagueIds(dbCtx, leagueIds, season)
+	country, err := common.GetCountryForLeague(dbCtx, leagueIds[0])
+	if err != nil {
+		return err
+	}
+	generateMatchesForLeagueIds(dbCtx, leagueIds, country, season)
 	return nil
 }
 
 // generateMatchesForLeagueIds dates each league's fixtures on its own schedule override if it
 // has one (see common.GetLeagueScheduleOverrides), falling back to the app-wide default (see
 // common.GetMatchSchedule) otherwise.
-func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int64, season int) {
+func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int64, country string, season int) {
 	defaultSchedule := common.GetMatchSchedule(dbCtx)
 	overrides, err := common.GetLeagueScheduleOverrides(dbCtx)
 	if err != nil {
@@ -72,38 +74,84 @@ func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int6
 	// Searched from once, before any league's fixtures are inserted: a season closes while its last
 	// round can still be dated in the future (matches are simulated 15 minutes ahead), and the new
 	// season must start after it. Only earlier seasons count, so a league added mid-season isn't
-	// pushed past the end of everyone else's current fixtures.
-	latestPrevious, err := common.GetLatestMatchDateBeforeSeason(dbCtx, season)
+	// pushed past the end of everyone else's current fixtures. Scoped to country - otherwise this
+	// could pick up another, still-ongoing country's own future-dated fixtures as the "latest
+	// previous" date (see common.GetLatestMatchDateBeforeSeason's own doc comment).
+	latestPrevious, err := common.GetLatestMatchDateBeforeSeason(dbCtx, country, season)
 	if err != nil {
 		log.Errorf("error finding the previous season's last match date, scheduling from now: %s", err)
 	}
 	from := FixtureStart(time.Now(), latestPrevious)
 
 	for _, leagueId := range leagueIds {
-		teams, err := dbCtx.Db.Query(common.GetTeamIdsFromLeagueSql, leagueId)
-		if err != nil {
-			log.Errorf("error finding teams from league %d: %s", leagueId, err)
-			continue
-		}
-		teamIds := make([]int64, 0)
-		for teams.Next() {
-			var teamId int64
-			_ = teams.Scan(&teamId)
-			teamIds = append(teamIds, teamId)
-		}
-		teams.Close()
-
-		log.Infof("Team ids: %v", teamIds)
-
 		schedule := defaultSchedule
 		if override, ok := overrides[leagueId]; ok {
 			schedule = override
 		}
-
-		weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule, from)
-		//Insert the matches
-		_ = common.InsertMatches(dbCtx, weekMatches)
+		if err := generateMatchesForOneLeague(dbCtx, leagueId, season, schedule, from); err != nil {
+			log.Errorf("error generating matches for league %d: %s", leagueId, err)
+		}
 	}
+}
+
+// generateMatchesForOneLeague generates and inserts leagueId's season fixtures inside one
+// transaction, guarded by a non-blocking advisory lock keyed to leagueId - the same
+// pg_try_advisory_xact_lock pattern common.SetDefaultLineup already uses for a one-shot
+// idempotent write it can't let two callers both perform. Two engine replicas racing to generate
+// the same league's fixtures is a real deployment shape, not a hypothetical one (see
+// docker-compose.yml, common/schema.go's cross-process migration lock, and the Grafana
+// per-replica dashboards) - without this, both could pass a plain "does this league already have
+// upcoming matches" read before either commits, and both insert a full duplicate schedule. The
+// "already has upcoming matches" check is re-run inside the lock (not just once up front in
+// GenerateMatches/GenerateMatchesForLeagues), so a second caller that loses the race still sees
+// the winner's just-committed fixtures and correctly no-ops instead of only relying on who
+// acquired the lock first.
+func generateMatchesForOneLeague(dbCtx *common.DatabaseContext, leagueId int64, season int, schedule common.MatchSchedule, from time.Time) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var acquired bool
+	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1)", leagueId).Scan(&acquired); err != nil {
+		return err
+	}
+	if !acquired {
+		return nil
+	}
+
+	var hasUpcoming bool
+	if err := tx.QueryRow(
+		"SELECT EXISTS(SELECT 1 FROM matches WHERE league_id = $1 AND season = $2 AND match_date > now())",
+		leagueId, season).Scan(&hasUpcoming); err != nil {
+		return err
+	}
+	if hasUpcoming {
+		return nil
+	}
+
+	teams, err := tx.Query(common.GetTeamIdsFromLeagueSql, leagueId)
+	if err != nil {
+		return err
+	}
+	teamIds := make([]int64, 0)
+	for teams.Next() {
+		var teamId int64
+		if err := teams.Scan(&teamId); err != nil {
+			teams.Close()
+			return err
+		}
+		teamIds = append(teamIds, teamId)
+	}
+	teams.Close()
+	log.Infof("Team ids: %v", teamIds)
+
+	weekMatches := randomWeekMatches2(&leagueId, season, &teamIds, schedule, from)
+	if err := common.InsertMatchesTx(tx, weekMatches); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // Algorithm from: https://www.competize.com/blog/hacer-fixture-crear-calendario-liga-excel/

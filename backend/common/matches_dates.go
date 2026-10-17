@@ -5,17 +5,25 @@ import (
 	"time"
 )
 
-const getLatestMatchDateBeforeSeasonStmtSql = "SELECT max(match_date) FROM matches WHERE season < $1"
+// Scoped to country - current_season now advances per country (see
+// init75_season_per_country.sql), so "the previous season's last match date" must mean this one
+// country's own previous season, not the latest match_date across every country. Unscoped, this
+// could pick up another, still-ongoing country's own future-dated fixtures (spanning weeks
+// ahead) as the "latest previous" date, pushing a freshly-generated season's first round out by
+// however far that other country's season happens to run - see engine.generateMatchesForLeagueIds.
+const getLatestMatchDateBeforeSeasonStmtSql = "SELECT max(m.match_date) FROM matches m " +
+	"JOIN leagues l ON l.league_id = m.league_id WHERE l.country = $1 AND m.season < $2"
 
 const getLatestStartedMatchDateStmtSql = "SELECT max(match_date) FROM matches " +
 	"WHERE league_id = $1 AND season = $2 AND (played = true OR in_simulation = true)"
 
-// GetLatestMatchDateBeforeSeason returns the latest match_date among league matches of seasons
-// before `season`, or nil if there are none. A match flips to played 15 minutes before its
-// match_date (see GetSimulableMatches), so a season can close while its last round is still
-// dated in the future - the next season's first round has to be scheduled after it, not on top.
-func GetLatestMatchDateBeforeSeason(dbCtx *DatabaseContext, season int) (*time.Time, error) {
-	return queryOptionalTime(dbCtx, getLatestMatchDateBeforeSeasonStmtSql, season)
+// GetLatestMatchDateBeforeSeason returns the latest match_date among country's own league
+// matches of seasons before `season`, or nil if there are none. A match flips to played 15
+// minutes before its match_date (see GetSimulableMatches), so a season can close while its last
+// round is still dated in the future - the next season's first round has to be scheduled after
+// it, not on top.
+func GetLatestMatchDateBeforeSeason(dbCtx *DatabaseContext, country string, season int) (*time.Time, error) {
+	return queryOptionalTime(dbCtx, getLatestMatchDateBeforeSeasonStmtSql, country, season)
 }
 
 // GetLatestStartedMatchDate returns the latest match_date among leagueId's already simulated (or

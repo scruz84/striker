@@ -56,12 +56,15 @@ func SetSponsorDeal(dbCtx *DatabaseContext, teamId int64, deal SponsorDeal) erro
 	if err := dbCtx.Db.QueryRow(GetSponsorDealSeasonStmtSql, teamId).Scan(&lockedSeason); err != nil {
 		return err
 	}
-	currentSeason := GetCurrentSeason(dbCtx)
+	currentSeason, err := GetCurrentSeasonForTeam(dbCtx, teamId)
+	if err != nil {
+		return err
+	}
 	if lockedSeason == currentSeason {
 		return ErrSponsorDealLocked
 	}
 
-	_, err := dbCtx.Db.Exec(SetSponsorDealStmtSql, int(deal), currentSeason, teamId)
+	_, err = dbCtx.Db.Exec(SetSponsorDealStmtSql, int(deal), currentSeason, teamId)
 	return err
 }
 
@@ -73,5 +76,9 @@ func IsSponsorDealLocked(dbCtx *DatabaseContext, teamId int64) (bool, error) {
 	if err := dbCtx.Db.QueryRow(GetSponsorDealSeasonStmtSql, teamId).Scan(&lockedSeason); err != nil {
 		return false, err
 	}
-	return lockedSeason == GetCurrentSeason(dbCtx), nil
+	currentSeason, err := GetCurrentSeasonForTeam(dbCtx, teamId)
+	if err != nil {
+		return false, err
+	}
+	return lockedSeason == currentSeason, nil
 }

@@ -5,13 +5,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ReturnExpiredLoans sends every loaned player whose return_season has arrived back to its
-// original owner - called once per season rollover, right after the season counter advances
-// (see AdvanceSeasonIfComplete), so return_season <= the new season means "due now."
-func ReturnExpiredLoans(dbCtx *common.DatabaseContext, newSeason int) {
-	loans, err := common.GetExpiredLoans(dbCtx, newSeason)
+// ReturnExpiredLoans sends every player on loan TO a team in country whose return_season has
+// arrived back to its original owner - called once per that country's own season rollover,
+// right after its season counter advances (see advanceCountrySeasonIfComplete), so
+// return_season <= the new season means "due now." Scoped to country because a loan's
+// return_season is denominated in the borrower's own season count (see
+// common.GetExpiredLoansStmtSql).
+func ReturnExpiredLoans(dbCtx *common.DatabaseContext, country string, newSeason int) {
+	loans, err := common.GetExpiredLoans(dbCtx, country, newSeason)
 	if err != nil {
-		log.Errorf("error listing expired loans: %s", err)
+		log.Errorf("error listing expired loans for %s: %s", country, err)
 		return
 	}
 

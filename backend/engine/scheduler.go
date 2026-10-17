@@ -41,6 +41,39 @@ func StartAdvanceSeasonScheduler(advanceSeasonJob quartz.Job) {
 	}
 }
 
+func StartFreeAgentProgressionScheduler(freeAgentProgressionJob quartz.Job) {
+	sched.Start(ctx)
+	// Once a day is plenty - there's no season boundary driving this anymore (see
+	// init75_season_per_country.sql), just a slow background drift of the unowned player pool.
+	cronTrigger, err := quartz.NewCronTrigger("0 0 2 * * ?")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(freeAgentProgressionJob.Description())
+	jobDetail := quartz.NewJobDetail(freeAgentProgressionJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
+func StartInternationalCupScheduler(internationalCupJob quartz.Job) {
+	sched.Start(ctx)
+	// Ticks daily, same as StartFreeAgentProgressionScheduler, but InternationalCupCadence
+	// (engine/cups.go) gates how often it actually starts anything - cheap to check this often,
+	// since most ticks just read season.last_international_cup_check and return.
+	cronTrigger, err := quartz.NewCronTrigger("0 0 3 * * ?")
+	if err != nil {
+		log.Panic(err)
+	}
+	jobKey := quartz.NewJobKey(internationalCupJob.Description())
+	jobDetail := quartz.NewJobDetail(internationalCupJob, jobKey)
+	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
+	if errJob != nil {
+		log.Panic(errJob)
+	}
+}
+
 func StartCupScheduler(cupJob quartz.Job) {
 	sched.Start(ctx)
 	// Same cadence as match simulation - cup ties are scheduled the same way league matches

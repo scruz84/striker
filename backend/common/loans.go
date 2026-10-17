@@ -81,7 +81,13 @@ const IsPlayerOnActiveLoanStmtSql = "SELECT loan_id FROM player_loans WHERE play
 const InsertPlayerLoanStmtSql = "INSERT INTO player_loans (player_id, from_team_id, to_team_id, return_season, wage_contribution_percent, buy_option_fee) " +
 	"VALUES ($1, $2, $3, $4, $5, $6)"
 const DeletePlayerLoanStmtSql = "DELETE FROM player_loans WHERE loan_id = $1"
-const GetExpiredLoansStmtSql = "SELECT loan_id, player_id, from_team_id, to_team_id, return_season FROM player_loans WHERE return_season <= $1"
+
+// GetExpiredLoansStmtSql scopes by the BORROWING team's country (to_team_id) - a loan's
+// return_season is denominated in the borrower's own season count (see AcceptLoan: "N of the
+// borrower's own seasons"), so only that country's own rollover should ever return it (see
+// engine.AdvanceSeasonsIfComplete / engine.ReturnExpiredLoans).
+const GetExpiredLoansStmtSql = "SELECT pl.loan_id, pl.player_id, pl.from_team_id, pl.to_team_id, pl.return_season " +
+	"FROM player_loans pl JOIN teams t ON t.team_id = pl.to_team_id WHERE t.country = $1 AND pl.return_season <= $2"
 const GetActiveLoanForPlayerForUpdateStmtSql = "SELECT loan_id, from_team_id, to_team_id, buy_option_fee FROM player_loans WHERE player_id = $1 " + ForUpdate
 
 // GetTeamLoanWageContributionStmtSql sums, for every player teamId currently has out on loan with
@@ -250,7 +256,12 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if !IsTeamSolvent(dbCtx, borrowingTeamId) {
 		return ErrTeamInsolvent
 	}
-	currentSeason := GetCurrentSeason(dbCtx)
+	// The loan's duration is "N of the borrower's own seasons" (see GetExpiredLoansStmtSql), so
+	// returnSeason below is computed from the borrowing team's own country's current season.
+	currentSeason, err := GetCurrentSeasonForTeam(dbCtx, borrowingTeamId)
+	if err != nil {
+		return err
+	}
 
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
@@ -459,9 +470,10 @@ func notifyLoanAccepted(dbCtx *DatabaseContext, playerId int64, lendingTeamId in
 	})
 }
 
-// GetExpiredLoans lists every active loan whose return_season has arrived (<= season).
-func GetExpiredLoans(dbCtx *DatabaseContext, season int) ([]PlayerLoan, error) {
-	rows, err := dbCtx.Db.Query(GetExpiredLoansStmtSql, season)
+// GetExpiredLoans lists every active loan, owed back by a borrower in country, whose
+// return_season has arrived (<= season).
+func GetExpiredLoans(dbCtx *DatabaseContext, country string, season int) ([]PlayerLoan, error) {
+	rows, err := dbCtx.Db.Query(GetExpiredLoansStmtSql, country, season)
 	if err != nil {
 		return nil, err
 	}

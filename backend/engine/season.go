@@ -5,25 +5,81 @@ import (
 
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 )
 
-// AdvanceSeasonIfComplete checks whether every match of the current season has been played and
-// has finished its live broadcast (see common.LiveBroadcastWindow) and, if so, rolls the game forward: it ages every rostered player a year (see ProgressPlayers)
-// and every unowned one too (see ProgressFreeAgents), returns any loan whose duration has
-// elapsed, promotes/relegates teams based on the season's final standings, starts a new cup for
-// each country from the post-promotion tier-1 teams plus a new international cup per region from
-// each of its countries' just-finished tier-1 champions (captured before promotion, see
-// StartInternationalCupsForNewSeason),
-// resets each league's classification for the new season, bumps the season counter, and
-// regenerates fixtures. See ResetClassificationForSeason for why classification is reset in
-// place rather than archived per season.
-func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
-	currentSeason := common.GetCurrentSeason(dbCtx)
-
-	total, unplayed, err := common.GetSeasonMatchCounts(dbCtx, currentSeason)
+// AdvanceSeasonsIfComplete checks every active country independently (see
+// init75_season_per_country.sql) and rolls over whichever ones have finished their own season -
+// see advanceCountrySeasonIfComplete for the actual per-country rollover. One country with a
+// backlog of matches (or just more leagues) no longer holds up any other country's season.
+func AdvanceSeasonsIfComplete(dbCtx *common.DatabaseContext) {
+	countries, err := common.GetActiveCountries(dbCtx)
 	if err != nil {
-		log.Errorf("error checking season %d completion: %s", currentSeason, err)
+		log.Errorf("error listing active countries for season rollover: %s", err)
+		return
+	}
+	for _, country := range countries {
+		advanceCountrySeasonIfComplete(dbCtx, country)
+	}
+}
+
+// advanceCountrySeasonIfComplete checks whether every match of country's current season has
+// been played and has finished its live broadcast (see common.LiveBroadcastWindow) and, if so,
+// rolls that one country forward: it ages every one of its rostered players a year (see
+// ProgressPlayers), returns any of its loans whose duration has elapsed, promotes/relegates its
+// teams based on the season's final standings, starts a new domestic cup from the
+// post-promotion tier-1 teams, resets its leagues' classification for the new season, bumps its
+// own season counter, and regenerates its fixtures. See ResetClassificationForSeason for why
+// classification is reset in place rather than archived per season.
+//
+// Regional/international cups and the World Cup are deliberately NOT started here - they used to
+// assume every country finished together, which is no longer true once each country advances on
+// its own clock; they now run on their own independent, decoupled cadence instead (see
+// StartInternationalCupsJob in engine/cups.go), reading each country's most recently completed
+// champion rather than waiting for every country to roll over at once.
+//
+// Guarded by a non-blocking, session-level advisory lock on a dedicated connection, held for the
+// whole function body - the same shape advanceCup uses for the same reason (see its own doc
+// comment): this is a long multi-step check-then-act with no transaction of its own (player
+// aging, promotion/relegation, cup/classification/fixture writes each run their own separate
+// statements), and two --engine replicas (a real, supported deployment shape - see
+// docker-compose.yml) both ticking AdvanceSeasonJob at once could otherwise both see the season
+// complete and both roll country over - double player aging, double promotion/relegation moves,
+// double prize money, a duplicate cup. Keyed on hashtext(country) rather than a bare int, since
+// country is a string.
+func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country string) {
+	ctx := context.Background()
+	conn, err := dbCtx.Db.Conn(ctx)
+	if err != nil {
+		log.Errorf("error acquiring a connection for %s's season advance lock: %s", country, err)
+		return
+	}
+	defer conn.Close()
+
+	var acquired bool
+	if err := conn.QueryRowContext(ctx, "SELECT pg_try_advisory_lock(hashtext($1)::bigint)", country).Scan(&acquired); err != nil {
+		log.Errorf("error acquiring season advance lock for %s: %s", country, err)
+		return
+	}
+	if !acquired {
+		// Another replica is already rolling this country's season over this tick - whatever it
+		// leaves behind, the next tick picks up correctly.
+		return
+	}
+	defer func() {
+		if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_unlock(hashtext($1)::bigint)", country); err != nil {
+			log.Errorf("error releasing season advance lock for %s: %s", country, err)
+		}
+	}()
+
+	currentSeason, err := common.GetCurrentSeasonForCountry(dbCtx, country)
+	if err != nil {
+		log.Errorf("error reading current season for %s: %s", country, err)
+		return
+	}
+
+	total, unplayed, err := common.GetSeasonMatchCounts(dbCtx, country, currentSeason)
+	if err != nil {
+		log.Errorf("error checking %s season %d completion: %s", country, currentSeason, err)
 		return
 	}
 	if total == 0 || unplayed > 0 {
@@ -35,44 +91,35 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 	// relegation notifications (and compute the final standings) while the last round is still
 	// being watched, spoiling its result - so wait until every match has finished broadcasting.
 	// The next scheduler tick picks the rollover up.
-	broadcasting, err := common.CountSeasonMatchesStillBroadcasting(dbCtx, currentSeason)
+	broadcasting, err := common.CountSeasonMatchesStillBroadcasting(dbCtx, country, currentSeason)
 	if err != nil {
-		log.Errorf("error checking live broadcasts for season %d: %s", currentSeason, err)
+		log.Errorf("error checking live broadcasts for %s season %d: %s", country, currentSeason, err)
 		return
 	}
 	if broadcasting > 0 {
-		log.Infof("season %d has all matches played but %d still broadcasting, postponing rollover", currentSeason, broadcasting)
+		log.Infof("%s season %d has all matches played but %d still broadcasting, postponing rollover", country, currentSeason, broadcasting)
 		return
 	}
 
 	newSeason := currentSeason + 1
-	log.Infof("season %d complete (%d matches played), advancing to season %d", currentSeason, total, newSeason)
+	log.Infof("%s season %d complete (%d matches played), advancing to season %d", country, currentSeason, total, newSeason)
 	common.SeasonRolloversCounter.Add(context.Background(), 1)
 
-	// Read before applyPromotionRelegation below: promotion repoints the promoted teams'
-	// classification rows at the tier-1 league, after which rank 1 there is no longer the
-	// tier-1 champion.
-	champions, err := regionChampions(dbCtx)
+	teamIds, err := common.GetTeamIdsForCountry(dbCtx, country)
 	if err != nil {
-		log.Errorf("error finding regional champions for international cups: %s", err)
-		champions = nil
+		log.Errorf("error listing teams for %s season rollover: %s", country, err)
+		return
+	}
+	ProgressPlayers(dbCtx, teamIds)
+	ReturnExpiredLoans(dbCtx, country, newSeason)
+	applyPromotionRelegation(dbCtx, country, currentSeason)
+	if err := StartCupForCountry(dbCtx, country, newSeason); err != nil {
+		log.Errorf("error starting cup for %s season %d: %s", country, newSeason, err)
 	}
 
-	ProgressPlayers(dbCtx)
-	ProgressFreeAgents(dbCtx)
-	ReturnExpiredLoans(dbCtx, newSeason)
-	applyPromotionRelegation(dbCtx, currentSeason)
-	StartCupsForNewSeason(dbCtx, newSeason)
-	// The entrants are the tier-1 champions captured above, before promotion/relegation moved
-	// anyone (see StartInternationalCupsForNewSeason).
-	StartInternationalCupsForNewSeason(dbCtx, newSeason, champions)
-	// Only actually starts one every WorldCupFrequencySeasons seasons, and only while no other
-	// World Cup is still running - see StartWorldCupForNewSeason.
-	StartWorldCupForNewSeason(dbCtx, newSeason)
-
-	leagueIds, err := common.GetAllLeagueIds(dbCtx)
+	leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, country)
 	if err != nil {
-		log.Errorf("error listing leagues for season rollover: %s", err)
+		log.Errorf("error listing leagues for %s season rollover: %s", country, err)
 		return
 	}
 
@@ -82,16 +129,18 @@ func AdvanceSeasonIfComplete(dbCtx *common.DatabaseContext) {
 		}
 	}
 
-	if err := common.SetCurrentSeason(dbCtx, newSeason); err != nil {
-		log.Errorf("error advancing current season to %d: %s", newSeason, err)
+	if err := common.SetCurrentSeasonForCountry(dbCtx, country, newSeason); err != nil {
+		log.Errorf("error advancing %s's current season to %d: %s", country, newSeason, err)
 		return
 	}
 	// GetCurrentSeason (this package) caches the season for 30 minutes; refresh it in place
-	// so GenerateMatches below picks up the new season immediately instead of regenerating
-	// fixtures under the season we just closed out.
-	dbCtx.ObjectCache.SetValueLongDuration(CurrentSeasonKey, strconv.Itoa(newSeason))
+	// so GenerateMatchesForLeagues below picks up the new season immediately instead of
+	// regenerating fixtures under the season we just closed out.
+	ResetCurrentSeasonCache(dbCtx, country, newSeason)
 
-	GenerateMatches(dbCtx)
+	if err := GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
+		log.Errorf("error generating fixtures for %s season %d: %s", country, newSeason, err)
+	}
 }
 
 // leagueFinalStandings pairs one league's final ranked standings with what season_history needs
@@ -102,16 +151,16 @@ type leagueFinalStandings struct {
 	standings  []common.TeamStanding
 }
 
-// applyPromotionRelegation ranks every league's final standings, computes each country's
-// promotion/relegation moves independently (a team never crosses countries), applies them by
-// repointing the moved teams' league_id - both on teams and on their existing classification
-// row, so the per-league reset that follows resets the right rows - and records every team's
-// final position and promotion/relegation outcome for `season` into its season_history (see
-// recordSeasonHistory) before that classification data is gone for good.
-func applyPromotionRelegation(dbCtx *common.DatabaseContext, season int) {
-	leagues, err := common.GetLeaguesWithTier(dbCtx)
+// applyPromotionRelegation ranks country's own leagues' final standings, computes its
+// promotion/relegation moves, applies them by repointing the moved teams' league_id - both on
+// teams and on their existing classification row, so the per-league reset that follows resets
+// the right rows - and records every team's final position and promotion/relegation outcome for
+// `season` into its season_history (see recordSeasonHistory) before that classification data is
+// gone for good.
+func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, season int) {
+	leagues, err := common.GetLeaguesWithTierForCountry(dbCtx, country)
 	if err != nil {
-		log.Errorf("error listing leagues for promotion/relegation: %s", err)
+		log.Errorf("error listing leagues for %s promotion/relegation: %s", country, err)
 		return
 	}
 

@@ -64,27 +64,36 @@ func GetAllUsersWithTeams(dbCtx *DatabaseContext) ([]AdminUserSummary, error) {
 	return users, nil
 }
 
+// CountrySeason is one country's own current season and match progress - see AdminOverview.
+// current_season moved onto `countries` (one counter per country, see
+// init75_season_per_country.sql), so there's no single season number left to show for the
+// whole game at once.
+type CountrySeason struct {
+	Country         string `json:"country"`
+	Season          int    `json:"season"`
+	MatchesTotal    int    `json:"matchesTotal"`
+	MatchesUnplayed int    `json:"matchesUnplayed"`
+}
+
 // AdminOverview is a snapshot of the game's overall state for the commissioner dashboard - see
 // handlers.AdminOverviewHandler for how it's assembled.
 type AdminOverview struct {
-	Season                        int  `json:"season"`
-	UserCount                     int  `json:"userCount"`
-	TeamCount                     int  `json:"teamCount"`
-	LeagueCount                   int  `json:"leagueCount"`
-	MatchesTotal                  int  `json:"matchesTotal"`
-	MatchesUnplayed               int  `json:"matchesUnplayed"`
-	StuckMatches                  int  `json:"stuckMatches"`
-	ActiveCups                    int  `json:"activeCups"`
-	TransferWindowOpen            bool `json:"transferWindowOpen"`
-	MatchScheduleWeekdaysMask     int  `json:"matchScheduleWeekdaysMask"`
-	MatchScheduleHour             int  `json:"matchScheduleHour"`
-	MatchScheduleMinute           int  `json:"matchScheduleMinute"`
-	MaxFriendliesPerWeek          int  `json:"maxFriendliesPerWeek"`
-	FriendlyScheduleWeekdays      int  `json:"friendlyScheduleWeekdays"`
-	PromotionSlotsPerGroup        int  `json:"promotionSlotsPerGroup"`
-	RelegationSlotsPerGroup       int  `json:"relegationSlotsPerGroup"`
-	FreeAgentInjectionsPerWeek    int  `json:"freeAgentInjectionsPerWeek"`
-	OfferNegotiationWindowMinutes int  `json:"offerNegotiationWindowMinutes"`
+	Seasons                       []CountrySeason `json:"seasons"`
+	UserCount                     int             `json:"userCount"`
+	TeamCount                     int             `json:"teamCount"`
+	LeagueCount                   int             `json:"leagueCount"`
+	StuckMatches                  int             `json:"stuckMatches"`
+	ActiveCups                    int             `json:"activeCups"`
+	TransferWindowOpen            bool            `json:"transferWindowOpen"`
+	MatchScheduleWeekdaysMask     int             `json:"matchScheduleWeekdaysMask"`
+	MatchScheduleHour             int             `json:"matchScheduleHour"`
+	MatchScheduleMinute           int             `json:"matchScheduleMinute"`
+	MaxFriendliesPerWeek          int             `json:"maxFriendliesPerWeek"`
+	FriendlyScheduleWeekdays      int             `json:"friendlyScheduleWeekdays"`
+	PromotionSlotsPerGroup        int             `json:"promotionSlotsPerGroup"`
+	RelegationSlotsPerGroup       int             `json:"relegationSlotsPerGroup"`
+	FreeAgentInjectionsPerWeek    int             `json:"freeAgentInjectionsPerWeek"`
+	OfferNegotiationWindowMinutes int             `json:"offerNegotiationWindowMinutes"`
 }
 
 func CountUsers(dbCtx *DatabaseContext) (int, error) {
