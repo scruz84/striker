@@ -696,6 +696,7 @@
     "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },
     "promoted": "Ascendido",
     "relegated": "Descendido",
+    "leagueChampion": "Campeón de liga",
     "makeOffer": "Hacer oferta",
     "amount": "Importe",
     "send": "Enviar",

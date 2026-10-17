@@ -12,12 +12,17 @@ const PADDING = { top: 16, right: 16, bottom: 28, left: 32 }
 const PLOT_WIDTH = GRAPH_WIDTH - PADDING.left - PADDING.right
 const PLOT_HEIGHT = GRAPH_HEIGHT - PADDING.top - PADDING.bottom
 
+// Same gold used for the 1st-place rank badge on DivisionDetailsPage and the trophy icon in the
+// cabinet table below, so a title season reads consistently as "gold" across the page.
+const CHAMPION_COLOR = '#D4AF37'
+
 // Charts a team's final league position across seasons - lower (better) positions plot higher,
 // so the line visually climbs when the team is doing well. Promoted/relegated seasons are
 // highlighted with the same success/warning colors already used for their chips in the trophy
 // cabinet table below, rather than introducing a separate categorical palette for a single
 // series (see the dataviz skill: status colors are reserved for state, which promotion/
-// relegation genuinely are here).
+// relegation genuinely are here). A title-winning season (final position 1) takes priority over
+// those and is marked gold, matching the trophy cabinet.
 export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[] }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -44,7 +49,13 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
   const hovered = hoverIndex !== null ? points[hoverIndex] : null
 
   const colorFor = (entry: SeasonHistoryEntry) =>
-    entry.promoted ? theme.palette.success.main : entry.relegated ? theme.palette.warning.main : theme.palette.primary.main
+    entry.finalPosition === 1
+      ? CHAMPION_COLOR
+      : entry.promoted
+        ? theme.palette.success.main
+        : entry.relegated
+          ? theme.palette.warning.main
+          : theme.palette.primary.main
 
   return (
     <Paper sx={{ p: 2, mb: 2 }}>
@@ -95,7 +106,7 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
               <circle
                 cx={xFor(i)}
                 cy={yFor(p.finalPosition)}
-                r={hoverIndex === i ? 6 : 4}
+                r={(hoverIndex === i ? 6 : 4) + (p.finalPosition === 1 ? 2 : 0)}
                 fill={colorFor(p)}
                 stroke={theme.palette.background.paper}
                 strokeWidth={1.5}
@@ -123,6 +134,11 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
             {hovered.leagueName && (
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                 {hovered.leagueName}
+              </Typography>
+            )}
+            {hovered.finalPosition === 1 && (
+              <Typography variant="caption" sx={{ display: 'block', color: CHAMPION_COLOR, fontWeight: 600 }}>
+                {t('team.leagueChampion')}
               </Typography>
             )}
             {hovered.promoted && (

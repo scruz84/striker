@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -311,6 +312,10 @@ export function TeamDetailsPage() {
   )
 }
 
+// Same gold used for the 1st-place rank badge on DivisionDetailsPage, so a league title reads
+// consistently as "gold" wherever it shows up in the UI.
+const CHAMPION_COLOR = '#D4AF37'
+
 function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   const { t } = useTranslation()
   if (history.length === 0) {
@@ -333,20 +338,32 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {history.map((entry) => (
-            <TableRow key={entry.season}>
-              <TableCell>{entry.season}</TableCell>
-              <TableCell>{entry.leagueName ?? '-'}</TableCell>
-              <TableCell align="right">{entry.finalPosition ?? '-'}</TableCell>
-              <TableCell>
-                <Stack direction="row" spacing={1}>
-                  {entry.promoted && <Chip size="small" color="success" label={t('team.promoted')} />}
-                  {entry.relegated && <Chip size="small" color="warning" label={t('team.relegated')} />}
-                  {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
-                </Stack>
-              </TableCell>
-            </TableRow>
-          ))}
+          {history.map((entry) => {
+            const isChampion = entry.finalPosition === 1
+            return (
+              <TableRow key={entry.season}>
+                <TableCell>{entry.season}</TableCell>
+                <TableCell>{entry.leagueName ?? '-'}</TableCell>
+                <TableCell align="right">
+                  <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+                    <span>{entry.finalPosition ?? '-'}</span>
+                    {isChampion && (
+                      <Tooltip title={t('team.leagueChampion')}>
+                        <EmojiEventsTwoToneIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
+                      </Tooltip>
+                    )}
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    {entry.promoted && <Chip size="small" color="success" label={t('team.promoted')} />}
+                    {entry.relegated && <Chip size="small" color="warning" label={t('team.relegated')} />}
+                    {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </TableContainer>
