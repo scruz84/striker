@@ -972,6 +972,19 @@ export function useAdminAddDivision() {
   })
 }
 
+// Re-dates one active country's unplayed league matches onto its leagues' effective schedules,
+// starting from the next slot after now - for fixtures dated further out than they should be.
+// See handlers.AdminRescheduleCountryHandler.
+export function useAdminRescheduleCountry() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (country: string) => api.post(`/v1/admin/countries/${country}/reschedule`, {}),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useSetLeagueSchedule() {
   const queryClient = useQueryClient()
   return useMutation({

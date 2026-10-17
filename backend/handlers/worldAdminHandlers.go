@@ -181,6 +181,44 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// AdminRescheduleCountryHandler re-dates every unplayed league match of one active country's
+// current season onto its leagues' effective schedules, starting from the next matching slot
+// after now - see engine.RescheduleUnplayedMatchesForCountry. For fixtures that ended up dated
+// further out than they should be; it doesn't change any schedule setting and doesn't touch
+// other countries (unlike re-saving the app-wide default schedule, which re-dates every league
+// without its own override in every country).
+func AdminRescheduleCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code := strings.ToLower(strings.TrimSpace(c.Param("code")))
+
+		active, err := common.GetActiveCountries(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		isActive := false
+		for _, existing := range active {
+			if existing == code {
+				isActive = true
+				break
+			}
+		}
+		if !isActive {
+			c.JSON(http.StatusBadRequest, GetError(0, "country is not active"))
+			return
+		}
+
+		leagues, err := engine.RescheduleUnplayedMatchesForCountry(dbCtx, code)
+		if err != nil {
+			log.Errorf("error rescheduling unplayed matches for country %s: %s", code, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		log.Infof("admin-triggered reschedule of %s's unplayed matches (%d leagues)", code, leagues)
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "country fixtures rescheduled"})
+	}
+}
+
 type addDivisionRequest struct {
 	Tier        int  `json:"tier" binding:"required"`
 	WithMatches bool `json:"withMatches"`

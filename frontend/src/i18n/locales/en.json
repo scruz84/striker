@@ -913,7 +913,7 @@
     },
     "matchSchedule": {
       "title": "Match schedule",
-      "description": "Sets which days and what time new league fixtures are dated on - e.g. Saturdays at 14:00, or every day at 16:00. Only affects fixtures generated after saving (the next season rollover); already-scheduled matches keep their date.",
+      "description": "Sets which days and what time league fixtures are dated on - e.g. Saturdays at 14:00, or every day at 16:00. Saving also re-dates the unplayed matches of every league without its own schedule (in all countries), starting from the next slot after now. To re-date just one country, use \"Reschedule fixtures\" in the Countries section.",
       "time": "Kickoff time",
       "save": "Save schedule",
       "noWeekdaysError": "Select at least one day.",
@@ -996,7 +996,11 @@
       "confirmAddDivisionWithMatches": "Add division {{division}} to {{country}}? This generates its fixtures now and immediately simulates whichever weeks the rest of {{country}} has already played, so it finishes the season alongside everyone else.",
       "confirmAddDivisionTeamsOnly": "Add division {{division}} to {{country}} as teams only? It won't play any matches this season - it joins in at the next season rollover along with every other league.",
       "addDivisionError": "Failed to add that division.",
-      "addDivisionSuccess": "Division added."
+      "addDivisionSuccess": "Division added.",
+      "reschedule": "Reschedule fixtures",
+      "confirmReschedule": "Re-date all of {{country}}'s unplayed league matches from now, using each league's own schedule? Rounds keep their order; other countries and schedule settings are not touched.",
+      "rescheduleError": "Failed to reschedule that country's fixtures.",
+      "rescheduleSuccess": "Fixtures rescheduled."
     },
     "leagueSchedules": {
       "title": "Per-league match schedule",

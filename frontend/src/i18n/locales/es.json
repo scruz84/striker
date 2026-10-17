@@ -915,7 +915,7 @@
     },
     "matchSchedule": {
       "title": "Calendario de partidos",
-      "description": "Define en qué días y a qué hora se programan los nuevos partidos de liga - por ejemplo, sábados a las 14:00, o todos los días a las 16:00. Solo afecta a los partidos generados después de guardar (el próximo cambio de temporada); los partidos ya programados mantienen su fecha.",
+      "description": "Define en qué días y a qué hora se programan los partidos de liga - por ejemplo, sábados a las 14:00, o todos los días a las 16:00. Al guardar también se vuelven a fechar los partidos pendientes de todas las ligas sin calendario propio (en todos los países), empezando desde el siguiente hueco a partir de ahora. Para re-fechar solo un país, usa \"Re-fechar jornadas\" en la sección Países.",
       "time": "Hora de inicio",
       "save": "Guardar calendario",
       "noWeekdaysError": "Selecciona al menos un día.",
@@ -998,7 +998,11 @@
       "confirmAddDivisionWithMatches": "¿Añadir la división {{division}} a {{country}}? Esto genera su calendario ahora mismo y simula de inmediato las jornadas que el resto de {{country}} ya haya jugado, para que termine la temporada al mismo tiempo que las demás.",
       "confirmAddDivisionTeamsOnly": "¿Añadir la división {{division}} a {{country}} solo con equipos? No jugará ningún partido esta temporada - se incorporará en el cambio de temporada junto con el resto de ligas.",
       "addDivisionError": "No se pudo añadir esa división.",
-      "addDivisionSuccess": "División añadida."
+      "addDivisionSuccess": "División añadida.",
+      "reschedule": "Re-fechar jornadas",
+      "confirmReschedule": "¿Volver a fechar todos los partidos de liga pendientes de {{country}} desde ahora, con el calendario de cada liga? Las jornadas mantienen su orden; no se toca ningún otro país ni la configuración de calendarios.",
+      "rescheduleError": "No se pudieron re-fechar las jornadas de ese país.",
+      "rescheduleSuccess": "Jornadas re-fechadas."
     },
     "leagueSchedules": {
       "title": "Calendario por liga",

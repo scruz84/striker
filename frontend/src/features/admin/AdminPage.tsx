@@ -41,6 +41,7 @@ import {
   useAdminOverview,
   useAdminPayWagesNow,
   useAdminRecreateLeagues,
+  useAdminRescheduleCountry,
   useAdminSetAiLevel,
   useAdminSetFreeAgentInjectionsPerWeek,
   useAdminSetFriendlySchedule,
@@ -936,7 +937,18 @@ function CountriesSection() {
   const { data: leagues } = useAdminLeagues(true)
   const addCountry = useAdminAddCountry()
   const addDivision = useAdminAddDivision()
+  const rescheduleCountry = useAdminRescheduleCountry()
   const [addingCountry, setAddingCountry] = useState<CountryStatus | null>(null)
+
+  const handleReschedule = async (country: CountryStatus) => {
+    const ok = await confirm({
+      message: t('admin.countries.confirmReschedule', { country: country.name }),
+      confirmLabel: t('admin.countries.reschedule'),
+    })
+    if (ok) {
+      rescheduleCountry.mutate(country.code)
+    }
+  }
 
   const handleAddDivision = async (country: CountryStatus, tier: TierConfig, withMatches: boolean) => {
     const ok = await confirm({
@@ -984,7 +996,12 @@ function CountriesSection() {
                   {country.name} ({country.code})
                 </Typography>
                 {country.active ? (
-                  <Chip size="small" color="success" label={t('admin.countries.active')} />
+                  <>
+                    <Chip size="small" color="success" label={t('admin.countries.active')} />
+                    <Button size="small" onClick={() => handleReschedule(country)} disabled={rescheduleCountry.isPending}>
+                      {t('admin.countries.reschedule')}
+                    </Button>
+                  </>
                 ) : (
                   <Button size="small" variant="outlined" onClick={() => setAddingCountry(country)} disabled={addCountry.isPending}>
                     {t('admin.countries.add')}
@@ -1012,6 +1029,8 @@ function CountriesSection() {
       {addCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addError')}</Alert>}
       {addDivision.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addDivisionError')}</Alert>}
       {addDivision.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.addDivisionSuccess')}</Alert>}
+      {rescheduleCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.rescheduleError')}</Alert>}
+      {rescheduleCountry.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.rescheduleSuccess')}</Alert>}
       {addingCountry && <AddCountryDialog country={addingCountry} onClose={() => setAddingCountry(null)} />}
     </Paper>
   )

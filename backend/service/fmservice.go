@@ -305,6 +305,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.GET("/countries", handlers.AdminListCountriesHandler(dbCtx))
 	v1AdminGroup.POST("/countries", handlers.AdminAddCountryHandler(dbCtx))
 	v1AdminGroup.POST("/countries/:code/divisions", handlers.AdminAddDivisionHandler(dbCtx))
+	v1AdminGroup.POST("/countries/:code/reschedule", handlers.AdminRescheduleCountryHandler(dbCtx))
 	v1AdminGroup.GET("/leagues", handlers.AdminListLeaguesHandler(dbCtx))
 	v1AdminGroup.PUT("/leagues/:"+handlers.ID+"/schedule", handlers.AdminSetLeagueScheduleHandler(dbCtx))
 	v1AdminGroup.DELETE("/leagues/:"+handlers.ID+"/schedule", handlers.AdminClearLeagueScheduleHandler(dbCtx))
