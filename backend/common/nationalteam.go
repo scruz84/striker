@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"math/rand"
@@ -17,6 +18,12 @@ import (
 // picking a national team's starting XI for one friendly (see SetNationalTeamLineup) - generous
 // enough to cover every position's depth without scanning a country's entire player pool.
 const NationalSquadPoolSize = 40
+
+// scheduleNationalTeamFriendliesLockKey is an arbitrary Postgres advisory lock key (see
+// pg_advisory_lock and common.schemaMigrationLockKey, the same convention), unique only in the
+// sense that nothing else in this app uses it - guards ScheduleNationalTeamFriendlies against two
+// --engine replicas running it at the same moment (see that function's own doc comment).
+const scheduleNationalTeamFriendliesLockKey = 8817225
 
 // NationalTeamFriendlyKickoffHour/NationalTeamFriendlyKickoffMinute is the local kickoff time a
 // weekly national-team friendly (or World Cup group fixture, see engine.startWorldCupGroup)
@@ -580,7 +587,40 @@ func CancelPendingNationalTeamFriendlies(dbCtx *DatabaseContext, countries []str
 // calendar pauses ordinary friendlies around a tournament rather than double-booking a country's
 // national team in the same week, and group-stage/knockout fixtures already give every active
 // country as much national-team action as a weekly friendly would anyway.
+//
+// Guarded by a non-blocking, session-level advisory lock on a dedicated connection, held for the
+// whole function body - the same shape advanceCountrySeasonIfComplete/advanceCup use for the same
+// reason (see either one's own doc comment): this is a check-then-act (read every country's
+// pending state, then insert new fixtures for a computed pairing) with no transaction of its own,
+// and two --engine replicas (a real, supported deployment shape - see docker-compose.yml) both
+// ticking this job at once - every 5 minutes, see engine.StartNationalTeamFriendlyScheduler -
+// could otherwise both read the same "nobody's pending" snapshot and both independently pair and
+// insert fixtures for the same countries, landing a country in two different friendlies at once.
+// Keyed on a single fixed constant rather than per-country, since the pairing decision itself
+// (which countries are even eligible) spans every active country at once, not just one.
 func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
+	ctx := context.Background()
+	conn, err := dbCtx.Db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	var acquired bool
+	if err := conn.QueryRowContext(ctx, "SELECT pg_try_advisory_lock($1)", scheduleNationalTeamFriendliesLockKey).Scan(&acquired); err != nil {
+		return err
+	}
+	if !acquired {
+		// Another replica is already scheduling this tick - whatever it leaves behind, the next
+		// tick picks up correctly.
+		return nil
+	}
+	defer func() {
+		if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_unlock($1)", scheduleNationalTeamFriendliesLockKey); err != nil {
+			log.Errorf("error releasing national-team friendly scheduling lock: %s", err)
+		}
+	}()
+
 	hasWorldCup, err := HasActiveWorldCup(dbCtx)
 	if err != nil {
 		return err
