@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestInternationalCupId, useMe } from '../../api/hooks'
 import { regionForCountry } from '../../components/avatar/traits'
-import { groupByRound, roundName, TieRow } from './CupPage'
+import { expectedTotalRounds, groupByRound, roundName, TieRow } from './CupPage'
 
 /** The international-cup counterpart to CupPage (issue #64): one cup per region, entrants being
  * one team per active country in that region (that country's previous season's tier-1 champion -
@@ -32,6 +32,7 @@ export function InternationalCupPage() {
 
   const { cup, ties } = cupDetails
   const rounds = groupByRound(ties)
+  const totalRounds = expectedTotalRounds(ties)
 
   return (
     <Box>
@@ -45,7 +46,7 @@ export function InternationalCupPage() {
       {rounds.map(({ round, ties: roundTies }) => (
         <Paper key={round} sx={{ mb: 2, p: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
-            {roundName(t, round, rounds.length)}
+            {roundName(t, round, totalRounds)}
           </Typography>
           <Stack spacing={1}>
             {roundTies.map((tie) => (

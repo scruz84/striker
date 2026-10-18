@@ -31,6 +31,7 @@ export function CupPage() {
 
   const { cup, ties } = cupDetails
   const rounds = groupByRound(ties)
+  const totalRounds = expectedTotalRounds(ties)
 
   return (
     <Box>
@@ -44,7 +45,7 @@ export function CupPage() {
       {rounds.map(({ round, ties: roundTies }) => (
         <Paper key={round} sx={{ mb: 2, p: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
-            {roundName(t, round, rounds.length)}
+            {roundName(t, round, totalRounds)}
           </Typography>
           <Stack spacing={1}>
             {roundTies.map((tie) => (
@@ -151,4 +152,24 @@ export function roundName(t: (key: string, options?: Record<string, unknown>) =>
   if (roundsFromEnd === 1) return t('cup.semifinal')
   if (roundsFromEnd === 2) return t('cup.quarterfinal')
   return t('cup.round', { round })
+}
+
+// expectedTotalRounds derives how many rounds this bracket needs to go all the way down to a
+// single champion, from the first round's entrant count alone - rather than from how many rounds
+// have been generated/played so far (rounds.length), which is wrong for any field that isn't a
+// power of two. backend engine.pairSequentially pairs entrants two at a time and gives the
+// leftover a bye whenever a round's entrant count is odd - not just in round 1 - so a field like 9
+// teams needs four rounds (9 -> 5 -> 3 -> 2 -> 1), each one of those reductions halving-and-
+// rounding-up the previous count. That reduction always takes exactly ceil(log2(entrants)) steps.
+// Using rounds.length instead (the previous behavior) mislabeled the next-to-last generated round
+// as "Final" - complete with a bye team advancing "in the final" - the moment it merely happened
+// to be the last round generated so far, well before the bracket had actually narrowed to two
+// teams.
+export function expectedTotalRounds(ties: CupTie[]): number {
+  if (ties.length === 0) return 0
+  const firstRound = Math.min(...ties.map((tie) => tie.round))
+  const entrants = ties
+    .filter((tie) => tie.round === firstRound)
+    .reduce((count, tie) => count + (tie.homeTeamId !== null ? 1 : 0) + (tie.awayTeamId !== null ? 1 : 0), 0)
+  return entrants <= 1 ? 0 : Math.ceil(Math.log2(entrants))
 }
