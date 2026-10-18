@@ -1086,6 +1086,26 @@ func GetTeamClassificationPosition(dbCtx *DatabaseContext, leagueId int64, seaso
 	return position, nil
 }
 
+const GetTeamClassificationPointsStmtSql = "SELECT points FROM classification WHERE team_id = $1"
+
+// GetTeamClassificationPoints returns teamId's current points in whichever league it plays in
+// right now (classification is keyed on team_id alone - a team only ever has one row, in its
+// current league - see the classification table's own primary key), or 0 for a team with no
+// classification row at all: a national team (used as a cup-seeding signal by engine.bracket.go
+// for a World Cup knockout bracket, which has no club-league standing to speak of) or a club team
+// that hasn't been backfilled into one yet.
+func GetTeamClassificationPoints(dbCtx *DatabaseContext, teamId int64) (int, error) {
+	var points int
+	err := dbCtx.Db.QueryRow(GetTeamClassificationPointsStmtSql, teamId).Scan(&points)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+	return points, nil
+}
+
 func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetails, error) {
 	leagueName, err := GetDivisionName(dbCtx, leagueId)
 	if err != nil {

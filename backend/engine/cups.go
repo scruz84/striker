@@ -117,8 +117,29 @@ func startCupForCountry(dbCtx *common.DatabaseContext, country string, season in
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pairs := BuildFirstRoundPairings(teamIds, r)
+	pairs := BuildFirstRoundPairings(teamIds, r, classificationPointsForSeeding(dbCtx, teamIds))
 	return createRoundTies(dbCtx, cupId, 1, pairs)
+}
+
+// classificationPointsForSeeding fetches each of teamIds' current league classification points,
+// for BuildFirstRoundPairings/BuildNextRoundPairings to use as their "which entrant(s) get the
+// bye" tiebreak - a real tournament hands a walkover to its higher seeds rather than drawing one
+// at random. common.GetTeamClassificationPoints already maps a team with no classification row
+// (a national team, in a World Cup knockout bracket - see startWorldCupKnockout) to 0 rather than
+// an error, so this never needs to special-case that itself; a cup whose every entrant is a
+// national team (the normal case there) just ends up with an all-zero map, which
+// splitByeCandidates/pairSequentially already treat the same as no seeding data at all.
+func classificationPointsForSeeding(dbCtx *common.DatabaseContext, teamIds []int64) map[int64]int {
+	points := make(map[int64]int, len(teamIds))
+	for _, teamId := range teamIds {
+		p, err := common.GetTeamClassificationPoints(dbCtx, teamId)
+		if err != nil {
+			log.Errorf("error reading classification points for team %d, seeding without it: %s", teamId, err)
+			continue
+		}
+		points[teamId] = p
+	}
+	return points
 }
 
 // InternationalCupTier is the league tier whose champion represents a country in its region's
@@ -166,7 +187,7 @@ func startInternationalCupForRegion(dbCtx *common.DatabaseContext, region string
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pairs := BuildFirstRoundPairings(teamIds, r)
+	pairs := BuildFirstRoundPairings(teamIds, r, classificationPointsForSeeding(dbCtx, teamIds))
 	return createRoundTies(dbCtx, cupId, 1, pairs)
 }
 
@@ -323,7 +344,7 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
 		return nil
 	}
 
-	pairs := BuildNextRoundPairings(winners)
+	pairs := BuildNextRoundPairings(winners, classificationPointsForSeeding(dbCtx, winners))
 	return createRoundTies(dbCtx, cupId, round+1, pairs)
 }
 

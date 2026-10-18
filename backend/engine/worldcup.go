@@ -198,7 +198,7 @@ func startWorldCupKnockout(dbCtx *common.DatabaseContext, worldCup *common.World
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pairs := BuildFirstRoundPairings(qualifiers, r)
+	pairs := BuildFirstRoundPairings(qualifiers, r, classificationPointsForSeeding(dbCtx, qualifiers))
 	if err := createRoundTies(dbCtx, cupId, 1, pairs); err != nil {
 		return err
 	}

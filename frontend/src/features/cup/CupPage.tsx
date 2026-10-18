@@ -32,6 +32,7 @@ export function CupPage() {
   const { cup, ties } = cupDetails
   const rounds = groupByRound(ties)
   const totalRounds = expectedTotalRounds(ties)
+  const playIn = isFirstRoundPlayIn(ties)
 
   return (
     <Box>
@@ -45,7 +46,7 @@ export function CupPage() {
       {rounds.map(({ round, ties: roundTies }) => (
         <Paper key={round} sx={{ mb: 2, p: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
-            {roundName(t, round, totalRounds)}
+            {roundName(t, round, totalRounds, round === 1 && playIn)}
           </Typography>
           <Stack spacing={1}>
             {roundTies.map((tie) => (
@@ -75,6 +76,21 @@ export function TieRow({ tie }: { tie: CupTie }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const isBye = tie.awayTeamId === null
+
+  // A bye isn't a match - there's no opponent, no score and nothing to click into - so rather than
+  // squeezing "Bye" into the score column of an otherwise ordinary-looking match row (which reads
+  // as a 0-0 result against nobody), it gets its own distinct, non-clickable "rests this round"
+  // row with just the one team's name.
+  if (isBye) {
+    return (
+      <Box sx={{ py: 0.5, px: 1, width: '100%' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+          {t('cup.byeRests', { team: tie.homeTeamId ? localizedTeamName(t, tie.homeTeamName) : t('cup.tbd') })}
+        </Typography>
+      </Box>
+    )
+  }
+
   // See DivisionDetailsPage's identical mightStillBeLive check - a tie flips played=true the
   // instant it's simulated, well before its result finishes broadcasting live.
   const stillLive = tie.played && mightStillBeLive(tie.matchDate ?? '')
@@ -86,11 +102,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
   // so it's always safe to apply here regardless of which one a given tie belongs to.
 
   return (
-    <ButtonBase
-      disabled={isBye}
-      onClick={() => navigate(`/cup/ties/${tie.tieId}`)}
-      sx={{ width: '100%', justifyContent: 'stretch', borderRadius: 1 }}
-    >
+    <ButtonBase onClick={() => navigate(`/cup/ties/${tie.tieId}`)} sx={{ width: '100%', justifyContent: 'stretch', borderRadius: 1 }}>
       <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center', width: '100%' }}>
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
           {tie.homeTeamId ? (
@@ -105,7 +117,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
           <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
         ) : (
           <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'center' }}>
-            {isBye ? t('cup.bye') : tie.played && isPast(tie.matchDate ?? '') ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
+            {tie.played && isPast(tie.matchDate ?? '') ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
           </Typography>
         )}
         <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
@@ -113,8 +125,6 @@ export function TieRow({ tie }: { tie: CupTie }) {
             <NestedTeamNameLink teamId={tie.awayTeamId} sx={{ fontWeight: awayWonPenalties ? 700 : undefined }}>
               {localizedTeamName(t, tie.awayTeamName)}
             </NestedTeamNameLink>
-          ) : isBye ? (
-            ''
           ) : (
             t('cup.tbd')
           )}
@@ -146,7 +156,17 @@ export function groupByRound(ties: CupTie[]): { round: number; ties: CupTie[] }[
     }))
 }
 
-export function roundName(t: (key: string, options?: Record<string, unknown>) => string, round: number, totalRounds: number): string {
+export function roundName(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  round: number,
+  totalRounds: number,
+  isPlayIn = false,
+): string {
+  // A play-in round only ever happens as round 1 (see backend engine.BuildFirstRoundPairings) -
+  // it isn't really this bracket's "round 1" so much as a preliminary trim down to a clean
+  // power-of-two field, so it gets its own distinct label instead of counting toward
+  // quarterfinal/semifinal/final the way an ordinary round does.
+  if (isPlayIn) return t('cup.playInRound')
   const roundsFromEnd = totalRounds - round
   if (roundsFromEnd === 0) return t('cup.final')
   if (roundsFromEnd === 1) return t('cup.semifinal')
@@ -167,9 +187,28 @@ export function roundName(t: (key: string, options?: Record<string, unknown>) =>
 // teams.
 export function expectedTotalRounds(ties: CupTie[]): number {
   if (ties.length === 0) return 0
+  const entrants = firstRoundEntrantCount(ties)
+  return entrants <= 1 ? 0 : Math.ceil(Math.log2(entrants))
+}
+
+function firstRoundEntrantCount(ties: CupTie[]): number {
+  if (ties.length === 0) return 0
   const firstRound = Math.min(...ties.map((tie) => tie.round))
-  const entrants = ties
+  return ties
     .filter((tie) => tie.round === firstRound)
     .reduce((count, tie) => count + (tie.homeTeamId !== null ? 1 : 0) + (tie.awayTeamId !== null ? 1 : 0), 0)
-  return entrants <= 1 ? 0 : Math.ceil(Math.log2(entrants))
+}
+
+// isFirstRoundPlayIn tells whether this bracket's round 1 doubles as a play-in/preliminary round
+// (see backend engine.BuildFirstRoundPairings): that only happens when round 1's entrant count
+// isn't already an exact power of two, in which case several entrants there get a bye solely to
+// trim the field down to one, rather than round 1 being a normal round that merely happens to
+// have a single leftover bye.
+export function isFirstRoundPlayIn(ties: CupTie[]): boolean {
+  const entrants = firstRoundEntrantCount(ties)
+  return entrants > 1 && !isPowerOfTwo(entrants)
+}
+
+function isPowerOfTwo(n: number): boolean {
+  return n > 0 && (n & (n - 1)) === 0
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CupTie } from '../../api/types'
-import { cupTiePenaltyWinnerName, expectedTotalRounds, roundName } from './CupPage'
+import { cupTiePenaltyWinnerName, expectedTotalRounds, isFirstRoundPlayIn, roundName } from './CupPage'
 
 function tie(overrides: Partial<CupTie>): CupTie {
   return {
@@ -108,5 +108,54 @@ describe('roundName', () => {
 
   it('labels the true final only once the bracket has actually narrowed to one round left', () => {
     expect(roundName(t, 4, 4)).toBe('cup.final')
+  })
+
+  it('labels a play-in round distinctly instead of counting it toward quarterfinal/semifinal/final', () => {
+    expect(roundName(t, 1, 3, true)).toBe('cup.playInRound')
+  })
+})
+
+describe('isFirstRoundPlayIn', () => {
+  it('returns false for an empty bracket', () => {
+    expect(isFirstRoundPlayIn([])).toBe(false)
+  })
+
+  it('returns false when round 1 entrants are already an exact power of two', () => {
+    const ties = [
+      tie({ round: 1, slotNumber: 1 }),
+      tie({ round: 1, slotNumber: 2 }),
+      tie({ round: 1, slotNumber: 3 }),
+      tie({ round: 1, slotNumber: 4 }),
+    ]
+    expect(isFirstRoundPlayIn(ties)).toBe(false)
+  })
+
+  // 9 entrants (one real match plus 7 byes, per backend engine.BuildFirstRoundPairings) trims the
+  // field down to 8 for round 2 - that's the whole point of a play-in round, so round 1 here must
+  // be reported as one even though plenty of its ties look like ordinary byes.
+  it('returns true when round 1 trims a non-power-of-two field via play-in byes', () => {
+    const round1 = [
+      tie({ round: 1, slotNumber: 1 }),
+      tie({ round: 1, slotNumber: 2, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 3, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 4, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 5, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 6, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 7, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 1, slotNumber: 8, awayTeamId: null, awayTeamName: '' }),
+    ]
+    expect(isFirstRoundPlayIn(round1)).toBe(true)
+  })
+
+  it('ignores later rounds and always derives the answer from round 1', () => {
+    const ties = [
+      tie({ round: 1, slotNumber: 1 }),
+      tie({ round: 1, slotNumber: 2 }),
+      tie({ round: 1, slotNumber: 3 }),
+      tie({ round: 1, slotNumber: 4 }),
+      tie({ round: 2, slotNumber: 1, awayTeamId: null, awayTeamName: '' }),
+      tie({ round: 2, slotNumber: 2 }),
+    ]
+    expect(isFirstRoundPlayIn(ties)).toBe(false)
   })
 })
