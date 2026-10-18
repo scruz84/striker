@@ -1,13 +1,11 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestInternationalCupId, useMe } from '../../api/hooks'
 import { regionForCountry } from '../../components/avatar/traits'
-import { expectedTotalRounds, groupByRound, isFirstRoundPlayIn, roundName, TieRow } from './CupPage'
+import { CupBracket } from './CupPage'
 
 /** The international-cup counterpart to CupPage (issue #64): one cup per region, entrants being
  * one team per active country in that region (that country's previous season's tier-1 champion -
@@ -31,9 +29,6 @@ export function InternationalCupPage() {
   }
 
   const { cup, ties } = cupDetails
-  const rounds = groupByRound(ties)
-  const totalRounds = expectedTotalRounds(ties)
-  const playIn = isFirstRoundPlayIn(ties)
 
   return (
     <Box>
@@ -47,18 +42,7 @@ export function InternationalCupPage() {
         <Chip color="success" label={t('cup.champion', { name: cup.championTeamName })} sx={{ mb: 2 }} />
       )}
 
-      {rounds.map(({ round, ties: roundTies }) => (
-        <Paper key={round} sx={{ mb: 2, p: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            {roundName(t, round, totalRounds, round === 1 && playIn)}
-          </Typography>
-          <Stack spacing={1}>
-            {roundTies.map((tie) => (
-              <TieRow key={tie.tieId} tie={tie} />
-            ))}
-          </Stack>
-        </Paper>
-      ))}
+      <CupBracket ties={ties} />
     </Box>
   )
 }

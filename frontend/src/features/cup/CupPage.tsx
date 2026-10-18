@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import ButtonBase from '@mui/material/ButtonBase'
@@ -6,6 +7,7 @@ import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
@@ -30,9 +32,6 @@ export function CupPage() {
   }
 
   const { cup, ties } = cupDetails
-  const rounds = groupByRound(ties)
-  const totalRounds = expectedTotalRounds(ties)
-  const playIn = isFirstRoundPlayIn(ties)
 
   return (
     <Box>
@@ -43,18 +42,152 @@ export function CupPage() {
         <Chip color="success" label={t('cup.champion', { name: cup.championTeamName })} sx={{ mb: 2 }} />
       )}
 
-      {rounds.map(({ round, ties: roundTies }) => (
-        <Paper key={round} sx={{ mb: 2, p: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            {roundName(t, round, totalRounds, round === 1 && playIn)}
-          </Typography>
-          <Stack spacing={1}>
-            {roundTies.map((tie) => (
-              <TieRow key={tie.tieId} tie={tie} />
-            ))}
-          </Stack>
-        </Paper>
-      ))}
+      <CupBracket ties={ties} />
+    </Box>
+  )
+}
+
+// A fixed per-tie row height/gap, in pixels, is what lets the bracket tree compute every box's
+// vertical position (and the connector lines between them) with plain arithmetic instead of
+// measuring rendered DOM nodes - see computeRoundCenters.
+const BRACKET_ROW_HEIGHT = 56
+const BRACKET_ROW_GAP = 20
+const BRACKET_ROW_UNIT = BRACKET_ROW_HEIGHT + BRACKET_ROW_GAP
+const BRACKET_COLUMN_WIDTH = 280
+const BRACKET_CONNECTOR_WIDTH = 32
+
+// CupBracket renders a cup's ties as a bracket tree - each round a column of tie cards, connected
+// by lines to the pair of ties in the previous round that feed into them - rather than the
+// previous stacked list of one Paper per round (issue #257: that list made it hard to see at a
+// glance how a given team's run through the bracket connects round to round).
+//
+// Exported for InternationalCupPage and reused by CupPage above - a bracket is a bracket
+// regardless of which competition it belongs to, same reasoning TieRow already relied on.
+export function CupBracket({ ties }: { ties: CupTie[] }) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  const rounds = groupByRound(ties)
+  const totalRounds = expectedTotalRounds(ties)
+  const playIn = isFirstRoundPlayIn(ties)
+
+  if (rounds.length === 0) return null
+
+  const centers = computeRoundCenters(rounds.map(({ ties: roundTies }) => roundTies))
+  // Round 1 always has the most ties (every later round is its winners, halved) - so sizing the
+  // tree's height off round 1 alone is always enough to fit every later round's (fewer, more
+  // widely spaced) boxes too.
+  const treeHeight = (rounds[0].ties.length - 1) * BRACKET_ROW_UNIT + BRACKET_ROW_HEIGHT
+  const connectorColor = theme.palette.divider
+
+  return (
+    <Box sx={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', pb: 1 }}>
+      <Box sx={{ width: 'max-content' }}>
+        <Stack direction="row">
+          {rounds.map(({ round }, roundIdx) => (
+            <Fragment key={round}>
+              <Box sx={{ width: BRACKET_COLUMN_WIDTH, flexShrink: 0 }}>
+                <Typography variant="subtitle2" align="center" sx={{ fontWeight: 600 }} gutterBottom>
+                  {roundName(t, round, totalRounds, round === 1 && playIn)}
+                </Typography>
+              </Box>
+              {roundIdx < rounds.length - 1 && <Box sx={{ width: BRACKET_CONNECTOR_WIDTH, flexShrink: 0 }} />}
+            </Fragment>
+          ))}
+        </Stack>
+
+        <Stack direction="row">
+          {rounds.map(({ round, ties: roundTies }, roundIdx) => (
+            <Fragment key={round}>
+              <Box sx={{ width: BRACKET_COLUMN_WIDTH, flexShrink: 0, position: 'relative', height: treeHeight }}>
+                {roundTies.map((tie, tieIdx) => (
+                  <Box
+                    key={tie.tieId}
+                    sx={{
+                      position: 'absolute',
+                      top: centers[roundIdx][tieIdx] - BRACKET_ROW_HEIGHT / 2,
+                      left: 4,
+                      right: 4,
+                      height: BRACKET_ROW_HEIGHT,
+                    }}
+                  >
+                    <Paper variant="outlined" sx={{ height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', px: 0.5 }}>
+                      <TieRow tie={tie} />
+                    </Paper>
+                  </Box>
+                ))}
+              </Box>
+              {roundIdx < rounds.length - 1 && (
+                <BracketConnectors
+                  height={treeHeight}
+                  feederCenters={centers[roundIdx]}
+                  childCenters={centers[roundIdx + 1]}
+                  color={connectorColor}
+                />
+              )}
+            </Fragment>
+          ))}
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
+// computeRoundCenters derives each tie box's vertical center (in pixels) bottom-up: round 1's
+// boxes are evenly spaced one BRACKET_ROW_UNIT apart, and every later round's tie k is centered on
+// the midpoint between the two previous-round ties (at indices 2k and 2k+1) that feed into it -
+// the standard bracket-tree layout, which also happens to put every child exactly on the straight
+// line between its two feeders, so a single vertical connector segment reaches all three.
+// A lone feeder (round sizes that don't halve evenly - see backend engine.pairSequentially's
+// legacy odd-round-bye note) just passes its own center up unchanged instead of averaging.
+function computeRoundCenters(roundsTies: CupTie[][]): number[][] {
+  const centers: number[][] = [roundsTies[0].map((_, i) => i * BRACKET_ROW_UNIT + BRACKET_ROW_HEIGHT / 2)]
+  for (let r = 1; r < roundsTies.length; r++) {
+    const prev = centers[r - 1]
+    centers.push(
+      roundsTies[r].map((_, i) => {
+        const a = prev[2 * i]
+        const b = prev[2 * i + 1]
+        if (b === undefined) return a
+        return (a + b) / 2
+      }),
+    )
+  }
+  return centers
+}
+
+// BracketConnectors draws the lines between one round's tie boxes and the next round's: each
+// child center sits on the vertical segment joining its two feeders (see computeRoundCenters), so
+// that segment plus a horizontal stub out of it to the child box is enough - no per-feeder stub is
+// needed on the child side since all three points are already collinear from the feeders' corner.
+function BracketConnectors({
+  height,
+  feederCenters,
+  childCenters,
+  color,
+}: {
+  height: number
+  feederCenters: number[]
+  childCenters: number[]
+  color: string
+}) {
+  const midX = BRACKET_CONNECTOR_WIDTH / 2
+  return (
+    <Box sx={{ width: BRACKET_CONNECTOR_WIDTH, flexShrink: 0 }}>
+      <svg width={BRACKET_CONNECTOR_WIDTH} height={height} style={{ display: 'block' }}>
+        {childCenters.map((childCenter, i) => {
+          const a = feederCenters[2 * i]
+          const b = feederCenters[2 * i + 1]
+          if (b === undefined) {
+            return <line key={i} x1={0} y1={a} x2={BRACKET_CONNECTOR_WIDTH} y2={childCenter} stroke={color} strokeWidth={2} />
+          }
+          return (
+            <g key={i}>
+              <path d={`M0,${a} H${midX} V${b} H0`} fill="none" stroke={color} strokeWidth={2} />
+              <line x1={midX} y1={childCenter} x2={BRACKET_CONNECTOR_WIDTH} y2={childCenter} stroke={color} strokeWidth={2} />
+            </g>
+          )
+        })}
+      </svg>
     </Box>
   )
 }
@@ -83,8 +216,8 @@ export function TieRow({ tie }: { tie: CupTie }) {
   // row with just the one team's name.
   if (isBye) {
     return (
-      <Box sx={{ py: 0.5, px: 1, width: '100%' }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+      <Box sx={{ py: 0.5, px: 1, width: '100%', minWidth: 0 }}>
+        <Typography variant="body2" color="text.secondary" noWrap sx={{ fontStyle: 'italic' }}>
           {t('cup.byeRests', { team: tie.homeTeamId ? localizedTeamName(t, tie.homeTeamName) : t('cup.tbd') })}
         </Typography>
       </Box>
@@ -104,7 +237,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
   return (
     <ButtonBase onClick={() => navigate(`/cup/ties/${tie.tieId}`)} sx={{ width: '100%', justifyContent: 'stretch', borderRadius: 1 }}>
       <Stack direction="row" spacing={1} sx={{ py: 0.5, alignItems: 'center', width: '100%' }}>
-        <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>
+        <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
           {tie.homeTeamId ? (
             <NestedTeamNameLink teamId={tie.homeTeamId} sx={{ fontWeight: homeWonPenalties ? 700 : undefined }}>
               {localizedTeamName(t, tie.homeTeamName)}
@@ -120,7 +253,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
             {tie.played && isPast(tie.matchDate ?? '') ? `${tie.homeGoals} - ${tie.awayGoals}` : formatDateTime(tie.matchDate ?? '')}
           </Typography>
         )}
-        <Typography variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
+        <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, textAlign: 'right' }}>
           {tie.awayTeamId ? (
             <NestedTeamNameLink teamId={tie.awayTeamId} sx={{ fontWeight: awayWonPenalties ? 700 : undefined }}>
               {localizedTeamName(t, tie.awayTeamName)}
