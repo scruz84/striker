@@ -18,6 +18,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useCurrentWorldCup, useRecentNationalTeamFriendlies, useUpcomingNationalTeamFriendlies } from '../../api/hooks'
 import type { FriendlyMatch, WorldCupGroup, WorldCupGroupMatch } from '../../api/types'
+import { mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { localizedTeamName } from '../../utils/nationalTeamName'
 import { groupByRound, roundName, TieRow } from '../cup/CupPage'
@@ -41,6 +42,8 @@ export function NationalTeamsPage() {
         {t('nationalTeams.subtitle')}
       </Typography>
 
+      <LiveNationalTeamMatches />
+
       <Paper variant="outlined">
         <Tabs value={tab} onChange={(_e, value) => setTab(value)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tab label={t('nationalTeams.tabs.friendlies')} />
@@ -49,6 +52,122 @@ export function NationalTeamsPage() {
         <Box sx={{ p: 2 }}>{tab === 0 ? <NationalTeamFriendlies /> : <WorldCupSection />}</Box>
       </Paper>
     </Stack>
+  )
+}
+
+// One unified row shape for everything LiveNationalTeamMatches can show - a national-team
+// friendly, a World Cup group fixture, and a World Cup knockout tie all broadcast live the same
+// way (see useLiveMatch), but come from three different endpoints/shapes, so this is what they
+// get flattened into before rendering.
+interface LiveNationalTeamMatch {
+  key: string
+  link: string
+  kindLabel: string
+  homeTeamId: number
+  homeTeamName: string
+  awayTeamId: number
+  awayTeamName: string
+  homeGoals: number
+  awayGoals: number
+}
+
+// LiveNationalTeamMatches is the "en juego" section (issue: national-team matches page) - unlike
+// the rest of this page, which is organized by tab (friendlies vs World Cup), this gathers
+// whatever's actually broadcasting live right now across *both*, so a manager doesn't have to
+// guess which tab to check. Uses the same played && mightStillBeLive heuristic as every other
+// still-live check in the app (see DivisionDetailsPage/FriendliesPage/TieRow) - played flips true
+// in the DB well before a match's live broadcast finishes pacing out to viewers. These same
+// matches already surface in the dashboard's worldwide "matches in play" banner too (see
+// DashboardPage.LiveMatchesCard/backend common.GetLiveMatches, which reads every friendly_matches
+// and cup_ties row with no distinction for a national team vs a club) - this section just makes
+// them easy to find from the national-teams page itself, rather than relying on the dashboard's
+// one random suggestion to happen to land on one.
+function LiveNationalTeamMatches() {
+  const { t } = useTranslation()
+  const { data: recentFriendlies } = useRecentNationalTeamFriendlies(true)
+  const { data: currentWorldCup } = useCurrentWorldCup(true)
+  const knockoutCupId = currentWorldCup?.worldCup.stage === 'knockout' ? (currentWorldCup.worldCup.knockoutCupId ?? undefined) : undefined
+  const { data: knockoutCup } = useCupDetails(knockoutCupId)
+
+  const liveFriendlies: LiveNationalTeamMatch[] = (recentFriendlies ?? [])
+    .filter((m) => m.played && mightStillBeLive(m.matchDate))
+    .map((m) => ({
+      key: `friendly-${m.matchId}`,
+      link: `/friendlies/${m.matchId}`,
+      kindLabel: t('nationalTeams.live.friendly'),
+      homeTeamId: m.homeTeamId,
+      homeTeamName: m.homeTeamName,
+      awayTeamId: m.awayTeamId,
+      awayTeamName: m.awayTeamName,
+      homeGoals: m.homeGoals,
+      awayGoals: m.awayGoals,
+    }))
+
+  const liveGroupMatches: LiveNationalTeamMatch[] = (currentWorldCup?.groups ?? [])
+    .flatMap((group) => group.matches)
+    .filter((m) => m.played && mightStillBeLive(m.matchDate))
+    .map((m) => ({
+      key: `group-${m.matchId}`,
+      link: `/friendlies/${m.matchId}`,
+      kindLabel: t('nationalTeams.live.groupStage'),
+      homeTeamId: m.homeTeamId,
+      homeTeamName: m.homeTeamName,
+      awayTeamId: m.awayTeamId,
+      awayTeamName: m.awayTeamName,
+      homeGoals: m.homeGoals,
+      awayGoals: m.awayGoals,
+    }))
+
+  const liveKnockoutTies: LiveNationalTeamMatch[] = (knockoutCup?.ties ?? [])
+    .filter((tie) => tie.played && mightStillBeLive(tie.matchDate ?? ''))
+    .map((tie) => ({
+      key: `tie-${tie.tieId}`,
+      link: `/cup/ties/${tie.tieId}`,
+      kindLabel: t('nationalTeams.live.knockout'),
+      homeTeamId: tie.homeTeamId ?? 0,
+      homeTeamName: tie.homeTeamName,
+      awayTeamId: tie.awayTeamId ?? 0,
+      awayTeamName: tie.awayTeamName,
+      homeGoals: tie.homeGoals,
+      awayGoals: tie.awayGoals,
+    }))
+
+  const liveMatches = [...liveFriendlies, ...liveGroupMatches, ...liveKnockoutTies]
+
+  if (liveMatches.length === 0) {
+    return null
+  }
+
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2, borderColor: 'error.main' }}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
+        <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+        <Typography variant="subtitle1">{t('nationalTeams.live.title')}</Typography>
+      </Stack>
+      <Stack spacing={1}>
+        {liveMatches.map((m) => (
+          <Stack
+            key={m.key}
+            component={RouterLink}
+            to={m.link}
+            direction="row"
+            spacing={1}
+            sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+          >
+            <Chip label={m.kindLabel} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+            <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
+              {localizedTeamName(t, m.homeTeamName)}
+            </NestedTeamNameLink>
+            <Typography variant="body2" sx={{ minWidth: 48, textAlign: 'center', fontWeight: 700 }}>
+              {m.homeGoals} - {m.awayGoals}
+            </Typography>
+            <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1 }}>
+              {localizedTeamName(t, m.awayTeamName)}
+            </NestedTeamNameLink>
+          </Stack>
+        ))}
+      </Stack>
+    </Paper>
   )
 }
 
@@ -112,26 +231,38 @@ function FriendlyMatchList({
         </Typography>
       ) : (
         <Stack spacing={1}>
-          {matches.map((m) => (
-            <Stack
-              key={m.matchId}
-              component={RouterLink}
-              to={`/friendlies/${m.matchId}`}
-              direction="row"
-              spacing={1}
-              sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
-            >
-              <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
-                {localizedTeamName(t, m.homeTeamName)}
-              </NestedTeamNameLink>
-              <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
-                {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
-              </Typography>
-              <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-                {localizedTeamName(t, m.awayTeamName)}
-              </NestedTeamNameLink>
-            </Stack>
-          ))}
+          {matches.map((m) => {
+            // See FriendliesPage.MatchList's identical check: played flips true well before the
+            // match's result finishes broadcasting live, so a "recent result" row has to hide the
+            // baked-in score behind a LIVE chip until that broadcast window has elapsed - otherwise
+            // this list spoils a match that still looks "live" everywhere else (issue: national-team
+            // results page ignored the live broadcast and always showed the simulated score).
+            const stillLive = showResult && m.played && mightStillBeLive(m.matchDate)
+            return (
+              <Stack
+                key={m.matchId}
+                component={RouterLink}
+                to={`/friendlies/${m.matchId}`}
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+              >
+                <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
+                  {localizedTeamName(t, m.homeTeamName)}
+                </NestedTeamNameLink>
+                {stillLive ? (
+                  <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+                ) : (
+                  <Typography variant="body2" sx={{ minWidth: 90, textAlign: 'center' }}>
+                    {showResult ? `${m.homeGoals} - ${m.awayGoals}` : formatDateTime(m.matchDate)}
+                  </Typography>
+                )}
+                <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
+                  {localizedTeamName(t, m.awayTeamName)}
+                </NestedTeamNameLink>
+              </Stack>
+            )
+          })}
         </Stack>
       )}
     </Paper>
@@ -250,6 +381,11 @@ function WorldCupGroupCard({ group }: { group: WorldCupGroup }) {
 
 function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
   const { t } = useTranslation()
+  // See FriendlyMatchList's identical check - a group match flips played=true well before its own
+  // live broadcast finishes, so the group table must not reveal its score before then either
+  // (issue: World Cup group standings page ignored the live broadcast and always showed the
+  // simulated score).
+  const stillLive = match.played && mightStillBeLive(match.matchDate)
   return (
     <Stack
       component={RouterLink}
@@ -261,9 +397,13 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
       <NestedTeamNameLink teamId={match.homeTeamId} variant="caption" sx={{ flex: 1 }}>
         {localizedTeamName(t, match.homeTeamName)}
       </NestedTeamNameLink>
-      <Typography variant="caption" sx={{ minWidth: 60, textAlign: 'center' }}>
-        {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '—'}
-      </Typography>
+      {stillLive ? (
+        <Chip label={t('match.live')} color="error" size="small" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
+      ) : (
+        <Typography variant="caption" sx={{ minWidth: 60, textAlign: 'center' }}>
+          {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '—'}
+        </Typography>
+      )}
       <NestedTeamNameLink teamId={match.awayTeamId} variant="caption" sx={{ flex: 1, textAlign: 'right' }}>
         {localizedTeamName(t, match.awayTeamName)}
       </NestedTeamNameLink>

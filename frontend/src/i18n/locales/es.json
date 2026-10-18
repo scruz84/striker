@@ -536,6 +536,12 @@
         "goalDifference": "DG",
         "points": "Pts"
       }
+    },
+    "live": {
+      "title": "En juego",
+      "friendly": "Amistoso",
+      "groupStage": "Fase de grupos",
+      "knockout": "Eliminatorias"
     }
   },
   "friendlies": {

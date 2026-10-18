@@ -1108,6 +1108,7 @@ export interface WorldCupGroupMatch {
   homeTeamName: string
   awayTeamId: number
   awayTeamName: string
+  matchDate: string
   played: boolean
   homeGoals: number
   awayGoals: number

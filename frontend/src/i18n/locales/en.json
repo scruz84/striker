@@ -536,6 +536,12 @@
         "goalDifference": "GD",
         "points": "Pts"
       }
+    },
+    "live": {
+      "title": "Live now",
+      "friendly": "Friendly",
+      "groupStage": "Group stage",
+      "knockout": "Knockout"
     }
   },
   "friendlies": {

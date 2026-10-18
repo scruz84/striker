@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math/rand"
 	"sort"
+	"time"
 )
 
 // WorldCupGroupSize is a group's target size - a real group has exactly this many teams
@@ -52,15 +53,16 @@ func (s WorldCupGroupStanding) GoalDifference() int { return s.GoalsFor - s.Goal
 // WorldCupGroupMatch is one group fixture, enriched from its underlying friendly_matches row -
 // see GetWorldCupGroupMatches.
 type WorldCupGroupMatch struct {
-	MatchId      int64  `json:"matchId"`
-	Round        int    `json:"round"`
-	HomeTeamId   int64  `json:"homeTeamId"`
-	HomeTeamName string `json:"homeTeamName"`
-	AwayTeamId   int64  `json:"awayTeamId"`
-	AwayTeamName string `json:"awayTeamName"`
-	Played       bool   `json:"played"`
-	HomeGoals    int    `json:"homeGoals"`
-	AwayGoals    int    `json:"awayGoals"`
+	MatchId      int64     `json:"matchId"`
+	Round        int       `json:"round"`
+	HomeTeamId   int64     `json:"homeTeamId"`
+	HomeTeamName string    `json:"homeTeamName"`
+	AwayTeamId   int64     `json:"awayTeamId"`
+	AwayTeamName string    `json:"awayTeamName"`
+	MatchDate    time.Time `json:"matchDate"`
+	Played       bool      `json:"played"`
+	HomeGoals    int       `json:"homeGoals"`
+	AwayGoals    int       `json:"awayGoals"`
 }
 
 // WorldCupGroup is one group's name, ranked standings, and fixtures - see GetWorldCupGroups.
@@ -262,7 +264,7 @@ const getWorldCupGroupsStmtSql = "SELECT group_id, group_name FROM world_cup_gro
 const getWorldCupGroupStandingsStmtSql = "SELECT wcgt.team_id, t.name, wcgt.played, wcgt.won, wcgt.drawn, wcgt.lost, wcgt.goals_for, wcgt.goals_against " +
 	"FROM world_cup_group_teams wcgt JOIN teams t ON t.team_id = wcgt.team_id WHERE wcgt.group_id = $1"
 
-const getWorldCupGroupMatchesStmtSql = "SELECT wcgm.round, fm.match_id, fm.home_team_id, th.name, fm.away_team_id, ta.name, fm.played, fm.home_goals, fm.away_goals " +
+const getWorldCupGroupMatchesStmtSql = "SELECT wcgm.round, fm.match_id, fm.home_team_id, th.name, fm.away_team_id, ta.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM world_cup_group_matches wcgm " +
 	"JOIN friendly_matches fm ON fm.match_id = wcgm.match_id " +
 	"JOIN teams th ON th.team_id = fm.home_team_id JOIN teams ta ON ta.team_id = fm.away_team_id " +
@@ -337,7 +339,7 @@ func GetWorldCupGroupMatches(dbCtx *DatabaseContext, groupId int64) ([]WorldCupG
 	matches := make([]WorldCupGroupMatch, 0)
 	for rows.Next() {
 		var m WorldCupGroupMatch
-		if err := rows.Scan(&m.Round, &m.MatchId, &m.HomeTeamId, &m.HomeTeamName, &m.AwayTeamId, &m.AwayTeamName, &m.Played, &m.HomeGoals, &m.AwayGoals); err != nil {
+		if err := rows.Scan(&m.Round, &m.MatchId, &m.HomeTeamId, &m.HomeTeamName, &m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &m.Played, &m.HomeGoals, &m.AwayGoals); err != nil {
 			return nil, err
 		}
 		matches = append(matches, m)
