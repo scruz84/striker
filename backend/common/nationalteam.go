@@ -304,18 +304,31 @@ func GetNationalTeamCountry(dbCtx *DatabaseContext, teamId int64) (country strin
 	return country, err == nil, err
 }
 
+// Both exclude any match already linked into world_cup_group_matches: a group fixture is a real
+// friendly_matches row under the hood (see engine.startWorldCupGroup), but it belongs on the
+// World Cup tab's own group cards (see GetWorldCupGroups), not here - without this filter, a
+// country mid-group-stage has its whole round-robin (every group opponent, several weeks out, all
+// created at once) show up on the Amistosos tab at the same time, looking exactly like the
+// double-booking bug this file already guards against elsewhere even though every fixture is
+// legitimate (see GetCountriesWithPendingNationalTeamFriendly's own unrelated guard, and
+// ScheduleNationalTeamFriendlies pausing entirely during an active World Cup).
 const getUpcomingNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE ht.is_national_team = true AND fm.match_date > now() ORDER BY fm.match_date ASC LIMIT $1"
+	"WHERE ht.is_national_team = true AND fm.match_date > now() " +
+	"AND NOT EXISTS (SELECT 1 FROM world_cup_group_matches wcgm WHERE wcgm.match_id = fm.match_id) " +
+	"ORDER BY fm.match_date ASC LIMIT $1"
 
 const getRecentNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE ht.is_national_team = true AND fm.played = true ORDER BY fm.match_date DESC LIMIT $1"
+	"WHERE ht.is_national_team = true AND fm.played = true " +
+	"AND NOT EXISTS (SELECT 1 FROM world_cup_group_matches wcgm WHERE wcgm.match_id = fm.match_id) " +
+	"ORDER BY fm.match_date DESC LIMIT $1"
 
-// GetUpcomingNationalTeamFriendlies lists every national team's upcoming friendly, soonest
-// first - the global, any-country counterpart to GetUpcomingFriendlies (which is scoped to one
-// club), since no single club "owns" a national-team fixture the friendlies page could otherwise
-// filter by.
+// GetUpcomingNationalTeamFriendlies lists every national team's upcoming ordinary friendly,
+// soonest first - the global, any-country counterpart to GetUpcomingFriendlies (which is scoped
+// to one club), since no single club "owns" a national-team fixture the friendlies page could
+// otherwise filter by. World Cup group fixtures are deliberately excluded (see this query's own
+// doc comment) - they're a different section of the same page (WorldCupSection's group cards).
 func GetUpcomingNationalTeamFriendlies(dbCtx *DatabaseContext, limit int) ([]FriendlyMatch, error) {
 	rows, err := dbCtx.Db.Query(getUpcomingNationalTeamFriendliesStmtSql, limit)
 	if err != nil {
