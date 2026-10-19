@@ -67,6 +67,7 @@
       "transferSold": "Vendido {{player}} a {{team}}",
       "transferBought": "Comprado {{player}} de {{team}}",
       "offerDeclined": "{{team}} rechazó tu oferta por {{player}} - pulsa para renegociar",
+      "cpuOfferReceived": "{{team}} ha hecho una oferta por {{player}}",
       "cupChampion": "¡{{team}} ha ganado la copa!",
       "cupTieResult": "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
       "cupTieResultPenalties": "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}} (penaltis)",

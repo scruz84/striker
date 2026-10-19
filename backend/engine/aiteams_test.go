@@ -41,7 +41,7 @@ func TestPickSurplusPlayerToList_ListsAtStartingSquadSize(t *testing.T) {
 	// 18 players, exactly common.SquadSize, with 6 defenders - the old "> SquadSize" rule never
 	// listed anyone here.
 	squad := squadOf(2, 6, 5, 5)
-	got := pickSurplusPlayerToList(squad, none(), none())
+	got := pickSurplusPlayerToList(squad, none(), none(), none())
 	if got == nil {
 		t.Fatal("expected a surplus defender to be listed from a starting-size squad")
 	}
@@ -52,14 +52,14 @@ func TestPickSurplusPlayerToList_ListsAtStartingSquadSize(t *testing.T) {
 
 func TestPickSurplusPlayerToList_NoSurplusNoListing(t *testing.T) {
 	squad := squadOf(3, 4, 4, 4) // every position exactly min+1
-	if got := pickSurplusPlayerToList(squad, none(), none()); got != nil {
+	if got := pickSurplusPlayerToList(squad, none(), none(), none()); got != nil {
 		t.Errorf("listed player %d, want nobody without a surplus beyond surplusDepthMargin", got.Id)
 	}
 }
 
 func TestPickSurplusPlayerToList_RespectsMinSquadSizeAfterSale(t *testing.T) {
 	squad := squadOf(2, 6, 4, 4) // 16 players: selling one would drop below minSquadSizeAfterSale
-	if got := pickSurplusPlayerToList(squad, none(), none()); got != nil {
+	if got := pickSurplusPlayerToList(squad, none(), none(), none()); got != nil {
 		t.Errorf("listed player %d, want nobody when the sale would leave fewer than %d", got.Id, minSquadSizeAfterSale)
 	}
 }
@@ -67,7 +67,7 @@ func TestPickSurplusPlayerToList_RespectsMinSquadSizeAfterSale(t *testing.T) {
 func TestPickSurplusPlayerToList_SkipsLoanListedPlayer(t *testing.T) {
 	squad := squadOf(2, 6, 5, 5)
 	weakestDefender := squad[7]
-	got := pickSurplusPlayerToList(squad, none(), map[int64]bool{weakestDefender.Id: true})
+	got := pickSurplusPlayerToList(squad, none(), map[int64]bool{weakestDefender.Id: true}, none())
 	if got == nil {
 		t.Fatal("expected another defender to be listed instead of the loan-listed one")
 	}
@@ -83,7 +83,7 @@ func TestPickSurplusPlayerToList_ListingsAccumulateWhileSurplusLasts(t *testing.
 	squad := squadOf(2, 7, 5, 5) // 19 players, defense surplus of 4
 	listed := none()
 	for i := 0; i < 2; i++ {
-		got := pickSurplusPlayerToList(squad, listed, none())
+		got := pickSurplusPlayerToList(squad, listed, none(), none())
 		if got == nil {
 			t.Fatalf("round %d: expected another defender to be listed", i)
 		}
@@ -93,13 +93,13 @@ func TestPickSurplusPlayerToList_ListingsAccumulateWhileSurplusLasts(t *testing.
 		listed[got.Id] = true
 	}
 	// Defense now has 5 unlisted (min+2) but 17 unlisted overall: one more is still allowed...
-	if got := pickSurplusPlayerToList(squad, listed, none()); got == nil {
+	if got := pickSurplusPlayerToList(squad, listed, none(), none()); got == nil {
 		t.Fatal("expected a third listing while defense still has min+2 unlisted")
 	} else {
 		listed[got.Id] = true
 	}
 	// ...but then defense is at min+1 and the squad at 16, so it stops.
-	if got := pickSurplusPlayerToList(squad, listed, none()); got != nil {
+	if got := pickSurplusPlayerToList(squad, listed, none(), none()); got != nil {
 		t.Errorf("listed player %d, want listing to stop once the surplus is used up", got.Id)
 	}
 }
@@ -112,7 +112,7 @@ func TestOwnedPlayers_ExcludesLoanedIn(t *testing.T) {
 		t.Fatalf("got %d owned players, want %d", len(owned), len(squad)-1)
 	}
 	// With the loaned-in defender gone, the weakest *owned* defender is the one listed.
-	got := pickSurplusPlayerToList(owned, none(), none())
+	got := pickSurplusPlayerToList(owned, none(), none(), none())
 	if got == nil || got.Id != squad[6].Id {
 		t.Errorf("expected the weakest owned defender %d to be listed, got %v", squad[6].Id, got)
 	}
@@ -256,5 +256,17 @@ func TestExcludeTeamIds_NoneExcludedReturnsAllUnchanged(t *testing.T) {
 		if got[i] != ids[i] {
 			t.Fatalf("expected %v, got %v", ids, got)
 		}
+	}
+}
+
+func TestPickSurplusPlayerToList_SkipsProtectedPlayers(t *testing.T) {
+	squad := squadOf(2, 6, 5, 5)
+	weakestDefender := squad[7]
+	got := pickSurplusPlayerToList(squad, none(), none(), map[int64]bool{weakestDefender.Id: true})
+	if got == nil || got.Id == weakestDefender.Id {
+		t.Fatalf("listed %v, want the next weakest defender instead of the protected one", got)
+	}
+	if want := squad[6]; got.Id != want.Id {
+		t.Errorf("listed player %d, want %d", got.Id, want.Id)
 	}
 }

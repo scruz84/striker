@@ -19,6 +19,7 @@ var spanishNotificationTemplates = map[string]string{
 	"notifications.messages.academyPromotion":       "{{name}} promocionado de la cantera al primer equipo",
 	"notifications.messages.transferSold":           "Vendido {{player}} a {{team}}",
 	"notifications.messages.transferBought":         "Comprado {{player}} de {{team}}",
+	"notifications.messages.cpuOfferReceived":       "{{team}} ha hecho una oferta por {{player}}",
 	"notifications.messages.cupChampion":            "¡{{team}} ha ganado la copa!",
 	"notifications.messages.cupTieResult":           "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
 	"notifications.messages.cupTieResultPenalties":  "Copa: {{home}} {{homeGoals}} - {{awayGoals}} {{away}} (penaltis)",

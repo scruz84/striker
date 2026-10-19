@@ -116,6 +116,12 @@ var (
 	TransferOffersResolvedCounter, _ = Meter.Int64Counter("striker.offers.resolved",
 		metric.WithDescription("Transfer offers resolved, by outcome"))
 
+	// AiMarketActionsCounter counts what CPU teams do on the transfer market, labeled by
+	// "action" (signed_free_agent, bought_listed, offer_made, offer_expired, listed_surplus,
+	// listed_to_fund) - the per-day volume of CPU transfer activity is read off this series.
+	AiMarketActionsCounter, _ = Meter.Int64Counter("striker.ai.market_actions",
+		metric.WithDescription("Transfer market actions taken by CPU teams, by action"))
+
 	// LoanListingsCounter counts players newly offered out on loan - see CreateLoanListing.
 	LoanListingsCounter, _ = Meter.Int64Counter("striker.loans.listed",
 		metric.WithDescription("Players newly listed for loan"))

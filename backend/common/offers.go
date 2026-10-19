@@ -114,6 +114,7 @@ const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf
 	"WHERE o.from_team_id = $1 ORDER BY o.created_at DESC"
 
 const GetOfferOwnersStmtSql = "SELECT player_id, from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
+const GetOfferOwnersAndAmountStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1"
 const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
@@ -287,8 +288,8 @@ func WithdrawOffer(dbCtx *DatabaseContext, offerId int64, fromTeamId int64) erro
 // they can open a fresh offer with better terms without having to go find the player again (see
 // NotifyTeamOwnerWithLink and PlayerProfileRail's "make offer" button on the frontend).
 func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
-	var playerId, actualFromTeamId, actualToTeamId int64
-	err := dbCtx.Db.QueryRow(GetOfferOwnersStmtSql, offerId).Scan(&playerId, &actualFromTeamId, &actualToTeamId)
+	var playerId, actualFromTeamId, actualToTeamId, amount int64
+	err := dbCtx.Db.QueryRow(GetOfferOwnersAndAmountStmtSql, offerId).Scan(&playerId, &actualFromTeamId, &actualToTeamId, &amount)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ErrOfferNotFound
 	}
@@ -303,6 +304,9 @@ func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 		return err
 	}
 	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("rejected")))
+	if err := RecordOfferRejection(dbCtx.Db, playerId, actualFromTeamId, amount); err != nil {
+		log.Errorf("error recording rejection of offer %d: %s", offerId, err)
+	}
 
 	if player, err := GetPlayerById(dbCtx, playerId); err == nil {
 		if sellerTeam, err := GetTeamById(toTeamId, dbCtx); err == nil {

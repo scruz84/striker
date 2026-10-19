@@ -609,11 +609,23 @@ matchday-activity purpose, a friendly a CPU team plays this way still counts for
      the third or fourth best (a coin flip each time), reflecting that it's the least sharp of the
      three at reading its own squad.
   2. **Resolves every pending transfer offer on its own players** - this is the direct answer to
-     "how does the CPU decide on a transfer offer": accept if the fee is at least
-     `minAcceptableTransferFeeWageMultiplier` (20) × the player's own market-rate wage, otherwise
-     reject. The player's personal terms are never in question here - `MakeTransferOffer` never
-     even lets a human create an offer the player themself wouldn't accept - so this check is
-     purely about whether the fee is good enough for the selling club. This runs at every AI
+     "how does the CPU decide on a transfer offer" (`respondToReceivedOffers`, deciding with
+     `common.EvaluateIncomingOffer`): accept if the fee reaches the team's *perceived value* of the
+     player, otherwise reject. The player's personal terms are never in question here -
+     `MakeTransferOffer` never even lets a human create an offer the player themself wouldn't
+     accept - so this is purely about whether the fee is good enough for the selling club. The
+     perceived value starts from `common.MarketValue` (market wage x 20, scaled down with age) and
+     is then seen through the level's valuation noise (`AiTransferProfile.ValuationNoise`: 30% for a
+     Caretaker, 15% Manager, 5% Director) - which is why a Caretaker will sometimes let a bargain
+     go, and a Caretaker never tries to read a teenager's hidden potential at all, so it can sell a
+     future star for the price of any other teenager. Every level also refuses a sale that would
+     leave the squad under `MinSquadSizeAfterSale` or the player's position under
+     `MinPositionDepth`; a Manager and a Director additionally protect a key starter (one who
+     starts and whose loss would leave the position short or cost the XI 6+ points) by asking 2x
+     (Manager) or 2.5x (Director) his value, and a Director asks 25% more for a national-team
+     player. The highest offers are judged first, each offer's noise is seeded from its own id (so
+     it gets the same answer on every sweep while it waits out the negotiation window), and an
+     acceptable offer still inside that window is simply left pending. This runs at every AI
      level (not gated behind Manager) since it's baseline business any unowned team should
      handle; it's also swept independently once or twice a day by a dedicated scheduler
      (`RespondToAllPendingOffers`/`StartOfferResponseScheduler`), so an offer on a team that
@@ -630,33 +642,95 @@ matchday-activity purpose, a friendly a CPU team plays this way still counts for
      withdrawn - the listed player's position would be thin (below `MinPositionDepth`) without
      them, or the unlisted squad has shrunk below `minSquadSizeAfterSale` (`SquadSize - 2`).
      Then, if a core position's unlisted depth is more than one player above `MinPositionDepth`,
-     the weakest player there who isn't loan-listed is put on the transfer list at 20x their
-     market wage (the same bar used to accept an incoming offer) - at most one new listing per
-     match, so listings build up gradually while a surplus lasts, and never one that would leave
-     fewer than `minSquadSizeAfterSale` owned, unlisted players. Needs the transfer window open.
-  3. **Promote a cantera prospect for the weakest position, else sign a free agent for it**
-     (`promoteFromAcademyForWeakestPosition`, falling back to the same free-agent signing as
-     before) - same "genuinely thin, not merely below-average" trigger as the free-agent path,
-     since both are a free source of bodies. A CPU team weighs its own academy exactly the choice
-     `CanPromoteFromAcademy`/`PromoteFromAcademy` exist to offer a human manager: whichever cantera
-     prospect rates highest at the thin position is promoted first, subject to the same once-a-
-     real-calendar-week cap a human promotion uses; only when no prospect fits (empty cantera, wrong
-     position, or the weekly cap already spent) does it fall through to signing a free agent instead.
+     the weakest player there who isn't loan-listed is put on the transfer list at his market value
+     (`common.ListingAskingPrice`, the same yardstick the team starts from when judging an
+     incoming offer) - at most one new listing per match, so listings build up gradually while a
+     surplus lasts, and never one that would leave fewer than `minSquadSizeAfterSale` owned,
+     unlisted players. Anyone signed in the last two weeks (`common.AiMinHoldPeriod`) is never
+     listed - otherwise a signing that happens to be the weakest at a deep position bounced between
+     clubs at the same fee - and neither is a youngster on a team that signs projects (below).
+     Needs the transfer window open.
+  3. **Promote a cantera prospect for the weakest position** (`promoteFromAcademyForWeakestPosition`)
+     - only when that position is genuinely thin (below `MinPositionDepth`), weighing its own
+     academy exactly the choice `CanPromoteFromAcademy`/`PromoteFromAcademy` exist to offer a human
+     manager: whichever cantera prospect rates highest at the thin position is promoted, subject to
+     the same once-a-real-calendar-week cap a human promotion uses.
   4. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
      above) - this used to simply be `MaxTicketPrice`, back when attendance never fell as price
      rose, but now that it does, always maxing out would just as often cost revenue as earn it.
-- **Director** (tier 3) adds active market participation on top (`manageMarketIfDirector`):
-  1. **Buy a transfer-listed upgrade** for its single neediest core position - but only a listing
-     that's a genuine improvement over that position's current average quality
-     (`PositionNeed.AvgValue`), unlike the free Manager-tier signing above which takes any free
-     agent to fill a thin spot regardless of quality, since that one costs nothing.
-  2. **Expand the stadium** once the budget comfortably covers the cost with room to spare -
-     specifically `stadiumUpgradeBudgetCushionMultiplier` (3) × one upgrade's cost, so it keeps a
+- **Director** (tier 3) adds the rest of the active market on top (`manageMarketIfDirector`, plus a
+  wider transfer pass - below):
+  1. **Expand the stadium** once the budget comfortably covers the cost with room to spare -
+     specifically `stadiumUpgradeBudgetCushionMultiplier` (3) x one upgrade's cost, so it keeps a
      working cash reserve rather than spending down to the wire.
-  3. **Upgrade its trainer** to a clearly better one on the open market (at least
+  2. **Upgrade its trainer** to a clearly better one on the open market (at least
      `trainerUpgradeMinSkillMargin` (10) skill points above its current coach, or hire one at all
      if it has none) - trainers have no signing fee, so budget never gates this, only that skill
      margin (avoiding constant churn over noise-level differences).
+
+### How a CPU team shops (the transfer pass)
+
+Every Manager and Director runs one shopping pass per management tick (`runAiTransferPass`,
+`engine/aitransfers.go`), right after the roster upkeep above. There is **no signing quota**: the
+team tries to improve its squad, and a team that finds nothing worth having signs nobody. How it goes
+about it is spelled out by one `common.AiTransferProfile` per level (`AiTransferProfileFor`,
+`common/aimanager.go`) - every level includes the capabilities of the ones below it:
+
+| | Caretaker | Manager | Director |
+|---|---|---|---|
+| Answers offers | accepts at its valuation | + protects key starters (2x) | + asks 2.5x for them and +25% for internationals |
+| Valuation noise | 30% | 15% | 5% |
+| Reads hidden potential | no | yes, very noisily (+-60% of headroom) | yes, closely (+-15%) |
+| Shops | - | free agents and the transfer list | + every player in the world, humans' included, and the national-team radar |
+| Signs for | - | holes and clear starter upgrades (score >= 5) | + smaller upgrades (score >= 3) and young prospects |
+| Selling | doesn't list | lists surplus | + lists a player to fund a target |
+| Budget kept in reserve | - | 50% | 15%, and 20 rounds of the new payroll |
+| Signings per pass | 0 | 1 | up to 3 (at most 2 of them new offers) |
+
+Every candidate is scored by the pure function `common.ScoreTarget`: how many points the player adds
+to the team's best XI as the team sees him (through its valuation noise) plus a bonus for filling a
+thin position; for a Director, his projected growth over three seasons (for under-24s, read from a
+*noisy estimate* of the hidden skill ceiling - the CPU never reads the exact ceiling, so it is
+neither omniscient nor betrayed by its own signings - weighted more for a team with settled
+starters, and capped at `MaxProjects` places and a quarter of the budget per prospect); and whether
+the price is a bargain or an overpay against its own valuation. A candidate only counts if the
+budget (and payroll, for a Director) can take it and the score clears the profile's `MinScore`.
+
+The market it looks at depends on the profile: free agents (best 60, with the usual premium to
+the previous club), the transfer list (bought at the asking price), and - Director only - the best
+players at each core position anywhere in the world plus a random scouting sample of youngsters.
+For a player nobody listed, it **makes an offer** (`MakeTransferOffer`) at its valuation plus a
+margin that grows with how much it wants him, never beyond 1.5x its valuation. Limits, all constants
+in `common/offerrejections.go`:
+
+- at most **3 CPU offers open at once on one human manager's player**, always from different teams
+  (the human is notified of each); and only one at a time on another CPU team's player, so CPU teams
+  don't all pile onto the same target;
+- at most 4 offers open per CPU team and 2 new ones per pass, and an offer left unanswered for 3 days
+  is withdrawn;
+- after a rejection (or a withdrawal) the team leaves that player alone for 3 days
+  (`AiOfferCooldown`, remembered in `player_offer_rejections`), and then only returns with a bid at
+  least 10% higher - and only if its valuation allows it;
+- a team never signs beyond `MaxAiSquadSize` (`SquadSize + 4`) players that aren't on the transfer
+  list. A Director that finds a target it can't pay for - or has no room for - **lists the player the
+  target would replace** (only when that leaves the position at its minimum depth and the squad above
+  its minimum size, and when it has no other listing out) and buys him in a later pass.
+
+**National teams as a radar.** A player in his country's national-team pool (the
+`NationalSquadPoolSize` best by birth country - `GetPlayersByBirthCountry`) is an *international*,
+and his caps (`GetPlayerCapsBatch`) make him more so. `common.GetNationalRadar` keeps a snapshot of
+every active country's pool, rebuilt every 15 minutes. It matters to the CPU in four ways:
+
+- a **Director's radar**: the five best players of every national team, wherever they play and
+  whether or not anyone listed them, are candidates too (narrowed to those who beat its weakest
+  starter at their position, best 20), so it finds talent in other leagues;
+- an international (Director only) earns a **score bonus** of 2 plus 0.1 per cap (up to 20 caps);
+- a Director **asks more for one**: 25% above its valuation as a pool member, up to 50% with 20
+  caps - both when answering an offer and in a listing's asking price (`ListingAskingPrice`);
+- **no CPU team lists an international as surplus**, nor sells one to fund a signing.
+
+Each action is counted in the `striker.ai.market_actions` metric (by action) and logged as
+`ai-market team=... action=...`, so the CPU's daily volume of signings and offers can be read off.
 
 Every one of these calls the same production code path a human manager would use
 (`common.MakeContractRenewalOffer`, `common.ReleasePlayer`, `common.SignFreeAgentAtMarketRate`,

@@ -61,3 +61,25 @@ func GetPlayerTransfers(dbCtx *DatabaseContext, playerId int64, limit int) ([]Pl
 	}
 	return transfers, rows.Err()
 }
+
+const getPlayerIdsAcquiredSinceStmtSql = "SELECT DISTINCT player_id FROM player_transfers WHERE to_team_id = $1 AND created_at > $2"
+
+// GetPlayerIdsAcquiredSince is the set of players teamId took in (bought, signed, loaned or
+// made permanent) after the given time - what a CPU team won't turn around and sell straight
+// away, so a signing doesn't bounce between clubs.
+func GetPlayerIdsAcquiredSince(dbCtx *DatabaseContext, teamId int64, since time.Time) (map[int64]bool, error) {
+	rows, err := dbCtx.Db.Query(getPlayerIdsAcquiredSinceStmtSql, teamId, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ids := make(map[int64]bool)
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids[id] = true
+	}
+	return ids, rows.Err()
+}

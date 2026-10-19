@@ -62,7 +62,8 @@ func RunAITeamMatchReaction(dbCtx *common.DatabaseContext, teamId int64) {
 // configured match schedule happens to use (see common.GetMatchSchedule). Safe to call
 // redundantly since every action inside is itself a no-op once there's nothing left to do
 // (nothing to renew, no surplus to list, etc.). See common.AiLevelCaretaker/Manager/Director for
-// what each tier adds on top of the one below it; a no-op for any team with a real owner.
+// what each tier adds on top of the one below it - for transfers, common.AiTransferProfile
+// spells out exactly what - and a no-op for any team with a real owner.
 func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 	team, ran := aiTeamBaselineReaction(dbCtx, teamId)
 	if !ran {
@@ -70,6 +71,7 @@ func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 
 	manageRosterIfManager(dbCtx, team)
+	runAiTransferPass(dbCtx, team)
 	manageMarketIfDirector(dbCtx, team)
 }
 
@@ -112,8 +114,9 @@ const surplusDepthMargin = 1
 
 // manageRosterIfManager runs every Manager-level (see common.AiLevelManager) roster/business
 // action for an unowned team: keep valuable players under contract, trim genuinely surplus
-// depth, fill a thin position from the free-agent market, and charge what the gate will bear.
-// A no-op below Manager level - see RunAITeamManagement, the only caller. Responding to incoming
+// depth, promote a cantera prospect into a thin position, and charge what the gate will bear.
+// Signing from outside (free agents, the transfer list, unlisted players) is the transfer pass's
+// job - see runAiTransferPass. A no-op below Manager level - see RunAITeamManagement, the only caller. Responding to incoming
 // offers is handled a level below this, in RunAITeamManagement itself, not here - see its comment.
 func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	if team.AiLevel < common.AiLevelManager {
@@ -127,10 +130,8 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	}
 
 	renewExpiringContracts(dbCtx, team.Id, *players)
-	listSurplusPlayer(dbCtx, team.Id, *players)
-	if !promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players) {
-		signFreeAgentForWeakestPosition(dbCtx, team.Id, *players)
-	}
+	listSurplusPlayer(dbCtx, team, *players)
+	promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players)
 	maximizeTicketPrice(dbCtx, team.Id)
 }
 
@@ -191,36 +192,50 @@ func promoteFromAcademyForWeakestPosition(dbCtx *common.DatabaseContext, teamId 
 	return true
 }
 
-// minAcceptableTransferFeeWageMultiplier is how many times a player's own market-rate wage (see
-// common.PlayerWageFromSkills) an incoming transfer offer's fee must be worth before an
-// AI-managed team accepts it - low enough that a genuinely competitive offer for a squad
-// player gets taken, high enough that a lowball offer aimed at poaching a good player for next to
-// nothing gets rejected instead. Mirrors EarlyReleaseWageMultiplier's use of wage as this file's
-// common yardstick for a player's worth. A sale thinning the squad below common.SquadSize is not
-// specially guarded against here: signFreeAgentForWeakestPosition (run just before this, every
-// time) reactively refills whichever position ends up thinnest, the same way it already covers a
-// retirement or an expired contract - there's nothing about a sale that needs different handling.
-const minAcceptableTransferFeeWageMultiplier = 20
-
 // respondToReceivedOffers judges every pending offer on an AI-managed team's own players (any AI
 // level, Caretaker and up - see RunAITeamMatchReaction/RunAITeamManagement/
-// RespondToAllPendingOffers, its three callers):
-// accept a fee that clears minAcceptableTransferFeeWageMultiplier (the personal terms are already
-// settled - see MakeTransferOffer, which never even creates an offer the player themself wouldn't
-// accept), reject anything less.
+// RespondToAllPendingOffers, its three callers): accept a fee that clears the team's valuation of
+// the player, reject anything less. How the valuation is formed, and how much a key starter or a
+// national-team player is worth on top of it, is the team's AiTransferProfile - see
+// common.EvaluateIncomingOffer. The personal terms are already settled (see MakeTransferOffer,
+// which never even creates an offer the player themself wouldn't accept). The highest offers are
+// judged first, and each offer's noise is seeded from its own id so a pending offer that is
+// waiting out its negotiation window gets the same answer on every sweep instead of being
+// re-rolled. An offer that is good but still inside the negotiation window is simply left pending.
 func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
+	team, err := common.GetTeamById(teamId, dbCtx)
+	if err != nil {
+		log.Errorf("error fetching AI-managed team %d to respond to offers: %s", teamId, err)
+		return
+	}
 	offers, err := common.GetOffersReceived(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching received offers for AI-managed team %d: %s", teamId, err)
 		return
 	}
+	if len(offers) == 0 {
+		return
+	}
+	sort.SliceStable(offers, func(i, j int) bool { return offers[i].Amount > offers[j].Amount })
+	profile := common.AiTransferProfileFor(team.AiLevel)
 
 	for _, offer := range offers {
-		p := offer.Player
-		expectedWage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
-		goodOffer := offer.Amount >= int64(expectedWage*minAcceptableTransferFeeWageMultiplier)
+		squad, err := ownedSquad(dbCtx, teamId)
+		if err != nil {
+			log.Errorf("error fetching squad for AI-managed team %d offer response: %s", teamId, err)
+			return
+		}
+		international, nationalCaps := nationalStanding(dbCtx, offer.Player.Id)
+		decision := common.EvaluateIncomingOffer(profile, common.OfferContext{
+			Squad:             squad,
+			Player:            offer.Player,
+			Caps:              skillCapsFor(dbCtx, offer.Player.Id),
+			Amount:            offer.Amount,
+			International:     international,
+			InternationalCaps: nationalCaps,
+		}, rand.New(rand.NewSource(offer.OfferId)))
 
-		if !goodOffer {
+		if !decision.Accept {
 			if err := common.RejectOffer(dbCtx, offer.OfferId, teamId); err != nil {
 				log.Errorf("error rejecting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
 			}
@@ -229,10 +244,50 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 
 		if err := common.AcceptOffer(dbCtx, offer.OfferId, teamId); err != nil &&
 			!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrOfferNoLongerValid) &&
-			!errors.Is(err, common.ErrInsufficientBudget) {
+			!errors.Is(err, common.ErrInsufficientBudget) && !errors.Is(err, common.ErrOfferNegotiationWindow) {
 			log.Errorf("error accepting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
 		}
 	}
+}
+
+// ownedSquad is a team's senior squad minus anyone on loan to it from another club - the players
+// it can actually keep or sell, which is what every transfer decision weighs.
+func ownedSquad(dbCtx *common.DatabaseContext, teamId int64) ([]*common.Player, error) {
+	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	commitments, err := common.GetTeamMarketCommitments(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return ownedPlayers(*players, commitments.LoanedIn), nil
+}
+
+// nationalStanding reports whether a player is in his country's national-team pool and his caps,
+// per the (cached) national radar; a radar that can't be loaded just means no internationals.
+func nationalStanding(dbCtx *common.DatabaseContext, playerId int64) (bool, int) {
+	radar, err := common.GetNationalRadar(dbCtx)
+	if err != nil {
+		log.Errorf("error loading the national-team radar: %s", err)
+		return false, 0
+	}
+	entry, ok := radar.Lookup(playerId)
+	return ok, entry.Caps
+}
+
+// skillCapsFor reads one player's hidden skill ceilings for a transfer valuation, nil when they
+// can't be read - the valuation then assumes a typical headroom.
+func skillCapsFor(dbCtx *common.DatabaseContext, playerId int64) *common.PlayerSkillCaps {
+	caps, err := common.GetPlayerSkillCaps(dbCtx, []int64{playerId})
+	if err != nil {
+		log.Errorf("error reading skill caps of player %d: %s", playerId, err)
+		return nil
+	}
+	if c, ok := caps[playerId]; ok {
+		return &c
+	}
+	return nil
 }
 
 // renewExpiringContracts extends every squad player's contract once it's down to
@@ -263,7 +318,7 @@ func renewExpiringContracts(dbCtx *common.DatabaseContext, teamId int64, players
 // academy only tops back up to exactly SquadSize, so requiring a squad above it (as this used to)
 // meant almost no CPU team ever qualified to list anyone. The per-position surplus check
 // (surplusDepthMargin) is what really keeps a sale from hurting the team.
-const minSquadSizeAfterSale = common.SquadSize - 2
+const minSquadSizeAfterSale = common.MinSquadSizeAfterSale
 
 // listSurplusPlayer keeps an AI-managed team's transfer listings in line with its squad: first
 // withdraws any listing that's no longer genuine surplus (see planListingWithdrawals), then lists
@@ -271,13 +326,17 @@ const minSquadSizeAfterSale = common.SquadSize - 2
 // pickSurplusPlayerToList) - one per call, so a squad's depth erodes gradually rather than all at
 // once, but listings do accumulate over successive matches while the surplus lasts. Lists rather
 // than releasing so a human browsing the transfer market gets a chance to buy a CPU team's
-// genuine squad surplus. The asking price is minAcceptableTransferFeeWageMultiplier times the
-// player's own market-rate wage - the same yardstick this team uses to judge an incoming offer on
-// that player (see respondToReceivedOffers). Loaned-in, already-listed and loan-listed players
+// genuine squad surplus. The asking price is the player's market value (see
+// common.ListingAskingPrice) - the same yardstick this team starts from when judging an incoming
+// offer on that player (see respondToReceivedOffers). Loaned-in, already-listed and loan-listed players
 // are filtered out up front (see common.GetTeamMarketCommitments) rather than picked and then
 // silently rejected, which used to leave a team stuck retrying the same unlistable player every
 // match. The transfer window being closed is an expected outcome, not a failure.
-func listSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
+func listSurplusPlayer(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player) {
+	if !common.AiTransferProfileFor(team.AiLevel).ListsSurplus {
+		return
+	}
+	teamId := team.Id
 	commitments, err := common.GetTeamMarketCommitments(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching market commitments for AI-managed team %d: %s", teamId, err)
@@ -294,14 +353,13 @@ func listSurplusPlayer(dbCtx *common.DatabaseContext, teamId int64, players []*c
 		delete(commitments.TransferListed, p.Id)
 	}
 
-	target := pickSurplusPlayerToList(owned, commitments.TransferListed, commitments.LoanListed)
+	target := pickSurplusPlayerToList(owned, commitments.TransferListed, commitments.LoanListed, protectedFromListing(dbCtx, team, owned))
 	if target == nil {
 		return
 	}
 
-	expectedWage := common.PlayerWageFromSkills(target.GoalKeeper, target.Defense, target.Lateral, target.Pass,
-		target.Midfield, target.Dribbling, target.Shot)
-	askingPrice := int64(expectedWage * minAcceptableTransferFeeWageMultiplier)
+	international, nationalCaps := nationalStanding(dbCtx, target.Id)
+	askingPrice := common.ListingAskingPrice(*target, common.AiTransferProfileFor(team.AiLevel), international, nationalCaps)
 
 	if err := common.CreateTransferListing(dbCtx, target.Id, teamId, askingPrice); err != nil &&
 		!errors.Is(err, common.ErrPlayerAlreadyListed) && !errors.Is(err, common.ErrTransferWindowClosed) &&
@@ -321,6 +379,36 @@ func ownedPlayers(players []*common.Player, loanedIn map[int64]bool) []*common.P
 		}
 	}
 	return owned
+}
+
+// protectedFromListing is who a CPU team won't list as surplus: anyone it signed within
+// common.AiMinHoldPeriod, every international (a player in his country's national-team pool - see
+// common.NationalRadar), and - for a profile that signs projects - every player young enough to
+// still be one, since a prospect on the bench of a deep position is exactly what such a team
+// bought him to be.
+func protectedFromListing(dbCtx *common.DatabaseContext, team *common.Team, owned []*common.Player) map[int64]bool {
+	protected, err := common.GetPlayerIdsAcquiredSince(dbCtx, team.Id, time.Now().Add(-common.AiMinHoldPeriod))
+	if err != nil {
+		log.Errorf("error reading recent signings of AI-managed team %d: %s", team.Id, err)
+		protected = map[int64]bool{}
+	}
+	if radar, err := common.GetNationalRadar(dbCtx); err != nil {
+		log.Errorf("error loading the national-team radar for AI-managed team %d: %s", team.Id, err)
+	} else {
+		for _, p := range owned {
+			if _, ok := radar.Lookup(p.Id); ok {
+				protected[p.Id] = true
+			}
+		}
+	}
+	if common.AiTransferProfileFor(team.AiLevel).SignsProjects {
+		for _, p := range owned {
+			if p.Age < common.ProjectionMaxAge {
+				protected[p.Id] = true
+			}
+		}
+	}
+	return protected
 }
 
 // withoutPlayers returns players minus every id in excluded.
@@ -373,9 +461,10 @@ func planListingWithdrawals(owned []*common.Player, listed map[int64]bool) []*co
 // next, or nil if none: the weakest listable player at the most overstocked core position, where
 // overstocked means the owned, unlisted depth there exceeds common.MinPositionDepth by more than
 // surplusDepthMargin, and only while selling them still leaves at least minSquadSizeAfterSale
-// owned, unlisted players. A loan-listed player can't also be transfer-listed, so they're skipped
-// - falling through to the next most overstocked position if nobody else at this one qualifies.
-func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loanListed map[int64]bool) *common.Player {
+// owned, unlisted players. A loan-listed player can't also be transfer-listed, and a protected one
+// (see protectedFromListing) isn't for sale, so both are skipped - falling through to the next
+// most overstocked position if nobody else at this one qualifies.
+func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loanListed map[int64]bool, protected map[int64]bool) *common.Player {
 	available := withoutPlayers(owned, listed)
 	if len(available)-1 < minSquadSizeAfterSale {
 		return nil
@@ -393,7 +482,7 @@ func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loan
 		var weakest *common.Player
 		weakestValue := 0
 		for _, p := range available {
-			if loanListed[p.Id] || common.BestCorePosition(*p) != need.Position {
+			if loanListed[p.Id] || protected[p.Id] || common.BestCorePosition(*p) != need.Position {
 				continue
 			}
 			if v := common.PositionValue(need.Position, *p); weakest == nil || v < weakestValue {
@@ -405,43 +494,6 @@ func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loan
 		}
 	}
 	return nil
-}
-
-// signFreeAgentForWeakestPosition signs the best available free agent for a team's single
-// neediest core position (see common.WeakestPositionNeed), but only when that position is
-// actually thin - a squad that merely has below-average depth everywhere shouldn't go shopping.
-// ErrTransferWindowClosed and ErrPlayerNotFree (someone else signed them first) are expected
-// outcomes, not failures.
-func signFreeAgentForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
-	weakest := common.WeakestPositionNeed(players)
-	if weakest == nil || !weakest.Thin {
-		return
-	}
-
-	freeAgents, err := common.GetFreeAgents(dbCtx)
-	if err != nil {
-		log.Errorf("error fetching free agents for AI-managed team %d: %s", teamId, err)
-		return
-	}
-	var best *common.Player
-	bestValue := 0
-	for _, p := range freeAgents {
-		if common.BestCorePosition(*p) != weakest.Position {
-			continue
-		}
-		if v := common.PositionValue(weakest.Position, *p); best == nil || v > bestValue {
-			best, bestValue = p, v
-		}
-	}
-	if best == nil {
-		return
-	}
-
-	if _, err := common.SignFreeAgentAtMarketRate(dbCtx, best.Id, teamId); err != nil &&
-		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrPlayerNotFree) &&
-		!errors.Is(err, common.ErrInsufficientBudget) && !errors.Is(err, common.ErrTeamInsolvent) {
-		log.Errorf("error signing free agent %d for AI-managed team %d: %s", best.Id, teamId, err)
-	}
 }
 
 // maximizeTicketPrice charges whichever price maximizes expected matchday revenue (see
@@ -477,65 +529,18 @@ const stadiumUpgradeBudgetCushionMultiplier = 3
 const trainerUpgradeMinSkillMargin = 10
 
 // manageMarketIfDirector runs every Director-level (see common.AiLevelDirector) active-market
-// action for an unowned team: shop the transfer list for a genuine upgrade at its neediest core
-// position, expand the stadium once it can comfortably afford to, and move to a clearly better
-// trainer when one's on the open market. A no-op below Director level - see
-// RunAITeamManagement, the only caller.
+// action for an unowned team that isn't a signing: expand the stadium once it can comfortably
+// afford to, and move to a clearly better trainer when one's on the open market. (A Director's
+// transfer shopping is part of the transfer pass every Manager-and-up team runs, widened by its
+// profile - see runAiTransferPass.) A no-op below Director level - see RunAITeamManagement, the
+// only caller.
 func manageMarketIfDirector(dbCtx *common.DatabaseContext, team *common.Team) {
 	if team.AiLevel < common.AiLevelDirector {
 		return
 	}
 
-	players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
-	if err != nil {
-		log.Errorf("error fetching squad for AI-managed team %d market management: %s", team.Id, err)
-		return
-	}
-
-	buyTransferListedPlayerForWeakestPosition(dbCtx, team.Id, *players)
 	upgradeStadiumIfAffordable(dbCtx, team.Id)
 	upgradeTrainerIfBetterAvailable(dbCtx, team.Id)
-}
-
-// buyTransferListedPlayerForWeakestPosition spends money on the single best transfer-listed
-// upgrade available at a team's neediest core position (see common.WeakestPositionNeed) - but
-// only a genuine upgrade over that position's current average quality (PositionNeed.AvgValue),
-// unlike signFreeAgentForWeakestPosition which will take any free agent to fill a thin spot since
-// that costs nothing. ErrTransferWindowClosed, ErrInsufficientBudget, ErrListingNotFound (someone
-// else bought them first) and ErrCannotBuyOwnPlayer are expected outcomes, not failures.
-func buyTransferListedPlayerForWeakestPosition(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
-	weakest := common.WeakestPositionNeed(players)
-	if weakest == nil {
-		return
-	}
-
-	listings, err := common.GetActiveTransferListings(dbCtx)
-	if err != nil {
-		log.Errorf("error fetching transfer listings for AI-managed team %d: %s", teamId, err)
-		return
-	}
-
-	var target *common.TransferListing
-	bestValue := weakest.AvgValue
-	for i := range listings {
-		listing := &listings[i]
-		if listing.SellingTeamId == teamId || common.BestCorePosition(listing.Player) != weakest.Position {
-			continue
-		}
-		if v := common.PositionValue(weakest.Position, listing.Player); v > bestValue {
-			target, bestValue = listing, v
-		}
-	}
-	if target == nil {
-		return
-	}
-
-	if err := common.ExecuteTransfer(dbCtx, target.ListingId, teamId); err != nil &&
-		!errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
-		!errors.Is(err, common.ErrListingNotFound) && !errors.Is(err, common.ErrCannotBuyOwnPlayer) &&
-		!errors.Is(err, common.ErrTeamInsolvent) {
-		log.Errorf("error buying transfer-listed player for AI-managed team %d: %s", teamId, err)
-	}
 }
 
 // upgradeStadiumIfAffordable expands a team's stadium (see common.UpgradeStadium) once its
