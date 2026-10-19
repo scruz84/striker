@@ -99,6 +99,13 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.ClubHistory = clubHistory
 		}
 
+		if transfers, err := common.GetPlayerTransfers(dbCtx, playerId, PlayerHistoryLimit); err != nil {
+			log.Errorf("error loading transfer history for player %d: %s", playerId, err)
+			details.Transfers = []common.PlayerTransfer{}
+		} else {
+			details.Transfers = transfers
+		}
+
 		if recentMatches, err := common.GetPlayerRecentMatches(dbCtx, playerId, player.TeamId, PlayerRecentMatchesLimit); err != nil {
 			log.Errorf("error loading recent matches for player %d: %s", playerId, err)
 		} else {

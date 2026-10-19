@@ -403,6 +403,9 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	if err := RecordPlayerClubHistory(tx, playerId, fromTeamId); err != nil {
 		return err
 	}
+	if err := RecordPlayerTransfer(tx, playerId, toTeamId, fromTeamId, amount, PLAYER_TRANSFER_OFFER); err != nil {
+		return err
+	}
 	// Applies the personal terms the player already agreed to when this offer was made (see
 	// MakeTransferOffer) - not re-judged against their expectations here, the same way an
 	// accepted contract renewal offer's terms aren't re-litigated later.

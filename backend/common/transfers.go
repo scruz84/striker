@@ -272,6 +272,9 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if err := RecordPlayerClubHistory(tx, playerId, buyerTeamId); err != nil {
 		return err
 	}
+	if err := RecordPlayerTransfer(tx, playerId, sellingTeamId, buyerTeamId, askingPrice, PLAYER_TRANSFER_LISTING); err != nil {
+		return err
+	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
 		return err
 	}

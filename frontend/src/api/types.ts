@@ -575,6 +575,39 @@ export const FORMATION_POSITION_COUNTS: Record<number, Partial<Record<number, nu
   },
 }
 
+// player_transfers.kind values from backend/common/fmconstants.go
+export const PLAYER_TRANSFER_LISTING = 0
+export const PLAYER_TRANSFER_OFFER = 1
+export const PLAYER_TRANSFER_FREE_AGENT = 2
+export const PLAYER_TRANSFER_LOAN = 3
+export const PLAYER_TRANSFER_BUY_OPTION = 4
+export const PLAYER_TRANSFER_RELEASE = 5
+export const PLAYER_TRANSFER_PERMANENT = 6
+
+// Values are i18n keys under "playerPage.history.kinds.*".
+export const PLAYER_TRANSFER_KIND_KEYS: Record<number, string> = {
+  [PLAYER_TRANSFER_LISTING]: 'playerPage.history.kinds.listing',
+  [PLAYER_TRANSFER_OFFER]: 'playerPage.history.kinds.offer',
+  [PLAYER_TRANSFER_FREE_AGENT]: 'playerPage.history.kinds.freeAgent',
+  [PLAYER_TRANSFER_LOAN]: 'playerPage.history.kinds.loan',
+  [PLAYER_TRANSFER_BUY_OPTION]: 'playerPage.history.kinds.buyOption',
+  [PLAYER_TRANSFER_RELEASE]: 'playerPage.history.kinds.release',
+  [PLAYER_TRANSFER_PERMANENT]: 'playerPage.history.kinds.permanent',
+}
+
+// One row of a player's transfer history. A missing fromTeamId means the player came from free
+// agency; a missing toTeamId means they were released.
+export interface PlayerTransfer {
+  id: number
+  fromTeamId?: number
+  fromTeamName?: string
+  toTeamId?: number
+  toTeamName?: string
+  fee: number
+  kind: number
+  createdAt: string
+}
+
 // team_transactions.reason values from backend/common/fmconstants.go
 export const TRANSACTION_TRANSFER_IN = 0
 export const TRANSACTION_TRANSFER_OUT = 1
@@ -589,6 +622,9 @@ export const TRANSACTION_CONTRACT_RELEASE = 8
 export const TRANSACTION_TRAINER_WAGES = 9
 export const TRANSACTION_SEASON_TICKETS = 10
 export const TRANSACTION_MERCHANDISING = 11
+export const TRANSACTION_ADMIN_MASS_INJECTION = 12
+export const TRANSACTION_LOAN_FEE = 13
+export const TRANSACTION_LOAN_WAGE_CONTRIBUTION = 14
 export const TRANSACTION_STADIUM_MAINTENANCE = 15
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
@@ -606,6 +642,9 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_TRAINER_WAGES]: 'finances.reasons.trainerWages',
   [TRANSACTION_SEASON_TICKETS]: 'finances.reasons.seasonTickets',
   [TRANSACTION_MERCHANDISING]: 'finances.reasons.merchandising',
+  [TRANSACTION_ADMIN_MASS_INJECTION]: 'finances.reasons.adminMassInjection',
+  [TRANSACTION_LOAN_FEE]: 'finances.reasons.loanFee',
+  [TRANSACTION_LOAN_WAGE_CONTRIBUTION]: 'finances.reasons.loanWageContribution',
   [TRANSACTION_STADIUM_MAINTENANCE]: 'finances.reasons.stadiumMaintenance',
 }
 
@@ -828,6 +867,9 @@ export interface PlayerDetails extends Player {
   // backend common.GetPlayerSeasonAwards.
   seasonAwards: { goldenBoots: number; playerOfSeasons: number }
   history: TeamTransaction[]
+  // This player's transfers, newest first - unlike `history` (the owning team's accounting
+  // ledger), never redacted: it is market information. See backend common.GetPlayerTransfers.
+  transfers: PlayerTransfer[]
   latestEvolution?: PlayerEvolution
   // Every club this player has permanently belonged to, most recent first - unlike `history`,
   // never redacted for a non-owner viewer (which clubs a player played for is public, the same

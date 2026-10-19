@@ -148,3 +148,13 @@ const NOTIFICATION_FANBASE = 11
 // NOTIFICATION_CALL_UP tells a club their player was called up to their national team's starting
 // lineup for this week's international friendly - see common.SetNationalTeamLineup.
 const NOTIFICATION_CALL_UP = 12
+
+// player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
+// translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.
+const PLAYER_TRANSFER_LISTING = 0    // bought a transfer-listed player at its asking price
+const PLAYER_TRANSFER_OFFER = 1      // a negotiated offer the selling club accepted
+const PLAYER_TRANSFER_FREE_AGENT = 2 // signed as a free agent - fee is the premium paid to the last club, if any
+const PLAYER_TRANSFER_LOAN = 3       // temporary loan - fee is the loan fee, if any
+const PLAYER_TRANSFER_BUY_OPTION = 4 // a loan made permanent by exercising its buy option
+const PLAYER_TRANSFER_RELEASE = 5    // contract terminated early or expired - no destination club
+const PLAYER_TRANSFER_PERMANENT = 6  // a permanent transfer from before this table existed (listing vs offer unknown)

@@ -61,6 +61,10 @@ const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years
 const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0, shirt_number = $4 WHERE player_id = $5"
 const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
 
+// GetPlayerCurrentTeamStmtSql reads the team a player belongs to right now (0 for a free agent) -
+// AdvancePlayerContract needs it before ReleaseFromTeamStmtSql clears team_id.
+const GetPlayerCurrentTeamStmtSql = "SELECT COALESCE(team_id, 0) FROM players WHERE player_id = $1"
+
 // ReleaseFromTeamStmtSql captures the releasing club into last_team_id before clearing team_id -
 // see SignFreeAgent, which charges that club a transfer premium if this player is re-signed
 // within their first season of free agency. shirt_number is cleared too - it belonged to the
@@ -271,6 +275,15 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 		return nil, err
 	}
 	if err := RecordPlayerClubHistory(tx, playerId, teamId); err != nil {
+		return nil, err
+	}
+	// A premium is paid to the last club, so it's the origin; with none due the player comes
+	// straight from free agency (no origin club).
+	var premiumRecipient int64
+	if premium > 0 {
+		premiumRecipient = player.LastTeamId
+	}
+	if err := RecordPlayerTransfer(tx, playerId, premiumRecipient, teamId, premium, PLAYER_TRANSFER_FREE_AGENT); err != nil {
 		return nil, err
 	}
 
@@ -569,6 +582,9 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if _, err := tx.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {
 		return err
 	}
+	if err := RecordPlayerTransfer(tx, playerId, teamId, 0, 0, PLAYER_TRANSFER_RELEASE); err != nil {
+		return err
+	}
 
 	return tx.Commit()
 }
@@ -605,7 +621,14 @@ func AdvancePlayerContract(dbCtx *DatabaseContext, playerId int64) (bool, error)
 	if _, err := dbCtx.Db.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
 		return false, err
 	}
+	var expiringTeamId int64
+	if err := dbCtx.Db.QueryRow(GetPlayerCurrentTeamStmtSql, playerId).Scan(&expiringTeamId); err != nil {
+		return false, err
+	}
 	if _, err := dbCtx.Db.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {
+		return false, err
+	}
+	if err := RecordPlayerTransfer(dbCtx.Db, playerId, expiringTeamId, 0, 0, PLAYER_TRANSFER_RELEASE); err != nil {
 		return false, err
 	}
 	return true, nil

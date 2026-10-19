@@ -353,6 +353,9 @@
       "trainerWages": "Salario del entrenador",
       "seasonTickets": "Venta de abonos",
       "merchandising": "Ingresos por merchandising",
+      "adminMassInjection": "Ajuste masivo de presupuesto",
+      "loanFee": "Cuota de cesión",
+      "loanWageContribution": "Aportación al salario de cedido",
       "stadiumMaintenance": "Mantenimiento del estadio",
       "other": "Otro"
     }
@@ -1138,7 +1141,22 @@
     },
     "history": {
       "title": "Historial de traspasos",
-      "none": "Aún no hay historial de traspasos."
+      "none": "Aún no hay historial de traspasos.",
+      "date": "Fecha",
+      "route": "Origen → Destino",
+      "kind": "Tipo",
+      "price": "Precio",
+      "freeAgent": "Agente libre",
+      "released": "Liberado",
+      "kinds": {
+        "listing": "Compra (en venta)",
+        "offer": "Compra (oferta)",
+        "freeAgent": "Fichaje libre",
+        "loan": "Cesión",
+        "buyOption": "Opción de compra",
+        "release": "Liberación",
+        "permanent": "Traspaso"
+      }
     },
     "clubHistory": {
       "title": "Clubes",

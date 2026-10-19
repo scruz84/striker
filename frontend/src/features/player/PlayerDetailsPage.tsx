@@ -13,16 +13,16 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
-import { TRANSACTION_REASON_KEYS, type NationalTeamCallUp, type PlayerMatchSummary } from '../../api/types'
+import type { NationalTeamCallUp, PlayerMatchSummary } from '../../api/types'
 import { localizedTeamName } from '../../utils/nationalTeamName'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
 import { TeamNameLink } from '../../components/TeamNameLink'
-import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime, formatDayTime } from '../../utils/formatDate'
 import { matchRatingColor } from '../../utils/matchRating'
+import { PlayerTransferHistory } from './PlayerTransferHistory'
 
 export function PlayerDetailsPage() {
   const { t } = useTranslation()
@@ -88,7 +88,9 @@ export function PlayerDetailsPage() {
                     <TableCell>
                       <TeamNameLink teamId={entry.teamId}>{entry.teamName}</TeamNameLink>
                     </TableCell>
-                    <TableCell align="right">{formatDateTime(entry.joinedAt)}</TableCell>
+                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                      {formatDateTime(entry.joinedAt)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -151,44 +153,7 @@ export function PlayerDetailsPage() {
         </Stack>
       )}
 
-      {canSeeFinancials && (
-        <Stack spacing={1}>
-          <Typography variant="h6">{t('playerPage.history.title')}</Typography>
-          <TableContainer component={Paper}>
-            <Table size="small" aria-label="Transfer history">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('finances.table.date')}</TableCell>
-                  <TableCell>{t('finances.table.reason')}</TableCell>
-                  <TableCell>{t('finances.table.description')}</TableCell>
-                  <TableCell align="right">{t('finances.table.amount')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {player.history.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('playerPage.history.none')}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-                {player.history.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell>{formatDateTime(tx.createdAt)}</TableCell>
-                    <TableCell>{t(TRANSACTION_REASON_KEYS[tx.reason] ?? 'finances.reasons.other')}</TableCell>
-                    <TableCell>{tx.description}</TableCell>
-                    <TableCell align="right" sx={{ color: tx.amount < 0 ? 'error.main' : 'success.main' }}>
-                      {formatCurrency(tx.amount)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Stack>
-      )}
+      <PlayerTransferHistory transfers={player.transfers} />
     </Stack>
   )
 }

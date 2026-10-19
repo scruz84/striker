@@ -257,6 +257,10 @@ type PlayerDetails struct {
 	// the Season - see GetPlayerSeasonAwards. Never redacted: the winners are announced publicly.
 	SeasonAwards PlayerSeasonAwards `json:"seasonAwards"`
 	History      []TeamTransaction  `json:"history"`
+	// Transfers is this player's structured transfer history (origin, destination, fee, kind),
+	// newest first - see GetPlayerTransfers. Unlike History it is market information, so it is
+	// never redacted.
+	Transfers []PlayerTransfer `json:"transfers"`
 	// ClubHistory is every club this player has permanently belonged to, most recent first - see
 	// GetPlayerClubHistory. Unlike History (financial transactions), this is never redacted: which
 	// clubs a player has played for is public the same way their transfer-market listing is.

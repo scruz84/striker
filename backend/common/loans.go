@@ -307,6 +307,9 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		wageContributionPercent, buyOptionFee); err != nil {
 		return err
 	}
+	if err := RecordPlayerTransfer(tx, playerId, lendingTeamId, borrowingTeamId, loanFee, PLAYER_TRANSFER_LOAN); err != nil {
+		return err
+	}
 
 	if loanFee > 0 {
 		player, err := GetPlayerById(dbCtx, playerId)
@@ -411,6 +414,9 @@ func ExerciseLoanBuyOption(dbCtx *DatabaseContext, playerId int64, borrowingTeam
 		return err
 	}
 	if err := RecordPlayerClubHistory(tx, playerId, borrowingTeamId); err != nil {
+		return err
+	}
+	if err := RecordPlayerTransfer(tx, playerId, lendingTeamId, borrowingTeamId, buyOptionFee, PLAYER_TRANSFER_BUY_OPTION); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeletePlayerLoanStmtSql, loanId); err != nil {

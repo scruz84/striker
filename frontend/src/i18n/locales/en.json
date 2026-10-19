@@ -353,6 +353,9 @@
       "trainerWages": "Trainer wages",
       "seasonTickets": "Season ticket sales",
       "merchandising": "Merchandising revenue",
+      "adminMassInjection": "Mass budget adjustment",
+      "loanFee": "Loan fee",
+      "loanWageContribution": "Loan wage contribution",
       "stadiumMaintenance": "Stadium maintenance",
       "other": "Other"
     }
@@ -1138,7 +1141,22 @@
     },
     "history": {
       "title": "Transfer history",
-      "none": "No transfer history yet."
+      "none": "No transfer history yet.",
+      "date": "Date",
+      "route": "From → To",
+      "kind": "Type",
+      "price": "Price",
+      "freeAgent": "Free agent",
+      "released": "Released",
+      "kinds": {
+        "listing": "Bought (listed)",
+        "offer": "Bought (offer)",
+        "freeAgent": "Free agent signing",
+        "loan": "Loan",
+        "buyOption": "Buy option",
+        "release": "Release",
+        "permanent": "Transfer"
+      }
     },
     "clubHistory": {
       "title": "Clubs",

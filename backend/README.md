@@ -314,6 +314,17 @@ needs to see. `GET /v1/teams/team/:id/` makes the same exception for each player
 reports the team's real classification position and public stadium summary (name, capacity, most
 recent home match with attendance) regardless of who's asking.
 
+A player's transfer history is a separate, public thing: `GET /v1/teams/player/:id/`'s `transfers`
+is read from the `player_transfers` table (`init78_player_transfers.sql`), never redacted. One
+structured row per move - `from_team_id` (NULL = came from free agency), `to_team_id` (NULL =
+released), `fee`, `kind` (`common.PLAYER_TRANSFER_*`: bought listing, accepted offer, free agent,
+loan, buy option, release) - written by `common.RecordPlayerTransfer` inside the same transaction
+as the ledger rows of `ExecuteTransfer`, `AcceptOffer`, `SignFreeAgent` (the premium paid to the
+last club, if any, is the fee and that club the origin), `AcceptLoan`, `ExerciseLoanBuyOption`,
+`ReleasePlayer` and `AdvancePlayerContract` (contract expiry). The migration backfills the older
+history from `team_transactions` and `player_club_history`; the old ledger can't tell a bought
+listing from an accepted offer, so those come back as the generic `PLAYER_TRANSFER_PERMANENT`.
+
 ### Player aging and decline
 
 A rostered player's core skills drift match-by-match, not once a season: right after every
