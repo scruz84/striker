@@ -496,18 +496,27 @@ func pickSurplusPlayerToList(owned []*common.Player, listed map[int64]bool, loan
 	return nil
 }
 
-// maximizeTicketPrice charges whichever price maximizes expected matchday revenue (see
-// optimalTicketPrice) - simply charging the maximum allowed price used to be this same rational
-// move, back when attendance never fell as price rose, but now that demandRate makes attendance
-// genuinely price-sensitive, always maxing out would just as often cost a Manager-level AI team
-// revenue rather than earn it.
+// maximizeTicketPrice charges whichever price maximizes expected matchday revenue for this team's
+// own stadium, socios and recent form (see optimalTicketPrice) - the price its crowd will accept,
+// not simply the maximum allowed: demand falls to nothing at SociosPriceZeroAt, so always maxing
+// out would empty the ground.
 func maximizeTicketPrice(dbCtx *common.DatabaseContext, teamId int64) {
 	stadium, err := common.GetStadium(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error fetching stadium for AI-managed team %d ticket pricing: %s", teamId, err)
 		return
 	}
-	optimal := optimalTicketPrice()
+	socios, err := common.GetSocios(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error fetching socios for AI-managed team %d ticket pricing: %s", teamId, err)
+		return
+	}
+	formPoints, formMatches, err := common.GetRecentLeagueForm(dbCtx, teamId, 0)
+	if err != nil {
+		log.Errorf("error fetching recent form for AI-managed team %d ticket pricing: %s", teamId, err)
+		formPoints, formMatches = 0, 0
+	}
+	optimal := optimalTicketPrice(stadium.Capacity, socios, formPoints, formMatches)
 	if stadium.TicketPrice == optimal {
 		return
 	}
@@ -543,8 +552,23 @@ func manageMarketIfDirector(dbCtx *common.DatabaseContext, team *common.Team) {
 	upgradeTrainerIfBetterAvailable(dbCtx, team.Id)
 }
 
+// stadiumUpgradeMinRecentSelloutShare/stadiumUpgradeMinRecentHomeMatches: a Director only expands
+// when demand really outgrew the ground - at least this share of its latest home league matches
+// (needing at least this many on record) drew a full house (see shouldUpgradeStadium).
+const stadiumUpgradeMinRecentSelloutShare = 0.4
+const stadiumUpgradeMinRecentHomeMatches = 5
+
+// shouldUpgradeStadium is the pure demand half of the expansion rule: enough recent home matches
+// on record, and a big enough share of them sold out.
+func shouldUpgradeStadium(soldOut int, total int) bool {
+	return total >= stadiumUpgradeMinRecentHomeMatches &&
+		float64(soldOut) >= stadiumUpgradeMinRecentSelloutShare*float64(total)
+}
+
 // upgradeStadiumIfAffordable expands a team's stadium (see common.UpgradeStadium) once its
-// budget comfortably covers the cost - see stadiumUpgradeBudgetCushionMultiplier.
+// budget comfortably covers the cost - see stadiumUpgradeBudgetCushionMultiplier - and its
+// members have been filling the ground (see shouldUpgradeStadium): having the cash is no longer
+// reason enough to build seats nobody turns up to fill.
 // ErrInsufficientBudget is an expected outcome (the cushion check is a stricter version of the
 // same one UpgradeStadium itself makes), not a failure.
 func upgradeStadiumIfAffordable(dbCtx *common.DatabaseContext, teamId int64) {
@@ -561,6 +585,15 @@ func upgradeStadiumIfAffordable(dbCtx *common.DatabaseContext, teamId int64) {
 		return
 	}
 	if budget < cost*stadiumUpgradeBudgetCushionMultiplier {
+		return
+	}
+
+	soldOut, total, err := common.GetRecentHomeSellouts(dbCtx, teamId, stadium.Capacity)
+	if err != nil {
+		log.Errorf("error fetching recent attendance for AI-managed team %d stadium upgrade: %s", teamId, err)
+		return
+	}
+	if !shouldUpgradeStadium(soldOut, total) {
 		return
 	}
 

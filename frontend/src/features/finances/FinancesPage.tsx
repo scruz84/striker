@@ -78,12 +78,15 @@ export function FinancesPage() {
               <Typography variant="h4" color={finances.budget < 0 ? 'error' : 'text.primary'}>
                 {formatCurrency(finances.budget)}
               </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {t('finances.wageFactor', { factor: finances.wageFactor })}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <FanbaseCard fanbase={finances.fanbase} />
+          <FanbaseCard fanbase={finances.fanbase} socios={finances.socios} />
         </Grid>
       </Grid>
 
@@ -229,7 +232,7 @@ function SponsorDealCard({
 // FanbaseCard shows this team's current 0-99 supporter-base index (see backend common.GetFanbase)
 // - read-only, unlike SponsorDealCard/StadiumCard, since Fanbase drifts on its own from match
 // results rather than being something a manager directly sets.
-function FanbaseCard({ fanbase }: { fanbase: number }) {
+function FanbaseCard({ fanbase, socios }: { fanbase: number; socios: number }) {
   const { t } = useTranslation()
   const theme = useTheme()
 
@@ -242,8 +245,14 @@ function FanbaseCard({ fanbase }: { fanbase: number }) {
         <Typography variant="h4" sx={{ color: ratingTierColor(fanbase, theme.palette) }}>
           {fanbase}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" component="p">
           {t('finances.fanbase.description')}
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          {t('finances.socios.count', { count: socios })}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t('finances.socios.description')}
         </Typography>
       </CardContent>
     </Card>

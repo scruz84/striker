@@ -439,7 +439,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 		return err
 	}
 
-	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, tie.Round, common.RandomWeather())
 	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
 	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
 	// as simulateMatch - see its own comment. A tie is simulated and marked played up to 15

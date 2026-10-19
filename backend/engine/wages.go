@@ -78,8 +78,8 @@ func deductWages(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 }
 
-// deductTrainerWage charges a team its head coach's wage - a no-op for a team that hasn't hired
-// one.
+// deductTrainerWage charges a team its head coach's wage, scaled by its division's wage factor
+// (see common.DivisionWageFactor) like its players' - a no-op for a team that hasn't hired one.
 func deductTrainerWage(dbCtx *common.DatabaseContext, teamId int64) {
 	trainer, err := common.GetTeamTrainer(dbCtx, teamId)
 	if err != nil {
@@ -89,8 +89,13 @@ func deductTrainerWage(dbCtx *common.DatabaseContext, teamId int64) {
 	if trainer == nil {
 		return
 	}
+	factor, err := common.GetTeamWageFactor(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting wage factor for team %d trainer wage: %s", teamId, err)
+		return
+	}
 	description := "trainer wages: " + trainer.FirstName + " " + trainer.LastName
-	if err := common.AdjustTeamBudget(dbCtx, teamId, -int64(trainer.Wage), common.TRANSACTION_TRAINER_WAGES, description); err != nil {
+	if err := common.AdjustTeamBudget(dbCtx, teamId, -common.ApplyWageFactor(int64(trainer.Wage), factor), common.TRANSACTION_TRAINER_WAGES, description); err != nil {
 		log.Errorf("error deducting trainer wage for team %d: %s", teamId, err)
 	}
 }

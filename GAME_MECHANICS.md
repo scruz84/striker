@@ -316,20 +316,27 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
 
 - **Ticket revenue** (`engine/stadium.go`) - paid to the home side only, once per match:
   attendance × ticket price, nothing more (no concessions, no away allocation). Attendance is
-  capacity × an occupancy rate: a base rate (`demandRate`) that's exactly `BaseOccupancyRate`
-  (0.5) at `DefaultTicketPrice` (10) and slides linearly down toward `MinOccupancyRate` (0.1) as
-  price rises to `MaxTicketPrice` (100, scaled by `PriceSensitivity` = 0.35) - or up, more gently,
-  toward `MaxOccupancyRate` (1.0) as price drops toward `MinTicketPrice` (1) - plus ±`OccupancyJitter`
-  (0.2) random noise on top, clamped to `[MinOccupancyRate, MaxOccupancyRate]`. There's still no
-  model for what else should plausibly drive attendance (form, rivalry, weather), but price itself
-  is now a real tradeoff rather than a free lever: `optimalTicketPrice` scans every price in
-  `[MinTicketPrice, MaxTicketPrice]` for whichever maximizes expected `price × demandRate(price)`
-  (currently 69, well below the maximum - see the CPU-team section below, which charges exactly
-  this rather than simply maxing out). Capacity starts at `DefaultStadiumCapacity` (1000, lowered
-  from 10000 - see that constant's comment): at 10000, a single home match's expected ticket
-  revenue alone ran several times an average squad's entire wage bill, which needed fixing
-  alongside wages moving to per-round charging (see "Wages" below) so a bigger stadium wasn't
-  also doing all the work of outrunning payroll on its own.
+  driven by the club's **socios** (members, `teams.socios` - see "Socios" below), not by how many
+  seats the ground has: `min(capacity, socios × price × form × rival × weather × noise)`
+  (`CalculateAttendance`), where
+  - *price* is 1.0 at `DefaultTicketPrice` (10), falls linearly to 0 at `SociosPriceZeroAt` (40)
+    and is capped at `MaxPriceFactor` (1.3) for very cheap tickets;
+  - *form* (racha) is 0.8 after five straight league defeats up to 1.2 after five wins, from the
+    league points of the home side's last `RecentFormMatches` (5) league matches (the match being
+    played doesn't count; neutral 1.0 with no history);
+  - *rival* is 0.85 for an unknown visitor up to 1.15 for the biggest (by the visitor's Fanbase),
+    plus `CupRoundAttendanceBoost` (10%) per cup round;
+  - *weather* is sunny 1.05, cloudy 1.00, windy 0.92, rain 0.82 - drawn once in `simulateMatch`,
+    used here and stored as the same value the match report shows;
+  - *noise* is ±`AttendanceNoise` (10%).
+
+  There is deliberately **no minimum occupancy**: nobody pays 100 for a ticket just because the
+  seat exists. `optimalTicketPrice(capacity, socios, form)` scans every price for whichever
+  maximizes expected `price × min(capacity, demand)` - the price that just fills the ground when
+  demand exceeds capacity, a moderate one (~20) when it doesn't (the CPU charges exactly this - see
+  the CPU-team section). Capacity starts at `DefaultStadiumCapacity` (1000) and, being only a cap,
+  no longer creates demand by itself: building seats helps only a club whose socios outgrow its
+  ground.
 - **Sponsorship** (`engine/sponsorship.go`) - a per-match payment to *both* sides regardless of
   result, scaled by the division tier they currently play in (8,000/4,000/1,500 base for tiers
   1/2/3, `sponsorshipForTier`) and further shaped by each team's own chosen `common.SponsorDeal`
@@ -357,7 +364,19 @@ and every change to it is a signed ledger entry (`common.AdjustTeamBudget`, reas
 - **Wages** - deducted once per league match played (`PayMatchdayWages`, called from
   `simulateMatch` for both sides - a round-robin schedule gives every team exactly one league
   match per round, so this fires exactly once per round), as the sum of every squad player's wage
-  (`GetTeamWageBill`) plus the team's trainer's wage if it has one. A player's own wage is derived
+  (`GetTeamWageBill`) plus the team's trainer's wage if it has one, all multiplied by the team's
+  **division wage factor** (`common.DivisionWageFactor`: ×4.0 / ×2.1 / ×1.1 for tiers 1 / 2 / 3).
+  The factor is applied only when wages are *paid* - in `GetTeamWageBill`,
+  `GetTeamLoanWageContribution` and `deductTrainerWage` - and nowhere else: a player's stored wage
+  stays the base figure that offers, renewals, the market-value formulas and the CPU's valuation
+  work with (the CPU's affordability check scales it through `TargetContext.WageFactor`), so no
+  migration is needed and a promotion or relegation raises or lowers income and payroll at once.
+  Income scales roughly 5x from third to first division while skills (and so base wages) are the
+  same everywhere; without the factor first-division clubs printed money. Together with the socios
+  attendance model this brings a passive club's income/expense ratio to ~1.0 / ~1.1-1.2 / ~1.3 for
+  tiers 3 / 2 / 1 and stabilises the world's total money at ~2x its starting value (run
+  `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v` to check - `engine/economysim_test.go`
+  replays 40 seasons with the real engine functions). The finance page shows the factor. A player's own wage is derived
   from their skills (`common.PlayerWageFromSkills`): the sum of all seven core skills ×
   `WagePerSkillPointNumerator` (5) ÷ `WagePerSkillPointDenominator` (7) - a higher-rated player
   costs more to keep, with no separate negotiation needed for the baseline figure (negotiated
@@ -488,14 +507,9 @@ real trend, rare enough not to spam.
 
 What it actually affects:
 
-- **Matchday attendance** (`engine/stadium.go`'s `fanbaseAttendanceFactor`) - multiplies
-  `demandRate`'s own price-based occupancy rate by a factor linearly mapped from Fanbase's 0-99
-  range onto `[FanbaseAttendanceMinFactor, FanbaseAttendanceMaxFactor]` (0.5x-1.5x) before jitter
-  and the usual `[MinOccupancyRate, MaxOccupancyRate]` clamp apply - `common.DefaultFanbase` (50)
-  lands almost exactly at 1.0x, so an unestablished team's attendance behaves the same as it did
-  before Fanbase existed. This is the gap `demandRate`'s own original doc comment used to name
-  explicitly ("no attempt to model anything else that would plausibly drive that swing - recent
-  form, rivalry, weather").
+- **Matchday attendance** - no longer a direct multiplier: Fanbase now moves attendance through
+  **socios** (below), whose season-end target is `2.2 × Fanbase^1.5` (`sociosTarget`), and through
+  the *rival* factor, where the visiting side's Fanbase pulls a bigger or smaller crowd.
 - **Sponsorship** (`engine/sponsorship.go`'s `creditSponsorship`) and **season tickets/
   merchandising** (`engine/seasonincome.go`'s `awardSeasonTicketsAndMerchandising`) - each
   multiplies its own base figure by `engine/fanbase.go`'s `fanbaseCommercialFactor`, a gentler
@@ -513,6 +527,23 @@ bigger design decision - see `ECONOMY_ROADMAP.md`.
 Public via `common.TeamDetails.Fanbase` (any team's page - same visibility tier as `StadiumSummary`)
 and `FinancesResponse.Fanbase` (the owner's own finances page, shown alongside Stadium/Budget in a
 small `FanbaseCard`, same pattern `StadiumCard`/`SponsorDealCard` use).
+
+### Socios
+
+Every team also has a count of club members, `teams.socios` (`common.DefaultSocios` = 500 for a new
+team; existing teams were backfilled to `round(2.2 × fanbase^1.5)` by
+`resources/sql/init80_socios.sql`). They are the paying core of the home crowd - see "Ticket
+revenue" above - so demand is created by members, not by seats.
+
+At every season rollover (`updateSociosAtSeasonEnd`, called from
+`awardSeasonTicketsAndMerchandising` with each league's final standings) socios close
+`SociosDriftRate` (30%) of the gap to the team's target,
+`sociosTarget = 2.2 × Fanbase^1.5 × position factor`, where the position factor runs from +10%
+(champion) to -10% (last). The curve is superlinear on purpose: a big first-division club
+(Fanbase towards 80) ends up with ~1,400-1,700 socios and outgrows a 1,000-seat ground; a small
+third-division one (Fanbase towards 30) settles at ~360-500 and never needs to expand. The owner
+is told (`NOTIFICATION_FANBASE`, `sociosGrew`/`sociosShrank`) when the count moves by 5% or more,
+and the finance page shows it next to Fanbase.
 
 ## Notifications
 
@@ -656,13 +687,16 @@ matchday-activity purpose, a friendly a CPU team plays this way still counts for
      manager: whichever cantera prospect rates highest at the thin position is promoted, subject to
      the same once-a-real-calendar-week cap a human promotion uses.
   4. **Charge whichever ticket price maximizes expected revenue** (`optimalTicketPrice`, see
-     above) - this used to simply be `MaxTicketPrice`, back when attendance never fell as price
-     rose, but now that it does, always maxing out would just as often cost revenue as earn it.
+     above) for its own stadium, socios and recent form - not simply `MaxTicketPrice`, since demand
+     falls to nothing at `SociosPriceZeroAt` (40).
 - **Director** (tier 3) adds the rest of the active market on top (`manageMarketIfDirector`, plus a
   wider transfer pass - below):
   1. **Expand the stadium** once the budget comfortably covers the cost with room to spare -
      specifically `stadiumUpgradeBudgetCushionMultiplier` (3) x one upgrade's cost, so it keeps a
-     working cash reserve rather than spending down to the wire.
+     working cash reserve rather than spending down to the wire - *and* demand really outgrew the
+     ground: at least 40% of its latest 10 home league matches sold out (`shouldUpgradeStadium`,
+     needing at least 5 on record). A freshly expanded ground resets this naturally, since the old,
+     smaller crowds no longer reach the new capacity.
   2. **Upgrade its trainer** to a clearly better one on the open market (at least
      `trainerUpgradeMinSkillMargin` (10) skill points above its current coach, or hire one at all
      if it has none) - trainers have no signing fee, so budget never gates this, only that skill

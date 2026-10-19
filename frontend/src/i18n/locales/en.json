@@ -88,6 +88,8 @@
       "playerOfSeason": "{{name}} was named Player of the Season!",
       "fanbaseGrew": "Your fanbase has grown to {{fanbase}}",
       "fanbaseShrank": "Your fanbase has shrunk to {{fanbase}}",
+      "sociosGrew": "Your club now has {{socios}} socios (members), up from {{previous}}",
+      "sociosShrank": "Your club now has {{socios}} socios (members), down from {{previous}}",
       "loanBuyOptionExercised": "{{team}} exercised their buy option for {{player}}",
       "loanBuyOptionUsed": "Signed {{player}} permanently from {{team}}",
       "calledUp": "{{player}} was called up to {{team}} for this week's international friendly"
@@ -285,6 +287,7 @@
     "threeFiveTwo": "Wing-backs (3-5-2)"
   },
   "finances": {
+    "wageFactor": "Wages are paid at ×{{factor}} the listed amount in your division.",
     "title": "Finances",
     "budget": "Budget",
     "insolvent": "Your budget is too far in debt - buying, signing, and borrowing players on loan are blocked until it recovers. Selling or releasing players is still open.",
@@ -292,6 +295,10 @@
     "fanbase": {
       "title": "Fanbase",
       "description": "Rises with wins, falls with losses - feeds into attendance, sponsorship, and end-of-season income."
+    },
+    "socios": {
+      "count": "{{count}} socios",
+      "description": "Your club's members - they are the core of your home crowd. A bigger stadium only fills if your socios outgrow it."
     },
     "seats": "seats",
     "maintenanceCost": "Maintenance: {{cost}}/round",

@@ -37,6 +37,14 @@ type FinancesResponse struct {
 	// doesn't need a second request just to show it alongside the stadium/sponsorship cards it
 	// actually affects.
 	Fanbase int `json:"fanbase"`
+	// Socios is this team's club-member count - see common.GetSocios. The paying core of its home
+	// crowd: matchday attendance is socios x price x form x rival x weather, capped at the stadium's
+	// capacity (engine.CalculateAttendance).
+	Socios int `json:"socios"`
+	// WageFactor is the multiplier this team's division applies to every wage it pays (players,
+	// head coach, loan contributions) - see common.DivisionWageFactor. The wages shown on contracts
+	// are the base figures; this is what they are multiplied by when actually charged.
+	WageFactor float64 `json:"wageFactor"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and full
@@ -108,6 +116,20 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		socios, err := common.GetSocios(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting socios for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		wageFactor, err := common.GetTeamWageFactor(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting wage factor for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
 			Insolvent:          budget < -common.MaxDebt,
@@ -116,6 +138,8 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			SponsorDealOptions: engine.SponsorDealPreviews(tier, fanbase),
 			SponsorDealLocked:  sponsorDealLocked,
 			Fanbase:            fanbase,
+			Socios:             socios,
+			WageFactor:         wageFactor,
 		})
 	}
 }

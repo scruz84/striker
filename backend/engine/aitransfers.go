@@ -75,6 +75,8 @@ type transferState struct {
 	LoanListed map[int64]bool
 	Budget     int64
 	WageBill   int64
+	// WageFactor is the team's division wage factor - WageBill already includes it.
+	WageFactor float64
 	// OpenOffers is how many offers the team currently has out.
 	OpenOffers int
 	// Protected are squad players the team won't sell to fund a signing - see
@@ -123,6 +125,7 @@ func scoreOne(profile common.AiTransferProfile, state *transferState, c transfer
 		Price:         c.AskingPrice,
 		Budget:        state.Budget,
 		WageBill:      state.WageBill,
+		WageFactor:    state.WageFactor,
 		ProjectsInUse: state.projectsInUse(),
 
 		International:     c.International,
@@ -290,6 +293,10 @@ func loadTransferState(dbCtx *common.DatabaseContext, team *common.Team) (*trans
 	if err != nil {
 		return nil, err
 	}
+	wageFactor, err := common.GetTeamWageFactor(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
 	sent, err := common.GetPlayersWithOfferFromTeam(dbCtx, teamId)
 	if err != nil {
 		return nil, err
@@ -301,6 +308,7 @@ func loadTransferState(dbCtx *common.DatabaseContext, team *common.Team) (*trans
 		LoanListed: commitments.LoanListed,
 		Budget:     budget,
 		WageBill:   wageBill,
+		WageFactor: wageFactor,
 		OpenOffers: len(sent),
 		Protected:  protectedFromListing(dbCtx, team, squad),
 	}, nil

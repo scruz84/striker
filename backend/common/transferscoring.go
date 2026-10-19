@@ -360,9 +360,13 @@ type TargetContext struct {
 	Price  int64
 	// BidMultiple, when positive, prices the signing as a bid for a player nobody has listed:
 	// Price is then the team's own valuation of him times BidMultiple (and Price is ignored).
-	BidMultiple   float64
-	Budget        int64
-	WageBill      int64
+	BidMultiple float64
+	Budget      int64
+	WageBill    int64
+	// WageFactor is the team's division wage factor (see DivisionWageFactor): WageBill already
+	// includes it, so the candidate's stored wage must be scaled by it too to be comparable. 0
+	// means 1.0 (no factor).
+	WageFactor    float64
 	ProjectsInUse int
 	// International is whether the candidate is in his country's national-team pool, and
 	// InternationalCaps his caps count - both only matter to a profile that values them.
@@ -445,11 +449,15 @@ func ScoreTarget(profile AiTransferProfile, ctx TargetContext, rng *rand.Rand) T
 		return score
 	}
 	if profile.ConsidersWageBill {
-		newBill := ctx.WageBill + int64(ctx.Target.Wage)
+		newWage := int64(ctx.Target.Wage)
 		if ctx.Target.Wage == 0 {
-			newBill += int64(PlayerWageFromSkills(ctx.Target.GoalKeeper, ctx.Target.Defense, ctx.Target.Lateral,
+			newWage = int64(PlayerWageFromSkills(ctx.Target.GoalKeeper, ctx.Target.Defense, ctx.Target.Lateral,
 				ctx.Target.Pass, ctx.Target.Midfield, ctx.Target.Dribbling, ctx.Target.Shot))
 		}
+		if ctx.WageFactor > 0 {
+			newWage = ApplyWageFactor(newWage, ctx.WageFactor)
+		}
+		newBill := ctx.WageBill + newWage
 		if remaining < newBill*WageRunwayRounds {
 			score.BudgetShort = true
 			return score

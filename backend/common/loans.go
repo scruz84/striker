@@ -99,11 +99,18 @@ const GetTeamLoanWageContributionStmtSql = "SELECT COALESCE(SUM(p.wage * pl.wage
 	"WHERE pl.from_team_id = $1 AND pl.wage_contribution_percent > 0"
 
 // GetTeamLoanWageContribution returns how much teamId owes this round covering part of the wage
-// of every player it currently has out on loan under a wage-contribution split.
+// of every player it currently has out on loan under a wage-contribution split, scaled by its own
+// division's wage factor (see DivisionWageFactor) like the rest of what it pays in wages.
 func GetTeamLoanWageContribution(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 	var total int64
-	err := dbCtx.Db.QueryRow(GetTeamLoanWageContributionStmtSql, teamId).Scan(&total)
-	return total, err
+	if err := dbCtx.Db.QueryRow(GetTeamLoanWageContributionStmtSql, teamId).Scan(&total); err != nil {
+		return 0, err
+	}
+	factor, err := GetTeamWageFactor(dbCtx, teamId)
+	if err != nil {
+		return 0, err
+	}
+	return ApplyWageFactor(total, factor), nil
 }
 
 // IsPlayerOnActiveLoan reports whether playerId is currently out on loan - used to stop a

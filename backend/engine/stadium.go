@@ -4,97 +4,126 @@ import (
 	"fmt"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"math/rand"
 	"time"
 )
 
-// A home crowd sits at roughly half of stadium capacity on average when charging
-// common.DefaultTicketPrice (see demandRate below), swinging up to OccupancyJitter (as a
-// fraction of capacity) either way on any given matchday - there's still no attempt to model
-// anything else that would plausibly drive that swing (recent form, the opponent, weather...),
-// just enough randomness that it isn't a flat number every match.
-const BaseOccupancyRate = 0.5
-const OccupancyJitter = 0.2
-const MinOccupancyRate = 0.1
-const MaxOccupancyRate = 1.0
+// A home crowd is driven by the club's socios (members - see common.GetSocios), not by how many
+// seats the stadium happens to have: demand = socios x price x form x rival x weather x noise,
+// capped at capacity. Building a bigger ground therefore only helps a club whose socios actually
+// outgrow the one it has - a stadium of 50,000 seats still draws what its members, price, form and
+// opponent bring through the gate, which is what keeps stadium expansion from being a free money
+// machine.
+//
+// There is deliberately no minimum occupancy: nobody pays 100 for a ticket just because the seat
+// exists. The price that earns the most is therefore either the one that just fills the ground
+// (when demand exceeds capacity) or a moderate one (when it doesn't) - see optimalTicketPrice.
 
-// PriceSensitivity is how much occupancy rate a team gives up by charging common.MaxTicketPrice
-// instead of common.DefaultTicketPrice - the whole point being that maximizing price is no longer
-// a free lunch (see engine.maximizeTicketPrice in aiteams.go, which used to be a strictly
-// dominant move precisely because attendance never responded to price at all). 0.35 takes
-// occupancy from the 0.5 base down near MinOccupancyRate at the maximum price - a real,
-// noticeable penalty, comparable in size to OccupancyJitter's own swing, not a rounding error.
-const PriceSensitivity = 0.35
+// SociosPriceZeroAt is the ticket price at which a club's socios stop turning up entirely:
+// the price factor is 1.0 at common.DefaultTicketPrice, falls linearly to 0 here, and rises above
+// 1.0 (up to MaxPriceFactor) for a price below the default.
+const SociosPriceZeroAt = 40
+const MaxPriceFactor = 1.3
 
-// demandRate returns the occupancy rate a given ticket price implies, before jitter: exactly
-// BaseOccupancyRate at common.DefaultTicketPrice, sliding down toward MinOccupancyRate as price
-// rises to common.MaxTicketPrice, and up (a smaller move - MinTicketPrice sits much closer to
-// DefaultTicketPrice than MaxTicketPrice does) as price drops toward common.MinTicketPrice.
-// Linear in between - there's no claim this is the real shape of ticket demand, just that it has
-// to slope the right direction for pricing to be an actual tradeoff instead of a one-way lever.
-func demandRate(ticketPrice int) float64 {
-	priceRange := float64(common.MaxTicketPrice - common.DefaultTicketPrice)
-	return BaseOccupancyRate - PriceSensitivity*(float64(ticketPrice-common.DefaultTicketPrice)/priceRange)
+// FormFactorMin/FormFactorSpan: after five straight league defeats the crowd is 0.8x its normal
+// size, after five wins 1.2x (see formFactor).
+const FormFactorMin = 0.8
+const FormFactorSpan = 0.4
+
+// RivalFactorMin/RivalFactorSpan: an opponent nobody follows (Fanbase 0) pulls 0.85x of the usual
+// crowd, the biggest club (Fanbase 99) 1.15x. A cup tie adds CupRoundAttendanceBoost per round on
+// top (a later round is a bigger occasion).
+const RivalFactorMin = 0.85
+const RivalFactorSpan = 0.30
+const CupRoundAttendanceBoost = 0.1
+
+// AttendanceNoise is the +/- fraction of random swing around the modelled crowd.
+const AttendanceNoise = 0.1
+
+// weatherAttendanceFactors maps common.RandomWeather's codes to how much each moves turnout.
+var weatherAttendanceFactors = map[string]float64{"sunny": 1.05, "cloudy": 1.0, "windy": 0.92, "rain": 0.82}
+
+// meanWeatherAttendanceFactor is the expected weatherAttendanceFactor over the four equally
+// likely conditions - what optimalTicketPrice assumes, since it can't know tomorrow's weather.
+const meanWeatherAttendanceFactor = (1.05 + 1.0 + 0.92 + 0.82) / 4
+
+// weatherFactor returns the turnout multiplier for a weather code; an unknown or empty code (a
+// friendly, a stored match from before weather existed) counts as neutral.
+func weatherFactor(weather string) float64 {
+	if f, ok := weatherAttendanceFactors[weather]; ok {
+		return f
+	}
+	return 1.0
+}
+
+// priceFactor is 1.0 at common.DefaultTicketPrice, 0 at SociosPriceZeroAt and above, capped at
+// MaxPriceFactor for very cheap tickets.
+func priceFactor(ticketPrice int) float64 {
+	f := 1 - float64(ticketPrice-common.DefaultTicketPrice)/float64(SociosPriceZeroAt-common.DefaultTicketPrice)
+	return math.Min(MaxPriceFactor, math.Max(0, f))
+}
+
+// formFactor turns a team's league points over its last formMatches matches into a crowd
+// multiplier: FormFactorMin with no points, FormFactorMin+FormFactorSpan with every point won, and
+// the neutral 1.0 when there is no recent league history at all.
+func formFactor(formPoints int, formMatches int) float64 {
+	if formMatches <= 0 {
+		return 1.0
+	}
+	return FormFactorMin + FormFactorSpan*float64(formPoints)/float64(3*formMatches)
+}
+
+// rivalFactor is how much the visiting side pulls in a crowd, by its Fanbase (0-99); a cup tie
+// (cupRound > 0) adds CupRoundAttendanceBoost per round. A nil-equivalent rival (fanbase < 0, e.g.
+// unknown) is treated as the default fanbase.
+func rivalFactor(rivalFanbase int, cupRound int) float64 {
+	if rivalFanbase < 0 {
+		rivalFanbase = common.DefaultFanbase
+	}
+	return (RivalFactorMin + RivalFactorSpan*float64(rivalFanbase)/99.0) * (1 + CupRoundAttendanceBoost*float64(cupRound))
+}
+
+// attendanceDemand is the modelled crowd before noise and before the capacity cap.
+func attendanceDemand(socios int, ticketPrice int, formPoints int, formMatches int, rivalFanbase int, cupRound int, weather string) float64 {
+	return float64(socios) * priceFactor(ticketPrice) * formFactor(formPoints, formMatches) *
+		rivalFactor(rivalFanbase, cupRound) * weatherFactor(weather)
+}
+
+// CalculateAttendance derives one home match's crowd size: the modelled demand (see
+// attendanceDemand) with +/- AttendanceNoise of random swing, never more than the stadium's
+// capacity and never negative. cupRound is 0 for a league match or friendly.
+func CalculateAttendance(capacity int, ticketPrice int, socios int, formPoints int, formMatches int, rivalFanbase int, cupRound int, weather string, r *rand.Rand) int {
+	if capacity <= 0 {
+		return 0
+	}
+	noise := 1 + (r.Float64()*2-1)*AttendanceNoise
+	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, rivalFanbase, cupRound, weather) * noise
+	return int(math.Max(0, math.Min(float64(capacity), demand)))
+}
+
+// expectedGateRevenue is the revenue a ticket price is expected to earn at one league home match
+// against an average opponent in average weather - what optimalTicketPrice maximises.
+func expectedGateRevenue(capacity int, socios int, formPoints int, formMatches int, ticketPrice int) float64 {
+	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, common.DefaultFanbase, 0, "") * meanWeatherAttendanceFactor
+	return math.Min(float64(capacity), demand) * float64(ticketPrice)
 }
 
 // optimalTicketPrice returns whichever integer price in [common.MinTicketPrice,
-// common.MaxTicketPrice] maximizes expected per-seat revenue (price * demandRate(price)) - the
-// price a rational owner charges now that demandRate means a higher price can cost attendance
-// (see engine.maximizeTicketPrice, the Manager-level AI policy that uses this). Ignores jitter
-// and capacity: jitter averages to zero and capacity is just a constant multiplier on revenue, so
-// neither changes which price comes out on top. A plain integer scan over at most 100 candidates
-// rather than solving the maximization analytically, so this stays correct automatically if
-// demandRate's shape ever changes instead of silently going stale like a hardcoded price would.
-func optimalTicketPrice() int {
+// common.MaxTicketPrice] maximises expected gate revenue (see expectedGateRevenue) for a stadium
+// of this capacity and this many socios, given the team's recent form - the price a rational owner
+// charges (see engine.maximizeTicketPrice, the Manager-level AI policy that uses this). A plain
+// integer scan rather than solving analytically so it stays correct if the demand model changes.
+// Ties go to the lower price.
+func optimalTicketPrice(capacity int, socios int, formPoints int, formMatches int) int {
 	best := common.MinTicketPrice
 	bestRevenue := -1.0
 	for price := common.MinTicketPrice; price <= common.MaxTicketPrice; price++ {
-		rate := demandRate(price)
-		if rate < MinOccupancyRate {
-			rate = MinOccupancyRate
-		}
-		if rate > MaxOccupancyRate {
-			rate = MaxOccupancyRate
-		}
-		if revenue := float64(price) * rate; revenue > bestRevenue {
+		if revenue := expectedGateRevenue(capacity, socios, formPoints, formMatches, price); revenue > bestRevenue {
 			bestRevenue, best = revenue, price
 		}
 	}
 	return best
-}
-
-// FanbaseAttendanceMinFactor/MaxFactor bound how much Fanbase can scale a team's base occupancy
-// rate (see fanbaseAttendanceFactor) before price/jitter apply on top - 0.5x at Fanbase 0 up to
-// 1.5x at Fanbase 99, a real, noticeable swing (comparable in size to OccupancyJitter's own)
-// without letting either extreme dominate price itself. common.DefaultFanbase (50) lands almost
-// exactly at 1.0x, so an unestablished team's attendance behaves the same as before Fanbase
-// existed.
-const FanbaseAttendanceMinFactor = 0.5
-const FanbaseAttendanceMaxFactor = 1.5
-
-// fanbaseAttendanceFactor maps a 0-99 Fanbase value onto [FanbaseAttendanceMinFactor,
-// FanbaseAttendanceMaxFactor] - see CalculateAttendance, which multiplies demandRate's own
-// price-based rate by this before applying jitter/clamping.
-func fanbaseAttendanceFactor(fanbase int) float64 {
-	return FanbaseAttendanceMinFactor + float64(fanbase)/99.0*(FanbaseAttendanceMaxFactor-FanbaseAttendanceMinFactor)
-}
-
-// CalculateAttendance derives one home match's crowd size from a team's stadium capacity, its
-// current ticket price (see demandRate - a higher price costs some attendance), and its Fanbase
-// (see fanbaseAttendanceFactor - a bigger supporter base fills more of the same stadium at the
-// same price).
-func CalculateAttendance(capacity int, ticketPrice int, fanbase int, r *rand.Rand) int {
-	if capacity <= 0 {
-		return 0
-	}
-	rate := demandRate(ticketPrice)*fanbaseAttendanceFactor(fanbase) + (r.Float64()*2-1)*OccupancyJitter
-	if rate < MinOccupancyRate {
-		rate = MinOccupancyRate
-	}
-	if rate > MaxOccupancyRate {
-		rate = MaxOccupancyRate
-	}
-	return int(float64(capacity) * rate)
 }
 
 // TicketRevenue is deliberately simple: attendance times price, nothing more (no concessions,
@@ -131,25 +160,50 @@ func deductStadiumMaintenance(dbCtx *common.DatabaseContext, teamId int64) {
 	}
 }
 
+// matchdayContext is everything besides the home side itself that shapes one home match's crowd:
+// who is visiting, how big an occasion it is (cupRound, 0 for league/friendly), the weather
+// already drawn for the match, and the match id whose own result must not count toward the home
+// side's pre-kickoff form (0 for a cup tie or friendly, which has no row in matches).
+type matchdayContext struct {
+	awayTeamId     int64
+	cupRound       int
+	weather        string
+	excludeMatchId int64
+}
+
 // stadiumAttendanceAndRevenue draws one home match's crowd size and resulting gate revenue from
-// homeTeamId's own stadium (capacity and ticket price) - shared by creditTicketRevenue (which
-// pays the home side the full amount) and creditFriendlyTicketRevenue (which splits it in two).
-// Returns a zero attendance/revenue pair, rather than erroring, when the stadium lookup fails -
-// callers treat that the same as a genuinely empty house.
-func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) (int, int64) {
+// homeTeamId's own stadium (capacity and ticket price), socios, recent form and the visiting
+// side's Fanbase - shared by creditTicketRevenue (which pays the home side the full amount) and
+// creditFriendlyTicketRevenue (which splits it in two). Returns a zero attendance/revenue pair,
+// rather than erroring, when the stadium lookup fails - callers treat that the same as a
+// genuinely empty house. A failed socios/form/rival lookup falls back to the neutral value
+// instead, so one bad read doesn't blank out a whole matchday's gate.
+func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) (int, int64) {
 	stadium, err := common.GetStadium(dbCtx, homeTeamId)
 	if err != nil {
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
 		return 0, 0
 	}
-	fanbase, err := common.GetFanbase(dbCtx, homeTeamId)
+	socios, err := common.GetSocios(dbCtx, homeTeamId)
 	if err != nil {
-		log.Errorf("error getting fanbase for team %d, using the neutral default: %s", homeTeamId, err)
-		fanbase = common.DefaultFanbase
+		log.Errorf("error getting socios for team %d, using the default: %s", homeTeamId, err)
+		socios = common.DefaultSocios
+	}
+	formPoints, formMatches, err := common.GetRecentLeagueForm(dbCtx, homeTeamId, mc.excludeMatchId)
+	if err != nil {
+		log.Errorf("error getting recent form for team %d, treating it as neutral: %s", homeTeamId, err)
+		formPoints, formMatches = 0, 0
+	}
+	rivalFanbase := -1
+	if mc.awayTeamId != 0 {
+		if rivalFanbase, err = common.GetFanbase(dbCtx, mc.awayTeamId); err != nil {
+			log.Errorf("error getting fanbase for visiting team %d, using the default: %s", mc.awayTeamId, err)
+			rivalFanbase = -1
+		}
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, fanbase, r)
+	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, socios, formPoints, formMatches, rivalFanbase, mc.cupRound, mc.weather, r)
 	return attendance, TicketRevenue(attendance, stadium.TicketPrice)
 }
 
@@ -160,8 +214,8 @@ func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64
 // report (see common.UpdateMatchFlavor) can show the exact same crowd size rather than drawing
 // its own, independent random attendance that could disagree with this transaction's own
 // description.
-func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
-	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId)
+func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) int {
+	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, mc)
 	if revenue == 0 {
 		return attendance
 	}
@@ -182,7 +236,7 @@ func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64) int {
 // the attendance figure it computed (0 if the stadium lookup failed or the stadium is empty),
 // same convention as creditTicketRevenue, even though no friendly report currently displays it.
 func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64) int {
-	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId)
+	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, matchdayContext{awayTeamId: awayTeamId, weather: common.RandomWeather()})
 	if revenue == 0 {
 		return attendance
 	}

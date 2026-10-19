@@ -733,6 +733,13 @@ export interface FinancesResponse {
   // This team's current 0-99 supporter-base index - see backend common.GetFanbase. Feeds into
   // matchday attendance, sponsorDealOptions above, and season-ticket/merchandising income.
   fanbase: number
+  // This team's club-member count - see backend common.GetSocios. The paying core of its home
+  // crowd: attendance is socios x price x form x rival x weather, capped at stadium capacity.
+  socios: number
+  // Multiplier this team's division applies to every wage it pays - see backend
+  // common.DivisionWageFactor. Contract wages are the base figures; this is what they are
+  // multiplied by when actually charged each round.
+  wageFactor: number
 }
 
 // One row of FinancesResponse.sponsorDealOptions - see backend engine.SponsorDealPreview.

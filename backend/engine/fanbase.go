@@ -137,8 +137,8 @@ func notifyFanbaseMilestone(dbCtx *common.DatabaseContext, teamId int64, oldFanb
 }
 
 // FanbaseCommercialMinFactor/MaxFactor scale sponsorship and season-ticket/merchandising income
-// by Fanbase (see fanbaseCommercialFactor) - a gentler swing than stadium.go's own
-// fanbaseAttendanceFactor (0.5x-1.5x), since a sponsor or season-ticket buyer already cares most
+// by Fanbase (see fanbaseCommercialFactor) - a gentler swing than the 0.5x-1.5x
+// spread Fanbase used to give attendance, since a sponsor or season-ticket buyer already cares most
 // about which tier a team plays in (see sponsorshipForTier) or how big its stadium is; a bigger
 // Fanbase just makes an otherwise-identical club a somewhat more attractive commercial partner on
 // top of that.

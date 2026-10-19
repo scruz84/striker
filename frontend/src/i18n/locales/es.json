@@ -88,6 +88,8 @@
       "playerOfSeason": "¡{{name}} ha sido nombrado Jugador de la Temporada!",
       "fanbaseGrew": "Tu afición ha crecido a {{fanbase}}",
       "fanbaseShrank": "Tu afición ha bajado a {{fanbase}}",
+      "sociosGrew": "Tu club tiene ahora {{socios}} socios, frente a {{previous}}",
+      "sociosShrank": "Tu club tiene ahora {{socios}} socios, frente a {{previous}}",
       "loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
       "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}",
       "calledUp": "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana"
@@ -285,6 +287,7 @@
     "threeFiveTwo": "Carrileros (3-5-2)"
   },
   "finances": {
+    "wageFactor": "En tu división los sueldos se pagan a ×{{factor}} de la cifra indicada.",
     "title": "Finanzas",
     "budget": "Presupuesto",
     "insolvent": "Tu presupuesto está demasiado en números rojos - fichar, firmar jugadores y pedirlos cedidos está bloqueado hasta que se recupere. Vender o liberar jugadores sigue disponible.",
@@ -292,6 +295,10 @@
     "fanbase": {
       "title": "Afición",
       "description": "Sube con las victorias, baja con las derrotas - influye en la asistencia, el patrocinio y los ingresos de fin de temporada."
+    },
+    "socios": {
+      "count": "{{count}} socios",
+      "description": "Los socios de tu club: son el núcleo de tu público en casa. Un estadio mayor solo se llena si tus socios lo desbordan."
     },
     "seats": "asientos",
     "maintenanceCost": "Mantenimiento: {{cost}}/jornada",

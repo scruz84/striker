@@ -65,14 +65,17 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 
 	UpdatePlayedMatch(dbCtx, matchSimulation)
 	UpdateClassification(dbCtx, matchSimulation)
-	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation)
+	// Drawn once, up front, so the same weather both shapes the crowd (see CalculateAttendance) and
+	// is what the match report shows.
+	weather := common.RandomWeather()
+	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, 0, weather)
 	// Wages track league match cadence, not cup ties or friendlies (see PayMatchdayWages) - a
 	// round-robin schedule gives every team exactly one league match per round, so this fires
 	// exactly once per round per team, here rather than inside UpdateTeamFinancesAfterMatch so a
 	// cup tie played the same week doesn't charge wages a second time.
 	PayMatchdayWages(dbCtx, matchSimulation.Home)
 	PayMatchdayWages(dbCtx, matchSimulation.Away)
-	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance)
+	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance, weather)
 	// UpdatePlayerAvailability (new injuries/suspensions) and updateSkillsAfterPlayedMatch (skill
 	// growth, plus the NOTIFICATION_PROGRESSION push it can fire) both change state a team owner
 	// can see outside this match's own live-gated page - the squad list, a player's page, the
@@ -378,7 +381,7 @@ func playersToMapById(players *[]*common.Player) *map[int64]common.Player {
 // UpdateTeamFinancesAfterMatch) - purely cosmetic, for the Hattrick-style match report. Errors
 // are logged, not propagated: the match itself is already fully simulated and persisted by this
 // point, so a failure here should never be treated as the match having failed to process.
-func updateMatchReportFlavor(dbCtx *common.DatabaseContext, matchId int64, attendance int) {
+func updateMatchReportFlavor(dbCtx *common.DatabaseContext, matchId int64, attendance int, weather string) {
 	referee, err := common.RandomPersonName(dbCtx)
 	if err != nil {
 		log.Errorf("error generating referee name for match %d: %s", matchId, err)
@@ -394,7 +397,7 @@ func updateMatchReportFlavor(dbCtx *common.DatabaseContext, matchId int64, atten
 		log.Errorf("error generating second assistant referee name for match %d: %s", matchId, err)
 		return
 	}
-	if err := common.UpdateMatchFlavor(dbCtx, matchId, common.RandomWeather(), attendance, referee, assistant1, assistant2); err != nil {
+	if err := common.UpdateMatchFlavor(dbCtx, matchId, weather, attendance, referee, assistant1, assistant2); err != nil {
 		log.Errorf("error updating match report flavor for match %d: %s", matchId, err)
 	}
 }

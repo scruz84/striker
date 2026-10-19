@@ -48,6 +48,7 @@ func merchandisingForPosition(pool int64, position int, teamCount int) int64 {
 // supporter base should lift) - called from applyPromotionRelegation alongside
 // awardLeaguePrizeMoney, which already has each league's ranked final standings on hand.
 func awardSeasonTicketsAndMerchandising(dbCtx *common.DatabaseContext, tier int, standings []common.TeamStanding) {
+	updateSociosAtSeasonEnd(dbCtx, standings)
 	merchandisingPool := merchandisingPoolForTier(tier)
 	for i, team := range standings {
 		fanbase, err := common.GetFanbase(dbCtx, team.TeamId)

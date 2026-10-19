@@ -2003,11 +2003,19 @@ func GetTeamTransactions(dbCtx *DatabaseContext, teamId int64, limit int) ([]Tea
 	return transactions, nil
 }
 
-// GetTeamWageBill returns the combined wage of every player currently on a team's roster.
+// GetTeamWageBill returns what a team actually pays in player wages per round: the combined
+// stored (base) wage of every player on its roster, net of any slice a lender covers, scaled by
+// its division's wage factor (see DivisionWageFactor).
 func GetTeamWageBill(dbCtx *DatabaseContext, teamId int64) (int64, error) {
 	var total int64
-	err := dbCtx.Db.QueryRow(GetTeamWageBillStmtSql, teamId).Scan(&total)
-	return total, err
+	if err := dbCtx.Db.QueryRow(GetTeamWageBillStmtSql, teamId).Scan(&total); err != nil {
+		return 0, err
+	}
+	factor, err := GetTeamWageFactor(dbCtx, teamId)
+	if err != nil {
+		return 0, err
+	}
+	return ApplyWageFactor(total, factor), nil
 }
 
 func GetPlayerFullName(dbCtx *DatabaseContext, playerId int64) (string, error) {
