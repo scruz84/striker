@@ -884,6 +884,8 @@
     "title": "Admin",
     "noAccess": "You don't have admin access.",
     "overview": {
+      "stuckMatchesAlert": "{{count}} match(es) are stuck mid-simulation.",
+      "stuckMatchesAction": "Finish them",
       "country": "Country",
       "season": "Season",
       "users": "Users",
@@ -1064,6 +1066,8 @@
     },
     "usersTitle": "Users",
     "usersTable": {
+      "adminGranted": "Admin access granted.",
+      "adminRevoked": "Admin access revoked.",
       "id": "Id",
       "name": "Name",
       "email": "Email",

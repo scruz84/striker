@@ -884,6 +884,8 @@
     "title": "Administración",
     "noAccess": "No tienes acceso de administrador.",
     "overview": {
+      "stuckMatchesAlert": "{{count}} partido(s) se han quedado atascados a mitad de simulación.",
+      "stuckMatchesAction": "Terminarlos",
       "country": "País",
       "season": "Temporada",
       "users": "Usuarios",
@@ -1064,6 +1066,8 @@
     },
     "usersTitle": "Usuarios",
     "usersTable": {
+      "adminGranted": "Acceso de administrador concedido.",
+      "adminRevoked": "Acceso de administrador retirado.",
       "id": "Id",
       "name": "Nombre",
       "email": "Correo electrónico",

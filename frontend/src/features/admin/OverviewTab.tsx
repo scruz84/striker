@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box'
+import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -29,6 +30,7 @@ import { useConfirm } from '../../components/confirmDialogContext'
 import { useNotify } from '../../components/notifyContext'
 import { AdminSection } from './components/AdminSection'
 import { useAdminFeedback } from './useAdminFeedback'
+import { useIsPhone } from './useIsPhone'
 
 export function OverviewTab() {
   const { data: overview, isLoading } = useAdminOverview(true)
@@ -37,10 +39,68 @@ export function OverviewTab() {
     return <Skeleton variant="rectangular" height={100} sx={{ mb: 2 }} />
   }
 
+  return <OverviewContent overview={overview} />
+}
+
+type Overview = NonNullable<ReturnType<typeof useAdminOverview>['data']>
+
+interface FinishStuckMatches {
+  run: () => void
+  isPending: boolean
+}
+
+// The "finish stuck matches" action is offered twice - as a warning at the top of the tab, where an
+// admin who just arrived sees it, and among the other operations - so it is built once here and
+// shared, keeping a single request in flight and a single confirmation.
+function useFinishStuckMatches(stuckMatches: number): FinishStuckMatches {
+  const { t } = useTranslation()
+  const confirm = useConfirm()
+  const notify = useNotify()
+  const finishStuckMatches = useAdminFinishStuckMatches()
+
+  const run = async () => {
+    const ok = await confirm({
+      message: t('admin.actions.confirmFinishStuckMatches', { count: stuckMatches }),
+      destructive: true,
+    })
+    if (ok) {
+      finishStuckMatches.mutate(undefined, {
+        onSuccess: (result) =>
+          notify.success(
+            t('admin.actions.finishStuckMatchesSuccess', {
+              leagueMatches: result.leagueMatches,
+              friendlies: result.friendlies,
+            }),
+          ),
+        onError: () => notify.error(t('admin.genericError')),
+      })
+    }
+  }
+
+  return { run, isPending: finishStuckMatches.isPending }
+}
+
+function OverviewContent({ overview }: { overview: Overview }) {
+  const { t } = useTranslation()
+  const finishStuckMatches = useFinishStuckMatches(overview.stuckMatches)
+
   return (
     <>
+      {overview.stuckMatches > 0 && (
+        <Alert
+          severity="warning"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={finishStuckMatches.run} disabled={finishStuckMatches.isPending}>
+              {t('admin.overview.stuckMatchesAction')}
+            </Button>
+          }
+        >
+          {t('admin.overview.stuckMatchesAlert', { count: overview.stuckMatches })}
+        </Alert>
+      )}
       <Overview overview={overview} />
-      <OperationsSection overview={overview} />
+      <OperationsSection overview={overview} finishStuckMatches={finishStuckMatches} />
     </>
   )
 }
@@ -98,8 +158,31 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
 function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<typeof useAdminOverview>['data']>['seasons'] }) {
   const { t } = useTranslation()
 
+  const isPhone = useIsPhone()
+
   if (seasons.length === 0) {
     return null
+  }
+
+  // On a phone each country is a small card - four columns with long headers don't fit 360px.
+  if (isPhone) {
+    return (
+      <Stack spacing={1} sx={{ mb: 2 }}>
+        {seasons.map((countrySeason) => (
+          <Paper key={countrySeason.country} variant="outlined" sx={{ p: 1.5 }}>
+            <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+              <Typography sx={{ fontWeight: 600 }}>{countrySeason.country.toUpperCase()}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t('admin.overview.season')} {countrySeason.season}
+              </Typography>
+            </Stack>
+            <Typography variant="body2">
+              {t('admin.overview.matchesUnplayed')}: {countrySeason.matchesUnplayed} / {countrySeason.matchesTotal}
+            </Typography>
+          </Paper>
+        ))}
+      </Stack>
+    )
   }
 
   return (
@@ -127,14 +210,13 @@ function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<ty
     </TableContainer>
   )
 }
-function OperationsSection({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
+
+function OperationsSection({ overview, finishStuckMatches }: { overview: Overview; finishStuckMatches: FinishStuckMatches }) {
   const { t } = useTranslation()
   const confirm = useConfirm()
-  const notify = useNotify()
   const feedback = useAdminFeedback()
   const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
-  const finishStuckMatches = useAdminFinishStuckMatches()
   const advanceSeason = useAdminAdvanceSeason()
   const payWagesNow = useAdminPayWagesNow()
   const injectFreeAgentsNow = useAdminInjectFreeAgentsNow()
@@ -144,25 +226,6 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
     const ok = await confirm({ message: t('admin.actions.confirmRunSimulation'), destructive: true })
     if (ok) {
       simulateNow.mutate(undefined, feedback('admin.actions.simSuccess'))
-    }
-  }
-
-  const handleFinishStuckMatches = async () => {
-    const ok = await confirm({
-      message: t('admin.actions.confirmFinishStuckMatches', { count: overview.stuckMatches }),
-      destructive: true,
-    })
-    if (ok) {
-      finishStuckMatches.mutate(undefined, {
-        onSuccess: (result) =>
-          notify.success(
-            t('admin.actions.finishStuckMatchesSuccess', {
-              leagueMatches: result.leagueMatches,
-              friendlies: result.friendlies,
-            }),
-          ),
-        onError: () => notify.error(t('admin.genericError')),
-      })
     }
   }
 
@@ -210,7 +273,7 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
         <Button
           variant="outlined"
           color={overview.stuckMatches > 0 ? 'warning' : 'inherit'}
-          onClick={handleFinishStuckMatches}
+          onClick={finishStuckMatches.run}
           disabled={finishStuckMatches.isPending || overview.stuckMatches === 0}
         >
           {t('admin.actions.finishStuckMatches', { count: overview.stuckMatches })}

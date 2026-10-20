@@ -1,11 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfirmContext } from '../../components/confirmDialogContext'
+import { NotifyContext } from '../../components/notifyContext'
 import i18n from '../../i18n'
 import { setPhone } from './testPhone'
 import { UsersTab } from './UsersTab'
 
 const setUserAdmin = vi.hoisted(() => vi.fn())
+const notify = { success: vi.fn(), error: vi.fn() }
 
 vi.mock('../../api/hooks', () => ({
   useMe: () => ({ data: { id: '1' } }),
@@ -26,7 +28,9 @@ const revoke = () => i18n.t('admin.usersTable.revokeAdmin')
 function renderTab() {
   render(
     <ConfirmContext.Provider value={async () => true}>
-      <UsersTab />
+      <NotifyContext.Provider value={notify}>
+        <UsersTab />
+      </NotifyContext.Provider>
     </ConfirmContext.Provider>,
   )
 }
@@ -53,7 +57,19 @@ describe('UsersTab', () => {
     setPhone(true)
     renderTab()
     fireEvent.click(screen.getByRole('button', { name: grant() }))
-    await waitFor(() => expect(setUserAdmin).toHaveBeenCalledWith({ userId: 2, isAdmin: true }))
+    await waitFor(() => expect(setUserAdmin).toHaveBeenCalledWith({ userId: 2, isAdmin: true }, expect.any(Object)))
+  })
+
+  it('tells the admin when the permission change went through, or failed', async () => {
+    setUserAdmin.mockImplementation((_vars: unknown, options: { onSuccess: () => void; onError: () => void }) => options.onSuccess())
+    setPhone(true)
+    renderTab()
+    fireEvent.click(screen.getByRole('button', { name: grant() }))
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith(i18n.t('admin.usersTable.adminGranted')))
+
+    setUserAdmin.mockImplementation((_vars: unknown, options: { onSuccess: () => void; onError: () => void }) => options.onError())
+    fireEvent.click(screen.getByRole('button', { name: grant() }))
+    await waitFor(() => expect(notify.error).toHaveBeenCalledWith(i18n.t('admin.genericError')))
   })
 
   it('filters the list as you type, and says when nothing matches', () => {

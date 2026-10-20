@@ -24,6 +24,7 @@ import {
 import { useConfirm } from '../../components/confirmDialogContext'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { filterUsers } from './userFilter'
+import { useAdminFeedback } from './useAdminFeedback'
 import { useIsPhone } from './useIsPhone'
 
 // The id and country columns are the least useful ones; they only show once there is room for them
@@ -84,6 +85,7 @@ function UsersTable({
   const { t } = useTranslation()
   const confirm = useConfirm()
   const setUserAdmin = useSetUserAdmin()
+  const feedback = useAdminFeedback()
   const stackCards = useIsPhone('md')
 
   const handleToggleAdmin = async (user: (typeof users)[number]) => {
@@ -94,7 +96,7 @@ function UsersTable({
       destructive: !makeAdmin,
     })
     if (ok) {
-      setUserAdmin.mutate({ userId: user.userId, isAdmin: makeAdmin })
+      setUserAdmin.mutate({ userId: user.userId, isAdmin: makeAdmin }, feedback(makeAdmin ? 'admin.usersTable.adminGranted' : 'admin.usersTable.adminRevoked'))
     }
   }
 
