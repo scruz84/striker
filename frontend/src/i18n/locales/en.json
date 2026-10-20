@@ -858,6 +858,17 @@
     "you": "You"
   },
   "admin": {
+    "tabs": {
+      "overview": "Overview",
+      "teams": "Teams",
+      "rules": "Rules",
+      "world": "World",
+      "users": "Users"
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "description": "Irreversible actions. They always ask for confirmation, but cannot be undone."
+    },
     "title": "Admin",
     "noAccess": "You don't have admin access.",
     "overview": {

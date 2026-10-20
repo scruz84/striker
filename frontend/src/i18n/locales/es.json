@@ -858,6 +858,17 @@
     "you": "Tú"
   },
   "admin": {
+    "tabs": {
+      "overview": "Resumen",
+      "teams": "Equipos",
+      "rules": "Reglas",
+      "world": "Mundo",
+      "users": "Usuarios"
+    },
+    "dangerZone": {
+      "title": "Zona de peligro",
+      "description": "Acciones irreversibles. Siempre piden confirmación, pero no se pueden deshacer."
+    },
     "title": "Administración",
     "noAccess": "No tienes acceso de administrador.",
     "overview": {
