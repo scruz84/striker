@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
+import InputAdornment from '@mui/material/InputAdornment'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -9,7 +11,9 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import { useTranslation } from 'react-i18next'
 import {
   useAdminUsers,
@@ -19,6 +23,7 @@ import {
 
 import { useConfirm } from '../../components/confirmDialogContext'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { filterUsers } from './userFilter'
 import { useIsPhone } from './useIsPhone'
 
 // The id and country columns are the least useful ones; they only show once there is room for them
@@ -29,16 +34,41 @@ export function UsersTab() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: users, isLoading } = useAdminUsers(true)
+  const [query, setQuery] = useState('')
+
+  if (isLoading || !users || !loggedUser) {
+    return <Skeleton variant="rectangular" height={200} />
+  }
+
+  const shown = filterUsers(users, query)
 
   return (
     <>
       <Typography variant="h6" sx={{ mb: 1 }}>
         {t('admin.usersTitle')}
       </Typography>
-      {isLoading || !users || !loggedUser ? (
-        <Skeleton variant="rectangular" height={200} />
+      <TextField
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={t('admin.usersSearch.placeholder')}
+        size="small"
+        fullWidth
+        sx={{ mb: 2, maxWidth: { sm: 420 } }}
+        slotProps={{
+          htmlInput: { 'aria-label': t('admin.usersSearch.placeholder') },
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchTwoToneIcon fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          },
+        }}
+      />
+      {shown.length === 0 ? (
+        <Typography color="text.secondary">{t('admin.usersSearch.none', { query: query.trim() })}</Typography>
       ) : (
-        <UsersTable users={users} loggedUserId={Number(loggedUser.id)} />
+        <UsersTable users={shown} loggedUserId={Number(loggedUser.id)} />
       )}
     </>
   )

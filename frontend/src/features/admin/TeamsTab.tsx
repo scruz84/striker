@@ -13,10 +13,12 @@ import { useConfirm } from '../../components/confirmDialogContext'
 import { useNotify } from '../../components/notifyContext'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { SettingCard } from './components/SettingCard'
+import { TeamPicker, type PickedTeam } from './components/TeamPicker'
 import { useAdminFeedback } from './useAdminFeedback'
 
 const fieldWidth = { width: { xs: '100%', sm: 140 } }
 const wideFieldWidth = { width: { xs: '100%', sm: 260 } }
+const teamFieldWidth = { width: { xs: '100%', sm: 300 } }
 
 export function TeamsTab() {
   const { data: overview, isLoading } = useAdminOverview(true)
@@ -45,15 +47,17 @@ function AdjustBudgetForm() {
   const confirm = useConfirm()
   const notify = useNotify()
   const adjustBudget = useAdminAdjustBudget()
-  const [teamId, setTeamId] = useState('')
+  const [team, setTeam] = useState<PickedTeam | null>(null)
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
-  const teamIdNum = Number(teamId)
   const amountNum = Number(amount)
 
   const handleSubmit = async () => {
+    if (!team) {
+      return
+    }
     const ok = await confirm({
-      message: t('admin.adjustBudget.confirm', { teamId: teamIdNum, amount: formatCurrency(amountNum) }),
+      message: t('admin.adjustBudget.confirm', { team: team?.label, amount: formatCurrency(amountNum) }),
       confirmLabel: t('admin.adjustBudget.apply'),
       destructive: true,
     })
@@ -61,7 +65,7 @@ function AdjustBudgetForm() {
       return
     }
     adjustBudget.mutate(
-      { teamId: teamIdNum, amount: amountNum, description },
+      { teamId: team.id, amount: amountNum, description },
       {
         onSuccess: () => {
           notify.success(t('admin.adjustBudget.success'))
@@ -78,9 +82,9 @@ function AdjustBudgetForm() {
       submitLabel={t('admin.adjustBudget.apply')}
       onSubmit={handleSubmit}
       pending={adjustBudget.isPending}
-      invalid={!teamIdNum || !amountNum || !description}
+      invalid={!team || !amountNum || !description}
     >
-      <TextField label={t('admin.adjustBudget.teamId')} size="small" value={teamId} onChange={(e) => setTeamId(e.target.value)} sx={{ width: { xs: '100%', sm: 100 } }} />
+      <TeamPicker label={t('admin.adjustBudget.teamId')} value={team} onChange={setTeam} sx={teamFieldWidth} />
       <TextField
         label={t('admin.adjustBudget.amount')}
         size="small"
@@ -163,19 +167,21 @@ function SetAiLevelForm() {
   const confirm = useConfirm()
   const feedback = useAdminFeedback()
   const setAiLevel = useAdminSetAiLevel()
-  const [teamId, setTeamId] = useState('')
+  const [team, setTeam] = useState<PickedTeam | null>(null)
   const [aiLevel, setAiLevelValue] = useState<number>(AI_LEVEL_CARETAKER)
-  const teamIdNum = Number(teamId)
 
   const handleSubmit = async () => {
+    if (!team) {
+      return
+    }
     const ok = await confirm({
-      message: t('admin.setAiLevel.confirm', { teamId: teamIdNum, level: aiLevel }),
+      message: t('admin.setAiLevel.confirm', { team: team.label, level: aiLevel }),
       confirmLabel: t('admin.setAiLevel.apply'),
     })
     if (!ok) {
       return
     }
-    setAiLevel.mutate({ teamId: teamIdNum, aiLevel }, feedback('admin.setAiLevel.success', 'admin.setAiLevel.error'))
+    setAiLevel.mutate({ teamId: team.id, aiLevel }, feedback('admin.setAiLevel.success', 'admin.setAiLevel.error'))
   }
 
   return (
@@ -185,9 +191,9 @@ function SetAiLevelForm() {
       submitLabel={t('admin.setAiLevel.apply')}
       onSubmit={handleSubmit}
       pending={setAiLevel.isPending}
-      invalid={!teamIdNum}
+      invalid={!team}
     >
-      <TextField label={t('admin.setAiLevel.teamId')} size="small" value={teamId} onChange={(e) => setTeamId(e.target.value)} sx={{ width: { xs: '100%', sm: 100 } }} />
+      <TeamPicker label={t('admin.setAiLevel.teamId')} value={team} onChange={setTeam} sx={teamFieldWidth} />
       <FormControl size="small" sx={{ width: { xs: '100%', sm: 160 } }}>
         <InputLabel id="ai-level-select-label">{t('admin.setAiLevel.level')}</InputLabel>
         <Select

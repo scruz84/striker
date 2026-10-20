@@ -866,6 +866,17 @@
       "world": "World",
       "users": "Users"
     },
+    "teamPicker": {
+      "helper": "Search by name, or type a team id",
+      "noResults": "No team found",
+      "typeToSearch": "Type to search for a team",
+      "searching": "Searching...",
+      "teamNumber": "Team #{{id}}"
+    },
+    "usersSearch": {
+      "placeholder": "Search by name, email, country or team",
+      "none": "No users match \"{{query}}\"."
+    },
     "dangerZone": {
       "title": "Danger zone",
       "description": "Irreversible actions. They always ask for confirmation, but cannot be undone."
@@ -911,11 +922,11 @@
     },
     "adjustBudget": {
       "title": "Adjust team budget",
-      "teamId": "Team id",
+      "teamId": "Team",
       "amount": "Amount",
       "amountHelper": "negative to deduct",
       "description": "Description",
-      "confirm": "Adjust team {{teamId}}'s budget by {{amount}}?",
+      "confirm": "Adjust {{team}}'s budget by {{amount}}?",
       "apply": "Apply",
       "success": "Budget adjusted.",
       "error": "Failed to adjust budget."
@@ -933,12 +944,12 @@
     "setAiLevel": {
       "title": "Set team AI level",
       "description": "Only affects unowned teams - has no effect once a team has a real owner.",
-      "teamId": "Team id",
+      "teamId": "Team",
       "level": "AI level",
       "caretaker": "1 - Caretaker",
       "manager": "2 - Manager",
       "director": "3 - Director",
-      "confirm": "Set team {{teamId}}'s AI level to {{level}}?",
+      "confirm": "Set {{team}}'s AI level to {{level}}?",
       "apply": "Apply",
       "success": "AI level updated.",
       "error": "Failed to update AI level."

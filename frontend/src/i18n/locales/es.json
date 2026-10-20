@@ -866,6 +866,17 @@
       "world": "Mundo",
       "users": "Usuarios"
     },
+    "teamPicker": {
+      "helper": "Busca por nombre, o escribe el id del equipo",
+      "noResults": "No se ha encontrado ningún equipo",
+      "typeToSearch": "Escribe para buscar un equipo",
+      "searching": "Buscando...",
+      "teamNumber": "Equipo #{{id}}"
+    },
+    "usersSearch": {
+      "placeholder": "Busca por nombre, correo, país o equipo",
+      "none": "Ningún usuario coincide con \"{{query}}\"."
+    },
     "dangerZone": {
       "title": "Zona de peligro",
       "description": "Acciones irreversibles. Siempre piden confirmación, pero no se pueden deshacer."
@@ -911,11 +922,11 @@
     },
     "adjustBudget": {
       "title": "Ajustar presupuesto de equipo",
-      "teamId": "Id de equipo",
+      "teamId": "Equipo",
       "amount": "Importe",
       "amountHelper": "negativo para restar",
       "description": "Descripción",
-      "confirm": "¿Ajustar el presupuesto del equipo {{teamId}} en {{amount}}?",
+      "confirm": "¿Ajustar el presupuesto de {{team}} en {{amount}}?",
       "apply": "Aplicar",
       "success": "Presupuesto ajustado.",
       "error": "No se pudo ajustar el presupuesto."
@@ -933,12 +944,12 @@
     "setAiLevel": {
       "title": "Establecer nivel de IA del equipo",
       "description": "Solo afecta a equipos sin dueño - no tiene efecto una vez que un equipo tiene un dueño real.",
-      "teamId": "Id de equipo",
+      "teamId": "Equipo",
       "level": "Nivel de IA",
       "caretaker": "1 - Cuidador",
       "manager": "2 - Gerente",
       "director": "3 - Director",
-      "confirm": "¿Establecer el nivel de IA del equipo {{teamId}} en {{level}}?",
+      "confirm": "¿Establecer el nivel de IA de {{team}} en {{level}}?",
       "apply": "Aplicar",
       "success": "Nivel de IA actualizado.",
       "error": "No se pudo actualizar el nivel de IA."

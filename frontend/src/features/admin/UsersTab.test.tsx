@@ -56,6 +56,20 @@ describe('UsersTab', () => {
     await waitFor(() => expect(setUserAdmin).toHaveBeenCalledWith({ userId: 2, isAdmin: true }))
   })
 
+  it('filters the list as you type, and says when nothing matches', () => {
+    setPhone(true)
+    renderTab()
+    const search = screen.getByRole('textbox', { name: i18n.t('admin.usersSearch.placeholder') })
+
+    fireEvent.change(search, { target: { value: 'bob' } })
+    expect(screen.getByText('Bob Manager')).toBeInTheDocument()
+    expect(screen.queryByText('Ada Admin')).not.toBeInTheDocument()
+
+    fireEvent.change(search, { target: { value: 'nobody' } })
+    expect(screen.getByText(i18n.t('admin.usersSearch.none', { query: 'nobody' }))).toBeInTheDocument()
+    expect(screen.queryByText('Bob Manager')).not.toBeInTheDocument()
+  })
+
   it("won't let you revoke your own admin access", () => {
     setPhone(true)
     renderTab()
