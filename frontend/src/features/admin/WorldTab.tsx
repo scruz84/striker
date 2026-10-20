@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
@@ -45,6 +46,7 @@ import { AdminSection } from './components/AdminSection'
 import { DangerZone } from './components/DangerZone'
 import { WeekdayPicker } from './components/WeekdayPicker'
 import { useAdminFeedback } from './useAdminFeedback'
+import { useIsPhone } from './useIsPhone'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 
 export function WorldTab() {
@@ -102,6 +104,7 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
   const { t } = useTranslation()
   const [tiers, setTiers] = useState<TierConfig[]>(initialTiers)
   const feedback = useAdminFeedback()
+  const isPhone = useIsPhone()
   const setWorldConfig = useSetWorldConfig()
 
   const updateTier = (index: number, patch: Partial<TierConfig>) =>
@@ -118,56 +121,100 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
 
   return (
     <AdminSection title={t('admin.worldStructure.title')} description={t('admin.worldStructure.description')}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('admin.worldStructure.tier')}</TableCell>
-            <TableCell>{t('admin.worldStructure.tierName')}</TableCell>
-            <TableCell align="right">{t('admin.worldStructure.groups')}</TableCell>
-            <TableCell align="right">{t('admin.worldStructure.teamsPerLeague')}</TableCell>
-            <TableCell align="right" />
-          </TableRow>
-        </TableHead>
-        <TableBody>
+      {isPhone ? (
+        <Stack spacing={1.5}>
           {tiers.map((tier, index) => (
-            <TableRow key={index}>
-              <TableCell>{tier.tier}</TableCell>
-              <TableCell>
-                <TextField
-                  size="small"
-                  value={tier.name}
-                  onChange={(e) => updateTier(index, { name: e.target.value })}
-                  sx={{ width: 80 }}
-                />
-              </TableCell>
-              <TableCell align="right">
-                <TextField
-                  size="small"
-                  type="number"
-                  value={tier.groups}
-                  onChange={(e) => updateTier(index, { groups: Number(e.target.value) })}
-                  sx={{ width: 90 }}
-                />
-              </TableCell>
-              <TableCell align="right">
-                <TextField
-                  size="small"
-                  type="number"
-                  value={tier.teamsPerLeague}
-                  onChange={(e) => updateTier(index, { teamsPerLeague: Number(e.target.value) })}
-                  sx={{ width: 90 }}
-                />
-              </TableCell>
-              <TableCell align="right">
+            <Paper key={index} variant="outlined" sx={{ p: 1.5 }}>
+              <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                <Typography variant="subtitle2">
+                  {t('admin.worldStructure.tier')} {tier.tier}
+                </Typography>
                 <Button size="small" color="secondary" onClick={() => removeTier(index)}>
                   {t('admin.worldStructure.removeTier')}
                 </Button>
-              </TableCell>
-            </TableRow>
+              </Stack>
+              <Stack spacing={1.5}>
+                <TextField
+                  label={t('admin.worldStructure.tierName')}
+                  size="small"
+                  fullWidth
+                  value={tier.name}
+                  onChange={(e) => updateTier(index, { name: e.target.value })}
+                />
+                <TextField
+                  label={t('admin.worldStructure.groups')}
+                  size="small"
+                  type="number"
+                  fullWidth
+                  value={tier.groups}
+                  onChange={(e) => updateTier(index, { groups: Number(e.target.value) })}
+                />
+                <TextField
+                  label={t('admin.worldStructure.teamsPerLeague')}
+                  size="small"
+                  type="number"
+                  fullWidth
+                  value={tier.teamsPerLeague}
+                  onChange={(e) => updateTier(index, { teamsPerLeague: Number(e.target.value) })}
+                />
+              </Stack>
+            </Paper>
           ))}
-        </TableBody>
-      </Table>
-      <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+        </Stack>
+      ) : (
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('admin.worldStructure.tier')}</TableCell>
+                <TableCell>{t('admin.worldStructure.tierName')}</TableCell>
+                <TableCell align="right">{t('admin.worldStructure.groups')}</TableCell>
+                <TableCell align="right">{t('admin.worldStructure.teamsPerLeague')}</TableCell>
+                <TableCell align="right" />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tiers.map((tier, index) => (
+                <TableRow key={index}>
+                  <TableCell>{tier.tier}</TableCell>
+                  <TableCell>
+                    <TextField
+                      size="small"
+                      value={tier.name}
+                      onChange={(e) => updateTier(index, { name: e.target.value })}
+                      sx={{ width: 80 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={tier.groups}
+                      onChange={(e) => updateTier(index, { groups: Number(e.target.value) })}
+                      sx={{ width: 90 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={tier.teamsPerLeague}
+                      onChange={(e) => updateTier(index, { teamsPerLeague: Number(e.target.value) })}
+                      sx={{ width: 90 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button size="small" color="secondary" onClick={() => removeTier(index)}>
+                      {t('admin.worldStructure.removeTier')}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 2 }}>
         <Button size="small" onClick={addTier}>
           {t('admin.worldStructure.addTier')}
         </Button>
@@ -232,15 +279,15 @@ function CountriesSection() {
 
   return (
     <AdminSection title={t('admin.countries.title')} description={t('admin.countries.description')}>
-      <Stack spacing={1.5}>
+      <Stack spacing={2}>
         {countries.map((country) => {
           const missingTiers = (worldConfig?.tiers ?? []).filter(
             (tier) => !existingTiersByCountry.get(country.code)?.has(tier.tier),
           )
           return (
             <Stack key={country.code} spacing={0.5}>
-              <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-                <Typography sx={{ width: 160 }}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
+                <Typography sx={{ flex: '1 1 10rem', minWidth: 0 }}>
                   {country.name} ({country.code})
                 </Typography>
                 {country.active ? (
@@ -258,8 +305,13 @@ function CountriesSection() {
               </Stack>
               {country.active &&
                 missingTiers.map((tier) => (
-                  <Stack key={tier.tier} direction="row" spacing={1} sx={{ alignItems: 'center', pl: '176px' }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ minWidth: 140 }}>
+                  <Stack
+                    key={tier.tier}
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, ml: { xs: 1, sm: 2 }, pl: 1.5, borderLeft: 2, borderColor: 'divider' }}
+                  >
+                    <Typography variant="body2" color="text.secondary" sx={{ flex: '1 1 10rem', minWidth: 0 }}>
                       {t('admin.countries.missingDivision', { name: tier.name })}
                     </Typography>
                     <Button size="small" onClick={() => handleAddDivision(country, tier, true)} disabled={addDivision.isPending}>
@@ -287,6 +339,7 @@ function CountriesSection() {
 function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClose: () => void }) {
   const { t } = useTranslation()
   const addCountry = useAdminAddCountry()
+  const isPhone = useIsPhone()
   const [time, setTime] = useState('14:00')
 
   const handleAdd = () => {
@@ -301,7 +354,7 @@ function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClos
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open onClose={onClose} maxWidth="xs" fullWidth fullScreen={isPhone}>
       <DialogTitle>{t('admin.countries.addDialogTitle', { name: country.name })}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
@@ -345,6 +398,7 @@ function describeSchedule(t: ReturnType<typeof useTranslation>['t'], schedule: {
 function LeagueSchedulesSection() {
   const { t } = useTranslation()
   const { data: leagues, isLoading } = useAdminLeagues(true)
+  const isPhone = useIsPhone()
   const [countryFilter, setCountryFilter] = useState('')
   const [editingLeague, setEditingLeague] = useState<AdminLeagueInfo | null>(null)
 
@@ -357,7 +411,7 @@ function LeagueSchedulesSection() {
 
   return (
     <AdminSection title={t('admin.leagueSchedules.title')} description={t('admin.leagueSchedules.description')}>
-      <FormControl size="small" sx={{ mb: 2, minWidth: 180 }}>
+      <FormControl size="small" sx={{ mb: 2, minWidth: 180, width: { xs: '100%', sm: 'auto' } }}>
         <InputLabel id="league-schedule-country-label">{t('admin.leagueSchedules.filterCountry')}</InputLabel>
         <Select
           labelId="league-schedule-country-label"
@@ -373,39 +427,63 @@ function LeagueSchedulesSection() {
           ))}
         </Select>
       </FormControl>
-      <TableContainer sx={{ maxHeight: 400 }}>
-        <Table size="small" stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('admin.leagueSchedules.league')}</TableCell>
-              <TableCell align="right">{t('admin.leagueSchedules.tier')}</TableCell>
-              <TableCell>{t('admin.leagueSchedules.schedule')}</TableCell>
-              <TableCell align="right" />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredLeagues.map((league) => (
-              <TableRow key={league.leagueId}>
-                <TableCell>
+      {isPhone ? (
+        <Stack spacing={1.5}>
+          {filteredLeagues.map((league) => (
+            <Paper key={league.leagueId} variant="outlined" sx={{ p: 1.5 }}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 600, minWidth: 0, overflowWrap: 'anywhere' }}>
                   {league.country.toUpperCase()} {league.name}
-                </TableCell>
-                <TableCell align="right">{league.tier}</TableCell>
-                <TableCell>
+                </Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                  {t('admin.leagueSchedules.tier')} {league.tier}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
+                <Typography variant="body2" sx={{ flex: '1 1 auto' }}>
                   {describeSchedule(t, league.schedule)}
-                  {league.hasOverride && (
-                    <Chip size="small" label={t('admin.leagueSchedules.override')} sx={{ ml: 1 }} />
-                  )}
-                </TableCell>
-                <TableCell align="right">
-                  <Button size="small" onClick={() => setEditingLeague(league)}>
-                    {t('admin.leagueSchedules.edit')}
-                  </Button>
-                </TableCell>
+                </Typography>
+                {league.hasOverride && <Chip size="small" label={t('admin.leagueSchedules.override')} />}
+                <Button size="small" onClick={() => setEditingLeague(league)}>
+                  {t('admin.leagueSchedules.edit')}
+                </Button>
+              </Stack>
+            </Paper>
+          ))}
+        </Stack>
+      ) : (
+        <TableContainer sx={{ maxHeight: 400 }}>
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('admin.leagueSchedules.league')}</TableCell>
+                <TableCell align="right">{t('admin.leagueSchedules.tier')}</TableCell>
+                <TableCell>{t('admin.leagueSchedules.schedule')}</TableCell>
+                <TableCell align="right" />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredLeagues.map((league) => (
+                <TableRow key={league.leagueId}>
+                  <TableCell>
+                    {league.country.toUpperCase()} {league.name}
+                  </TableCell>
+                  <TableCell align="right">{league.tier}</TableCell>
+                  <TableCell>
+                    {describeSchedule(t, league.schedule)}
+                    {league.hasOverride && <Chip size="small" label={t('admin.leagueSchedules.override')} sx={{ ml: 1 }} />}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button size="small" onClick={() => setEditingLeague(league)}>
+                      {t('admin.leagueSchedules.edit')}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
       {editingLeague && <LeagueScheduleDialog league={editingLeague} onClose={() => setEditingLeague(null)} />}
     </AdminSection>
   )
@@ -415,6 +493,7 @@ function LeagueScheduleDialog({ league, onClose }: { league: AdminLeagueInfo; on
   const { t } = useTranslation()
   const setLeagueSchedule = useSetLeagueSchedule()
   const clearLeagueSchedule = useClearLeagueSchedule()
+  const isPhone = useIsPhone()
   const [weekdaysMask, setWeekdaysMask] = useState(league.schedule.weekdaysMask)
   const initialLocalTime = scheduleHourMinuteToLocal(league.schedule.hour, league.schedule.minute)
   const [time, setTime] = useState(
@@ -438,7 +517,7 @@ function LeagueScheduleDialog({ league, onClose }: { league: AdminLeagueInfo; on
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open onClose={onClose} maxWidth="xs" fullWidth fullScreen={isPhone}>
       <DialogTitle>
         {t('admin.leagueSchedules.dialogTitle', { league: `${league.country.toUpperCase()} ${league.name}` })}
       </DialogTitle>

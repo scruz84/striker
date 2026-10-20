@@ -2,6 +2,7 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
+import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -18,6 +19,11 @@ import {
 
 import { useConfirm } from '../../components/confirmDialogContext'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { useIsPhone } from './useIsPhone'
+
+// The id and country columns are the least useful ones; they only show once there is room for them
+// (the full table needs a wide screen - below `md` the list stacks as cards instead).
+const secondaryColumn = { display: { xs: 'none', lg: 'table-cell' } }
 
 export function UsersTab() {
   const { t } = useTranslation()
@@ -48,6 +54,7 @@ function UsersTable({
   const { t } = useTranslation()
   const confirm = useConfirm()
   const setUserAdmin = useSetUserAdmin()
+  const stackCards = useIsPhone('md')
 
   const handleToggleAdmin = async (user: (typeof users)[number]) => {
     const makeAdmin = !user.isAdmin
@@ -61,15 +68,55 @@ function UsersTable({
     }
   }
 
+  const adminAction = (user: (typeof users)[number]) => (
+    <Button
+      size="small"
+      color={user.isAdmin ? 'secondary' : 'primary'}
+      onClick={() => handleToggleAdmin(user)}
+      disabled={setUserAdmin.isPending || user.userId === loggedUserId}
+    >
+      {user.isAdmin ? t('admin.usersTable.revokeAdmin') : t('admin.usersTable.grantAdmin')}
+    </Button>
+  )
+  const teamLink = (user: (typeof users)[number]) =>
+    user.teamId !== null ? <TeamNameLink teamId={user.teamId}>{user.teamName}</TeamNameLink> : '-'
+
+  if (stackCards) {
+    return (
+      <Stack spacing={1.5}>
+        {users.map((user) => (
+          <Paper key={user.userId} variant="outlined" sx={{ p: 1.5 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography sx={{ fontWeight: 600, minWidth: 0, overflowWrap: 'anywhere' }}>{user.name}</Typography>
+              {user.isAdmin && <Chip size="small" color="primary" label={t('admin.usersTable.admin')} />}
+            </Stack>
+            <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere' }}>
+              {user.email}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {user.country} · {teamLink(user)}
+            </Typography>
+            <Stack direction="row" sx={{ mt: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('admin.usersTable.id')} {user.userId}
+              </Typography>
+              {adminAction(user)}
+            </Stack>
+          </Paper>
+        ))}
+      </Stack>
+    )
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table size="small" aria-label="Users">
         <TableHead>
           <TableRow>
-            <TableCell>{t('admin.usersTable.id')}</TableCell>
+            <TableCell sx={secondaryColumn}>{t('admin.usersTable.id')}</TableCell>
             <TableCell>{t('admin.usersTable.name')}</TableCell>
             <TableCell>{t('admin.usersTable.email')}</TableCell>
-            <TableCell>{t('admin.usersTable.country')}</TableCell>
+            <TableCell sx={secondaryColumn}>{t('admin.usersTable.country')}</TableCell>
             <TableCell>{t('admin.usersTable.team')}</TableCell>
             <TableCell>{t('admin.usersTable.admin')}</TableCell>
             <TableCell align="right" />
@@ -78,22 +125,13 @@ function UsersTable({
         <TableBody>
           {users.map((user) => (
             <TableRow key={user.userId}>
-              <TableCell>{user.userId}</TableCell>
+              <TableCell sx={secondaryColumn}>{user.userId}</TableCell>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.country}</TableCell>
-              <TableCell>{user.teamId !== null ? <TeamNameLink teamId={user.teamId}>{user.teamName}</TeamNameLink> : '-'}</TableCell>
+              <TableCell sx={secondaryColumn}>{user.country}</TableCell>
+              <TableCell>{teamLink(user)}</TableCell>
               <TableCell>{user.isAdmin && <Chip size="small" color="primary" label={t('admin.usersTable.admin')} />}</TableCell>
-              <TableCell align="right">
-                <Button
-                  size="small"
-                  color={user.isAdmin ? 'secondary' : 'primary'}
-                  onClick={() => handleToggleAdmin(user)}
-                  disabled={setUserAdmin.isPending || user.userId === loggedUserId}
-                >
-                  {user.isAdmin ? t('admin.usersTable.revokeAdmin') : t('admin.usersTable.grantAdmin')}
-                </Button>
-              </TableCell>
+              <TableCell align="right">{adminAction(user)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -1005,7 +1005,7 @@
       "save": "Guardar estructura",
       "saveSuccess": "Estructura del mundo guardada.",
       "saveError": "No se pudo guardar la estructura del mundo - revisa los límites de categorías, grupos y equipos.",
-      "recreateTitle": "Zona de peligro",
+      "recreateTitle": "Recrear ligas",
       "recreateButton": "Recrear todas las ligas ahora",
       "confirmRecreate": "¿Recrear todas las ligas y equipos con esta estructura? Cada equipo, plantilla y partido existente se reconstruye desde cero y todos reciben un equipo nuevo - las cuentas de usuario, el acceso de administrador y el calendario de partidos se conservan. Esto puede tardar un poco.",
       "recreateSuccess": "Ligas recreadas.",

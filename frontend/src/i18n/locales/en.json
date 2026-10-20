@@ -1005,7 +1005,7 @@
       "save": "Save structure",
       "saveSuccess": "World structure saved.",
       "saveError": "Failed to save world structure - check the tier, group and team-count limits.",
-      "recreateTitle": "Danger zone",
+      "recreateTitle": "Recreate leagues",
       "recreateButton": "Recreate all leagues now",
       "confirmRecreate": "Recreate every league and team using this structure? Every existing team, squad and match is rebuilt from scratch and everyone gets a brand new team - user accounts, admin access and the match schedule are kept. This can take a little while.",
       "recreateSuccess": "Leagues recreated.",
