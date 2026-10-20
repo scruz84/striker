@@ -858,6 +858,7 @@
     "you": "Tú"
   },
   "admin": {
+    "genericError": "Algo ha fallado. Inténtalo de nuevo.",
     "tabs": {
       "overview": "Resumen",
       "teams": "Equipos",

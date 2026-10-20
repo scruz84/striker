@@ -858,6 +858,7 @@
     "you": "You"
   },
   "admin": {
+    "genericError": "Something went wrong. Please try again.",
     "tabs": {
       "overview": "Overview",
       "teams": "Teams",

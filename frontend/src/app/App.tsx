@@ -5,6 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { getGoogleOAuthClientId } from '../config'
 import { ConfirmProvider } from '../components/ConfirmDialog'
+import { NotifyProvider } from '../components/NotifyProvider'
 import { AdminPage } from '../features/admin/AdminPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
@@ -42,37 +43,39 @@ function App() {
         <CacheProvider value={emotionCache}>
           <ThemeModeProvider>
             <ConfirmProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route element={<Layout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
-                    <Route path="/dashboard/finances" element={<FinancesPage />} />
-                    <Route path="/transfers" element={<TransferMarketPage />} />
-                    <Route path="/cup" element={<CupPage />} />
-                    <Route path="/cup/ties/:id" element={<CupTieDetailsPage />} />
-                    <Route path="/international-cup" element={<InternationalCupPage />} />
-                    <Route path="/friendlies" element={<FriendliesPage />} />
-                    <Route path="/friendlies/:id" element={<FriendlyMatchPage />} />
-                    <Route path="/national-teams" element={<NationalTeamsPage />} />
-                    <Route path="/groups" element={<GroupsPage />} />
-                    <Route path="/help" element={<HelpPage />} />
-                    <Route path="/admin" element={<AdminPage />} />
-                    <Route path="/leagues" element={<LeaguesPage />} />
-                    <Route path="/division/:id" element={<DivisionDetailsPage />} />
-                    <Route path="/match/:id" element={<MatchDetailsPage />} />
-                    <Route path="/team/:id" element={<TeamDetailsPage />} />
-                    <Route path="/team/:id/matches" element={<TeamMatchesPage />} />
-                    <Route path="/player/:id" element={<PlayerDetailsPage />} />
-                    <Route path="/players/evolutions" element={<LatestEvolutionsPage />} />
-                    <Route path="/search" element={<SearchPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/onboarding" element={<SelectCountryPage />} />
-                    <Route path="*" element={<HomePage />} />
-                  </Route>
-                </Routes>
-              </BrowserRouter>
+              <NotifyProvider>
+                <BrowserRouter>
+                  <Routes>
+                    <Route element={<Layout />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/dashboard/lineup" element={<LineupEditorPage />} />
+                      <Route path="/dashboard/finances" element={<FinancesPage />} />
+                      <Route path="/transfers" element={<TransferMarketPage />} />
+                      <Route path="/cup" element={<CupPage />} />
+                      <Route path="/cup/ties/:id" element={<CupTieDetailsPage />} />
+                      <Route path="/international-cup" element={<InternationalCupPage />} />
+                      <Route path="/friendlies" element={<FriendliesPage />} />
+                      <Route path="/friendlies/:id" element={<FriendlyMatchPage />} />
+                      <Route path="/national-teams" element={<NationalTeamsPage />} />
+                      <Route path="/groups" element={<GroupsPage />} />
+                      <Route path="/help" element={<HelpPage />} />
+                      <Route path="/admin" element={<AdminPage />} />
+                      <Route path="/leagues" element={<LeaguesPage />} />
+                      <Route path="/division/:id" element={<DivisionDetailsPage />} />
+                      <Route path="/match/:id" element={<MatchDetailsPage />} />
+                      <Route path="/team/:id" element={<TeamDetailsPage />} />
+                      <Route path="/team/:id/matches" element={<TeamMatchesPage />} />
+                      <Route path="/player/:id" element={<PlayerDetailsPage />} />
+                      <Route path="/players/evolutions" element={<LatestEvolutionsPage />} />
+                      <Route path="/search" element={<SearchPage />} />
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/onboarding" element={<SelectCountryPage />} />
+                      <Route path="*" element={<HomePage />} />
+                    </Route>
+                  </Routes>
+                </BrowserRouter>
+              </NotifyProvider>
             </ConfirmProvider>
           </ThemeModeProvider>
         </CacheProvider>

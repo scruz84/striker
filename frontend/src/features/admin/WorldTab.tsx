@@ -9,7 +9,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
@@ -20,8 +19,6 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import {
@@ -44,6 +41,10 @@ import {
   type TierConfig,
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { AdminSection } from './components/AdminSection'
+import { DangerZone } from './components/DangerZone'
+import { WeekdayPicker } from './components/WeekdayPicker'
+import { useAdminFeedback } from './useAdminFeedback'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 
 export function WorldTab() {
@@ -61,16 +62,17 @@ export function WorldTab() {
 
       <LeagueSchedulesSection />
 
-      <DangerZone />
+      <DangerZone>
+        <RecreateLeaguesAction />
+      </DangerZone>
     </>
   )
 }
 
-// DangerZone holds the irreversible actions, apart from the everyday settings above so they can't
-// be hit by accident while scrolling.
-function DangerZone() {
+function RecreateLeaguesAction() {
   const { t } = useTranslation()
   const confirm = useConfirm()
+  const feedback = useAdminFeedback()
   const recreateLeagues = useAdminRecreateLeagues()
 
   const handleRecreate = async () => {
@@ -80,33 +82,26 @@ function DangerZone() {
       destructive: true,
     })
     if (ok) {
-      recreateLeagues.mutate()
+      recreateLeagues.mutate(undefined, feedback('admin.worldStructure.recreateSuccess', 'admin.worldStructure.recreateError'))
     }
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 2, borderColor: 'error.main' }} variant="outlined">
-      <Typography variant="subtitle1" color="error" gutterBottom>
-        {t('admin.dangerZone.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('admin.dangerZone.description')}
-      </Typography>
+    <>
       <Typography variant="subtitle2" color="error" gutterBottom>
         {t('admin.worldStructure.recreateTitle')}
       </Typography>
       <Button variant="outlined" color="error" onClick={handleRecreate} disabled={recreateLeagues.isPending}>
         {t('admin.worldStructure.recreateButton')}
       </Button>
-      {recreateLeagues.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.worldStructure.recreateSuccess')}</Alert>}
-      {recreateLeagues.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.worldStructure.recreateError')}</Alert>}
-    </Paper>
+    </>
   )
 }
 
 function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] }) {
   const { t } = useTranslation()
   const [tiers, setTiers] = useState<TierConfig[]>(initialTiers)
+  const feedback = useAdminFeedback()
   const setWorldConfig = useSetWorldConfig()
 
   const updateTier = (index: number, patch: Partial<TierConfig>) =>
@@ -119,16 +114,10 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
 
   const removeTier = (index: number) => setTiers((prev) => prev.filter((_, i) => i !== index))
 
-  const handleSave = () => setWorldConfig.mutate(tiers)
+  const handleSave = () => setWorldConfig.mutate(tiers, feedback('admin.worldStructure.saveSuccess', 'admin.worldStructure.saveError'))
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        {t('admin.worldStructure.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('admin.worldStructure.description')}
-      </Typography>
+    <AdminSection title={t('admin.worldStructure.title')} description={t('admin.worldStructure.description')}>
       <Table size="small">
         <TableHead>
           <TableRow>
@@ -186,10 +175,7 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
           {t('admin.worldStructure.save')}
         </Button>
       </Stack>
-      {setWorldConfig.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.worldStructure.saveSuccess')}</Alert>}
-      {setWorldConfig.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.worldStructure.saveError')}</Alert>}
-
-    </Paper>
+    </AdminSection>
   )
 }
 
@@ -202,6 +188,7 @@ function CountriesSection() {
   const addCountry = useAdminAddCountry()
   const addDivision = useAdminAddDivision()
   const rescheduleCountry = useAdminRescheduleCountry()
+  const feedback = useAdminFeedback()
   const [addingCountry, setAddingCountry] = useState<CountryStatus | null>(null)
 
   const handleReschedule = async (country: CountryStatus) => {
@@ -210,7 +197,7 @@ function CountriesSection() {
       confirmLabel: t('admin.countries.reschedule'),
     })
     if (ok) {
-      rescheduleCountry.mutate(country.code)
+      rescheduleCountry.mutate(country.code, feedback('admin.countries.rescheduleSuccess', 'admin.countries.rescheduleError'))
     }
   }
 
@@ -223,7 +210,10 @@ function CountriesSection() {
       confirmLabel: t('admin.countries.addDivision'),
     })
     if (ok) {
-      addDivision.mutate({ country: country.code, tier: tier.tier, withMatches })
+      addDivision.mutate(
+        { country: country.code, tier: tier.tier, withMatches },
+        feedback('admin.countries.addDivisionSuccess', 'admin.countries.addDivisionError'),
+      )
     }
   }
 
@@ -241,13 +231,7 @@ function CountriesSection() {
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        {t('admin.countries.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('admin.countries.description')}
-      </Typography>
+    <AdminSection title={t('admin.countries.title')} description={t('admin.countries.description')}>
       <Stack spacing={1.5}>
         {countries.map((country) => {
           const missingTiers = (worldConfig?.tiers ?? []).filter(
@@ -290,13 +274,8 @@ function CountriesSection() {
           )
         })}
       </Stack>
-      {addCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addError')}</Alert>}
-      {addDivision.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.addDivisionError')}</Alert>}
-      {addDivision.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.addDivisionSuccess')}</Alert>}
-      {rescheduleCountry.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('admin.countries.rescheduleError')}</Alert>}
-      {rescheduleCountry.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.countries.rescheduleSuccess')}</Alert>}
       {addingCountry && <AddCountryDialog country={addingCountry} onClose={() => setAddingCountry(null)} />}
-    </Paper>
+    </AdminSection>
   )
 }
 
@@ -377,13 +356,7 @@ function LeagueSchedulesSection() {
   const filteredLeagues = countryFilter ? leagues.filter((l) => l.country === countryFilter) : leagues
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        {t('admin.leagueSchedules.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('admin.leagueSchedules.description')}
-      </Typography>
+    <AdminSection title={t('admin.leagueSchedules.title')} description={t('admin.leagueSchedules.description')}>
       <FormControl size="small" sx={{ mb: 2, minWidth: 180 }}>
         <InputLabel id="league-schedule-country-label">{t('admin.leagueSchedules.filterCountry')}</InputLabel>
         <Select
@@ -434,7 +407,7 @@ function LeagueSchedulesSection() {
         </Table>
       </TableContainer>
       {editingLeague && <LeagueScheduleDialog league={editingLeague} onClose={() => setEditingLeague(null)} />}
-    </Paper>
+    </AdminSection>
   )
 }
 
@@ -471,17 +444,7 @@ function LeagueScheduleDialog({ league, onClose }: { league: AdminLeagueInfo; on
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
-          <ToggleButtonGroup
-            size="small"
-            value={WEEKDAY_OPTIONS.filter((d) => (weekdaysMask & d.bit) !== 0).map((d) => d.bit)}
-            onChange={(_event, newBits: number[]) => setWeekdaysMask(newBits.reduce((mask, bit) => mask | bit, 0))}
-          >
-            {WEEKDAY_OPTIONS.map((d) => (
-              <ToggleButton key={d.bit} value={d.bit}>
-                {t(`common.weekdaysShort.${d.key}`)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
+          <WeekdayPicker value={weekdaysMask} onChange={setWeekdaysMask} />
           <TextField
             label={t('admin.matchSchedule.time')}
             type="time"

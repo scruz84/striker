@@ -1,4 +1,3 @@
-import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -27,6 +26,9 @@ import {
 } from '../../api/hooks'
 
 import { useConfirm } from '../../components/confirmDialogContext'
+import { useNotify } from '../../components/notifyContext'
+import { AdminSection } from './components/AdminSection'
+import { useAdminFeedback } from './useAdminFeedback'
 
 export function OverviewTab() {
   const { data: overview, isLoading } = useAdminOverview(true)
@@ -128,6 +130,8 @@ function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<ty
 function OperationsSection({ overview }: { overview: NonNullable<ReturnType<typeof useAdminOverview>['data']> }) {
   const { t } = useTranslation()
   const confirm = useConfirm()
+  const notify = useNotify()
+  const feedback = useAdminFeedback()
   const { transferWindowOpen } = overview
   const simulateNow = useAdminSimulateNow()
   const finishStuckMatches = useAdminFinishStuckMatches()
@@ -139,7 +143,7 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
   const handleSimulateNow = async () => {
     const ok = await confirm({ message: t('admin.actions.confirmRunSimulation'), destructive: true })
     if (ok) {
-      simulateNow.mutate()
+      simulateNow.mutate(undefined, feedback('admin.actions.simSuccess'))
     }
   }
 
@@ -149,21 +153,30 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
       destructive: true,
     })
     if (ok) {
-      finishStuckMatches.mutate()
+      finishStuckMatches.mutate(undefined, {
+        onSuccess: (result) =>
+          notify.success(
+            t('admin.actions.finishStuckMatchesSuccess', {
+              leagueMatches: result.leagueMatches,
+              friendlies: result.friendlies,
+            }),
+          ),
+        onError: () => notify.error(t('admin.genericError')),
+      })
     }
   }
 
   const handleAdvanceSeason = async () => {
     const ok = await confirm({ message: t('admin.actions.confirmCheckSeasonAdvance'), destructive: true })
     if (ok) {
-      advanceSeason.mutate()
+      advanceSeason.mutate(undefined, feedback('admin.actions.seasonSuccess'))
     }
   }
 
   const handlePayWagesNow = async () => {
     const ok = await confirm({ message: t('admin.actions.confirmPayWages'), destructive: true })
     if (ok) {
-      payWagesNow.mutate()
+      payWagesNow.mutate(undefined, feedback('admin.actions.payWagesSuccess'))
     }
   }
 
@@ -172,7 +185,7 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
       message: t('admin.actions.confirmInjectFreeAgents', { count: overview.freeAgentInjectionsPerWeek }),
     })
     if (ok) {
-      injectFreeAgentsNow.mutate()
+      injectFreeAgentsNow.mutate(undefined, feedback('admin.actions.injectFreeAgentsSuccess'))
     }
   }
 
@@ -184,60 +197,42 @@ function OperationsSection({ overview }: { overview: NonNullable<ReturnType<type
       destructive: transferWindowOpen,
     })
     if (ok) {
-      setTransferWindow.mutate(!transferWindowOpen)
+      setTransferWindow.mutate(!transferWindowOpen, feedback('admin.actions.windowSuccess'))
     }
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-        <Box>
-          <Typography variant="subtitle1" gutterBottom>
-            {t('admin.actions.title')}
-          </Typography>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-            <Button variant="outlined" onClick={handleSimulateNow} disabled={simulateNow.isPending}>
-              {t('admin.actions.runSimulation')}
-            </Button>
-            <Button
-              variant="outlined"
-              color={overview.stuckMatches > 0 ? 'warning' : 'inherit'}
-              onClick={handleFinishStuckMatches}
-              disabled={finishStuckMatches.isPending || overview.stuckMatches === 0}
-            >
-              {t('admin.actions.finishStuckMatches', { count: overview.stuckMatches })}
-            </Button>
-            <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
-              {t('admin.actions.checkSeasonAdvance')}
-            </Button>
-            <Button variant="outlined" onClick={handlePayWagesNow} disabled={payWagesNow.isPending}>
-              {t('admin.actions.payWagesNow')}
-            </Button>
-            <Button variant="outlined" onClick={handleInjectFreeAgentsNow} disabled={injectFreeAgentsNow.isPending}>
-              {t('admin.actions.injectFreeAgentsNow')}
-            </Button>
-            <Button
-              variant="outlined"
-              color={transferWindowOpen ? 'warning' : 'success'}
-              onClick={handleToggleTransferWindow}
-              disabled={setTransferWindow.isPending}
-            >
-              {transferWindowOpen ? t('admin.actions.closeWindow') : t('admin.actions.openWindow')}
-            </Button>
-          </Stack>
-          {simulateNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.simSuccess')}</Alert>}
-          {finishStuckMatches.isSuccess && (
-            <Alert severity="success" sx={{ mt: 1 }}>
-              {t('admin.actions.finishStuckMatchesSuccess', {
-                leagueMatches: finishStuckMatches.data.leagueMatches,
-                friendlies: finishStuckMatches.data.friendlies,
-              })}
-            </Alert>
-          )}
-          {advanceSeason.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.seasonSuccess')}</Alert>}
-          {payWagesNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.payWagesSuccess')}</Alert>}
-          {injectFreeAgentsNow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.injectFreeAgentsSuccess')}</Alert>}
-          {setTransferWindow.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('admin.actions.windowSuccess')}</Alert>}
-        </Box>
-    </Paper>
+    <AdminSection title={t('admin.actions.title')}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+        <Button variant="outlined" onClick={handleSimulateNow} disabled={simulateNow.isPending}>
+          {t('admin.actions.runSimulation')}
+        </Button>
+        <Button
+          variant="outlined"
+          color={overview.stuckMatches > 0 ? 'warning' : 'inherit'}
+          onClick={handleFinishStuckMatches}
+          disabled={finishStuckMatches.isPending || overview.stuckMatches === 0}
+        >
+          {t('admin.actions.finishStuckMatches', { count: overview.stuckMatches })}
+        </Button>
+        <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
+          {t('admin.actions.checkSeasonAdvance')}
+        </Button>
+        <Button variant="outlined" onClick={handlePayWagesNow} disabled={payWagesNow.isPending}>
+          {t('admin.actions.payWagesNow')}
+        </Button>
+        <Button variant="outlined" onClick={handleInjectFreeAgentsNow} disabled={injectFreeAgentsNow.isPending}>
+          {t('admin.actions.injectFreeAgentsNow')}
+        </Button>
+        <Button
+          variant="outlined"
+          color={transferWindowOpen ? 'warning' : 'success'}
+          onClick={handleToggleTransferWindow}
+          disabled={setTransferWindow.isPending}
+        >
+          {transferWindowOpen ? t('admin.actions.closeWindow') : t('admin.actions.openWindow')}
+        </Button>
+      </Stack>
+    </AdminSection>
   )
 }
