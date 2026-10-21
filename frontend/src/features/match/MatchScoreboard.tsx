@@ -8,6 +8,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import type { ScorerLine } from '../../utils/matchGoals'
 
 // Shared by the league match details page and the friendly match page - a live or played
 // match's score header doesn't depend on anything competitive-match-specific.
@@ -30,6 +31,22 @@ export interface ScoreboardProps {
   // for a friendly or cup tie simply omits it rather than showing something misleading.
   homePosition?: number
   awayPosition?: number
+  // Each side's scorers (see utils/matchGoals.goalScorers), listed under the score so the goals are
+  // visible without scrolling down to the report. Omitted (or both empty) renders nothing.
+  homeScorers?: ScorerLine[]
+  awayScorers?: ScorerLine[]
+}
+
+function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: 'left' | 'right' }) {
+  return (
+    <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0, textAlign: align }}>
+      {scorers.map((scorer) => (
+        <Typography key={scorer.name} variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>
+          {scorer.name} {scorer.minutes.map((minute) => `${minute}'`).join(' ')}
+        </Typography>
+      ))}
+    </Stack>
+  )
 }
 
 export function Scoreboard({
@@ -45,6 +62,8 @@ export function Scoreboard({
   stadiumName,
   homePosition,
   awayPosition,
+  homeScorers = [],
+  awayScorers = [],
 }: ScoreboardProps) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -133,6 +152,12 @@ export function Scoreboard({
             </Stack>
           </Box>
         </Stack>
+        {(homeScorers.length > 0 || awayScorers.length > 0) && (
+          <Stack direction="row" spacing={2} sx={{ mt: 1.5 }}>
+            <ScorerList scorers={homeScorers} align="right" />
+            <ScorerList scorers={awayScorers} align="left" />
+          </Stack>
+        )}
         {subtitle && (
           <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mt: 1.5 }}>
             {subtitle}

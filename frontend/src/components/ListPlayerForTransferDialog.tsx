@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import { useListPlayer } from '../api/hooks'
 import type { Player } from '../api/types'
+import { formatCurrency } from '../utils/formatCurrency'
+import { NumberField } from './NumberField'
+import { ResponsiveDialog } from './ResponsiveDialog'
 
 interface ListPlayerForTransferDialogProps {
   player: Player
@@ -40,28 +38,32 @@ export function ListPlayerForTransferDialog({ player, open, onClose }: ListPlaye
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('transfers.listPlayer.title')}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          <TextField
-            label={t('transfers.askingPrice')}
-            type="number"
-            value={askingPrice}
-            onChange={(e) => setAskingPrice(e.target.value)}
-            fullWidth
-            size="small"
-            autoFocus
-          />
-          {listPlayer.isError && <Alert severity="error">{t('transfers.listPlayer.error')}</Alert>}
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('common.cancel')}</Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={!askingPrice || Number(askingPrice) <= 0 || listPlayer.isPending}>
-          {t('transfers.list')}
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <ResponsiveDialog
+      open={open}
+      onClose={onClose}
+      title={t('transfers.listPlayer.title')}
+      subtitle={`${player.firstName} ${player.lastName}`}
+      actions={
+        <>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={handleSubmit} disabled={!askingPrice || Number(askingPrice) <= 0 || listPlayer.isPending}>
+            {t('transfers.list')}
+          </Button>
+        </>
+      }
+    >
+      <Stack spacing={2}>
+        <NumberField
+          label={t('transfers.askingPrice')}
+          value={askingPrice}
+          onValueChange={setAskingPrice}
+          currency
+          fullWidth
+          autoFocus
+          helperText={t('transfers.listPlayer.hint', { wage: formatCurrency(player.wage) })}
+        />
+        {listPlayer.isError && <Alert severity="error">{t('transfers.listPlayer.error')}</Alert>}
+      </Stack>
+    </ResponsiveDialog>
   )
 }

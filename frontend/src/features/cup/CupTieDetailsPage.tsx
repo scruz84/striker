@@ -21,6 +21,7 @@ import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Scoreboard } from '../match/MatchScoreboard'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchEventsReport } from '../match/MatchEventsReport'
+import { goalScorers } from '../../utils/matchGoals'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchMinuteRatings } from '../match/MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
@@ -286,6 +287,7 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
   const awayName = localizedTeamName(t, tie.awayTeamName)
   const weekMatch = cupTieToWeekMatch(tie, homeName, awayName)
   const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
+  const scorers = goalScorers(weekMatch.events ?? [], tie.homeTeamId ?? 0)
 
   return (
     <Box>
@@ -298,6 +300,8 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
         awayGoals={tie.awayGoals}
         status="played"
         subtitle={tie.matchDate ? formatDateTime(tie.matchDate) : undefined}
+        homeScorers={scorers.home}
+        awayScorers={scorers.away}
       />
       {tie.wentToPenalties && (
         <Typography color="text.secondary" align="center" sx={{ mb: 2 }}>
@@ -307,9 +311,9 @@ function PlayedTie({ tie }: { tie: CupTieDetails }) {
 
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.players')} />
-          <Tab label={t('match.tabs.ratings')} />
+          <Tab label={t('match.tabs.chronicle')} />
+          <Tab label={t('match.tabs.notes')} />
+          <Tab label={t('match.tabs.tactics')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={weekMatch} />}

@@ -23,6 +23,9 @@ import { formatDateTime } from '../../utils/formatDate'
 import { localizedTeamName } from '../../utils/nationalTeamName'
 import { groupByRound, roundName, TieRow } from '../cup/CupPage'
 import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
+import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
 
 /** Where a manager watches the parts of the game no single club owns: the weekly national-team
  * friendlies (see backend engine.ScheduleNationalTeamFriendlies) and, once one is running, the
@@ -35,12 +38,7 @@ export function NationalTeamsPage() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h5" sx={{ fontWeight: 700 }}>
-        {t('nationalTeams.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {t('nationalTeams.subtitle')}
-      </Typography>
+      <PageHeader title={t('nationalTeams.title')} subtitle={t('nationalTeams.subtitle')} />
 
       <LiveNationalTeamMatches />
 
@@ -226,9 +224,7 @@ function FriendlyMatchList({
       {isLoading || !matches ? (
         <Skeleton variant="rectangular" height={80} />
       ) : matches.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          {emptyLabel}
-        </Typography>
+        <EmptyState compact title={emptyLabel} />
       ) : (
         <Stack spacing={1}>
           {matches.map((m) => {
@@ -281,9 +277,7 @@ function WorldCupSection() {
   }
   if (isError || !data) {
     return (
-      <Typography variant="body2" color="text.secondary">
-        {t('nationalTeams.worldCup.none')}
-      </Typography>
+      <EmptyState icon={<PublicTwoToneIcon fontSize="inherit" />} title={t('nationalTeams.worldCup.noneTitle')} text={t('nationalTeams.worldCup.none')} />
     )
   }
 

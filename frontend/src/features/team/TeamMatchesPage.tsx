@@ -1,9 +1,9 @@
 import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTeamDetails } from '../../api/hooks'
 import { TeamMatchesSection } from './TeamMatchesSection'
+import { PageHeader } from '../../components/PageHeader'
 
 // A dedicated page for a team's match history/schedule, reachable from its own nav sidebar entry
 // (see NavDrawer) - previously this only lived inline on the general team page, mixed in with
@@ -19,9 +19,7 @@ export function TeamMatchesPage() {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="h5">
-        {t('team.matches.title')} - {teamDetails.team.name}
-      </Typography>
+      <PageHeader title={t('team.matches.title')} subtitle={teamDetails.team.name} />
       <TeamMatchesSection teamId={id} />
     </Stack>
   )

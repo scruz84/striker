@@ -16,19 +16,25 @@ export function TeamRatingsColumn({
   lineup,
   players,
   ratings,
+  sortByRating = false,
 }: {
   teamId: number
   title: string
   lineup: Lineup
   players: Record<string, Player>
   ratings: Record<string, number>
+  // Best rating first instead of the lineup's own positional order.
+  sortByRating?: boolean
 }) {
+  const positions = sortByRating
+    ? [...lineup.positions].sort((a, b) => (ratings[String(b.playerId)] ?? 0) - (ratings[String(a.playerId)] ?? 0))
+    : lineup.positions
   return (
     <Stack spacing={1.25}>
       <Typography variant="subtitle2">
         <TeamNameLink teamId={teamId}>{title}</TeamNameLink>
       </Typography>
-      {lineup.positions.map((pos) => {
+      {positions.map((pos) => {
         const player = players[String(pos.playerId)]
         const rating = ratings[String(pos.playerId)]
         if (!player || rating === undefined) {

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import TablePagination from '@mui/material/TablePagination'
 import { useTranslation } from 'react-i18next'
 
-const ROWS_PER_PAGE_OPTIONS = [25, 50, 100]
+const ROWS_PER_PAGE_OPTIONS = [20, 50, 100]
 
 interface PaginatedProps<T> {
   rows: T[]

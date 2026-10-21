@@ -5,11 +5,13 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import type { SeasonHistoryEntry } from '../api/types'
+import { useElementWidth } from '../utils/useElementWidth'
 
-const GRAPH_WIDTH = 640
-const GRAPH_HEIGHT = 220
+// Drawn at the container's real pixel width (not a fixed viewBox the browser shrinks), so the axis
+// labels keep their 11px size on a phone.
+const GRAPH_HEIGHT = 200
+const FONT_SIZE = 11
 const PADDING = { top: 16, right: 16, bottom: 28, left: 32 }
-const PLOT_WIDTH = GRAPH_WIDTH - PADDING.left - PADDING.right
 const PLOT_HEIGHT = GRAPH_HEIGHT - PADDING.top - PADDING.bottom
 
 // Same gold used for the 1st-place rank badge on DivisionDetailsPage and the trophy icon in the
@@ -27,6 +29,9 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
   const { t } = useTranslation()
   const theme = useTheme()
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+  const { ref, width } = useElementWidth<HTMLDivElement>()
+  const GRAPH_WIDTH = Math.max(width, 240)
+  const PLOT_WIDTH = GRAPH_WIDTH - PADDING.left - PADDING.right
 
   const points = history
     .filter((entry): entry is SeasonHistoryEntry & { finalPosition: number } => entry.finalPosition !== null)
@@ -62,14 +67,8 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
       <Typography variant="subtitle1" gutterBottom>
         {t('team.chart.title')}
       </Typography>
-      <Box sx={{ position: 'relative', width: '100%', maxWidth: GRAPH_WIDTH, aspectRatio: `${GRAPH_WIDTH} / ${GRAPH_HEIGHT}` }}>
-        <svg
-          viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
-          width="100%"
-          height="100%"
-          role="img"
-          aria-label={t('team.chart.ariaLabel')}
-        >
+      <Box ref={ref} sx={{ position: 'relative', width: '100%' }}>
+        <svg width={GRAPH_WIDTH} height={GRAPH_HEIGHT} role="img" aria-label={t('team.chart.ariaLabel')} style={{ display: 'block' }}>
           {yTicks.map((tick) => (
             <g key={tick}>
               <line
@@ -80,7 +79,7 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
                 stroke={theme.palette.divider}
                 strokeWidth={1}
               />
-              <text x={PADDING.left - 8} y={yFor(tick)} textAnchor="end" dominantBaseline="middle" fontSize={10} fill={theme.palette.text.secondary}>
+              <text x={PADDING.left - 8} y={yFor(tick)} textAnchor="end" dominantBaseline="middle" fontSize={FONT_SIZE} fill={theme.palette.text.secondary}>
                 {tick}
               </text>
             </g>
@@ -90,7 +89,7 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
 
           {points.map((p, i) => (
             <g key={p.season}>
-              <text x={xFor(i)} y={GRAPH_HEIGHT - 8} textAnchor="middle" fontSize={10} fill={theme.palette.text.secondary}>
+              <text x={xFor(i)} y={GRAPH_HEIGHT - 8} textAnchor="middle" fontSize={FONT_SIZE} fill={theme.palette.text.secondary}>
                 {p.season}
               </text>
               {/* Generous invisible hit target around the small visible marker, easier to hover/tap precisely. */}
@@ -99,8 +98,11 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
                 cy={yFor(p.finalPosition)}
                 r={12}
                 fill="transparent"
-                onMouseEnter={() => setHoverIndex(i)}
-                onMouseLeave={() => setHoverIndex((current) => (current === i ? null : current))}
+                onPointerEnter={() => setHoverIndex(i)}
+                onPointerDown={() => setHoverIndex(i)}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === 'mouse') setHoverIndex((current) => (current === i ? null : current))
+                }}
                 style={{ cursor: 'pointer' }}
               />
               <circle
@@ -120,8 +122,8 @@ export function SeasonPositionChart({ history }: { history: SeasonHistoryEntry[]
             elevation={3}
             sx={{
               position: 'absolute',
-              left: `${(xFor(hoverIndex) / GRAPH_WIDTH) * 100}%`,
-              top: `${(yFor(hovered.finalPosition) / GRAPH_HEIGHT) * 100}%`,
+              left: Math.min(Math.max(xFor(hoverIndex), 80), GRAPH_WIDTH - 80),
+              top: yFor(hovered.finalPosition),
               transform: 'translate(-50%, -125%)',
               p: 1,
               pointerEvents: 'none',

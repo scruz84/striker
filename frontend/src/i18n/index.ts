@@ -29,4 +29,14 @@ void i18n
     },
   })
 
+// Keep <html lang> in step with the UI language so the browser's native pickers, hyphenation
+// and screen readers use it instead of the static "en" in index.html.
+function syncDocumentLanguage() {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language ?? 'en'
+  }
+}
+syncDocumentLanguage()
+i18n.on('languageChanged', syncDocumentLanguage)
+
 export default i18n

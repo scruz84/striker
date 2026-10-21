@@ -21,6 +21,25 @@
       "fri": "Vie",
       "sat": "Sáb",
       "sun": "Dom"
+    },
+    "back": "Atrás",
+    "seeAll": "Ver todo",
+    "more": "Más",
+    "search": "Buscar",
+    "viewMore": "Ver más",
+    "viewLess": "Ver menos",
+    "you": "Tú",
+    "home": "En casa",
+    "away": "Fuera",
+    "result": {
+      "win": "V",
+      "draw": "E",
+      "loss": "D"
+    },
+    "resultLong": {
+      "win": "Victoria",
+      "draw": "Empate",
+      "loss": "Derrota"
     }
   },
   "header": {
@@ -47,7 +66,12 @@
       "help": "Ayuda",
       "admin": "Administración",
       "logout": "Cerrar sesión"
-    }
+    },
+    "more": "Más opciones",
+    "help": "Ayuda",
+    "searchIcon": "Buscar",
+    "notifications": "Notificaciones",
+    "accountMenu": "Menú de cuenta"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -133,9 +157,18 @@
     "howItWorks": {
       "title": "Cómo funciona",
       "steps": {
-        "claim": { "title": "Reclama un club", "description": "Elige un equipo sin dueño de cualquier liga y toma las riendas." },
-        "manage": { "title": "Gestiona cada detalle", "description": "Define tu alineación, opera en el mercado de fichajes y haz crecer tus finanzas." },
-        "climb": { "title": "Escala la clasificación", "description": "Gana partidos, logra el ascenso y levanta la copa." }
+        "claim": {
+          "title": "Reclama un club",
+          "description": "Elige un equipo sin dueño de cualquier liga y toma las riendas."
+        },
+        "manage": {
+          "title": "Gestiona cada detalle",
+          "description": "Define tu alineación, opera en el mercado de fichajes y haz crecer tus finanzas."
+        },
+        "climb": {
+          "title": "Escala la clasificación",
+          "description": "Gana partidos, logra el ascenso y levanta la copa."
+        }
       }
     },
     "readyTitle": "¿Listo para tomar el mando?",
@@ -185,7 +218,11 @@
     "home": "Local",
     "away": "Visitante",
     "form": "Racha:",
-    "result": { "win": "V", "draw": "E", "loss": "D" },
+    "result": {
+      "win": "V",
+      "draw": "E",
+      "loss": "D"
+    },
     "topScorer": "Máximo goleador",
     "goalsCount_one": "{{count}} gol",
     "goalsCount_other": "{{count}} goles",
@@ -210,7 +247,24 @@
     "tierLabel": "División {{tier}}",
     "watchLive": "Ver en directo",
     "shuffleLiveMatch": "Sugerir otro partido",
-    "liveMatchMinute": "{{minute}}'"
+    "liveMatchMinute": "{{minute}}'",
+    "countdown": {
+      "days": "en {{days}} d {{hours}} h",
+      "hours": "en {{hours}} h {{minutes}} min",
+      "minutes": "en {{minutes}} min"
+    },
+    "headToHeadRecord": "Cara a cara: {{w}}V {{d}}E {{l}}D",
+    "formLatest": "más reciente →",
+    "more": "Más",
+    "kpi": {
+      "budget": "Presupuesto",
+      "squad": "Plantilla",
+      "position": "Posición",
+      "fanbase": "Afición"
+    },
+    "squadCount": "{{count}} jugadores",
+    "positionValue": "{{position}}º",
+    "moreSection": "Más información"
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",
@@ -257,8 +311,27 @@
       "playerIn": "Jugador que entra",
       "minute": "Minuto",
       "add": "Añadir sustitución",
-      "remove": "Quitar"
-    }
+      "remove": "Quitar",
+      "changeN": "Cambio {{n}}"
+    },
+    "ageShort": "{{age}} años",
+    "showSkills": "Ver habilidades",
+    "hideSkills": "Ocultar habilidades",
+    "selected": {
+      "skills": "Habilidades",
+      "clear": "Soltar jugador"
+    },
+    "unsavedChanges": "Cambios sin guardar",
+    "savedStatus": "Alineación guardada",
+    "noChanges": "Sin cambios",
+    "leaveTitle": "¿Salir sin guardar?",
+    "leaveMessage": "Tienes cambios sin guardar en la alineación. Si sales ahora se perderán.",
+    "leaveConfirm": "Salir sin guardar",
+    "copyFromMatch": "Copiar de otro partido",
+    "subtitle": "vs {{opponent}} · {{date}} · {{side}}",
+    "subtitleNone": "Sin partido programado",
+    "formationLabel": "Formación",
+    "cantSaveHint": "Rellena todos los huecos para guardar."
   },
   "positions": {
     "goalkeeper": "Portero",
@@ -331,9 +404,21 @@
         "balancedDescription": "Un pago garantizado sólido, más una bonificación por victoria o empate.",
         "performance": "Rendimiento",
         "performanceDescription": "El pago garantizado más bajo, pero la mayor bonificación por victoria o empate - ideal para un equipo en buena racha."
-      }
+      },
+      "win": "V",
+      "draw": "E",
+      "loss": "D",
+      "winLong": "Victoria",
+      "drawLong": "Empate",
+      "lossLong": "Derrota",
+      "selected": "Elegido"
     },
-    "table": { "date": "Fecha", "reason": "Motivo", "description": "Descripción", "amount": "Importe" },
+    "table": {
+      "date": "Fecha",
+      "reason": "Motivo",
+      "description": "Descripción",
+      "amount": "Importe"
+    },
     "noTransactions": "Aún no hay transacciones.",
     "chart": {
       "budgetTitle": "Presupuesto a lo largo del tiempo",
@@ -366,6 +451,53 @@
       "loanWageContribution": "Aportación al salario de cedido",
       "stadiumMaintenance": "Mantenimiento del estadio",
       "other": "Otro"
+    },
+    "ledger": {
+      "matchdayWages": "Salarios de la jornada",
+      "stadiumMaintenance": "Mantenimiento del estadio",
+      "loanWageContribution": "Aportación salarial por cedidos",
+      "trainerWages": "Salario del entrenador: {{name}}",
+      "ticketRevenue": "Entradas ({{attendance}} espectadores)",
+      "friendlyTicketRevenue": "Entradas de amistoso ({{attendance}} espectadores, mitad)",
+      "sponsorship": "Patrocinio de la jornada",
+      "merchandising": "Ingresos por merchandising",
+      "seasonTickets": "Venta de abonos",
+      "placeFinish": "Premio por acabar {{position}}º",
+      "cupRoundPrize": "Premio de copa: ronda {{round}}",
+      "cupChampionBonus": "Bonus de campeón de copa",
+      "stadiumExpansion": "Ampliación del estadio a {{seats}} asientos en obras",
+      "bought": "Fichaje de {{player}} desde {{team}}",
+      "sold": "Venta de {{player}} a {{team}}",
+      "released": "Rescisión de {{player}}",
+      "premiumPaid": "Prima de traspaso pagada por {{player}}",
+      "premiumReceived": "Prima de traspaso recibida por {{player}}",
+      "loanFeePaid": "Cuota de cesión de {{player}} a {{team}}",
+      "loanFeeReceived": "Cuota de cesión de {{player}} desde {{team}}",
+      "buyOptionExercised": "Opción de compra ejercida: {{player}} desde {{team}}",
+      "buyOptionReceived": "Opción de compra ejercida por {{team}}: {{player}}",
+      "title": "Movimientos",
+      "subtotal": "Ingresos {{income}} · Gastos {{expenses}}",
+      "loadMore": "Cargar más",
+      "filter": {
+        "all": "Todos",
+        "income": "Ingresos",
+        "expense": "Gastos"
+      }
+    },
+    "kpi": {
+      "weeklyIncome": "Ingresos/sem",
+      "weeklyExpenses": "Gastos/sem",
+      "weeklyNet": "Neto/sem"
+    },
+    "stadiumCard": {
+      "info": "Aforo {{capacity}} · mantenimiento {{cost}}/jornada",
+      "expandTitle": "Ampliar estadio",
+      "priceTitle": "Precio de entrada",
+      "expandButton": "Ampliar estadio",
+      "priceButton": "Precio de entrada",
+      "confirmExpandButton": "Ampliar por {{cost}}",
+      "costBefore": "Coste total: {{cost}} (se descuenta al confirmar)",
+      "currentPrice": "Precio actual: {{price}}"
     }
   },
   "transfers": {
@@ -375,7 +507,13 @@
     "confirmAcceptOffer": "¿Aceptar la oferta de {{team}} de {{amount}} por {{name}}? Saldrá de tu plantilla de inmediato.",
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
-    "tabs": { "transfers": "Fichajes", "loans": "Cesiones", "offers": "Ofertas", "freeAgents": "Agentes libres", "coaching": "Cuerpo técnico" },
+    "tabs": {
+      "transfers": "Fichajes",
+      "loans": "Cesiones",
+      "offers": "Ofertas",
+      "freeAgents": "Agentes libres",
+      "coaching": "Cuerpo técnico"
+    },
     "stats": {
       "listedPlayers": "Jugadores en venta",
       "offersRecently": "Ofertas realizadas",
@@ -385,9 +523,14 @@
       "viewCount_other": "{{count}} visitas",
       "topFee": "Traspaso récord",
       "topFeeTeams": "{{buyer}} desde {{seller}}",
-      "none": "Todavía ninguno"
+      "none": "Todavía ninguno",
+      "offersShort": "{{hour}} h · {{day}} 24h"
     },
-    "listPlayer": { "title": "Poner en venta a un jugador", "error": "No se pudo listar a ese jugador." },
+    "listPlayer": {
+      "title": "Poner en venta",
+      "error": "No se pudo listar a ese jugador.",
+      "hint": "Su salario actual es {{wage}}/partido."
+    },
     "player": "Jugador",
     "askingPrice": "Precio de venta",
     "list": "Listar",
@@ -433,7 +576,34 @@
       "noResults": "Ningún jugador coincide con tus filtros.",
       "sortBy": "Ordenar por",
       "sortAscending": "Orden ascendente",
-      "sortDescending": "Orden descendente"
+      "sortDescending": "Orden descendente",
+      "button": "Filtros",
+      "title": "Filtros y orden",
+      "showResults": "Ver {{count}} resultados",
+      "min": "Mín.",
+      "max": "Máx.",
+      "age": "Edad",
+      "price": "Precio",
+      "rating": "Valoración",
+      "skillGroup": "Habilidad concreta",
+      "duration": "Duración",
+      "maxDurationLabel": "Duración máxima",
+      "minCapsLabel": "Internacionalidades (mín.)",
+      "active": {
+        "age": "Edad {{min}}–{{max}}",
+        "ageFrom": "Edad ≥ {{value}}",
+        "ageTo": "Edad ≤ {{value}}",
+        "price": "Precio {{min}}–{{max}}",
+        "priceFrom": "Precio ≥ {{value}}",
+        "priceTo": "Precio ≤ {{value}}",
+        "rating": "Valoración {{min}}–{{max}}",
+        "ratingFrom": "Valoración ≥ {{value}}",
+        "ratingTo": "Valoración ≤ {{value}}",
+        "skill": "{{skill}} ≥ {{value}}",
+        "caps": "Internac. ≥ {{value}}",
+        "duration": "Hasta {{count}} temp.",
+        "search": "“{{value}}”"
+      }
     },
     "buy": "Comprar",
     "offerLoan": {
@@ -446,7 +616,12 @@
       "free": "Cesión gratuita - sin cuota",
       "loanFeeSummary": "Cuota de cesión: {{amount}}",
       "wageContributionSummary": "Contribución al salario: {{percent}}%",
-      "buyOptionSummary": "Opción de compra: {{amount}}"
+      "buyOptionSummary": "Opción de compra: {{amount}}",
+      "loanFeeHelp": "Cuota de cesión que paga el otro club",
+      "wageContributionHelp": "% del salario que paga el otro club",
+      "buyOptionHelp": "Precio al que el otro club puede comprarlo",
+      "button": "Ceder un jugador",
+      "selectPlayer": "Jugador a ceder"
     },
     "duration": "Duración",
     "seasonCount_one": "{{count}} temporada",
@@ -464,20 +639,23 @@
       "acceptableAt": "Se podrá aceptar desde las {{date}}",
       "competingCount_one": "{{count}} oferta",
       "competingCount_other": "{{count}} ofertas en competencia",
-      "bestOffer": "Mejor oferta"
+      "bestOffer": "Mejor oferta",
+      "made": "Hecha el {{date}}",
+      "termsLine": "Salario {{wage}}/partido · {{years}}"
     },
     "reject": "Rechazar",
     "withdraw": "Retirar",
     "offerDialog": {
-      "title": "Oferta de traspaso - {{name}}",
+      "title": "Oferta de traspaso",
       "subtitle": "Propón un traspaso a su club, además del salario y la duración del contrato que le ofreces al jugador. Él juzgará las condiciones personales al momento, antes de que su club llegue a ver el traspaso.",
       "amount": "Traspaso",
       "sent": "Oferta enviada a su club.",
       "declined": "No firmaría con esas condiciones. Quiere al menos {{wage}}/partido, y no se compromete a más de {{years}}.",
-      "submit": "Enviar oferta"
+      "submit": "Enviar oferta",
+      "askingPrice": "Precio pedido: {{price}}"
     },
     "signDialog": {
-      "title": "Fichar a {{name}}",
+      "title": "Fichar",
       "subtitle": "Propón un salario y una duración de contrato. Decidirá al momento según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse.",
       "premiumWarning": "Este jugador quedó libre recientemente - si lo fichas, su antiguo club tiene derecho a una prima de traspaso.",
       "accepted": "¡Fichado! Nuevo contrato: {{years}} a {{wage}}/partido.",
@@ -503,7 +681,24 @@
       "fire": "Despedir",
       "confirmHire": "¿Contratar a {{name}} como entrenador con un salario de {{wage}}?",
       "confirmFire": "¿Despedir a {{name}}? Volverá al mercado.",
-      "table": { "name": "Nombre" }
+      "table": {
+        "name": "Nombre"
+      },
+      "skillLabel": "Nivel {{value}}"
+    },
+    "tabsShort": {
+      "transfers": "Fichajes",
+      "loans": "Cesiones",
+      "offers": "Ofertas",
+      "freeAgents": "Libres",
+      "coaching": "Técnicos"
+    },
+    "salaryPerMatch": "Salario {{amount}}/partido",
+    "ageLabel": "Edad {{age}}",
+    "listedOn": "Listado el {{date}}",
+    "listDialog": {
+      "selectPlayer": "Jugador a poner en venta",
+      "hint": "Elige el jugador y el precio que pides por él."
     }
   },
   "cup": {
@@ -522,7 +717,19 @@
     "pens": "(pens)",
     "pensWinner": "{{team}} avanza tras ganar en la tanda de penaltis",
     "tbd": "Por determinar",
-    "lineup": { "title": "Alineación de {{teamName}} para esta eliminatoria" }
+    "lineup": {
+      "title": "Alineación de {{teamName}} para esta eliminatoria"
+    },
+    "names": {
+      "national": "Copa",
+      "europe": "Copa de Europa",
+      "americas": "Copa América",
+      "asia": "Copa de Asia",
+      "africa": "Copa de África",
+      "international": "Copa Internacional"
+    },
+    "noCupTitle": "Aún no hay copa",
+    "noInternationalCupTitle": "Aún no hay Copa Internacional"
   },
   "nationalTeams": {
     "title": "Selecciones",
@@ -549,7 +756,8 @@
         "played": "PJ",
         "goalDifference": "DG",
         "points": "Pts"
-      }
+      },
+      "noneTitle": "Sin Mundial en marcha"
     },
     "live": {
       "title": "En juego",
@@ -572,7 +780,12 @@
       "success": "Reto enviado.",
       "error": "No se pudo enviar ese reto.",
       "challengeTeam": "Retar a un amistoso",
-      "dialogTitle": "Retar a {{name}} a un amistoso"
+      "dialogTitle": "Retar a un amistoso",
+      "opponent": "Equipo rival",
+      "opponentHelper": "Busca por nombre",
+      "emptyTitle": "Aún no hay amistosos",
+      "emptyText": "Reta a otro equipo para jugar un partido sin afectar a la liga.",
+      "emptyCta": "Retar a un equipo"
     },
     "received": {
       "title": "Retos recibidos",
@@ -605,7 +818,8 @@
     },
     "lineup": {
       "title": "Alineación de {{teamName}} para este amistoso"
-    }
+    },
+    "howItWorks": "¿Cómo funcionan los amistosos?"
   },
   "division": {
     "season": "Temporada {{season}}",
@@ -615,20 +829,44 @@
       "position": "#",
       "team": "Equipo",
       "points": "Pts",
-      "average": "Prom",
+      "average": "DG",
       "wins": "G",
       "draws": "E",
       "losses": "P",
-      "goalsFor": "+",
-      "goalsAgainst": "-",
-      "you": "Tú"
+      "goalsFor": "GF",
+      "goalsAgainst": "GC",
+      "you": "Tú",
+      "played": "PJ",
+      "playedLong": "Partidos jugados",
+      "goalDifference": "DG",
+      "goalDifferenceLong": "Diferencia de goles",
+      "pointsLong": "Puntos",
+      "winsLong": "Ganados",
+      "drawsLong": "Empatados",
+      "lossesLong": "Perdidos",
+      "goalsForLong": "Goles a favor",
+      "goalsAgainstLong": "Goles en contra"
     },
     "lastWeek": "Jornada anterior",
     "nextWeek": "Próxima jornada",
     "noMatches": "Sin partidos",
     "topScorers": {
       "title": "Máximos goleadores",
-      "noGoals": "Todavía no se han marcado goles esta temporada."
+      "noGoals": "Todavía no se han marcado goles esta temporada.",
+      "viewAll": "Ver todos ({{count}})"
+    },
+    "subtitle": "Temporada {{season}} · Jornada {{week}} de {{total}}",
+    "fullTable": "Tabla completa",
+    "tabs": {
+      "table": "Clasificación",
+      "fixtures": "Jornadas",
+      "scorers": "Goleadores"
+    },
+    "legend": {
+      "title": "Leyenda",
+      "promotion": "Ascenso",
+      "relegation": "Descenso",
+      "columns": "PJ partidos · DG diferencia de goles · Pts puntos"
     }
   },
   "recentTransfers": {
@@ -664,7 +902,7 @@
     "confirmRelease": "¿Rescindir el contrato de {{name}}? Saldrá de tu plantilla de inmediato y no podrá volver.",
     "releaseError": "No se pudo rescindir el contrato - revisa tu presupuesto.",
     "contractDialog": {
-      "title": "Oferta de renovación - {{name}}",
+      "title": "Renovar contrato",
       "subtitle": "Propón un salario y una duración. El jugador decidirá al momento según lo que cree que vale y cuántas temporadas está dispuesto a comprometerse.",
       "wage": "Salario por partido",
       "years": "Duración",
@@ -674,7 +912,9 @@
       "declined": "Rechazada. Quiere al menos {{wage}}/partido, y no se comprometerá a más de {{years}}.",
       "useExpectations": "Ofrecer lo que pide",
       "submit": "Enviar oferta",
-      "error": "No se pudo enviar la oferta. Inténtalo de nuevo."
+      "error": "No se pudo enviar la oferta. Inténtalo de nuevo.",
+      "currentWage": "Salario actual: {{wage}}/partido",
+      "sameWage": "Mismo salario"
     },
     "academy": {
       "title": "Cantera",
@@ -708,12 +948,17 @@
       "kindLeague": "Liga",
       "kindCup": "Copa",
       "kindFriendly": "Amistoso",
-      "homeTag": "L",
-      "awayTag": "V"
+      "homeTag": "C",
+      "awayTag": "F"
     },
     "trophyCabinet": "Vitrina de trofeos",
     "noSeasons": "Aún no hay temporadas completadas.",
-    "table": { "season": "Temporada", "league": "Liga", "finalPosition": "Posición final", "outcome": "Resultado" },
+    "table": {
+      "season": "Temporada",
+      "league": "Liga",
+      "finalPosition": "Posición final",
+      "outcome": "Resultado"
+    },
     "promoted": "Ascendido",
     "relegated": "Descendido",
     "leagueChampion": "Campeón de liga",
@@ -725,7 +970,26 @@
       "title": "Posición final en liga por temporada",
       "ariaLabel": "Gráfico de líneas de la posición final en liga por temporada, cuanto más bajo mejor",
       "tooltipSeason": "Temporada {{season}} - posición {{position}}"
-    }
+    },
+    "squadGroups": {
+      "goalkeepers": "Porteros",
+      "defenders": "Defensas",
+      "midfielders": "Medios",
+      "strikers": "Delanteros"
+    },
+    "perMatch": "{{amount}}/partido",
+    "contract": "Contrato",
+    "renewDisabledReason": "Ya tiene el contrato máximo ({{count}} temporadas).",
+    "listForSale": "Poner en venta",
+    "loanOut": "Ceder",
+    "tabs": {
+      "summary": "Resumen",
+      "squad": "Plantilla",
+      "academy": "Cantera",
+      "history": "Historial"
+    },
+    "challenge": "Retar a un amistoso",
+    "noHistoryChart": "La gráfica aparece al completar 2 temporadas."
   },
   "match": {
     "matchFinished": "Partido finalizado - cargando el resultado...",
@@ -739,9 +1003,9 @@
     "tabs": {
       "events": "Eventos",
       "lineups": "Alineaciones",
-      "report": "Reporte",
-      "ratings": "Calificaciones",
-      "players": "Jugadores"
+      "chronicle": "Crónica",
+      "notes": "Notas",
+      "tactics": "Táctica"
     },
     "matchday": "Jornada {{week}} de {{total}}",
     "weather": {
@@ -760,7 +1024,9 @@
         "yellowCards": "Tarjetas amarillas",
         "redCards": "Tarjetas rojas",
         "injuries": "Lesiones"
-      }
+      },
+      "fullCommentary": "Ver comentarios completos",
+      "keyEventsOnly": "Solo eventos clave"
     },
     "ratings": {
       "title": "Calificaciones de los jugadores",
@@ -768,12 +1034,17 @@
       "atMinute": "Calificaciones en el minuto {{minute}}",
       "jumpToNow": "Ir al último minuto",
       "previousMinute": "Minuto anterior",
-      "nextMinute": "Minuto siguiente"
+      "nextMinute": "Minuto siguiente",
+      "sortLabel": "Ordenar notas",
+      "sortByRating": "Por nota",
+      "sortByPosition": "Por posición"
     },
     "stadiumEntry": "¡{{home}} y {{away}} saltan al terreno de juego del {{stadium}}!",
     "noNotableEvents": "No hay eventos destacados en este partido.",
     "noLineupData": "No hay datos de alineación.",
-    "lineup": { "title": "Alineación de {{teamName}} para este partido" },
+    "lineup": {
+      "title": "Alineación de {{teamName}} para este partido"
+    },
     "yellowCard": "Tarjeta amarilla",
     "redCard": "Tarjeta roja",
     "injury": "Lesión",
@@ -833,7 +1104,8 @@
       "vsDefenseRightGk": "vs defensa derecha + portero del rival",
       "vsAttackLeft": "vs ataque izquierdo del rival",
       "vsAttackCenter": "vs ataque central del rival",
-      "vsAttackRight": "vs ataque derecho del rival"
+      "vsAttackRight": "vs ataque derecho del rival",
+      "help": "Cada casilla muestra qué porcentaje de la fuerza de esa zona tiene cada equipo. Toca una casilla para ver el cruce y los valores."
     }
   },
   "headToHead": {
@@ -845,8 +1117,17 @@
   "groups": {
     "title": "Grupos de amigos",
     "subtitle": "Una clasificación entre tú y los equipos de tus amigos, ordenada por presupuesto - no es una liga aislada, solo presumir sobre los equipos que ya gestionáis.",
-    "create": { "title": "Crear un grupo", "name": "Nombre", "button": "Crear" },
-    "join": { "title": "Unirse a un grupo", "code": "Código de invitación", "button": "Unirse", "error": "No se pudo unir - comprueba el código de invitación." },
+    "create": {
+      "title": "Crear un grupo",
+      "name": "Nombre",
+      "button": "Crear"
+    },
+    "join": {
+      "title": "Unirse a un grupo",
+      "code": "Código de invitación",
+      "button": "Unirse",
+      "error": "No se pudo unir - comprueba el código de invitación."
+    },
     "yourGroups": "Tus grupos",
     "noGroups": "Aún no perteneces a ningún grupo.",
     "code": "Código: {{code}}",
@@ -854,7 +1135,12 @@
     "confirmLeave": "¿Abandonar \"{{name}}\"? Necesitarás un nuevo código de invitación para volver a entrar.",
     "deleteGroup": "Eliminar grupo",
     "confirmDelete": "¿Eliminar \"{{name}}\"? Esto elimina el grupo para todos los miembros y no se puede deshacer.",
-    "table": { "manager": "Manager", "team": "Equipo", "league": "Liga", "budget": "Presupuesto" },
+    "table": {
+      "manager": "Manager",
+      "team": "Equipo",
+      "league": "Liga",
+      "budget": "Presupuesto"
+    },
     "you": "Tú"
   },
   "admin": {
@@ -1086,7 +1372,8 @@
     "season": "Temporada {{season}}",
     "age": "Edad",
     "noChange": "Sin cambios de habilidad todavía.",
-    "none": "Ningún jugador ha evolucionado todavía."
+    "none": "Ningún jugador ha evolucionado todavía.",
+    "noneTitle": "Sin evoluciones todavía"
   },
   "playerCard": {
     "age": "Edad {{age}}",
@@ -1205,8 +1492,8 @@
       "date": "Fecha",
       "result": "Resultado",
       "rating": "Calificación",
-      "homeTag": "L",
-      "awayTag": "V"
+      "homeTag": "C",
+      "awayTag": "F"
     },
     "callUps": {
       "title": "Convocatorias con la selección",
@@ -1604,5 +1891,42 @@
     "freeAgent": "Agente libre",
     "coachOf": "Entrenador de {{team}}",
     "stadiumOf": "Estadio de {{team}}"
+  },
+  "nav": {
+    "bottom": {
+      "dashboard": "Panel",
+      "squad": "Plantilla",
+      "lineup": "Alineación",
+      "market": "Mercado",
+      "more": "Más"
+    },
+    "groups": {
+      "club": "Mi club",
+      "competitions": "Competiciones",
+      "social": "Social",
+      "other": "Otros"
+    },
+    "detail": {
+      "match": "Partido",
+      "player": "Jugador",
+      "cupTie": "Eliminatoria",
+      "friendly": "Amistoso",
+      "division": "División",
+      "evolutions": "Evoluciones",
+      "team": "Equipo",
+      "teamMatches": "Partidos"
+    }
+  },
+  "divisionName": {
+    "tier": "{{tier}}ª División",
+    "tierGroup": "{{tier}}ª División · Grupo {{group}}",
+    "tierShort": "{{tier}}ª Div."
+  },
+  "subheader": {
+    "position": "{{position}}º"
+  },
+  "teamAutocomplete": {
+    "hint": "Escribe al menos 2 letras del nombre del equipo",
+    "none": "No se encontró ningún equipo"
   }
 }

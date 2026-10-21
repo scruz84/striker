@@ -7,6 +7,11 @@ start reading in the code.
 
 ## Status
 
+- **Economy audit (simulation + rebalancing plan): see `backend/ECONOMY_SIMULATION.md`.** A simulator
+  (`backend/engine/economysim_test.go`, `ECON_SIM=1`) shows the shipped economy still inflates ~80x
+  over 36 seasons (attendance scaling with any stadium built, a 69 "optimal" ticket price, tier income
+  far above flat wages, no sinks). Proposed fix: socios-driven attendance (form, opponent, weather),
+  a sell-out rule for CPU expansions, and a division wage factor. Not implemented yet.
 - **Wage/cadence rescale bug: FIXED.** `PayMatchdayWages` started charging a team's full wage
   bill once per round instead of once a real calendar week, but `WagePerSkillPoint`/
   `TrainerWagePerSkillPoint` were never scaled down to match - under the default daily league

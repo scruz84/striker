@@ -8,6 +8,7 @@ import {
   type PlayerTransfer,
 } from '../../api/types'
 import i18n from '../../i18n'
+import { formatCurrency } from '../../utils/formatCurrency'
 import { PlayerTransferHistory } from './PlayerTransferHistory'
 
 function renderHistory(transfers: PlayerTransfer[]) {
@@ -46,7 +47,7 @@ describe('PlayerTransferHistory', () => {
     expect(first.getByRole('link', { name: 'Rovers' })).toHaveAttribute('href', '/team/7')
     expect(first.getByRole('link', { name: 'United' })).toHaveAttribute('href', '/team/9')
     expect(first.getAllByText(i18n.t('playerPage.history.kinds.listing')).length).toBeGreaterThan(0)
-    expect(first.getByText('$1,500,000')).toBeInTheDocument()
+    expect(first.getByText(formatCurrency(1500000))).toBeInTheDocument()
   })
 
   it('labels a missing origin as free agent and a missing destination as released', () => {

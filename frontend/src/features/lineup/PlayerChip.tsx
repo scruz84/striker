@@ -2,15 +2,19 @@ import { useState } from 'react'
 import Box from '@mui/material/Box'
 import ButtonBase from '@mui/material/ButtonBase'
 import Chip from '@mui/material/Chip'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
+import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { alpha, useTheme } from '@mui/material/styles'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { POSITION_SHORT_LABEL_KEYS, type Player, type PlayerUnavailability } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
-import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 import { TransferListedBadge } from './TransferListedBadge'
@@ -19,7 +23,7 @@ import { UnavailabilityBadge } from './UnavailabilityBadge'
 interface PlayerChipProps {
   player: Player
   /** "field" shows the avatar with a name label and squad number underneath, sized to fit a
-   * crowded pitch; "bench" shows the full name inline in a wider card. */
+   * crowded pitch; "bench" shows a compact one-row card with foldable skills. */
   variant?: 'field' | 'bench'
   /** This is the player currently picked up, waiting to be placed - see useLineupSelections.
    * Irrelevant (and left false) outside the lineup editor - see TeamDetailsPage's squad list,
@@ -29,18 +33,13 @@ interface PlayerChipProps {
    * distinct from `selected` itself, which is the one actually picked up. Same caveat as
    * `selected`. */
   highlight?: boolean
-  /** Optional outside the lineup editor, where tapping the avatar has nothing to do. */
+  /** Tapping the chip selects / places the player. */
   onSelect?: () => void
   /** Set while the player is suspended or injured - see useSquadUnavailability. On the bench
    * such a player is shown disabled, since they can't be fielded (see useLineupSelections). */
   unavailability?: PlayerUnavailability
   /** True while the player is listed on the transfer market - see useSquadTransferListed. */
   forSale?: boolean
-  /** Extra content rendered below a "bench" card's stats, outside the tap targets above it (its
-   * own avatar/name buttons stay reserved for selection and the stats popover) - e.g. the wage and
-   * renew/release contract controls TeamDetailsPage's squad list needs per player, which a plain
-   * lineup bench slot has no use for. */
-  footer?: React.ReactNode
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -78,160 +77,165 @@ export function PlayerChip({
   onSelect = () => {},
   unavailability,
   forSale,
-  footer,
 }: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const ringSx = useSelectionRingSx(selected, highlight)
-  const [statsAnchor, setStatsAnchor] = useState<HTMLElement | null>(null)
-  const openStats = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation()
-    setStatsAnchor(event.currentTarget)
-  }
-  const closeStats = () => setStatsAnchor(null)
+  const [expanded, setExpanded] = useState(false)
 
   const rating = overallRating(player)
   const position = bestCorePosition(player)
   const label = `${player.firstName} ${player.lastName} (${player.age})`
+  const ratingColor = ratingTierColor(rating, theme.palette)
 
+  // Field chips: ONE tap target - the avatar and the name under it select/move the player. The
+  // player's details open from the selection panel under the pitch (SelectedPlayerPanel), so a
+  // move can never open a profile by mistake.
   if (variant === 'field') {
     return (
-      <>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 68 }}>
-          <Tooltip title={label}>
-            <ButtonBase
-              onClick={onSelect}
-              sx={{ borderRadius: '50%' }}
-              aria-pressed={selected}
-              aria-label={label}
+      <ButtonBase
+        onClick={onSelect}
+        aria-pressed={selected}
+        aria-label={label}
+        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 60, borderRadius: 2 }}
+      >
+        <Box sx={{ position: 'relative', lineHeight: 0, borderRadius: '50%', transition: 'box-shadow 150ms ease', ...ringSx }}>
+          <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={44} />
+          {!!player.shirtNumber && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -5,
+                right: -6,
+                minWidth: 20,
+                height: 20,
+                px: 0.25,
+                borderRadius: 10,
+                bgcolor: 'rgba(20,20,20,0.85)',
+                border: '1px solid rgba(255,255,255,0.85)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <Box sx={{ position: 'relative', lineHeight: 0, borderRadius: '50%', transition: 'box-shadow 150ms ease', ...ringSx }}>
-                <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={44} />
-                {!!player.shirtNumber && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: -4,
-                      right: -4,
-                      width: 18,
-                      height: 18,
-                      borderRadius: '50%',
-                      bgcolor: 'rgba(20,20,20,0.85)',
-                      border: '1px solid rgba(255,255,255,0.85)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Typography sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1 }}>
-                      {player.shirtNumber}
-                    </Typography>
-                  </Box>
-                )}
-                {/* Top-left, the one corner the shirt number and rating badges leave free. */}
-                {unavailability && (
-                  <Box sx={{ position: 'absolute', top: -4, left: -4, lineHeight: 0 }}>
-                    <UnavailabilityBadge unavailability={unavailability} />
-                  </Box>
-                )}
-                {/* Average skill, quick-glance only (see the bench variant's fuller badge, where
-                    there's room for the suggested position too) - bottom-left mirrors the shirt
-                    number's top-right placement so neither badge crowds the face. */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: -4,
-                    left: -4,
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    bgcolor: ratingTierColor(rating, theme.palette),
-                    border: '1px solid rgba(255,255,255,0.85)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Typography sx={{ color: '#fff', fontSize: '0.55rem', fontWeight: 700, lineHeight: 1 }}>
-                    {rating}
-                  </Typography>
-                </Box>
-                {/* The one corner left free by the shirt number/unavailability/rating badges. */}
-                {forSale && (
-                  <Box sx={{ position: 'absolute', bottom: -4, right: -4, lineHeight: 0 }}>
-                    <TransferListedBadge />
-                  </Box>
-                )}
-              </Box>
-            </ButtonBase>
-          </Tooltip>
-          <ButtonBase onClick={openStats} sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
-            <Typography
-              noWrap
-              sx={{ color: '#fff', fontSize: '0.62rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}
-            >
-              {player.lastName}
+              <Typography variant="chipLabel" sx={{ color: '#fff', lineHeight: 1 }}>
+                {player.shirtNumber}
+              </Typography>
+            </Box>
+          )}
+          {/* Top-left, the one corner the shirt number and rating badges leave free. */}
+          {unavailability && (
+            <Box sx={{ position: 'absolute', top: -5, left: -6, lineHeight: 0 }}>
+              <UnavailabilityBadge unavailability={unavailability} size={20} />
+            </Box>
+          )}
+          {/* Average skill, quick-glance only - bottom-left mirrors the shirt number's top-right
+              placement so neither badge crowds the face. */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: -5,
+              left: -6,
+              minWidth: 20,
+              height: 20,
+              px: 0.25,
+              borderRadius: 10,
+              bgcolor: ratingColor,
+              border: '1px solid rgba(255,255,255,0.85)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="chipLabel" sx={{ color: theme.palette.getContrastText(ratingColor), lineHeight: 1 }}>
+              {rating}
             </Typography>
-          </ButtonBase>
+          </Box>
+          {/* The one corner left free by the shirt number/unavailability/rating badges. */}
+          {forSale && (
+            <Box sx={{ position: 'absolute', bottom: -5, right: -6, lineHeight: 0 }}>
+              <TransferListedBadge size={20} />
+            </Box>
+          )}
         </Box>
-        <PlayerStatsPopover player={player} anchorEl={statsAnchor} onClose={closeStats} />
-      </>
+        <Typography
+          noWrap
+          variant="chipLabel"
+          sx={{ mt: 0.5, px: 0.5, maxWidth: '100%', borderRadius: 1, bgcolor: 'rgba(0,0,0,0.65)', color: '#fff', textAlign: 'center' }}
+        >
+          {player.lastName}
+        </Typography>
+      </ButtonBase>
     )
   }
 
+  // Bench rows: avatar + name + position + rating + form in one tap target (select / swap); the
+  // skills and the profile link fold away behind a 44px chevron instead of filling 3 lines per
+  // player.
   return (
-    <>
-      <Paper elevation={selected ? 4 : 1} sx={{ display: 'flex', flexDirection: 'column', gap: footer ? 0.75 : 0, p: 0.5, width: '100%' }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <ButtonBase
-            onClick={onSelect}
-            disabled={!!unavailability}
-            sx={{ borderRadius: '50%' }}
-            aria-pressed={selected}
-            aria-label={label}
+    <Paper elevation={selected ? 4 : 1} sx={{ width: '100%', overflow: 'hidden', ...(selected && { outline: `2px solid ${theme.palette.warning.main}` }) }}>
+      <Stack direction="row" sx={{ alignItems: 'center' }}>
+        <ButtonBase
+          onClick={onSelect}
+          disabled={!!unavailability}
+          aria-pressed={selected}
+          aria-label={label}
+          sx={{ flex: 1, minWidth: 0, minHeight: 52, gap: 1.25, p: 0.75, justifyContent: 'flex-start', textAlign: 'left' }}
+        >
+          <Box
+            sx={{
+              lineHeight: 0,
+              borderRadius: '50%',
+              transition: 'box-shadow 150ms ease',
+              ...(unavailability && { opacity: 0.45, filter: 'grayscale(1)' }),
+              ...ringSx,
+            }}
           >
-            <Box
-              sx={{
-                lineHeight: 0,
-                borderRadius: '50%',
-                transition: 'box-shadow 150ms ease',
-                ...(unavailability && { opacity: 0.45, filter: 'grayscale(1)' }),
-                ...ringSx,
-              }}
-            >
-              <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
-            </Box>
-          </ButtonBase>
-          <ButtonBase onClick={openStats} sx={{ minWidth: 0, flex: 1, justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 0.5 }}>
-            <Box sx={{ minWidth: 0, width: '100%' }}>
-              <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-                {player.firstName} {player.lastName}
+            <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={36} />
+          </Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.25 }}>
+              {player.firstName} {player.lastName}
+            </Typography>
+            <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
+              <Chip
+                size="small"
+                variant="outlined"
+                translate="no"
+                className="notranslate"
+                label={t(POSITION_SHORT_LABEL_KEYS[position])}
+                sx={{ height: 20, '& .MuiChip-label': { px: 0.75 } }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {t('lineup.ageShort', { age: player.age })}
               </Typography>
-              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                <Typography variant="caption" color="text.secondary">
-                  {player.age}
-                </Typography>
-                <Chip
-                  size="small"
-                  variant="outlined"
-                  translate="no"
-                  className="notranslate"
-                  label={t(POSITION_SHORT_LABEL_KEYS[position])}
-                  sx={{ height: 16, fontSize: '0.6rem', '& .MuiChip-label': { px: 0.5 } }}
-                />
-                <Typography variant="caption" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
-                  {rating}
-                </Typography>
-                {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
-                {forSale && <TransferListedBadge size={16} />}
-              </Stack>
-              <SkillChipsRow player={player} />
-            </Box>
-          </ButtonBase>
-        </Stack>
-        {footer}
-      </Paper>
-      <PlayerStatsPopover player={player} anchorEl={statsAnchor} onClose={closeStats} />
-    </>
+              <Typography variant="caption" color="text.secondary">
+                {t('playerCard.skillsShort.form')} {player.form}
+              </Typography>
+              {unavailability && <UnavailabilityBadge unavailability={unavailability} size={18} />}
+              {forSale && <TransferListedBadge size={18} />}
+            </Stack>
+          </Box>
+          <Typography variant="stat" sx={{ fontSize: '1.25rem', color: ratingColor, flexShrink: 0, pr: 0.5 }}>
+            {rating}
+          </Typography>
+        </ButtonBase>
+        <IconButton
+          onClick={() => setExpanded((open) => !open)}
+          aria-expanded={expanded}
+          aria-label={t(expanded ? 'lineup.hideSkills' : 'lineup.showSkills')}
+        >
+          {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+      </Stack>
+      <Collapse in={expanded} unmountOnExit>
+        <Box sx={{ px: 1, pb: 1 }}>
+          <SkillChipsRow player={player} />
+          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" variant="body2" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>
+            {t('playerCard.viewProfile')}
+          </Link>
+        </Box>
+      </Collapse>
+    </Paper>
   )
 }

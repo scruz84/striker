@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { POSITION_GOALKEEPER, POSITION_STRIKER, type Player } from '../api/types'
-import { bestCorePosition } from './playerRating'
+import { bestCorePosition, ratingTier } from './playerRating'
 
 function player(overrides: Partial<Player>): Player {
   return {
@@ -43,5 +43,11 @@ describe('bestCorePosition', () => {
     const keeper = player({ goalKeeper: 70, defense: 40, shot: 30, dribbling: 30, pass: 30, midfield: 30 })
 
     expect(bestCorePosition(keeper)).toBe(POSITION_GOALKEEPER)
+  })
+})
+
+describe('ratingTier', () => {
+  it('maps a 0-99 rating onto five ascending tiers', () => {
+    expect([0, 34, 35, 49, 50, 64, 65, 79, 80, 99].map(ratingTier)).toEqual([0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
   })
 })

@@ -31,6 +31,8 @@ import {
 import { useConfirm } from '../../components/confirmDialogContext'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
 
 export function GroupsPage() {
   const { t } = useTranslation()
@@ -57,12 +59,8 @@ export function GroupsPage() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {t('groups.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('groups.subtitle')}
-      </Typography>
+      <PageHeader title={t('groups.title')} subtitle={t('groups.subtitle')} />
+      <Box sx={{ mb: 2 }} />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -70,8 +68,8 @@ export function GroupsPage() {
             <Typography variant="subtitle1" gutterBottom>
               {t('groups.create.title')}
             </Typography>
-            <Stack direction="row" spacing={1}>
-              <TextField size="small" label={t('groups.create.name')} value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              <TextField label={t('groups.create.name')} value={name} onChange={(e) => setName(e.target.value)} fullWidth />
               <Button type="submit" variant="contained" disabled={createGroup.isPending}>
                 {t('groups.create.button')}
               </Button>
@@ -83,9 +81,9 @@ export function GroupsPage() {
             <Typography variant="subtitle1" gutterBottom>
               {t('groups.join.title')}
             </Typography>
-            <Stack direction="row" spacing={1}>
-              <TextField size="small" label={t('groups.join.code')} value={code} onChange={(e) => setCode(e.target.value)} fullWidth />
-              <Button type="submit" variant="outlined" disabled={joinGroup.isPending}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              <TextField label={t('groups.join.code')} value={code} onChange={(e) => setCode(e.target.value)} fullWidth />
+              <Button type="submit" variant="contained" disabled={joinGroup.isPending}>
                 {t('groups.join.button')}
               </Button>
             </Stack>
@@ -107,9 +105,7 @@ export function GroupsPage() {
             {isLoading || !groups ? (
               <Skeleton variant="rectangular" height={100} />
             ) : groups.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                {t('groups.noGroups')}
-              </Typography>
+              <EmptyState compact title={t('groups.noGroups')} />
             ) : (
               <List>
                 {groups.map((group) => (

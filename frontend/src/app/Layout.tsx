@@ -1,17 +1,25 @@
 import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useMe } from '../api/hooks'
+import { useMe, useUserTeam } from '../api/hooks'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { BOTTOM_NAV_HEIGHT, BottomNav } from './BottomNav'
+import { DetailBackBar } from './DetailBackBar'
 import { Header } from './Header'
 import { NavDrawer } from './NavDrawer'
+import { findDetailRoute } from './navigation'
 import { Subheader } from './Subheader'
 
 export function Layout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const { data: loggedUser } = useMe()
+  const { data: userTeam } = useUserTeam(!!loggedUser)
   const location = useLocation()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
 
   // A brand-new sign-in has no team yet until they pick a country (see
   // LoggedUser.pendingCountrySelection) - every other route is off-limits until then, so this
@@ -21,14 +29,25 @@ export function Layout() {
     return <Navigate to="/onboarding" replace />
   }
 
+  const showBottomNav = !!loggedUser && !loggedUser.pendingCountrySelection && !isDesktop
+  const detailRoute = isDesktop ? undefined : findDetailRoute(location.pathname, userTeam?.team.id)
+
   return (
     <Box>
-      <Header onMenuClick={() => setMobileNavOpen(true)} />
+      <Header />
       <Box sx={{ display: 'flex' }}>
         <NavDrawer mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
-        <Box component="main" sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Subheader />
-          <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            minWidth: 0,
+            // Keep the last content clear of the fixed bottom bar (and the home indicator).
+            pb: showBottomNav ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom))` : 0,
+          }}
+        >
+          {detailRoute ? <DetailBackBar route={detailRoute} /> : <Subheader />}
+          <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3 } }}>
             {/* Keyed by path so navigating to a different page always gets a fresh boundary
                 instead of staying stuck on a previous page's error fallback. */}
             <ErrorBoundary key={location.pathname}>
@@ -37,6 +56,7 @@ export function Layout() {
           </Container>
         </Box>
       </Box>
+      {showBottomNav && <BottomNav onMore={() => setMobileNavOpen(true)} />}
     </Box>
   )
 }

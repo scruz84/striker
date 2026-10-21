@@ -20,6 +20,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useSearch } from '../../api/hooks'
 import type { CoachSearchResult, PlayerSearchResult, StadiumSearchResult, TeamSearchResult } from '../../api/types'
+import { PageHeader } from '../../components/PageHeader'
 
 // A single global search page - look up a team, player, coach, or stadium by name and jump
 // straight into its details (a coach or stadium has no page of its own, so those results land on
@@ -36,12 +37,7 @@ export function SearchPage() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h5" sx={{ fontWeight: 700 }}>
-        {t('search.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {t('search.subtitle')}
-      </Typography>
+      <PageHeader title={t('search.title')} subtitle={t('search.subtitle')} />
 
       <TextField
         autoFocus

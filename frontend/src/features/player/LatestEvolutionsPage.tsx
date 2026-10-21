@@ -7,6 +7,9 @@ import { useSearchParams } from 'react-router-dom'
 import { useMe, useTeamLatestEvolutions } from '../../api/hooks'
 import { PlayerEvolutionBody } from '../../components/PlayerEvolutionCard'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
 
 // The page a NOTIFICATION_PROGRESSION notification links to, via its own logIds query param -
 // exactly the caller's own squad's players whose skills evolved from that one specific
@@ -28,11 +31,9 @@ export function LatestEvolutionsPage() {
 
   return (
     <Stack spacing={{ xs: 1.5, sm: 2 }}>
-      <Typography variant="h5">{t('evolution.pageTitle')}</Typography>
+      <PageHeader title={t('evolution.pageTitle')} />
       {evolutions.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          {t('evolution.none')}
-        </Typography>
+        <EmptyState icon={<TrendingUpIcon fontSize="inherit" />} title={t('evolution.noneTitle')} text={t('evolution.none')} />
       ) : (
         <Stack spacing={2}>
           {evolutions.map((evolution) => (

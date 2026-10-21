@@ -75,6 +75,11 @@ const GetTeamClassificationPositionStmtSql = "SELECT position FROM (" +
 	") ranked WHERE team_id = $3"
 
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
+
+// getLeagueAdjacentTiersStmtSql reports whether the league's country has a tier directly above and
+// directly below it - the only neighbours teams can be promoted to / relegated into.
+const getLeagueAdjacentTiersStmtSql = "SELECT EXISTS (SELECT 1 FROM leagues u WHERE u.country = l.country AND u.tier = l.tier - 1), " +
+	"EXISTS (SELECT 1 FROM leagues d WHERE d.country = l.country AND d.tier = l.tier + 1) FROM leagues l WHERE l.league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
 const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level " +
@@ -1172,6 +1177,8 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 		previousWeekMatches = &aux
 	}
 
+	promotionSlots, relegationSlots := leaguePromotionRelegationSlots(dbCtx, leagueId, len(positions))
+
 	return &DivisionDetails{
 		Id:     leagueId,
 		Season: currentSeason,
@@ -1181,7 +1188,29 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 		},
 		PreviousWeekMatches: *previousWeekMatches,
 		NextWeekMatches:     *nextWeekMatches,
+		PromotionSlots:      promotionSlots,
+		RelegationSlots:     relegationSlots,
 	}, nil
+}
+
+// leaguePromotionRelegationSlots returns how many top / bottom finishers of the league move tier at
+// rollover (the admin-configured per-group slots, see GetPromotionRelegationConfig), or 0 for a
+// direction with no adjacent tier to move to. A lookup failure just means "no zones": the table
+// is still correct without the markers.
+func leaguePromotionRelegationSlots(dbCtx *DatabaseContext, leagueId int64, teams int) (int, int) {
+	var hasUpper, hasLower bool
+	if err := dbCtx.Db.QueryRow(getLeagueAdjacentTiersStmtSql, leagueId).Scan(&hasUpper, &hasLower); err != nil {
+		return 0, 0
+	}
+	config := GetPromotionRelegationConfig(dbCtx)
+	promotion, relegation := 0, 0
+	if hasUpper {
+		promotion = min(config.PromotionSlotsPerGroup, teams)
+	}
+	if hasLower {
+		relegation = min(config.RelegationSlotsPerGroup, teams)
+	}
+	return promotion, relegation
 }
 
 func WeekMatches(dbCtx *DatabaseContext, leagueId int64, season int, weekNumber int) (*[]WeekMatch, error) {

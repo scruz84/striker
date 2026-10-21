@@ -1,9 +1,12 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
-import Typography from '@mui/material/Typography'
+import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestInternationalCupId, useMe } from '../../api/hooks'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
+import { translateCupName } from '../../utils/ledgerDescription'
 import { regionForCountry } from '../../components/avatar/traits'
 import { CupBracket } from './CupPage'
 
@@ -25,19 +28,26 @@ export function InternationalCupPage() {
   }
 
   if (!cupDetails) {
-    return <Typography color="text.secondary">{t('cup.noInternationalCup')}</Typography>
+    return (
+      <Box>
+        <PageHeader title={t('header.nav.internationalCup')} />
+        <EmptyState
+          icon={<PublicTwoToneIcon fontSize="inherit" />}
+          title={t('cup.noInternationalCupTitle')}
+          text={t('cup.noInternationalCup')}
+        />
+      </Box>
+    )
   }
 
   const { cup, ties } = cupDetails
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {t('cup.titleWithSeason', { name: cup.name, season: cup.season })}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        {t('cup.entryCriteria')}
-      </Typography>
+      <PageHeader
+        title={t('cup.titleWithSeason', { name: translateCupName(t, cup.name), season: cup.season })}
+        subtitle={t('cup.entryCriteria')}
+      />
       {cup.completed && (
         <Chip color="success" label={t('cup.champion', { name: cup.championTeamName })} sx={{ mb: 2 }} />
       )}

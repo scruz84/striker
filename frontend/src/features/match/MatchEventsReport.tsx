@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -14,8 +15,10 @@ import {
   EVENT_TYPE_YELLOW_CARD,
   type MatchEvent,
 } from '../../api/types'
+import { formatNumber } from '../../utils/formatCurrency'
 import { commentaryFor } from '../../utils/matchCommentary'
-import { TeamNameLink } from '../../components/TeamNameLink'
+import { TeamBadge } from '../../components/TeamBadge'
+import { matchTeamColors } from '../../utils/teamColors'
 
 const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_GOAL,
@@ -110,18 +113,23 @@ export function MatchEventsReport({
 }: MatchEventsReportProps) {
   const { t } = useTranslation()
 
+  // Missed chances ("¡Qué cerca!...") are most of the narration and bury the goals, cards and
+  // substitutions, so they're hidden until the viewer asks for the full commentary.
+  const [fullCommentary, setFullCommentary] = useState(false)
   const notable = events.filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType)).sort((a, b) => a.minute - b.minute)
+  const hasMissedChances = notable.some((event) => event.eventType === EVENT_TYPE_NO_GOAL)
+  const visible = fullCommentary ? notable : notable.filter((event) => event.eventType !== EVENT_TYPE_NO_GOAL)
 
   const hasFlavor = !!(weather && refereeName && assistant1Name && assistant2Name)
 
   return (
-    <Stack spacing={1.5}>
+    <Stack spacing={1}>
       <MatchStatsSummary events={events} homeId={homeId} homeName={homeName} awayId={awayId} awayName={awayName} />
       {hasFlavor && (
         <ReportParagraph
           text={t('match.report.intro', {
             weather: t(`match.weather.${weather}`),
-            attendance: attendance?.toLocaleString(),
+            attendance: attendance === undefined ? undefined : formatNumber(attendance),
             referee: refereeName,
             assistant1: assistant1Name,
             assistant2: assistant2Name,
@@ -129,7 +137,14 @@ export function MatchEventsReport({
         />
       )}
       <ReportParagraph text={t('match.report.kickoff')} />
-      {notable.map((event, idx) => {
+      {hasMissedChances && (
+        <Box>
+          <Button size="small" onClick={() => setFullCommentary((value) => !value)}>
+            {t(fullCommentary ? 'match.report.keyEventsOnly' : 'match.report.fullCommentary')}
+          </Button>
+        </Box>
+      )}
+      {visible.map((event, idx) => {
         const isHome = event.teamOwner === homeId
         const teamId = isHome ? homeId : awayId
         const teamName = isHome ? homeName : awayName
@@ -146,8 +161,10 @@ export function MatchEventsReport({
             homeGoals={event.homeGoals}
             awayGoals={event.awayGoals}
             text={commentary}
-            isHome={isHome}
             icon={iconFor(event.eventType)}
+            teamId={teamId}
+            teamName={teamName}
+            emphasized={event.eventType !== EVENT_TYPE_NO_GOAL}
           />
         )
       })}
@@ -159,7 +176,8 @@ export function MatchEventsReport({
 // A box-score-style summary above the narrative: total chances each team created, plus cards and
 // injuries - the numbers a reader would otherwise have to tally themselves by scanning the whole
 // event timeline below. Deliberately omits the goal/missed split (already implicit in the
-// scoreline shown above) and just gives the total.
+// scoreline shown above) and just gives the total. Teams are identified by their badge rather than
+// their name, which truncated on a phone.
 function MatchStatsSummary({
   events,
   homeId,
@@ -175,6 +193,7 @@ function MatchStatsSummary({
 }) {
   const { t } = useTranslation()
   const { home, away } = statsByTeam(events, homeId)
+  const colors = matchTeamColors(homeId, awayId)
 
   const rows: Array<{ labelKey: string; home: number; away: number }> = [
     { labelKey: 'match.report.summary.chances', home: home.goals + home.missedChances, away: away.goals + away.missedChances },
@@ -188,39 +207,59 @@ function MatchStatsSummary({
       <Typography variant="subtitle2" gutterBottom>
         {t('match.report.summary.title')}
       </Typography>
-      <Stack spacing={1} sx={{ mb: 1 }}>
-        <Stack direction="row">
-          <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, textAlign: 'right', pr: 1 }} noWrap>
-            <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
-          </Typography>
-          <Box sx={{ width: { xs: 130, sm: 160 } }} />
-          <Typography variant="caption" sx={{ flex: 1, fontWeight: 700, pl: 1 }} noWrap>
-            <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
-          </Typography>
+      <Stack spacing={1}>
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+          <TeamBadge teamId={homeId} teamName={homeName} size={24} />
+          <TeamBadge teamId={awayId} teamName={awayName} size={24} />
         </Stack>
         {rows.map((row) => (
-          <StatRow key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} />
+          <StatRow key={row.labelKey} label={t(row.labelKey)} home={row.home} away={row.away} homeColor={colors.home} awayColor={colors.away} />
         ))}
       </Stack>
     </Paper>
   )
 }
 
-function StatRow({ label, home, away }: { label: string; home: number; away: number }) {
-  const homeStronger = home > away
-  const awayStronger = away > home
+// One stat as a pair of opposing bars growing from the center, each sized by its share of the
+// row's total - the figures stay at the edges so the comparison reads at a glance.
+function StatRow({
+  label,
+  home,
+  away,
+  homeColor,
+  awayColor,
+}: {
+  label: string
+  home: number
+  away: number
+  homeColor: string
+  awayColor: string
+}) {
+  const total = home + away
+  const homeShare = total > 0 ? (home / total) * 100 : 0
+  const awayShare = total > 0 ? (away / total) * 100 : 0
   return (
-    <Stack direction="row" sx={{ alignItems: 'center' }}>
-      <Typography variant="body2" sx={{ flex: 1, textAlign: 'right', pr: 1, fontWeight: homeStronger ? 700 : 400 }}>
-        {home}
-      </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ width: { xs: 130, sm: 160 }, textAlign: 'center' }}>
-        {label}
-      </Typography>
-      <Typography variant="body2" sx={{ flex: 1, pl: 1, fontWeight: awayStronger ? 700 : 400 }}>
-        {away}
-      </Typography>
-    </Stack>
+    <Box>
+      <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <Typography variant="body2" sx={{ fontWeight: home > away ? 700 : 400, minWidth: 24 }}>
+          {home}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {label}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: away > home ? 700 : 400, minWidth: 24, textAlign: 'right' }}>
+          {away}
+        </Typography>
+      </Stack>
+      <Stack direction="row" spacing={0.5}>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', bgcolor: 'action.hover', borderRadius: 1, height: 6 }}>
+          <Box sx={{ width: `${homeShare}%`, bgcolor: homeColor, borderRadius: 1 }} />
+        </Box>
+        <Box sx={{ flex: 1, display: 'flex', bgcolor: 'action.hover', borderRadius: 1, height: 6 }}>
+          <Box sx={{ width: `${awayShare}%`, bgcolor: awayColor, borderRadius: 1 }} />
+        </Box>
+      </Stack>
+    </Box>
   )
 }
 
@@ -250,59 +289,53 @@ function iconFor(eventType: number): string | null {
 
 function ReportParagraph({ text }: { text: string }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2, borderLeftWidth: 4, borderLeftStyle: 'solid', borderLeftColor: 'outlineVariant' }}>
-      <Typography variant="body2" color="text.secondary">
-        {text}
-      </Typography>
-    </Paper>
+    <Typography variant="body2" color="text.secondary">
+      {text}
+    </Typography>
   )
 }
 
-// A row colored by which team the event belongs to - a home-team goal/card/etc. gets the home
-// color's left bar, an away-team one gets the away color's, so the timeline reads at a glance
-// without having to parse the sentence each time.
+// A compact timeline row: minute on the left, the event's icon, the owning team's badge, then the
+// narration - bold for goals, cards, injuries and substitutions, regular for the missed chances
+// shown in the full commentary. No per-row card or colored bar: the badge says whose event it is.
 function ReportRow({
   minute,
   homeGoals,
   awayGoals,
   text,
-  isHome,
   icon,
+  teamId,
+  teamName,
+  emphasized,
 }: {
   minute: number
   homeGoals: number
   awayGoals: number
   text: ReactNode
-  isHome: boolean
   icon: string | null
+  teamId: number
+  teamName: string
+  emphasized: boolean
 }) {
   return (
-    <Stack
-      direction="row"
-      spacing={1.5}
-      sx={{
-        alignItems: 'flex-start',
-        borderLeftWidth: 4,
-        borderLeftStyle: 'solid',
-        borderLeftColor: isHome ? 'primary.main' : 'error.main',
-        pl: 1.5,
-        py: 0.5,
-      }}
-    >
-      <Box sx={{ minWidth: 44, textAlign: 'center', flexShrink: 0 }}>
-        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-          {homeGoals} - {awayGoals}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', py: 0.25 }}>
+      <Box sx={{ minWidth: 40, flexShrink: 0 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
           {minute}&apos;
         </Typography>
+        {emphasized && (
+          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+            {homeGoals}-{awayGoals}
+          </Typography>
+        )}
       </Box>
-      {icon && (
-        <Typography component="span" sx={{ fontSize: '1.1rem', lineHeight: '1.5rem' }}>
-          {icon}
-        </Typography>
-      )}
-      <Typography variant="body2" sx={{ flex: 1, pt: 0.25 }}>
+      <Typography component="span" sx={{ fontSize: '1.1rem', lineHeight: '1.5rem', width: 24, textAlign: 'center', flexShrink: 0 }}>
+        {icon}
+      </Typography>
+      <Box sx={{ pt: 0.25, flexShrink: 0 }}>
+        <TeamBadge teamId={teamId} teamName={teamName} size={18} />
+      </Box>
+      <Typography variant="body2" sx={{ flex: 1, pt: 0.25, fontWeight: emphasized ? 600 : 400, color: emphasized ? 'text.primary' : 'text.secondary' }}>
         {text}
       </Typography>
     </Stack>

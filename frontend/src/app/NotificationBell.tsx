@@ -3,15 +3,21 @@ import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
 import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -49,6 +55,8 @@ export function NotificationBell() {
   const subscribeToPush = useSubscribeToPush()
   const unsubscribeFromPush = useUnsubscribeFromPush()
   const pushSupported = isPushSupported()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
 
   if (!loggedUser) {
     return null
@@ -85,128 +93,176 @@ export function NotificationBell() {
     }
   }
 
-  return (
-    <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title={t('notifications.title')}>
-        <IconButton onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit">
-          <Badge badgeContent={unread} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-      </Tooltip>
-      <Menu
-        sx={{ mt: '45px' }}
-        slotProps={{ paper: { sx: { width: 380, maxWidth: '100%' } } }}
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
+  const settingsView = (
+    <List disablePadding>
+      <ListSubheader disableSticky sx={{ lineHeight: '32px' }}>
+        {t('notifications.deliverBy')}
+      </ListSubheader>
+      <ListItem
+        secondaryAction={
+          <Switch
+            edge="end"
+            checked={prefs?.emailEnabled ?? false}
+            disabled={!prefs || setPrefs.isPending}
+            onChange={(event) => prefs && setPrefs.mutate({ ...prefs, emailEnabled: event.target.checked })}
+            slotProps={{ input: { 'aria-label': t('notifications.email') } }}
+          />
+        }
       >
-        <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="subtitle2">{t('notifications.title')}</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {unread > 0 && (
-              <Button size="small" onClick={() => markAllRead.mutate()}>
-                {t('notifications.markAllRead')}
-              </Button>
-            )}
-            {notifications.length > 0 && (
-              <Button size="small" color="inherit" onClick={() => deleteAllNotifications.mutate()}>
-                {t('notifications.clearAll')}
-              </Button>
-            )}
-            <Tooltip title={t('notifications.deliveryPreferences')}>
-              <IconButton size="small" onClick={() => setSettingsOpen((open) => !open)}>
-                <SettingsIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
+        <ListItemText primary={t('notifications.email')} />
+      </ListItem>
+      <ListItem
+        secondaryAction={
+          <Switch
+            edge="end"
+            checked={prefs?.pushEnabled ?? false}
+            disabled={
+              !prefs ||
+              !pushSupported ||
+              setPrefs.isPending ||
+              subscribeToPush.isPending ||
+              unsubscribeFromPush.isPending
+            }
+            onChange={(event) => void handlePushToggle(event.target.checked)}
+            slotProps={{ input: { 'aria-label': t('notifications.push') } }}
+          />
+        }
+      >
+        <ListItemText primary={t('notifications.push')} secondary={pushSupported ? undefined : t('notifications.pushUnsupported')} />
+      </ListItem>
+      {subscribeToPush.isError && (
+        <ListItem>
+          <Typography variant="caption" color="error">
+            {t('notifications.pushPermissionDenied')}
+          </Typography>
+        </ListItem>
+      )}
+    </List>
+  )
+
+  const listView = (
+    <>
+      {notifications.length === 0 && (
+        <Box sx={{ px: 2, py: 3, textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('notifications.empty')}
+          </Typography>
         </Box>
-        {settingsOpen && (
-          <>
-            <Divider />
-            <Box sx={{ px: 2, py: 1 }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                {t('notifications.deliverBy')}
-              </Typography>
-              <FormControlLabel
-                control={
-                  <Switch
-                    size="small"
-                    checked={prefs?.emailEnabled ?? false}
-                    disabled={!prefs || setPrefs.isPending}
-                    onChange={(event) =>
-                      prefs && setPrefs.mutate({ ...prefs, emailEnabled: event.target.checked })
-                    }
-                  />
-                }
-                label={<Typography variant="body2">{t('notifications.email')}</Typography>}
-              />
-              <Tooltip title={pushSupported ? '' : t('notifications.pushUnsupported')}>
-                <FormControlLabel
-                  sx={{ display: 'block' }}
-                  control={
-                    <Switch
-                      size="small"
-                      checked={prefs?.pushEnabled ?? false}
-                      disabled={
-                        !prefs ||
-                        !pushSupported ||
-                        setPrefs.isPending ||
-                        subscribeToPush.isPending ||
-                        unsubscribeFromPush.isPending
-                      }
-                      onChange={(event) => void handlePushToggle(event.target.checked)}
-                    />
-                  }
-                  label={<Typography variant="body2">{t('notifications.push')}</Typography>}
-                />
-              </Tooltip>
-              {subscribeToPush.isError && (
-                <Typography variant="caption" color="error" sx={{ display: 'block' }}>
-                  {t('notifications.pushPermissionDenied')}
-                </Typography>
-              )}
-            </Box>
-          </>
-        )}
-        <Divider />
-        {notifications.length === 0 && (
-          <MenuItem disabled>
-            <Typography variant="body2" color="text.secondary">
-              {t('notifications.empty')}
-            </Typography>
-          </MenuItem>
-        )}
+      )}
+      <List disablePadding>
         {notifications.map((notification) => (
-          <MenuItem
+          <ListItem
             key={notification.notificationId}
-            onClick={() => handleItemClick(notification)}
-            sx={{ whiteSpace: 'normal', backgroundColor: notification.read ? 'transparent' : 'action.hover' }}
+            disablePadding
+            divider
+            secondaryAction={
+              <IconButton
+                edge="end"
+                aria-label={t('notifications.delete')}
+                onClick={() => deleteNotification.mutate(notification.notificationId)}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
+            sx={{ backgroundColor: notification.read ? 'transparent' : 'action.hover' }}
           >
-            <Stack direction="row" spacing={0.5} sx={{ width: '100%', alignItems: 'flex-start' }}>
+            <ListItemButton onClick={() => handleItemClick(notification)} sx={{ pr: 7, whiteSpace: 'normal' }}>
               <ListItemText
                 primary={notification.messageKey ? t(notification.messageKey, notification.messageParams) : notification.message}
                 secondary={formatDateTime(notification.createdAt)}
                 slotProps={{ primary: { variant: 'body2' }, secondary: { variant: 'caption' } }}
               />
-              <Tooltip title={t('notifications.delete')}>
-                <IconButton
-                  size="small"
-                  edge="end"
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    deleteNotification.mutate(notification.notificationId)
-                  }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </MenuItem>
+            </ListItemButton>
+          </ListItem>
         ))}
-      </Menu>
+      </List>
+    </>
+  )
+
+  const actions = (
+    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+      {!settingsOpen && unread > 0 && (
+        <Button size="small" onClick={() => markAllRead.mutate()}>
+          {t('notifications.markAllRead')}
+        </Button>
+      )}
+      {!settingsOpen && notifications.length > 0 && (
+        <Button size="small" color="inherit" onClick={() => deleteAllNotifications.mutate()}>
+          {t('notifications.clearAll')}
+        </Button>
+      )}
+      <Tooltip title={t('notifications.deliveryPreferences')}>
+        <IconButton
+          aria-label={t('notifications.deliveryPreferences')}
+          color={settingsOpen ? 'primary' : 'default'}
+          onClick={() => setSettingsOpen((open) => !open)}
+        >
+          <SettingsIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    </Stack>
+  )
+
+  const close = () => {
+    setAnchorEl(null)
+    setSettingsOpen(false)
+  }
+
+  return (
+    <Box sx={{ flexGrow: 0 }}>
+      <Tooltip title={t('notifications.title')}>
+        <IconButton
+          onClick={(event) => setAnchorEl(event.currentTarget)}
+          color="inherit"
+          aria-label={t('header.notifications')}
+        >
+          <Badge badgeContent={unread} color="error">
+            <NotificationsIcon />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      {isDesktop ? (
+        <Menu
+          sx={{ mt: '8px' }}
+          slotProps={{ paper: { sx: { width: 380, maxWidth: '100%' } } }}
+          anchorEl={anchorEl}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          open={Boolean(anchorEl)}
+          onClose={close}
+        >
+          <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="subtitle2">{t('notifications.title')}</Typography>
+            {actions}
+          </Box>
+          <Divider />
+          {settingsOpen ? settingsView : listView}
+        </Menu>
+      ) : (
+        // A full-screen sheet on a phone: a 380px popover hugs the screen edge and truncates the
+        // delivery settings, so the settings get a screen of their own with right-aligned switches.
+        <Drawer
+          anchor="right"
+          open={Boolean(anchorEl)}
+          onClose={close}
+          slotProps={{ paper: { sx: { width: '100%', maxWidth: '100%' } } }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1, minHeight: 56, borderBottom: 1, borderColor: 'divider' }}>
+            <IconButton
+              edge="start"
+              onClick={settingsOpen ? () => setSettingsOpen(false) : close}
+              aria-label={settingsOpen ? t('common.back') : t('common.close')}
+            >
+              {settingsOpen ? <ArrowBackIcon /> : <CloseIcon />}
+            </IconButton>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, flexGrow: 1 }} noWrap>
+              {settingsOpen ? t('notifications.deliveryPreferences') : t('notifications.title')}
+            </Typography>
+            {actions}
+          </Box>
+          <Box sx={{ overflowY: 'auto', pb: 'env(safe-area-inset-bottom)' }}>{settingsOpen ? settingsView : listView}</Box>
+        </Drawer>
+      )}
     </Box>
   )
 }

@@ -1,20 +1,29 @@
 import { Fragment } from 'react'
+import { useState } from 'react'
+import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import ButtonBase from '@mui/material/ButtonBase'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import { useTheme } from '@mui/material/styles'
+import { alpha, useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useCupDetails, useLatestCupId, useMe } from '../../api/hooks'
+import { useCupDetails, useLatestCupId, useMe, useUserTeam } from '../../api/hooks'
 import type { CupTie } from '../../api/types'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
+import { TeamBadge } from '../../components/TeamBadge'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
+import { translateCupName } from '../../utils/ledgerDescription'
 import { localizedTeamName } from '../../utils/nationalTeamName'
 
 export function CupPage() {
@@ -28,16 +37,19 @@ export function CupPage() {
   }
 
   if (!cupDetails) {
-    return <Typography color="text.secondary">{t('cup.noCup')}</Typography>
+    return (
+      <Box>
+        <PageHeader title={t('header.nav.cup')} />
+        <EmptyState icon={<EmojiEventsTwoToneIcon fontSize="inherit" />} title={t('cup.noCupTitle')} text={t('cup.noCup')} />
+      </Box>
+    )
   }
 
   const { cup, ties } = cupDetails
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {t('cup.titleWithSeason', { name: cup.name, season: cup.season })}
-      </Typography>
+      <PageHeader title={t('cup.titleWithSeason', { name: translateCupName(t, cup.name), season: cup.season })} />
       {cup.completed && (
         <Chip color="success" label={t('cup.champion', { name: cup.championTeamName })} sx={{ mb: 2 }} />
       )}
@@ -66,11 +78,18 @@ const BRACKET_CONNECTOR_WIDTH = 32
 export function CupBracket({ ties }: { ties: CupTie[] }) {
   const { t } = useTranslation()
   const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const rounds = groupByRound(ties)
   const totalRounds = expectedTotalRounds(ties)
   const playIn = isFirstRoundPlayIn(ties)
 
   if (rounds.length === 0) return null
+
+  // The 608px tree does not fit a phone (names get cut to 6-8 letters), so below `md` the same
+  // ties are shown round by round instead.
+  if (!isDesktop) {
+    return <CupRoundsList rounds={rounds} totalRounds={totalRounds} playIn={playIn} />
+  }
 
   const centers = computeRoundCenters(rounds.map(({ ties: roundTies }) => roundTies))
   // Round 1 always has the most ties (every later round is its winners, halved) - so sizing the
@@ -129,6 +148,112 @@ export function CupBracket({ ties }: { ties: CupTie[] }) {
         </Stack>
       </Box>
     </Box>
+  )
+}
+
+// The phone view of a bracket: scrollable tabs, one per round (defaulting to the round in
+// progress), listing that round's ties at full width with both team names in full. The user's own
+// tie is highlighted and pinned to the top of its round.
+function CupRoundsList({ rounds, totalRounds, playIn }: { rounds: { round: number; ties: CupTie[] }[]; totalRounds: number; playIn: boolean }) {
+  const { t } = useTranslation()
+  const { data: userTeam } = useUserTeam(true)
+  const myTeamId = userTeam?.team.id
+  const currentRound = rounds.find(({ ties: roundTies }) => roundTies.some((tie) => tie.awayTeamId !== null && !tie.played))?.round ?? rounds[rounds.length - 1].round
+  const [selectedRound, setSelectedRound] = useState<number | null>(null)
+  const active = rounds.find((r) => r.round === (selectedRound ?? currentRound)) ?? rounds[rounds.length - 1]
+
+  const isMine = (tie: CupTie) => myTeamId !== undefined && (tie.homeTeamId === myTeamId || tie.awayTeamId === myTeamId)
+  const ordered = [...active.ties].sort((a, b) => Number(isMine(b)) - Number(isMine(a)))
+
+  return (
+    <Box>
+      <Tabs
+        value={active.round}
+        onChange={(_event, value: number) => setSelectedRound(value)}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+        sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+      >
+        {rounds.map(({ round }) => (
+          <Tab key={round} value={round} label={roundName(t, round, totalRounds, round === 1 && playIn)} />
+        ))}
+      </Tabs>
+      <Stack spacing={1.5}>
+        {ordered.map((tie) => (
+          <TieCard key={tie.tieId} tie={tie} mine={isMine(tie)} />
+        ))}
+      </Stack>
+    </Box>
+  )
+}
+
+function TieCard({ tie, mine }: { tie: CupTie; mine: boolean }) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  const navigate = useNavigate()
+
+  if (tie.awayTeamId === null) {
+    return (
+      <Paper variant="outlined" sx={{ p: 1.5 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+          {t('cup.byeRests', { team: tie.homeTeamId ? localizedTeamName(t, tie.homeTeamName) : t('cup.tbd') })}
+        </Typography>
+      </Paper>
+    )
+  }
+
+  const stillLive = tie.played && mightStillBeLive(tie.matchDate ?? '')
+  const showScore = !stillLive && tie.played && isPast(tie.matchDate ?? '')
+  const penaltyWinnerName = cupTiePenaltyWinnerName(tie)
+  const sides = [
+    { id: tie.homeTeamId, name: tie.homeTeamName, goals: tie.homeGoals },
+    { id: tie.awayTeamId, name: tie.awayTeamName, goals: tie.awayGoals },
+  ]
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{ borderColor: mine ? 'primary.main' : undefined, borderWidth: mine ? 2 : 1, bgcolor: mine ? alpha(theme.palette.primary.main, 0.06) : undefined }}
+    >
+      <ButtonBase onClick={() => navigate(`/cup/ties/${tie.tieId}`)} sx={{ width: '100%', display: 'block', textAlign: 'left', p: 1.5 }}>
+        {mine && <Chip size="small" color="primary" label={t('common.you')} sx={{ mb: 1 }} />}
+        <Stack spacing={0.75}>
+          {sides.map((side, index) => (
+            <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              {side.id ? <TeamBadge teamId={side.id} teamName={side.name} size={24} /> : <Box sx={{ width: 24 }} />}
+              <Typography
+                variant="body2"
+                sx={{ flexGrow: 1, overflowWrap: 'anywhere', fontWeight: tie.wentToPenalties && tie.winnerTeamId === side.id ? 700 : 500 }}
+              >
+                {side.id ? localizedTeamName(t, side.name) : t('cup.tbd')}
+              </Typography>
+              {showScore && (
+                <Typography variant="body2" sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                  {side.goals}
+                </Typography>
+              )}
+            </Stack>
+          ))}
+        </Stack>
+        <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center' }}>
+          {stillLive ? (
+            <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+          ) : (
+            !showScore && (
+              <Typography variant="caption" color="text.secondary">
+                {formatDateTime(tie.matchDate ?? '')}
+              </Typography>
+            )
+          )}
+          {!stillLive && tie.wentToPenalties && (
+            <Typography variant="caption" color="text.secondary">
+              {penaltyWinnerName ? t('cup.pensWinner', { team: localizedTeamName(t, penaltyWinnerName) }) : t('cup.pens')}
+            </Typography>
+          )}
+        </Stack>
+      </ButtonBase>
+    </Paper>
   )
 }
 

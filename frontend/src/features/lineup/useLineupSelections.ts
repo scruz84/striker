@@ -227,5 +227,6 @@ export function useLineupSelections(
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
+    clearSelection: () => setSelectedPlayerId(null),
   }
 }

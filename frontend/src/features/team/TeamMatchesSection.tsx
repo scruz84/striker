@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useTeamMatches } from '../../api/hooks'
 import type { TeamMatchSummary } from '../../api/types'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
+import { HomeAwayIcon } from '../../components/HomeAwayIcon'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
@@ -78,49 +79,70 @@ export function MatchesList({ matches, emptyKey }: { matches: TeamMatchSummary[]
   )
 }
 
+type Outcome = 'win' | 'draw' | 'loss'
+
+function outcomeOf(match: TeamMatchSummary): Outcome {
+  const mine = match.isHome ? match.homeGoals : match.awayGoals
+  const theirs = match.isHome ? match.awayGoals : match.homeGoals
+  return mine > theirs ? 'win' : mine < theirs ? 'loss' : 'draw'
+}
+
+// Two lines on a phone: the opponent (full name, wrapping if need be) with the result on the
+// right, and below it the competition, home/away marker and kickoff - instead of five items
+// fighting for one line and truncating the name.
 function MatchRow({ match }: { match: TeamMatchSummary }) {
   const { t } = useTranslation()
   // See DivisionDetailsPage's identical mightStillBeLive check - played flips true well before
   // the match's result finishes broadcasting live.
   const stillLive = match.played && mightStillBeLive(match.matchDate)
+  const showResult = match.played && isPast(match.matchDate)
+  const outcome = showResult ? outcomeOf(match) : undefined
 
   return (
     <Stack
       component={RouterLink}
       to={matchSummaryLink(match)}
       direction="row"
-      spacing={1}
+      spacing={1.5}
       sx={{
         alignItems: 'center',
-        flexWrap: 'wrap',
-        py: 0.75,
-        px: 1,
+        py: 1,
+        px: 1.5,
+        minHeight: 56,
         textDecoration: 'none',
         color: 'inherit',
         '&:hover': { bgcolor: 'action.hover' },
       }}
     >
-      <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0 }} />
-      <Chip
-        size="small"
-        variant="outlined"
-        label={t(match.isHome ? 'team.matches.homeTag' : 'team.matches.awayTag')}
-        sx={{ height: 20, width: 24, fontSize: '0.65rem', flexShrink: 0, '& .MuiChip-label': { px: 0 } }}
-      />
-      <NestedTeamNameLink teamId={match.opponentId} noWrap sx={{ flex: '1 1 60px', minWidth: 0, fontWeight: 500 }}>
-        {localizedTeamName(t, match.opponentName)}
-      </NestedTeamNameLink>
-      {stillLive ? (
-        <Chip label={t('match.live')} color="error" size="small" sx={{ height: 20, fontSize: '0.65rem', flexShrink: 0, fontWeight: 700 }} />
-      ) : (
-        <>
-          <Typography variant="caption" color="text.secondary" noWrap sx={{ flexShrink: 0 }}>
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        <NestedTeamNameLink teamId={match.opponentId} sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+          {localizedTeamName(t, match.opponentName)}
+        </NestedTeamNameLink>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.25 }}>
+          <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20 }} />
+          <HomeAwayIcon isHome={match.isHome} />
+          <Typography variant="caption" color="text.secondary">
             {formatDayTime(match.matchDate)}
           </Typography>
-          <Typography variant="body2" noWrap sx={{ flexShrink: 0, minWidth: 32, textAlign: 'right', fontWeight: 700 }}>
-            {match.played && isPast(match.matchDate) ? `${match.homeGoals} - ${match.awayGoals}` : '-'}
+        </Stack>
+      </Box>
+      {stillLive ? (
+        <Chip label={t('match.live')} color="error" size="small" sx={{ flexShrink: 0, fontWeight: 700 }} />
+      ) : (
+        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexShrink: 0 }}>
+          {outcome && (
+            <Chip
+              size="small"
+              label={t(`common.result.${outcome}`)}
+              color={outcome === 'win' ? 'success' : outcome === 'loss' ? 'error' : 'default'}
+              variant={outcome === 'draw' ? 'outlined' : 'filled'}
+              sx={{ height: 24, minWidth: 24, '& .MuiChip-label': { px: 0.75 } }}
+            />
+          )}
+          <Typography variant="body2" sx={{ fontWeight: 700, minWidth: 36, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+            {showResult ? `${match.homeGoals} - ${match.awayGoals}` : '-'}
           </Typography>
-        </>
+        </Stack>
       )}
     </Stack>
   )

@@ -424,6 +424,11 @@ export interface DivisionDetails {
   classification: Classification
   previousWeekMatches: WeekMatch[]
   nextWeekMatches: WeekMatch[]
+  // How many of the table's top / bottom finishers move tier at season rollover (0 when there is
+  // no tier above / below) - drives the promotion and relegation zones. Absent on responses cached
+  // before the field existed.
+  promotionSlots?: number
+  relegationSlots?: number
 }
 
 // Mirrors backend/common.LeagueDirectoryEntry/CountryLeagueDirectory - the browsable list of

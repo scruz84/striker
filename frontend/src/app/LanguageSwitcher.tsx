@@ -7,28 +7,22 @@ import Tooltip from '@mui/material/Tooltip'
 import TranslateIcon from '@mui/icons-material/Translate'
 import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n'
-import { useMe, useSetUserLanguage } from '../api/hooks'
+import { useChangeLanguage } from './useChangeLanguage'
 
 export function LanguageSwitcher() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const { data: me } = useMe()
-  const setUserLanguage = useSetUserLanguage()
-
-  const currentLanguage = (i18n.resolvedLanguage ?? i18n.language) as SupportedLanguage
+  const { currentLanguage, changeLanguage } = useChangeLanguage()
 
   const handleSelect = (language: SupportedLanguage) => {
-    void i18n.changeLanguage(language)
-    if (me) {
-      setUserLanguage.mutate(language)
-    }
+    changeLanguage(language)
     setAnchorEl(null)
   }
 
   return (
     <>
       <Tooltip title={t('header.language')}>
-        <IconButton onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit">
+        <IconButton onClick={(event) => setAnchorEl(event.currentTarget)} color="inherit" aria-label={t('header.language')}>
           <TranslateIcon />
         </IconButton>
       </Tooltip>

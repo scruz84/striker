@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -11,9 +11,14 @@ import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
+import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import Collapse from '@mui/material/Collapse'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
 import { mightStillBeLive } from '../../api/useLiveMatch'
+import { EmptyState } from '../../components/EmptyState'
+import { PageHeader } from '../../components/PageHeader'
+import { TeamAutocomplete } from '../../components/TeamAutocomplete'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import {
   useAcceptFriendlyChallenge,
@@ -28,7 +33,7 @@ import {
   useUserTeam,
   useWithdrawFriendlyChallenge,
 } from '../../api/hooks'
-import type { FriendlyChallenge, FriendlyMatch } from '../../api/types'
+import type { FriendlyChallenge, FriendlyMatch, TeamSearchResult } from '../../api/types'
 import { defaultKickoffValue, isWeekdayAllowed, MIN_KICKOFF_LEAD_MINUTES, toDateTimeLocalValue } from '../../utils/friendlyKickoff'
 import { formatDateTime } from '../../utils/formatDate'
 
@@ -45,7 +50,8 @@ export function FriendliesPage() {
 
   const { data: schedule } = useFriendlySchedule(enabled)
   const challenge = useChallengeToFriendly()
-  const [opponentTeamId, setOpponentTeamId] = useState('')
+  const [opponent, setOpponent] = useState<TeamSearchResult | null>(null)
+  const opponentInputRef = useRef<HTMLInputElement>(null)
   const [proposedKickoff, setProposedKickoff] = useState('')
   const [challengerIsHome, setChallengerIsHome] = useState(true)
 
@@ -53,18 +59,17 @@ export function FriendliesPage() {
 
   const handleChallenge = (event: FormEvent) => {
     event.preventDefault()
-    const id = Number(opponentTeamId)
-    if (!id || id <= 0) return
+    if (!opponent) return
     if (proposedKickoff && !proposedKickoffAllowed) return
     challenge.mutate(
       {
-        opponentTeamId: id,
+        opponentTeamId: opponent.id,
         proposedKickoff: proposedKickoff ? new Date(proposedKickoff).toISOString() : undefined,
         challengerIsHome,
       },
       {
         onSuccess: () => {
-          setOpponentTeamId('')
+          setOpponent(null)
           setProposedKickoff('')
           setChallengerIsHome(true)
         },
@@ -73,42 +78,59 @@ export function FriendliesPage() {
   }
 
   const myTeamId = userTeam?.team.id
+  const [helpOpen, setHelpOpen] = useState(false)
+
+  const nothingToShow =
+    !receivedLoading &&
+    !sentLoading &&
+    !upcomingLoading &&
+    !recentLoading &&
+    !received?.length &&
+    !sent?.length &&
+    !upcoming?.length &&
+    !recent?.length
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {t('friendlies.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t('friendlies.subtitle')}
-      </Typography>
+      <PageHeader title={t('friendlies.title')} />
+      <Collapse in={helpOpen} unmountOnExit>
+        <Alert severity="info" sx={{ mb: 2 }} onClose={() => setHelpOpen(false)}>
+          {t('friendlies.subtitle')}
+        </Alert>
+      </Collapse>
+      {!helpOpen && (
+        <Button size="small" onClick={() => setHelpOpen(true)} sx={{ mb: 1 }}>
+          {t('friendlies.howItWorks')}
+        </Button>
+      )}
 
       <Paper sx={{ p: 2, mb: 3 }} component="form" onSubmit={handleChallenge}>
         <Typography variant="subtitle1" gutterBottom>
           {t('friendlies.challenge.title')}
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <TextField
-            size="small"
-            label={t('friendlies.challenge.opponentTeamId')}
-            value={opponentTeamId}
-            onChange={(e) => setOpponentTeamId(e.target.value)}
-            sx={{ width: 160 }}
+        <Stack spacing={2}>
+          <TeamAutocomplete
+            label={t('friendlies.challenge.opponent')}
+            value={opponent}
+            onChange={setOpponent}
+            excludeTeamId={myTeamId}
+            inputRef={opponentInputRef}
           />
           <TextField
-            size="small"
             type="datetime-local"
             label={t('friendlies.challenge.proposedKickoff')}
             value={proposedKickoff}
             onChange={(e) => setProposedKickoff(e.target.value)}
             error={!proposedKickoffAllowed}
-            helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : ' '}
+            helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : undefined}
             slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+            fullWidth
           />
           <ToggleButtonGroup
-            size="small"
             exclusive
+            fullWidth
             value={challengerIsHome}
+            aria-label={t('friendlies.challenge.side')}
             onChange={(_event, value: boolean | null) => {
               if (value !== null) setChallengerIsHome(value)
             }}
@@ -116,47 +138,93 @@ export function FriendliesPage() {
             <ToggleButton value={true}>{t('friendlies.challenge.home')}</ToggleButton>
             <ToggleButton value={false}>{t('friendlies.challenge.away')}</ToggleButton>
           </ToggleButtonGroup>
-          <Button type="submit" variant="contained" disabled={challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!opponent || challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}
+          >
             {t('friendlies.challenge.button')}
           </Button>
+          {!opponent && (
+            <Typography variant="caption" color="text.secondary">
+              {t('friendlies.challenge.opponentHelper')}
+            </Typography>
+          )}
         </Stack>
         {challenge.isSuccess && <Alert severity="success" sx={{ mt: 1 }}>{t('friendlies.challenge.success')}</Alert>}
         {challenge.isError && <Alert severity="error" sx={{ mt: 1 }}>{t('friendlies.challenge.error')}</Alert>}
       </Paper>
 
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <ChallengesReceived challenges={received} isLoading={receivedLoading} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <ChallengesSent challenges={sent} isLoading={sentLoading} />
-        </Grid>
-      </Grid>
+      {nothingToShow ? (
+        <EmptyState
+          icon={<HandshakeTwoToneIcon fontSize="inherit" />}
+          title={t('friendlies.challenge.emptyTitle')}
+          text={t('friendlies.challenge.emptyText')}
+          action={
+            <Button
+              variant="contained"
+              onClick={() => {
+                opponentInputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+                opponentInputRef.current?.focus()
+              }}
+            >
+              {t('friendlies.challenge.emptyCta')}
+            </Button>
+          }
+        />
+      ) : (
+        <>
+          {(isLoadingOrHas(received, receivedLoading) || isLoadingOrHas(sent, sentLoading)) && (
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              {isLoadingOrHas(received, receivedLoading) && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <ChallengesReceived challenges={received} isLoading={receivedLoading} />
+                </Grid>
+              )}
+              {isLoadingOrHas(sent, sentLoading) && (
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <ChallengesSent challenges={sent} isLoading={sentLoading} />
+                </Grid>
+              )}
+            </Grid>
+          )}
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <MatchList
-            title={t('friendlies.upcoming.title')}
-            emptyLabel={t('friendlies.upcoming.empty')}
-            matches={upcoming}
-            isLoading={upcomingLoading}
-            myTeamId={myTeamId}
-            showResult={false}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <MatchList
-            title={t('friendlies.recent.title')}
-            emptyLabel={t('friendlies.recent.empty')}
-            matches={recent}
-            isLoading={recentLoading}
-            myTeamId={myTeamId}
-            showResult
-          />
-        </Grid>
-      </Grid>
+          <Grid container spacing={2}>
+            {isLoadingOrHas(upcoming, upcomingLoading) && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <MatchList
+                  title={t('friendlies.upcoming.title')}
+                  emptyLabel={t('friendlies.upcoming.empty')}
+                  matches={upcoming}
+                  isLoading={upcomingLoading}
+                  myTeamId={myTeamId}
+                  showResult={false}
+                />
+              </Grid>
+            )}
+            {isLoadingOrHas(recent, recentLoading) && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <MatchList
+                  title={t('friendlies.recent.title')}
+                  emptyLabel={t('friendlies.recent.empty')}
+                  matches={recent}
+                  isLoading={recentLoading}
+                  myTeamId={myTeamId}
+                  showResult
+                />
+              </Grid>
+            )}
+          </Grid>
+        </>
+      )}
     </Box>
   )
+}
+
+// A section is only worth its own card while it loads or has something to show - four stacked "no
+// hay..." cards are a screenful of nothing on a phone.
+function isLoadingOrHas(items: unknown[] | undefined, isLoading: boolean): boolean {
+  return isLoading || !items || items.length > 0
 }
 
 function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyChallenge[]; isLoading: boolean }) {

@@ -20,7 +20,9 @@ import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
 import { TeamNameLink } from '../../components/TeamNameLink'
-import { formatDateTime, formatDayTime } from '../../utils/formatDate'
+import { formatDateTime, formatDayTime, formatShortDate } from '../../utils/formatDate'
+import { HomeAwayIcon } from '../../components/HomeAwayIcon'
+import Box from '@mui/material/Box'
 import { matchRatingColor } from '../../utils/matchRating'
 import { PlayerTransferHistory } from './PlayerTransferHistory'
 
@@ -75,7 +77,7 @@ export function PlayerDetailsPage() {
         <Stack spacing={1}>
           <Typography variant="h6">{t('playerPage.clubHistory.title')}</Typography>
           <TableContainer component={Paper}>
-            <Table size="small" aria-label="Club history">
+            <Table size="small" aria-label="Club history" sx={{ '& td, & th': { px: { xs: 0.75, sm: 2 } } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('playerPage.clubHistory.club')}</TableCell>
@@ -103,7 +105,7 @@ export function PlayerDetailsPage() {
         <Stack spacing={1}>
           <Typography variant="h6">{t('playerPage.recentMatches.title')}</Typography>
           <TableContainer component={Paper}>
-            <Table size="small" aria-label="Recent matches">
+            <Table size="small" aria-label="Recent matches" sx={{ '& td, & th': { px: { xs: 0.75, sm: 2 } } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('playerPage.recentMatches.date')}</TableCell>
@@ -135,7 +137,7 @@ export function PlayerDetailsPage() {
         <Stack spacing={1}>
           <Typography variant="h6">{t('playerPage.callUps.title')}</Typography>
           <TableContainer component={Paper}>
-            <Table size="small" aria-label="National team call-ups">
+            <Table size="small" aria-label="National team call-ups" sx={{ '& td, & th': { px: { xs: 0.75, sm: 2 } } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('playerPage.callUps.date')}</TableCell>
@@ -181,17 +183,13 @@ function CallUpRow({ callUp }: { callUp: NationalTeamCallUp }) {
 // rating comes from lives (see MatchRatingsTab/matchRatingColor) - so a manager can jump straight
 // from "how has this player been doing" to the full match detail.
 function RecentMatchRow({ match }: { match: PlayerMatchSummary }) {
-  const { t } = useTranslation()
   return (
     <TableRow component={RouterLink} to={`/match/${match.matchId}`} hover sx={{ cursor: 'pointer', '& td': { border: 0 } }}>
-      <TableCell>{formatDayTime(match.matchDate)}</TableCell>
+      <TableCell>{formatShortDate(match.matchDate)}</TableCell>
       <TableCell>
-        <Chip
-          size="small"
-          variant="outlined"
-          label={t(match.isHome ? 'playerPage.recentMatches.homeTag' : 'playerPage.recentMatches.awayTag')}
-          sx={{ height: 18, mr: 0.75, fontSize: '0.65rem', '& .MuiChip-label': { px: 0.5 } }}
-        />
+        <Box component="span" sx={{ display: 'inline-flex', verticalAlign: 'middle', mr: 0.75 }}>
+          <HomeAwayIcon isHome={match.isHome} />
+        </Box>
         {match.opponentName}
         {(match.goals > 0 || match.yellowCards > 0 || match.redCards > 0) && (
           <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>

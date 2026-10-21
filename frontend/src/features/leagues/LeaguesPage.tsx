@@ -12,6 +12,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLeagueDirectory } from '../../api/hooks'
 import { COUNTRY_NAME_KEYS, type CountryLeagueDirectory, type LeagueDirectoryEntry } from '../../api/types'
+import { PageHeader } from '../../components/PageHeader'
 
 /** Lets any signed-in manager browse every league in the game world - not just their own -
  * and drop into a division's standings and roster (DivisionDetailsPage, unchanged) from there.
@@ -38,12 +39,7 @@ export function LeaguesPage() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h5" sx={{ fontWeight: 700 }}>
-        {t('leagues.title')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {t('leagues.subtitle')}
-      </Typography>
+      <PageHeader title={t('leagues.title')} subtitle={t('leagues.subtitle')} />
 
       <Paper variant="outlined">
         <Tabs

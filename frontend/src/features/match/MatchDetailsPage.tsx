@@ -14,6 +14,8 @@ import { POSITION_GOALKEEPER, type DivisionDetails, type Player, type Team, type
 import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
+import { goalScorers } from '../../utils/matchGoals'
+import { matchSubtitle } from '../../utils/matchSubtitle'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -25,7 +27,6 @@ import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
 import { MatchRatingsTab } from './MatchRatingsTab'
-import { MatchReportHeader } from './MatchReportHeader'
 import { MatchReportTab } from './MatchReportTab'
 import { Scoreboard } from './MatchScoreboard'
 import { StadiumEntry } from './StadiumEntry'
@@ -158,6 +159,7 @@ function LiveMatch({
   // finished-match view (played=true), which reads the real, unfiltered events straight from the
   // backend.
   const liveEvents = withholdSpoilerEvents(live.events)
+  const liveScorers = goalScorers(liveEvents, homeId)
 
   useEffect(() => {
     // live.giveUp alone isn't enough - the socket can be entirely unreachable (a downed Redis,
@@ -223,6 +225,8 @@ function LiveMatch({
         awayGoals={live.awayGoals}
         status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
         minute={live.minute}
+        homeScorers={liveScorers.home}
+        awayScorers={liveScorers.away}
       />
       {live.homeLineup && live.awayLineup && live.homePlayers && live.awayPlayers && (
         <>
@@ -318,7 +322,7 @@ function MatchLineupSection({ matchId, team, players }: { matchId: string; team:
 // weeksInASeason derives how many matchdays a division's season runs for from its team count -
 // a standard full-season double round robin (see backend engine.randomWeekMatches2, the only
 // place this figure is actually computed server-side; there's no dedicated "total weeks" field
-// to fetch instead, so this mirrors that same formula from the team count MatchReportHeader
+// to fetch instead, so this mirrors that same formula from the team count matchSubtitle
 // already needs division details for anyway).
 function weeksInASeason(teamCount: number): number {
   return (teamCount - 1) * 2
@@ -329,10 +333,10 @@ function PlayedMatch({ match, division }: { match: WeekMatch; division: Division
   const [tab, setTab] = useState(0)
   const handleChange = (_event: SyntheticEvent, newValue: number) => setTab(newValue)
   const weekTotal = division ? weeksInASeason(division.classification.positions.length) : undefined
+  const scorers = goalScorers(match.events ?? [], match.home)
 
   return (
     <Box>
-      <MatchReportHeader match={match} weekTotal={weekTotal} />
       <Scoreboard
         homeId={match.home}
         homeName={match.homeName}
@@ -344,13 +348,16 @@ function PlayedMatch({ match, division }: { match: WeekMatch; division: Division
         homeGoals={match.homeGoals}
         awayGoals={match.awayGoals}
         status="played"
+        homeScorers={scorers.home}
+        awayScorers={scorers.away}
+        subtitle={matchSubtitle(match, weekTotal, t)}
       />
 
       <Paper variant="outlined" sx={{ mb: 2 }}>
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.players')} />
-          <Tab label={t('match.tabs.ratings')} />
+          <Tab label={t('match.tabs.chronicle')} />
+          <Tab label={t('match.tabs.notes')} />
+          <Tab label={t('match.tabs.tactics')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={match} />}

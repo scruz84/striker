@@ -1,18 +1,11 @@
 import { useState } from 'react'
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import FormControl from '@mui/material/FormControl'
-import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
 import Link from '@mui/material/Link'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -21,10 +14,12 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcademy,
@@ -33,7 +28,6 @@ import {
   useLatestInternationalCupId,
   useMe,
   usePromoteFromAcademy,
-  useReleasePlayer,
   useTeamDetails,
   useTeamHistory,
   useTeamMatches,
@@ -41,39 +35,32 @@ import {
 } from '../../api/hooks'
 import {
   COUNTRY_NAME_KEYS,
-  MAX_CONTRACT_YEARS_REMAINING,
   type CupDetails,
-  type Player,
-  type PlayerUnavailability,
   type SeasonHistoryEntry,
   type StadiumSummary,
   type Trainer,
 } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { regionForCountry } from '../../components/avatar/traits'
-import { useConfirm } from '../../components/confirmDialogContext'
 import { ChallengeToFriendlyDialog } from '../../components/ChallengeToFriendlyDialog'
-import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
-import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { SeasonPositionChart } from '../../components/SeasonPositionChart'
+import { EmptyState } from '../../components/EmptyState'
+import { ResponsiveTable } from '../../components/ResponsiveTable'
+import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
-import { PlayerChip } from '../lineup/PlayerChip'
-import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
+import { SquadList } from './SquadList'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
-import { TransferListedBadge } from '../lineup/TransferListedBadge'
 import { isPast } from '../../api/useLiveMatch'
 import { MatchesList } from './TeamMatchesSection'
 import { countryFlag } from '../../utils/countryFlag'
-import { formatCurrency } from '../../utils/formatCurrency'
+import { formatDivisionName } from '../../utils/divisionName'
+import { formatCurrency, formatNumber } from '../../utils/formatCurrency'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
-import { overallRating, ratingTierColor } from '../../utils/playerRating'
+import { ratingTierColor } from '../../utils/playerRating'
 
 const RECENT_MATCHES_LIMIT = 5
-
-type SortDirection = 'asc' | 'desc'
-type SquadSortField = 'name' | 'age' | 'wage' | 'skill'
 
 type CupStatus = 'none' | 'champion' | 'active' | 'eliminated'
 
@@ -102,31 +89,19 @@ function CupStatusChip({ label, status }: { label: string; status: CupStatus }) 
   return <Chip size="small" color={color} label={`${label}: ${statusLabel}`} />
 }
 
-function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): number {
-  switch (field) {
-    case 'age':
-      return a.age - b.age
-    case 'wage':
-      return a.wage - b.wage
-    case 'skill':
-      return (a.averageSkill ?? overallRating(a)) - (b.averageSkill ?? overallRating(b))
-    default:
-      return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
-  }
-}
+type TeamTab = 'summary' | 'squad' | 'academy' | 'history'
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
   const theme = useTheme()
   const { id } = useParams<{ id: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { data: loggedUser } = useMe()
   const { data: teamDetails, isLoading } = useTeamDetails(id)
   const { data: userTeam } = useUserTeam(!!loggedUser)
   const { data: history, isLoading: historyLoading } = useTeamHistory(id)
   const unavailability = useSquadUnavailability()
   const transferListed = useSquadTransferListed()
-  const [sortField, setSortField] = useState<SquadSortField>('name')
-  const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [challengeOpen, setChallengeOpen] = useState(false)
 
   // A national team has no league or club-cup campaign of its own (see Team.isNationalTeam) -
@@ -141,172 +116,158 @@ export function TeamDetailsPage() {
   const { data: internationalCupDetails } = useCupDetails(latestInternationalCup?.cupId)
 
   if (isLoading || !teamDetails) {
-    return <div>{t('common.loading')}</div>
+    return <Skeleton variant="rectangular" height={200} />
   }
 
   const isOwnTeam = userTeam?.team.id === teamDetails.team.id
   const flag = countryFlag(teamDetails.team.country)
   const cupStatus = teamCupStatus(cupDetails, teamDetails.team.id)
   const internationalCupStatus = teamCupStatus(internationalCupDetails, teamDetails.team.id)
+  const displayName = isNationalTeam
+    ? t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)
+    : teamDetails.team.name
+  const canChallenge = !isOwnTeam && !!userTeam && !isNationalTeam
 
-  const handleSort = (field: SquadSortField) => {
-    if (field === sortField) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortField(field)
-      setSortDir('asc')
-    }
-  }
-
-  const players = [...teamDetails.players].sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField))
+  // Tabs mirror the sections the single long page used to stack: its own tab per concern, kept in
+  // the URL (?tab=squad) so a section can be linked to and survives a reload.
+  const tabs: TeamTab[] = isNationalTeam
+    ? ['summary', 'squad']
+    : isOwnTeam
+      ? ['summary', 'squad', 'academy', 'history']
+      : ['summary', 'squad', 'history']
+  const requestedTab = searchParams.get('tab') as TeamTab | null
+  const tab: TeamTab = requestedTab && tabs.includes(requestedTab) ? requestedTab : 'summary'
 
   return (
-    <Stack spacing={1}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
-            {isNationalTeam ? t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country) : teamDetails.team.name} (
-            {teamDetails.team.id})
-          </Typography>
-          {flag && (
-            <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
-              <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
-                {flag}
-              </Typography>
-            </Tooltip>
+    <Stack spacing={1.5}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', minWidth: 0 }}>
+        <TeamBadge teamId={teamDetails.team.id} teamName={displayName} size={48} />
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
+            <Typography variant="pageTitle" component="h1" noWrap title={displayName} sx={{ fontSize: { xs: '1.375rem', sm: '1.75rem' } }}>
+              {displayName}
+            </Typography>
+            {flag && (
+              <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
+                <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
+                  {flag}
+                </Typography>
+              </Tooltip>
+            )}
+          </Stack>
+          {!isNationalTeam && (
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>
+              <Chip
+                size="small"
+                component={RouterLink}
+                to={`/division/${teamDetails.team.divisionId}`}
+                clickable
+                label={`${formatDivisionName(t, teamDetails.team.divisionName)} · ${t('subheader.position', { position: teamDetails.team.classificationPosition })}`}
+              />
+              <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
+              <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
+            </Stack>
           )}
-        </Stack>
-        {!isOwnTeam && userTeam && !isNationalTeam && (
-          <Button variant="outlined" size="small" onClick={() => setChallengeOpen(true)}>
+        </Box>
+      </Stack>
+      {canChallenge && (
+        <>
+          <Button variant="outlined" fullWidth onClick={() => setChallengeOpen(true)}>
             {t('friendlies.challenge.challengeTeam')}
           </Button>
-        )}
-      </Stack>
-      {!isOwnTeam && userTeam && !isNationalTeam && (
-        <ChallengeToFriendlyDialog
-          opponentTeamId={teamDetails.team.id}
-          opponentTeamName={teamDetails.team.name}
-          open={challengeOpen}
-          onClose={() => setChallengeOpen(false)}
-        />
-      )}
-      {isNationalTeam ? (
-        <Typography variant="body2" color="text.secondary">
-          {t('team.nationalTeam.subtitle')}
-        </Typography>
-      ) : (
-        <>
-          <Typography sx={{ fontWeight: 'bold' }}>{t('team.competitions')}</Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link component={RouterLink} to={`/division/${teamDetails.team.divisionId}`}>
-              {teamDetails.team.divisionName}
-            </Link>
-            <Typography variant="body2" color="text.secondary">
-              {t('team.classificationPosition', { position: teamDetails.team.classificationPosition })}
-            </Typography>
-          </Stack>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-            <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
-            <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
-          </Stack>
-          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              {t('team.fanbase')}
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(teamDetails.fanbase, theme.palette) }}>
-              {teamDetails.fanbase}
-            </Typography>
-          </Stack>
+          <ChallengeToFriendlyDialog
+            opponentTeamId={teamDetails.team.id}
+            opponentTeamName={teamDetails.team.name}
+            open={challengeOpen}
+            onClose={() => setChallengeOpen(false)}
+          />
         </>
       )}
 
-      {teamDetails.stadium && (
-        <Box sx={{ mt: 1 }}>
-          <StadiumCard stadium={teamDetails.stadium} />
-        </Box>
-      )}
-
-      <Box sx={{ mt: 2 }}>
-        <RecentMatchesCard teamId={teamDetails.team.id} />
-      </Box>
-
-      <Typography variant="h6" sx={{ mt: 2 }}>
-        {t('team.squad')}
-      </Typography>
-      {isNationalTeam && (
-        <Typography variant="body2" color="text.secondary">
-          {t('team.nationalTeam.squadNote')}
-        </Typography>
-      )}
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel id="squad-sort-label">{t('team.sortBy')}</InputLabel>
-          <Select
-            labelId="squad-sort-label"
-            label={t('team.sortBy')}
-            value={sortField}
-            onChange={(event: SelectChangeEvent) => handleSort(event.target.value as SquadSortField)}
-          >
-            <MenuItem value="name">{t('team.player')}</MenuItem>
-            <MenuItem value="age">{t('team.age')}</MenuItem>
-            <MenuItem value="wage">{t('team.wage')}</MenuItem>
-            <MenuItem value="skill">{t('team.averageSkill')}</MenuItem>
-          </Select>
-        </FormControl>
-        <IconButton size="small" onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}>
-          {sortDir === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
-        </IconButton>
-      </Stack>
-      <Stack spacing={1}>
-        {players.map((player) => (
-          <SquadPlayerCard
-            key={player.id}
-            player={player}
-            isOwnTeam={isOwnTeam}
-            unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
-            forSale={isOwnTeam && transferListed.has(player.id)}
-          />
+      <Tabs
+        value={tab}
+        onChange={(_event, value: TeamTab) => {
+          const next = new URLSearchParams(searchParams)
+          next.set('tab', value)
+          setSearchParams(next, { replace: true })
+        }}
+        variant="fullWidth"
+        sx={{ borderBottom: 1, borderColor: 'divider' }}
+      >
+        {tabs.map((value) => (
+          <Tab key={value} value={value} label={t(`team.tabs.${value}`)} />
         ))}
-      </Stack>
+      </Tabs>
 
-      {!isNationalTeam && (
-        <Box sx={{ mt: 2 }}>
-          <CoachCard trainer={teamDetails.trainer} isOwnTeam={isOwnTeam} />
+      {tab === 'summary' && (
+        <Stack spacing={2} sx={{ pt: 1 }}>
+          {isNationalTeam ? (
+            <Typography variant="body2" color="text.secondary">
+              {t('team.nationalTeam.subtitle')}
+            </Typography>
+          ) : (
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                {t('team.fanbase')}
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(teamDetails.fanbase, theme.palette) }}>
+                {teamDetails.fanbase}
+              </Typography>
+            </Stack>
+          )}
+          {teamDetails.stadium && <StadiumCard stadium={teamDetails.stadium} />}
+          <RecentMatchesCard teamId={teamDetails.team.id} />
+          {!isNationalTeam && <CoachCard trainer={teamDetails.trainer} isOwnTeam={isOwnTeam} />}
+          {canChallenge && userTeam && (
+            <HeadToHeadCard
+              teamAId={userTeam.team.id}
+              teamAName={userTeam.team.name}
+              teamBId={teamDetails.team.id}
+              teamBName={teamDetails.team.name}
+            />
+          )}
+        </Stack>
+      )}
+
+      {tab === 'squad' && (
+        <Box sx={{ pt: 1 }}>
+          {isNationalTeam && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {t('team.nationalTeam.squadNote')}
+            </Typography>
+          )}
+          <SquadList players={teamDetails.players} isOwnTeam={isOwnTeam} unavailability={unavailability} transferListed={transferListed} />
         </Box>
       )}
 
-      {isOwnTeam && (
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="h6">{t('team.academy.title')}</Typography>
+      {tab === 'academy' && isOwnTeam && (
+        <Box sx={{ pt: 1 }}>
           <AcademySection />
         </Box>
       )}
 
-      {!isNationalTeam && (
-        <>
-          <Typography variant="h6" sx={{ mt: 2 }}>
+      {tab === 'history' && (
+        <Stack spacing={2} sx={{ pt: 1 }}>
+          <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600 }}>
             {t('team.trophyCabinet')}
           </Typography>
           {historyLoading || !history ? (
             <Skeleton variant="rectangular" height={100} />
           ) : (
             <>
-              <SeasonPositionChart history={history} />
+              {history.filter((entry) => entry.finalPosition !== null).length >= 2 ? (
+                <SeasonPositionChart history={history} />
+              ) : (
+                history.length > 0 && (
+                  <Typography variant="caption" color="text.secondary">
+                    {t('team.noHistoryChart')}
+                  </Typography>
+                )
+              )}
               <TrophyCabinet history={history} />
             </>
           )}
-        </>
-      )}
-
-      {!isOwnTeam && userTeam && !isNationalTeam && (
-        <Box sx={{ mt: 2 }}>
-          <HeadToHeadCard
-            teamAId={userTeam.team.id}
-            teamAName={userTeam.team.name}
-            teamBId={teamDetails.team.id}
-            teamBName={teamDetails.team.name}
-          />
-        </Box>
+        </Stack>
       )}
     </Stack>
   )
@@ -319,54 +280,48 @@ const CHAMPION_COLOR = '#D4AF37'
 function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   const { t } = useTranslation()
   if (history.length === 0) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        {t('team.noSeasons')}
-      </Typography>
-    )
+    return <EmptyState compact title={t('team.noSeasons')} />
   }
 
+  const outcomeChips = (entry: SeasonHistoryEntry) => (
+    <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5 }}>
+      {entry.promoted && <Chip size="small" color="success" label={t('team.promoted')} />}
+      {entry.relegated && <Chip size="small" color="warning" label={t('team.relegated')} />}
+      {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
+    </Stack>
+  )
+  const position = (entry: SeasonHistoryEntry) => (
+    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+      <span>{entry.finalPosition ?? '-'}</span>
+      {entry.finalPosition === 1 && (
+        <Tooltip title={t('team.leagueChampion')}>
+          <EmojiEventsTwoToneIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
+        </Tooltip>
+      )}
+    </Stack>
+  )
+
   return (
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>{t('team.table.season')}</TableCell>
-            <TableCell>{t('team.table.league')}</TableCell>
-            <TableCell align="right">{t('team.table.finalPosition')}</TableCell>
-            <TableCell>{t('team.table.outcome')}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {history.map((entry) => {
-            const isChampion = entry.finalPosition === 1
-            return (
-              <TableRow key={entry.season}>
-                <TableCell>{entry.season}</TableCell>
-                <TableCell>{entry.leagueName ?? '-'}</TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <span>{entry.finalPosition ?? '-'}</span>
-                    {isChampion && (
-                      <Tooltip title={t('team.leagueChampion')}>
-                        <EmojiEventsTwoToneIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
-                      </Tooltip>
-                    )}
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    {entry.promoted && <Chip size="small" color="success" label={t('team.promoted')} />}
-                    {entry.relegated && <Chip size="small" color="warning" label={t('team.relegated')} />}
-                    {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <ResponsiveTable
+      rows={history}
+      getKey={(entry) => entry.season}
+      ariaLabel={t('team.trophyCabinet')}
+      columns={[
+        { id: 'season', header: t('team.table.season'), cell: (entry) => entry.season },
+        { id: 'league', header: t('team.table.league'), cell: (entry) => entry.leagueName ?? '-' },
+        { id: 'position', header: t('team.table.finalPosition'), align: 'right', cell: position },
+        { id: 'outcome', header: t('team.table.outcome'), cell: outcomeChips },
+      ]}
+      mobile={{
+        primary: (entry) => `${t('team.table.season')} ${entry.season} · ${entry.leagueName ?? '-'}`,
+        secondary: (entry) => (entry.promoted || entry.relegated || entry.cupResult ? outcomeChips(entry) : null),
+        end: (entry) => (
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+            {t('team.table.finalPosition')} {position(entry)}
+          </Box>
+        ),
+      }}
+    />
   )
 }
 
@@ -387,7 +342,7 @@ function StadiumCard({ stadium }: { stadium: StadiumSummary }) {
         {stadium.name}
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        {t('team.stadium.capacity', { capacity: stadium.capacity.toLocaleString() })}
+        {t('team.stadium.capacity', { capacity: formatNumber(stadium.capacity) })}
       </Typography>
       {match ? (
         <Box sx={{ mt: 1 }}>
@@ -399,7 +354,7 @@ function StadiumCard({ stadium }: { stadium: StadiumSummary }) {
             <TeamNameLink teamId={match.opponentId}>{match.opponentName}</TeamNameLink>
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {t('team.stadium.attendance', { count: match.attendance.toLocaleString() })}
+            {t('team.stadium.attendance', { count: formatNumber(match.attendance) })}
           </Typography>
         </Box>
       ) : (
@@ -558,113 +513,5 @@ function AcademySection() {
         </Alert>
       )}
     </Stack>
-  )
-}
-
-// The caller's own squad gets the full lineup-bench card (PlayerChip), with the per-skill/
-// condition breakdown and renew/release controls as its footer. A rival's squad stays a plain
-// summary row instead - common.AverageSkill (see api/types.ts) is the only rating the backend
-// sends for someone else's rostered, unlisted player, with the seven individual skills and
-// Stamina/Form all zeroed out, so PlayerChip's skill chips would show a misleading wall of zeros
-// rather than actually-hidden data.
-function SquadPlayerCard({
-  player,
-  isOwnTeam,
-  unavailability,
-  forSale,
-}: {
-  player: Player
-  isOwnTeam: boolean
-  unavailability?: PlayerUnavailability
-  forSale?: boolean
-}) {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  const confirm = useConfirm()
-  const releasePlayer = useReleasePlayer()
-  const [renewalOpen, setRenewalOpen] = useState(false)
-  const [offerOpen, setOfferOpen] = useState(false)
-
-  const handleRelease = async () => {
-    const ok = await confirm({
-      message: t('team.confirmRelease', { name: `${player.firstName} ${player.lastName}` }),
-      confirmLabel: t('team.releasePlayer'),
-      destructive: true,
-    })
-    if (ok) {
-      releasePlayer.mutate(player.id)
-    }
-  }
-
-  if (isOwnTeam) {
-    const footer = (
-      <Stack spacing={0.5}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <Typography variant="body2" color="text.secondary">
-            {formatCurrency(player.wage)}
-          </Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Button
-              size="small"
-              onClick={() => setRenewalOpen(true)}
-              disabled={player.contractYearsRemaining >= MAX_CONTRACT_YEARS_REMAINING}
-            >
-              {t('team.renewContract')}
-            </Button>
-            <Tooltip title={t('team.contractSeasons', { count: player.contractYearsRemaining })}>
-              <Typography variant="body2" color="text.secondary" component="span">
-                ({player.contractYearsRemaining})
-              </Typography>
-            </Tooltip>
-            <Button size="small" color="secondary" onClick={handleRelease} disabled={releasePlayer.isPending}>
-              {t('team.releasePlayer')}
-            </Button>
-          </Stack>
-        </Stack>
-        {releasePlayer.isError && <Alert severity="error">{t('team.releaseError')}</Alert>}
-      </Stack>
-    )
-
-    return (
-      <>
-        <PlayerChip player={player} unavailability={unavailability} forSale={forSale} footer={footer} />
-        <ContractRenewalDialog player={player} open={renewalOpen} onClose={() => setRenewalOpen(false)} />
-      </>
-    )
-  }
-
-  const flag = countryFlag(player.birthCountry)
-  const rating = player.averageSkill ?? overallRating(player)
-
-  return (
-    <Paper sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1 }}>
-      <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={32} />
-      <Box sx={{ minWidth: 0, flex: 1 }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          {flag && (
-            <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
-              <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
-                {flag}
-              </Typography>
-            </Tooltip>
-          )}
-          <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit" noWrap>
-            {player.firstName} {player.lastName}
-          </Link>
-          {unavailability && <UnavailabilityBadge unavailability={unavailability} size={16} />}
-          {forSale && <TransferListedBadge size={16} />}
-        </Stack>
-        <Typography variant="caption" color="text.secondary">
-          {player.age}
-        </Typography>
-      </Box>
-      <Typography variant="body2" sx={{ fontWeight: 700, color: ratingTierColor(rating, theme.palette) }}>
-        {rating}
-      </Typography>
-      <Button size="small" onClick={() => setOfferOpen(true)}>
-        {t('team.makeOffer')}
-      </Button>
-      <TransferOfferDialog player={player} open={offerOpen} onClose={() => setOfferOpen(false)} />
-    </Paper>
   )
 }

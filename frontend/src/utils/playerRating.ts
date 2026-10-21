@@ -72,8 +72,25 @@ export function bestCorePosition(player: Player): number {
   return values.reduce((best, current) => (current[1] > best[1] ? current : best))[0]
 }
 
-/** Traffic-light color for a 0-99 rating or skill value, same thresholds used everywhere a single
- * number needs an at-a-glance read (overall rating badges, per-skill bars). */
+// Lower bounds of the five rating tiers - typical player values sit around 30-50, so the lowest
+// tiers are finer than a plain thirds split.
+const RATING_TIER_FLOORS = [0, 35, 50, 65, 80] as const
+
+/** 0-4 tier of a 0-99 rating, for the one-tone sequential scale (`palette.rating`). */
+export function ratingTier(value: number): number {
+  let tier = 0
+  RATING_TIER_FLOORS.forEach((floor, index) => {
+    if (value >= floor) {
+      tier = index
+    }
+  })
+  return tier
+}
+
+/** Color for a 0-99 rating or skill value: a five-step scale from neutral to the primary hue
+ * (lightness is monotonic, so it still reads in grayscale / with colour-blindness). Red is
+ * reserved for states (injury, suspension, relegation) and the number is always shown next to
+ * the colour - never rely on the colour alone. */
 export function ratingTierColor(value: number, palette: Palette): string {
-  return value >= 65 ? palette.success.main : value >= 45 ? palette.warning.main : palette.error.main
+  return palette.rating[ratingTier(value)]
 }

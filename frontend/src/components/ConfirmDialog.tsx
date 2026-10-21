@@ -26,8 +26,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      <Dialog open={!!pending} onClose={() => settle(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{pending?.title ?? t('common.confirmTitle')}</DialogTitle>
+      <Dialog open={!!pending} onClose={() => settle(false)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: { m: 2, width: 'calc(100% - 32px)' } } }}>
+        <DialogTitle sx={{ overflowWrap: 'anywhere' }}>{pending?.title ?? t('common.confirmTitle')}</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">{pending?.message}</DialogContentText>
         </DialogContent>

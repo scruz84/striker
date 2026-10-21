@@ -1,11 +1,9 @@
-import { useState, type SyntheticEvent } from 'react'
+import { useState, type ReactNode, type SyntheticEvent } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import FormControl from '@mui/material/FormControl'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import Link from '@mui/material/Link'
 import MenuItem from '@mui/material/MenuItem'
@@ -14,21 +12,9 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import TableSortLabel from '@mui/material/TableSortLabel'
 import Tabs from '@mui/material/Tabs'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import { useTheme } from '@mui/material/styles'
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
-import { Link as RouterLink, useSearchParams } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   useAcceptLoan,
@@ -54,316 +40,58 @@ import {
   useUserTeam,
   useWithdrawOffer,
 } from '../../api/hooks'
-import { COUNTRY_NAME_KEYS, POSITION_DEFENSE, POSITION_GOALKEEPER, POSITION_MIDFIELD, POSITION_STRIKER, POSITION_SHORT_LABEL_KEYS } from '../../api/types'
-import type { FreeAgentListing, LoanListing, Player, Trainer, TransferListing, TransferOffer } from '../../api/types'
+import { POSITION_SHORT_LABEL_KEYS, type FreeAgentListing, type LoanListing, type Player, type Trainer, type TransferListing, type TransferOffer } from '../../api/types'
 import { isPast } from '../../api/useLiveMatch'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { EmptyState } from '../../components/EmptyState'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
+import { NumberField } from '../../components/NumberField'
+import { PageHeader } from '../../components/PageHeader'
 import { Paginated } from '../../components/Paginated'
-import { SkillChipsRow } from '../../components/SkillChipsRow'
+import { ResponsiveDialog } from '../../components/ResponsiveDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
-import { countryFlag } from '../../utils/countryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
-import { formatDateTime } from '../../utils/formatDate'
-import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { formatDateTime, formatShortDate } from '../../utils/formatDate'
+import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating } from '../../utils/playerRating'
+import {
+  ActiveFilterChips,
+  FilterBar,
+  FilterSheet,
+  ListingCard,
+  MetaDot,
+  MetaItem,
+  PositionFilter,
+  RangeFields,
+  SkillFilter,
+  SortControl,
+  usePersistedFilter,
+  useFilterSheet,
+  type ActiveFilter,
+  type SortDirection,
+} from './marketUi'
 
-type SortDirection = 'asc' | 'desc'
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
 type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
 type FreeAgentSortField = 'age' | 'wage' | 'skill'
 type TrainerSortField = 'skill' | 'wage'
 
-// The four core positions bestCorePosition ever returns - offered, in this order, by the
-// market's "search by suggested position" filter on every browsable listing tab.
-const CORE_POSITIONS = [POSITION_GOALKEEPER, POSITION_DEFENSE, POSITION_MIDFIELD, POSITION_STRIKER]
-
-// Shared pill styling for every filter TextField/Select across the market's three search bars
-// (transfers/loans/free agents) - a rounded, filled field with no visible border until focused,
-// replacing the boxy default outlined look. Targets .MuiOutlinedInput-root as a plain CSS
-// descendant selector, so it applies equally whether it's spread on the TextField/Select itself
-// or on the FormControl wrapping one (see PositionFilterSelect and the loan duration filter).
-const pillFilterSx = {
-  width: '100%',
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 999,
-    backgroundColor: 'action.hover',
-    transition: 'background-color 150ms ease',
-    '& fieldset': { border: 'none' },
-    '&:hover': { backgroundColor: 'action.selected' },
-    '&.Mui-focused': {
-      backgroundColor: 'background.paper',
-      '& fieldset': { border: '2px solid', borderColor: 'primary.main' },
-    },
-  },
-} as const
-
-// Lays every filter field for a search bar out in an actual grid - fixed-width columns that wrap
-// as a whole row rather than each field wrapping wherever it happens to run out of horizontal
-// space (a plain flex-wrap row left ragged, misaligned rows once enough fields were on it - see
-// issue feedback on the transfers/loans/free-agents search bars). Each field fills its own cell
-// (see pillFilterSx's width: 100%) instead of carrying its own fixed pixel width.
-const filterGridSx = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-  gap: 1.5,
-  alignItems: 'center',
-  p: 2,
-} as const
-
-// A table-layout:fixed column doesn't clip its own overflow by default, so a header label too
-// long for its column (e.g. "Valoración" in a 56px rating column) spilled out and visually merged
-// with the next column's header instead of wrapping or truncating (issue feedback: garbled table
-// headers). Every header TableCell across the market's tables spreads this in.
-const headerCellTruncateSx = {
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-} as const
-
-// usePersistedFilter keeps one search-bar field in the page's URL query string instead of plain
-// component state. Every listing card links to that player's own page (PlayerCell/ListingCard),
-// and clicking "back" from there remounts this whole tab fresh - a plain useState would lose
-// whatever was typed/selected the instant that happens, since nothing survives the remount except
-// what's in the URL the browser is navigating back to. Writes replace the current history entry
-// (rather than pushing a new one), so typing in a filter field doesn't turn every keystroke into
-// its own "back" stop - only the final state before navigating away ends up in the URL.
-function usePersistedFilter<T extends string>(key: string, defaultValue: T): [T, (value: T) => void] {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const value = (searchParams.get(key) as T | null) ?? defaultValue
-  const setValue = (next: T) => {
-    setSearchParams(
-      (prev) => {
-        const params = new URLSearchParams(prev)
-        if (next === defaultValue) {
-          params.delete(key)
-        } else {
-          params.set(key, next)
-        }
-        return params
-      },
-      { replace: true },
-    )
-  }
-  return [value, setValue]
-}
-
-// A player's name plus two quick-reference badges - their suggested position (see
-// bestCorePosition) and average skill rating - so browsing a listings table doesn't require
-// opening each player's profile just to see roughly what they're worth. formerClub renders as a
-// caption underneath, for a free agent who was recently released (see FreeAgentListing). The name
-// stays on a single line and truncates instead of wrapping, since these compound names (often two
-// first/last names) would otherwise push every row on mobile to three lines just for the name.
-function PlayerCell({ player, formerClub }: { player: Player; formerClub?: string }) {
-  const { t } = useTranslation()
-  const theme = useTheme()
-  const rating = overallRating(player)
-  const flag = countryFlag(player.birthCountry)
-  return (
-    <Stack spacing={0.125} sx={{ minWidth: 0 }}>
-      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-        {flag && (
-          <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
-            <Typography component="span" sx={{ flexShrink: 0, fontSize: '0.9rem', lineHeight: 1 }}>
-              {flag}
-            </Typography>
-          </Tooltip>
-        )}
-        <Link
-          component={RouterLink}
-          to={`/player/${player.id}`}
-          underline="hover"
-          color="inherit"
-          sx={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-        >
-          {player.firstName} {player.lastName}
-        </Link>
-        <Chip
-          size="small"
-          variant="outlined"
-          translate="no"
-          className="notranslate"
-          label={t(POSITION_SHORT_LABEL_KEYS[bestCorePosition(player)])}
-          sx={{ height: 18, fontSize: '0.65rem', flexShrink: 0 }}
-        />
-        <Typography variant="caption" sx={{ fontWeight: 700, flexShrink: 0, color: ratingTierColor(rating, theme.palette) }}>
-          {rating}
-        </Typography>
-      </Stack>
-      {formerClub && (
-        <Typography variant="caption" color="text.secondary" noWrap>
-          {formerClub}
-        </Typography>
-      )}
-    </Stack>
-  )
-}
-
-// A "·" separator for the meta line under a listing card's skill strip (team/age/listed date, or
-// age/former club) - plain text items are passed as children rather than a join() on strings so
-// callers can mix in links (TeamNameLink) and translated fragments freely.
-function MetaDot() {
-  return (
-    <Typography component="span" variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
-      ·
-    </Typography>
-  )
-}
-
-// The listing card every browsable market tab (transfers, free agents) renders one of per row -
-// replacing a table row so every attribute is visible at every viewport width instead of the
-// table's narrower columns disappearing on mobile (issue feedback), and so a browser can see a
-// player's actual skills (SkillChipsRow) without clicking into their profile first.
-function ListingCard({
-  player,
-  formerClub,
-  badge,
-  meta,
-  priceLabel,
-  priceValue,
-  actions,
-}: {
-  player: Player
-  formerClub?: string
-  badge?: React.ReactNode
-  meta?: React.ReactNode
-  priceLabel: string
-  priceValue: React.ReactNode
-  actions: React.ReactNode
-}) {
-  return (
-    <Paper variant="outlined" sx={{ p: 1.25, display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-      <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-        <Stack direction="row" spacing={0.75} sx={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <PlayerCell player={player} formerClub={formerClub} />
-          {badge}
-        </Stack>
-        <SkillChipsRow player={player} />
-        {meta && (
-          <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', alignItems: 'center', rowGap: 0.25, mt: 0.5 }}>
-            {meta}
-          </Stack>
-        )}
-      </Box>
-      <Stack spacing={0.5} sx={{ alignItems: 'flex-end', flexShrink: 0 }}>
-        <Box sx={{ textAlign: 'right' }}>
-          <Typography variant="caption" color="text.secondary" component="div" noWrap>
-            {priceLabel}
-          </Typography>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
-            {priceValue}
-          </Typography>
-        </Box>
-        {actions}
-      </Stack>
-    </Paper>
-  )
-}
-
-// Field/direction picker replacing a table's clickable column headers for card-based listings,
-// which have no header row to click - reused by the transfers market and free agents cards.
-function SortControl<T extends string>({
-  value,
-  onChange,
-  direction,
-  onToggleDirection,
-  options,
-}: {
-  value: T
-  onChange: (value: T) => void
-  direction: SortDirection
-  onToggleDirection: () => void
-  options: { value: T; label: string }[]
-}) {
-  const { t } = useTranslation()
-  return (
-    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-      <FormControl size="small" sx={{ ...pillFilterSx, flexGrow: 1 }}>
-        <InputLabel id="sort-field-label">{t('transfers.filters.sortBy')}</InputLabel>
-        <Select
-          labelId="sort-field-label"
-          label={t('transfers.filters.sortBy')}
-          value={value}
-          onChange={(event: SelectChangeEvent) => onChange(event.target.value as T)}
-        >
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <Tooltip title={t(direction === 'asc' ? 'transfers.filters.sortAscending' : 'transfers.filters.sortDescending')}>
-        <IconButton size="small" onClick={onToggleDirection} sx={{ flexShrink: 0, bgcolor: 'action.hover' }}>
-          {direction === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
-        </IconButton>
-      </Tooltip>
-    </Box>
-  )
-}
-
-// Shared "search by suggested position" filter dropdown, reused by every browsable listings tab
-// (transfers/loans/free agents) - filters client-side by bestCorePosition since the market
-// listing endpoints don't take a position parameter.
-function PositionFilterSelect({ value, onChange }: { value: number | ''; onChange: (value: number | '') => void }) {
-  const { t } = useTranslation()
-  return (
-    <FormControl size="small" sx={pillFilterSx}>
-      <InputLabel id="position-filter-label">{t('transfers.filters.position')}</InputLabel>
-      <Select
-        labelId="position-filter-label"
-        label={t('transfers.filters.position')}
-        value={value}
-        onChange={(event: SelectChangeEvent<number | ''>) => onChange(event.target.value === '' ? '' : Number(event.target.value))}
-      >
-        <MenuItem value="">
-          <em>{t('transfers.filters.allPositions')}</em>
-        </MenuItem>
-        {CORE_POSITIONS.map((position) => (
-          <MenuItem key={position} value={position} translate="no" className="notranslate">
-            {t(POSITION_SHORT_LABEL_KEYS[position])}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )
-}
-
-// Shared "which skill" dropdown for the market's "minimum skill value" filter, reused by every
-// browsable listings tab - paired with a plain number TextField (the minimum itself) rather than
-// folded into this component, so it lays out as two ordinary filterGridSx cells like every other
-// filter pair (e.g. minAge/maxAge) instead of a bespoke one. Unlike minSkill/maxSkill (which
-// filter by overallRating, the seven skills averaged together), this targets one named skill.
-function SkillFieldSelect({ value, onChange }: { value: (typeof SKILL_FIELDS)[number]; onChange: (value: (typeof SKILL_FIELDS)[number]) => void }) {
-  const { t } = useTranslation()
-  return (
-    <FormControl size="small" sx={pillFilterSx}>
-      <InputLabel id="skill-field-filter-label">{t('transfers.filters.skill')}</InputLabel>
-      <Select
-        labelId="skill-field-filter-label"
-        label={t('transfers.filters.skill')}
-        value={value}
-        onChange={(event: SelectChangeEvent) => onChange(event.target.value as (typeof SKILL_FIELDS)[number])}
-      >
-        {SKILL_FIELDS.map((field) => (
-          <MenuItem key={field} value={field}>
-            {t(SKILL_LABEL_KEYS[field])}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )
-}
+const LOAN_DURATION_OPTIONS = [1, 2, 3]
 
 // Order matches the <Tab> elements below - used to deep-link a specific tab (e.g. `?tab=coaching`
 // from TeamDetailsPage's coach card), rather than always landing on the first one.
 const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching'] as const
 
+// Parses a persisted filter string ("" when unset) into a number the filters can compare with.
+const num = (value: string) => Number(value)
+
 // The market's activity panel (issue #72): how many players are listed, how busy the offer
 // market has been in the last hour/day, the currently-listed player getting the most attention,
-// and the biggest transfer fee ever paid. Renders nothing while stats are still loading rather
-// than a skeleton, since it sits above the tabs and shouldn't block the rest of the page.
-function MarketStatsPanel() {
+// and the biggest transfer fee ever paid. A single horizontally scrollable row of compact tiles
+// (it used to be a 260px block repeated on every tab); only the Transfers tab shows it. Renders
+// nothing while stats are still loading rather than a skeleton, since it sits above the results
+// and shouldn't block the rest of the page.
+function MarketStatsStrip() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: stats } = useTransferMarketStats(!!loggedUser)
@@ -372,69 +100,55 @@ function MarketStatsPanel() {
     return null
   }
 
+  const tiles: { key: string; label: string; value: ReactNode; caption?: ReactNode }[] = [
+    { key: 'listed', label: t('transfers.stats.listedPlayers'), value: stats.listedPlayersCount },
+    {
+      key: 'offers',
+      label: t('transfers.stats.offersRecently'),
+      value: t('transfers.stats.offersShort', { hour: stats.offersLastHour, day: stats.offersLastDay }),
+    },
+    {
+      key: 'viewed',
+      label: t('transfers.stats.mostViewed'),
+      value: stats.mostViewedPlayer ? (
+        <Link component={RouterLink} to={`/player/${stats.mostViewedPlayer.player.id}`} underline="hover" color="inherit">
+          {stats.mostViewedPlayer.player.lastName}
+        </Link>
+      ) : (
+        t('transfers.stats.none')
+      ),
+      caption: stats.mostViewedPlayer ? t('transfers.stats.viewCount', { count: stats.mostViewedPlayer.viewCount }) : undefined,
+    },
+    {
+      key: 'fee',
+      label: t('transfers.stats.topFee'),
+      value: stats.topTransferFee ? formatCurrency(stats.topTransferFee.amount, { compact: true }) : t('transfers.stats.none'),
+      caption: stats.topTransferFee ? (
+        <Link component={RouterLink} to={`/player/${stats.topTransferFee.player.id}`} underline="hover" color="inherit">
+          {stats.topTransferFee.player.lastName}
+        </Link>
+      ) : undefined,
+    },
+  ]
+
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 6, sm: 3 }}>
-          <Typography variant="caption" color="text.secondary" component="div">
-            {t('transfers.stats.listedPlayers')}
+    <Stack direction="row" spacing={1} sx={{ overflowX: 'auto', pb: 1, mb: 1, scrollSnapType: 'x proximity' }}>
+      {tiles.map((tile) => (
+        <Paper key={tile.key} variant="outlined" sx={{ px: 1.5, py: 1, minWidth: 128, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <Typography variant="chipLabel" color="text.secondary" component="div" noWrap>
+            {tile.label}
           </Typography>
-          <Typography variant="h6">{stats.listedPlayersCount}</Typography>
-        </Grid>
-        <Grid size={{ xs: 6, sm: 3 }}>
-          <Typography variant="caption" color="text.secondary" component="div">
-            {t('transfers.stats.offersRecently')}
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.25 }} noWrap>
+            {tile.value}
           </Typography>
-          <Typography variant="body1" sx={{ fontWeight: 700 }}>
-            {t('transfers.stats.offersCount', { hour: stats.offersLastHour, day: stats.offersLastDay })}
-          </Typography>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 3 }}>
-          <Typography variant="caption" color="text.secondary" component="div">
-            {t('transfers.stats.mostViewed')}
-          </Typography>
-          {stats.mostViewedPlayer ? (
-            <Typography variant="body2">
-              <Link component={RouterLink} to={`/player/${stats.mostViewedPlayer.player.id}`} underline="hover" color="inherit">
-                {stats.mostViewedPlayer.player.firstName} {stats.mostViewedPlayer.player.lastName}
-              </Link>{' '}
-              <Typography component="span" variant="caption" color="text.secondary">
-                {t('transfers.stats.viewCount', { count: stats.mostViewedPlayer.viewCount })}
-              </Typography>
-            </Typography>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              {t('transfers.stats.none')}
+          {tile.caption && (
+            <Typography variant="caption" color="text.secondary" component="div" noWrap>
+              {tile.caption}
             </Typography>
           )}
-        </Grid>
-        <Grid size={{ xs: 12, sm: 3 }}>
-          <Typography variant="caption" color="text.secondary" component="div">
-            {t('transfers.stats.topFee')}
-          </Typography>
-          {stats.topTransferFee ? (
-            <Typography variant="body2">
-              <Link component={RouterLink} to={`/player/${stats.topTransferFee.player.id}`} underline="hover" color="inherit">
-                {stats.topTransferFee.player.firstName} {stats.topTransferFee.player.lastName}
-              </Link>{' '}
-              <Typography component="span" sx={{ fontWeight: 700 }}>
-                {formatCurrency(stats.topTransferFee.amount)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" component="div">
-                {t('transfers.stats.topFeeTeams', {
-                  buyer: stats.topTransferFee.buyerTeamName,
-                  seller: stats.topTransferFee.sellerTeamName,
-                })}
-              </Typography>
-            </Typography>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              {t('transfers.stats.none')}
-            </Typography>
-          )}
-        </Grid>
-      </Grid>
-    </Paper>
+        </Paper>
+      ))}
+    </Stack>
   )
 }
 
@@ -448,15 +162,12 @@ export function TransferMarketPage() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {t('transfers.title')}
-      </Typography>
+      <PageHeader title={t('transfers.title')} />
       {windowStatus && !windowStatus.open && (
         <Alert severity="warning" sx={{ mb: 2 }}>
           {t('transfers.windowClosed')}
         </Alert>
       )}
-      <MarketStatsPanel />
       <Tabs
         value={tab}
         onChange={handleChange}
@@ -467,14 +178,14 @@ export function TransferMarketPage() {
           mb: 2,
           borderBottom: 1,
           borderColor: 'divider',
-          '& .MuiTab-root': { minWidth: 'auto', px: { xs: 1.25, sm: 2 }, fontSize: { xs: '0.8rem', sm: '0.875rem' } },
+          '& .MuiTab-root': { minWidth: 'auto', px: { xs: 1.25, sm: 2 } },
         }}
       >
-        <Tab label={t('transfers.tabs.transfers')} />
-        <Tab label={t('transfers.tabs.loans')} />
-        <Tab label={t('transfers.tabs.offers')} />
-        <Tab label={t('transfers.tabs.freeAgents')} />
-        <Tab label={t('transfers.tabs.coaching')} />
+        <Tab label={t('transfers.tabsShort.transfers')} />
+        <Tab label={t('transfers.tabsShort.loans')} />
+        <Tab label={t('transfers.tabsShort.offers')} />
+        <Tab label={t('transfers.tabsShort.freeAgents')} />
+        <Tab label={t('transfers.tabsShort.coaching')} />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
@@ -485,6 +196,87 @@ export function TransferMarketPage() {
   )
 }
 
+/** Dialog for putting one of your players on the market: pick who, name the price. Replaces the
+ * always-visible form that pushed every listing 400px down the page. */
+function ListPlayerDialog({
+  open,
+  onClose,
+  players,
+}: {
+  open: boolean
+  onClose: () => void
+  players: Player[]
+}) {
+  const { t } = useTranslation()
+  const listPlayer = useListPlayer()
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
+  const [askingPrice, setAskingPrice] = useState('')
+  const selected = players.find((p) => p.id === selectedPlayerId)
+
+  const handleList = () => {
+    const price = Number(askingPrice)
+    if (selectedPlayerId === '' || !price || price <= 0) {
+      return
+    }
+    listPlayer.mutate(
+      { playerId: selectedPlayerId, askingPrice: price },
+      {
+        onSuccess: () => {
+          setSelectedPlayerId('')
+          setAskingPrice('')
+          onClose()
+        },
+      },
+    )
+  }
+
+  return (
+    <ResponsiveDialog
+      open={open}
+      onClose={onClose}
+      title={t('transfers.listPlayer.title')}
+      actions={
+        <>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
+          <Button variant="contained" disabled={selectedPlayerId === '' || !askingPrice || listPlayer.isPending} onClick={handleList}>
+            {t('transfers.list')}
+          </Button>
+        </>
+      }
+    >
+      <Stack spacing={2}>
+        <Typography variant="body2" color="text.secondary">
+          {t('transfers.listDialog.hint')}
+        </Typography>
+        {listPlayer.isError && <Alert severity="error">{t('transfers.listPlayer.error')}</Alert>}
+        <FormControl fullWidth>
+          <InputLabel id="list-player-label">{t('transfers.listDialog.selectPlayer')}</InputLabel>
+          <Select
+            labelId="list-player-label"
+            label={t('transfers.listDialog.selectPlayer')}
+            value={selectedPlayerId}
+            onChange={(event: SelectChangeEvent<number | ''>) => setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))}
+          >
+            {players.map((player) => (
+              <MenuItem key={player.id} value={player.id}>
+                {player.firstName} {player.lastName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <NumberField
+          label={t('transfers.askingPrice')}
+          value={askingPrice}
+          onValueChange={setAskingPrice}
+          currency
+          fullWidth
+          helperText={selected ? t('transfers.listPlayer.hint', { wage: formatCurrency(selected.wage) }) : undefined}
+        />
+      </Stack>
+    </ResponsiveDialog>
+  )
+}
+
 function TransfersTab() {
   const { t } = useTranslation()
   const confirm = useConfirm()
@@ -492,12 +284,10 @@ function TransfersTab() {
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useTransferListings(!!loggedUser)
 
-  const listPlayer = useListPlayer()
   const unlistPlayer = useUnlistPlayer()
   const buyListing = useBuyListing()
-
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
-  const [askingPrice, setAskingPrice] = useState('')
+  const [listOpen, setListOpen] = useState(false)
+  const sheet = useFilterSheet()
 
   const [search, setSearch] = usePersistedFilter<string>('tSearch', '')
   const [minAge, setMinAge] = usePersistedFilter<string>('tMinAge', '')
@@ -526,9 +316,6 @@ function TransfersTab() {
   const myListings = listings.filter((l) => l.sellingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.sellingTeamId !== myTeamId)
 
-  const hasActiveFilters = !!(
-    search || minAge || maxAge || minPrice || maxPrice || minSkill || maxSkill || minSkillValue || minCaps || position !== ''
-  )
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
@@ -541,6 +328,41 @@ function TransfersTab() {
     setMinCaps('')
     setPosition('')
   }
+
+  const rangeChip = (key: string, min: string, max: string, labels: { both: string; from: string; to: string }, clear: () => void, format: (v: string) => string = (v) => v): ActiveFilter[] =>
+    min || max
+      ? [
+          {
+            key,
+            label:
+              min && max
+                ? t(labels.both, { min: format(min), max: format(max) })
+                : min
+                  ? t(labels.from, { value: format(min) })
+                  : t(labels.to, { value: format(max) }),
+            onDelete: clear,
+          },
+        ]
+      : []
+
+  const activeFilters: ActiveFilter[] = [
+    ...(search.trim() ? [{ key: 'search', label: t('transfers.filters.active.search', { value: search.trim() }), onDelete: () => setSearch('') }] : []),
+    ...rangeChip('age', minAge, maxAge, { both: 'transfers.filters.active.age', from: 'transfers.filters.active.ageFrom', to: 'transfers.filters.active.ageTo' }, () => {
+      setMinAge('')
+      setMaxAge('')
+    }),
+    ...rangeChip('price', minPrice, maxPrice, { both: 'transfers.filters.active.price', from: 'transfers.filters.active.priceFrom', to: 'transfers.filters.active.priceTo' }, () => {
+      setMinPrice('')
+      setMaxPrice('')
+    }, (v) => formatCurrency(num(v), { compact: true })),
+    ...rangeChip('rating', minSkill, maxSkill, { both: 'transfers.filters.active.rating', from: 'transfers.filters.active.ratingFrom', to: 'transfers.filters.active.ratingTo' }, () => {
+      setMinSkill('')
+      setMaxSkill('')
+    }),
+    ...(minSkillValue ? [{ key: 'skill', label: t('transfers.filters.active.skill', { skill: t(SKILL_LABEL_KEYS[skillField]), value: minSkillValue }), onDelete: () => setMinSkillValue('') }] : []),
+    ...(minCaps ? [{ key: 'caps', label: t('transfers.filters.active.caps', { value: minCaps }), onDelete: () => setMinCaps('') }] : []),
+    ...(position !== '' ? [{ key: 'position', label: t(POSITION_SHORT_LABEL_KEYS[position]), onDelete: () => setPosition('') }] : []),
+  ]
 
   const filteredMarketListings = marketListings
     .filter((l) => {
@@ -571,22 +393,6 @@ function TransfersTab() {
       return sortDir === 'asc' ? cmp : -cmp
     })
 
-  const handleList = () => {
-    const price = Number(askingPrice)
-    if (selectedPlayerId === '' || !price || price <= 0) {
-      return
-    }
-    listPlayer.mutate(
-      { playerId: selectedPlayerId, askingPrice: price },
-      {
-        onSuccess: () => {
-          setSelectedPlayerId('')
-          setAskingPrice('')
-        },
-      },
-    )
-  }
-
   const handleBuy = async (listing: TransferListing) => {
     const ok = await confirm({
       message: t('transfers.confirmBuy', {
@@ -603,60 +409,18 @@ function TransfersTab() {
 
   return (
     <Box>
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
+      <MarketStatsStrip />
+
+      <Stack direction="row" sx={{ justifyContent: 'flex-end', mb: 1.5 }}>
+        <Button variant="contained" onClick={() => setListOpen(true)} disabled={listablePlayers.length === 0}>
           {t('transfers.listPlayer.title')}
-        </Typography>
-        {listPlayer.isError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {t('transfers.listPlayer.error')}
-          </Alert>
-        )}
-        <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth>
-              <InputLabel id="list-player-label">{t('transfers.player')}</InputLabel>
-              <Select
-                labelId="list-player-label"
-                label={t('transfers.player')}
-                value={selectedPlayerId}
-                onChange={(event: SelectChangeEvent<number | ''>) =>
-                  setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))
-                }
-              >
-                {listablePlayers.map((player) => (
-                  <MenuItem key={player.id} value={player.id}>
-                    {player.firstName} {player.lastName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid size={{ xs: 8, sm: 4 }}>
-            <TextField
-              fullWidth
-              label={t('transfers.askingPrice')}
-              type="number"
-              value={askingPrice}
-              onChange={(event) => setAskingPrice(event.target.value)}
-            />
-          </Grid>
-          <Grid size={{ xs: 4, sm: 2 }}>
-            <Button
-              fullWidth
-              variant="contained"
-              disabled={selectedPlayerId === '' || !askingPrice || listPlayer.isPending}
-              onClick={handleList}
-            >
-              {t('transfers.list')}
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
+        </Button>
+      </Stack>
+      <ListPlayerDialog open={listOpen} onClose={() => setListOpen(false)} players={listablePlayers} />
 
       {myListings.length > 0 && (
-        <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
-          <Typography variant="subtitle1" gutterBottom>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
             {t('transfers.yourListings')}
           </Typography>
           <Stack spacing={1}>
@@ -666,211 +430,110 @@ function TransfersTab() {
                 player={listing.player}
                 meta={
                   <>
-                    <Typography variant="caption" color="text.secondary">
-                      {t('transfers.table.age')} {listing.player.age}
-                    </Typography>
+                    <MetaItem>{t('transfers.ageLabel', { age: listing.player.age })}</MetaItem>
                     <MetaDot />
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDateTime(listing.listedAt)}
-                    </Typography>
+                    <MetaItem>{t('transfers.listedOn', { date: formatShortDate(listing.listedAt) })}</MetaItem>
                   </>
                 }
                 priceLabel={t('transfers.table.price')}
                 priceValue={formatCurrency(listing.askingPrice)}
+                salary={t('transfers.salaryPerMatch', { amount: formatCurrency(listing.player.wage) })}
                 actions={
-                  <Button
-                    size="small"
-                    color="secondary"
-                    onClick={() => unlistPlayer.mutate(listing.player.id)}
-                    sx={{ minWidth: 0, px: 1.25, py: 0.25 }}
-                  >
+                  <Button color="secondary" variant="outlined" onClick={() => unlistPlayer.mutate(listing.player.id)}>
                     {t('transfers.unlist')}
                   </Button>
                 }
               />
             ))}
           </Stack>
-        </Paper>
+        </Box>
       )}
 
-      <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
-        <Typography variant="subtitle1" gutterBottom>
-          {t('transfers.market')}
-        </Typography>
-        {marketListings.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {t('transfers.noMarketListings')}
-          </Typography>
-        ) : (
-          <>
-            <Box sx={{ ...filterGridSx, p: 0, pb: 2 }}>
-              <TextField
-                size="small"
-                label={t('transfers.filters.search')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minAge')}
-                value={minAge}
-                onChange={(e) => setMinAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.maxAge')}
-                value={maxAge}
-                onChange={(e) => setMaxAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minPrice')}
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.maxPrice')}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minSkill')}
-                value={minSkill}
-                onChange={(e) => setMinSkill(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.maxSkill')}
-                value={maxSkill}
-                onChange={(e) => setMaxSkill(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minSkillValue')}
-                value={minSkillValue}
-                onChange={(e) => setMinSkillValue(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minCaps')}
-                value={minCaps}
-                onChange={(e) => setMinCaps(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <PositionFilterSelect value={position} onChange={setPosition} />
-              <SortControl<TransferSortField>
-                value={sortField}
-                onChange={setSortField}
-                direction={sortDir}
-                onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
-                options={[
-                  { value: 'listed', label: t('transfers.table.listed') },
-                  { value: 'price', label: t('transfers.table.price') },
-                  { value: 'age', label: t('transfers.table.age') },
-                  { value: 'skill', label: t('transfers.table.rating') },
-                  { value: 'salary', label: t('transfers.table.salary') },
-                ]}
-              />
-              {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
-                  {t('transfers.filters.clear')}
-                </Button>
+      <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
+        {t('transfers.market')}
+      </Typography>
+      {marketListings.length === 0 ? (
+        <EmptyState compact title={t('transfers.noMarketListings')} />
+      ) : (
+        <>
+          <FilterBar search={search} onSearch={setSearch} activeCount={activeFilters.length} onOpenFilters={sheet.show} />
+          <ActiveFilterChips filters={activeFilters} />
+          <FilterSheet
+            open={sheet.open}
+            onClose={sheet.hide}
+            resultCount={filteredMarketListings.length}
+            onClear={clearFilters}
+            hasActiveFilters={activeFilters.length > 0}
+          >
+            <SortControl<TransferSortField>
+              value={sortField}
+              onChange={setSortField}
+              direction={sortDir}
+              onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
+              options={[
+                { value: 'listed', label: t('transfers.table.listed') },
+                { value: 'price', label: t('transfers.table.price') },
+                { value: 'age', label: t('transfers.table.age') },
+                { value: 'skill', label: t('transfers.table.rating') },
+                { value: 'salary', label: t('transfers.table.salary') },
+              ]}
+            />
+            <PositionFilter value={position} onChange={setPosition} />
+            <RangeFields label={t('transfers.filters.age')} min={minAge} max={maxAge} onMin={setMinAge} onMax={setMaxAge} />
+            <RangeFields label={t('transfers.filters.price')} min={minPrice} max={maxPrice} onMin={setMinPrice} onMax={setMaxPrice} currency />
+            <RangeFields label={t('transfers.filters.rating')} min={minSkill} max={maxSkill} onMin={setMinSkill} onMax={setMaxSkill} />
+            <SkillFilter field={skillField} onField={setSkillFieldStr} minValue={minSkillValue} onMinValue={setMinSkillValue} />
+            <NumberField label={t('transfers.filters.minCapsLabel')} value={minCaps} onValueChange={setMinCaps} fullWidth />
+          </FilterSheet>
+          {filteredMarketListings.length === 0 ? (
+            <EmptyState compact title={t('transfers.filters.noResults')} />
+          ) : (
+            <Paginated
+              rows={filteredMarketListings}
+              resetKey={JSON.stringify([search, minAge, maxAge, minPrice, maxPrice, minSkill, maxSkill, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
+            >
+              {(pageListings) => (
+                <Stack spacing={1}>
+                  {pageListings.map((listing) => (
+                    <ListingCard
+                      key={listing.listingId}
+                      player={listing.player}
+                      meta={
+                        <>
+                          <TeamNameLink teamId={listing.sellingTeamId} variant="caption" color="text.secondary" underline="hover">
+                            {listing.sellingTeamName}
+                          </TeamNameLink>
+                          <MetaDot />
+                          <MetaItem>{t('transfers.ageLabel', { age: listing.player.age })}</MetaItem>
+                          {listing.caps > 0 && (
+                            <>
+                              <MetaDot />
+                              <MetaItem>{t('transfers.filters.capsCount', { count: listing.caps })}</MetaItem>
+                            </>
+                          )}
+                          <MetaDot />
+                          <MetaItem>{t('transfers.listedOn', { date: formatShortDate(listing.listedAt) })}</MetaItem>
+                        </>
+                      }
+                      priceLabel={t('transfers.table.price')}
+                      priceValue={formatCurrency(listing.askingPrice)}
+                      salary={t('transfers.salaryPerMatch', { amount: formatCurrency(listing.player.wage) })}
+                      actions={<MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
+                    />
+                  ))}
+                </Stack>
               )}
-            </Box>
-            {filteredMarketListings.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                {t('transfers.filters.noResults')}
-              </Typography>
-            ) : (
-              <Paginated
-                rows={filteredMarketListings}
-                resetKey={JSON.stringify([
-                  search,
-                  minAge,
-                  maxAge,
-                  minPrice,
-                  maxPrice,
-                  minSkill,
-                  maxSkill,
-                  skillField,
-                  minSkillValue,
-                  minCaps,
-                  position,
-                  sortField,
-                  sortDir,
-                ])}
-              >
-                {(pageListings) => (
-                  <Stack spacing={1}>
-                    {pageListings.map((listing) => (
-                      <ListingCard
-                        key={listing.listingId}
-                        player={listing.player}
-                        meta={
-                          <>
-                            <TeamNameLink teamId={listing.sellingTeamId} variant="caption" color="text.secondary" underline="hover">
-                              {listing.sellingTeamName}
-                            </TeamNameLink>
-                            <MetaDot />
-                            <Typography variant="caption" color="text.secondary">
-                              {t('transfers.table.age')} {listing.player.age}
-                            </Typography>
-                            <MetaDot />
-                            <Typography variant="caption" color="text.secondary">
-                              {formatCurrency(listing.player.wage)}
-                            </Typography>
-                            {listing.caps > 0 && (
-                              <>
-                                <MetaDot />
-                                <Typography variant="caption" color="text.secondary">
-                                  {t('transfers.filters.capsCount', { count: listing.caps })}
-                                </Typography>
-                              </>
-                            )}
-                            <MetaDot />
-                            <Typography variant="caption" color="text.secondary">
-                              {formatDateTime(listing.listedAt)}
-                            </Typography>
-                          </>
-                        }
-                        priceLabel={t('transfers.table.price')}
-                        priceValue={formatCurrency(listing.askingPrice)}
-                        actions={<MarketListingActions listing={listing} onBuy={handleBuy} buyPending={buyListing.isPending} />}
-                      />
-                    ))}
-                  </Stack>
-                )}
-              </Paginated>
-            )}
-          </>
-        )}
-      </Paper>
+            </Paginated>
+          )}
+        </>
+      )}
     </Box>
   )
 }
 
 // MarketListingActions lets a browser either buy a listing outright at its asking price, or
 // open the same negotiation dialog as offering on an unlisted player (see TeamDetailsPage's
-// PlayerRow) instead - the seller then accepts/rejects the resulting offer from the Offers tab.
+// squad sheet) instead - the seller then accepts/rejects the resulting offer from the Offers tab.
 // The listing itself is untouched by an offer; only accepting one removes it.
 function MarketListingActions({
   listing,
@@ -885,19 +548,196 @@ function MarketListingActions({
   const [offerOpen, setOfferOpen] = useState(false)
 
   return (
-    <Stack spacing={0.25} sx={{ alignItems: 'flex-end' }}>
-      <Button size="small" variant="contained" onClick={() => onBuy(listing)} disabled={buyPending} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
-        {t('transfers.buy')}
-      </Button>
-      <Button size="small" onClick={() => setOfferOpen(true)} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
+    <>
+      <Button variant="outlined" onClick={() => setOfferOpen(true)}>
         {t('team.makeOffer')}
       </Button>
-      <TransferOfferDialog player={listing.player} open={offerOpen} onClose={() => setOfferOpen(false)} />
+      <Button variant="contained" onClick={() => onBuy(listing)} disabled={buyPending}>
+        {t('transfers.buy')}
+      </Button>
+      <TransferOfferDialog player={listing.player} open={offerOpen} onClose={() => setOfferOpen(false)} askingPrice={listing.askingPrice} />
+    </>
+  )
+}
+
+/** Dialog for loaning out one of your players. Every term gets its own full-width, fully labelled
+ * field with a line of help - the old inline row had three ~90px fields whose placeholders read
+ * "Cuota …", "% de c…", "Cuota …". */
+function OfferLoanDialog({ open, onClose, players }: { open: boolean; onClose: () => void; players: Player[] }) {
+  const { t } = useTranslation()
+  const listForLoan = useListPlayerForLoan()
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
+  const [duration, setDuration] = useState<number>(1)
+  const [loanFee, setLoanFee] = useState('')
+  const [wageContributionPercent, setWageContributionPercent] = useState('')
+  const [buyOptionFee, setBuyOptionFee] = useState('')
+
+  const handleList = () => {
+    if (selectedPlayerId === '') {
+      return
+    }
+    listForLoan.mutate(
+      {
+        playerId: selectedPlayerId,
+        durationSeasons: duration,
+        loanFee: loanFee ? Number(loanFee) : 0,
+        wageContributionPercent: wageContributionPercent ? Number(wageContributionPercent) : 0,
+        buyOptionFee: buyOptionFee ? Number(buyOptionFee) : 0,
+      },
+      {
+        onSuccess: () => {
+          setSelectedPlayerId('')
+          setLoanFee('')
+          setWageContributionPercent('')
+          setBuyOptionFee('')
+          onClose()
+        },
+      },
+    )
+  }
+
+  return (
+    <ResponsiveDialog
+      open={open}
+      onClose={onClose}
+      title={t('transfers.offerLoan.title')}
+      actions={
+        <>
+          <Button onClick={onClose}>{t('common.cancel')}</Button>
+          <Button variant="contained" disabled={selectedPlayerId === '' || listForLoan.isPending} onClick={handleList}>
+            {t('transfers.list')}
+          </Button>
+        </>
+      }
+    >
+      <Stack spacing={2}>
+        <Typography variant="body2" color="text.secondary">
+          {t('transfers.offerLoan.subtitle')}
+        </Typography>
+        {listForLoan.isError && <Alert severity="error">{t('transfers.offerLoan.error')}</Alert>}
+        <FormControl fullWidth>
+          <InputLabel id="loan-player-label">{t('transfers.offerLoan.selectPlayer')}</InputLabel>
+          <Select
+            labelId="loan-player-label"
+            label={t('transfers.offerLoan.selectPlayer')}
+            value={selectedPlayerId}
+            onChange={(event: SelectChangeEvent<number | ''>) => setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))}
+          >
+            {players.map((player) => (
+              <MenuItem key={player.id} value={player.id}>
+                {player.firstName} {player.lastName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel id="loan-duration-label">{t('transfers.duration')}</InputLabel>
+          <Select
+            labelId="loan-duration-label"
+            label={t('transfers.duration')}
+            value={duration}
+            onChange={(event: SelectChangeEvent<number>) => setDuration(Number(event.target.value))}
+          >
+            {LOAN_DURATION_OPTIONS.map((seasons) => (
+              <MenuItem key={seasons} value={seasons}>
+                {t('transfers.seasonCount', { count: seasons })}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <NumberField
+          label={t('transfers.offerLoan.loanFee')}
+          value={loanFee}
+          onValueChange={setLoanFee}
+          currency
+          fullWidth
+          helperText={t('transfers.offerLoan.loanFeeHelp')}
+        />
+        <NumberField
+          label={t('transfers.offerLoan.wageContributionPercent')}
+          value={wageContributionPercent}
+          onValueChange={setWageContributionPercent}
+          suffix="%"
+          max={100}
+          fullWidth
+          helperText={t('transfers.offerLoan.wageContributionHelp')}
+        />
+        <NumberField
+          label={t('transfers.offerLoan.buyOptionFee')}
+          value={buyOptionFee}
+          onValueChange={setBuyOptionFee}
+          currency
+          fullWidth
+          helperText={t('transfers.offerLoan.buyOptionHelp')}
+        />
+      </Stack>
+    </ResponsiveDialog>
+  )
+}
+
+// A compact read of a loan listing's optional economic terms (ECONOMY_ROADMAP.md's Phase 4
+// "loan money" item) - "free" when none were set (the original, still-default behavior), each
+// present term on its own line otherwise.
+function LoanTermsSummary({ listing }: { listing: LoanListing }) {
+  const { t } = useTranslation()
+  if (!listing.loanFee && !listing.wageContributionPercent && !listing.buyOptionFee) {
+    return (
+      <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+        {t('transfers.offerLoan.free')}
+      </Typography>
+    )
+  }
+  return (
+    <Stack spacing={0} sx={{ mt: 0.5 }}>
+      {!!listing.loanFee && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.loanFeeSummary', { amount: formatCurrency(listing.loanFee) })}
+        </Typography>
+      )}
+      {!!listing.wageContributionPercent && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.wageContributionSummary', { percent: listing.wageContributionPercent })}
+        </Typography>
+      )}
+      {!!listing.buyOptionFee && (
+        <Typography variant="caption" color="text.secondary" component="div">
+          {t('transfers.offerLoan.buyOptionSummary', { amount: formatCurrency(listing.buyOptionFee) })}
+        </Typography>
+      )}
     </Stack>
   )
 }
 
-const LOAN_DURATION_OPTIONS = [1, 2, 3]
+function LoanCard({ listing, action }: { listing: LoanListing; action: ReactNode }) {
+  const { t } = useTranslation()
+  return (
+    <ListingCard
+      player={listing.player}
+      meta={
+        <>
+          <TeamNameLink teamId={listing.lendingTeamId} variant="caption" color="text.secondary" underline="hover">
+            {listing.lendingTeamName}
+          </TeamNameLink>
+          <MetaDot />
+          <MetaItem>{t('transfers.ageLabel', { age: listing.player.age })}</MetaItem>
+          {listing.caps > 0 && (
+            <>
+              <MetaDot />
+              <MetaItem>{t('transfers.filters.capsCount', { count: listing.caps })}</MetaItem>
+            </>
+          )}
+          <MetaDot />
+          <MetaItem>{t('transfers.listedOn', { date: formatShortDate(listing.listedAt) })}</MetaItem>
+        </>
+      }
+      extra={<LoanTermsSummary listing={listing} />}
+      priceLabel={t('transfers.table.duration')}
+      priceValue={t('transfers.seasonCount', { count: listing.durationSeasons })}
+      salary={t('transfers.salaryPerMatch', { amount: formatCurrency(listing.player.wage) })}
+      actions={action}
+    />
+  )
+}
 
 function LoansTab() {
   const { t } = useTranslation()
@@ -906,15 +746,10 @@ function LoansTab() {
   const { data: userTeam, isLoading: teamLoading } = useUserTeam(!!loggedUser)
   const { data: listings, isLoading: listingsLoading } = useLoanListings(!!loggedUser)
 
-  const listForLoan = useListPlayerForLoan()
   const unlistFromLoan = useUnlistPlayerForLoan()
   const acceptLoan = useAcceptLoan()
-
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
-  const [duration, setDuration] = useState<number>(1)
-  const [loanFee, setLoanFee] = useState('')
-  const [wageContributionPercent, setWageContributionPercent] = useState('')
-  const [buyOptionFee, setBuyOptionFee] = useState('')
+  const [offerOpen, setOfferOpen] = useState(false)
+  const sheet = useFilterSheet()
 
   const [search, setSearch] = usePersistedFilter<string>('lSearch', '')
   const [minAge, setMinAge] = usePersistedFilter<string>('lMinAge', '')
@@ -942,7 +777,6 @@ function LoansTab() {
   const myListings = listings.filter((l) => l.lendingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.lendingTeamId !== myTeamId)
 
-  const hasActiveFilters = !!(search || minAge || maxAge || maxDuration || minSkillValue || minCaps || position !== '')
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
@@ -952,6 +786,31 @@ function LoansTab() {
     setMinCaps('')
     setPosition('')
   }
+
+  const activeFilters: ActiveFilter[] = [
+    ...(search.trim() ? [{ key: 'search', label: t('transfers.filters.active.search', { value: search.trim() }), onDelete: () => setSearch('') }] : []),
+    ...(minAge || maxAge
+      ? [
+          {
+            key: 'age',
+            label:
+              minAge && maxAge
+                ? t('transfers.filters.active.age', { min: minAge, max: maxAge })
+                : minAge
+                  ? t('transfers.filters.active.ageFrom', { value: minAge })
+                  : t('transfers.filters.active.ageTo', { value: maxAge }),
+            onDelete: () => {
+              setMinAge('')
+              setMaxAge('')
+            },
+          },
+        ]
+      : []),
+    ...(maxDuration ? [{ key: 'duration', label: t('transfers.filters.active.duration', { count: maxDuration }), onDelete: () => setMaxDuration('') }] : []),
+    ...(minSkillValue ? [{ key: 'skill', label: t('transfers.filters.active.skill', { skill: t(SKILL_LABEL_KEYS[skillField]), value: minSkillValue }), onDelete: () => setMinSkillValue('') }] : []),
+    ...(minCaps ? [{ key: 'caps', label: t('transfers.filters.active.caps', { value: minCaps }), onDelete: () => setMinCaps('') }] : []),
+    ...(position !== '' ? [{ key: 'position', label: t(POSITION_SHORT_LABEL_KEYS[position]), onDelete: () => setPosition('') }] : []),
+  ]
 
   const filteredMarketListings = marketListings
     .filter((l) => {
@@ -971,41 +830,11 @@ function LoansTab() {
           ? a.durationSeasons - b.durationSeasons
           : sortField === 'age'
             ? a.player.age - b.player.age
-            : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
+            : sortField === 'skill'
+              ? overallRating(a.player) - overallRating(b.player)
+              : new Date(a.listedAt).getTime() - new Date(b.listedAt).getTime()
       return sortDir === 'asc' ? cmp : -cmp
     })
-
-  const handleSort = (field: LoanSortField) => {
-    if (field === sortField) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortField(field)
-      setSortDir('asc')
-    }
-  }
-
-  const handleList = () => {
-    if (selectedPlayerId === '') {
-      return
-    }
-    listForLoan.mutate(
-      {
-        playerId: selectedPlayerId,
-        durationSeasons: duration,
-        loanFee: loanFee ? Number(loanFee) : 0,
-        wageContributionPercent: wageContributionPercent ? Number(wageContributionPercent) : 0,
-        buyOptionFee: buyOptionFee ? Number(buyOptionFee) : 0,
-      },
-      {
-        onSuccess: () => {
-          setSelectedPlayerId('')
-          setLoanFee('')
-          setWageContributionPercent('')
-          setBuyOptionFee('')
-        },
-      },
-    )
-  }
 
   const handleAcceptLoan = async (listing: LoanListing) => {
     const name = `${listing.player.firstName} ${listing.player.lastName}`
@@ -1020,47 +849,75 @@ function LoansTab() {
 
   return (
     <Box>
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          {t('transfers.offerLoan.title')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('transfers.offerLoan.subtitle')}
-        </Typography>
-        {listForLoan.isError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {t('transfers.offerLoan.error')}
-          </Alert>
-        )}
-        <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth>
-              <InputLabel id="loan-player-label">{t('transfers.player')}</InputLabel>
-              <Select
-                labelId="loan-player-label"
-                label={t('transfers.player')}
-                value={selectedPlayerId}
-                onChange={(event: SelectChangeEvent<number | ''>) =>
-                  setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))
+      <Stack direction="row" sx={{ justifyContent: 'flex-end', mb: 1.5 }}>
+        <Button variant="contained" onClick={() => setOfferOpen(true)} disabled={loanablePlayers.length === 0}>
+          {t('transfers.offerLoan.button')}
+        </Button>
+      </Stack>
+      <OfferLoanDialog open={offerOpen} onClose={() => setOfferOpen(false)} players={loanablePlayers} />
+
+      {myListings.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
+            {t('transfers.yourLoanListings')}
+          </Typography>
+          <Stack spacing={1}>
+            {myListings.map((listing) => (
+              <LoanCard
+                key={listing.listingId}
+                listing={listing}
+                action={
+                  <Button color="secondary" variant="outlined" onClick={() => unlistFromLoan.mutate(listing.player.id)}>
+                    {t('transfers.unlist')}
+                  </Button>
                 }
-              >
-                {loanablePlayers.map((player) => (
-                  <MenuItem key={player.id} value={player.id}>
-                    {player.firstName} {player.lastName}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid size={{ xs: 8, sm: 4 }}>
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
+
+      <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
+        {t('transfers.loanMarket')}
+      </Typography>
+      {marketListings.length === 0 ? (
+        <EmptyState compact title={t('transfers.noLoanListings')} />
+      ) : (
+        <>
+          <FilterBar search={search} onSearch={setSearch} activeCount={activeFilters.length} onOpenFilters={sheet.show} />
+          <ActiveFilterChips filters={activeFilters} />
+          <FilterSheet
+            open={sheet.open}
+            onClose={sheet.hide}
+            resultCount={filteredMarketListings.length}
+            onClear={clearFilters}
+            hasActiveFilters={activeFilters.length > 0}
+          >
+            <SortControl<LoanSortField>
+              value={sortField}
+              onChange={setSortField}
+              direction={sortDir}
+              onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
+              options={[
+                { value: 'listed', label: t('transfers.table.listed') },
+                { value: 'duration', label: t('transfers.table.duration') },
+                { value: 'age', label: t('transfers.table.age') },
+                { value: 'skill', label: t('transfers.table.rating') },
+              ]}
+            />
+            <PositionFilter value={position} onChange={setPosition} />
+            <RangeFields label={t('transfers.filters.age')} min={minAge} max={maxAge} onMin={setMinAge} onMax={setMaxAge} />
             <FormControl fullWidth>
-              <InputLabel id="loan-duration-label">{t('transfers.duration')}</InputLabel>
+              <InputLabel id="loan-max-duration-label">{t('transfers.filters.maxDurationLabel')}</InputLabel>
               <Select
-                labelId="loan-duration-label"
-                label={t('transfers.duration')}
-                value={duration}
-                onChange={(event: SelectChangeEvent<number>) => setDuration(Number(event.target.value))}
+                labelId="loan-max-duration-label"
+                label={t('transfers.filters.maxDurationLabel')}
+                value={maxDuration}
+                onChange={(event: SelectChangeEvent<number | ''>) => setMaxDuration(event.target.value === '' ? '' : Number(event.target.value))}
               >
+                <MenuItem value="">
+                  <em>{t('transfers.filters.any')}</em>
+                </MenuItem>
                 {LOAN_DURATION_OPTIONS.map((seasons) => (
                   <MenuItem key={seasons} value={seasons}>
                     {t('transfers.seasonCount', { count: seasons })}
@@ -1068,313 +925,36 @@ function LoansTab() {
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-          <Grid size={{ xs: 4, sm: 6 }}>
-            <TextField
-              fullWidth
-              label={t('transfers.offerLoan.loanFee')}
-              type="number"
-              value={loanFee}
-              onChange={(event) => setLoanFee(event.target.value)}
-            />
-          </Grid>
-          <Grid size={{ xs: 4, sm: 3 }}>
-            <TextField
-              fullWidth
-              label={t('transfers.offerLoan.wageContributionPercent')}
-              type="number"
-              value={wageContributionPercent}
-              onChange={(event) => setWageContributionPercent(event.target.value)}
-            />
-          </Grid>
-          <Grid size={{ xs: 4, sm: 3 }}>
-            <TextField
-              fullWidth
-              label={t('transfers.offerLoan.buyOptionFee')}
-              type="number"
-              value={buyOptionFee}
-              onChange={(event) => setBuyOptionFee(event.target.value)}
-            />
-          </Grid>
-          <Grid size={{ xs: 4, sm: 2 }}>
-            <Button fullWidth variant="contained" disabled={selectedPlayerId === '' || listForLoan.isPending} onClick={handleList}>
-              {t('transfers.list')}
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {myListings.length > 0 && (
-        <Paper sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-            {t('transfers.yourLoanListings')}
-          </Typography>
-          <LoanListingsTable
-            listings={myListings}
-            renderAction={(listing) => (
-              <Button size="small" color="secondary" onClick={() => unlistFromLoan.mutate(listing.player.id)}>
-                {t('transfers.unlist')}
-              </Button>
-            )}
-          />
-        </Paper>
-      )}
-
-      <Paper>
-        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          {t('transfers.loanMarket')}
-        </Typography>
-        {marketListings.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            {t('transfers.noLoanListings')}
-          </Typography>
-        ) : (
-          <>
-            <Box sx={filterGridSx}>
-              <TextField
-                size="small"
-                label={t('transfers.filters.search')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minAge')}
-                value={minAge}
-                onChange={(e) => setMinAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.maxAge')}
-                value={maxAge}
-                onChange={(e) => setMaxAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <FormControl size="small" sx={pillFilterSx}>
-                <InputLabel id="loan-max-duration-label">{t('transfers.filters.maxDuration')}</InputLabel>
-                <Select
-                  labelId="loan-max-duration-label"
-                  label={t('transfers.filters.maxDuration')}
-                  value={maxDuration}
-                  onChange={(event: SelectChangeEvent<number | ''>) =>
-                    setMaxDuration(event.target.value === '' ? '' : Number(event.target.value))
-                  }
-                >
-                  <MenuItem value="">
-                    <em>{t('transfers.filters.any')}</em>
-                  </MenuItem>
-                  {LOAN_DURATION_OPTIONS.map((seasons) => (
-                    <MenuItem key={seasons} value={seasons}>
-                      {t('transfers.seasonCount', { count: seasons })}
-                    </MenuItem>
+            <SkillFilter field={skillField} onField={setSkillFieldStr} minValue={minSkillValue} onMinValue={setMinSkillValue} />
+            <NumberField label={t('transfers.filters.minCapsLabel')} value={minCaps} onValueChange={setMinCaps} fullWidth />
+          </FilterSheet>
+          {filteredMarketListings.length === 0 ? (
+            <EmptyState compact title={t('transfers.filters.noResults')} />
+          ) : (
+            <Paginated
+              rows={filteredMarketListings}
+              resetKey={JSON.stringify([search, minAge, maxAge, maxDuration, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
+            >
+              {(pageListings) => (
+                <Stack spacing={1}>
+                  {pageListings.map((listing) => (
+                    <LoanCard
+                      key={listing.listingId}
+                      listing={listing}
+                      action={
+                        <Button variant="contained" onClick={() => handleAcceptLoan(listing)} disabled={acceptLoan.isPending}>
+                          {t('transfers.accept')}
+                        </Button>
+                      }
+                    />
                   ))}
-                </Select>
-              </FormControl>
-              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minSkillValue')}
-                value={minSkillValue}
-                onChange={(e) => setMinSkillValue(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minCaps')}
-                value={minCaps}
-                onChange={(e) => setMinCaps(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <PositionFilterSelect value={position} onChange={setPosition} />
-              {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
-                  {t('transfers.filters.clear')}
-                </Button>
-              )}
-            </Box>
-            {filteredMarketListings.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                {t('transfers.filters.noResults')}
-              </Typography>
-            ) : (
-              <Paginated
-                rows={filteredMarketListings}
-                resetKey={JSON.stringify([search, minAge, maxAge, maxDuration, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
-              >
-                {(pageListings) => (
-                  <LoanListingsTable
-                    listings={pageListings}
-                    sortField={sortField}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                    renderAction={(listing) => (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => handleAcceptLoan(listing)}
-                        disabled={acceptLoan.isPending}
-                      >
-                        {t('transfers.accept')}
-                      </Button>
-                    )}
-                  />
-                )}
-              </Paginated>
-            )}
-          </>
-        )}
-      </Paper>
-    </Box>
-  )
-}
-
-interface LoanListingsTableProps {
-  listings: LoanListing[]
-  renderAction: (listing: LoanListing) => React.ReactNode
-  sortField?: LoanSortField
-  sortDir?: SortDirection
-  onSort?: (field: LoanSortField) => void
-}
-
-// A compact read of a loan listing's optional economic terms (ECONOMY_ROADMAP.md's Phase 4
-// "loan money" item) - "free" when none were set (the original, still-default behavior), each
-// present term on its own line otherwise.
-function LoanTermsSummary({ listing }: { listing: LoanListing }) {
-  const { t } = useTranslation()
-  if (!listing.loanFee && !listing.wageContributionPercent && !listing.buyOptionFee) {
-    return (
-      <Typography variant="caption" color="text.secondary">
-        {t('transfers.offerLoan.free')}
-      </Typography>
-    )
-  }
-  return (
-    <Stack spacing={0}>
-      {!!listing.loanFee && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          {t('transfers.offerLoan.loanFeeSummary', { amount: formatCurrency(listing.loanFee) })}
-        </Typography>
-      )}
-      {!!listing.wageContributionPercent && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          {t('transfers.offerLoan.wageContributionSummary', { percent: listing.wageContributionPercent })}
-        </Typography>
-      )}
-      {!!listing.buyOptionFee && (
-        <Typography variant="caption" color="text.secondary" component="div">
-          {t('transfers.offerLoan.buyOptionSummary', { amount: formatCurrency(listing.buyOptionFee) })}
-        </Typography>
-      )}
-    </Stack>
-  )
-}
-
-function LoanListingsTable({ listings, renderAction, sortField, sortDir, onSort }: LoanListingsTableProps) {
-  const { t } = useTranslation()
-  const sortable = !!onSort
-  return (
-    <TableContainer>
-      <Table size="small" sx={{ tableLayout: 'fixed' }}>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={headerCellTruncateSx}>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '22%', ...headerCellTruncateSx }}>
-              {t('transfers.table.team')}
-            </TableCell>
-            {sortable ? (
-              <TableCell
-                align="right"
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44, ...headerCellTruncateSx }}
-                sortDirection={sortField === 'age' ? sortDir : false}
-              >
-                <TableSortLabel active={sortField === 'age'} direction={sortField === 'age' ? sortDir : 'asc'} onClick={() => onSort('age')}>
-                  {t('transfers.table.age')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 44, ...headerCellTruncateSx }}>
-                {t('transfers.table.age')}
-              </TableCell>
-            )}
-            {sortable ? (
-              <TableCell
-                sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}
-                sortDirection={sortField === 'listed' ? sortDir : false}
-              >
-                <TableSortLabel
-                  active={sortField === 'listed'}
-                  direction={sortField === 'listed' ? sortDir : 'asc'}
-                  onClick={() => onSort('listed')}
-                >
-                  {t('transfers.table.listed')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
-                {t('transfers.table.listed')}
-              </TableCell>
-            )}
-            {sortable ? (
-              <TableCell
-                align="right"
-                sx={{ width: { xs: 96, sm: 100 }, ...headerCellTruncateSx }}
-                sortDirection={sortField === 'duration' ? sortDir : false}
-              >
-                <TableSortLabel
-                  active={sortField === 'duration'}
-                  direction={sortField === 'duration' ? sortDir : 'asc'}
-                  onClick={() => onSort('duration')}
-                >
-                  {t('transfers.table.duration')}
-                </TableSortLabel>
-              </TableCell>
-            ) : (
-              <TableCell align="right" sx={{ width: { xs: 96, sm: 100 }, ...headerCellTruncateSx }}>
-                {t('transfers.table.duration')}
-              </TableCell>
-            )}
-            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
-              {t('transfers.table.loanTerms')}
-            </TableCell>
-            <TableCell align="right" sx={{ width: { xs: 84, sm: 96 } }} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {listings.map((listing) => (
-            <TableRow key={listing.listingId}>
-              <TableCell>
-                <PlayerCell player={listing.player} />
-              </TableCell>
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                <TeamNameLink teamId={listing.lendingTeamId}>{listing.lendingTeamName}</TeamNameLink>
-              </TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                <Stack spacing={0}>
-                  <span>{listing.player.age}</span>
-                  {listing.caps > 0 && (
-                    <Typography variant="caption" color="text.secondary" component="span">
-                      {t('transfers.filters.capsCount', { count: listing.caps })}
-                    </Typography>
-                  )}
                 </Stack>
-              </TableCell>
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(listing.listedAt)}</TableCell>
-              <TableCell align="right">{t('transfers.seasonCount', { count: listing.durationSeasons })}</TableCell>
-              <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                <LoanTermsSummary listing={listing} />
-              </TableCell>
-              <TableCell align="right">{renderAction(listing)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+              )}
+            </Paginated>
+          )}
+        </>
+      )}
+    </Box>
   )
 }
 
@@ -1410,71 +990,85 @@ function OffersTab() {
 
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Alert severity="info" sx={{ mb: 2 }}>
         {t('transfers.offers.intro')}
+      </Alert>
+
+      <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
+        {t('transfers.offers.onYourPlayers')}
       </Typography>
-
-      <Paper sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          {t('transfers.offers.onYourPlayers')}
-        </Typography>
-        {received.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            {t('transfers.offers.noPending')}
-          </Typography>
-        ) : (
-          <ReceivedOffersByPlayer
-            offers={received}
-            renderAction={(offer) => {
-              const acceptReady = isPast(offer.acceptableAt)
-              return (
-                <Stack spacing={0.25} sx={{ alignItems: 'flex-end' }}>
-                  <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => handleAccept(offer)}
-                      disabled={acceptOffer.isPending || !acceptReady}
-                      sx={{ minWidth: 0, px: 1 }}
-                    >
-                      {t('transfers.accept')}
-                    </Button>
-                    <Button size="small" color="secondary" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending} sx={{ minWidth: 0, px: 1 }}>
-                      {t('transfers.reject')}
-                    </Button>
-                  </Stack>
-                  {!acceptReady && (
-                    <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
-                      {t('transfers.offers.acceptableAt', { date: formatDateTime(offer.acceptableAt) })}
-                    </Typography>
-                  )}
+      {received.length === 0 ? (
+        <EmptyState compact title={t('transfers.offers.noPending')} />
+      ) : (
+        <ReceivedOffersByPlayer
+          offers={received}
+          renderAction={(offer) => {
+            const acceptReady = isPast(offer.acceptableAt)
+            return (
+              <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
+                <Stack direction="row" spacing={1}>
+                  <Button color="secondary" variant="outlined" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending}>
+                    {t('transfers.reject')}
+                  </Button>
+                  <Button variant="contained" onClick={() => handleAccept(offer)} disabled={acceptOffer.isPending || !acceptReady}>
+                    {t('transfers.accept')}
+                  </Button>
                 </Stack>
-              )
-            }}
-          />
-        )}
-      </Paper>
+                {!acceptReady && (
+                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
+                    {t('transfers.offers.acceptableAt', { date: formatDateTime(offer.acceptableAt) })}
+                  </Typography>
+                )}
+              </Stack>
+            )
+          }}
+        />
+      )}
 
-      <Paper>
-        <Typography variant="subtitle1" sx={{ p: 2, pb: 0 }}>
-          {t('transfers.offers.yourOffers')}
-        </Typography>
-        {sent.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            {t('transfers.offers.noneSent')}
-          </Typography>
-        ) : (
-          <OffersTable
-            offers={sent}
-            teamColumn="to"
-            renderAction={(offer) => (
-              <Button size="small" color="secondary" onClick={() => withdrawOffer.mutate(offer.offerId)} disabled={withdrawOffer.isPending}>
-                {t('transfers.withdraw')}
-              </Button>
-            )}
-          />
-        )}
-      </Paper>
+      <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, mt: 3, mb: 1 }}>
+        {t('transfers.offers.yourOffers')}
+      </Typography>
+      {sent.length === 0 ? (
+        <EmptyState compact title={t('transfers.offers.noneSent')} />
+      ) : (
+        <Stack spacing={1}>
+          {sent.map((offer) => (
+            <Paper key={offer.offerId} variant="outlined" sx={{ p: 1.5 }}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Link component={RouterLink} to={`/player/${offer.player.id}`} underline="hover" color="inherit" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+                    {offer.player.firstName} {offer.player.lastName}
+                  </Link>
+                  <Typography variant="caption" color="text.secondary" component="div">
+                    <TeamNameLink teamId={offer.toTeamId}>{offer.toTeamName}</TeamNameLink>
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                  <Typography variant="caption" color="text.secondary" component="div">
+                    {t('transfers.table.amount')}
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                    {formatCurrency(offer.amount)}
+                  </Typography>
+                </Box>
+              </Stack>
+              <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+                {t('transfers.offers.termsLine', {
+                  wage: formatCurrency(offer.offeredWage),
+                  years: t('team.contractDialog.yearsOption', { count: offer.offeredYears }),
+                })}
+                {' · '}
+                {t('transfers.offers.made', { date: formatShortDate(offer.createdAt) })}
+              </Typography>
+              <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 1 }}>
+                <Button color="secondary" variant="outlined" onClick={() => withdrawOffer.mutate(offer.offerId)} disabled={withdrawOffer.isPending}>
+                  {t('transfers.withdraw')}
+                </Button>
+              </Stack>
+            </Paper>
+          ))}
+        </Stack>
+      )}
     </Box>
   )
 }
@@ -1509,58 +1103,51 @@ function ReceivedOffersByPlayer({
   }
 
   return (
-    <Stack spacing={1.5} sx={{ p: 2 }}>
+    <Stack spacing={1.5}>
       {groups.map((group) => {
         const player = group[0].player
         return (
           <Paper key={player.id} variant="outlined" sx={{ p: 1.5 }}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
-              <Link
-                component={RouterLink}
-                to={`/player/${player.id}`}
-                underline="hover"
-                color="inherit"
-                sx={{ fontWeight: 600 }}
-              >
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1, flexWrap: 'wrap' }}>
+              <Link component={RouterLink} to={`/player/${player.id}`} underline="hover" color="inherit" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
                 {player.firstName} {player.lastName}
               </Link>
               {group.length > 1 && <Chip size="small" label={t('transfers.offers.competingCount', { count: group.length })} />}
             </Stack>
-            <Stack spacing={1}>
+            <Stack spacing={1.5}>
               {group.map((offer, index) => (
-                <Stack
+                <Box
                   key={offer.offerId}
-                  direction={{ xs: 'column', sm: 'row' }}
-                  spacing={0.5}
-                  sx={{
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    justifyContent: 'space-between',
-                    pt: index === 0 ? 0 : 1,
-                    borderTop: index === 0 ? 0 : 1,
-                    borderColor: 'divider',
-                  }}
+                  sx={{ pt: index === 0 ? 0 : 1.5, borderTop: index === 0 ? 0 : 1, borderColor: 'divider' }}
                 >
-                  <Stack spacing={0.125} sx={{ minWidth: 0 }}>
-                    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                      <TeamNameLink teamId={offer.fromTeamId} variant="body2" sx={{ fontWeight: 600 }}>
-                        {offer.fromTeamName}
-                      </TeamNameLink>
-                      {index === 0 && group.length > 1 && (
-                        <Chip size="small" color="success" variant="outlined" label={t('transfers.offers.bestOffer')} sx={{ height: 18, fontSize: '0.65rem' }} />
-                      )}
-                    </Stack>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatCurrency(offer.offeredWage)} · {t('team.contractDialog.yearsOption', { count: offer.offeredYears })} ·{' '}
-                      {formatDateTime(offer.createdAt)}
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                        <TeamNameLink teamId={offer.fromTeamId} variant="body2" sx={{ fontWeight: 600 }}>
+                          {offer.fromTeamName}
+                        </TeamNameLink>
+                        {index === 0 && group.length > 1 && (
+                          <Chip size="small" color="success" variant="outlined" label={t('transfers.offers.bestOffer')} sx={{ height: 20 }} />
+                        )}
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary" component="div">
+                        {t('transfers.offers.termsLine', {
+                          wage: formatCurrency(offer.offeredWage),
+                          years: t('team.contractDialog.yearsOption', { count: offer.offeredYears }),
+                        })}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" component="div">
+                        {t('transfers.offers.made', { date: formatShortDate(offer.createdAt) })}
+                      </Typography>
+                    </Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0 }}>
                       {formatCurrency(offer.amount)}
                     </Typography>
+                  </Stack>
+                  <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 1 }}>
                     {renderAction(offer)}
                   </Stack>
-                </Stack>
+                </Box>
               ))}
             </Stack>
           </Paper>
@@ -1570,74 +1157,12 @@ function ReceivedOffersByPlayer({
   )
 }
 
-interface OffersTableProps {
-  offers: TransferOffer[]
-  teamColumn: 'from' | 'to'
-  renderAction: (offer: TransferOffer) => React.ReactNode
-}
-
-function OffersTable({ offers, teamColumn, renderAction }: OffersTableProps) {
-  const { t } = useTranslation()
-  return (
-    <TableContainer>
-      <Table size="small" sx={{ tableLayout: 'fixed' }}>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={headerCellTruncateSx}>{t('transfers.table.player')}</TableCell>
-            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, width: '18%', ...headerCellTruncateSx }}>
-              {t('transfers.table.made')}
-            </TableCell>
-            <TableCell align="right" sx={{ width: { xs: 84, sm: 96 }, ...headerCellTruncateSx }}>
-              {t('transfers.table.amount')}
-            </TableCell>
-            <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 150, ...headerCellTruncateSx }}>
-              {t('transfers.table.terms')}
-            </TableCell>
-            <TableCell align="right" sx={{ width: { xs: 92, sm: 140 } }} />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {offers.map((offer) => (
-            <TableRow key={offer.offerId}>
-              <TableCell>
-                <Stack spacing={0.125} sx={{ minWidth: 0 }}>
-                  <Link
-                    component={RouterLink}
-                    to={`/player/${offer.player.id}`}
-                    underline="hover"
-                    color="inherit"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    {offer.player.firstName} {offer.player.lastName}
-                  </Link>
-                  <Typography variant="caption" color="text.secondary" noWrap>
-                    {teamColumn === 'from' ? (
-                      <TeamNameLink teamId={offer.fromTeamId}>{offer.fromTeamName}</TeamNameLink>
-                    ) : (
-                      <TeamNameLink teamId={offer.toTeamId}>{offer.toTeamName}</TeamNameLink>
-                    )}
-                  </Typography>
-                </Stack>
-              </TableCell>
-              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{formatDateTime(offer.createdAt)}</TableCell>
-              <TableCell align="right">{formatCurrency(offer.amount)}</TableCell>
-              <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                {formatCurrency(offer.offeredWage)} · {t('team.contractDialog.yearsOption', { count: offer.offeredYears })}
-              </TableCell>
-              <TableCell align="right">{renderAction(offer)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  )
-}
-
 function FreeAgentsTab() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: freeAgents, isLoading } = useFreeAgents(!!loggedUser)
   const [signingPlayer, setSigningPlayer] = useState<FreeAgentListing | null>(null)
+  const sheet = useFilterSheet()
 
   const [search, setSearch] = usePersistedFilter<string>('faSearch', '')
   const [minAge, setMinAge] = usePersistedFilter<string>('faMinAge', '')
@@ -1656,7 +1181,6 @@ function FreeAgentsTab() {
     return <Skeleton variant="rectangular" height={300} />
   }
 
-  const hasActiveFilters = !!(search || minAge || maxAge || minSkillValue || minCaps || position !== '')
   const clearFilters = () => {
     setSearch('')
     setMinAge('')
@@ -1665,6 +1189,30 @@ function FreeAgentsTab() {
     setMinCaps('')
     setPosition('')
   }
+
+  const activeFilters: ActiveFilter[] = [
+    ...(search.trim() ? [{ key: 'search', label: t('transfers.filters.active.search', { value: search.trim() }), onDelete: () => setSearch('') }] : []),
+    ...(minAge || maxAge
+      ? [
+          {
+            key: 'age',
+            label:
+              minAge && maxAge
+                ? t('transfers.filters.active.age', { min: minAge, max: maxAge })
+                : minAge
+                  ? t('transfers.filters.active.ageFrom', { value: minAge })
+                  : t('transfers.filters.active.ageTo', { value: maxAge }),
+            onDelete: () => {
+              setMinAge('')
+              setMaxAge('')
+            },
+          },
+        ]
+      : []),
+    ...(minSkillValue ? [{ key: 'skill', label: t('transfers.filters.active.skill', { skill: t(SKILL_LABEL_KEYS[skillField]), value: minSkillValue }), onDelete: () => setMinSkillValue('') }] : []),
+    ...(minCaps ? [{ key: 'caps', label: t('transfers.filters.active.caps', { value: minCaps }), onDelete: () => setMinCaps('') }] : []),
+    ...(position !== '' ? [{ key: 'position', label: t(POSITION_SHORT_LABEL_KEYS[position]), onDelete: () => setPosition('') }] : []),
+  ]
 
   const filteredFreeAgents = freeAgents
     .filter((p) => {
@@ -1678,132 +1226,89 @@ function FreeAgentsTab() {
       return true
     })
     .sort((a, b) => {
-      const cmp = sortField === 'age' ? a.age - b.age : a.wage - b.wage
+      const cmp = sortField === 'age' ? a.age - b.age : sortField === 'skill' ? overallRating(a) - overallRating(b) : a.wage - b.wage
       return sortDir === 'asc' ? cmp : -cmp
     })
 
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Alert severity="info" sx={{ mb: 2 }}>
         {t('transfers.freeAgents.intro')}
-      </Typography>
-      <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
-        {freeAgents.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {t('transfers.freeAgents.none')}
-          </Typography>
-        ) : (
-          <>
-            <Box sx={{ ...filterGridSx, p: 0, pb: 2 }}>
-              <TextField
-                size="small"
-                label={t('transfers.filters.search')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minAge')}
-                value={minAge}
-                onChange={(e) => setMinAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.maxAge')}
-                value={maxAge}
-                onChange={(e) => setMaxAge(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <SkillFieldSelect value={skillField} onChange={(value) => setSkillFieldStr(value)} />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minSkillValue')}
-                value={minSkillValue}
-                onChange={(e) => setMinSkillValue(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label={t('transfers.filters.minCaps')}
-                value={minCaps}
-                onChange={(e) => setMinCaps(e.target.value)}
-                sx={pillFilterSx}
-              />
-              <PositionFilterSelect value={position} onChange={setPosition} />
-              <SortControl<FreeAgentSortField>
-                value={sortField}
-                onChange={setSortField}
-                direction={sortDir}
-                onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
-                options={[
-                  { value: 'wage', label: t('transfers.freeAgents.wage') },
-                  { value: 'age', label: t('transfers.table.age') },
-                ]}
-              />
-              {hasActiveFilters && (
-                <Button size="small" onClick={clearFilters} sx={{ justifySelf: 'start' }}>
-                  {t('transfers.filters.clear')}
-                </Button>
+      </Alert>
+      {freeAgents.length === 0 ? (
+        <EmptyState compact title={t('transfers.freeAgents.none')} />
+      ) : (
+        <>
+          <FilterBar search={search} onSearch={setSearch} activeCount={activeFilters.length} onOpenFilters={sheet.show} />
+          <ActiveFilterChips filters={activeFilters} />
+          <FilterSheet
+            open={sheet.open}
+            onClose={sheet.hide}
+            resultCount={filteredFreeAgents.length}
+            onClear={clearFilters}
+            hasActiveFilters={activeFilters.length > 0}
+          >
+            <SortControl<FreeAgentSortField>
+              value={sortField}
+              onChange={setSortField}
+              direction={sortDir}
+              onToggleDirection={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
+              options={[
+                { value: 'wage', label: t('transfers.freeAgents.wage') },
+                { value: 'age', label: t('transfers.table.age') },
+                { value: 'skill', label: t('transfers.table.rating') },
+              ]}
+            />
+            <PositionFilter value={position} onChange={setPosition} />
+            <RangeFields label={t('transfers.filters.age')} min={minAge} max={maxAge} onMin={setMinAge} onMax={setMaxAge} />
+            <SkillFilter field={skillField} onField={setSkillFieldStr} minValue={minSkillValue} onMinValue={setMinSkillValue} />
+            <NumberField label={t('transfers.filters.minCapsLabel')} value={minCaps} onValueChange={setMinCaps} fullWidth />
+          </FilterSheet>
+          {filteredFreeAgents.length === 0 ? (
+            <EmptyState compact title={t('transfers.filters.noResults')} />
+          ) : (
+            <Paginated
+              rows={filteredFreeAgents}
+              resetKey={JSON.stringify([search, minAge, maxAge, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
+            >
+              {(pageFreeAgents) => (
+                <Stack spacing={1}>
+                  {pageFreeAgents.map((player) => (
+                    <ListingCard
+                      key={player.id}
+                      player={player}
+                      formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
+                      badge={
+                        player.freeAgentSeasons === 0 && !!player.lastTeamId ? (
+                          <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
+                        ) : undefined
+                      }
+                      meta={
+                        <>
+                          <MetaItem>{t('transfers.ageLabel', { age: player.age })}</MetaItem>
+                          {player.caps > 0 && (
+                            <>
+                              <MetaDot />
+                              <MetaItem>{t('transfers.filters.capsCount', { count: player.caps })}</MetaItem>
+                            </>
+                          )}
+                        </>
+                      }
+                      priceLabel={t('transfers.freeAgents.wage')}
+                      priceValue={t('team.perMatch', { amount: formatCurrency(player.wage) })}
+                      actions={
+                        <Button variant="contained" onClick={() => setSigningPlayer(player)}>
+                          {t('transfers.freeAgents.sign')}
+                        </Button>
+                      }
+                    />
+                  ))}
+                </Stack>
               )}
-            </Box>
-            {filteredFreeAgents.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                {t('transfers.filters.noResults')}
-              </Typography>
-            ) : (
-              <Paginated
-                rows={filteredFreeAgents}
-                resetKey={JSON.stringify([search, minAge, maxAge, skillField, minSkillValue, minCaps, position, sortField, sortDir])}
-              >
-                {(pageFreeAgents) => (
-                  <Stack spacing={1}>
-                    {pageFreeAgents.map((player) => (
-                      <ListingCard
-                        key={player.id}
-                        player={player}
-                        formerClub={player.lastTeamName ? t('transfers.freeAgents.formerClub', { team: player.lastTeamName }) : undefined}
-                        badge={
-                          player.freeAgentSeasons === 0 && !!player.lastTeamId ? (
-                            <Chip size="small" label={t('transfers.freeAgents.premiumChip')} />
-                          ) : undefined
-                        }
-                        meta={
-                          <>
-                            <Typography variant="caption" color="text.secondary">
-                              {t('transfers.table.age')} {player.age}
-                            </Typography>
-                            {player.caps > 0 && (
-                              <>
-                                <MetaDot />
-                                <Typography variant="caption" color="text.secondary">
-                                  {t('transfers.filters.capsCount', { count: player.caps })}
-                                </Typography>
-                              </>
-                            )}
-                          </>
-                        }
-                        priceLabel={t('transfers.freeAgents.wage')}
-                        priceValue={formatCurrency(player.wage)}
-                        actions={
-                          <Button size="small" variant="contained" onClick={() => setSigningPlayer(player)} sx={{ minWidth: 0, px: 1.25, py: 0.25 }}>
-                            {t('transfers.freeAgents.sign')}
-                          </Button>
-                        }
-                      />
-                    ))}
-                  </Stack>
-                )}
-              </Paginated>
-            )}
-          </>
-        )}
-      </Paper>
+            </Paginated>
+          )}
+        </>
+      )}
       {signingPlayer && (
         <FreeAgentSigningDialog player={signingPlayer} open={!!signingPlayer} onClose={() => setSigningPlayer(null)} />
       )}
@@ -1858,10 +1363,10 @@ function CoachingTab() {
   if (trainer) {
     return (
       <Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mb: 2 }}>
           {t('transfers.coaching.intro')}
-        </Typography>
-        <Paper sx={{ p: 3, maxWidth: 420 }}>
+        </Alert>
+        <Paper sx={{ p: 2, maxWidth: 420 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
             {trainer.firstName} {trainer.lastName}
           </Typography>
@@ -1896,78 +1401,53 @@ function CoachingTab() {
     return sortDir === 'asc' ? cmp : -cmp
   })
 
-  const handleSort = (field: TrainerSortField) => {
-    if (field === sortField) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortField(field)
-      setSortDir('desc')
-    }
-  }
-
   return (
     <Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Alert severity="info" sx={{ mb: 2 }}>
         {t('transfers.coaching.intro')}
-      </Typography>
-      <Paper>
-        {available.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-            {t('transfers.coaching.none')}
-          </Typography>
-        ) : (
+      </Alert>
+      {available.length === 0 ? (
+        <EmptyState compact title={t('transfers.coaching.none')} />
+      ) : (
+        <>
+          <Box sx={{ mb: 1.5 }}>
+            <SortControl<TrainerSortField>
+              value={sortField}
+              onChange={setSortField}
+              direction={sortDir}
+              onToggleDirection={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+              options={[
+                { value: 'skill', label: t('transfers.coaching.skill') },
+                { value: 'wage', label: t('transfers.coaching.wage') },
+              ]}
+            />
+          </Box>
           <Paginated rows={sorted} resetKey={JSON.stringify([sortField, sortDir])}>
             {(pageCandidates) => (
-              <TableContainer>
-                <Table size="small" sx={{ tableLayout: 'fixed' }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={headerCellTruncateSx}>{t('transfers.coaching.table.name')}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ display: { xs: 'none', sm: 'table-cell' }, width: 72, ...headerCellTruncateSx }}
-                        sortDirection={sortField === 'skill' ? sortDir : false}
-                      >
-                        <TableSortLabel active={sortField === 'skill'} direction={sortField === 'skill' ? sortDir : 'asc'} onClick={() => handleSort('skill')}>
-                          {t('transfers.coaching.skill')}
-                        </TableSortLabel>
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ width: { xs: 84, sm: 96 }, ...headerCellTruncateSx }}
-                        sortDirection={sortField === 'wage' ? sortDir : false}
-                      >
-                        <TableSortLabel active={sortField === 'wage'} direction={sortField === 'wage' ? sortDir : 'asc'} onClick={() => handleSort('wage')}>
-                          {t('transfers.coaching.wage')}
-                        </TableSortLabel>
-                      </TableCell>
-                      <TableCell align="right" sx={{ width: { xs: 112, sm: 100 } }} />
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pageCandidates.map((candidate) => (
-                      <TableRow key={candidate.id}>
-                        <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {candidate.firstName} {candidate.lastName}
-                        </TableCell>
-                        <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                          {candidate.skill}
-                        </TableCell>
-                        <TableCell align="right">{formatCurrency(candidate.wage)}</TableCell>
-                        <TableCell align="right">
-                          <Button size="small" variant="contained" onClick={() => handleHire(candidate)} disabled={hireTrainer.isPending} sx={{ minWidth: 0, px: 1 }}>
-                            {t('transfers.coaching.hire')}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Stack spacing={1}>
+                {pageCandidates.map((candidate) => (
+                  <Paper key={candidate.id} variant="outlined" sx={{ p: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
+                      {candidate.firstName} {candidate.lastName}
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
+                      <Box>
+                        <Typography variant="body2">{t('transfers.coaching.skillLabel', { value: candidate.skill })}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {t('transfers.coaching.wage')}: {formatCurrency(candidate.wage)}
+                        </Typography>
+                      </Box>
+                      <Button variant="contained" onClick={() => handleHire(candidate)} disabled={hireTrainer.isPending}>
+                        {t('transfers.coaching.hire')}
+                      </Button>
+                    </Stack>
+                  </Paper>
+                ))}
+              </Stack>
             )}
           </Paginated>
-        )}
-      </Paper>
+        </>
+      )}
     </Box>
   )
 }

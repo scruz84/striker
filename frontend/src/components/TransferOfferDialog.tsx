@@ -1,30 +1,30 @@
 import { useEffect, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useMakeOffer } from '../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
+import { ContractTermsFields } from './ContractTermsFields'
+import { NumberField } from './NumberField'
+import { ResponsiveDialog } from './ResponsiveDialog'
 
 interface TransferOfferDialogProps {
   player: Player
   open: boolean
   onClose: () => void
+  /** The selling club's asking price when the offer answers a market listing - shown as context
+   * and used as a one-tap starting point. */
+  askingPrice?: number
 }
 
 /** The buyer's side of a transfer negotiation - propose a fee to the selling club plus personal
  * terms (wage/duration) to the player. The player decides on the personal terms immediately,
  * before the offer ever reaches the selling club (see backend's MakeTransferOffer) - a decline
  * reveals exactly what they want instead, the same retry flow as ContractRenewalDialog. */
-export function TransferOfferDialog({ player, open, onClose }: TransferOfferDialogProps) {
+export function TransferOfferDialog({ player, open, onClose, askingPrice }: TransferOfferDialogProps) {
   const { t } = useTranslation()
   const makeOffer = useMakeOffer()
   const [amount, setAmount] = useState('')
@@ -33,7 +33,7 @@ export function TransferOfferDialog({ player, open, onClose }: TransferOfferDial
 
   useEffect(() => {
     if (open) {
-      setAmount('')
+      setAmount(askingPrice ? String(askingPrice) : '')
       setWage(String(player.wage || ''))
       setYears('1')
       makeOffer.reset()
@@ -59,76 +59,65 @@ export function TransferOfferDialog({ player, open, onClose }: TransferOfferDial
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('transfers.offerDialog.title', { name: `${player.firstName} ${player.lastName}` })}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
+    <ResponsiveDialog
+      open={open}
+      onClose={onClose}
+      title={t('transfers.offerDialog.title')}
+      subtitle={`${player.firstName} ${player.lastName}`}
+      actions={
+        <>
+          <Button onClick={onClose}>{accepted ? t('common.close') : t('common.cancel')}</Button>
           {!accepted && (
-            <>
-              <Typography variant="body2" color="text.secondary">
-                {t('transfers.offerDialog.subtitle')}
-              </Typography>
-              <TextField
-                label={t('transfers.offerDialog.amount')}
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                fullWidth
-                size="small"
-              />
-              <TextField
-                label={t('team.contractDialog.wage')}
-                type="number"
-                value={wage}
-                onChange={(e) => setWage(e.target.value)}
-                fullWidth
-                size="small"
-              />
-              <TextField
-                select
-                label={t('team.contractDialog.years')}
-                value={years}
-                onChange={(e) => setYears(e.target.value)}
-                fullWidth
-                size="small"
-              >
-                {Array.from({ length: MAX_CONTRACT_YEARS_REMAINING }, (_, i) => i + 1).map((y) => (
-                  <MenuItem key={y} value={y}>
-                    {t('team.contractDialog.yearsOption', { count: y })}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </>
+            <Button variant="contained" onClick={handleSubmit} disabled={makeOffer.isPending}>
+              {t('transfers.offerDialog.submit')}
+            </Button>
           )}
-
-          {result &&
-            (accepted ? (
-              <Alert severity="success">{t('transfers.offerDialog.sent')}</Alert>
-            ) : (
-              <Stack spacing={1}>
-                <Alert severity="warning">
-                  {t('transfers.offerDialog.declined', {
-                    wage: formatCurrency(result.expectedWage),
-                    years: t('team.contractDialog.yearsOption', { count: result.maxAcceptableYears }),
-                  })}
-                </Alert>
-                <Button size="small" onClick={handleUseExpectations} sx={{ alignSelf: 'flex-start' }}>
-                  {t('team.contractDialog.useExpectations')}
-                </Button>
-              </Stack>
-            ))}
-
-          {makeOffer.isError && <Alert severity="error">{t('team.offerError')}</Alert>}
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{accepted ? t('common.close') : t('common.cancel')}</Button>
+        </>
+      }
+    >
+      <Stack spacing={2}>
         {!accepted && (
-          <Button variant="contained" onClick={handleSubmit} disabled={makeOffer.isPending}>
-            {t('transfers.offerDialog.submit')}
-          </Button>
+          <>
+            <Typography variant="body2" color="text.secondary">
+              {t('transfers.offerDialog.subtitle')}
+            </Typography>
+            <NumberField
+              label={t('transfers.offerDialog.amount')}
+              value={amount}
+              onValueChange={setAmount}
+              currency
+              fullWidth
+              helperText={askingPrice ? t('transfers.offerDialog.askingPrice', { price: formatCurrency(askingPrice) }) : undefined}
+            />
+            <ContractTermsFields
+              wage={wage}
+              years={years}
+              onWageChange={setWage}
+              onYearsChange={setYears}
+              currentWage={player.wage}
+            />
+          </>
         )}
-      </DialogActions>
-    </Dialog>
+
+        {result &&
+          (accepted ? (
+            <Alert severity="success">{t('transfers.offerDialog.sent')}</Alert>
+          ) : (
+            <Stack spacing={1}>
+              <Alert severity="warning">
+                {t('transfers.offerDialog.declined', {
+                  wage: formatCurrency(result.expectedWage),
+                  years: t('team.contractDialog.yearsOption', { count: result.maxAcceptableYears }),
+                })}
+              </Alert>
+              <Button size="small" onClick={handleUseExpectations} sx={{ alignSelf: 'flex-start' }}>
+                {t('team.contractDialog.useExpectations')}
+              </Button>
+            </Stack>
+          ))}
+
+        {makeOffer.isError && <Alert severity="error">{t('team.offerError')}</Alert>}
+      </Stack>
+    </ResponsiveDialog>
   )
 }

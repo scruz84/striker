@@ -22,6 +22,12 @@ export const PITCH_HEIGHT = 460
 // the full-height layout, unaffected by any of this.
 export const PITCH_HEIGHT_HALF = 260
 
+// The interactive lineup editor draws the same own-half layout taller, so that on a 360px phone a
+// player chip (44px avatar + name label) has room above and below it and neighbouring rows do not
+// overlap - the goalkeeper in particular used to sit 42px from the defensive row. Not used by the
+// read-only match views.
+export const PITCH_HEIGHT_EDITOR = 350
+
 // Row depth (y) per position, own goal at the bottom (like the classic formation-sheet view).
 // The goalkeeper sits closer to its neighboring row than the other rows do to theirs, on
 // purpose - it's meant to hug the goal line - but not so close that a slot's chip (avatar +
@@ -51,6 +57,39 @@ const ROW_Y_HALF: Record<number, number> = {
   [POSITION_STRIKER]: 45,
   [POSITION_LATERAL_STRIKER_LEFT]: 45,
   [POSITION_LATERAL_STRIKER_RIGHT]: 45,
+}
+
+// Editor rows: at least 70px apart, and the goalkeeper keeps clear of the goal line.
+const ROW_Y_EDITOR: Record<number, number> = {
+  [POSITION_GOALKEEPER]: 306,
+  [POSITION_DEFENSE]: 236,
+  [POSITION_LATERAL_DEFENSE_LEFT]: 236,
+  [POSITION_LATERAL_DEFENSE_RIGHT]: 236,
+  [POSITION_MIDFIELD]: 148,
+  [POSITION_LATERAL_MIDFIELD_LEFT]: 148,
+  [POSITION_LATERAL_MIDFIELD_RIGHT]: 148,
+  [POSITION_STRIKER]: 62,
+  [POSITION_LATERAL_STRIKER_LEFT]: 62,
+  [POSITION_LATERAL_STRIKER_RIGHT]: 62,
+}
+
+// Editor wide slots sit further in from the touchlines (a chip is ~56px wide), and the central
+// bands run the full width between them, so even the densest row - a 5-across midfield - keeps
+// ~58px between chip centres.
+const WIDE_X_EDITOR: Record<number, number> = {
+  [POSITION_LATERAL_DEFENSE_LEFT]: 36,
+  [POSITION_LATERAL_DEFENSE_RIGHT]: 264,
+  [POSITION_LATERAL_MIDFIELD_LEFT]: 34,
+  [POSITION_LATERAL_MIDFIELD_RIGHT]: 266,
+  [POSITION_LATERAL_STRIKER_LEFT]: 60,
+  [POSITION_LATERAL_STRIKER_RIGHT]: 240,
+}
+
+const CENTRAL_BAND_EDITOR: Record<number, [number, number]> = {
+  [POSITION_GOALKEEPER]: [150, 150],
+  [POSITION_DEFENSE]: [36, 264],
+  [POSITION_MIDFIELD]: [34, 266],
+  [POSITION_STRIKER]: [60, 240],
 }
 
 // Fixed x for the wide (touchline-hugging) slots - always exactly one of each per formation.
@@ -87,28 +126,33 @@ export interface PitchSlot {
 }
 
 /** Computes a pitch coordinate for every slot a formation's position counts call for. Pass
- * `half: true` to lay out against PITCH_HEIGHT_HALF instead (see its comment above). */
-export function layoutPitchSlots(counts: Partial<Record<number, number>>, half = false): PitchSlot[] {
-  const rowY = half ? ROW_Y_HALF : ROW_Y
-  const fallbackY = (half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT) / 2
+ * `half: true` to lay out against PITCH_HEIGHT_HALF instead (see its comment above), or
+ * `editor: true` for the taller, more widely spaced lineup-editor layout (PITCH_HEIGHT_EDITOR). */
+export function layoutPitchSlots(counts: Partial<Record<number, number>>, half = false, editor = false): PitchSlot[] {
+  const rowY = editor ? ROW_Y_EDITOR : half ? ROW_Y_HALF : ROW_Y
+  const wideX = editor ? WIDE_X_EDITOR : WIDE_X
+  const bands = editor ? CENTRAL_BAND_EDITOR : CENTRAL_BAND
+  const fallbackY = (editor ? PITCH_HEIGHT_EDITOR : half ? PITCH_HEIGHT_HALF : PITCH_HEIGHT) / 2
   const slots: PitchSlot[] = []
   for (const [positionStr, count] of Object.entries(counts)) {
     const position = Number(positionStr)
     if (!count) continue
     const y = rowY[position] ?? fallbackY
-    if (position in WIDE_X) {
-      slots.push({ position, slotIndex: 0, x: WIDE_X[position], y })
+    if (position in wideX) {
+      slots.push({ position, slotIndex: 0, x: wideX[position], y })
       continue
     }
-    const band = CENTRAL_BAND[position] ?? [90, 210]
+    const band = bands[position] ?? [90, 210]
     spreadX(count, band).forEach((x, slotIndex) => slots.push({ position, slotIndex, x, y }))
   }
   return slots
 }
 
 // Total canvas height for the head-to-head pitch - two occupied halves back to back, meeting at
-// a shared halfway line (see layoutHeadToHeadSlots below).
-export const PITCH_HEIGHT_HEAD_TO_HEAD = PITCH_HEIGHT_HALF * 2
+// a shared halfway line (see layoutHeadToHeadSlots below). Each half is as tall as the lineup
+// editor's pitch, so the goalkeeper and the defensive row (the pair that used to overlap) keep a
+// full chip's height between them on a phone.
+export const PITCH_HEIGHT_HEAD_TO_HEAD = PITCH_HEIGHT_EDITOR * 2
 
 export interface HeadToHeadSlots {
   home: PitchSlot[]
@@ -127,7 +171,7 @@ export function layoutHeadToHeadSlots(
   homeCounts: Partial<Record<number, number>>,
   awayCounts: Partial<Record<number, number>>,
 ): HeadToHeadSlots {
-  const home = layoutPitchSlots(homeCounts, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_HALF + slot.y }))
-  const away = layoutPitchSlots(awayCounts, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_HALF - slot.y }))
+  const home = layoutPitchSlots(homeCounts, false, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_EDITOR + slot.y }))
+  const away = layoutPitchSlots(awayCounts, false, true).map((slot) => ({ ...slot, y: PITCH_HEIGHT_EDITOR - slot.y }))
   return { home, away }
 }

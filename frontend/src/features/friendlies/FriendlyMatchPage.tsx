@@ -20,6 +20,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { Lineups } from '../match/MatchDetailsPage'
 import { MatchEventsReport } from '../match/MatchEventsReport'
+import { goalScorers } from '../../utils/matchGoals'
 import { MatchHeadToHeadPitch } from '../match/MatchHeadToHeadPitch'
 import { MatchMinuteRatings } from '../match/MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from '../match/MatchMinuteZoneComparison'
@@ -100,6 +101,7 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
   const homeName = localizedTeamName(t, match.homeTeamName)
   const awayName = localizedTeamName(t, match.awayTeamName)
   const weekMatch = friendlyToWeekMatch(match, homeName, awayName)
+  const scorers = goalScorers(weekMatch.events ?? [], match.homeTeamId)
 
   return (
     <Box>
@@ -112,13 +114,15 @@ function PlayedFriendly({ match }: { match: FriendlyMatch }) {
         awayGoals={match.awayGoals}
         status="played"
         subtitle={formatDateTime(match.matchDate)}
+        homeScorers={scorers.home}
+        awayScorers={scorers.away}
       />
 
       <Paper variant="outlined">
         <Tabs value={tab} onChange={handleChange} variant="scrollable" scrollButtons="auto">
-          <Tab label={t('match.tabs.report')} />
-          <Tab label={t('match.tabs.players')} />
-          <Tab label={t('match.tabs.ratings')} />
+          <Tab label={t('match.tabs.chronicle')} />
+          <Tab label={t('match.tabs.notes')} />
+          <Tab label={t('match.tabs.tactics')} />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tab === 0 && <MatchReportTab match={weekMatch} />}

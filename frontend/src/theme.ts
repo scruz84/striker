@@ -1,4 +1,5 @@
 import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities'
+import type { CSSProperties } from 'react'
 import { createTheme } from '@mui/material/styles'
 import type { PaletteColorOptions, Theme } from '@mui/material/styles'
 import type { Scheme } from '@material/material-color-utilities'
@@ -31,6 +32,18 @@ function mixHex(base: string, tint: string, amount: number): string {
 }
 
 declare module '@mui/material/styles' {
+  // Small-print variants so chip/stat text never needs a hardcoded `fontSize` below the app's
+  // 11px floor (see MobileLayout / #272).
+  interface TypographyVariants {
+    chipLabel: CSSProperties
+    stat: CSSProperties
+    pageTitle: CSSProperties
+  }
+  interface TypographyVariantsOptions {
+    chipLabel?: CSSProperties
+    stat?: CSSProperties
+    pageTitle?: CSSProperties
+  }
   interface Palette {
     tertiary: Palette['primary']
     primaryContainer: string
@@ -46,6 +59,9 @@ declare module '@mui/material/styles' {
     inverseSurface: string
     inverseOnSurface: string
     inversePrimary: string
+    // One-tone sequential scale (neutral -> primary) for player ratings, so low values do not
+    // read as errors and the scale survives colour-blindness / grayscale (#283).
+    rating: string[]
   }
   interface PaletteOptions {
     tertiary?: PaletteColorOptions
@@ -62,6 +78,15 @@ declare module '@mui/material/styles' {
     inverseSurface?: string
     inverseOnSurface?: string
     inversePrimary?: string
+    rating?: string[]
+  }
+}
+
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    chipLabel: true
+    stat: true
+    pageTitle: true
   }
 }
 
@@ -88,7 +113,16 @@ function buildPalette(scheme: Scheme, mode: 'light' | 'dark') {
     inverseSurface: hex(scheme.inverseSurface),
     inverseOnSurface: hex(scheme.inverseOnSurface),
     inversePrimary: hex(scheme.inversePrimary),
+    rating: buildRatingScale(hex(scheme.outline), hex(scheme.primary), mode),
   }
+}
+
+// Five steps from the neutral outline tone up to the full primary - lightness is monotonic, so the
+// steps stay distinguishable in grayscale.
+function buildRatingScale(low: string, high: string, mode: 'light' | 'dark'): string[] {
+  const start = mixHex(low, mode === 'light' ? '#000000' : '#ffffff', 0.15)
+  const end = mixHex(high, mode === 'light' ? '#000000' : '#ffffff', mode === 'light' ? 0.25 : 0.1)
+  return [0, 0.25, 0.5, 0.75, 1].map((step) => mixHex(start, end, step))
 }
 
 // The M3 type scale (Display/Headline/Title/Body/Label, each Large/Medium/Small) mapped onto
@@ -105,12 +139,24 @@ const typography = {
   h6: { fontSize: '1.375rem', lineHeight: '1.75rem', fontWeight: 400 },
   subtitle1: { fontSize: '1rem', lineHeight: '1.5rem', fontWeight: 500, letterSpacing: '0.009375rem' },
   subtitle2: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, letterSpacing: '0.00625rem' },
-  body1: { fontSize: '1rem', lineHeight: '1.5rem', fontWeight: 400, letterSpacing: '0.03125rem' },
-  body2: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 400, letterSpacing: '0.015625rem' },
+  // Body tracking is tighter than the M3 spec (0.5px/0.25px): at phone widths the spec values make
+  // Spanish paragraphs read as spaced-out.
+  body1: { fontSize: '1rem', lineHeight: '1.5rem', fontWeight: 400, letterSpacing: '0.009375rem' },
+  body2: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 400, letterSpacing: '0.00625rem' },
   button: { fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 500, letterSpacing: '0.00625rem', textTransform: 'none' as const },
   caption: { fontSize: '0.75rem', lineHeight: '1rem', fontWeight: 400, letterSpacing: '0.025rem' },
   overline: { fontSize: '0.6875rem', lineHeight: '1rem', fontWeight: 500, letterSpacing: '0.03125rem' },
+  // Smallest text the app ever renders (11px floor).
+  chipLabel: { fontSize: '0.6875rem', lineHeight: '1rem', fontWeight: 600, letterSpacing: '0.01em' },
+  // Big figures: tabular so columns of numbers line up, Oswald for the sporty identity.
+  stat: { fontFamily: '"Oswald", "Roboto", sans-serif', fontWeight: 600, fontVariantNumeric: 'tabular-nums' as const, lineHeight: 1.2 },
+  // Page titles: one line at 360px, growing with the viewport (see PageHeader).
+  pageTitle: { fontFamily: '"Oswald", "Roboto", sans-serif', fontWeight: 600, fontSize: '1.375rem', lineHeight: '1.75rem' },
 }
+
+// Interactive controls get a 44px touch target on touch devices and phone-width viewports
+// (WCAG 2.5.5 / M3 guidance) without changing how they look on a desktop pointer.
+const TOUCH = '@media (pointer: coarse), (max-width: 599.95px)'
 
 // M3's shape scale, applied per-component below: pill-shaped buttons/chips ("full"), medium
 // (12dp) cards and menus, extra-large (28dp) dialogs - see
@@ -122,14 +168,73 @@ function buildComponents(mode: 'light' | 'dark') {
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: { borderRadius: 9999, paddingLeft: 24, paddingRight: 24 },
+        root: ({ theme }: { theme: Theme }) => ({
+          borderRadius: 9999,
+          paddingLeft: 24,
+          paddingRight: 24,
+          [TOUCH]: { minHeight: 44 },
+          // Disabled buttons stay legible (>= 3:1) instead of fading into tinted surfaces; the
+          // reason belongs in helper text next to the button (#283).
+          '&.Mui-disabled': {
+            color: theme.palette.onSurfaceVariant,
+            opacity: 0.72,
+          },
+          '&.MuiButton-contained.Mui-disabled': {
+            backgroundColor: theme.palette.surfaceVariant,
+            color: theme.palette.onSurfaceVariant,
+          },
+          '&.MuiButton-outlined.Mui-disabled': { borderColor: theme.palette.outline },
+        }),
         sizeSmall: { paddingLeft: 16, paddingRight: 16 },
+        textSizeSmall: { [TOUCH]: { minWidth: 44 } },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: { [TOUCH]: { minWidth: 44, minHeight: 44 } },
       },
     },
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: 9999 },
+        root: {
+          borderRadius: 9999,
+          // Clickable chips keep their compact look but grow an invisible 44px hit area.
+          '&.MuiChip-clickable, &.MuiChip-deletable': {
+            position: 'relative',
+            [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -8 } },
+          },
+        },
+        labelSmall: { fontSize: '0.6875rem' },
       },
+    },
+    MuiLink: {
+      styleOverrides: {
+        // Standalone text links (buttons rendered as links) get a tappable height too.
+        button: { [TOUCH]: { minHeight: 44 } },
+      },
+    },
+    MuiTab: {
+      styleOverrides: { root: { minHeight: 48 } },
+    },
+    MuiListItemButton: {
+      styleOverrides: { root: { [TOUCH]: { minHeight: 48 } } },
+    },
+    MuiMenuItem: {
+      styleOverrides: { root: { [TOUCH]: { minHeight: 48 } } },
+    },
+    MuiSwitch: {
+      styleOverrides: { root: { [TOUCH]: { '& .MuiSwitch-switchBase': { padding: 9 } } } },
+    },
+    MuiTextField: {
+      // One TextField variant and height (40px) across the app, with a label that is always
+      // visible (#282).
+      defaultProps: { variant: 'outlined' as const, size: 'small' as const },
+    },
+    MuiFormControl: {
+      defaultProps: { size: 'small' as const },
+    },
+    MuiToggleButton: {
+      styleOverrides: { root: { [TOUCH]: { minHeight: 44 } } },
     },
     MuiPaper: {
       styleOverrides: {
@@ -147,6 +252,9 @@ function buildComponents(mode: 'light' | 'dark') {
     },
     MuiDialog: {
       styleOverrides: { paper: { borderRadius: 28 } },
+    },
+    MuiDialogTitle: {
+      styleOverrides: { root: { overflowWrap: 'anywhere' as const } },
     },
     MuiOutlinedInput: {
       styleOverrides: { root: { borderRadius: 4 } },

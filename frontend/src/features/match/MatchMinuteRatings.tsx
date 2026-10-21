@@ -1,10 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Typography from '@mui/material/Typography'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -62,6 +66,11 @@ export function MatchMinuteRatings({
   const { t } = useTranslation()
   const ownScrub = useMinuteScrub(currentMinute)
   const { minute, atNow, goToMinute } = scrub ?? ownScrub
+  // On a phone the list opens ranked by rating (the quickest answer to "who played well"); on a
+  // wider screen it keeps the lineup's positional order. Either way the viewer can switch.
+  const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'))
+  const [sortChoice, setSortChoice] = useState<'rating' | 'position' | null>(null)
+  const sortByRating = (sortChoice ?? (isMobile ? 'rating' : 'position')) === 'rating'
 
   const ratings = useMemo(() => {
     if (atNow && finalRatings) {
@@ -74,8 +83,18 @@ export function MatchMinuteRatings({
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mb: 1 }}>
         <Typography variant="subtitle2">{title}</Typography>
+        <ToggleButtonGroup
+          size="small"
+          exclusive
+          value={sortByRating ? 'rating' : 'position'}
+          onChange={(_event, value: 'rating' | 'position' | null) => value && setSortChoice(value)}
+          aria-label={t('match.ratings.sortLabel')}
+        >
+          <ToggleButton value="rating">{t('match.ratings.sortByRating')}</ToggleButton>
+          <ToggleButton value="position">{t('match.ratings.sortByPosition')}</ToggleButton>
+        </ToggleButtonGroup>
         {!atNow && (
           <IconButton size="small" aria-label={t('match.ratings.jumpToNow')} title={t('match.ratings.jumpToNow')} onClick={() => goToMinute(currentMinute)}>
             <RestoreIcon fontSize="small" />
@@ -115,10 +134,10 @@ export function MatchMinuteRatings({
       )}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn teamId={homeId} title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} />
+          <TeamRatingsColumn teamId={homeId} title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} sortByRating={sortByRating} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn teamId={awayId} title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} />
+          <TeamRatingsColumn teamId={awayId} title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} sortByRating={sortByRating} />
         </Grid>
       </Grid>
     </Paper>

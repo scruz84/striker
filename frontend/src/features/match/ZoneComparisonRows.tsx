@@ -4,6 +4,7 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import type { TeamQualification } from '../../api/types'
+import { matchTeamColors } from '../../utils/teamColors'
 import { TeamNameLink } from '../../components/TeamNameLink'
 
 interface ZoneRow {
@@ -38,11 +39,6 @@ interface ZoneComparisonRowsProps {
   awayName: string
 }
 
-// Fixed home/away colors (not the app's own green-seeded primary/secondary, which would blend
-// into the pitch) - matches the blue-vs-red convention this panel's design is modeled on.
-const HOME_COLOR = '#1e88e5'
-const AWAY_COLOR = '#e53935'
-
 /** A pitch-shaped, zone-by-zone strength comparison built from the exact same cross-zone
  * matchups engine.processChance actually compares to decide the probability of a goal: each
  * team's attack/midfield on one flank against the opponent's defense/midfield on the MIRRORED
@@ -76,6 +72,9 @@ export function ZoneComparisonRows({
   awayName,
 }: ZoneComparisonRowsProps) {
   const { t } = useTranslation()
+  // Each team's own badge color (see TeamBadge), so the panel's cells match the crests shown
+  // everywhere else instead of a fixed blue-vs-red that meant nothing about either team.
+  const colors = matchTeamColors(homeId, awayId)
 
   const defenseRows: ZoneRow[] = [
     { home: homeQua.leftDefense + homeGoalkeeperRating, away: awayQua.rightAttach, captionKey: 'match.positionBattle.vsAttackRight' },
@@ -98,18 +97,21 @@ export function ZoneComparisonRows({
     <>
       <Stack direction="row" sx={{ mb: 1 }}>
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, justifyContent: 'flex-end' }}>
-          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: HOME_COLOR, flexShrink: 0 }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: colors.home, flexShrink: 0 }} />
           <Typography variant="caption" sx={{ fontWeight: 700 }} noWrap>
             <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
           </Typography>
         </Box>
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, pl: 2 }}>
-          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: AWAY_COLOR, flexShrink: 0 }} />
+          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: colors.away, flexShrink: 0 }} />
           <Typography variant="caption" sx={{ fontWeight: 700 }} noWrap>
             <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
           </Typography>
         </Box>
       </Stack>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+        {t('match.positionBattle.help')}
+      </Typography>
       <Box
         sx={{
           position: 'relative',
@@ -127,7 +129,7 @@ export function ZoneComparisonRows({
         {columns.map((col) => (
           <Stack key={col.key} spacing={{ xs: 0.5, sm: 0.75 }} sx={{ flex: 1, minWidth: 0 }}>
             {col.rows.map((row) => (
-              <DuelCell key={row.captionKey} caption={t(row.captionKey)} home={row.home} away={row.away} />
+              <DuelCell key={row.captionKey} caption={t(row.captionKey)} home={row.home} away={row.away} homeColor={colors.home} awayColor={colors.away} />
             ))}
           </Stack>
         ))}
@@ -163,15 +165,29 @@ function formatValue(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1)
 }
 
-function DuelCell({ caption, home, away }: { caption: string; home: number; away: number }) {
+function DuelCell({
+  caption,
+  home,
+  away,
+  homeColor,
+  awayColor,
+}: {
+  caption: string
+  home: number
+  away: number
+  homeColor: string
+  awayColor: string
+}) {
   const total = home + away
   const homeShare = total > 0 ? (home / total) * 100 : 50
   const awayShare = 100 - homeShare
   const homeStronger = home > away
   const awayStronger = away > home
 
+  // Only the share is printed in the cell (the raw strengths were ~9.5px and unreadable on a
+  // phone); tapping a cell shows the matchup it stands for together with both raw values.
   return (
-    <Tooltip title={caption} arrow enterTouchDelay={0}>
+    <Tooltip title={`${caption}: ${formatValue(home)} - ${formatValue(away)}`} arrow enterTouchDelay={0}>
       <Box
         sx={{
           display: 'flex',
@@ -185,26 +201,20 @@ function DuelCell({ caption, home, away }: { caption: string; home: number; away
           sx={{
             flex: 1,
             minWidth: 0,
-            bgcolor: HOME_COLOR,
+            bgcolor: homeColor,
             color: '#fff',
             textAlign: 'center',
-            py: { xs: 0.75, sm: 1 },
+            py: { xs: 1, sm: 1.25 },
             borderRight: '2px solid rgba(255,255,255,0.65)',
           }}
         >
           <Typography variant="body2" sx={{ fontWeight: homeStronger ? 800 : 500, lineHeight: 1.1 }}>
             {Math.round(homeShare)}%
           </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.85, fontSize: '0.65rem', display: 'block' }}>
-            ({formatValue(home)})
-          </Typography>
         </Box>
-        <Box sx={{ flex: 1, minWidth: 0, bgcolor: AWAY_COLOR, color: '#fff', textAlign: 'center', py: { xs: 0.75, sm: 1 } }}>
+        <Box sx={{ flex: 1, minWidth: 0, bgcolor: awayColor, color: '#fff', textAlign: 'center', py: { xs: 1, sm: 1.25 } }}>
           <Typography variant="body2" sx={{ fontWeight: awayStronger ? 800 : 500, lineHeight: 1.1 }}>
             {Math.round(awayShare)}%
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.85, fontSize: '0.65rem', display: 'block' }}>
-            ({formatValue(away)})
           </Typography>
         </Box>
       </Box>

@@ -18,6 +18,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { PageHeader } from '../../components/PageHeader'
 
 interface HelpItem {
   q: string
@@ -52,12 +53,7 @@ export function HelpPage() {
   return (
     <Stack spacing={2}>
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {t('help.title')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t('help.subtitle')}
-        </Typography>
+        <PageHeader title={t('help.title')} subtitle={t('help.subtitle')} />
       </Box>
 
       {SECTIONS.map(({ key, icon: Icon }) => {

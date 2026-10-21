@@ -1,16 +1,23 @@
+import { useEffect, useRef, useState } from 'react'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Collapse from '@mui/material/Collapse'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
 import { FORMATION_LABEL_KEYS, type Lineup, type LineupPosition, type LineupSubstitution, type Player } from '../../api/types'
+import { LineupSaveBar } from './LineupSaveBar'
 import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { PlayerBench } from './PlayerBench'
+import { SelectedPlayerPanel } from './SelectedPlayerPanel'
 import { SoccerPitch } from './SoccerPitch'
 import { SubstitutionsEditor } from './SubstitutionsEditor'
 import { useLineupSelections } from './useLineupSelections'
@@ -18,6 +25,7 @@ import { useSubstitutionDrafts } from './useSubstitutionDrafts'
 import { UnavailableStartersWarning } from './UnavailableStartersWarning'
 import { useSquadUnavailability } from './useSquadUnavailability'
 import { useSquadTransferListed } from './useSquadTransferListed'
+import { useUnsavedChangesGuard } from './useUnsavedChangesGuard'
 
 export interface MatchLineupFormProps {
   // i18n key rendered as the form's title, e.g. "friendlies.lineup.title" - interpolated with
@@ -52,6 +60,9 @@ export interface MatchLineupFormProps {
   // see useLineupSelections' enforceAvailability). Per-match forms (FriendlyMatchPage,
   // MatchDetailsPage, CupTieDetailsPage) leave this off and keep the hard block.
   isDefaultLineup?: boolean
+  // Render without the outlined card and heading - for a form that already sits directly on its
+  // page (the standing-lineup editor), where a wrapping card only costs the pitch ~30px of width.
+  embedded?: boolean
 }
 
 // A formation/pitch/bench editor scoped to one specific match (league, cup tie, or friendly)
@@ -71,6 +82,7 @@ export function MatchLineupForm({
   substitutionsEnabled,
   isFriendly,
   isDefaultLineup,
+  embedded = false,
 }: MatchLineupFormProps) {
   const { t } = useTranslation()
   const unavailability = useSquadUnavailability(isFriendly)
@@ -90,6 +102,7 @@ export function MatchLineupForm({
     handleSlotClick,
     handleBenchPlayerClick,
     handleBenchAreaClick,
+    clearSelection,
   } = useLineupSelections(players, lineup, unavailability, !isDefaultLineup)
   const {
     substitutionDrafts,
@@ -122,45 +135,74 @@ export function MatchLineupForm({
     onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [])
   }
 
-  return (
-    <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 } }}>
-      <Typography variant="h6" sx={{ mb: { xs: 1, sm: 2 } }}>
-        {t(titleKey, titleValues)}
-      </Typography>
+  // "Unsaved changes" = the editor differs from what was last saved (or loaded, before the first
+  // save). The snapshot is taken when Save is pressed and promoted to the baseline once the save
+  // reports success, so an edit made while the request is in flight still counts as unsaved.
+  const currentKey = JSON.stringify({ formation, visibleSelections, drafts: substitutionsEnabled ? substitutionDrafts : [] })
+  const [initialKey] = useState(currentKey)
+  const pendingKey = useRef<string | null>(null)
+  const [savedKey, setSavedKey] = useState<string | null>(null)
+  const dirty = currentKey !== (savedKey ?? initialKey)
+  useEffect(() => {
+    if (isSuccess && pendingKey.current !== null) {
+      setSavedKey(pendingKey.current)
+      pendingKey.current = null
+    }
+  }, [isSuccess])
+  useUnsavedChangesGuard(dirty)
 
-      <FormControl size="small" sx={{ mb: { xs: 1, sm: 2 }, minWidth: { xs: '100%', sm: 220 } }}>
-        <InputLabel id="match-formation-label">{t('lineup.formation')}</InputLabel>
-        <Select labelId="match-formation-label" label={t('lineup.formation')} value={formation} onChange={handleFormationChange}>
-          {Object.keys(FORMATION_LABEL_KEYS).map((value) => (
-            <MenuItem key={value} value={Number(value)}>
-              {t(FORMATION_LABEL_KEYS[Number(value)])}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+  const [copyOpen, setCopyOpen] = useState(false)
+  const selectedPlayer = selectedPlayerId === null ? undefined : players.find((p) => p.id === selectedPlayerId)
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 1, sm: 2 } }}>
+  const content = (
+    <>
+      {!embedded && (
+        <Typography variant="h6" sx={{ mb: { xs: 1, sm: 2 } }}>
+          {t(titleKey, titleValues)}
+        </Typography>
+      )}
+
+      <Stack direction="row" spacing={1} sx={{ mb: 1, alignItems: 'center' }}>
+        <FormControl sx={{ flex: 1, minWidth: 0, maxWidth: { sm: 280 } }}>
+          <InputLabel id="match-formation-label">{t('lineup.formation')}</InputLabel>
+          <Select labelId="match-formation-label" label={t('lineup.formation')} value={formation} onChange={handleFormationChange}>
+            {Object.keys(FORMATION_LABEL_KEYS).map((value) => (
+              <MenuItem key={value} value={Number(value)}>
+                {t(FORMATION_LABEL_KEYS[Number(value)])}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button
+          variant={copyOpen ? 'contained' : 'outlined'}
+          startIcon={<ContentCopyIcon />}
+          onClick={() => setCopyOpen((open) => !open)}
+          aria-expanded={copyOpen}
+          sx={{ flexShrink: 0 }}
+        >
+          {t('lineup.copyFromMatch')}
+        </Button>
+      </Stack>
+      <Collapse in={copyOpen} unmountOnExit>
+        <LoadPreviousLineupControl
+          teamId={teamId}
+          onLoad={(loaded) => {
+            handleLoadPreviousLineup(loaded)
+            setCopyOpen(false)
+          }}
+        />
+      </Collapse>
+
+      <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 0, mb: 1.5 }}>
         {t('lineup.tapHint')}
       </Typography>
-
-      <LoadPreviousLineupControl teamId={teamId} onLoad={handleLoadPreviousLineup} />
 
       {unavailableStarters.length > 0 && (
         <UnavailableStartersWarning players={unavailableStarters} blocking={!isDefaultLineup} />
       )}
-      {!isComplete && unavailableStarters.length === 0 && (
-        <Alert severity="info" sx={{ mb: { xs: 1, sm: 2 } }}>
-          {t('lineup.incompleteWarning')}
-        </Alert>
-      )}
       {isError && (
         <Alert severity="error" sx={{ mb: { xs: 1, sm: 2 } }}>
           {t('lineup.saveError')}
-        </Alert>
-      )}
-      {isSuccess && (
-        <Alert severity="success" sx={{ mb: { xs: 1, sm: 2 } }}>
-          {t('lineup.saveSuccess')}
         </Alert>
       )}
 
@@ -174,6 +216,7 @@ export function MatchLineupForm({
             unavailability={unavailability}
             transferListed={transferListed}
           />
+          {selectedPlayer && <SelectedPlayerPanel player={selectedPlayer} onClear={clearSelection} />}
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerBench
@@ -201,9 +244,19 @@ export function MatchLineupForm({
         />
       )}
 
-      <Button variant="contained" sx={{ mt: { xs: 2, sm: 3 } }} disabled={!isComplete || isSaving} onClick={handleSubmit}>
-        {t('lineup.save')}
-      </Button>
-    </Paper>
+      <LineupSaveBar
+        dirty={dirty}
+        canSave={isComplete}
+        saving={isSaving}
+        saved={isSuccess && !dirty}
+        hint={!isComplete && unavailableStarters.length === 0 ? t('lineup.cantSaveHint') : undefined}
+        onSave={() => {
+          pendingKey.current = currentKey
+          handleSubmit()
+        }}
+      />
+    </>
   )
+
+  return embedded ? <Box>{content}</Box> : <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 } }}>{content}</Paper>
 }

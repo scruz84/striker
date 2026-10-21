@@ -5,7 +5,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
+import IconButton from '@mui/material/IconButton'
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
+import { NumberField } from '../../components/NumberField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { MAX_SCHEDULED_SUBSTITUTIONS, type Player } from '../../api/types'
@@ -48,64 +50,67 @@ export function SubstitutionsEditor({
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {t('lineup.substitutions.description', { max: MAX_SCHEDULED_SUBSTITUTIONS })}
       </Typography>
-      <Stack spacing={2}>
+      <Stack spacing={1.5}>
         {drafts.map((draft, index) => (
-          <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 } }}>
-              <InputLabel id={`sub-out-label-${index}`}>{t('lineup.substitutions.playerOut')}</InputLabel>
-              <Select
-                labelId={`sub-out-label-${index}`}
-                label={t('lineup.substitutions.playerOut')}
-                value={draft.playerOutId}
-                onChange={(e) => onChange(index, 'playerOutId', e.target.value as number)}
-              >
-                {starters
-                  .filter((p) => p.id === draft.playerOutId || !usedSubOutIds.has(p.id))
-                  .map((p) => (
-                    <MenuItem key={p.id} value={p.id}>
-                      {p.firstName} {p.lastName}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 } }}>
-              <InputLabel id={`sub-in-label-${index}`}>{t('lineup.substitutions.playerIn')}</InputLabel>
-              <Select
-                labelId={`sub-in-label-${index}`}
-                label={t('lineup.substitutions.playerIn')}
-                value={draft.playerInId}
-                onChange={(e) => onChange(index, 'playerInId', e.target.value as number)}
-              >
-                {benchPlayers
-                  .filter((p) => !unavailability.has(p.id))
-                  .filter((p) => p.id === draft.playerInId || !usedSubInIds.has(p.id))
-                  .map((p) => (
-                    <MenuItem key={p.id} value={p.id}>
-                      {p.firstName} {p.lastName}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-            <TextField
-              size="small"
-              type="number"
-              label={t('lineup.substitutions.minute')}
-              value={draft.minute}
-              onChange={(e) => {
-                const value = e.target.value === '' ? '' : Number(e.target.value)
-                onChange(index, 'minute', value)
-              }}
-              slotProps={{ htmlInput: { min: 1, max: 90 } }}
-              sx={{ width: 100 }}
-            />
-            <Button size="small" color="secondary" onClick={() => onRemove(index)}>
-              {t('lineup.substitutions.remove')}
-            </Button>
-          </Stack>
+          // One card per change: the three fields stacked at full width (so nothing is left
+          // narrow or misaligned) and a 44px delete button.
+          <Paper key={index} variant="outlined" sx={{ p: 1.5 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+              <Typography variant="subtitle2">{t('lineup.substitutions.changeN', { n: index + 1 })}</Typography>
+              <IconButton onClick={() => onRemove(index)} aria-label={t('lineup.substitutions.remove')} edge="end">
+                <DeleteOutlinedIcon />
+              </IconButton>
+            </Stack>
+            <Stack spacing={1.5}>
+              <FormControl fullWidth>
+                <InputLabel id={`sub-out-label-${index}`}>{t('lineup.substitutions.playerOut')}</InputLabel>
+                <Select
+                  labelId={`sub-out-label-${index}`}
+                  label={t('lineup.substitutions.playerOut')}
+                  value={draft.playerOutId}
+                  onChange={(e) => onChange(index, 'playerOutId', e.target.value as number)}
+                >
+                  {starters
+                    .filter((p) => p.id === draft.playerOutId || !usedSubOutIds.has(p.id))
+                    .map((p) => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {p.firstName} {p.lastName}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id={`sub-in-label-${index}`}>{t('lineup.substitutions.playerIn')}</InputLabel>
+                <Select
+                  labelId={`sub-in-label-${index}`}
+                  label={t('lineup.substitutions.playerIn')}
+                  value={draft.playerInId}
+                  onChange={(e) => onChange(index, 'playerInId', e.target.value as number)}
+                >
+                  {benchPlayers
+                    .filter((p) => !unavailability.has(p.id))
+                    .filter((p) => p.id === draft.playerInId || !usedSubInIds.has(p.id))
+                    .map((p) => (
+                      <MenuItem key={p.id} value={p.id}>
+                        {p.firstName} {p.lastName}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+              <NumberField
+                label={t('lineup.substitutions.minute')}
+                value={draft.minute === '' ? '' : String(draft.minute)}
+                onValueChange={(digits) => onChange(index, 'minute', digits === '' ? '' : Number(digits))}
+                min={1}
+                max={90}
+                suffix="'"
+                fullWidth
+              />
+            </Stack>
+          </Paper>
         ))}
       </Stack>
       <Button
-        size="small"
         variant="outlined"
         sx={{ mt: drafts.length > 0 ? 2 : 0 }}
         disabled={drafts.length >= MAX_SCHEDULED_SUBSTITUTIONS}

@@ -46,6 +46,11 @@ type DivisionDetails struct {
 	Classification      Classification `json:"classification"`
 	PreviousWeekMatches []WeekMatch    `json:"previousWeekMatches"`
 	NextWeekMatches     []WeekMatch    `json:"nextWeekMatches"`
+	// PromotionSlots/RelegationSlots are how many of this league's top/bottom finishers move
+	// between tiers at season rollover - 0 when there is no tier above/below to move to. They let
+	// the classification table mark the promotion and relegation zones.
+	PromotionSlots  int `json:"promotionSlots"`
+	RelegationSlots int `json:"relegationSlots"`
 }
 
 type LoginRequest struct {

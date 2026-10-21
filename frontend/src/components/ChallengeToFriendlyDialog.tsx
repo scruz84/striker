@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -12,6 +8,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useChallengeToFriendly, useFriendlySchedule } from '../api/hooks'
+import { ResponsiveDialog } from './ResponsiveDialog'
 import { defaultKickoffValue, isWeekdayAllowed, MIN_KICKOFF_LEAD_MINUTES } from '../utils/friendlyKickoff'
 
 interface ChallengeToFriendlyDialogProps {
@@ -53,58 +50,61 @@ export function ChallengeToFriendlyDialog({ opponentTeamId, opponentTeamName, op
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('friendlies.challenge.dialogTitle', { name: opponentTeamName })}</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          {challenge.isSuccess ? (
-            <Alert severity="success">{t('friendlies.challenge.success')}</Alert>
-          ) : (
-            <>
-              <Stack spacing={0.5}>
-                <Typography variant="body2" color="text.secondary">
-                  {t('friendlies.challenge.side')}
-                </Typography>
-                <ToggleButtonGroup
-                  size="small"
-                  exclusive
-                  value={challengerIsHome}
-                  onChange={(_event, value: boolean | null) => {
-                    if (value !== null) setChallengerIsHome(value)
-                  }}
-                >
-                  <ToggleButton value={true}>{t('friendlies.challenge.home')}</ToggleButton>
-                  <ToggleButton value={false}>{t('friendlies.challenge.away')}</ToggleButton>
-                </ToggleButtonGroup>
-              </Stack>
-              <TextField
-                size="small"
-                type="datetime-local"
-                label={t('friendlies.challenge.proposedKickoff')}
-                value={proposedKickoff}
-                onChange={(e) => setProposedKickoff(e.target.value)}
-                error={!proposedKickoffAllowed}
-                helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : ' '}
-                slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
-                fullWidth
-              />
-              {challenge.isError && <Alert severity="error">{t('friendlies.challenge.error')}</Alert>}
-            </>
+    <ResponsiveDialog
+      open={open}
+      onClose={onClose}
+      title={t('friendlies.challenge.dialogTitle')}
+      subtitle={opponentTeamName}
+      actions={
+        <>
+          <Button onClick={onClose}>{challenge.isSuccess ? t('common.close') : t('common.cancel')}</Button>
+          {!challenge.isSuccess && (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}
+            >
+              {t('friendlies.challenge.button')}
+            </Button>
           )}
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{challenge.isSuccess ? t('common.close') : t('common.cancel')}</Button>
-        {!challenge.isSuccess && (
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={challenge.isPending || (!!proposedKickoff && !proposedKickoffAllowed)}
-          >
-            {t('friendlies.challenge.button')}
-          </Button>
+        </>
+      }
+    >
+      <Stack spacing={2}>
+        {challenge.isSuccess ? (
+          <Alert severity="success">{t('friendlies.challenge.success')}</Alert>
+        ) : (
+          <>
+            <Stack spacing={0.5}>
+              <Typography variant="body2" color="text.secondary">
+                {t('friendlies.challenge.side')}
+              </Typography>
+              <ToggleButtonGroup
+                exclusive
+                fullWidth
+                value={challengerIsHome}
+                onChange={(_event, value: boolean | null) => {
+                  if (value !== null) setChallengerIsHome(value)
+                }}
+              >
+                <ToggleButton value={true}>{t('friendlies.challenge.home')}</ToggleButton>
+                <ToggleButton value={false}>{t('friendlies.challenge.away')}</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+            <TextField
+              type="datetime-local"
+              label={t('friendlies.challenge.proposedKickoff')}
+              value={proposedKickoff}
+              onChange={(e) => setProposedKickoff(e.target.value)}
+              error={!proposedKickoffAllowed}
+              helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : ' '}
+              slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+              fullWidth
+            />
+            {challenge.isError && <Alert severity="error">{t('friendlies.challenge.error')}</Alert>}
+          </>
         )}
-      </DialogActions>
-    </Dialog>
+      </Stack>
+    </ResponsiveDialog>
   )
 }

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import type { Player, PlayerUnavailability } from '../../api/types'
 import { POSITION_LABEL_KEYS } from '../../api/types'
 import { PitchField, PitchSlotPosition } from '../../components/pitch/PitchField'
-import { layoutPitchSlots, PITCH_HEIGHT_HALF, type PitchSlot } from '../../components/pitch/pitchLayout'
+import { layoutPitchSlots, PITCH_HEIGHT_EDITOR, type PitchSlot } from '../../components/pitch/pitchLayout'
 import { PlayerChip } from './PlayerChip'
 
 interface SoccerPitchProps {
@@ -19,13 +19,12 @@ interface SoccerPitchProps {
 }
 
 export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed }: SoccerPitchProps) {
-  // Only the half of the pitch a lineup ever actually occupies is shown here - see
-  // PITCH_HEIGHT_HALF's comment in pitchLayout.ts - so editing a lineup takes noticeably less
-  // vertical space than the full-pitch view used for read-only match lineups.
-  const slots = layoutPitchSlots(counts, true)
+  // Only the half of the pitch a lineup ever actually occupies is shown here, drawn a little taller
+  // than the read-only views (PITCH_HEIGHT_EDITOR) so chips at 360px never overlap.
+  const slots = layoutPitchSlots(counts, true, true)
   const hasSelection = selectedPlayerId !== null
   return (
-    <PitchField half>
+    <PitchField half height={PITCH_HEIGHT_EDITOR}>
       {slots.map((slot) => {
         const player = getPlayer(slot.position, slot.slotIndex)
         const selected = player?.id === selectedPlayerId
@@ -69,7 +68,7 @@ function PitchSlotView({
   const theme = useTheme()
 
   return (
-    <PitchSlotPosition x={slot.x} y={slot.y} pitchHeight={PITCH_HEIGHT_HALF}>
+    <PitchSlotPosition x={slot.x} y={slot.y} pitchHeight={PITCH_HEIGHT_EDITOR}>
       {player ? (
         <PlayerChip
           player={player}
@@ -103,7 +102,7 @@ function PitchSlotView({
               }),
             }}
           >
-            <Typography variant="caption" sx={{ color: 'white', fontWeight: 700, fontSize: '0.65rem' }}>
+            <Typography variant="chipLabel" sx={{ color: 'white', fontWeight: 700 }}>
               {t(POSITION_LABEL_KEYS[slot.position]).slice(0, 3).toUpperCase()}
             </Typography>
           </Box>
