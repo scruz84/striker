@@ -8,7 +8,7 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 //
 // Needs the backend running on a seeded world with DEV_LOGIN_ENABLED=true - see playwright.config.ts.
 
-const API = process.env.SMOKE_API_URL ?? 'http://127.0.0.1:1984'
+const API = process.env.SMOKE_API_URL ?? 'http://localhost:1984'
 const MIN_FONT_PX = 11
 const MIN_TARGET_PX = 44
 
@@ -76,17 +76,20 @@ async function audit(page: Page, minFont: number, minTarget: number): Promise<Fi
         if (size < minFont) findings.push({ kind: 'font', detail: `${size}px ${describe(el)}` })
       }
 
-      // Tappable controls shorter than the target size. Inline links inside running text are exempt
-      // (their hit area is the line), as are controls MUI renders but hides from view.
+      // Tappable controls whose tap area is shorter than the target size. Inline links inside
+      // running text are exempt (their hit area is the line), as are controls MUI hides from view.
       const controls = document.querySelectorAll('button, [role="button"], [role="tab"], [role="menuitem"], a[href], input:not([type="hidden"]), select')
       for (const el of controls) {
         if (!visible(el)) continue
         const style = getComputedStyle(el)
         if (el.tagName === 'A' && style.display === 'inline') continue
         if (el.hasAttribute('data-smoke-ignore') || el.closest('[data-smoke-ignore]')) continue
-        // A text field's tap area is its whole box, not the <input> inside the padding.
-        const hit = el.closest('.MuiInputBase-root') ?? el
-        const height = hit.getBoundingClientRect().height
+        // A text field's or slider's tap area is its whole box, not the <input> inside it.
+        const hit = el.closest('.MuiInputBase-root, .MuiSlider-root') ?? el
+        let height = hit.getBoundingClientRect().height
+        // Compact controls grow an invisible ::after hit area on touch screens (see theme.ts).
+        const after = getComputedStyle(hit, '::after')
+        if (after.content !== 'none' && after.position === 'absolute') height = Math.max(height, parseFloat(after.height) || 0)
         if (height < minTarget - 0.5) findings.push({ kind: 'target', detail: `${Math.round(height)}px ${describe(el)}` })
       }
       return findings
@@ -133,6 +136,11 @@ test.describe('mobile smoke (360px)', () => {
     // The browser needs its own session: sign in through the same API from the page's context.
     const login = await context.request.post(`${API}/v1/login`, { data: { devEmail: 'user1@dev.local' } })
     expect(login.ok()).toBeTruthy()
+
+    // Every route below renders a public fallback when signed out, so a broken session would let
+    // the audit pass on pages nobody actually uses: make sure the signed-in shell (bottom bar) is up.
+    await page.goto('/dashboard', { waitUntil: 'networkidle' })
+    await expect(page.locator('.MuiBottomNavigation-root'), 'signed in (check CORS origin and cookie host)').toBeVisible()
 
     const report: string[] = []
     for (const route of routes) {

@@ -46,7 +46,9 @@ interface NavGroup {
 
 /** The app's full site navigation, grouped (My club / Competitions / Social / Other). It is a
  * permanent sidebar on desktop; on a phone it opens from the bottom bar's "More" entry (the
- * four daily destinations live in the bottom bar itself). */
+ * four daily destinations live in the bottom bar itself). On a phone it slides in from the left,
+ * the same side as the desktop sidebar, so the navigation lives in one place at every width - the
+ * right edge is the notification panel's. */
 export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -162,7 +164,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
   return (
     <Drawer
       variant="temporary"
-      anchor="right"
+      anchor="left"
       open={mobileOpen}
       onClose={onClose}
       ModalProps={{ keepMounted: true }}

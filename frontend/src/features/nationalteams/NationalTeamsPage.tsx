@@ -150,9 +150,9 @@ function LiveNationalTeamMatches() {
             to={m.link}
             direction="row"
             spacing={1}
-            sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+            sx={{ alignItems: 'center', minHeight: 44, textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
           >
-            <Chip label={m.kindLabel} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
+            <Chip label={m.kindLabel} size="small" variant="outlined" sx={{ height: 22, fontSize: '0.6875rem' }} />
             <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
               {localizedTeamName(t, m.homeTeamName)}
             </NestedTeamNameLink>
@@ -241,7 +241,7 @@ function FriendlyMatchList({
                 to={`/friendlies/${m.matchId}`}
                 direction="row"
                 spacing={1}
-                sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+                sx={{ alignItems: 'center', minHeight: 44, textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
               >
                 <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
                   {localizedTeamName(t, m.homeTeamName)}
@@ -386,13 +386,13 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
       to={`/friendlies/${match.matchId}`}
       direction="row"
       spacing={1}
-      sx={{ alignItems: 'center', textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
+      sx={{ alignItems: 'center', minHeight: 44, textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
     >
       <NestedTeamNameLink teamId={match.homeTeamId} variant="caption" sx={{ flex: 1 }}>
         {localizedTeamName(t, match.homeTeamName)}
       </NestedTeamNameLink>
       {stillLive ? (
-        <Chip label={t('match.live')} color="error" size="small" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
+        <Chip label={t('match.live')} color="error" size="small" sx={{ height: 22, fontSize: '0.6875rem', fontWeight: 700 }} />
       ) : (
         <Typography variant="caption" sx={{ minWidth: 60, textAlign: 'center' }}>
           {match.played ? `${match.homeGoals} - ${match.awayGoals}` : '—'}

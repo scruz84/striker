@@ -79,7 +79,7 @@ function renderTeamSlots(
               justifyContent: 'center',
             }}
           >
-            <Typography variant="caption" sx={{ color: 'white', fontWeight: 700, fontSize: '0.65rem' }}>
+            <Typography variant="caption" sx={{ color: 'white', fontWeight: 700, fontSize: '0.6875rem' }}>
               {t(POSITION_LABEL_KEYS[slot.position]).slice(0, 3).toUpperCase()}
             </Typography>
           </Box>

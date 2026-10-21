@@ -21,10 +21,10 @@ function StatChip({ labelKey, value }: { labelKey: string; value: number }) {
         bgcolor: 'action.hover',
       }}
     >
-      <Typography component="span" sx={{ fontSize: '0.62rem', fontWeight: 600, color: 'text.secondary', lineHeight: 1.4 }}>
+      <Typography component="span" sx={{ fontSize: '0.6875rem', fontWeight: 600, color: 'text.secondary', lineHeight: 1.4 }}>
         {t(labelKey)}
       </Typography>
-      <Typography component="span" sx={{ fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.4, color: ratingTierColor(value, theme.palette) }}>
+      <Typography component="span" sx={{ fontSize: '0.6875rem', fontWeight: 700, lineHeight: 1.4, color: ratingTierColor(value, theme.palette) }}>
         {value}
       </Typography>
     </Box>

@@ -81,7 +81,7 @@ export function MatchPitchChip({ player, rating }: { player: Player; rating?: nu
           </Box>
         </Box>
         <Box sx={{ mt: 0.4, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
-          <Typography noWrap sx={{ color: '#fff', fontSize: '0.6rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}>
+          <Typography noWrap sx={{ color: '#fff', fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}>
             {player.lastName}
           </Typography>
         </Box>

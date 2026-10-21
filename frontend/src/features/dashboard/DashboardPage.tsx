@@ -299,7 +299,7 @@ function SuggestedLiveMatch({
               size="small"
               variant="outlined"
               label={t('dashboard.tierLabel', { tier: match.tier })}
-              sx={{ height: 18, fontSize: '0.65rem' }}
+              sx={{ height: 20, fontSize: '0.6875rem' }}
             />
           )}
           {flag && <span aria-hidden="true">{flag}</span>}
@@ -308,7 +308,7 @@ function SuggestedLiveMatch({
               size="small"
               color="error"
               label={t('dashboard.liveMatchMinute', { minute: match.minute })}
-              sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
+              sx={{ height: 20, fontSize: '0.6875rem', fontWeight: 700 }}
             />
           )}
         </Stack>

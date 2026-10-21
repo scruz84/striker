@@ -281,15 +281,9 @@ function ClassificationTable({
                   <TableCell sx={{ maxWidth: { xs: 150, sm: 'none' } }}>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                       <TeamBadge teamId={row.teamId} teamName={row.teamName} size={24} />
-                      <RouterLink to={`/team/${row.teamId}`} style={{ color: 'inherit', textDecoration: 'none', minWidth: 0 }}>
-                        <Typography
-                          variant="body2"
-                          noWrap
-                          sx={{ fontWeight: isMyTeam ? 700 : 400, '&:hover': { textDecoration: 'underline' } }}
-                        >
-                          {row.teamName}
-                        </Typography>
-                      </RouterLink>
+                      <TeamNameLink teamId={row.teamId} variant="body2" noWrap sx={{ minWidth: 0, fontWeight: isMyTeam ? 700 : 400 }}>
+                        {row.teamName}
+                      </TeamNameLink>
                       {isMyTeam && <Chip label={t('division.table.you')} size="small" color="primary" variant="outlined" sx={{ height: 20 }} />}
                     </Stack>
                   </TableCell>

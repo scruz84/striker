@@ -4,13 +4,14 @@ import { defineConfig } from '@playwright/test'
 // backend with a seeded world, so it is NOT part of `npm test` (vitest) nor of CI - run it by hand
 // with `npm run smoke:mobile` once the backend is up (backend/app.env sets DEV_LOGIN_ENABLED=true).
 //
-// SMOKE_API_URL         backend the app talks to (default http://127.0.0.1:1984)
-// SMOKE_BASE_URL        where the app is served (default http://127.0.0.1:5173; started with `vite` when
-//                       nothing is listening there). Keep both on the same host name - the session
-//                       cookie is host-bound, and the backend only allows its known dev origins.
+// SMOKE_API_URL         backend the app talks to (default http://localhost:1984)
+// SMOKE_BASE_URL        where the app is served (default http://localhost:5173; started with `vite` when
+//                       nothing is listening there). Keep both on `localhost`: the backend's CORS only
+//                       allows http://localhost:5173 (and :3000) by default, and its session cookie is
+//                       Secure, which Chrome only accepts over plain http on localhost.
 // PLAYWRIGHT_CHROMIUM_EXECUTABLE  use this Chromium instead of the one `npx playwright install` fetches.
-const apiUrl = process.env.SMOKE_API_URL ?? 'http://127.0.0.1:1984'
-const baseURL = process.env.SMOKE_BASE_URL ?? 'http://127.0.0.1:5173'
+const apiUrl = process.env.SMOKE_API_URL ?? 'http://localhost:1984'
+const baseURL = process.env.SMOKE_BASE_URL ?? 'http://localhost:5173'
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
 
 export default defineConfig({
@@ -29,7 +30,7 @@ export default defineConfig({
     launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort',
+    command: 'npm run dev -- --host localhost --port 5173 --strictPort',
     url: baseURL,
     reuseExistingServer: true,
     env: { VITE_API_ENDPOINT: apiUrl, VITE_GOOGLE_OAUTH_CLIENT_ID: 'smoke' },

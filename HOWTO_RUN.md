@@ -94,10 +94,11 @@ not part of `npm test` or CI:
 ```bash
 cd frontend
 npx playwright install chromium   # once; or set PLAYWRIGHT_CHROMIUM_EXECUTABLE to an existing Chromium
-npm run smoke:mobile              # starts `vite` itself if nothing listens on 127.0.0.1:5173
+npm run smoke:mobile              # starts `vite` itself if nothing listens on localhost:5173
 ```
 
-It talks to `http://127.0.0.1:1984` by default (`SMOKE_API_URL` / `SMOKE_BASE_URL` override). The
+It talks to `http://localhost:1984` by default (`SMOKE_API_URL` / `SMOKE_BASE_URL` override; keep both
+on `localhost`, which is the dev origin the backend's CORS and session cookie accept). The
 admin panel is not covered, and a freshly seeded world has no played matches, so the match page is
 checked in its scheduled view.
 

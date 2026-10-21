@@ -27,7 +27,8 @@ export function TeamBadge({ teamId, teamName, size = 40 }: { teamId: number; tea
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: 700,
-        fontSize: size * 0.4,
+        // Never below 11px, the app's minimum readable size (#272), however small the badge.
+        fontSize: Math.max(11, size * 0.4),
         borderRadius: '18% 18% 50% 50%',
       }}
     >

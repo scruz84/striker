@@ -158,6 +158,10 @@ const typography = {
 // (WCAG 2.5.5 / M3 guidance) without changing how they look on a desktop pointer.
 const TOUCH = '@media (pointer: coarse), (max-width: 599.95px)'
 
+// An invisible box centered on a control, used as its ::after to enlarge the tap area without
+// changing the layout. Callers set the horizontal extent and the height.
+const TOUCH_HIT_AREA = { content: '""', position: 'absolute', top: '50%', transform: 'translateY(-50%)' } as const
+
 // M3's shape scale, applied per-component below: pill-shaped buttons/chips ("full"), medium
 // (12dp) cards and menus, extra-large (28dp) dialogs - see
 // https://m3.material.io/styles/shape/shape-scale-tokens.
@@ -198,10 +202,11 @@ function buildComponents(mode: 'light' | 'dark') {
       styleOverrides: {
         root: {
           borderRadius: 9999,
-          // Clickable chips keep their compact look but grow an invisible 44px hit area.
+          // Clickable chips keep their compact look but grow an invisible hit area at least 44px
+          // tall (8px past each side, more for a short chip).
           '&.MuiChip-clickable, &.MuiChip-deletable': {
             position: 'relative',
-            [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -8 } },
+            [TOUCH]: { '&::after': { ...TOUCH_HIT_AREA, left: -8, right: -8, height: 'max(calc(100% + 16px), 44px)' } },
           },
         },
         labelSmall: { fontSize: '0.6875rem' },
@@ -209,6 +214,14 @@ function buildComponents(mode: 'light' | 'dark') {
     },
     MuiLink: {
       styleOverrides: {
+        // A link that stands on its own in a layout (a team or player name in a list row, a
+        // division link under a header) grows the same invisible 44px hit area. Links inside
+        // running text (a <p>/<span>) don't: there the band would cover the lines above and below.
+        root: {
+          [TOUCH]: {
+            'div > &, li > &, td > &': { position: 'relative', '&::after': { ...TOUCH_HIT_AREA, left: 0, right: 0, height: 'max(100%, 44px)' } },
+          },
+        },
         // Standalone text links (buttons rendered as links) get a tappable height too.
         button: { [TOUCH]: { minHeight: 44 } },
       },
@@ -232,6 +245,10 @@ function buildComponents(mode: 'light' | 'dark') {
     },
     MuiFormControl: {
       defaultProps: { size: 'small' as const },
+    },
+    MuiSlider: {
+      // MUI pads a slider to 40px on touch screens; the small variant's 2px rail leaves it at 42.
+      styleOverrides: { root: { [TOUCH]: { '&:not(.MuiSlider-vertical)': { paddingTop: 21, paddingBottom: 21 } } } },
     },
     MuiToggleButton: {
       styleOverrides: { root: { [TOUCH]: { minHeight: 44 } } },
