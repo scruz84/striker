@@ -226,8 +226,8 @@ function buildComponents(mode: 'light' | 'dark') {
       styleOverrides: { root: { [TOUCH]: { '& .MuiSwitch-switchBase': { padding: 9 } } } },
     },
     MuiTextField: {
-      // One TextField variant and height (40px) across the app, with a label that is always
-      // visible (#282).
+      // One TextField variant and height (40px with a mouse, 44px on touch - see MuiOutlinedInput)
+      // across the app, with a label that is always visible (#282).
       defaultProps: { variant: 'outlined' as const, size: 'small' as const },
     },
     MuiFormControl: {
@@ -257,7 +257,9 @@ function buildComponents(mode: 'light' | 'dark') {
       styleOverrides: { root: { overflowWrap: 'anywhere' as const } },
     },
     MuiOutlinedInput: {
-      styleOverrides: { root: { borderRadius: 4 } },
+      // 44px tall on touch screens, like every other tappable control (#283); small fields stay
+      // compact with a mouse.
+      styleOverrides: { root: { borderRadius: 4, [TOUCH]: { minHeight: 44 } } },
     },
     MuiAppBar: {
       styleOverrides: { root: { boxShadow: 'none' } },

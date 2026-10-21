@@ -51,7 +51,7 @@ export function Header() {
       <AppBar position="sticky">
         <Toolbar sx={{ gap: { xs: 0, md: 0.5 }, minHeight: { xs: 56, md: 64 } }}>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Link component={RouterLink} to="/" underline="none" color="inherit" sx={{ display: 'inline-flex' }}>
+            <Link component={RouterLink} to="/" underline="none" color="inherit" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>
               <Logo />
             </Link>
           </Box>

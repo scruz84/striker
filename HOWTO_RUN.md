@@ -84,6 +84,23 @@ npm run dev
 Frontend dev server defaults to `VITE_API_ENDPOINT=http://localhost:1984` - change it in
 `.env.development.local` if the backend runs elsewhere.
 
+### Mobile smoke test
+
+`frontend/e2e/mobile-smoke.spec.ts` opens every player-facing page at 360px against a running backend
+and fails on horizontal scroll, text under 11px, or a tappable control under 44px tall. It needs the
+backend up on a seeded world with `DEV_LOGIN_ENABLED=true` (`go run ./cmd --initialize` seeds one) and is
+not part of `npm test` or CI:
+
+```bash
+cd frontend
+npx playwright install chromium   # once; or set PLAYWRIGHT_CHROMIUM_EXECUTABLE to an existing Chromium
+npm run smoke:mobile              # starts `vite` itself if nothing listens on 127.0.0.1:5173
+```
+
+It talks to `http://127.0.0.1:1984` by default (`SMOKE_API_URL` / `SMOKE_BASE_URL` override). The
+admin panel is not covered, and a freshly seeded world has no played matches, so the match page is
+checked in its scheduled view.
+
 ## Running against Postgres/Redis that already run elsewhere
 
 `backend/docker-compose.yml` bundles its own Postgres/Redis containers and points `svc`/`engine`/

@@ -15,6 +15,8 @@ export default defineConfig({
   server: { headers: coopHeaders },
   preview: { headers: coopHeaders },
   test: {
+    // e2e/ holds the Playwright smoke test (npm run smoke:mobile), which vitest can't run.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     globals: true,
