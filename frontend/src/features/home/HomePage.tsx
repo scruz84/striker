@@ -29,7 +29,7 @@ const STEPS = ['claim', 'manage', 'climb'] as const
 
 export function HomePage() {
   const { t } = useTranslation()
-  const { data: loggedUser, isLoading } = useMe()
+  const { data: loggedUser } = useMe()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -38,7 +38,9 @@ export function HomePage() {
     }
   }, [loggedUser, navigate])
 
-  if (isLoading || loggedUser) {
+  // The landing page (with its sign-in buttons) only once the server has said there is no session:
+  // not while that is loading or the server is unreachable (see useMe).
+  if (loggedUser !== null) {
     return null
   }
 

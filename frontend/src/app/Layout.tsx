@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useMe, useUserTeam } from '../api/hooks'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { BOTTOM_NAV_HEIGHT, BottomNav } from './BottomNav'
@@ -15,7 +18,8 @@ import { Subheader } from './Subheader'
 
 export function Layout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const { data: loggedUser } = useMe()
+  const { t } = useTranslation()
+  const { data: loggedUser, isError: sessionUnknown, isFetching: sessionRetrying, refetch: retrySession } = useMe()
   const { data: userTeam } = useUserTeam(!!loggedUser)
   const location = useLocation()
   const theme = useTheme()
@@ -48,6 +52,21 @@ export function Layout() {
         >
           {detailRoute ? <DetailBackBar route={detailRoute} /> : <Subheader />}
           <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3 } }}>
+            {/* The session check failed (no network, server down) and nothing is known about the
+                user yet - say so instead of showing the guest UI; useMe keeps retrying. */}
+            {sessionUnknown && loggedUser === undefined && (
+              <Alert
+                severity="warning"
+                sx={{ mb: 2 }}
+                action={
+                  <Button color="inherit" size="small" disabled={sessionRetrying} onClick={() => void retrySession()}>
+                    {t('common.tryAgain')}
+                  </Button>
+                }
+              >
+                {t('common.serverUnreachable')}
+              </Alert>
+            )}
             {/* Keyed by path so navigating to a different page always gets a fresh boundary
                 instead of staying stuck on a previous page's error fallback. */}
             <ErrorBoundary key={location.pathname}>

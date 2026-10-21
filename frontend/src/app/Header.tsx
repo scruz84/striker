@@ -57,7 +57,7 @@ export function Header() {
           </Box>
           {isDesktop ? (
             <>
-              {!loggedUser && (
+              {loggedUser === null && (
                 <Link component={RouterLink} to="/help" underline="hover" color="inherit" sx={{ mr: 2 }}>
                   {t('header.nav.help')}
                 </Link>
@@ -77,12 +77,12 @@ export function Header() {
               <NotificationBell />
               <AvatarOrLogin />
             </>
-          ) : (
+          ) : loggedUser === null ? (
             <>
               <GuestMenu />
               <AvatarOrLogin />
             </>
-          )}
+          ) : null}
         </Toolbar>
       </AppBar>
     </Slide>
@@ -161,6 +161,12 @@ function AvatarOrLogin() {
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+
+  // Still unknown (loading, or the server unreachable - see useMe): neither an avatar nor a sign-in
+  // button, which would read as "you were signed out".
+  if (loggedUser === undefined) {
+    return null
+  }
 
   if (!loggedUser) {
     return (

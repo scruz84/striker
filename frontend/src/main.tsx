@@ -9,8 +9,10 @@ import '@fontsource/roboto/700.css'
 import './i18n'
 import './index.css'
 import App from './app/App.tsx'
+import { recoverFromStaleDeploy } from './recoverFromStaleDeploy'
 import { registerServiceWorker } from './registerServiceWorker'
 
+recoverFromStaleDeploy()
 registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(

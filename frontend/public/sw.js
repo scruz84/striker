@@ -1,19 +1,16 @@
-// Minimal service worker, registered only so the app satisfies "installable" PWA criteria
-// (see src/registerServiceWorker.ts) across the browsers that still check for one (Chrome's own
-// install-banner heuristic dropped this requirement, but others haven't). Deliberately does no
-// caching: this game's data changes every minute (live matches, the transfer market,
-// notifications), so an offline-first cache would risk serving stale content instead of actually
-// helping - every request is passed straight through to the network unmodified.
+// Minimal service worker: it exists for Web Push (below) and so the app counts as an installable
+// PWA in the browsers that still look for one. Deliberately has no `fetch` handler: this game's
+// data changes every minute (live matches, the transfer market, notifications), so an offline
+// cache would only risk stale content, and a pass-through handler made every request - page loads
+// and API calls alike - wait for this worker to start first (slow on phones, where it is often
+// stopped) and turned any network hiccup into a failed page load. Without one the browser skips
+// the worker entirely for network requests.
 self.addEventListener('install', () => {
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim())
-})
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request))
 })
 
 // A Web Push message from the backend (see common.WebPushNotifier / common.PushPayload) - shown

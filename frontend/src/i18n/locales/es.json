@@ -9,6 +9,7 @@
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongDetail": "Esta página tuvo un problema. Inténtalo de nuevo o vuelve al panel principal.",
     "tryAgain": "Intentar de nuevo",
+    "serverUnreachable": "No se puede conectar con el servidor. Reintentando…",
     "pagination": {
       "rowsPerPage": "Filas por página:",
       "displayedRows": "{{from}}–{{to}} de {{count}}"

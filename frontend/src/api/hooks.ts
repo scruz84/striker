@@ -110,6 +110,14 @@ export const queryKeys = {
   search: (query: string) => ['search', query] as const,
 }
 
+// How often a session check that failed outright (network error, 5xx - never a 401, which is a
+// definite "signed out") is retried in the background until the server answers again.
+const ME_ERROR_RETRY_INTERVAL_MS = 15_000
+
+// `data` is the signed-in user, `null` when the server says there is no session (401/403), and
+// `undefined` while that is still unknown - loading, or the server unreachable. Only `null` means
+// signed out: a phone resuming the installed app often has no network for the first request, and
+// treating that failure as a sign-out would show the guest UI to a user whose session is fine.
 export function useMe() {
   return useQuery({
     queryKey: queryKeys.me,
@@ -123,8 +131,11 @@ export function useMe() {
         throw error
       }
     },
-    retry: false,
+    retry: 3,
     staleTime: 60_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: (query) =>
+      query.state.status === 'error' && query.state.data === undefined ? ME_ERROR_RETRY_INTERVAL_MS : false,
   })
 }
 
