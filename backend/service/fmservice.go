@@ -78,6 +78,7 @@ func StartSvc() {
 
 	router := gin.Default()
 	router.Use(metricsMiddleware())
+	router.Use(gzipMiddleware())
 	initRouter(router, dbCtx)
 
 	errorListener := router.Run("0.0.0.0:1984")

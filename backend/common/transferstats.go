@@ -3,6 +3,7 @@ package common
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -27,9 +28,9 @@ type MostViewedPlayer struct {
 	ViewCount int64  `json:"viewCount"`
 }
 
-// TopTransferFee is the largest fee any completed transfer (a bought listing or an accepted
-// offer - both log a matched pair of team_transactions rows, see ExecuteTransfer/AcceptOffer)
-// has ever paid for one player.
+// TopTransferFee is the largest fee any completed transfer (a bought listing, an accepted offer,
+// an exercised buy option or a free agent premium - see topTransferFeeKinds) has ever paid for
+// one player.
 type TopTransferFee struct {
 	Player         Player    `json:"player"`
 	Amount         int64     `json:"amount"`
@@ -42,10 +43,12 @@ type TopTransferFee struct {
 
 const getListedPlayersCountStmtSql = "SELECT count(*) FROM transfer_listings"
 
+// getOffersInWindowsStmtSql only looks at the last day (the widest window it reports), so the
+// transfer_offer_log_created_idx index bounds the work regardless of how long the log has grown.
 const getOffersInWindowsStmtSql = "SELECT " +
 	"count(*) FILTER (WHERE created_at > now() - interval '1 hour'), " +
 	"count(*) FILTER (WHERE created_at > now() - interval '1 day') " +
-	"FROM transfer_offer_log"
+	"FROM transfer_offer_log WHERE created_at > now() - interval '1 day'"
 
 // getMostViewedListedPlayerStmtSql picks the currently-listed player with the highest
 // view_count, ties broken by whoever's been listed longest (listed_at) so the answer is stable
@@ -55,17 +58,23 @@ const getMostViewedListedPlayerStmtSql = "SELECT p.player_id, p.view_count FROM 
 	"JOIN players p ON p.player_id = tl.player_id " +
 	"WHERE p.view_count > 0 ORDER BY p.view_count DESC, tl.listed_at ASC LIMIT 1"
 
-// getTopTransferFeeStmtSql pairs up each completed transfer's two team_transactions rows (see
-// ExecuteTransfer/AcceptOffer, which insert both atomically with the same created_at, player_id,
-// and equal-and-opposite amounts) to reconstruct "who paid whom how much for which player",
-// without needing a dedicated transfer-history table.
-const getTopTransferFeeStmtSql = "SELECT o.player_id, -o.amount AS amount, o.team_id, bt.name, i.team_id, st.name, o.created_at " +
-	"FROM team_transactions o " +
-	"JOIN team_transactions i ON i.player_id = o.player_id AND i.created_at = o.created_at AND i.amount = -o.amount AND i.reason = $1 " +
-	"JOIN teams bt ON bt.team_id = o.team_id " +
-	"JOIN teams st ON st.team_id = i.team_id " +
-	"WHERE o.reason = $2 AND o.player_id IS NOT NULL " +
-	"ORDER BY amount DESC LIMIT 1"
+// topTransferFeeKinds are the player_transfers.kind values that count towards the biggest fee on
+// record: every flow that pays a club for a player (a bought listing, an accepted offer, an
+// exercised buy option, a free agent premium and the pre-player_transfers permanent moves).
+// Loans (3) are a rental fee and releases (5) have no buyer, so neither counts. The list is
+// spelled out in the query as literals so it matches the predicate of the partial index
+// (player_transfers_fee_idx, init81_market_indexes.sql) - keep the two in sync.
+var topTransferFeeKinds = fmt.Sprintf("%d, %d, %d, %d, %d", PLAYER_TRANSFER_LISTING, PLAYER_TRANSFER_OFFER,
+	PLAYER_TRANSFER_FREE_AGENT, PLAYER_TRANSFER_BUY_OPTION, PLAYER_TRANSFER_PERMANENT)
+
+// getTopTransferFeeStmtSql reads the biggest fee straight from player_transfers (see
+// RecordPlayerTransfer), instead of re-pairing the two team_transactions rows of each transfer.
+var getTopTransferFeeStmtSql = "SELECT pt.player_id, pt.fee, pt.to_team_id, bt.name, pt.from_team_id, st.name, pt.created_at " +
+	"FROM player_transfers pt " +
+	"JOIN teams bt ON bt.team_id = pt.to_team_id " +
+	"JOIN teams st ON st.team_id = pt.from_team_id " +
+	"WHERE pt.kind IN (" + topTransferFeeKinds + ") AND pt.fee > 0 " +
+	"ORDER BY pt.fee DESC LIMIT 1"
 
 // GetTransferMarketStats computes every figure on the transfer market's activity panel in one
 // call - see TransferMarketStats.
@@ -94,7 +103,7 @@ func GetTransferMarketStats(dbCtx *DatabaseContext) (*TransferMarketStats, error
 
 	var topFee TopTransferFee
 	var topFeePlayerId int64
-	err = dbCtx.Db.QueryRow(getTopTransferFeeStmtSql, TRANSACTION_TRANSFER_IN, TRANSACTION_TRANSFER_OUT).Scan(
+	err = dbCtx.Db.QueryRow(getTopTransferFeeStmtSql).Scan(
 		&topFeePlayerId, &topFee.Amount, &topFee.BuyerTeamId, &topFee.BuyerTeamName,
 		&topFee.SellerTeamId, &topFee.SellerTeamName, &topFee.OccurredAt)
 	switch {

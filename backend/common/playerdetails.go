@@ -1,8 +1,12 @@
 package common
 
 import (
+	"crypto/sha1"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"slices"
 )
 
 // PlayerCareerStats is a player's all-time totals, computed from match_events - see
@@ -74,15 +78,45 @@ const getPlayerCapsBatchStmtSql = "SELECT player_id, count(*) FROM (" +
 	"WHERE ctlp.player_id = ANY($1) AND t2.is_national_team = true AND ct.played = true" +
 	") caps GROUP BY player_id"
 
+// PlayerCapsBatchKey prefixes the ObjectCache entries GetPlayerCapsBatch keeps, one per distinct
+// set of player ids asked for.
+const PlayerCapsBatchKey = "player_caps_batch:"
+
+// playerCapsBatchCacheKey identifies a set of player ids regardless of the order they were asked
+// for in, so the transfer, loan and free-agent tabs each hit their own entry on every reload.
+func playerCapsBatchCacheKey(playerIds []int64) string {
+	sorted := slices.Clone(playerIds)
+	slices.Sort(sorted)
+	sum := sha1.Sum([]byte(fmt.Sprint(sorted)))
+	return PlayerCapsBatchKey + hex.EncodeToString(sum[:])
+}
+
 // GetPlayerCapsBatch batch-fetches international caps (see countPlayerCapsStmtSql) for a set of
 // players, keyed by player_id - used to show caps on every row of a market listing (the transfer,
 // loan and free-agent tabs) without a query per listed player. A player id with no caps simply
 // has no entry in the returned map; callers treat that as zero.
+//
+// The query joins every national-team lineup row ever played, so it's the slowest part of loading
+// a market tab; the result is kept in dbCtx.ObjectCache for its short default TTL (caps only
+// change when a national-team match is played, and a minute-stale count on a market row is
+// harmless). A missing or failing cache just falls through to the query.
 func GetPlayerCapsBatch(dbCtx *DatabaseContext, playerIds []int64) (map[int64]int, error) {
 	caps := make(map[int64]int, len(playerIds))
 	if len(playerIds) == 0 {
 		return caps, nil
 	}
+
+	cacheKey := ""
+	if dbCtx.ObjectCache != nil {
+		cacheKey = playerCapsBatchCacheKey(playerIds)
+		if cached, err := dbCtx.ObjectCache.GetValue(cacheKey); err == nil && cached != "" {
+			if err := json.Unmarshal([]byte(cached), &caps); err == nil {
+				return caps, nil
+			}
+			caps = make(map[int64]int, len(playerIds))
+		}
+	}
+
 	rows, err := dbCtx.Db.Query(getPlayerCapsBatchStmtSql, playerIds)
 	if err != nil {
 		return nil, err
@@ -96,7 +130,16 @@ func GetPlayerCapsBatch(dbCtx *DatabaseContext, playerIds []int64) (map[int64]in
 		}
 		caps[playerId] = count
 	}
-	return caps, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if cacheKey != "" {
+		if encoded, err := json.Marshal(caps); err == nil {
+			dbCtx.ObjectCache.SetValue(cacheKey, string(encoded))
+		}
+	}
+	return caps, nil
 }
 
 // GetPlayerCareerStats totals goals and cards across every match the player has ever taken part

@@ -72,9 +72,13 @@ const DeleteLoanListingByPlayerAndTeamStmtSql = "DELETE FROM loan_listings WHERE
 const GetLoanListingForUpdateStmtSql = "SELECT player_id, lending_team_id, duration_seasons, loan_fee, wage_contribution_percent, buy_option_fee " +
 	"FROM loan_listings WHERE listing_id = $1 " + ForUpdate
 const DeleteLoanListingStmtSql = "DELETE FROM loan_listings WHERE listing_id = $1"
-const GetActiveLoanListingsStmtSql = "SELECT ll.listing_id, ll.player_id, ll.lending_team_id, t.name, ll.duration_seasons, " +
+
+// GetActiveLoanListingsStmtSql returns each listing's player (playerColumnsSql) followed by the
+// listing's own columns, so GetActiveLoanListings needs no per-listing player lookup.
+const GetActiveLoanListingsStmtSql = "SELECT " + playerColumnsSql + ", ll.listing_id, ll.lending_team_id, t.name, ll.duration_seasons, " +
 	"ll.loan_fee, ll.wage_contribution_percent, ll.buy_option_fee, ll.listed_at " +
-	"FROM loan_listings ll JOIN teams t ON t.team_id = ll.lending_team_id ORDER BY ll.listed_at DESC"
+	"FROM loan_listings ll JOIN teams t ON t.team_id = ll.lending_team_id JOIN players p ON p.player_id = ll.player_id " +
+	"ORDER BY ll.listed_at DESC"
 const IsPlayerLoanListedStmtSql = "SELECT 1 FROM loan_listings WHERE player_id = $1"
 const IsPlayerOnActiveLoanStmtSql = "SELECT loan_id FROM player_loans WHERE player_id = $1"
 
@@ -210,40 +214,30 @@ func GetActiveLoanListings(dbCtx *DatabaseContext) ([]LoanListing, error) {
 	}
 	defer rows.Close()
 
-	type row struct {
-		listing  LoanListing
-		playerId int64
-	}
-	pending := make([]row, 0)
+	listings := make([]LoanListing, 0)
+	playerIds := make([]int64, 0)
 	for rows.Next() {
-		var r row
-		if err := rows.Scan(&r.listing.ListingId, &r.playerId, &r.listing.LendingTeamId,
-			&r.listing.LendingTeamName, &r.listing.DurationSeasons, &r.listing.LoanFee,
-			&r.listing.WageContributionPercent, &r.listing.BuyOptionFee, &r.listing.ListedAt); err != nil {
+		var l LoanListing
+		player, err := scanPlayer(rows, &l.ListingId, &l.LendingTeamId, &l.LendingTeamName, &l.DurationSeasons,
+			&l.LoanFee, &l.WageContributionPercent, &l.BuyOptionFee, &l.ListedAt)
+		if err != nil {
 			return nil, err
 		}
-		pending = append(pending, r)
+		l.Player = *player
+		listings = append(listings, l)
+		playerIds = append(playerIds, player.Id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	rows.Close()
 
-	playerIds := make([]int64, len(pending))
-	for i, r := range pending {
-		playerIds[i] = r.playerId
-	}
 	caps, err := GetPlayerCapsBatch(dbCtx, playerIds)
 	if err != nil {
 		return nil, err
 	}
-
-	listings := make([]LoanListing, 0, len(pending))
-	for _, r := range pending {
-		player, err := GetPlayerById(dbCtx, r.playerId)
-		if err != nil {
-			continue
-		}
-		r.listing.Player = *player
-		r.listing.Caps = caps[r.playerId]
-		listings = append(listings, r.listing)
+	for i := range listings {
+		listings[i].Caps = caps[listings[i].Player.Id]
 	}
 	return listings, nil
 }

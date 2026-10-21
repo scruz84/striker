@@ -13,14 +13,23 @@ import (
 // team_id is coalesced to 0 - GetPlayerById is also used to look up a free agent (e.g. from
 // SignFreeAgent), whose team_id is NULL, and Player.TeamId is a plain non-nullable int64.
 // last_team_id is coalesced the same way, for the same reason (see Player.LastTeamId).
-const GetPlayerByIdStmtSql = "SELECT player_id, COALESCE(team_id, 0), first_name, last_name, birth_day, goal_keeper, defense, \"lateral\", pass, midfield, " +
-	"dribbling, shot, \"header\", quick, creative, technical, wage, age, avatar, contract_years_remaining, birth_country, " +
-	"free_agent_seasons, COALESCE(last_team_id, 0), COALESCE(shirt_number, 0), stamina, form FROM players WHERE player_id = $1"
+//
+// The columns are qualified with the alias p so the same list serves GetPlayerById and the listing
+// queries that join players in (GetActiveTransferListings, GetActiveLoanListings) - scanPlayer
+// reads them back in this order.
+const playerColumnsSql = "p.player_id, COALESCE(p.team_id, 0), p.first_name, p.last_name, p.birth_day, p.goal_keeper, p.defense, p.\"lateral\", p.pass, p.midfield, " +
+	"p.dribbling, p.shot, p.\"header\", p.quick, p.creative, p.technical, p.wage, p.age, p.avatar, p.contract_years_remaining, p.birth_country, " +
+	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(p.shirt_number, 0), p.stamina, p.form"
+
+const GetPlayerByIdStmtSql = "SELECT " + playerColumnsSql + " FROM players p WHERE p.player_id = $1"
 
 const InsertTransferListingStmtSql = "INSERT INTO transfer_listings (player_id, selling_team_id, asking_price) VALUES ($1, $2, $3)"
 
-const GetActiveTransferListingsStmtSql = "SELECT tl.listing_id, tl.player_id, tl.selling_team_id, t.name, tl.asking_price, tl.listed_at " +
-	"FROM transfer_listings tl JOIN teams t ON t.team_id = tl.selling_team_id ORDER BY tl.listed_at DESC"
+// GetActiveTransferListingsStmtSql returns each listing's player (playerColumnsSql) followed by
+// the listing's own columns, so GetActiveTransferListings needs no per-listing player lookup.
+const GetActiveTransferListingsStmtSql = "SELECT " + playerColumnsSql + ", tl.listing_id, tl.selling_team_id, t.name, tl.asking_price, tl.listed_at " +
+	"FROM transfer_listings tl JOIN teams t ON t.team_id = tl.selling_team_id JOIN players p ON p.player_id = tl.player_id " +
+	"ORDER BY tl.listed_at DESC"
 
 const DeleteTransferListingByPlayerAndTeamStmtSql = "DELETE FROM transfer_listings WHERE player_id = $1 AND selling_team_id = $2"
 
@@ -58,23 +67,29 @@ var ErrPlayerNotListedByTeam = errors.New("player is not listed for transfer by 
 // never blocked by it - getting your own player off the market isn't transfer activity.
 var ErrTransferWindowClosed = errors.New("transfer window is closed")
 
-// GetPlayerById fetches a single player by id, regardless of which team they belong to.
-func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
+// scanPlayer reads a Player from the playerColumnsSql columns (in that order) at the start of
+// the row. extra are scanned after them, for queries that select more columns past the player's.
+func scanPlayer(row rowScanner, extra ...any) (*Player, error) {
 	var p Player
 	var birthDay int64
 	var avatar string
 	var birthCountry sql.NullString
-	err := dbCtx.Db.QueryRow(GetPlayerByIdStmtSql, playerId).Scan(&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
+	dest := append([]any{&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
 		&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
 		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
-		&p.FreeAgentSeasons, &p.LastTeamId, &p.ShirtNumber, &p.Stamina, &p.Form)
-	if err != nil {
+		&p.FreeAgentSeasons, &p.LastTeamId, &p.ShirtNumber, &p.Stamina, &p.Form}, extra...)
+	if err := row.Scan(dest...); err != nil {
 		return nil, err
 	}
 	p.BirthDay = time.UnixMilli(birthDay)
 	p.Avatar = GetAvatarFromString(avatar)
 	p.BirthCountry = birthCountry.String
 	return &p, nil
+}
+
+// GetPlayerById fetches a single player by id, regardless of which team they belong to.
+func GetPlayerById(dbCtx *DatabaseContext, playerId int64) (*Player, error) {
+	return scanPlayer(dbCtx.Db.QueryRow(GetPlayerByIdStmtSql, playerId))
 }
 
 const IsPlayerTransferListedStmtSql = "SELECT 1 FROM transfer_listings WHERE player_id = $1"
@@ -170,39 +185,29 @@ func GetActiveTransferListings(dbCtx *DatabaseContext) ([]TransferListing, error
 	}
 	defer rows.Close()
 
-	type row struct {
-		listing  TransferListing
-		playerId int64
-	}
-	pending := make([]row, 0)
+	listings := make([]TransferListing, 0)
+	playerIds := make([]int64, 0)
 	for rows.Next() {
-		var r row
-		if err := rows.Scan(&r.listing.ListingId, &r.playerId, &r.listing.SellingTeamId,
-			&r.listing.SellingTeamName, &r.listing.AskingPrice, &r.listing.ListedAt); err != nil {
+		var l TransferListing
+		player, err := scanPlayer(rows, &l.ListingId, &l.SellingTeamId, &l.SellingTeamName, &l.AskingPrice, &l.ListedAt)
+		if err != nil {
 			return nil, err
 		}
-		pending = append(pending, r)
+		l.Player = *player
+		listings = append(listings, l)
+		playerIds = append(playerIds, player.Id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	rows.Close()
 
-	playerIds := make([]int64, len(pending))
-	for i, r := range pending {
-		playerIds[i] = r.playerId
-	}
 	caps, err := GetPlayerCapsBatch(dbCtx, playerIds)
 	if err != nil {
 		return nil, err
 	}
-
-	listings := make([]TransferListing, 0, len(pending))
-	for _, r := range pending {
-		player, err := GetPlayerById(dbCtx, r.playerId)
-		if err != nil {
-			continue
-		}
-		r.listing.Player = *player
-		r.listing.Caps = caps[r.playerId]
-		listings = append(listings, r.listing)
+	for i := range listings {
+		listings[i].Caps = caps[listings[i].Player.Id]
 	}
 	return listings, nil
 }

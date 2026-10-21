@@ -419,10 +419,17 @@ export function useUpgradeStadium() {
   })
 }
 
+// The market lists are the heaviest responses the API sends (every open listing, ~1 MB of JSON),
+// and the tabs unmount/remount as the user switches between them - without a staleTime each
+// switch refetched the whole list. Every mutation that changes a list invalidates its key, so a
+// fresh fetch still happens as soon as anything the user did could have changed it.
+const MARKET_LIST_STALE_MS = 30_000
+
 export function useTransferListings(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.transfers,
     queryFn: () => api.get<TransferListing[]>('/v1/transfers'),
+    staleTime: MARKET_LIST_STALE_MS,
     enabled,
   })
 }
@@ -466,6 +473,7 @@ export function useLoanListings(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.loans,
     queryFn: () => api.get<LoanListing[]>('/v1/loans'),
+    staleTime: MARKET_LIST_STALE_MS,
     enabled,
   })
 }
@@ -539,6 +547,7 @@ export function useFreeAgents(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.freeAgents,
     queryFn: () => api.get<FreeAgentListing[]>('/v1/free-agents'),
+    staleTime: MARKET_LIST_STALE_MS,
     enabled,
   })
 }

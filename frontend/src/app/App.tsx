@@ -6,36 +6,15 @@ import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-rou
 import { getGoogleOAuthClientId } from '../config'
 import { ConfirmProvider } from '../components/ConfirmDialog'
 import { NotifyProvider } from '../components/NotifyProvider'
-import { AdminPage } from '../features/admin/AdminPage'
-import { LoginPage } from '../features/auth/LoginPage'
-import { DashboardPage } from '../features/dashboard/DashboardPage'
-import { CupPage } from '../features/cup/CupPage'
-import { CupTieDetailsPage } from '../features/cup/CupTieDetailsPage'
-import { InternationalCupPage } from '../features/cup/InternationalCupPage'
-import { DivisionDetailsPage } from '../features/division/DivisionDetailsPage'
-import { FinancesPage } from '../features/finances/FinancesPage'
-import { FriendliesPage } from '../features/friendlies/FriendliesPage'
-import { FriendlyMatchPage } from '../features/friendlies/FriendlyMatchPage'
-import { GroupsPage } from '../features/groups/GroupsPage'
-import { HelpPage } from '../features/help/HelpPage'
 import { HomePage } from '../features/home/HomePage'
-import { LeaguesPage } from '../features/leagues/LeaguesPage'
-import { LineupEditorPage } from '../features/lineup/LineupEditorPage'
-import { MatchDetailsPage } from '../features/match/MatchDetailsPage'
-import { NationalTeamsPage } from '../features/nationalteams/NationalTeamsPage'
-import { SelectCountryPage } from '../features/onboarding/SelectCountryPage'
-import { LatestEvolutionsPage } from '../features/player/LatestEvolutionsPage'
-import { PlayerDetailsPage } from '../features/player/PlayerDetailsPage'
-import { SearchPage } from '../features/search/SearchPage'
-import { TeamDetailsPage } from '../features/team/TeamDetailsPage'
-import { TeamMatchesPage } from '../features/team/TeamMatchesPage'
-import { TransferMarketPage } from '../features/transfers/TransferMarketPage'
 import { Layout } from './Layout'
 import { queryClient } from './queryClient'
 import { ThemeModeProvider } from './ThemeModeProvider'
 
 const emotionCache = createCache({ key: 'css' })
 
+// Every page except the landing page is loaded on demand (the route's `lazy`), so the first load
+// of any page downloads only the code it needs instead of one 1.4 MB bundle holding the whole app.
 // A data router (rather than <BrowserRouter>) because pages with unsaved edits - the lineup editor
 // - need useBlocker to confirm before navigating away.
 const routes: RouteObject[] = [
@@ -43,29 +22,29 @@ const routes: RouteObject[] = [
     element: <Layout />,
     children: [
       { path: '/', element: <HomePage /> },
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/dashboard/lineup', element: <LineupEditorPage /> },
-      { path: '/dashboard/finances', element: <FinancesPage /> },
-      { path: '/transfers', element: <TransferMarketPage /> },
-      { path: '/cup', element: <CupPage /> },
-      { path: '/cup/ties/:id', element: <CupTieDetailsPage /> },
-      { path: '/international-cup', element: <InternationalCupPage /> },
-      { path: '/friendlies', element: <FriendliesPage /> },
-      { path: '/friendlies/:id', element: <FriendlyMatchPage /> },
-      { path: '/national-teams', element: <NationalTeamsPage /> },
-      { path: '/groups', element: <GroupsPage /> },
-      { path: '/help', element: <HelpPage /> },
-      { path: '/admin', element: <AdminPage /> },
-      { path: '/leagues', element: <LeaguesPage /> },
-      { path: '/division/:id', element: <DivisionDetailsPage /> },
-      { path: '/match/:id', element: <MatchDetailsPage /> },
-      { path: '/team/:id', element: <TeamDetailsPage /> },
-      { path: '/team/:id/matches', element: <TeamMatchesPage /> },
-      { path: '/player/:id', element: <PlayerDetailsPage /> },
-      { path: '/players/evolutions', element: <LatestEvolutionsPage /> },
-      { path: '/search', element: <SearchPage /> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/onboarding', element: <SelectCountryPage /> },
+      { path: '/dashboard', lazy: () => import('../features/dashboard/DashboardPage').then((m) => ({ Component: m.DashboardPage })) },
+      { path: '/dashboard/lineup', lazy: () => import('../features/lineup/LineupEditorPage').then((m) => ({ Component: m.LineupEditorPage })) },
+      { path: '/dashboard/finances', lazy: () => import('../features/finances/FinancesPage').then((m) => ({ Component: m.FinancesPage })) },
+      { path: '/transfers', lazy: () => import('../features/transfers/TransferMarketPage').then((m) => ({ Component: m.TransferMarketPage })) },
+      { path: '/cup', lazy: () => import('../features/cup/CupPage').then((m) => ({ Component: m.CupPage })) },
+      { path: '/cup/ties/:id', lazy: () => import('../features/cup/CupTieDetailsPage').then((m) => ({ Component: m.CupTieDetailsPage })) },
+      { path: '/international-cup', lazy: () => import('../features/cup/InternationalCupPage').then((m) => ({ Component: m.InternationalCupPage })) },
+      { path: '/friendlies', lazy: () => import('../features/friendlies/FriendliesPage').then((m) => ({ Component: m.FriendliesPage })) },
+      { path: '/friendlies/:id', lazy: () => import('../features/friendlies/FriendlyMatchPage').then((m) => ({ Component: m.FriendlyMatchPage })) },
+      { path: '/national-teams', lazy: () => import('../features/nationalteams/NationalTeamsPage').then((m) => ({ Component: m.NationalTeamsPage })) },
+      { path: '/groups', lazy: () => import('../features/groups/GroupsPage').then((m) => ({ Component: m.GroupsPage })) },
+      { path: '/help', lazy: () => import('../features/help/HelpPage').then((m) => ({ Component: m.HelpPage })) },
+      { path: '/admin', lazy: () => import('../features/admin/AdminPage').then((m) => ({ Component: m.AdminPage })) },
+      { path: '/leagues', lazy: () => import('../features/leagues/LeaguesPage').then((m) => ({ Component: m.LeaguesPage })) },
+      { path: '/division/:id', lazy: () => import('../features/division/DivisionDetailsPage').then((m) => ({ Component: m.DivisionDetailsPage })) },
+      { path: '/match/:id', lazy: () => import('../features/match/MatchDetailsPage').then((m) => ({ Component: m.MatchDetailsPage })) },
+      { path: '/team/:id', lazy: () => import('../features/team/TeamDetailsPage').then((m) => ({ Component: m.TeamDetailsPage })) },
+      { path: '/team/:id/matches', lazy: () => import('../features/team/TeamMatchesPage').then((m) => ({ Component: m.TeamMatchesPage })) },
+      { path: '/player/:id', lazy: () => import('../features/player/PlayerDetailsPage').then((m) => ({ Component: m.PlayerDetailsPage })) },
+      { path: '/players/evolutions', lazy: () => import('../features/player/LatestEvolutionsPage').then((m) => ({ Component: m.LatestEvolutionsPage })) },
+      { path: '/search', lazy: () => import('../features/search/SearchPage').then((m) => ({ Component: m.SearchPage })) },
+      { path: '/login', lazy: () => import('../features/auth/LoginPage').then((m) => ({ Component: m.LoginPage })) },
+      { path: '/onboarding', lazy: () => import('../features/onboarding/SelectCountryPage').then((m) => ({ Component: m.SelectCountryPage })) },
       { path: '*', element: <HomePage /> },
     ],
   },
