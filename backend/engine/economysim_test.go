@@ -15,8 +15,8 @@ package engine
 //	ECON_SIM=1 go test ./engine -run TestEconomySimulation -v -count=1
 //
 // Optional env: ECON_SIM_SCENARIOS=baseline,B-socios+tier-wages (comma list, default all),
-// ECON_SIM_SEASONS=40, ECON_SIM_SEED=1. See backend/ECONOMY_SIMULATION.md for what it found and
-// what each scenario means.
+// ECON_SIM_SEASONS=40, ECON_SIM_SEED=1. See openspec/changes/archive/2026-10-19-rebalance-economy-socios/design.md
+// for what it found and what each scenario means.
 
 import (
 	"fmt"

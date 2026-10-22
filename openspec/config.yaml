@@ -1,0 +1,37 @@
+schema: spec-driven
+
+# Project context: constraints an agent cannot infer by reading the code. Codebase orientation
+# lives in ARCHITECTURE.md; how the game behaves lives in openspec/specs/.
+context: |
+  Striker is a browser football-management game: a Go/Gin API plus a background engine
+  (backend/, Postgres + Redis) and a React/TypeScript/Vite client (frontend/).
+  Write every artifact in English.
+  openspec/specs/ is the single source of truth for game behavior (it replaced GAME_MECHANICS.md
+  and ECONOMY_ROADMAP.md). Specs state behavior and exact numbers; each ends with a "Code map"
+  section naming the files and functions to open. Keep both in sync with the code.
+  Hard rules from ARCHITECTURE.md that every design must respect:
+  - Schema changes are a new, re-runnable resources/sql/initN_*.sql migration (IF NOT EXISTS,
+    guarded UPDATEs); never edit init.sql or files under resources/sql/history/.
+  - SQL is a named `const ...StmtSql` string plus a small Go wrapper; no ORM or query builder.
+  - Money moves only through common.AdjustTeamBudget with a TRANSACTION_* reason; transfer-like
+    operations lock rows FOR UPDATE, validate inside the lock, write both ledger rows, commit,
+    then notify best-effort.
+  - The engine may run as several replicas: check-then-act jobs need an advisory lock.
+  - Nothing a team owner can see outside a match page (results, injuries, skill changes,
+    notifications) may become visible before that match's live replay finishes.
+  - CPU (AI) teams act only through the same production functions and validation a human uses.
+  - Every user-facing string is i18n'd in frontend/src/i18n/locales/{en,es}.json; a new
+    notification also needs its Spanish template in backend/common/notificationtranslations.go.
+  - Economy changes are checked with `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v`.
+
+rules:
+  proposal:
+    - State what is out of scope and any open question the owner must decide
+  specs:
+    - Keep each requirement body under 500 characters; put formulas and examples in scenarios
+    - Give exact constants (probabilities, amounts, thresholds) rather than vague wording
+  design:
+    - Name the migration file, the TRANSACTION_* reasons and the notification keys a change adds
+  tasks:
+    - Include updating the affected specs' Code map and the en/es locale files when relevant
+    - End with backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`

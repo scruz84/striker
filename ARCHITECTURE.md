@@ -152,8 +152,8 @@ academy (cantera)" sections for the full detail. Skill drift itself, though, is 
 that season-end pass: it's triggered match-by-match instead, right after each match a player
 features in - league, cup, or friendly alike (`engine.updatePlayerSkillsAfterMatch`, called from
 `engine.updateSkillsAfterPlayedMatch` in `engine.simulateMatch`, `engine/cups.go`'s
-`simulateCupTie`, and `engine/friendlies.go`'s `simulateFriendly`) - see GAME_MECHANICS.md's
-"Player skill progression" for the full detail. The short version of what's still true either way,
+`simulateCupTie`, and `engine/friendlies.go`'s `simulateFriendly`) - see
+`openspec/specs/player-development` for the full detail. The short version of what's still true either way,
 since it's easy to get wrong when touching any one piece in isolation:
 
 - **Skills drift with age**, not indefinitely: young players trend up, prime-age players hold

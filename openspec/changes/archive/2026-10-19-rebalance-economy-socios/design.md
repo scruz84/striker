@@ -1,5 +1,11 @@
 # Economy audit: simulation and rebalancing plan
 
+> **Archived.** Implemented as scenario B (socios-driven attendance plus a division wage factor)
+> in `5f2f17a` (scruz84/striker#264). The resulting behavior lives in `openspec/specs/socios`,
+> `openspec/specs/team-finances` and `openspec/specs/cpu-team-management`. This document is kept
+> as the record of why; file names below are as planned at the time (the socios migration shipped
+> as `init80_socios.sql`, not `init78`).
+
 Written after the suspicion that "there is more income than expenses" in the game. This documents
 what a simulation of the *current* code says, why, and a plan to fix it within these constraints
 from the game's owner:

@@ -1602,7 +1602,7 @@ const GetNationalTeamNameStmtSql = "SELECT name FROM teams WHERE team_id = $1 AN
 // GetPlayersByBirthCountry) - the same pool a weekly friendly's lineup is picked from - redacted
 // the same way any other team's squad is for a visitor (GetTeamDetailsById's own !isOwner branch).
 // There's deliberately no coach: a national team has no manager to hire one (see
-// GAME_MECHANICS.md's "National team friendlies" section), so the frontend simply never shows a
+// openspec/specs/national-teams), so the frontend simply never shows a
 // CoachCard for it, the same way it already doesn't for any team that isn't the caller's own.
 func getNationalTeamDetails(dbCtx *DatabaseContext, teamId int64, country string) (*TeamDetails, error) {
 	var name string

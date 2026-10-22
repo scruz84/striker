@@ -4,7 +4,7 @@
 -- static number - see engine/fanbase.go (driftFanbaseForResult/driftFanbaseTierPull, called from
 -- engine.UpdateTeamFinancesAfterMatch) - and feeds a multiplier into matchday attendance
 -- (engine/stadium.go's fanbaseAttendanceFactor), sponsorship, and season tickets/merchandising
--- (engine.fanbaseCommercialFactor). See GAME_MECHANICS.md's "Fanbase" section.
+-- (engine.fanbaseCommercialFactor). See openspec/specs/fanbase.
 --
 -- DEFAULT 50 is common.DefaultFanbase, the same neutral-midpoint convention common.DefaultForm
 -- uses for a 0-99 attribute with no real history to derive a starting value from - every

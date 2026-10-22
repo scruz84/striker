@@ -139,7 +139,7 @@ func IsPlayerLoanListed(dbCtx *DatabaseContext, playerId int64) (bool, error) {
 }
 
 // CreateLoanListing offers a player out on loan for durationSeasons, with three independent,
-// all-optional economic terms (see ECONOMY_ROADMAP.md's Phase 4 "loan money" item): loanFee (a
+// all-optional economic terms (see openspec/specs/team-finances, "Loan money"): loanFee (a
 // one-time fee the borrower pays when the loan is accepted - zero means free, the original
 // behavior), wageContributionPercent (how much of the wage the lender keeps covering for the
 // loan's duration - zero means the borrower pays it all, same as before), and buyOptionFee (a

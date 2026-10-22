@@ -1,0 +1,82 @@
+# socios Specification
+
+## Purpose
+
+Club members (socios) are the paying core of a home crowd: demand comes from members, not seats.
+This covers how many people come to a home match, how socios grow or shrink each season, and the
+revenue-maximising ticket price.
+
+## Requirements
+
+### Requirement: Socios count
+Every team SHALL have a socios count, starting at 500, shown on the owner's finance page next to Fanbase.
+
+#### Scenario: New team
+- **WHEN** a team is created
+- **THEN** it has 500 socios
+
+### Requirement: Attendance model
+A home match's crowd SHALL be `min(capacity, socios × price × form × rival × weather × noise)`, never negative. There is no minimum occupancy.
+
+#### Scenario: Default price, neutral conditions
+- **WHEN** a team with 500 socios charges 10 in cloudy weather with neutral form against a Fanbase-50 visitor
+- **THEN** about 500 attend (± 10% noise)
+
+#### Scenario: Capacity cap
+- **WHEN** demand exceeds the stadium's capacity
+- **THEN** attendance equals capacity
+
+### Requirement: Attendance factors
+The factors SHALL be: price `1 − (price − 10) / 30` clamped to [0, 1.3]; form `0.8 + 0.4 × points in the last 5 league matches / 15` (1.0 without history); rival `0.85 + 0.30 × visitor Fanbase / 99`, × (1 + 0.1 × cup round); weather sunny 1.05, cloudy 1.0, windy 0.92, rain 0.82; noise ±10%.
+
+#### Scenario: Price 40
+- **WHEN** a team charges 40 or more
+- **THEN** nobody attends
+
+#### Scenario: Five straight wins
+- **WHEN** the home side won its last five league matches
+- **THEN** the form factor is 1.2
+
+#### Scenario: Cup round 2
+- **WHEN** a cup tie in round 2 is played
+- **THEN** the rival factor is multiplied by 1.2
+
+### Requirement: Weather drawn once
+The weather SHALL be drawn once per league match and used both for attendance and the match report.
+
+#### Scenario: Rainy match
+- **WHEN** a match's weather is rain
+- **THEN** the report shows rain and attendance used ×0.82
+
+### Requirement: Optimal ticket price
+The optimal price SHALL be the integer price from 1 to 100 that maximises expected `price × min(capacity, demand)` against an average visitor in average weather, ties going to the lower price.
+
+#### Scenario: Demand below capacity
+- **WHEN** a club's socios cannot fill its ground
+- **THEN** the optimal price is moderate (around 20)
+
+#### Scenario: Demand above capacity
+- **WHEN** a club's socios exceed its ground
+- **THEN** the optimal price is the one that just fills it
+
+### Requirement: Season-end socios drift
+At each season rollover a team's socios SHALL close 30% of the gap to `2.2 × Fanbase^1.5 × position factor`, the position factor running from 1.10 for the champion to 0.90 for last; the result is rounded and at least 1.
+
+#### Scenario: Big tier-1 club
+- **WHEN** a Fanbase-80 champion has 1,000 socios
+- **THEN** its target is about 1,730 and it ends the rollover with about 1,219
+
+### Requirement: Socios notification
+The owner SHALL be notified (`NOTIFICATION_FANBASE`, keys `sociosGrew`/`sociosShrank`) when socios change by at least 5% at season end. Unowned teams get no notification.
+
+#### Scenario: Small change
+- **WHEN** socios move from 500 to 510
+- **THEN** no notification is sent
+
+## Code map
+
+- Attendance and price: `backend/engine/stadium.go` (`CalculateAttendance`, `priceFactor`,
+  `formFactor`, `rivalFactor`, `weatherFactor`, `optimalTicketPrice`).
+- Drift: `engine/socios.go` (`sociosTarget`, `driftSocios`, `updateSociosAtSeasonEnd`), called
+  from `awardSeasonTicketsAndMerchandising`; storage `common/socios.go`.
+- Initial backfill for existing teams: `resources/sql/init80_socios.sql`.

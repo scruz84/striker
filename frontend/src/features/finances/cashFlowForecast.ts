@@ -20,7 +20,7 @@ export interface CashFlowForecast {
 }
 
 // computeCashFlowForecast estimates a team's ongoing weekly cash flow from its recent transaction
-// history alone (see ECONOMY_ROADMAP.md Phase 5) - no separate wage-bill/attendance endpoint
+// history alone (see openspec/specs/team-finances, "Financial planning tools") - no separate wage-bill/attendance endpoint
 // needed, since the numbers those would return are already implicit in the transactions
 // PayMatchdayWages/creditTicketRevenue/awardSponsorship already write.
 //

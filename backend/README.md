@@ -339,7 +339,7 @@ good their coaching is (`engine.driftSkill`). Each relevant skill's chance of ac
 that match scales with minutes played in it, up to `engine.MatchSkillGrowthMinutesReference` (900
 - the same 10-full-matches budget a season-end drift used to spend all at once, just spread out
 match by match now, so a single game rarely moves more than a skill or two). See
-GAME_MECHANICS.md's "Player skill progression" for the full mechanism. On top of that,
+`openspec/specs/player-development` for the full mechanism. On top of that,
 `engine.ShouldRetire` forces every player out of the game eventually regardless of skill: never
 below 33, a rising chance each year after that, and always by 40 - that part is still checked
 once a season, in `engine.ProgressPlayers`.

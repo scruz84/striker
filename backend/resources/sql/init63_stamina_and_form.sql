@@ -1,5 +1,5 @@
--- Adds the two new per-player attributes described in GAME_MECHANICS.md's "Player skill
--- progression" section: stamina (how well a player holds up physically within a single match,
+-- Adds the two new per-player attributes described in openspec/specs/player-development
+-- (Stamina and Form): stamina (how well a player holds up physically within a single match,
 -- read every simulated minute by engine.StaminaSimulation) and form (a slower-moving measure of
 -- recent performances, read once per match by common.ComputeMatchRatings). Both default to 50 -
 -- the same mid-point neutral value doCreatePlayers/InjectFreeAgents now seed a brand-new player

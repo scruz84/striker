@@ -675,8 +675,8 @@ function OfferLoanDialog({ open, onClose, players }: { open: boolean; onClose: (
   )
 }
 
-// A compact read of a loan listing's optional economic terms (ECONOMY_ROADMAP.md's Phase 4
-// "loan money" item) - "free" when none were set (the original, still-default behavior), each
+// A compact read of a loan listing's optional economic terms (openspec/specs/team-finances,
+// "Loan money") - "free" when none were set (the original, still-default behavior), each
 // present term on its own line otherwise.
 function LoanTermsSummary({ listing }: { listing: LoanListing }) {
   const { t } = useTranslation()
@@ -1073,8 +1073,8 @@ function OffersTab() {
   )
 }
 
-// Groups offers received on your own players by player (ECONOMY_ROADMAP.md's Phase 4
-// "auction/bidding" item) - GetOffersReceived already returns every pending offer from every
+// Groups offers received on your own players by player (openspec/specs/team-finances,
+// "Transfers") - GetOffersReceived already returns every pending offer from every
 // interested buyer, each at most one per team (backend enforces that uniquely); this is purely
 // how they're laid out, so a seller comparing bids for the same player sees them side by side
 // instead of interleaved by date with every other player's offers. Sorted by amount desc within

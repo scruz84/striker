@@ -16,6 +16,17 @@ See `HOWTO_RUN.md` for concrete run instructions (Docker quick start, env vars, 
 Docker, and pointing at a Postgres/Redis that already run elsewhere), and `ARCHITECTURE.md` for
 an orientation to how the codebase is put together.
 
+## Specs (OpenSpec)
+
+How the game behaves - match simulation, player development, the economy, CPU teams, national
+teams and the World Cup - is specified in `openspec/specs/`, one folder per capability, each
+ending with a code map of the files to open. New features go through
+[OpenSpec](https://openspec.dev): `/opsx:explore` to think a change through, `/opsx:propose
+<name>` to write its proposal, spec deltas and tasks under `openspec/changes/`, `/opsx:apply` to
+implement it, and `/opsx:archive` to fold the deltas back into `openspec/specs/`. Install the CLI
+with `npm install -g @fission-ai/openspec@1.14.3` (cloud sessions do it automatically through
+`.claude/hooks/session-start.sh`) and check everything with `openspec validate --all --strict`.
+
 ## What's implemented
 
 - Match simulation: minute-by-minute engine covering goals, yellow/red cards, and injuries, run
