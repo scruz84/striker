@@ -89,9 +89,9 @@ const SetCupTiePlayedStmtSql = "UPDATE cup_ties SET played = true, in_simulation
 	"went_to_penalties = $3, winner_team_id = $4 WHERE tie_id = $5"
 
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
-const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals " +
+const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
 	"FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC"
 
 // CreateCup starts a new single-elimination cup for a country's season.
@@ -322,7 +322,7 @@ func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoa
 		teamPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
 		teamPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
 		if _, err := insertEvent.Exec(tieId, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals); err != nil {
+			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece); err != nil {
 			return err
 		}
 	}
@@ -547,7 +547,7 @@ func GetCupTieEvents(dbCtx *DatabaseContext, tieId int64) ([]Event, error) {
 		var e Event
 		var teamPlayers, teamPlayerNames string
 		if err := rows.Scan(&e.EventType, &e.TeamOwner, &e.OtherTeam, &e.Minute, &teamPlayers, &teamPlayerNames,
-			&e.HomeGoals, &e.AwayGoals); err != nil {
+			&e.HomeGoals, &e.AwayGoals, &e.SetPiece); err != nil {
 			return nil, err
 		}
 		if teamPlayers != "" {

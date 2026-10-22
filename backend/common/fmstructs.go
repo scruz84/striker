@@ -526,6 +526,10 @@ type Event struct {
 	OtherTeamPlayersNames []string `json:"otherTeamPlayerNames"`
 	HomeGoals             int      `json:"homeGoals"`
 	AwayGoals             int      `json:"awayGoals"`
+	// SetPiece is SET_PIECE_NONE (open play), SET_PIECE_PENALTY or SET_PIECE_DIRECT_FREE_KICK; only
+	// meaningful on GOAL / NO_GOAL events. A set-piece event lists the defending goalkeeper in
+	// OtherTeamPlayers.
+	SetPiece int `json:"setPiece"`
 }
 
 type WeekMatch struct {

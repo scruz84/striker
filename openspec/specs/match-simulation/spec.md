@@ -150,5 +150,12 @@ After a league match the engine SHALL record the result and standings, update fi
 - Stages: `engine/stamina_simulation.go`, `engine/initial_simulation.go` (`blendLine`,
   `ZoneSpillover`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
   `engine/injury_simulation.go` (`bringOnInjuryReplacement`).
+- Set pieces: `engine/scorer_simulation.go` (`classifyChance`, `processSetPiece`,
+  `bestOnPitchOutfielder`, `penaltyConversionProbability`, `freeKickConversionProbability`);
+  `common.Event.SetPiece` and `common.SET_PIECE_*`; persisted in the `set_piece` column of
+  `match_events`, `cup_tie_events` and `friendly_events` (`resources/sql/init82_match_event_set_piece.sql`).
+  Frontend: `utils/matchCommentary.tsx` (set-piece phrasing), `utils/matchGoals.ts` and
+  `features/match/MatchScoreboard.tsx` (`(pen.)` / `(f.k.)` marks), `utils/matchEvents.ts`
+  (a missed penalty always shows in `MatchEventsReport`).
 - Availability: `common.GetUnavailablePlayerIds`/`GetUnavailablePlayerIdsForFriendly`
   (`common/database.go`); substitutions cap `common.MaxScheduledSubstitutions`.

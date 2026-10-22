@@ -1088,7 +1088,33 @@
         "{{team}} can no longer field enough players to continue - the match is abandoned, and {{opponent}} are awarded the win.",
         "With too few players left on the pitch, {{team}}'s match is called off - {{opponent}} take it 3-0.",
         "The referee abandons the match: {{team}} are down to too few players to carry on, and {{opponent}} are awarded a 3-0 win."
+      ],
+      "penaltyGoal": [
+        "PENALTY! {{player}} sends {{keeper}} the wrong way and scores for {{team}}!",
+        "{{player}} steps up and converts the penalty for {{team}} - {{keeper}} had no chance!",
+        "Cool as you like! {{player}} slots the spot-kick past {{keeper}} for {{team}}.",
+        "GOAL from the spot! {{player}} makes no mistake for {{team}}."
+      ],
+      "penaltyMiss": [
+        "PENALTY MISSED! {{keeper}} saves {{player}}'s spot-kick for {{team}}!",
+        "{{player}} steps up for {{team}}... and {{keeper}} keeps it out!",
+        "Disaster from the spot! {{player}}'s penalty for {{team}} is wasted."
+      ],
+      "freeKickGoal": [
+        "WHAT A FREE KICK! {{player}} curls it past {{keeper}} for {{team}}!",
+        "{{player}} strikes the free kick for {{team}} and it's in! {{keeper}} can only watch.",
+        "GOAL! A direct free kick from {{player}} finds the corner for {{team}}!"
+      ],
+      "freeKickMiss": [
+        "{{player}}'s free kick for {{team}} is held by {{keeper}}.",
+        "Free kick for {{team}}! {{player}} strikes it, but it's off target.",
+        "{{player}} tries the direct free kick for {{team}} - {{keeper}} is equal to it!"
       ]
+    },
+    "setPiece": {
+      "penaltyShort": "pen.",
+      "freeKickShort": "f.k.",
+      "theKeeper": "the goalkeeper"
     },
     "positionBattle": {
       "title": "Position battle",

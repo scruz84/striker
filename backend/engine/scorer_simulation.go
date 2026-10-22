@@ -38,6 +38,32 @@ const ProbClearCutEdgeBonus = 0.15 // extra clear-cut chance probability at maxi
 const ClearCutQualityMultiplier = float32(1.6)
 const HalfChanceQualityMultiplier = float32(0.7)
 
+// Set pieces are carved out of the chances the simulator already generates (a share of each side's
+// chances is a penalty or a direct free kick instead of an open-play chance), so the number of
+// chances - and with it the goals per match - barely moves, and the side that dominates midfield
+// also wins more penalties and free kicks, as in real football. Real-world reference: 0.24-0.41
+// penalties per match (~78% long-run conversion), ~0.85 direct free-kick shots per match
+// (~5-6% conversion). At ~12.6 chances per even match: 12.6 x 0.022 = 0.28 penalties and
+// 12.6 x 0.065 = 0.82 free kicks.
+const ProbPenaltyPerChance = 0.022
+const ProbDirectFreeKickPerChance = 0.065
+
+// Penalty conversion is a clamped line, not a logistic: real penalty rates sit in a narrow band, so
+// 0.78 + 0.30 x (taker Shot - keeper GoalKeeper)/99 bounded to [0.60, 0.92] is easy to tune.
+const PenaltyConversionBaseline = 0.78
+const PenaltySkillWeight = 0.30
+const PenaltyConversionMin = 0.60
+const PenaltyConversionMax = 0.92
+
+// Direct free-kick conversion, same shape: 0.06 + 0.10 x (taker value - keeper GoalKeeper)/99
+// bounded to [0.02, 0.15], where the taker value blends Shot and Pass.
+const FreeKickConversionBaseline = 0.06
+const FreeKickSkillWeight = 0.10
+const FreeKickConversionMin = 0.02
+const FreeKickConversionMax = 0.15
+const FreeKickShotWeight = 0.6
+const FreeKickPassWeight = 0.4
+
 // ScorerSimulation calculates initial weights based on players.
 type ScorerSimulation struct {
 	r *rand.Rand
@@ -85,6 +111,10 @@ func flankMidfieldSupport(attackerFlankMidfield float32, defenderCrossedFlankMid
 }
 
 func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *common.MatchSimulation, teamChance int64) {
+	if kind := classifyChance(s.r); kind != common.SET_PIECE_NONE {
+		processSetPiece(s, dbCtx, match, teamChance, kind)
+		return
+	}
 	isRight := false
 	isLeft := false
 	//decide if is right, left or center chance
@@ -172,6 +202,138 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 		OtherTeamPlayers:      nil,
 		HomeGoals:             match.HomeGoals,
 		AwayGoals:             match.AwayGoals,
+	})
+}
+
+// classifyChance decides whether a chance is a penalty, a direct free kick or open play, with one
+// uniform roll: [0, ProbPenaltyPerChance) penalty, the next ProbDirectFreeKickPerChance direct
+// free kick, the rest open play.
+func classifyChance(r *rand.Rand) int {
+	v := r.Float32()
+	if v < ProbPenaltyPerChance {
+		return common.SET_PIECE_PENALTY
+	}
+	if v < ProbPenaltyPerChance+ProbDirectFreeKickPerChance {
+		return common.SET_PIECE_DIRECT_FREE_KICK
+	}
+	return common.SET_PIECE_NONE
+}
+
+// bestOnPitchOutfielder returns the on-pitch outfield player with the highest score (ties go to
+// the lowest player id), or -1 when no outfield player is left. The goalkeeper is excluded; players
+// sent off, injured off or substituted are no longer in byPosition, so they're skipped by
+// construction.
+func bestOnPitchOutfielder(players *map[int64]common.Player, byPosition *map[int][]int64, score func(common.Player) float32) int64 {
+	best := int64(-1)
+	var bestScore float32
+	for position, ids := range *byPosition {
+		if position == common.GOALKEEPER {
+			continue
+		}
+		for _, id := range ids {
+			v := score((*players)[id])
+			if best == -1 || v > bestScore || (v == bestScore && id < best) {
+				best = id
+				bestScore = v
+			}
+		}
+	}
+	return best
+}
+
+func clampProbability(v float32, min float32, max float32) float32 {
+	if v < min {
+		return min
+	}
+	if v > max {
+		return max
+	}
+	return v
+}
+
+// penaltyConversionProbability is the chance a penalty is scored given the taker's Shot and the
+// defending goalkeeper's GoalKeeper skill.
+func penaltyConversionProbability(shot int, goalKeeper int) float32 {
+	p := PenaltyConversionBaseline + PenaltySkillWeight*float32(shot-goalKeeper)/99
+	return clampProbability(p, PenaltyConversionMin, PenaltyConversionMax)
+}
+
+// freeKickTakerValue is how good a player is from a direct free kick: mostly Shot, some Pass.
+func freeKickTakerValue(player common.Player) float32 {
+	return FreeKickShotWeight*float32(player.Shot) + FreeKickPassWeight*float32(player.Pass)
+}
+
+// freeKickConversionProbability is the chance a direct free kick is scored given the taker's
+// freeKickTakerValue and the defending goalkeeper's GoalKeeper skill.
+func freeKickConversionProbability(value float32, goalKeeper int) float32 {
+	p := FreeKickConversionBaseline + FreeKickSkillWeight*(value-float32(goalKeeper))/99
+	return clampProbability(p, FreeKickConversionMin, FreeKickConversionMax)
+}
+
+// processSetPiece resolves a penalty or direct free kick for the side that won the chance. The
+// taker is picked from the on-pitch effective (fatigue-adjusted) players, the outcome is a normal
+// GOAL / NO_GOAL event tagged with the set-piece kind and naming the defending goalkeeper.
+func processSetPiece(s ScorerSimulation, dbCtx *common.DatabaseContext, match *common.MatchSimulation, teamChance int64, kind int) {
+	var players *map[int64]common.Player
+	var byPosition *map[int][]int64
+	var otherTeam int64
+	var goalKeeperId int64
+	var goalKeeper common.Player
+	if teamChance == match.Home {
+		players = match.EffectiveHomePlayers
+		byPosition = match.HomePlayersByPosition
+		otherTeam = match.Away
+		goalKeeperId = (*match.AwayPlayersByPosition)[common.GOALKEEPER][0]
+		goalKeeper = (*match.EffectiveAwayPlayers)[goalKeeperId]
+	} else {
+		players = match.EffectiveAwayPlayers
+		byPosition = match.AwayPlayersByPosition
+		otherTeam = match.Home
+		goalKeeperId = (*match.HomePlayersByPosition)[common.GOALKEEPER][0]
+		goalKeeper = (*match.EffectiveHomePlayers)[goalKeeperId]
+	}
+
+	var taker int64
+	var probSuccess float32
+	if kind == common.SET_PIECE_PENALTY {
+		taker = bestOnPitchOutfielder(players, byPosition, func(p common.Player) float32 { return float32(p.Shot) })
+		if taker == -1 {
+			return
+		}
+		probSuccess = penaltyConversionProbability((*players)[taker].Shot, goalKeeper.GoalKeeper)
+	} else {
+		taker = bestOnPitchOutfielder(players, byPosition, freeKickTakerValue)
+		if taker == -1 {
+			return
+		}
+		probSuccess = freeKickConversionProbability(freeKickTakerValue((*players)[taker]), goalKeeper.GoalKeeper)
+	}
+
+	eventType := common.NO_GOAL
+	if s.r.Float32() < probSuccess {
+		eventType = common.GOAL
+		if teamChance == match.Home {
+			match.HomeGoals++
+		} else {
+			match.AwayGoals++
+		}
+	}
+
+	takerName, _ := GetPlayerFullName(dbCtx, taker)
+	goalKeeperName, _ := GetPlayerFullName(dbCtx, goalKeeperId)
+
+	*match.Events = append(*match.Events, common.Event{
+		EventType:             eventType,
+		Minute:                match.Minute,
+		TeamOwner:             teamChance,
+		TeamOwnerPlayers:      []int64{taker},
+		TeamOwnerPlayersNames: []string{takerName},
+		OtherTeam:             otherTeam,
+		OtherTeamPlayers:      []int64{goalKeeperId},
+		OtherTeamPlayersNames: []string{goalKeeperName},
+		HomeGoals:             match.HomeGoals,
+		AwayGoals:             match.AwayGoals,
+		SetPiece:              kind,
 	})
 }
 

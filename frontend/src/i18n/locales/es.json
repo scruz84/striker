@@ -1088,7 +1088,33 @@
         "{{team}} se queda sin suficientes jugadores para continuar - el partido se suspende y {{opponent}} se lleva la victoria.",
         "Con muy pocos jugadores en el campo, el partido de {{team}} se da por finalizado - {{opponent}} se lo lleva por 3-0.",
         "El árbitro suspende el encuentro: {{team}} se queda con muy pocos jugadores para seguir, y {{opponent}} es declarado ganador por 3-0."
+      ],
+      "penaltyGoal": [
+        "¡PENALTI! {{player}} engaña a {{keeper}} y marca para {{team}}.",
+        "{{player}} se encarga del penalti y lo convierte para {{team}}: ¡{{keeper}} no pudo hacer nada!",
+        "¡Con total frialdad! {{player}} bate a {{keeper}} desde los once metros para {{team}}.",
+        "¡Gol de penalti! {{player}} no falla para {{team}}."
+      ],
+      "penaltyMiss": [
+        "¡PENALTI FALLADO! ¡{{keeper}} detiene el lanzamiento de {{player}} para {{team}}!",
+        "{{player}} lanza para {{team}}... ¡y {{keeper}} lo para!",
+        "¡Desastre desde los once metros! El penalti de {{player}} se pierde para {{team}}."
+      ],
+      "freeKickGoal": [
+        "¡QUÉ GOLAZO DE FALTA! {{player}} la cuela por encima de {{keeper}} para {{team}}.",
+        "{{player}} golpea la falta para {{team}} y ¡es gol! {{keeper}} solo puede mirar.",
+        "¡GOL! La falta directa de {{player}} se cuela en la esquina para {{team}}."
+      ],
+      "freeKickMiss": [
+        "La falta de {{player}} para {{team}} la detiene {{keeper}}.",
+        "¡Falta para {{team}}! {{player}} dispara, pero se va fuera.",
+        "{{player}} prueba la falta directa para {{team}}: ¡{{keeper}} responde!"
       ]
+    },
+    "setPiece": {
+      "penaltyShort": "p.",
+      "freeKickShort": "f.d.",
+      "theKeeper": "el portero"
     },
     "positionBattle": {
       "title": "Duelo por zonas",

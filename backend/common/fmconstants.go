@@ -40,6 +40,15 @@ const SUBSTITUTION = 5
 // short-handed, OtherTeam the side awarded the forfeit win.
 const MATCH_ABANDONED = 6
 
+// Event.SetPiece: how a GOAL / NO_GOAL event came about. A set piece is an attribute of the
+// usual goal event rather than an event type of its own, so every reader that counts
+// event_type = GOAL (top scorers, awards, ratings, scoreboards) keeps counting penalties and
+// direct free kicks without change. Stored as match_events/cup_tie_events/friendly_events.set_piece
+// (default 0, so rows from before init82_match_event_set_piece.sql read as open play).
+const SET_PIECE_NONE = 0
+const SET_PIECE_PENALTY = 1
+const SET_PIECE_DIRECT_FREE_KICK = 2
+
 // player_unavailability.reason
 const UNAVAILABLE_SUSPENSION = 0
 const UNAVAILABLE_INJURY = 1

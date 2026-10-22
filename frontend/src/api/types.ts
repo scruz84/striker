@@ -313,7 +313,15 @@ export interface MatchEvent {
   otherTeamPlayerNames: string[] | null
   homeGoals: number
   awayGoals: number
+  // How a GOAL / NO_GOAL came about (SET_PIECE_*); optional so an old or cached payload without it
+  // reads as open play. A set-piece event lists the defending goalkeeper in otherTeamPlayers.
+  setPiece?: number
 }
+
+// SetPiece values from backend/common/fmconstants.go
+export const SET_PIECE_NONE = 0
+export const SET_PIECE_PENALTY = 1
+export const SET_PIECE_DIRECT_FREE_KICK = 2
 
 // EventType values from backend/common/fmconstants.go
 export const EVENT_TYPE_GOAL = 0

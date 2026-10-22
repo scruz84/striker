@@ -24,7 +24,7 @@ func UpdatePlayedMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulat
 		otherTeamOwnerPlayersJson, _ := json.Marshal(e.OtherTeamPlayers)
 		otherTeamOwnerPlayerNamesJson, _ := json.Marshal(e.OtherTeamPlayersNames)
 		_, err := insertEvent.Exec(match.Id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamOwnerPlayersJson,
-			teamOwnerPlayerNamesJson, otherTeamOwnerPlayersJson, otherTeamOwnerPlayerNamesJson, e.HomeGoals, e.AwayGoals)
+			teamOwnerPlayerNamesJson, otherTeamOwnerPlayersJson, otherTeamOwnerPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece)
 		if err != nil {
 			log.Errorf("error inserting event: %s", err)
 		}

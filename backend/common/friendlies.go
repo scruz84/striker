@@ -588,7 +588,7 @@ func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 
 const SetFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 WHERE match_id = $3"
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
@@ -757,7 +757,7 @@ func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awa
 		teamPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
 		teamPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
 		if _, err := insertEvent.Exec(matchId, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals); err != nil {
+			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece); err != nil {
 			return err
 		}
 	}
@@ -780,7 +780,7 @@ func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awa
 	return nil
 }
 
-const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals " +
+const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
 	"FROM friendly_events WHERE match_id = $1 order by minute asc"
 
 // GetFriendlyEvents reads back a played friendly's events (see SetFriendlyPlayed) - the friendly
@@ -804,8 +804,9 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var teamPlayerNames string
 		var homeGoals int
 		var awayGoals int
+		var setPiece int
 		if err := rows.Scan(&eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&homeGoals, &awayGoals); err != nil {
+			&homeGoals, &awayGoals, &setPiece); err != nil {
 			continue
 		}
 
@@ -816,6 +817,7 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			OtherTeam: otherTeam,
 			HomeGoals: homeGoals,
 			AwayGoals: awayGoals,
+			SetPiece:  setPiece,
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)

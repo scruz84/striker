@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
+import { SET_PIECE_DIRECT_FREE_KICK, SET_PIECE_PENALTY } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import type { ScorerLine } from '../../utils/matchGoals'
@@ -38,11 +39,22 @@ export interface ScoreboardProps {
 }
 
 function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: 'left' | 'right' }) {
+  const { t } = useTranslation()
+  // "16'" for an open-play goal, "16' (pen.)" / "16' (f.k.)" for a penalty / direct free kick.
+  const goalLabel = (goal: ScorerLine['goals'][number]) => {
+    if (goal.setPiece === SET_PIECE_PENALTY) {
+      return `${goal.minute}' (${t('match.setPiece.penaltyShort')})`
+    }
+    if (goal.setPiece === SET_PIECE_DIRECT_FREE_KICK) {
+      return `${goal.minute}' (${t('match.setPiece.freeKickShort')})`
+    }
+    return `${goal.minute}'`
+  }
   return (
     <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0, textAlign: align }}>
       {scorers.map((scorer) => (
         <Typography key={scorer.name} variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>
-          {scorer.name} {scorer.minutes.map((minute) => `${minute}'`).join(' ')}
+          {scorer.name} {scorer.goals.map(goalLabel).join(' ')}
         </Typography>
       ))}
     </Stack>

@@ -17,6 +17,7 @@ import {
 } from '../../api/types'
 import { formatNumber } from '../../utils/formatCurrency'
 import { commentaryFor } from '../../utils/matchCommentary'
+import { isMinorMissedChance } from '../../utils/matchEvents'
 import { TeamBadge } from '../../components/TeamBadge'
 import { matchTeamColors } from '../../utils/teamColors'
 
@@ -114,11 +115,12 @@ export function MatchEventsReport({
   const { t } = useTranslation()
 
   // Missed chances ("¡Qué cerca!...") are most of the narration and bury the goals, cards and
-  // substitutions, so they're hidden until the viewer asks for the full commentary.
+  // substitutions, so they're hidden until the viewer asks for the full commentary - except a
+  // missed penalty, which always shows (see isMissedPenalty).
   const [fullCommentary, setFullCommentary] = useState(false)
   const notable = events.filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType)).sort((a, b) => a.minute - b.minute)
-  const hasMissedChances = notable.some((event) => event.eventType === EVENT_TYPE_NO_GOAL)
-  const visible = fullCommentary ? notable : notable.filter((event) => event.eventType !== EVENT_TYPE_NO_GOAL)
+  const hasMissedChances = notable.some(isMinorMissedChance)
+  const visible = fullCommentary ? notable : notable.filter((event) => !isMinorMissedChance(event))
 
   const hasFlavor = !!(weather && refereeName && assistant1Name && assistant2Name)
 
@@ -164,7 +166,7 @@ export function MatchEventsReport({
             icon={iconFor(event.eventType)}
             teamId={teamId}
             teamName={teamName}
-            emphasized={event.eventType !== EVENT_TYPE_NO_GOAL}
+            emphasized={!isMinorMissedChance(event)}
           />
         )
       })}

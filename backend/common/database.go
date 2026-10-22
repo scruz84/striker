@@ -156,7 +156,7 @@ const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, playe
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals " +
+const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece " +
 	"FROM match_events WHERE match_id = $1 order by minute asc"
 
 const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff" +
@@ -182,8 +182,8 @@ const InsertDefaultFriendlyLineupPositionsStmtSql = "INSERT INTO default_friendl
 const GetDefaultFriendlyLineupStmtSql = "SELECT player_id, position FROM default_friendly_lineup_positions WHERE team_id = $1"
 const DeleteDefaultFriendlyLineupPositionsStmtSql = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
 
-const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
+const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)"
 
 const InsertMatchInstantStmtSql = "" +
 	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
@@ -1401,8 +1401,9 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var otherTeamPlayerNames string
 		var homeGoals int
 		var awayGoals int
+		var setPiece int
 		rows.Scan(&eventId, &matchId, &eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals)
+			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece)
 
 		event := Event{
 			EventType:             eventType,
@@ -1415,6 +1416,7 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			OtherTeamPlayersNames: nil,
 			HomeGoals:             homeGoals,
 			AwayGoals:             awayGoals,
+			SetPiece:              setPiece,
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)

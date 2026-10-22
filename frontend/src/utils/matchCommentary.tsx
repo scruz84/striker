@@ -7,6 +7,8 @@ import {
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
+  SET_PIECE_DIRECT_FREE_KICK,
+  SET_PIECE_PENALTY,
   type MatchEvent,
 } from '../api/types'
 import { PlayerNameLink } from '../components/PlayerNameLink'
@@ -20,6 +22,23 @@ const COMMENTARY_KEYS: Partial<Record<number, string>> = {
   [EVENT_TYPE_INJURY]: 'match.commentary.injury',
   [EVENT_TYPE_SUBSTITUTION]: 'match.commentary.substitution',
   [EVENT_TYPE_MATCH_ABANDONED]: 'match.commentary.abandoned',
+}
+
+// A penalty or direct free kick narrates with its own phrasing; a missing setPiece (old or cached
+// payload) falls through to the open-play key.
+const SET_PIECE_COMMENTARY_KEYS: Partial<Record<number, Partial<Record<number, string>>>> = {
+  [EVENT_TYPE_GOAL]: {
+    [SET_PIECE_PENALTY]: 'match.commentary.penaltyGoal',
+    [SET_PIECE_DIRECT_FREE_KICK]: 'match.commentary.freeKickGoal',
+  },
+  [EVENT_TYPE_NO_GOAL]: {
+    [SET_PIECE_PENALTY]: 'match.commentary.penaltyMiss',
+    [SET_PIECE_DIRECT_FREE_KICK]: 'match.commentary.freeKickMiss',
+  },
+}
+
+function commentaryKey(event: MatchEvent): string | undefined {
+  return SET_PIECE_COMMENTARY_KEYS[event.eventType]?.[event.setPiece ?? 0] ?? COMMENTARY_KEYS[event.eventType]
 }
 
 // Picks a stable index into a list of phrasing variants from a few small integers - the same
@@ -73,7 +92,7 @@ function interpolateNodes(template: string, vars: Record<string, CommentaryVar>)
   })
 }
 
-type Translate = (key: string, options: { returnObjects: true }) => unknown
+type Translate = (key: string, options?: { returnObjects: true }) => unknown
 
 /** Turns one match event into a single radio-commentator-style line, picking one of several
  * i18n-translated phrasings for its event type (see match.commentary.* in the locale files) -
@@ -89,7 +108,7 @@ export function commentaryFor(
   opponentId: number,
   opponentName: string,
 ): ReactNode[] | undefined {
-  const key = COMMENTARY_KEYS[event.eventType]
+  const key = commentaryKey(event)
   if (!key) {
     return undefined
   }
@@ -101,7 +120,7 @@ export function commentaryFor(
 
   const playerIds = event.teamOwnerPlayers ?? []
   const playerNames = event.teamOwnerPlayerNames ?? []
-  const template = variants[pickVariantIndex(variants.length, [event.minute, event.eventType, playerIds[0] ?? 0])] as string
+  const template = variants[pickVariantIndex(variants.length, [event.minute, event.eventType, event.setPiece ?? 0, playerIds[0] ?? 0])] as string
 
   if (event.eventType === EVENT_TYPE_SUBSTITUTION) {
     if (playerNames.length < 2) {
@@ -128,9 +147,17 @@ export function commentaryFor(
   if (!player) {
     return undefined
   }
+  // The defending goalkeeper of a set piece. A cup tie or friendly doesn't store it, so a missing
+  // name reads as "the goalkeeper" instead of leaving a hole in the sentence.
+  const keeperId = event.otherTeamPlayers?.[0]
+  const keeperName = event.otherTeamPlayerNames?.[0]
+  const keeper: CommentaryVar = keeperName
+    ? { text: keeperName, playerId: keeperId }
+    : { text: String(t('match.setPiece.theKeeper')) }
   return interpolateNodes(template, {
     player: { text: player, playerId: playerIds[0] },
     team: { text: teamName, teamId },
     opponent: { text: opponentName, teamId: opponentId },
+    keeper,
   })
 }
