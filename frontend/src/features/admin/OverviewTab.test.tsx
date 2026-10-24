@@ -118,6 +118,7 @@ describe('OverviewTab', () => {
     finishStuckMatches.mockImplementation((_vars: unknown, options: { onSuccess: (r: unknown) => void }) =>
       options.onSuccess({
         resimulated: { leagueMatches: 2, friendlies: 1, cupTies: 0 },
+        released: { leagueMatches: 3, friendlies: 0, cupTies: 1 },
         defaulted: { leagueMatches: 1, friendlies: 0, cupTies: 1 },
         stillFailing: { leagueMatches: 0, friendlies: 1, cupTies: 0 },
       }),
@@ -128,7 +129,7 @@ describe('OverviewTab', () => {
     await waitFor(() => expect(finishStuckMatches).toHaveBeenCalledTimes(1))
     expect(confirm).toHaveBeenCalledTimes(1)
     expect(notify.success).toHaveBeenCalledWith(
-      i18n.t('admin.actions.finishStuckMatchesSuccess', { resimulated: 3, defaulted: 2, stillFailing: 1 }),
+      i18n.t('admin.actions.finishStuckMatchesSuccess', { resimulated: 3, released: 4, defaulted: 2, stillFailing: 1 }),
     )
   })
 

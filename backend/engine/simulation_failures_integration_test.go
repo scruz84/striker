@@ -413,6 +413,92 @@ func TestSettleDefaultResults_ConcurrentReplicasSettleOnce(t *testing.T) {
 	}
 }
 
+// A fixture that used its 3 attempts and was then re-dated to a later kickoff (e.g. by
+// RescheduleUnplayedMatches) is neither simulable nor due for the default result, so the recovery
+// pass and the admin action used to skip it silently while the overview kept counting it. It gets
+// its attempts back instead, drops out of the overview, and is simulated normally at its new
+// kickoff. A fixture kicking off within the next 15 minutes, or claimed seconds ago, is left as it is.
+func TestReleaseRedatedFixtures_ExhaustedFixtureRedatedToLaterKickoff(t *testing.T) {
+	e := newSimEnv(t, "zsa")
+	// Stuck under its old date long enough to use its attempts, then rescheduled two days ahead.
+	claimed := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id,
+			in_simulation, in_simulation_since, simulation_attempts, last_simulation_attempt_at)
+		VALUES ($1, 1, 1, now() + interval '2 days', $2, $3, true, now() - interval '2 hours', 3, now() - interval '2 hours') RETURNING match_id`,
+		e.league, e.home, e.away)
+	failed := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id,
+			simulation_attempts, last_simulation_error, last_simulation_attempt_at)
+		VALUES ($1, 1, 2, now() + interval '2 days', $2, $3, 3, 'boom', now() - interval '2 hours') RETURNING match_id`,
+		e.league, e.home, e.away)
+	soon := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id,
+			simulation_attempts, last_simulation_error, last_simulation_attempt_at)
+		VALUES ($1, 1, 3, now() + interval '5 minutes', $2, $3, 3, 'boom', now() - interval '2 hours') RETURNING match_id`,
+		e.league, e.home, e.away)
+	live := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id,
+			in_simulation, in_simulation_since, simulation_attempts)
+		VALUES ($1, 1, 4, now() + interval '2 days', $2, $3, true, now(), 3) RETURNING match_id`,
+		e.league, e.home, e.away)
+	friendly := e.scan(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date, simulation_attempts, last_simulation_error)
+		VALUES ($1, $2, now() + interval '2 days', 3, 'boom') RETURNING match_id`, e.home, e.away)
+	_, tie := e.cupTie(3)
+	e.exec(`UPDATE cup_ties SET match_date = now() + interval '2 days', last_simulation_error = 'boom' WHERE tie_id = $1`, tie)
+
+	// Without the release, nothing else would ever take these fixtures before their kickoff.
+	SettleDefaultResults(e.dbCtx)
+	FinishStuckSimulations(e.dbCtx)
+	if played := e.scan(`SELECT count(*) FROM matches WHERE match_id IN ($1, $2, $3, $4) AND played`, claimed, failed, soon, live) +
+		e.scan(`SELECT count(*) FROM friendly_matches WHERE match_id = $1 AND played`, friendly) +
+		e.scan(`SELECT count(*) FROM cup_ties WHERE tie_id = $1 AND played`, tie); played != 0 {
+		t.Fatalf("%d fixtures kicking off later were played or settled before the release", played)
+	}
+
+	// The test database is shared, so the counts cover other tests' fixtures too.
+	released := ReleaseRedatedFixtures(e.dbCtx)
+	if released.LeagueMatches < 2 || released.Friendlies < 1 || released.CupTies < 1 {
+		t.Fatalf("released %+v, want at least 2 league matches, 1 friendly and 1 cup tie", released)
+	}
+	for _, matchId := range []int64{claimed, failed} {
+		if ok := e.scan(`SELECT count(*) FROM matches WHERE match_id = $1 AND NOT played AND NOT in_simulation
+				AND simulation_attempts = 0 AND last_simulation_error IS NULL AND last_simulation_attempt_at IS NULL`, matchId); ok != 1 {
+			t.Errorf("match %d was not given its attempts back", matchId)
+		}
+	}
+	for _, matchId := range []int64{soon, live} {
+		if attempts := e.scan(`SELECT simulation_attempts FROM matches WHERE match_id = $1`, matchId); attempts != 3 {
+			t.Errorf("match %d has %d attempts, want it left at 3", matchId, attempts)
+		}
+	}
+	if attempts := e.scan(`SELECT simulation_attempts FROM friendly_matches WHERE match_id = $1`, friendly); attempts != 0 {
+		t.Errorf("friendly has %d attempts, want 0", attempts)
+	}
+	if attempts := e.scan(`SELECT simulation_attempts FROM cup_ties WHERE tie_id = $1`, tie); attempts != 0 {
+		t.Errorf("cup tie has %d attempts, want 0", attempts)
+	}
+	// Once its new kickoff arrives it is simulated like any other match.
+	e.exec(`UPDATE matches SET match_date = now() - interval '3 hours' WHERE match_id = $1`, claimed)
+	e.exec(`UPDATE matches SET played = true WHERE match_id IN ($1, $2, $3)`, failed, soon, live)
+	SimulateMatches(e.dbCtx)
+	if played := e.scan(`SELECT count(*) FROM matches WHERE match_id = $1 AND played`, claimed); played != 1 {
+		t.Errorf("the released match was not simulated at its new kickoff")
+	}
+	if events := e.scan(`SELECT count(*) FROM match_events WHERE match_id = $1 AND event_type = $2`, claimed, common.MATCH_DEFAULT_RESULT); events != 0 {
+		t.Errorf("the released match got a default result instead of a simulation")
+	}
+}
+
+// Replicas releasing at once all succeed and leave the fixture released (one statement each, so no
+// replica sees a half-applied release).
+func TestReleaseRedatedFixtures_ConcurrentReplicasReleaseOnce(t *testing.T) {
+	e := newSimEnv(t, "zsb")
+	matchId := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id, simulation_attempts, last_simulation_error)
+		VALUES ($1, 1, 1, now() + interval '2 days', $2, $3, 3, 'boom') RETURNING match_id`, e.league, e.home, e.away)
+
+	runConcurrently(replicas, func() { ReleaseRedatedFixtures(e.dbCtx) })
+
+	if attempts := e.scan(`SELECT simulation_attempts FROM matches WHERE match_id = $1`, matchId); attempts != 0 {
+		t.Errorf("match %d has %d attempts after the release, want 0", matchId, attempts)
+	}
+}
+
 // After the migration seeding, a stuck league match gets exactly one attempt, then is settled by
 // default, and its country's season rollover proceeds.
 func TestStuckMatchAfterMigration_OneAttemptThenDefaultThenRollover(t *testing.T) {

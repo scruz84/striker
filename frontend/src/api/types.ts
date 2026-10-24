@@ -1354,9 +1354,13 @@ export interface SimulationHealth {
 }
 
 // What the "finish stuck matches" action did, per kind of fixture: re-simulated to a result,
-// settled 0-0 after their attempts ran out, and still failing afterwards.
+// released for their later kickoff, settled 0-0 after their attempts ran out, and still failing
+// afterwards.
 export interface FinishStuckMatchesResult {
   resimulated: FixtureKindCounts
+  // Fixtures that had used all their attempts but were re-dated to a later kickoff: they get their
+  // attempts back and are simulated normally at that kickoff.
+  released: FixtureKindCounts
   defaulted: FixtureKindCounts
   stillFailing: FixtureKindCounts
 }

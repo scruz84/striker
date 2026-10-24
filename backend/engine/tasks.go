@@ -264,7 +264,9 @@ func (sj *FinishStuckSimulationsJob) Description() string {
 
 func (sj *FinishStuckSimulationsJob) Execute(context.Context) error {
 	// Fixtures that have used all their attempts are settled 0-0 first, so the re-simulation below
-	// never spends another attempt on them.
+	// never spends another attempt on them - except those re-dated to a kickoff still to come, which
+	// get their attempts back for that new kickoff.
+	ReleaseRedatedFixtures(sj.dbCtx)
 	SettleDefaultResults(sj.dbCtx)
 	result := FinishStuckSimulations(sj.dbCtx)
 	if result.LeagueMatches > 0 || result.Friendlies > 0 || result.CupTies > 0 {

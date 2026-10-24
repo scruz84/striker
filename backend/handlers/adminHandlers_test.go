@@ -10,6 +10,7 @@ import (
 
 func TestBuildFinishStuckMatchesResponse_Shape(t *testing.T) {
 	response := buildFinishStuckMatchesResponse(
+		common.FixtureKindCounts{LeagueMatches: 10, Friendlies: 11, CupTies: 12},
 		engine.DefaultResultsResult{LeagueMatches: 2, Friendlies: 1, CupTies: 3},
 		engine.StuckSimulationsResult{LeagueMatches: 4, Friendlies: 5, CupTies: 6},
 		common.SimulationHealth{FailingCounts: common.FixtureKindCounts{LeagueMatches: 7, Friendlies: 8, CupTies: 9}},
@@ -25,6 +26,7 @@ func TestBuildFinishStuckMatchesResponse_Shape(t *testing.T) {
 	}
 	want := map[string]map[string]int{
 		"resimulated":  {"leagueMatches": 4, "friendlies": 5, "cupTies": 6},
+		"released":     {"leagueMatches": 10, "friendlies": 11, "cupTies": 12},
 		"defaulted":    {"leagueMatches": 2, "friendlies": 1, "cupTies": 3},
 		"stillFailing": {"leagueMatches": 7, "friendlies": 8, "cupTies": 9},
 	}

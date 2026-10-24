@@ -14,6 +14,22 @@ type DefaultResultsResult struct {
 	CupTies       int
 }
 
+// ReleaseRedatedFixtures gives back their simulation attempts to the fixtures that used them all
+// but were then re-dated to a kickoff still to come (see common.ReleaseRedatedFixtures), so they
+// are simulated normally at their new kickoff instead of sitting stuck until then. Callers run it
+// before SettleDefaultResults.
+func ReleaseRedatedFixtures(dbCtx *common.DatabaseContext) common.FixtureKindCounts {
+	released, err := common.ReleaseRedatedFixtures(dbCtx)
+	if err != nil {
+		log.Errorf("error releasing re-dated fixtures that used all their simulation attempts: %s", err)
+	}
+	if released.LeagueMatches+released.Friendlies+released.CupTies > 0 {
+		log.Infof("Released re-dated fixtures for a new simulation at their kickoff: %d league matches, %d friendlies, %d cup ties",
+			released.LeagueMatches, released.Friendlies, released.CupTies)
+	}
+	return released
+}
+
 // SettleDefaultResults settles, as a 0-0 default result, every league match, friendly and cup tie
 // that has used its common.MaxSimulationAttempts attempts without being played and whose kickoff
 // has passed - so one fixture that fails for good can no longer block its country's season

@@ -1245,7 +1245,7 @@
       "confirmRunSimulation": "¿Ejecutar la simulación ahora? Esto simula de inmediato todos los partidos pendientes de todos los usuarios.",
       "finishStuckMatches": "Finalizar partidos atascados ({{count}})",
       "confirmFinishStuckMatches": "¿Finalizar los {{count}} partido(s) atascados o que fallan al simularse? Esto los vuelve a simular de inmediato, y cierra con un 0-0 por defecto los que ya han agotado sus 3 intentos.",
-      "finishStuckMatchesSuccess": "Se volvieron a simular {{resimulated}}, {{defaulted}} se cerraron con un 0-0 por defecto y {{stillFailing}} siguen fallando.",
+      "finishStuckMatchesSuccess": "Se volvieron a simular {{resimulated}}, {{defaulted}} se cerraron con un 0-0 por defecto, se liberaron {{released}} reprogramados a una fecha posterior (se jugarán entonces) y {{stillFailing}} siguen fallando.",
       "checkSeasonAdvance": "Comprobar avance de temporada",
       "confirmCheckSeasonAdvance": "¿Comprobar el avance de temporada ahora? Si la temporada está lista, esto la avanza de inmediato para todos los usuarios.",
       "payWagesNow": "Pagar salarios ahora",

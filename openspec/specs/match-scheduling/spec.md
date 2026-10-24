@@ -153,7 +153,9 @@ The spoiler-gated post-match effects (availability countdown and new injuries an
   `MaxSimulationAttempts`, `SimulationRetryBackoff`, `IsConnectionError`); columns
   `simulation_attempts`, `last_simulation_error` and `last_simulation_attempt_at`
   (`resources/sql/init86_simulation_failures.sql`). Default 0-0: `engine.SettleDefaultResults`
-  (`engine/defaultresults.go`), run first by `FinishStuckSimulationsJob`.
+  (`engine/defaultresults.go`), run first by `FinishStuckSimulationsJob`, after
+  `engine.ReleaseRedatedFixtures` (`common.ReleaseRedatedFixtures`, `RedatedFixtureMargin` in
+  `common/defaultresults.go`) gives back their attempts to exhausted fixtures re-dated to a later kickoff.
 - Durable post-match effects: table `pending_post_match_effects` (same migration), written by
   `common.Save*ResultTx`, claimed with `DELETE ... RETURNING` by `engine.completePostMatchEffects`
   (the replay's `onComplete`) and drained by `engine.ApplyDuePostMatchEffects` from

@@ -130,20 +130,23 @@ func AdminSimulateNowHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 }
 
 // finishStuckMatchesResponse reports, per kind of fixture, what the admin action did: how many
-// fixtures it re-simulated to a result, how many it settled 0-0 after their attempts ran out, and
-// how many are still failing afterwards.
+// fixtures it re-simulated to a result, how many it settled 0-0 after their attempts ran out, how
+// many it released for a new simulation at the later kickoff they were re-dated to, and how many
+// are still failing afterwards.
 type finishStuckMatchesResponse struct {
 	Resimulated  common.FixtureKindCounts `json:"resimulated"`
+	Released     common.FixtureKindCounts `json:"released"`
 	Defaulted    common.FixtureKindCounts `json:"defaulted"`
 	StillFailing common.FixtureKindCounts `json:"stillFailing"`
 }
 
-func buildFinishStuckMatchesResponse(defaulted engine.DefaultResultsResult, resimulated engine.StuckSimulationsResult,
-	health common.SimulationHealth) finishStuckMatchesResponse {
+func buildFinishStuckMatchesResponse(released common.FixtureKindCounts, defaulted engine.DefaultResultsResult,
+	resimulated engine.StuckSimulationsResult, health common.SimulationHealth) finishStuckMatchesResponse {
 	return finishStuckMatchesResponse{
 		Resimulated: common.FixtureKindCounts{
 			LeagueMatches: resimulated.LeagueMatches, Friendlies: resimulated.Friendlies, CupTies: resimulated.CupTies,
 		},
+		Released: released,
 		Defaulted: common.FixtureKindCounts{
 			LeagueMatches: defaulted.LeagueMatches, Friendlies: defaulted.Friendlies, CupTies: defaulted.CupTies,
 		},
@@ -151,9 +154,10 @@ func buildFinishStuckMatchesResponse(defaulted engine.DefaultResultsResult, resi
 	}
 }
 
-// AdminFinishStuckMatchesHandler clears what is holding up unplayed fixtures: it first settles
-// 0-0 every league match, friendly and cup tie that has used all its simulation attempts (see
-// engine.SettleDefaultResults), then re-simulates the rest - league matches and friendlies a
+// AdminFinishStuckMatchesHandler clears what is holding up unplayed fixtures: it first gives back
+// their attempts to fixtures that used them all but were re-dated to a kickoff still to come (see
+// engine.ReleaseRedatedFixtures), settles 0-0 every other league match, friendly and cup tie that
+// has used all its simulation attempts (see engine.SettleDefaultResults), then re-simulates the rest - league matches and friendlies a
 // simulation pass claimed but never finished (only rows claimed at least common.StuckSimulationAge
 // ago, so a match a live pass is working on right now is never played twice) and due cup ties past
 // their retry backoff. The engine also runs this every 15 minutes (see
@@ -161,6 +165,7 @@ func buildFinishStuckMatchesResponse(defaulted engine.DefaultResultsResult, resi
 func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered stuck match recovery")
+		released := engine.ReleaseRedatedFixtures(dbCtx)
 		defaulted := engine.SettleDefaultResults(dbCtx)
 		resimulated := engine.FinishStuckSimulations(dbCtx)
 		health, err := common.GetSimulationHealth(dbCtx)
@@ -168,7 +173,7 @@ func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFu
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		c.JSON(http.StatusOK, buildFinishStuckMatchesResponse(defaulted, resimulated, health))
+		c.JSON(http.StatusOK, buildFinishStuckMatchesResponse(released, defaulted, resimulated, health))
 	}
 }
 

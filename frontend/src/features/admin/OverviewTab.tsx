@@ -75,6 +75,7 @@ function useFinishStuckMatches(stuckMatches: number): FinishStuckMatches {
           notify.success(
             t('admin.actions.finishStuckMatchesSuccess', {
               resimulated: totalOf(result.resimulated),
+              released: totalOf(result.released),
               defaulted: totalOf(result.defaulted),
               stillFailing: totalOf(result.stillFailing),
             }),

@@ -87,3 +87,59 @@ func GetCupTiesForDefault(dbCtx *DatabaseContext) ([]CupTie, error) {
 	}
 	return ties, rows.Err()
 }
+
+// The statements below give a fixture back its attempts when it has used them all but its kickoff
+// is still more than RedatedFixtureMargin away - it was re-dated after failing (e.g. by
+// engine.RescheduleUnplayedMatches, which moves every unplayed match). Neither the selectors
+// (attempts left) nor the default result (kickoff passed) would ever take such a fixture, so it
+// sat in the admin overview as stuck or failing with nothing able to clear it. Released, it is
+// simulated normally at its new kickoff and settled 0-0 only if it fails 3 more times after that.
+// A live claim (younger than $1 seconds) is left alone. Each is one statement, so several replicas
+// running it at once release each fixture once.
+
+// RedatedFixtureMargin is how far ahead a fixture's kickoff must be for its used-up attempts to
+// count as belonging to an earlier date: a fixture is claimed at most 15 minutes before kickoff
+// (see GetSimulableMatchesStmtSql), so on its current date it cannot have used any attempt yet.
+const RedatedFixtureMargin = 15 * time.Minute
+
+const releaseRedatedSetSql = "in_simulation = false, simulation_attempts = 0, last_simulation_error = NULL, last_simulation_attempt_at = NULL "
+
+const releaseRedatedLeagueMatchesStmtSql = "UPDATE matches SET " + releaseRedatedSetSql +
+	"WHERE played = false AND " + simulationAttemptsUsedSql + " AND match_date > now() + ($2 * interval '1 second') " +
+	"AND (in_simulation = false OR in_simulation_since IS NULL OR in_simulation_since <= now() - ($1 * interval '1 second'))"
+
+const releaseRedatedFriendliesStmtSql = "UPDATE friendly_matches SET " + releaseRedatedSetSql +
+	"WHERE played = false AND " + simulationAttemptsUsedSql + " AND match_date > now() + ($2 * interval '1 second') " +
+	"AND (in_simulation = false OR in_simulation_since IS NULL OR in_simulation_since <= now() - ($1 * interval '1 second'))"
+
+// A cup tie has no claim of its own (see GetCupTiesForDefault), so there is no live claim to skip.
+const releaseRedatedCupTiesStmtSql = "UPDATE cup_ties SET " + releaseRedatedSetSql +
+	"WHERE played = false AND " + simulationAttemptsUsedSql + " AND match_date > now() + ($1 * interval '1 second')"
+
+// ReleaseRedatedFixtures gives back their attempts to every unplayed league match, friendly and cup
+// tie that has used them all but kicks off more than RedatedFixtureMargin from now, and returns how
+// many of each it released.
+func ReleaseRedatedFixtures(dbCtx *DatabaseContext) (FixtureKindCounts, error) {
+	var counts FixtureKindCounts
+	margin, claimAge := RedatedFixtureMargin.Seconds(), StuckSimulationAge.Seconds()
+	for _, release := range []struct {
+		count *int
+		stmt  string
+		args  []any
+	}{
+		{&counts.LeagueMatches, releaseRedatedLeagueMatchesStmtSql, []any{claimAge, margin}},
+		{&counts.Friendlies, releaseRedatedFriendliesStmtSql, []any{claimAge, margin}},
+		{&counts.CupTies, releaseRedatedCupTiesStmtSql, []any{margin}},
+	} {
+		result, err := dbCtx.Db.Exec(release.stmt, release.args...)
+		if err != nil {
+			return counts, err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return counts, err
+		}
+		*release.count = int(affected)
+	}
+	return counts, nil
+}

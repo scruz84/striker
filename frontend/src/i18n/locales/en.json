@@ -1245,7 +1245,7 @@
       "confirmRunSimulation": "Run the simulation pass now? This immediately simulates every due match for all users.",
       "finishStuckMatches": "Finish stuck matches ({{count}})",
       "confirmFinishStuckMatches": "Finish the {{count}} match(es) that are stuck or failing to simulate? This immediately re-simulates them, and settles as a 0-0 draw any that has already used all 3 attempts.",
-      "finishStuckMatchesSuccess": "Re-simulated {{resimulated}}, settled {{defaulted}} as 0-0 by default, {{stillFailing}} still failing.",
+      "finishStuckMatchesSuccess": "Re-simulated {{resimulated}}, settled {{defaulted}} as 0-0 by default, released {{released}} re-dated to a later kickoff (they will be played then), {{stillFailing}} still failing.",
       "checkSeasonAdvance": "Check season advance",
       "confirmCheckSeasonAdvance": "Check for season advance now? If the season is ready, this immediately rolls it over for every user.",
       "payWagesNow": "Pay wages now",
