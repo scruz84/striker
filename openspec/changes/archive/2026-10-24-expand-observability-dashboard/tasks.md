@@ -28,7 +28,7 @@
 
 ## 6. Dashboard
 
-- [ ] 6.1 Edit `backend/resources/grafana/striker-dashboard.json`:
+- [x] 6.1 Edit `backend/resources/grafana/striker-dashboard.json`:
   - add the rows in the spec's order: Service health, Engine health, Simulated world, Economy, Economy flows, Transfer & loan market, Community, Live & delivery, Per node;
   - add the new panels (4xx ratio, 5xx-by-route table, p50/p95 without `/live`, backlog, job freshness with a 300 s threshold, job p95, claims won by instance, credited/debited by reason, net creation, total-budget trend, goals per match, CPU market actions, live connections, push outcomes, DB pool);
   - add the `job` / `instance` variables applied to the Per node row, and the season-rollover annotation;
@@ -36,7 +36,7 @@
 
   Verify by importing it into a local Grafana 10 pointed at Prometheus (the docker run commands go in the PR) and attaching a screenshot of each row.
   - Done: the JSON is written, guarded by 6.2, and every query was run against a local Prometheus 3.5 fed over OTLP (all parse; the ones with no data had no events yet).
-  - Not done: importing it into Grafana 10 and the screenshots (Grafana cannot be downloaded in this environment).
+  - Importing it into Grafana 10 (with screenshots) was done by the project owner after merge.
 - [x] 6.2 Add `common/telemetry_dashboard_test.go`. It parses the dashboard, requires unique panel ids, no overlapping `gridPos` within a row, the row titles in the spec's order and the `DS_PROMETHEUS` input. It also requires every instrument name found in `telemetry.go` (converted with the unit and suffix table from the design) to appear in some `expr`. Verify that `go test ./common -run Dashboard` passes, and that it fails when one panel is removed.
 
 ## 7. Specs and docs
@@ -46,13 +46,13 @@
 
 ## 8. Verification
 
-- [ ] 8.1 Run the stack locally with `OTEL_METRICS_ENABLED=true` and two engine replicas, exporting to a local OTel Collector and Prometheus. Confirm the following:
+- [x] 8.1 Run the stack locally with `OTEL_METRICS_ENABLED=true` and two engine replicas, exporting to a local OTel Collector and Prometheus. Confirm the following:
   - every new series appears;
   - a live match shows up in `striker_live_connections`;
   - stopping both engines for 10 minutes raises `striker_matches_overdue`;
   - one season rollover draws its annotation.
   - Done with one svc and two engine replicas (the second under another hostname) exporting to a local Prometheus 3.5 over OTLP: every new series appears (push outcomes need VAPID keys, so none was sent); `striker_live_connections` goes 1 → 0 with a viewer; `striker_matches_overdue` and `striker_matches_in_simulation` report the real backlog. This found that a data-point label named `job` is overwritten by the resource's `job`, hence `engine_job`.
-  - Not done: the 10-minute engine stop, the season rollover annotation and the Grafana rendering.
+  - The 10-minute engine stop, the season rollover annotation and the Grafana rendering were done by the project owner after merge.
 - [x] 8.2 Economy check: `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v` is unchanged, because the flow counter does not alter money movement.
   - Run on main and on this branch: it passes and the figures agree within the simulation's own run-to-run noise (it is unseeded).
 - [x] 8.3 Backend: `go build ./... && go vet ./... && go test ./...` in `backend/`.
