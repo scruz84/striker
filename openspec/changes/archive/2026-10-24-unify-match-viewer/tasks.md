@@ -73,7 +73,7 @@
 
 ## 6. Verification
 
-- [ ] 6.1 Run a local league round, cup round and friendly (see HOWTO_RUN.md). For each one, check the scheduled, live and finished views:
+- [x] 6.1 Run a local league round, cup round and friendly (see HOWTO_RUN.md). For each one, check the scheduled, live and finished views:
   - the same sections in the same order;
   - the competition subtitle;
   - the flavor lines;

@@ -35,7 +35,8 @@ Countries SHALL be split into balanced groups of about 4 (sizes differing by at 
 
 #### Scenario: Viewing a group match
 - **WHEN** a user opens a group match
-- **THEN** it renders through the normal friendly page
+- **THEN** it renders through the shared match viewer (see match-viewer), labelled with its group and matchday
+- **AND** the friendly detail response carries that group name and matchday, which are empty for a friendly not linked to a group
 
 ### Requirement: Group ranking
 Groups SHALL be ranked by points (3 per win, 1 per draw), then goal difference, then goals for, then team name.
