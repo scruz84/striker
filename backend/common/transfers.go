@@ -288,11 +288,12 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	}
 
 	playerName := player.FirstName + " " + player.LastName
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, buyerTeamId, -askingPrice, TRANSACTION_TRANSFER_OUT,
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, buyerTeamId, -askingPrice, TRANSACTION_TRANSFER_OUT,
 		"Bought "+playerName+" from "+sellerTeam.TeamName, playerId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, sellingTeamId, askingPrice, TRANSACTION_TRANSFER_IN,
+	if err := insertLedgerRow(tx, &flows, sellingTeamId, askingPrice, TRANSACTION_TRANSFER_IN,
 		"Sold "+playerName+" to "+buyerTeam.TeamName, playerId); err != nil {
 		return err
 	}
@@ -300,6 +301,7 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+	flows.Commit(context.Background())
 
 	// Counted alongside negotiated offers (see MakeTransferOffer) toward the transfer market
 	// stats panel's "offers made" figure, so an AI-managed team buying a listing outright -

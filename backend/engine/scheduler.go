@@ -3,129 +3,92 @@ package engine
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/reugn/go-quartz/quartz"
+	"github.com/scruz84/striker/common"
 )
 
 var ctx = context.Background()
 var sched, _ = quartz.NewStdScheduler()
 
-func StartSimulateMatchesScheduler(simulateMatchesJob quartz.Job) {
+// instrumentedJob wraps a job so every scheduled run is counted and timed under `name`, a stable
+// snake_case label (striker.engine.job.runs / .duration / .last_run - see
+// common.RecordEngineJobRun). A run whose job returns early because another replica holds the
+// claim (claimRun) still counts: the trigger fired on this replica.
+type instrumentedJob struct {
+	inner quartz.Job
+	name  string
+}
+
+func (j instrumentedJob) Description() string { return j.inner.Description() }
+
+func (j instrumentedJob) Execute(jobCtx context.Context) error {
+	started := time.Now()
+	err := j.inner.Execute(jobCtx)
+	common.RecordEngineJobRun(jobCtx, j.name, started, time.Now())
+	return err
+}
+
+// scheduleJob starts the scheduler (idempotent) and schedules job on a quartz cron expression
+// (seconds first), wrapped in instrumentedJob under the metric label `name`.
+func scheduleJob(job quartz.Job, cron string, name string) {
 	sched.Start(ctx)
-	cronTrigger, err := quartz.NewCronTrigger("* 1/1 * * * *")
+	cronTrigger, err := quartz.NewCronTrigger(cron)
 	if err != nil {
 		log.Panic(err)
 	}
-	jobKey := quartz.NewJobKey(simulateMatchesJob.Description())
-	jobDetail := quartz.NewJobDetail(simulateMatchesJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	//errJob := sched.ScheduleJob(ctx, simulateMatchesJob, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
+	wrapped := instrumentedJob{inner: job, name: name}
+	jobDetail := quartz.NewJobDetail(wrapped, quartz.NewJobKey(job.Description()))
+	if err := sched.ScheduleJob(jobDetail, cronTrigger); err != nil {
+		log.Panic(err)
 	}
+}
+
+func StartSimulateMatchesScheduler(simulateMatchesJob quartz.Job) {
+	scheduleJob(simulateMatchesJob, "* 1/1 * * * *", "simulate_matches")
 }
 
 func StartAdvanceSeasonScheduler(advanceSeasonJob quartz.Job) {
-	sched.Start(ctx)
 	// Checking season completion is much cheaper and lower-stakes than match simulation, so
 	// it doesn't need per-minute granularity - every 5 minutes is plenty.
-	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(advanceSeasonJob.Description())
-	jobDetail := quartz.NewJobDetail(advanceSeasonJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(advanceSeasonJob, "0 */5 * * * *", "advance_season")
 }
 
 func StartFreeAgentProgressionScheduler(freeAgentProgressionJob quartz.Job) {
-	sched.Start(ctx)
 	// Once a day is plenty - there's no season boundary driving this anymore (see
 	// init75_season_per_country.sql), just a slow background drift of the unowned player pool.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 2 * * ?")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(freeAgentProgressionJob.Description())
-	jobDetail := quartz.NewJobDetail(freeAgentProgressionJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(freeAgentProgressionJob, "0 0 2 * * ?", "free_agent_progression")
 }
 
 func StartInternationalCupScheduler(internationalCupJob quartz.Job) {
-	sched.Start(ctx)
 	// Ticks daily, same as StartFreeAgentProgressionScheduler, but InternationalCupCadence
 	// (engine/cups.go) gates how often it actually starts anything - cheap to check this often,
 	// since most ticks just read season.last_international_cup_check and return.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 3 * * ?")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(internationalCupJob.Description())
-	jobDetail := quartz.NewJobDetail(internationalCupJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(internationalCupJob, "0 0 3 * * ?", "international_cup")
 }
 
 func StartCupScheduler(cupJob quartz.Job) {
-	sched.Start(ctx)
 	// Same cadence as match simulation - cup ties are scheduled the same way league matches
 	// are (a fixed delay after being paired), so they need the same per-minute granularity to
 	// fire close to on time.
-	cronTrigger, err := quartz.NewCronTrigger("* 1/1 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(cupJob.Description())
-	jobDetail := quartz.NewJobDetail(cupJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(cupJob, "* 1/1 * * * *", "cups")
 }
 
 func StartFreeAgentInjectionScheduler(freeAgentInjectionJob quartz.Job) {
-	sched.Start(ctx)
 	// A real calendar week, independent of match simulation - Sunday midnight UTC, so a fresh
 	// batch of free agents is sitting on the market ahead of Monday's usual transfer activity.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 0 ? * SUN")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(freeAgentInjectionJob.Description())
-	jobDetail := quartz.NewJobDetail(freeAgentInjectionJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(freeAgentInjectionJob, "0 0 0 ? * SUN", "free_agent_injection")
 }
 
 func StartFriendlyScheduler(friendlyJob quartz.Job) {
-	sched.Start(ctx)
 	// Same per-minute cadence as cup ties - friendlies are scheduled a fixed delay after
 	// acceptance (see common.friendlyScheduleDelay), so they need the same granularity to fire
 	// close to on time.
-	cronTrigger, err := quartz.NewCronTrigger("* 1/1 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(friendlyJob.Description())
-	jobDetail := quartz.NewJobDetail(friendlyJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(friendlyJob, "* 1/1 * * * *", "friendlies")
 }
 
 func StartNationalTeamFriendlyScheduler(nationalTeamFriendlyJob quartz.Job) {
-	sched.Start(ctx)
 	// Same cadence as StartAdvanceSeasonScheduler/StartAiActivityScheduler - cheap per tick (see
 	// common.ScheduleNationalTeamFriendlies's own doc comment for why this needs to run often
 	// rather than on a single fixed weekly timestamp: a country should be re-paired within
@@ -133,38 +96,18 @@ func StartNationalTeamFriendlyScheduler(nationalTeamFriendlyJob quartz.Job) {
 	// rigid weekly slot). Unlike club friendlies there's no human to challenge/accept, so there's
 	// no per-team cap to enforce instead - GetCountriesWithPendingNationalTeamFriendly's "already
 	// waiting on a fixture" check is what keeps this idempotent across ticks.
-	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(nationalTeamFriendlyJob.Description())
-	jobDetail := quartz.NewJobDetail(nationalTeamFriendlyJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(nationalTeamFriendlyJob, "0 */5 * * * *", "national_team_friendlies")
 }
 
 func StartNationalTeamCallUpScheduler(nationalTeamCallUpJob quartz.Job) {
-	sched.Start(ctx)
 	// Same 5-minute cadence as StartNationalTeamFriendlyScheduler - frequent enough to close a
 	// national team's call-up (see common.CallUpNationalTeamSquads/common.nationalTeamCallUpWindow)
 	// within minutes of crossing the one-day-before-kickoff mark, without needing per-minute
 	// granularity the way kickoff-triggered friendly simulation does.
-	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(nationalTeamCallUpJob.Description())
-	jobDetail := quartz.NewJobDetail(nationalTeamCallUpJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(nationalTeamCallUpJob, "0 */5 * * * *", "national_team_call_ups")
 }
 
 func StartFinishStuckSimulationsScheduler(finishStuckSimulationsJob quartz.Job) {
-	sched.Start(ctx)
 	// GetStuckMatches/GetStuckFriendlies only take rows claimed at least
 	// common.StuckSimulationAge ago, so a row a live simulation pass is still working through is
 	// never re-simulated, and they re-claim atomically, so two replicas never re-simulate the same
@@ -172,87 +115,38 @@ func StartFinishStuckSimulationsScheduler(finishStuckSimulationsJob quartz.Job) 
 	// endpoint" into "self-heals within half an hour" (see engine.FinishStuckSimulations's own doc
 	// comment for why a single stuck national-team/World Cup match is worse than just that one
 	// match never finishing).
-	cronTrigger, err := quartz.NewCronTrigger("0 */15 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(finishStuckSimulationsJob.Description())
-	jobDetail := quartz.NewJobDetail(finishStuckSimulationsJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(finishStuckSimulationsJob, "0 */15 * * * *", "finish_stuck_simulations")
 }
 
 func StartOfferResponseScheduler(offerResponseJob quartz.Job) {
-	sched.Start(ctx)
 	// Twice a day (midnight and noon UTC) is enough to keep the "the club must respond within a
 	// day or two" promise (issue #61) without needing per-minute granularity - unlike match/cup/
 	// friendly simulation, nothing about this is time-critical to the minute.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 0,12 * * ?")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(offerResponseJob.Description())
-	jobDetail := quartz.NewJobDetail(offerResponseJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(offerResponseJob, "0 0 0,12 * * ?", "offer_response")
 }
 
 func StartBirthdayScheduler(birthdayJob quartz.Job) {
-	sched.Start(ctx)
 	// Once a day is plenty - a player's birthday anchor only ever moves in whole-day steps (see
 	// engine.BirthdayCycleDays), so nothing is missed by checking less often than match
 	// simulation. Offset to 01:00 UTC, clear of the other daily/weekly jobs' 00:00/12:00 slots.
-	cronTrigger, err := quartz.NewCronTrigger("0 0 1 * * ?")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(birthdayJob.Description())
-	jobDetail := quartz.NewJobDetail(birthdayJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(birthdayJob, "0 0 1 * * ?", "birthdays")
 }
 
 func StartAiActivityScheduler(aiActivityJob quartz.Job) {
-	sched.Start(ctx)
 	// Same cadence as StartAdvanceSeasonScheduler - cheap per tick (a handful of teams rolling a
 	// low-probability chance each), and localActivityWindowTicksPerDay (engine/aiteams.go) is
 	// built from this exact interval, so changing it here means updating that constant too.
-	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(aiActivityJob.Description())
-	jobDetail := quartz.NewJobDetail(aiActivityJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(aiActivityJob, "0 */5 * * * *", "ai_activity")
 }
 
 func StartLiveBroadcastRecoveryScheduler(liveBroadcastRecoveryJob quartz.Job) {
-	sched.Start(ctx)
 	// Every 5 minutes is frequent enough to close a stale broadcast (see
 	// engine.RecoverStaleLiveBroadcasts) promptly after it crosses common.LiveMatchStaleTimeout
 	// (18 minutes) without needing per-minute granularity - staleness is itself only measured in
 	// minutes, so a few minutes' extra delay in detecting it is immaterial. Same cadence as
 	// StartAdvanceSeasonScheduler/StartAiActivityScheduler for the same reason: cheap per tick (a
 	// small, already-"live" set of matches plus a couple of Redis reads each).
-	cronTrigger, err := quartz.NewCronTrigger("0 */5 * * * *")
-	if err != nil {
-		log.Panic(err)
-	}
-	jobKey := quartz.NewJobKey(liveBroadcastRecoveryJob.Description())
-	jobDetail := quartz.NewJobDetail(liveBroadcastRecoveryJob, jobKey)
-	errJob := sched.ScheduleJob(jobDetail, cronTrigger)
-	if errJob != nil {
-		log.Panic(errJob)
-	}
+	scheduleJob(liveBroadcastRecoveryJob, "0 */5 * * * *", "live_broadcast_recovery")
 }
 
 func WaitUntilFinish() {

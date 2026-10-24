@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/postgres"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/handlers"
@@ -50,6 +51,10 @@ func StartSvc() {
 	}
 
 	common.ConfigureWebPushNotifier(dbCtx)
+
+	if err := common.RegisterDBPoolMetrics(dbCtx.Db); err != nil {
+		log.Errorf("error registering database pool metrics: %s", err)
+	}
 
 	// RegisterMarketGauges is deliberately not called here - see its doc comment. Only
 	// engine.StartEngine registers it, so a normal svc+engine deployment (see
@@ -95,7 +100,9 @@ func StartSvc() {
 // is enabled (common.InitMetrics). Uses c.FullPath() rather than c.Request.URL.Path so a
 // parameterized route (e.g. /v1/teams/player/:id/) stays one series regardless of which id was
 // requested - an unmatched route (404) has no full path, labeled "unmatched" instead of leaving
-// the attribute empty.
+// the attribute empty. A websocket upgrade (the live match viewer) is counted but its duration is
+// not recorded: the connection stays open for the whole match, which would bury the latency of
+// real requests in the histogram.
 func metricsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
@@ -112,6 +119,9 @@ func metricsMiddleware() gin.HandlerFunc {
 		)
 		ctx := c.Request.Context()
 		common.HTTPRequestsCounter.Add(ctx, 1, attrs)
+		if websocket.IsWebSocketUpgrade(c.Request) {
+			return
+		}
 		common.HTTPRequestDuration.Record(ctx, float64(time.Since(start).Microseconds())/1000, attrs)
 	}
 }

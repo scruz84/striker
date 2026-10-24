@@ -31,6 +31,10 @@ func StartEngine() {
 
 	common.ConfigureWebPushNotifier(dbCtx)
 
+	if err := common.RegisterDBPoolMetrics(dbCtx.Db); err != nil {
+		log.Errorf("error registering database pool metrics: %s", err)
+	}
+
 	if err := common.RegisterMarketGauges(dbCtx); err != nil {
 		log.Errorf("error registering transfer/loan market OpenTelemetry gauges: %s", err)
 	}

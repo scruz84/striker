@@ -39,16 +39,22 @@
       "id": "gauge",
       "name": "Gauge",
       "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
     }
   ],
   "title": "Striker - game activity & economy",
-  "description": "Every OpenTelemetry metric striker's svc/engine export - see backend/README.md's \"OpenTelemetry metrics\" section and backend/common/telemetry.go for the source of truth. Import into Grafana (Dashboards > New > Import), pick the Prometheus-compatible datasource that receives striker's OTLP metrics when prompted, and turn export on with OTEL_METRICS_ENABLED=true (see the README) for panels to show data. The \"Per node\" row needs a backend that ingests OTLP natively (Prometheus >=2.47, Mimir, Grafana Cloud) so the service.instance.id resource attribute becomes the `instance` label used there.",
+  "description": "Every OpenTelemetry metric striker's svc/engine export - see backend/README.md's \"OpenTelemetry metrics\" section and backend/common/telemetry.go for the source of truth. Import into Grafana (Dashboards > New > Import), pick the Prometheus-compatible datasource that receives striker's OTLP metrics when prompted, and turn export on with OTEL_METRICS_ENABLED=true (see the README) for panels to show data. The \"Per node\" row (filterable by the job / instance variables) needs a backend that ingests OTLP natively (Prometheus >=2.47, Mimir, Grafana Cloud) so the service.instance.id resource attribute becomes the `instance` label used there.",
   "tags": [
     "striker"
   ],
   "uid": "striker-economy",
   "schemaVersion": 39,
-  "version": 4,
+  "version": 5,
   "timezone": "browser",
   "editable": true,
   "graphTooltip": 1,
@@ -59,17 +65,17 @@
   "refresh": "1m",
   "panels": [
     {
-      "id": 1,
+      "id": 33,
       "type": "row",
       "title": "Service health",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
         "x": 0,
         "y": 0,
         "w": 24,
         "h": 1
-      },
-      "collapsed": false,
-      "panels": []
+      }
     },
     {
       "id": 2,
@@ -172,6 +178,176 @@
       }
     },
     {
+      "id": 34,
+      "type": "timeseries",
+      "title": "HTTP error rate (4xx)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum(rate(striker_http_requests_total{status=~\"4..\"}[5m])) / sum(rate(striker_http_requests_total[5m]))",
+          "legendFormat": "5xx ratio",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Share of requests answered with a 4xx status. A jump on one route usually means a client bug or a broken link, not a server fault - see the 5xx panels for those."
+    },
+    {
+      "id": 35,
+      "type": "table",
+      "title": "Top 10 routes by 5xx responses (selected range)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "The ten routes that returned the most 5xx responses over the dashboard's time range. Empty means no server errors.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {},
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "topk(10, sum by (route)(increase(striker_http_requests_total{status=~\"5..\"}[$__range]))) > 0",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "5xx responses",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "route": "Route",
+              "Value": "5xx responses"
+            }
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 36,
+      "type": "timeseries",
+      "title": "HTTP request duration (p50 / p95)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.5, sum(rate(striker_http_request_duration_milliseconds_bucket{route!~\".*/live\"}[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(striker_http_request_duration_milliseconds_bucket{route!~\".*/live\"}[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Overall latency without the live-match websockets (routes ending in /live), which stay open for the whole match. Series exported before the svc stopped timing websocket upgrades are filtered out by the route.",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
       "id": 4,
       "type": "timeseries",
       "title": "HTTP request duration (p95, by route)",
@@ -181,7 +357,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 9,
+        "y": 25,
         "w": 24,
         "h": 8
       },
@@ -206,7 +382,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(striker_http_request_duration_milliseconds_bucket[5m])) by (le, route))",
+          "expr": "histogram_quantile(0.95, sum(rate(striker_http_request_duration_milliseconds_bucket{route!~\".*/live\"}[5m])) by (le, route))",
           "legendFormat": "{{route}}",
           "refId": "A"
         }
@@ -219,20 +395,318 @@
         "tooltip": {
           "mode": "multi"
         }
+      },
+      "description": "p95 latency of every route except the live-match websockets (routes ending in /live)."
+    },
+    {
+      "id": 37,
+      "type": "row",
+      "title": "Engine health",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 1
       }
     },
     {
-      "id": 5,
-      "type": "row",
-      "title": "Simulated world",
+      "id": 38,
+      "type": "timeseries",
+      "title": "Match backlog (overdue / in simulation)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (type)(striker_matches_overdue)",
+          "legendFormat": "overdue {{type}}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (type)(striker_matches_in_simulation)",
+          "legendFormat": "in simulation {{type}}",
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Overdue: unplayed matches with both teams set whose kickoff passed more than 5 minutes ago (a cup bye is never counted). In simulation: matches an engine replica has claimed and not finished. Every engine replica reports the same DB-wide value, so this uses max, never sum. A line that stays above 0 means the engine is not keeping up (or is down).",
       "gridPos": {
         "x": 0,
-        "y": 17,
+        "y": 34,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Seconds since each job last finished",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5,
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "scaleDistribution": {
+              "type": "log",
+              "log": 10
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "time() - max by (engine_job)(striker_engine_job_last_run_seconds)",
+          "legendFormat": "{{engine_job}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Time since any replica last finished each job. The 300 s line matters for the jobs that run every minute (simulate_matches, cups, friendlies); daily and weekly jobs naturally sit far above it, which is why the axis is logarithmic.",
+      "gridPos": {
+        "x": 12,
+        "y": 34,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "Engine job duration (p95)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, engine_job)(rate(striker_engine_job_duration_seconds_bucket[1h])))",
+          "legendFormat": "{{engine_job}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "p95 of how long one scheduled run of each job takes.",
+      "gridPos": {
+        "x": 0,
+        "y": 42,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "Claims won per replica (per day)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (engine_job, instance)(increase(striker_engine_job_claims_total{outcome=\"won\"}[1d])) or sum by (engine_job, instance)(increase(striker_engine_job_claims_total{outcome=\"lost\"}[1d])) * 0",
+          "legendFormat": "{{engine_job}} {{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Once-per-period claims each engine replica won in the last day. A replica that never wins shows at 0 while the other shows every claim, which tells you the work is not being shared.",
+      "gridPos": {
+        "x": 8,
+        "y": 42,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Job runs per replica (per hour)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (engine_job, instance)(increase(striker_engine_job_runs_total[1h]))",
+          "legendFormat": "{{engine_job}} {{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Times each job fired on each replica. A run that lost its claim still counts here: it shows the trigger fired on that replica; the claims panel shows who did the work.",
+      "gridPos": {
+        "x": 16,
+        "y": 42,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 43,
+      "type": "row",
+      "title": "Simulated world",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 50,
         "w": 24,
         "h": 1
-      },
-      "collapsed": false,
-      "panels": []
+      }
     },
     {
       "id": 6,
@@ -244,7 +718,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 51,
         "w": 8,
         "h": 8
       },
@@ -294,7 +768,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 18,
+        "y": 51,
         "w": 8,
         "h": 8
       },
@@ -344,7 +818,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 18,
+        "y": 51,
         "w": 8,
         "h": 8
       },
@@ -387,8 +861,8 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 26,
-        "w": 24,
+        "y": 59,
+        "w": 12,
         "h": 8
       },
       "fieldConfig": {
@@ -428,17 +902,68 @@
       }
     },
     {
-      "id": 9,
+      "id": 44,
+      "type": "timeseries",
+      "title": "Goals per match, by competition type",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (type)(rate(striker_goals_scored_total[1h])) / sum by (type)(rate(striker_matches_simulated_total[1h]))",
+          "legendFormat": "{{type}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Goals divided by matches simulated over 1 h windows (both counters carry the competition type). The reason striker.goals.scored exists: a quick check that the match engine has not drifted.",
+      "gridPos": {
+        "x": 12,
+        "y": 59,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 45,
       "type": "row",
       "title": "Economy",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 34,
+        "y": 67,
         "w": 24,
         "h": 1
-      },
-      "collapsed": false,
-      "panels": []
+      }
     },
     {
       "id": 10,
@@ -450,7 +975,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 35,
+        "y": 68,
         "w": 8,
         "h": 8
       },
@@ -493,7 +1018,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 35,
+        "y": 68,
         "w": 8,
         "h": 8
       },
@@ -543,7 +1068,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 35,
+        "y": 68,
         "w": 8,
         "h": 8
       },
@@ -593,17 +1118,234 @@
       }
     },
     {
-      "id": 13,
+      "id": 46,
       "type": "row",
-      "title": "Transfer & loan market",
+      "title": "Economy flows",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 43,
+        "y": 76,
         "w": 24,
         "h": 1
+      }
+    },
+    {
+      "id": 47,
+      "type": "timeseries",
+      "title": "Money credited per day, by reason",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (reason)(rate(striker_economy_flow_total{direction=\"in\"}[1h])) * 86400",
+          "legendFormat": "{{reason}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Everything the ledger credited to teams, per day, stacked by TRANSACTION_* reason.",
+      "gridPos": {
+        "x": 0,
+        "y": 77,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 48,
+      "type": "timeseries",
+      "title": "Money debited per day, by reason",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (reason)(rate(striker_economy_flow_total{direction=\"out\"}[1h])) * 86400",
+          "legendFormat": "{{reason}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Everything the ledger debited from teams, per day, stacked by reason.",
+      "gridPos": {
+        "x": 12,
+        "y": 77,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 49,
+      "type": "timeseries",
+      "title": "Net money created per day",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "(sum(rate(striker_economy_flow_total{direction=\"in\",reason!~\"transfer_in|loan_fee\"}[1h])) - sum(rate(striker_economy_flow_total{direction=\"out\",reason!~\"transfer_out|loan_fee\"}[1h]))) * 86400",
+          "legendFormat": "net created",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Credited minus debited per day, leaving out transfer_in, transfer_out and loan_fee: those move money between teams and net to zero. Positive means the economy is inflating (sponsors, prizes, ticket sales outpace wages and upkeep).",
+      "gridPos": {
+        "x": 0,
+        "y": 85,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 50,
+      "type": "timeseries",
+      "title": "Total money in the economy (trend)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max(striker_economy_total_budget)",
+          "legendFormat": "total budget",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "The same figure as the stat in the Economy row, over time. It should move by the net creation panel above.",
+      "gridPos": {
+        "x": 12,
+        "y": 85,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 51,
+      "type": "row",
+      "title": "Transfer & loan market",
       "collapsed": false,
-      "panels": []
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 93,
+        "w": 24,
+        "h": 1
+      }
     },
     {
       "id": 14,
@@ -615,7 +1357,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 44,
+        "y": 94,
         "w": 6,
         "h": 8
       },
@@ -655,7 +1397,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 44,
+        "y": 94,
         "w": 6,
         "h": 8
       },
@@ -695,7 +1437,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 44,
+        "y": 94,
         "w": 6,
         "h": 8
       },
@@ -735,7 +1477,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 44,
+        "y": 94,
         "w": 6,
         "h": 8
       },
@@ -794,8 +1536,8 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 52,
-        "w": 24,
+        "y": 102,
+        "w": 12,
         "h": 8
       },
       "fieldConfig": {
@@ -844,17 +1586,68 @@
       }
     },
     {
-      "id": 19,
+      "id": 52,
+      "type": "timeseries",
+      "title": "CPU market actions per day, by action",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (action)(rate(striker_ai_market_actions_total[1h])) * 86400",
+          "legendFormat": "{{action}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "What CPU teams do on the transfer market: signings, purchases, offers, listings.",
+      "gridPos": {
+        "x": 12,
+        "y": 102,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 53,
       "type": "row",
       "title": "Community",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 60,
+        "y": 110,
         "w": 24,
         "h": 1
-      },
-      "collapsed": false,
-      "panels": []
+      }
     },
     {
       "id": 20,
@@ -866,7 +1659,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 61,
+        "y": 111,
         "w": 8,
         "h": 8
       },
@@ -916,7 +1709,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 61,
+        "y": 111,
         "w": 8,
         "h": 8
       },
@@ -966,7 +1759,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 61,
+        "y": 111,
         "w": 8,
         "h": 8
       },
@@ -1007,17 +1800,285 @@
       }
     },
     {
-      "id": 24,
+      "id": 54,
       "type": "row",
-      "title": "Per node",
+      "title": "Live & delivery",
+      "collapsed": false,
+      "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 69,
+        "y": 119,
         "w": 24,
         "h": 1
+      }
+    },
+    {
+      "id": 55,
+      "type": "timeseries",
+      "title": "Live match viewers",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance)(striker_live_connections)",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Live-match websockets currently open on each svc instance.",
+      "gridPos": {
+        "x": 0,
+        "y": 120,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 56,
+      "type": "timeseries",
+      "title": "Web push outcomes per day",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "stacking": {
+              "mode": "normal"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (outcome)(rate(striker_push_sent_total[1h])) * 86400",
+          "legendFormat": "{{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "sent: the push service accepted it. expired: the subscription was gone (404/410) and was deleted. failed: a transport error or any other status (429, 5xx, ...); these are not retried.",
+      "gridPos": {
+        "x": 8,
+        "y": 120,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 57,
+      "type": "timeseries",
+      "title": "DB connections (in use / idle)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance, state)(striker_db_connections)",
+          "legendFormat": "{{instance}} {{state}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "database/sql pool state per process. The pool is capped at 50 connections per process: in use sitting at the cap means requests are queueing for a connection.",
+      "gridPos": {
+        "x": 16,
+        "y": 120,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 58,
+      "type": "timeseries",
+      "title": "DB connection waits per second",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance)(rate(striker_db_connection_waits_total[5m]))",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "How often a caller had to wait for a free connection. Should sit at 0.",
+      "gridPos": {
+        "x": 0,
+        "y": 128,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 59,
+      "type": "timeseries",
+      "title": "DB connection wait time",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (instance)(rate(striker_db_connection_wait_time_seconds_total[5m]))",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Seconds spent waiting for a connection per second of wall time, summed over callers.",
+      "gridPos": {
+        "x": 12,
+        "y": 128,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 60,
+      "type": "row",
+      "title": "Per node",
       "collapsed": false,
-      "panels": []
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 136,
+        "w": 24,
+        "h": 1
+      }
     },
     {
       "id": 25,
@@ -1030,7 +2091,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 70,
+        "y": 137,
         "w": 12,
         "h": 8
       },
@@ -1055,7 +2116,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_http_requests_total[5m])) by (instance)",
+          "expr": "sum(rate(striker_http_requests_total{job=~\"$job\",instance=~\"$instance\"}[5m])) by (instance)",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -1081,7 +2142,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 70,
+        "y": 137,
         "w": 12,
         "h": 8
       },
@@ -1108,7 +2169,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_http_requests_total[5m])) by (instance) / scalar(sum(rate(striker_http_requests_total[5m]))) * 100",
+          "expr": "sum(rate(striker_http_requests_total{job=~\"$job\",instance=~\"$instance\"}[1h])) by (instance) / scalar(sum(rate(striker_http_requests_total{job=~\"$job\",instance=~\"$instance\"}[1h]))) * 100",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -1134,7 +2195,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 78,
+        "y": 145,
         "w": 12,
         "h": 8
       },
@@ -1159,7 +2220,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_matches_simulated_total[1h])) by (instance) * 86400",
+          "expr": "sum(rate(striker_matches_simulated_total{job=~\"$job\",instance=~\"$instance\"}[1h])) by (instance) * 86400",
           "legendFormat": "{{instance}}/day",
           "refId": "A"
         }
@@ -1185,7 +2246,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 78,
+        "y": 145,
         "w": 12,
         "h": 8
       },
@@ -1212,7 +2273,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_matches_simulated_total[5m])) by (instance) / scalar(sum(rate(striker_matches_simulated_total[5m]))) * 100",
+          "expr": "sum(rate(striker_matches_simulated_total{job=~\"$job\",instance=~\"$instance\"}[1h])) by (instance) / scalar(sum(rate(striker_matches_simulated_total{job=~\"$job\",instance=~\"$instance\"}[1h]))) * 100",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -1238,7 +2299,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 86,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -1263,7 +2324,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_process_goroutines",
+          "expr": "striker_process_goroutines{job=~\"$job\",instance=~\"$instance\"}",
           "legendFormat": "{{job}} {{instance}}",
           "refId": "A"
         }
@@ -1289,7 +2350,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 86,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -1314,7 +2375,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_process_memory_heap_alloc_bytes",
+          "expr": "striker_process_memory_heap_alloc_bytes{job=~\"$job\",instance=~\"$instance\"}",
           "legendFormat": "{{job}} {{instance}}",
           "refId": "A"
         }
@@ -1340,7 +2401,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 94,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -1366,7 +2427,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(striker_process_cpu_time_seconds_total[5m])) by (instance, job)",
+          "expr": "sum(rate(striker_process_cpu_time_seconds_total{job=~\"$job\",instance=~\"$instance\"}[5m])) by (instance, job)",
           "legendFormat": "{{job}} {{instance}}",
           "refId": "A"
         }
@@ -1392,7 +2453,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 94,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -1417,7 +2478,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "striker_process_uptime_seconds",
+          "expr": "striker_process_uptime_seconds{job=~\"$job\",instance=~\"$instance\"}",
           "legendFormat": "{{job}} {{instance}}",
           "refId": "A"
         }
@@ -1434,9 +2495,78 @@
     }
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "job",
+        "label": "Job",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": {
+          "query": "label_values(striker_process_uptime_seconds, job)",
+          "refId": "job"
+        },
+        "definition": "label_values(striker_process_uptime_seconds, job)",
+        "includeAll": true,
+        "multi": true,
+        "refresh": 2,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      },
+      {
+        "name": "instance",
+        "label": "Instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": {
+          "query": "label_values(striker_process_uptime_seconds{job=~\"$job\"}, instance)",
+          "refId": "instance"
+        },
+        "definition": "label_values(striker_process_uptime_seconds{job=~\"$job\"}, instance)",
+        "includeAll": true,
+        "multi": true,
+        "refresh": 2,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      }
+    ]
   },
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "name": "Season rollover",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "enable": true,
+        "iconColor": "purple",
+        "expr": "changes(striker_season_rollovers_total[5m]) > 0",
+        "step": "60s",
+        "titleFormat": "Season rollover",
+        "tagKeys": "instance"
+      }
+    ]
   }
 }

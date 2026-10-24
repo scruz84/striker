@@ -288,12 +288,13 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	}
 
 	playerName := player.FirstName + " " + player.LastName
+	var flows LedgerFlows
 	if premium > 0 {
-		if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -premium, TRANSACTION_TRANSFER_OUT,
+		if err := insertLedgerRow(tx, &flows, teamId, -premium, TRANSACTION_TRANSFER_OUT,
 			"Paid free agent transfer premium for "+playerName, playerId); err != nil {
 			return nil, err
 		}
-		if _, err := tx.Exec(InsertTeamTransactionStmtSql, player.LastTeamId, premium, TRANSACTION_TRANSFER_IN,
+		if err := insertLedgerRow(tx, &flows, player.LastTeamId, premium, TRANSACTION_TRANSFER_IN,
 			"Received free agent transfer premium for "+playerName, playerId); err != nil {
 			return nil, err
 		}
@@ -302,6 +303,7 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+	flows.Commit(context.Background())
 
 	FreeAgentSigningsCounter.Add(context.Background(), 1)
 
@@ -572,7 +574,8 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -severance, teamId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -severance, TRANSACTION_CONTRACT_RELEASE,
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, teamId, -severance, TRANSACTION_CONTRACT_RELEASE,
 		"Released "+player.FirstName+" "+player.LastName, playerId); err != nil {
 		return err
 	}
@@ -586,7 +589,11 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	flows.Commit(context.Background())
+	return nil
 }
 
 // DecrementPlayerContractStmtSql decrements one player's remaining contract by a season,

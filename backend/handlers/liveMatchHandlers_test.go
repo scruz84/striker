@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/common/metrictest"
 )
 
 // redisReachableForTest skips the test when no Redis is reachable at REDIS_HOST:REDIS_PORT -
@@ -167,5 +168,37 @@ func TestServeLiveMatch_QuietBeforeKickoffIsNotStale(t *testing.T) {
 	var msg common.LiveMatchMessage
 	if err := conn.ReadJSON(&msg); err == nil {
 		t.Fatalf("expected no message before the broadcast has started, got: %+v", msg)
+	}
+}
+
+// TestServeLiveMatch_CountsOpenConnections: striker.live.connections is 1 while a viewer is
+// connected and returns to its starting value once the viewer closes the tab.
+func TestServeLiveMatch_CountsOpenConnections(t *testing.T) {
+	redisReachableForTest(t)
+	metrictest.Install()
+
+	channel := common.LeagueMatchChannel(time.Now().UnixNano())
+	server, _ := newLiveMatchTestServer(t, channel, false, 0, 0)
+	before := metrictest.Sum(t, "striker.live.connections")
+
+	conn := dialLiveMatch(t, server)
+	waitForLiveConnections(t, before+1)
+
+	_ = conn.Close()
+	waitForLiveConnections(t, before)
+}
+
+func waitForLiveConnections(t *testing.T, want float64) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		got := metrictest.Sum(t, "striker.live.connections")
+		if got == want {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("striker.live.connections = %v, want %v", got, want)
+		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }

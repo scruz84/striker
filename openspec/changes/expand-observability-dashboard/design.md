@@ -44,8 +44,11 @@
      which records `amount × affected`) calls the helper inside its transaction, then calls
      `flows.Commit` only after `tx.Commit()` succeeds. A rolled-back write is therefore never
      counted.
+   - The all-teams statement goes through a sibling, `insertLedgerRowForAllTeams(tx, flows, teams,
+     ...)`, which buffers `amount × teams`.
    - A source test (`ledgerflow_test.go`) asserts that `InsertTeamTransactionStmtSql` and
-     `InsertTeamTransactionForAllTeamsStmtSql` appear only inside the helper.
+     `InsertTeamTransactionForAllTeamsStmtSql` appear only inside those two helpers, and that no
+     other string in the backend inserts into `team_transactions`.
    - `transactionReasonLabel(int) string` maps every constant to snake_case. A test parses
      `fmconstants.go` with `go/parser`, finds every `TRANSACTION_*` and requires a label other
      than `other`. That catches the reason `amortize-transfer-fees` will add.
@@ -66,8 +69,12 @@
    - Job names: `simulate_matches`, `advance_season`, `free_agent_progression`,
      `international_cup`, `cups`, `free_agent_injection`, `friendlies`, `national_team_friendlies`,
      `national_team_call_ups`, `finish_stuck_simulations`, `offer_response`, `birthdays`,
-     `ai_activity`, plus any job found in `tasks.go` while doing it. The cron expressions stay
-     the same.
+     `ai_activity`, `live_broadcast_recovery` (the one more job `tasks.go` had). The cron
+     expressions stay the same.
+   - The label is `engine_job`, not `job`. Verified against a Prometheus 3.5 OTLP receiver: the
+     resource's `service.name` becomes `job`, and a data-point attribute with that name is
+     overwritten, so every job collapsed into one `job="striker-engine"` series. `engine_job` keeps
+     them apart.
    - `claimRun` records `striker.engine.job.claims{job, outcome}`. A database error inside
      `ClaimEngineJobSlot` already returns false and logs, so it counts as `lost`.
    - A quartz job that skips because it lost its claim still counts as a run. That is intended:
@@ -111,7 +118,7 @@
    > 0`. Panel ids stay unique, and the rows follow the order in the spec. Example queries:
    - net creation: `sum(rate(striker_economy_flow_total{direction="in",reason!~"transfer_in|loan_fee"}[1h])) - sum(rate(striker_economy_flow_total{direction="out",reason!~"transfer_out|loan_fee"}[1h]))`, times 86400;
    - goals per match: `sum by (type)(rate(striker_goals_scored_total[1h])) / sum by (type)(rate(striker_matches_simulated_total[1h]))`;
-   - job freshness: `time() - max by (job)(striker_engine_job_last_run_seconds)`.
+   - job freshness: `time() - max by (engine_job)(striker_engine_job_last_run_seconds)`.
 
    A Go test, `common/telemetry_dashboard_test.go`, checks the JSON so it runs in CI without
    Grafana:
@@ -148,3 +155,32 @@ therefore needs no new lock or concurrent test.
 Deploy the migration first; it is additive and re-runnable. Then deploy svc and engine, then
 re-import the dashboard (same `uid` `striker-economy`, so it overwrites in place). Rollback is to
 revert the code. The indexes are harmless and can stay.
+
+## Code map
+
+(To copy into `openspec/specs/observability/spec.md` after archiving: the delta spec cannot carry it, archive drops sections outside the requirements.)
+
+- Instruments and registration: `backend/common/telemetry.go` (every `striker.*` instrument,
+  `RegisterMarketGauges`, `registerMatchBacklogGauges`, `RegisterDBPoolMetrics`, `LedgerFlows`,
+  `transactionReasonLabel`, `RecordEngineJobRun`, `RecordEngineJobClaim`, `EngineJobAttribute`,
+  `RecordPushOutcome`, `CountMatchBacklog` / `CountMatchBacklogStmtSql`).
+- Ledger flow: `insertLedgerRow` and `insertLedgerRowForAllTeams` (`common/database.go`), called by
+  `AdjustTeamBudget`, `AdjustAllTeamsBudget` and the transactions in `common/transfers.go`,
+  `offers.go`, `loans.go`, `contracts.go` and `stadium.go`.
+- HTTP: `metricsMiddleware` (`service/fmservice.go`). Live viewers: `serveLiveMatch`
+  (`handlers/liveMatchHandlers.go`). Push: `WebPushNotifier.sendOne`
+  (`common/webpushnotifier.go`).
+- Engine jobs: `scheduleJob` and `instrumentedJob` (`engine/scheduler.go`), `claimRun`
+  (`engine/tasks.go`). Process wiring: `service.StartSvc` and `engine.StartEngine` call
+  `RegisterDBPoolMetrics`; only `engine.StartEngine` calls `RegisterMarketGauges`.
+- Migration: `resources/sql/init85_observability_indexes.sql` (partial indexes on unplayed
+  matches, cup ties and friendlies).
+- Dashboard: `backend/resources/grafana/striker-dashboard.json`, guarded by
+  `common/telemetry_dashboard_test.go`.
+- Tests: `common/ledgerflow_test.go`, `common/dbpoolmetrics_test.go`,
+  `common/webpushnotifier_test.go`, `common/match_backlog_integration_test.go`,
+  `engine/scheduler_test.go`, `engine/engine_replicas_integration_test.go`
+  (`TestClaimRun_RecordsWonAndLostPerReplica`), `service/metrics_middleware_test.go`,
+  `handlers/liveMatchHandlers_test.go`. They read the instruments through
+  `common/metrictest` (one `ManualReader` per test binary).
+- Docs: the "OpenTelemetry metrics" section of `backend/README.md`.

@@ -13,7 +13,9 @@ import (
 // job would inject its free agents, or a 5-minute job roll its dice, once per replica - see
 // common.ClaimEngineJobSlot. period must be no longer than the job's cron interval.
 func claimRun(dbCtx *common.DatabaseContext, jobName string, period time.Duration) bool {
-	return common.ClaimEngineJobSlot(dbCtx, jobName, time.Now(), period)
+	won := common.ClaimEngineJobSlot(dbCtx, jobName, time.Now(), period)
+	common.RecordEngineJobClaim(context.Background(), jobName, won)
+	return won
 }
 
 // SimulateMatchesJob implements the quartz.Job interface.

@@ -312,6 +312,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		return err
 	}
 
+	var flows LedgerFlows
 	if loanFee > 0 {
 		player, err := GetPlayerById(dbCtx, playerId)
 		if err != nil {
@@ -333,11 +334,11 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		if _, err := tx.Exec(UpdateTeamBudgetStmtSql, loanFee, lendingTeamId); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(InsertTeamTransactionStmtSql, borrowingTeamId, -loanFee, TRANSACTION_LOAN_FEE,
+		if err := insertLedgerRow(tx, &flows, borrowingTeamId, -loanFee, TRANSACTION_LOAN_FEE,
 			"Loan fee for "+playerName+" to "+lendingTeam.TeamName, playerId); err != nil {
 			return err
 		}
-		if _, err := tx.Exec(InsertTeamTransactionStmtSql, lendingTeamId, loanFee, TRANSACTION_LOAN_FEE,
+		if err := insertLedgerRow(tx, &flows, lendingTeamId, loanFee, TRANSACTION_LOAN_FEE,
 			"Loan fee for "+playerName+" from "+borrowingTeam.TeamName, playerId); err != nil {
 			return err
 		}
@@ -346,6 +347,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+	flows.Commit(context.Background())
 
 	LoansAcceptedCounter.Add(context.Background(), 1)
 	notifyLoanAccepted(dbCtx, playerId, lendingTeamId, borrowingTeamId)
@@ -425,11 +427,12 @@ func ExerciseLoanBuyOption(dbCtx *DatabaseContext, playerId int64, borrowingTeam
 	}
 
 	playerName := player.FirstName + " " + player.LastName
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, borrowingTeamId, -buyOptionFee, TRANSACTION_TRANSFER_OUT,
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, borrowingTeamId, -buyOptionFee, TRANSACTION_TRANSFER_OUT,
 		"Exercised buy option for "+playerName+" from "+lendingTeam.TeamName, playerId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, lendingTeamId, buyOptionFee, TRANSACTION_TRANSFER_IN,
+	if err := insertLedgerRow(tx, &flows, lendingTeamId, buyOptionFee, TRANSACTION_TRANSFER_IN,
 		"Buy option exercised for "+playerName+" by "+borrowingTeam.TeamName, playerId); err != nil {
 		return err
 	}
@@ -437,6 +440,7 @@ func ExerciseLoanBuyOption(dbCtx *DatabaseContext, playerId int64, borrowingTeam
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+	flows.Commit(context.Background())
 
 	RecordTransferCompleted(context.Background(), buyOptionFee)
 

@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -275,6 +276,30 @@ const InsertTeamTransactionForAllTeamsStmtSql = "INSERT INTO team_transactions (
 // sets it; team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
 // upgrades, admin adjustments) pass nil. See GetPlayerTransactions.
 const InsertTeamTransactionStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) VALUES ($1, $2, $3, $4, $5)"
+
+// insertLedgerRow writes one team_transactions row inside tx and buffers its amount in flows, to
+// be exported by flows.Commit(ctx) once tx.Commit() has succeeded (see LedgerFlows). Every ledger
+// row is written through here (or insertLedgerRowForAllTeams) so striker.economy.flow cannot miss
+// a flow; a source test fails if InsertTeamTransactionStmtSql is used anywhere else. playerId is
+// nil for team-level transactions.
+func insertLedgerRow(tx *sql.Tx, flows *LedgerFlows, teamId int64, amount int64, reason int, description string, playerId any) error {
+	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, amount, reason, description, playerId); err != nil {
+		return err
+	}
+	flows.Add(reason, amount)
+	return nil
+}
+
+// insertLedgerRowForAllTeams is insertLedgerRow for a mass adjustment: one row per team, `teams`
+// being how many teams the UPDATE affected.
+func insertLedgerRowForAllTeams(tx *sql.Tx, flows *LedgerFlows, teams int64, amount int64, reason int, description string) error {
+	if _, err := tx.Exec(InsertTeamTransactionForAllTeamsStmtSql, amount, reason, description); err != nil {
+		return err
+	}
+	flows.AddTimes(reason, amount, teams)
+	return nil
+}
+
 const GetTeamTransactionsStmtSql = "SELECT transaction_id, team_id, amount, reason, description, created_at, player_id " +
 	"FROM team_transactions WHERE team_id = $1 ORDER BY created_at DESC LIMIT $2"
 
@@ -1994,10 +2019,15 @@ func AdjustTeamBudget(dbCtx *DatabaseContext, teamId int64, amount int64, reason
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, amount, teamId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, amount, reason, description, nil); err != nil {
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, teamId, amount, reason, description, nil); err != nil {
 		return err
 	}
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	flows.Commit(context.Background())
+	return nil
 }
 
 // AdjustAllTeamsBudget changes every team's budget by `amount` (negative for a deduction) and
@@ -2018,12 +2048,14 @@ func AdjustAllTeamsBudget(dbCtx *DatabaseContext, amount int64, reason int, desc
 	if err != nil {
 		return 0, err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionForAllTeamsStmtSql, amount, reason, description); err != nil {
+	var flows LedgerFlows
+	if err := insertLedgerRowForAllTeams(tx, &flows, affected, amount, reason, description); err != nil {
 		return 0, err
 	}
 	if err := tx.Commit(); err != nil {
 		return 0, err
 	}
+	flows.Commit(context.Background())
 	return affected, nil
 }
 

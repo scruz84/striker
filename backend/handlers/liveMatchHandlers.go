@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -121,6 +122,10 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 		return
 	}
 	defer conn.Close()
+
+	// Counted from a successful upgrade until the handler returns, on every exit path.
+	common.LiveConnections.Add(context.Background(), 1)
+	defer common.LiveConnections.Add(context.Background(), -1)
 
 	// Subscribed before reading history so nothing published in between the two calls can be
 	// missed (see LiveMatchHub.History's own comment on this ordering requirement).

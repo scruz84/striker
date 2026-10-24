@@ -442,7 +442,10 @@ production rather than exhaustive coverage of every code path:
 - **HTTP requests** (`striker.http.requests`, `striker.http.request.duration`) - every request
   `svc` handles, labeled by method, matched route (not the raw path, so `/v1/teams/player/:id/`
   stays one series regardless of which id), and status code. See the `metricsMiddleware` in
-  `service/fmservice.go`.
+  `service/fmservice.go`. A websocket upgrade (the live match viewer) is counted but records **no
+  duration**: the connection stays open for the whole match and would bury the latency of real
+  requests, so `striker.http.request.duration` never has a `/live` route (the dashboard also
+  filters `route!~".*/live"` for series exported before that change).
 - **Matches simulated** (`striker.matches.simulated`) and **goals scored**
   (`striker.goals.scored`) - every league match, cup tie, and friendly the engine finishes
   simulating, labeled by `type`. The core signal that the simulated world is actually moving.
@@ -469,6 +472,11 @@ production rather than exhaustive coverage of every code path:
   from the fixed-price listings above.
 - **Loans** (`striker.loans.listed`, `striker.loans.accepted`) - players newly offered out on
   loan, and loan listings a borrowing team took up.
+- **Academy promotions** (`striker.academy.promotions`) - youth academy prospects promoted to the
+  senior squad (`common.PromoteFromAcademy`).
+- **CPU market actions** (`striker.ai.market_actions`, labeled by `action`: `signed_free_agent`,
+  `bought_listed`, `offer_made`, `offer_expired`, `listed_surplus`, `listed_to_fund`) - what
+  CPU-managed teams do on the transfer market, so a day's activity can be read off this series.
 - **Logins** (`striker.logins`, labeled by `provider`) and **new user registrations**
   (`striker.users.registered`) - the simplest signal of how much the game is actually being
   played.
@@ -483,14 +491,69 @@ production rather than exhaustive coverage of every code path:
   are what the "Per node" dashboard row's goroutines/memory/CPU/uptime panels graph to compare
   replicas side by side.
 
+- **Economy flow** (`striker.economy.flow`, labeled by `reason` and `direction`) - the money
+  credited (`in`) and debited (`out`) through the ledger, `|amount|` per committed
+  `team_transactions` row, `reason` being the snake_case name of its `TRANSACTION_*` constant
+  (`wages`, `sponsorship`, `ticket_revenue`, `prize_money`, `transfer_in`, ...; anything unmapped is
+  `other`, and a test keeps that from happening). It is recorded only after the transaction commits
+  (`common.LedgerFlows`, written through `insertLedgerRow`), so a rolled-back write is never
+  counted. Where `striker.economy.total_budget` shows the total, this shows where it comes from and
+  goes. Every process that writes the ledger exports it: read it with `sum`.
+- **Engine jobs** (`striker.engine.job.runs`, `striker.engine.job.duration`,
+  `striker.engine.job.last_run`, labeled by `engine_job`, and `striker.engine.job.claims`, labeled by
+  `engine_job` and `outcome` = `won`/`lost`) - every scheduled run of each engine job on each
+  replica, its duration in seconds, the unix time it last finished, and who won each once-per-period
+  claim (`claimRun`). The label is `engine_job`, not `job`, because an OTLP backend turns the
+  resource's `service.name` into `job` and would overwrite a data-point label of that name. A run
+  that loses its claim still counts as a run (the trigger fired there). Registered by the engine
+  only; `sum` the counters, and read `last_run` with `max` (`time() - max by (engine_job)(...)` is
+  the job's freshness). See `engine.scheduleJob`.
+- **Simulation backlog** (`striker.matches.overdue`, `striker.matches.in_simulation`, labeled by
+  `type` = `league`/`cup`/`friendly`) - observable gauges, DB-wide like the market gauges, so
+  registered by the engine only and read with `max`, never `sum`. Overdue counts unplayed matches
+  with both teams set whose kickoff passed more than 5 minutes ago (a cup bye never counts); in
+  simulation counts the ones an engine replica has claimed and not finished. One query per export
+  tick, over the partial indexes of `resources/sql/init85_observability_indexes.sql`. A line that
+  stays above 0 means the engine is not keeping up, or is down.
+- **Live viewers** (`striker.live.connections`) - live-match websockets currently open on each
+  `svc` instance (an up/down counter: +1 after a successful upgrade, -1 when it closes). `sum` it
+  across instances.
+- **Database pool** (`striker.db.connections` labeled by `state` = `in_use`/`idle`,
+  `striker.db.connection_waits` and `striker.db.connection_wait_time`, in seconds) - each process's
+  own `database/sql` pool (capped at 50 connections), registered by both `svc` and `engine`. Waits
+  growing means requests are queueing for a connection.
+- **Web push** (`striker.push.sent`, labeled by `outcome`: `sent`, `expired` for a 404/410 whose
+  subscription is deleted, `failed` for a transport error or any other status) - nothing is counted
+  while VAPID keys are not configured. Failed deliveries are only counted, not retried.
+
 A ready-made Grafana dashboard covering every metric above lives at
 `backend/resources/grafana/striker-dashboard.json`. Import it into Grafana (Dashboards > New >
 Import > Upload JSON file) and pick the Prometheus-compatible datasource that receives striker's
 OTLP metrics (Grafana Mimir/Cloud's native OTLP ingestion, or a Prometheus scraping an OTel
 Collector in front of it) when prompted. Its queries assume the OTel-to-Prometheus naming
-convention (dots become underscores, monotonic counters and histograms get their usual `_total`/
-`_bucket`/`_sum`/`_count` suffixes) - adjust the panels' PromQL if your pipeline names metrics
-differently.
+convention (dots become underscores, the unit is appended - `s` -> `_seconds`, `ms` ->
+`_milliseconds`, `By` -> `_bytes` - monotonic counters get `_total`, an up/down counter is a plain
+gauge, and histograms get `_bucket`/`_sum`/`_count`) - adjust the panels' PromQL if your pipeline
+names metrics differently. `common/telemetry_dashboard_test.go` pins those names: it fails when an
+instrument in `telemetry.go` appears in no panel, when panel ids repeat or overlap, or when the rows
+change order.
+
+The dashboard's rows, in order: **Service health** (request rate, 5xx and 4xx ratios, the ten routes
+with the most 5xx, p50/p95 latency without the websockets), **Engine health** (backlog, seconds since
+each job last finished with a 300 s line, job p95, claims won and runs per replica), **Simulated
+world** (matches, goals, goals per match, rollovers, academy), **Economy**, **Economy flows**
+(credited and debited per day by reason, net money created, total-budget trend), **Transfer & loan
+market** (including CPU market actions), **Community**, **Live & delivery** (live viewers, push
+outcomes, DB pool) and **Per node**, which the `job` / `instance` template variables filter. Every
+season rollover is drawn as an annotation on every time series.
+
+To try it locally without Grafana's OTel plumbing, start a Prometheus (>= 2.47) with
+`--web.enable-otlp-receiver` and point the processes at it:
+
+```bash
+OTEL_METRICS_ENABLED=true OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9090/api/v1/otlp \
+  OTEL_METRIC_EXPORT_INTERVAL=5000 go run ./cmd --svc --engine
+```
 
 ## Local development (without Docker)
 

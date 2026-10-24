@@ -2,6 +2,8 @@ package common
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -129,7 +131,167 @@ var (
 	// LoansAcceptedCounter counts loan listings accepted by a borrowing team - see AcceptLoan.
 	LoansAcceptedCounter, _ = Meter.Int64Counter("striker.loans.accepted",
 		metric.WithDescription("Loan listings accepted"))
+
+	// EconomyFlowCounter adds |amount| of every committed ledger row, labeled by "reason" (the
+	// snake_case TRANSACTION_* name, see transactionReasonLabel) and "direction" (in/out) - the
+	// flows behind striker.economy.total_budget. Only LedgerFlows.Commit touches it, after the
+	// ledger transaction committed.
+	EconomyFlowCounter, _ = Meter.Int64Counter("striker.economy.flow",
+		metric.WithDescription("Money credited (in) and debited (out) through the ledger, by reason"))
+
+	// EngineJobRunsCounter, EngineJobDuration and engineJobLastRun describe each scheduled engine
+	// job run on this replica, labeled by "engine_job" (see engine.scheduleJob) - not "job", which an
+	// OTLP-to-Prometheus backend reserves for the resource's service.name and would overwrite. A run
+	// that skips because
+	// another replica already claimed the slot still counts: the trigger did fire here.
+	EngineJobRunsCounter, _ = Meter.Int64Counter("striker.engine.job.runs",
+		metric.WithDescription("Scheduled engine job runs, by job"))
+
+	EngineJobDuration, _ = Meter.Float64Histogram("striker.engine.job.duration",
+		metric.WithDescription("Scheduled engine job duration, by job"), metric.WithUnit("s"),
+		metric.WithExplicitBucketBoundaries(0.1, 0.5, 1, 2, 5, 10, 30, 60, 120, 300, 600))
+
+	// EngineJobClaimsCounter counts once-per-period claims (ClaimEngineJobSlot), labeled by "engine_job"
+	// and "outcome" (won/lost) - how the replicas share the work.
+	EngineJobClaimsCounter, _ = Meter.Int64Counter("striker.engine.job.claims",
+		metric.WithDescription("Once-per-period engine job claims, by job and outcome (won/lost)"))
+
+	engineJobLastRun, _ = Meter.Float64ObservableGauge("striker.engine.job.last_run",
+		metric.WithDescription("Unix time the job last finished on this replica"), metric.WithUnit("s"),
+		metric.WithFloat64Callback(func(_ context.Context, o metric.Float64Observer) error {
+			engineJobFinished.Range(func(job, finished any) bool {
+				o.Observe(float64(finished.(time.Time).UnixNano())/1e9, metric.WithAttributes(EngineJobAttribute(job.(string))))
+				return true
+			})
+			return nil
+		}))
+
+	// LiveConnections is the number of live-match websockets open on this svc instance.
+	LiveConnections, _ = Meter.Int64UpDownCounter("striker.live.connections",
+		metric.WithDescription("Live match websockets currently open on this instance"))
+
+	// PushSentCounter counts web push deliveries to one subscription, labeled by "outcome"
+	// (sent/failed/expired).
+	PushSentCounter, _ = Meter.Int64Counter("striker.push.sent",
+		metric.WithDescription("Web push deliveries, by outcome"))
 )
+
+// EngineJobAttribute labels an engine job metric with the job's stable snake_case name.
+func EngineJobAttribute(job string) attribute.KeyValue {
+	return attribute.String("engine_job", job)
+}
+
+// engineJobFinished holds, per job name, when it last finished on this process - what the
+// observable gauge engineJobLastRun reports.
+var engineJobFinished sync.Map
+
+// RecordEngineJobRun records one finished scheduled run of job: it adds to the run counter,
+// records how long it took and stamps the last-run gauge.
+func RecordEngineJobRun(ctx context.Context, job string, started time.Time, finished time.Time) {
+	attrs := metric.WithAttributes(EngineJobAttribute(job))
+	EngineJobRunsCounter.Add(ctx, 1, attrs)
+	EngineJobDuration.Record(ctx, finished.Sub(started).Seconds(), attrs)
+	engineJobFinished.Store(job, finished)
+}
+
+// RecordEngineJobClaim records the outcome of one ClaimEngineJobSlot attempt for job.
+func RecordEngineJobClaim(ctx context.Context, job string, won bool) {
+	outcome := "lost"
+	if won {
+		outcome = "won"
+	}
+	EngineJobClaimsCounter.Add(ctx, 1, metric.WithAttributes(EngineJobAttribute(job), attribute.String("outcome", outcome)))
+}
+
+// RecordPushOutcome adds one web push delivery attempt: outcome is "sent", "expired" or "failed".
+func RecordPushOutcome(ctx context.Context, outcome string) {
+	PushSentCounter.Add(ctx, 1, metric.WithAttributes(attribute.String("outcome", outcome)))
+}
+
+// transactionReasonLabel maps a TRANSACTION_* constant to the snake_case "reason" label of
+// EconomyFlowCounter. A unit test requires every constant in fmconstants.go to have one, so a new
+// reason cannot fall into "other" unnoticed.
+func transactionReasonLabel(reason int) string {
+	switch reason {
+	case TRANSACTION_TRANSFER_IN:
+		return "transfer_in"
+	case TRANSACTION_TRANSFER_OUT:
+		return "transfer_out"
+	case TRANSACTION_WAGES:
+		return "wages"
+	case TRANSACTION_ADMIN_ADJUSTMENT:
+		return "admin_adjustment"
+	case TRANSACTION_TICKET_REVENUE:
+		return "ticket_revenue"
+	case TRANSACTION_PRIZE_MONEY:
+		return "prize_money"
+	case TRANSACTION_SPONSORSHIP:
+		return "sponsorship"
+	case TRANSACTION_STADIUM_UPGRADE:
+		return "stadium_upgrade"
+	case TRANSACTION_CONTRACT_RELEASE:
+		return "contract_release"
+	case TRANSACTION_TRAINER_WAGES:
+		return "trainer_wages"
+	case TRANSACTION_SEASON_TICKETS:
+		return "season_tickets"
+	case TRANSACTION_MERCHANDISING:
+		return "merchandising"
+	case TRANSACTION_ADMIN_MASS_INJECTION:
+		return "admin_mass_injection"
+	case TRANSACTION_LOAN_FEE:
+		return "loan_fee"
+	case TRANSACTION_LOAN_WAGE_CONTRIBUTION:
+		return "loan_wage_contribution"
+	case TRANSACTION_STADIUM_MAINTENANCE:
+		return "stadium_maintenance"
+	default:
+		return "other"
+	}
+}
+
+// LedgerFlows buffers the money a database transaction moves so EconomyFlowCounter only counts it
+// once that transaction has committed: declare one next to the transaction, pass it to
+// insertLedgerRow for every ledger row, and call Commit right after tx.Commit() succeeds. A
+// transaction that rolls back just drops the buffer. The zero value is ready to use.
+type LedgerFlows struct {
+	sums map[ledgerFlowKey]int64
+}
+
+type ledgerFlowKey struct {
+	reason    string
+	direction string
+}
+
+// Add buffers one ledger row of `amount` (negative for an expense). An amount of 0 is skipped.
+func (f *LedgerFlows) Add(reason int, amount int64) {
+	f.AddTimes(reason, amount, 1)
+}
+
+// AddTimes buffers `n` identical rows, as one mass adjustment against every team writes.
+func (f *LedgerFlows) AddTimes(reason int, amount int64, n int64) {
+	if amount == 0 || n <= 0 {
+		return
+	}
+	direction := "in"
+	if amount < 0 {
+		direction = "out"
+		amount = -amount
+	}
+	if f.sums == nil {
+		f.sums = map[ledgerFlowKey]int64{}
+	}
+	f.sums[ledgerFlowKey{transactionReasonLabel(reason), direction}] += amount * n
+}
+
+// Commit exports everything buffered and empties the buffer.
+func (f *LedgerFlows) Commit(ctx context.Context) {
+	for key, sum := range f.sums {
+		EconomyFlowCounter.Add(ctx, sum, metric.WithAttributes(
+			attribute.String("reason", key.reason), attribute.String("direction", key.direction)))
+	}
+	f.sums = nil
+}
 
 // marketGaugesOnce guards RegisterMarketGauges - only engine.StartEngine calls it (see its own
 // doc comment below), but --svc --engine combined mode still runs both StartSvc and StartEngine
@@ -137,10 +299,18 @@ var (
 // needs to stay a safe no-op rather than a duplicate-instrument error.
 var marketGaugesOnce sync.Once
 
+// errNoDatabase is what a gauge callback reports when it runs against a DatabaseContext with no
+// *sql.DB (a test that only checks registration) - otel logs and skips the tick instead of the
+// callback panicking.
+var errNoDatabase = errors.New("no database connection")
+
 // queryInt64 runs a query that returns a single int64 column (a `SELECT count(*)` or
 // `SELECT SUM(...)`) and returns it - exists purely so RegisterMarketGauges's callbacks stay one
 // line each.
 func queryInt64(dbCtx *DatabaseContext, query string) (int64, error) {
+	if dbCtx == nil || dbCtx.Db == nil {
+		return 0, errNoDatabase
+	}
 	var result int64
 	err := dbCtx.Db.QueryRow(query).Scan(&result)
 	return result, err
@@ -239,6 +409,133 @@ func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 			regErr = err
 			return
 		}
+
+		if err := registerMatchBacklogGauges(dbCtx); err != nil {
+			regErr = err
+			return
+		}
+	})
+	return regErr
+}
+
+// registerMatchBacklogGauges registers striker.matches.overdue and striker.matches.in_simulation.
+// One CountMatchBacklog query feeds both through a single callback, so it is one round trip per
+// export tick. Engine-only for the same reason as the gauges in RegisterMarketGauges (DB-wide
+// values), read with max().
+func registerMatchBacklogGauges(dbCtx *DatabaseContext) error {
+	overdue, err := Meter.Int64ObservableGauge("striker.matches.overdue",
+		metric.WithDescription("Unplayed matches with both teams set whose kickoff passed more than "+
+			strconv.Itoa(int(MatchOverdueAfter/time.Minute))+" minutes ago, by competition type"))
+	if err != nil {
+		return err
+	}
+	inSimulation, err := Meter.Int64ObservableGauge("striker.matches.in_simulation",
+		metric.WithDescription("Unplayed matches currently claimed by an engine replica for simulation, by competition type"))
+	if err != nil {
+		return err
+	}
+	_, err = Meter.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
+		backlog, err := CountMatchBacklog(dbCtx)
+		if err != nil {
+			return err
+		}
+		for _, b := range backlog {
+			attrs := metric.WithAttributes(MatchTypeAttribute(b.Type))
+			o.ObserveInt64(overdue, b.Overdue, attrs)
+			o.ObserveInt64(inSimulation, b.InSimulation, attrs)
+		}
+		return nil
+	}, overdue, inSimulation)
+	return err
+}
+
+// MatchOverdueAfter is how long past its kickoff an unplayed match may wait before
+// striker.matches.overdue counts it: the simulate job runs every minute and takes any match due
+// within the next 15 minutes (see GetSimulableMatchesStmtSql), so a match this late means nothing
+// is picking it up.
+const MatchOverdueAfter = 5 * time.Minute
+
+// CountMatchBacklogStmtSql counts, per competition type, the unplayed matches that are overdue
+// (both teams set - a cup bye has no away team and is never played - and kickoff more than $1
+// seconds ago) and the ones currently claimed for simulation. Every branch reads only unplayed
+// rows through the partial indexes of init85_observability_indexes.sql.
+const CountMatchBacklogStmtSql = "SELECT 'league', " +
+	"count(*) FILTER (WHERE match_date < now() - ($1 * interval '1 second')), " +
+	"count(*) FILTER (WHERE in_simulation) FROM matches WHERE played = false " +
+	"UNION ALL SELECT 'cup', " +
+	"count(*) FILTER (WHERE match_date < now() - ($1 * interval '1 second')), " +
+	"count(*) FILTER (WHERE in_simulation) FROM cup_ties " +
+	"WHERE played = false AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL " +
+	"UNION ALL SELECT 'friendly', " +
+	"count(*) FILTER (WHERE match_date < now() - ($1 * interval '1 second')), " +
+	"count(*) FILTER (WHERE in_simulation) FROM friendly_matches WHERE played = false"
+
+// MatchBacklog is one competition type's row of CountMatchBacklogStmtSql.
+type MatchBacklog struct {
+	Type         string
+	Overdue      int64
+	InSimulation int64
+}
+
+// CountMatchBacklog returns the backlog for league, cup and friendly matches, in that order.
+func CountMatchBacklog(dbCtx *DatabaseContext) ([]MatchBacklog, error) {
+	if dbCtx == nil || dbCtx.Db == nil {
+		return nil, errNoDatabase
+	}
+	rows, err := dbCtx.Db.Query(CountMatchBacklogStmtSql, int64(MatchOverdueAfter/time.Second))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	backlog := make([]MatchBacklog, 0, 3)
+	for rows.Next() {
+		var b MatchBacklog
+		if err := rows.Scan(&b.Type, &b.Overdue, &b.InSimulation); err != nil {
+			return nil, err
+		}
+		backlog = append(backlog, b)
+	}
+	return backlog, rows.Err()
+}
+
+// dbPoolMetricsOnce guards RegisterDBPoolMetrics for the same reason as marketGaugesOnce:
+// --svc --engine runs StartSvc and StartEngine in one process, and both call it.
+var dbPoolMetricsOnce sync.Once
+
+// RegisterDBPoolMetrics exports this process's own database/sql pool state: connections in use
+// and idle, and how often (and for how long) a caller had to wait for one. Unlike
+// RegisterMarketGauges these are per process, not DB-wide, so every svc and engine replica
+// registers them and the dashboard sums them by instance. One db.Stats() call feeds all three
+// instruments.
+func RegisterDBPoolMetrics(db *sql.DB) error {
+	var regErr error
+	dbPoolMetricsOnce.Do(func() {
+		connections, err := Meter.Int64ObservableGauge("striker.db.connections",
+			metric.WithDescription("Database connections in this process's pool, by state (in_use/idle)"))
+		if err != nil {
+			regErr = err
+			return
+		}
+		waits, err := Meter.Int64ObservableCounter("striker.db.connection_waits",
+			metric.WithDescription("Times a caller had to wait for a free database connection"))
+		if err != nil {
+			regErr = err
+			return
+		}
+		waitTime, err := Meter.Float64ObservableCounter("striker.db.connection_wait_time",
+			metric.WithDescription("Total time callers spent waiting for a free database connection"), metric.WithUnit("s"))
+		if err != nil {
+			regErr = err
+			return
+		}
+		_, regErr = Meter.RegisterCallback(func(_ context.Context, o metric.Observer) error {
+			stats := db.Stats()
+			o.ObserveInt64(connections, int64(stats.InUse), metric.WithAttributes(attribute.String("state", "in_use")))
+			o.ObserveInt64(connections, int64(stats.Idle), metric.WithAttributes(attribute.String("state", "idle")))
+			o.ObserveInt64(waits, stats.WaitCount)
+			o.ObserveFloat64(waitTime, stats.WaitDuration.Seconds())
+			return nil
+		}, connections, waits, waitTime)
 	})
 	return regErr
 }

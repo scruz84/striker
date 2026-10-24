@@ -37,8 +37,8 @@ not visible. The two per-node share panels use different windows.
   - `striker.economy.flow` (counter, `reason` and `direction`): money credited and debited
     through the ledger.
   - `striker.engine.job.runs`, `striker.engine.job.duration` and `striker.engine.job.last_run`,
-    labelled by `job`, plus `striker.engine.job.claims` (`job`, `outcome`=`won`/`lost`) for
-    once-per-period claims.
+    labelled by `engine_job` (not `job`, which the OTLP backend reserves for `service.name`), plus
+    `striker.engine.job.claims` (`engine_job`, `outcome`=`won`/`lost`) for once-per-period claims.
   - `striker.matches.overdue` and `striker.matches.in_simulation` (gauges, `type`), DB-wide and
     registered by the engine only.
   - `striker.live.connections` (up/down counter per svc instance).

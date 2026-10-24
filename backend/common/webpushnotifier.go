@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -70,6 +71,7 @@ func (n WebPushNotifier) sendOne(userId int64, sub PushSubscription, payload []b
 	})
 	if err != nil {
 		log.Errorf("error sending push notification to user %d subscription %d: %s", userId, sub.Id, err)
+		RecordPushOutcome(context.Background(), "failed")
 		return
 	}
 	defer resp.Body.Close()
@@ -78,10 +80,21 @@ func (n WebPushNotifier) sendOne(userId int64, sub PushSubscription, payload []b
 	// cleared site data, or the browser itself expired it) - not a transient failure worth
 	// retrying, so the stale row is dropped instead of accumulating forever.
 	if resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusGone {
+		RecordPushOutcome(context.Background(), "expired")
 		if err := DeletePushSubscriptionById(n.DbCtx, sub.Id); err != nil {
 			log.Errorf("error deleting stale push subscription %d: %s", sub.Id, err)
 		}
+		return
 	}
+
+	// Only counted, not retried: a 429 or 5xx from the push service used to pass silently as a
+	// success, and still isn't acted on - striker.push.sent{outcome="failed"} just makes it visible.
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		RecordPushOutcome(context.Background(), "sent")
+		return
+	}
+	log.Warnf("push service answered %d for user %d subscription %d", resp.StatusCode, userId, sub.Id)
+	RecordPushOutcome(context.Background(), "failed")
 }
 
 // ConfigureWebPushNotifier points DefaultNotifier at a real WebPushNotifier when both

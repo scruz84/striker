@@ -47,15 +47,19 @@ Every committed ledger row SHALL add |amount| to the counter `striker.economy.fl
 - **THEN** a unit test that iterates every constant fails
 
 ### Requirement: Engine job metrics
-Every scheduled engine job run SHALL add 1 to `striker.engine.job.runs`, record its duration in s in `striker.engine.job.duration`, and set the gauge `striker.engine.job.last_run` to the unix time it finished. All three carry `job`, a stable snake_case name. A once-per-period claim SHALL add 1 to `striker.engine.job.claims` with `job` and `outcome`=`won` or `lost`.
+Every scheduled engine job run SHALL add 1 to `striker.engine.job.runs`, record its duration in s in `striker.engine.job.duration`, and set the gauge `striker.engine.job.last_run` to the unix time it finished. All three carry `engine_job`, a stable snake_case name, never `job`. A once-per-period claim SHALL add 1 to `striker.engine.job.claims` with `engine_job` and `outcome`=`won` or `lost`.
 
 #### Scenario: Two replicas, one daily job
 - **WHEN** two replicas fire `birthdays` at 00:00 UTC
-- **THEN** `striker.engine.job.claims{job="birthdays"}` grows by 1 with `outcome="won"` on one instance and by 1 with `outcome="lost"` on the other, and both record a run
+- **THEN** `striker.engine.job.claims{engine_job="birthdays"}` grows by 1 with `outcome="won"` on one instance and by 1 with `outcome="lost"` on the other, and both record a run
+
+#### Scenario: Job label does not collide with the resource
+- **WHEN** the metrics reach a Prometheus-compatible backend over OTLP
+- **THEN** `job` still holds the resource's `service.name` (`striker-engine`), and each engine job is its own series under `engine_job`
 
 #### Scenario: Simulation job stalls
 - **WHEN** no replica has finished `simulate_matches` for 5 minutes
-- **THEN** the dashboard shows `time() - max(striker_engine_job_last_run_seconds{job="simulate_matches"})` ≥ 300
+- **THEN** the dashboard shows `time() - max(striker_engine_job_last_run_seconds{engine_job="simulate_matches"})` ≥ 300
 
 ### Requirement: Simulation backlog gauges
 The engine SHALL export `striker.matches.overdue` and `striker.matches.in_simulation`, labelled `type` = `league`, `cup` or `friendly`. Overdue counts unplayed matches with both teams set and kickoff more than 5 minutes ago. In simulation counts unplayed rows with `in_simulation = true`. Only the engine registers them; the dashboard reads them with `max`, never `sum`.

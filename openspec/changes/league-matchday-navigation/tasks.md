@@ -24,7 +24,7 @@
   - Add `division.matchday` ("Matchday {{week}}" / "Jornada {{week}}"), `division.matchdayPicker` ("Matchday" / "Jornada"), `division.previousMatchday` ("Previous matchday" / "Jornada anterior"), `division.nextMatchday` ("Next matchday" / "Jornada siguiente"), `division.backToCurrent` ("Current matchday" / "Jornada actual") and `division.tabs.transfers` ("Transfers" / "Traspasos").
   - Change `division.tabs.table` to "Table" / "Tabla" and `division.tabs.scorers` to "Scorers" / "Goleadores".
   - Verify that both files hold the same new keys (`npx vitest run` covers locale parity if a test exists; otherwise diff the key sets with `jq`).
-- [ ] 4.3 Run the mobile smoke test (`frontend/e2e/mobile-smoke.spec.ts`, signed in, 360 px). It already visits `/division/:id`. Extend that visit to tap each of the four tabs and the navigator's ‹ / ›. Verify that it passes: no horizontal scroll, no text below 11 px, no tap target below 44 px, and that all four tab labels are fully visible (screenshot in the PR).
+- [x] 4.3 Run the mobile smoke test (`frontend/e2e/mobile-smoke.spec.ts`, signed in, 360 px). It already visits `/division/:id`. Extend that visit to tap each of the four tabs and the navigator's ‹ / ›. Verify that it passes: no horizontal scroll, no text below 11 px, no tap target below 44 px, and that all four tab labels are fully visible (screenshot in the PR).
 
 ## 5. Specs and docs
 

@@ -430,11 +430,12 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	}
 
 	playerName := player.FirstName + " " + player.LastName
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, fromTeamId, -amount, TRANSACTION_TRANSFER_OUT,
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, fromTeamId, -amount, TRANSACTION_TRANSFER_OUT,
 		"Bought "+playerName+" from "+sellerTeam.TeamName, playerId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, toTeamId, amount, TRANSACTION_TRANSFER_IN,
+	if err := insertLedgerRow(tx, &flows, toTeamId, amount, TRANSACTION_TRANSFER_IN,
 		"Sold "+playerName+" to "+buyerTeam.TeamName, playerId); err != nil {
 		return err
 	}
@@ -442,6 +443,7 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+	flows.Commit(context.Background())
 
 	RecordTransferCompleted(context.Background(), amount)
 	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("accepted")))

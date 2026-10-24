@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -185,13 +186,15 @@ func UpgradeStadium(dbCtx *DatabaseContext, teamId int64, seats int) (*Stadium, 
 		return nil, err
 	}
 	description := fmt.Sprintf("Stadium expansion to %d seats under construction", newCapacity)
-	if _, err := tx.Exec(InsertTeamTransactionStmtSql, teamId, -cost, TRANSACTION_STADIUM_UPGRADE, description, nil); err != nil {
+	var flows LedgerFlows
+	if err := insertLedgerRow(tx, &flows, teamId, -cost, TRANSACTION_STADIUM_UPGRADE, description, nil); err != nil {
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+	flows.Commit(context.Background())
 	return GetStadium(dbCtx, teamId)
 }
 

@@ -6,10 +6,14 @@ import (
 	"math/rand"
 	"os"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+
 	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/common/metrictest"
 )
 
 // These tests run against a real Postgres (STRIKER_TEST_DB_DSN; skipped when unset). Each one
@@ -259,5 +263,33 @@ func TestStartInternationalCupsIfDue_ConcurrentReplicasStartOneRound(t *testing.
 	}
 	if season := <-claimed; season != before+1 {
 		t.Errorf("claimed season %d, want %d", season, before+1)
+	}
+}
+
+// TestClaimRun_RecordsWonAndLostPerReplica: every replica that fires the same once-per-period job
+// records its claim; exactly one wins (striker.engine.job.claims), the others lose.
+func TestClaimRun_RecordsWonAndLostPerReplica(t *testing.T) {
+	_, dbCtx := openReplicaTestDb(t)
+	metrictest.Install()
+	jobName := fmt.Sprintf("claims_test_%d", time.Now().UnixNano())
+	won := attribute.String("outcome", "won")
+	lost := attribute.String("outcome", "lost")
+	job := common.EngineJobAttribute(jobName)
+
+	var winners atomic.Int64
+	runConcurrently(replicas, func() {
+		if claimRun(dbCtx, jobName, 24*time.Hour) {
+			winners.Add(1)
+		}
+	})
+
+	if winners.Load() != 1 {
+		t.Fatalf("%d replicas won the claim, want 1", winners.Load())
+	}
+	if got := metrictest.Sum(t, "striker.engine.job.claims", job, won); got != 1 {
+		t.Errorf("claims won = %v, want 1", got)
+	}
+	if got := metrictest.Sum(t, "striker.engine.job.claims", job, lost); got != replicas-1 {
+		t.Errorf("claims lost = %v, want %d", got, replicas-1)
 	}
 }

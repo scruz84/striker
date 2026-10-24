@@ -139,6 +139,8 @@ Existing locks keep their bare keys (`leagueId`, `cupId`, `hashtext(country)`, c
 - Simulation claims: `GetSimulableMatches`, `GetStuckMatches`, `StuckSimulationAge`
   (`common/database.go`); `GetSimulableFriendlies`, `GetStuckFriendlies` (`common/friendlies.go`).
 - Periodic jobs: `claimRun` and the `Execute` methods in `engine/tasks.go`.
+  `striker.engine.job.claims{engine_job,outcome}` (`common/telemetry.go`) shows how the claims are
+  shared: each replica records `won` or `lost` for every claim.
 - Tests: `engine/engine_replicas_integration_test.go`, `common/enginelocks_integration_test.go`,
   plus `engine/season_advance_lock_integration_test.go`, `engine/cup_advance_lock_integration_test.go`,
   `engine/fixture_generation_lock_integration_test.go`,
