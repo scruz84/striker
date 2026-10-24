@@ -861,14 +861,21 @@
     "tabs": {
       "table": "Table",
       "fixtures": "Fixtures",
-      "scorers": "Top scorers"
+      "scorers": "Scorers",
+      "transfers": "Transfers"
     },
     "legend": {
       "title": "Legend",
       "promotion": "Promotion",
       "relegation": "Relegation",
       "columns": "P played · GD goal difference · Pts points"
-    }
+    },
+    "matchday": "Matchday {{week}}",
+    "matchdayPicker": "Matchday",
+    "previousMatchday": "Previous matchday",
+    "nextMatchday": "Next matchday",
+    "backToCurrent": "Current matchday",
+    "matchdayError": "Couldn't load this matchday"
   },
   "recentTransfers": {
     "title": "Recent transfers",

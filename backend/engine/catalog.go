@@ -9,6 +9,7 @@ import (
 
 const ClassificationKey = "classDet_key"
 const CurrentSeasonKeyPrefix = "currentSeason_key_"
+const LeagueWeekKey = "leagueWeek_key"
 const FullTeamDetailsKey = "fullTeamDet_key_"
 const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
@@ -132,6 +133,32 @@ func GetDivisionDetails(dbCtx *common.DatabaseContext, leagueId int64) (*common.
 	value, _ := json.Marshal(divisionDetails)
 	dbCtx.ObjectCache.SetValue(key, string(value))
 	return divisionDetails, nil
+}
+
+// GetLeagueWeekMatches returns one matchday of a league's season, cached like GetDivisionDetails
+// (1 minute) so browsing the league page's matchdays doesn't hit the database on every tap. The
+// result is never nil - a week past the season's last one is an empty slice.
+func GetLeagueWeekMatches(dbCtx *common.DatabaseContext, leagueId int64, season int, week int) ([]common.WeekMatch, error) {
+	key := LeagueWeekKey + strconv.FormatInt(leagueId, 10) + "_" + strconv.Itoa(season) + "_" + strconv.Itoa(week)
+	v, _ := dbCtx.ObjectCache.GetValue(key)
+	if v != "" {
+		var cached []common.WeekMatch
+		if err := json.Unmarshal([]byte(v), &cached); err == nil && cached != nil {
+			return cached, nil
+		}
+	}
+	matches, err := common.WeekMatches(dbCtx, leagueId, season, week)
+	if err != nil {
+		log.Errorf("error retrieving week %d matches of league %d: %s", week, leagueId, err)
+		return nil, err
+	}
+	result := make([]common.WeekMatch, 0)
+	if matches != nil {
+		result = *matches
+	}
+	value, _ := json.Marshal(result)
+	dbCtx.ObjectCache.SetValue(key, string(value))
+	return result, nil
 }
 
 func GetTeamDetails(dbCtx *common.DatabaseContext, owner bool, teamId int64) (*common.TeamDetails, error) {

@@ -859,16 +859,23 @@
     "subtitle": "Temporada {{season}} · Jornada {{week}} de {{total}}",
     "fullTable": "Tabla completa",
     "tabs": {
-      "table": "Clasificación",
+      "table": "Tabla",
       "fixtures": "Jornadas",
-      "scorers": "Goleadores"
+      "scorers": "Goleadores",
+      "transfers": "Traspasos"
     },
     "legend": {
       "title": "Leyenda",
       "promotion": "Ascenso",
       "relegation": "Descenso",
       "columns": "PJ partidos · DG diferencia de goles · Pts puntos"
-    }
+    },
+    "matchday": "Jornada {{week}}",
+    "matchdayPicker": "Jornada",
+    "previousMatchday": "Jornada anterior",
+    "nextMatchday": "Jornada siguiente",
+    "backToCurrent": "Jornada actual",
+    "matchdayError": "No se pudo cargar esta jornada"
   },
   "recentTransfers": {
     "title": "Traspasos recientes",

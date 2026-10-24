@@ -103,3 +103,26 @@ and no notification key. The engine is not involved, so no replica-safety claim 
 Frontend and backend deploy together. The new route is additive. An old client never calls it, and
 a new client on an old backend only fails when it browses (the cards show an error state), never
 on the default pair. Rollback is to revert the commit.
+
+## Code map
+
+The delta spec cannot carry this section (`openspec validate` warns that archive drops it), so copy it
+as `## Code map` into `openspec/specs/league-page/spec.md` right after archiving.
+
+- `frontend/src/features/division/DivisionDetailsPage.tsx`: `matchdayPair` / `matchdayChip` (the
+  pair and chip rules), `MatchdayFixtures` (reads and writes the `week` query parameter, seeds the
+  default pair from division details), `MatchdayNavigator`, `FixturesCard`, and
+  `hideStillLiveResults` (unchanged, still driven by `previousWeekMatches`). The four phone tabs
+  live in `DivisionDetailsPage`.
+- `frontend/src/features/leagues/RecentLeagueTransfers.tsx`: the "Traspasos" tab and desktop panel.
+- `frontend/src/api/hooks.ts`: `useDivisionDetails`, `useLeagueWeekMatches`
+  (`queryKeys.leagueWeek`).
+- `backend/handlers/statsHandlers.go`: `LeagueWeekMatchesHandler` (and `parseLeagueWeek`), routed in
+  `service/fmservice.go` as `GET /v1/teams/division/:id/weeks/:week`; `handlers.DivisionDetailsHandler`
+  serves the default pair.
+- `backend/engine/catalog.go`: `GetLeagueWeekMatches` (cache key `LeagueWeekKey`) and
+  `GetDivisionDetails`.
+- `backend/common/database.go`: `WeekMatches` and `GetDivisionDetails`.
+- Locale keys: `division.matchday`, `division.matchdayPicker`, `division.previousMatchday`,
+  `division.nextMatchday`, `division.backToCurrent`, `division.matchdayError`, `division.lastWeek`,
+  `division.nextWeek` and `division.tabs.*` in `frontend/src/i18n/locales/{en,es}.json`.

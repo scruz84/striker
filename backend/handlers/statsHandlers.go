@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
+	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 )
 
 // TopScorersLimit bounds how many players a league's leaderboard shows.
@@ -39,6 +42,48 @@ func TopScorersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, scorers)
+	}
+}
+
+// parseLeagueWeek reads the :id and :week params of the matchday endpoint. Split out so the
+// validation is unit-testable without a database.
+func parseLeagueWeek(leagueParam, weekParam string) (leagueId int64, week int, err error) {
+	leagueId, err = common.StringToInt64(leagueParam)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid league id")
+	}
+	week, err = strconv.Atoi(weekParam)
+	if err != nil || week < 1 {
+		return 0, 0, fmt.Errorf("invalid week")
+	}
+	return leagueId, week, nil
+}
+
+// LeagueWeekMatchesHandler returns one matchday's matches of a league's current season, in the
+// same shape as DivisionDetails' previousWeekMatches - so the league page can browse any matchday.
+// Public, same reasoning as TopScorersHandler. A week past the season's last one is an empty list.
+func LeagueWeekMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		leagueId, week, err := parseLeagueWeek(c.Param(ID), c.Param("week"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+
+		season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueId)
+		if err != nil {
+			log.Errorf("error getting current season for league week: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		matches, err := engine.GetLeagueWeekMatches(dbCtx, leagueId, season, week)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, matches)
 	}
 }
 

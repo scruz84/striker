@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ClassificationPosition, WeekMatch } from '../../api/types'
-import { hideStillLiveResults } from './DivisionDetailsPage'
+import { hideStillLiveResults, matchdayChip, matchdayPair } from './DivisionDetailsPage'
 
 function position(overrides: Partial<ClassificationPosition>): ClassificationPosition {
   return {
@@ -111,5 +111,56 @@ describe('hideStillLiveResults', () => {
     expect(team1.points).toBe(10)
     expect(team1.matches).toBe(4)
     expect(team1.wins).toBe(3)
+  })
+})
+
+describe('matchdayPair', () => {
+  const pair = (currentWeek: number, requested?: number, totalWeeks = 30) => matchdayPair({ currentWeek, totalWeeks, requested })
+
+  it('opens on the current week and its next one', () => {
+    expect(pair(12)).toEqual({ left: 12, isDefault: true })
+  })
+
+  it('opens on matchdays 1 and 2 before the first matchday', () => {
+    expect(pair(0)).toEqual({ left: 1, isDefault: true })
+  })
+
+  it('opens on the last two matchdays once the season is finished', () => {
+    expect(pair(30)).toEqual({ left: 29, isDefault: true })
+  })
+
+  it('clamps an out-of-range requested week into the season', () => {
+    expect(pair(12, 99)).toEqual({ left: 29, isDefault: false })
+    expect(pair(12, 0)).toEqual({ left: 1, isDefault: false })
+  })
+
+  it('treats no request as the default pair', () => {
+    expect(pair(12, undefined)).toEqual({ left: 12, isDefault: true })
+  })
+
+  it('is the default pair when the request equals it', () => {
+    expect(pair(12, 12).isDefault).toBe(true)
+  })
+
+  it('shows matchdays 1 and 2 for a season too short to have two', () => {
+    expect(matchdayPair({ currentWeek: 0, totalWeeks: 0 })).toEqual({ left: 1, isDefault: true })
+  })
+})
+
+describe('matchdayChip', () => {
+  it('tags the matchday just played and the one up next', () => {
+    expect(matchdayChip(12, 12)).toBe('lastWeek')
+    expect(matchdayChip(13, 12)).toBe('nextWeek')
+    expect(matchdayChip(11, 12)).toBeUndefined()
+  })
+
+  it('tags only the upcoming matchday before the first one', () => {
+    expect(matchdayChip(1, 0)).toBe('nextWeek')
+    expect(matchdayChip(2, 0)).toBeUndefined()
+  })
+
+  it('tags only the last matchday once the season is finished', () => {
+    expect(matchdayChip(29, 30)).toBeUndefined()
+    expect(matchdayChip(30, 30)).toBe('lastWeek')
   })
 })

@@ -20,9 +20,14 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { alpha, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { Link as RouterLink, useParams } from 'react-router-dom'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import IconButton from '@mui/material/IconButton'
+import MenuItem from '@mui/material/MenuItem'
+import TextField from '@mui/material/TextField'
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useDivisionDetails, useTopScorers, useUserTeam } from '../../api/hooks'
+import { useDivisionDetails, useLeagueWeekMatches, useTopScorers, useUserTeam } from '../../api/hooks'
 import type { ClassificationPosition, ScorerStanding, WeekMatch } from '../../api/types'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
@@ -37,14 +42,14 @@ import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
 const TOP_SCORERS_PREVIEW = 5
 
-type DivisionTab = 'table' | 'fixtures' | 'scorers'
+type DivisionTab = 'table' | 'fixtures' | 'scorers' | 'transfers'
 
 export function DivisionDetailsPage() {
   const { t } = useTranslation()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const { id } = useParams<{ id: string }>()
-  const { data: divisionDetails, isLoading } = useDivisionDetails(id)
+  const { data: divisionDetails, isLoading, dataUpdatedAt: divisionUpdatedAt } = useDivisionDetails(id)
   const { data: userTeam } = useUserTeam(true)
   const [tab, setTab] = useState<DivisionTab>('table')
 
@@ -70,14 +75,18 @@ export function DivisionDetailsPage() {
     />
   )
   const fixtures = (
-    <Grid container spacing={2}>
-      <Grid size={{ xs: 12, md: 6 }}>
-        <FixturesCard title={t('division.lastWeek')} matches={divisionDetails.previousWeekMatches} myTeamId={myTeamId} />
-      </Grid>
-      <Grid size={{ xs: 12, md: 6 }}>
-        <FixturesCard title={t('division.nextWeek')} matches={divisionDetails.nextWeekMatches} myTeamId={myTeamId} />
-      </Grid>
-    </Grid>
+    <MatchdayFixtures
+      leagueId={id}
+      currentWeek={currentWeek}
+      totalWeeks={totalWeeks}
+      // The seeds are the backend's own W (before hideStillLiveResults reverts it): that is the
+      // week previousWeekMatches belongs to.
+      backendWeek={divisionDetails.classification.positions[0]?.matches ?? 0}
+      previousWeekMatches={divisionDetails.previousWeekMatches}
+      nextWeekMatches={divisionDetails.nextWeekMatches}
+      updatedAt={divisionUpdatedAt}
+      myTeamId={myTeamId}
+    />
   )
 
   return (
@@ -113,21 +122,170 @@ export function DivisionDetailsPage() {
             variant="fullWidth"
             sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
           >
-            <Tab value="table" label={t('division.tabs.table')} />
-            <Tab value="fixtures" label={t('division.tabs.fixtures')} />
-            <Tab value="scorers" label={t('division.tabs.scorers')} />
+            {/* Four tabs share 328px at 360px wide: drop MUI's 90px minWidth and trim the padding. */}
+            <Tab value="table" label={t('division.tabs.table')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="fixtures" label={t('division.tabs.fixtures')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="scorers" label={t('division.tabs.scorers')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="transfers" label={t('division.tabs.transfers')} sx={{ minWidth: 0, px: 1 }} />
           </Tabs>
           {tab === 'table' && table}
           {tab === 'fixtures' && fixtures}
-          {tab === 'scorers' && (
-            <Stack spacing={2}>
-              <TopScorers leagueId={id} limit={TOP_SCORERS_PREVIEW} />
-              <RecentLeagueTransfers leagueId={id} />
-            </Stack>
-          )}
+          {tab === 'scorers' && <TopScorers leagueId={id} limit={TOP_SCORERS_PREVIEW} />}
+          {tab === 'transfers' && <RecentLeagueTransfers leagueId={id} />}
         </>
       )}
     </Box>
+  )
+}
+
+// matchdayPair resolves which two matchdays the fixtures section shows: `left` and left + 1. It
+// is the requested week (the `week` query parameter), or the current week by default, clamped so
+// both fit in the season (1..totalWeeks - 1, and 1 for a season too short to have two). isDefault
+// tells whether that is the pair the page opens on - the navigator then drops the parameter.
+export function matchdayPair({ currentWeek, totalWeeks, requested }: { currentWeek: number; totalWeeks: number; requested?: number }): {
+  left: number
+  isDefault: boolean
+} {
+  const max = Math.max(1, totalWeeks - 1)
+  const clamp = (week: number) => Math.min(Math.max(week, 1), max)
+  const left = clamp(requested ?? currentWeek)
+  return { left, isDefault: left === clamp(currentWeek) }
+}
+
+// matchdayChip labels the matchday that was just played or is next up - whichever pair is shown.
+export function matchdayChip(week: number, currentWeek: number): 'lastWeek' | 'nextWeek' | undefined {
+  if (week === currentWeek) return 'lastWeek'
+  if (week === currentWeek + 1) return 'nextWeek'
+  return undefined
+}
+
+// requestedWeek reads the `week` query parameter: anything that isn't an integer is ignored.
+function requestedWeek(param: string | null): number | undefined {
+  if (param === null || !/^-?\d+$/.test(param)) return undefined
+  return Number(param)
+}
+
+function MatchdayFixtures({
+  leagueId,
+  currentWeek,
+  totalWeeks,
+  backendWeek,
+  previousWeekMatches,
+  nextWeekMatches,
+  updatedAt,
+  myTeamId,
+}: {
+  leagueId: string | undefined
+  currentWeek: number
+  totalWeeks: number
+  backendWeek: number
+  previousWeekMatches: WeekMatch[]
+  nextWeekMatches: WeekMatch[]
+  updatedAt: number
+  myTeamId: number | undefined
+}) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { left, isDefault } = matchdayPair({ currentWeek, totalWeeks, requested: requestedWeek(searchParams.get('week')) })
+  const right = left + 1
+
+  const seedFor = (week: number) => {
+    if (week === backendWeek) return { matches: previousWeekMatches, updatedAt }
+    if (week === backendWeek + 1) return { matches: nextWeekMatches, updatedAt }
+    return undefined
+  }
+  const leftQuery = useLeagueWeekMatches(leagueId, left, seedFor(left))
+  const rightQuery = useLeagueWeekMatches(leagueId, right, seedFor(right))
+
+  const goTo = (week: number) => {
+    const { left: target, isDefault: toDefault } = matchdayPair({ currentWeek, totalWeeks, requested: week })
+    setSearchParams(toDefault ? {} : { week: String(target) }, { replace: true })
+  }
+
+  return (
+    <Stack spacing={2}>
+      <MatchdayNavigator left={left} totalWeeks={totalWeeks} isDefault={isDefault} onSelect={goTo} onReset={() => goTo(currentWeek)} />
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <FixturesCard
+            week={left}
+            chip={matchdayChip(left, currentWeek)}
+            matches={leftQuery.data}
+            failed={leftQuery.isError}
+            myTeamId={myTeamId}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <FixturesCard
+            week={right}
+            chip={matchdayChip(right, currentWeek)}
+            matches={rightQuery.data}
+            failed={rightQuery.isError}
+            myTeamId={myTeamId}
+          />
+        </Grid>
+      </Grid>
+    </Stack>
+  )
+}
+
+const TAP_TARGET = 44
+
+// ‹ [Jornada picker] › plus a "current matchday" button that only shows off the default pair.
+function MatchdayNavigator({
+  left,
+  totalWeeks,
+  isDefault,
+  onSelect,
+  onReset,
+}: {
+  left: number
+  totalWeeks: number
+  isDefault: boolean
+  onSelect: (week: number) => void
+  onReset: () => void
+}) {
+  const { t } = useTranslation()
+  const weeks = Array.from({ length: Math.max(totalWeeks, left + 1) }, (_unused, index) => index + 1)
+  const lastLeft = Math.max(1, totalWeeks - 1)
+
+  return (
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 1 }}>
+      <IconButton
+        aria-label={t('division.previousMatchday')}
+        disabled={left <= 1}
+        onClick={() => onSelect(left - 1)}
+        sx={{ width: TAP_TARGET, height: TAP_TARGET }}
+      >
+        <ChevronLeftIcon />
+      </IconButton>
+      <TextField
+        select
+        size="small"
+        value={left}
+        onChange={(event) => onSelect(Number(event.target.value))}
+        slotProps={{ htmlInput: { 'aria-label': t('division.matchdayPicker') } }}
+        sx={{ minWidth: 150, '& .MuiInputBase-root': { minHeight: TAP_TARGET } }}
+      >
+        {weeks.map((week) => (
+          <MenuItem key={week} value={week} sx={{ minHeight: TAP_TARGET }}>
+            {t('division.matchday', { week })}
+          </MenuItem>
+        ))}
+      </TextField>
+      <IconButton
+        aria-label={t('division.nextMatchday')}
+        disabled={left >= lastLeft}
+        onClick={() => onSelect(left + 1)}
+        sx={{ width: TAP_TARGET, height: TAP_TARGET }}
+      >
+        <ChevronRightIcon />
+      </IconButton>
+      {!isDefault && (
+        <Button onClick={onReset} sx={{ minHeight: TAP_TARGET }}>
+          {t('division.backToCurrent')}
+        </Button>
+      )}
+    </Stack>
   )
 }
 
@@ -407,12 +565,25 @@ function TopScorers({ leagueId, limit }: { leagueId: string | undefined; limit: 
 // A matchday's fixtures grouped under their date, each as two lines (home above away) with the
 // score on the right - so full team names fit on a 360px screen. The user's own match is
 // highlighted.
-function FixturesCard({ title, matches, myTeamId }: { title: string; matches: WeekMatch[]; myTeamId: number | undefined }) {
+function FixturesCard({
+  week,
+  chip,
+  matches,
+  failed,
+  myTeamId,
+}: {
+  week: number
+  chip: 'lastWeek' | 'nextWeek' | undefined
+  // undefined while the matchday is loading
+  matches: WeekMatch[] | undefined
+  failed?: boolean
+  myTeamId: number | undefined
+}) {
   const { t } = useTranslation()
   const theme = useTheme()
 
   const groups: { date: string; matches: WeekMatch[] }[] = []
-  for (const match of matches) {
+  for (const match of matches ?? []) {
     const key = formatDate(match.matchDate)
     const group = groups.find((g) => formatDate(g.matches[0].matchDate) === key)
     if (group) {
@@ -424,10 +595,19 @@ function FixturesCard({ title, matches, myTeamId }: { title: string; matches: We
 
   return (
     <Paper variant="outlined" sx={{ overflow: 'hidden', height: '100%' }}>
-      <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 700, px: 2, pt: 2, pb: matches.length === 0 ? 2 : 1 }}>
-        {title}
-      </Typography>
-      {matches.length === 0 ? (
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', px: 2, pt: 2, pb: matches?.length === 0 ? 2 : 1 }}>
+        <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 700 }}>
+          {t('division.matchday', { week })}
+        </Typography>
+        {chip && <Chip label={t(`division.${chip}`)} size="small" color="primary" variant="outlined" />}
+      </Stack>
+      {matches === undefined ? (
+        failed ? (
+          <EmptyState compact title={t('division.matchdayError')} />
+        ) : (
+          <Skeleton variant="rectangular" height={120} sx={{ m: 2, borderRadius: 1 }} />
+        )
+      ) : matches.length === 0 ? (
         <EmptyState compact title={t('division.noMatches')} />
       ) : (
         groups.map((group) => (

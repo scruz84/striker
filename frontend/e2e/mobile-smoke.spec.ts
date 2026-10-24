@@ -117,10 +117,12 @@ const STATIC_ROUTES = [
 
 test.describe('mobile smoke (360px)', () => {
   let routes: string[] = []
+  let divisionId = ''
 
   test.beforeAll(async ({ playwright }) => {
     const request = await playwright.request.newContext()
     const ids = await setup(request)
+    divisionId = ids.divisionId
     routes = [
       ...STATIC_ROUTES,
       `/division/${ids.divisionId}`,
@@ -148,6 +150,44 @@ test.describe('mobile smoke (360px)', () => {
       await page.waitForTimeout(500)
       const findings = await audit(page, MIN_FONT_PX, MIN_TARGET_PX)
       for (const f of findings) report.push(`${route}  [${f.kind}] ${f.detail}`)
+    }
+    expect(report, `\n${report.join('\n')}\n`).toEqual([])
+  })
+
+  // The league page's four tabs and its matchday navigator: each state the audit above never
+  // reaches by just loading the route.
+  test('league page tabs and matchday navigator fit the phone screen', async ({ page, context }) => {
+    const login = await context.request.post(`${API}/v1/login`, { data: { devEmail: 'user1@dev.local' } })
+    expect(login.ok()).toBeTruthy()
+    await page.goto(`/division/${divisionId}`, { waitUntil: 'networkidle' })
+
+    const report: string[] = []
+    const check = async (step: string) => {
+      await page.waitForTimeout(300)
+      for (const f of await audit(page, MIN_FONT_PX, MIN_TARGET_PX)) report.push(`${step}  [${f.kind}] ${f.detail}`)
+    }
+
+    // All four labels must be fully visible, not clipped by the tab strip.
+    const tabs = page.getByRole('tab')
+    await expect(tabs).toHaveCount(4)
+    const strip = await page.locator('.MuiTabs-root').boundingBox()
+    for (const [index, tab] of (await tabs.all()).entries()) {
+      const box = await tab.boundingBox()
+      expect(box && strip && box.x >= strip.x - 1 && box.x + box.width <= strip.x + strip.width + 1, `tab ${index} inside the strip`).toBeTruthy()
+      const clipped = await tab.evaluate((el) => el.scrollWidth > el.clientWidth + 1)
+      expect(clipped, `tab ${index} label clipped`).toBeFalsy()
+    }
+
+    for (const [index, tab] of (await tabs.all()).entries()) {
+      await tab.click()
+      await check(`tab ${index}`)
+    }
+
+    await tabs.nth(1).click()
+    for (const name of [/siguiente|next/i, /anterior|previous/i]) {
+      const button = page.getByRole('button', { name })
+      if (await button.isEnabled()) await button.click()
+      await check(`navigator ${name}`)
     }
     expect(report, `\n${report.join('\n')}\n`).toEqual([])
   })

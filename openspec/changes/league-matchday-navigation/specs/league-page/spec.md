@@ -61,7 +61,7 @@ Each card SHALL list that matchday's matches grouped by kickoff date, home above
 - **THEN** that match shows the LIVE chip and no score, on every matchday the user can browse to
 
 ### Requirement: Matchday matches endpoint
-`GET /v1/teams/division/:id/weeks/:week` SHALL return the matches of that week in the league's current season, in the same match shape as `previousWeekMatches`, without authentication. A non-numeric league id or a week below 1 SHALL return 400. A week with no matches SHALL return 200 with an empty array. The response MAY be cached for at most 60 seconds.
+`GET /v1/teams/division/:id/weeks/:week` SHALL return the matches of that week in the league's current season, in the same match shape as `previousWeekMatches`, to any signed-in user (it sits in the same authenticated route group as the division details and top-scorers endpoints, with no per-team ownership check). A non-numeric league id or a week below 1 SHALL return 400. A week with no matches SHALL return 200 with an empty array. The response MAY be cached for at most 60 seconds.
 
 #### Scenario: Valid week
 - **WHEN** a client requests `/v1/teams/division/7/weeks/3`
