@@ -543,7 +543,8 @@ func GetFriendlyMatchById(dbCtx *DatabaseContext, matchId int64) (*FriendlyMatch
 // check has no notion of "this is hopelessly overdue, give up on it"), which is the most likely
 // explanation for a national team that's never played at all despite being active.
 const GetSimulableFriendliesStmtSql = "SELECT match_id, home_team_id, away_team_id, match_date FROM friendly_matches " +
-	"WHERE match_date < now() + interval '15 minutes' AND played = false AND in_simulation = false " + ForUpdate
+	"WHERE match_date < now() + interval '15 minutes' AND played = false AND in_simulation = false " +
+	"AND " + simulationEligibleSql + " " + ForUpdate
 
 // GetSimulableFriendlies claims (marks in_simulation) and returns every friendly whose kickoff
 // has arrived, all within one transaction - the same atomic claim-then-return pattern
@@ -581,7 +582,7 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 			inClause += strconv.FormatInt(m.MatchId, 10)
 		}
 		inClause += ")"
-		if _, err := tx.Exec("UPDATE friendly_matches SET in_simulation = true, in_simulation_since = now() WHERE match_id IN " + inClause); err != nil {
+		if _, err := tx.Exec("UPDATE friendly_matches SET in_simulation = true, in_simulation_since = now(), " + simulationClaimSetSql + " WHERE match_id IN " + inClause); err != nil {
 			return nil, err
 		}
 	}
@@ -591,8 +592,8 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 
 // GetStuckFriendliesStmtSql is GetStuckMatchesStmtSql's friendly counterpart - same age threshold
 // ($1 seconds) and same atomic re-claim.
-const GetStuckFriendliesStmtSql = "UPDATE friendly_matches SET in_simulation_since = now() " +
-	"WHERE played = false AND in_simulation = true " +
+const GetStuckFriendliesStmtSql = "UPDATE friendly_matches SET in_simulation_since = now(), " + simulationClaimSetSql + " " +
+	"WHERE played = false AND in_simulation = true AND " + simulationAttemptsLeftSql + " " +
 	"AND (in_simulation_since IS NULL OR in_simulation_since <= now() - ($1 * interval '1 second')) " +
 	"RETURNING match_id, home_team_id, away_team_id, match_date"
 
@@ -621,7 +622,6 @@ func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 	return matches, nil
 }
 
-const SetFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 WHERE match_id = $3"
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
@@ -774,51 +774,10 @@ func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int6
 	return &lineups, nil
 }
 
-// SetFriendlyPlayed records a simulated friendly's result, its events, and its per-minute zone
-// instants (see friendly_instants) - the friendly equivalent of engine.UpdatePlayedMatch, minus
-// the cup-specific penalty-shootout/winner bookkeeping a friendly has no use for.
-func SetFriendlyPlayed(dbCtx *DatabaseContext, matchId int64, homeGoals int, awayGoals int, events []Event, instants []MatchInstant) error {
-	if _, err := dbCtx.Db.Exec(SetFriendlyPlayedStmtSql, homeGoals, awayGoals, matchId); err != nil {
-		return err
-	}
-
-	insertEvent, err := dbCtx.Db.Prepare(InsertFriendlyEventStmtSql)
-	if err != nil {
-		return err
-	}
-	defer insertEvent.Close()
-
-	for _, e := range events {
-		teamPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
-		teamPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
-		if _, err := insertEvent.Exec(matchId, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece); err != nil {
-			return err
-		}
-	}
-
-	insertInstant, err := dbCtx.Db.Prepare(InsertFriendlyInstantStmtSql)
-	if err != nil {
-		return err
-	}
-	defer insertInstant.Close()
-
-	for _, i := range instants {
-		homeQuaJson, _ := json.Marshal(i.HomeQua)
-		awayQuaJson, _ := json.Marshal(i.AwayQua)
-		if _, err := insertInstant.Exec(matchId, i.Minute, i.HomeGoals, i.AwayGoals, homeQuaJson, awayQuaJson, i.MidfieldDiff,
-			i.HomeAttackRightDiff, i.HomeAttackLeftDiff, i.HomeAttackCenterDiff,
-			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
 	"FROM friendly_events WHERE match_id = $1 order by minute asc"
 
-// GetFriendlyEvents reads back a played friendly's events (see SetFriendlyPlayed) - the friendly
+// GetFriendlyEvents reads back a played friendly's events (see SaveFriendlyResultTx) - the friendly
 // equivalent of GetMatchEvents. friendly_events has no other_team_players/other_team_player_names
 // columns (nothing in this codebase reads them even for league matches - see Event's own doc
 // comment), so those two fields are always left nil here.
@@ -874,7 +833,7 @@ const GetFriendlyInstantsStmtSql = "SELECT match_id, minute, home_goals, away_go
 	"FROM friendly_instants WHERE match_id = $1 order by minute asc"
 
 // GetFriendlyInstants reads back a played friendly's per-minute zone instants (see
-// SetFriendlyPlayed) - the friendly equivalent of GetMatchInstants.
+// SaveFriendlyResultTx) - the friendly equivalent of GetMatchInstants.
 func GetFriendlyInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 	rows, err := dbCtx.Db.Query(GetFriendlyInstantsStmtSql, matchId)
 	if err != nil {

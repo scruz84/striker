@@ -23,7 +23,7 @@ func SimulateFriendlies(dbCtx *common.DatabaseContext) {
 // (in_simulation = true) but never finished simulating - the case a server crash mid-run leaves
 // behind, since GetSimulableFriendliesStmtSql's "and in_simulation = false" filter means the
 // normal scheduler never revisits a claimed friendly on its own (see
-// common.GetStuckFriendlies). Returns how many friendlies it re-simulated.
+// common.GetStuckFriendlies). Returns how many of them ended up played.
 func FinishStuckFriendlies(dbCtx *common.DatabaseContext) int {
 	friendlies, err := common.GetStuckFriendlies(dbCtx)
 	if err != nil {
@@ -31,7 +31,11 @@ func FinishStuckFriendlies(dbCtx *common.DatabaseContext) int {
 		return 0
 	}
 	simulateFriendliesNow(dbCtx, friendlies)
-	return len(friendlies)
+	ids := make([]int64, len(friendlies))
+	for i, f := range friendlies {
+		ids[i] = f.MatchId
+	}
+	return countPlayed(dbCtx, common.SimulationKindFriendly, ids)
 }
 
 // simulateFriendliesNow fans out over the given friendlies with the same bounded-concurrency +
@@ -47,14 +51,9 @@ func simulateFriendliesNow(dbCtx *common.DatabaseContext, friendlies []common.Fr
 		go func(friendly common.FriendlyMatch) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			defer func() {
-				if r := recover(); r != nil {
-					log.Errorf("panic simulating friendly %d: %v", friendly.MatchId, r)
-				}
-			}()
-			if err := simulateFriendly(dbCtx, &friendly); err != nil {
-				log.Errorf("error simulating friendly %d: %s", friendly.MatchId, err)
-			}
+			runClaimedSimulation(dbCtx, common.SimulationKindFriendly, friendly.MatchId, func() error {
+				return simulateFriendly(dbCtx, &friendly)
+			})
 		}(friendly)
 	}
 	wg.Wait()
@@ -115,16 +114,18 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 		return err
 	}
 
-	if err := common.SetFriendlyPlayed(dbCtx, friendly.MatchId, matchSimulation.HomeGoals,
-		matchSimulation.AwayGoals, *matchSimulation.Events, *matchSimulation.MatchInstants); err != nil {
+	// The result, events, instants, World Cup group standings (a no-op for the overwhelming majority
+	// of friendlies, which aren't a World Cup group fixture) and the pending post-match effects are
+	// stored in one transaction that only applies while the friendly is still unplayed - see
+	// simulateMatch.
+	if err := common.SaveFriendlyResultTx(dbCtx, friendly.MatchId, friendly.HomeTeamId, friendly.AwayTeamId, common.MatchResult{
+		HomeGoals: matchSimulation.HomeGoals,
+		AwayGoals: matchSimulation.AwayGoals,
+		Events:    *matchSimulation.Events,
+		Instants:  *matchSimulation.MatchInstants,
+		Effects:   newPostMatchPayload(matchSimulation, false),
+	}); err != nil {
 		return err
-	}
-
-	// A no-op for the overwhelming majority of friendlies, which aren't a World Cup group fixture
-	// at all - see UpdateWorldCupStandingsAfterMatch.
-	if err := common.UpdateWorldCupStandingsAfterMatch(dbCtx, friendly.MatchId, friendly.HomeTeamId,
-		friendly.AwayTeamId, matchSimulation.HomeGoals, matchSimulation.AwayGoals); err != nil {
-		log.Errorf("error updating World Cup standings for friendly %d: %s", friendly.MatchId, err)
 	}
 
 	// Credited immediately rather than deferred to onComplete below, same as
@@ -143,9 +144,7 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	// minutes before its advertised kickoff, so running these here would leak an injury or skill
 	// jump before the friendly has even nominally started.
 	BroadcastMatchLive(dbCtx, common.FriendlyMatchChannel(matchSimulation.Id), matchSimulation, friendly.MatchDate, func() {
-		UpdatePlayerAvailability(dbCtx, matchSimulation)
-		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
-		notifyFriendlyResult(dbCtx, matchSimulation)
+		completePostMatchEffects(dbCtx, common.SimulationKindFriendly, matchSimulation.Id)
 	})
 	common.RecordMatchSimulated(context.Background(), "friendly", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 	return nil

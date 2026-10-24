@@ -331,6 +331,9 @@ export const EVENT_TYPE_RED_CARD = 3
 export const EVENT_TYPE_INJURY = 4
 export const EVENT_TYPE_SUBSTITUTION = 5
 export const EVENT_TYPE_MATCH_ABANDONED = 6
+// A fixture settled 0-0 after repeated simulation failures (backend common.MATCH_DEFAULT_RESULT) -
+// teamOwner is the home side, otherTeam the away side; it is the only event such a match stores.
+export const EVENT_TYPE_MATCH_DEFAULT_RESULT = 7
 
 // TeamQualification is a team's per-zone strength for one minute of simulation - see
 // backend/common/fmstructs.go. These are the actual numbers the simulation compares (a team's
@@ -1320,12 +1323,50 @@ export interface CountrySeason {
   matchesUnplayed: number
 }
 
+// One count per kind of fixture a simulation can fail on (backend common.FixtureKindCounts).
+export interface FixtureKindCounts {
+  leagueMatches: number
+  friendlies: number
+  cupTies: number
+}
+
+// An unplayed fixture whose simulation failed at least once - kind is 'league', 'friendly' or
+// 'cup', id the match, friendly or tie id.
+export interface FailingFixture {
+  kind: 'league' | 'friendly' | 'cup'
+  id: number
+  homeName: string
+  awayName: string
+  matchDate: string
+  attempts: number
+  lastError: string
+}
+
+// What the admin overview shows about simulations that did not go through (backend
+// common.SimulationHealth): rows claimed long ago and still unplayed, fixtures whose simulation
+// failed (the list is capped at 50, failingCounts has the totals) and classification rows out of
+// step with the matches played.
+export interface SimulationHealth {
+  stuck: number
+  failingCounts: FixtureKindCounts
+  failing: FailingFixture[]
+  standingsMismatches: number
+}
+
+// What the "finish stuck matches" action did, per kind of fixture: re-simulated to a result,
+// settled 0-0 after their attempts ran out, and still failing afterwards.
+export interface FinishStuckMatchesResult {
+  resimulated: FixtureKindCounts
+  defaulted: FixtureKindCounts
+  stillFailing: FixtureKindCounts
+}
+
 export interface AdminOverview {
   seasons: CountrySeason[]
   userCount: number
   teamCount: number
   leagueCount: number
-  stuckMatches: number
+  simulation: SimulationHealth
   activeCups: number
   transferWindowOpen: boolean
   matchScheduleWeekdaysMask: number

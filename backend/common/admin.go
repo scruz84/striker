@@ -78,22 +78,22 @@ type CountrySeason struct {
 // AdminOverview is a snapshot of the game's overall state for the commissioner dashboard - see
 // handlers.AdminOverviewHandler for how it's assembled.
 type AdminOverview struct {
-	Seasons                       []CountrySeason `json:"seasons"`
-	UserCount                     int             `json:"userCount"`
-	TeamCount                     int             `json:"teamCount"`
-	LeagueCount                   int             `json:"leagueCount"`
-	StuckMatches                  int             `json:"stuckMatches"`
-	ActiveCups                    int             `json:"activeCups"`
-	TransferWindowOpen            bool            `json:"transferWindowOpen"`
-	MatchScheduleWeekdaysMask     int             `json:"matchScheduleWeekdaysMask"`
-	MatchScheduleHour             int             `json:"matchScheduleHour"`
-	MatchScheduleMinute           int             `json:"matchScheduleMinute"`
-	MaxFriendliesPerWeek          int             `json:"maxFriendliesPerWeek"`
-	FriendlyScheduleWeekdays      int             `json:"friendlyScheduleWeekdays"`
-	PromotionSlotsPerGroup        int             `json:"promotionSlotsPerGroup"`
-	RelegationSlotsPerGroup       int             `json:"relegationSlotsPerGroup"`
-	FreeAgentInjectionsPerWeek    int             `json:"freeAgentInjectionsPerWeek"`
-	OfferNegotiationWindowMinutes int             `json:"offerNegotiationWindowMinutes"`
+	Seasons                       []CountrySeason  `json:"seasons"`
+	UserCount                     int              `json:"userCount"`
+	TeamCount                     int              `json:"teamCount"`
+	LeagueCount                   int              `json:"leagueCount"`
+	Simulation                    SimulationHealth `json:"simulation"`
+	ActiveCups                    int              `json:"activeCups"`
+	TransferWindowOpen            bool             `json:"transferWindowOpen"`
+	MatchScheduleWeekdaysMask     int              `json:"matchScheduleWeekdaysMask"`
+	MatchScheduleHour             int              `json:"matchScheduleHour"`
+	MatchScheduleMinute           int              `json:"matchScheduleMinute"`
+	MaxFriendliesPerWeek          int              `json:"maxFriendliesPerWeek"`
+	FriendlyScheduleWeekdays      int              `json:"friendlyScheduleWeekdays"`
+	PromotionSlotsPerGroup        int              `json:"promotionSlotsPerGroup"`
+	RelegationSlotsPerGroup       int              `json:"relegationSlotsPerGroup"`
+	FreeAgentInjectionsPerWeek    int              `json:"freeAgentInjectionsPerWeek"`
+	OfferNegotiationWindowMinutes int              `json:"offerNegotiationWindowMinutes"`
 }
 
 func CountUsers(dbCtx *DatabaseContext) (int, error) {

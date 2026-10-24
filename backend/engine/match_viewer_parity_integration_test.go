@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -90,14 +91,34 @@ func matchViewerParityEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 	return dbCtx, db, seed
 }
 
-type memoryObjectCache struct{ values map[string]string }
+// memoryObjectCache is an in-memory common.ObjectCache for tests; locked because the engine
+// simulates matches from several goroutines at once.
+type memoryObjectCache struct {
+	mu     sync.Mutex
+	values map[string]string
+}
 
-func (m *memoryObjectCache) GetValue(key string) (string, error) { return m.values[key], nil }
-func (m *memoryObjectCache) SetValue(key string, value string)   { m.values[key] = value }
-func (m *memoryObjectCache) SetValueLongDuration(key string, value string) {
+func (m *memoryObjectCache) GetValue(key string) (string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.values[key], nil
+}
+
+func (m *memoryObjectCache) SetValue(key string, value string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.values[key] = value
 }
-func (m *memoryObjectCache) DeleteValue(key string) { delete(m.values, key) }
+
+func (m *memoryObjectCache) SetValueLongDuration(key string, value string) {
+	m.SetValue(key, value)
+}
+
+func (m *memoryObjectCache) DeleteValue(key string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.values, key)
+}
 
 // TestSimulateCupTie_StoresInstantsAndFlavor pins that a cup tie persists what a league match
 // does: one zone instant per simulated minute (so the Tácticas tab can show the zone duel) and its

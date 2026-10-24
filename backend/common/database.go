@@ -123,7 +123,8 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 // played, and no new (future-season) fixtures exist until that happens - so filtering by season
 // here would be redundant even if there were still a single season number to filter by.
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
-	"home_goals, away_goals from matches where match_date < now()+interval '15 minutes' and played is false and in_simulation is false order by league_id"
+	"home_goals, away_goals from matches where match_date < now()+interval '15 minutes' and played is false and in_simulation is false " +
+	"and " + simulationEligibleSql + " order by league_id"
 
 const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + ForUpdate
 
@@ -228,8 +229,7 @@ const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = mat
 	"losses = losses+$4, draws = draws+$5, goals_scored = goals_scored+$6, goals_received = goals_received+$7 " +
 	"where league_id = $8 and team_id = $9"
 
-const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3, in_simulation = $4 WHERE match_id = $5"
-const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1, in_simulation_since = now() WHERE "
+const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1, in_simulation_since = now(), " + simulationClaimSetSql + " WHERE "
 
 const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues ORDER BY country, tier, group_number"
 
@@ -836,9 +836,16 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 		}
 		inClause += ")"
 		updateMatches += inClause
-		tx.Exec(updateMatches, true)
+		if _, err := tx.Exec(updateMatches, true); err != nil {
+			log.Errorf("error claiming matches for simulation: %s", err)
+			_ = tx.Rollback()
+			return nil, err
+		}
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		log.Errorf("error committing the claim of matches for simulation: %s", err)
+		return nil, err
+	}
 	return &matches, nil
 }
 
@@ -854,8 +861,8 @@ const StuckSimulationAge = 10 * time.Minute
 // seconds ago (or before claims were timestamped) but never marked played, restamping
 // in_simulation_since so a second replica running the same statement at the same instant finds
 // nothing - see GetStuckMatches.
-const GetStuckMatchesStmtSql = "WITH stuck AS (UPDATE matches SET in_simulation_since = now() " +
-	"WHERE played is false and in_simulation is true " +
+const GetStuckMatchesStmtSql = "WITH stuck AS (UPDATE matches SET in_simulation_since = now(), " + simulationClaimSetSql + " " +
+	"WHERE played is false and in_simulation is true and " + simulationAttemptsLeftSql + " " +
 	"and (in_simulation_since is null or in_simulation_since <= now() - ($1 * interval '1 second')) " +
 	"RETURNING match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals) " +
 	"select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
@@ -885,18 +892,6 @@ func GetStuckMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 		matches = append(matches, m)
 	}
 	return &matches, nil
-}
-
-// CountStuckSimulations counts every league match and friendly left claimed
-// (in_simulation = true) but never marked played, across both tables - used by the admin
-// overview to surface how many matches a crashed simulation pass left behind (see
-// GetStuckMatches/GetStuckFriendlies and engine.FinishStuckSimulations).
-func CountStuckSimulations(dbCtx *DatabaseContext) (int, error) {
-	var count int
-	err := dbCtx.Db.QueryRow(
-		"SELECT (SELECT count(*) FROM matches WHERE played = false AND in_simulation = true) + " +
-			"(SELECT count(*) FROM friendly_matches WHERE played = false AND in_simulation = true)").Scan(&count)
-	return count, err
 }
 
 // GetElapsedWeeksForCountry returns how many rounds country's existing leagues have already
@@ -943,7 +938,7 @@ func GetMatchesForLeaguesUpToWeek(dbCtx *DatabaseContext, leagueIds []int64, sea
 	}
 	query := "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 		"from matches where league_id in " + leagueInClause + " and season = $1 and week_number <= $2 " +
-		"and played is false and in_simulation is false order by week_number, league_id"
+		"and played is false and in_simulation is false and " + simulationAttemptsLeftSql + " order by week_number, league_id"
 	rows, err := tx.Query(query, season, maxWeek)
 	if err != nil {
 		_ = tx.Rollback()
@@ -971,7 +966,7 @@ func GetMatchesForLeaguesUpToWeek(dbCtx *DatabaseContext, leagueIds []int64, sea
 		for i, m := range matches {
 			matchIds[i] = m.MatchId
 		}
-		if _, err := tx.Exec("UPDATE matches SET in_simulation = true, in_simulation_since = now() WHERE match_id IN " + int64SliceToInClause(matchIds)); err != nil {
+		if _, err := tx.Exec("UPDATE matches SET in_simulation = true, in_simulation_since = now(), " + simulationClaimSetSql + " WHERE match_id IN " + int64SliceToInClause(matchIds)); err != nil {
 			log.Errorf("error marking backfill matches in_simulation: %s", err)
 		}
 	}

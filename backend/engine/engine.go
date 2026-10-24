@@ -239,14 +239,10 @@ func SimulateMatchesNow(dbCtx *common.DatabaseContext, matches []common.WeekMatc
 		go func(match common.WeekMatch) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			defer func() {
-				if r := recover(); r != nil {
-					log.Errorf("panic simulating match %d: %v", match.MatchId, r)
-				}
-			}()
-			if _, err := simulateMatch(dbCtx, &match); err != nil {
-				log.Errorf("error simulating match %d: %s", match.MatchId, err)
-			}
+			runClaimedSimulation(dbCtx, common.SimulationKindLeague, match.MatchId, func() error {
+				_, err := simulateMatch(dbCtx, &match)
+				return err
+			})
 		}(match)
 	}
 	wg.Wait()
@@ -256,7 +252,8 @@ func SimulateMatchesNow(dbCtx *common.DatabaseContext, matches []common.WeekMatc
 // (in_simulation = true) but never finished simulating - the case a server crash mid-run leaves
 // behind, since GetSimulableMatchesStmtSql's "and in_simulation is false" filter means the
 // normal scheduler never revisits a claimed match on its own (see common.GetStuckMatches).
-// Returns how many matches it re-simulated.
+// Returns how many of them ended up played - rows resolved, not merely attempted. A re-simulation
+// that fails again releases the row and counts one more attempt (see runClaimedSimulation).
 func FinishStuckMatches(dbCtx *common.DatabaseContext) int {
 	matches, err := common.GetStuckMatches(dbCtx)
 	if err != nil {
@@ -264,22 +261,39 @@ func FinishStuckMatches(dbCtx *common.DatabaseContext) int {
 		return 0
 	}
 	SimulateMatchesNow(dbCtx, *matches)
-	return len(*matches)
+	ids := make([]int64, len(*matches))
+	for i, m := range *matches {
+		ids[i] = m.MatchId
+	}
+	return countPlayed(dbCtx, common.SimulationKindLeague, ids)
 }
 
-// StuckSimulationsResult reports how many matches of each kind FinishStuckSimulations
-// re-simulated.
+// countPlayed counts how many of ids (of kind) are played now.
+func countPlayed(dbCtx *common.DatabaseContext, kind string, ids []int64) int {
+	played, err := common.CountPlayedFixtures(dbCtx, kind, ids)
+	if err != nil {
+		log.Errorf("error counting the played %s fixtures after a re-simulation: %s", kind, err)
+	}
+	return played
+}
+
+// StuckSimulationsResult reports how many fixtures of each kind FinishStuckSimulations
+// re-simulated successfully.
 type StuckSimulationsResult struct {
 	LeagueMatches int
 	Friendlies    int
+	CupTies       int
 }
 
 // FinishStuckSimulations re-simulates every league match and friendly left stuck at
 // in_simulation = true (played = false) by a simulation pass that never finished - typically a
-// server crash mid-run. See FinishStuckMatches and FinishStuckFriendlies.
+// server crash mid-run - plus every cup tie that is due and past its retry backoff. See
+// FinishStuckMatches, FinishStuckFriendlies and FinishStuckCupTies. Fixtures that have used all
+// their attempts are left to SettleDefaultResults, which callers run first.
 func FinishStuckSimulations(dbCtx *common.DatabaseContext) StuckSimulationsResult {
 	return StuckSimulationsResult{
 		LeagueMatches: FinishStuckMatches(dbCtx),
 		Friendlies:    FinishStuckFriendlies(dbCtx),
+		CupTies:       FinishStuckCupTies(dbCtx),
 	}
 }

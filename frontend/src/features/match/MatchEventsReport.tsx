@@ -9,6 +9,7 @@ import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_MATCH_ABANDONED,
+  EVENT_TYPE_MATCH_DEFAULT_RESULT,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
@@ -29,6 +30,7 @@ const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_INJURY,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_MATCH_ABANDONED,
+  EVENT_TYPE_MATCH_DEFAULT_RESULT,
 ]
 
 interface TeamStats {
@@ -164,6 +166,7 @@ export function MatchEventsReport({
             awayGoals={event.awayGoals}
             text={commentary}
             icon={iconFor(event.eventType)}
+            iconLabel={event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT ? t('match.report.defaultResultLabel') : undefined}
             teamId={teamId}
             teamName={teamName}
             emphasized={!isMinorMissedChance(event)}
@@ -284,6 +287,8 @@ function iconFor(eventType: number): string | null {
       return '🔄'
     case EVENT_TYPE_MATCH_ABANDONED:
       return '⛔'
+    case EVENT_TYPE_MATCH_DEFAULT_RESULT:
+      return '🤝'
     default:
       return null
   }
@@ -306,6 +311,7 @@ function ReportRow({
   awayGoals,
   text,
   icon,
+  iconLabel,
   teamId,
   teamName,
   emphasized,
@@ -315,6 +321,7 @@ function ReportRow({
   awayGoals: number
   text: ReactNode
   icon: string | null
+  iconLabel?: string
   teamId: number
   teamName: string
   emphasized: boolean
@@ -331,7 +338,12 @@ function ReportRow({
           </Typography>
         )}
       </Box>
-      <Typography component="span" sx={{ fontSize: '1.1rem', lineHeight: '1.5rem', width: 24, textAlign: 'center', flexShrink: 0 }}>
+      <Typography
+        component="span"
+        title={iconLabel}
+        aria-label={iconLabel}
+        sx={{ fontSize: '1.1rem', lineHeight: '1.5rem', width: 24, textAlign: 'center', flexShrink: 0 }}
+      >
         {icon}
       </Typography>
       <Box sx={{ pt: 0.25, flexShrink: 0 }}>

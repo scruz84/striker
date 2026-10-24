@@ -37,7 +37,7 @@ func TestMatchEventSetPiece_RoundTrips(t *testing.T) {
 	penalty := Event{EventType: GOAL, Minute: 16, TeamOwner: teamA, TeamOwnerPlayers: []int64{7}, TeamOwnerPlayersNames: []string{"Taker"},
 		OtherTeam: teamB, OtherTeamPlayers: []int64{1}, OtherTeamPlayersNames: []string{"Keeper"}, HomeGoals: 1, SetPiece: SET_PIECE_PENALTY}
 
-	// League: written the way engine.UpdatePlayedMatch does.
+	// League: written the way common.SaveLeagueMatchResultTx does.
 	mustExec(InsertMatchEventStmtSql, matchId, penalty.EventType, penalty.TeamOwner, penalty.OtherTeam, penalty.Minute,
 		`[7]`, `["Taker"]`, `[1]`, `["Keeper"]`, penalty.HomeGoals, penalty.AwayGoals, penalty.SetPiece)
 	mustExec(`INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players)
@@ -53,8 +53,8 @@ func TestMatchEventSetPiece_RoundTrips(t *testing.T) {
 	// Cup tie.
 	freeKick := penalty
 	freeKick.SetPiece = SET_PIECE_DIRECT_FREE_KICK
-	if err := SetCupTiePlayed(dbCtx, tieId, 1, 0, false, teamA, []Event{freeKick}, nil); err != nil {
-		t.Fatalf("SetCupTiePlayed: %s", err)
+	if err := SaveCupTieResultTx(dbCtx, tieId, false, teamA, MatchResult{HomeGoals: 1, Events: []Event{freeKick}}); err != nil {
+		t.Fatalf("SaveCupTieResultTx: %s", err)
 	}
 	cupEvents, err := GetCupTieEvents(dbCtx, tieId)
 	if err != nil || len(cupEvents) != 1 || cupEvents[0].SetPiece != SET_PIECE_DIRECT_FREE_KICK {
@@ -62,8 +62,8 @@ func TestMatchEventSetPiece_RoundTrips(t *testing.T) {
 	}
 
 	// Friendly.
-	if err := SetFriendlyPlayed(dbCtx, friendlyId, 1, 0, []Event{penalty}, nil); err != nil {
-		t.Fatalf("SetFriendlyPlayed: %s", err)
+	if err := SaveFriendlyResultTx(dbCtx, friendlyId, teamA, teamB, MatchResult{HomeGoals: 1, Events: []Event{penalty}}); err != nil {
+		t.Fatalf("SaveFriendlyResultTx: %s", err)
 	}
 	friendlyEvents := *GetFriendlyEvents(dbCtx, friendlyId)
 	if len(friendlyEvents) != 1 || friendlyEvents[0].SetPiece != SET_PIECE_PENALTY {

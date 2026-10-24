@@ -29,6 +29,10 @@ func StartEngine() {
 		log.Panicf("Error ensuring schema is up to date: %s", err)
 	}
 
+	// One-off: rebuilds standings double-counted by an earlier failed result save - see
+	// RepairStandingsOnce.
+	RepairStandingsOnce(dbCtx)
+
 	common.ConfigureWebPushNotifier(dbCtx)
 
 	if err := common.RegisterDBPoolMetrics(dbCtx.Db); err != nil {

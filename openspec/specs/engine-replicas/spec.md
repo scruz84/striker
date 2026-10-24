@@ -138,10 +138,20 @@ Existing locks keep their bare keys (`leagueId`, `cupId`, `hashtext(country)`, c
   `CallUpNationalTeamSquads` (`common/nationalteam.go`).
 - Simulation claims: `GetSimulableMatches`, `GetStuckMatches`, `StuckSimulationAge`
   (`common/database.go`); `GetSimulableFriendlies`, `GetStuckFriendlies` (`common/friendlies.go`).
+- Attempt counting: every claim statement adds `simulationClaimSetSql` (`common/simulationfailures.go`);
+  a cup tie's attempt is counted by `common.ClaimCupTieAttempt` inside `simulateCupTieOnce`'s lock.
+  Default result under concurrency: `common.ClaimLeagueMatchesForDefault` /
+  `ClaimFriendliesForDefault` (`common/defaultresults.go`) and the cup-tie lock in
+  `engine.settleCupTieByDefault`.
+- One-off standings repair: `engine.RepairStandingsOnce` (`engine/standingsrepair.go`), guarded by the
+  job slot `standings_repair_v1` (`common.ClaimEngineJobSlot`); it rebuilds mismatched rows
+  (`common.RebuildLeagueStandings`, `CountStandingsMismatches` in `common/standingsrepair.go`) under
+  `LockNamespaceStandings`, the same lock result saves take.
 - Periodic jobs: `claimRun` and the `Execute` methods in `engine/tasks.go`.
   `striker.engine.job.claims{engine_job,outcome}` (`common/telemetry.go`) shows how the claims are
   shared: each replica records `won` or `lost` for every claim.
 - Tests: `engine/engine_replicas_integration_test.go`, `common/enginelocks_integration_test.go`,
   plus `engine/season_advance_lock_integration_test.go`, `engine/cup_advance_lock_integration_test.go`,
   `engine/fixture_generation_lock_integration_test.go`,
-  `common/national_team_friendly_lock_integration_test.go` (all need `STRIKER_TEST_DB_DSN`).
+  `common/national_team_friendly_lock_integration_test.go`,
+  `engine/simulation_failures_integration_test.go` (all need `STRIKER_TEST_DB_DSN`).

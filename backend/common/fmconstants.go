@@ -40,6 +40,11 @@ const SUBSTITUTION = 5
 // short-handed, OtherTeam the side awarded the forfeit win.
 const MATCH_ABANDONED = 6
 
+// MATCH_DEFAULT_RESULT marks a fixture settled 0-0 after it used all its simulation attempts
+// without being played (see engine.SettleDefaultResults) - TeamOwner is the home side, OtherTeam
+// the away side. It is the only event such a fixture stores.
+const MATCH_DEFAULT_RESULT = 7
+
 // Event.SetPiece: how a GOAL / NO_GOAL event came about. A set piece is an attribute of the
 // usual goal event rather than an event type of its own, so every reader that counts
 // event_type = GOAL (top scorers, awards, ratings, scoreboards) keeps counting penalties and

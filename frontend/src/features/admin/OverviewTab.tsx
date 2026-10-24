@@ -28,6 +28,8 @@ import {
 
 import { useConfirm } from '../../components/confirmDialogContext'
 import { useNotify } from '../../components/notifyContext'
+import type { FailingFixture, FixtureKindCounts } from '../../api/types'
+import { formatDateTime } from '../../utils/formatDate'
 import { AdminSection } from './components/AdminSection'
 import { useAdminFeedback } from './useAdminFeedback'
 import { useIsPhone } from './useIsPhone'
@@ -52,6 +54,10 @@ interface FinishStuckMatches {
 // The "finish stuck matches" action is offered twice - as a warning at the top of the tab, where an
 // admin who just arrived sees it, and among the other operations - so it is built once here and
 // shared, keeping a single request in flight and a single confirmation.
+function totalOf(counts: FixtureKindCounts): number {
+  return counts.leagueMatches + counts.friendlies + counts.cupTies
+}
+
 function useFinishStuckMatches(stuckMatches: number): FinishStuckMatches {
   const { t } = useTranslation()
   const confirm = useConfirm()
@@ -68,8 +74,9 @@ function useFinishStuckMatches(stuckMatches: number): FinishStuckMatches {
         onSuccess: (result) =>
           notify.success(
             t('admin.actions.finishStuckMatchesSuccess', {
-              leagueMatches: result.leagueMatches,
-              friendlies: result.friendlies,
+              resimulated: totalOf(result.resimulated),
+              defaulted: totalOf(result.defaulted),
+              stillFailing: totalOf(result.stillFailing),
             }),
           ),
         onError: () => notify.error(t('admin.genericError')),
@@ -80,13 +87,26 @@ function useFinishStuckMatches(stuckMatches: number): FinishStuckMatches {
   return { run, isPending: finishStuckMatches.isPending }
 }
 
+// Everything the "finish stuck matches" action can act on: rows claimed long ago and still
+// unplayed, plus fixtures whose simulation failed (they are retried, or settled 0-0 once their
+// attempts run out).
+function actionableFixtures(overview: Overview): number {
+  return overview.simulation.stuck + totalOf(overview.simulation.failingCounts)
+}
+
 function OverviewContent({ overview }: { overview: Overview }) {
   const { t } = useTranslation()
-  const finishStuckMatches = useFinishStuckMatches(overview.stuckMatches)
+  const actionable = actionableFixtures(overview)
+  const finishStuckMatches = useFinishStuckMatches(actionable)
 
   return (
     <>
-      {overview.stuckMatches > 0 && (
+      {overview.simulation.standingsMismatches > 0 && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {t('admin.overview.standingsMismatchAlert', { count: overview.simulation.standingsMismatches })}
+        </Alert>
+      )}
+      {actionable > 0 && (
         <Alert
           severity="warning"
           sx={{ mb: 2 }}
@@ -96,10 +116,11 @@ function OverviewContent({ overview }: { overview: Overview }) {
             </Button>
           }
         >
-          {t('admin.overview.stuckMatchesAlert', { count: overview.stuckMatches })}
+          {t('admin.overview.stuckMatchesAlert', { count: actionable })}
         </Alert>
       )}
       <Overview overview={overview} />
+      <FailingMatchesList failing={overview.simulation.failing} total={totalOf(overview.simulation.failingCounts)} />
       <OperationsSection overview={overview} finishStuckMatches={finishStuckMatches} />
     </>
   )
@@ -111,7 +132,7 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
     { key: 'users', value: overview.userCount },
     { key: 'teams', value: overview.teamCount },
     { key: 'leagues', value: overview.leagueCount },
-    { key: 'stuckMatches', value: overview.stuckMatches },
+    { key: 'stuckMatches', value: overview.simulation.stuck },
     { key: 'activeCups', value: overview.activeCups },
   ]
 
@@ -149,6 +170,87 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
       </Grid>
       <SeasonsByCountryTable seasons={overview.seasons} />
     </>
+  )
+}
+
+// FailingMatchesList lists the unplayed fixtures whose simulation failed (kind, teams, kickoff,
+// attempts used and the last error), so an admin can see why a match keeps failing before its
+// third attempt settles it 0-0. The list is capped by the backend; `total` says how many there
+// are in all.
+function FailingMatchesList({ failing, total }: { failing: FailingFixture[]; total: number }) {
+  const { t } = useTranslation()
+  const isPhone = useIsPhone()
+
+  if (failing.length === 0) {
+    return null
+  }
+
+  const title = (
+    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+      {t('admin.overview.failingMatchesTitle', { count: total })}
+    </Typography>
+  )
+  const kindLabel = (fixture: FailingFixture) => t(`admin.overview.failingKind.${fixture.kind}`)
+
+  if (isPhone) {
+    return (
+      <Box sx={{ mb: 2 }}>
+        {title}
+        <Stack spacing={1}>
+          {failing.map((fixture) => (
+            <Paper key={`${fixture.kind}-${fixture.id}`} variant="outlined" sx={{ p: 1.5 }}>
+              <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 600 }}>
+                  {fixture.homeName} - {fixture.awayName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {kindLabel(fixture)}
+                </Typography>
+              </Stack>
+              <Typography variant="body2">{formatDateTime(fixture.matchDate)}</Typography>
+              <Typography variant="body2">
+                {t('admin.overview.failingAttempts')}: {fixture.attempts}
+              </Typography>
+              <Typography variant="body2" color="error" sx={{ overflowWrap: 'anywhere' }}>
+                {fixture.lastError}
+              </Typography>
+            </Paper>
+          ))}
+        </Stack>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      {title}
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>{t('admin.overview.failingKindHeader')}</TableCell>
+              <TableCell>{t('admin.overview.failingTeams')}</TableCell>
+              <TableCell>{t('admin.overview.failingKickoff')}</TableCell>
+              <TableCell>{t('admin.overview.failingAttempts')}</TableCell>
+              <TableCell>{t('admin.overview.failingLastError')}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {failing.map((fixture) => (
+              <TableRow key={`${fixture.kind}-${fixture.id}`}>
+                <TableCell>{kindLabel(fixture)}</TableCell>
+                <TableCell>
+                  {fixture.homeName} - {fixture.awayName}
+                </TableCell>
+                <TableCell>{formatDateTime(fixture.matchDate)}</TableCell>
+                <TableCell>{fixture.attempts}</TableCell>
+                <TableCell sx={{ overflowWrap: 'anywhere' }}>{fixture.lastError}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   )
 }
 
@@ -272,11 +374,11 @@ function OperationsSection({ overview, finishStuckMatches }: { overview: Overvie
         </Button>
         <Button
           variant="outlined"
-          color={overview.stuckMatches > 0 ? 'warning' : 'inherit'}
+          color={actionableFixtures(overview) > 0 ? 'warning' : 'inherit'}
           onClick={finishStuckMatches.run}
-          disabled={finishStuckMatches.isPending || overview.stuckMatches === 0}
+          disabled={finishStuckMatches.isPending || actionableFixtures(overview) === 0}
         >
-          {t('admin.actions.finishStuckMatches', { count: overview.stuckMatches })}
+          {t('admin.actions.finishStuckMatches', { count: actionableFixtures(overview) })}
         </Button>
         <Button variant="outlined" onClick={handleAdvanceSeason} disabled={advanceSeason.isPending}>
           {t('admin.actions.checkSeasonAdvance')}

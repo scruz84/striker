@@ -1030,6 +1030,7 @@
       "intro": "Thanks to the {{weather}} weather, a crowd of {{attendance}} gathered to watch the match. {{referee}} was the referee, assisted by {{assistant1}} and {{assistant2}}.",
       "kickoff": "Everyone is ready - the match is about to begin!",
       "fullTime": "The referee blows the whistle for full time.",
+      "defaultResultLabel": "Default result",
       "summary": {
         "title": "Match summary",
         "chances": "Chances",
@@ -1099,6 +1100,9 @@
         "{{team}} can no longer field enough players to continue - the match is abandoned, and {{opponent}} are awarded the win.",
         "With too few players left on the pitch, {{team}}'s match is called off - {{opponent}} take it 3-0.",
         "The referee abandons the match: {{team}} are down to too few players to carry on, and {{opponent}} are awarded a 3-0 win."
+      ],
+      "defaultResult": [
+        "The match could not be played: it is recorded as a 0-0 default result between {{team}} and {{opponent}}."
       ],
       "penaltyGoal": [
         "PENALTY! {{player}} sends {{keeper}} the wrong way and scores for {{team}}!",
@@ -1208,7 +1212,19 @@
     "title": "Admin",
     "noAccess": "You don't have admin access.",
     "overview": {
-      "stuckMatchesAlert": "{{count}} match(es) are stuck mid-simulation.",
+      "stuckMatchesAlert": "{{count}} match(es) are stuck or failing to simulate.",
+      "failingMatchesTitle": "Matches failing to simulate ({{count}})",
+      "failingKindHeader": "Kind",
+      "failingKind": {
+        "league": "League",
+        "friendly": "Friendly",
+        "cup": "Cup"
+      },
+      "failingTeams": "Match",
+      "failingKickoff": "Kickoff",
+      "failingAttempts": "Attempts",
+      "failingLastError": "Last error",
+      "standingsMismatchAlert": "{{count}} standings row(s) do not match the matches played.",
       "stuckMatchesAction": "Finish them",
       "country": "Country",
       "season": "Season",
@@ -1228,8 +1244,8 @@
       "runSimulation": "Run simulation now",
       "confirmRunSimulation": "Run the simulation pass now? This immediately simulates every due match for all users.",
       "finishStuckMatches": "Finish stuck matches ({{count}})",
-      "confirmFinishStuckMatches": "Finish simulating the {{count}} match(es) left stuck mid-simulation (e.g. by a server crash)? This immediately completes their simulation.",
-      "finishStuckMatchesSuccess": "Finished {{leagueMatches}} league match(es) and {{friendlies}} friendly(ies) that were stuck mid-simulation.",
+      "confirmFinishStuckMatches": "Finish the {{count}} match(es) that are stuck or failing to simulate? This immediately re-simulates them, and settles as a 0-0 draw any that has already used all 3 attempts.",
+      "finishStuckMatchesSuccess": "Re-simulated {{resimulated}}, settled {{defaulted}} as 0-0 by default, {{stillFailing}} still failing.",
       "checkSeasonAdvance": "Check season advance",
       "confirmCheckSeasonAdvance": "Check for season advance now? If the season is ready, this immediately rolls it over for every user.",
       "payWagesNow": "Pay wages now",

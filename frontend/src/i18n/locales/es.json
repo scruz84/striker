@@ -1030,6 +1030,7 @@
       "intro": "Gracias al tiempo {{weather}}, un total de {{attendance}} aficionados se reunieron para presenciar el partido. {{referee}} fue el árbitro designado, junto a los asistentes {{assistant1}} y {{assistant2}}.",
       "kickoff": "¡Todo está listo, el partido está a punto de comenzar!",
       "fullTime": "El árbitro pita el final del partido.",
+      "defaultResultLabel": "Resultado por defecto",
       "summary": {
         "title": "Resumen del partido",
         "chances": "Ocasiones",
@@ -1099,6 +1100,9 @@
         "{{team}} se queda sin suficientes jugadores para continuar - el partido se suspende y {{opponent}} se lleva la victoria.",
         "Con muy pocos jugadores en el campo, el partido de {{team}} se da por finalizado - {{opponent}} se lo lleva por 3-0.",
         "El árbitro suspende el encuentro: {{team}} se queda con muy pocos jugadores para seguir, y {{opponent}} es declarado ganador por 3-0."
+      ],
+      "defaultResult": [
+        "El partido no pudo disputarse: se registra como un 0-0 por defecto entre {{team}} y {{opponent}}."
       ],
       "penaltyGoal": [
         "¡PENALTI! {{player}} engaña a {{keeper}} y marca para {{team}}.",
@@ -1208,7 +1212,19 @@
     "title": "Administración",
     "noAccess": "No tienes acceso de administrador.",
     "overview": {
-      "stuckMatchesAlert": "{{count}} partido(s) se han quedado atascados a mitad de simulación.",
+      "stuckMatchesAlert": "{{count}} partido(s) están atascados o fallan al simularse.",
+      "failingMatchesTitle": "Partidos que fallan al simularse ({{count}})",
+      "failingKindHeader": "Tipo",
+      "failingKind": {
+        "league": "Liga",
+        "friendly": "Amistoso",
+        "cup": "Copa"
+      },
+      "failingTeams": "Partido",
+      "failingKickoff": "Hora de inicio",
+      "failingAttempts": "Intentos",
+      "failingLastError": "Último error",
+      "standingsMismatchAlert": "{{count}} fila(s) de la clasificación no coinciden con los partidos jugados.",
       "stuckMatchesAction": "Terminarlos",
       "country": "País",
       "season": "Temporada",
@@ -1228,8 +1244,8 @@
       "runSimulation": "Ejecutar simulación ahora",
       "confirmRunSimulation": "¿Ejecutar la simulación ahora? Esto simula de inmediato todos los partidos pendientes de todos los usuarios.",
       "finishStuckMatches": "Finalizar partidos atascados ({{count}})",
-      "confirmFinishStuckMatches": "¿Finalizar la simulación de los {{count}} partido(s) que quedaron atascados a mitad de la simulación (por ejemplo, por una caída del servidor)? Esto completa su simulación de inmediato.",
-      "finishStuckMatchesSuccess": "Se completaron {{leagueMatches}} partido(s) de liga y {{friendlies}} amistoso(s) que estaban atascados a mitad de la simulación.",
+      "confirmFinishStuckMatches": "¿Finalizar los {{count}} partido(s) atascados o que fallan al simularse? Esto los vuelve a simular de inmediato, y cierra con un 0-0 por defecto los que ya han agotado sus 3 intentos.",
+      "finishStuckMatchesSuccess": "Se volvieron a simular {{resimulated}}, {{defaulted}} se cerraron con un 0-0 por defecto y {{stillFailing}} siguen fallando.",
       "checkSeasonAdvance": "Comprobar avance de temporada",
       "confirmCheckSeasonAdvance": "¿Comprobar el avance de temporada ahora? Si la temporada está lista, esto la avanza de inmediato para todos los usuarios.",
       "payWagesNow": "Pagar salarios ahora",

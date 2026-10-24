@@ -109,6 +109,17 @@ Changing a league's schedule override, clearing it, or changing the app-wide def
 - Live replay: `engine/livematch.go` (`BroadcastMatchLive`, `onComplete`); recovery in
   `engine/livematch_recovery.go` and `FinishStuckSimulations` (`engine/engine.go`), which only
   re-simulates rows claimed at least `common.StuckSimulationAge` ago.
+- Recovery from interrupted simulations: `engine.runClaimedSimulation` (`engine/simulationfailures.go`)
+  records an error or panic through `common.RecordSimulationFailure` (`common/simulationfailures.go`:
+  `MaxSimulationAttempts`, `SimulationRetryBackoff`, `IsConnectionError`); columns
+  `simulation_attempts`, `last_simulation_error` and `last_simulation_attempt_at`
+  (`resources/sql/init86_simulation_failures.sql`). Default 0-0: `engine.SettleDefaultResults`
+  (`engine/defaultresults.go`), run first by `FinishStuckSimulationsJob`.
+- Durable post-match effects: table `pending_post_match_effects` (same migration), written by
+  `common.Save*ResultTx`, claimed with `DELETE ... RETURNING` by `engine.completePostMatchEffects`
+  (the replay's `onComplete`) and drained by `engine.ApplyDuePostMatchEffects` from
+  `LiveBroadcastRecoveryJob` (`common.ClaimDuePostMatchEffects`, `FOR UPDATE SKIP LOCKED`); payload
+  `common.PostMatchPayload`. The backend README's live replay section describes the same flow.
 - Multi-replica safety (simulation claims, cup tie locks, fixture generation lock): see the
   engine-replicas spec.
 - Lineup lock: `common/lineuplock.go` (`LineupLockMinutes`, `IsLineupLocked`); handlers

@@ -3,6 +3,7 @@ import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_MATCH_ABANDONED,
+  EVENT_TYPE_MATCH_DEFAULT_RESULT,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
@@ -22,6 +23,7 @@ const COMMENTARY_KEYS: Partial<Record<number, string>> = {
   [EVENT_TYPE_INJURY]: 'match.commentary.injury',
   [EVENT_TYPE_SUBSTITUTION]: 'match.commentary.substitution',
   [EVENT_TYPE_MATCH_ABANDONED]: 'match.commentary.abandoned',
+  [EVENT_TYPE_MATCH_DEFAULT_RESULT]: 'match.commentary.defaultResult',
 }
 
 // A penalty or direct free kick narrates with its own phrasing; a missing setPiece (old or cached
@@ -136,7 +138,8 @@ export function commentaryFor(
 
   // Unlike every other event type, an abandoned match names no player - just the short-handed
   // team (event.teamOwner, resolved to team/teamName by the caller) and the side awarded the win.
-  if (event.eventType === EVENT_TYPE_MATCH_ABANDONED) {
+  // A default result likewise names no player: just the two sides (team is the home side).
+  if (event.eventType === EVENT_TYPE_MATCH_ABANDONED || event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT) {
     return interpolateNodes(template, {
       team: { text: teamName, teamId },
       opponent: { text: opponentName, teamId: opponentId },

@@ -263,9 +263,12 @@ func (sj *FinishStuckSimulationsJob) Description() string {
 }
 
 func (sj *FinishStuckSimulationsJob) Execute(context.Context) error {
+	// Fixtures that have used all their attempts are settled 0-0 first, so the re-simulation below
+	// never spends another attempt on them.
+	SettleDefaultResults(sj.dbCtx)
 	result := FinishStuckSimulations(sj.dbCtx)
-	if result.LeagueMatches > 0 || result.Friendlies > 0 {
-		log.Infof("Finished stuck simulations job: %d league matches, %d friendlies", result.LeagueMatches, result.Friendlies)
+	if result.LeagueMatches > 0 || result.Friendlies > 0 || result.CupTies > 0 {
+		log.Infof("Finished stuck simulations job: %d league matches, %d friendlies, %d cup ties", result.LeagueMatches, result.Friendlies, result.CupTies)
 	}
 	return nil
 }
@@ -275,7 +278,8 @@ func NewFinishStuckSimulationsJob(dbCtx *common.DatabaseContext) *FinishStuckSim
 }
 
 // LiveBroadcastRecoveryJob implements the quartz.Job interface: closes out any played match/cup
-// tie/friendly whose live broadcast has gone stale - see RecoverStaleLiveBroadcasts.
+// tie/friendly whose live broadcast has gone stale - see RecoverStaleLiveBroadcasts - and applies
+// the post-match effects its replay never got to (see ApplyDuePostMatchEffects).
 type LiveBroadcastRecoveryJob struct {
 	desc  string
 	dbCtx *common.DatabaseContext
@@ -287,6 +291,11 @@ func (lj *LiveBroadcastRecoveryJob) Description() string {
 
 func (lj *LiveBroadcastRecoveryJob) Execute(context.Context) error {
 	RecoverStaleLiveBroadcasts(lj.dbCtx)
+	// Applies the post-match effects of any match whose replay never reached its completion - see
+	// ApplyDuePostMatchEffects.
+	if applied := ApplyDuePostMatchEffects(lj.dbCtx); applied > 0 {
+		log.Infof("Live broadcast recovery job applied the post-match effects of %d matches", applied)
+	}
 	return nil
 }
 

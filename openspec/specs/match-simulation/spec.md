@@ -258,8 +258,15 @@ Every simulated match SHALL store the same record, whatever its competition (lea
   Frontend: `utils/matchCommentary.tsx` (set-piece phrasing), `utils/matchGoals.ts` and
   `features/match/MatchScoreboard.tsx` (`(pen.)` / `(f.k.)` marks), `utils/matchEvents.ts`
   (a missed penalty always shows in `MatchEventsReport`).
-- Stored match record for every competition: `common.SetCupTiePlayed` (events and per-minute instants,
-  read back by `common.GetCupTieInstants`), `common.SetFriendlyPlayed`; report flavor through
+- Post-match processing (atomic, only-once result save): `common.SaveLeagueMatchResultTx`,
+  `common.SaveFriendlyResultTx` and `common.SaveCupTieResultTx` (`common/matchresult.go`) write the
+  result, events, instants, standings (under `LockNamespaceStandings`) and the pending post-match
+  record in one transaction guarded by `played = false` (`common.ErrAlreadyPlayed`); money, flavor
+  and the broadcast follow the commit in `simulateMatch`, `simulateCupTie` and `simulateFriendly`.
+  Default result: `engine.SettleDefaultResults` (`engine/defaultresults.go`) and
+  `common.MATCH_DEFAULT_RESULT`.
+- Stored match record for every competition: per-minute instants of a cup tie are read back by
+  `common.GetCupTieInstants`, events by `common.GetFriendlyEvents` / `GetCupTieEvents`; report flavor through
   `common.UpdateMatchFlavor` / `UpdateCupTieFlavor` / `UpdateFriendlyFlavor` (`common/matchflavor.go`),
   all driven by `engine.updateMatchReportFlavor`; tables `cup_tie_instants` and the flavor columns of
   `cup_ties` and `friendly_matches` (`resources/sql/init83_match_viewer_parity.sql`).

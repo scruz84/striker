@@ -63,8 +63,21 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 		return nil, err
 	}
 
-	UpdatePlayedMatch(dbCtx, matchSimulation)
-	UpdateClassification(dbCtx, matchSimulation)
+	// The result, its events and instants, both sides' standings and the pending post-match effects
+	// are stored in one transaction that only applies while the match is still unplayed. Everything
+	// below runs only after it commits, so a failed save can never be followed by (or later repeated
+	// with) money, a report or a broadcast, and two simulations of one match book them once.
+	if err := common.SaveLeagueMatchResultTx(dbCtx, matchSimulation.Id, matchSimulation.DivisionId, matchSimulation.Home,
+		matchSimulation.Away, common.MatchResult{
+			HomeGoals: matchSimulation.HomeGoals,
+			AwayGoals: matchSimulation.AwayGoals,
+			Events:    *matchSimulation.Events,
+			Instants:  *matchSimulation.MatchInstants,
+			Effects:   newPostMatchPayload(matchSimulation, false),
+		}); err != nil {
+		return nil, err
+	}
+
 	// Drawn once, up front, so the same weather both shapes the crowd (see CalculateAttendance) and
 	// is what the match report shows.
 	weather := common.RandomWeather()
@@ -85,11 +98,11 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	// evolutions report - same as the match result itself. Deferred into onComplete for the exact
 	// reason NotifyMatchResult already is (see BroadcastMatchLive's doc comment): a match is
 	// simulated and marked played up to 15 minutes before its advertised kickoff, so running these
-	// here would leak an injury or a skill jump before the match has even nominally started.
+	// here would leak an injury or a skill jump before the match has even nominally started. They
+	// were stored as pending with the result, so an engine restart during the replay doesn't lose
+	// them (see ApplyDuePostMatchEffects).
 	BroadcastMatchLive(dbCtx, common.LeagueMatchChannel(matchSimulation.Id), matchSimulation, match.MatchDate, func() {
-		UpdatePlayerAvailability(dbCtx, matchSimulation)
-		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
-		NotifyMatchResult(dbCtx, matchSimulation)
+		completePostMatchEffects(dbCtx, common.SimulationKindLeague, matchSimulation.Id)
 	})
 	common.RecordMatchSimulated(context.Background(), "league", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 

@@ -20,6 +20,7 @@ import type {
   FreeAgentListing,
   FreeAgentSigningResult,
   FriendlyChallenge,
+  FinishStuckMatchesResult,
   FriendlyMatch,
   FriendlySchedule,
   LeagueTransfer,
@@ -1061,7 +1062,7 @@ export function useAdminFinishStuckMatches() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () =>
-      api.post<{ leagueMatches: number; friendlies: number }>('/v1/admin/finish-stuck-matches'),
+      api.post<FinishStuckMatchesResult>('/v1/admin/finish-stuck-matches'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
     },

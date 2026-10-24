@@ -106,6 +106,24 @@ a match isn't played yet, as a backstop in case a socket message is ever missed 
 connection, a missed reconnect) - it stops as soon as the match shows played, from whichever
 source noticed first.
 
+#### Live replay recovery
+
+The effects that must not show before a match has nominally finished - the availability countdown
+and new injuries/suspensions, skill growth and the result notification - are stored as a pending
+record (`pending_post_match_effects`, payload `common.PostMatchPayload`) in the same transaction as
+the result (`common.SaveLeagueMatchResultTx` and its friendly/cup counterparts). The replay's
+completion claims the record with `DELETE ... RETURNING` and applies it
+(`engine.completePostMatchEffects`); `LiveBroadcastRecoveryJob` (every 5 minutes) applies any record
+still pending once kickoff + the 2-hour live-broadcast window has passed
+(`engine.ApplyDuePostMatchEffects`), so an engine restart during the ~105-minute replay no longer
+loses them. Whoever deletes the row applies it, so the effects are applied at most once.
+
+A simulation that fails (an error or a panic) counts an attempt, releases its claim and stores the
+reason (`simulation_attempts`, `last_simulation_error`); it is retried no sooner than 10 minutes
+later, and after 3 attempts `FinishStuckSimulationsJob` settles it 0-0 (`engine.SettleDefaultResults`).
+The admin overview lists the failing matches and the "finish stuck matches" action runs the same
+default settlement and re-simulation on demand.
+
 ### Transfer window
 
 The transfer and loan markets share one global open/closed flag (`season.transfer_window_open`,

@@ -83,10 +83,7 @@ const SetCupCompletedStmtSql = "UPDATE cups SET completed = true, champion_team_
 
 const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, home_team_id, away_team_id, match_date FROM cup_ties " +
 	"WHERE match_date is not null AND match_date <= now() AND played = false AND in_simulation = false " +
-	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL " + ForUpdate
-
-const SetCupTiePlayedStmtSql = "UPDATE cup_ties SET played = true, in_simulation = false, home_goals = $1, away_goals = $2, " +
-	"went_to_penalties = $3, winner_team_id = $4 WHERE tie_id = $5"
+	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL AND " + simulationEligibleSql + " " + ForUpdate
 
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
@@ -329,46 +326,7 @@ func IsCupTiePlayed(dbCtx *DatabaseContext, tieId int64) (bool, error) {
 	return played, err
 }
 
-// SetCupTiePlayed records a simulated tie's result and its events.
-func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoals int, wentToPenalties bool, winnerTeamId int64, events []Event, instants []MatchInstant) error {
-	if _, err := dbCtx.Db.Exec(SetCupTiePlayedStmtSql, homeGoals, awayGoals, wentToPenalties, winnerTeamId, tieId); err != nil {
-		return err
-	}
-
-	insertEvent, err := dbCtx.Db.Prepare(InsertCupTieEventStmtSql)
-	if err != nil {
-		return err
-	}
-	defer insertEvent.Close()
-
-	for _, e := range events {
-		teamPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
-		teamPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
-		if _, err := insertEvent.Exec(tieId, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-			teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece); err != nil {
-			return err
-		}
-	}
-
-	insertInstant, err := dbCtx.Db.Prepare(InsertCupTieInstantStmtSql)
-	if err != nil {
-		return err
-	}
-	defer insertInstant.Close()
-
-	for _, i := range instants {
-		homeQuaJson, _ := json.Marshal(i.HomeQua)
-		awayQuaJson, _ := json.Marshal(i.AwayQua)
-		if _, err := insertInstant.Exec(tieId, i.Minute, i.HomeGoals, i.AwayGoals, homeQuaJson, awayQuaJson, i.MidfieldDiff,
-			i.HomeAttackRightDiff, i.HomeAttackLeftDiff, i.HomeAttackCenterDiff,
-			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// GetCupTieInstants reads back a played cup tie's per-minute zone instants (see SetCupTiePlayed) -
+// GetCupTieInstants reads back a played cup tie's per-minute zone instants (see SaveCupTieResultTx) -
 // the cup equivalent of GetMatchInstants / GetFriendlyInstants.
 func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, error) {
 	rows, err := dbCtx.Db.Query(GetCupTieInstantsStmtSql, tieId)

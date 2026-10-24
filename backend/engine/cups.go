@@ -350,7 +350,27 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 		log.Errorf("error getting simulable cup ties: %s", err)
 		return
 	}
+	simulateCupTiesNow(dbCtx, ties)
+}
 
+// FinishStuckCupTies simulates every due cup tie that is past its retry backoff right away, for the
+// admin action - a cup tie has no claim to get stuck on, but a failed one waits out the backoff,
+// and this is what moves it along on demand. Returns how many of them ended up played.
+func FinishStuckCupTies(dbCtx *common.DatabaseContext) int {
+	ties, err := common.GetSimulableCupTies(dbCtx)
+	if err != nil {
+		log.Errorf("error getting simulable cup ties: %s", err)
+		return 0
+	}
+	simulateCupTiesNow(dbCtx, ties)
+	ids := make([]int64, len(ties))
+	for i, tie := range ties {
+		ids[i] = tie.TieId
+	}
+	return countPlayed(dbCtx, common.SimulationKindCup, ids)
+}
+
+func simulateCupTiesNow(dbCtx *common.DatabaseContext, ties []common.CupTie) {
 	// Same bounded-concurrency + panic-recovery approach as SimulateMatches (engine.go) - a
 	// bracket round produces far fewer simultaneous ties than a league's matchday, but the
 	// failure mode (an unbounded goroutine burst, or one panic taking down the whole process)
@@ -364,14 +384,9 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 		go func(tie common.CupTie) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			defer func() {
-				if r := recover(); r != nil {
-					log.Errorf("panic simulating cup tie %d: %v", tie.TieId, r)
-				}
-			}()
-			if err := simulateCupTieOnce(dbCtx, &tie); err != nil {
-				log.Errorf("error simulating cup tie %d: %s", tie.TieId, err)
-			}
+			runClaimedSimulation(dbCtx, common.SimulationKindCup, tie.TieId, func() error {
+				return simulateCupTieOnce(dbCtx, &tie)
+			})
 		}(tie)
 	}
 	wg.Wait()
@@ -381,18 +396,30 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 // has already finished it. GetSimulableCupTies does not claim the ties it returns, and every
 // replica runs CupJob at the same instant, so both used to simulate the same tie: two sets of
 // events, double injuries and skill changes, and possibly two different winners. The tie is
-// simulated under a session-level advisory lock keyed to it, and played is re-read inside the
-// lock, so the replica that loses the race skips it. A crash mid-simulation releases the lock with
-// the session, so the next tick simulates the tie again instead of leaving it stuck.
+// simulated under a session-level advisory lock keyed to it, and the claim of its attempt
+// (common.ClaimCupTieAttempt) re-checks inside the lock that it is still unplayed, so the replica
+// that loses the race skips it. A crash mid-simulation releases the lock with the session, so the
+// next tick simulates the tie again instead of leaving it stuck. A simulation that returns an error
+// is returned to the caller, which records the failure (see runClaimedSimulation).
 func simulateCupTieOnce(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
+	var simulateErr error
 	_, err := common.TryWithSessionAdvisoryLock(dbCtx, common.NamespacedLockKey(common.LockNamespaceCupTieSimulation, tie.TieId), func() error {
-		played, err := common.IsCupTiePlayed(dbCtx, tie.TieId)
-		if err != nil || played {
+		// A cup tie has no in_simulation claim, so this is where its attempt is counted. Inside the
+		// lock, it re-checks that the tie is still unplayed, has attempts left and is past its
+		// backoff - the replica that waited for the lock may be acting on a stale selection.
+		claimed, err := common.ClaimCupTieAttempt(dbCtx, tie.TieId)
+		if err != nil || !claimed {
 			return err
 		}
-		return simulateCupTie(dbCtx, tie)
+		simulateErr = simulateCupTie(dbCtx, tie)
+		return nil
 	})
-	return err
+	// A failure to take or release the lock or to count the attempt is not a failed simulation: the
+	// tie is simply tried again next tick, with no attempt used.
+	if err != nil {
+		log.Errorf("error claiming cup tie %d for simulation: %s", tie.TieId, err)
+	}
+	return simulateErr
 }
 
 // persistCupTieLineupSnapshot is persistResolvedLineupSnapshot's cup-tie equivalent, writing into
@@ -447,8 +474,15 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 		}
 	}
 
-	if err := common.SetCupTiePlayed(dbCtx, tie.TieId, matchSimulation.HomeGoals, matchSimulation.AwayGoals,
-		wentToPenalties, winnerTeamId, *matchSimulation.Events, *matchSimulation.MatchInstants); err != nil {
+	// The result, events, instants and pending post-match effects are stored in one transaction that
+	// only applies while the tie is still unplayed - see simulateMatch.
+	if err := common.SaveCupTieResultTx(dbCtx, tie.TieId, wentToPenalties, winnerTeamId, common.MatchResult{
+		HomeGoals: matchSimulation.HomeGoals,
+		AwayGoals: matchSimulation.AwayGoals,
+		Events:    *matchSimulation.Events,
+		Instants:  *matchSimulation.MatchInstants,
+		Effects:   newPostMatchPayload(matchSimulation, wentToPenalties),
+	}); err != nil {
 		return err
 	}
 
@@ -466,9 +500,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	// minutes before its advertised kickoff, so running these here would leak an injury or skill
 	// jump before the tie has even nominally started.
 	BroadcastMatchLive(dbCtx, common.CupTieChannel(matchSimulation.Id), matchSimulation, *tie.MatchDate, func() {
-		UpdatePlayerAvailability(dbCtx, matchSimulation)
-		updateSkillsAfterPlayedMatch(dbCtx, matchSimulation)
-		notifyCupTieResult(dbCtx, matchSimulation, wentToPenalties)
+		completePostMatchEffects(dbCtx, common.SimulationKindCup, matchSimulation.Id)
 	})
 	common.RecordMatchSimulated(context.Background(), "cup", matchSimulation.HomeGoals, matchSimulation.AwayGoals)
 	return nil

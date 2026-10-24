@@ -23,6 +23,10 @@ const (
 	LockNamespaceCupTieSimulation   int64 = 1
 	LockNamespaceWorldCupAdvance    int64 = 2
 	LockNamespaceNationalTeamCallUp int64 = 3
+	// LockNamespaceStandings serializes everything that changes one league's classification rows:
+	// a result save (an increment, see SaveLeagueMatchResultTx) and the one-off rebuild of drifted
+	// rows (engine.RepairStandingsOnce). Keyed by league id.
+	LockNamespaceStandings int64 = 4
 )
 
 // NamespacedLockKey builds an advisory lock key for id inside namespace (see the constants above).

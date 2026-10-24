@@ -32,10 +32,10 @@ func TestMatchViewerPayloads_CupTieAndFriendly(t *testing.T) {
 	mustScan(&playedTie, `INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id) VALUES ($1, 1, 1, $2, $3) RETURNING tie_id`, cupId, teamA, teamB)
 	mustScan(&openTie, `INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id) VALUES ($1, 1, 2, $2, $3) RETURNING tie_id`, cupId, teamA, teamB)
 
-	// A played tie: stored the way engine.simulateCupTie does.
+	// A played tie: stored the way engine.simulateCupTie does (common.SaveCupTieResultTx).
 	instants := []MatchInstant{{Minute: 1, HomeQua: TeamQualification{Midfield: 12.5}}, {Minute: 2, HomeGoals: 1}}
-	if err := SetCupTiePlayed(dbCtx, playedTie, 1, 0, false, teamA, nil, instants); err != nil {
-		t.Fatalf("SetCupTiePlayed: %s", err)
+	if err := SaveCupTieResultTx(dbCtx, playedTie, false, teamA, MatchResult{HomeGoals: 1, Instants: instants}); err != nil {
+		t.Fatalf("SaveCupTieResultTx: %s", err)
 	}
 	if err := UpdateCupTieFlavor(dbCtx, playedTie, "rain", 8412, "Ref One", "Assistant A", "Assistant B"); err != nil {
 		t.Fatalf("UpdateCupTieFlavor: %s", err)
@@ -76,8 +76,8 @@ func TestMatchViewerPayloads_CupTieAndFriendly(t *testing.T) {
 	mustScan(&groupId, `INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'B') RETURNING group_id`, worldCupId)
 	mustExec(`INSERT INTO world_cup_group_matches (group_id, round, match_id) VALUES ($1, 2, $2)`, groupId, groupFriendly)
 	for _, id := range []int64{groupFriendly, plainFriendly} {
-		if err := SetFriendlyPlayed(dbCtx, id, 2, 1, nil, nil); err != nil {
-			t.Fatalf("SetFriendlyPlayed: %s", err)
+		if err := SaveFriendlyResultTx(dbCtx, id, teamA, teamB, MatchResult{HomeGoals: 2, AwayGoals: 1}); err != nil {
+			t.Fatalf("SaveFriendlyResultTx: %s", err)
 		}
 		if err := UpdateFriendlyFlavor(dbCtx, id, "windy", 5000, "Ref Three", "Assistant E", "Assistant F"); err != nil {
 			t.Fatalf("UpdateFriendlyFlavor: %s", err)

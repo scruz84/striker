@@ -353,15 +353,15 @@ const updateWorldCupGroupTeamStmtSql = "UPDATE world_cup_group_teams SET played 
 	"won = won + $1, drawn = drawn + $2, lost = lost + $3, goals_for = goals_for + $4, goals_against = goals_against + $5 " +
 	"WHERE group_id = $6 AND team_id = $7"
 
-// UpdateWorldCupStandingsAfterMatch updates both sides' running group record after matchId (a
-// friendly_matches row) is simulated - a no-op, returning (0, false, nil), for the (overwhelming)
-// majority of friendlies, which aren't part of any World Cup group at all. Returns the group's
-// id and whether updating just completed that match, purely so a caller who wants to know can
-// check cheaply instead of re-querying - StartWorldCupForNewSeason's own engine.AdvanceWorldCups
-// decides tournament-wide completion by checking every group itself, not from this return value.
-func UpdateWorldCupStandingsAfterMatch(dbCtx *DatabaseContext, matchId int64, homeTeamId int64, awayTeamId int64, homeGoals int, awayGoals int) error {
+// UpdateWorldCupStandingsAfterMatchTx updates both sides' running group record after matchId (a
+// friendly_matches row) is simulated, inside tx - a no-op for the (overwhelming) majority of
+// friendlies, which aren't part of any World Cup group at all. It runs in the same transaction as
+// the friendly's result (see SaveFriendlyResultTx), so a result and its group standings are stored
+// together or not at all. StartWorldCupForNewSeason's own engine.AdvanceWorldCups decides
+// tournament-wide completion by checking every group itself, not from anything this returns.
+func UpdateWorldCupStandingsAfterMatchTx(tx *sql.Tx, matchId int64, homeTeamId int64, awayTeamId int64, homeGoals int, awayGoals int) error {
 	var groupId int64
-	err := dbCtx.Db.QueryRow(getWorldCupGroupIdForMatchStmtSql, matchId).Scan(&groupId)
+	err := tx.QueryRow(getWorldCupGroupIdForMatchStmtSql, matchId).Scan(&groupId)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil
 	}
@@ -380,10 +380,10 @@ func UpdateWorldCupStandingsAfterMatch(dbCtx *DatabaseContext, matchId int64, ho
 		homeDrawn, awayDrawn = 1, 1
 	}
 
-	if _, err := dbCtx.Db.Exec(updateWorldCupGroupTeamStmtSql, homeWon, homeDrawn, homeLost, homeGoals, awayGoals, groupId, homeTeamId); err != nil {
+	if _, err := tx.Exec(updateWorldCupGroupTeamStmtSql, homeWon, homeDrawn, homeLost, homeGoals, awayGoals, groupId, homeTeamId); err != nil {
 		return err
 	}
-	_, err = dbCtx.Db.Exec(updateWorldCupGroupTeamStmtSql, awayWon, awayDrawn, awayLost, awayGoals, homeGoals, groupId, awayTeamId)
+	_, err = tx.Exec(updateWorldCupGroupTeamStmtSql, awayWon, awayDrawn, awayLost, awayGoals, homeGoals, groupId, awayTeamId)
 	return err
 }
 
