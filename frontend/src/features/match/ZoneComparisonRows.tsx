@@ -1,11 +1,13 @@
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
+import type { SxProps, Theme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import type { TeamQualification } from '../../api/types'
 import { matchTeamColors } from '../../utils/teamColors'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { duelShares, duelTooltip, formatStrength } from './zoneDuel'
 
 interface ZoneRow {
   /** i18n key for the tooltip spelling out exactly which zone is being compared. */
@@ -161,10 +163,6 @@ function PitchCorner({ corner }: { corner: 'top-left' | 'top-right' | 'bottom-le
   )
 }
 
-function formatValue(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1)
-}
-
 function DuelCell({
   caption,
   home,
@@ -178,16 +176,18 @@ function DuelCell({
   homeColor: string
   awayColor: string
 }) {
-  const total = home + away
-  const homeShare = total > 0 ? (home / total) * 100 : 50
-  const awayShare = 100 - homeShare
+  const shares = duelShares(home, away)
   const homeStronger = home > away
   const awayStronger = away > home
 
-  // Only the share is printed in the cell (the raw strengths were ~9.5px and unreadable on a
-  // phone); tapping a cell shows the matchup it stands for together with both raw values.
+  // Each half is two lines: the share (the main reading, bold when stronger) and that side's raw
+  // strength beneath it, rounded - at 12px, the smallest size that stays readable on a phone (an
+  // earlier version printed the raw values beside the share at ~9.5px and they were dropped as
+  // unreadable). Two stacked lines need ~30px of width where "60% · 43" side by side needs ~58px,
+  // more than half a cell on a 360px screen. Tapping a cell shows the matchup it stands for with
+  // both raw values to one decimal.
   return (
-    <Tooltip title={`${caption}: ${formatValue(home)} - ${formatValue(away)}`} arrow enterTouchDelay={0}>
+    <Tooltip title={duelTooltip(caption, home, away)} arrow enterTouchDelay={0}>
       <Box
         sx={{
           display: 'flex',
@@ -197,27 +197,40 @@ function DuelCell({
           cursor: 'default',
         }}
       >
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            bgcolor: homeColor,
-            color: '#fff',
-            textAlign: 'center',
-            py: { xs: 1, sm: 1.25 },
-            borderRight: '2px solid rgba(255,255,255,0.65)',
-          }}
-        >
-          <Typography variant="body2" sx={{ fontWeight: homeStronger ? 800 : 500, lineHeight: 1.1 }}>
-            {Math.round(homeShare)}%
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 0, bgcolor: awayColor, color: '#fff', textAlign: 'center', py: { xs: 1, sm: 1.25 } }}>
-          <Typography variant="body2" sx={{ fontWeight: awayStronger ? 800 : 500, lineHeight: 1.1 }}>
-            {Math.round(awayShare)}%
-          </Typography>
-        </Box>
+        <DuelHalf
+          share={shares.home}
+          strength={home}
+          stronger={homeStronger}
+          color={homeColor}
+          sx={{ borderRight: '2px solid rgba(255,255,255,0.65)' }}
+        />
+        <DuelHalf share={shares.away} strength={away} stronger={awayStronger} color={awayColor} />
       </Box>
     </Tooltip>
+  )
+}
+
+function DuelHalf({
+  share,
+  strength,
+  stronger,
+  color,
+  sx,
+}: {
+  share: number
+  strength: number
+  stronger: boolean
+  color: string
+  sx?: SxProps<Theme>
+}) {
+  return (
+    <Box sx={[{ flex: 1, minWidth: 0, bgcolor: color, color: '#fff', textAlign: 'center', py: { xs: 0.75, sm: 1 } }, ...(Array.isArray(sx) ? sx : [sx])]}>
+      <Typography variant="body2" sx={{ fontWeight: stronger ? 800 : 500, lineHeight: 1.1 }}>
+        {Math.round(share)}%
+      </Typography>
+      <Typography variant="caption" sx={{ display: 'block', fontSize: '12px', lineHeight: 1.2, opacity: 0.85 }}>
+        {formatStrength(strength)}
+      </Typography>
+    </Box>
   )
 }

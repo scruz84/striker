@@ -1089,6 +1089,17 @@ export interface FriendlyMatch {
   homePlayers?: Record<string, Player>
   awayPlayers?: Record<string, Player>
   ratings?: Record<string, number>
+  // The home team's stadium (absent for a national team, which has none) and the stored report
+  // flavor of a played friendly - absent for one played before the match viewer stored them.
+  homeStadiumName?: string
+  weather?: string
+  attendance?: number
+  refereeName?: string
+  assistant1Name?: string
+  assistant2Name?: string
+  // Set only when this friendly is a World Cup group fixture (see backend common.FriendlyMatch).
+  worldCupGroupName?: string
+  worldCupRound?: number
 }
 
 // The admin-configured weekdays a friendly may kick off on (see backend
@@ -1199,6 +1210,15 @@ export interface CupTieDetails extends CupTie {
   // Only present once the tie has been played - the same per-player rating breakdown a league
   // match's WeekMatch or a played FriendlyMatch carries (see backend common.GetCupTieDetails).
   ratings?: Record<string, number>
+  // Same additions as FriendlyMatch: per-minute instants (for the zone duel), the home stadium and
+  // the stored report flavor - only for a played tie simulated after the match viewer stored them.
+  matchInstants?: MatchInstant[]
+  homeStadiumName?: string
+  weather?: string
+  attendance?: number
+  refereeName?: string
+  assistant1Name?: string
+  assistant2Name?: string
 }
 
 // Match kind discriminators for TeamMatchSummary.kind - see backend/common/teammatches.go.

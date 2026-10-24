@@ -131,7 +131,12 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	// UpdateTeamFinancesAfterMatch for a league match/cup tie (see simulateMatch) - a budget
 	// change isn't the kind of visible-outside-this-page state (an injury, a skill jump, a
 	// notification) that needs to wait for the friendly's advertised kickoff to actually arrive.
-	creditFriendlyTicketRevenue(dbCtx, friendly.HomeTeamId, friendly.AwayTeamId)
+	weather := common.RandomWeather()
+	attendance := creditFriendlyTicketRevenue(dbCtx, friendly.HomeTeamId, friendly.AwayTeamId, weather)
+	updateMatchReportFlavor(dbCtx, "friendly", friendly.MatchId, attendance, weather,
+		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
+			return common.UpdateFriendlyFlavor(dbCtx, friendly.MatchId, weather, attendance, referee, assistant1, assistant2)
+		})
 
 	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
 	// as simulateMatch - see its own comment. A friendly is simulated and marked played up to 15

@@ -75,7 +75,10 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	// cup tie played the same week doesn't charge wages a second time.
 	PayMatchdayWages(dbCtx, matchSimulation.Home)
 	PayMatchdayWages(dbCtx, matchSimulation.Away)
-	updateMatchReportFlavor(dbCtx, matchSimulation.Id, attendance, weather)
+	updateMatchReportFlavor(dbCtx, "match", matchSimulation.Id, attendance, weather,
+		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
+			return common.UpdateMatchFlavor(dbCtx, matchSimulation.Id, weather, attendance, referee, assistant1, assistant2)
+		})
 	// UpdatePlayerAvailability (new injuries/suspensions) and updateSkillsAfterPlayedMatch (skill
 	// growth, plus the NOTIFICATION_PROGRESSION push it can fire) both change state a team owner
 	// can see outside this match's own live-gated page - the squad list, a player's page, the
@@ -376,29 +379,35 @@ func playersToMapById(players *[]*common.Player) *map[int64]common.Player {
 	return &playersMap
 }
 
-// updateMatchReportFlavor generates and persists a league match's report flavor (weather,
-// referee, two assistant referees) plus the attendance already computed for ticket revenue (see
-// UpdateTeamFinancesAfterMatch) - purely cosmetic, for the Hattrick-style match report. Errors
-// are logged, not propagated: the match itself is already fully simulated and persisted by this
-// point, so a failure here should never be treated as the match having failed to process.
-func updateMatchReportFlavor(dbCtx *common.DatabaseContext, matchId int64, attendance int, weather string) {
+// reportFlavorStore persists one match's report flavor in whichever table its competition keeps
+// it in (see common.UpdateMatchFlavor / UpdateCupTieFlavor / UpdateFriendlyFlavor).
+type reportFlavorStore func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error
+
+// updateMatchReportFlavor generates and persists a match's report flavor (weather, referee, two
+// assistant referees) plus the attendance already computed for ticket revenue (see
+// UpdateTeamFinancesAfterMatch) - purely cosmetic, for the Hattrick-style match report. Shared by
+// league matches, cup ties and friendlies, which differ only in the store they write to; kind
+// ("match", "cup tie", "friendly") is only for the log lines. Errors are logged, not propagated:
+// the match itself is already fully simulated and persisted by this point, so a failure here
+// should never be treated as the match having failed to process.
+func updateMatchReportFlavor(dbCtx *common.DatabaseContext, kind string, id int64, attendance int, weather string, store reportFlavorStore) {
 	referee, err := common.RandomPersonName(dbCtx)
 	if err != nil {
-		log.Errorf("error generating referee name for match %d: %s", matchId, err)
+		log.Errorf("error generating referee name for %s %d: %s", kind, id, err)
 		return
 	}
 	assistant1, err := common.RandomPersonName(dbCtx)
 	if err != nil {
-		log.Errorf("error generating first assistant referee name for match %d: %s", matchId, err)
+		log.Errorf("error generating first assistant referee name for %s %d: %s", kind, id, err)
 		return
 	}
 	assistant2, err := common.RandomPersonName(dbCtx)
 	if err != nil {
-		log.Errorf("error generating second assistant referee name for match %d: %s", matchId, err)
+		log.Errorf("error generating second assistant referee name for %s %d: %s", kind, id, err)
 		return
 	}
-	if err := common.UpdateMatchFlavor(dbCtx, matchId, weather, attendance, referee, assistant1, assistant2); err != nil {
-		log.Errorf("error updating match report flavor for match %d: %s", matchId, err)
+	if err := store(weather, attendance, referee, assistant1, assistant2); err != nil {
+		log.Errorf("error updating report flavor for %s %d: %s", kind, id, err)
 	}
 }
 

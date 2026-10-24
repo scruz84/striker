@@ -72,3 +72,8 @@ Once every group match is played, the top two of each group SHALL be shuffled in
   `BuildRoundRobinRounds`, `RankGroupStandings`, `UpdateWorldCupStandingsAfterMatch`,
   `HasActiveWorldCup`), `common.CancelPendingNationalTeamFriendlies`.
 - Schema: `resources/sql/init72_world_cup.sql`.
+- Viewing a group match: it renders through `frontend/src/features/match/MatchViewer.tsx` (route
+  adapter `features/friendlies/FriendlyMatchPage.tsx`, `fromFriendly` in `matchViewModel.ts`); the
+  "Mundial · Grupo X · Jornada N" label comes from `common.FriendlyMatch.WorldCupGroupName` /
+  `WorldCupRound`, joined from `world_cup_group_matches` / `world_cup_groups` in
+  `GetFriendlyMatchByIdStmtSql`.

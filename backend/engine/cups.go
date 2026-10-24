@@ -435,11 +435,18 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	}
 
 	if err := common.SetCupTiePlayed(dbCtx, tie.TieId, matchSimulation.HomeGoals, matchSimulation.AwayGoals,
-		wentToPenalties, winnerTeamId, *matchSimulation.Events); err != nil {
+		wentToPenalties, winnerTeamId, *matchSimulation.Events, *matchSimulation.MatchInstants); err != nil {
 		return err
 	}
 
-	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, tie.Round, common.RandomWeather())
+	// Drawn once, so the same weather both shapes the crowd and is what the tie's report shows -
+	// see simulateMatch, which does the same for a league match.
+	weather := common.RandomWeather()
+	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, tie.Round, weather)
+	updateMatchReportFlavor(dbCtx, "cup tie", tie.TieId, attendance, weather,
+		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
+			return common.UpdateCupTieFlavor(dbCtx, tie.TieId, weather, attendance, referee, assistant1, assistant2)
+		})
 	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
 	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
 	// as simulateMatch - see its own comment. A tie is simulated and marked played up to 15

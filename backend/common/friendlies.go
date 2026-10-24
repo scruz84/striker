@@ -62,6 +62,20 @@ type FriendlyMatch struct {
 	HomePlayers   *map[int64]Player  `json:"homePlayers,omitempty"`
 	AwayPlayers   *map[int64]Player  `json:"awayPlayers,omitempty"`
 	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
+	// HomeStadiumName is the home team's stadium at fetch time (empty for a national team);
+	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the stored report flavor of a
+	// played friendly (see UpdateFriendlyFlavor), empty for one played before
+	// resources/sql/init83_match_viewer_parity.sql - the friendly equivalent of WeekMatch's fields.
+	HomeStadiumName string `json:"homeStadiumName,omitempty"`
+	Weather         string `json:"weather,omitempty"`
+	Attendance      int    `json:"attendance,omitempty"`
+	RefereeName     string `json:"refereeName,omitempty"`
+	Assistant1Name  string `json:"assistant1Name,omitempty"`
+	Assistant2Name  string `json:"assistant2Name,omitempty"`
+	// WorldCupGroupName/WorldCupRound are set only when this friendly is a World Cup group fixture
+	// (see world_cup_group_matches), so the viewer can label it "Mundial · Grupo B · Jornada 2".
+	WorldCupGroupName string `json:"worldCupGroupName,omitempty"`
+	WorldCupRound     int    `json:"worldCupRound,omitempty"`
 }
 
 // StartOfWeek returns midnight UTC on the most recent Monday on or before t - the real-calendar-
@@ -485,8 +499,10 @@ func GetTeamFriendlyMatches(dbCtx *DatabaseContext, teamId int64) ([]FriendlyMat
 	return scanFriendlyMatches(rows)
 }
 
-const GetFriendlyMatchByIdStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
+const GetFriendlyMatchByIdStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals, " +
+	"ht.stadium_name, fm.weather, fm.attendance, fm.referee_name, fm.assistant1_name, fm.assistant2_name, wcg.group_name, wcgm.round " +
 	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
+	"LEFT JOIN world_cup_group_matches wcgm ON wcgm.match_id = fm.match_id LEFT JOIN world_cup_groups wcg ON wcg.group_id = wcgm.group_id " +
 	"WHERE fm.match_id = $1"
 
 // GetFriendlyMatchById looks up one friendly by id - used by the lineup and live-view handlers,
@@ -494,10 +510,25 @@ const GetFriendlyMatchByIdStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.nam
 // per-team list.
 func GetFriendlyMatchById(dbCtx *DatabaseContext, matchId int64) (*FriendlyMatch, error) {
 	var m FriendlyMatch
+	var stadiumName, weather, refereeName, assistant1, assistant2, groupName sql.NullString
+	var attendance, round sql.NullInt64
 	err := dbCtx.Db.QueryRow(GetFriendlyMatchByIdStmtSql, matchId).Scan(&m.MatchId, &m.HomeTeamId, &m.HomeTeamName,
-		&m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &m.Played, &m.HomeGoals, &m.AwayGoals)
+		&m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &m.Played, &m.HomeGoals, &m.AwayGoals,
+		&stadiumName, &weather, &attendance, &refereeName, &assistant1, &assistant2, &groupName, &round)
 	if err != nil {
 		return nil, err
+	}
+	m.HomeStadiumName = stadiumName.String
+	m.WorldCupGroupName = groupName.String
+	m.WorldCupRound = int(round.Int64)
+	// The stored flavor only reads back once the friendly is played, like its events and instants
+	// (see EnrichPlayedFriendly).
+	if m.Played {
+		m.Weather = weather.String
+		m.Attendance = int(attendance.Int64)
+		m.RefereeName = refereeName.String
+		m.Assistant1Name = assistant1.String
+		m.Assistant2Name = assistant2.String
 	}
 	return &m, nil
 }

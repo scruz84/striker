@@ -239,5 +239,10 @@ After a league match the engine SHALL record the result and standings, update fi
   Frontend: `utils/matchCommentary.tsx` (set-piece phrasing), `utils/matchGoals.ts` and
   `features/match/MatchScoreboard.tsx` (`(pen.)` / `(f.k.)` marks), `utils/matchEvents.ts`
   (a missed penalty always shows in `MatchEventsReport`).
+- Stored match record for every competition: `common.SetCupTiePlayed` (events and per-minute instants,
+  read back by `common.GetCupTieInstants`), `common.SetFriendlyPlayed`; report flavor through
+  `common.UpdateMatchFlavor` / `UpdateCupTieFlavor` / `UpdateFriendlyFlavor` (`common/matchflavor.go`),
+  all driven by `engine.updateMatchReportFlavor`; tables `cup_tie_instants` and the flavor columns of
+  `cup_ties` and `friendly_matches` (`resources/sql/init83_match_viewer_parity.sql`).
 - Availability: `common.GetUnavailablePlayerIds`/`GetUnavailablePlayerIdsForFriendly`
   (`common/database.go`); substitutions cap `common.MaxScheduledSubstitutions`.

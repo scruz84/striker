@@ -91,6 +91,19 @@ const SetCupTiePlayedStmtSql = "UPDATE cup_ties SET played = true, in_simulation
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
+const InsertCupTieInstantStmtSql = "INSERT INTO cup_tie_instants(tie_id, minute, home_goals, away_goals, home_qua, away_qua, " +
+	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+
+const GetCupTieInstantsStmtSql = "SELECT tie_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, " +
+	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff " +
+	"FROM cup_tie_instants WHERE tie_id = $1 order by minute asc"
+
+// GetCupTieFlavorStmtSql reads a cup tie's report flavor plus the home team's stadium name in one
+// go (a bye or a national team has no home stadium, so that column can be NULL).
+const GetCupTieFlavorStmtSql = "SELECT ct.weather, ct.attendance, ct.referee_name, ct.assistant1_name, ct.assistant2_name, t.stadium_name " +
+	"FROM cup_ties ct LEFT JOIN teams t ON t.team_id = ct.home_team_id WHERE ct.tie_id = $1"
+
 const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
 	"FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC"
 
@@ -307,7 +320,7 @@ func GetSimulableCupTies(dbCtx *DatabaseContext) ([]CupTie, error) {
 }
 
 // SetCupTiePlayed records a simulated tie's result and its events.
-func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoals int, wentToPenalties bool, winnerTeamId int64, events []Event) error {
+func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoals int, wentToPenalties bool, winnerTeamId int64, events []Event, instants []MatchInstant) error {
 	if _, err := dbCtx.Db.Exec(SetCupTiePlayedStmtSql, homeGoals, awayGoals, wentToPenalties, winnerTeamId, tieId); err != nil {
 		return err
 	}
@@ -326,7 +339,52 @@ func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoa
 			return err
 		}
 	}
+
+	insertInstant, err := dbCtx.Db.Prepare(InsertCupTieInstantStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insertInstant.Close()
+
+	for _, i := range instants {
+		homeQuaJson, _ := json.Marshal(i.HomeQua)
+		awayQuaJson, _ := json.Marshal(i.AwayQua)
+		if _, err := insertInstant.Exec(tieId, i.Minute, i.HomeGoals, i.AwayGoals, homeQuaJson, awayQuaJson, i.MidfieldDiff,
+			i.HomeAttackRightDiff, i.HomeAttackLeftDiff, i.HomeAttackCenterDiff,
+			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff); err != nil {
+			return err
+		}
+	}
 	return nil
+}
+
+// GetCupTieInstants reads back a played cup tie's per-minute zone instants (see SetCupTiePlayed) -
+// the cup equivalent of GetMatchInstants / GetFriendlyInstants.
+func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, error) {
+	rows, err := dbCtx.Db.Query(GetCupTieInstantsStmtSql, tieId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	instants := make([]MatchInstant, 0)
+	for rows.Next() {
+		var i MatchInstant
+		var homeQua, awayQua string
+		if err := rows.Scan(&i.MatchId, &i.Minute, &i.HomeGoals, &i.AwayGoals, &homeQua, &awayQua, &i.MidfieldDiff,
+			&i.HomeAttackRightDiff, &i.HomeAttackLeftDiff, &i.HomeAttackCenterDiff,
+			&i.AwayAttackRightDiff, &i.AwayAttackLeftDiff, &i.AwayAttackCenterDiff); err != nil {
+			return nil, err
+		}
+		if homeQua != "" {
+			_ = json.Unmarshal([]byte(homeQua), &i.HomeQua)
+		}
+		if awayQua != "" {
+			_ = json.Unmarshal([]byte(awayQua), &i.AwayQua)
+		}
+		instants = append(instants, i)
+	}
+	return &instants, rows.Err()
 }
 
 const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation) VALUES ($1, $2, $3) " +
@@ -477,6 +535,18 @@ type CupTieDetails struct {
 	// league match or friendly does instead of only the lineups pitch view (issue: cup/friendly
 	// match pages missing the league match page's info).
 	Ratings *map[int64]float64 `json:"ratings,omitempty"`
+	// MatchInstants and the flavor fields below are only filled for a played tie, and only for one
+	// simulated after resources/sql/init83_match_viewer_parity.sql (an older tie has none, and the
+	// viewer then shows no zone duel / flavor lines) - the cup equivalent of WeekMatch's fields.
+	MatchInstants *[]MatchInstant `json:"matchInstants,omitempty"`
+	// HomeStadiumName is read at fetch time from the home team, like WeekMatch.HomeStadiumName; empty
+	// for a national team, which has none.
+	HomeStadiumName string `json:"homeStadiumName,omitempty"`
+	Weather         string `json:"weather,omitempty"`
+	Attendance      int    `json:"attendance,omitempty"`
+	RefereeName     string `json:"refereeName,omitempty"`
+	Assistant1Name  string `json:"assistant1Name,omitempty"`
+	Assistant2Name  string `json:"assistant2Name,omitempty"`
 }
 
 // GetCupTieDetails assembles one cup tie's full detail view - see CupTieDetails.
@@ -495,6 +565,28 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 
 	if tie.HomeTeamId == nil || tie.AwayTeamId == nil {
 		return details, nil
+	}
+
+	var weather, refereeName, assistant1, assistant2, stadiumName sql.NullString
+	var attendance sql.NullInt64
+	if err := dbCtx.Db.QueryRow(GetCupTieFlavorStmtSql, tieId).Scan(&weather, &attendance, &refereeName,
+		&assistant1, &assistant2, &stadiumName); err != nil {
+		return nil, err
+	}
+	details.HomeStadiumName = stadiumName.String
+	if tie.Played {
+		details.Weather = weather.String
+		details.Attendance = int(attendance.Int64)
+		details.RefereeName = refereeName.String
+		details.Assistant1Name = assistant1.String
+		details.Assistant2Name = assistant2.String
+		instants, err := GetCupTieInstants(dbCtx, tieId)
+		if err != nil {
+			return nil, err
+		}
+		if len(*instants) > 0 {
+			details.MatchInstants = instants
+		}
 	}
 
 	lineups, err := GetLineupsForCupTie(dbCtx, tieId, []int64{*tie.HomeTeamId, *tie.AwayTeamId})

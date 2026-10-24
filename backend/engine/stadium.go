@@ -234,9 +234,11 @@ func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, mc mat
 // helped draw is split evenly instead of going entirely to the home side. Any odd unit from
 // splitting an odd total stays with the home side, whose stadium actually generated it. Returns
 // the attendance figure it computed (0 if the stadium lookup failed or the stadium is empty),
-// same convention as creditTicketRevenue, even though no friendly report currently displays it.
-func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64) int {
-	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, matchdayContext{awayTeamId: awayTeamId, weather: common.RandomWeather()})
+// same convention as creditTicketRevenue - simulateFriendly stores it as the friendly's report
+// attendance. weather is drawn once by the caller, so the same weather both shapes the crowd here
+// and is what the friendly's report shows.
+func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64, weather string) int {
+	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, matchdayContext{awayTeamId: awayTeamId, weather: weather})
 	if revenue == 0 {
 		return attendance
 	}

@@ -53,7 +53,7 @@ func TestMatchEventSetPiece_RoundTrips(t *testing.T) {
 	// Cup tie.
 	freeKick := penalty
 	freeKick.SetPiece = SET_PIECE_DIRECT_FREE_KICK
-	if err := SetCupTiePlayed(dbCtx, tieId, 1, 0, false, teamA, []Event{freeKick}); err != nil {
+	if err := SetCupTiePlayed(dbCtx, tieId, 1, 0, false, teamA, []Event{freeKick}, nil); err != nil {
 		t.Fatalf("SetCupTiePlayed: %s", err)
 	}
 	cupEvents, err := GetCupTieEvents(dbCtx, tieId)

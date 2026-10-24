@@ -44,3 +44,23 @@ func UpdateMatchFlavor(dbCtx *DatabaseContext, matchId int64, weather string, at
 	_, err := dbCtx.Db.Exec(UpdateMatchFlavorStmtSql, weather, attendance, refereeName, assistant1Name, assistant2Name, matchId)
 	return err
 }
+
+// UpdateCupTieFlavorStmtSql / UpdateFriendlyFlavorStmtSql are UpdateMatchFlavorStmtSql for the cup
+// tie and friendly tables (see resources/sql/init83_match_viewer_parity.sql), so every competition
+// stores the same report flavor and the match viewer needs no per-competition gaps.
+const UpdateCupTieFlavorStmtSql = "UPDATE cup_ties SET weather = $1, attendance = $2, referee_name = $3, " +
+	"assistant1_name = $4, assistant2_name = $5 WHERE tie_id = $6"
+const UpdateFriendlyFlavorStmtSql = "UPDATE friendly_matches SET weather = $1, attendance = $2, referee_name = $3, " +
+	"assistant1_name = $4, assistant2_name = $5 WHERE match_id = $6"
+
+// UpdateCupTieFlavor persists a just-simulated cup tie's report flavor - see UpdateMatchFlavor.
+func UpdateCupTieFlavor(dbCtx *DatabaseContext, tieId int64, weather string, attendance int, refereeName string, assistant1Name string, assistant2Name string) error {
+	_, err := dbCtx.Db.Exec(UpdateCupTieFlavorStmtSql, weather, attendance, refereeName, assistant1Name, assistant2Name, tieId)
+	return err
+}
+
+// UpdateFriendlyFlavor persists a just-simulated friendly's report flavor - see UpdateMatchFlavor.
+func UpdateFriendlyFlavor(dbCtx *DatabaseContext, matchId int64, weather string, attendance int, refereeName string, assistant1Name string, assistant2Name string) error {
+	_, err := dbCtx.Db.Exec(UpdateFriendlyFlavorStmtSql, weather, attendance, refereeName, assistant1Name, assistant2Name, matchId)
+	return err
+}

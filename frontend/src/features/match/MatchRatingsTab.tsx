@@ -1,8 +1,8 @@
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import type { WeekMatch } from '../../api/types'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
+import type { MatchView } from './matchViewModel'
 import { TeamRatingsColumn } from './TeamRatingsColumn'
 
 // A "Calificaciones" tab: every player who featured, grouped by team, with the 1-10 rating
@@ -11,7 +11,7 @@ import { TeamRatingsColumn } from './TeamRatingsColumn'
 // match's minute-by-minute events are available, this hands off to MatchMinuteRatings so a viewer
 // can scrub back to see the ratings as they stood at any earlier minute, rather than only ever
 // seeing the final whistle's numbers.
-export function MatchRatingsTab({ match }: { match: WeekMatch }) {
+export function MatchRatingsTab({ match }: { match: MatchView }) {
   const { t } = useTranslation()
 
   if (!match.ratings || !match.homeLineup || !match.awayLineup || !match.homePlayers || !match.awayPlayers) {
@@ -21,9 +21,9 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   if (match.events && match.events.length > 0) {
     return (
       <MatchMinuteRatings
-        homeId={match.home}
+        homeId={match.homeId}
         homeName={match.homeName}
-        awayId={match.away}
+        awayId={match.awayId}
         awayName={match.awayName}
         homeLineup={match.homeLineup}
         awayLineup={match.awayLineup}
@@ -39,10 +39,10 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
   return (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TeamRatingsColumn teamId={match.home} title={match.homeName} lineup={match.homeLineup} players={match.homePlayers} ratings={match.ratings} />
+        <TeamRatingsColumn teamId={match.homeId} title={match.homeName} lineup={match.homeLineup} players={match.homePlayers} ratings={match.ratings} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <TeamRatingsColumn teamId={match.away} title={match.awayName} lineup={match.awayLineup} players={match.awayPlayers} ratings={match.ratings} />
+        <TeamRatingsColumn teamId={match.awayId} title={match.awayName} lineup={match.awayLineup} players={match.awayPlayers} ratings={match.ratings} />
       </Grid>
     </Grid>
   )
@@ -52,7 +52,7 @@ export function MatchRatingsTab({ match }: { match: WeekMatch }) {
 // the last recorded MatchInstant's minute, but events can (rarely) carry a slightly later minute
 // than the last instant (e.g. a stoppage-time card), and a friendly/cup tie without instants has
 // none at all, so this takes whichever of the two is higher, floored at a full 90 minutes.
-function finalMatchMinute(match: WeekMatch): number {
+function finalMatchMinute(match: MatchView): number {
   const instants = match.matchInstants ?? []
   const events = match.events ?? []
   const lastInstantMinute = instants.length > 0 ? instants[instants.length - 1].minute : 0

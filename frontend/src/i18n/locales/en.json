@@ -1009,6 +1009,10 @@
       "tactics": "Tactics"
     },
     "matchday": "Matchday {{week}} of {{total}}",
+    "competition": {
+      "friendly": "Friendly",
+      "worldCupGroup": "World Cup · Group {{group}} · Matchday {{round}}"
+    },
     "weather": {
       "sunny": "sunny",
       "cloudy": "cloudy",
@@ -1132,7 +1136,7 @@
       "vsAttackLeft": "vs opponent's left attack",
       "vsAttackCenter": "vs opponent's attack",
       "vsAttackRight": "vs opponent's right attack",
-      "help": "Each cell shows the share of that zone's strength held by each team. Tap a cell to see the matchup and the raw values."
+      "help": "Each cell shows the share of that zone's strength held by each team, with each team's own strength beneath it. Tap a cell to see the matchup and both values to one decimal."
     }
   },
   "headToHead": {

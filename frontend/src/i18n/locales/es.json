@@ -1009,6 +1009,10 @@
       "tactics": "Táctica"
     },
     "matchday": "Jornada {{week}} de {{total}}",
+    "competition": {
+      "friendly": "Amistoso",
+      "worldCupGroup": "Mundial · Grupo {{group}} · Jornada {{round}}"
+    },
     "weather": {
       "sunny": "soleado",
       "cloudy": "nublado",
@@ -1132,7 +1136,7 @@
       "vsAttackLeft": "vs ataque izquierdo del rival",
       "vsAttackCenter": "vs ataque central del rival",
       "vsAttackRight": "vs ataque derecho del rival",
-      "help": "Cada casilla muestra qué porcentaje de la fuerza de esa zona tiene cada equipo. Toca una casilla para ver el cruce y los valores."
+      "help": "Cada casilla muestra qué porcentaje de la fuerza de esa zona tiene cada equipo y, debajo, la fuerza de cada uno. Toca una casilla para ver el cruce y ambos valores con un decimal."
     }
   },
   "headToHead": {
