@@ -28,6 +28,9 @@ context: |
   - Every user-facing string is i18n'd in frontend/src/i18n/locales/{en,es}.json; a new
     notification also needs its Spanish template in backend/common/notificationtranslations.go.
   - Economy changes are checked with `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v`.
+  
+  About the commits, do not add the "co-author" message including the session id.
+
 
 rules:
   proposal:
