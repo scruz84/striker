@@ -37,6 +37,10 @@ Every 5 minutes, while no World Cup is running, the engine SHALL pair every acti
 - **WHEN** two engine replicas run the pairing pass at once
 - **THEN** an advisory lock lets only one of them create fixtures
 
+#### Scenario: World Cup starting
+- **WHEN** a World Cup starts while a pairing pass is running
+- **THEN** the World Cup start waits for the pass's lock, so no country gets both a friendly and a group match that week
+
 ### Requirement: Call-up shortly before kickoff
 Within 24 hours of kickoff the engine SHALL select each national side's best XI from its current pool and save it as that match's lineup, once per side. National-team cup ties get their lineup the same way when each knockout round is created.
 
@@ -47,6 +51,10 @@ Within 24 hours of kickoff the engine SHALL select each national side's best XI 
 #### Scenario: Retry on failure
 - **WHEN** one side's call-up succeeded and the other's failed
 - **THEN** only the failed side is retried on later ticks
+
+#### Scenario: Two engine replicas
+- **WHEN** two engine replicas run the call-up pass at once
+- **THEN** each side is called up, and each club notified, once
 
 ### Requirement: Call-up notification
 When a national lineup is saved, each selected player's club owner SHALL receive a `NOTIFICATION_CALL_UP` linking to that fixture.
@@ -85,3 +93,5 @@ The frontend SHALL offer `/national-teams` with a global feed of upcoming and re
 - Jobs: `StartNationalTeamFriendlyScheduler`, `StartNationalTeamCallUpScheduler`
   (`engine/scheduler.go`).
 - Caps: `common.GetPlayerCareerStats`. Frontend: `NationalTeamsPage.tsx`.
+- Multi-replica safety (locks on pairing, World Cup start and call-ups): see the engine-replicas
+  spec.

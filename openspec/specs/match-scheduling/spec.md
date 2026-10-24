@@ -107,7 +107,10 @@ Changing a league's schedule override, clearing it, or changing the app-wide def
   `common/friendlies.go`, cup ties in `common/cups.go`.
 - Concurrency: `maxConcurrentSimulations`, `engine/engine.go`.
 - Live replay: `engine/livematch.go` (`BroadcastMatchLive`, `onComplete`); recovery in
-  `engine/livematch_recovery.go` and `FinishStuckSimulations` (`engine/engine.go`).
+  `engine/livematch_recovery.go` and `FinishStuckSimulations` (`engine/engine.go`), which only
+  re-simulates rows claimed at least `common.StuckSimulationAge` ago.
+- Multi-replica safety (simulation claims, cup tie locks, fixture generation lock): see the
+  engine-replicas spec.
 - Lineup lock: `common/lineuplock.go` (`LineupLockMinutes`, `IsLineupLocked`); handlers
   `SetMatchLineupHandler`/`SetCupTieLineupHandler`/`SetFriendlyLineupHandler`; frontend
   `useIsLineupLocked` (`frontend/src/api/useLiveMatch.ts`).

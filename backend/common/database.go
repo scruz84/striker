@@ -228,7 +228,7 @@ const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = mat
 	"where league_id = $8 and team_id = $9"
 
 const UpdateMatchStmtSql = "UPDATE matches SET home_goals = $1, away_goals = $2, played = $3, in_simulation = $4 WHERE match_id = $5"
-const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1 WHERE "
+const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1, in_simulation_since = now() WHERE "
 
 const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues ORDER BY country, tier, group_number"
 
@@ -817,19 +817,34 @@ func GetSimulableMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
 	return &matches, nil
 }
 
-// GetStuckMatchesStmtSql selects every league match still claimed (in_simulation = true) but
-// never marked played - see GetStuckMatches.
-const GetStuckMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
-	"home_goals, away_goals from matches where played is false and in_simulation is true order by league_id"
+// StuckSimulationAge is how long a match or friendly must have been claimed (in_simulation_since)
+// before GetStuckMatches/GetStuckFriendlies treat it as abandoned. A live simulation pass finishes
+// a claimed row within seconds; a large backlog within a couple of minutes. Without this age, the
+// recovery job could re-simulate a row a live pass had claimed the same second - kickoffs on the
+// hour are claimed 15 minutes early, exactly when the 15-minute recovery job fires - and play it
+// twice.
+const StuckSimulationAge = 10 * time.Minute
 
-// GetStuckMatches returns every league match a simulation pass claimed via GetSimulableMatches
-// (setting in_simulation = true) but never finished simulating - most likely because the
-// process crashed mid-run. Unlike GetSimulableMatches, this doesn't re-claim anything: the rows
-// are already claimed, and the caller is expected to re-simulate them right away (see
-// engine.FinishStuckMatches), since GetSimulableMatches' own "and in_simulation is false" filter
-// means the normal scheduler will never pick these back up on its own.
+// GetStuckMatchesStmtSql re-claims every league match claimed (in_simulation = true) at least $1
+// seconds ago (or before claims were timestamped) but never marked played, restamping
+// in_simulation_since so a second replica running the same statement at the same instant finds
+// nothing - see GetStuckMatches.
+const GetStuckMatchesStmtSql = "WITH stuck AS (UPDATE matches SET in_simulation_since = now() " +
+	"WHERE played is false and in_simulation is true " +
+	"and (in_simulation_since is null or in_simulation_since <= now() - ($1 * interval '1 second')) " +
+	"RETURNING match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals) " +
+	"select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
+	"from stuck order by league_id"
+
+// GetStuckMatches re-claims and returns every league match a simulation pass claimed via
+// GetSimulableMatches (setting in_simulation = true) at least StuckSimulationAge ago but never
+// finished simulating - most likely because the process crashed mid-run. The caller is expected
+// to re-simulate them right away (see engine.FinishStuckMatches), since GetSimulableMatches' own
+// "and in_simulation is false" filter means the normal scheduler will never pick these back up on
+// its own. The re-claim is one statement, so when several --engine replicas run the recovery at
+// the same instant each stuck match goes to exactly one of them.
 func GetStuckMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
-	rows, err := dbCtx.Db.Query(GetStuckMatchesStmtSql)
+	rows, err := dbCtx.Db.Query(GetStuckMatchesStmtSql, StuckSimulationAge.Seconds())
 	if err != nil {
 		return nil, err
 	}
@@ -931,7 +946,7 @@ func GetMatchesForLeaguesUpToWeek(dbCtx *DatabaseContext, leagueIds []int64, sea
 		for i, m := range matches {
 			matchIds[i] = m.MatchId
 		}
-		if _, err := tx.Exec("UPDATE matches SET in_simulation = true WHERE match_id IN "+int64SliceToInClause(matchIds)); err != nil {
+		if _, err := tx.Exec("UPDATE matches SET in_simulation = true, in_simulation_since = now() WHERE match_id IN " + int64SliceToInClause(matchIds)); err != nil {
 			log.Errorf("error marking backfill matches in_simulation: %s", err)
 		}
 	}
@@ -1716,26 +1731,28 @@ func SetTransferWindowOpen(dbCtx *DatabaseContext, open bool) error {
 // $1 is the cadence in seconds (time.Duration.Seconds()) - built into an interval via
 // `* interval '1 second'` rather than relying on Postgres parsing Go's own Duration.String()
 // format, which isn't guaranteed to round-trip through interval's input parser.
-const IsInternationalCupCheckDueStmtSql = "SELECT last_international_cup_check IS NULL OR " +
-	"last_international_cup_check <= now() - ($1 * interval '1 second') FROM season"
+const ClaimInternationalCupSeasonStmtSql = "UPDATE season SET international_cup_season = international_cup_season + 1, " +
+	"last_international_cup_check = now() WHERE last_international_cup_check IS NULL OR " +
+	"last_international_cup_check <= now() - ($1 * interval '1 second') RETURNING international_cup_season"
 
-// IsInternationalCupCheckDue reports whether at least cadence has passed since the last
-// international-cup check (or none has ever run yet).
-func IsInternationalCupCheckDue(dbCtx *DatabaseContext, cadence time.Duration) (bool, error) {
-	var due bool
-	err := dbCtx.Db.QueryRow(IsInternationalCupCheckDueStmtSql, cadence.Seconds()).Scan(&due)
-	return due, err
-}
-
-const AdvanceInternationalCupSeasonStmtSql = "UPDATE season SET international_cup_season = international_cup_season + 1, " +
-	"last_international_cup_check = now() RETURNING international_cup_season"
-
-// AdvanceInternationalCupSeason increments the decoupled international-cup season counter and
-// stamps last_international_cup_check with now(), returning the new season number.
-func AdvanceInternationalCupSeason(dbCtx *DatabaseContext) (int, error) {
+// ClaimInternationalCupSeason increments the decoupled international-cup season counter and
+// stamps last_international_cup_check with now(), but only if at least cadence has passed since
+// the last check (or none has ever run yet), returning the new season number and true. It returns
+// false when the round is not due. The due check and the increment are one statement, so when
+// several --engine replicas fire the job at the same instant exactly one of them claims the round:
+// the others wait on the winner's row lock and then see the stamp it just wrote. Checking and
+// incrementing in two statements let both replicas start a round, giving two sets of
+// international cups (and two World Cups) in one go.
+func ClaimInternationalCupSeason(dbCtx *DatabaseContext, cadence time.Duration) (int, bool, error) {
 	var season int
-	err := dbCtx.Db.QueryRow(AdvanceInternationalCupSeasonStmtSql).Scan(&season)
-	return season, err
+	err := dbCtx.Db.QueryRow(ClaimInternationalCupSeasonStmtSql, cadence.Seconds()).Scan(&season)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, false, nil
+	}
+	if err != nil {
+		return 0, false, err
+	}
+	return season, true, nil
 }
 
 func GetAllLeagueIds(dbCtx *DatabaseContext) ([]int64, error) {

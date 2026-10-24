@@ -19,6 +19,10 @@ A new World Cup SHALL start when the international cup counter (advanced every 6
 - **WHEN** only 6 countries are active
 - **THEN** no World Cup starts
 
+#### Scenario: Several engine replicas
+- **WHEN** the international cup job fires on several replicas at once with a round due
+- **THEN** exactly one claims the round, so at most one World Cup starts
+
 ### Requirement: Clearing pending friendlies
 Before entering countries into a new World Cup the engine MUST cancel every unplayed national-team friendly involving them, together with any saved lineup.
 
@@ -51,6 +55,7 @@ Once every group match is played, the top two of each group SHALL be shuffled in
 #### Scenario: Group stage complete
 - **WHEN** the last group match is played
 - **THEN** the next cup job creates the knockout cup from the 2 best of every group
+- **AND** only one knockout cup is created even when several engine replicas run that job at once
 
 #### Scenario: Final played
 - **WHEN** the knockout cup completes
@@ -78,3 +83,6 @@ Once every group match is played, the top two of each group SHALL be shuffled in
   "Mundial · Grupo X · Jornada N" label comes from `common.FriendlyMatch.WorldCupGroupName` /
   `WorldCupRound`, joined from `world_cup_group_matches` / `world_cup_groups` in
   `GetFriendlyMatchByIdStmtSql`.
+- Multi-replica safety (`common.ClaimInternationalCupSeason`, the World Cup start holding the
+  national-team scheduling lock, `advanceWorldCup`'s per-World-Cup lock): see the engine-replicas
+  spec.

@@ -339,6 +339,12 @@ run elsewhere and the app services need to be pointed at them instead of the bun
   JSON in the DB used the old spelling - don't "fix" field-name typos in a JSON tag without
   checking whether historical data already used the old spelling.
 - **i18n keys go in both `en.json` and `es.json` together**, same turn.
+- **The engine scales horizontally.** Production runs at least two `--engine` replicas, and every
+  replica fires the same cron triggers at the same instant. Any engine step that reads state and
+  then generates data must be safe when several replicas run it at once - an advisory lock with
+  the state re-read inside it, a single-statement atomic claim, or a per-slot claim. The helpers
+  live in `common/enginelocks.go`; the rules and the past incidents are in
+  `openspec/specs/engine-replicas/spec.md`.
 - **Every new user-facing capability that touches money, teams, or squads should also get a
   ledger/notification entry** where one of those already exists for similar actions (see how
   transfers, contract renewals, and budget corrections all log to the team transaction ledger) -

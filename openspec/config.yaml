@@ -16,7 +16,12 @@ context: |
   - Money moves only through common.AdjustTeamBudget with a TRANSACTION_* reason; transfer-like
     operations lock rows FOR UPDATE, validate inside the lock, write both ledger rows, commit,
     then notify best-effort.
-  - The engine may run as several replicas: check-then-act jobs need an advisory lock.
+  - The engine must scale horizontally and runs as at least two replicas firing the same cron
+    triggers at the same instant. Every engine step that generates data (fixtures, rollovers, cup
+    rounds, national-team fixtures, simulations, call-ups, periodic batches) must be safe when
+    several replicas run it at once: an advisory lock with the state re-read inside it, a
+    single-statement atomic claim, or a per-slot claim (common.ClaimEngineJobSlot). See
+    openspec/specs/engine-replicas; each new job needs a concurrent integration test.
   - Nothing a team owner can see outside a match page (results, injuries, skill changes,
     notifications) may become visible before that match's live replay finishes.
   - CPU (AI) teams act only through the same production functions and validation a human uses.

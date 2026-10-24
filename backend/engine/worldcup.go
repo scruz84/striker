@@ -28,11 +28,24 @@ const worldCupGroupMatchdayGap = 7 * 24 * time.Hour
 // fixture first, so that country doesn't end up double-booked into both it and its first group
 // match. Called from StartInternationalCupsIfDue, alongside StartInternationalCupsForNewSeason,
 // on that job's own decoupled cadence rather than any one country's season rollover.
+//
+// Holds the national-team scheduling lock (see common.WithNationalTeamSchedulingLock) for the
+// whole start, waiting for it rather than skipping: common.ScheduleNationalTeamFriendlies takes
+// the same lock, so a friendlies pass can never read "no World Cup running" and then pair a
+// country into a friendly the same week this creates its first group match.
 func StartWorldCupForNewSeason(dbCtx *common.DatabaseContext, season int) {
 	if season%WorldCupFrequencySeasons != 0 {
 		return
 	}
+	if err := common.WithNationalTeamSchedulingLock(dbCtx, func() error {
+		startWorldCupLocked(dbCtx, season)
+		return nil
+	}); err != nil {
+		log.Errorf("error taking the national-team scheduling lock to start season %d's World Cup: %s", season, err)
+	}
+}
 
+func startWorldCupLocked(dbCtx *common.DatabaseContext, season int) {
 	hasActive, err := common.HasActiveWorldCup(dbCtx)
 	if err != nil {
 		log.Errorf("error checking for an active World Cup before starting season %d's: %s", season, err)
@@ -150,7 +163,20 @@ func AdvanceWorldCups(dbCtx *common.DatabaseContext) {
 	}
 }
 
+// advanceWorldCup is a check-then-act (is the group stage complete? then create the knockout cup)
+// with no transaction of its own, so it runs under a session-level advisory lock keyed to
+// worldCupId, the same shape as advanceCup: two --engine replicas ticking CupJob at the same
+// instant could otherwise both see the group stage complete and both create a knockout cup,
+// sending every qualifier into two brackets at once. The World Cup is re-read inside the lock, so
+// the replica that runs second sees the knockout stage already started and does nothing.
 func advanceWorldCup(dbCtx *common.DatabaseContext, worldCupId int64) error {
+	_, err := common.TryWithSessionAdvisoryLock(dbCtx, common.NamespacedLockKey(common.LockNamespaceWorldCupAdvance, worldCupId), func() error {
+		return advanceWorldCupLocked(dbCtx, worldCupId)
+	})
+	return err
+}
+
+func advanceWorldCupLocked(dbCtx *common.DatabaseContext, worldCupId int64) error {
 	worldCup, err := common.GetWorldCupById(dbCtx, worldCupId)
 	if err != nil {
 		return err

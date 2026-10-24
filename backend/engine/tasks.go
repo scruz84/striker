@@ -2,9 +2,19 @@ package engine
 
 import (
 	"context"
+	"time"
+
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
 )
+
+// claimRun reports whether this replica should run a "once per period" job this tick. Every
+// --engine replica fires the same cron trigger at the same instant, so without a claim a weekly
+// job would inject its free agents, or a 5-minute job roll its dice, once per replica - see
+// common.ClaimEngineJobSlot. period must be no longer than the job's cron interval.
+func claimRun(dbCtx *common.DatabaseContext, jobName string, period time.Duration) bool {
+	return common.ClaimEngineJobSlot(dbCtx, jobName, time.Now(), period)
+}
 
 // SimulateMatchesJob implements the quartz.Job interface.
 type SimulateMatchesJob struct {
@@ -63,6 +73,9 @@ func (pj *FreeAgentProgressionJob) Description() string {
 }
 
 func (pj *FreeAgentProgressionJob) Execute(context.Context) error {
+	if !claimRun(pj.dbCtx, "free_agent_progression", 24*time.Hour) {
+		return nil
+	}
 	log.Info("Free agent progression job")
 	ProgressFreeAgents(pj.dbCtx)
 	return nil
@@ -136,6 +149,9 @@ func (pj *FreeAgentInjectionJob) Description() string {
 
 // Execute is called by a Scheduler when the Trigger associated with this job fires.
 func (pj *FreeAgentInjectionJob) Execute(context.Context) error {
+	if !claimRun(pj.dbCtx, "free_agent_injection", 24*time.Hour) {
+		return nil
+	}
 	count, err := common.GetFreeAgentInjectionsPerWeek(pj.dbCtx)
 	if err != nil {
 		log.Errorf("error reading free agent injections per week: %s", err)
@@ -290,6 +306,9 @@ func (pj *OfferResponseJob) Description() string {
 
 // Execute is called by a Scheduler when the Trigger associated with this job fires.
 func (pj *OfferResponseJob) Execute(context.Context) error {
+	if !claimRun(pj.dbCtx, "offer_response", 12*time.Hour) {
+		return nil
+	}
 	log.Info("Offer response sweep job")
 	RespondToAllPendingOffers(pj.dbCtx)
 	return nil
@@ -312,6 +331,9 @@ func (pj *BirthdayJob) Description() string {
 
 // Execute is called by a Scheduler when the Trigger associated with this job fires.
 func (pj *BirthdayJob) Execute(context.Context) error {
+	if !claimRun(pj.dbCtx, "birthdays", 24*time.Hour) {
+		return nil
+	}
 	log.Info("Player birthdays job")
 	ProcessBirthdays(pj.dbCtx)
 	return nil
@@ -335,6 +357,11 @@ func (pj *AiActivityJob) Description() string {
 
 // Execute is called by a Scheduler when the Trigger associated with this job fires.
 func (pj *AiActivityJob) Execute(context.Context) error {
+	// One replica per 5-minute tick: ProbAiLocalActivityPerTick is calibrated for one roll per
+	// team per tick, and a second replica rolling too would double every AI team's activity.
+	if !claimRun(pj.dbCtx, "ai_activity", 5*time.Minute) {
+		return nil
+	}
 	log.Info("AI team daily activity job")
 	RunAiTeamDailyActivity(pj.dbCtx)
 	return nil

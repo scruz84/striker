@@ -319,6 +319,16 @@ func GetSimulableCupTies(dbCtx *DatabaseContext) ([]CupTie, error) {
 	return ties, nil
 }
 
+const IsCupTiePlayedStmtSql = "SELECT played FROM cup_ties WHERE tie_id = $1"
+
+// IsCupTiePlayed reads tieId's played flag straight from the database - see
+// engine.simulateCupTieOnce, which re-checks it inside its lock.
+func IsCupTiePlayed(dbCtx *DatabaseContext, tieId int64) (bool, error) {
+	var played bool
+	err := dbCtx.Db.QueryRow(IsCupTiePlayedStmtSql, tieId).Scan(&played)
+	return played, err
+}
+
 // SetCupTiePlayed records a simulated tie's result and its events.
 func SetCupTiePlayed(dbCtx *DatabaseContext, tieId int64, homeGoals int, awayGoals int, wentToPenalties bool, winnerTeamId int64, events []Event, instants []MatchInstant) error {
 	if _, err := dbCtx.Db.Exec(SetCupTiePlayedStmtSql, homeGoals, awayGoals, wentToPenalties, winnerTeamId, tieId); err != nil {

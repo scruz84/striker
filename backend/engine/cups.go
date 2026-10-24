@@ -23,25 +23,20 @@ const InternationalCupCadence = 60 * 24 * time.Hour
 // StartInternationalCupsIfDue starts a new regional/international cup round (see
 // StartInternationalCupsForNewSeason) and, every WorldCupFrequencySeasons rounds, a new World
 // Cup (see StartWorldCupForNewSeason) - gated on InternationalCupCadence via
-// season.last_international_cup_check (see common.IsInternationalCupCheckDue), so this only
+// season.last_international_cup_check (see common.ClaimInternationalCupSeason), so this only
 // actually fires roughly that often even though the job polling it (see
 // StartInternationalCupScheduler) ticks far more frequently. Entrants are each country's most
 // recently completed season's tier-1 champion (see common.GetMostRecentTier1Champions), grouped
 // by region (see common.RegionForCountry) - not any one moment's live standings, since countries
 // can now be mid-season at wildly different points when this runs.
 func StartInternationalCupsIfDue(dbCtx *common.DatabaseContext) {
-	due, err := common.IsInternationalCupCheckDue(dbCtx, InternationalCupCadence)
+	newSeason, claimed, err := common.ClaimInternationalCupSeason(dbCtx, InternationalCupCadence)
 	if err != nil {
-		log.Errorf("error checking whether an international cup round is due: %s", err)
+		log.Errorf("error claiming the next international cup round: %s", err)
 		return
 	}
-	if !due {
-		return
-	}
-
-	newSeason, err := common.AdvanceInternationalCupSeason(dbCtx)
-	if err != nil {
-		log.Errorf("error advancing the international cup season counter: %s", err)
+	if !claimed {
+		// Not due yet, or another replica claimed this round at the same instant.
 		return
 	}
 
@@ -374,12 +369,30 @@ func SimulateCupTies(dbCtx *common.DatabaseContext) {
 					log.Errorf("panic simulating cup tie %d: %v", tie.TieId, r)
 				}
 			}()
-			if err := simulateCupTie(dbCtx, &tie); err != nil {
+			if err := simulateCupTieOnce(dbCtx, &tie); err != nil {
 				log.Errorf("error simulating cup tie %d: %s", tie.TieId, err)
 			}
 		}(tie)
 	}
 	wg.Wait()
+}
+
+// simulateCupTieOnce simulates tie unless another --engine replica is already simulating it or
+// has already finished it. GetSimulableCupTies does not claim the ties it returns, and every
+// replica runs CupJob at the same instant, so both used to simulate the same tie: two sets of
+// events, double injuries and skill changes, and possibly two different winners. The tie is
+// simulated under a session-level advisory lock keyed to it, and played is re-read inside the
+// lock, so the replica that loses the race skips it. A crash mid-simulation releases the lock with
+// the session, so the next tick simulates the tie again instead of leaving it stuck.
+func simulateCupTieOnce(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
+	_, err := common.TryWithSessionAdvisoryLock(dbCtx, common.NamespacedLockKey(common.LockNamespaceCupTieSimulation, tie.TieId), func() error {
+		played, err := common.IsCupTiePlayed(dbCtx, tie.TieId)
+		if err != nil || played {
+			return err
+		}
+		return simulateCupTie(dbCtx, tie)
+	})
+	return err
 }
 
 // persistCupTieLineupSnapshot is persistResolvedLineupSnapshot's cup-tie equivalent, writing into

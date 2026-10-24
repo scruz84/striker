@@ -1,7 +1,6 @@
 package common
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"math/rand"
@@ -598,29 +597,26 @@ func CancelPendingNationalTeamFriendlies(dbCtx *DatabaseContext, countries []str
 // insert fixtures for the same countries, landing a country in two different friendlies at once.
 // Keyed on a single fixed constant rather than per-country, since the pairing decision itself
 // (which countries are even eligible) spans every active country at once, not just one.
+//
+// engine.StartWorldCupForNewSeason takes the same lock (see WithNationalTeamSchedulingLock), so a
+// World Cup can never start between this pass's HasActiveWorldCup check and its inserts.
 func ScheduleNationalTeamFriendlies(dbCtx *DatabaseContext) error {
-	ctx := context.Background()
-	conn, err := dbCtx.Db.Conn(ctx)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+	// When another replica holds the lock it is already scheduling this tick - whatever it leaves
+	// behind, the next tick picks up correctly.
+	_, err := TryWithSessionAdvisoryLock(dbCtx, scheduleNationalTeamFriendliesLockKey, func() error {
+		return scheduleNationalTeamFriendliesLocked(dbCtx)
+	})
+	return err
+}
 
-	var acquired bool
-	if err := conn.QueryRowContext(ctx, "SELECT pg_try_advisory_lock($1)", scheduleNationalTeamFriendliesLockKey).Scan(&acquired); err != nil {
-		return err
-	}
-	if !acquired {
-		// Another replica is already scheduling this tick - whatever it leaves behind, the next
-		// tick picks up correctly.
-		return nil
-	}
-	defer func() {
-		if _, err := conn.ExecContext(ctx, "SELECT pg_advisory_unlock($1)", scheduleNationalTeamFriendliesLockKey); err != nil {
-			log.Errorf("error releasing national-team friendly scheduling lock: %s", err)
-		}
-	}()
+// WithNationalTeamSchedulingLock runs fn holding the lock ScheduleNationalTeamFriendlies takes,
+// waiting for it if a friendlies pass is running - for engine.StartWorldCupForNewSeason, whose
+// group fixtures must never be created while a friendlies pass is pairing the same countries.
+func WithNationalTeamSchedulingLock(dbCtx *DatabaseContext, fn func() error) error {
+	return WithSessionAdvisoryLock(dbCtx, scheduleNationalTeamFriendliesLockKey, fn)
+}
 
+func scheduleNationalTeamFriendliesLocked(dbCtx *DatabaseContext) error {
 	hasWorldCup, err := HasActiveWorldCup(dbCtx)
 	if err != nil {
 		return err
@@ -699,7 +695,19 @@ const nationalTeamCallUpWindow = 24 * time.Hour
 // row stops matching, so a player is never re-notified of the same call-up over and over, and a
 // side whose call-up already succeeded is left alone even if the other side's failed and still
 // needs retrying.
+//
+// Runs under a session-level advisory lock: two --engine replicas ticking this job at the same
+// instant would otherwise both find the same side without a lineup and both call it up, sending
+// every selected player's club the call-up notification twice. The NOT EXISTS query runs inside
+// the lock, so the replica that runs second sees the lineups the first one saved.
 func CallUpNationalTeamSquads(dbCtx *DatabaseContext) error {
+	_, err := TryWithSessionAdvisoryLock(dbCtx, NamespacedLockKey(LockNamespaceNationalTeamCallUp, 0), func() error {
+		return callUpNationalTeamSquadsLocked(dbCtx)
+	})
+	return err
+}
+
+func callUpNationalTeamSquadsLocked(dbCtx *DatabaseContext) error {
 	cutoff := time.Now().Add(nationalTeamCallUpWindow)
 	rows, err := dbCtx.Db.Query(getNationalTeamFriendliesNeedingCallUpStmtSql, cutoff)
 	if err != nil {

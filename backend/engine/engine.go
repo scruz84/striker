@@ -95,17 +95,17 @@ func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int6
 }
 
 // generateMatchesForOneLeague generates and inserts leagueId's season fixtures inside one
-// transaction, guarded by a non-blocking advisory lock keyed to leagueId - the same
-// pg_try_advisory_xact_lock pattern common.SetDefaultLineup already uses for a one-shot
-// idempotent write it can't let two callers both perform. Two engine replicas racing to generate
-// the same league's fixtures is a real deployment shape, not a hypothetical one (see
-// docker-compose.yml, common/schema.go's cross-process migration lock, and the Grafana
-// per-replica dashboards) - without this, both could pass a plain "does this league already have
-// upcoming matches" read before either commits, and both insert a full duplicate schedule. The
-// "already has upcoming matches" check is re-run inside the lock (not just once up front in
-// GenerateMatches/GenerateMatchesForLeagues), so a second caller that loses the race still sees
-// the winner's just-committed fixtures and correctly no-ops instead of only relying on who
-// acquired the lock first.
+// transaction, guarded by a transaction-level advisory lock keyed to leagueId. The lock waits
+// rather than skips: its key is a bare leagueId, which shares the advisory key space with the
+// bare cupId and teamId keys other locks use (see common/enginelocks.go), so a non-blocking
+// attempt that happened to collide with an unrelated cup or lineup lock used to return without
+// generating anything, leaving that league with no fixtures for the whole season.
+//
+// Two engine replicas racing to generate the same league's fixtures is a real deployment shape,
+// not a hypothetical one (see docker-compose.yml) - without the lock, both could pass a plain
+// "does this league already have upcoming matches" read before either commits, and both insert a
+// full duplicate schedule. That check is re-run inside the lock, so the caller that waited sees
+// the winner's just-committed fixtures and correctly no-ops.
 func generateMatchesForOneLeague(dbCtx *common.DatabaseContext, leagueId int64, season int, schedule common.MatchSchedule, from time.Time) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
@@ -113,12 +113,8 @@ func generateMatchesForOneLeague(dbCtx *common.DatabaseContext, leagueId int64, 
 	}
 	defer tx.Rollback()
 
-	var acquired bool
-	if err := tx.QueryRow("SELECT pg_try_advisory_xact_lock($1)", leagueId).Scan(&acquired); err != nil {
+	if _, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", leagueId); err != nil {
 		return err
-	}
-	if !acquired {
-		return nil
 	}
 
 	var hasUpcoming bool

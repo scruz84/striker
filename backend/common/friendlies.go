@@ -581,7 +581,7 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 			inClause += strconv.FormatInt(m.MatchId, 10)
 		}
 		inClause += ")"
-		if _, err := tx.Exec("UPDATE friendly_matches SET in_simulation = true WHERE match_id IN " + inClause); err != nil {
+		if _, err := tx.Exec("UPDATE friendly_matches SET in_simulation = true, in_simulation_since = now() WHERE match_id IN " + inClause); err != nil {
 			return nil, err
 		}
 	}
@@ -589,18 +589,22 @@ func GetSimulableFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 	return matches, tx.Commit()
 }
 
-const GetStuckFriendliesStmtSql = "SELECT match_id, home_team_id, away_team_id, match_date FROM friendly_matches " +
-	"WHERE played = false AND in_simulation = true"
+// GetStuckFriendliesStmtSql is GetStuckMatchesStmtSql's friendly counterpart - same age threshold
+// ($1 seconds) and same atomic re-claim.
+const GetStuckFriendliesStmtSql = "UPDATE friendly_matches SET in_simulation_since = now() " +
+	"WHERE played = false AND in_simulation = true " +
+	"AND (in_simulation_since IS NULL OR in_simulation_since <= now() - ($1 * interval '1 second')) " +
+	"RETURNING match_id, home_team_id, away_team_id, match_date"
 
-// GetStuckFriendlies returns every friendly a simulation pass claimed via
-// GetSimulableFriendlies (setting in_simulation = true) but never finished simulating - most
-// likely because the process crashed mid-run. Unlike GetSimulableFriendlies, this doesn't
-// re-claim anything: the rows are already claimed, and the caller is expected to re-simulate
-// them right away (see engine.FinishStuckFriendlies), since GetSimulableFriendliesStmtSql's own
-// "and in_simulation = false" filter means the normal scheduler will never pick these back up on
-// its own.
+// GetStuckFriendlies re-claims and returns every friendly a simulation pass claimed via
+// GetSimulableFriendlies (setting in_simulation = true) at least StuckSimulationAge ago but never
+// finished simulating - most likely because the process crashed mid-run. The caller is expected
+// to re-simulate them right away (see engine.FinishStuckFriendlies), since
+// GetSimulableFriendliesStmtSql's own "and in_simulation = false" filter means the normal
+// scheduler will never pick these back up on its own. See GetStuckMatches for why the age
+// threshold and the one-statement re-claim matter with several --engine replicas.
 func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
-	rows, err := dbCtx.Db.Query(GetStuckFriendliesStmtSql)
+	rows, err := dbCtx.Db.Query(GetStuckFriendliesStmtSql, StuckSimulationAge.Seconds())
 	if err != nil {
 		return nil, err
 	}

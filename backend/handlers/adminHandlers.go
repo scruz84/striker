@@ -136,9 +136,10 @@ type finishStuckMatchesResponse struct {
 
 // AdminFinishStuckMatchesHandler re-simulates every league match and friendly left stuck at
 // in_simulation = true (played = false) - rows a simulation pass claimed but never finished
-// simulating, most likely because the server crashed mid-run. The normal scheduler never
-// revisits these on its own (see engine.FinishStuckSimulations), so this is the only way to
-// recover them short of a direct database fix.
+// simulating, most likely because the server crashed mid-run. Only rows claimed at least
+// common.StuckSimulationAge ago count, so a match a live simulation pass is working on right now
+// is never played twice. The engine also runs this every 15 minutes (see
+// engine.StartFinishStuckSimulationsScheduler); this endpoint just does it immediately.
 func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered stuck match recovery")
