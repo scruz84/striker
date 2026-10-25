@@ -21,6 +21,7 @@ import type { FriendlyMatch, WorldCupGroup, WorldCupGroupMatch } from '../../api
 import { mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDateTime } from '../../utils/formatDate'
 import { localizedTeamName } from '../../utils/nationalTeamName'
+import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 import { groupByRound, roundName, TieRow } from '../cup/CupPage'
 import { NestedTeamNameLink, TeamNameLink } from '../../components/TeamNameLink'
 import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
@@ -154,13 +155,13 @@ function LiveNationalTeamMatches() {
           >
             <Chip label={m.kindLabel} size="small" variant="outlined" sx={{ height: 22, fontSize: '0.6875rem' }} />
             <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-              {localizedTeamName(t, m.homeTeamName)}
+              <TeamNameWithFlag rawName={m.homeTeamName} />
             </NestedTeamNameLink>
             <Typography variant="body2" sx={{ minWidth: 48, textAlign: 'center', fontWeight: 700 }}>
               {m.homeGoals} - {m.awayGoals}
             </Typography>
             <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1 }}>
-              {localizedTeamName(t, m.awayTeamName)}
+              <TeamNameWithFlag rawName={m.awayTeamName} />
             </NestedTeamNameLink>
           </Stack>
         ))}
@@ -244,7 +245,7 @@ function FriendlyMatchList({
                 sx={{ alignItems: 'center', minHeight: 44, textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
               >
                 <NestedTeamNameLink teamId={m.homeTeamId} variant="body2" sx={{ flex: 1 }}>
-                  {localizedTeamName(t, m.homeTeamName)}
+                  <TeamNameWithFlag rawName={m.homeTeamName} />
                 </NestedTeamNameLink>
                 {stillLive ? (
                   <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
@@ -254,7 +255,7 @@ function FriendlyMatchList({
                   </Typography>
                 )}
                 <NestedTeamNameLink teamId={m.awayTeamId} variant="body2" sx={{ flex: 1, textAlign: 'right' }}>
-                  {localizedTeamName(t, m.awayTeamName)}
+                  <TeamNameWithFlag rawName={m.awayTeamName} />
                 </NestedTeamNameLink>
               </Stack>
             )
@@ -353,7 +354,7 @@ function WorldCupGroupCard({ group }: { group: WorldCupGroup }) {
             {group.standings.map((standing, i) => (
               <TableRow key={standing.teamId} sx={{ fontWeight: i < 2 ? 700 : 400 }}>
                 <TableCell sx={{ fontWeight: i < 2 ? 700 : 400 }}>
-                  <TeamNameLink teamId={standing.teamId}>{localizedTeamName(t, standing.teamName)}</TeamNameLink>
+                  <TeamNameLink teamId={standing.teamId}><TeamNameWithFlag rawName={standing.teamName} /></TeamNameLink>
                 </TableCell>
                 <TableCell align="right">{standing.played}</TableCell>
                 <TableCell align="right">{standing.goalsFor - standing.goalsAgainst}</TableCell>
@@ -389,7 +390,7 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
       sx={{ alignItems: 'center', minHeight: 44, textDecoration: 'none', color: 'inherit', '&:hover': { opacity: 0.8 } }}
     >
       <NestedTeamNameLink teamId={match.homeTeamId} variant="caption" sx={{ flex: 1 }}>
-        {localizedTeamName(t, match.homeTeamName)}
+        <TeamNameWithFlag rawName={match.homeTeamName} />
       </NestedTeamNameLink>
       {stillLive ? (
         <Chip label={t('match.live')} color="error" size="small" sx={{ height: 22, fontSize: '0.6875rem', fontWeight: 700 }} />
@@ -399,7 +400,7 @@ function WorldCupGroupMatchRow({ match }: { match: WorldCupGroupMatch }) {
         </Typography>
       )}
       <NestedTeamNameLink teamId={match.awayTeamId} variant="caption" sx={{ flex: 1, textAlign: 'right' }}>
-        {localizedTeamName(t, match.awayTeamName)}
+        <TeamNameWithFlag rawName={match.awayTeamName} />
       </NestedTeamNameLink>
     </Stack>
   )

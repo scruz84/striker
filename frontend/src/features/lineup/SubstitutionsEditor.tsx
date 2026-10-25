@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { MAX_SCHEDULED_SUBSTITUTIONS, type Player } from '../../api/types'
 import type { SubstitutionDraft } from './useSubstitutionDrafts'
+import { CountryFlag } from '../../components/CountryFlag'
 
 export interface SubstitutionsEditorProps {
   starters: Player[]
@@ -74,6 +75,7 @@ export function SubstitutionsEditor({
                     .filter((p) => p.id === draft.playerOutId || !usedSubOutIds.has(p.id))
                     .map((p) => (
                       <MenuItem key={p.id} value={p.id}>
+                        <CountryFlag code={p.birthCountry} height={14} marginRight={0.5} />
                         {p.firstName} {p.lastName}
                       </MenuItem>
                     ))}
@@ -92,6 +94,7 @@ export function SubstitutionsEditor({
                     .filter((p) => p.id === draft.playerInId || !usedSubInIds.has(p.id))
                     .map((p) => (
                       <MenuItem key={p.id} value={p.id}>
+                        <CountryFlag code={p.birthCountry} height={14} marginRight={0.5} />
                         {p.firstName} {p.lastName}
                       </MenuItem>
                     ))}

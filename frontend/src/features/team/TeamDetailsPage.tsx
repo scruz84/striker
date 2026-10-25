@@ -54,7 +54,7 @@ import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
 import { isPast } from '../../api/useLiveMatch'
 import { MatchesList } from './TeamMatchesSection'
-import { countryFlag } from '../../utils/countryFlag'
+import { CountryFlag } from '../../components/CountryFlag'
 import { formatDivisionName } from '../../utils/divisionName'
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
@@ -120,7 +120,6 @@ export function TeamDetailsPage() {
   }
 
   const isOwnTeam = userTeam?.team.id === teamDetails.team.id
-  const flag = countryFlag(teamDetails.team.country)
   const cupStatus = teamCupStatus(cupDetails, teamDetails.team.id)
   const internationalCupStatus = teamCupStatus(internationalCupDetails, teamDetails.team.id)
   const displayName = isNationalTeam
@@ -147,13 +146,7 @@ export function TeamDetailsPage() {
             <Typography variant="pageTitle" component="h1" noWrap title={displayName} sx={{ fontSize: { xs: '1.375rem', sm: '1.75rem' } }}>
               {displayName}
             </Typography>
-            {flag && (
-              <Tooltip title={t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)}>
-                <Typography component="span" sx={{ fontSize: '1.5rem', lineHeight: 1 }}>
-                  {flag}
-                </Typography>
-              </Tooltip>
-            )}
+            <CountryFlag code={teamDetails.team.country} height={22} />
           </Stack>
           {!isNationalTeam && (
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>

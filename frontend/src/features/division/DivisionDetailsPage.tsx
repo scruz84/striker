@@ -38,6 +38,7 @@ import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDivisionName } from '../../utils/divisionName'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
+import { CountryFlag } from '../../components/CountryFlag'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
 const TOP_SCORERS_PREVIEW = 5
@@ -534,6 +535,7 @@ function TopScorers({ leagueId, limit }: { leagueId: string | undefined; limit: 
                   </Box>
                   <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                     <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+                      <CountryFlag code={scorer.birthCountry} height={14} marginRight={0.5} />
                       <PlayerNameLink playerId={scorer.playerId}>
                         {scorer.firstName} {scorer.lastName}
                       </PlayerNameLink>

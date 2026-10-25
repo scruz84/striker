@@ -14,6 +14,8 @@ type ScorerStanding struct {
 	TeamId    int64  `json:"teamId"`
 	TeamName  string `json:"teamName"`
 	Goals     int    `json:"goals"`
+	// BirthCountry lets the leaderboard show the scorer's flag; empty for a legacy player.
+	BirthCountry string `json:"birthCountry,omitempty"`
 }
 
 // A non-NULL $4 excludes goals from a match whose match_date is after it - the public leaderboard
@@ -27,7 +29,7 @@ const GetGoalEventScorersStmtSql = "SELECT me.team_players FROM match_events me 
 	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type = $3 " +
 	"AND ($4::timestamptz IS NULL OR m.match_date <= $4)"
 
-const GetPlayerTeamForScorerStmtSql = "SELECT p.first_name, p.last_name, p.team_id, t.name " +
+const GetPlayerTeamForScorerStmtSql = "SELECT p.first_name, p.last_name, p.team_id, t.name, COALESCE(p.birth_country, '') " +
 	"FROM players p JOIN teams t ON t.team_id = p.team_id WHERE p.player_id = $1"
 
 // tallyGoalsByPlayer parses each match_events.team_players value (JSON-encoded by
@@ -106,7 +108,7 @@ func getTopScorers(dbCtx *DatabaseContext, leagueId int64, season int, limit int
 		var s ScorerStanding
 		s.PlayerId = playerId
 		s.Goals = goals
-		if err := dbCtx.Db.QueryRow(GetPlayerTeamForScorerStmtSql, playerId).Scan(&s.FirstName, &s.LastName, &s.TeamId, &s.TeamName); err != nil {
+		if err := dbCtx.Db.QueryRow(GetPlayerTeamForScorerStmtSql, playerId).Scan(&s.FirstName, &s.LastName, &s.TeamId, &s.TeamName, &s.BirthCountry); err != nil {
 			continue
 		}
 		standings = append(standings, s)

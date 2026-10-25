@@ -15,6 +15,7 @@ import { POSITION_SHORT_LABEL_KEYS, type Player } from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerStatsPopover } from '../../components/PlayerStatsPopover'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { CountryFlag } from '../../components/CountryFlag'
 
 /** The card shown under the pitch while a player is picked up: who they are, their rating, and the
  * two ways to learn more (the skills popover, the full profile). Moving a player and inspecting
@@ -32,6 +33,7 @@ export function SelectedPlayerPanel({ player, onClear }: { player: Player; onCle
         <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={40} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+            <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
             {player.firstName} {player.lastName}
           </Typography>
           <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>

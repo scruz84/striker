@@ -70,6 +70,7 @@ import {
   type ActiveFilter,
   type SortDirection,
 } from './marketUi'
+import { CountryFlag } from '../../components/CountryFlag'
 
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
 type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
@@ -259,6 +260,7 @@ function ListPlayerDialog({
           >
             {players.map((player) => (
               <MenuItem key={player.id} value={player.id}>
+                <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
                 {player.firstName} {player.lastName}
               </MenuItem>
             ))}
@@ -625,6 +627,7 @@ function OfferLoanDialog({ open, onClose, players }: { open: boolean; onClose: (
           >
             {players.map((player) => (
               <MenuItem key={player.id} value={player.id}>
+                <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
                 {player.firstName} {player.lastName}
               </MenuItem>
             ))}

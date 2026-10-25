@@ -111,7 +111,10 @@ func GetPlayerOfTheSeason(dbCtx *DatabaseContext, leagueId int64, season int) (*
 	// rather than failing the whole award for one unlucky pick.
 	for _, playerId := range rankSeasonAwardScores(scores) {
 		award := SeasonAward{PlayerId: playerId, Score: scores[playerId]}
-		if err := dbCtx.Db.QueryRow(GetPlayerTeamForScorerStmtSql, playerId).Scan(&award.FirstName, &award.LastName, &award.TeamId, &award.TeamName); err != nil {
+		// GetPlayerTeamForScorerStmtSql also selects birth_country (for the top-scorers flag), which
+		// an award has no use for.
+		var birthCountry string
+		if err := dbCtx.Db.QueryRow(GetPlayerTeamForScorerStmtSql, playerId).Scan(&award.FirstName, &award.LastName, &award.TeamId, &award.TeamName, &birthCountry); err != nil {
 			continue
 		}
 		return &award, nil

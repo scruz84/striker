@@ -63,7 +63,7 @@ import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
-import { countryFlag } from '../../utils/countryFlag'
+import { CountryFlag } from '../../components/CountryFlag'
 import { countdownParts, countdownUntil } from '../../utils/countdown'
 import { useNow } from '../../utils/useNow'
 import { formatDivisionName } from '../../utils/divisionName'
@@ -287,7 +287,6 @@ function SuggestedLiveMatch({
   onShuffle: () => void
 }) {
   const { t } = useTranslation()
-  const flag = countryFlag(match.country)
 
   return (
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
@@ -302,7 +301,7 @@ function SuggestedLiveMatch({
               sx={{ height: 20, fontSize: '0.6875rem' }}
             />
           )}
-          {flag && <span aria-hidden="true">{flag}</span>}
+          <CountryFlag code={match.country} height={14} />
           {match.minute !== undefined && (
             <Chip
               size="small"
@@ -861,6 +860,7 @@ function TopScorerCard({ leagueId }: { leagueId: string }) {
       ) : (
         <Stack spacing={0.5}>
           <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+            <CountryFlag code={leader.birthCountry} height={14} marginRight={0.5} />
             <PlayerNameLink playerId={leader.playerId}>
               {leader.firstName} {leader.lastName}
             </PlayerNameLink>

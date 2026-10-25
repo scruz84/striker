@@ -37,7 +37,7 @@ import { useConfirm } from '../../components/confirmDialogContext'
 import { ListPlayerForTransferDialog } from '../../components/ListPlayerForTransferDialog'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
-import { countryFlag } from '../../utils/countryFlag'
+import { CountryFlag } from '../../components/CountryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 import { TransferListedBadge } from '../lineup/TransferListedBadge'
@@ -171,7 +171,6 @@ function SquadPlayerCard({
   const { t } = useTranslation()
   const theme = useTheme()
   const rating = player.averageSkill ?? overallRating(player)
-  const flag = countryFlag(player.birthCountry)
 
   return (
     <Paper variant="outlined">
@@ -190,7 +189,7 @@ function SquadPlayerCard({
             <Typography variant="caption" color="text.secondary">
               {t('lineup.ageShort', { age: player.age })}
             </Typography>
-            {flag && <span aria-hidden="true">{flag}</span>}
+            <CountryFlag code={player.birthCountry} height={14} />
             {unavailability && <UnavailabilityBadge unavailability={unavailability} size={18} />}
             {forSale && <TransferListedBadge size={18} />}
           </Stack>

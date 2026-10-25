@@ -19,11 +19,12 @@ type TeamSearchResult struct {
 }
 
 type PlayerSearchResult struct {
-	Id        int64  `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	TeamId    int64  `json:"teamId"`
-	TeamName  string `json:"teamName"`
+	Id           int64  `json:"id"`
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	TeamId       int64  `json:"teamId"`
+	TeamName     string `json:"teamName"`
+	BirthCountry string `json:"birthCountry,omitempty"`
 }
 
 // CoachSearchResult only ever covers employed trainers - an unemployed candidate on the open
@@ -57,7 +58,7 @@ var SearchTeamsStmtSql = "SELECT t.team_id, t.name, t.country, COALESCE(l.name, 
 	"FROM teams t LEFT JOIN leagues l ON l.league_id = t.league_id " +
 	"WHERE t.name ILIKE $1 AND t.is_national_team = false ORDER BY t.name LIMIT " + strconv.Itoa(SearchResultLimit)
 
-var SearchPlayersStmtSql = "SELECT p.player_id, p.first_name, p.last_name, COALESCE(p.team_id, 0), COALESCE(t.name, '') " +
+var SearchPlayersStmtSql = "SELECT p.player_id, p.first_name, p.last_name, COALESCE(p.team_id, 0), COALESCE(t.name, ''), COALESCE(p.birth_country, '') " +
 	"FROM players p LEFT JOIN teams t ON t.team_id = p.team_id " +
 	"WHERE p.first_name ILIKE $1 OR p.last_name ILIKE $1 OR (p.first_name || ' ' || p.last_name) ILIKE $1 " +
 	"ORDER BY p.last_name, p.first_name LIMIT " + strconv.Itoa(SearchResultLimit)
@@ -104,7 +105,7 @@ func Search(dbCtx *DatabaseContext, query string) (*SearchResults, error) {
 	defer playerRows.Close()
 	for playerRows.Next() {
 		var r PlayerSearchResult
-		if err := playerRows.Scan(&r.Id, &r.FirstName, &r.LastName, &r.TeamId, &r.TeamName); err != nil {
+		if err := playerRows.Scan(&r.Id, &r.FirstName, &r.LastName, &r.TeamId, &r.TeamName, &r.BirthCountry); err != nil {
 			return nil, err
 		}
 		results.Players = append(results.Players, r)

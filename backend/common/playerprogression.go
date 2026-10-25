@@ -37,6 +37,8 @@ type TeamPlayerEvolution struct {
 	PlayerEvolution
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	// BirthCountry lets the list show the player's flag; empty for a legacy player without one.
+	BirthCountry string `json:"birthCountry,omitempty"`
 }
 
 const InsertPlayerProgressionLogStmtSql = "INSERT INTO player_progression_log " +
@@ -62,7 +64,7 @@ const GetLatestPlayerEvolutionStmtSql = "SELECT " + playerEvolutionColumns +
 // query), then re-sorts the result for display: most recently evolved first, alphabetically
 // among those from the same run.
 const GetLatestPlayerEvolutionsForTeamStmtSql = "SELECT * FROM (" +
-	"SELECT DISTINCT ON (ppl.player_id) p.first_name, p.last_name, " + playerEvolutionColumnsAliased +
+	"SELECT DISTINCT ON (ppl.player_id) p.first_name, p.last_name, COALESCE(p.birth_country, '') AS birth_country, " + playerEvolutionColumnsAliased +
 	" FROM player_progression_log ppl JOIN players p ON p.player_id = ppl.player_id" +
 	" WHERE p.team_id = $1 ORDER BY ppl.player_id, ppl.id DESC" +
 	") latest ORDER BY latest.created_at DESC, latest.last_name"
@@ -132,7 +134,7 @@ func GetLatestPlayerEvolutionsForTeam(dbCtx *DatabaseContext, teamId int64) ([]T
 	return scanTeamPlayerEvolutions(rows)
 }
 
-const GetPlayerEvolutionsForTeamByLogIdsStmtSql = "SELECT p.first_name, p.last_name, " +
+const GetPlayerEvolutionsForTeamByLogIdsStmtSql = "SELECT p.first_name, p.last_name, COALESCE(p.birth_country, ''), " +
 	playerEvolutionColumnsAliased +
 	" FROM player_progression_log ppl JOIN players p ON p.player_id = ppl.player_id" +
 	" WHERE p.team_id = $1 AND ppl.id = ANY($2) ORDER BY p.last_name, p.first_name"
@@ -191,7 +193,7 @@ func scanTeamPlayerEvolutions(rows *sql.Rows) ([]TeamPlayerEvolution, error) {
 	evolutions := make([]TeamPlayerEvolution, 0)
 	for rows.Next() {
 		var t TeamPlayerEvolution
-		if err := rows.Scan(&t.FirstName, &t.LastName, &t.PlayerId, &t.Season, &t.Age.Before, &t.Age.After,
+		if err := rows.Scan(&t.FirstName, &t.LastName, &t.BirthCountry, &t.PlayerId, &t.Season, &t.Age.Before, &t.Age.After,
 			&t.GoalKeeper.Before, &t.GoalKeeper.After, &t.Defense.Before, &t.Defense.After,
 			&t.Lateral.Before, &t.Lateral.After, &t.Pass.Before, &t.Pass.After,
 			&t.Midfield.Before, &t.Midfield.After, &t.Dribbling.Before, &t.Dribbling.After,

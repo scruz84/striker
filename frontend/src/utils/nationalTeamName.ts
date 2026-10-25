@@ -13,11 +13,17 @@ const CODE_BY_ENGLISH_NAME: Record<string, string> = Object.fromEntries(
 
 const LEGACY_SUFFIX = ' National Team'
 
+// The country code of rawName when it names a national team (or, for a legacy row, did), otherwise
+// undefined - lets a caller show that country's flag next to the name.
+export function nationalTeamCountry(rawName: string): string | undefined {
+  const bare = rawName.endsWith(LEGACY_SUFFIX) ? rawName.slice(0, -LEGACY_SUFFIX.length) : rawName
+  return CODE_BY_ENGLISH_NAME[bare]
+}
+
 // Translates rawName into the current UI language when it's (or, for a legacy row, was) a known
 // country's name - i.e. rawName names a national team. Any other name (an ordinary club's) is
 // returned unchanged.
 export function localizedTeamName(t: (key: string) => string, rawName: string): string {
-  const bare = rawName.endsWith(LEGACY_SUFFIX) ? rawName.slice(0, -LEGACY_SUFFIX.length) : rawName
-  const code = CODE_BY_ENGLISH_NAME[bare]
+  const code = nationalTeamCountry(rawName)
   return code ? t(COUNTRY_NAME_KEYS[code]) : rawName
 }

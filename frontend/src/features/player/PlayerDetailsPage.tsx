@@ -14,7 +14,7 @@ import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom
 import { useTranslation } from 'react-i18next'
 import { usePlayerDetails, useUserTeam } from '../../api/hooks'
 import type { NationalTeamCallUp, PlayerMatchSummary } from '../../api/types'
-import { localizedTeamName } from '../../utils/nationalTeamName'
+import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
@@ -170,7 +170,7 @@ function CallUpRow({ callUp }: { callUp: NationalTeamCallUp }) {
     <TableRow component={RouterLink} to={to} hover sx={{ cursor: 'pointer', '& td': { border: 0 } }}>
       <TableCell>{formatDayTime(callUp.matchDate)}</TableCell>
       <TableCell>
-        {localizedTeamName(t, callUp.teamName)} {t('playerPage.callUps.vs')} {localizedTeamName(t, callUp.opponentName)}
+        <TeamNameWithFlag rawName={callUp.teamName} /> {t('playerPage.callUps.vs')} <TeamNameWithFlag rawName={callUp.opponentName} />
       </TableCell>
       <TableCell align="right">
         {callUp.played ? `${callUp.goalsFor} - ${callUp.goalsAgainst}` : <Chip size="small" label={t('playerPage.callUps.upcoming')} />}

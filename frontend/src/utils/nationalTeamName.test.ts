@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { localizedTeamName } from './nationalTeamName'
+import { localizedTeamName, nationalTeamCountry } from './nationalTeamName'
 
 // A stub translator that just echoes the key back, so these assertions check which i18n key
 // localizedTeamName resolved to rather than depending on any particular locale's wording.
@@ -20,5 +20,17 @@ describe('localizedTeamName', () => {
 
   it('leaves a name coincidentally ending in the legacy suffix unchanged if the bare prefix is not a country', () => {
     expect(localizedTeamName(t, 'My Club National Team')).toBe('My Club National Team')
+  })
+})
+
+describe('nationalTeamCountry', () => {
+  it('resolves a national team name, including home nations, to its own code', () => {
+    expect(nationalTeamCountry('Spain')).toBe('es')
+    expect(nationalTeamCountry('Scotland')).toBe('sco')
+    expect(nationalTeamCountry('Wales National Team')).toBe('wal')
+  })
+
+  it('is undefined for an ordinary club', () => {
+    expect(nationalTeamCountry('Real Madrid')).toBeUndefined()
   })
 })

@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearch } from '../../api/hooks'
 import type { CoachSearchResult, PlayerSearchResult, StadiumSearchResult, TeamSearchResult } from '../../api/types'
 import { PageHeader } from '../../components/PageHeader'
+import { CountryFlag } from '../../components/CountryFlag'
 
 // A single global search page - look up a team, player, coach, or stadium by name and jump
 // straight into its details (a coach or stadium has no page of its own, so those results land on
@@ -149,7 +150,12 @@ function PlayerResultRow({ player }: { player: PlayerSearchResult }) {
         <PersonTwoToneIcon />
       </ListItemIcon>
       <ListItemText
-        primary={`${player.firstName} ${player.lastName}`}
+        primary={
+          <>
+            <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
+            {player.firstName} {player.lastName}
+          </>
+        }
         secondary={player.teamName || t('search.freeAgent')}
       />
     </ListItemButton>

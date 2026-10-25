@@ -25,7 +25,6 @@ import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  COUNTRY_NAME_KEYS,
   POSITION_DEFENSE,
   POSITION_GOALKEEPER,
   POSITION_MIDFIELD,
@@ -35,7 +34,7 @@ import {
 } from '../../api/types'
 import { NumberField } from '../../components/NumberField'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
-import { countryFlag } from '../../utils/countryFlag'
+import { CountryFlag } from '../../components/CountryFlag'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 export type SortDirection = 'asc' | 'desc'
@@ -80,17 +79,12 @@ export function PlayerCell({ player, formerClub }: { player: Player; formerClub?
   const { t } = useTranslation()
   const theme = useTheme()
   const rating = overallRating(player)
-  const flag = countryFlag(player.birthCountry)
   return (
     <Stack spacing={0.125} sx={{ minWidth: 0, flex: 1 }}>
       <Stack direction="row" spacing={0.75} sx={{ alignItems: 'flex-start' }}>
-        {flag && (
-          <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
-            <Typography component="span" sx={{ flexShrink: 0, fontSize: '1rem', lineHeight: 1.4 }}>
-              {flag}
-            </Typography>
-          </Tooltip>
-        )}
+        <Box component="span" sx={{ flexShrink: 0, lineHeight: 1.4, pt: 0.25 }}>
+          <CountryFlag code={player.birthCountry} height={14} />
+        </Box>
         <Link
           component={RouterLink}
           to={`/player/${player.id}`}

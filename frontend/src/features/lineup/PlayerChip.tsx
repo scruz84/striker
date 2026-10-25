@@ -19,6 +19,7 @@ import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 import { TransferListedBadge } from './TransferListedBadge'
 import { UnavailabilityBadge } from './UnavailabilityBadge'
+import { CountryFlag } from '../../components/CountryFlag'
 
 interface PlayerChipProps {
   player: Player
@@ -195,6 +196,7 @@ export function PlayerChip({
           </Box>
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography variant="body2" noWrap sx={{ fontWeight: 600, lineHeight: 1.25 }}>
+              <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
               {player.firstName} {player.lastName}
             </Typography>
             <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>

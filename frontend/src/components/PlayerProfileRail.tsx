@@ -6,7 +6,6 @@ import Chip from '@mui/material/Chip'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
@@ -15,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useExerciseLoanBuyOption, useTransferWindowStatus } from '../api/hooks'
 import { COUNTRY_NAME_KEYS, POSITION_LABEL_KEYS, UNAVAILABLE_INJURY, type PlayerDetails } from '../api/types'
 import { overallRating, ratingTierColor } from '../utils/playerRating'
-import { countryFlag } from '../utils/countryFlag'
+import { CountryFlag } from './CountryFlag'
 import { daysUntilNextBirthday } from '../utils/playerBirthday'
 import { formatCurrency } from '../utils/formatCurrency'
 import { useConfirm } from './confirmDialogContext'
@@ -66,7 +65,6 @@ export function PlayerProfileRail({
   const isFreeAgent = player.teamId === 0
   const overall = overallRating(player)
   const ringColor = ratingTierColor(overall, theme.palette)
-  const flag = countryFlag(player.birthCountry)
 
   // Listing straight from this page needs the same eligibility the transfer market's own "List a
   // player" form already enforces server-side (see backend common.CreateTransferListing) - not
@@ -186,13 +184,9 @@ export function PlayerProfileRail({
 
         <Box>
           <Typography variant="h6" component="h1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            {flag && (
-              <Tooltip title={t(COUNTRY_NAME_KEYS[player.birthCountry!] ?? player.birthCountry!)}>
-                <Box component="span" sx={{ mr: 0.75 }}>
-                  {flag}
-                </Box>
-              </Tooltip>
-            )}
+            <Box component="span" sx={{ mr: 0.75 }}>
+              <CountryFlag code={player.birthCountry} height={18} />
+            </Box>
             {player.firstName} {player.lastName}
           </Typography>
           {canSeeSkills && (

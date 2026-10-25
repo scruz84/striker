@@ -6,6 +6,7 @@ import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { matchRatingColor } from '../../utils/matchRating'
+import { CountryFlag } from '../../components/CountryFlag'
 
 // Shared by MatchRatingsTab (a finished match's report) and MatchMinuteRatings (live, or scrubbed
 // back to an earlier minute) - both end up with the same shape of ratings (keyed by playerId as a
@@ -44,6 +45,7 @@ export function TeamRatingsColumn({
           <Stack key={pos.playerId} direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <CartoonAvatar seed={pos.playerId} birthCountry={player.birthCountry} size={32} />
             <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
+              <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
               <PlayerNameLink playerId={pos.playerId}>
                 {player.firstName} {player.lastName}
               </PlayerNameLink>

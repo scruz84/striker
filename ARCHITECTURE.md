@@ -264,7 +264,7 @@ src/
                 names follow the backend's json tags, not its Go field names)
   app/          App.tsx (routes), Layout.tsx (chrome + the onboarding redirect gate), Header,
                 NavDrawer, Subheader, theme mode provider
-  components/   shared presentational components (avatars, pitch/formation rendering, dialogs)
+  components/   shared presentational components (avatars, country flags, pitch/formation rendering, dialogs)
   features/     one folder per page/domain (dashboard, team, match, player, transfers, admin,
                 onboarding, ...) - this is where almost all UI code lives
   i18n/         en/es locale JSON, i18next setup

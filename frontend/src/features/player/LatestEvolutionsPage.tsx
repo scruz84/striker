@@ -10,6 +10,7 @@ import { PlayerNameLink } from '../../components/PlayerNameLink'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
+import { CountryFlag } from '../../components/CountryFlag'
 
 // The page a NOTIFICATION_PROGRESSION notification links to, via its own logIds query param -
 // exactly the caller's own squad's players whose skills evolved from that one specific
@@ -39,6 +40,7 @@ export function LatestEvolutionsPage() {
           {evolutions.map((evolution) => (
             <Paper key={evolution.playerId} variant="outlined" sx={{ p: 2 }}>
               <Typography variant="subtitle1" gutterBottom>
+                <CountryFlag code={evolution.birthCountry} height={16} marginRight={0.5} />
                 <PlayerNameLink playerId={evolution.playerId}>
                   {evolution.firstName} {evolution.lastName}
                 </PlayerNameLink>

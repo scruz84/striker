@@ -10,6 +10,7 @@ import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
+import { CountryFlag } from '../../components/CountryFlag'
 
 // Shown on both the league details page and the dashboard - a league's most recent completed
 // transfers (a bought listing or an accepted offer involving at least one team from the league),
@@ -43,6 +44,7 @@ export function RecentLeagueTransfers({ leagueId }: { leagueId: string | undefin
             >
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                 <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+                  <CountryFlag code={transfer.player.birthCountry} height={14} marginRight={0.5} />
                   <PlayerNameLink playerId={transfer.player.id}>
                     {transfer.player.firstName} {transfer.player.lastName}
                   </PlayerNameLink>

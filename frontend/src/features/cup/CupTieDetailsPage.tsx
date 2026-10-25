@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
 import type { CupTieDetails, Player, Team } from '../../api/types'
-import { localizedTeamName } from '../../utils/nationalTeamName'
+import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
 import { MatchViewer } from '../match/MatchViewer'
 import { fromCupTie, type MatchView } from '../match/matchViewModel'
@@ -46,7 +46,7 @@ function ByeTie({ tie }: { tie: CupTieDetails }) {
   return (
     <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
       <Typography>{t('cup.bye')}</Typography>
-      <Typography color="text.secondary">{localizedTeamName(t, tie.homeTeamName || tie.awayTeamName)}</Typography>
+      <Typography color="text.secondary"><TeamNameWithFlag rawName={tie.homeTeamName || tie.awayTeamName} /></Typography>
     </Paper>
   )
 }

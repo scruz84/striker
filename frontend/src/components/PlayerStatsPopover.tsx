@@ -12,6 +12,7 @@ import type { Player } from '../api/types'
 import { overallRating, SKILL_FIELDS } from '../utils/playerRating'
 import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { SkillBar } from './SkillBar'
+import { CountryFlag } from './CountryFlag'
 
 /** A player's full skill breakdown in a popover - anchored to whatever was clicked to open it
  * (a pitch slot or bench chip in the lineup editor), so a manager can check what a player is
@@ -51,6 +52,7 @@ export function PlayerStatsPopover({
         <CartoonAvatar seed={player.id} birthCountry={player.birthCountry} size={48} />
         <Box sx={{ minWidth: 0, flexGrow: 1 }}>
           <Typography variant="subtitle2" noWrap sx={{ fontWeight: 600 }}>
+            <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
             {player.firstName} {player.lastName}
           </Typography>
           <Typography variant="caption" color="text.secondary">

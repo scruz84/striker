@@ -847,6 +847,8 @@ export interface ScorerStanding {
   playerId: number
   firstName: string
   lastName: string
+  // See Player.birthCountry - empty for a legacy player without one.
+  birthCountry?: string
   teamId: number
   teamName: string
   goals: number
@@ -971,6 +973,7 @@ export interface PlayerEvolution {
 export interface TeamPlayerEvolution extends PlayerEvolution {
   firstName: string
   lastName: string
+  birthCountry?: string
 }
 
 export interface HeadToHeadMeeting {
@@ -1452,6 +1455,7 @@ export interface PlayerSearchResult {
   lastName: string
   teamId: number
   teamName: string
+  birthCountry?: string
 }
 
 export interface CoachSearchResult {

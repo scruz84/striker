@@ -13,7 +13,7 @@ import { HomeAwayIcon } from '../../components/HomeAwayIcon'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
 import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
-import { localizedTeamName } from '../../utils/nationalTeamName'
+import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 
 // TeamMatchesSection lists every league match, cup tie, and friendly a team has played or has
 // scheduled - split into upcoming (soonest first) and played (most recent first), each row marked
@@ -116,7 +116,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
     >
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <NestedTeamNameLink teamId={match.opponentId} sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
-          {localizedTeamName(t, match.opponentName)}
+          <TeamNameWithFlag rawName={match.opponentName} />
         </NestedTeamNameLink>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.25 }}>
           <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20 }} />

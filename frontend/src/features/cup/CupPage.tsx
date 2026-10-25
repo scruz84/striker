@@ -25,6 +25,7 @@ import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDateTime } from '../../utils/formatDate'
 import { translateCupName } from '../../utils/ledgerDescription'
 import { localizedTeamName } from '../../utils/nationalTeamName'
+import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 
 export function CupPage() {
   const { t } = useTranslation()
@@ -226,7 +227,7 @@ function TieCard({ tie, mine }: { tie: CupTie; mine: boolean }) {
                 variant="body2"
                 sx={{ flexGrow: 1, overflowWrap: 'anywhere', fontWeight: tie.wentToPenalties && tie.winnerTeamId === side.id ? 700 : 500 }}
               >
-                {side.id ? localizedTeamName(t, side.name) : t('cup.tbd')}
+                {side.id ? <TeamNameWithFlag rawName={side.name} /> : t('cup.tbd')}
               </Typography>
               {showScore && (
                 <Typography variant="body2" sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
@@ -365,7 +366,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
         <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
           {tie.homeTeamId ? (
             <NestedTeamNameLink teamId={tie.homeTeamId} sx={{ fontWeight: homeWonPenalties ? 700 : undefined }}>
-              {localizedTeamName(t, tie.homeTeamName)}
+              <TeamNameWithFlag rawName={tie.homeTeamName} />
             </NestedTeamNameLink>
           ) : (
             t('cup.tbd')
@@ -381,7 +382,7 @@ export function TieRow({ tie }: { tie: CupTie }) {
         <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, textAlign: 'right' }}>
           {tie.awayTeamId ? (
             <NestedTeamNameLink teamId={tie.awayTeamId} sx={{ fontWeight: awayWonPenalties ? 700 : undefined }}>
-              {localizedTeamName(t, tie.awayTeamName)}
+              <TeamNameWithFlag rawName={tie.awayTeamName} />
             </NestedTeamNameLink>
           ) : (
             t('cup.tbd')
