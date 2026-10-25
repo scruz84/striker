@@ -34,10 +34,10 @@
 
 - [x] 6.1 Vitest: every `KnownCountries` code has a flag, no two codes share an asset, `en`/`sco`/`wal` pairwise different.
 - [x] 6.2 Component tests: localized `alt`/tooltip, nothing for an undefined or unknown code, `TeamNameWithFlag` shows a flag for "Scotland" and none for a club name.
-- [ ] 6.3 Add the `country-flags` Code map to the main spec on archive (flags dir, `CountryFlag.tsx`, `TeamNameWithFlag.tsx`, `nationalTeamCountry`, the three `birthCountry` fields and the guard tests) and mention flags in `ARCHITECTURE.md`'s components line.
+- [x] 6.3 Add the `country-flags` Code map to the main spec on archive (flags dir, `CountryFlag.tsx`, `TeamNameWithFlag.tsx`, `nationalTeamCountry`, the three `birthCountry` fields and the guard tests) and mention flags in `ARCHITECTURE.md`'s components line.
 - [ ] 6.4 Check all 63 flags render (contact sheet screenshot done); the in-app light/dark and Spanish-UI pass is left to the owner's review of the running app.
 
 ## 7. Final checks
 
-- [ ] 7.1 Backend: `cd backend && go build ./... && go vet ./... && go test ./...`
-- [ ] 7.2 Frontend: `cd frontend && npx tsc --noEmit && npx oxlint && npx vitest run`
+- [x] 7.1 Backend: `cd backend && go build ./... && go vet ./... && go test ./...`
+- [x] 7.2 Frontend: `cd frontend && npx tsc --noEmit && npx oxlint && npx vitest run`
