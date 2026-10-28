@@ -40,12 +40,16 @@ snapshot columns are an implementation detail of recording a transfer.
 
 ## Impact
 
-- Backend: new migration `backend/resources/sql/init87_player_transfer_snapshot.sql`;
+- Backend: new migration `backend/resources/sql/init88_player_transfer_snapshot.sql`;
   `common/playertransfers.go` (`RecordPlayerTransfer` writes the snapshot, new
   `GetTransferComparables`); new handler in `handlers/playerHandlers.go`; route in
   `service/fmservice.go`.
 - Frontend: `api/types.ts`, `api/hooks.ts`, `components/TransferOfferDialog.tsx` (plus a new
   `components/TransferComparables.tsx`), `i18n/locales/{en,es}.json`.
+- Database: every new or changed query must be served by an index on its `WHERE`/`JOIN`/`ORDER BY`
+  columns, added in the same migration when none exists, and checked with an `EXPLAIN` test
+  (design §6-7). The comparables query gets a partial index on `player_transfers`; the other
+  lookups use existing primary keys.
 - No money movement, no engine job, no notification, no CPU behavior change.
 
 ## Out of scope

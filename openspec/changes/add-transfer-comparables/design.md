@@ -29,11 +29,12 @@
 ## Decisions
 
 ### 1. Snapshot columns on `player_transfers`, not a join to current `players`
-Migration `backend/resources/sql/init87_player_transfer_snapshot.sql` adds nullable
+Migration `backend/resources/sql/init88_player_transfer_snapshot.sql` adds nullable
 `position smallint`, `age smallint`, `average_skill smallint` (`ADD COLUMN IF NOT EXISTS`) and a
-partial index `player_transfers_comparables_idx ON player_transfers(position, created_at DESC)
-WHERE kind IN (0, 1, 4) AND fee > 0 AND average_skill IS NOT NULL`. No back-fill: old rows stay
-NULL and are excluded by the predicate.
+partial index `player_transfers_comparables_idx ON player_transfers(position, created_at DESC,
+transfer_id DESC) WHERE kind IN (0, 1, 4) AND fee > 0 AND average_skill IS NOT NULL`
+(`CREATE INDEX IF NOT EXISTS`). No back-fill: old rows stay NULL and are excluded by the
+predicate. See §7 for why the index has this exact shape.
 
 *Alternative rejected:* matching on the comparable's current skills by joining `players`. It
 would compare against today's player rather than the one sold, and the result itself would
@@ -63,6 +64,7 @@ with the narrow band (age ±2, average ±4); if it returns fewer than 3 rows it 
 the wide band (age ±4, average ±8) and sets `Broadened`. Constants live next to the query:
 `ComparablesWindowDays = 60`, `ComparablesLimit = 8`, `ComparablesMinNarrow = 3`, and the four
 band widths. The partial index plus the 60-day window bound the scan regardless of history size.
+`kind IN (0, 1, 4)` and `fee > 0` are written as SQL literals, not bind parameters (see §7).
 
 The selected columns are an explicit allow-list; the response struct (`TransferComparable`)
 has no field for any rating, trait, stamina, form, wage or contract, so nothing private can be
@@ -91,7 +93,47 @@ note, summary line and the list (MUI `List`/`Stack`, names linking to `/player/:
 placed under the fee `NumberField` in `TransferOfferDialog` and hidden once `accepted`.
 Strings go under `transfers.offerDialog.comparables.*` in `en.json` and `es.json`.
 
-### 6. Nothing else touched
+### 6. Every new query is backed by an index on its WHERE and ORDER BY columns
+Rule for this change: each SQL statement it adds or changes MUST have its `WHERE`, `JOIN` and
+`ORDER BY` columns covered by an index, existing or added in `init88_player_transfer_snapshot.sql`
+(never in a later ad-hoc file), and the plan MUST be checked with `EXPLAIN`. Audit of the
+statements this design introduces:
+
+| Statement | Filter / order columns | Index |
+|---|---|---|
+| Snapshot read in `RecordPlayerTransfer` | `players.player_id =` | `players` primary key (exists) |
+| Snapshot insert | none (INSERT) | adds one entry to the new partial index only for eligible rows |
+| `getTransferComparablesStmtSql` | `kind`, `fee`, `average_skill IS NOT NULL` (predicate); `position =`; `created_at >`; `ORDER BY created_at DESC, transfer_id DESC` | new `player_transfers_comparables_idx` |
+| …its joins | `players.player_id`, `teams.team_id` | primary keys (exist) |
+| `GetPlayerById` in the handler | `player_id =` | primary key (exists) |
+
+### 7. Index shape and how it is verified
+- Leading `position` (equality), then `created_at DESC, transfer_id DESC` matching the
+  `ORDER BY` exactly, so Postgres walks the index in order and stops after 8 matching rows: no
+  sort node, and the 60-day bound is a range condition on the same index.
+- `age` and `average_skill` bands are not index columns: they are ranges after an ordered
+  column, so they would not narrow the scan; they are filtered on the few rows the ordered walk
+  reads. Adding them would only grow the index.
+- The partial predicate (`kind IN (0, 1, 4) AND fee > 0 AND average_skill IS NOT NULL`) keeps
+  loans, releases, free agents and pre-snapshot rows out of the index entirely. Postgres only
+  uses a partial index when it can prove the query implies the predicate at plan time, so the
+  query MUST spell `kind IN (0, 1, 4)` and `fee > 0` as literals (built from the
+  `PLAYER_TRANSFER_*` constants with `strconv`/`fmt` when the const string is declared), not as
+  `$n` parameters. `average_skill BETWEEN $a AND $b` already implies `IS NOT NULL`.
+- Verified by `TestTransferComparables_UsesIndex`, following the existing
+  `TestCountMatchBacklog_UsesPartialIndexes` pattern (`common/match_backlog_integration_test.go`):
+  inside a transaction, `SET LOCAL enable_seqscan = off`, `EXPLAIN` the statement with both
+  bands, and assert the plan names `player_transfers_comparables_idx`, contains no
+  `Seq Scan on player_transfers` and no `Sort` node for the transfer rows.
+- If implementation ends up adding or reshaping any other query (for example a count, or a
+  different filter), it goes through the same audit: add its row to the table in §6, add the
+  index to `init88` if no existing one covers it, and extend the EXPLAIN test.
+
+*Alternative rejected:* a plain (non-partial) index on `(position, created_at)`. It would also
+hold every loan, release and free-agent row and every pre-snapshot row, and the planner would
+still have to filter them out row by row.
+
+### 8. Nothing else touched
 No `TRANSACTION_*` reason, no notification key (so no `notificationtranslations.go` entry), no
 engine job (so no replica-safety work), no CPU path change.
 
@@ -113,7 +155,7 @@ Archive does not carry a delta's Code map; copy this section into
 `openspec/specs/transfer-comparables/spec.md` after archiving.
 
 
-- `backend/resources/sql/init87_player_transfer_snapshot.sql` (snapshot columns, index).
+- `backend/resources/sql/init88_player_transfer_snapshot.sql` (snapshot columns, index).
 - `backend/common/playertransfers.go` (`RecordPlayerTransfer` snapshot,
   `GetTransferComparables`, band and window constants).
 - `backend/handlers/playerHandlers.go` (`TransferComparablesHandler`),
@@ -123,7 +165,7 @@ Archive does not carry a delta's Code map; copy this section into
 
 ## Migration Plan
 
-1. Deploy `init87_player_transfer_snapshot.sql` (re-runnable: `ADD COLUMN IF NOT EXISTS`,
+1. Deploy `init88_player_transfer_snapshot.sql` (re-runnable: `ADD COLUMN IF NOT EXISTS`,
    `CREATE INDEX IF NOT EXISTS`) together with the backend that writes the columns.
 2. Ship the frontend; an old frontend simply never calls the new endpoint.
 3. Rollback: revert the code; the nullable columns and the index can stay.

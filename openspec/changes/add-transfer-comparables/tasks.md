@@ -2,15 +2,17 @@
 
 ## 1. Transfer snapshot
 
-- [ ] 1.1 Add `backend/resources/sql/init87_player_transfer_snapshot.sql`: nullable `position`, `age`, `average_skill` smallint columns on `player_transfers` (`ADD COLUMN IF NOT EXISTS`) and the partial index `player_transfers_comparables_idx` from design §1, with a header comment explaining why old rows stay NULL; verify it applies twice in a row on a scratch database without error
+- [ ] 1.1 Add `backend/resources/sql/init88_player_transfer_snapshot.sql`: nullable `position`, `age`, `average_skill` smallint columns on `player_transfers` (`ADD COLUMN IF NOT EXISTS`) and the partial index `player_transfers_comparables_idx ON player_transfers(position, created_at DESC, transfer_id DESC) WHERE kind IN (0, 1, 4) AND fee > 0 AND average_skill IS NOT NULL` (`CREATE INDEX IF NOT EXISTS`, design §1 and §7), with a header comment explaining why old rows stay NULL; verify it applies twice in a row on a scratch database without error
 - [ ] 1.2 Make `common.RecordPlayerTransfer` read the player's seven ratings and age through its `sqlExecutor` and insert `BestCorePosition`/`AverageSkill`/age with the row (signature unchanged); verify with an integration test that a bought listing, an accepted offer and a release each store the snapshot taken before any later skill change
 
 ## 2. Comparables query
 
-- [ ] 2.1 Add `TransferComparable`, `TransferComparablesResult`, the band/window/limit constants and `const getTransferComparablesStmtSql` plus `GetTransferComparables` in `common/playertransfers.go` (design §3-4); verify `go vet ./...`
+- [ ] 2.1 Add `TransferComparable`, `TransferComparablesResult`, the band/window/limit constants and `const getTransferComparablesStmtSql` plus `GetTransferComparables` in `common/playertransfers.go` (design §3-4), writing `kind IN (0, 1, 4)` and `fee > 0` as SQL literals built from the `PLAYER_TRANSFER_*` constants, never `$n` parameters, so the partial index predicate can be matched (design §7); verify `go vet ./...`
 - [ ] 2.2 Add a unit test for the summary (median of 4 fees = 135,000 from the spec scenario, odd count, empty → nil fields); verify `go test ./common -run Comparables`
 - [ ] 2.3 Add `common/transfer_comparables_integration_test.go` covering every spec scenario: eligible kinds only (free-agent premium, loan, release excluded), fee 0 excluded, 61-day-old excluded, target's own transfer excluded, other position excluded, NULL snapshot excluded, narrow band, broadening below 3 results with `Broadened` set, newest-first with id tiebreak and cap at 8; verify the test passes against the integration database
-- [ ] 2.4 Assert in a test that the JSON of a `TransferComparablesResult` contains no rating, trait, stamina, form, wage or contract key; verify it passes
+- [ ] 2.4 Add `TestTransferComparables_UsesIndex` to the integration tests, following `TestCountMatchBacklog_UsesPartialIndexes`: `SET LOCAL enable_seqscan = off`, `EXPLAIN` the comparables statement with the narrow and the wide band, assert the plan uses `player_transfers_comparables_idx`, has no `Seq Scan on player_transfers` and no `Sort` node over transfer rows; verify it passes
+- [ ] 2.5 Index audit: list every SQL statement this change added or changed (snapshot read/insert, comparables query and its joins, handler lookup) with its `WHERE`/`JOIN`/`ORDER BY` columns and the index that serves it, keeping the table in design §6 up to date; any statement not covered by an existing index gets one in `init88_player_transfer_snapshot.sql` and a case in the EXPLAIN test; verify the table has no row without an index
+- [ ] 2.6 Assert in a test that the JSON of a `TransferComparablesResult` contains no rating, trait, stamina, form, wage or contract key; verify it passes
 
 ## 3. Endpoint
 
