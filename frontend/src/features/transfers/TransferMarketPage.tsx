@@ -976,18 +976,54 @@ function OffersTab() {
     return <Skeleton variant="rectangular" height={300} />
   }
 
+  const offerParams = (offer: TransferOffer) => ({
+    name: `${offer.player.firstName} ${offer.player.lastName}`,
+    team: offer.fromTeamName,
+    amount: formatCurrency(offer.amount),
+  })
+
+  // Selling a player is irreversible, so accepting asks twice: the second prompt is the last chance to back out.
   const handleAccept = async (offer: TransferOffer) => {
-    const ok = await confirm({
-      message: t('transfers.confirmAcceptOffer', {
-        name: `${offer.player.firstName} ${offer.player.lastName}`,
-        team: offer.fromTeamName,
-        amount: formatCurrency(offer.amount),
-      }),
+    const params = offerParams(offer)
+    const first = await confirm({
+      message: t('transfers.confirmAcceptOffer', params),
       confirmLabel: t('transfers.accept'),
       destructive: true,
     })
-    if (ok) {
+    if (!first) return
+    const second = await confirm({
+      title: t('transfers.confirmAcceptOfferFinalTitle'),
+      message: t('transfers.confirmAcceptOfferFinal', params),
+      confirmLabel: t('transfers.accept'),
+      destructive: true,
+    })
+    if (second) {
       acceptOffer.mutate(offer.offerId)
+    }
+  }
+
+  const handleReject = async (offer: TransferOffer) => {
+    const ok = await confirm({
+      message: t('transfers.confirmRejectOffer', offerParams(offer)),
+      confirmLabel: t('transfers.reject'),
+      destructive: true,
+    })
+    if (ok) {
+      rejectOffer.mutate(offer.offerId)
+    }
+  }
+
+  const handleWithdraw = async (offer: TransferOffer) => {
+    const ok = await confirm({
+      message: t('transfers.confirmWithdrawOffer', {
+        name: `${offer.player.firstName} ${offer.player.lastName}`,
+        amount: formatCurrency(offer.amount),
+      }),
+      confirmLabel: t('transfers.withdraw'),
+      destructive: true,
+    })
+    if (ok) {
+      withdrawOffer.mutate(offer.offerId)
     }
   }
 
@@ -1010,7 +1046,7 @@ function OffersTab() {
             return (
               <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
                 <Stack direction="row" spacing={1}>
-                  <Button color="secondary" variant="outlined" onClick={() => rejectOffer.mutate(offer.offerId)} disabled={rejectOffer.isPending}>
+                  <Button color="secondary" variant="outlined" onClick={() => handleReject(offer)} disabled={rejectOffer.isPending}>
                     {t('transfers.reject')}
                   </Button>
                   <Button variant="contained" onClick={() => handleAccept(offer)} disabled={acceptOffer.isPending || !acceptReady}>
@@ -1064,7 +1100,7 @@ function OffersTab() {
                 {t('transfers.offers.made', { date: formatShortDate(offer.createdAt) })}
               </Typography>
               <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 1 }}>
-                <Button color="secondary" variant="outlined" onClick={() => withdrawOffer.mutate(offer.offerId)} disabled={withdrawOffer.isPending}>
+                <Button color="secondary" variant="outlined" onClick={() => handleWithdraw(offer)} disabled={withdrawOffer.isPending}>
                   {t('transfers.withdraw')}
                 </Button>
               </Stack>

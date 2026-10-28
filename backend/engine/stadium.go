@@ -110,7 +110,7 @@ func expectedGateRevenue(capacity int, socios int, formPoints int, formMatches i
 }
 
 // optimalTicketPrice returns whichever integer price in [common.MinTicketPrice,
-// common.MaxTicketPrice] maximises expected gate revenue (see expectedGateRevenue) for a stadium
+// common.MaxTicketPrice] (1-39, every price at which anyone still attends) maximises expected gate revenue (see expectedGateRevenue) for a stadium
 // of this capacity and this many socios, given the team's recent form - the price a rational owner
 // charges (see engine.maximizeTicketPrice, the Manager-level AI policy that uses this). A plain
 // integer scan rather than solving analytically so it stays correct if the demand model changes.
@@ -124,6 +124,26 @@ func optimalTicketPrice(capacity int, socios int, formPoints int, formMatches in
 		}
 	}
 	return best
+}
+
+// RecommendedTicketPrice is the price that maximises expected gate revenue for this team's own
+// stadium, socios and recent league form (see optimalTicketPrice): what a CPU Manager team charges
+// and what the finance page suggests to a human owner. A missing form history counts as none.
+func RecommendedTicketPrice(dbCtx *common.DatabaseContext, teamId int64) (int, error) {
+	stadium, err := common.GetStadium(dbCtx, teamId)
+	if err != nil {
+		return 0, fmt.Errorf("fetching stadium: %w", err)
+	}
+	socios, err := common.GetSocios(dbCtx, teamId)
+	if err != nil {
+		return 0, fmt.Errorf("fetching socios: %w", err)
+	}
+	formPoints, formMatches, err := common.GetRecentLeagueForm(dbCtx, teamId, 0)
+	if err != nil {
+		log.Errorf("error fetching recent form for team %d ticket price: %s", teamId, err)
+		formPoints, formMatches = 0, 0
+	}
+	return optimalTicketPrice(stadium.Capacity, socios, formPoints, formMatches), nil
 }
 
 // TicketRevenue is deliberately simple: attendance times price, nothing more (no concessions,

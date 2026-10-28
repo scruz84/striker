@@ -498,7 +498,10 @@
       "priceButton": "Precio de entrada",
       "confirmExpandButton": "Ampliar por {{cost}}",
       "costBefore": "Coste total: {{cost}} (se descuenta al confirmar)",
-      "currentPrice": "Precio actual: {{price}}"
+      "currentPrice": "Precio actual: {{price}}",
+      "priceHelper": "Entre {{min}} y {{max}} · recomendado: {{recommended}}",
+      "priceRange": "Introduce un precio entero entre {{min}} y {{max}}",
+      "useRecommended": "Usar el recomendado ({{price}})"
     }
   },
   "transfers": {
@@ -506,6 +509,10 @@
     "confirmAcceptLoan": "¿Fichar a {{name}} cedido durante {{seasons}} temporada(s)?",
     "confirmAcceptLoanWithFee": "¿Fichar a {{name}} cedido durante {{seasons}} temporada(s)? Se descontará de tu presupuesto una cesión de {{fee}} de inmediato.",
     "confirmAcceptOffer": "¿Aceptar la oferta de {{team}} de {{amount}} por {{name}}? Saldrá de tu plantilla de inmediato.",
+    "confirmAcceptOfferFinal": "Última comprobación: ¿vender definitivamente a {{name}} a {{team}} por {{amount}}? Esta operación no se puede deshacer.",
+    "confirmAcceptOfferFinalTitle": "Confirmar venta",
+    "confirmRejectOffer": "¿Rechazar la oferta de {{team}} de {{amount}} por {{name}}? La oferta se descartará.",
+    "confirmWithdrawOffer": "¿Retirar tu oferta de {{amount}} por {{name}}? Tendrás que volver a ofertar si cambias de idea.",
     "title": "Mercado de fichajes",
     "windowClosed": "El mercado de fichajes está cerrado - listar, comprar y aceptar cesiones u ofertas no está disponible hasta que reabra.",
     "tabs": {
@@ -797,6 +804,7 @@
       "proposedKickoff": "Propuesta: {{date}}",
       "kickoffNotAllowed": "Ese día no está habilitado para amistosos - elige otro.",
       "confirmKickoff": "Confirmar",
+      "confirmReject": "¿Rechazar el reto de {{team}}?",
       "cancel": "Cancelar",
       "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal.",
       "youPlayHome": "Jugarías en casa",
@@ -806,6 +814,7 @@
       "title": "Retos enviados",
       "empty": "No hay retos pendientes.",
       "withdraw": "Retirar",
+      "confirmWithdraw": "¿Retirar el reto a {{team}}?",
       "youPlayHome": "Jugarías en casa",
       "youPlayAway": "Jugarías fuera"
     },

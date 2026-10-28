@@ -17,11 +17,23 @@ Every team SHALL start with a budget of 400,000, and every change to it MUST be 
 - **THEN** its budget changes by the amount and a transaction row records the amount and reason
 
 ### Requirement: Matchday gate
-After a league match or cup tie the home side alone SHALL receive attendance × ticket price. Attendance MUST follow the socios model (see the socios spec) and never exceed stadium capacity. Ticket prices are integers from 1 to 100, default 10.
+After a league match or cup tie the home side alone SHALL receive attendance × ticket price. Attendance MUST follow the socios model (see the socios spec) and never exceed stadium capacity. Ticket prices are integers from 1 to 39, default 10: 39 is the last price at which any socio still attends.
 
 #### Scenario: Away side
 - **WHEN** a league match is played
 - **THEN** the away side receives no gate money
+
+#### Scenario: Price outside the range
+- **WHEN** an owner sets a ticket price of 0 or of 40 or more
+- **THEN** the request fails with `ErrInvalidTicketPrice` (HTTP 400) and the stored price is unchanged
+
+#### Scenario: Highest allowed price
+- **WHEN** an owner sets a ticket price of 39
+- **THEN** the price is stored and the next home match draws socios × 1/30 × the other factors
+
+#### Scenario: Legacy price above the range
+- **WHEN** the migration runs and a team's stored ticket price is 69
+- **THEN** its price becomes 10, its next home match earns a gate, and a team already at 1–39 keeps its price
 
 ### Requirement: Friendly gate split
 A friendly SHALL draw its crowd from the home side's stadium like a league match and split the gate evenly between both sides. Friendlies MUST NOT pay sponsorship, drift Fanbase or trigger the CPU's per-match upkeep.
@@ -150,6 +162,21 @@ The finance page SHALL compute, client-side from the transaction list, a cash-fl
 - **WHEN** weekly expenses exceed weekly income and the team is not yet insolvent
 - **THEN** the forecast shows how many weeks until the budget reaches −maxDebt
 
+### Requirement: Ticket price guidance
+The finance page SHALL show the allowed ticket price range (1–39) and a recommended price: the price that maximises expected gate revenue for the team's capacity, socios and recent league form, the same price a CPU Manager team would charge. A price outside the range MUST be blocked before it is sent.
+
+#### Scenario: Members cannot fill the ground
+- **WHEN** a team with 30,000 seats and 500 socios opens the price dialog
+- **THEN** the recommended price shown is at most 25
+
+#### Scenario: More members than seats
+- **WHEN** a team with 1,000 seats and 3,000 socios opens the price dialog
+- **THEN** the recommended price shown is above 10 and is the price that just fills the ground
+
+#### Scenario: Out-of-range input
+- **WHEN** the owner types 50 in the price dialog
+- **THEN** the field shows the 1–39 range as an error and Save is disabled
+
 ## Code map
 
 - Ledger: `common.AdjustTeamBudget`, reasons `TRANSACTION_*` (`common/fmconstants.go`).
@@ -160,11 +187,14 @@ The finance page SHALL compute, client-side from the transaction list, a cash-fl
 - Wages: `common.PlayerWageFromSkills` (`common/fmcommon.go`), `common/trainers.go`,
   `common/wagefactor.go` (`DivisionWageFactor`), `common.GetTeamWageBill`,
   `common.GetTeamLoanWageContribution`.
-- Stadium: `common/stadium.go` (`UpgradeStadium`, `StadiumUpgradeDuration`).
+- Stadium: `common/stadium.go` (`UpgradeStadium`, `StadiumUpgradeDuration`, `SetTicketPrice`);
+  price bounds `common.MinTicketPrice`/`MaxTicketPrice` (`common/fmconstants.go`); recommended
+  price `engine.RecommendedTicketPrice`; legacy-price cap `resources/sql/init87_cap_ticket_price.sql`.
 - Market money: `common/transfers.go`, `common/offers.go`, `common/loans.go`,
   `common/contracts.go`; insolvency `common.MaxDebt`/`IsTeamSolvent`.
 - Frontend: `frontend/src/features/finances/` (`cashFlowForecast.ts`, `BudgetOverTimeChart`,
-  `IncomeBreakdownChart`); offer grouping `ReceivedOffersByPlayer` in `TransferMarketPage.tsx`.
+  `IncomeBreakdownChart`); ticket price dialog (range, recommended price) in `StadiumCard` of
+  `FinancesPage.tsx`; offer grouping `ReceivedOffersByPlayer` in `TransferMarketPage.tsx`.
 - Balance check: `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v`
   (`engine/economysim_test.go`); background in
   `openspec/changes/archive/2026-10-19-rebalance-economy-socios/`.

@@ -16,6 +16,7 @@ import Collapse from '@mui/material/Collapse'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
 import { mightStillBeLive } from '../../api/useLiveMatch'
+import { useConfirm } from '../../components/confirmDialogContext'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
 import { TeamAutocomplete } from '../../components/TeamAutocomplete'
@@ -231,6 +232,7 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
   const { t } = useTranslation()
   const acceptChallenge = useAcceptFriendlyChallenge()
   const rejectChallenge = useRejectFriendlyChallenge()
+  const confirm = useConfirm()
   const { data: schedule } = useFriendlySchedule(true)
   const [pickingId, setPickingId] = useState<number | null>(null)
   const [kickoff, setKickoff] = useState('')
@@ -243,6 +245,17 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
   }
 
   const weekdayAllowed = (value: string) => isWeekdayAllowed(schedule, value)
+
+  const handleReject = async (challenge: FriendlyChallenge) => {
+    const ok = await confirm({
+      message: t('friendlies.received.confirmReject', { team: challenge.challengerTeamName }),
+      confirmLabel: t('friendlies.received.reject'),
+      destructive: true,
+    })
+    if (ok) {
+      rejectChallenge.mutate(challenge.challengeId)
+    }
+  }
 
   const handleConfirm = (challengeId: number) => {
     if (!kickoff || !weekdayAllowed(kickoff)) return
@@ -289,7 +302,7 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
                     <Button
                       size="small"
                       color="secondary"
-                      onClick={() => rejectChallenge.mutate(c.challengeId)}
+                      onClick={() => handleReject(c)}
                       disabled={rejectChallenge.isPending}
                     >
                       {t('friendlies.received.reject')}
@@ -334,6 +347,18 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
 function ChallengesSent({ challenges, isLoading }: { challenges?: FriendlyChallenge[]; isLoading: boolean }) {
   const { t } = useTranslation()
   const withdrawChallenge = useWithdrawFriendlyChallenge()
+  const confirm = useConfirm()
+
+  const handleWithdraw = async (challenge: FriendlyChallenge) => {
+    const ok = await confirm({
+      message: t('friendlies.sent.confirmWithdraw', { team: challenge.opponentTeamName }),
+      confirmLabel: t('friendlies.sent.withdraw'),
+      destructive: true,
+    })
+    if (ok) {
+      withdrawChallenge.mutate(challenge.challengeId)
+    }
+  }
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -361,7 +386,7 @@ function ChallengesSent({ challenges, isLoading }: { challenges?: FriendlyChalle
               <Button
                 size="small"
                 color="secondary"
-                onClick={() => withdrawChallenge.mutate(c.challengeId)}
+                onClick={() => handleWithdraw(c)}
                 disabled={withdrawChallenge.isPending}
               >
                 {t('friendlies.sent.withdraw')}

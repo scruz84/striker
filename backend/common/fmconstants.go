@@ -94,10 +94,12 @@ const TRANSACTION_STADIUM_MAINTENANCE = 15    // upkeep charged once per round, 
 const DefaultStadiumCapacity = 1000
 
 // DefaultTicketPrice is what a new team starts charging per seat; MinTicketPrice/MaxTicketPrice
-// bound what an owner can set it to (see handlers.SetTicketPriceHandler).
+// bound what an owner can set it to (see handlers.SetTicketPriceHandler). MaxTicketPrice is one
+// below engine.SociosPriceZeroAt (40), the price at which no socio attends: a team can never be
+// priced into an empty ground (engine.TestMaxTicketPriceBelowZeroDemand keeps the two in step).
 const DefaultTicketPrice = 10
 const MinTicketPrice = 1
-const MaxTicketPrice = 100
+const MaxTicketPrice = 39
 
 // A stadium upgrade adds an owner-chosen number of seats (see UpgradeStadium and
 // MinStadiumUpgradeSeats/MaxStadiumUpgradeSeats for the range they can pick from), at a cost

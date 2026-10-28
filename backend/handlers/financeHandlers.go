@@ -45,6 +45,11 @@ type FinancesResponse struct {
 	// head coach, loan contributions) - see common.DivisionWageFactor. The wages shown on contracts
 	// are the base figures; this is what they are multiplied by when actually charged.
 	WageFactor float64 `json:"wageFactor"`
+	// RecommendedTicketPrice is the price that maximises this team's expected gate revenue - the one
+	// a CPU Manager team charges (engine.RecommendedTicketPrice). MaxTicketPrice is the highest
+	// price the owner may set (common.MaxTicketPrice); the minimum is a fixed 1.
+	RecommendedTicketPrice int `json:"recommendedTicketPrice"`
+	MaxTicketPrice         int `json:"maxTicketPrice"`
 }
 
 // GetFinancesHandler returns the caller's team's budget, recent transaction history, and full
@@ -130,6 +135,13 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
+		recommendedTicketPrice, err := engine.RecommendedTicketPrice(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error computing recommended ticket price for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
 		c.JSON(http.StatusOK, FinancesResponse{
 			Budget: budget, Transactions: transactions, Stadium: stadium,
 			Insolvent:          budget < -common.MaxDebt,
@@ -140,6 +152,9 @@ func GetFinancesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			Fanbase:            fanbase,
 			Socios:             socios,
 			WageFactor:         wageFactor,
+
+			RecommendedTicketPrice: recommendedTicketPrice,
+			MaxTicketPrice:         common.MaxTicketPrice,
 		})
 	}
 }
@@ -149,7 +164,8 @@ type setTicketPriceRequest struct {
 }
 
 // SetTicketPriceHandler lets the caller's team set what it charges per seat for its own home
-// matches, within [common.MinTicketPrice, common.MaxTicketPrice].
+// matches, within [common.MinTicketPrice, common.MaxTicketPrice] (1-39: the socios stop attending
+// altogether from 40, see engine.SociosPriceZeroAt).
 func SetTicketPriceHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)

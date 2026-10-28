@@ -702,6 +702,9 @@ export interface Stadium {
 // common.MinStadiumUpgradeSeats/MaxStadiumUpgradeSeats. Duplicated here rather than fetched,
 // the same way MinTicketPrice/MaxTicketPrice aren't - the backend is the source of truth and
 // rejects anything outside range regardless of what the frontend sends.
+// Lowest ticket price an owner may set (backend common.MinTicketPrice); the highest comes from
+// FinancesResponse.maxTicketPrice.
+export const MIN_TICKET_PRICE = 1
 export const MIN_STADIUM_UPGRADE_SEATS = 100
 export const MAX_STADIUM_UPGRADE_SEATS = 5000
 export const DEFAULT_STADIUM_UPGRADE_SEATS = 500
@@ -756,6 +759,11 @@ export interface FinancesResponse {
   // common.DivisionWageFactor. Contract wages are the base figures; this is what they are
   // multiplied by when actually charged each round.
   wageFactor: number
+  // The price that maximises this team's expected gate revenue - the one a CPU Manager team
+  // charges (backend engine.RecommendedTicketPrice) - and the highest price an owner may set
+  // (backend common.MaxTicketPrice). The lowest is MIN_TICKET_PRICE.
+  recommendedTicketPrice: number
+  maxTicketPrice: number
 }
 
 // One row of FinancesResponse.sponsorDealOptions - see backend engine.SponsorDealPreview.

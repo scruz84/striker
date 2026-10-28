@@ -22,6 +22,7 @@ import {
   DEFAULT_STADIUM_UPGRADE_SEATS,
   MAX_STADIUM_UPGRADE_SEATS,
   MIN_STADIUM_UPGRADE_SEATS,
+  MIN_TICKET_PRICE,
   SPONSOR_DEAL_BALANCED,
   SPONSOR_DEAL_DESCRIPTION_KEYS,
   SPONSOR_DEAL_LABEL_KEYS,
@@ -69,7 +70,13 @@ export function FinancesPage() {
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid size={{ xs: 12, sm: 8 }}>{finances.stadium && <StadiumCard stadium={finances.stadium} />}</Grid>
+        <Grid size={{ xs: 12, sm: 8 }}>{finances.stadium && (
+            <StadiumCard
+              stadium={finances.stadium}
+              recommendedTicketPrice={finances.recommendedTicketPrice}
+              maxTicketPrice={finances.maxTicketPrice}
+            />
+          )}</Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <FanbaseCard fanbase={finances.fanbase} socios={finances.socios} />
         </Grid>
@@ -230,7 +237,15 @@ function FanbaseCard({ fanbase, socios }: { fanbase: number; socios: number }) {
   )
 }
 
-function StadiumCard({ stadium }: { stadium: Stadium }) {
+export function StadiumCard({
+  stadium,
+  recommendedTicketPrice,
+  maxTicketPrice,
+}: {
+  stadium: Stadium
+  recommendedTicketPrice: number
+  maxTicketPrice: number
+}) {
   const { t } = useTranslation()
   const setTicketPrice = useSetTicketPrice()
   const upgradeStadium = useUpgradeStadium()
@@ -246,10 +261,12 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
   const expandCost = seatsValid ? calculateStadiumUpgradeCost(stadium.capacity, seatsNum) : null
   const upgradePending = stadium.pendingCapacity != null && stadium.upgradeCompletesAt != null
 
+  const priceNum = Number(price)
+  const priceValid = Number.isInteger(priceNum) && priceNum >= MIN_TICKET_PRICE && priceNum <= maxTicketPrice
+
   const handlePriceSubmit = (event: FormEvent) => {
     event.preventDefault()
-    const priceNum = Number(price)
-    if (!priceNum) {
+    if (!priceValid) {
       return
     }
     setTicketPrice.mutate(priceNum, { onSuccess: () => setDialog(null) })
@@ -390,14 +407,29 @@ function StadiumCard({ stadium }: { stadium: Stadium }) {
         actions={
           <>
             <Button onClick={() => setDialog(null)}>{t('common.cancel')}</Button>
-            <Button variant="contained" onClick={handlePriceSubmit} disabled={setTicketPrice.isPending || !Number(price)}>
+            <Button variant="contained" onClick={handlePriceSubmit} disabled={setTicketPrice.isPending || !priceValid}>
               {t('common.save')}
             </Button>
           </>
         }
       >
         <Stack spacing={2} component="form" onSubmit={handlePriceSubmit}>
-          <NumberField label={t('finances.ticketPrice')} value={price} onValueChange={setPrice} currency fullWidth />
+          <NumberField
+            label={t('finances.ticketPrice')}
+            value={price}
+            onValueChange={setPrice}
+            currency
+            error={!priceValid}
+            helperText={
+              priceValid
+                ? t('finances.stadiumCard.priceHelper', { min: MIN_TICKET_PRICE, max: maxTicketPrice, recommended: recommendedTicketPrice })
+                : t('finances.stadiumCard.priceRange', { min: MIN_TICKET_PRICE, max: maxTicketPrice })
+            }
+            fullWidth
+          />
+          <Button size="small" sx={{ alignSelf: 'flex-start' }} onClick={() => setPrice(String(recommendedTicketPrice))}>
+            {t('finances.stadiumCard.useRecommended', { price: recommendedTicketPrice })}
+          </Button>
           {setTicketPrice.isError && <Alert severity="error">{t('finances.ticketPriceError')}</Alert>}
         </Stack>
       </ResponsiveDialog>

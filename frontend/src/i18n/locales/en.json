@@ -498,7 +498,10 @@
       "priceButton": "Ticket price",
       "confirmExpandButton": "Expand for {{cost}}",
       "costBefore": "Total cost: {{cost}} (charged on confirm)",
-      "currentPrice": "Current price: {{price}}"
+      "currentPrice": "Current price: {{price}}",
+      "priceHelper": "Between {{min}} and {{max}} · recommended: {{recommended}}",
+      "priceRange": "Enter a whole price between {{min}} and {{max}}",
+      "useRecommended": "Use recommended ({{price}})"
     }
   },
   "transfers": {
@@ -506,6 +509,10 @@
     "confirmAcceptLoan": "Take {{name}} on loan for {{seasons}} season(s)?",
     "confirmAcceptLoanWithFee": "Take {{name}} on loan for {{seasons}} season(s)? A one-time loan fee of {{fee}} is deducted from your budget immediately.",
     "confirmAcceptOffer": "Accept {{team}}'s offer of {{amount}} for {{name}}? They'll leave your squad immediately.",
+    "confirmAcceptOfferFinal": "Final check: sell {{name}} to {{team}} for {{amount}} for good? This can't be undone.",
+    "confirmAcceptOfferFinalTitle": "Confirm sale",
+    "confirmRejectOffer": "Reject {{team}}'s offer of {{amount}} for {{name}}? The offer will be discarded.",
+    "confirmWithdrawOffer": "Withdraw your offer of {{amount}} for {{name}}? You'll have to bid again if you change your mind.",
     "title": "Transfer market",
     "windowClosed": "The transfer window is closed - listing, buying, and accepting loans and offers are unavailable until it reopens.",
     "tabs": {
@@ -797,6 +804,7 @@
       "proposedKickoff": "Proposed: {{date}}",
       "kickoffNotAllowed": "That day isn't open for friendlies - pick another.",
       "confirmKickoff": "Confirm",
+      "confirmReject": "Reject {{team}}'s challenge?",
       "cancel": "Cancel",
       "acceptError": "Could not accept that challenge - you may be at your weekly limit.",
       "youPlayHome": "You'd play at home",
@@ -806,6 +814,7 @@
       "title": "Challenges sent",
       "empty": "No pending challenges.",
       "withdraw": "Withdraw",
+      "confirmWithdraw": "Withdraw your challenge to {{team}}?",
       "youPlayHome": "You'd play at home",
       "youPlayAway": "You'd play away"
     },

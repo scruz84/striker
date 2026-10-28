@@ -78,10 +78,21 @@ func TestCalculateAttendance_HigherPriceReducesAttendance(t *testing.T) {
 
 // No occupancy floor: at and above SociosPriceZeroAt nobody turns up, however empty the ground.
 func TestCalculateAttendance_NobodyPaysAbsurdPrices(t *testing.T) {
-	for _, price := range []int{SociosPriceZeroAt, 70, common.MaxTicketPrice} {
+	for _, price := range []int{SociosPriceZeroAt, 70, 100} {
 		if got := avgAttendance(30000, price, 5000, 15, 5, 99, 0, "sunny"); got != 0 {
 			t.Fatalf("price %d drew %.0f, want 0", price, got)
 		}
+	}
+}
+
+// The highest price an owner may set is the last one that still draws a crowd, so a team can never
+// be priced into an empty ground.
+func TestMaxTicketPriceBelowZeroDemand(t *testing.T) {
+	if common.MaxTicketPrice != SociosPriceZeroAt-1 {
+		t.Fatalf("MaxTicketPrice = %d, want SociosPriceZeroAt-1 = %d", common.MaxTicketPrice, SociosPriceZeroAt-1)
+	}
+	if got := avgAttendance(30000, common.MaxTicketPrice, 5000, 15, 5, 99, 0, "sunny"); got <= 0 {
+		t.Fatalf("price %d should still draw a crowd, got %.0f", common.MaxTicketPrice, got)
 	}
 }
 

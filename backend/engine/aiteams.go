@@ -506,17 +506,11 @@ func maximizeTicketPrice(dbCtx *common.DatabaseContext, teamId int64) {
 		log.Errorf("error fetching stadium for AI-managed team %d ticket pricing: %s", teamId, err)
 		return
 	}
-	socios, err := common.GetSocios(dbCtx, teamId)
+	optimal, err := RecommendedTicketPrice(dbCtx, teamId)
 	if err != nil {
-		log.Errorf("error fetching socios for AI-managed team %d ticket pricing: %s", teamId, err)
+		log.Errorf("error computing ticket price for AI-managed team %d: %s", teamId, err)
 		return
 	}
-	formPoints, formMatches, err := common.GetRecentLeagueForm(dbCtx, teamId, 0)
-	if err != nil {
-		log.Errorf("error fetching recent form for AI-managed team %d ticket pricing: %s", teamId, err)
-		formPoints, formMatches = 0, 0
-	}
-	optimal := optimalTicketPrice(stadium.Capacity, socios, formPoints, formMatches)
 	if stadium.TicketPrice == optimal {
 		return
 	}

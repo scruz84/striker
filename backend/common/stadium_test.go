@@ -41,4 +41,8 @@ func TestSetTicketPrice_RejectsOutOfRange(t *testing.T) {
 	if err := SetTicketPrice(nil, 1, MaxTicketPrice+1); err != ErrInvalidTicketPrice {
 		t.Fatalf("expected ErrInvalidTicketPrice for a too-high price, got %v", err)
 	}
+	// 40 is where the socios stop attending altogether (engine.SociosPriceZeroAt).
+	if err := SetTicketPrice(nil, 1, 40); err != ErrInvalidTicketPrice {
+		t.Fatalf("expected ErrInvalidTicketPrice for 40, got %v", err)
+	}
 }
