@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ClassificationPosition, DivisionDetails, TeamMatchSummary, WeekMatch } from '../../api/types'
-import { currentStanding, selectRecentForm } from './DashboardPage'
+import { currentStanding, selectLastResult, selectLiveMatch, selectRecentForm } from './DashboardPage'
 
 function teamMatch(overrides: Partial<TeamMatchSummary>): TeamMatchSummary {
   return {
@@ -153,5 +153,48 @@ describe('selectRecentForm', () => {
       teamMatch({ matchId: i, matchDate: new Date(2020, 0, 8 - i).toISOString() }),
     )
     expect(selectRecentForm(matches, 5)).toHaveLength(5)
+  })
+})
+
+const minutesFromNow = (minutes: number) => new Date(Date.now() + minutes * 60_000).toISOString()
+
+describe('selectLiveMatch', () => {
+  it('picks a match that kicked off 30 minutes ago, played or not', () => {
+    const inProgress = teamMatch({ matchId: 1, matchDate: minutesFromNow(-30), played: false })
+    expect(selectLiveMatch([inProgress])).toBe(inProgress)
+    expect(selectLiveMatch([{ ...inProgress, played: true }])?.matchId).toBe(1)
+  })
+
+  it('ignores a match simulated before its kickoff', () => {
+    expect(selectLiveMatch([teamMatch({ matchDate: minutesFromNow(5), played: true })])).toBeUndefined()
+  })
+
+  it('ignores a match whose broadcast window (2 h) is over', () => {
+    expect(selectLiveMatch([teamMatch({ matchDate: minutesFromNow(-121), played: true })])).toBeUndefined()
+  })
+
+  it('prefers the latest kickoff when two matches are live', () => {
+    const earlier = teamMatch({ kind: 'friendly', matchId: 1, matchDate: minutesFromNow(-80) })
+    const later = teamMatch({ kind: 'cup', matchId: 2, matchDate: minutesFromNow(-20) })
+    expect(selectLiveMatch([earlier, later])).toBe(later)
+  })
+
+  it('returns nothing without matches', () => {
+    expect(selectLiveMatch(undefined)).toBeUndefined()
+    expect(selectLiveMatch([])).toBeUndefined()
+  })
+})
+
+describe('selectLastResult', () => {
+  it('shows the previous finished match while another is live', () => {
+    const live = teamMatch({ matchId: 2, matchDate: minutesFromNow(-30), played: true, homeGoals: 3, awayGoals: 2 })
+    const lastWeek = teamMatch({ matchId: 1, matchDate: minutesFromNow(-7 * 24 * 60), homeGoals: 2, awayGoals: 0 })
+    expect(selectLastResult([live, lastWeek], new Set())).toBe(lastWeek)
+  })
+
+  it('shows the live match itself once its broadcast has completed', () => {
+    const live = teamMatch({ matchId: 2, matchDate: minutesFromNow(-100), played: true, homeGoals: 3, awayGoals: 2 })
+    const lastWeek = teamMatch({ matchId: 1, matchDate: minutesFromNow(-7 * 24 * 60) })
+    expect(selectLastResult([live, lastWeek], new Set(['league:2']))).toBe(live)
   })
 })

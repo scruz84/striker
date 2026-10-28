@@ -94,9 +94,9 @@ function friendly(overrides: Partial<FriendlyMatch> = {}): FriendlyMatch {
 }
 
 describe('subtitleLabel per competition', () => {
-  it('league: "Matchday 3 of 38" once the division is known, the bare week before that', () => {
+  it('league: "<division> · Matchday 3 of 38" once the division is known, the bare week before that', () => {
     expect(weeksInASeason(20)).toBe(38)
-    expect(fromWeekMatch(weekMatch(), division(20), t).subtitleLabel).toBe('Matchday 3 of 38')
+    expect(fromWeekMatch(weekMatch(), division(20), t).subtitleLabel).toBe('D · Matchday 3 of 38')
     expect(fromWeekMatch(weekMatch(), undefined, t).subtitleLabel).toBe('Week 3')
   })
 
@@ -136,7 +136,7 @@ describe('adapters carry what the viewer shows', () => {
       homePosition: 1,
       awayPosition: 2,
     })
-    expect(matchSubtitle(view.subtitleLabel, view.matchDate, view.weather)).toBe(`Matchday 3 of 38 · ${formatDateTime(DATE)} · 🌧️`)
+    expect(matchSubtitle(view.subtitleLabel, view.matchDate, view.weather)).toBe(`D · Matchday 3 of 38 · ${formatDateTime(DATE)} · 🌧️`)
   })
 
   it('maps a cup tie with its stored flavor, stadium and instants, and names the shootout winner', () => {

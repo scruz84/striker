@@ -206,7 +206,7 @@
     "lastResult": "Último resultado",
     "noUpcomingMatch": "No hay ningún partido programado.",
     "noRecentMatch": "Todavía no se han jugado partidos.",
-    "liveMatchBanner": "¡Tu partido contra {{opponent}} se está jugando ahora mismo!",
+    "liveNow": "En directo",
     "viewMatch": "Ver partido",
     "viewFinances": "Ver finanzas",
     "viewSquad": "Ver plantilla",

@@ -139,8 +139,9 @@ For a cup tie that was level after 90 minutes, the viewer SHALL show a penalty-s
 
 - Viewer: `frontend/src/features/match/MatchViewer.tsx` (phase switch, live completion, scheduled / live /
   finished views, `lineupSection` and `belowScoreboard` slots) and the view model
-  `features/match/matchViewModel.ts` (`MatchView`, `fromWeekMatch`, `fromCupTie`, `fromFriendly`,
-  `positionOf`, `weeksInASeason`).
+  `features/match/matchViewModel.ts` (`MatchView`, `fromWeekMatch` - its league label is prefixed with the
+  division name -, `fromCupTie`, `fromFriendly`, `positionOf`, `weeksInASeason`); each adapter's `liveUrl`
+  comes from `liveMatchPath` in `utils/matchSummary.ts`.
 - Route adapters: `features/match/MatchDetailsPage.tsx` (league), `features/cup/CupTieDetailsPage.tsx`
   (cup tie, bye card and shootout line), `features/friendlies/FriendlyMatchPage.tsx` (friendly, national
   team and World Cup group match).

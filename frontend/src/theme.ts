@@ -52,6 +52,8 @@ declare module '@mui/material/styles' {
     onSecondaryContainer: string
     tertiaryContainer: string
     onTertiaryContainer: string
+    errorContainer: string
+    onErrorContainer: string
     surfaceVariant: string
     onSurfaceVariant: string
     outline: string
@@ -71,6 +73,8 @@ declare module '@mui/material/styles' {
     onSecondaryContainer?: string
     tertiaryContainer?: string
     onTertiaryContainer?: string
+    errorContainer?: string
+    onErrorContainer?: string
     surfaceVariant?: string
     onSurfaceVariant?: string
     outline?: string
@@ -106,6 +110,8 @@ function buildPalette(scheme: Scheme, mode: 'light' | 'dark') {
     onSecondaryContainer: hex(scheme.onSecondaryContainer),
     tertiaryContainer: hex(scheme.tertiaryContainer),
     onTertiaryContainer: hex(scheme.onTertiaryContainer),
+    errorContainer: hex(scheme.errorContainer),
+    onErrorContainer: hex(scheme.onErrorContainer),
     surfaceVariant: hex(scheme.surfaceVariant),
     onSurfaceVariant: hex(scheme.onSurfaceVariant),
     outline: hex(scheme.outline),

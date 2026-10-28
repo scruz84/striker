@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
 import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone'
@@ -30,10 +30,12 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
+import { useQueryClient } from '@tanstack/react-query'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
+  queryKeys,
   useAcademy,
   useDivisionDetails,
   useFinances,
@@ -59,7 +61,7 @@ import {
   type Team,
   type TeamMatchSummary,
 } from '../../api/types'
-import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive, useLiveMatch, type LiveMatchState } from '../../api/useLiveMatch'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -71,7 +73,8 @@ import { ratingTierColor } from '../../utils/playerRating'
 import { HomeAwayIcon } from '../../components/HomeAwayIcon'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
-import { matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
+import { PULSING_LIVE_SX } from '../../utils/liveChip'
+import { liveMatchPath, matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { hideStillLiveResults } from '../division/DivisionDetailsPage'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
@@ -106,6 +109,54 @@ export function selectRecentForm(playedMatches: TeamMatchSummary[], limit: numbe
     .reverse()
 }
 
+const liveKey = (m: Pick<TeamMatchSummary, 'kind' | 'matchId'>) => `${m.kind}:${m.matchId}`
+
+// selectLiveMatch picks the team's match that is on right now: kickoff reached and still inside the
+// live broadcast window, the latest kickoff winning when two overlap. `played` is deliberately not
+// required - a match whose simulation lags is still "on" for its owner - while a match simulated up
+// to 15 minutes before kickoff is not live until kickoff arrives (isPast).
+export function selectLiveMatch(teamMatches: TeamMatchSummary[] | undefined): TeamMatchSummary | undefined {
+  return teamMatches
+    ?.filter((m) => isPast(m.matchDate) && mightStillBeLive(m.matchDate))
+    .sort((a, b) => b.matchDate.localeCompare(a.matchDate))[0]
+}
+
+// selectLastResult picks the latest match whose broadcast is over from a most-recent-first list of
+// played matches - never one still being shown live (or any other match inside its live window),
+// whose stored score would spoil it. A match whose broadcast just completed (`finished`) qualifies.
+export function selectLastResult(playedMatches: TeamMatchSummary[], finished: ReadonlySet<string>): TeamMatchSummary | undefined {
+  return playedMatches.find((m) => !mightStillBeLive(m.matchDate) || finished.has(liveKey(m)))
+}
+
+// useOwnLiveMatch follows the broadcast of the owner's live match (see selectLiveMatch), opening the
+// socket only while one exists. Once the broadcast reports completion the match is remembered as
+// finished, so the hero goes back to the next fixture and the "Last result" card may show its score.
+export function useOwnLiveMatch(
+  teamMatches: TeamMatchSummary[] | undefined,
+  teamId: string | undefined,
+): { match: TeamMatchSummary | undefined; live: LiveMatchState; finished: ReadonlySet<string> } {
+  // Re-evaluates the live window as time passes, even if nothing else re-renders the page.
+  useNow()
+  const queryClient = useQueryClient()
+  const [finished, setFinished] = useState<ReadonlySet<string>>(() => new Set())
+  const candidate = selectLiveMatch(teamMatches?.filter((m) => !finished.has(liveKey(m))))
+  const live = useLiveMatch(candidate ? liveMatchPath(candidate) : undefined, !!candidate)
+  const completedKey = candidate && live.complete ? liveKey(candidate) : undefined
+
+  // Remembered during render (not in an effect) so the hero never flashes back to live for a frame.
+  if (completedKey && !finished.has(completedKey)) {
+    setFinished(new Set(finished).add(completedKey))
+  }
+
+  useEffect(() => {
+    if (completedKey && teamId) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.teamMatches(teamId) })
+    }
+  }, [completedKey, teamId, queryClient])
+
+  return { match: completedKey ? undefined : candidate, live, finished }
+}
+
 export function DashboardPage() {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -118,6 +169,7 @@ export function DashboardPage() {
   // division's league fixtures - a league-only "next match" quietly skips a friendly kicking off
   // sooner, which is exactly the bug this dashboard used to have.
   const { data: teamMatches } = useTeamMatches(userTeam ? String(userTeam.team.id) : undefined)
+  const { match: liveMatch, live, finished } = useOwnLiveMatch(teamMatches, userTeam ? String(userTeam.team.id) : undefined)
 
   if (isLoading || !userTeam) {
     return <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
@@ -134,7 +186,7 @@ export function DashboardPage() {
     ?.filter((m) => m.played && isPast(m.matchDate))
     .sort((a, b) => b.matchDate.localeCompare(a.matchDate))
   const nextMatch = teamMatches?.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
-  const lastMatch = playedMatches?.[0]
+  const lastMatch = playedMatches && selectLastResult(playedMatches, finished)
   const recentForm = playedMatches && selectRecentForm(playedMatches, 5)
   const standing = currentStanding(division, team.id)
 
@@ -161,9 +213,8 @@ export function DashboardPage() {
   return (
     <Box>
       <SeasonRecap enabled={!!loggedUser} />
-      <LiveMatchBanner match={lastMatch} />
       {isDesktop && <TeamHeaderCard team={team} standing={standing} recentForm={recentForm} />}
-      <NextMatchHero match={nextMatch} teamId={team.id} />
+      {liveMatch ? <LiveMatchHero match={liveMatch} live={live} team={team} /> : <NextMatchHero match={nextMatch} teamId={team.id} />}
       <AttentionAlerts teamId={team.id} players={players} finances={finances} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -196,36 +247,6 @@ export function DashboardPage() {
           <TeamHeaderCard team={team} standing={standing} recentForm={undefined} compact />
         </>
       )}
-    </Box>
-  )
-}
-
-// A prominent banner (rather than just the small LIVE chip LastResultCard already shows) for the
-// common case of a team owner landing on their dashboard while their own match is broadcasting -
-// `match.played` flips true in the DB well before its live broadcast finishes pacing out to
-// viewers, so this is the same "still might be live" heuristic LastResultCard already uses, just
-// surfaced somewhere a viewer can't miss it (issue: dashboard live match notice). Works for a
-// friendly or cup tie too, not just a league match, since `match` now comes from useTeamMatches.
-function LiveMatchBanner({ match }: { match: TeamMatchSummary | undefined }) {
-  const { t } = useTranslation()
-
-  if (!match || !match.played || !mightStillBeLive(match.matchDate)) {
-    return null
-  }
-
-  return (
-    <Box sx={{ mb: 2, ...STACKED_ALERT_ACTION_SX }}>
-      <Alert
-        severity="info"
-        icon={<SportsSoccerTwoToneIcon fontSize="inherit" />}
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to={matchSummaryLink(match)}>
-            {t('dashboard.viewMatch')}
-          </Button>
-        }
-      >
-        {t('dashboard.liveMatchBanner', { opponent: match.opponentName })}
-      </Alert>
     </Box>
   )
 }
@@ -707,6 +728,60 @@ function NextMatchHero({ match, teamId }: { match: TeamMatchSummary | undefined;
   )
 }
 
+// Takes over the hero slot while the owner's own match is being broadcast. The score and minute are
+// the broadcast's, never the stored result (which is final as soon as the match is simulated), so
+// the hero cannot spoil what the viewer has not watched yet. When the live channel is unreachable
+// it keeps the label and the button but drops the numbers rather than show a wrong score.
+export function LiveMatchHero({ match, live, team }: { match: TeamMatchSummary; live: LiveMatchState; team: Pick<Team, 'id' | 'name'> }) {
+  const { t } = useTranslation()
+  const home = match.isHome ? { id: team.id, name: team.name } : { id: match.opponentId, name: match.opponentName }
+  const away = match.isHome ? { id: match.opponentId, name: match.opponentName } : { id: team.id, name: team.name }
+  const showNumbers = !live.giveUp
+  const status = live.halftime ? t('match.halftime') : live.minute > 0 ? t('dashboard.liveMatchMinute', { minute: live.minute }) : undefined
+
+  return (
+    <Card sx={{ mb: 2, bgcolor: 'errorContainer', color: 'onErrorContainer' }}>
+      <CardContent>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1.5, flexWrap: 'wrap', rowGap: 0.5 }}>
+          <Chip size="small" label={t('match.live')} sx={{ ...PULSING_LIVE_SX, bgcolor: 'onErrorContainer', color: 'errorContainer' }} />
+          <Typography variant="overline" sx={{ lineHeight: 1 }}>
+            {t('dashboard.liveNow')}
+          </Typography>
+          <MatchKindChip kind={match.kind} />
+        </Stack>
+        <Stack direction="row" spacing={{ xs: 0.5, sm: 2 }} sx={{ alignItems: 'center' }}>
+          <HeroTeam id={home.id} name={home.name} />
+          <Box sx={{ textAlign: 'center', minWidth: 96 }}>
+            {showNumbers && (
+              <>
+                <Typography variant="h4" component="div" sx={{ fontWeight: 800, whiteSpace: 'nowrap' }}>
+                  {live.homeGoals} - {live.awayGoals}
+                </Typography>
+                {status && <Typography variant="body2">{status}</Typography>}
+              </>
+            )}
+          </Box>
+          <HeroTeam id={away.id} name={away.name} />
+        </Stack>
+        <Button component={RouterLink} to={matchSummaryLink(match)} variant="contained" color="error" fullWidth sx={{ mt: 2, maxWidth: { sm: 260 } }}>
+          {t('dashboard.watchLive')}
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
+
+function HeroTeam({ id, name }: { id: number; name: string }) {
+  return (
+    <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0, alignItems: 'center', textAlign: 'center' }}>
+      <TeamBadge teamId={id} teamName={name} size={48} />
+      <Typography variant="subtitle1" component="div" sx={{ fontWeight: 700, overflowWrap: 'anywhere', lineHeight: 1.25 }}>
+        <TeamNameLink teamId={id}>{name}</TeamNameLink>
+      </Typography>
+    </Stack>
+  )
+}
+
 function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undefined; recentForm?: TeamMatchSummary[] }) {
   const { t } = useTranslation()
 
@@ -720,13 +795,8 @@ function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undef
     )
   }
 
-  // played flips true in the DB the instant a match is simulated, well before its result
-  // finishes broadcasting to viewers in real time (~90 minutes, see mightStillBeLive's comment)
-  // - showing the final score/outcome here immediately would spoil a match that still looks
-  // "live" everywhere else. Show a LIVE chip instead until that window has elapsed, same as
-  // DivisionDetailsPage's FixturesCard.
-  const stillLive = match.played && mightStillBeLive(match.matchDate)
-
+  // The caller (DashboardPage's lastMatch) only passes a match whose broadcast is over, so the
+  // stored score is safe to show here.
   const ownGoals = match.isHome ? match.homeGoals : match.awayGoals
   const oppGoals = match.isHome ? match.awayGoals : match.homeGoals
   const outcome = ownGoals > oppGoals ? 'win' : ownGoals < oppGoals ? 'loss' : 'draw'
@@ -744,16 +814,12 @@ function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undef
     >
       <Stack spacing={0.5}>
         <MatchKindChip kind={match.kind} />
-        {stillLive ? (
-          <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
-        ) : (
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-              {ownGoals} - {oppGoals}
-            </Typography>
-          </Stack>
-        )}
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
+          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            {ownGoals} - {oppGoals}
+          </Typography>
+        </Stack>
         <OpponentLine match={match} />
         {recentForm && recentForm.length > 0 && <FormStrip matches={recentForm} />}
       </Stack>

@@ -1,17 +1,21 @@
 import type { TFunction } from 'i18next'
 import { queryKeys } from '../../api/hooks'
-import type {
-  CupDetails,
-  CupTieDetails,
-  DivisionDetails,
-  FriendlyMatch,
-  Lineup,
-  MatchEvent,
-  MatchInstant,
-  Player,
-  WeekMatch,
+import {
+  MATCH_KIND_CUP,
+  MATCH_KIND_FRIENDLY,
+  MATCH_KIND_LEAGUE,
+  type CupDetails,
+  type CupTieDetails,
+  type DivisionDetails,
+  type FriendlyMatch,
+  type Lineup,
+  type MatchEvent,
+  type MatchInstant,
+  type Player,
+  type WeekMatch,
 } from '../../api/types'
 import { translateCupName } from '../../utils/ledgerDescription'
+import { liveMatchPath } from '../../utils/matchSummary'
 import { localizedTeamName } from '../../utils/nationalTeamName'
 import { cupTiePenaltyWinnerName, expectedTotalRounds, isFirstRoundPlayIn, roundName } from '../cup/CupPage'
 import { hideStillLiveResults } from '../division/DivisionDetailsPage'
@@ -89,7 +93,7 @@ export function positionOf(division: DivisionDetails | undefined, teamId: number
 
 export function fromWeekMatch(match: WeekMatch, division: DivisionDetails | undefined, t: TFunction): MatchView {
   const subtitleLabel = division
-    ? t('match.matchday', { week: match.weekNumber, total: weeksInASeason(division.classification.positions.length) })
+    ? `${division.name} · ${t('match.matchday', { week: match.weekNumber, total: weeksInASeason(division.classification.positions.length) })}`
     : t('division.weekChip', { week: match.weekNumber })
   return {
     homeId: match.home,
@@ -116,7 +120,7 @@ export function fromWeekMatch(match: WeekMatch, division: DivisionDetails | unde
     assistant1Name: match.assistant1Name,
     assistant2Name: match.assistant2Name,
     subtitleLabel,
-    liveUrl: `/v1/teams/match/${match.matchId}/live`,
+    liveUrl: liveMatchPath({ kind: MATCH_KIND_LEAGUE, matchId: match.matchId }),
     queryKey: queryKeys.match(String(match.matchId)),
   }
 }
@@ -153,7 +157,7 @@ export function fromCupTie(tie: CupTieDetails, cup: CupDetails | undefined, t: T
     assistant1Name: tie.assistant1Name,
     assistant2Name: tie.assistant2Name,
     subtitleLabel,
-    liveUrl: `/v1/cups/ties/${tie.tieId}/live`,
+    liveUrl: liveMatchPath({ kind: MATCH_KIND_CUP, matchId: tie.tieId }),
     queryKey: queryKeys.cupTie(String(tie.tieId)),
     wentToPenalties: tie.wentToPenalties,
     penaltyWinnerName: penaltyWinner ? localizedTeamName(t, penaltyWinner) : undefined,
@@ -188,7 +192,7 @@ export function fromFriendly(match: FriendlyMatch, t: TFunction): MatchView {
     assistant1Name: match.assistant1Name,
     assistant2Name: match.assistant2Name,
     subtitleLabel,
-    liveUrl: `/v1/friendlies/${match.matchId}/live`,
+    liveUrl: liveMatchPath({ kind: MATCH_KIND_FRIENDLY, matchId: match.matchId }),
     queryKey: queryKeys.friendlyMatch(String(match.matchId)),
   }
 }

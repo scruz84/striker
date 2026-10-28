@@ -35,3 +35,16 @@ export function matchSummaryLink(match: Pick<TeamMatchSummary, 'kind' | 'matchId
       return `/friendlies/${match.matchId}`
   }
 }
+
+// WebSocket path of a match's live broadcast, by competition kind - the match viewer and the
+// dashboard's live hero both subscribe to it, so they always agree on score and minute.
+export function liveMatchPath(match: Pick<TeamMatchSummary, 'kind' | 'matchId'>): string {
+  switch (match.kind) {
+    case MATCH_KIND_LEAGUE:
+      return `/v1/teams/match/${match.matchId}/live`
+    case MATCH_KIND_CUP:
+      return `/v1/cups/ties/${match.matchId}/live`
+    default:
+      return `/v1/friendlies/${match.matchId}/live`
+  }
+}

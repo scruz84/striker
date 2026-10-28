@@ -10,6 +10,7 @@ import { SET_PIECE_DIRECT_FREE_KICK, SET_PIECE_PENALTY } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import type { ScorerLine } from '../../utils/matchGoals'
+import { PULSING_LIVE_SX } from '../../utils/liveChip'
 
 // Shared by the league match details page and the friendly match page - a live or played
 // match's score header doesn't depend on anything competitive-match-specific.
@@ -102,14 +103,7 @@ export function Scoreboard({
               size="small"
               color="error"
               label={t('match.live')}
-              sx={{
-                fontWeight: 700,
-                animation: 'pulse 1.6s ease-in-out infinite',
-                '@keyframes pulse': {
-                  '0%, 100%': { opacity: 1 },
-                  '50%': { opacity: 0.55 },
-                },
-              }}
+              sx={PULSING_LIVE_SX}
             />
           )}
           {status === 'halftime' && <Chip size="small" variant="outlined" color="warning" label={t('match.halftime')} />}
