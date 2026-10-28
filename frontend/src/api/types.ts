@@ -624,6 +624,38 @@ export interface PlayerTransfer {
   createdAt: string
 }
 
+// One recent sale of a player similar to a transfer target - backend common.TransferComparable.
+// Only public figures: position, age and average skill are the snapshot taken when he was sold.
+export interface TransferComparable {
+  transferId: number
+  playerId: number
+  playerName: string
+  position: number
+  age: number
+  averageSkill: number
+  fee: number
+  kind: number
+  createdAt: string
+  fromTeamId?: number
+  fromTeamName?: string
+  toTeamId?: number
+  toTeamName?: string
+}
+
+// GET /v1/teams/player/:id/transfer-comparables - backend common.TransferComparablesResult. The
+// fee figures are absent when there are no comparables; broadened means the wide band was used.
+export interface TransferComparablesResult {
+  position: number
+  age: number
+  averageSkill: number
+  broadened: boolean
+  count: number
+  medianFee?: number
+  minFee?: number
+  maxFee?: number
+  comparables: TransferComparable[]
+}
+
 // team_transactions.reason values from backend/common/fmconstants.go
 export const TRANSACTION_TRANSFER_IN = 0
 export const TRANSACTION_TRANSFER_OUT = 1

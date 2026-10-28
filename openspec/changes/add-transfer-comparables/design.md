@@ -59,7 +59,10 @@ formulas, which live in `common/lineup.go`).
 `t.kind IN (PLAYER_TRANSFER_LISTING, PLAYER_TRANSFER_OFFER, PLAYER_TRANSFER_BUY_OPTION)`,
 `t.fee > 0`, `t.position = $pos`, `t.age BETWEEN`, `t.average_skill BETWEEN`,
 `t.created_at > now() - interval '60 days'`, `t.player_id <> $target`, ordered
-`created_at DESC, transfer_id DESC LIMIT 8`. `GetTransferComparables(dbCtx, player)` runs it
+`created_at DESC, transfer_id DESC LIMIT 8`. The ordered `LIMIT` lives in a subquery over
+`player_transfers` alone and the name joins happen on its (at most 8) rows, so the planner walks
+`player_transfers_comparables_idx` in order and stops at the limit (with the joins in the same
+level it was observed to prefer a merge join plus a sort). `GetTransferComparables(dbCtx, player)` runs it
 with the narrow band (age ±2, average ±4); if it returns fewer than 3 rows it runs it again with
 the wide band (age ±4, average ±8) and sets `Broadened`. Constants live next to the query:
 `ComparablesWindowDays = 60`, `ComparablesLimit = 8`, `ComparablesMinNarrow = 3`, and the four
@@ -122,7 +125,11 @@ statements this design introduces:
   `$n` parameters. `average_skill BETWEEN $a AND $b` already implies `IS NOT NULL`.
 - Verified by `TestTransferComparables_UsesIndex`, following the existing
   `TestCountMatchBacklog_UsesPartialIndexes` pattern (`common/match_backlog_integration_test.go`):
-  inside a transaction, `SET LOCAL enable_seqscan = off`, `EXPLAIN` the statement with both
+  inside a transaction that seeds 20,000 transfers and runs `ANALYZE` (an almost empty table gives
+  the planner no statistics), `SET LOCAL enable_seqscan = off` and `enable_bitmapscan = off` (on a
+  selective age/average band the planner may instead gather the index range with a bitmap scan and
+  sort the few survivors - still index-served and bounded by position and the 60-day window; the
+  test pins that the ordered walk exists), `EXPLAIN` the statement with both
   bands, and assert the plan names `player_transfers_comparables_idx`, contains no
   `Seq Scan on player_transfers` and no `Sort` node for the transfer rows.
 - If implementation ends up adding or reshaping any other query (for example a count, or a
@@ -155,13 +162,18 @@ Archive does not carry a delta's Code map; copy this section into
 `openspec/specs/transfer-comparables/spec.md` after archiving.
 
 
-- `backend/resources/sql/init88_player_transfer_snapshot.sql` (snapshot columns, index).
-- `backend/common/playertransfers.go` (`RecordPlayerTransfer` snapshot,
-  `GetTransferComparables`, band and window constants).
+- `backend/resources/sql/init88_player_transfer_snapshot.sql` (snapshot columns, partial index).
+- `backend/common/playertransfers.go` (`RecordPlayerTransfer` snapshot, `GetTransferComparables`,
+  `getTransferComparablesStmtSql`, `TransferComparable`, `TransferComparablesResult`,
+  `SummarizeComparables`, `Comparables*` band / window / limit constants).
 - `backend/handlers/playerHandlers.go` (`TransferComparablesHandler`),
-  `backend/service/fmservice.go` (route).
+  `backend/service/fmservice.go` (route `GET /v1/teams/player/:id/transfer-comparables`).
+- Tests: `backend/common/transfer_comparables_test.go` (summary, statement literals, no private JSON
+  field), `transfer_comparables_integration_test.go` (every spec scenario, snapshot at the move,
+  `TestTransferComparables_UsesIndex`), `backend/handlers/transferComparablesHandler_test.go`.
 - `frontend/src/components/TransferComparables.tsx`, `TransferOfferDialog.tsx`;
-  `frontend/src/api/hooks.ts` (`useTransferComparables`), `api/types.ts`.
+  `frontend/src/api/hooks.ts` (`useTransferComparables`), `api/types.ts`; strings under
+  `transfers.offerDialog.comparables.*` in `i18n/locales/{en,es}.json`.
 
 ## Migration Plan
 

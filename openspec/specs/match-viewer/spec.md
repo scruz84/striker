@@ -43,7 +43,7 @@ In the live view, the viewer SHALL hide injury and red-card events and per-playe
 
 ### Requirement: Scoreboard subtitle
 The scoreboard subtitle SHALL read `<competition label> · <kickoff date and time> · <weather emoji>`. Any part that is unknown is left out. The labels are:
-- League match: "Jornada N de T".
+- League match: "<division name> · Jornada N de T" (just "Jornada N" while the division details are still loading).
 - Cup tie: "<cup name> · <round name>".
 - World Cup group match: "Mundial · Grupo X · Jornada N".
 - Any other friendly: "Amistoso".
@@ -59,6 +59,10 @@ The scoreboard subtitle SHALL read `<competition label> · <kickoff date and tim
 #### Scenario: World Cup group fixture
 - **WHEN** the second-matchday match of World Cup group B is opened
 - **THEN** the subtitle reads "Mundial · Grupo B · Jornada 2 · <date>"
+
+#### Scenario: Live league match names its division
+- **WHEN** a viewer opens a live matchday-7 match of division "Segunda.2", which has 20 teams (38 matchdays), on a sunny day
+- **THEN** the subtitle reads "Segunda.2 · Jornada 7 de 38 · <date> · ☀️", the same in the scheduled, live and finished views
 
 ### Requirement: Venue and report flavor
 The viewer SHALL show the home team's stadium name and the stadium-entry banner whenever the home team has a stadium. For any competition where weather, attendance and referees are stored, the chronicle MUST open with those lines, both live and after full time.

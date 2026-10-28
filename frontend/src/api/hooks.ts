@@ -43,6 +43,7 @@ import type {
   Stadium,
   TeamDetails,
   TeamMatchSummary,
+  TransferComparablesResult,
   TierConfig,
   Trainer,
   TeamPlayerEvolution,
@@ -59,6 +60,7 @@ export const queryKeys = {
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
   player: (id: string) => ['player', id] as const,
+  transferComparables: (id: string) => ['transferComparables', id] as const,
   teamEvolutions: (logIds: string) => ['teamEvolutions', logIds] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
   division: (id: string) => ['division', id] as const,
@@ -251,6 +253,17 @@ export function usePlayerDetails(playerId: string | undefined) {
     queryKey: queryKeys.player(playerId ?? ''),
     queryFn: () => api.get<PlayerDetails>(`/v1/teams/player/${playerId}/`),
     enabled: !!playerId,
+  })
+}
+
+// Recent sales of players similar to the target, for the transfer offer dialog. Only fetched while
+// the dialog is open (`enabled`); the figures move slowly, so a minute of staleness is fine.
+export function useTransferComparables(playerId: number | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.transferComparables(String(playerId ?? '')),
+    queryFn: () => api.get<TransferComparablesResult>(`/v1/teams/player/${playerId}/transfer-comparables`),
+    enabled: enabled && playerId !== undefined,
+    staleTime: 60_000,
   })
 }
 

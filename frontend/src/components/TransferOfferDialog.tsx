@@ -4,12 +4,13 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useMakeOffer } from '../api/hooks'
+import { useMakeOffer, useTransferComparables } from '../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
 import { ContractTermsFields } from './ContractTermsFields'
 import { NumberField } from './NumberField'
 import { ResponsiveDialog } from './ResponsiveDialog'
+import { TransferComparables } from './TransferComparables'
 
 interface TransferOfferDialogProps {
   player: Player
@@ -27,6 +28,7 @@ interface TransferOfferDialogProps {
 export function TransferOfferDialog({ player, open, onClose, askingPrice }: TransferOfferDialogProps) {
   const { t } = useTranslation()
   const makeOffer = useMakeOffer()
+  const comparables = useTransferComparables(player.id, open)
   const [amount, setAmount] = useState('')
   const [wage, setWage] = useState(String(player.wage || ''))
   const [years, setYears] = useState('1')
@@ -89,6 +91,7 @@ export function TransferOfferDialog({ player, open, onClose, askingPrice }: Tran
               fullWidth
               helperText={askingPrice ? t('transfers.offerDialog.askingPrice', { price: formatCurrency(askingPrice) }) : undefined}
             />
+            <TransferComparables result={comparables.data} isLoading={comparables.isLoading} isError={comparables.isError} />
             <ContractTermsFields
               wage={wage}
               years={years}

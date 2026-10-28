@@ -660,7 +660,16 @@
       "sent": "Oferta enviada a su club.",
       "declined": "No firmaría con esas condiciones. Quiere al menos {{wage}}/partido, y no se compromete a más de {{years}}.",
       "submit": "Enviar oferta",
-      "askingPrice": "Precio pedido: {{price}}"
+      "askingPrice": "Precio pedido: {{price}}",
+      "comparables": {
+        "title": "Traspasos comparables recientes",
+        "summary_one": "1 traspaso similar en los últimos 60 días: {{median}}",
+        "summary_other": "{{count}} traspasos similares en los últimos 60 días · mediana {{median}} · rango {{min}} – {{max}}",
+        "broadened": "Hay pocos casos cercanos, así que se amplió la búsqueda a un rango mayor de edad y nivel.",
+        "meta": "{{position}} · {{age}} años · nivel medio {{average}}",
+        "empty": "No se ha traspasado a ningún jugador similar en los últimos 60 días",
+        "error": "No se pudieron cargar los traspasos comparables. Aún puedes enviar tu oferta."
+      }
     },
     "signDialog": {
       "title": "Fichar",

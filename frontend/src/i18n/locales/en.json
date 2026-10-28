@@ -660,7 +660,16 @@
       "sent": "Offer sent to their club.",
       "declined": "They wouldn't sign on those terms. They want at least {{wage}}/match, and won't commit to more than {{years}}.",
       "submit": "Send offer",
-      "askingPrice": "Asking price: {{price}}"
+      "askingPrice": "Asking price: {{price}}",
+      "comparables": {
+        "title": "Recent comparable transfers",
+        "summary_one": "1 similar transfer in the last 60 days: {{median}}",
+        "summary_other": "{{count}} similar transfers in the last 60 days · median {{median}} · range {{min}} – {{max}}",
+        "broadened": "Few close matches exist, so the search was widened to a broader range of age and skill.",
+        "meta": "{{position}} · {{age}} years · average skill {{average}}",
+        "empty": "No similar players have been transferred in the last 60 days",
+        "error": "Could not load comparable transfers. You can still send your offer."
+      }
     },
     "signDialog": {
       "title": "Sign player",

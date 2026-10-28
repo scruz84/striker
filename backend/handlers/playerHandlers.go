@@ -24,6 +24,39 @@ const PlayerRecentMatchesLimit = 5
 // their profile page.
 const PlayerRecentCallUpsLimit = 10
 
+// TransferComparablesHandler returns recent sales of players similar to the target - the reference
+// shown in the transfer offer dialog. The target's full row is read server-side only to compute the
+// match; the response echoes just its position, age and average skill, all public on the player
+// page. See common.GetTransferComparables.
+func TransferComparablesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		playerId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid player id"))
+			return
+		}
+
+		player, err := common.GetPlayerById(dbCtx, playerId)
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusNotFound, GetError(0, "player not found"))
+			return
+		}
+		if err != nil {
+			log.Errorf("error fetching player %d: %s", playerId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		result, err := common.GetTransferComparables(dbCtx, *player)
+		if err != nil {
+			log.Errorf("error loading transfer comparables for player %d: %s", playerId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, result)
+	}
+}
+
 // PlayerDetailsHandler returns a single player's full profile - base attributes, current team,
 // career stats (appearances/goals/cards), current status (on loan, listed, unavailable), and
 // transfer history. See common.PlayerDetails.
