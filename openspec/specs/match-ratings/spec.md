@@ -122,6 +122,6 @@ A played match with no stored ratings SHALL be rated on read from its starting l
   `EnrichPlayedFriendly`; table `match_player_ratings` and the `player_contributions` columns from
   `resources/sql/init89_match_player_ratings.sql`.
 - Frontend port: `frontend/src/utils/liveMatchRatings.ts` (`computePlayerRatings`, `startingLineup`),
-  pinned to the Go formula by `backend/common/testdata/match_ratings_parity.json`
+  pinned to the Go formula by `frontend/src/utils/testdata/match_ratings_parity.json`
   (`TestComputePlayerRatings_ParityFixture`, `liveMatchRatings.test.ts`; regenerate with
   `STRIKER_WRITE_RATINGS_FIXTURE=1`).

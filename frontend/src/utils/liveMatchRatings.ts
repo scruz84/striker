@@ -15,7 +15,7 @@ import {
 // A line-by-line port of backend common.ComputePlayerRatings (matchratings.go) - the formula the
 // engine stores each match's final ratings with. This copy rebuilds them as of any earlier minute
 // (the scrubber) and while a match is still being broadcast, so it must give the very same numbers:
-// both are pinned by the shared fixture backend/common/testdata/match_ratings_parity.json (see
+// both are pinned by the shared fixture frontend/src/utils/testdata/match_ratings_parity.json (see
 // liveMatchRatings.test.ts). Change one, change the other and regenerate the fixture.
 const RATING_BASE = 6.0
 const RATING_MIN = 1.0

@@ -10,7 +10,7 @@ import (
 // mirrored duel, minute by minute - see PlayerContribution), plus his own goals/cards/injury, plus
 // his team's result scaled by the minutes he played. frontend/src/utils/liveMatchRatings.ts is a
 // line-by-line port of ComputePlayerRatings and must stay in sync with it - both are pinned by the
-// shared fixture testdata/match_ratings_parity.json.
+// shared fixture frontend/src/utils/testdata/match_ratings_parity.json.
 const (
 	matchRatingBase        = 6.0
 	matchRatingMin         = 1.0

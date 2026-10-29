@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EVENT_TYPE_SUBSTITUTION, type Lineup, type MatchEvent, type MatchInstant, type PlayerRating } from '../api/types'
-import parityFixture from '../../../backend/common/testdata/match_ratings_parity.json'
+import parityFixture from './testdata/match_ratings_parity.json'
 import { computePlayerRatings, roundTenth, startingLineup } from './liveMatchRatings'
 
 // The fixture the backend's TestComputePlayerRatings_ParityFixture also asserts: the same

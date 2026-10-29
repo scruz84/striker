@@ -221,7 +221,7 @@ func TestRoundTenth_HalfAwayFromZero(t *testing.T) {
 	}
 }
 
-// ratingsParityFixture is testdata/match_ratings_parity.json: matches (one with per-minute
+// ratingsParityFixture is frontend/src/utils/testdata/match_ratings_parity.json: matches (one with per-minute
 // contributions, one simulated before them) and the ratings expected at several minutes.
 // frontend/src/utils/liveMatchRatings.test.ts asserts the very same file, so the Go and TypeScript
 // formulas can't drift apart. Regenerate it with STRIKER_WRITE_RATINGS_FIXTURE=1 after a deliberate
@@ -240,7 +240,10 @@ type ratingsParityCase struct {
 	} `json:"expected"`
 }
 
-const ratingsParityFixturePath = "testdata/match_ratings_parity.json"
+// ratingsParityFixturePath lives on the frontend side: its Docker build only sees frontend/, and its
+// type-check compiles liveMatchRatings.test.ts (which imports the fixture), while this test only
+// ever runs with the whole repository checked out.
+const ratingsParityFixturePath = "../../frontend/src/utils/testdata/match_ratings_parity.json"
 
 // parityCases builds the fixture's matches: a 3-a-side contribution match with a substitution, a
 // red card, an injury, goals on both sides, a position change and one-decimal contributions that
