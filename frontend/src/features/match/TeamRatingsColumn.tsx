@@ -4,7 +4,22 @@ import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { POSITION_SHORT_LABEL_KEYS, type Lineup, type Player, type PlayerRating } from '../../api/types'
+import {
+  POSITION_DEFENSE,
+  POSITION_GOALKEEPER,
+  POSITION_LATERAL_DEFENSE_LEFT,
+  POSITION_LATERAL_DEFENSE_RIGHT,
+  POSITION_LATERAL_MIDFIELD_LEFT,
+  POSITION_LATERAL_MIDFIELD_RIGHT,
+  POSITION_LATERAL_STRIKER_LEFT,
+  POSITION_LATERAL_STRIKER_RIGHT,
+  POSITION_MIDFIELD,
+  POSITION_SHORT_LABEL_KEYS,
+  POSITION_STRIKER,
+  type Lineup,
+  type Player,
+  type PlayerRating,
+} from '../../api/types'
 import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -15,8 +30,8 @@ import { CountryFlag } from '../../components/CountryFlag'
 // Shared by MatchRatingsTab (a finished match's report) and MatchMinuteRatings (live, or scrubbed
 // back to an earlier minute) - both end up with the same PlayerRating records (stored by the
 // backend, or rebuilt by utils/liveMatchRatings for an earlier minute), so they render through
-// this one column: one row per player who featured, starters first in the XI's own order, then
-// substitutes in the order they came on.
+// this one column: one row per player who featured, ordered by position on the pitch (goalkeeper,
+// defenders, midfielders, strikers - each line left to right), or by rating.
 export function TeamRatingsColumn({
   teamId,
   title,
@@ -32,28 +47,34 @@ export function TeamRatingsColumn({
   players: Record<string, Player>
   // This side's ratings only.
   ratings: PlayerRating[]
-  // Best rating first (unrated last) instead of the lineup's own order.
+  // Best rating first (unrated last) instead of the positional order.
   sortByRating?: boolean
 }) {
   const startingIndex = new Map((startingLineup?.positions ?? []).map((pos, index) => [pos.playerId, index]))
+  // Within one position: starters first in the XI's own order, then substitutes in the order they
+  // came on.
   const byLineup = (a: PlayerRating, b: PlayerRating) => {
-    const aStarter = a.cameOn === undefined
-    const bStarter = b.cameOn === undefined
+    const aStarter = a.cameOn == null
+    const bStarter = b.cameOn == null
     if (aStarter !== bStarter) {
       return aStarter ? -1 : 1
     }
     if (aStarter) {
-      return (startingIndex.get(a.playerId) ?? Number.MAX_SAFE_INTEGER) - (startingIndex.get(b.playerId) ?? Number.MAX_SAFE_INTEGER)
+      return (
+        (startingIndex.get(a.playerId) ?? Number.MAX_SAFE_INTEGER) - (startingIndex.get(b.playerId) ?? Number.MAX_SAFE_INTEGER) ||
+        a.playerId - b.playerId
+      )
     }
     return (a.cameOn ?? 0) - (b.cameOn ?? 0) || a.playerId - b.playerId
   }
+  const byPosition = (a: PlayerRating, b: PlayerRating) => positionRank(a.position) - positionRank(b.position) || byLineup(a, b)
   const byRating = (a: PlayerRating, b: PlayerRating) => {
     if (a.rated !== b.rated) {
       return a.rated ? -1 : 1
     }
-    return b.rating - a.rating || byLineup(a, b)
+    return b.rating - a.rating || byPosition(a, b)
   }
-  const rows = [...ratings].sort(sortByRating ? byRating : byLineup)
+  const rows = [...ratings].sort(sortByRating ? byRating : byPosition)
 
   return (
     <Stack spacing={1.25}>
@@ -69,6 +90,26 @@ export function TeamRatingsColumn({
       })}
     </Stack>
   )
+}
+
+// Goalkeeper, then defenders, midfielders and strikers, each line left to right - the position ids
+// themselves list the centre before the flanks.
+const POSITION_ORDER = [
+  POSITION_GOALKEEPER,
+  POSITION_LATERAL_DEFENSE_LEFT,
+  POSITION_DEFENSE,
+  POSITION_LATERAL_DEFENSE_RIGHT,
+  POSITION_LATERAL_MIDFIELD_LEFT,
+  POSITION_MIDFIELD,
+  POSITION_LATERAL_MIDFIELD_RIGHT,
+  POSITION_LATERAL_STRIKER_LEFT,
+  POSITION_STRIKER,
+  POSITION_LATERAL_STRIKER_RIGHT,
+]
+
+function positionRank(position: number): number {
+  const rank = POSITION_ORDER.indexOf(position)
+  return rank < 0 ? POSITION_ORDER.length : rank
 }
 
 function RatingRow({ rating, player }: { rating: PlayerRating; player: Player }) {

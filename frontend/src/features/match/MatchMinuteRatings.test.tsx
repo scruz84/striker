@@ -4,8 +4,11 @@ import { describe, expect, it } from 'vitest'
 import {
   EVENT_TYPE_GOAL,
   EVENT_TYPE_SUBSTITUTION,
+  POSITION_DEFENSE,
   POSITION_GOALKEEPER,
+  POSITION_LATERAL_DEFENSE_LEFT,
   POSITION_LATERAL_MIDFIELD_LEFT,
+  POSITION_MIDFIELD,
   POSITION_STRIKER,
   type Lineup,
   type MatchEvent,
@@ -79,6 +82,55 @@ describe('TeamRatingsColumn', () => {
     // The winger's zone contribution against the rival's.
     expect(screen.getByText('58')).toBeInTheDocument()
     expect(screen.getByText(/vs 45/)).toBeInTheDocument()
+  })
+
+  // A lineup whose slots aren't stored goalkeeper-first must still list goalkeeper, defenders,
+  // midfielders, strikers - a substitute within his position's group, after its starters.
+  const shuffled: Lineup = {
+    ...lineup,
+    positions: [
+      { playerId: 7, position: POSITION_STRIKER },
+      { playerId: 4, position: POSITION_MIDFIELD },
+      { playerId: 2, position: POSITION_DEFENSE },
+      { playerId: 1, position: POSITION_GOALKEEPER },
+      { playerId: 3, position: POSITION_LATERAL_DEFENSE_LEFT },
+    ],
+  }
+  const shuffledRatings = [
+    rating({ playerId: 7, rating: 8.1, position: POSITION_STRIKER }),
+    rating({ playerId: 4, rating: 5.5, minutes: 70, wentOff: 70, position: POSITION_MIDFIELD }),
+    rating({ playerId: 2, rating: 6.8, position: POSITION_DEFENSE }),
+    rating({ playerId: 1, rating: 6.8, position: POSITION_GOALKEEPER }),
+    rating({ playerId: 3, rating: 6.1, position: POSITION_LATERAL_DEFENSE_LEFT }),
+    rating({ playerId: 5, rated: false, rating: 9, minutes: 5, cameOn: 85, position: POSITION_STRIKER }),
+    rating({ playerId: 6, rating: 7.0, minutes: 20, cameOn: 70, position: POSITION_MIDFIELD }),
+  ]
+  const shuffledPlayers = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((id) => [String(id), player(id, `N${id}`)]))
+  const renderedOrder = () => screen.getAllByRole('link').map((link) => link.textContent).filter((name) => name?.startsWith('P '))
+
+  function renderShuffled(sortByRating: boolean) {
+    render(
+      <MemoryRouter>
+        <TeamRatingsColumn
+          teamId={1}
+          title="Home"
+          startingLineup={shuffled}
+          players={shuffledPlayers}
+          ratings={shuffledRatings}
+          sortByRating={sortByRating}
+        />
+      </MemoryRouter>,
+    )
+  }
+
+  it('orders by position: goalkeeper, defenders left to right, midfielders, strikers', () => {
+    renderShuffled(false)
+    expect(renderedOrder()).toEqual(['P N1', 'P N3', 'P N2', 'P N4', 'P N6', 'P N7', 'P N5'])
+  })
+
+  it('orders by rating, best first, ties by position and unrated last', () => {
+    renderShuffled(true)
+    expect(renderedOrder()).toEqual(['P N7', 'P N6', 'P N1', 'P N2', 'P N3', 'P N4', 'P N5'])
   })
 
   it('shows an appearance under 10 minutes as unrated', () => {
