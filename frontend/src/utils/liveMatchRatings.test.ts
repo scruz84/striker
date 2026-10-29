@@ -1,60 +1,83 @@
 import { describe, expect, it } from 'vitest'
-import { EVENT_TYPE_GOAL, EVENT_TYPE_RED_CARD, type Lineup, type MatchEvent } from '../api/types'
-import { computeLiveMatchRatings } from './liveMatchRatings'
+import { EVENT_TYPE_SUBSTITUTION, type Lineup, type MatchEvent, type MatchInstant, type PlayerRating } from '../api/types'
+import parityFixture from '../../../backend/common/testdata/match_ratings_parity.json'
+import { computePlayerRatings, roundTenth, startingLineup } from './liveMatchRatings'
 
-function lineup(playerIds: number[]): Lineup {
-  return {
-    matchId: 1,
-    teamId: 1,
-    formation: 442,
-    positions: playerIds.map((playerId) => ({ playerId, position: 1 })),
-    substitutions: [],
-  }
+// The fixture the backend's TestComputePlayerRatings_ParityFixture also asserts: the same
+// matches must give the same ratings, record for record, in Go and here.
+interface ParityCase {
+  name: string
+  homeTeamId: number
+  awayTeamId: number
+  homeLineup: Lineup | null
+  awayLineup: Lineup | null
+  instants: MatchInstant[] | null
+  events: MatchEvent[]
+  expected: { minute: number; ratings: PlayerRating[] | null }[]
 }
 
-function goalEvent(minute: number, teamOwner: number, playerId: number): MatchEvent {
-  return {
-    eventType: EVENT_TYPE_GOAL,
+const cases = (parityFixture as unknown as { cases: ParityCase[] }).cases
+
+describe('computePlayerRatings', () => {
+  it('has fixture cases to check', () => {
+    expect(cases.length).toBeGreaterThan(0)
+  })
+
+  for (const c of cases) {
+    for (const expected of c.expected) {
+      it(`matches the backend for "${c.name}" at minute ${expected.minute}`, () => {
+        const got = computePlayerRatings(c.homeTeamId, c.awayTeamId, c.homeLineup, c.awayLineup, c.instants ?? [], c.events, expected.minute)
+        expect(got).toEqual(expected.ratings)
+      })
+    }
+  }
+
+  it('returns null without contributions or lineups', () => {
+    expect(computePlayerRatings(1, 2, null, null, [], [], 90)).toBeNull()
+  })
+})
+
+describe('roundTenth', () => {
+  it('rounds half away from zero, like the backend', () => {
+    expect(roundTenth(0.45)).toBe(0.5)
+    expect(roundTenth(-0.45)).toBe(-0.5)
+    expect(roundTenth(-0.15)).toBe(-0.2)
+    expect(roundTenth(2.8000000000000003)).toBe(2.8)
+  })
+
+  it('never returns negative zero', () => {
+    expect(Object.is(roundTenth(-0.04), 0)).toBe(true)
+  })
+})
+
+describe('startingLineup', () => {
+  const sub = (minute: number, teamOwner: number, out: number, into: number): MatchEvent => ({
+    eventType: EVENT_TYPE_SUBSTITUTION,
     minute,
     teamOwner,
-    teamOwnerPlayers: [playerId],
-    teamOwnerPlayerNames: ['Scorer'],
+    teamOwnerPlayers: [out, into],
+    teamOwnerPlayerNames: ['Out', 'In'],
     otherTeam: teamOwner === 1 ? 2 : 1,
     otherTeamPlayers: null,
     otherTeamPlayerNames: null,
     homeGoals: 0,
     awayGoals: 0,
-  }
-}
-
-describe('computeLiveMatchRatings', () => {
-  const home = lineup([1, 2])
-  const away = lineup([10, 11])
-
-  it('rates every named player at the base 6.0 with no events and a level score', () => {
-    const ratings = computeLiveMatchRatings(home, away, [], 0, 0)
-    expect(ratings).toEqual({ '1': 6, '2': 6, '10': 6, '11': 6 })
+  })
+  const lineup = (playerIds: number[]): Lineup => ({
+    matchId: 1,
+    teamId: 1,
+    formation: 442,
+    positions: playerIds.map((playerId, i) => ({ playerId, position: i })),
+    substitutions: [],
   })
 
-  it('boosts the scorer and their team, and dents the trailing team', () => {
-    const events = [goalEvent(10, 1, 1)]
-    const ratings = computeLiveMatchRatings(home, away, events, 1, 0)
-    expect(ratings['1']).toBeCloseTo(6 + 1.4 + 0.3)
-    expect(ratings['2']).toBeCloseTo(6 + 0.3)
-    expect(ratings['10']).toBeCloseTo(6 - 0.3)
-    expect(ratings['11']).toBeCloseTo(6 - 0.3)
+  it('undoes substitutions already replayed onto a lineup, last first', () => {
+    // 7 -> 17 at 60', then 17 -> 27 at 80': the lineup now shows 27 in 7's slot.
+    const events = [sub(60, 1, 7, 17), sub(80, 1, 17, 27), sub(70, 2, 107, 117)]
+    expect(startingLineup(lineup([1, 27, 3]), events)?.positions.map((p) => p.playerId)).toEqual([1, 7, 3])
   })
 
-  it('only applies an event delta to a player actually named in the lineups', () => {
-    const events = [goalEvent(10, 1, 999)]
-    const ratings = computeLiveMatchRatings(home, away, events, 1, 0)
-    expect(ratings['1']).toBeCloseTo(6 + 0.3)
-    expect(Object.keys(ratings)).not.toContain('999')
-  })
-
-  it('clamps a heavily penalized player to the 1.0 floor', () => {
-    const events = Array.from({ length: 5 }, (_, i) => ({ ...goalEvent(i + 1, 1, 1), eventType: EVENT_TYPE_RED_CARD }))
-    const ratings = computeLiveMatchRatings(home, away, events, 0, 0)
-    expect(ratings['1']).toBe(1.0)
+  it('leaves a starting XI as it is', () => {
+    expect(startingLineup(lineup([1, 7, 3]), [sub(60, 1, 7, 17)])?.positions.map((p) => p.playerId)).toEqual([1, 7, 3])
   })
 })

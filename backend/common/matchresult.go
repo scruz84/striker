@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // MatchResult is everything a simulated fixture stores in the one transaction that records it (see
@@ -21,6 +23,9 @@ type MatchResult struct {
 	// EffectsDueNow makes the pending effects due immediately instead of when the live-broadcast
 	// window has passed - for a default result, which has no replay to wait for.
 	EffectsDueNow bool
+	// PlayerRatings are the match's final per-player ratings (see ComputePlayerRatings), stored in
+	// match_player_ratings in the same transaction. Nil stores none (a default result).
+	PlayerRatings []PlayerRating
 }
 
 // PostMatchPayload holds what is needed to apply a match's spoiler-gated post-match effects
@@ -40,10 +45,15 @@ type PostMatchPayload struct {
 	HomeMinutesByPosition   map[int64]map[int]int   `json:"homeMinutesByPosition"`
 	AwayMinutesByPosition   map[int64]map[int]int   `json:"awayMinutesByPosition"`
 	// HomeLineup/AwayLineup and Events feed the per-player ratings that drive Form's post-match
-	// update (see engine.matchRatingsForProgression).
+	// update (see engine.matchRatingsForProgression) when Ratings is missing - a payload stored
+	// by a build from before stored ratings.
 	HomeLineup *Lineup `json:"homeLineup"`
 	AwayLineup *Lineup `json:"awayLineup"`
 	Events     []Event `json:"events"`
+	// Ratings is every rated player's stored match rating (see RatingsById): unrated ("s.c.")
+	// appearances are left out, so Form treats them as featuring without a performance
+	// adjustment.
+	Ratings map[int64]float64 `json:"ratings,omitempty"`
 }
 
 // StandingsDelta is the classification increment one side gets from a result.
@@ -97,7 +107,7 @@ func SaveLeagueMatchResultTx(dbCtx *DatabaseContext, matchId int64, divisionId i
 	if err := tx.QueryRow(saveLeagueMatchPlayedStmtSql, result.HomeGoals, result.AwayGoals, matchId).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, "match_events", "match_id", "match_instants", matchId, result, InsertMatchEventStmtSql, InsertMatchInstantStmtSql, true); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindLeague, "match_events", "match_id", "match_instants", matchId, result, InsertMatchEventStmtSql, InsertMatchInstantStmtSql, true); err != nil {
 		return err
 	}
 
@@ -135,7 +145,7 @@ func SaveFriendlyResultTx(dbCtx *DatabaseContext, matchId int64, homeTeamId int6
 	if err := tx.QueryRow(saveFriendlyPlayedStmtSql, result.HomeGoals, result.AwayGoals, matchId).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, "friendly_events", "match_id", "friendly_instants", matchId, result, InsertFriendlyEventStmtSql, InsertFriendlyInstantStmtSql, false); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindFriendly, "friendly_events", "match_id", "friendly_instants", matchId, result, InsertFriendlyEventStmtSql, InsertFriendlyInstantStmtSql, false); err != nil {
 		return err
 	}
 	// A no-op for the overwhelming majority of friendlies, which aren't a World Cup group fixture.
@@ -162,7 +172,7 @@ func SaveCupTieResultTx(dbCtx *DatabaseContext, tieId int64, wentToPenalties boo
 	if err := tx.QueryRow(saveCupTiePlayedStmtSql, result.HomeGoals, result.AwayGoals, wentToPenalties, winnerTeamId, tieId).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, "cup_tie_events", "tie_id", "cup_tie_instants", tieId, result, InsertCupTieEventStmtSql, InsertCupTieInstantStmtSql, false); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindCup, "cup_tie_events", "tie_id", "cup_tie_instants", tieId, result, InsertCupTieEventStmtSql, InsertCupTieInstantStmtSql, false); err != nil {
 		return err
 	}
 	kickoff := time.Now()
@@ -185,12 +195,15 @@ func savePlayedError(err error) error {
 // replaceMatchEventsTx deletes the events and instants an earlier failed attempt may have left
 // for id, then inserts result's, returning every insert error. withOtherTeam is true only for the
 // league table, which also stores the other side's players (see InsertMatchEventStmtSql).
-func replaceMatchEventsTx(tx *sql.Tx, eventsTable string, idColumn string, instantsTable string, id int64, result MatchResult,
+func replaceMatchEventsTx(tx *sql.Tx, kind string, eventsTable string, idColumn string, instantsTable string, id int64, result MatchResult,
 	insertEventSql string, insertInstantSql string, withOtherTeam bool) error {
 	if _, err := tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE %s = $1", eventsTable, idColumn), id); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE %s = $1", instantsTable, idColumn), id); err != nil {
+		return err
+	}
+	if err := replaceMatchPlayerRatingsTx(tx, kind, id, result.PlayerRatings); err != nil {
 		return err
 	}
 
@@ -226,7 +239,7 @@ func replaceMatchEventsTx(tx *sql.Tx, eventsTable string, idColumn string, insta
 		awayQuaJson, _ := json.Marshal(i.AwayQua)
 		if _, err := insertInstant.Exec(id, i.Minute, i.HomeGoals, i.AwayGoals, homeQuaJson, awayQuaJson, i.MidfieldDiff,
 			i.HomeAttackRightDiff, i.HomeAttackLeftDiff, i.HomeAttackCenterDiff,
-			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff); err != nil {
+			i.AwayAttackRightDiff, i.AwayAttackLeftDiff, i.AwayAttackCenterDiff, encodePlayerContributions(i.PlayerContributions)); err != nil {
 			return err
 		}
 	}
@@ -319,4 +332,170 @@ func ClaimDuePostMatchEffects(dbCtx *DatabaseContext, limit int) ([]DuePostMatch
 		return due, err
 	}
 	return due, decodeErr
+}
+
+// encodePlayerContributions is the player_contributions column value of one instant: its JSON, or
+// NULL for an instant without contributions (a default result, or a test building instants by
+// hand).
+func encodePlayerContributions(contributions *InstantContributions) any {
+	if contributions == nil {
+		return nil
+	}
+	raw, err := json.Marshal(contributions)
+	if err != nil {
+		return nil
+	}
+	return string(raw)
+}
+
+// decodePlayerContributions reads an instant's player_contributions column back - nil for NULL
+// (an instant saved before init89_match_player_ratings.sql) or unreadable JSON.
+func decodePlayerContributions(raw sql.NullString) *InstantContributions {
+	if !raw.Valid || raw.String == "" {
+		return nil
+	}
+	var contributions InstantContributions
+	if err := json.Unmarshal([]byte(raw.String), &contributions); err != nil {
+		return nil
+	}
+	return &contributions
+}
+
+const DeleteMatchPlayerRatingsStmtSql = "DELETE FROM match_player_ratings WHERE kind = $1 AND match_id = $2"
+
+const InsertMatchPlayerRatingStmtSql = "INSERT INTO match_player_ratings (kind, match_id, player_id, team_id, rated, rating, " +
+	"minutes, position, came_on, went_off, own_value, rival_value, zone_delta, goals_delta, cards_delta, injury_delta, result_delta) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)"
+
+const GetMatchPlayerRatingsStmtSql = "SELECT player_id, team_id, rated, rating, minutes, position, came_on, went_off, own_value, " +
+	"rival_value, zone_delta, goals_delta, cards_delta, injury_delta, result_delta " +
+	"FROM match_player_ratings WHERE kind = $1 AND match_id = $2 ORDER BY player_id"
+
+// replaceMatchPlayerRatingsTx replaces a fixture's stored ratings with ratings, inside the result
+// transaction (see replaceMatchEventsTx) - so a retried save never leaves stale rows behind.
+func replaceMatchPlayerRatingsTx(tx *sql.Tx, kind string, id int64, ratings []PlayerRating) error {
+	if _, err := tx.Exec(DeleteMatchPlayerRatingsStmtSql, kind, id); err != nil {
+		return err
+	}
+	if len(ratings) == 0 {
+		return nil
+	}
+	insert, err := tx.Prepare(InsertMatchPlayerRatingStmtSql)
+	if err != nil {
+		return err
+	}
+	defer insert.Close()
+	for _, r := range ratings {
+		if _, err := insert.Exec(kind, id, r.PlayerId, r.TeamId, r.Rated, r.Rating, r.Minutes, r.Position, r.CameOn, r.WentOff,
+			r.Own, r.Rival, r.Zone, r.Goals, r.Cards, r.Injury, r.Result); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetMatchPlayerRatings reads a fixture's stored ratings (kind is a SimulationKind*), sorted by
+// player id - nil when none are stored (a match simulated before init89_match_player_ratings.sql,
+// or a default result).
+func GetMatchPlayerRatings(dbCtx *DatabaseContext, kind string, id int64) ([]PlayerRating, error) {
+	rows, err := dbCtx.Db.Query(GetMatchPlayerRatingsStmtSql, kind, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ratings []PlayerRating
+	for rows.Next() {
+		var r PlayerRating
+		var rating, own, rival sql.NullFloat64
+		var cameOn, wentOff sql.NullInt64
+		var zone, goals, cards, injury, result float64
+		if err := rows.Scan(&r.PlayerId, &r.TeamId, &r.Rated, &rating, &r.Minutes, &r.Position, &cameOn, &wentOff,
+			&own, &rival, &zone, &goals, &cards, &injury, &result); err != nil {
+			return nil, err
+		}
+		// real columns read back as float32-precision doubles; snap them to the one-decimal values
+		// that were written.
+		r.Rating = roundTenth(rating.Float64)
+		r.Zone, r.Goals, r.Cards, r.Injury, r.Result = roundTenth(zone), roundTenth(goals), roundTenth(cards), roundTenth(injury), roundTenth(result)
+		if cameOn.Valid {
+			v := int(cameOn.Int64)
+			r.CameOn = &v
+		}
+		if wentOff.Valid {
+			v := int(wentOff.Int64)
+			r.WentOff = &v
+		}
+		if own.Valid {
+			v := roundTenth(own.Float64)
+			r.Own = &v
+		}
+		if rival.Valid {
+			v := roundTenth(rival.Float64)
+			r.Rival = &v
+		}
+		ratings = append(ratings, r)
+	}
+	return ratings, rows.Err()
+}
+
+// LoadPlayerRatings is every read path's source of a played fixture's ratings: the stored rows
+// when there are any, otherwise ComputePlayerRatings over the fixture's starting lineups, instants
+// and events at its final minute - the fallback for a match simulated before stored ratings
+// (whose instants carry no contributions, so its zone component is 0). homeLineup/awayLineup must
+// be the starting XIs, before any substitution is replayed onto them.
+func LoadPlayerRatings(dbCtx *DatabaseContext, kind string, id int64, homeTeamId int64, awayTeamId int64,
+	homeLineup *Lineup, awayLineup *Lineup, instants *[]MatchInstant, events *[]Event) []PlayerRating {
+	stored, err := GetMatchPlayerRatings(dbCtx, kind, id)
+	if err != nil {
+		log.Errorf("error reading the stored ratings of %s %d: %v", kind, id, err)
+	}
+	if len(stored) > 0 {
+		return stored
+	}
+	var instantList []MatchInstant
+	if instants != nil {
+		instantList = *instants
+	}
+	var eventList []Event
+	if events != nil {
+		eventList = *events
+	}
+	if eventList == nil && instantList == nil {
+		return nil
+	}
+	return ComputePlayerRatings(homeTeamId, awayTeamId, homeLineup, awayLineup, instantList, eventList,
+		MatchFinalMinute(instantList, eventList))
+}
+
+// addRatedPlayers makes sure every rated player appears in his side's players map, fetching the
+// ones a match's squad lookup left out by id - a national team only loads its lineup's players, so
+// whoever was substituted off (or came on) would otherwise have a rating but no name.
+func addRatedPlayers(dbCtx *DatabaseContext, ratings []PlayerRating, homeTeamId int64, homePlayers map[int64]Player, awayPlayers map[int64]Player) {
+	missing := make([]int64, 0)
+	for _, r := range ratings {
+		_, inHome := homePlayers[r.PlayerId]
+		_, inAway := awayPlayers[r.PlayerId]
+		if !inHome && !inAway {
+			missing = append(missing, r.PlayerId)
+		}
+	}
+	if len(missing) == 0 {
+		return
+	}
+	extra, err := GetPlayersByIds(dbCtx, missing)
+	if err != nil {
+		log.Errorf("error reading rated players %v: %v", missing, err)
+		return
+	}
+	teamOf := make(map[int64]int64, len(ratings))
+	for _, r := range ratings {
+		teamOf[r.PlayerId] = r.TeamId
+	}
+	for _, p := range *extra {
+		if teamOf[p.Id] == homeTeamId {
+			homePlayers[p.Id] = *p
+		} else {
+			awayPlayers[p.Id] = *p
+		}
+	}
 }

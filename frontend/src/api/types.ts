@@ -56,9 +56,9 @@ export interface Player {
   // since it measures physical conditioning rather than footballing quality. See backend
   // Player.Stamina/engine.StaminaSimulation.
   stamina: number
-  // Form (0-99) nudges this player's match ratings up or down and moves match-by-match like the
-  // other skills (unlike Stamina, not minute-by-minute) - also excluded from SKILL_FIELDS for the
-  // same reason. 50 is neutral (backend common.DefaultForm). See backend Player.Form.
+  // Form (0-99) moves match-by-match with the player's match ratings (unlike Stamina, not
+  // minute-by-minute) - also excluded from SKILL_FIELDS for the same reason. It doesn't feed the
+  // rating itself. 50 is neutral (backend common.DefaultForm). See backend Player.Form.
   form: number
   wage: number
   age: number
@@ -373,6 +373,46 @@ export interface MatchInstant {
   awayAttackRightDiff: number
   awayAttackLeftDiff: number
   awayAttackCenterDiff: number
+  // This minute's zone contribution of every player on the pitch, per side (h = home, a = away),
+  // keyed by player id - absent for an instant saved before stored ratings. See backend
+  // common.InstantContributions and utils/liveMatchRatings.ts, which builds the ratings from them.
+  playerContributions?: InstantContributions
+}
+
+export interface InstantContributions {
+  h: Record<string, PlayerContribution>
+  a: Record<string, PlayerContribution>
+}
+
+// One player's share of the zone duels his position feeds during one minute (backend
+// common.PlayerContribution): p = position, o = his own value, r = the rival's per-player value in
+// the mirrored duel(s).
+export interface PlayerContribution {
+  p: number
+  o: number
+  r: number
+}
+
+// One player's rating for one match with its breakdown (backend common.PlayerRating): rating is
+// 6.0 + zone + goals + cards + injury + result, clamped to [1, 10]. rated is false for an
+// appearance under 10 minutes ("s.c.") - the breakdown is still there, but no rating is shown.
+export interface PlayerRating {
+  playerId: number
+  teamId: number
+  rated: boolean
+  rating: number
+  minutes: number
+  position: number
+  cameOn?: number
+  wentOff?: number
+  // Mean zone contribution against the rival's - absent for a match simulated before stored ratings.
+  own?: number
+  rival?: number
+  zone: number
+  goals: number
+  cards: number
+  injury: number
+  result: number
 }
 
 export interface WeekMatch {
@@ -405,10 +445,11 @@ export interface WeekMatch {
   refereeName?: string
   assistant1Name?: string
   assistant2Name?: string
-  // Per-player match rating (1-10), keyed by player id as a string (JSON object keys are always
-  // strings) - only present for a played match with lineup data (see backend
-  // common.ComputeMatchRatings).
+  // Per-player match rating (1-10) of every rated player, keyed by player id as a string (JSON
+  // object keys are always strings) - only present for a played match with lineup data.
   ratings?: Record<string, number>
+  // Every player who featured, with his rating breakdown (see PlayerRating).
+  playerRatings?: PlayerRating[]
 }
 
 export interface ClassificationPosition {
@@ -485,15 +526,20 @@ export const POSITION_LABEL_KEYS: Record<number, string> = {
   [POSITION_LATERAL_STRIKER_RIGHT]: 'positions.rightStriker',
 }
 
-// Short (2-3 letter) labels for just the four core positions bestCorePosition (see
-// utils/playerRating) ever returns - used wherever a player's suggested position needs to fit
-// next to their name in a compact chip (transfer market rows, lineup editor cards) rather than
-// the full POSITION_LABEL_KEYS word.
+// Short (2-3 letter) labels for every position - used wherever a position needs to fit next to a
+// player's name in a compact chip or line (transfer market rows, lineup editor cards, the match
+// ratings list) rather than the full POSITION_LABEL_KEYS word.
 export const POSITION_SHORT_LABEL_KEYS: Record<number, string> = {
   [POSITION_GOALKEEPER]: 'positions.short.goalkeeper',
   [POSITION_DEFENSE]: 'positions.short.defense',
+  [POSITION_LATERAL_DEFENSE_LEFT]: 'positions.short.leftBack',
+  [POSITION_LATERAL_DEFENSE_RIGHT]: 'positions.short.rightBack',
   [POSITION_MIDFIELD]: 'positions.short.midfield',
+  [POSITION_LATERAL_MIDFIELD_LEFT]: 'positions.short.leftMidfield',
+  [POSITION_LATERAL_MIDFIELD_RIGHT]: 'positions.short.rightMidfield',
   [POSITION_STRIKER]: 'positions.short.striker',
+  [POSITION_LATERAL_STRIKER_LEFT]: 'positions.short.leftStriker',
+  [POSITION_LATERAL_STRIKER_RIGHT]: 'positions.short.rightStriker',
 }
 
 export const ALL_POSITIONS = [
@@ -1135,6 +1181,7 @@ export interface FriendlyMatch {
   homePlayers?: Record<string, Player>
   awayPlayers?: Record<string, Player>
   ratings?: Record<string, number>
+  playerRatings?: PlayerRating[]
   // The home team's stadium (absent for a national team, which has none) and the stored report
   // flavor of a played friendly - absent for one played before the match viewer stored them.
   homeStadiumName?: string
@@ -1256,6 +1303,7 @@ export interface CupTieDetails extends CupTie {
   // Only present once the tie has been played - the same per-player rating breakdown a league
   // match's WeekMatch or a played FriendlyMatch carries (see backend common.GetCupTieDetails).
   ratings?: Record<string, number>
+  playerRatings?: PlayerRating[]
   // Same additions as FriendlyMatch: per-minute instants (for the zone duel), the home stadium and
   // the stored report flavor - only for a played tie simulated after the match viewer stored them.
   matchInstants?: MatchInstant[]

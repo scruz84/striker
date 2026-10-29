@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { EVENT_TYPE_GOAL, POSITION_GOALKEEPER, type Lineup, type MatchInstant, type Player } from '../../api/types'
+import { EVENT_TYPE_GOAL, EVENT_TYPE_INJURY, EVENT_TYPE_RED_CARD, POSITION_GOALKEEPER, type Lineup, type MatchInstant, type Player } from '../../api/types'
 import i18n from '../../i18n'
 import { MatchViewer } from './MatchViewer'
 import type { MatchView } from './matchViewModel'
@@ -16,6 +16,7 @@ const clock = vi.hoisted(() => ({
   live: {} as Record<string, unknown>,
 }))
 const zoneProps = vi.hoisted(() => ({ calls: [] as Array<{ home: number; away: number; live: boolean }> }))
+const ratingsProps = vi.hoisted(() => ({ calls: [] as Array<{ events: Array<{ eventType: number }>; instants: unknown[]; live?: boolean }> }))
 
 vi.mock('../../api/useLiveMatch', () => ({
   isPast: () => clock.past,
@@ -39,7 +40,12 @@ vi.mock('./MatchMinuteZoneComparison', () => ({
 }))
 vi.mock('./MatchEventsReport', () => ({ MatchEventsReport: () => <div data-testid="live-report" /> }))
 vi.mock('./MatchHeadToHeadPitch', () => ({ MatchHeadToHeadPitch: () => <div data-testid="pitch" /> }))
-vi.mock('./MatchMinuteRatings', () => ({ MatchMinuteRatings: () => <div data-testid="live-ratings" /> }))
+vi.mock('./MatchMinuteRatings', () => ({
+  MatchMinuteRatings: (props: { events: Array<{ eventType: number }>; instants: unknown[]; live?: boolean }) => {
+    ratingsProps.calls.push(props)
+    return <div data-testid="live-ratings" />
+  },
+}))
 vi.mock('./MatchReportTab', () => ({ MatchReportTab: () => <div data-testid="report-tab" /> }))
 vi.mock('./MatchRatingsTab', () => ({ MatchRatingsTab: () => <div data-testid="ratings-tab" /> }))
 vi.mock('./StadiumEntry', () => ({ StadiumEntry: () => <div data-testid="stadium-entry" /> }))
@@ -172,6 +178,22 @@ describe('MatchViewer', () => {
     it('shows the subtitle with the competition label', () => {
       renderViewer(baseView())
       expect(screen.getByTestId('scoreboard')).toHaveTextContent('Amistoso')
+    })
+
+    it('rates live players from the instants, without the withheld red cards and injuries', () => {
+      ratingsProps.calls.length = 0
+      clock.live = liveState({
+        events: [
+          { eventType: EVENT_TYPE_GOAL, minute: 12, teamOwner: 1, teamOwnerPlayerNames: ['Berlana'], setPiece: 1 },
+          { eventType: EVENT_TYPE_RED_CARD, minute: 20, teamOwner: 2, teamOwnerPlayers: [21] },
+          { eventType: EVENT_TYPE_INJURY, minute: 25, teamOwner: 1, teamOwnerPlayers: [11] },
+        ],
+      })
+      renderViewer(baseView())
+      const call = ratingsProps.calls.at(-1)
+      expect(call?.live).toBe(true)
+      expect(call?.instants).toEqual([instant])
+      expect(call?.events.map((e) => e.eventType)).toEqual([EVENT_TYPE_GOAL])
     })
 
     it('shows the stadium entry, the report and the head-to-head card', () => {

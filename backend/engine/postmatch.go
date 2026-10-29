@@ -5,6 +5,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// newMatchResult is what a just-simulated fixture's result save stores: score, events, instants,
+// its final per-player ratings (see common.ComputePlayerRatings - computed once, here, from the very
+// contributions and events the simulation produced) and the pending post-match effects, which carry
+// the same ratings for Form's update.
+func newMatchResult(match *common.MatchSimulation, wentToPenalties bool) common.MatchResult {
+	events := *match.Events
+	instants := *match.MatchInstants
+	ratings := common.ComputePlayerRatings(match.Home, match.Away, match.HomeLineup, match.AwayLineup, instants, events,
+		common.MatchFinalMinute(instants, events))
+	effects := newPostMatchPayload(match, wentToPenalties)
+	if byId := common.RatingsById(ratings); byId != nil {
+		effects.Ratings = *byId
+	}
+	return common.MatchResult{
+		HomeGoals:     match.HomeGoals,
+		AwayGoals:     match.AwayGoals,
+		Events:        events,
+		Instants:      instants,
+		Effects:       effects,
+		PlayerRatings: ratings,
+	}
+}
+
 // newPostMatchPayload captures what a just-simulated match's post-match effects need (see
 // common.PostMatchPayload), so the result save can store it as pending in its own transaction.
 // The effects themselves - availability countdown and new injuries/suspensions, skill growth and
@@ -79,6 +102,7 @@ func applyPostMatchEffects(dbCtx *common.DatabaseContext, kind string, matchId i
 		PendingUnavailabilities: payload.PendingUnavailabilities,
 		HomeMinutesByPosition:   payload.HomeMinutesByPosition,
 		AwayMinutesByPosition:   payload.AwayMinutesByPosition,
+		StoredRatings:           payload.Ratings,
 	}
 
 	UpdatePlayerAvailability(dbCtx, match)

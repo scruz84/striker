@@ -89,11 +89,11 @@ const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type
 	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
 const InsertCupTieInstantStmtSql = "INSERT INTO cup_tie_instants(tie_id, minute, home_goals, away_goals, home_qua, away_qua, " +
-	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
-	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
 
 const GetCupTieInstantsStmtSql = "SELECT tie_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, " +
-	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff " +
+	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions " +
 	"FROM cup_tie_instants WHERE tie_id = $1 order by minute asc"
 
 // GetCupTieFlavorStmtSql reads a cup tie's report flavor plus the home team's stadium name in one
@@ -339,11 +339,13 @@ func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, er
 	for rows.Next() {
 		var i MatchInstant
 		var homeQua, awayQua string
+		var contributions sql.NullString
 		if err := rows.Scan(&i.MatchId, &i.Minute, &i.HomeGoals, &i.AwayGoals, &homeQua, &awayQua, &i.MidfieldDiff,
 			&i.HomeAttackRightDiff, &i.HomeAttackLeftDiff, &i.HomeAttackCenterDiff,
-			&i.AwayAttackRightDiff, &i.AwayAttackLeftDiff, &i.AwayAttackCenterDiff); err != nil {
+			&i.AwayAttackRightDiff, &i.AwayAttackLeftDiff, &i.AwayAttackCenterDiff, &contributions); err != nil {
 			return nil, err
 		}
+		i.PlayerContributions = decodePlayerContributions(contributions)
 		if homeQua != "" {
 			_ = json.Unmarshal([]byte(homeQua), &i.HomeQua)
 		}
@@ -498,11 +500,10 @@ type CupTieDetails struct {
 	AwayLineup  *Lineup          `json:"awayLineup"`
 	HomePlayers map[int64]Player `json:"homePlayers"`
 	AwayPlayers map[int64]Player `json:"awayPlayers"`
-	// Ratings is computed on read (see ComputeMatchRatings), same as WeekMatch.Ratings/
-	// FriendlyMatch.Ratings, so a played tie's "Jugadores" tab shows the same per-player ratings a
-	// league match or friendly does instead of only the lineups pitch view (issue: cup/friendly
-	// match pages missing the league match page's info).
-	Ratings *map[int64]float64 `json:"ratings,omitempty"`
+	// PlayerRatings/Ratings are a played tie's per-player ratings, same as WeekMatch's (see
+	// LoadPlayerRatings), so a played tie shows the same ratings a league match or friendly does.
+	PlayerRatings []PlayerRating     `json:"playerRatings,omitempty"`
+	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
 	// MatchInstants and the flavor fields below are only filled for a played tie, and only for one
 	// simulated after resources/sql/init83_match_viewer_parity.sql (an older tie has none, and the
 	// viewer then shows no zone duel / flavor lines) - the cup equivalent of WeekMatch's fields.
@@ -576,20 +577,13 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	}
 	details.AwayPlayers = playerListToMap(awayPlayers)
 
-	// Mirrors EnrichPlayedFriendly's identical guard - only a played tie has meaningful ratings to
-	// show, and ComputeMatchRatings itself needs both lineups to attribute events to a side.
+	// Mirrors EnrichPlayedFriendly's identical guard - only a played tie has ratings to show.
 	if tie.Played && details.HomeLineup != nil && details.AwayLineup != nil {
 		events := details.Events
-		details.Ratings = ComputeMatchRatings(&WeekMatch{
-			MatchId:     tie.TieId,
-			HomeGoals:   tie.HomeGoals,
-			AwayGoals:   tie.AwayGoals,
-			Events:      &events,
-			HomeLineup:  details.HomeLineup,
-			AwayLineup:  details.AwayLineup,
-			HomePlayers: &details.HomePlayers,
-			AwayPlayers: &details.AwayPlayers,
-		})
+		details.PlayerRatings = LoadPlayerRatings(dbCtx, SimulationKindCup, tie.TieId, *tie.HomeTeamId, *tie.AwayTeamId,
+			details.HomeLineup, details.AwayLineup, details.MatchInstants, &events)
+		details.Ratings = RatingsById(details.PlayerRatings)
+		addRatedPlayers(dbCtx, details.PlayerRatings, *tie.HomeTeamId, details.HomePlayers, details.AwayPlayers)
 	}
 
 	return details, nil

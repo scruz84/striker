@@ -294,7 +294,8 @@ the same three tabs for a played friendly):
   full-time flavor paragraph (`ReportParagraph`, neutral gray left bar) plus one `ReportRow` per
   notable event, each colored by which team it belongs to (home = `primary.main`, away =
   `error.main` left bar) with a small per-event-type emoji icon.
-- **Calificaciones** (`MatchRatingsTab.tsx`) - per-player match ratings.
+- **Calificaciones** (`MatchRatingsTab.tsx`) - per-player match ratings, stored at simulation time in
+  `match_player_ratings` (see openspec/specs/match-ratings).
 - **Jugadores** (`Lineups`) - the two teams' starting lineups/formations.
 
 There used to be a fourth **Resumen** tab showing the same notable events as a home-left/away-right

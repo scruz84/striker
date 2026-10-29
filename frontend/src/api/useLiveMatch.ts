@@ -32,8 +32,8 @@ export interface LiveMatchState {
   // Every "instant" broadcast so far this match, in order - the same minute-by-minute history a
   // finished match's report reads back from match_instants (see WeekMatch.matchInstants), just
   // accumulated live instead of fetched in one go. Lets a live viewer scrub the zone-battle panel
-  // back through the match so far (MatchMinuteZoneComparison), the same way `events` already lets
-  // MatchMinuteRatings scrub player ratings live.
+  // back through the match so far (MatchMinuteZoneComparison), and MatchMinuteRatings rebuild
+  // each player's rating (their playerContributions) as of any minute so far.
   instants: MatchInstant[]
   // True while the broadcast is paused for the halftime break (see backend
   // engine.liveMatchHalftimeDelay) - the scoreboard shows this instead of the pulsing "live" chip
@@ -43,9 +43,9 @@ export interface LiveMatchState {
   // null until it arrives, which for a genuinely live connection is essentially immediate (it's
   // the very first thing BroadcastMatchLive publishes), and for one catching up on history is
   // whatever the catch-up itself already delivered. Lets a live viewer show the same per-player
-  // ratings a played match's report shows, computed live from `events`/`homeGoals`/`awayGoals`
-  // (see utils/liveMatchRatings.computeLiveMatchRatings) rather than waiting for the match to
-  // finish.
+  // ratings a played match's report shows, computed live from `instants`' contributions and
+  // `events` (see utils/liveMatchRatings.computePlayerRatings) rather than waiting for the match
+  // to finish.
   homeLineup: Lineup | null
   awayLineup: Lineup | null
   homePlayers: Record<string, Player> | null

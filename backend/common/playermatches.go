@@ -4,9 +4,8 @@ import "time"
 
 // PlayerMatchSummary is one row in a player's "recent matches" list on their profile page -
 // enough to see the result, their own goals/cards, and (when available) their match rating
-// without loading the full match report. Restricted to league matches: WeekMatchById (and the
-// Ratings it computes via ComputeMatchRatings) only knows about the `matches` table, and cup/
-// friendly fixtures don't carry a comparable per-player rating.
+// without loading the full match report. Restricted to league matches: it reads each one through
+// WeekMatchById, which only knows about the `matches` table.
 type PlayerMatchSummary struct {
 	MatchId      int64     `json:"matchId"`
 	MatchDate    time.Time `json:"matchDate"`
@@ -18,8 +17,9 @@ type PlayerMatchSummary struct {
 	Goals        int       `json:"goals"`
 	YellowCards  int       `json:"yellowCards"`
 	RedCards     int       `json:"redCards"`
-	// Rating is this player's Hattrick-style match rating (see ComputeMatchRatings), nil when the
-	// match has no lineup data to derive one from (see WeekMatch.Ratings).
+	// Rating is this player's match rating (see ComputePlayerRatings), nil when the match has no
+	// lineup data to derive one from or he is unrated ("s.c.", under 10 minutes - see
+	// WeekMatch.Ratings).
 	Rating *float64 `json:"rating,omitempty"`
 }
 

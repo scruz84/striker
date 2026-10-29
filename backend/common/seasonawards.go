@@ -21,9 +21,8 @@ const getSeasonAwardEventsStmtSql = "SELECT me.event_type, me.team_players FROM 
 	"JOIN matches m ON m.match_id = me.match_id " +
 	"WHERE m.league_id = $1 AND m.season = $2 AND me.event_type IN ($3, $4, $5)"
 
-// Deliberately simple weights for "Player of the Season" - same "not a real performance model,
-// just enough to make it feel earned" spirit as ComputeMatchRatings (see matchratings.go):
-// rewards goals, docks cards, nothing more sophisticated than that.
+// Deliberately simple weights for "Player of the Season" - not a real performance model, just
+// enough to make it feel earned: rewards goals, docks cards, nothing more sophisticated than that.
 const (
 	playerOfSeasonGoalWeight       = 3
 	playerOfSeasonYellowCardWeight = -1

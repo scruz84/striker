@@ -62,6 +62,8 @@ type FriendlyMatch struct {
 	HomePlayers   *map[int64]Player  `json:"homePlayers,omitempty"`
 	AwayPlayers   *map[int64]Player  `json:"awayPlayers,omitempty"`
 	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
+	// PlayerRatings is Ratings with every featured player's breakdown (see LoadPlayerRatings).
+	PlayerRatings []PlayerRating `json:"playerRatings,omitempty"`
 	// HomeStadiumName is the home team's stadium at fetch time (empty for a national team);
 	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the stored report flavor of a
 	// played friendly (see UpdateFriendlyFlavor), empty for one played before
@@ -625,8 +627,8 @@ func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
 	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
-	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
-	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
 
 const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team_id, formation) VALUES ($1, $2, $3) " +
 	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
@@ -829,7 +831,7 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 }
 
 const GetFriendlyInstantsStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, " +
-	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff " +
+	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions " +
 	"FROM friendly_instants WHERE match_id = $1 order by minute asc"
 
 // GetFriendlyInstants reads back a played friendly's per-minute zone instants (see
@@ -856,9 +858,10 @@ func GetFriendlyInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant 
 		var awayAttackRightDiff float32
 		var awayAttackLeftDiff float32
 		var awayAttackCenterDiff float32
+		var contributions sql.NullString
 		if err := rows.Scan(&instantMatchId, &minute, &homeGoals, &awayGoals, &homeQua, &awayQua, &midFieldDiff,
 			&homeAttackRightDiff, &homeAttackLeftDiff, &homeAttackCenterDiff,
-			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff); err != nil {
+			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff, &contributions); err != nil {
 			continue
 		}
 
@@ -884,6 +887,7 @@ func GetFriendlyInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant 
 			AwayAttackRightDiff:  awayAttackRightDiff,
 			AwayAttackLeftDiff:   awayAttackLeftDiff,
 			AwayAttackCenterDiff: awayAttackCenterDiff,
+			PlayerContributions:  decodePlayerContributions(contributions),
 		})
 	}
 	return &instants
@@ -924,16 +928,10 @@ func EnrichPlayedFriendly(dbCtx *DatabaseContext, match *FriendlyMatch) error {
 	match.AwayPlayers = &awayMap
 
 	if match.HomeLineup != nil && match.AwayLineup != nil && match.Events != nil {
-		match.Ratings = ComputeMatchRatings(&WeekMatch{
-			MatchId:     match.MatchId,
-			HomeGoals:   match.HomeGoals,
-			AwayGoals:   match.AwayGoals,
-			Events:      match.Events,
-			HomeLineup:  match.HomeLineup,
-			AwayLineup:  match.AwayLineup,
-			HomePlayers: match.HomePlayers,
-			AwayPlayers: match.AwayPlayers,
-		})
+		match.PlayerRatings = LoadPlayerRatings(dbCtx, SimulationKindFriendly, match.MatchId, match.HomeTeamId, match.AwayTeamId,
+			match.HomeLineup, match.AwayLineup, match.MatchInstants, match.Events)
+		match.Ratings = RatingsById(match.PlayerRatings)
+		addRatedPlayers(dbCtx, match.PlayerRatings, match.HomeTeamId, *match.HomePlayers, *match.AwayPlayers)
 	}
 
 	return nil

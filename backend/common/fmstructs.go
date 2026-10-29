@@ -219,9 +219,9 @@ type Player struct {
 	// Unlike the seven core skills it isn't generated inside the 15-40/35-75 min/max bands those
 	// use (see doCreatePlayers) - see SeniorStaminaMin/Max and AcademyStaminaMin/Max instead.
 	Stamina int `json:"stamina"`
-	// Form (0-99) is a slower-moving measure of recent performances, read once per match by
-	// common.ComputeMatchRatings to nudge that match's rating up or down - unlike Stamina it
-	// doesn't change minute-by-minute, only after a match finishes (see
+	// Form (0-99) is a slower-moving measure of recent performances. It doesn't affect how a
+	// player plays or his match rating (see ComputePlayerRatings) - the rating moves it, not the
+	// other way round. Unlike Stamina it doesn't change minute-by-minute, only after a match finishes (see
 	// engine.updateTeamPlayersAfterMatch), rising when the player plays (more so with a good
 	// rating) and decaying when they sit out. Every new player starts at the neutral midpoint, 50
 	// (see doCreatePlayers/InjectFreeAgents).
@@ -456,6 +456,10 @@ type MatchSimulation struct {
 	//scales that player's skill growth on having actually played and how many minutes.
 	HomeMinutesByPosition map[int64]map[int]int
 	AwayMinutesByPosition map[int64]map[int]int
+	//StoredRatings: the match's rated players' ratings (see PostMatchPayload.Ratings), set only
+	//when post-match effects are applied from a payload that carries them - the source of Form's
+	//performance adjustment (see engine.matchRatingsForProgression).
+	StoredRatings map[int64]float64
 	//IsFriendly: whether this match is a friendly rather than a league or cup fixture - a red
 	//card picked up in a friendly (see engine.DisciplineSimulation) carries no suspension at
 	//all, for a friendly or otherwise, since a friendly has no competitive stakes to sanction.
@@ -513,6 +517,29 @@ type MatchInstant struct {
 	AwayAttackRightDiff  float32 `json:"awayAttackRightDiff"`
 	AwayAttackLeftDiff   float32 `json:"awayAttackLeftDiff"`
 	AwayAttackCenterDiff float32 `json:"awayAttackCenterDiff"`
+	// PlayerContributions is this minute's zone contribution of every player on the pitch, per
+	// side - see engine.playerContributions and ComputePlayerRatings, which builds each player's
+	// zone component from them. Nil for instants saved before init89_match_player_ratings.sql.
+	PlayerContributions *InstantContributions `json:"playerContributions,omitempty"`
+}
+
+// InstantContributions is one minute's PlayerContribution of every player on the pitch, keyed by
+// player id, one map per side. The JSON keys are deliberately short: one of these is stored per
+// minute of every match.
+type InstantContributions struct {
+	Home map[int64]PlayerContribution `json:"h"`
+	Away map[int64]PlayerContribution `json:"a"`
+}
+
+// PlayerContribution is one player's share of the zone duels his position feeds during one
+// minute: Own is his own value (the same fatigue-adjusted, position-weighted figure the engine
+// adds into that zone's TeamQualification - the mean of the two when he feeds two duels) and Rival
+// is the opponent's per-player value in the mirrored duel(s). Both are rounded to one decimal
+// before anything uses them, so the stored figures rebuild the exact same ratings.
+type PlayerContribution struct {
+	Position int     `json:"p"`
+	Own      float32 `json:"o"`
+	Rival    float32 `json:"r"`
 }
 
 type Event struct {
@@ -565,9 +592,12 @@ type WeekMatch struct {
 	RefereeName    string `json:"refereeName,omitempty"`
 	Assistant1Name string `json:"assistant1Name,omitempty"`
 	Assistant2Name string `json:"assistant2Name,omitempty"`
-	// Ratings is computed on read (see ComputeMatchRatings), not stored - a deterministic
-	// per-player match rating (1-10) derived from the match's own events and result, only
-	// populated for a played match. Keyed by player id (encoding/json marshals an integer-keyed
-	// map as a string-keyed JSON object, same as HomePlayers/AwayPlayers above).
+	// PlayerRatings is every player who featured, with his rating and its breakdown - the stored
+	// rows, or the fallback for a match simulated before them (see LoadPlayerRatings). Only
+	// populated for a played match.
+	PlayerRatings []PlayerRating `json:"playerRatings,omitempty"`
+	// Ratings is PlayerRatings as a player id -> rating map, rated players only (see
+	// RatingsById). Keyed by player id (encoding/json marshals an integer-keyed map as a
+	// string-keyed JSON object, same as HomePlayers/AwayPlayers above).
 	Ratings *map[int64]float64 `json:"ratings,omitempty"`
 }

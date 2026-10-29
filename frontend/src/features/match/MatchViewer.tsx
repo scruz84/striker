@@ -204,6 +204,7 @@ function LiveView({ view, lineupSection, onComplete }: { view: MatchView; lineup
           awayName={view.awayName}
           {...lineups}
           events={liveEvents}
+          instants={live.instants}
           currentMinute={live.minute}
           live
           scrub={minuteScrub}

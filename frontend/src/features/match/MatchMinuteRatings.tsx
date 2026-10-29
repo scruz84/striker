@@ -14,8 +14,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import RestoreIcon from '@mui/icons-material/Restore'
 import { useTranslation } from 'react-i18next'
-import type { Lineup, MatchEvent, Player } from '../../api/types'
-import { computeRatingsAsOfMinute } from '../../utils/liveMatchRatings'
+import type { Lineup, MatchEvent, MatchInstant, Player, PlayerRating } from '../../api/types'
+import { computePlayerRatings, startingLineup } from '../../utils/liveMatchRatings'
 import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { TeamRatingsColumn } from './TeamRatingsColumn'
 
@@ -24,20 +24,23 @@ export interface MatchMinuteRatingsProps {
   homeName: string
   awayId: number
   awayName: string
-  homeLineup: Lineup
-  awayLineup: Lineup
+  homeLineup: Lineup | null
+  awayLineup: Lineup | null
   homePlayers: Record<string, Player>
   awayPlayers: Record<string, Player>
   events: MatchEvent[]
+  // The per-minute instants so far (live) or of the whole match (finished) - their
+  // playerContributions feed each player's zone component (see utils/liveMatchRatings).
+  instants: MatchInstant[]
   // The latest minute a viewer can scrub to - the broadcast's current minute for a live match, or
   // the final whistle's minute for a played one.
   currentMinute: number
   // True for a still-broadcasting match - only affects the title/copy shown at the current minute.
   live?: boolean
-  // The backend's own final ratings (with its per-player jitter - see ComputeMatchRatings), shown
-  // once the scrubber is at `currentMinute` instead of this component's own live-style
-  // approximation. Omitted for a still-live match, which has no "final" yet.
-  finalRatings?: Record<string, number>
+  // The backend's stored final ratings, shown once the scrubber is at `currentMinute` - the same
+  // numbers utils/liveMatchRatings rebuilds there, but the stored ones are the record. Omitted for
+  // a still-live match, which has no "final" yet.
+  finalRatings?: PlayerRating[]
   // Lets a caller share this panel's scrub position with other panels on the same page (e.g. the
   // lineup pitch's per-player ratings). Omitted, this owns its own scrub position exactly as
   // before.
@@ -58,6 +61,7 @@ export function MatchMinuteRatings({
   homePlayers,
   awayPlayers,
   events,
+  instants,
   currentMinute,
   live = false,
   finalRatings,
@@ -72,12 +76,19 @@ export function MatchMinuteRatings({
   const [sortChoice, setSortChoice] = useState<'rating' | 'position' | null>(null)
   const sortByRating = (sortChoice ?? (isMobile ? 'rating' : 'position')) === 'rating'
 
+  // Both lineups as they kicked off: a finished league match's lineup comes back with its
+  // substitutions already replayed onto it, and the fallback for a match without contributions
+  // needs to know who started.
+  const homeStart = useMemo(() => startingLineup(homeLineup, events), [homeLineup, events])
+  const awayStart = useMemo(() => startingLineup(awayLineup, events), [awayLineup, events])
   const ratings = useMemo(() => {
     if (atNow && finalRatings) {
       return finalRatings
     }
-    return computeRatingsAsOfMinute(homeLineup, awayLineup, events, minute)
-  }, [atNow, finalRatings, homeLineup, awayLineup, events, minute])
+    return computePlayerRatings(homeId, awayId, homeStart, awayStart, instants, events, minute) ?? []
+  }, [atNow, finalRatings, homeId, awayId, homeStart, awayStart, instants, events, minute])
+  const homeRatings = ratings.filter((rating) => rating.teamId === homeId)
+  const awayRatings = ratings.filter((rating) => rating.teamId === awayId)
 
   const title = atNow ? t(live ? 'match.ratings.liveTitle' : 'match.ratings.title') : t('match.ratings.atMinute', { minute })
 
@@ -132,12 +143,29 @@ export function MatchMinuteRatings({
           </Box>
         </Stack>
       )}
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+        {t('match.ratings.help')}
+      </Typography>
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn teamId={homeId} title={homeName} lineup={homeLineup} players={homePlayers} ratings={ratings} sortByRating={sortByRating} />
+          <TeamRatingsColumn
+            teamId={homeId}
+            title={homeName}
+            startingLineup={homeStart}
+            players={homePlayers}
+            ratings={homeRatings}
+            sortByRating={sortByRating}
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TeamRatingsColumn teamId={awayId} title={awayName} lineup={awayLineup} players={awayPlayers} ratings={ratings} sortByRating={sortByRating} />
+          <TeamRatingsColumn
+            teamId={awayId}
+            title={awayName}
+            startingLineup={awayStart}
+            players={awayPlayers}
+            ratings={awayRatings}
+            sortByRating={sortByRating}
+          />
         </Grid>
       </Grid>
     </Paper>

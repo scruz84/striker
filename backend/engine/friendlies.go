@@ -118,13 +118,7 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	// of friendlies, which aren't a World Cup group fixture) and the pending post-match effects are
 	// stored in one transaction that only applies while the friendly is still unplayed - see
 	// simulateMatch.
-	if err := common.SaveFriendlyResultTx(dbCtx, friendly.MatchId, friendly.HomeTeamId, friendly.AwayTeamId, common.MatchResult{
-		HomeGoals: matchSimulation.HomeGoals,
-		AwayGoals: matchSimulation.AwayGoals,
-		Events:    *matchSimulation.Events,
-		Instants:  *matchSimulation.MatchInstants,
-		Effects:   newPostMatchPayload(matchSimulation, false),
-	}); err != nil {
+	if err := common.SaveFriendlyResultTx(dbCtx, friendly.MatchId, friendly.HomeTeamId, friendly.AwayTeamId, newMatchResult(matchSimulation, false)); err != nil {
 		return err
 	}
 

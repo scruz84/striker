@@ -161,7 +161,7 @@ const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, playe
 const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece " +
 	"FROM match_events WHERE match_id = $1 order by minute asc"
 
-const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff" +
+const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions" +
 	" FROM match_instants WHERE match_id = $1 order by minute asc"
 
 const InsertTeamToClassificationStmtSql = "INSERT INTO classification (league_id, season, team_id) values ($1, $2, $3)"
@@ -188,8 +188,8 @@ const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type,
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)"
 
 const InsertMatchInstantStmtSql = "" +
-	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff) " +
-	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
 
 const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
 	"country) VALUES ($1, $2, $3, $4) returning user_id"
@@ -1368,12 +1368,16 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	match := readWeekMatch(rows)
 	match.Events = GetMatchEvents(dbCtx, matchId)
 	match.MatchInstants = GetMatchInstants(dbCtx, matchId)
+	// The starting XIs, kept before any substitution is replayed below - the ratings fallback for
+	// a match simulated before stored ratings needs to know who started (see LoadPlayerRatings).
+	var startingHome, startingAway *Lineup
 	lineups, err := GetLineupsForMatch(dbCtx, matchId, &[]int64{match.Home, match.Away})
 	if err != nil {
 		log.Errorf("error getting line ups for match: %v", err)
 	} else {
 		match.HomeLineup = (*lineups)[match.Home]
 		match.AwayLineup = (*lineups)[match.Away]
+		startingHome, startingAway = CopyLineup(match.HomeLineup), CopyLineup(match.AwayLineup)
 		// GetLineupsForMatch only ever returns the XI submitted before kickoff - replay every
 		// substitution this match actually had on top of it, so a finished match's report shows
 		// who was really on the pitch (see ApplySubstitutionToLineup's own doc comment).
@@ -1400,9 +1404,14 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	}
 	// Only meaningful once the match has actually happened - GetLineupsForMatch above can return
 	// a not-yet-played match's default/pre-selected lineup too (see its own doc comment), which
-	// ComputeMatchRatings alone can't tell apart from a genuinely played one.
+	// the ratings alone can't tell apart from a genuinely played one.
 	if match.Played {
-		match.Ratings = ComputeMatchRatings(match)
+		match.PlayerRatings = LoadPlayerRatings(dbCtx, SimulationKindLeague, matchId, match.Home, match.Away,
+			startingHome, startingAway, match.MatchInstants, match.Events)
+		match.Ratings = RatingsById(match.PlayerRatings)
+		if match.HomePlayers != nil && match.AwayPlayers != nil {
+			addRatedPlayers(dbCtx, match.PlayerRatings, match.Home, *match.HomePlayers, *match.AwayPlayers)
+		}
 	}
 
 	return match, nil
@@ -1499,9 +1508,10 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 		var awayAttackRightDiff float32
 		var awayAttackLeftDiff float32
 		var awayAttackCenterDiff float32
+		var contributions sql.NullString
 		rows.Scan(&matchId, &minute, &homeGoals, &awayGoals, &homeQua, &awayQua, &midFieldDiff,
 			&homeAttackRightDiff, &homeAttackLeftDiff, &homeAttackCenterDiff,
-			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff)
+			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff, &contributions)
 
 		homeTeamQua := TeamQualification{}
 		awayTeamQua := TeamQualification{}
@@ -1525,6 +1535,7 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 			AwayAttackRightDiff:  awayAttackRightDiff,
 			AwayAttackLeftDiff:   awayAttackLeftDiff,
 			AwayAttackCenterDiff: awayAttackCenterDiff,
+			PlayerContributions:  decodePlayerContributions(contributions),
 		})
 	}
 	return &instants

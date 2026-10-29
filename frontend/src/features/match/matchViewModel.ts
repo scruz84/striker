@@ -12,6 +12,7 @@ import {
   type MatchEvent,
   type MatchInstant,
   type Player,
+  type PlayerRating,
   type WeekMatch,
 } from '../../api/types'
 import { translateCupName } from '../../utils/ledgerDescription'
@@ -49,6 +50,8 @@ export interface MatchView {
   homePlayers: Record<string, Player> | null
   awayPlayers: Record<string, Player> | null
   ratings?: Record<string, number>
+  // Every player who featured, with his rating breakdown - see PlayerRating.
+  playerRatings?: PlayerRating[]
   // Report flavor (see backend common.UpdateMatchFlavor) - absent for a match played before it was stored.
   weather?: string
   attendance?: number
@@ -114,6 +117,7 @@ export function fromWeekMatch(match: WeekMatch, division: DivisionDetails | unde
     homePlayers: match.homePlayers,
     awayPlayers: match.awayPlayers,
     ratings: match.ratings,
+    playerRatings: match.playerRatings,
     weather: match.weather,
     attendance: match.attendance,
     refereeName: match.refereeName,
@@ -151,6 +155,7 @@ export function fromCupTie(tie: CupTieDetails, cup: CupDetails | undefined, t: T
     homePlayers: tie.homePlayers,
     awayPlayers: tie.awayPlayers,
     ratings: tie.ratings,
+    playerRatings: tie.playerRatings,
     weather: tie.weather,
     attendance: tie.attendance,
     refereeName: tie.refereeName,
@@ -186,6 +191,7 @@ export function fromFriendly(match: FriendlyMatch, t: TFunction): MatchView {
     homePlayers: match.homePlayers ?? null,
     awayPlayers: match.awayPlayers ?? null,
     ratings: match.ratings,
+    playerRatings: match.playerRatings,
     weather: match.weather,
     attendance: match.attendance,
     refereeName: match.refereeName,

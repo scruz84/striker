@@ -68,13 +68,7 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	// below runs only after it commits, so a failed save can never be followed by (or later repeated
 	// with) money, a report or a broadcast, and two simulations of one match book them once.
 	if err := common.SaveLeagueMatchResultTx(dbCtx, matchSimulation.Id, matchSimulation.DivisionId, matchSimulation.Home,
-		matchSimulation.Away, common.MatchResult{
-			HomeGoals: matchSimulation.HomeGoals,
-			AwayGoals: matchSimulation.AwayGoals,
-			Events:    *matchSimulation.Events,
-			Instants:  *matchSimulation.MatchInstants,
-			Effects:   newPostMatchPayload(matchSimulation, false),
-		}); err != nil {
+		matchSimulation.Away, newMatchResult(matchSimulation, false)); err != nil {
 		return nil, err
 	}
 

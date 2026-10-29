@@ -66,6 +66,8 @@ After a match, each player who featured SHALL get the same minutes-scaled chance
 ### Requirement: Form drift
 Every squad player's Form SHALL update after each match: a player who featured gets +2 plus round((match rating − 6.0) × 2); a squad player who did not feature loses 1. Form is clamped to [1, 99] and missing Form reads as 50.
 
+The match rating used is the one stored for that match (see match-ratings), so a player who came on is adjusted by his own rating exactly like a starter. A player who featured but is unrated ("s.c.", under 10 minutes) gets only the +2.
+
 #### Scenario: Poor performance
 - **WHEN** a player features with a match rating of 4.5
 - **THEN** his Form changes by +2 − 3 = −1
@@ -73,6 +75,14 @@ Every squad player's Form SHALL update after each match: a player who featured g
 #### Scenario: Benched
 - **WHEN** a squad player does not feature
 - **THEN** his Form drops by 1
+
+#### Scenario: Substitute with a good rating
+- **WHEN** a player comes on in minute 60 and his stored match rating is 7.0
+- **THEN** his Form changes by +2 + 2 = +4
+
+#### Scenario: Unrated short appearance
+- **WHEN** a player comes on in minute 85 and is unrated
+- **THEN** his Form changes by +2
 
 ### Requirement: Stamina and Form stay out of progression reporting
 Stamina and Form changes MUST NOT create `player_progression_log` rows or progression notifications.
@@ -124,7 +134,9 @@ A daily job (02:00 UTC) SHALL check every free agent: retirement by age as above
   `MatchSkillGrowthMinutesReference`), triggered by `updateSkillsAfterPlayedMatch`
   (`engine/simulation.go`).
 - Ceilings: `common.rollSkillCap`, `common.GetPlayerSkillCaps` (`common/database.go`).
-- Ratings used by Form: `common.ComputeMatchRatings` (`common/matchratings.go`).
+- Ratings used by Form: the stored match ratings carried by the post-match payload
+  (`common.PostMatchPayload.Ratings` → `MatchSimulation.StoredRatings`), read by
+  `engine.matchRatingsForProgression`; see the match-ratings spec.
 - Aging: `engine/birthdays.go` (`ProcessBirthdays`, `BirthdayCycleDays`).
 - Rollover: `ProgressPlayers`/`ProgressFreeAgents`, `ShouldRetire`, `common.AdvancePlayerContract`,
   `common.AdvanceFreeAgencyClock`, `common.RetireFreeAgentAsTrainer`, `common.CreateAcademyPlayers`.

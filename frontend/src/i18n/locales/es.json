@@ -349,7 +349,13 @@
       "goalkeeper": "POR",
       "defense": "DEF",
       "midfield": "MED",
-      "striker": "DEL"
+      "striker": "DEL",
+      "leftBack": "LI",
+      "rightBack": "LD",
+      "leftMidfield": "II",
+      "rightMidfield": "ID",
+      "leftStriker": "EI",
+      "rightStriker": "ED"
     }
   },
   "formations": {
@@ -1069,7 +1075,23 @@
       "nextMinute": "Minuto siguiente",
       "sortLabel": "Ordenar notas",
       "sortByRating": "Por nota",
-      "sortByPosition": "Por posición"
+      "sortByPosition": "Por posición",
+      "help": "La nota parte de 6.0 y suma el aporte del jugador a su zona frente al rival (el mismo valor con el que el motor decide qué equipo gana cada zona), sus goles, tarjetas y lesiones, y el resultado según los minutos jugados. Con menos de 10 minutos queda sin calificar (s.c.). Toca una nota para ver su desglose.",
+      "unrated": "s.c.",
+      "unratedHint": "Sin calificar: jugó menos de {{minutes}} minutos.",
+      "minutes": "{{minutes}}'",
+      "cameOn": "↑ {{minute}}'",
+      "wentOff": "↓ {{minute}}'",
+      "versus": "vs {{rival}}",
+      "contributionHint": "Aporte medio del jugador a su zona frente al del rival en el duelo de enfrente",
+      "breakdown": {
+        "base": "Base",
+        "zone": "Zona",
+        "goals": "Goles",
+        "cards": "Tarjetas",
+        "injury": "Lesión",
+        "result": "Resultado"
+      }
     },
     "stadiumEntry": "¡{{home}} y {{away}} saltan al terreno de juego del {{stadium}}!",
     "noNotableEvents": "No hay eventos destacados en este partido.",

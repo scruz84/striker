@@ -1,6 +1,10 @@
 package engine
 
-import "github.com/scruz84/striker/common"
+import (
+	"math"
+
+	"github.com/scruz84/striker/common"
+)
 
 type SimulationPipelineImpl struct {
 	simulations []Simulation
@@ -37,6 +41,7 @@ func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Ma
 		AwayAttackRightDiff:  match.AwayAttackRightDiff,
 		AwayAttackLeftDiff:   match.AwayAttackLeftDiff,
 		AwayAttackCenterDiff: match.AwayAttackCenterDiff,
+		PlayerContributions:  playerContributions(match),
 	})
 }
 
@@ -139,12 +144,18 @@ func calculateLateralDefense(def []int64, mid []int64, players *map[int64]common
 		// the lateral defender was sent off (see DisciplineSimulation) - nobody covers that flank
 		return 0
 	}
+	return lateralDefenseValue((*players)[def[0]], centralDefenderCount)
+}
+
+// lateralDefenseValue is one full-back's flank-defense value - calculateLateralDefense's per-player
+// figure, shared with playerContributions so a player's own contribution is exactly what the zone
+// total counts for him.
+func lateralDefenseValue(p common.Player, centralDefenderCount int) float32 {
 	lateralWeight, defenseWeight := float32(0.5), float32(0.5)
 	if centralDefenderCount == backThreeCentralDefenderCount {
 		lateralWeight, defenseWeight = 0.35, 0.65
 	}
-	value := float32((*players)[def[0]].Lateral)*lateralWeight + float32((*players)[def[0]].Defense)*defenseWeight
-	return value
+	return float32(p.Lateral)*lateralWeight + float32(p.Defense)*defenseWeight
 }
 
 func calculateDefense(def []int64, mid []int64, players *map[int64]common.Player) float32 {
@@ -159,12 +170,16 @@ func calculateLateralMidfield(def []int64, mid []int64, players *map[int64]commo
 	if len(def) == 0 {
 		return 0
 	}
+	return lateralMidfieldValue((*players)[def[0]], centralDefenderCount)
+}
+
+// lateralMidfieldValue is one full-back's flank-midfield value (see calculateLateralMidfield).
+func lateralMidfieldValue(p common.Player, centralDefenderCount int) float32 {
 	lateralWeight, midfieldWeight := float32(0.5), float32(0.5)
 	if centralDefenderCount == backThreeCentralDefenderCount {
 		lateralWeight, midfieldWeight = 0.65, 0.35
 	}
-	value := float32((*players)[def[0]].Lateral)*lateralWeight + float32((*players)[def[0]].Midfield)*midfieldWeight
-	return value
+	return float32(p.Lateral)*lateralWeight + float32(p.Midfield)*midfieldWeight
 }
 
 func calculateMidfield(def []int64, mid []int64, players *map[int64]common.Player) float32 {
@@ -187,8 +202,12 @@ func calculateLateralAttack(striker []int64, mid []int64, players *map[int64]com
 	if len(wide) == 0 {
 		return 0
 	}
-	value := float32((*players)[wide[0]].Lateral)*0.5 + float32((*players)[wide[0]].Shot)*0.5
-	return value
+	return lateralAttackValue((*players)[wide[0]])
+}
+
+// lateralAttackValue is one wide attacker's flank-attack value (see calculateLateralAttack).
+func lateralAttackValue(p common.Player) float32 {
+	return float32(p.Lateral)*0.5 + float32(p.Shot)*0.5
 }
 
 func calculateAttack(striker []int64, mid []int64, players *map[int64]common.Player) float32 {
@@ -213,4 +232,174 @@ func calculateHomeAttackDiff(match *common.MatchSimulation) float32 {
 
 func calculateAwayAttackDiff(match *common.MatchSimulation) float32 {
 	return match.AwayQua.Attack - match.HomeQua.Defense
+}
+
+// zoneDuelist is one player's raw value in one zone duel - the figure calculateQua adds into that
+// zone for him, before blendLine's spillover.
+type zoneDuelist struct {
+	playerId int64
+	value    float32
+}
+
+// sideDuelists is one side's per-player zone values for a single minute, split by the zone duels
+// they feed (left/right indexes 0/1). It mirrors calculateQua exactly: a full-back feeds both his
+// flank's defense and its midfield, a wide attacker is the lateral striker if the formation has one
+// and otherwise the lateral midfielder, and every striker (lateral ones included) feeds the
+// central attack with his Shot.
+type sideDuelists struct {
+	goalkeepers    []zoneDuelist
+	centralDefense []zoneDuelist
+	centralMid     []zoneDuelist
+	centralAttack  []zoneDuelist
+	flankDefense   [2]*zoneDuelist
+	flankMid       [2]*zoneDuelist
+	flankAttack    [2]*zoneDuelist
+}
+
+func newSideDuelists(playersByPosition *map[int][]int64, players *map[int64]common.Player) sideDuelists {
+	byPos := *playersByPosition
+	d := sideDuelists{}
+	centralDefenderCount := len(byPos[common.DEFENSE])
+	for _, id := range byPos[common.GOALKEEPER] {
+		d.goalkeepers = append(d.goalkeepers, zoneDuelist{id, float32((*players)[id].GoalKeeper)})
+	}
+	for _, id := range byPos[common.DEFENSE] {
+		d.centralDefense = append(d.centralDefense, zoneDuelist{id, float32((*players)[id].Defense)})
+	}
+	for _, id := range byPos[common.MIDFIELD] {
+		d.centralMid = append(d.centralMid, zoneDuelist{id, float32((*players)[id].Midfield)})
+	}
+	for _, pos := range []int{common.STRIKER, common.LATERAL_STRIKER_LEFT, common.LATERAL_STRIKER_RIGHT} {
+		for _, id := range byPos[pos] {
+			d.centralAttack = append(d.centralAttack, zoneDuelist{id, float32((*players)[id].Shot)})
+		}
+	}
+	flanks := [2]struct{ defense, midfield, striker int }{
+		{common.LATERAL_DEFENSE_LEFT, common.LATERAL_MIDFIELD_LEFT, common.LATERAL_STRIKER_LEFT},
+		{common.LATERAL_DEFENSE_RIGHT, common.LATERAL_MIDFIELD_RIGHT, common.LATERAL_STRIKER_RIGHT},
+	}
+	for side, flank := range flanks {
+		if def := byPos[flank.defense]; len(def) > 0 {
+			p := (*players)[def[0]]
+			d.flankDefense[side] = &zoneDuelist{def[0], lateralDefenseValue(p, centralDefenderCount)}
+			d.flankMid[side] = &zoneDuelist{def[0], lateralMidfieldValue(p, centralDefenderCount)}
+		}
+		wide := byPos[flank.striker]
+		if len(wide) == 0 {
+			wide = byPos[flank.midfield]
+		}
+		if len(wide) > 0 {
+			d.flankAttack[side] = &zoneDuelist{wide[0], lateralAttackValue((*players)[wide[0]])}
+		}
+	}
+	return d
+}
+
+// perPlayerAverage is a central line's per-player value - its raw total over its head count, 0
+// for an empty line (everyone sent off).
+func perPlayerAverage(line []zoneDuelist) float32 {
+	if len(line) == 0 {
+		return 0
+	}
+	total := float32(0)
+	for _, d := range line {
+		total += d.value
+	}
+	return total / float32(len(line))
+}
+
+func duelistValue(d *zoneDuelist) float32 {
+	if d == nil {
+		return 0
+	}
+	return d.value
+}
+
+// contributionAccumulator sums the duels one player feeds this minute, so a player in two duels
+// (a full-back, a lateral striker) ends up with the mean of each figure.
+type contributionAccumulator struct {
+	position   int
+	own, rival float32
+	duels      int
+}
+
+func (a *contributionAccumulator) add(own float32, rival float32) {
+	a.own += own
+	a.rival += rival
+	a.duels++
+}
+
+// playerContributions is this minute's zone contribution of every player on the pitch, both sides
+// (see common.PlayerContribution): his own value in each zone duel his position feeds against the
+// rival's per-player value in the mirrored duel - own left flank against the rival's right, the
+// same crossed pairing processChance and the zone duel panel use. Read from the same
+// *PlayersByPosition and fatigue-adjusted Effective*Players calculateQua used for this minute.
+// A player who feeds no duel (a lateral midfielder in a formation that also fields a lateral
+// striker on his flank) is still listed, with 0 against 0, so his minutes count.
+func playerContributions(match *common.MatchSimulation) *common.InstantContributions {
+	home := newSideDuelists(match.HomePlayersByPosition, match.EffectiveHomePlayers)
+	away := newSideDuelists(match.AwayPlayersByPosition, match.EffectiveAwayPlayers)
+	return &common.InstantContributions{
+		Home: sideContributions(match.HomePlayersByPosition, home, away),
+		Away: sideContributions(match.AwayPlayersByPosition, away, home),
+	}
+}
+
+func sideContributions(playersByPosition *map[int][]int64, own sideDuelists, rival sideDuelists) map[int64]common.PlayerContribution {
+	contributions := make(map[int64]common.PlayerContribution)
+	acc := make(map[int64]*contributionAccumulator)
+	for position, ids := range *playersByPosition {
+		for _, id := range ids {
+			acc[id] = &contributionAccumulator{position: position}
+		}
+	}
+	add := func(d *zoneDuelist, rivalValue float32) {
+		if d == nil {
+			return
+		}
+		if a, ok := acc[d.playerId]; ok {
+			a.add(d.value, rivalValue)
+		}
+	}
+
+	rivalAttackers := make([]zoneDuelist, 0, len(rival.centralAttack)+2)
+	rivalAttackers = append(rivalAttackers, rival.centralAttack...)
+	for _, flank := range rival.flankAttack {
+		if flank != nil {
+			rivalAttackers = append(rivalAttackers, *flank)
+		}
+	}
+	rivalAttackerAverage := perPlayerAverage(rivalAttackers)
+	for i := range own.goalkeepers {
+		add(&own.goalkeepers[i], rivalAttackerAverage)
+	}
+	for i := range own.centralDefense {
+		add(&own.centralDefense[i], perPlayerAverage(rival.centralAttack))
+	}
+	for i := range own.centralMid {
+		add(&own.centralMid[i], perPlayerAverage(rival.centralMid))
+	}
+	for i := range own.centralAttack {
+		add(&own.centralAttack[i], perPlayerAverage(rival.centralDefense))
+	}
+	for side := 0; side < 2; side++ {
+		mirrored := 1 - side
+		add(own.flankDefense[side], duelistValue(rival.flankAttack[mirrored]))
+		add(own.flankMid[side], duelistValue(rival.flankMid[mirrored]))
+		add(own.flankAttack[side], duelistValue(rival.flankDefense[mirrored]))
+	}
+
+	for id, a := range acc {
+		c := common.PlayerContribution{Position: a.position}
+		if a.duels > 0 {
+			c.Own = roundTenth(a.own / float32(a.duels))
+			c.Rival = roundTenth(a.rival / float32(a.duels))
+		}
+		contributions[id] = c
+	}
+	return contributions
+}
+
+func roundTenth(v float32) float32 {
+	return float32(math.Round(float64(v)*10) / 10)
 }

@@ -141,11 +141,11 @@ const matchRatingBaseline = 6.0
 const FormDecayPerMatchBenched = 1
 
 // driftFormPlayed updates a player's Form after a match they featured in: a baseline rise for
-// simply playing (FormRisePerMatch), adjusted up or down by how far their own match rating (see
-// common.ComputeMatchRatings, recomputed in-memory for this exact match by
-// matchRatingsForProgression) landed from matchRatingBaseline. hasRating is false only when the
-// match had no computed ratings at all (missing lineup/event data) - plain featuring still counts
-// then, just without a performance adjustment either way.
+// simply playing (FormRisePerMatch), adjusted up or down by how far their own match rating (the
+// stored one - see matchRatingsForProgression) landed from matchRatingBaseline. hasRating is false
+// when the player has no rating for the match - an unrated "s.c." appearance under
+// common.MatchRatingMinMinutes, or a match with no lineup/event data - so plain featuring still
+// counts, just without a performance adjustment either way.
 func driftFormPlayed(form int, rating float64, hasRating bool) int {
 	delta := FormRisePerMatch
 	if hasRating {
@@ -266,24 +266,23 @@ func updatePlayerSkillsAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 	updateTeamPlayersAfterMatch(dbCtx, match.Away, match.AwayPlayers, match.AwayMinutesByPosition, ratings, season, r)
 }
 
-// matchRatingsForProgression computes this match's own per-player ratings in-memory, the exact
-// same way common.WeekMatchById does on every read (see common.ComputeMatchRatings) - purely a
-// function of the match's own id, events and result, so this produces byte-identical numbers to
-// whatever the player will later see on the match's own report page, with no extra database
-// round-trip. Drives Form's post-match update (see driftFormPlayed) - a player's Form moves on how
-// well they actually played, not merely on whether they featured. Returns an empty map (never nil)
-// when ComputeMatchRatings itself has nothing to go on, so callers can index it unconditionally.
+// matchRatingsForProgression is the per-player ratings that drive Form's post-match update (see
+// driftFormPlayed) - a player's Form moves on how well they actually played, not merely on whether
+// they featured. They are the match's stored ratings (match.StoredRatings, carried by the
+// post-match payload - the exact numbers the match page shows), unrated "s.c." appearances left
+// out. A payload stored by a build from before stored ratings has none, so they're computed from
+// its starting lineups and events instead (see common.ComputePlayerRatings). Returns an empty map
+// (never nil) when there is nothing to go on, so callers can index it unconditionally.
 func matchRatingsForProgression(match *common.MatchSimulation) map[int64]float64 {
-	ratings := common.ComputeMatchRatings(&common.WeekMatch{
-		MatchId:     match.Id,
-		HomeGoals:   match.HomeGoals,
-		AwayGoals:   match.AwayGoals,
-		Events:      match.Events,
-		HomeLineup:  match.HomeLineup,
-		AwayLineup:  match.AwayLineup,
-		HomePlayers: match.HomePlayers,
-		AwayPlayers: match.AwayPlayers,
-	})
+	if match.StoredRatings != nil {
+		return match.StoredRatings
+	}
+	var events []common.Event
+	if match.Events != nil {
+		events = *match.Events
+	}
+	ratings := common.RatingsById(common.ComputePlayerRatings(match.Home, match.Away, match.HomeLineup, match.AwayLineup,
+		nil, events, common.MatchFinalMinute(nil, events)))
 	if ratings == nil {
 		return map[int64]float64{}
 	}

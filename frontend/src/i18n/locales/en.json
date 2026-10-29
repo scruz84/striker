@@ -349,7 +349,13 @@
       "goalkeeper": "GK",
       "defense": "DEF",
       "midfield": "MID",
-      "striker": "ST"
+      "striker": "ST",
+      "leftBack": "LB",
+      "rightBack": "RB",
+      "leftMidfield": "LM",
+      "rightMidfield": "RM",
+      "leftStriker": "LW",
+      "rightStriker": "RW"
     }
   },
   "formations": {
@@ -1069,7 +1075,23 @@
       "nextMinute": "Next minute",
       "sortLabel": "Sort ratings",
       "sortByRating": "By rating",
-      "sortByPosition": "By position"
+      "sortByPosition": "By position",
+      "help": "A rating starts at 6.0 and adds the player's contribution to his zone against the rival's (the same figure the engine uses to decide who wins each zone), his goals, cards and injuries, and the result scaled by the minutes he played. Under 10 minutes he is not rated (N/R). Tap a rating to see its breakdown.",
+      "unrated": "N/R",
+      "unratedHint": "Not rated: played under {{minutes}} minutes.",
+      "minutes": "{{minutes}}'",
+      "cameOn": "↑ {{minute}}'",
+      "wentOff": "↓ {{minute}}'",
+      "versus": "vs {{rival}}",
+      "contributionHint": "The player's average contribution to his zone against the rival's in the opposing duel",
+      "breakdown": {
+        "base": "Base",
+        "zone": "Zone",
+        "goals": "Goals",
+        "cards": "Cards",
+        "injury": "Injury",
+        "result": "Result"
+      }
     },
     "stadiumEntry": "{{home}} and {{away}} take to the pitch at {{stadium}}!",
     "noNotableEvents": "No notable events in this match.",

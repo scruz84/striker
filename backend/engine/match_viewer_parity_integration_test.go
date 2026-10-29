@@ -2,6 +2,7 @@ package engine
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -170,6 +171,50 @@ func TestSimulateCupTie_StoresInstantsAndFlavor(t *testing.T) {
 	if details.HomeStadiumName != "Estadio Norte" {
 		t.Errorf("expected the home stadium name, got %q", details.HomeStadiumName)
 	}
+	assertStoredRatingsRebuildFromInstants(t, details.PlayerRatings, *details.HomeTeamId, *details.AwayTeamId, instants, details.Events)
+}
+
+// assertStoredRatingsRebuildFromInstants pins the stored ratings of a just-simulated fixture
+// against its stored instants and events: every instant carries contributions, every player any
+// of them lists (or any rating event names) has exactly one rating, and recomputing them from the
+// stored data - what the frontend does when it scrubs back to the final minute - gives the very
+// same records.
+func assertStoredRatingsRebuildFromInstants(t *testing.T, stored []common.PlayerRating, home int64, away int64,
+	instants []common.MatchInstant, events []common.Event) {
+	t.Helper()
+	if len(stored) == 0 {
+		t.Fatal("expected stored player ratings")
+	}
+	listed := make(map[int64]bool)
+	for _, instant := range instants {
+		if instant.PlayerContributions == nil {
+			t.Fatalf("instant at minute %d has no player contributions", instant.Minute)
+		}
+		for id := range instant.PlayerContributions.Home {
+			listed[id] = true
+		}
+		for id := range instant.PlayerContributions.Away {
+			listed[id] = true
+		}
+	}
+	rated := make(map[int64]bool)
+	for _, r := range stored {
+		if rated[r.PlayerId] {
+			t.Fatalf("player %d rated twice", r.PlayerId)
+		}
+		rated[r.PlayerId] = true
+	}
+	for id := range listed {
+		if !rated[id] {
+			t.Errorf("player %d was on the pitch but has no rating", id)
+		}
+	}
+	recomputed := common.ComputePlayerRatings(home, away, nil, nil, instants, events, common.MatchFinalMinute(instants, events))
+	gotJson, _ := json.Marshal(stored)
+	wantJson, _ := json.Marshal(recomputed)
+	if string(gotJson) != string(wantJson) {
+		t.Errorf("stored ratings differ from a recomputation:\n stored     %s\n recomputed %s", gotJson, wantJson)
+	}
 }
 
 // TestSimulateFriendly_StoredAttendanceMatchesTicketRevenue pins that a friendly's stored crowd is
@@ -206,6 +251,13 @@ func TestSimulateFriendly_StoredAttendanceMatchesTicketRevenue(t *testing.T) {
 	if played.WorldCupGroupName != "" || played.WorldCupRound != 0 {
 		t.Errorf("an ordinary friendly has no World Cup label, got %q / %d", played.WorldCupGroupName, played.WorldCupRound)
 	}
+	if err := common.EnrichPlayedFriendly(dbCtx, played); err != nil {
+		t.Fatalf("EnrichPlayedFriendly: %s", err)
+	}
+	if played.MatchInstants == nil || played.Events == nil {
+		t.Fatal("expected the played friendly's instants and events")
+	}
+	assertStoredRatingsRebuildFromInstants(t, played.PlayerRatings, home, away, *played.MatchInstants, *played.Events)
 
 	var description string
 	if err := db.QueryRow(`SELECT description FROM team_transactions WHERE team_id = $1 AND reason = $2 ORDER BY 1 LIMIT 1`,
@@ -215,5 +267,98 @@ func TestSimulateFriendly_StoredAttendanceMatchesTicketRevenue(t *testing.T) {
 	want := fmt.Sprintf("(%d attendance", played.Attendance)
 	if played.Attendance <= 0 || !strings.Contains(description, want) {
 		t.Errorf("stored attendance %d must be the one in the ticket revenue description %q", played.Attendance, description)
+	}
+}
+
+// TestSimulateMatch_StoresPlayerRatings pins that a league match stores its per-player ratings
+// with the result and that WeekMatchById returns them as stored, with the id -> rating map
+// holding only the rated players.
+func TestSimulateMatch_StoresPlayerRatings(t *testing.T) {
+	e := newSimEnv(t, "zv3")
+	matchId := e.leagueMatch(0)
+	if _, err := simulateMatch(e.dbCtx, e.weekMatch(matchId)); err != nil {
+		t.Fatalf("simulateMatch: %s", err)
+	}
+
+	match, err := common.WeekMatchById(e.dbCtx, matchId)
+	if err != nil || match == nil {
+		t.Fatalf("WeekMatchById: %v, %v", match, err)
+	}
+	if match.MatchInstants == nil || match.Events == nil {
+		t.Fatal("expected the match's instants and events")
+	}
+	assertStoredRatingsRebuildFromInstants(t, match.PlayerRatings, e.home, e.away, *match.MatchInstants, *match.Events)
+	if match.Ratings == nil {
+		t.Fatal("expected the id -> rating map")
+	}
+	for _, r := range match.PlayerRatings {
+		rating, inMap := (*match.Ratings)[r.PlayerId]
+		if inMap != r.Rated || (inMap && rating != r.Rating) {
+			t.Errorf("player %d: map has %v (%v), record is rated=%v %v", r.PlayerId, rating, inMap, r.Rated, r.Rating)
+		}
+		if _, named := (*match.HomePlayers)[r.PlayerId]; !named {
+			if _, named := (*match.AwayPlayers)[r.PlayerId]; !named {
+				t.Errorf("rated player %d is missing from both players maps", r.PlayerId)
+			}
+		}
+	}
+}
+
+// TestWeekMatchById_LegacyMatchRatesSubstitutedOffScorer pins the read-time fallback for a match
+// simulated before stored ratings (no rating rows, no contributions): the starter who scored and
+// was then replaced keeps his goal and his 60 minutes, and the substitute is rated separately with
+// the remaining 30 and his name resolved.
+func TestWeekMatchById_LegacyMatchRatesSubstitutedOffScorer(t *testing.T) {
+	e := newSimEnv(t, "zv4")
+	matchId := e.leagueMatch(0)
+	if _, err := simulateMatch(e.dbCtx, e.weekMatch(matchId)); err != nil {
+		t.Fatalf("simulateMatch: %s", err)
+	}
+	lineups, err := common.GetLineupsForMatch(e.dbCtx, matchId, &[]int64{e.home, e.away})
+	if err != nil {
+		t.Fatalf("GetLineupsForMatch: %s", err)
+	}
+	var starter int64
+	for _, pos := range (*lineups)[e.home].Positions {
+		if pos.Position != common.GOALKEEPER {
+			starter = pos.PlayerId
+			break
+		}
+	}
+	bench := e.scan(`SELECT player_id FROM players WHERE team_id = $1 AND player_id <> ALL($2) ORDER BY player_id LIMIT 1`,
+		e.home, common.LineupPlayerIds((*lineups)[e.home]))
+
+	// Turn it into a pre-init89 match: no stored ratings, no contributions, and known events.
+	e.exec(`DELETE FROM match_player_ratings WHERE kind = $1 AND match_id = $2`, common.SimulationKindLeague, matchId)
+	e.exec(`UPDATE match_instants SET player_contributions = NULL WHERE match_id = $1`, matchId)
+	e.exec(`DELETE FROM match_events WHERE match_id = $1`, matchId)
+	e.exec(`UPDATE matches SET home_goals = 1, away_goals = 0 WHERE match_id = $1`, matchId)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.GOAL, e.home, e.away, 20, fmt.Sprintf("[%d]", starter), `["S"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.SUBSTITUTION, e.home, e.away, 60, fmt.Sprintf("[%d, %d]", starter, bench), `["S", "B"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE)
+
+	match, err := common.WeekMatchById(e.dbCtx, matchId)
+	if err != nil || match == nil {
+		t.Fatalf("WeekMatchById: %v, %v", match, err)
+	}
+	var scorer, sub *common.PlayerRating
+	for i := range match.PlayerRatings {
+		switch match.PlayerRatings[i].PlayerId {
+		case starter:
+			scorer = &match.PlayerRatings[i]
+		case bench:
+			sub = &match.PlayerRatings[i]
+		}
+	}
+	if scorer == nil || scorer.Goals != 1.4 || scorer.Minutes != 60 || scorer.Zone != 0 || scorer.Own != nil {
+		t.Fatalf("substituted-off scorer: %+v", scorer)
+	}
+	if sub == nil || sub.Minutes != 30 || sub.CameOn == nil || *sub.CameOn != 60 || sub.Result != 0.1 {
+		t.Fatalf("substitute: %+v", sub)
+	}
+	if _, ok := (*match.HomePlayers)[bench]; !ok {
+		t.Error("the substitute must be in the home players map")
+	}
+	if _, ok := (*match.Ratings)[starter]; !ok {
+		t.Error("the substituted-off scorer must keep his rating in the id -> rating map")
 	}
 }

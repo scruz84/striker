@@ -33,9 +33,9 @@ type LiveMatchMessage struct {
 	// published right before the first "instant" (see BroadcastMatchLive) - the starting XI each
 	// manager picked, which stays fixed for the whole match (substitutions swap who occupies a
 	// position in *PlayersByPosition, never the Lineup.Positions each side kicked off with - see
-	// SubstitutionSimulation.Apply). Lets a live viewer compute the same per-player match ratings
-	// a played match's report shows (common.ComputeMatchRatings), evolving minute to minute as
-	// events come in, without a per-minute payload any heavier than it already was.
+	// SubstitutionSimulation.Apply). Together with each instant's PlayerContributions and the
+	// events, lets a live viewer compute the same per-player match ratings a played match's report
+	// shows (common.ComputePlayerRatings), evolving minute to minute.
 	HomeLineup  *Lineup           `json:"homeLineup,omitempty"`
 	AwayLineup  *Lineup           `json:"awayLineup,omitempty"`
 	HomePlayers *map[int64]Player `json:"homePlayers,omitempty"`

@@ -348,3 +348,38 @@ func TestDriftSkillsForPosition_LateralStrikerAlsoDriftsLateral(t *testing.T) {
 		}
 	}
 }
+
+// A substitute's stored rating drives his Form like a starter's: 7.0 -> +2 + round(1.0 * 2) = +4.
+func TestMatchRatingsForProgression_UsesStoredRatings(t *testing.T) {
+	match := &common.MatchSimulation{StoredRatings: map[int64]float64{17: 7.0}}
+	ratings := matchRatingsForProgression(match)
+	rating, ok := ratings[17]
+	if !ok || rating != 7.0 {
+		t.Fatalf("got %v (%v), want the stored 7.0", rating, ok)
+	}
+	if got := driftFormPlayed(50, rating, ok); got != 54 {
+		t.Fatalf("Form after a 7.0 substitute appearance: got %d, want 54", got)
+	}
+	// An unrated ("s.c.") appearance isn't in the stored map: featuring alone gives +2.
+	_, ok = ratings[18]
+	if got := driftFormPlayed(50, ratings[18], ok); got != 52 {
+		t.Fatalf("Form after an unrated appearance: got %d, want 52", got)
+	}
+}
+
+// A payload stored before ratings were stored carries none: Form's ratings are computed from the
+// starting lineups and events instead, crediting the scorer.
+func TestMatchRatingsForProgression_FallsBackWithoutStoredRatings(t *testing.T) {
+	events := []common.Event{{EventType: common.GOAL, Minute: 30, TeamOwner: 1, TeamOwnerPlayers: []int64{7}, HomeGoals: 1}}
+	match := &common.MatchSimulation{
+		Home:       1,
+		Away:       2,
+		HomeLineup: &common.Lineup{TeamId: 1, Positions: []common.LineupPosition{{PlayerId: 7, Position: common.STRIKER}}},
+		AwayLineup: &common.Lineup{TeamId: 2, Positions: []common.LineupPosition{{PlayerId: 8, Position: common.DEFENSE}}},
+		Events:     &events,
+	}
+	ratings := matchRatingsForProgression(match)
+	if ratings[7] != 7.7 || ratings[8] != 5.7 {
+		t.Fatalf("got %v, want scorer 7.7 (6 + 1.4 + 0.3) and loser 5.7", ratings)
+	}
+}

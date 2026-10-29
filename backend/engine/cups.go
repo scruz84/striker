@@ -476,13 +476,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 
 	// The result, events, instants and pending post-match effects are stored in one transaction that
 	// only applies while the tie is still unplayed - see simulateMatch.
-	if err := common.SaveCupTieResultTx(dbCtx, tie.TieId, wentToPenalties, winnerTeamId, common.MatchResult{
-		HomeGoals: matchSimulation.HomeGoals,
-		AwayGoals: matchSimulation.AwayGoals,
-		Events:    *matchSimulation.Events,
-		Instants:  *matchSimulation.MatchInstants,
-		Effects:   newPostMatchPayload(matchSimulation, wentToPenalties),
-	}); err != nil {
+	if err := common.SaveCupTieResultTx(dbCtx, tie.TieId, wentToPenalties, winnerTeamId, newMatchResult(matchSimulation, wentToPenalties)); err != nil {
 		return err
 	}
 

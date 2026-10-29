@@ -21,7 +21,7 @@ export function slotIndexWithinPosition(lineup: Lineup, target: Lineup['position
 }
 
 // A Hattrick-style rating badge: a single ring around the score, filled proportionally to the
-// rating (out of matchRatingMax=10 - see backend common.ComputeMatchRatings) and colored by how
+// rating (out of matchRatingMax=10 - see backend common.ComputePlayerRatings) and colored by how
 // good it is. Replaces the old face + shirt-number + rating trio, which crammed three separate
 // pieces of information into one small pitch slot.
 export function MatchPitchChip({ player, rating }: { player: Player; rating?: number }) {
