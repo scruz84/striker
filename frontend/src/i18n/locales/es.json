@@ -537,7 +537,8 @@
     "listPlayer": {
       "title": "Poner en venta",
       "error": "No se pudo listar a ese jugador.",
-      "hint": "Su salario actual es {{wage}}/partido."
+      "hint": "Su salario actual es {{wage}}/partido.",
+      "comparablesError": "No se pudieron cargar los traspasos comparables. Aún puedes ponerlo en venta."
     },
     "player": "Jugador",
     "askingPrice": "Precio de venta",

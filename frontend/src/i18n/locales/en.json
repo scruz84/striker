@@ -537,7 +537,8 @@
     "listPlayer": {
       "title": "List for sale",
       "error": "Could not list that player.",
-      "hint": "Their current wage is {{wage}}/match."
+      "hint": "Their current wage is {{wage}}/match.",
+      "comparablesError": "Could not load comparable transfers. You can still list the player."
     },
     "player": "Player",
     "askingPrice": "Asking price",

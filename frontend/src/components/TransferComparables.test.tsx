@@ -72,6 +72,12 @@ describe('TransferComparables', () => {
     expect(screen.getByText(/Could not load comparable transfers/)).toBeTruthy()
   })
 
+  it('replaces the error note with a custom errorText', () => {
+    renderIt({ isLoading: false, isError: true, errorText: 'Custom failure note' })
+    expect(screen.getByText('Custom failure note')).toBeTruthy()
+    expect(screen.queryByText(/You can still send your offer/)).toBeNull()
+  })
+
   it('explains an empty result', () => {
     renderIt({ result: result({ count: 0, comparables: [], medianFee: undefined, minFee: undefined, maxFee: undefined }), isLoading: false, isError: false })
     expect(screen.getByText('No similar players have been transferred in the last 60 days')).toBeTruthy()

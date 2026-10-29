@@ -13,12 +13,14 @@ interface TransferComparablesProps {
   result?: TransferComparablesResult
   isLoading: boolean
   isError: boolean
+  /** Replaces the default note, which promises the offer can still be sent. */
+  errorText?: string
 }
 
 /** Recent sales of players like the offer's target (same position, similar age and average skill
  * at the time of the sale) - a reference for the fee. Only public figures are ever shown. A failure
- * is a short note: it must never get in the way of sending the offer. */
-export function TransferComparables({ result, isLoading, isError }: TransferComparablesProps) {
+ * is a short note: it must never get in the way of sending the offer or listing the player. */
+export function TransferComparables({ result, isLoading, isError, errorText }: TransferComparablesProps) {
   const { t } = useTranslation()
 
   let body
@@ -33,7 +35,7 @@ export function TransferComparables({ result, isLoading, isError }: TransferComp
   } else if (isError || !result) {
     body = (
       <Alert severity="info" icon={false}>
-        {t('transfers.offerDialog.comparables.error')}
+        {errorText ?? t('transfers.offerDialog.comparables.error')}
       </Alert>
     )
   } else if (result.comparables.length === 0) {

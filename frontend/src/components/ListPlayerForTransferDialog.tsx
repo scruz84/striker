@@ -3,11 +3,12 @@ import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useTranslation } from 'react-i18next'
-import { useListPlayer } from '../api/hooks'
+import { useListPlayer, useTransferComparables } from '../api/hooks'
 import type { Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
 import { NumberField } from './NumberField'
 import { ResponsiveDialog } from './ResponsiveDialog'
+import { TransferComparables } from './TransferComparables'
 
 interface ListPlayerForTransferDialogProps {
   player: Player
@@ -21,6 +22,7 @@ interface ListPlayerForTransferDialogProps {
 export function ListPlayerForTransferDialog({ player, open, onClose }: ListPlayerForTransferDialogProps) {
   const { t } = useTranslation()
   const listPlayer = useListPlayer()
+  const comparables = useTransferComparables(player.id, open)
   const [askingPrice, setAskingPrice] = useState('')
 
   useEffect(() => {
@@ -61,6 +63,12 @@ export function ListPlayerForTransferDialog({ player, open, onClose }: ListPlaye
           fullWidth
           autoFocus
           helperText={t('transfers.listPlayer.hint', { wage: formatCurrency(player.wage) })}
+        />
+        <TransferComparables
+          result={comparables.data}
+          isLoading={comparables.isLoading}
+          isError={comparables.isError}
+          errorText={t('transfers.listPlayer.comparablesError')}
         />
         {listPlayer.isError && <Alert severity="error">{t('transfers.listPlayer.error')}</Alert>}
       </Stack>

@@ -24,7 +24,6 @@ import {
   useFireTrainer,
   useFreeAgents,
   useHireTrainer,
-  useListPlayer,
   useListPlayerForLoan,
   useLoanListings,
   useMe,
@@ -71,6 +70,7 @@ import {
   type SortDirection,
 } from './marketUi'
 import { CountryFlag } from '../../components/CountryFlag'
+import { ListPlayerDialog } from './ListPlayerDialog'
 
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
 type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
@@ -194,88 +194,6 @@ export function TransferMarketPage() {
       {tab === 3 && <FreeAgentsTab />}
       {tab === 4 && <CoachingTab />}
     </Box>
-  )
-}
-
-/** Dialog for putting one of your players on the market: pick who, name the price. Replaces the
- * always-visible form that pushed every listing 400px down the page. */
-function ListPlayerDialog({
-  open,
-  onClose,
-  players,
-}: {
-  open: boolean
-  onClose: () => void
-  players: Player[]
-}) {
-  const { t } = useTranslation()
-  const listPlayer = useListPlayer()
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | ''>('')
-  const [askingPrice, setAskingPrice] = useState('')
-  const selected = players.find((p) => p.id === selectedPlayerId)
-
-  const handleList = () => {
-    const price = Number(askingPrice)
-    if (selectedPlayerId === '' || !price || price <= 0) {
-      return
-    }
-    listPlayer.mutate(
-      { playerId: selectedPlayerId, askingPrice: price },
-      {
-        onSuccess: () => {
-          setSelectedPlayerId('')
-          setAskingPrice('')
-          onClose()
-        },
-      },
-    )
-  }
-
-  return (
-    <ResponsiveDialog
-      open={open}
-      onClose={onClose}
-      title={t('transfers.listPlayer.title')}
-      actions={
-        <>
-          <Button onClick={onClose}>{t('common.cancel')}</Button>
-          <Button variant="contained" disabled={selectedPlayerId === '' || !askingPrice || listPlayer.isPending} onClick={handleList}>
-            {t('transfers.list')}
-          </Button>
-        </>
-      }
-    >
-      <Stack spacing={2}>
-        <Typography variant="body2" color="text.secondary">
-          {t('transfers.listDialog.hint')}
-        </Typography>
-        {listPlayer.isError && <Alert severity="error">{t('transfers.listPlayer.error')}</Alert>}
-        <FormControl fullWidth>
-          <InputLabel id="list-player-label">{t('transfers.listDialog.selectPlayer')}</InputLabel>
-          <Select
-            labelId="list-player-label"
-            label={t('transfers.listDialog.selectPlayer')}
-            value={selectedPlayerId}
-            onChange={(event: SelectChangeEvent<number | ''>) => setSelectedPlayerId(event.target.value === '' ? '' : Number(event.target.value))}
-          >
-            {players.map((player) => (
-              <MenuItem key={player.id} value={player.id}>
-                <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
-                {player.firstName} {player.lastName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <NumberField
-          label={t('transfers.askingPrice')}
-          value={askingPrice}
-          onValueChange={setAskingPrice}
-          currency
-          fullWidth
-          helperText={selected ? t('transfers.listPlayer.hint', { wage: formatCurrency(selected.wage) }) : undefined}
-        />
-      </Stack>
-    </ResponsiveDialog>
   )
 }
 

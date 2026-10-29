@@ -2,8 +2,9 @@
 
 ## Purpose
 
-Gives a manager making a transfer offer a reference price: recent completed transfers of
-players similar to the target, built only from information that is public for every player.
+Gives a manager making a transfer offer or listing one of their own players a reference price:
+recent completed transfers of players similar to the target, built only from information that is
+public for every player.
 
 ## Requirements
 
@@ -106,6 +107,7 @@ The transfer offer dialog SHALL show a "Recent comparable transfers" section bel
 - Tests: `backend/common/transfer_comparables_test.go` (summary, statement literals, no private JSON
   field), `transfer_comparables_integration_test.go` (every spec scenario, snapshot at the move,
   `TestTransferComparables_UsesIndex`), `backend/handlers/transferComparablesHandler_test.go`.
-- `frontend/src/components/TransferComparables.tsx`, `TransferOfferDialog.tsx`;
+- `frontend/src/components/TransferComparables.tsx` (`errorText` prop), `TransferOfferDialog.tsx`,
+  `ListPlayerForTransferDialog.tsx`; `frontend/src/features/transfers/ListPlayerDialog.tsx`;
   `frontend/src/api/hooks.ts` (`useTransferComparables`), `api/types.ts`; strings under
   `transfers.offerDialog.comparables.*` in `i18n/locales/{en,es}.json`.
