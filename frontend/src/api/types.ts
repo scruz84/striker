@@ -294,12 +294,22 @@ export interface LineupSubstitution {
 
 export const MAX_SCHEDULED_SUBSTITUTIONS = 3
 
+// ProjectedReplacement says who the pre-kickoff refill would put in an unavailable starter's slot
+// if the match kicked off now. Only the lineup GET endpoints an owner opens fill it, and only when a
+// starter is unavailable; the saved lineup itself is never changed.
+export interface ProjectedReplacement {
+  playerOutId: number
+  playerInId: number
+  position: number
+}
+
 export interface Lineup {
   matchId: number
   teamId: number
   formation: number
   positions: LineupPosition[]
   substitutions: LineupSubstitution[]
+  projectedReplacements?: ProjectedReplacement[]
 }
 
 export interface MatchEvent {

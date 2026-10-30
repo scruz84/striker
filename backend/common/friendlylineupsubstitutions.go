@@ -35,3 +35,8 @@ func GetFriendlyLineupSubstitutions(dbCtx *DatabaseContext, matchId int64, teamI
 	}
 	return subs, nil
 }
+
+// FriendlyLineupOverrideExistsStmtSql checks whether teamId has a per-friendly lineup saved for
+// matchId at all (see SetFriendlyLineup) - a manager's own, or the snapshot a previous simulation
+// attempt stored.
+const FriendlyLineupOverrideExistsStmtSql = "SELECT EXISTS(SELECT 1 FROM friendly_lineup WHERE match_id = $1 AND team_id = $2)"

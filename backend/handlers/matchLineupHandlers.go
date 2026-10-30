@@ -103,7 +103,7 @@ func GetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if hasOverride {
-			c.JSON(http.StatusOK, lineup)
+			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, &lineup, false))
 			return
 		}
 
@@ -121,7 +121,7 @@ func GetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		defaultLineup.MatchId = matchId
 		defaultLineup.Formation = formation
-		c.JSON(http.StatusOK, defaultLineup)
+		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, defaultLineup, false))
 	}
 }
 
@@ -288,7 +288,7 @@ func GetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if hasOverride {
-			c.JSON(http.StatusOK, lineup)
+			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, &lineup, false))
 			return
 		}
 
@@ -306,7 +306,7 @@ func GetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		defaultLineup.MatchId = tieId
 		defaultLineup.Formation = formation
-		c.JSON(http.StatusOK, defaultLineup)
+		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, defaultLineup, false))
 	}
 }
 

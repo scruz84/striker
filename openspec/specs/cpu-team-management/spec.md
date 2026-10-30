@@ -102,6 +102,12 @@ Every CPU action SHALL go through the same production functions a human uses, wi
   `RunAITeamManagement`, `RespondToAllPendingOffers`, `manageRosterIfManager`,
   `listSurplusPlayer`, `promoteFromAcademyForWeakestPosition`, `maximizeTicketPrice`,
   `manageMarketIfDirector`, `refreshAiTeamLineup`, `RunAiTeamDailyActivity`).
+- Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,
+  `planCompetitiveSubstitutions`, `aiSubstitutionGain`) and `common/ailineupfriendly.go`
+  (`planFriendlyRotation`), validated with `common.ValidateLineup` / `ValidateSubstitutions`
+  (`common/lineupvalidation.go`); `engine/aikickoff.go` (`planAiKickoff`, `aiKickoffSeed`) runs in
+  `simulateMatch`, `simulateCupTie` and `simulateFriendly` before `runMatchSimulation`. The fatigue
+  numbers come from `common.FatigueMultiplierAt` (`common/fatigue.go`).
 - `common/aimanager.go` (`RandomAiLevel`, `AiTransferProfileFor`), `common/lineup.go`
   (`SelectBestFormationAndLineup`, `formationRankForAiLevel`), `common/timezones.go`
   (`IsWithinLocalActivityWindow`), `common/transferscoring.go` (`EvaluateIncomingOffer`,

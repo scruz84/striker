@@ -53,7 +53,7 @@ func TestFilterOutfieldPlayers_RemovesExcludedIds(t *testing.T) {
 		common.STRIKER:    {40, 50},
 	}
 
-	filterOutfieldPlayers(&positions, map[int64]bool{20: true, 40: true})
+	common.FilterOutfieldPlayers(&positions, map[int64]bool{20: true, 40: true})
 
 	if got := positions[common.DEFENSE]; len(got) != 1 || got[0] != 10 {
 		t.Fatalf("expected only player 10 left in defense, got %v", got)
@@ -73,7 +73,7 @@ func TestFilterOutfieldPlayers_NeverTouchesGoalkeeper(t *testing.T) {
 
 	// Even if (somehow) the goalkeeper is flagged unavailable, filterOutfieldPlayers only
 	// walks ALL_OUTFIELD_POSITIONS, so the goalkeeper slot must survive untouched.
-	filterOutfieldPlayers(&positions, map[int64]bool{1: true})
+	common.FilterOutfieldPlayers(&positions, map[int64]bool{1: true})
 
 	if got := positions[common.GOALKEEPER]; len(got) != 1 || got[0] != 1 {
 		t.Fatalf("goalkeeper must never be filtered out, got %v", got)
@@ -85,7 +85,7 @@ func TestFilterOutfieldPlayers_NoExclusionsIsNoOp(t *testing.T) {
 		common.DEFENSE: {10, 20},
 	}
 
-	filterOutfieldPlayers(&positions, nil)
+	common.FilterOutfieldPlayers(&positions, nil)
 
 	if got := positions[common.DEFENSE]; len(got) != 2 {
 		t.Fatalf("expected no change with an empty exclusion set, got %v", got)
@@ -113,7 +113,7 @@ func TestBackfillEmptyPositions_FillsBackUpToOriginalCount(t *testing.T) {
 	}
 	unavailable := map[int64]bool{20: true}
 
-	backfillEmptyPositions(&positions, wantCounts, squad, unavailable)
+	common.BackfillEmptyPositions(&positions, wantCounts, squad, unavailable)
 
 	got := positions[common.DEFENSE]
 	if len(got) != 2 {
@@ -134,7 +134,7 @@ func TestBackfillEmptyPositions_NeverPicksAPlayerTwice(t *testing.T) {
 	// not both.
 	squad := []*common.Player{benchPlayer(1, 50)}
 
-	backfillEmptyPositions(&positions, wantCounts, squad, nil)
+	common.BackfillEmptyPositions(&positions, wantCounts, squad, nil)
 
 	total := len(positions[common.DEFENSE]) + len(positions[common.MIDFIELD])
 	if total != 1 {
@@ -148,7 +148,7 @@ func TestBackfillEmptyPositions_LeavesPositionShortWhenSquadExhausted(t *testing
 	wantCounts := map[int]int{common.STRIKER: 2}
 	squad := []*common.Player{benchPlayer(1, 50)}
 
-	backfillEmptyPositions(&positions, wantCounts, squad, nil)
+	common.BackfillEmptyPositions(&positions, wantCounts, squad, nil)
 
 	if got := positions[common.STRIKER]; len(got) != 1 {
 		t.Fatalf("expected striker left short at 1 (only one eligible player existed), got %v", got)
@@ -248,7 +248,7 @@ func TestBackfillEmptyPositions_PutsBestKeeperInGoalWhenLineupHasNone(t *testing
 		{Id: 21, GoalKeeper: 70},
 	}
 
-	backfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
+	common.BackfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
 
 	if got := positions[common.GOALKEEPER]; len(got) != 1 || got[0] != 21 {
 		t.Fatalf("expected the best available keeper (21) in goal, got %v", got)
@@ -259,7 +259,7 @@ func TestBackfillEmptyPositions_KeepsTheLineupsOwnKeeper(t *testing.T) {
 	positions := map[int][]int64{common.GOALKEEPER: {20}}
 	squad := []*common.Player{{Id: 20, GoalKeeper: 30}, {Id: 21, GoalKeeper: 90}}
 
-	backfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
+	common.BackfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
 
 	if got := positions[common.GOALKEEPER]; len(got) != 1 || got[0] != 20 {
 		t.Fatalf("expected the lineup's own keeper (20) untouched, got %v", got)
@@ -288,9 +288,38 @@ func TestBackfillEmptyPositions_AlreadyAtWantCountIsNoOp(t *testing.T) {
 	wantCounts := map[int]int{common.MIDFIELD: 2}
 	squad := []*common.Player{benchPlayer(1, 50), benchPlayer(2, 50), benchPlayer(3, 99)}
 
-	backfillEmptyPositions(&positions, wantCounts, squad, nil)
+	common.BackfillEmptyPositions(&positions, wantCounts, squad, nil)
 
 	if got := positions[common.MIDFIELD]; len(got) != 2 || got[0] != 1 || got[1] != 2 {
 		t.Fatalf("expected midfield untouched when already at its original count, got %v", got)
+	}
+}
+
+func TestKickoffLineup_ListsWhoIsOnThePitchInPositionOrder(t *testing.T) {
+	saved := &common.Lineup{MatchId: 7, TeamId: 3, Formation: common.FormationBalanced,
+		Positions:     []common.LineupPosition{{PlayerId: 10, Position: common.MIDFIELD}},
+		Substitutions: []common.LineupSubstitution{{PlayerOutId: 1, PlayerInId: 2, Minute: 60}}}
+	// player 10, injured, was replaced by 99 in his midfield slot
+	onPitch := map[int][]int64{common.STRIKER: {30}, common.GOALKEEPER: {1}, common.MIDFIELD: {99}}
+
+	kickoff := kickoffLineup(saved, &onPitch)
+
+	if kickoff.MatchId != 7 || kickoff.TeamId != 3 || kickoff.Formation != common.FormationBalanced {
+		t.Fatalf("expected the saved lineup's identity kept, got %+v", kickoff)
+	}
+	want := []common.LineupPosition{{PlayerId: 1, Position: common.GOALKEEPER}, {PlayerId: 99, Position: common.MIDFIELD}, {PlayerId: 30, Position: common.STRIKER}}
+	if len(kickoff.Positions) != len(want) {
+		t.Fatalf("expected %v, got %v", want, kickoff.Positions)
+	}
+	for i := range want {
+		if kickoff.Positions[i] != want[i] {
+			t.Fatalf("expected %v, got %v", want, kickoff.Positions)
+		}
+	}
+	if len(kickoff.Substitutions) != 1 {
+		t.Fatalf("expected the saved substitutions carried over, got %v", kickoff.Substitutions)
+	}
+	if kickoffLineup(nil, &onPitch) != nil {
+		t.Fatalf("expected nil for a side without a saved lineup")
 	}
 }

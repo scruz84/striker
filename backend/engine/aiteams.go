@@ -655,7 +655,7 @@ func refreshAiTeamLineup(dbCtx *common.DatabaseContext, teamId int64, aiLevel in
 		log.Errorf("error fetching squad for AI-managed team %d lineup refresh: %s", teamId, err)
 		return
 	}
-	formation, lineup := common.SelectBestFormationAndLineup(*players, aiLevel)
+	formation, lineup := common.SelectBestFormationAndLineup(*players, aiLevel, rand.New(rand.NewSource(time.Now().UnixNano())))
 	if err := common.SetTeamFormation(dbCtx, teamId, formation); err != nil {
 		log.Errorf("error setting formation for AI-managed team %d: %s", teamId, err)
 	}

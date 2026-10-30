@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"sort"
 
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -31,6 +32,10 @@ const ForfeitGoals = 3
 // default lineup happens to look like right now. Calling this up front freezes today's resolution
 // as this match's own permanent override, mirroring the explicit snapshot
 // SetNationalTeamLineup/SetNationalTeamCupTieLineup already save for national-team fixtures.
+//
+// runMatchSimulation calls it (through a lineupSnapshotStore) right after the pre-kickoff removal
+// and refill of unavailable players, so the stored lineup is the XI that actually kicked off - an
+// injured starter in a saved lineup never shows as a starter, and his replacement is in his slot.
 func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
@@ -56,9 +61,12 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	if err != nil {
 		return nil, err
 	}
-	persistResolvedLineupSnapshot(dbCtx, match.MatchId, match.Home, (*lineups)[match.Home], homeSubstitutions)
-	persistResolvedLineupSnapshot(dbCtx, match.MatchId, match.Away, (*lineups)[match.Away], awaySubstitutions)
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false)
+	// An AI-managed team decides its XI, formation and substitutions now, just before kickoff.
+	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffLeague, match.MatchId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+		persistResolvedLineupSnapshot(dbCtx, match.MatchId, teamId, lineup, substitutions)
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false, snapshot)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +148,12 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // computed best XI rather than the default lineup, see common.GetLineupsForFriendly, so the two
 // would otherwise reference different players) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool) (*common.MatchSimulation, error) {
+//
+// snapshot (nil to skip) is handed each side's kickoff XI and scheduled substitutions right after
+// unavailable players are removed and their slots refilled (see excludeUnavailablePlayers), so a
+// match's stored lineup is the XI that actually started - each caller passes its own competition's
+// persist function (see persistResolvedLineupSnapshot).
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool, snapshot lineupSnapshotStore) (*common.MatchSimulation, error) {
 	homePlayers, err := resolveMatchTeamPlayers(dbCtx, homeTeamId, (*lineups)[homeTeamId])
 	if err != nil {
 		return nil, err
@@ -182,7 +195,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 
 	// Suspended/injured starters must not play even if they're still in the saved lineup - and
 	// rather than leaving their slot empty for the match, the next-best available squad player
-	// steps in, same as a real substitute (see backfillEmptyPositions). The returned sets are
+	// steps in, same as a real substitute (see common.BackfillEmptyPositions). The returned sets are
 	// kept on the match so InjurySimulation can reuse them later, when picking a bench player to
 	// bring on for someone injured mid-match, without re-querying the database.
 	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers, isFriendly)
@@ -195,6 +208,20 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	}
 	matchSimulation.HomeUnavailablePlayers = homeUnavailable
 	matchSimulation.AwayUnavailablePlayers = awayUnavailable
+
+	// From here on HomeLineup/AwayLineup are the XI that actually kicked off - the live viewer's
+	// "lineups" message, the stored ratings' starters and the post-match payload all read them,
+	// and none of those should name a starter who was swapped out before kickoff.
+	if homeKickoff := kickoffLineup((*lineups)[homeTeamId], matchSimulation.HomePlayersByPosition); homeKickoff != nil {
+		matchSimulation.HomeLineup = homeKickoff
+	}
+	if awayKickoff := kickoffLineup((*lineups)[awayTeamId], matchSimulation.AwayPlayersByPosition); awayKickoff != nil {
+		matchSimulation.AwayLineup = awayKickoff
+	}
+	if snapshot != nil {
+		snapshot(homeTeamId, matchSimulation.HomeLineup, homeSubstitutions)
+		snapshot(awayTeamId, matchSimulation.AwayLineup, awaySubstitutions)
+	}
 
 	// A squad crisis can leave a side unable to even kick off with enough players (the backfill
 	// above only ever restores what the squad actually has available) - checked before a single
@@ -231,6 +258,36 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	}
 
 	return matchSimulation, nil
+}
+
+// lineupSnapshotStore records the lineup a side actually kicked off with - see runMatchSimulation.
+type lineupSnapshotStore func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution)
+
+// kickoffLineup rebuilds a side's lineup from who is on the pitch at minute 0, keeping the saved
+// lineup's identity (match id, team, formation) and listing positions in a fixed order.
+func kickoffLineup(saved *common.Lineup, playersByPosition *map[int][]int64) *common.Lineup {
+	if saved == nil {
+		return nil
+	}
+	positions := make([]int, 0, len(*playersByPosition))
+	for position := range *playersByPosition {
+		positions = append(positions, position)
+	}
+	sort.Ints(positions)
+
+	kickoff := &common.Lineup{
+		MatchId:       saved.MatchId,
+		TeamId:        saved.TeamId,
+		Formation:     saved.Formation,
+		Positions:     make([]common.LineupPosition, 0, 11),
+		Substitutions: saved.Substitutions,
+	}
+	for _, position := range positions {
+		for _, id := range (*playersByPosition)[position] {
+			kickoff.Positions = append(kickoff.Positions, common.LineupPosition{PlayerId: id, Position: position})
+		}
+	}
+	return kickoff
 }
 
 // countOnPitch totals every player currently occupying any position slot (goalkeeper included -
@@ -300,15 +357,11 @@ func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPositio
 	}
 }
 
-// excludeUnavailablePlayers removes suspended/injured players from a team's active position
-// groups before kickoff, then backfills each thinned position back up to its original headcount
-// from the rest of the squad (see backfillEmptyPositions) - the closest thing this simulation
-// has to a substitute coming off the bench. Goalkeepers are exempt from the exclusion itself
-// even though nothing in this codebase currently can flag one unavailable (see
-// DisciplineSimulation/InjurySimulation) - if it ever did, an empty GOALKEEPER slice would
-// panic elsewhere (e.g. ScorerSimulation's goalkeeper value lookup), so this is cheap,
-// deliberate insurance; the backfill pass, unlike the exclusion, does cover every position -
-// including the goalkeeper, when the saved lineup has none at all.
+// excludeUnavailablePlayers reads a team's unavailable players (suspensions and injuries; for a
+// friendly, injuries only) and applies the pre-kickoff removal and refill to its position groups
+// (see common.ExcludeUnavailableAndBackfill). The set is returned so InjurySimulation can reuse it
+// later, when picking a bench player to bring on for someone injured mid-match, without
+// re-querying the database.
 func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player, isFriendly bool) (map[int64]bool, error) {
 	var unavailable map[int64]bool
 	var err error
@@ -321,75 +374,8 @@ func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, play
 		return nil, err
 	}
 
-	originalCounts := make(map[int]int, len(common.ALL_OUTFIELD_POSITIONS)+1)
-	for _, position := range common.ALL_OUTFIELD_POSITIONS {
-		originalCounts[position] = len((*playersByPosition)[position])
-	}
-	// A saved lineup can be left without its goalkeeper - selling, loaning out or retiring the
-	// only starting keeper deletes his default_lineup_positions row (see
-	// DeletePlayerLineupPositionsStmtSql) and nothing re-picks one - and every goalkeeper lookup
-	// below would then panic on an empty slice, so the match could never be simulated. The squad's
-	// best available keeper steps in; a lineup that already has one is left alone.
-	originalCounts[common.GOALKEEPER] = 1
-
-	filterOutfieldPlayers(playersByPosition, unavailable)
-	backfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)
+	common.ExcludeUnavailableAndBackfill(playersByPosition, squad, unavailable)
 	return unavailable, nil
-}
-
-// filterOutfieldPlayers removes every player in `exclude` from a team's non-goalkeeper
-// position groups, in place.
-func filterOutfieldPlayers(playersByPosition *map[int][]int64, exclude map[int64]bool) {
-	if len(exclude) == 0 {
-		return
-	}
-	for _, position := range common.ALL_OUTFIELD_POSITIONS {
-		ids := (*playersByPosition)[position]
-		kept := ids[:0]
-		for _, id := range ids {
-			if !exclude[id] {
-				kept = append(kept, id)
-			}
-		}
-		(*playersByPosition)[position] = kept
-	}
-}
-
-// backfillEmptyPositions restores each position in wantCounts back to its original headcount,
-// using the next-best available (not already fielded elsewhere, not unavailable) squad player
-// for that specific position each time - see common.PositionValue. Works regardless of how many
-// players a position started with: an auto-generated lineup (common.SelectBestLineup) can double
-// up DEFENSE/MIDFIELD/STRIKER, while a human-edited one (handlers.validateLineup) always has
-// exactly one player per position - this only ever restores what a position already had, never
-// invents extra slots. If the squad genuinely runs out of eligible players, a position is left
-// short rather than fielding someone twice or someone unavailable - the simulation already
-// tolerates an understaffed position group.
-func backfillEmptyPositions(playersByPosition *map[int][]int64, wantCounts map[int]int, squad []*common.Player, unavailable map[int64]bool) {
-	used := make(map[int64]bool, len(squad))
-	for _, ids := range *playersByPosition {
-		for _, id := range ids {
-			used[id] = true
-		}
-	}
-
-	for position, wantCount := range wantCounts {
-		for len((*playersByPosition)[position]) < wantCount {
-			bestId, bestValue := int64(-1), -1
-			for _, p := range squad {
-				if used[p.Id] || unavailable[p.Id] {
-					continue
-				}
-				if v := common.PositionValue(position, *p); v > bestValue {
-					bestId, bestValue = p.Id, v
-				}
-			}
-			if bestId == -1 {
-				break
-			}
-			(*playersByPosition)[position] = append((*playersByPosition)[position], bestId)
-			used[bestId] = true
-		}
-	}
 }
 
 func playersToMapById(players *[]*common.Player) *map[int64]common.Player {

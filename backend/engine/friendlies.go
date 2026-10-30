@@ -102,14 +102,17 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	if err != nil {
 		return err
 	}
-	// Freeze today's resolution as this friendly's own permanent override - see
+	// Freeze the XI that actually kicks off as this friendly's own permanent override - see
 	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForFriendly's fallback alone
-	// isn't enough to keep a played friendly's lineup showing correctly forever. A no-op for a
+	// isn't enough to keep a played friendly's lineup showing correctly forever. For a
 	// national-team friendly, which already has an explicit override saved at call-up time (see
-	// common.SetNationalTeamLineup).
-	persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, friendly.HomeTeamId, (*lineups)[friendly.HomeTeamId], homeSubstitutions)
-	persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, friendly.AwayTeamId, (*lineups)[friendly.AwayTeamId], awaySubstitutions)
-	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true)
+	// common.SetNationalTeamLineup), this just rewrites the same XI - call-ups are never
+	// unavailable.
+	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffFriendly, friendly.MatchId, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+		persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, teamId, lineup, substitutions)
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true, snapshot)
 	if err != nil {
 		return err
 	}

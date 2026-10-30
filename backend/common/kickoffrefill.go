@@ -1,0 +1,101 @@
+package common
+
+// ProjectedReplacement tells a team owner who the pre-kickoff refill would put in an unavailable
+// starter's slot if the match kicked off now (see ProjectKickoffReplacements). It is shown next to
+// the unavailable player in the lineup editor; the saved lineup itself is never changed.
+type ProjectedReplacement struct {
+	PlayerOutId int64 `json:"playerOutId"`
+	PlayerInId  int64 `json:"playerInId"`
+	Position    int   `json:"position"`
+}
+
+// ExcludeUnavailableAndBackfill is the pre-kickoff step of a match: it removes suspended/injured
+// players from a team's active position groups, then backfills each thinned position back up to
+// its original headcount from the rest of the squad (see BackfillEmptyPositions) - the closest
+// thing this simulation has to a substitute coming off the bench. Goalkeepers are exempt from the
+// exclusion itself even though nothing in this codebase currently can flag one unavailable (see
+// engine.DisciplineSimulation/InjurySimulation) - if it ever did, an empty GOALKEEPER slice would
+// panic elsewhere (e.g. ScorerSimulation's goalkeeper value lookup), so this is cheap, deliberate
+// insurance; the backfill pass, unlike the exclusion, does cover every position - including the
+// goalkeeper, when the saved lineup has none at all. The lineup editor's projection (see
+// ProjectKickoffReplacements) runs this same function, so what it shows is what the match does.
+func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*Player, unavailable map[int64]bool) {
+	originalCounts := make(map[int]int, len(ALL_OUTFIELD_POSITIONS)+1)
+	for _, position := range ALL_OUTFIELD_POSITIONS {
+		originalCounts[position] = len((*playersByPosition)[position])
+	}
+	// A saved lineup can be left without its goalkeeper - selling, loaning out or retiring the
+	// only starting keeper deletes his default_lineup_positions row (see
+	// DeletePlayerLineupPositionsStmtSql) and nothing re-picks one - and every goalkeeper lookup
+	// would then panic on an empty slice, so the match could never be simulated. The squad's
+	// best available keeper steps in; a lineup that already has one is left alone.
+	originalCounts[GOALKEEPER] = 1
+
+	FilterOutfieldPlayers(playersByPosition, unavailable)
+	BackfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)
+}
+
+// FilterOutfieldPlayers removes every player in `exclude` from a team's non-goalkeeper
+// position groups, in place.
+func FilterOutfieldPlayers(playersByPosition *map[int][]int64, exclude map[int64]bool) {
+	if len(exclude) == 0 {
+		return
+	}
+	for _, position := range ALL_OUTFIELD_POSITIONS {
+		ids := (*playersByPosition)[position]
+		kept := ids[:0]
+		for _, id := range ids {
+			if !exclude[id] {
+				kept = append(kept, id)
+			}
+		}
+		(*playersByPosition)[position] = kept
+	}
+}
+
+// ProjectKickoffReplacements lists, for each unavailable outfield starter of lineup, the player
+// the pre-kickoff refill (ExcludeUnavailableAndBackfill) would put in his slot if the match
+// kicked off now. The i-th starter removed from a position is paired with the i-th player the
+// refill adds there; a starter nobody can replace (the squad ran out) has no entry. lineup is
+// not modified.
+func ProjectKickoffReplacements(lineup *Lineup, squad []*Player, unavailable map[int64]bool) []ProjectedReplacement {
+	if lineup == nil || len(unavailable) == 0 {
+		return nil
+	}
+	playersByPosition := make(map[int][]int64)
+	for _, p := range lineup.Positions {
+		playersByPosition[p.Position] = append(playersByPosition[p.Position], p.PlayerId)
+	}
+
+	removed := make(map[int][]int64)
+	kept := make(map[int][]int64)
+	for _, position := range positionFillOrder {
+		if position == GOALKEEPER {
+			continue
+		}
+		for _, id := range playersByPosition[position] {
+			if unavailable[id] {
+				removed[position] = append(removed[position], id)
+			} else {
+				kept[position] = append(kept[position], id)
+			}
+		}
+	}
+	if len(removed) == 0 {
+		return nil
+	}
+
+	ExcludeUnavailableAndBackfill(&playersByPosition, squad, unavailable)
+
+	var replacements []ProjectedReplacement
+	for _, position := range positionFillOrder {
+		added := playersByPosition[position][len(kept[position]):]
+		for i, out := range removed[position] {
+			if i >= len(added) {
+				break
+			}
+			replacements = append(replacements, ProjectedReplacement{PlayerOutId: out, PlayerInId: added[i], Position: position})
+		}
+	}
+	return replacements
+}

@@ -41,6 +41,9 @@ interface PlayerChipProps {
   unavailability?: PlayerUnavailability
   /** True while the player is listed on the transfer market - see useSquadTransferListed. */
   forSale?: boolean
+  /** The player who would take this (unavailable) starter's slot if the match kicked off now -
+   * see ProjectedReplacement. Only shown on the pitch, next to the unavailability badge. */
+  replacedBy?: Player
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -78,6 +81,7 @@ export function PlayerChip({
   onSelect = () => {},
   unavailability,
   forSale,
+  replacedBy,
 }: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -127,7 +131,11 @@ export function PlayerChip({
           {/* Top-left, the one corner the shirt number and rating badges leave free. */}
           {unavailability && (
             <Box sx={{ position: 'absolute', top: -5, left: -6, lineHeight: 0 }}>
-              <UnavailabilityBadge unavailability={unavailability} size={20} />
+              <UnavailabilityBadge
+                unavailability={unavailability}
+                size={20}
+                replacedBy={replacedBy ? `${replacedBy.firstName} ${replacedBy.lastName}` : undefined}
+              />
             </Box>
           )}
           {/* Average skill, quick-glance only - bottom-left mirrors the shirt number's top-right
@@ -166,6 +174,14 @@ export function PlayerChip({
         >
           {player.lastName}
         </Typography>
+        {unavailability && replacedBy && (
+          <Typography
+            variant="chipLabel"
+            sx={{ mt: 0.25, px: 0.5, maxWidth: '100%', borderRadius: 1, bgcolor: 'rgba(0,0,0,0.65)', color: '#fff', textAlign: 'center', lineHeight: 1.15 }}
+          >
+            {t('lineup.replacedBy', { name: replacedBy.lastName })}
+          </Typography>
+        )}
       </ButtonBase>
     )
   }

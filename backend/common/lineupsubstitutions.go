@@ -40,7 +40,7 @@ func GetDefaultLineupSubstitutions(dbCtx *DatabaseContext, teamId int64) ([]Line
 }
 
 // SetDefaultLineupSubstitutions atomically replaces a team's planned substitutions. Callers must
-// have already validated each entry (see handlers.validateSubstitutions) - slots are assigned by
+// have already validated each entry (see common.ValidateSubstitutions) - slots are assigned by
 // save order (1-based), not taken from the caller.
 func SetDefaultLineupSubstitutions(dbCtx *DatabaseContext, teamId int64, subs []LineupSubstitution) error {
 	tx, err := dbCtx.Db.Begin()

@@ -88,6 +88,10 @@ type Lineup struct {
 	Formation     int                  `json:"formation"`
 	Positions     []LineupPosition     `json:"positions"`
 	Substitutions []LineupSubstitution `json:"substitutions"`
+	// ProjectedReplacements is filled only by the lineup GET handlers a team owner opens (never
+	// stored): for each unavailable starter, who the pre-kickoff refill would put in his slot if
+	// the match kicked off now (see ProjectKickoffReplacements).
+	ProjectedReplacements []ProjectedReplacement `json:"projectedReplacements,omitempty"`
 }
 
 type LineupPosition struct {
@@ -444,6 +448,11 @@ type MatchSimulation struct {
 	//can trigger - once a team has none left, an injured player simply isn't replaced.
 	HomeSubstitutionsUsed int
 	AwaySubstitutionsUsed int
+	//SubstitutedOff: each team's players taken off this match by a substitution (scheduled or
+	//an injury replacement) - never allowed back on (see engine.bestEligibleBenchPlayer). Created
+	//lazily by the engine (engine.sideOf), so a zero-value MatchSimulation is fine.
+	HomeSubstitutedOff map[int64]bool
+	AwaySubstitutedOff map[int64]bool
 	//UnavailablePlayers: each team's players already ruled out for this match before kickoff
 	//(suspension/injury carried over from a previous match - see engine.excludeUnavailablePlayers),
 	//kept here so engine.InjurySimulation can skip them too when picking a bench player to bring

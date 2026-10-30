@@ -6,15 +6,12 @@ import (
 	"github.com/scruz84/striker/common"
 )
 
-// FatigueMaxPenalty is the largest fraction a player's effective core skills can be reduced by
-// from in-match fatigue alone - reached only by a Stamina-0 player who has played every minute of
-// the match so far. A Stamina-99 player is never fatigued at all, whatever the minute (see
-// fatigueMultiplier).
-const FatigueMaxPenalty = 0.30
+// FatigueMaxPenalty and FatigueMatchLength are the fatigue formula's constants, shared with the
+// CPU lineup planner (see common.FatigueMultiplier).
+const FatigueMaxPenalty = common.FatigueMaxPenalty
 
-// FatigueMatchLength is the match length (in minutes) fatigueMultiplier normalizes elapsed
-// playing time against - matches runMatchSimulation's own endMinute.
-const FatigueMatchLength = 90
+// FatigueMatchLength must match runMatchSimulation's own endMinute.
+const FatigueMatchLength = common.FatigueMatchLength
 
 // StaminaSimulation rebuilds each team's fatigue-adjusted "effective" player snapshot
 // (EffectiveHomePlayers/EffectiveAwayPlayers) every simulated minute, from each player's Stamina
@@ -58,17 +55,10 @@ func minutesPlayedSoFar(byPosition map[int]int) int {
 	return total
 }
 
-// fatigueMultiplier scales down linearly with both elapsed playing time (as a fraction of
-// FatigueMatchLength) and how little Stamina (0-99) the player has, capped so extra time logged
-// beyond FatigueMatchLength (there isn't any - matches run exactly 90 minutes - but this keeps the
-// formula well-defined regardless) never pushes the penalty past FatigueMaxPenalty.
+// fatigueMultiplier is common.FatigueMultiplier - the formula lives in common so the CPU lineup
+// planner reads exactly the same numbers as this simulation.
 func fatigueMultiplier(stamina int, minutesPlayed int) float64 {
-	if minutesPlayed > FatigueMatchLength {
-		minutesPlayed = FatigueMatchLength
-	}
-	elapsedFraction := float64(minutesPlayed) / float64(FatigueMatchLength)
-	staminaDeficit := float64(99-stamina) / 99
-	return 1 - FatigueMaxPenalty*elapsedFraction*staminaDeficit
+	return common.FatigueMultiplier(stamina, minutesPlayed)
 }
 
 func scaleSkill(value int, multiplier float64) int {

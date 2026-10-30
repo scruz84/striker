@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math/rand"
 	"sort"
 	"testing"
 )
@@ -231,7 +232,7 @@ func TestSelectBestFormationAndLineup_DirectorFindsTheGenuinelyStrongestFormatio
 	}
 	ranked := rankedFormationStrengths(players)
 
-	_, lineup := SelectBestFormationAndLineup(players, AiLevelDirector)
+	_, lineup := SelectBestFormationAndLineup(players, AiLevelDirector, nil)
 	if got := lineupStrength(lineup, playersById); got != ranked[0] {
 		t.Fatalf("expected Director's lineup strength to equal the best possible (%d), got %d", ranked[0], got)
 	}
@@ -245,7 +246,7 @@ func TestSelectBestFormationAndLineup_ManagerSettlesForTheSecondBest(t *testing.
 	}
 	ranked := rankedFormationStrengths(players)
 
-	_, lineup := SelectBestFormationAndLineup(players, AiLevelManager)
+	_, lineup := SelectBestFormationAndLineup(players, AiLevelManager, nil)
 	if got := lineupStrength(lineup, playersById); got != ranked[1] {
 		t.Fatalf("expected Manager's lineup strength to equal the second best (%d), got %d", ranked[1], got)
 	}
@@ -260,7 +261,7 @@ func TestSelectBestFormationAndLineup_CaretakerSettlesForAWeakerFormationThanMan
 	ranked := rankedFormationStrengths(players)
 
 	for i := 0; i < 50; i++ {
-		_, lineup := SelectBestFormationAndLineup(players, AiLevelCaretaker)
+		_, lineup := SelectBestFormationAndLineup(players, AiLevelCaretaker, nil)
 		if got := lineupStrength(lineup, playersById); got != ranked[2] && got != ranked[3] {
 			t.Fatalf("expected Caretaker's lineup strength to be the 3rd or 4th best (%d or %d), got %d", ranked[2], ranked[3], got)
 		}
@@ -269,7 +270,7 @@ func TestSelectBestFormationAndLineup_CaretakerSettlesForAWeakerFormationThanMan
 
 func TestFormationRankForAiLevel_DirectorAlwaysRankZero(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		if r := formationRankForAiLevel(AiLevelDirector, 6); r != 0 {
+		if r := formationRankForAiLevel(AiLevelDirector, 6, nil); r != 0 {
 			t.Fatalf("expected Director to always pick rank 0, got %d", r)
 		}
 	}
@@ -277,7 +278,7 @@ func TestFormationRankForAiLevel_DirectorAlwaysRankZero(t *testing.T) {
 
 func TestFormationRankForAiLevel_ManagerAlwaysRankOne(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		if r := formationRankForAiLevel(AiLevelManager, 6); r != 1 {
+		if r := formationRankForAiLevel(AiLevelManager, 6, nil); r != 1 {
 			t.Fatalf("expected Manager to always pick rank 1, got %d", r)
 		}
 	}
@@ -286,7 +287,7 @@ func TestFormationRankForAiLevel_ManagerAlwaysRankOne(t *testing.T) {
 func TestFormationRankForAiLevel_CaretakerVariesBetweenThirdAndFourthBest(t *testing.T) {
 	seen := map[int]bool{}
 	for i := 0; i < 200; i++ {
-		r := formationRankForAiLevel(AiLevelCaretaker, 6)
+		r := formationRankForAiLevel(AiLevelCaretaker, 6, nil)
 		if r != 2 && r != 3 {
 			t.Fatalf("expected Caretaker's rank to be 2 or 3, got %d", r)
 		}
@@ -299,14 +300,66 @@ func TestFormationRankForAiLevel_CaretakerVariesBetweenThirdAndFourthBest(t *tes
 
 func TestFormationRankForAiLevel_ClampsToShorterCandidateLists(t *testing.T) {
 	for i := 0; i < 50; i++ {
-		if r := formationRankForAiLevel(AiLevelCaretaker, 2); r != 1 {
+		if r := formationRankForAiLevel(AiLevelCaretaker, 2, nil); r != 1 {
 			t.Fatalf("expected rank to clamp to the last valid index (1) for only 2 candidates, got %d", r)
 		}
 	}
 }
 
 func TestFormationRankForAiLevel_UnassignedLevelBehavesLikeCaretaker(t *testing.T) {
-	if r := formationRankForAiLevel(0, 6); r != 2 && r != 3 {
+	if r := formationRankForAiLevel(0, 6, nil); r != 2 && r != 3 {
 		t.Fatalf("expected an unassigned AI level (0) to behave like Caretaker, got rank %d", r)
+	}
+}
+
+func TestBackfillEmptyPositions_TwoPositionsNeedTheSameReserveDefenceWins(t *testing.T) {
+	squad := []*Player{makePlayer(30, 80), makePlayer(31, 60)}
+	// Repeated so a map-iteration-order dependence (the old behaviour) would show up as a flake.
+	for i := 0; i < 50; i++ {
+		positions := map[int][]int64{DEFENSE: {}, MIDFIELD: {}}
+
+		BackfillEmptyPositions(&positions, map[int]int{DEFENSE: 1, MIDFIELD: 1}, squad, nil)
+
+		if got := positions[DEFENSE]; len(got) != 1 || got[0] != 30 {
+			t.Fatalf("expected the best reserve (30) in defence, got %v", got)
+		}
+		if got := positions[MIDFIELD]; len(got) != 1 || got[0] != 31 {
+			t.Fatalf("expected the next best reserve (31) in midfield, got %v", got)
+		}
+	}
+}
+
+func TestBackfillEmptyPositions_GoalkeeperIsFilledBeforeOutfield(t *testing.T) {
+	squad := []*Player{makePlayer(1, 90), makePlayer(2, 10)}
+	positions := map[int][]int64{}
+
+	BackfillEmptyPositions(&positions, map[int]int{GOALKEEPER: 1, STRIKER: 1}, squad, nil)
+
+	if got := positions[GOALKEEPER]; len(got) != 1 || got[0] != 1 {
+		t.Fatalf("expected the goalkeeper slot to take the best player first, got %v", got)
+	}
+}
+
+func TestFormationRankForAiLevel_SeededCaretakerIsStable(t *testing.T) {
+	for seed := int64(0); seed < 20; seed++ {
+		first := formationRankForAiLevel(AiLevelCaretaker, 6, rand.New(rand.NewSource(seed)))
+		second := formationRankForAiLevel(AiLevelCaretaker, 6, rand.New(rand.NewSource(seed)))
+		if first != second {
+			t.Fatalf("seed %d: expected the same Caretaker rank twice, got %d and %d", seed, first, second)
+		}
+		if first != 2 && first != 3 {
+			t.Fatalf("seed %d: expected rank 2 or 3, got %d", seed, first)
+		}
+	}
+}
+
+func TestSelectBestFormationAndLineup_SeededCaretakerPicksTheSameFormationTwice(t *testing.T) {
+	players := diverseSquadForFormationTest()
+	for seed := int64(0); seed < 20; seed++ {
+		f1, _ := SelectBestFormationAndLineup(players, AiLevelCaretaker, rand.New(rand.NewSource(seed)))
+		f2, _ := SelectBestFormationAndLineup(players, AiLevelCaretaker, rand.New(rand.NewSource(seed)))
+		if f1 != f2 {
+			t.Fatalf("seed %d: expected a stable formation, got %d and %d", seed, f1, f2)
+		}
 	}
 }

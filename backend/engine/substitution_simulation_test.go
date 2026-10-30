@@ -139,3 +139,115 @@ func TestSubstitutionSimulation_AppliesMultipleScheduledSubstitutionsInTheSameMi
 		t.Fatalf("expected two substitution events, got %v", *match.Events)
 	}
 }
+
+// addBenchPlayers puts extra squad members (not on the pitch) into the match's HomePlayers, with
+// the given value at every position.
+func addBenchPlayers(match *common.MatchSimulation, skills map[int64]int) {
+	for id, skill := range skills {
+		p := benchPlayer(id, skill)
+		p.FirstName, p.LastName = "P", "layer"
+		(*match.HomePlayers)[id] = *p
+	}
+}
+
+func TestSubstitutionSimulation_CapReachedByInjuriesSkipsTheScheduledChange(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {10}}
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 60}}
+	match := newSubMatch(60, positions, subs)
+	match.HomeSubstitutionsUsed = common.MaxScheduledSubstitutions // three injury replacements already
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if got := (*match.HomePlayersByPosition)[common.MIDFIELD]; len(got) != 1 || got[0] != 10 {
+		t.Fatalf("expected no change once the cap is reached, got %v", got)
+	}
+	if match.HomeSubstitutionsUsed != common.MaxScheduledSubstitutions || len(*match.Events) != 0 {
+		t.Fatalf("expected no extra substitution, used=%d events=%v", match.HomeSubstitutionsUsed, *match.Events)
+	}
+}
+
+func TestSubstitutionSimulation_UnavailableIncomingPlayerIsReplacedByTheBestEligibleOne(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {10}}
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 65}}
+	match := newSubMatch(65, positions, subs)
+	addBenchPlayers(match, map[int64]int{91: 80, 92: 40})
+	match.HomeUnavailablePlayers = map[int64]bool{99: true} // got injured since the lineup was saved
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if got := (*match.HomePlayersByPosition)[common.MIDFIELD]; len(got) != 1 || got[0] != 91 {
+		t.Fatalf("expected the best eligible bench player 91 to come on, got %v", got)
+	}
+	if match.HomeSubstitutionsUsed != 1 || len(*match.Events) != 1 {
+		t.Fatalf("expected one logged substitution, used=%d events=%v", match.HomeSubstitutionsUsed, *match.Events)
+	}
+	if got := (*match.Events)[0].TeamOwnerPlayers; got[0] != 10 || got[1] != 91 {
+		t.Fatalf("expected the event to name 10 out and 91 in, got %v", got)
+	}
+	if !match.HomeSubstitutedOff[10] {
+		t.Fatalf("expected the outgoing player to be marked substituted off")
+	}
+}
+
+func TestSubstitutionSimulation_IncomingPlayerAlreadySubstitutedOffIsReplaced(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {10}}
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 70}}
+	match := newSubMatch(70, positions, subs)
+	addBenchPlayers(match, map[int64]int{91: 50})
+	match.HomeSubstitutedOff = map[int64]bool{99: true}
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if got := (*match.HomePlayersByPosition)[common.MIDFIELD]; len(got) != 1 || got[0] != 91 {
+		t.Fatalf("expected 91 on instead of the substituted-off 99, got %v", got)
+	}
+}
+
+func TestSubstitutionSimulation_NoEligibleBenchPlayerSkipsWithoutCounting(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {10}}
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 65}}
+	match := newSubMatch(65, positions, subs)
+	match.HomeUnavailablePlayers = map[int64]bool{99: true} // and nobody else is on the bench
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if got := (*match.HomePlayersByPosition)[common.MIDFIELD]; len(got) != 1 || got[0] != 10 {
+		t.Fatalf("expected lineup unchanged, got %v", got)
+	}
+	if match.HomeSubstitutionsUsed != 0 || len(*match.Events) != 0 {
+		t.Fatalf("expected the skipped change not to count, used=%d events=%v", match.HomeSubstitutionsUsed, *match.Events)
+	}
+}
+
+func TestSubstitutionSimulation_OutgoingPlayerAlreadyOffDoesNotCount(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {20}} // 10 was sent off earlier
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 60}}
+	match := newSubMatch(60, positions, subs)
+	match.SentOff = map[int64]bool{10: true}
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if match.HomeSubstitutionsUsed != 0 || len(*match.Events) != 0 {
+		t.Fatalf("expected a skipped change not to count, used=%d events=%v", match.HomeSubstitutionsUsed, *match.Events)
+	}
+}
+
+func TestSubstitutionSimulation_ThreeScheduledChangesAfterAnEarlyInjuryOnlyFireTwo(t *testing.T) {
+	positions := map[int][]int64{common.MIDFIELD: {10, 11, 12}}
+	subs := []common.LineupSubstitution{
+		{PlayerOutId: 10, PlayerInId: 91, Minute: 60},
+		{PlayerOutId: 11, PlayerInId: 92, Minute: 60},
+		{PlayerOutId: 12, PlayerInId: 93, Minute: 60},
+	}
+	match := newSubMatch(60, positions, subs)
+	match.HomeSubstitutionsUsed = 1 // an injury replacement already happened
+
+	SubstitutionSimulation{}.Apply(nil, match)
+
+	if match.HomeSubstitutionsUsed != common.MaxScheduledSubstitutions {
+		t.Fatalf("expected the team to stop at %d changes, got %d", common.MaxScheduledSubstitutions, match.HomeSubstitutionsUsed)
+	}
+	if len(*match.Events) != 2 {
+		t.Fatalf("expected exactly two scheduled changes to fire, got %v", *match.Events)
+	}
+}

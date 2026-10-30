@@ -304,6 +304,7 @@
     "unavailableStarters_other": "{{names}} están sancionados o lesionados y no pueden jugar - sustitúyelos antes de guardar.",
     "unavailableStartersInfo_one": "{{names}} está actualmente sancionado o lesionado. Esto no impide guardar la alineación por defecto, pero no jugará ningún partido mientras no esté disponible.",
     "unavailableStartersInfo_other": "{{names}} están actualmente sancionados o lesionados. Esto no impide guardar la alineación por defecto, pero no jugarán ningún partido mientras no estén disponibles.",
+    "replacedBy": "Le sustituye {{name}}",
     "save": "Guardar alineación",
     "substitutions": {
       "title": "Sustituciones programadas",

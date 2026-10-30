@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -117,6 +117,19 @@ export function MatchLineupForm({
 
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
 
+  // Who would take each unavailable starter's slot if the match kicked off now (computed by the
+  // server for the saved lineup). Dropped once the manager has fielded the replacement himself.
+  const replacements = useMemo(() => {
+    const byStarter = new Map<number, Player>()
+    for (const r of lineup.projectedReplacements ?? []) {
+      const replacement = players.find((p) => p.id === r.playerInId)
+      if (replacement && !usedPlayerIds.has(replacement.id)) {
+        byStarter.set(r.playerOutId, replacement)
+      }
+    }
+    return byStarter
+  }, [lineup.projectedReplacements, players, usedPlayerIds])
+
   // See LineupEditorPage's identical handler: loading a different match's lineup can un-start a
   // player a planned substitution still names as playerOutId, so any in-progress drafts are
   // cleared alongside it rather than left stranded.
@@ -215,6 +228,7 @@ export function MatchLineupForm({
             onSlotClick={handleSlotClick}
             unavailability={unavailability}
             transferListed={transferListed}
+            replacements={replacements}
           />
           {selectedPlayer && <SelectedPlayerPanel player={selectedPlayer} onClear={clearSelection} />}
         </Grid>

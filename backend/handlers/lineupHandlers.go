@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -35,7 +34,7 @@ func GetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		c.JSON(http.StatusOK, lineup)
+		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, lineup, false))
 	}
 }
 
@@ -127,7 +126,7 @@ func GetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		c.JSON(http.StatusOK, lineup)
+		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, lineup, true))
 	}
 }
 
@@ -189,120 +188,46 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 	}
 }
 
-// validateLineup ensures the submitted lineup matches the chosen formation's required headcount
-// at every tactical position (see common.FormationPositionCounts - always 11 players total,
-// goalkeeper included) with distinct players that actually belong to the team - without this, a
-// manager could otherwise field an empty/understaffed position, duplicate a player, or field an
-// opponent's player, since the DB foreign key alone doesn't enforce team ownership.
-//
-// enforceAvailability additionally rejects any player currently suspended or injured (see
-// common.GetUnavailablePlayerIds) - the simulation itself would exclude them anyway (see
-// engine.excludeUnavailablePlayers), but rejecting it here gives the manager a clear reason
-// instead of a lineup that quietly plays short. This only applies to a lineup being saved for a
-// specific match (SetMatchLineupHandler/SetCupTieLineupHandler/SetFriendlyLineupHandler): a
-// team's standing default lineup (SetLineupHandler/SetFriendlyDefaultLineupHandler) isn't tied to
-// any one matchday's squad, so a manager can save it as-is with a currently unavailable player
-// still in it - they'll simply sit out whichever matches find them still unavailable.
-func validateLineup(formation int, positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool, enforceAvailability bool) error {
-	if !common.IsValidFormation(formation) {
-		return fmt.Errorf("invalid formation %d", formation)
+// withProjectedReplacements fills lineup.ProjectedReplacements for a team owner reading the lineup
+// of an upcoming match (or his default): for each unavailable starter, the player the pre-kickoff
+// refill would put in his slot if the match kicked off now (see common.ProjectKickoffReplacements).
+// forFriendly applies the friendly rules (injuries only - a suspension doesn't bar a friendly).
+// It is a courtesy on top of the lineup, so a failure to compute it is logged and the lineup is
+// returned as saved.
+func withProjectedReplacements(dbCtx *common.DatabaseContext, teamId int64, lineup *common.Lineup, forFriendly bool) *common.Lineup {
+	if lineup == nil || len(lineup.Positions) == 0 {
+		return lineup
 	}
-	wantCounts := common.FormationPositionCounts(formation)
-
-	wantTotal := 0
-	for _, count := range wantCounts {
-		wantTotal += count
+	var unavailable map[int64]bool
+	var err error
+	if forFriendly {
+		unavailable, err = common.GetUnavailablePlayerIdsForFriendly(dbCtx, teamId)
+	} else {
+		unavailable, err = common.GetUnavailablePlayerIds(dbCtx, teamId)
 	}
-	if len(positions) != wantTotal {
-		return fmt.Errorf("lineup must have exactly %d positions for this formation, got %d", wantTotal, len(positions))
+	if err != nil {
+		log.Errorf("error getting unavailable players for team %d projection: %s", teamId, err)
+		return lineup
 	}
-
-	rosterIds := make(map[int64]bool, len(*teamPlayers))
-	for _, p := range *teamPlayers {
-		rosterIds[p.Id] = true
+	if len(unavailable) == 0 {
+		return lineup
 	}
-
-	gotCounts := make(map[int]int, len(wantCounts))
-	seenPlayers := make(map[int64]bool, len(positions))
-	for _, pos := range positions {
-		if pos.Position < common.GOALKEEPER || pos.Position > common.LATERAL_STRIKER_RIGHT {
-			return fmt.Errorf("invalid position %d", pos.Position)
-		}
-		gotCounts[pos.Position]++
-
-		if seenPlayers[pos.PlayerId] {
-			return fmt.Errorf("player %d assigned to more than one position", pos.PlayerId)
-		}
-		seenPlayers[pos.PlayerId] = true
-
-		if !rosterIds[pos.PlayerId] {
-			return fmt.Errorf("player %d does not belong to this team", pos.PlayerId)
-		}
-
-		if enforceAvailability && unavailable[pos.PlayerId] {
-			return fmt.Errorf("player %d is suspended or injured and unavailable", pos.PlayerId)
-		}
+	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error getting players for team %d projection: %s", teamId, err)
+		return lineup
 	}
-
-	for position, want := range wantCounts {
-		if gotCounts[position] != want {
-			return fmt.Errorf("formation requires %d players at position %d, got %d", want, position, gotCounts[position])
-		}
-	}
-
-	return nil
+	lineup.ProjectedReplacements = common.ProjectKickoffReplacements(lineup, *players, unavailable)
+	return lineup
 }
 
-// validateSubstitutions ensures a manager's planned in-match substitutions (see
-// common.LineupSubstitution) are all sound before they're saved: at most
-// common.MaxScheduledSubstitutions of them, each swapping out a player who's actually in the
-// submitted starting lineup for a fit bench player who isn't, at a minute between 1 and 90 -
-// with no player subbed out twice or brought on twice. positions is the lineup being saved in
-// the same request, not the team's previous lineup, since a substitution only makes sense
-// against the XI it's paired with.
+// validateLineup and validateSubstitutions apply the shared lineup rules (see
+// common.ValidateLineup/common.ValidateSubstitutions, which the engine also runs on a CPU team's
+// kickoff pick).
+func validateLineup(formation int, positions []common.LineupPosition, teamPlayers *[]*common.Player, unavailable map[int64]bool, enforceAvailability bool) error {
+	return common.ValidateLineup(formation, positions, teamPlayers, unavailable, enforceAvailability)
+}
+
 func validateSubstitutions(positions []common.LineupPosition, subs []common.LineupSubstitution, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
-	if len(subs) > common.MaxScheduledSubstitutions {
-		return fmt.Errorf("at most %d substitutions may be scheduled, got %d", common.MaxScheduledSubstitutions, len(subs))
-	}
-
-	starters := make(map[int64]bool, len(positions))
-	for _, pos := range positions {
-		starters[pos.PlayerId] = true
-	}
-
-	rosterIds := make(map[int64]bool, len(*teamPlayers))
-	for _, p := range *teamPlayers {
-		rosterIds[p.Id] = true
-	}
-
-	usedOut := make(map[int64]bool, len(subs))
-	usedIn := make(map[int64]bool, len(subs))
-	for _, sub := range subs {
-		if sub.Minute < 1 || sub.Minute > 90 {
-			return fmt.Errorf("substitution minute must be between 1 and 90, got %d", sub.Minute)
-		}
-		if !starters[sub.PlayerOutId] {
-			return fmt.Errorf("player %d being substituted out is not in the starting lineup", sub.PlayerOutId)
-		}
-		if usedOut[sub.PlayerOutId] {
-			return fmt.Errorf("player %d is scheduled to be substituted out more than once", sub.PlayerOutId)
-		}
-		usedOut[sub.PlayerOutId] = true
-
-		if !rosterIds[sub.PlayerInId] {
-			return fmt.Errorf("player %d does not belong to this team", sub.PlayerInId)
-		}
-		if starters[sub.PlayerInId] {
-			return fmt.Errorf("player %d being substituted in is already in the starting lineup", sub.PlayerInId)
-		}
-		if unavailable[sub.PlayerInId] {
-			return fmt.Errorf("player %d is suspended or injured and unavailable", sub.PlayerInId)
-		}
-		if usedIn[sub.PlayerInId] {
-			return fmt.Errorf("player %d is scheduled to be substituted in more than once", sub.PlayerInId)
-		}
-		usedIn[sub.PlayerInId] = true
-	}
-
-	return nil
+	return common.ValidateSubstitutions(positions, subs, teamPlayers, unavailable)
 }

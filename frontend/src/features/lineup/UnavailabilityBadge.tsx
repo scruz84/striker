@@ -7,16 +7,21 @@ import { UNAVAILABLE_INJURY, type PlayerUnavailability } from '../../api/types'
 interface UnavailabilityBadgeProps {
   unavailability: PlayerUnavailability
   size?: number
+  /** Name of the player who would take his slot if the match kicked off now - see
+   * ProjectedReplacement. Added to the tooltip. */
+  replacedBy?: string
 }
 
 /** Flags a suspended (red card) or injured (medical cross) player in a lineup editor, with the
- * same "out for N more matches" wording as the player's own page as its tooltip. */
-export function UnavailabilityBadge({ unavailability, size = 18 }: UnavailabilityBadgeProps) {
+ * same "out for N more matches" wording as the player's own page as its tooltip, followed by who
+ * replaces him when that is known. */
+export function UnavailabilityBadge({ unavailability, size = 18, replacedBy }: UnavailabilityBadgeProps) {
   const { t } = useTranslation()
   const injured = unavailability.reason === UNAVAILABLE_INJURY
-  const label = t(injured ? 'playerPage.status.injured' : 'playerPage.status.suspended', {
+  const status = t(injured ? 'playerPage.status.injured' : 'playerPage.status.suspended', {
     count: unavailability.matchesRemaining,
   })
+  const label = replacedBy ? `${status} · ${t('lineup.replacedBy', { name: replacedBy })}` : status
 
   return (
     <Tooltip title={label}>

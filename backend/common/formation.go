@@ -30,7 +30,7 @@ var AllFormations = []int{
 
 // FormationPositionCounts returns how many players a formation needs at each tactical
 // position - every formation sums to 11 (including the goalkeeper). Used both to validate a
-// submitted lineup (see handlers.validateLineup) and, in principle, to build one automatically,
+// submitted lineup (see common.ValidateLineup) and, in principle, to build one automatically,
 // though SelectBestLineup currently only ever builds FormationBalanced's shape.
 func FormationPositionCounts(formation int) map[int]int {
 	switch formation {

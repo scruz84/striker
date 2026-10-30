@@ -2646,7 +2646,7 @@ func GetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, er
 
 // SetDefaultFriendlyLineup atomically replaces a team's standing friendly-only lineup. Callers
 // must have already validated that every position is filled exactly once and every player
-// belongs to the team (see handlers.validateLineup). Mirrors SetDefaultLineup, including its
+// belongs to the team (see common.ValidateLineup). Mirrors SetDefaultLineup, including its
 // non-blocking per-team advisory lock against a concurrent duplicate-key race.
 func SetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPosition) error {
 	tx, err := dbCtx.Db.Begin()

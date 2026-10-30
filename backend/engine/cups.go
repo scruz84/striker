@@ -450,12 +450,14 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	if err != nil {
 		return err
 	}
-	// Freeze today's resolution as this tie's own permanent override - see
+	// Freeze the XI that actually kicks off as this tie's own permanent override - see
 	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForCupTie's fallback alone
 	// isn't enough to keep a played tie's lineup showing correctly forever.
-	persistCupTieLineupSnapshot(dbCtx, tie.TieId, *tie.HomeTeamId, (*lineups)[*tie.HomeTeamId], homeSubstitutions)
-	persistCupTieLineupSnapshot(dbCtx, tie.TieId, *tie.AwayTeamId, (*lineups)[*tie.AwayTeamId], awaySubstitutions)
-	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false)
+	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffCup, tie.TieId, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+		persistCupTieLineupSnapshot(dbCtx, tie.TieId, teamId, lineup, substitutions)
+	}
+	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false, snapshot)
 	if err != nil {
 		return err
 	}

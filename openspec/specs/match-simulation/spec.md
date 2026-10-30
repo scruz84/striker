@@ -274,12 +274,19 @@ A fixture settled after repeated simulation failures SHALL be stored as played 0
 ## Code map
 
 - Pipeline and pre/post-processing: `backend/engine/simulation.go` (`runMatchSimulation`,
-  `simulateMatch`, `excludeUnavailablePlayers`, `backfillEmptyPositions`,
-  `applyForfeitIfUnderstaffed`), `engine/cups.go` (`simulateCupTie`), `engine/friendlies.go`
-  (`simulateFriendly`).
+  `simulateMatch`, `excludeUnavailablePlayers`, `applyForfeitIfUnderstaffed`),
+  `engine/cups.go` (`simulateCupTie`), `engine/friendlies.go` (`simulateFriendly`). The refill is
+  `common.BackfillEmptyPositions` (`common/lineup.go`, positions in `positionFillOrder`).
+- Kickoff snapshot: `runMatchSimulation` takes a `lineupSnapshotStore` callback, called right after
+  `excludeUnavailablePlayers` with `kickoffLineup(...)` (the XI rebuilt from `*PlayersByPosition`);
+  `simulateMatch`, `simulateCupTie` and `simulateFriendly` pass `persistResolvedLineupSnapshot`,
+  `persistCupTieLineupSnapshot` and `persistFriendlyLineupSnapshot`. `MatchSimulation.HomeLineup`/
+  `AwayLineup` hold that kickoff XI too.
 - Stages: `engine/stamina_simulation.go`, `engine/initial_simulation.go` (`blendLine`,
   `ZoneSpillover`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
-  `engine/injury_simulation.go` (`bringOnInjuryReplacement`).
+  `engine/injury_simulation.go` (`bringOnInjuryReplacement`), `engine/substitution_simulation.go`
+  (`applyScheduledSubstitutions`, `bestEligibleBenchPlayer`, `teamSide`; substituted-off sets
+  `MatchSimulation.HomeSubstitutedOff`/`AwaySubstitutedOff`).
 - Set pieces: `engine/scorer_simulation.go` (`classifyChance`, `processSetPiece`,
   `bestOnPitchOutfielder`, `penaltyConversionProbability`, `freeKickConversionProbability`);
   `common.Event.SetPiece` and `common.SET_PIECE_*`; persisted in the `set_piece` column of

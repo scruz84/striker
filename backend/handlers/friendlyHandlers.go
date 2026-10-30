@@ -442,7 +442,7 @@ func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if hasOverride {
-			c.JSON(http.StatusOK, lineup)
+			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, &lineup, true))
 			return
 		}
 
@@ -454,7 +454,7 @@ func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if len(friendlyDefault.Positions) > 0 {
 			friendlyDefault.MatchId = matchId
-			c.JSON(http.StatusOK, friendlyDefault)
+			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, friendlyDefault, true))
 			return
 		}
 
@@ -468,7 +468,7 @@ func GetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		bestLineup.MatchId = matchId
-		c.JSON(http.StatusOK, bestLineup)
+		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, bestLineup, true))
 	}
 }
 

@@ -16,9 +16,11 @@ interface SoccerPitchProps {
   onSlotClick: (position: number, slotIndex: number) => void
   unavailability: Map<number, PlayerUnavailability>
   transferListed: Set<number>
+  /** For each unavailable starter (by player id), who would replace him at kickoff. */
+  replacements?: Map<number, Player>
 }
 
-export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed }: SoccerPitchProps) {
+export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed, replacements }: SoccerPitchProps) {
   // Only the half of the pitch a lineup ever actually occupies is shown here, drawn a little taller
   // than the read-only views (PITCH_HEIGHT_EDITOR) so chips at 360px never overlap.
   const slots = layoutPitchSlots(counts, true, true)
@@ -34,6 +36,7 @@ export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, 
             slot={slot}
             player={player}
             unavailability={player ? unavailability.get(player.id) : undefined}
+            replacedBy={player ? replacements?.get(player.id) : undefined}
             forSale={!!player && transferListed.has(player.id)}
             selected={selected}
             // Any slot other than the one already selected is a valid place to tap next while a
@@ -51,6 +54,7 @@ function PitchSlotView({
   slot,
   player,
   unavailability,
+  replacedBy,
   forSale,
   selected,
   highlight,
@@ -59,6 +63,7 @@ function PitchSlotView({
   slot: PitchSlot
   player?: Player
   unavailability?: PlayerUnavailability
+  replacedBy?: Player
   forSale?: boolean
   selected: boolean
   highlight: boolean
@@ -77,6 +82,7 @@ function PitchSlotView({
           highlight={highlight}
           onSelect={onClick}
           unavailability={unavailability}
+          replacedBy={replacedBy}
           forSale={forSale}
         />
       ) : (

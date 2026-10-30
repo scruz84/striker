@@ -15,22 +15,63 @@ import (
 func formationSlotOrder(formation int) []int {
 	counts := FormationPositionCounts(formation)
 	order := make([]int, 0, 11)
-	appendN := func(position int) {
+	for _, position := range positionFillOrder {
 		for i := 0; i < counts[position]; i++ {
 			order = append(order, position)
 		}
 	}
-	appendN(GOALKEEPER)
-	appendN(LATERAL_DEFENSE_LEFT)
-	appendN(DEFENSE)
-	appendN(LATERAL_DEFENSE_RIGHT)
-	appendN(LATERAL_MIDFIELD_LEFT)
-	appendN(MIDFIELD)
-	appendN(LATERAL_MIDFIELD_RIGHT)
-	appendN(LATERAL_STRIKER_LEFT)
-	appendN(STRIKER)
-	appendN(LATERAL_STRIKER_RIGHT)
 	return order
+}
+
+// positionFillOrder is the fixed order positions are filled in, both when picking a best XI (see
+// formationSlotOrder) and when the match-day backfill restores a thinned lineup (see
+// BackfillEmptyPositions): goalkeeper, the back line, midfield, then attack - each left flank,
+// centre, right flank.
+var positionFillOrder = []int{
+	GOALKEEPER,
+	LATERAL_DEFENSE_LEFT, DEFENSE, LATERAL_DEFENSE_RIGHT,
+	LATERAL_MIDFIELD_LEFT, MIDFIELD, LATERAL_MIDFIELD_RIGHT,
+	LATERAL_STRIKER_LEFT, STRIKER, LATERAL_STRIKER_RIGHT,
+}
+
+// BackfillEmptyPositions restores each position in wantCounts back to its original headcount,
+// using the next-best available (not already fielded elsewhere, not unavailable) squad player
+// for that specific position each time - see PositionValue. Positions are visited in
+// positionFillOrder (goalkeeper first, then defence, midfield, attack), so when two positions
+// would both pick the same reserve the earlier one wins, the same way every time - the result
+// never depends on map iteration order. Works regardless of how many players a position started
+// with: an auto-generated lineup (SelectBestLineup) can double up DEFENSE/MIDFIELD/STRIKER, while
+// a human-edited one (common.ValidateLineup) always has exactly one player per position - this
+// only ever restores what a position already had, never invents extra slots. If the squad
+// genuinely runs out of eligible players, a position is left short rather than fielding someone
+// twice or someone unavailable - the simulation already tolerates an understaffed position group.
+func BackfillEmptyPositions(playersByPosition *map[int][]int64, wantCounts map[int]int, squad []*Player, unavailable map[int64]bool) {
+	used := make(map[int64]bool, len(squad))
+	for _, ids := range *playersByPosition {
+		for _, id := range ids {
+			used[id] = true
+		}
+	}
+
+	for _, position := range positionFillOrder {
+		wantCount := wantCounts[position]
+		for len((*playersByPosition)[position]) < wantCount {
+			bestId, bestValue := int64(-1), -1
+			for _, p := range squad {
+				if used[p.Id] || unavailable[p.Id] {
+					continue
+				}
+				if v := PositionValue(position, *p); v > bestValue {
+					bestId, bestValue = p.Id, v
+				}
+			}
+			if bestId == -1 {
+				break
+			}
+			(*playersByPosition)[position] = append((*playersByPosition)[position], bestId)
+			used[bestId] = true
+		}
+	}
 }
 
 // SelectBestLineupForFormation greedily fills formation's position slots (see
@@ -97,8 +138,10 @@ func lineupStrength(lineup map[int][]int64, playersById map[int64]*Player) int {
 // flip each time it's recomputed) matching the tiers' own documented gap in sophistication (see
 // common.AiLevelCaretaker/Manager/Director). numCandidates guards against a shorter list than the
 // chosen rank expects (there are only ever len(AllFormations), but this keeps the function safe
-// for any slice length).
-func formationRankForAiLevel(aiLevel int, numCandidates int) int {
+// for any slice length). rng drives the Caretaker's coin flip, so a caller that needs the same pick
+// twice (the CPU kickoff planner, see PlanAiMatchLineup) can pass a seeded one; nil falls back to
+// the global source.
+func formationRankForAiLevel(aiLevel int, numCandidates int, rng *rand.Rand) int {
 	rank := 0
 	switch aiLevel {
 	case AiLevelDirector:
@@ -106,7 +149,11 @@ func formationRankForAiLevel(aiLevel int, numCandidates int) int {
 	case AiLevelManager:
 		rank = 1
 	default: // AiLevelCaretaker, and any unassigned/legacy level below it
-		rank = 2 + rand.Intn(2)
+		if rng != nil {
+			rank = 2 + rng.Intn(2)
+		} else {
+			rank = 2 + rand.Intn(2)
+		}
 	}
 	if rank >= numCandidates {
 		rank = numCandidates - 1
@@ -119,8 +166,9 @@ func formationRankForAiLevel(aiLevel int, numCandidates int) int {
 // what makes an unowned team actually vary its formation by squad composition instead of always
 // defaulting to FormationBalanced's 4-4-2 (see refreshAiTeamLineup, the only caller). Builds every
 // formation's own best-XI (see SelectBestLineupForFormation) and ranks them by total strength (see
-// lineupStrength) before picking the rank the team's AI level settles for.
-func SelectBestFormationAndLineup(players []*Player, aiLevel int) (int, map[int][]int64) {
+// lineupStrength) before picking the rank the team's AI level settles for. rng is passed straight
+// to formationRankForAiLevel.
+func SelectBestFormationAndLineup(players []*Player, aiLevel int, rng *rand.Rand) (int, map[int][]int64) {
 	type candidate struct {
 		formation int
 		lineup    map[int][]int64
@@ -139,7 +187,7 @@ func SelectBestFormationAndLineup(players []*Player, aiLevel int) (int, map[int]
 	}
 	sort.Slice(candidates, func(i, j int) bool { return candidates[i].strength > candidates[j].strength })
 
-	chosen := candidates[formationRankForAiLevel(aiLevel, len(candidates))]
+	chosen := candidates[formationRankForAiLevel(aiLevel, len(candidates), rng)]
 	return chosen.formation, chosen.lineup
 }
 
@@ -148,8 +196,8 @@ func SelectBestFormationAndLineup(players []*Player, aiLevel int) (int, map[int]
 // covers every position constant including LATERAL_STRIKER_LEFT/RIGHT (the only two
 // SelectBestLineupForFormation itself only reaches for a formation that actually uses them), by
 // the match-day backfill that finds a replacement for a suspended/injured starter too (see
-// engine's excludeUnavailablePlayers/backfillEmptyPositions) - a human-edited lineup (see
-// handlers.validateLineup) can use those positions regardless of which formation generated it.
+// engine's excludeUnavailablePlayers/common.BackfillEmptyPositions) - a human-edited lineup (see
+// common.ValidateLineup) can use those positions regardless of which formation generated it.
 func PositionValue(position int, p Player) int {
 	switch position {
 	case GOALKEEPER:

@@ -14,4 +14,12 @@ describe('UnavailabilityBadge', () => {
     render(<UnavailabilityBadge unavailability={{ playerId: 1, reason: UNAVAILABLE_SUSPENSION, matchesRemaining: 1 }} />)
     expect(screen.getByRole('img')).toHaveAttribute('aria-label', i18n.t('playerPage.status.suspended', { count: 1 }))
   })
+
+  it('adds who replaces him to the label when known', () => {
+    render(<UnavailabilityBadge unavailability={{ playerId: 1, reason: UNAVAILABLE_INJURY, matchesRemaining: 3 }} replacedBy="Ana Ruiz" />)
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'aria-label',
+      `${i18n.t('playerPage.status.injured', { count: 3 })} · ${i18n.t('lineup.replacedBy', { name: 'Ana Ruiz' })}`,
+    )
+  })
 })
