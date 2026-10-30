@@ -124,6 +124,12 @@ A league match, friendly or cup tie that has already used 3 simulation attempts 
 - **WHEN** this change is deployed and a league match or friendly has been claimed for more than 1 hour without being played
 - **THEN** it gets exactly one more simulation attempt, and is settled 0-0 if that attempt fails
 
+#### Scenario: Admin finishes a failing fixture
+- **WHEN** an admin runs the "finish stuck matches" action while a league match, friendly or cup tie that already failed (and kicked off) is waiting out its retry backoff with attempts left
+- **THEN** it gets one last attempt at once, without waiting for the backoff
+- **AND** if that attempt fails too (an error or a panic), it is settled 0-0 in the same run; if it succeeds it keeps its simulated result
+- **AND** an attempt that fails only because the database was unreachable is not counted, so the fixture is not defaulted
+
 #### Scenario: Exhausted fixture re-dated to a later kickoff
 - **WHEN** a league match that used its 3 attempts is rescheduled to kick off in 2 days
 - **THEN** the next recovery pass, or the admin "finish stuck matches" action, releases its claim and sets its attempts to 0, so it no longer counts as stuck or failing
@@ -157,6 +163,10 @@ The spoiler-gated post-match effects (availability countdown and new injuries an
 - Live replay: `engine/livematch.go` (`BroadcastMatchLive`, `onComplete`); recovery in
   `engine/livematch_recovery.go` and `FinishStuckSimulations` (`engine/engine.go`), which only
   re-simulates rows claimed at least `common.StuckSimulationAge` ago.
+- Admin "finish stuck matches" (`handlers.AdminFinishStuckMatchesHandler`): releases re-dated fixtures,
+  re-simulates stuck ones, then `engine.RetryFailingFixturesNow` (`engine/defaultresults.go`,
+  `common.GiveFailingFixturesLastAttempt`) gives failed fixtures past kickoff one last attempt, and
+  `SettleDefaultResults` closes 0-0 whatever has used its attempts.
 - Recovery from interrupted simulations: `engine.runClaimedSimulation` (`engine/simulationfailures.go`)
   records an error or panic through `common.RecordSimulationFailure` (`common/simulationfailures.go`:
   `MaxSimulationAttempts`, `SimulationRetryBackoff`, `IsConnectionError`); columns

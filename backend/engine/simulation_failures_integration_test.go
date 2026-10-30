@@ -635,3 +635,67 @@ func TestRepairStandings_RebuildsDriftedRowsOnly(t *testing.T) {
 		t.Errorf("home row after a second pass = %+v, want %+v", got, want)
 	}
 }
+
+// The admin action finishes a fixture that already failed without making the admin wait out the
+// retry backoff or press it again: a fixture that can be simulated now is played, one that fails
+// again is settled 0-0 in the same pass, and a fixture whose kickoff has not come is left alone.
+func TestRetryFailingFixturesNow_PlaysWhatCanBePlayedAndSettlesTheRestByDefault(t *testing.T) {
+	e := newSimEnv(t, "zsc")
+	// Teams without players cannot be simulated, so every attempt at their fixtures fails.
+	brokenHome := e.scan(`INSERT INTO teams (name, country, league_id) VALUES ('Broken home', $1, $2) RETURNING team_id`, e.country, e.league)
+	brokenAway := e.scan(`INSERT INTO teams (name, country, league_id) VALUES ('Broken away', $1, $2) RETURNING team_id`, e.country, e.league)
+	e.exec(`INSERT INTO classification (league_id, team_id, season) VALUES ($1, $2, 1), ($1, $3, 1)`, e.league, brokenHome, brokenAway)
+
+	// Each failed once, a moment ago: released with its error stored and still inside the backoff.
+	const failedJustNow = `, last_simulation_error = 'panic: runtime error: index out of range [0] with length 0', last_simulation_attempt_at = now()`
+	playable := e.leagueMatch(1)
+	e.exec(`UPDATE matches SET simulation_attempts = 1`+failedJustNow+` WHERE match_id = $1`, playable)
+	broken := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id, simulation_attempts, last_simulation_error, last_simulation_attempt_at)
+		VALUES ($1, 1, 2, now() - interval '3 hours', $2, $3, 1, 'panic: runtime error: index out of range [0] with length 0', now()) RETURNING match_id`,
+		e.league, brokenHome, brokenAway)
+	brokenCupId := e.scan(`INSERT INTO cups (country, season, name) VALUES ($1, 1, 'Broken cup') RETURNING cup_id`, e.country)
+	brokenTie := e.scan(`INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id, match_date, simulation_attempts, last_simulation_error, last_simulation_attempt_at)
+		VALUES ($1, 2, 1, $2, $3, now() - interval '3 hours', 1, 'panic: runtime error: index out of range [0] with length 0', now()) RETURNING tie_id`,
+		brokenCupId, brokenHome, brokenAway)
+	notDue := e.scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id, simulation_attempts, last_simulation_error, last_simulation_attempt_at)
+		VALUES ($1, 1, 3, now() + interval '2 days', $2, $3, 1, 'panic: earlier failure', now()) RETURNING match_id`, e.league, e.home, e.away)
+
+	// The backoff keeps the ordinary recovery away from them.
+	FinishStuckSimulations(e.dbCtx)
+	if attempts := e.scan(`SELECT simulation_attempts FROM matches WHERE match_id = $1`, broken); attempts != 1 {
+		t.Fatalf("the ordinary recovery touched a fixture inside its backoff (attempts=%d)", attempts)
+	}
+
+	retried := RetryFailingFixturesNow(e.dbCtx)
+	if retried.LeagueMatches < 1 {
+		t.Errorf("reported %d league matches played, want the playable one counted", retried.LeagueMatches)
+	}
+	defaulted := SettleDefaultResults(e.dbCtx)
+	if defaulted.LeagueMatches < 1 || defaulted.CupTies < 1 {
+		t.Errorf("settled %d league matches and %d cup ties by default, want the broken ones counted", defaulted.LeagueMatches, defaulted.CupTies)
+	}
+
+	if played := e.scan(`SELECT count(*) FROM matches WHERE match_id = $1 AND played`, playable); played != 1 {
+		t.Errorf("the playable match was not simulated")
+	}
+	if events := e.scan(`SELECT count(*) FROM match_events WHERE match_id = $1 AND event_type = $2`, playable, common.MATCH_DEFAULT_RESULT); events != 0 {
+		t.Errorf("the playable match was settled by default instead of simulated")
+	}
+	if settled := e.scan(`SELECT count(*) FROM matches WHERE match_id = $1 AND played AND home_goals = 0 AND away_goals = 0`, broken); settled != 1 {
+		t.Errorf("the match that fails again was not settled 0-0")
+	}
+	if events := e.scan(`SELECT count(*) FROM match_events WHERE match_id = $1 AND event_type = $2`, broken, common.MATCH_DEFAULT_RESULT); events != 1 {
+		t.Errorf("%d default-result events for the match that fails again, want 1", events)
+	}
+	if settled := e.scan(`SELECT count(*) FROM cup_ties WHERE tie_id = $1 AND played`, brokenTie); settled != 1 {
+		t.Errorf("the cup tie that fails again was not settled")
+	}
+	var attempts int
+	var played bool
+	if err := e.db.QueryRow(`SELECT simulation_attempts, played FROM matches WHERE match_id = $1`, notDue).Scan(&attempts, &played); err != nil {
+		t.Fatalf("reading the not yet due match: %s", err)
+	}
+	if attempts != 1 || played {
+		t.Errorf("the fixture whose kickoff has not come was touched: attempts=%d played=%v", attempts, played)
+	}
+}

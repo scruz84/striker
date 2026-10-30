@@ -122,7 +122,9 @@ A simulation that fails (an error or a panic) counts an attempt, releases its cl
 reason (`simulation_attempts`, `last_simulation_error`); it is retried no sooner than 10 minutes
 later, and after 3 attempts `FinishStuckSimulationsJob` settles it 0-0 (`engine.SettleDefaultResults`).
 The admin overview lists the failing matches and the "finish stuck matches" action runs the same
-default settlement and re-simulation on demand.
+default settlement and re-simulation on demand - and, without waiting out the 10 minutes, gives
+each failed match whose kickoff has passed one last attempt (`engine.RetryFailingFixturesNow`), so
+one that fails again is settled 0-0 in the same press.
 
 ### Transfer window
 

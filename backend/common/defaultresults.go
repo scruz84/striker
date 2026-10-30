@@ -143,3 +143,70 @@ func ReleaseRedatedFixtures(dbCtx *DatabaseContext) (FixtureKindCounts, error) {
 	}
 	return counts, nil
 }
+
+// The statements below back the admin "finish stuck matches" action for fixtures that already
+// failed but are not stuck: they were released with their error stored and are waiting out the
+// retry backoff, so neither the stuck selectors (which want a live claim) nor the default result
+// (which wants all attempts used) would touch them, and the action did nothing for them. Each
+// leaves the fixture with exactly one attempt left and no backoff, so the next simulation pass
+// picks it up at once and, if that attempt fails too, the attempt count reaches
+// MaxSimulationAttempts and the default result settles it 0-0 - the admin does not have to press
+// the action three more times. A failed attempt caused by an unreachable database is still given
+// back (see RecordSimulationFailure), so an outage cannot default a fixture this way. Only fixtures
+// past kickoff are touched: an earlier one is still simulated on its own schedule. A live claim is
+// left alone. Each is one statement, so several replicas running it at once act on each fixture once.
+
+const lastAttemptWhereSql = "played = false AND simulation_attempts > 0 AND " + simulationAttemptsLeftSql +
+	" AND last_simulation_error IS NOT NULL AND match_date <= now()"
+
+const lastAttemptSetSql = "simulation_attempts = $1, last_simulation_attempt_at = NULL "
+
+const giveLeagueMatchesLastAttemptStmtSql = "UPDATE matches SET " + lastAttemptSetSql +
+	"WHERE " + lastAttemptWhereSql + " AND in_simulation = false RETURNING match_id"
+
+const giveFriendliesLastAttemptStmtSql = "UPDATE friendly_matches SET " + lastAttemptSetSql +
+	"WHERE " + lastAttemptWhereSql + " AND in_simulation = false RETURNING match_id"
+
+const giveCupTiesLastAttemptStmtSql = "UPDATE cup_ties SET " + lastAttemptSetSql +
+	"WHERE " + lastAttemptWhereSql + " AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL RETURNING tie_id"
+
+// FixtureKindIds is one list of fixture ids per kind of fixture a simulation can fail on.
+type FixtureKindIds struct {
+	LeagueMatches []int64
+	Friendlies    []int64
+	CupTies       []int64
+}
+
+// GiveFailingFixturesLastAttempt leaves every unplayed league match, friendly and cup tie that has
+// failed before and whose kickoff has passed with one simulation attempt left and no retry
+// backoff, and returns their ids.
+func GiveFailingFixturesLastAttempt(dbCtx *DatabaseContext) (FixtureKindIds, error) {
+	var ids FixtureKindIds
+	for _, give := range []struct {
+		out  *[]int64
+		stmt string
+	}{
+		{&ids.LeagueMatches, giveLeagueMatchesLastAttemptStmtSql},
+		{&ids.Friendlies, giveFriendliesLastAttemptStmtSql},
+		{&ids.CupTies, giveCupTiesLastAttemptStmtSql},
+	} {
+		rows, err := dbCtx.Db.Query(give.stmt, MaxSimulationAttempts-1)
+		if err != nil {
+			return ids, err
+		}
+		for rows.Next() {
+			var id int64
+			if err := rows.Scan(&id); err != nil {
+				rows.Close()
+				return ids, err
+			}
+			*give.out = append(*give.out, id)
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return ids, err
+		}
+	}
+	return ids, nil
+}

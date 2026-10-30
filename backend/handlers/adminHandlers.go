@@ -156,18 +156,27 @@ func buildFinishStuckMatchesResponse(released common.FixtureKindCounts, defaulte
 
 // AdminFinishStuckMatchesHandler clears what is holding up unplayed fixtures: it first gives back
 // their attempts to fixtures that used them all but were re-dated to a kickoff still to come (see
-// engine.ReleaseRedatedFixtures), settles 0-0 every other league match, friendly and cup tie that
-// has used all its simulation attempts (see engine.SettleDefaultResults), then re-simulates the rest - league matches and friendlies a
-// simulation pass claimed but never finished (only rows claimed at least common.StuckSimulationAge
-// ago, so a match a live pass is working on right now is never played twice) and due cup ties past
-// their retry backoff. The engine also runs this every 15 minutes (see
-// engine.StartFinishStuckSimulationsScheduler); this endpoint just does it immediately.
+// engine.ReleaseRedatedFixtures), then re-simulates the league matches and friendlies a simulation
+// pass claimed but never finished (only rows claimed at least common.StuckSimulationAge ago, so a
+// match a live pass is working on right now is never played twice) and the due cup ties past their
+// retry backoff, then gives every fixture that already failed one last attempt without waiting out
+// the backoff (see engine.RetryFailingFixturesNow). Finally it settles 0-0 every league match,
+// friendly and cup tie that has used all its simulation attempts (see engine.SettleDefaultResults)
+// - including the ones that failed again just now, so one press of the action leaves nothing
+// failing behind. The engine also runs the recovery every 15 minutes, keeping the backoff and the
+// three attempts (see engine.StartFinishStuckSimulationsScheduler); this endpoint just does it
+// immediately.
 func AdminFinishStuckMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("admin-triggered stuck match recovery")
 		released := engine.ReleaseRedatedFixtures(dbCtx)
-		defaulted := engine.SettleDefaultResults(dbCtx)
 		resimulated := engine.FinishStuckSimulations(dbCtx)
+		retried := engine.RetryFailingFixturesNow(dbCtx)
+		resimulated.LeagueMatches += retried.LeagueMatches
+		resimulated.Friendlies += retried.Friendlies
+		resimulated.CupTies += retried.CupTies
+		// Last, so it also closes 0-0 what failed again in the two passes above.
+		defaulted := engine.SettleDefaultResults(dbCtx)
 		health, err := common.GetSimulationHealth(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))

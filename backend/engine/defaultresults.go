@@ -30,6 +30,28 @@ func ReleaseRedatedFixtures(dbCtx *common.DatabaseContext) common.FixtureKindCou
 	return released
 }
 
+// RetryFailingFixturesNow gives every fixture whose simulation failed and whose kickoff has passed
+// one last attempt right away, without waiting out the retry backoff (see
+// common.GiveFailingFixturesLastAttempt), by running the usual simulation pass over them. One that
+// fails again has then used all its attempts, so callers run SettleDefaultResults after it to close
+// it 0-0. Returns how many of them ended up played. For the admin action only: the scheduled passes
+// keep the backoff and the three attempts.
+func RetryFailingFixturesNow(dbCtx *common.DatabaseContext) StuckSimulationsResult {
+	ids, err := common.GiveFailingFixturesLastAttempt(dbCtx)
+	if err != nil {
+		log.Errorf("error giving the failing fixtures their last attempt: %s", err)
+		return StuckSimulationsResult{}
+	}
+	SimulateMatches(dbCtx)
+	SimulateFriendlies(dbCtx)
+	SimulateCupTies(dbCtx)
+	return StuckSimulationsResult{
+		LeagueMatches: countPlayed(dbCtx, common.SimulationKindLeague, ids.LeagueMatches),
+		Friendlies:    countPlayed(dbCtx, common.SimulationKindFriendly, ids.Friendlies),
+		CupTies:       countPlayed(dbCtx, common.SimulationKindCup, ids.CupTies),
+	}
+}
+
 // SettleDefaultResults settles, as a 0-0 default result, every league match, friendly and cup tie
 // that has used its common.MaxSimulationAttempts attempts without being played and whose kickoff
 // has passed - so one fixture that fails for good can no longer block its country's season
