@@ -3,6 +3,7 @@ package engine
 import (
 	"errors"
 	"fmt"
+	"runtime/debug"
 
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -17,7 +18,7 @@ import (
 func runClaimedSimulation(dbCtx *common.DatabaseContext, kind string, id int64, simulate func() error) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Errorf("panic simulating %s %d: %v", kind, id, r)
+			log.Errorf("panic simulating %s %d: %v\n%s", kind, id, r, debug.Stack())
 			recordSimulationFailure(dbCtx, kind, id, fmt.Errorf("panic: %v", r))
 		}
 	}()

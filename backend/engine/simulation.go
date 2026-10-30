@@ -244,6 +244,13 @@ func countOnPitch(playersByPosition *map[int][]int64) int {
 	return count
 }
 
+// isUnderstaffed reports whether a side cannot play: MinPlayersToContinueMatch players or fewer, or
+// no goalkeeper at all (the squad had nobody left to put in goal - see excludeUnavailablePlayers),
+// which every chance's goalkeeper lookup needs.
+func isUnderstaffed(playersByPosition *map[int][]int64) bool {
+	return countOnPitch(playersByPosition) <= MinPlayersToContinueMatch || len((*playersByPosition)[common.GOALKEEPER]) == 0
+}
+
 // applyForfeitIfUnderstaffed checks whether either side has fallen to MinPlayersToContinueMatch
 // players or fewer and, if so, ends the match immediately: the actual scoreline up to that point
 // is discarded in favor of a flat ForfeitGoals-0 win for the side still standing (real football
@@ -252,8 +259,8 @@ func countOnPitch(playersByPosition *map[int][]int64) int {
 // knows to stop simulating further minutes. If both sides have collapsed at once (a degenerate
 // case that should never actually happen) neither is awarded a forfeit win and the match plays on.
 func applyForfeitIfUnderstaffed(match *common.MatchSimulation) bool {
-	homeShort := countOnPitch(match.HomePlayersByPosition) <= MinPlayersToContinueMatch
-	awayShort := countOnPitch(match.AwayPlayersByPosition) <= MinPlayersToContinueMatch
+	homeShort := isUnderstaffed(match.HomePlayersByPosition)
+	awayShort := isUnderstaffed(match.AwayPlayersByPosition)
 	if homeShort == awayShort {
 		return false
 	}
@@ -300,7 +307,8 @@ func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPositio
 // even though nothing in this codebase currently can flag one unavailable (see
 // DisciplineSimulation/InjurySimulation) - if it ever did, an empty GOALKEEPER slice would
 // panic elsewhere (e.g. ScorerSimulation's goalkeeper value lookup), so this is cheap,
-// deliberate insurance; the backfill pass, unlike the exclusion, does cover every position.
+// deliberate insurance; the backfill pass, unlike the exclusion, does cover every position -
+// including the goalkeeper, when the saved lineup has none at all.
 func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player, isFriendly bool) (map[int64]bool, error) {
 	var unavailable map[int64]bool
 	var err error
@@ -313,10 +321,16 @@ func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, play
 		return nil, err
 	}
 
-	originalCounts := make(map[int]int, len(common.ALL_OUTFIELD_POSITIONS))
+	originalCounts := make(map[int]int, len(common.ALL_OUTFIELD_POSITIONS)+1)
 	for _, position := range common.ALL_OUTFIELD_POSITIONS {
 		originalCounts[position] = len((*playersByPosition)[position])
 	}
+	// A saved lineup can be left without its goalkeeper - selling, loaning out or retiring the
+	// only starting keeper deletes his default_lineup_positions row (see
+	// DeletePlayerLineupPositionsStmtSql) and nothing re-picks one - and every goalkeeper lookup
+	// below would then panic on an empty slice, so the match could never be simulated. The squad's
+	// best available keeper steps in; a lineup that already has one is left alone.
+	originalCounts[common.GOALKEEPER] = 1
 
 	filterOutfieldPlayers(playersByPosition, unavailable)
 	backfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)

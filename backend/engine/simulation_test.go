@@ -237,6 +237,52 @@ func TestApplyForfeitIfUnderstaffed_NeitherSideAwardedWhenBothCollapseAtOnce(t *
 	}
 }
 
+func TestBackfillEmptyPositions_PutsBestKeeperInGoalWhenLineupHasNone(t *testing.T) {
+	// The saved lineup lost its keeper (he was sold): ten outfielders and an empty goal slot.
+	positions := map[int][]int64{common.DEFENSE: {1, 2, 3, 4}, common.MIDFIELD: {5, 6, 7, 8}, common.STRIKER: {9, 10}}
+	squad := []*common.Player{
+		{Id: 1, Defense: 50}, {Id: 2, Defense: 50}, {Id: 3, Defense: 50}, {Id: 4, Defense: 50},
+		{Id: 5, Midfield: 50}, {Id: 6, Midfield: 50}, {Id: 7, Midfield: 50}, {Id: 8, Midfield: 50},
+		{Id: 9, Shot: 50}, {Id: 10, Shot: 50},
+		{Id: 20, GoalKeeper: 30}, // bench keepers
+		{Id: 21, GoalKeeper: 70},
+	}
+
+	backfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
+
+	if got := positions[common.GOALKEEPER]; len(got) != 1 || got[0] != 21 {
+		t.Fatalf("expected the best available keeper (21) in goal, got %v", got)
+	}
+}
+
+func TestBackfillEmptyPositions_KeepsTheLineupsOwnKeeper(t *testing.T) {
+	positions := map[int][]int64{common.GOALKEEPER: {20}}
+	squad := []*common.Player{{Id: 20, GoalKeeper: 30}, {Id: 21, GoalKeeper: 90}}
+
+	backfillEmptyPositions(&positions, map[int]int{common.GOALKEEPER: 1}, squad, nil)
+
+	if got := positions[common.GOALKEEPER]; len(got) != 1 || got[0] != 20 {
+		t.Fatalf("expected the lineup's own keeper (20) untouched, got %v", got)
+	}
+}
+
+func TestApplyForfeitIfUnderstaffed_SideWithoutAKeeperForfeits(t *testing.T) {
+	match := &common.MatchSimulation{
+		Home:                  1,
+		Away:                  2,
+		HomePlayersByPosition: &map[int][]int64{common.DEFENSE: {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
+		AwayPlayersByPosition: &map[int][]int64{common.GOALKEEPER: {20}, common.DEFENSE: {21, 22, 23, 24, 25, 26, 27, 28, 29, 30}},
+		Events:                &[]common.Event{},
+	}
+
+	if !applyForfeitIfUnderstaffed(match) {
+		t.Fatalf("expected a side with no goalkeeper to forfeit instead of panicking on the empty goal slot")
+	}
+	if match.HomeGoals != 0 || match.AwayGoals != ForfeitGoals {
+		t.Fatalf("expected away awarded a %d-0 forfeit win, got %d-%d", ForfeitGoals, match.HomeGoals, match.AwayGoals)
+	}
+}
+
 func TestBackfillEmptyPositions_AlreadyAtWantCountIsNoOp(t *testing.T) {
 	positions := map[int][]int64{common.MIDFIELD: {1, 2}}
 	wantCounts := map[int]int{common.MIDFIELD: 2}
