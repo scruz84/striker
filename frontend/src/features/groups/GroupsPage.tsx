@@ -60,6 +60,9 @@ export function GroupsPage() {
   return (
     <Box>
       <PageHeader title={t('groups.title')} subtitle={t('groups.subtitle')} />
+      <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 1.5 }}>
+        {t('groups.namesNote')}
+      </Typography>
       <Box sx={{ mb: 2 }} />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>

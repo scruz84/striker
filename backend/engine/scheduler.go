@@ -152,3 +152,18 @@ func StartLiveBroadcastRecoveryScheduler(liveBroadcastRecoveryJob quartz.Job) {
 func WaitUntilFinish() {
 	sched.Wait(ctx)
 }
+
+func StartAccountLifecycleScheduler(accountLifecycleJob quartz.Job) {
+	// Once a day at 03:17 UTC, clear of the other daily jobs' slots: warns idle owners, releases
+	// the clubs of owners inactive for common.InactivityReleaseDays and erases accounts idle for
+	// common.AccountErasureDays (see engine.RunAccountLifecycle). One replica per day wins the
+	// claim in AccountLifecycleJob.Execute.
+	scheduleJob(accountLifecycleJob, "0 17 3 * * ?", "account_lifecycle")
+}
+
+func StartResetReleasedTeamsScheduler(resetJob quartz.Job) {
+	// Every 15 minutes: resets the clubs released since the last pass (squad swap, budget, names).
+	// ResetReleasedTeam skips a club with a match in or near its live window and retries on the
+	// next pass, so the cadence is also the longest a club waits behind a busy fixture.
+	scheduleJob(resetJob, "0 */15 * * * *", "reset_released_teams")
+}

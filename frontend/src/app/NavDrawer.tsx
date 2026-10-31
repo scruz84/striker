@@ -8,6 +8,7 @@ import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone'
+import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone'
 import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
 import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
@@ -26,6 +27,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMe, useUserTeam } from '../api/hooks'
+import { LegalLinks } from '../features/legal/LegalLinks'
 import { isNavSelected } from './navigation'
 
 export const NAV_DRAWER_WIDTH = 232
@@ -108,6 +110,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
       items: [
         { to: '/search', label: t('header.nav.search'), icon: <SearchTwoToneIcon /> },
         { to: '/help', label: t('header.nav.help'), icon: <HelpTwoToneIcon /> },
+        { to: '/account', label: t('header.nav.account'), icon: <ManageAccountsTwoToneIcon /> },
         ...(loggedUser.isAdmin
           ? [{ to: '/admin', label: t('header.nav.admin'), icon: <AdminPanelSettingsTwoToneIcon /> }]
           : []),
@@ -143,6 +146,7 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
           ))}
         </List>
       ))}
+      <LegalLinks onNavigate={onClose} sx={{ px: 2, py: 1.5 }} />
     </Box>
   )
 

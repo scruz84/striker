@@ -10,6 +10,7 @@ import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { LegalLinks } from '../legal/LegalLinks'
 import { useDevLogin, useDevLoginUsers, useLogin, useMe } from '../../api/hooks'
 
 export function LoginPage() {
@@ -102,6 +103,7 @@ export function LoginPage() {
               {t('login.backToHome')}
             </Link>
           </Typography>
+          <LegalLinks sx={{ justifyContent: 'center' }} />
         </Stack>
       </Paper>
     </Container>

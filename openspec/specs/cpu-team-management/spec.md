@@ -15,6 +15,14 @@ Each unowned club SHALL have an AI level, Caretaker (1), Manager (2) or Director
 - **WHEN** a CPU team is created in a tier-1 league
 - **THEN** it is a Director with 60% probability
 
+#### Scenario: Released club becomes CPU
+- **WHEN** a club released from a human owner finishes its reset in a tier-2 league
+- **THEN** it draws a new AI level with the tier-2 weights (30/50/20%) and CPU routines start managing it
+
+#### Scenario: Released club before its reset
+- **WHEN** a released club is still waiting for its reset
+- **THEN** it has no AI level and no CPU routine acts on it
+
 #### Scenario: AI-managed gate
 - **WHEN** any CPU routine checks a team
 - **THEN** it only acts if the team has no owner and an AI level of at least Caretaker (national teams have level 0 and are never managed)
@@ -177,6 +185,10 @@ At kickoff of a friendly a CPU team SHALL start an XI and schedule 3 substitutio
   (`common/lineupvalidation.go`); `engine/aikickoff.go` (`planAiKickoff`, `aiKickoffSeed`) runs in
   `simulateMatch`, `simulateCupTie` and `simulateFriendly` before `runMatchSimulation`. The fatigue
   numbers come from `common.FatigueMultiplierAt` (`common/fatigue.go`).
+- Released clubs: `common/accounts.go` (`ReleaseTeam`, `ResetReleasedTeam` draws the new AI level
+  with `RandomAiLevel(tier)`); `BackfillAiLevelsStmtSql` and `GetFreeTeamStmtSql` skip a club
+  while `teams.reset_pending_since` is set, so a released club has no AI level and is not
+  claimable until its reset.
 - `common/aimanager.go` (`RandomAiLevel`, `AiTransferProfileFor`), `common/lineup.go`
   (`SelectBestFormationAndLineup`, `formationRankForAiLevel`), `common/timezones.go`
   (`IsWithinLocalActivityWindow`), `common/transferscoring.go` (`EvaluateIncomingOffer`,

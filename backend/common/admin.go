@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 	"strings"
+	"time"
 )
 
 // IsConfiguredAdminEmail reports whether email is listed in the ADMIN_EMAILS environment
@@ -33,9 +34,11 @@ type AdminUserSummary struct {
 	TeamId   *int64 `json:"teamId"`
 	TeamName string `json:"teamName"`
 	IsAdmin  bool   `json:"isAdmin"`
+	// LastSeenAt lets the commissioner see who is about to lose their club (see InactivityReleaseDays).
+	LastSeenAt time.Time `json:"lastSeenAt"`
 }
 
-const GetAllUsersWithTeamsStmtSql = "SELECT u.user_id, u.name, u.email, u.country, t.team_id, t.name, u.is_admin " +
+const GetAllUsersWithTeamsStmtSql = "SELECT u.user_id, u.name, u.email, COALESCE(u.country, ''), t.team_id, t.name, u.is_admin, u.last_seen_at " +
 	"FROM users u LEFT JOIN teams t ON t.owner_id = u.user_id ORDER BY u.user_id"
 
 // GetAllUsersWithTeams lists every registered user for the commissioner's user list. Small
@@ -52,7 +55,7 @@ func GetAllUsersWithTeams(dbCtx *DatabaseContext) ([]AdminUserSummary, error) {
 		var u AdminUserSummary
 		var teamId sql.NullInt64
 		var teamName sql.NullString
-		if err := rows.Scan(&u.UserId, &u.Name, &u.Email, &u.Country, &teamId, &teamName, &u.IsAdmin); err != nil {
+		if err := rows.Scan(&u.UserId, &u.Name, &u.Email, &u.Country, &teamId, &teamName, &u.IsAdmin, &u.LastSeenAt); err != nil {
 			return nil, err
 		}
 		if teamId.Valid {

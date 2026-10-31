@@ -16,6 +16,29 @@ export interface LoggedUser {
   // True right after a first-time sign-in, before the onboarding country picker has run - every
   // other field involving a team is meaningless until this is false (teamId is "0").
   pendingCountrySelection: boolean
+  // False until the user accepted the current Privacy Policy and Terms (and confirmed the minimum
+  // age) - Layout gates every route behind /accept-terms while this is false. termsVersion is the
+  // version they must accept (backend common.CurrentTermsVersion).
+  termsAccepted: boolean
+  termsVersion: number
+  // Set once after their club was released for inactivity; onboarding tells them.
+  releasedTeamName?: string
+}
+
+// GET /v1/user/account - the Account page's data. The two thresholds are the backend's own, so
+// the page states exactly what the engine applies.
+export interface AccountInfo {
+  name: string
+  email: string
+  provider: string
+  country: string
+  createdAt: string
+  lastSeenAt: string
+  termsVersion: number | null
+  termsAcceptedAt: string | null
+  teamName: string
+  releaseAfterDays: number
+  erasureAfterDays: number
 }
 
 // A country the engine can generate a world for (see backend common.KnownCountries) - used by
@@ -358,7 +381,6 @@ export interface AcademyOverview {
 export interface Team {
   id: number
   ownerId: number
-  ownerName: string
   country: string
   name: string
   divisionId: number
@@ -878,6 +900,7 @@ export const TRANSACTION_ADMIN_MASS_INJECTION = 12
 export const TRANSACTION_LOAN_FEE = 13
 export const TRANSACTION_LOAN_WAGE_CONTRIBUTION = 14
 export const TRANSACTION_STADIUM_MAINTENANCE = 15
+export const TRANSACTION_TEAM_RESET = 16
 
 // Values are i18n keys under "finances.reasons.*" - look them up with
 // t(TRANSACTION_REASON_KEYS[reason] ?? 'finances.reasons.other').
@@ -898,6 +921,7 @@ export const TRANSACTION_REASON_KEYS: Record<number, string> = {
   [TRANSACTION_LOAN_FEE]: 'finances.reasons.loanFee',
   [TRANSACTION_LOAN_WAGE_CONTRIBUTION]: 'finances.reasons.loanWageContribution',
   [TRANSACTION_STADIUM_MAINTENANCE]: 'finances.reasons.stadiumMaintenance',
+  [TRANSACTION_TEAM_RESET]: 'finances.reasons.teamReset',
 }
 
 export interface TeamTransaction {
@@ -1535,6 +1559,7 @@ export const NOTIFICATION_ACADEMY_PROMOTION = 7
 export const NOTIFICATION_PROGRESSION = 8
 export const NOTIFICATION_AWARD = 9
 export const NOTIFICATION_FANBASE = 11
+export const NOTIFICATION_ACCOUNT = 13
 
 export interface Notification {
   notificationId: number
@@ -1665,6 +1690,9 @@ export interface AdminUserSummary {
   teamId: number | null
   teamName: string
   isAdmin: boolean
+  // When the user last did anything - what the inactivity rules (club released after 60 days,
+  // account erased after 365) count from.
+  lastSeenAt: string
 }
 
 // One league tier's shape - see backend/common/worldconfig.go's TierConfig.

@@ -1800,6 +1800,56 @@
       }
     },
     {
+      "id": 61,
+      "type": "timeseries",
+      "title": "Clubs reset after their owner left, per day (by reason)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 119,
+        "w": 8,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "sum by (reason) (rate(striker_teams_reset_total[1h])) * 86400",
+          "legendFormat": "{{reason}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
       "id": 54,
       "type": "row",
       "title": "Live & delivery",
@@ -1807,7 +1857,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 119,
+        "y": 127,
         "w": 24,
         "h": 1
       }
@@ -1858,7 +1908,7 @@
       "description": "Live-match websockets currently open on each svc instance.",
       "gridPos": {
         "x": 0,
-        "y": 120,
+        "y": 128,
         "w": 8,
         "h": 8
       }
@@ -1909,7 +1959,7 @@
       "description": "sent: the push service accepted it. expired: the subscription was gone (404/410) and was deleted. failed: a transport error or any other status (429, 5xx, ...); these are not retried.",
       "gridPos": {
         "x": 8,
-        "y": 120,
+        "y": 128,
         "w": 8,
         "h": 8
       }
@@ -1960,7 +2010,7 @@
       "description": "database/sql pool state per process. The pool is capped at 50 connections per process: in use sitting at the cap means requests are queueing for a connection.",
       "gridPos": {
         "x": 16,
-        "y": 120,
+        "y": 128,
         "w": 8,
         "h": 8
       }
@@ -2011,7 +2061,7 @@
       "description": "How often a caller had to wait for a free connection. Should sit at 0.",
       "gridPos": {
         "x": 0,
-        "y": 128,
+        "y": 136,
         "w": 12,
         "h": 8
       }
@@ -2062,7 +2112,7 @@
       "description": "Seconds spent waiting for a connection per second of wall time, summed over callers.",
       "gridPos": {
         "x": 12,
-        "y": 128,
+        "y": 136,
         "w": 12,
         "h": 8
       }
@@ -2075,7 +2125,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 136,
+        "y": 144,
         "w": 24,
         "h": 1
       }
@@ -2091,7 +2141,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 137,
+        "y": 145,
         "w": 12,
         "h": 8
       },
@@ -2142,7 +2192,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 137,
+        "y": 145,
         "w": 12,
         "h": 8
       },
@@ -2195,7 +2245,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 145,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -2246,7 +2296,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 145,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -2299,7 +2349,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 153,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -2350,7 +2400,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 153,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -2401,7 +2451,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 161,
+        "y": 169,
         "w": 12,
         "h": 8
       },
@@ -2453,7 +2503,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 161,
+        "y": 169,
         "w": 12,
         "h": 8
       },

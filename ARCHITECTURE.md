@@ -113,7 +113,30 @@ converge on the same `POST /v1/login` endpoint (`{"jwt": "..."}` vs `{"devEmail"
 `gin-jwt`'s `Authenticator` callback in `service/fmservice.go`. A successful login sets an
 HTTP-only JWT cookie; `GetUserIdFromCookie` (in `handlers/handlers.go`) is how every other
 authenticated handler recovers the caller's identity - there's no session store, the cookie *is*
-the session.
+the session. It reads the claims the JWT middleware already verified (`ginjwt.ExtractClaims`),
+never the raw cookie, so a route outside the middleware (or a forged cookie) has no user.
+
+Hardening for a public deployment (spec `api-security`): Google ID tokens are validated with
+`idtoken.Validate` against `GOOGLE_OAUTH_CLIENT_ID` and need `email_verified`
+(`verifyGoogleIdToken`); accounts are created only by a successful sign-in (no register
+endpoint); every state-changing request except login needs the `X-Striker-Client: web` header
+(`service.RequireClientHeader`), which CORS only lets the allow-listed origins send; and
+`--svc` refuses to start on weak or placeholder `SECRET_JWT`/`SESSION_SECRET` or a missing
+client id unless dev login is on (`common.CheckDeploymentSecurity`). The database reset is
+`POST /v1/admin/initialize` (admin only); an empty database is seeded with `--initialize`.
+
+**Account lifecycle** (spec `user-accounts`, `privacy-and-legal`). Every authenticated request
+passes `handlers.ActivityMiddleware`, which writes `users.last_seen_at` at most once an hour per
+replica and answers 401 (clearing the cookie) for a still-valid token whose user was deleted. The
+engine's daily `RunAccountLifecycle` warns owners idle 46 and 53 days, releases the club of an
+owner idle 60 days (`ReleaseTeam`: no owner, `ai_level` 0, `reset_pending_since` set) and erases
+accounts idle 365 days; a 15-minute `ResetReleasedTeams` pass turns each released club into a fresh
+CPU club (`ResetReleasedTeam`: squad to free agents, new squad and names, budget back to default
+through the ledger) once none of its matches is in or near its live window. `DELETE
+/v1/user/account` (and the admin equivalent) runs the same release plus erases the user row; `GET
+/v1/user/account/export` returns everything stored about the user. Nobody gets a club before
+accepting the Privacy Policy and Terms (`LoggedUser.termsAccepted`, gate in `Layout`); the
+controller identity shown in those pages comes from `LEGAL_*` deployment properties.
 
 **A brand-new sign-in doesn't get a team immediately.** It's registered with no country and no
 team (`LoggedUser.pendingCountrySelection = true`), and the frontend's `Layout` component

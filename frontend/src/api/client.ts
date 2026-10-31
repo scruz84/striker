@@ -10,14 +10,21 @@ export class ApiError extends Error {
   }
 }
 
+// Sent on every request. The backend rejects state-changing requests without it (CSRF
+// protection): a cross-site page cannot add a custom header without a CORS preflight, which the
+// origin allow-list refuses.
+export const CLIENT_HEADER = 'X-Striker-Client'
+export const CLIENT_HEADER_VALUE = 'web'
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(getApiEndpoint(path), {
     credentials: 'include',
+    ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
+      [CLIENT_HEADER]: CLIENT_HEADER_VALUE,
     },
-    ...options,
   })
 
   if (!response.ok) {

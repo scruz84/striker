@@ -58,6 +58,8 @@ func StartEngine() {
 	StartOfferResponseScheduler(NewOfferResponseJob(dbCtx))
 	StartBirthdayScheduler(NewBirthdayJob(dbCtx))
 	StartAiActivityScheduler(NewAiActivityJob(dbCtx))
+	StartAccountLifecycleScheduler(NewAccountLifecycleJob(dbCtx))
+	StartResetReleasedTeamsScheduler(NewResetReleasedTeamsJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

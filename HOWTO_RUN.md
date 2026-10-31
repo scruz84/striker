@@ -40,6 +40,11 @@ Without a real `GOOGLE_OAUTH_CLIENT_ID`, Google sign-in won't work - set
 all. **Never set that in a real deployment** - it lets anyone sign in as any of a fixed dev-user
 roster, admin included, with no credential check.
 
+For local development with the bundled compose placeholders (`SECRET_JWT`/`SESSION_SECRET`
+unset), `DEV_LOGIN_ENABLED=true` is also what lets the backend start: it otherwise refuses to run
+with placeholder secrets or without `GOOGLE_OAUTH_CLIENT_ID` (see the production checklist at the
+end).
+
 ### Common backend env vars (`backend/.env`, or exported before `docker compose up`)
 
 | Variable | Default | Purpose |
@@ -47,7 +52,8 @@ roster, admin included, with no credential check.
 | `DB_DATABASE` / `DB_USER` / `DB_PASSWORD` | `striker` / `striker` / `striker` | Bundled Postgres credentials |
 | `DB_PORT` | `5432` | Host port Postgres is published on |
 | `SVC_PORT` | `1984` | Host port the API is published on |
-| `SECRET_JWT` / `SESSION_SECRET` | dev-only placeholders | **Set real secrets for anything beyond local dev** |
+| `SECRET_JWT` / `SESSION_SECRET` | dev-only placeholders | **Required, >= 32 characters** (`openssl rand -base64 48`): the backend refuses to start with a placeholder or short value unless `DEV_LOGIN_ENABLED=true` |
+| `GOOGLE_OAUTH_CLIENT_ID` | *(empty)* | **Required** (unless dev login): the audience Google ID tokens are validated against - same value as the frontend's |
 | `REALM` | `Striker Manager` | JWT realm name |
 | `SESSION_TIMEOUT` | `30m` | JWT session lifetime |
 | `DEV_LOGIN_ENABLED` | `false` | Opt into no-credential-check sign-in (local/CI only) |
@@ -182,3 +188,34 @@ run), override the app services' environment and skip starting the bundled ones.
 The frontend doesn't talk to Postgres/Redis at all (only to the backend API over HTTP), so
 nothing about it changes in this scenario - point its `API_URI` at wherever `svc` ends up
 reachable, same as the quick-start section above.
+
+## Production checklist
+
+Before exposing a deployment to the internet:
+
+- [ ] `DEV_LOGIN_ENABLED=false` (the default) - an enabled dev login lets anyone sign in as the admin.
+- [ ] `SECRET_JWT` and `SESSION_SECRET`: two different random values of at least 32 characters
+      (`openssl rand -base64 48`), never the compose placeholders. Rotating `SECRET_JWT` signs
+      everyone out once.
+- [ ] `GOOGLE_OAUTH_CLIENT_ID` set on **both** the backend and the frontend, to the same value.
+- [ ] `ADMIN_EMAILS` lists only the real administrators.
+- [ ] `CORS_ALLOWED_ORIGINS` lists only the public frontend origin(s) - it also decides who can send
+      the `X-Striker-Client` CSRF header.
+- [ ] HTTPS only (the session cookie is `Secure`); redirect HTTP to HTTPS at the proxy.
+- [ ] Security headers at the proxy/nginx: `Strict-Transport-Security`, a `Content-Security-Policy`,
+      `X-Content-Type-Options`, `Referrer-Policy`.
+- [ ] Rate limiting at the proxy, at least on `/v1/login` and on `/v1` as a whole.
+- [ ] Logs rotated and kept at most 30 days; database backups kept at most 30 days.
+- [ ] Secrets live in the host's secret store or environment, never in the repository or an image.
+- [ ] The database is bootstrapped with `docker compose --profile init run --rm init` (there is
+      no unauthenticated reset route); `POST /v1/admin/initialize` is admin-only and destroys all data.
+- [ ] Frontend `LEGAL_CONTROLLER_NAME` and `LEGAL_CONTACT_EMAIL` set (required: the Privacy Policy and
+      Terms name the controller and the contact for privacy requests; without them the pages show
+      a "legal details not configured" warning). Optional: `LEGAL_CONTROLLER_TAX_ID`,
+      `LEGAL_POSTAL_ADDRESS`, `LEGAL_HOSTING_PROVIDER`, `LEGAL_HOSTING_REGION`. Set
+      `LEGAL_NOTICE_ENABLED=true` (with name, tax id and address) if the deployment has economic
+      activity and needs the public "Aviso legal" page. Changing them needs only a container
+      restart, not a rebuild.
+- [ ] The Privacy Policy and Terms texts (`legal.*` in `frontend/src/i18n/locales`) are drafts:
+      have them reviewed before going public, and raise `LEGAL_VERSION` (`legalMeta.ts`) together
+      with `CurrentTermsVersion` (`backend/common/accounts.go`) when they change.

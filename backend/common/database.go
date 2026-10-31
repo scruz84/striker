@@ -45,7 +45,7 @@ const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = 
 // manager should land in the top flight while there's room, not in a random division. Within
 // whichever tier ends up supplying the pick, the specific team is still random.
 const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.league_id = l.league_id " +
-	"WHERE t.owner_id IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
+	"WHERE t.owner_id IS NULL AND t.reset_pending_since IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
 
 // For each of the two teams, returns EITHER all of that team's saved override rows for this match
 // (lineup/lineup_positions) OR, if it has none, all of its default rows (default_lineup_positions
@@ -85,9 +85,10 @@ const getLeagueAdjacentTiersStmtSql = "SELECT EXISTS (SELECT 1 FROM leagues u WH
 	"EXISTS (SELECT 1 FROM leagues d WHERE d.country = l.country AND d.tier = l.tier + 1) FROM leagues l WHERE l.league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
-const GetTeamStmtByIdSql = "SELECT a.owner_id, c.name owner_name,  a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level " +
-	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) LEFT JOIN users c " +
-	" ON (a.owner_id = c.user_id ) " +
+// The owner's name is deliberately not selected: the public team API must not expose the real
+// (Google) name of a club's owner - see the privacy-and-legal spec.
+const GetTeamStmtByIdSql = "SELECT a.owner_id, a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level " +
+	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) " +
 	"WHERE a.team_id = $1"
 
 const GetTeamDetailsStmtByOwnerSql = "SELECT team_id, country, league_id, name, name_changed FROM teams WHERE owner_id = $1"
@@ -137,7 +138,8 @@ const GetUserIdByEmailStmtSql = "SELECT user_id FROM users WHERE email = $1"
 // string fields would error, where the empty-string/'0' sentinels let GetUserDetails represent
 // "no team assigned yet" instead.
 const GetUserStmtSql = "SELECT u.name userName, COALESCE(u.country, '') as country, u.provider, u.email, " +
-	"COALESCE(t.team_id::text, '0') as teamId, COALESCE(t.name, '') as teamName, COALESCE(t.league_id::text, '0') as leagueId, u.is_admin " +
+	"COALESCE(t.team_id::text, '0') as teamId, COALESCE(t.name, '') as teamName, COALESCE(t.league_id::text, '0') as leagueId, u.is_admin, " +
+	"u.terms_version, COALESCE(u.released_team_name, '') " +
 	"from users u left join teams t on (u.user_id = t.owner_id) where u.user_id = $1"
 
 const GetUserIsAdminStmtSql = "SELECT is_admin FROM users WHERE user_id = $1"
@@ -192,9 +194,6 @@ const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type,
 const InsertMatchInstantStmtSql = "" +
 	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
-
-const RegisterUserStmtSql = "INSERT INTO users (name, provider, email, " +
-	"country) VALUES ($1, $2, $3, $4) returning user_id"
 
 // RegisterPendingUserStmtSql registers a brand-new sign-in without a country - used the first
 // time someone logs in (Google or dev), before they've picked which country to play in (see
@@ -578,6 +577,16 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 	}
 	defer tx.Rollback()
 
+	// A session can outlive its account (the JWT stays valid until it expires): refuse to hand a
+	// club to a user who no longer exists, and hold the row so a concurrent deletion waits for
+	// this claim to finish instead of leaving a club owned by a vanished id.
+	var lockedUserId int64
+	if err := tx.QueryRow(LockUserStmtSql, userId).Scan(&lockedUserId); errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrUserNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
 	//Get a free team
 	var teamId = int64(-1)
 	err = tx.QueryRow(GetFreeTeamStmtSql, &country).Scan(&teamId)
@@ -608,6 +617,11 @@ func AssignTeam(dbCtx *DatabaseContext, userId int64, country string) (*Team, er
 	stadiumName := RandomStadiumName(country)
 	_, err = ustmt.Exec(teamName, userId, stadiumName, teamId)
 	if err != nil {
+		return nil, err
+	}
+
+	// The "your club was released" notice has been delivered once they pick a new club.
+	if _, err := tx.Exec(ClearReleasedTeamNameStmtSql, userId); err != nil {
 		return nil, err
 	}
 
@@ -1002,7 +1016,10 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 	var teamName string
 	var leagueId string
 	var isAdmin bool
-	err := dbCtx.Db.QueryRow(GetUserStmtSql, userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId, &isAdmin)
+	var termsVersion sql.NullInt64
+	var releasedTeamName string
+	err := dbCtx.Db.QueryRow(GetUserStmtSql, userId).Scan(&name, &country, &provider, &email, &teamId, &teamName, &leagueId, &isAdmin,
+		&termsVersion, &releasedTeamName)
 	if err != nil {
 		return nil, err
 	}
@@ -1017,6 +1034,9 @@ func GetUserDetails(userId int64, dbCtx *DatabaseContext) (*LoggedUser, error) {
 		TeamLeague:              leagueId,
 		IsAdmin:                 isAdmin,
 		PendingCountrySelection: teamId == "0",
+		TermsAccepted:           termsVersion.Valid && int(termsVersion.Int64) >= CurrentTermsVersion,
+		TermsVersion:            CurrentTermsVersion,
+		ReleasedTeamName:        releasedTeamName,
 	}, nil
 }
 
@@ -1095,20 +1115,18 @@ func GetTeamByOwner(userId int64, dbCtx *DatabaseContext) (*Team, error) {
 
 func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var userId sql.NullInt64
-	var userName sql.NullString
 	var country string
 	var leagueId int64
 	var leagueName string
 	var name string
 	var aiLevel int
-	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &userName, &country, &leagueId, &leagueName, &name, &aiLevel)
+	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &country, &leagueId, &leagueName, &name, &aiLevel)
 	if err != nil {
 		return nil, err
 	}
 	return &Team{
 		Id:           teamId,
 		OwnerId:      userId.Int64,
-		OwnerName:    userName.String,
 		Country:      country,
 		TeamName:     name,
 		DivisionId:   leagueId,

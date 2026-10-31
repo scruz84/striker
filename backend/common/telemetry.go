@@ -95,6 +95,11 @@ var (
 	UserRegistrationsCounter, _ = Meter.Int64Counter("striker.users.registered",
 		metric.WithDescription("New user registrations"))
 
+	// TeamsResetCounter counts clubs reset into fresh CPU clubs after losing their owner (see
+	// ResetReleasedTeam), labeled by "reason": inactivity, self_deletion, admin_deletion or erasure.
+	TeamsResetCounter, _ = Meter.Int64Counter("striker.teams.reset",
+		metric.WithDescription("Clubs reset after their owner left, by reason"))
+
 	// NotificationsSentCounter counts every in-app notification written, labeled by
 	// "type" (see the NOTIFICATION_* constants) - a proxy for how much is actually happening
 	// across every user's game at once (results, transfers, promotions, ...).
@@ -245,6 +250,8 @@ func transactionReasonLabel(reason int) string {
 		return "loan_wage_contribution"
 	case TRANSACTION_STADIUM_MAINTENANCE:
 		return "stadium_maintenance"
+	case TRANSACTION_TEAM_RESET:
+		return "team_reset"
 	default:
 		return "other"
 	}

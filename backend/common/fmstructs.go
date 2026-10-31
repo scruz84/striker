@@ -76,6 +76,14 @@ type LoggedUser struct {
 	// gates every other route behind the onboarding country picker while this is true. See
 	// handlers.SelectCountryHandler.
 	PendingCountrySelection bool `json:"pendingCountrySelection"`
+	// TermsAccepted is false until the user accepted the current Privacy Policy and Terms (and
+	// confirmed the minimum age) - the frontend gates every route behind /accept-terms until then.
+	// TermsVersion is the current version they must accept (common.CurrentTermsVersion).
+	TermsAccepted bool `json:"termsAccepted"`
+	TermsVersion  int  `json:"termsVersion"`
+	// ReleasedTeamName is set once, after their club was released for inactivity: onboarding tells
+	// them, and it is cleared when they claim a new club.
+	ReleasedTeamName string `json:"releasedTeamName,omitempty"`
 }
 
 type HttpResponse struct {
@@ -145,11 +153,10 @@ func ApplySubstitutionToLineup(lineup *Lineup, event Event) {
 }
 
 type Team struct {
-	Id        int64  `json:"id"`
-	OwnerId   int64  `json:"ownerId"`
-	OwnerName string `json:"ownerName"`
-	Country   string `json:"country"`
-	TeamName  string `json:"name"`
+	Id       int64  `json:"id"`
+	OwnerId  int64  `json:"ownerId"`
+	Country  string `json:"country"`
+	TeamName string `json:"name"`
 	// IsNationalTeam marks a country's unowned national team (see common.CreateNationalTeam) -
 	// GetTeamDetailsById's one signal to the frontend that this team has no division, stadium, or
 	// manager, and that its "squad" is the country's current pool of eligible players rather than
@@ -341,13 +348,6 @@ type PlayerAvatar struct {
 	MouthType       string `json:"mouthType"`
 	SkinColor       string `json:"skinColor"`
 	TopType         string `json:"topType"`
-}
-
-type RegisterUser struct {
-	Name     string `json:"name"`
-	Provider string `json:"provider"`
-	Email    string `json:"email"`
-	Country  string `json:"country"`
 }
 
 type TeamDetails struct {

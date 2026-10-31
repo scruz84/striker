@@ -26,6 +26,16 @@ func InvalidateTeamDetailsCache(dbCtx *common.DatabaseContext, teamId int64) {
 	dbCtx.ObjectCache.DeleteValue(TeamDetailsKey + idStr)
 }
 
+// InvalidateTeamCaches drops everything cached about a club whose ownership or squad just changed
+// (released, reset, owner deleted): both views of its details, its cached owner id and its cached
+// player list - otherwise notifications and pages keep addressing the previous owner.
+func InvalidateTeamCaches(dbCtx *common.DatabaseContext, teamId int64) {
+	InvalidateTeamDetailsCache(dbCtx, teamId)
+	idStr := strconv.FormatInt(teamId, 10)
+	dbCtx.ObjectCache.DeleteValue(TeamOwnerKey + idStr)
+	dbCtx.ObjectCache.DeleteValue(PlayersFromTeamKey + idStr)
+}
+
 // CurrentSeasonKey is this cache's key for one country's current season - current_season now
 // lives on `countries` (see init75_season_per_country.sql), one counter per country, so the
 // cache key needs the country baked in too.

@@ -9,12 +9,18 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMe, useUserTeam } from '../api/hooks'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { DevLoginWarning } from './DevLoginWarning'
 import { BOTTOM_NAV_HEIGHT, BottomNav } from './BottomNav'
 import { DetailBackBar } from './DetailBackBar'
 import { Header } from './Header'
 import { NavDrawer } from './NavDrawer'
 import { findDetailRoute } from './navigation'
 import { Subheader } from './Subheader'
+
+// The legal texts stay readable by everyone, including a user still waiting at a gate.
+const LEGAL_PATHS = ['/privacy', '/terms', '/legal-notice']
+// Paths a signed-in user who has not accepted the terms can still open.
+const TERMS_GATE_EXEMPT_PATHS = ['/accept-terms', ...LEGAL_PATHS]
 
 export function Layout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -25,11 +31,22 @@ export function Layout() {
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
 
+  // Nobody gets anywhere before accepting the current Privacy Policy and Terms (a first sign-in, or
+  // after the policy version was raised): /accept-terms comes before the onboarding redirect below.
+  // The legal texts themselves stay readable so the screen can link to them.
+  if (loggedUser && !loggedUser.termsAccepted && !TERMS_GATE_EXEMPT_PATHS.includes(location.pathname)) {
+    return <Navigate to="/accept-terms" replace />
+  }
+
   // A brand-new sign-in has no team yet until they pick a country (see
   // LoggedUser.pendingCountrySelection) - every other route is off-limits until then, so this
   // renders the redirect in place of the whole chrome rather than letting NavDrawer/Subheader
   // mount for a user who has nothing to show yet.
-  if (loggedUser?.pendingCountrySelection && location.pathname !== '/onboarding') {
+  // The legal pages stay reachable while waiting for a country, and /accept-terms is where a user
+  // who must accept first is sent - redirecting those to /onboarding too would bounce between the
+  // two gates forever.
+  const waitingAtTermsGate = loggedUser && !loggedUser.termsAccepted && TERMS_GATE_EXEMPT_PATHS.includes(location.pathname)
+  if (loggedUser?.pendingCountrySelection && location.pathname !== '/onboarding' && !waitingAtTermsGate && !LEGAL_PATHS.includes(location.pathname)) {
     return <Navigate to="/onboarding" replace />
   }
 
@@ -38,6 +55,7 @@ export function Layout() {
 
   return (
     <Box>
+      <DevLoginWarning />
       <Header />
       <Box sx={{ display: 'flex' }}>
         <NavDrawer mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />

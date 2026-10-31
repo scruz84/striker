@@ -7,6 +7,7 @@ import { setPhone } from './testPhone'
 import { UsersTab } from './UsersTab'
 
 const setUserAdmin = vi.hoisted(() => vi.fn())
+const deleteUser = vi.hoisted(() => vi.fn())
 const notify = { success: vi.fn(), error: vi.fn() }
 
 vi.mock('../../api/hooks', () => ({
@@ -14,11 +15,12 @@ vi.mock('../../api/hooks', () => ({
   useAdminUsers: () => ({
     isLoading: false,
     data: [
-      { userId: 1, name: 'Ada Admin', email: 'ada@example.com', country: 'es', teamId: null, teamName: '', isAdmin: true },
-      { userId: 2, name: 'Bob Manager', email: 'bob@example.com', country: 'en', teamId: null, teamName: '', isAdmin: false },
+      { userId: 1, name: 'Ada Admin', email: 'ada@example.com', country: 'es', teamId: null, teamName: '', isAdmin: true, lastSeenAt: new Date().toISOString() },
+      { userId: 2, name: 'Bob Manager', email: 'bob@example.com', country: 'en', teamId: null, teamName: '', isAdmin: false, lastSeenAt: new Date(Date.now() - 70 * 86_400_000).toISOString() },
     ],
   }),
   useSetUserAdmin: () => ({ mutate: setUserAdmin, isPending: false }),
+  useAdminDeleteUser: () => ({ mutate: deleteUser, isPending: false }),
 }))
 vi.mock('../../components/TeamNameLink', () => ({ TeamNameLink: ({ children }: { children: string }) => <span>{children}</span> }))
 
@@ -90,5 +92,21 @@ describe('UsersTab', () => {
     setPhone(true)
     renderTab()
     expect(screen.getByRole('button', { name: revoke() })).toBeDisabled()
+  })
+
+  it('shows how long ago each user was last active', () => {
+    setPhone(false)
+    renderTab()
+    expect(screen.getByText(i18n.t('admin.usersTable.today'))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('admin.usersTable.lastSeenDays', { count: 70 }))).toBeInTheDocument()
+  })
+
+  it('erases another user after confirming, and never offers deleting yourself', async () => {
+    setPhone(false)
+    renderTab()
+    const deleteButtons = screen.getAllByRole('button', { name: i18n.t('admin.usersTable.delete') })
+    expect(deleteButtons[0]).toBeDisabled() // the signed-in admin (user 1)
+    fireEvent.click(deleteButtons[1])
+    await waitFor(() => expect(deleteUser).toHaveBeenCalledWith(2, expect.any(Object)))
   })
 })

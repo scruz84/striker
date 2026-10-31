@@ -30,6 +30,12 @@ func StartSvc() {
 		log.Warnf("no app.env file loaded, relying on environment variables: %s", err.Error())
 	}
 
+	// Fails closed: weak or placeholder secrets and a missing Google client id stop the service
+	// unless dev login is on (then they are only logged). See common.CheckDeploymentSecurity.
+	if err := common.CheckDeploymentSecurity(); err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
 	databaseDetails := common.DatabaseDetails{
 		Host:     os.Getenv("DB_HOST"),
@@ -136,8 +142,10 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	corsConfig.AddAllowHeaders("Access-Control-Allow-Origin")
 	corsConfig.AddAllowHeaders("Access-Control-Allow-Headers",
 		"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin",
-		"Cache-Control", "X-Requested-With")
+		"Cache-Control", "X-Requested-With", ClientHeader)
 	router.Use(cors.New(corsConfig))
+	// After CORS, so a preflight is answered by it first. See RequireClientHeader.
+	router.Use(RequireClientHeader())
 
 	//Init session management
 	store, err := postgres.NewStore(dbCtx.Db, []byte(os.Getenv("SESSION_SECRET")))
@@ -146,14 +154,25 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	}
 	router.Use(sessions.Sessions("footballManager", store))
 
+	registerV1Routes(router, dbCtx)
+}
+
+// registerV1Routes mounts the whole /v1 API. Split from initRouter (CORS, session store) so tests
+// can exercise the real route table - which routes exist and which middleware guards them -
+// without a database.
+func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//V1 API
 	v1Group := router.Group("/v1")
 
 	authMiddleware := initJWTMiddleware(dbCtx)
+	// Runs after the JWT check on every authenticated group: records activity and refuses the
+	// still-valid token of a deleted account.
+	activity := handlers.ActivityMiddleware(dbCtx)
 
 	//Authenticated endpoints
 	v1UserGroup := v1Group.Group("/user")
 	v1UserGroup.Use(authMiddleware.MiddlewareFunc())
+	v1UserGroup.Use(activity)
 	v1UserGroup.GET("/team", handlers.UserTeam(dbCtx))
 	v1UserGroup.PUT("/team/name", handlers.RenameTeamHandler(dbCtx))
 	v1UserGroup.GET("/team/lineup", handlers.GetLineupHandler(dbCtx))
@@ -184,9 +203,13 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1UserGroup.POST("/push-subscriptions", handlers.SubscribeToPushHandler(dbCtx))
 	v1UserGroup.DELETE("/push-subscriptions", handlers.UnsubscribeFromPushHandler(dbCtx))
 	v1UserGroup.PUT("/language", handlers.SetUserLanguageHandler(dbCtx))
+	v1UserGroup.GET("/account", handlers.GetAccountHandler(dbCtx))
+	v1UserGroup.DELETE("/account", handlers.DeleteAccountHandler(dbCtx))
+	v1UserGroup.GET("/account/export", handlers.ExportAccountHandler(dbCtx))
 
 	v1TransferGroup := v1Group.Group("/transfers")
 	v1TransferGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TransferGroup.Use(activity)
 	v1TransferGroup.GET("", handlers.BrowseTransfersHandler(dbCtx))
 	v1TransferGroup.POST("/:"+handlers.ID+"/buy", handlers.BuyTransferHandler(dbCtx))
 	v1TransferGroup.GET("/window", handlers.TransferWindowStatusHandler(dbCtx))
@@ -194,16 +217,19 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1LoanGroup := v1Group.Group("/loans")
 	v1LoanGroup.Use(authMiddleware.MiddlewareFunc())
+	v1LoanGroup.Use(activity)
 	v1LoanGroup.GET("", handlers.BrowseLoansHandler(dbCtx))
 	v1LoanGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptLoanHandler(dbCtx))
 
 	v1FreeAgentGroup := v1Group.Group("/free-agents")
 	v1FreeAgentGroup.Use(authMiddleware.MiddlewareFunc())
+	v1FreeAgentGroup.Use(activity)
 	v1FreeAgentGroup.GET("", handlers.BrowseFreeAgentsHandler(dbCtx))
 	v1FreeAgentGroup.POST("/:"+handlers.ID+"/sign", handlers.SignFreeAgentHandler(dbCtx))
 
 	v1TrainerGroup := v1Group.Group("/trainers")
 	v1TrainerGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TrainerGroup.Use(activity)
 	v1TrainerGroup.GET("", handlers.BrowseTrainersHandler(dbCtx))
 	v1TrainerGroup.GET("/mine", handlers.TeamTrainerHandler(dbCtx))
 	v1TrainerGroup.POST("/:"+handlers.ID+"/hire", handlers.HireTrainerHandler(dbCtx))
@@ -211,6 +237,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1OfferGroup := v1Group.Group("/offers")
 	v1OfferGroup.Use(authMiddleware.MiddlewareFunc())
+	v1OfferGroup.Use(activity)
 	v1OfferGroup.POST("", handlers.MakeOfferHandler(dbCtx))
 	v1OfferGroup.GET("/received", handlers.OffersReceivedHandler(dbCtx))
 	v1OfferGroup.GET("/sent", handlers.OffersSentHandler(dbCtx))
@@ -220,6 +247,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1FriendGroup := v1Group.Group("/groups")
 	v1FriendGroup.Use(authMiddleware.MiddlewareFunc())
+	v1FriendGroup.Use(activity)
 	v1FriendGroup.POST("", handlers.CreateGroupHandler(dbCtx))
 	v1FriendGroup.POST("/join", handlers.JoinGroupHandler(dbCtx))
 	v1FriendGroup.GET("/mine", handlers.MyGroupsHandler(dbCtx))
@@ -229,6 +257,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1TeamGroup := v1Group.Group("/teams")
 	v1TeamGroup.Use(authMiddleware.MiddlewareFunc())
+	v1TeamGroup.Use(activity)
 	v1TeamGroup.GET("/match/:"+handlers.ID+"/", handlers.MatchDetailsHandler(dbCtx))
 	v1TeamGroup.GET("/match/:"+handlers.ID+"/live", handlers.LiveMatchHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/", handlers.DivisionDetailsHandler(dbCtx))
@@ -250,6 +279,7 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1FriendlyGroup := v1Group.Group("/friendlies")
 	v1FriendlyGroup.Use(authMiddleware.MiddlewareFunc())
+	v1FriendlyGroup.Use(activity)
 	v1FriendlyGroup.POST("/challenges", handlers.ChallengeToFriendlyHandler(dbCtx))
 	v1FriendlyGroup.GET("/challenges/received", handlers.FriendlyChallengesReceivedHandler(dbCtx))
 	v1FriendlyGroup.GET("/challenges/sent", handlers.FriendlyChallengesSentHandler(dbCtx))
@@ -266,12 +296,14 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 
 	v1NationalTeamGroup := v1Group.Group("/national-teams")
 	v1NationalTeamGroup.Use(authMiddleware.MiddlewareFunc())
+	v1NationalTeamGroup.Use(activity)
 	v1NationalTeamGroup.GET("/friendlies/upcoming", handlers.UpcomingNationalTeamFriendliesHandler(dbCtx))
 	v1NationalTeamGroup.GET("/friendlies/recent", handlers.RecentNationalTeamFriendliesHandler(dbCtx))
 	v1NationalTeamGroup.GET("/world-cup/current", handlers.CurrentWorldCupHandler(dbCtx))
 
 	v1CupGroup := v1Group.Group("/cups")
 	v1CupGroup.Use(authMiddleware.MiddlewareFunc())
+	v1CupGroup.Use(activity)
 	v1CupGroup.GET("/latest/:country", handlers.LatestCupHandler(dbCtx))
 	v1CupGroup.GET("/latest-international/:region", handlers.LatestInternationalCupHandler(dbCtx))
 	v1CupGroup.GET("/:"+handlers.ID, handlers.CupDetailsHandler(dbCtx))
@@ -284,15 +316,18 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	//Authentication endpoints
 	v1AuthGroup := v1Group.Group("/auth")
 	v1AuthGroup.Use(authMiddleware.MiddlewareFunc())
+	v1AuthGroup.Use(activity)
 	v1AuthGroup.GET("/me", handlers.Me(dbCtx, common.UserId))
 	v1AuthGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
 	v1AuthGroup.POST("/logout", authMiddleware.LogoutHandler)
 	v1AuthGroup.GET("/onboarding/countries", handlers.OnboardingCountriesHandler(dbCtx))
 	v1AuthGroup.POST("/onboarding/country", handlers.SelectCountryHandler(dbCtx))
+	v1AuthGroup.POST("/accept-terms", handlers.AcceptTermsHandler(dbCtx))
 
 	//Commissioner/admin tooling - requires is_admin, see handlers.RequireAdmin
 	v1AdminGroup := v1Group.Group("/admin")
 	v1AdminGroup.Use(authMiddleware.MiddlewareFunc())
+	v1AdminGroup.Use(activity)
 	v1AdminGroup.Use(handlers.RequireAdmin(dbCtx))
 	v1AdminGroup.GET("/overview", handlers.AdminOverviewHandler(dbCtx))
 	v1AdminGroup.GET("/users", handlers.AdminListUsersHandler(dbCtx))
@@ -312,9 +347,13 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.PUT("/max-friendlies-per-week", handlers.AdminSetMaxFriendliesPerWeekHandler(dbCtx))
 	v1AdminGroup.PUT("/friendly-schedule", handlers.AdminSetFriendlyScheduleHandler(dbCtx))
 	v1AdminGroup.PUT("/users/:"+handlers.ID+"/admin", handlers.AdminSetUserAdminHandler(dbCtx))
+	v1AdminGroup.DELETE("/users/:"+handlers.ID, handlers.AdminDeleteUserHandler(dbCtx))
 	v1AdminGroup.GET("/world-config", handlers.AdminGetWorldConfigHandler(dbCtx))
 	v1AdminGroup.PUT("/world-config", handlers.AdminSetWorldConfigHandler(dbCtx))
 	v1AdminGroup.POST("/recreate-leagues", handlers.AdminRecreateLeaguesHandler(dbCtx))
+	// Wipes and reseeds the whole game - admin only, POST so a cross-site GET (an <img> tag)
+	// can never trigger it. Replaces the old unauthenticated GET /v1/initData.
+	v1AdminGroup.POST("/initialize", handlers.Initialize(dbCtx))
 	v1AdminGroup.GET("/countries", handlers.AdminListCountriesHandler(dbCtx))
 	v1AdminGroup.POST("/countries", handlers.AdminAddCountryHandler(dbCtx))
 	v1AdminGroup.POST("/countries/:code/divisions", handlers.AdminAddDivisionHandler(dbCtx))
@@ -324,11 +363,8 @@ func initRouter(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.DELETE("/leagues/:"+handlers.ID+"/schedule", handlers.AdminClearLeagueScheduleHandler(dbCtx))
 
 	//Others V1
-	v1Group.GET("/initData", handlers.Initialize(dbCtx))
 	v1Group.POST("/login", authMiddleware.LoginHandler)
 	v1Group.GET("/dev-login/users", handlers.DevLoginUsersHandler())
-	v1Group.POST("/registerUser", handlers.RegisterUser(dbCtx))
-	v1Group.GET("/teams", handlers.Teams(dbCtx))
 }
 
 // Initializes the authentication middleware
@@ -387,6 +423,12 @@ func initJWTMiddleware(dbCtx *common.DatabaseContext) *ginjwt.GinJWTMiddleware {
 				return "", errors.New(fmt.Sprint(err))
 			}
 			common.LoginsCounter.Add(c.Request.Context(), 1, metric.WithAttributes(common.LoginProviderAttribute(loggedUser.Provider)))
+			// A sign-in counts as activity (it also clears any inactivity warning).
+			if loggedId, parseErr := strconv.ParseInt(loggedUser.Id, 10, 64); parseErr == nil {
+				if _, touchErr := common.TouchUserActivity(dbCtx, loggedId); touchErr != nil {
+					log.Errorf("error recording login activity of user %d: %s", loggedId, touchErr)
+				}
+			}
 			session := sessions.Default(c)
 			session.Set(common.UserId, loggedUser.Id)
 			err = session.Save()

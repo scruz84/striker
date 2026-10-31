@@ -38,7 +38,50 @@ whole list. Unset or entirely invalid falls back to the four defaults above.
 
 Override any setting via a `.env` file in this directory (see `docker-compose.yml` for the full
 list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The
-defaults are dev-only placeholders - set real secrets for anything beyond local development.
+defaults are dev-only placeholders - `--svc` **refuses to start** with them (or any `SECRET_JWT` /
+`SESSION_SECRET` shorter than 32 characters) and without `GOOGLE_OAUTH_CLIENT_ID`, unless
+`DEV_LOGIN_ENABLED=true` (see "Dev login"), in which case it starts and logs each problem at ERROR
+(`common.CheckDeploymentSecurity`). Generate secrets with `openssl rand -base64 48`.
+
+### Security
+
+- **Identity comes only from the verified session.** `handlers.GetUserIdFromCookie` reads the
+  claims the JWT middleware already verified (`ginjwt.ExtractClaims`); on a route without that
+  middleware, or with a forged/unsigned/expired cookie, there is no user.
+- **Google sign-in** validates the ID token with `idtoken.Validate`: signature, expiry, issuer and
+  `aud` = `GOOGLE_OAUTH_CLIENT_ID` (the same client id the frontend is built with), and requires
+  `email_verified`. Anything else is a 403 and creates no account. Accounts only come from a
+  successful sign-in - there is no register endpoint.
+- **CSRF**: every `POST`/`PUT`/`PATCH`/`DELETE` except `POST /v1/login` must carry the header
+  `X-Striker-Client: web` (403 otherwise; `service.RequireClientHeader`). The bundled frontend
+  (`src/api/client.ts`) always sends it; a script calling the API with curl has to add it too.
+  The header is in the CORS allowed headers, so only the allow-listed origins can send it
+  cross-site.
+- When dev login is on, startup logs an ERROR and the frontend shows a warning strip.
+
+See `HOWTO_RUN.md`'s "Production checklist" for what a public deployment must set.
+
+### Account lifecycle
+
+Schema `resources/sql/init92_user_account_lifecycle.sql` (applied on startup like every `initN_*`;
+existing users start with `last_seen_at = now()` and no accepted terms).
+
+- **Activity**: any authenticated request or sign-in updates `users.last_seen_at` (at most hourly
+  per replica, `handlers.ActivityMiddleware`). A valid token of a deleted user gets 401.
+- **Engine jobs** (`engine/accountlifecycle.go`): daily 03:17 UTC `account_lifecycle_daily` - warn
+  owners idle 46/53 days (in-app + push), release the club of an owner idle 60 days, warn at 351 and
+  erase at 365 days; every 15 minutes `reset_released_teams` - reset each released club (not while
+  a match is in simulation or between 2 h ago and 30 min ahead). Thresholds are constants in
+  `common/accounts.go`.
+- **Endpoints**: `GET /v1/user/account`; `DELETE /v1/user/account` with `{"confirm": "<club name>"}`
+  (or `DELETE`/`BORRAR` without a club) answers 204 and clears the cookie;
+  `GET /v1/user/account/export` downloads `striker-my-data.json`; `POST /v1/auth/accept-terms` with
+  `{"version": n, "ageConfirmed": true}` (`/auth/me` carries `termsAccepted`, `termsVersion`,
+  `releasedTeamName`; onboarding answers 400 until the terms are accepted);
+  `DELETE /v1/admin/users/:id` (admins; 403 for one's own id). Team responses no longer include an
+  owner name.
+- **Metric**: `striker.teams.reset{reason}` (inactivity, self_deletion, admin_deletion, erasure).
+- **Legal identity** (`LEGAL_*`) is a *frontend* runtime property, see `HOWTO_RUN.md`.
 
 Set `ADMIN_EMAILS` (comma-separated) to grant commissioner/admin access - see "Admin tooling"
 below - to those Google accounts. It's checked on every login, so adding an email takes effect
@@ -84,11 +127,11 @@ weekday/time-of-day fixtures are generated on - see "Match schedule" below), and
 management endpoints (world structure, recreating leagues, adding a country, per-league
 schedules - see "World management" below).
 
-The old unauthenticated `GET /v1/initData` reset endpoint now requires an authenticated admin
-**once any user is registered** - before that (a genuinely fresh deployment, nobody to protect
-yet) it still works with no login, so bootstrapping isn't broken. This only affects that HTTP
-route; `docker compose --profile init run --rm init` (above) calls the same reset logic
-directly via the CLI and was never affected either way.
+`POST /v1/admin/initialize` wipes and reseeds the whole game (`handlers.Initialize`) and is the
+only HTTP route that does - behind the JWT and admin middleware like the rest of this group. The
+old unauthenticated `GET /v1/initData` no longer exists (404). An empty database is bootstrapped
+with the CLI instead: `docker compose --profile init run --rm init` (or `go run ./cmd
+--initialize`).
 
 ### Live matches
 

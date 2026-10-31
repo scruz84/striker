@@ -14,6 +14,7 @@ interface LedgerPattern {
 const PATTERNS: LedgerPattern[] = [
   { pattern: /^matchday wages$/i, key: 'finances.ledger.matchdayWages' },
   { pattern: /^stadium maintenance$/i, key: 'finances.ledger.stadiumMaintenance' },
+  { pattern: /^Club reset after owner left$/i, key: 'finances.ledger.teamReset' },
   { pattern: /^wage contribution for loaned-out players$/i, key: 'finances.ledger.loanWageContribution' },
   { pattern: /^trainer wages: (.+)$/i, key: 'finances.ledger.trainerWages', params: (m) => ({ name: m[1] }) },
   { pattern: /^Matchday ticket revenue \((\d+) attendance\)$/i, key: 'finances.ledger.ticketRevenue', params: (m) => ({ attendance: Number(m[1]) }) },

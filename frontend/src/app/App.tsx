@@ -3,7 +3,7 @@ import { CacheProvider } from '@emotion/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router-dom'
-import { getGoogleOAuthClientId } from '../config'
+import { getGoogleOAuthClientId, getLegalConfig } from '../config'
 import { ConfirmProvider } from '../components/ConfirmDialog'
 import { NotifyProvider } from '../components/NotifyProvider'
 import { HomePage } from '../features/home/HomePage'
@@ -43,6 +43,15 @@ const routes: RouteObject[] = [
       { path: '/player/:id', lazy: () => import('../features/player/PlayerDetailsPage').then((m) => ({ Component: m.PlayerDetailsPage })) },
       { path: '/players/evolutions', lazy: () => import('../features/player/LatestEvolutionsPage').then((m) => ({ Component: m.LatestEvolutionsPage })) },
       { path: '/search', lazy: () => import('../features/search/SearchPage').then((m) => ({ Component: m.SearchPage })) },
+      { path: '/account', lazy: () => import('../features/account/AccountPage').then((m) => ({ Component: m.AccountPage })) },
+      { path: '/privacy', lazy: () => import('../features/legal/PrivacyPage').then((m) => ({ Component: m.PrivacyPage })) },
+      { path: '/terms', lazy: () => import('../features/legal/TermsPage').then((m) => ({ Component: m.TermsPage })) },
+      { path: '/accept-terms', lazy: () => import('../features/legal/AcceptTermsPage').then((m) => ({ Component: m.AcceptTermsPage })) },
+      // The legal notice only exists on deployments that enabled it (LEGAL_NOTICE_ENABLED=true);
+      // otherwise /legal-notice falls through to the home page like any unknown path.
+      ...(getLegalConfig().noticeEnabled
+        ? [{ path: '/legal-notice', lazy: () => import('../features/legal/LegalNoticePage').then((m) => ({ Component: m.LegalNoticePage })) }]
+        : []),
       { path: '/login', lazy: () => import('../features/auth/LoginPage').then((m) => ({ Component: m.LoginPage })) },
       { path: '/onboarding', lazy: () => import('../features/onboarding/SelectCountryPage').then((m) => ({ Component: m.SelectCountryPage })) },
       { path: '*', element: <HomePage /> },

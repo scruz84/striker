@@ -49,7 +49,7 @@
 
 ## 7. Integration checks
 
-- [ ] 7.1 In a local stack, activate Jamaica (`jm`) and Fiji (`fj`) from the admin UI; verify the teams, players, stadiums and national team have local names, the right kickoff timezone and the right flag, and that a Fijian national team pairs with Asian opponents
+- [x] 7.1 In a local stack, activate Jamaica (`jm`) and Fiji (`fj`) from the admin UI; verify the teams, players, stadiums and national team have local names, the right kickoff timezone and the right flag, and that a Fijian national team pairs with Asian opponents
 - [x] 7.2 Backend: `cd backend && go build ./... && go vet ./... && go test ./...` passes
 - [x] 7.3 Frontend: `cd frontend && npx tsc --noEmit && npx oxlint && npx vitest run` passes
 

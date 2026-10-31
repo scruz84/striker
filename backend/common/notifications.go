@@ -121,6 +121,16 @@ func NotifyTeamOwner(dbCtx *DatabaseContext, teamId int64, notificationType int,
 	return nil
 }
 
+// NotifyUser creates an in-app notification for userId and delivers it on the channels they enabled
+// (email/push) - NotifyTeamOwner for a user who may not own a club (account warnings).
+func NotifyUser(dbCtx *DatabaseContext, userId int64, notificationType int, msg NotificationMessage) error {
+	if err := CreateNotification(dbCtx, userId, notificationType, msg); err != nil {
+		return err
+	}
+	deliverExternalNotifications(dbCtx, userId, msg)
+	return nil
+}
+
 // NotifyTeamOwnerWithLink is NotifyTeamOwner plus an in-app route (see CreateNotificationWithLink).
 func NotifyTeamOwnerWithLink(dbCtx *DatabaseContext, teamId int64, notificationType int, msg NotificationMessage, link string) error {
 	userId, err := GetTeamOwner(dbCtx, teamId)

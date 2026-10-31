@@ -2,46 +2,18 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/scruz84/striker/common"
 	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/api/oauth2/v2"
-	"google.golang.org/api/option"
+	"google.golang.org/api/idtoken"
 	"net/http"
 	"strconv"
 )
-
-func RegisterUser(dbCtx *common.DatabaseContext) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		log.Infof("[goroutine - %d] - Starting to register a new user", common.CurGoroutineID())
-		var user common.RegisterUser
-		var err error
-		if err = c.BindJSON(&user); err != nil {
-			log.Errorf("[goroutine - %d] - error reading user to register: %s", common.CurGoroutineID(), err)
-			c.JSON(http.StatusBadRequest, &err)
-			return
-		}
-
-		var user_id = int64(-1)
-		err = dbCtx.Db.QueryRow(common.RegisterUserStmtSql, user.Name, user.Provider, user.Email, user.Country).Scan(&user_id)
-		if err != nil {
-			log.Errorf("[goroutine - %d] - error inserting new user: %s", common.CurGoroutineID(), err)
-			c.JSON(http.StatusBadRequest, common.HttpResponse{Message: err.Error()})
-			return
-		}
-		team, err2 := common.AssignTeam(dbCtx, user_id, user.Country)
-		if err2 != nil {
-			log.Errorf("[goroutine - %d] - error assigning new team to user: %s", common.CurGoroutineID(), err2)
-			c.JSON(http.StatusOK, common.Team{Id: -1})
-			return
-		} else {
-			c.JSON(http.StatusOK, team)
-			return
-		}
-	}
-}
 
 func Me(dbCtx *common.DatabaseContext, idKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -66,35 +38,73 @@ func Me(dbCtx *common.DatabaseContext, idKey string) gin.HandlerFunc {
 	}
 }
 
+// validateGoogleIdToken checks a Google ID token's signature (against Google's cached public
+// certificates), expiry and audience. A variable so tests can return a crafted payload or an
+// error without network access.
+var validateGoogleIdToken = idtoken.Validate
+
+// googleIssuers are the two spellings Google uses for the `iss` claim of its ID tokens.
+var googleIssuers = map[string]bool{
+	"accounts.google.com":         true,
+	"https://accounts.google.com": true,
+}
+
+// googleIdentity is what a validated Google ID token tells us about the person signing in.
+type googleIdentity struct {
+	Email   string
+	Name    string
+	Picture string
+}
+
+// verifyGoogleIdToken validates an ID token for this deployment (audience = GOOGLE_OAUTH_CLIENT_ID),
+// requires a Google issuer and a verified email, and returns the identity from the validated
+// payload only - never from claims read without verification. Any failure is 403.
+func verifyGoogleIdToken(ctx context.Context, rawToken string) (*googleIdentity, int, error) {
+	clientId := common.GoogleOAuthClientId()
+	if clientId == "" {
+		log.Error("Google sign-in attempted but GOOGLE_OAUTH_CLIENT_ID is not set")
+		return nil, http.StatusForbidden, errors.New("google sign-in is not configured")
+	}
+	payload, err := validateGoogleIdToken(ctx, rawToken, clientId)
+	if err != nil {
+		log.Warnf("rejected Google ID token: %s", err)
+		return nil, http.StatusForbidden, errors.New("invalid Google token")
+	}
+	if !googleIssuers[payload.Issuer] {
+		log.Warnf("rejected Google ID token with issuer %q", payload.Issuer)
+		return nil, http.StatusForbidden, errors.New("invalid Google token")
+	}
+	if verified, _ := payload.Claims["email_verified"].(bool); !verified {
+		log.Warnf("rejected Google ID token with an unverified email")
+		return nil, http.StatusForbidden, errors.New("Google email is not verified")
+	}
+	email, _ := payload.Claims["email"].(string)
+	if email == "" {
+		return nil, http.StatusForbidden, errors.New("Google token has no email")
+	}
+	name, _ := payload.Claims["name"].(string)
+	picture, _ := payload.Claims["picture"].(string)
+	return &googleIdentity{Email: email, Name: name, Picture: picture}, http.StatusOK, nil
+}
+
 // DoExternalLogin Authenticates against an external service. Currently, only Google supported
 func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRequest) (*common.LoggedUser, int, error) {
 	log.Infof("Starting to login user")
 
-	oauth2Service, err := oauth2.NewService(context.Background(), option.WithoutAuthentication())
+	identity, status, err := verifyGoogleIdToken(context.Background(), loginRequest.Jwt)
 	if err != nil {
-		log.Errorf("%s", err)
-		return nil, http.StatusInternalServerError, err
+		return nil, status, err
 	}
-	tokenInfoCall := oauth2Service.Tokeninfo()
-	tokenInfoCall.IdToken(loginRequest.Jwt)
-	_, errToken := tokenInfoCall.Do()
-	if errToken != nil {
-		log.Errorf("%s", errToken)
-		return nil, http.StatusForbidden, errToken
-	}
-
-	//Extract info from the token
-	jwtTokenClaims, _ := TokenClaimsNoValidation(loginRequest.Jwt)
 
 	//Search for the user
-	email := fmt.Sprint((*jwtTokenClaims)["email"])
+	email := identity.Email
 	userId, errUser := common.GetUserIdByEmail(email, dbCtx)
 	var loggedUser *common.LoggedUser
 	if errUser != nil {
 		//the user does not exist. Register it without a country or team yet - the frontend sends
 		//them to the onboarding country picker (see handlers.SelectCountryHandler) right after
 		//this login completes, and AssignTeam only runs once they've chosen one.
-		err = dbCtx.Db.QueryRow(common.RegisterPendingUserStmtSql, (*jwtTokenClaims)["name"], "google", email).Scan(&userId)
+		err = dbCtx.Db.QueryRow(common.RegisterPendingUserStmtSql, identity.Name, "google", email).Scan(&userId)
 		if err != nil {
 			log.Errorf("error creating new user: %s", err)
 			return nil, http.StatusInternalServerError, err
@@ -102,11 +112,12 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 		common.UserRegistrationsCounter.Add(context.Background(), 1)
 		loggedUser = &common.LoggedUser{
 			Id:                      strconv.FormatInt(userId, 10),
-			Name:                    fmt.Sprint((*jwtTokenClaims)["name"]),
+			Name:                    identity.Name,
 			Provider:                "google",
 			Email:                   email,
 			TeamId:                  "0",
 			PendingCountrySelection: true,
+			TermsVersion:            common.CurrentTermsVersion,
 		}
 	} else {
 		//Get user details
@@ -127,7 +138,7 @@ func DoExternalLogin(dbCtx *common.DatabaseContext, loginRequest *common.LoginRe
 		}
 	}
 
-	loggedUser.PictureUrl = fmt.Sprint((*jwtTokenClaims)["picture"])
+	loggedUser.PictureUrl = identity.Picture
 	return loggedUser, http.StatusOK, nil
 }
 
@@ -159,6 +170,7 @@ func DoDevLogin(dbCtx *common.DatabaseContext, email string) (*common.LoggedUser
 			Email:                   devUser.Email,
 			TeamId:                  "0",
 			PendingCountrySelection: true,
+			TermsVersion:            common.CurrentTermsVersion,
 		}
 	} else {
 		var err error
@@ -240,6 +252,10 @@ func SelectCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		existing, err := common.GetUserDetails(*userId, dbCtx)
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusUnauthorized, common.HttpResponse{Message: "account no longer exists"})
+			return
+		}
 		if err != nil {
 			log.Errorf("error loading user %d for onboarding: %s", *userId, err)
 			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
@@ -247,6 +263,12 @@ func SelectCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if !existing.PendingCountrySelection {
 			c.JSON(http.StatusOK, existing)
+			return
+		}
+		// Nobody gets a club without having accepted the Privacy Policy and Terms (and confirmed
+		// the minimum age) first - see POST /v1/auth/accept-terms.
+		if !existing.TermsAccepted {
+			c.JSON(http.StatusBadRequest, common.HttpResponse{Message: "terms must be accepted first"})
 			return
 		}
 
@@ -274,6 +296,10 @@ func SelectCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if _, err := common.AssignTeam(dbCtx, *userId, body.Country); err != nil {
+			if errors.Is(err, common.ErrUserNotFound) {
+				c.JSON(http.StatusUnauthorized, common.HttpResponse{Message: "account no longer exists"})
+				return
+			}
 			log.Errorf("error assigning team to user %d: %s", *userId, err)
 			c.JSON(http.StatusInternalServerError, common.HttpResponse{Message: err.Error()})
 			return
@@ -289,35 +315,27 @@ func SelectCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
-func Teams(dbCtx *common.DatabaseContext) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		teams := make([]common.Team, 0)
-		teams = append(teams, common.Team{Id: 12, TeamName: "Irizar", OwnerId: 1111, Country: "es", DivisionId: 222})
-		c.JSON(http.StatusOK, teams)
-	}
-}
-
+// GetUserIdFromCookie returns the signed-in user's id from the claims the JWT middleware already
+// verified for this request (signature, expiry). On a route without that middleware - or with a
+// forged or missing cookie - there are no verified claims and it returns nil: identity is never
+// read from the raw cookie. The name is historical.
 func GetUserIdFromCookie(c *gin.Context) *int64 {
-	var userId *int64
-	value, _ := c.Cookie(common.COOKIE)
-	jwtTokenClaims, _ := TokenClaimsNoValidation(value)
-	if jwtTokenClaims != nil {
-		id, err := common.StringToInt64((*jwtTokenClaims)[common.UserId].(string))
-		if err == nil {
-			userId = &id
-		}
+	id, ok := ginjwt.ExtractClaims(c)[common.UserId].(string)
+	if !ok {
+		return nil
 	}
-	return userId
+	userId, err := common.StringToInt64(id)
+	if err != nil {
+		return nil
+	}
+	return &userId
 }
 
+// GetPictureUrlFromCookie returns the picture URL carried in the verified claims, or nil (see
+// GetUserIdFromCookie).
 func GetPictureUrlFromCookie(c *gin.Context) *string {
-	value, _ := c.Cookie(common.COOKIE)
-	jwtTokenClaims, _ := TokenClaimsNoValidation(value)
-	if jwtTokenClaims != nil {
-		p, ok := (*jwtTokenClaims)[common.PictureUrl].(string)
-		if ok {
-			return &p
-		}
+	if p, ok := ginjwt.ExtractClaims(c)[common.PictureUrl].(string); ok {
+		return &p
 	}
 	return nil
 }

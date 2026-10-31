@@ -10,6 +10,7 @@ const user = (overrides: Partial<AdminUserSummary>): AdminUserSummary => ({
   teamId: 7,
   teamName: 'Real Betis',
   isAdmin: false,
+  lastSeenAt: '2026-10-01T00:00:00Z',
   ...overrides,
 })
 

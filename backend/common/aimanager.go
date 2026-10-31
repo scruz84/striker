@@ -141,7 +141,7 @@ const SetTeamAiLevelStmtSql = "UPDATE teams SET ai_level = $1 WHERE team_id = $2
 // world that existed before this feature shipped, same idea as TopUpTrainerMarket backfilling
 // the trainer market.
 const BackfillAiLevelsStmtSql = "SELECT t.team_id, l.tier FROM teams t JOIN leagues l ON t.league_id = l.league_id " +
-	"WHERE t.owner_id IS NULL AND t.ai_level = 0"
+	"WHERE t.owner_id IS NULL AND t.ai_level = 0 AND t.reset_pending_since IS NULL"
 
 // SetTeamAiLevel overrides a team's AI difficulty level directly - used by the admin endpoint
 // (handlers.AdminSetTeamAiLevelHandler) to hand-tune a specific CPU team, and by

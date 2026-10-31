@@ -120,3 +120,27 @@ store, never committed).
    backend requires it; deploying the frontend first is also safe, the header is ignored by the
    old backend).
 3. Rollback: redeploy the previous images; no schema change is involved.
+
+## Code map: api-security
+
+- Verified identity: `backend/handlers/handlers.go` (`GetUserIdFromCookie`, `GetPictureUrlFromCookie`
+  read `ginjwt.ExtractClaims`); the unverified-cookie parser `TokenClaimsNoValidation` is deleted.
+  Tests: `handlers/security_test.go`, `service/security_test.go`.
+- Database initialization: `handlers/initializer.go` (`Initialize`), route
+  `POST /v1/admin/initialize` in `service/fmservice.go` (`registerV1Routes`); the CLI path is
+  `--initialize` in `cmd/striker.go`.
+- Startup checks and secrets: `common/security.go` (`CheckDeploymentSecurity`,
+  `DeploymentSecurityProblems`, `GoogleOAuthClientId`), called from `service.StartSvc`; tests in
+  `common/security_test.go`; env wiring in `docker-compose.yml`, `docker-compose-svc-only.yml`,
+  `app.env.sample`.
+- Google sign-in: `handlers/handlers.go` (`verifyGoogleIdToken`, `validateGoogleIdToken`,
+  `DoExternalLogin`).
+- Account creation: `RegisterUser`, `Teams`, `RegisterUserStmtSql` and the `RegisterUser` struct
+  are removed; accounts come from `DoExternalLogin` / `DoDevLogin` and
+  `SelectCountryHandler` only.
+- CSRF: `backend/service/clientheader.go` (`RequireClientHeader`, `ClientHeader`), CORS allowed
+  header in `service/fmservice.go`; frontend `src/api/client.ts` (`CLIENT_HEADER`).
+- Dev-login visibility: startup ERROR in `common.CheckDeploymentSecurity`; frontend
+  `src/app/DevLoginWarning.tsx` mounted in `Layout.tsx`, text `devLogin.warningStrip` (en/es).
+- Production checklist: `HOWTO_RUN.md` ("Production checklist"); security notes in
+  `backend/README.md` ("Security") and `ARCHITECTURE.md` ("Auth").

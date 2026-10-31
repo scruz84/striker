@@ -75,6 +75,7 @@ const TRANSACTION_ADMIN_MASS_INJECTION = 12   // a commissioner's budget adjustm
 const TRANSACTION_LOAN_FEE = 13               // one-time fee paid by a borrower to accept a loan - expense for the borrower, income for the lender
 const TRANSACTION_LOAN_WAGE_CONTRIBUTION = 14 // a parent club covering part of a loaned-out player's wage - expense for the lender
 const TRANSACTION_STADIUM_MAINTENANCE = 15    // upkeep charged once per round, scaled to the stadium's current capacity - expense
+const TRANSACTION_TEAM_RESET = 16             // budget set back to DefaultTeamBudget when a club that lost its owner is reset (ResetReleasedTeam) - income or expense
 
 // DefaultStadiumCapacity is every new team's starting stadium capacity (see the initializer's
 // createTeam), regardless of the league tier it starts in - flat and fixed rather than random, so
@@ -164,6 +165,10 @@ const NOTIFICATION_FANBASE = 11
 // NOTIFICATION_CALL_UP tells a club their player was called up to their national team's starting
 // lineup for this week's international friendly - see common.SetNationalTeamLineup.
 const NOTIFICATION_CALL_UP = 12
+
+// NOTIFICATION_ACCOUNT warns a user about their account itself: their club is about to be released
+// for inactivity, or the whole account is about to be erased - see engine.RunAccountLifecycle.
+const NOTIFICATION_ACCOUNT = 13
 
 // player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
 // translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.

@@ -266,3 +266,54 @@ identity is configured.
 3. Rollback: the migration is additive; an older binary ignores the new columns. A club already
    pending reset on rollback stays ownerless with `ai_level = 0` until the old startup
    `BackfillAiLevels` gives it a level (old squad kept) — harmless.
+
+## Code map: user-accounts
+
+- Schema: `backend/resources/sql/init92_user_account_lifecycle.sql` (`users.created_at`,
+  `last_seen_at`, `inactivity_warning_stage`, `terms_version`, `terms_accepted_at`,
+  `released_team_name`; `teams.reset_pending_since`, `reset_reason`; `player_loans.release_on_return`).
+- Constants, activity, release and reset: `common/accounts.go` (`InactivityWarningDays`,
+  `InactivityReleaseDays`, `AccountErasureDays`, `ActivityTracker`, `TouchUserActivity`,
+  `ReleaseTeam`, `ReleaseUserTeam`, `ReleaseInactiveOwner`, `ResetReleasedTeam`, `ClaimWarningStage`).
+  `common/loans.go` (`ReturnLoan` and `returnLoanInTx` honour `release_on_return`);
+  `GetFreeTeamStmtSql`/`BackfillAiLevelsStmtSql` skip pending clubs; `common.AssignTeam` locks the
+  user row and clears `released_team_name`.
+- Deletion, export, terms: `common/accountdeletion.go` (`DeleteAccount`, `DeleteAccountIfIdle`,
+  `ExportUserData`, `GetAccountInfo`, `AcceptTerms`, `DeleteConfirmationMatches`).
+- Activity and deleted-user sessions: `handlers/accountHandlers.go` (`ActivityMiddleware`,
+  `Activity`), registered after the JWT middleware on every authenticated group in
+  `service/fmservice.go`; logins touch activity in the `Authenticator`.
+- API: `GET/DELETE /v1/user/account`, `GET /v1/user/account/export`, `POST /v1/auth/accept-terms`,
+  `DELETE /v1/admin/users/:id` (`handlers/accountHandlers.go`); `SelectCountryHandler` refuses
+  (400) until the terms are accepted and answers 401 for a deleted user.
+- Engine: `engine/accountlifecycle.go` (`RunAccountLifecycle`, `ResetReleasedTeams`, the two jobs),
+  triggers in `engine/scheduler.go` (daily 03:17 UTC, every 15 minutes), wired in `engine/fmengine.go`;
+  cache drop `engine.InvalidateTeamCaches`; loan-return notice `engine/loans.go`.
+- Ledger/metrics/notifications: `TRANSACTION_TEAM_RESET`, `NOTIFICATION_ACCOUNT`
+  (`common/fmconstants.go`), `TeamsResetCounter` and its dashboard panel
+  (`resources/grafana/striker-dashboard.json`), Spanish templates in
+  `common/notificationtranslations.go`.
+- Frontend: `src/features/account/` (`AccountPage`, `DeleteAccountDialog`, `deleteConfirmation`),
+  hooks in `src/api/hooks.ts` (`useAccount`, `useDeleteAccount`, `downloadMyData`,
+  `useAdminDeleteUser`), admin users tab (`features/admin/UsersTab.tsx`), header menu entry.
+- Tests: `common/accounts_test.go`, `common/accounts_integration_test.go`,
+  `engine/accountlifecycle_concurrency_test.go`, `service/security_test.go`.
+
+## Code map: privacy-and-legal
+
+- Legal identity: `frontend/src/config.ts` (`getLegalConfig`), placeholders in
+  `frontend/public/config.js`, escaped substitution in `frontend/set-env.sh`, env pass-through in
+  `frontend/docker-compose.yml`, `VITE_LEGAL_*` in `.env.development.local.sample`.
+- Pages: `frontend/src/features/legal/` (`PrivacyPage`, `TermsPage`, `LegalNoticePage`,
+  `LegalDocument`, `LegalLinks`, `AcceptTermsPage`, `useLegalValues`, `legalMeta`), routes in
+  `src/app/App.tsx` (the legal notice route only when `noticeEnabled`); texts under
+  `legal.*` in `src/i18n/locales/{en,es}.json` (drafts for the owner to review).
+- Links: login page, help page, navigation drawer (`LegalLinks`), Account page.
+- Acceptance: `Layout.tsx` gate (terms before onboarding, legal pages exempt),
+  `SelectCountryPage` (age/terms box and the "club released" notice), backend
+  `common.AcceptTerms`, `CurrentTermsVersion` (keep in step with `legalMeta.LEGAL_VERSION`),
+  `SelectCountryHandler` (400 until accepted).
+- Owner identity: `GetTeamStmtByIdSql` no longer joins `users`; `Team.OwnerName` removed; friend
+  group note `groups.namesNote`.
+- Tests: `features/legal/*.test.tsx`, `app/Layout.test.tsx`, `common/accounts_test.go`
+  (`TestTeamJSONHasNoOwnerName`).

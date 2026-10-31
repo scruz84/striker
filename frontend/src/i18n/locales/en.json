@@ -66,7 +66,8 @@
       "search": "Search",
       "help": "Help",
       "admin": "Admin",
-      "logout": "Logout"
+      "logout": "Logout",
+      "account": "Account"
     },
     "more": "More options",
     "help": "Help",
@@ -117,7 +118,12 @@
       "sociosShrank": "Your club now has {{socios}} socios (members), down from {{previous}}",
       "loanBuyOptionExercised": "{{team}} exercised their buy option for {{player}}",
       "loanBuyOptionUsed": "Signed {{player}} permanently from {{team}}",
-      "calledUp": "{{player}} was called up to {{team}} for this week's international friendly"
+      "calledUp": "{{player}} was called up to {{team}} for this week's international friendly",
+      "loanEndedFreeAgent": "{{name}}'s loan has ended and he is now a free agent"
+    },
+    "account": {
+      "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
+      "erasureWarning": "Your account will be erased automatically in {{days}} days because of inactivity - sign in to keep it"
     }
   },
   "home": {
@@ -188,13 +194,20 @@
       "admin": "admin"
     }
   },
+  "devLogin": {
+    "warningStrip": "Development login is enabled: anyone can sign in as any user, admins included. Never use this on a public deployment."
+  },
   "onboarding": {
     "title": "Choose your country",
     "subtitle": "Pick the country you want to manage a club in - you'll get an open team, starting from the top division down.",
     "confirm": "Confirm",
     "countryLabel": "Country",
     "noCountries": "No countries are available to join right now.",
-    "selectError": "Couldn't assign a team. Please try again."
+    "selectError": "Couldn't assign a team. Please try again.",
+    "releasedNotice": "Your club {{team}} was released after {{days}} days without activity. Pick a country to get a new club.",
+    "ageAndTerms": "I am at least {{age}} years old and I accept the Terms of Use and the Privacy Policy.",
+    "ageAndTermsRequired": "Tick the box to continue.",
+    "termsError": "Couldn't record your acceptance. Please try again."
   },
   "dashboard": {
     "editLineup": "Edit lineup",
@@ -458,9 +471,11 @@
       "loanFee": "Loan fee",
       "loanWageContribution": "Loan wage contribution",
       "stadiumMaintenance": "Stadium maintenance",
+      "teamReset": "Club reset",
       "other": "Other"
     },
     "ledger": {
+      "teamReset": "Club reset after the owner left",
       "matchdayWages": "Matchday wages",
       "stadiumMaintenance": "Stadium maintenance",
       "loanWageContribution": "Wage contribution for loaned-out players",
@@ -1225,7 +1240,8 @@
       "league": "League",
       "budget": "Budget"
     },
-    "you": "You"
+    "you": "You",
+    "namesNote": "Members of a group see each other's names and clubs, never their emails."
   },
   "admin": {
     "genericError": "Something went wrong. Please try again.",
@@ -1459,7 +1475,13 @@
       "grantAdmin": "Grant admin",
       "revokeAdmin": "Revoke admin",
       "confirmGrantAdmin": "Grant admin access to {{name}}?",
-      "confirmRevokeAdmin": "Revoke admin access from {{name}}?"
+      "confirmRevokeAdmin": "Revoke admin access from {{name}}?",
+      "lastSeen": "Last seen",
+      "lastSeenDays": "{{count}} days ago",
+      "today": "today",
+      "delete": "Delete account",
+      "confirmDelete": "Erase {{name}}'s account ({{email}})? Their club is released and reset, and their personal data is deleted. This cannot be undone.",
+      "deleted": "Account erased."
     }
   },
   "evolution": {
@@ -2172,5 +2194,200 @@
   "teamAutocomplete": {
     "hint": "Type at least 2 letters of the team name",
     "none": "No team found"
+  },
+  "account": {
+    "title": "Your account",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "signInMethod": "Signed in with",
+    "country": "Country",
+    "club": "Club",
+    "noClub": "No club",
+    "memberSince": "Member since",
+    "lastActive": "Last activity",
+    "terms": "Accepted terms",
+    "termsValue": "Version {{version}}, {{date}}",
+    "rulesTitle": "Inactivity rules",
+    "rulesRelease": "If you don't sign in for {{days}} days your club is released and becomes a computer-managed club. You get warnings in the app (and by push if enabled) {{first}} and {{second}} days before. Your account stays, and you can pick a new club when you come back.",
+    "rulesErase": "An account with no activity for {{days}} days is erased automatically.",
+    "dataTitle": "Your data",
+    "dataText": "Download everything we store about you as a JSON file.",
+    "download": "Download my data",
+    "downloadError": "Couldn't download your data. Please try again.",
+    "deleteTitle": "Delete account",
+    "deleteText": "Permanently erases your name, email and settings and releases your club. This cannot be undone.",
+    "deleteButton": "Delete my account",
+    "legalLinks": "Legal"
+  },
+  "deleteAccount": {
+    "title": "Delete your account?",
+    "body": "Your account and personal data will be erased permanently and your club will be released. This cannot be undone.",
+    "confirmClub": "To confirm, type the name of your club: {{team}}",
+    "confirmNoClub": "To confirm, type DELETE",
+    "inputLabel": "Confirmation",
+    "cancel": "Cancel",
+    "confirm": "Delete account",
+    "error": "Couldn't delete the account. Please try again."
+  },
+  "acceptTerms": {
+    "title": "Before you continue",
+    "intro": "Please read and accept the Terms of Use and the Privacy Policy (version {{version}}) to keep using Striker.",
+    "read": "Read the <termsLink>{{terms}}</termsLink> and the <privacyLink>{{privacy}}</privacyLink>.",
+    "checkbox": "I am at least {{age}} years old and I accept the Terms of Use and the Privacy Policy.",
+    "accept": "Accept and continue",
+    "error": "Couldn't record your acceptance. Please try again.",
+    "orDelete": "If you don't want to accept, you can delete your account instead.",
+    "deleteInstead": "Delete my account"
+  },
+  "legal": {
+    "privacyLink": "Privacy Policy",
+    "termsLink": "Terms of Use",
+    "noticeLink": "Legal notice",
+    "version": "Version {{version}} · in force since {{date}}",
+    "notConfigured": "Legal details not configured",
+    "notConfiguredHelp": "The operator of this deployment has not set the controller's {{missing}} yet (LEGAL_* properties), so parts of this page are incomplete.",
+    "notConfiguredValue": "[not configured]",
+    "privacy": {
+      "title": "Privacy Policy",
+      "addressSentence": "Postal address: {{address}}.",
+      "hostingSentence": "Our hosting provider is {{provider}}{{region}}.",
+      "hostingRegion": ", with servers in {{region}}",
+      "sections": [
+        {
+          "title": "1. Who is responsible",
+          "paragraphs": [
+            "The controller of your personal data is {{controllerName}}. For any question or request about your privacy, write to {{contactEmail}}."
+          ]
+        },
+        {
+          "title": "2. What data we collect",
+          "paragraphs": [
+            "From your Google account: your name and email address, and your profile picture, which is only shown to you.",
+            "What you choose in the game: your country, your language, your notification preferences, your friend groups and your club.",
+            "How you use the service: the time of your last activity (to apply the inactivity rules below) and, if you turn push notifications on, your browser's push subscription.",
+            "Game data about your club (squad, matches, finances, transfers) is not personal data about you, but it is linked to your account while you own the club."
+          ]
+        },
+        {
+          "title": "3. Why we use it and on what legal basis",
+          "paragraphs": [
+            "To create your account, sign you in and run the game you asked to play (performance of the contract).",
+            "To send you the notifications you enabled (your consent, which you can withdraw at any time in the notification settings).",
+            "To keep the service secure and to release clubs and erase accounts that are no longer used (our legitimate interest in running a fair game)."
+          ]
+        },
+        {
+          "title": "4. Who receives your data",
+          "paragraphs": [
+            "Google, which handles the sign-in and receives the technical data of the sign-in request.",
+            "Our hosting provider, which stores the data on our behalf.",
+            "Your browser's push service (for example Google, Mozilla or Apple), only if you enable push notifications.",
+            "Other players never see your name or email. Members of a friend group you join see your name and your club's name; nobody sees your email.",
+            "We do not sell your data and we do not use it for advertising or profiling."
+          ]
+        },
+        {
+          "title": "5. How long we keep it",
+          "paragraphs": [
+            "A club whose owner has not been active for 60 days is released. The account is kept without a club.",
+            "An account with no activity for 365 days is erased automatically. We warn you in the app 14 days before.",
+            "When you delete your account, your name, email, language, notifications, preferences, push subscriptions and group memberships are erased immediately.",
+            "Server logs and backups are kept for at most 30 days."
+          ]
+        },
+        {
+          "title": "6. Your rights",
+          "paragraphs": [
+            "You can access, rectify, erase, restrict, object to the use of and port your data. On the Account page you can download all your data and delete your account yourself.",
+            "For anything else, write to {{contactEmail}}. We answer within one month.",
+            "You may also complain to the Spanish Data Protection Agency (AEPD, www.aepd.es) or to your local supervisory authority."
+          ]
+        },
+        {
+          "title": "7. Cookies and browser storage",
+          "paragraphs": [
+            "We only use what is strictly necessary for the service you asked for, so no consent banner is needed:",
+            "• Session cookie (jwt): keeps you signed in. HTTP-only, deleted when you sign out or after it expires.",
+            "• Theme and language preferences, stored in your browser, so the app looks the way you chose.",
+            "• Cookies set by Google's sign-in button while you sign in with Google.",
+            "We do not use analytics, advertising or tracking cookies."
+          ]
+        },
+        {
+          "title": "8. Minimum age",
+          "paragraphs": [
+            "Striker is for people aged 16 or over. You confirm it when you accept the terms."
+          ]
+        },
+        {
+          "title": "9. Changes",
+          "paragraphs": [
+            "If this policy changes in a way that matters, its version number changes and we ask you to accept it again."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "sections": [
+        {
+          "title": "1. Who may use Striker",
+          "paragraphs": [
+            "Striker is a free football management game run by {{controllerName}}. You must be at least 16 years old. By accepting these terms you confirm it."
+          ]
+        },
+        {
+          "title": "2. Your account and your club",
+          "paragraphs": [
+            "You sign in with your Google account. You manage one club at a time. Your club and its data are game data: they have no monetary value and cannot be sold or exchanged outside the game."
+          ]
+        },
+        {
+          "title": "3. Inactivity",
+          "paragraphs": [
+            "A club whose owner has not signed in for 60 days is released and becomes a computer-managed club; you can get a new club when you come back. An account with no activity for 365 days is erased. We warn you in the app (and by push if enabled) beforehand."
+          ]
+        },
+        {
+          "title": "4. Fair play",
+          "paragraphs": [
+            "Do not use bots, exploit bugs on purpose, harass other players or choose club or group names that are offensive or impersonate others. We may rename a club or remove an account that breaks these rules."
+          ]
+        },
+        {
+          "title": "5. Friend groups",
+          "paragraphs": [
+            "Members of a friend group can see each other's names and clubs. If the owner of a group deletes their account, the group passes to the member who joined first, or is deleted if nobody else is in it."
+          ]
+        },
+        {
+          "title": "6. Deleting your account",
+          "paragraphs": [
+            "You can delete your account at any time from the Account page. Your club is released and your personal data is erased, as described in the Privacy Policy."
+          ]
+        },
+        {
+          "title": "7. Availability",
+          "paragraphs": [
+            "The game is provided as is, without guarantees. We may change it, interrupt it or reset parts of the game world, for example for maintenance."
+          ]
+        },
+        {
+          "title": "8. Changes and contact",
+          "paragraphs": [
+            "If these terms change in a way that matters, their version number changes and we ask you to accept them again. Questions: {{contactEmail}}."
+          ]
+        }
+      ]
+    },
+    "notice": {
+      "title": "Legal notice",
+      "intro": "Information about the service provider.",
+      "name": "Name or company name",
+      "taxId": "Tax identification number",
+      "address": "Postal address",
+      "email": "Contact email"
+    }
   }
 }

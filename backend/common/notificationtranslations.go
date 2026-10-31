@@ -41,6 +41,9 @@ var spanishNotificationTemplates = map[string]string{
 	"notifications.messages.fanbaseShrank":          "Tu afición ha bajado a {{fanbase}}",
 	"notifications.messages.loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
 	"notifications.messages.loanBuyOptionUsed":      "Fichado {{player}} de forma permanente desde {{team}}",
+	"notifications.messages.loanEndedFreeAgent":     "La cesión de {{name}} ha terminado y ahora es agente libre",
+	"notifications.account.releaseWarning":          "Llevas mucho tiempo sin entrar: {{team}} se liberará en {{days}} días si no vuelves a jugar",
+	"notifications.account.erasureWarning":          "Tu cuenta se borrará automáticamente en {{days}} días por inactividad - entra para conservarla",
 	"notifications.messages.calledUp":               "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana",
 }
 

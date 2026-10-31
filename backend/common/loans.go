@@ -64,6 +64,9 @@ type PlayerLoan struct {
 	ReturnSeason            int   `json:"returnSeason"`
 	WageContributionPercent int   `json:"wageContributionPercent"`
 	BuyOptionFee            int64 `json:"buyOptionFee"`
+	// ReleaseOnReturn is set when the lending club was reset after losing its owner (see
+	// ResetReleasedTeam): the player becomes a free agent when the loan ends instead of going back.
+	ReleaseOnReturn bool `json:"-"`
 }
 
 const InsertLoanListingStmtSql = "INSERT INTO loan_listings (player_id, lending_team_id, duration_seasons, loan_fee, wage_contribution_percent, buy_option_fee) " +
@@ -90,7 +93,7 @@ const DeletePlayerLoanStmtSql = "DELETE FROM player_loans WHERE loan_id = $1"
 // return_season is denominated in the borrower's own season count (see AcceptLoan: "N of the
 // borrower's own seasons"), so only that country's own rollover should ever return it (see
 // engine.AdvanceSeasonsIfComplete / engine.ReturnExpiredLoans).
-const GetExpiredLoansStmtSql = "SELECT pl.loan_id, pl.player_id, pl.from_team_id, pl.to_team_id, pl.return_season " +
+const GetExpiredLoansStmtSql = "SELECT pl.loan_id, pl.player_id, pl.from_team_id, pl.to_team_id, pl.return_season, pl.release_on_return " +
 	"FROM player_loans pl JOIN teams t ON t.team_id = pl.to_team_id WHERE t.country = $1 AND pl.return_season <= $2"
 const GetActiveLoanForPlayerForUpdateStmtSql = "SELECT loan_id, from_team_id, to_team_id, buy_option_fee FROM player_loans WHERE player_id = $1 " + ForUpdate
 
@@ -493,7 +496,7 @@ func GetExpiredLoans(dbCtx *DatabaseContext, country string, season int) ([]Play
 	loans := make([]PlayerLoan, 0)
 	for rows.Next() {
 		var loan PlayerLoan
-		if err := rows.Scan(&loan.LoanId, &loan.PlayerId, &loan.FromTeamId, &loan.ToTeamId, &loan.ReturnSeason); err != nil {
+		if err := rows.Scan(&loan.LoanId, &loan.PlayerId, &loan.FromTeamId, &loan.ToTeamId, &loan.ReturnSeason, &loan.ReleaseOnReturn); err != nil {
 			return nil, err
 		}
 		loans = append(loans, loan)
@@ -503,7 +506,8 @@ func GetExpiredLoans(dbCtx *DatabaseContext, country string, season int) ([]Play
 
 // ReturnLoan sends a loaned player back to its original owner: moves the player, clears them
 // from the borrowing team's default lineup (same reasoning as AcceptLoan - they're leaving),
-// and removes the loan record.
+// and removes the loan record. A loan flagged release_on_return (its lender was reset after
+// losing its owner) frees the player instead - see returnLoanInTx.
 func ReturnLoan(dbCtx *DatabaseContext, loan PlayerLoan) error {
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
@@ -511,13 +515,7 @@ func ReturnLoan(dbCtx *DatabaseContext, loan PlayerLoan) error {
 	}
 	defer tx.Rollback()
 
-	if err := movePlayerToTeam(tx, loan.FromTeamId, loan.PlayerId); err != nil {
-		return err
-	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, loan.PlayerId); err != nil {
-		return err
-	}
-	if _, err := tx.Exec(DeletePlayerLoanStmtSql, loan.LoanId); err != nil {
+	if err := returnLoanInTx(tx, loan); err != nil {
 		return err
 	}
 

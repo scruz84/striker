@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography'
 import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import { useTranslation } from 'react-i18next'
 import {
+  useAdminDeleteUser,
   useAdminUsers,
   useMe,
   useSetUserAdmin,
@@ -85,6 +86,7 @@ function UsersTable({
   const { t } = useTranslation()
   const confirm = useConfirm()
   const setUserAdmin = useSetUserAdmin()
+  const deleteUser = useAdminDeleteUser()
   const feedback = useAdminFeedback()
   const stackCards = useIsPhone('md')
 
@@ -100,6 +102,20 @@ function UsersTable({
     }
   }
 
+  const handleDelete = async (user: (typeof users)[number]) => {
+    const ok = await confirm({
+      message: t('admin.usersTable.confirmDelete', { name: user.name, email: user.email }),
+      confirmLabel: t('admin.usersTable.delete'),
+      destructive: true,
+    })
+    if (ok) {
+      deleteUser.mutate(user.userId, feedback('admin.usersTable.deleted'))
+    }
+  }
+  const lastSeen = (user: (typeof users)[number]) => {
+    const days = Math.floor((Date.now() - new Date(user.lastSeenAt).getTime()) / 86_400_000)
+    return days < 1 ? t('admin.usersTable.today') : t('admin.usersTable.lastSeenDays', { count: days })
+  }
   const adminAction = (user: (typeof users)[number]) => (
     <Button
       size="small"
@@ -108,6 +124,12 @@ function UsersTable({
       disabled={setUserAdmin.isPending || user.userId === loggedUserId}
     >
       {user.isAdmin ? t('admin.usersTable.revokeAdmin') : t('admin.usersTable.grantAdmin')}
+    </Button>
+  )
+  // An admin cannot erase their own account here (they use the Account page like anyone else).
+  const deleteAction = (user: (typeof users)[number]) => (
+    <Button size="small" color="error" onClick={() => handleDelete(user)} disabled={deleteUser.isPending || user.userId === loggedUserId}>
+      {t('admin.usersTable.delete')}
     </Button>
   )
   const teamLink = (user: (typeof users)[number]) =>
@@ -132,8 +154,14 @@ function UsersTable({
               <Typography variant="caption" color="text.secondary">
                 {t('admin.usersTable.id')} {user.userId}
               </Typography>
-              {adminAction(user)}
+              <Stack direction="row" spacing={0.5}>
+                {adminAction(user)}
+                {deleteAction(user)}
+              </Stack>
             </Stack>
+            <Typography variant="caption" color="text.secondary" component="div">
+              {t('admin.usersTable.lastSeen')}: {lastSeen(user)}
+            </Typography>
           </Paper>
         ))}
       </Stack>
@@ -151,6 +179,7 @@ function UsersTable({
             <TableCell sx={secondaryColumn}>{t('admin.usersTable.country')}</TableCell>
             <TableCell>{t('admin.usersTable.team')}</TableCell>
             <TableCell>{t('admin.usersTable.admin')}</TableCell>
+            <TableCell>{t('admin.usersTable.lastSeen')}</TableCell>
             <TableCell align="right" />
           </TableRow>
         </TableHead>
@@ -163,7 +192,11 @@ function UsersTable({
               <TableCell sx={secondaryColumn}>{user.country}</TableCell>
               <TableCell>{teamLink(user)}</TableCell>
               <TableCell>{user.isAdmin && <Chip size="small" color="primary" label={t('admin.usersTable.admin')} />}</TableCell>
-              <TableCell align="right">{adminAction(user)}</TableCell>
+              <TableCell>{lastSeen(user)}</TableCell>
+              <TableCell align="right">
+                {adminAction(user)}
+                {deleteAction(user)}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

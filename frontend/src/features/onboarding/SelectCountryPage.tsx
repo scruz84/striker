@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Alert from '@mui/material/Alert'
+import Checkbox from '@mui/material/Checkbox'
 import Container from '@mui/material/Container'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -13,7 +16,9 @@ import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { useOnboardingCountries, useSelectCountry } from '../../api/hooks'
+import { useAcceptTerms, useMe, useOnboardingCountries, useSelectCountry } from '../../api/hooks'
+import { InactivityReleaseDays } from '../account/inactivityRules'
+import { MINIMUM_AGE } from '../legal/legalMeta'
 import { useSortedCountries } from '../../utils/countryOrder'
 
 /** The mandatory first step for a brand-new sign-in (see LoggedUser.pendingCountrySelection) -
@@ -26,10 +31,26 @@ export function SelectCountryPage() {
   const { data, isLoading } = useOnboardingCountries()
   const { sorted: countries, countryName } = useSortedCountries(data, (country) => country.code)
   const selectCountry = useSelectCountry()
+  const acceptTerms = useAcceptTerms()
+  const { data: loggedUser } = useMe()
   const [selected, setSelected] = useState('')
+  const [ageAndTerms, setAgeAndTerms] = useState(false)
 
-  const handleConfirm = () => {
-    if (!selected) return
+  // Layout normally sends a user who has not accepted the terms to /accept-terms first; this is
+  // the backstop (and the place the age/terms box lives for a first-time user who gets here
+  // anyway): no club is assigned until it is ticked.
+  const needsTerms = !!loggedUser && !loggedUser.termsAccepted
+  const canConfirm = !!selected && (!needsTerms || ageAndTerms)
+
+  const handleConfirm = async () => {
+    if (!canConfirm) return
+    if (needsTerms && loggedUser) {
+      try {
+        await acceptTerms.mutateAsync({ version: loggedUser.termsVersion, ageConfirmed: true })
+      } catch {
+        return
+      }
+    }
     selectCountry.mutate(selected, { onSuccess: () => navigate('/dashboard') })
   }
 
@@ -44,6 +65,12 @@ export function SelectCountryPage() {
           <Typography variant="body2" color="text.secondary">
             {t('onboarding.subtitle')}
           </Typography>
+
+          {loggedUser?.releasedTeamName && (
+            <Alert severity="info" sx={{ width: '100%', textAlign: 'left' }}>
+              {t('onboarding.releasedNotice', { team: loggedUser.releasedTeamName, days: InactivityReleaseDays })}
+            </Alert>
+          )}
 
           {isLoading ? (
             <Skeleton variant="rectangular" width="100%" height={56} />
@@ -72,6 +99,26 @@ export function SelectCountryPage() {
             </FormControl>
           )}
 
+          {needsTerms && (
+            <Box sx={{ width: '100%', textAlign: 'left' }}>
+              <FormControlLabel
+                control={<Checkbox checked={ageAndTerms} onChange={(e) => setAgeAndTerms(e.target.checked)} />}
+                label={t('onboarding.ageAndTerms', { age: MINIMUM_AGE })}
+              />
+              {!ageAndTerms && !!selected && (
+                <Typography variant="caption" color="text.secondary" component="div">
+                  {t('onboarding.ageAndTermsRequired')}
+                </Typography>
+              )}
+            </Box>
+          )}
+
+          {acceptTerms.isError && (
+            <Typography variant="body2" color="error">
+              {t('onboarding.termsError')}
+            </Typography>
+          )}
+
           {selectCountry.isError && (
             <Typography variant="body2" color="error">
               {t('onboarding.selectError')}
@@ -82,8 +129,8 @@ export function SelectCountryPage() {
             <Button
               variant="contained"
               fullWidth
-              disabled={!selected || selectCountry.isPending}
-              onClick={handleConfirm}
+              disabled={!canConfirm || selectCountry.isPending || acceptTerms.isPending}
+              onClick={() => void handleConfirm()}
             >
               {t('onboarding.confirm')}
             </Button>

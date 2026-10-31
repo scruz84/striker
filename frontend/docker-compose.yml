@@ -15,6 +15,15 @@ services:
       # browser runs - typically the backend's published host port (see backend/docker-compose.yml).
       API_URI: ${API_URI:-http://localhost:1984}
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      # Who runs this deployment, shown in the Privacy Policy / Terms / legal notice. Name and
+      # contact email are required for a public deployment; the rest are optional. See HOWTO_RUN.md.
+      LEGAL_CONTROLLER_NAME: ${LEGAL_CONTROLLER_NAME:-}
+      LEGAL_CONTACT_EMAIL: ${LEGAL_CONTACT_EMAIL:-}
+      LEGAL_CONTROLLER_TAX_ID: ${LEGAL_CONTROLLER_TAX_ID:-}
+      LEGAL_POSTAL_ADDRESS: ${LEGAL_POSTAL_ADDRESS:-}
+      LEGAL_HOSTING_PROVIDER: ${LEGAL_HOSTING_PROVIDER:-}
+      LEGAL_HOSTING_REGION: ${LEGAL_HOSTING_REGION:-}
+      LEGAL_NOTICE_ENABLED: ${LEGAL_NOTICE_ENABLED:-}
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     networks:

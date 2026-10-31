@@ -66,7 +66,8 @@
       "search": "Buscar",
       "help": "Ayuda",
       "admin": "Administración",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "account": "Cuenta"
     },
     "more": "Más opciones",
     "help": "Ayuda",
@@ -117,7 +118,12 @@
       "sociosShrank": "Tu club tiene ahora {{socios}} socios, frente a {{previous}}",
       "loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
       "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}",
-      "calledUp": "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana"
+      "calledUp": "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana",
+      "loanEndedFreeAgent": "La cesión de {{name}} ha terminado y ahora es agente libre"
+    },
+    "account": {
+      "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
+      "erasureWarning": "Tu cuenta se borrará automáticamente en {{days}} días por inactividad - entra para conservarla"
     }
   },
   "home": {
@@ -188,13 +194,20 @@
       "admin": "admin"
     }
   },
+  "devLogin": {
+    "warningStrip": "El acceso de desarrollo está activado: cualquiera puede entrar como cualquier usuario, administradores incluidos. No lo uses nunca en un despliegue público."
+  },
   "onboarding": {
     "title": "Elige tu país",
     "subtitle": "Elige el país en el que quieres dirigir un club - se te asignará un equipo libre, empezando por la máxima división.",
     "confirm": "Confirmar",
     "countryLabel": "País",
     "noCountries": "Ahora mismo no hay países disponibles para unirse.",
-    "selectError": "No se pudo asignar un equipo. Inténtalo de nuevo."
+    "selectError": "No se pudo asignar un equipo. Inténtalo de nuevo.",
+    "releasedNotice": "Tu club {{team}} se liberó tras {{days}} días sin actividad. Elige un país para conseguir un club nuevo.",
+    "ageAndTerms": "Tengo al menos {{age}} años y acepto las Condiciones de uso y la Política de privacidad.",
+    "ageAndTermsRequired": "Marca la casilla para continuar.",
+    "termsError": "No se pudo registrar tu aceptación. Inténtalo de nuevo."
   },
   "dashboard": {
     "editLineup": "Editar alineación",
@@ -458,9 +471,11 @@
       "loanFee": "Cuota de cesión",
       "loanWageContribution": "Aportación al salario de cedido",
       "stadiumMaintenance": "Mantenimiento del estadio",
+      "teamReset": "Reinicio del club",
       "other": "Otro"
     },
     "ledger": {
+      "teamReset": "Reinicio del club tras salir su propietario",
       "matchdayWages": "Salarios de la jornada",
       "stadiumMaintenance": "Mantenimiento del estadio",
       "loanWageContribution": "Aportación salarial por cedidos",
@@ -1225,7 +1240,8 @@
       "league": "Liga",
       "budget": "Presupuesto"
     },
-    "you": "Tú"
+    "you": "Tú",
+    "namesNote": "Los miembros de un grupo ven los nombres y clubes de los demás, nunca sus correos."
   },
   "admin": {
     "genericError": "Algo ha fallado. Inténtalo de nuevo.",
@@ -1459,7 +1475,13 @@
       "grantAdmin": "Dar admin",
       "revokeAdmin": "Quitar admin",
       "confirmGrantAdmin": "¿Dar acceso de administrador a {{name}}?",
-      "confirmRevokeAdmin": "¿Quitar el acceso de administrador a {{name}}?"
+      "confirmRevokeAdmin": "¿Quitar el acceso de administrador a {{name}}?",
+      "lastSeen": "Última actividad",
+      "lastSeenDays": "hace {{count}} días",
+      "today": "hoy",
+      "delete": "Borrar cuenta",
+      "confirmDelete": "¿Borrar la cuenta de {{name}} ({{email}})? Su club se libera y se reinicia, y sus datos personales se eliminan. No se puede deshacer.",
+      "deleted": "Cuenta borrada."
     }
   },
   "evolution": {
@@ -2172,5 +2194,200 @@
   "teamAutocomplete": {
     "hint": "Escribe al menos 2 letras del nombre del equipo",
     "none": "No se encontró ningún equipo"
+  },
+  "account": {
+    "title": "Tu cuenta",
+    "profile": "Perfil",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "signInMethod": "Inicio de sesión con",
+    "country": "País",
+    "club": "Club",
+    "noClub": "Sin club",
+    "memberSince": "Miembro desde",
+    "lastActive": "Última actividad",
+    "terms": "Condiciones aceptadas",
+    "termsValue": "Versión {{version}}, {{date}}",
+    "rulesTitle": "Reglas de inactividad",
+    "rulesRelease": "Si pasas {{days}} días sin entrar, tu club se libera y pasa a ser gestionado por el ordenador. Recibes avisos en la app (y por push si lo tienes activado) {{first}} y {{second}} días antes. Tu cuenta se mantiene y podrás elegir un club nuevo cuando vuelvas.",
+    "rulesErase": "Una cuenta sin actividad durante {{days}} días se borra automáticamente.",
+    "dataTitle": "Tus datos",
+    "dataText": "Descarga todo lo que guardamos sobre ti en un archivo JSON.",
+    "download": "Descargar mis datos",
+    "downloadError": "No se pudieron descargar tus datos. Inténtalo de nuevo.",
+    "deleteTitle": "Borrar cuenta",
+    "deleteText": "Elimina para siempre tu nombre, correo y ajustes y libera tu club. No se puede deshacer.",
+    "deleteButton": "Borrar mi cuenta",
+    "legalLinks": "Legal"
+  },
+  "deleteAccount": {
+    "title": "¿Borrar tu cuenta?",
+    "body": "Tu cuenta y tus datos personales se eliminarán para siempre y tu club se liberará. No se puede deshacer.",
+    "confirmClub": "Para confirmar, escribe el nombre de tu club: {{team}}",
+    "confirmNoClub": "Para confirmar, escribe BORRAR",
+    "inputLabel": "Confirmación",
+    "cancel": "Cancelar",
+    "confirm": "Borrar cuenta",
+    "error": "No se pudo borrar la cuenta. Inténtalo de nuevo."
+  },
+  "acceptTerms": {
+    "title": "Antes de continuar",
+    "intro": "Lee y acepta las Condiciones de uso y la Política de privacidad (versión {{version}}) para seguir usando Striker.",
+    "read": "Lee las <termsLink>{{terms}}</termsLink> y la <privacyLink>{{privacy}}</privacyLink>.",
+    "checkbox": "Tengo al menos {{age}} años y acepto las Condiciones de uso y la Política de privacidad.",
+    "accept": "Aceptar y continuar",
+    "error": "No se pudo registrar tu aceptación. Inténtalo de nuevo.",
+    "orDelete": "Si no quieres aceptar, puedes borrar tu cuenta.",
+    "deleteInstead": "Borrar mi cuenta"
+  },
+  "legal": {
+    "privacyLink": "Política de privacidad",
+    "termsLink": "Condiciones de uso",
+    "noticeLink": "Aviso legal",
+    "version": "Versión {{version}} · en vigor desde el {{date}}",
+    "notConfigured": "Datos legales sin configurar",
+    "notConfiguredHelp": "Quien opera este despliegue aún no ha indicado {{missing}} del responsable (propiedades LEGAL_*), así que partes de esta página están incompletas.",
+    "notConfiguredValue": "[sin configurar]",
+    "privacy": {
+      "title": "Política de privacidad",
+      "addressSentence": "Domicilio postal: {{address}}.",
+      "hostingSentence": "Nuestro proveedor de alojamiento es {{provider}}{{region}}.",
+      "hostingRegion": ", con servidores en {{region}}",
+      "sections": [
+        {
+          "title": "1. Quién es el responsable",
+          "paragraphs": [
+            "El responsable del tratamiento de tus datos personales es {{controllerName}}. Para cualquier duda o solicitud sobre tu privacidad, escribe a {{contactEmail}}."
+          ]
+        },
+        {
+          "title": "2. Qué datos recogemos",
+          "paragraphs": [
+            "De tu cuenta de Google: tu nombre y tu correo electrónico, y tu foto de perfil, que solo se te muestra a ti.",
+            "Lo que eliges en el juego: tu país, tu idioma, tus preferencias de notificaciones, tus grupos de amigos y tu club.",
+            "Cómo usas el servicio: la hora de tu última actividad (para aplicar las reglas de inactividad de abajo) y, si activas las notificaciones push, la suscripción push de tu navegador.",
+            "Los datos de juego de tu club (plantilla, partidos, finanzas, fichajes) no son datos personales tuyos, pero están vinculados a tu cuenta mientras eres su propietario."
+          ]
+        },
+        {
+          "title": "3. Para qué los usamos y con qué base legal",
+          "paragraphs": [
+            "Para crear tu cuenta, iniciar tu sesión y ejecutar el juego que has pedido usar (ejecución del contrato).",
+            "Para enviarte las notificaciones que activaste (tu consentimiento, que puedes retirar en cualquier momento en los ajustes de notificaciones).",
+            "Para mantener el servicio seguro y para liberar clubes y borrar cuentas que ya no se usan (nuestro interés legítimo en mantener un juego justo)."
+          ]
+        },
+        {
+          "title": "4. Quién recibe tus datos",
+          "paragraphs": [
+            "Google, que gestiona el inicio de sesión y recibe los datos técnicos de la solicitud.",
+            "Nuestro proveedor de alojamiento, que almacena los datos por encargo nuestro.",
+            "El servicio push de tu navegador (por ejemplo Google, Mozilla o Apple), solo si activas las notificaciones push.",
+            "Otros jugadores nunca ven tu nombre ni tu correo. Los miembros de un grupo de amigos al que te unes ven tu nombre y el de tu club; nadie ve tu correo.",
+            "No vendemos tus datos ni los usamos para publicidad o elaboración de perfiles."
+          ]
+        },
+        {
+          "title": "5. Cuánto tiempo los conservamos",
+          "paragraphs": [
+            "Un club cuyo propietario lleva 60 días sin actividad se libera. La cuenta se mantiene sin club.",
+            "Una cuenta sin actividad durante 365 días se borra automáticamente. Te avisamos en la app 14 días antes.",
+            "Cuando borras tu cuenta, tu nombre, correo, idioma, notificaciones, preferencias, suscripciones push y pertenencia a grupos se eliminan al instante.",
+            "Los registros del servidor y las copias de seguridad se conservan como máximo 30 días."
+          ]
+        },
+        {
+          "title": "6. Tus derechos",
+          "paragraphs": [
+            "Puedes acceder a tus datos, rectificarlos, suprimirlos, limitar su tratamiento, oponerte y portarlos. En la página Cuenta puedes descargar todos tus datos y borrar tu cuenta tú mismo.",
+            "Para cualquier otra cosa, escribe a {{contactEmail}}. Respondemos en un mes.",
+            "También puedes reclamar ante la Agencia Española de Protección de Datos (AEPD, www.aepd.es) o ante tu autoridad de control local."
+          ]
+        },
+        {
+          "title": "7. Cookies y almacenamiento del navegador",
+          "paragraphs": [
+            "Solo usamos lo estrictamente necesario para el servicio que has pedido, así que no hace falta banner de consentimiento:",
+            "• Cookie de sesión (jwt): te mantiene con la sesión iniciada. Solo HTTP, se elimina al cerrar sesión o al caducar.",
+            "• Preferencias de tema e idioma, guardadas en tu navegador, para que la app se vea como elegiste.",
+            "• Cookies que establece el botón de inicio de sesión de Google mientras inicias sesión con Google.",
+            "No usamos cookies de analítica, publicidad ni seguimiento."
+          ]
+        },
+        {
+          "title": "8. Edad mínima",
+          "paragraphs": [
+            "Striker es para personas de 16 años o más. Lo confirmas al aceptar las condiciones."
+          ]
+        },
+        {
+          "title": "9. Cambios",
+          "paragraphs": [
+            "Si esta política cambia de forma relevante, cambia su número de versión y te pedimos que la aceptes de nuevo."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Condiciones de uso",
+      "sections": [
+        {
+          "title": "1. Quién puede usar Striker",
+          "paragraphs": [
+            "Striker es un juego gratuito de gestión de fútbol operado por {{controllerName}}. Debes tener al menos 16 años. Al aceptar estas condiciones lo confirmas."
+          ]
+        },
+        {
+          "title": "2. Tu cuenta y tu club",
+          "paragraphs": [
+            "Inicias sesión con tu cuenta de Google. Gestionas un club a la vez. Tu club y sus datos son datos de juego: no tienen valor económico y no pueden venderse ni intercambiarse fuera del juego."
+          ]
+        },
+        {
+          "title": "3. Inactividad",
+          "paragraphs": [
+            "Un club cuyo propietario lleva 60 días sin entrar se libera y pasa a ser gestionado por el ordenador; podrás conseguir un club nuevo cuando vuelvas. Una cuenta sin actividad durante 365 días se borra. Te avisamos antes en la app (y por push si lo tienes activado)."
+          ]
+        },
+        {
+          "title": "4. Juego limpio",
+          "paragraphs": [
+            "No uses bots, no aproveches errores a propósito, no acoses a otros jugadores ni elijas nombres de club o de grupo ofensivos o que suplanten a otros. Podemos renombrar un club o eliminar una cuenta que incumpla estas reglas."
+          ]
+        },
+        {
+          "title": "5. Grupos de amigos",
+          "paragraphs": [
+            "Los miembros de un grupo de amigos ven los nombres y clubes de los demás. Si el propietario de un grupo borra su cuenta, el grupo pasa al miembro que se unió primero, o se elimina si no queda nadie más."
+          ]
+        },
+        {
+          "title": "6. Borrar tu cuenta",
+          "paragraphs": [
+            "Puedes borrar tu cuenta en cualquier momento desde la página Cuenta. Tu club se libera y tus datos personales se eliminan, como se describe en la Política de privacidad."
+          ]
+        },
+        {
+          "title": "7. Disponibilidad",
+          "paragraphs": [
+            "El juego se ofrece tal cual, sin garantías. Podemos cambiarlo, interrumpirlo o reiniciar partes del mundo de juego, por ejemplo por mantenimiento."
+          ]
+        },
+        {
+          "title": "8. Cambios y contacto",
+          "paragraphs": [
+            "Si estas condiciones cambian de forma relevante, cambia su número de versión y te pedimos que las aceptes de nuevo. Dudas: {{contactEmail}}."
+          ]
+        }
+      ]
+    },
+    "notice": {
+      "title": "Aviso legal",
+      "intro": "Información sobre el prestador del servicio.",
+      "name": "Nombre o razón social",
+      "taxId": "NIF / CIF",
+      "address": "Domicilio",
+      "email": "Correo de contacto"
+    }
   }
 }

@@ -1,8 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api, isUnauthorized } from './client'
+import { getApiEndpoint } from '../config'
+import { api, ApiError, CLIENT_HEADER, CLIENT_HEADER_VALUE, isUnauthorized } from './client'
 import { subscribeToPush, unsubscribeFromPush } from '../pushNotifications'
 import type { SupportedLanguage } from '../i18n'
 import type {
+  AccountInfo,
   AcademyOverview,
   AdminLeagueInfo,
   AdminOverview,
@@ -56,6 +58,7 @@ import type {
 
 export const queryKeys = {
   me: ['me'] as const,
+  account: ['account'] as const,
   userTeam: ['userTeam'] as const,
   team: (id: string) => ['team', id] as const,
   teamHistory: (id: string) => ['teamHistory', id] as const,
@@ -201,6 +204,60 @@ export function useSelectCountry() {
       queryClient.setQueryData(queryKeys.me, loggedUser)
     },
   })
+}
+
+// The Account page's data (profile and inactivity rule thresholds).
+export function useAccount(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.account,
+    queryFn: () => api.get<AccountInfo>('/v1/user/account'),
+    enabled,
+  })
+}
+
+// Records acceptance of the current Privacy Policy and Terms plus the minimum-age confirmation;
+// the response is the refreshed user, which opens the gate in Layout.
+export function useAcceptTerms() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ version, ageConfirmed }: { version: number; ageConfirmed: boolean }) =>
+      api.post<LoggedUser>('/v1/auth/accept-terms', { version, ageConfirmed }),
+    onSuccess: (loggedUser) => {
+      queryClient.setQueryData(queryKeys.me, loggedUser)
+    },
+  })
+}
+
+// Self-service account deletion: `confirm` is the club's name (or DELETE/BORRAR with no club). The
+// server clears the session cookie, so everything cached about the user is dropped here too.
+export function useDeleteAccount() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (confirm: string) => api.delete('/v1/user/account', { confirm }),
+    onSuccess: () => {
+      queryClient.clear()
+      queryClient.setQueryData(queryKeys.me, null)
+    },
+  })
+}
+
+// Downloads everything stored about the user as striker-my-data.json (right of access).
+export async function downloadMyData(): Promise<void> {
+  const response = await fetch(getApiEndpoint('/v1/user/account/export'), {
+    credentials: 'include',
+    headers: { [CLIENT_HEADER]: CLIENT_HEADER_VALUE },
+  })
+  if (!response.ok) {
+    throw new ApiError(response.status, `GET /v1/user/account/export failed with status ${response.status}`)
+  }
+  const url = URL.createObjectURL(await response.blob())
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'striker-my-data.json'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
 }
 
 export function useLogout() {
@@ -937,6 +994,17 @@ export function useAdminUsers(enabled: boolean) {
     queryKey: queryKeys.adminUsers,
     queryFn: () => api.get<AdminUserSummary[]>('/v1/admin/users'),
     enabled,
+  })
+}
+
+// An admin erases another user's account (an erasure request received outside the app).
+export function useAdminDeleteUser() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: number) => api.delete(`/v1/admin/users/${userId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers })
+    },
   })
 }
 

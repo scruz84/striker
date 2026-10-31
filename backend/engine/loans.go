@@ -40,6 +40,19 @@ func notifyLoanReturn(dbCtx *common.DatabaseContext, loan common.PlayerLoan) {
 	}
 
 	playerName := player.FirstName + " " + player.LastName
+	if loan.ReleaseOnReturn {
+		// The lending club was reset after losing its owner: the player did not go home, he is a
+		// free agent now. Only the borrower has a human owner worth telling.
+		msg := common.NotificationMessage{
+			Text:   playerName + "'s loan has ended and he is now a free agent",
+			Key:    "notifications.messages.loanEndedFreeAgent",
+			Params: map[string]any{"name": playerName},
+		}
+		if err := common.NotifyTeamOwner(dbCtx, loan.ToTeamId, common.NOTIFICATION_TRANSFER, msg); err != nil {
+			log.Errorf("error notifying loan end to team %d: %s", loan.ToTeamId, err)
+		}
+		return
+	}
 	homeMsg := common.NotificationMessage{
 		Text:   playerName + " has returned from loan",
 		Key:    "notifications.messages.loanReturnedHome",

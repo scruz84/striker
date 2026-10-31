@@ -21,6 +21,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode'
 import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import LogoutIcon from '@mui/icons-material/Logout'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
 import TranslateIcon from '@mui/icons-material/Translate'
@@ -213,6 +214,19 @@ function AvatarOrLogin() {
       >
         {!isDesktop && <PreferenceItems onDone={() => setAnchorEl(null)} />}
         {!isDesktop && <Divider />}
+        {loggedUser.termsAccepted && !loggedUser.pendingCountrySelection && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null)
+              navigate('/account')
+            }}
+          >
+            <ListItemIcon>
+              <ManageAccountsIcon />
+            </ListItemIcon>
+            <ListItemText>{t('header.nav.account')}</ListItemText>
+          </MenuItem>
+        )}
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon />

@@ -19,6 +19,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/PageHeader'
+import { LegalLinks } from '../legal/LegalLinks'
 
 interface HelpItem {
   q: string
@@ -89,6 +90,7 @@ export function HelpPage() {
           </Accordion>
         )
       })}
+      <LegalLinks sx={{ pt: 1 }} />
     </Stack>
   )
 }

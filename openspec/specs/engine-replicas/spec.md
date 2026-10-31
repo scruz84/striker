@@ -98,6 +98,7 @@ A job meant to run once per period SHALL first claim its slot (fire time truncat
 | `free_agent_progression` | 24 h |
 | `free_agent_injection` | 24 h (fires weekly) |
 | `birthdays` | 24 h |
+| `account_lifecycle_daily` | 24 h (inactivity warnings, club releases, account erasures) |
 | `offer_response` | 12 h |
 | `ai_activity` | 5 min |
 
@@ -177,7 +178,12 @@ The engine SHALL run, once per deployment of this change via a job slot claim, a
   job slot `standings_repair_v1` (`common.ClaimEngineJobSlot`); it rebuilds mismatched rows
   (`common.RebuildLeagueStandings`, `CountStandingsMismatches` in `common/standingsrepair.go`) under
   `LockNamespaceStandings`, the same lock result saves take.
-- Periodic jobs: `claimRun` and the `Execute` methods in `engine/tasks.go`.
+- Periodic jobs: `claimRun` and the `Execute` methods in `engine/tasks.go`. The account lifecycle
+  jobs (`engine/accountlifecycle.go`): the daily pass claims `account_lifecycle_daily` and every
+  step re-checks or atomically claims its row (`ClaimWarningStage`, `ReleaseInactiveOwner`,
+  `DeleteAccountIfIdle`); the 15-minute reset pass (`ResetReleasedTeams`) takes no slot claim
+  because `ResetReleasedTeam` locks and re-checks each club. Test:
+  `engine/accountlifecycle_concurrency_test.go`.
   `striker.engine.job.claims{engine_job,outcome}` (`common/telemetry.go`) shows how the claims are
   shared: each replica records `won` or `lost` for every claim.
 - Tests: `engine/engine_replicas_integration_test.go`, `common/enginelocks_integration_test.go`,
