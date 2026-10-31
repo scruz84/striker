@@ -14,6 +14,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useOnboardingCountries, useSelectCountry } from '../../api/hooks'
+import { useSortedCountries } from '../../utils/countryOrder'
 
 /** The mandatory first step for a brand-new sign-in (see LoggedUser.pendingCountrySelection) -
  * they pick which of the game's active countries to play in before anything else, and only then
@@ -22,7 +23,8 @@ import { useOnboardingCountries, useSelectCountry } from '../../api/hooks'
 export function SelectCountryPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: countries, isLoading } = useOnboardingCountries()
+  const { data, isLoading } = useOnboardingCountries()
+  const { sorted: countries, countryName } = useSortedCountries(data, (country) => country.code)
   const selectCountry = useSelectCountry()
   const [selected, setSelected] = useState('')
 
@@ -63,7 +65,7 @@ export function SelectCountryPage() {
               >
                 {countries.map((country) => (
                   <MenuItem key={country.code} value={country.code}>
-                    {country.name}
+                    {countryName(country.code)}
                   </MenuItem>
                 ))}
               </Select>

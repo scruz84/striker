@@ -79,7 +79,9 @@ directory-skipping behavior noted above).
    (again non-recursive) itself the first time it's pointed at a database with no schema yet, in
    `schemaFileSortKey` order: `init.sql` first, then any numbered `initN_*.sql` files in true
    numeric order, then anything else lexicographically (the `names_*_.../lastnames_*_...` data
-   dumps).
+   dumps). `collectSchemaFiles` also walks subdirectories other than `history/`, which is how the
+   generated per-country name-pool files in `resources/sql/namepools/` (`init91_name_pool_<code>.sql`)
+   are applied: Postgres's docker mount skips them, but `EnsureSchema` runs them on the first start.
 
 `init.sql` and the name-pool dumps only ever run **once** each - they have no `IF NOT
 EXISTS`/idempotency guards, so re-running them against an already-seeded database duplicates data
@@ -127,8 +129,14 @@ once they're already an admin themselves.
 
 - `countries` - one row per **active** country (has a generated world: leagues, teams, players).
   `common.KnownCountries` is the superset of countries the engine *knows how to* generate a
-  world for (needs a `names_<code>`/`lastnames_<code>` table pair + team-naming data); not all of
-  them are active. An admin activates an inactive one via `POST /v1/admin/countries`.
+  world for (needs a `names_<code>`/`lastnames_<code>` table pair + team-naming data); it is the
+  211 FIFA member associations (see `openspec/specs/country-catalog`); not all of them are active.
+  Adding a country means: a `KnownCountries` entry, `countryRegions`, `CountryTimezone`,
+  `placeNamesByCountry` (16+ names), team/stadium patterns, a flag in `frontend/public/flags/`,
+  `COUNTRY_NAME_KEYS`/`COUNTRY_REGIONS` and `countries.<code>` in both locale files, and a name pool
+  under `utils/namepools/<code>/` that `utils/gen_name_pools.py` turns into
+  `resources/sql/namepools/init91_name_pool_<code>.sql` (plus the table pair in an `initN_*.sql`);
+  each is behind a guard test that names the missing code. An admin activates an inactive one via `POST /v1/admin/countries`.
 - `leagues` - one row per division-within-a-country-within-a-group, with a `tier` column
   (1 = top division, increasing = lower). Promotion/relegation moves teams between tiers at
   season rollover.

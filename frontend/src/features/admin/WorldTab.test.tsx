@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfirmContext } from '../../components/confirmDialogContext'
 import { NotifyContext } from '../../components/notifyContext'
@@ -108,5 +108,24 @@ describe('WorldTab', () => {
     renderTab()
     expect(screen.getByText(i18n.t('admin.countries.missingDivision', { name: 'Segunda' }))).toBeInTheDocument()
     expect(screen.getByText(i18n.t('admin.dangerZone.title'))).toBeInTheDocument()
+  })
+
+  it('lists the countries alphabetically by their name in the UI language, and re-sorts on a language switch', async () => {
+    const countryRows = () =>
+      screen
+        .getAllByText(/\([a-z]{2,3}\)$/)
+        .map((node) => node.textContent)
+    const previous = i18n.language
+    try {
+      await i18n.changeLanguage('en')
+      renderTab()
+      expect(countryRows()).toEqual(['France (fr)', 'Spain (es)'])
+      cleanup()
+      await i18n.changeLanguage('es')
+      renderTab()
+      expect(countryRows()).toEqual(['España (es)', 'Francia (fr)'])
+    } finally {
+      await i18n.changeLanguage(previous)
+    }
   })
 })

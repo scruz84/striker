@@ -183,3 +183,36 @@ This change adds no `TRANSACTION_*` reasons and no notification keys.
    from the larger pools.
 4. Rollback: the old binary ignores the extra tables, rows and `name_pool_versions`, so no down
    migration is needed.
+
+
+## Code map for the country-catalog spec
+
+Archive does not carry a Code map out of a change delta, so this is the text to put at the end of
+`openspec/specs/country-catalog/spec.md` when the change is synced and archived.
+
+- Catalog: `backend/common/countries.go` (`KnownCountries`, `IsKnownCountry`), with the per-country
+  data in `regions.go` (`countryRegions`, `RegionForCountry`), `timezones.go` (`CountryTimezone`),
+  `teamnames.go` (`placeNamesByCountry`, `teamNamePatternsByCountry`, shared `*TeamPatterns` slices,
+  `RandomTeamName`) and `stadiumnames.go` (`stadiumNamePatternsByCountry`, `RandomStadiumName`).
+- Name pools: `common/database.go` (`GetRandomName`; `nameTableSuffixByCountry` is derived from
+  `KnownCountries` and panics on a code that is not 2-3 lowercase letters),
+  `resources/sql/init90_fifa_countries.sql` (`name_pool_versions` and the new `names_<code>` /
+  `lastnames_<code>` tables), `resources/sql/namepools/init91_name_pool_<code>.sql` (generated, one
+  per country but `es`), `utils/namepools/<code>/{first,last}.txt` (the sources),
+  `utils/gen_name_pools.py` (validation and SQL generation) and `utils/build_name_pool_sources.py`
+  (how the first lists were assembled, see `utils/namepools/README.md`).
+- Frontend data: `api/types.ts` (`COUNTRY_NAME_KEYS`), `components/avatar/traits.ts`
+  (`COUNTRY_REGIONS`), `i18n/locales/{en,es}.json` (`countries.<code>`), `public/flags/<code>.svg`.
+- Alphabetical lists: `utils/countryOrder.ts` (`compareCountryNames`, `sortByCountryName`,
+  `useSortedCountries`, `localizedCountryName`), used by `features/leagues/LeaguesPage.tsx`,
+  `features/onboarding/SelectCountryPage.tsx`, `features/admin/WorldTab.tsx` (`CountriesSection`)
+  and `features/admin/OverviewTab.tsx` (`SeasonsByCountryTable`). The API keeps its order; sorting
+  happens in the client, where the UI language is known.
+- Guards: `common.TestKnownCountriesAreFIFAMembership`, `TestKnownCountriesNamedExamples`,
+  `TestEveryKnownCountryHasNamingData`, `TestRandomNamesUseEachCountrysOwnPlaceNames`,
+  `TestNameTableSuffixRejectsUnsafeCodes`, `TestNamePoolFiles`, `TestRegionForCountry_NewMembersFollowConfederation`,
+  `TestEveryCountryHasTimezone`-style tests in `timezones_test.go`, and the `STRIKER_TEST_DB_DSN`
+  integration check in `schema_integration_test.go`; on the client `api/countryData.test.ts`,
+  `utils/countryOrder.test.ts`, `components/CountryFlag.test.tsx`, and the page tests next to the
+  four call sites.
+

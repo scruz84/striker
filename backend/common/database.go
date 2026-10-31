@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -313,25 +315,30 @@ const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(p.wage * (100 - COALESCE(pl.
 	"FROM players p LEFT JOIN player_loans pl ON pl.player_id = p.player_id AND pl.to_team_id = p.team_id " +
 	"WHERE p.team_id = $1 AND p.in_academy = false"
 
-// nameTableSuffixByCountry maps a seeded country code to its names_<suffix>/lastnames_<suffix>
-// table pair (see resources/sql/init.sql). Table names can't
-// be parameterized like ordinary values, so GetRandomName looks the suffix up here - an
-// allowlist of the game's own seeded countries - rather than ever building SQL from the country
-// string directly.
-var nameTableSuffixByCountry = map[string]string{
-	"es": "es", "en": "en", "fr": "fr", "de": "de", "it": "it", "pt": "pt",
-	"nl": "nl", "se": "se", "pl": "pl", "gr": "gr",
-	"br": "br", "ar": "ar", "mx": "mx", "co": "co", "cl": "cl", "pe": "pe",
-	"uy": "uy", "us": "us", "ca": "ca", "ec": "ec",
-	"be": "be", "tr": "tr", "at": "at", "ve": "ve", "py": "py", "bo": "bo",
-	"sco": "sco", "wal": "wal", "ie": "ie", "ru": "ru", "rs": "rs", "hr": "hr",
-	"ba": "ba", "si": "si", "mk": "mk", "me": "me", "xk": "xk",
-	"jp": "jp", "kr": "kr", "cn": "cn", "in": "in", "th": "th", "vn": "vn",
-	"id": "id", "ph": "ph", "sa": "sa", "ir": "ir",
-	"qa": "qa", "ae": "ae", "uz": "uz",
-	"ng": "ng", "eg": "eg", "gh": "gh", "ci": "ci", "cm": "cm", "sn": "sn",
-	"za": "za", "ma": "ma", "dz": "dz", "ke": "ke",
-	"tn": "tn", "tz": "tz", "ml": "ml",
+// nameTableSuffixByCountry maps a known country code to its names_<suffix>/lastnames_<suffix>
+// table pair (see resources/sql/init.sql, init90_fifa_countries.sql and the per-country
+// resources/sql/namepools/ files). Table names can't be parameterized like ordinary values, so
+// GetRandomName looks the suffix up here - an allowlist derived from KnownCountries - rather than
+// ever building SQL from the country string directly. Derived at init so it can't drift from the
+// catalog; a code that isn't 2-3 lowercase letters panics at startup, keeping the SQL-safety
+// property the hand-kept map used to give (see nameTableSuffix).
+var nameTableSuffixByCountry = func() map[string]string {
+	suffixes := make(map[string]string, len(KnownCountries))
+	for _, country := range KnownCountries {
+		suffixes[country.Code] = nameTableSuffix(country.Code)
+	}
+	return suffixes
+}()
+
+var nameTableSuffixPattern = regexp.MustCompile(`^[a-z]{2,3}$`)
+
+// nameTableSuffix returns the table-name suffix for a KnownCountries code - the code itself - and
+// panics when it isn't 2-3 lowercase ASCII letters, since the suffix is concatenated into SQL.
+func nameTableSuffix(code string) string {
+	if !nameTableSuffixPattern.MatchString(code) {
+		panic(fmt.Sprintf("common: country code %q cannot be used as a name table suffix (want ^[a-z]{2,3}$)", code))
+	}
+	return code
 }
 
 // GetRandomName picks a random first/last name from the given country's name pool. Falls back

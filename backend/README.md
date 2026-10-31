@@ -25,9 +25,9 @@ The seeded world spans four countries by default (`common.DefaultSeededCountries
 (`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own three-tier league
 structure and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
 `resources/sql/init.sql`). Spain's pool is a real ~29k-name
-dump; the other three are curated common-name lists of about 60 first/last names each - real
-names, just a much smaller pool, so expect more repetition across a large league than Spain's
-teams see. A new Google sign-in is assigned to one of the seeded countries at random
+dump; every other country's pool has at least 300 first names and 500 surnames, written as text
+sources under `utils/namepools/<code>/{first,last}.txt` and turned into idempotent SQL
+(`resources/sql/namepools/init91_name_pool_<code>.sql`) by `utils/gen_name_pools.py`. A new Google sign-in is assigned to one of the seeded countries at random
 (`randomSeededCountry`) - there's no sign-up step for a new user to pick one themselves.
 
 Override which countries get seeded with the comma-separated `SEEDED_COUNTRIES` environment
@@ -210,7 +210,8 @@ country) - the request blocks until it's done rather than returning early.
 
 **Countries** (`GET /v1/admin/countries`, `POST /v1/admin/countries {"code": "it"}`) lists every
 country the game engine knows how to generate a world for (`common.KnownCountries` - a
-`names_<code>`/`lastnames_<code>` table pair plus team-naming data in `teamnames.go`), marking
+`names_<code>`/`lastnames_<code>` table pair plus team-naming data in `teamnames.go`; the 211 FIFA
+members), marking
 which ones are already active, and activates one of the inactive ones: creates its leagues and
 teams per the current world structure, generates this season's fixtures for just those new
 leagues (`engine.GenerateMatchesForLeagues` - `engine.GenerateMatches` itself only fires when

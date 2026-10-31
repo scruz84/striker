@@ -11,8 +11,9 @@ import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLeagueDirectory } from '../../api/hooks'
-import { COUNTRY_NAME_KEYS, type CountryLeagueDirectory, type LeagueDirectoryEntry } from '../../api/types'
+import { type CountryLeagueDirectory, type LeagueDirectoryEntry } from '../../api/types'
 import { PageHeader } from '../../components/PageHeader'
+import { useSortedCountries } from '../../utils/countryOrder'
 
 /** Lets any signed-in manager browse every league in the game world - not just their own -
  * and drop into a division's standings and roster (DivisionDetailsPage, unchanged) from there.
@@ -21,9 +22,12 @@ import { PageHeader } from '../../components/PageHeader'
 export function LeaguesPage() {
   const { t } = useTranslation()
   const { data: directory, isLoading } = useLeagueDirectory()
-  const [countryIndex, setCountryIndex] = useState(0)
+  // The selected tab is tracked by country code, not position: the tabs are sorted by the localized
+  // name, so a language switch re-orders them and the selection has to follow the country.
+  const [selectedCode, setSelectedCode] = useState<string | undefined>()
+  const { sorted: countries, countryName } = useSortedCountries(directory, (entry) => entry.country)
 
-  if (isLoading || !directory) {
+  if (isLoading || !directory || !countries) {
     return <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />
   }
 
@@ -35,7 +39,7 @@ export function LeaguesPage() {
     )
   }
 
-  const selected = directory[Math.min(countryIndex, directory.length - 1)]
+  const selected = countries.find((entry) => entry.country === selectedCode) ?? countries[0]
 
   return (
     <Stack spacing={2}>
@@ -43,14 +47,14 @@ export function LeaguesPage() {
 
       <Paper variant="outlined">
         <Tabs
-          value={countryIndex}
-          onChange={(_e, value) => setCountryIndex(value)}
+          value={selected.country}
+          onChange={(_e, value: string) => setSelectedCode(value)}
           variant="scrollable"
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          {directory.map((entry) => (
-            <Tab key={entry.country} label={t(COUNTRY_NAME_KEYS[entry.country] ?? entry.country)} />
+          {countries.map((entry) => (
+            <Tab key={entry.country} value={entry.country} label={countryName(entry.country)} />
           ))}
         </Tabs>
         <Box sx={{ p: 2 }}>

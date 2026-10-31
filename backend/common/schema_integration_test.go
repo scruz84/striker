@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 	"testing"
+	"time"
 )
 
 // TestEnsureSchema_RestartDoesNotTouchPlayerData runs EnsureSchema against a real, empty Postgres
@@ -47,8 +48,18 @@ func TestEnsureSchema_RestartDoesNotTouchPlayerData(t *testing.T) {
 		t.Fatalf("counting names_en: %s", err)
 	}
 
+	poolsBefore := namePoolCounts(t, db)
+	started := time.Now()
 	if err := EnsureSchema(dbCtx); err != nil {
 		t.Fatalf("second EnsureSchema: %s", err)
+	}
+	t.Logf("warm EnsureSchema (everything already migrated) took %s", time.Since(started).Round(time.Millisecond))
+	checkNamePools(t, db, poolsBefore)
+	for _, country := range KnownCountries {
+		first, last, err := GetRandomName(dbCtx, country.Code)
+		if err != nil || first == "" || last == "" {
+			t.Errorf("GetRandomName(%q) = %q, %q, %v", country.Code, first, last, err)
+		}
 	}
 
 	var contract, namesAfter int
@@ -63,5 +74,60 @@ func TestEnsureSchema_RestartDoesNotTouchPlayerData(t *testing.T) {
 	}
 	if namesAfter != namesBefore {
 		t.Errorf("names_en rows changed across EnsureSchema: %d -> %d", namesBefore, namesAfter)
+	}
+}
+
+// namePoolCounts returns "<table> -> row count" for every known country's name tables.
+func namePoolCounts(t *testing.T, db *sql.DB) map[string]int {
+	t.Helper()
+	counts := map[string]int{}
+	for _, country := range KnownCountries {
+		for _, table := range []string{"names_" + country.Code, "lastnames_" + country.Code} {
+			var n int
+			if err := db.QueryRow("SELECT count(*) FROM " + table).Scan(&n); err != nil {
+				t.Fatalf("counting %s: %s", table, err)
+			}
+			counts[table] = n
+		}
+	}
+	return counts
+}
+
+// checkNamePools asserts what re-applying the schema must leave behind: the name pools are
+// unchanged by the second run, every generated pool is at least 300 first names / 500 surnames,
+// the pre-existing 30-name pool of Russia kept its rows, and name_pool_versions holds version 2 for
+// the 210 countries with a generated pool (every known country but Spain).
+func checkNamePools(t *testing.T, db *sql.DB, before map[string]int) {
+	t.Helper()
+	after := namePoolCounts(t, db)
+	for table, n := range before {
+		if after[table] != n {
+			t.Errorf("%s rows changed across EnsureSchema: %d -> %d", table, n, after[table])
+		}
+	}
+	for _, country := range KnownCountries {
+		if country.Code == "es" {
+			continue
+		}
+		if n := after["names_"+country.Code]; n < minPoolFirstNames {
+			t.Errorf("names_%s has %d rows, want at least %d", country.Code, n, minPoolFirstNames)
+		}
+		if n := after["lastnames_"+country.Code]; n < minPoolLastNames {
+			t.Errorf("lastnames_%s has %d rows, want at least %d", country.Code, n, minPoolLastNames)
+		}
+	}
+	// init69 seeded Russia with 30 first names and 30 surnames; the generated pool extends it.
+	for _, name := range []string{"Ivan", "Dmitri", "Alexei", "Sergei", "Grigori"} {
+		var n int
+		if err := db.QueryRow(`SELECT count(*) FROM names_ru WHERE "name" = $1`, name).Scan(&n); err != nil || n != 1 {
+			t.Errorf("names_ru lost or duplicated the original name %q: count=%d err=%v", name, n, err)
+		}
+	}
+	var versions int
+	if err := db.QueryRow(`SELECT count(*) FROM name_pool_versions WHERE version = 2`).Scan(&versions); err != nil {
+		t.Fatalf("counting name_pool_versions: %s", err)
+	}
+	if want := len(KnownCountries) - 1; versions != want {
+		t.Errorf("name_pool_versions has %d countries at version 2, want %d", versions, want)
 	}
 }

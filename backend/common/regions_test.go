@@ -39,3 +39,19 @@ func TestEveryKnownCountryHasARegion(t *testing.T) {
 		}
 	}
 }
+
+// The region follows the confederation: UEFA is Europe, CONMEBOL/CONCACAF the Americas, AFC and
+// OFC Asia (the Pacific nations join the Asian Cup), CAF Africa.
+func TestRegionForCountry_NewMembersFollowConfederation(t *testing.T) {
+	cases := map[string]string{
+		"dk": "europe", "nir": "europe", "kz": "europe", "il": "europe", "ua": "europe",
+		"jm": "americas", "cr": "americas", "pr": "americas", "sr": "americas", "cw": "americas",
+		"au": "asia", "iq": "asia", "tw": "asia", "nz": "asia", "fj": "asia", "pf": "asia",
+		"ao": "africa", "cd": "africa", "mu": "africa", "ss": "africa", "zw": "africa",
+	}
+	for code, want := range cases {
+		if got := RegionForCountry(code); got != want {
+			t.Errorf("RegionForCountry(%q) = %q, want %q", code, got, want)
+		}
+	}
+}

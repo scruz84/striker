@@ -28,6 +28,9 @@ describe('nationalTeamCountry', () => {
     expect(nationalTeamCountry('Spain')).toBe('es')
     expect(nationalTeamCountry('Scotland')).toBe('sco')
     expect(nationalTeamCountry('Wales National Team')).toBe('wal')
+    expect(nationalTeamCountry('Northern Ireland')).toBe('nir')
+    expect(nationalTeamCountry('Chinese Taipei')).toBe('tw')
+    expect(nationalTeamCountry('Tahiti')).toBe('pf')
   })
 
   it('is undefined for an ordinary club', () => {

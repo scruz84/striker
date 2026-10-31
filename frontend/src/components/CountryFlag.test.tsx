@@ -17,7 +17,7 @@ const FLAG_SVGS: Record<string, string> = Object.fromEntries(
 
 describe('country flag assets', () => {
   it('has a flag file for every country code', () => {
-    expect(KNOWN_COUNTRY_CODES.length).toBeGreaterThanOrEqual(63)
+    expect(KNOWN_COUNTRY_CODES.length).toBeGreaterThanOrEqual(211)
     for (const code of KNOWN_COUNTRY_CODES) {
       expect(FLAG_SVGS[code], `public/flags/${code}.svg`).toBeTruthy()
     }
@@ -40,13 +40,24 @@ describe('CountryFlag', () => {
   })
 
   it('gives each home nation its own flag, not the UK one', () => {
-    const srcs = ['en', 'sco', 'wal'].map((code) => {
+    const srcs = ['en', 'sco', 'wal', 'nir'].map((code) => {
       const { container, unmount } = render(<CountryFlag code={code} />)
       const src = container.querySelector('img')?.getAttribute('src')
       unmount()
       return src
     })
-    expect(new Set(srcs).size).toBe(3)
+    expect(new Set(srcs).size).toBe(4)
+  })
+
+  it('shows the Northern Ireland and Tahiti flags from their own files', () => {
+    for (const code of ['nir', 'pf', 'xk']) {
+      const { container, unmount } = render(<CountryFlag code={code} />)
+      expect(container.querySelector('img')).toHaveAttribute('src', `/flags/${code}.svg`)
+      unmount()
+    }
+    // Tahiti's FIFA association plays under the French Polynesia flag, Northern Ireland under the
+    // Ulster Banner (flag-icons gb-nir) - not the UK flag.
+    expect(FLAG_SVGS.nir).not.toBe(FLAG_SVGS.en)
   })
 
   it('renders nothing for a missing or unknown code', () => {

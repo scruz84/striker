@@ -152,7 +152,7 @@ describe('OverviewTab', () => {
     setPhone(true)
     renderTab()
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
-    expect(screen.getByText('ES')).toBeInTheDocument()
+    expect(screen.getByText(`${i18n.t('countries.es')} (ES)`)).toBeInTheDocument()
     expect(screen.getByText(`${i18n.t('admin.overview.matchesUnplayed')}: 120 / 380`)).toBeInTheDocument()
   })
 

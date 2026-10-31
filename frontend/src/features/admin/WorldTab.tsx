@@ -47,6 +47,7 @@ import { DangerZone } from './components/DangerZone'
 import { WeekdayPicker } from './components/WeekdayPicker'
 import { useAdminFeedback } from './useAdminFeedback'
 import { useIsPhone } from './useIsPhone'
+import { localizedCountryName, useSortedCountries } from '../../utils/countryOrder'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 
 export function WorldTab() {
@@ -229,7 +230,10 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
 function CountriesSection() {
   const { t } = useTranslation()
   const confirm = useConfirm()
-  const { data: countries, isLoading } = useAdminCountries(true)
+  const { data, isLoading } = useAdminCountries(true)
+  // Alphabetical by the name in the UI language, and shown in it (the API's English name is only
+  // the fallback for an unknown code).
+  const { sorted: countries, countryName } = useSortedCountries(data, (country) => country.code)
   const { data: worldConfig } = useAdminWorldConfig(true)
   const { data: leagues } = useAdminLeagues(true)
   const addCountry = useAdminAddCountry()
@@ -240,7 +244,7 @@ function CountriesSection() {
 
   const handleReschedule = async (country: CountryStatus) => {
     const ok = await confirm({
-      message: t('admin.countries.confirmReschedule', { country: country.name }),
+      message: t('admin.countries.confirmReschedule', { country: countryName(country.code) }),
       confirmLabel: t('admin.countries.reschedule'),
     })
     if (ok) {
@@ -252,7 +256,7 @@ function CountriesSection() {
     const ok = await confirm({
       message: t(
         withMatches ? 'admin.countries.confirmAddDivisionWithMatches' : 'admin.countries.confirmAddDivisionTeamsOnly',
-        { country: country.name, division: tier.name },
+        { country: countryName(country.code), division: tier.name },
       ),
       confirmLabel: t('admin.countries.addDivision'),
     })
@@ -288,7 +292,7 @@ function CountriesSection() {
             <Stack key={country.code} spacing={0.5}>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
                 <Typography sx={{ flex: '1 1 10rem', minWidth: 0 }}>
-                  {country.name} ({country.code})
+                  {countryName(country.code)} ({country.code})
                 </Typography>
                 {country.active ? (
                   <>
@@ -341,6 +345,7 @@ function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClos
   const addCountry = useAdminAddCountry()
   const isPhone = useIsPhone()
   const [time, setTime] = useState('14:00')
+  const name = localizedCountryName(t, country.code)
 
   const handleAdd = () => {
     if (!time) {
@@ -355,11 +360,11 @@ function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClos
 
   return (
     <Dialog open onClose={onClose} maxWidth="xs" fullWidth fullScreen={isPhone}>
-      <DialogTitle>{t('admin.countries.addDialogTitle', { name: country.name })}</DialogTitle>
+      <DialogTitle>{t('admin.countries.addDialogTitle', { name })}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <Typography variant="body2" color="text.secondary">
-            {t('admin.countries.addDialogDescription', { name: country.name })}
+            {t('admin.countries.addDialogDescription', { name })}
           </Typography>
           <TextField
             label={t('admin.countries.kickoffLabel')}
@@ -367,7 +372,7 @@ function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClos
             size="small"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            helperText={t('admin.countries.kickoffHelp', { name: country.name })}
+            helperText={t('admin.countries.kickoffHelp', { name })}
             slotProps={{ inputLabel: { shrink: true } }}
           />
           {addCountry.isError && <Alert severity="error">{t('admin.countries.addError')}</Alert>}

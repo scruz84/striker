@@ -29,6 +29,7 @@ import {
 import { useConfirm } from '../../components/confirmDialogContext'
 import { useNotify } from '../../components/notifyContext'
 import type { FailingFixture, FixtureKindCounts } from '../../api/types'
+import { useSortedCountries } from '../../utils/countryOrder'
 import { formatDateTime } from '../../utils/formatDate'
 import { AdminSection } from './components/AdminSection'
 import { useAdminFeedback } from './useAdminFeedback'
@@ -260,10 +261,11 @@ function FailingMatchesList({ failing, total }: { failing: FailingFixture[]; tot
 // there's no single season number left to show as one of the stat tiles above.
 function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<typeof useAdminOverview>['data']>['seasons'] }) {
   const { t } = useTranslation()
+  const { sorted, countryName } = useSortedCountries(seasons, (countrySeason) => countrySeason.country)
 
   const isPhone = useIsPhone()
 
-  if (seasons.length === 0) {
+  if (!sorted || sorted.length === 0) {
     return null
   }
 
@@ -271,10 +273,12 @@ function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<ty
   if (isPhone) {
     return (
       <Stack spacing={1} sx={{ mb: 2 }}>
-        {seasons.map((countrySeason) => (
+        {sorted.map((countrySeason) => (
           <Paper key={countrySeason.country} variant="outlined" sx={{ p: 1.5 }}>
             <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontWeight: 600 }}>{countrySeason.country.toUpperCase()}</Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {countryName(countrySeason.country)} ({countrySeason.country.toUpperCase()})
+              </Typography>
               <Typography variant="body2" color="text.secondary">
                 {t('admin.overview.season')} {countrySeason.season}
               </Typography>
@@ -300,9 +304,11 @@ function SeasonsByCountryTable({ seasons }: { seasons: NonNullable<ReturnType<ty
           </TableRow>
         </TableHead>
         <TableBody>
-          {seasons.map((countrySeason) => (
+          {sorted.map((countrySeason) => (
             <TableRow key={countrySeason.country}>
-              <TableCell>{countrySeason.country.toUpperCase()}</TableCell>
+              <TableCell>
+                {countryName(countrySeason.country)} ({countrySeason.country.toUpperCase()})
+              </TableCell>
               <TableCell>{countrySeason.season}</TableCell>
               <TableCell>{countrySeason.matchesTotal}</TableCell>
               <TableCell>{countrySeason.matchesUnplayed}</TableCell>
