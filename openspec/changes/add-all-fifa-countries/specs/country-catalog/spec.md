@@ -95,3 +95,19 @@ Every UI list, menu or tab strip of countries SHALL be sorted by the country's n
 #### Scenario: Language switch
 - **WHEN** the user switches the UI language while a sorted country list is on screen
 - **THEN** the list re-sorts by the names in the new language, and the Leagues page keeps the same country selected
+
+### Requirement: Country-typical avatars
+A player's generated avatar SHALL depend on their birth country, not only on its continent: every known country belongs to an appearance group whose odds shape skin tone, hair colour, hair style and facial hair, while every option stays reachable. A missing or unknown birth country SHALL fall back to central Europe's group.
+
+#### Scenario: Neighbours on one continent differ
+- **WHEN** many avatars are generated for Fiji (`fj`) and for Japan (`jp`)
+- **THEN** Fiji's skew to dark skin tones and curly hair, Japan's to lighter tones and straight black hair, although both are in the `asia` region for the international cup
+
+#### Scenario: New country has a group
+- **WHEN** the frontend tests iterate the 211 known country codes
+- **THEN** each resolves to an appearance group and no code relies on the fallback by accident
+
+#### Scenario: Stable face
+- **WHEN** the same player seed and birth country are used twice
+- **THEN** the same face is produced
+

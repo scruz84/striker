@@ -41,6 +41,8 @@
 - [x] 5.4 Make the admin `WorldTab` countries list localized (`name (code)`) and sorted, and sort the `OverviewTab` seasons-by-country table by localized name showing name and code (phone cards and desktop table); verify in tests or by rendering the admin page at 360 px and desktop widths
 - [x] 5.5 Check that no other screen lists countries (`grep` for `COUNTRY_NAME_KEYS`, `.country` maps and `useOnboardingCountries`/`useAdminCountries`/`useLeagueDirectory`) and record the result in the PR description
 
+- [x] 5.6 Make generated avatars depend on the birth country: appearance groups with their own skin, hair colour, hair style and facial-hair odds in `components/avatar/traits.ts`, every known code assigned, tests in `traits.test.ts`; verify `npx vitest run src/components/avatar` passes
+
 ## 6. Specs
 
 - [x] 6.1 Fill in the Code map for the new `country-catalog` spec (countries.go, regions.go, timezones.go, teamnames.go, stadiumnames.go, database.go `GetRandomName`, `utils/gen_name_pools.py`, `resources/sql/init90_fifa_countries.sql`, `resources/sql/namepools/`, `utils/countryOrder.ts` and its call sites, and the guard tests); update the `country-flags` Code map with the `nir` → `gb-nir` mapping; verify `openspec validate add-all-fifa-countries --strict` passes

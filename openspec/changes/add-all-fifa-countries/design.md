@@ -201,6 +201,8 @@ Archive does not carry a Code map out of a change delta, so this is the text to 
   per country but `es`), `utils/namepools/<code>/{first,last}.txt` (the sources),
   `utils/gen_name_pools.py` (validation and SQL generation) and `utils/build_name_pool_sources.py`
   (how the first lists were assembled, see `utils/namepools/README.md`).
+- Avatars: `components/avatar/traits.ts` (`APPEARANCE_PROFILES`, `appearanceForCountry`, `derivePlayerFace`)
+  and `CartoonAvatar.tsx`; guard `traits.test.ts`.
 - Frontend data: `api/types.ts` (`COUNTRY_NAME_KEYS`), `components/avatar/traits.ts`
   (`COUNTRY_REGIONS`), `i18n/locales/{en,es}.json` (`countries.<code>`), `public/flags/<code>.svg`.
 - Alphabetical lists: `utils/countryOrder.ts` (`compareCountryNames`, `sortByCountryName`,
