@@ -5,11 +5,13 @@ import (
 	"strings"
 )
 
-// defaultCorsAllowedOrigins are always allowed, regardless of CORS_ALLOWED_ORIGINS - the two
-// deployed frontend domains, plus the two ports the frontend actually runs on locally: 5173 for
+// defaultCorsAllowedOrigins are always allowed, regardless of CORS_ALLOWED_ORIGINS - the
+// deployed domains (example.com, plus the older example.com ones), plus the two ports the frontend actually runs on locally: 5173 for
 // `npm run dev` (Vite's default) and 3000 for the Dockerized/nginx-served build (see
 // frontend/docker-compose.yml).
 var defaultCorsAllowedOrigins = []string{
+	"https://api.striker.example.com",
+	"https://striker.example.com",
 	"https://api.striker.example.com",
 	"https://striker.example.com",
 	"http://localhost:3000",
