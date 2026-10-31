@@ -87,11 +87,26 @@ The frontend SHALL offer `/national-teams` with a global feed of upcoming and re
 ## Code map
 
 - `backend/common/nationalteam.go` (`NationalSquadPoolSize`, `GetPlayersByBirthCountry`,
-  `ScheduleNationalTeamFriendlies`, `pairNationalTeamCountries`, `CallUpNationalTeamSquads`,
+  `ScheduleNationalTeamFriendlies`, `pairNationalTeamCountries`, `NationalTeamFriendlyRest`,
+  `nationalTeamFriendlyEarliestKickoff`, `GetLatestNationalTeamKickoffs`
+  (`getLatestNationalTeamKickoffsStmtSql`), `CallUpNationalTeamSquads`,
   `nationalTeamCallUpWindow`, `SetNationalTeamLineup`, `SetNationalTeamCupTieLineup`,
   `notifyCalledUpPlayers`, `GetRecentNationalTeamCallUps`).
+- Kickoff: `common.NextLocalSaturdayKickoffAfter` (`common/timezones.go`).
 - Jobs: `StartNationalTeamFriendlyScheduler`, `StartNationalTeamCallUpScheduler`
   (`engine/scheduler.go`).
-- Caps: `common.GetPlayerCareerStats`. Frontend: `NationalTeamsPage.tsx`.
+- Feeds: `common/nationalmatches.go` (`NationalMatch`, `applyNationalMatchStatus` - the one place
+  deciding what a feed may reveal, using `liveScoreAsOfNow` in `common/livematches.go` -
+  `GetNationalTeamRound`, `GetNationalTeamResults`, `NationalTeamResultsPageSize`,
+  `SetMyPlayersInNationalMatches`); handlers `NationalTeamRoundHandler`,
+  `NationalTeamResultsHandler` (`handlers/nationalTeamHandlers.go`), routes `/v1/national-teams/round`
+  and `/v1/national-teams/results` (`service/fmservice.go`).
+- Caps: `common.GetPlayerCareerStats`.
+- Frontend: `features/nationalteams/` - `NationalTeamsPage.tsx` (tabs in `?tab=`), `RoundTab.tsx`,
+  `ResultsTab.tsx`, `WorldCupTab.tsx`, `NationalMatchRow.tsx` (compact row),
+  `NationalMatchFilters.tsx`, `nationalMatches.ts` (grouping, filters, labels, form strip),
+  `NationalTeamMatchesTab.tsx` (shown by `features/team/TeamDetailsPage.tsx`, tabs in
+  `features/team/teamTabs.ts`); hooks `useNationalTeamRound`, `useNationalTeamResults`,
+  `useWorldCupHistory` (`api/hooks.ts`).
 - Multi-replica safety (locks on pairing, World Cup start and call-ups): see the engine-replicas
   spec.

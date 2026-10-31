@@ -773,37 +773,97 @@
   },
   "nationalTeams": {
     "title": "National teams",
-    "subtitle": "Follow every country's national team - weekly friendlies, and, once one is running, the World Cup.",
+    "subtitle": "Follow every country's national team - this week's internationals, every past result and the World Cup.",
     "tabs": {
-      "friendlies": "Friendlies",
+      "round": "This round",
+      "results": "Results",
       "worldCup": "World Cup"
     },
-    "friendlies": {
+    "kind": {
+      "friendly": "Friendly",
+      "worldCupGroup": "World Cup · Group {{group}} · MD{{matchday}}",
+      "worldCupKnockout": "World Cup · {{round}}"
+    },
+    "row": {
+      "liveMinute": "LIVE {{minute}}'",
+      "fullTime": "FT",
+      "versus": "vs",
+      "myPlayers_one": "{{count}} of your players",
+      "myPlayers_other": "{{count}} of your players"
+    },
+    "regions": {
+      "europe": "Europe",
+      "africa": "Africa",
+      "asia": "Asia",
+      "americas": "Americas"
+    },
+    "filters": {
+      "search": "Search a country",
+      "allRegions": "All",
+      "onlyMine": "Only matches with my players",
+      "noMatches": "No match fits these filters."
+    },
+    "round": {
+      "live": "Live now",
       "upcoming": "Upcoming",
-      "upcomingEmpty": "No upcoming national-team friendlies.",
-      "recent": "Recent results",
-      "recentEmpty": "No national-team friendlies played yet."
+      "finished": "Finished today",
+      "liveCount_one": "{{count}} live",
+      "liveCount_other": "{{count}} live",
+      "upcomingCount_one": "{{count}} to play",
+      "upcomingCount_other": "{{count}} to play",
+      "finishedCount_one": "{{count}} finished",
+      "finishedCount_other": "{{count}} finished",
+      "emptyTitle": "No international matches this round",
+      "empty": "New friendlies are scheduled within minutes of the previous ones finishing.",
+      "error": "The international round could not be loaded."
+    },
+    "results": {
+      "empty": "No national-team results yet.",
+      "loadMore": "Load more",
+      "error": "The results could not be loaded.",
+      "refineSearch_one": "{{count}} country matches - keep typing to see only its results.",
+      "refineSearch_other": "{{count}} countries match - keep typing to see only one country's results."
     },
     "worldCup": {
       "none": "No World Cup is running right now.",
+      "noneTitle": "No World Cup running",
+      "nextEstimate": "Next World Cup: around {{date}}",
       "titleWithSeason": "{{name}} - season {{season}}",
       "champion": "{{name}} are champions!",
       "groupStage": "Group stage",
       "knockoutStage": "Knockout stage",
       "group": "Group {{name}}",
+      "matchday": "Matchday {{matchday}} · {{date}}",
+      "qualifiersNote": "The top two of each group go through to the knockout stage.",
+      "rollOfHonour": "Roll of honour",
+      "inProgress": "In progress",
       "standings": {
         "team": "Team",
         "played": "P",
+        "won": "W",
+        "drawn": "D",
+        "lost": "L",
+        "goalsFor": "GF",
+        "goalsAgainst": "GA",
         "goalDifference": "GD",
         "points": "Pts"
-      },
-      "noneTitle": "No World Cup running"
+      }
     },
-    "live": {
-      "title": "Live now",
-      "friendly": "Friendly",
-      "groupStage": "Group stage",
-      "knockout": "Knockout"
+    "teamMatches": {
+      "next": "Next match",
+      "noNext": "No match scheduled yet.",
+      "lastResults": "Last results",
+      "form": "Form (last 5)",
+      "formShort": {
+        "W": "W",
+        "D": "D",
+        "L": "L"
+      },
+      "formLetters": {
+        "W": "Win",
+        "D": "Draw",
+        "L": "Loss"
+      }
     }
   },
   "friendlies": {
@@ -1033,6 +1093,7 @@
     "loanOut": "Loan out",
     "tabs": {
       "summary": "Summary",
+      "matches": "Matches",
       "squad": "Squad",
       "academy": "Academy",
       "history": "History"

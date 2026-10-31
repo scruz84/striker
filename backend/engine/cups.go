@@ -18,7 +18,7 @@ const CupTier = 1
 // domestic season together (see init75_season_per_country.sql), there's no single shared
 // rollover moment left to hang this on, so it runs on its own clock instead, standing in for
 // "roughly how long a domestic season takes" to play out.
-const InternationalCupCadence = 60 * 24 * time.Hour
+const InternationalCupCadence = common.InternationalCupCycle
 
 // StartInternationalCupsIfDue starts a new regional/international cup round (see
 // StartInternationalCupsForNewSeason) and, every WorldCupFrequencySeasons rounds, a new World

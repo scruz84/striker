@@ -1448,7 +1448,12 @@ export interface WorldCupGroupStanding {
   goalsAgainst: number
 }
 
-// Mirrors backend common.WorldCupGroupMatch - one group fixture.
+// Broadcast-safe status every national-team feed reports (see backend
+// common.applyNationalMatchStatus): "scheduled" carries no score, "live" the minute and the score
+// as of that minute, "finished" the final score.
+export type NationalMatchStatus = 'scheduled' | 'live' | 'finished'
+
+// Mirrors backend common.WorldCupGroupMatch - one group fixture, broadcast-safe.
 export interface WorldCupGroupMatch {
   matchId: number
   round: number
@@ -1457,9 +1462,10 @@ export interface WorldCupGroupMatch {
   awayTeamId: number
   awayTeamName: string
   matchDate: string
-  played: boolean
-  homeGoals: number
-  awayGoals: number
+  status: NationalMatchStatus
+  minute?: number
+  homeGoals?: number
+  awayGoals?: number
 }
 
 // Mirrors backend common.WorldCupGroup.
@@ -1470,10 +1476,45 @@ export interface WorldCupGroup {
   matches: WorldCupGroupMatch[]
 }
 
-// Response shape of GET /v1/national-teams/world-cup/current.
+// Response shape of GET /v1/national-teams/world-cup/current. worldCup is null when none has
+// ever been played; nextWorldCupEstimate is set only while none is running and enough countries
+// are active for one to start.
 export interface CurrentWorldCup {
-  worldCup: WorldCup
+  worldCup: WorldCup | null
   groups: WorldCupGroup[]
+  nextWorldCupEstimate?: string | null
+}
+
+export type NationalMatchKind = 'friendly' | 'worldCupGroup' | 'worldCupKnockout'
+
+// Mirrors backend common.NationalMatch - one national-team fixture of any kind, broadcast-safe
+// (see NationalMatchStatus). id is a friendly match id, or a cup tie id for a knockout tie.
+// groupName/round label a World Cup group match (round = matchday); round/totalRounds a knockout
+// tie. myPlayers counts the viewer's own players in its saved call-up.
+export interface NationalMatch {
+  kind: NationalMatchKind
+  id: number
+  homeTeamId: number
+  homeTeamName: string
+  homeCountry: string
+  awayTeamId: number
+  awayTeamName: string
+  awayCountry: string
+  kickoff: string
+  status: NationalMatchStatus
+  minute?: number
+  homeGoals?: number
+  awayGoals?: number
+  groupName?: string
+  round?: number
+  totalRounds?: number
+  myPlayers?: number
+}
+
+// One page of GET /v1/national-teams/results.
+export interface NationalTeamResultsPage {
+  matches: NationalMatch[]
+  hasMore: boolean
 }
 
 export interface CupTieDetails extends CupTie {

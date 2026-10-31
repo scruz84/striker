@@ -128,3 +128,34 @@ func TestLocalTimeToServerSchedule_UnknownCountryFallsBackToUTC(t *testing.T) {
 			gotHour, gotMinute, wantHour, wantMinute)
 	}
 }
+
+// NextLocalSaturdayKickoffAfter anchors on earliest rather than now: a Saturday whose 21:00 local
+// is still ahead of earliest is used, one already past rolls to the next week, and an earliest on
+// a Sunday lands six days later. Covers UTC-11 (American Samoa), UTC+0 (São Tomé) and UTC+13
+// (Samoa), where "Saturday" starts at very different UTC instants.
+func TestNextLocalSaturdayKickoffAfter(t *testing.T) {
+	cases := []struct {
+		country  string
+		earliest time.Time
+		want     time.Time
+	}{
+		// Saturday 31 Oct 2026, 20:46 UTC = 20:46 in São Tomé: tonight's 21:00 is still ahead.
+		{"st", time.Date(2026, 10, 31, 20, 46, 0, 0, time.UTC), time.Date(2026, 10, 31, 21, 0, 0, 0, time.UTC)},
+		// Same Saturday, 21:30 UTC: tonight's kickoff passed, so next Saturday.
+		{"st", time.Date(2026, 10, 31, 21, 30, 0, 0, time.UTC), time.Date(2026, 11, 7, 21, 0, 0, 0, time.UTC)},
+		// Sunday 1 Nov: six days later.
+		{"st", time.Date(2026, 11, 1, 9, 0, 0, 0, time.UTC), time.Date(2026, 11, 7, 21, 0, 0, 0, time.UTC)},
+		// Saturday 07:00 UTC is Friday 20:00 in Pago Pago (UTC-11): its Saturday 21:00 is 08:00 UTC Sunday.
+		{"as", time.Date(2026, 10, 31, 7, 0, 0, 0, time.UTC), time.Date(2026, 11, 1, 8, 0, 0, 0, time.UTC)},
+		// Saturday 07:00 UTC is Saturday 20:00 in Apia (UTC+13): its 21:00 is 08:00 UTC the same day.
+		{"ws", time.Date(2026, 10, 31, 7, 0, 0, 0, time.UTC), time.Date(2026, 10, 31, 8, 0, 0, 0, time.UTC)},
+		// Saturday 09:00 UTC is already Saturday 22:00 in Apia: next week.
+		{"ws", time.Date(2026, 10, 31, 9, 0, 0, 0, time.UTC), time.Date(2026, 11, 7, 8, 0, 0, 0, time.UTC)},
+	}
+	for _, c := range cases {
+		got := NextLocalSaturdayKickoffAfter(c.country, 21, 0, c.earliest)
+		if !got.Equal(c.want) {
+			t.Errorf("NextLocalSaturdayKickoffAfter(%q, %v) = %v, want %v", c.country, c.earliest, got.UTC(), c.want)
+		}
+	}
+}

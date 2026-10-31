@@ -12,7 +12,7 @@ import (
 // tournaments come around every four years, so this mirrors that against this game's own season
 // counter rather than running one every single season the way the regional international cup
 // does (see StartInternationalCupsForNewSeason).
-const WorldCupFrequencySeasons = 4
+const WorldCupFrequencySeasons = common.WorldCupEveryInternationalCycles
 
 // worldCupGroupMatchdayGap mirrors cupRoundGap's own spacing logic: a group's first matchday
 // kicks off on the nearest Saturday (see common.NextLocalSaturdayKickoff), and each subsequent

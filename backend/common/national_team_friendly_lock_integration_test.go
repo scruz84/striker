@@ -79,5 +79,15 @@ func TestScheduleNationalTeamFriendlies_ConcurrentCallsDontDoubleBook(t *testing
 		if pending > 1 {
 			t.Errorf("country %s has %d pending national-team friendlies after concurrent scheduling, want at most 1 (no double-booking)", country, pending)
 		}
+		// Nor two kickoffs closer together than NationalTeamFriendlyRest (see
+		// TestScheduleNationalTeamFriendlies_RespectsRest).
+		tooClose := scanCount(`SELECT count(*) FROM friendly_matches a JOIN friendly_matches b ON a.match_id < b.match_id `+
+			`AND abs(extract(epoch FROM a.match_date - b.match_date)) < $2 `+
+			`JOIN teams t ON t.is_national_team = true AND t.country = $1 `+
+			`WHERE t.team_id IN (a.home_team_id, a.away_team_id) AND t.team_id IN (b.home_team_id, b.away_team_id)`,
+			country, NationalTeamFriendlyRest.Seconds())
+		if tooClose > 0 {
+			t.Errorf("country %s has %d pairs of national-team friendlies less than %v apart", country, tooClose, NationalTeamFriendlyRest)
+		}
 	}
 }

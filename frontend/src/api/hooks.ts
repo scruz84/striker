@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getApiEndpoint } from '../config'
 import { api, ApiError, CLIENT_HEADER, CLIENT_HEADER_VALUE, isUnauthorized } from './client'
 import { subscribeToPush, unsubscribeFromPush } from '../pushNotifications'
@@ -16,6 +16,9 @@ import type {
   CupDetails,
   CupTieDetails,
   CurrentWorldCup,
+  NationalMatch,
+  NationalTeamResultsPage,
+  WorldCup,
   DevUser,
   DivisionDetails,
   FinancesResponse,
@@ -84,8 +87,9 @@ export const queryKeys = {
   friendlyChallengesSent: ['friendlyChallengesSent'] as const,
   upcomingFriendlies: ['upcomingFriendlies'] as const,
   recentFriendlies: ['recentFriendlies'] as const,
-  upcomingNationalTeamFriendlies: ['upcomingNationalTeamFriendlies'] as const,
-  recentNationalTeamFriendlies: ['recentNationalTeamFriendlies'] as const,
+  nationalTeamRound: ['nationalTeamRound'] as const,
+  nationalTeamResults: (country: string) => ['nationalTeamResults', country] as const,
+  worldCupHistory: ['worldCupHistory'] as const,
   currentWorldCup: ['currentWorldCup'] as const,
   friendlySchedule: ['friendlySchedule'] as const,
   friendlyMatch: (id: string) => ['friendlyMatch', id] as const,
@@ -1323,20 +1327,50 @@ export function useRecentFriendlies(enabled: boolean) {
   })
 }
 
-// The global, any-country counterpart to useUpcomingFriendlies/useRecentFriendlies - no logged-in
-// manager's own team is ever one side of a national-team fixture, so these aren't scoped to one.
-export function useUpcomingNationalTeamFriendlies(enabled: boolean) {
+// The current international round (see backend common.GetNationalTeamRound): every national-team
+// fixture still to play plus those of the last day, broadcast-safe. Polls every 30 s while a match
+// is live or about to start, every 5 min otherwise.
+export function useNationalTeamRound(enabled: boolean) {
   return useQuery({
-    queryKey: queryKeys.upcomingNationalTeamFriendlies,
-    queryFn: () => api.get<FriendlyMatch[]>('/v1/national-teams/friendlies/upcoming'),
+    queryKey: queryKeys.nationalTeamRound,
+    queryFn: () => api.get<NationalMatch[]>('/v1/national-teams/round'),
+    enabled,
+    refetchInterval: (query) => nationalRoundPollMs(query.state.data),
+  })
+}
+
+const NATIONAL_ROUND_FAST_POLL_MS = 30_000
+const NATIONAL_ROUND_SLOW_POLL_MS = 5 * 60_000
+const NATIONAL_ROUND_DUE_SOON_MS = 15 * 60_000
+
+export function nationalRoundPollMs(matches: NationalMatch[] | undefined, now = Date.now()): number {
+  const busy = (matches ?? []).some(
+    (m) => m.status === 'live' || (m.status === 'scheduled' && new Date(m.kickoff).getTime() - now < NATIONAL_ROUND_DUE_SOON_MS),
+  )
+  return busy ? NATIONAL_ROUND_FAST_POLL_MS : NATIONAL_ROUND_SLOW_POLL_MS
+}
+
+// Finished national-team results, newest first, one page of 25 at a time (see backend
+// common.GetNationalTeamResults); country limits them to that country's national team.
+export function useNationalTeamResults(country: string | undefined, enabled: boolean) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.nationalTeamResults(country ?? ''),
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({ page: String(pageParam) })
+      if (country) params.set('country', country)
+      return api.get<NationalTeamResultsPage>(`/v1/national-teams/results?${params.toString()}`)
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => (lastPage.hasMore ? allPages.length : undefined),
     enabled,
   })
 }
 
-export function useRecentNationalTeamFriendlies(enabled: boolean) {
+// Every World Cup with its champion, newest first - the roll of honour.
+export function useWorldCupHistory(enabled: boolean) {
   return useQuery({
-    queryKey: queryKeys.recentNationalTeamFriendlies,
-    queryFn: () => api.get<FriendlyMatch[]>('/v1/national-teams/friendlies/recent'),
+    queryKey: queryKeys.worldCupHistory,
+    queryFn: () => api.get<WorldCup[]>('/v1/national-teams/world-cups'),
     enabled,
   })
 }

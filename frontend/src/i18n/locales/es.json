@@ -773,37 +773,97 @@
   },
   "nationalTeams": {
     "title": "Selecciones",
-    "subtitle": "Sigue la selección de cada país - los amistosos semanales y, cuando haya uno en marcha, el Mundial.",
+    "subtitle": "Sigue la selección de cada país - los partidos internacionales de esta semana, todos los resultados y el Mundial.",
     "tabs": {
-      "friendlies": "Amistosos",
+      "round": "Jornada",
+      "results": "Resultados",
       "worldCup": "Mundial"
     },
-    "friendlies": {
+    "kind": {
+      "friendly": "Amistoso",
+      "worldCupGroup": "Mundial · Grupo {{group}} · J{{matchday}}",
+      "worldCupKnockout": "Mundial · {{round}}"
+    },
+    "row": {
+      "liveMinute": "EN VIVO {{minute}}'",
+      "fullTime": "Final",
+      "versus": "vs",
+      "myPlayers_one": "{{count}} jugador tuyo",
+      "myPlayers_other": "{{count}} jugadores tuyos"
+    },
+    "regions": {
+      "europe": "Europa",
+      "africa": "África",
+      "asia": "Asia",
+      "americas": "América"
+    },
+    "filters": {
+      "search": "Buscar un país",
+      "allRegions": "Todas",
+      "onlyMine": "Solo partidos con mis jugadores",
+      "noMatches": "Ningún partido cumple estos filtros."
+    },
+    "round": {
+      "live": "En juego",
       "upcoming": "Próximos",
-      "upcomingEmpty": "No hay amistosos de selecciones próximamente.",
-      "recent": "Resultados recientes",
-      "recentEmpty": "Aún no se ha jugado ningún amistoso de selecciones."
+      "finished": "Finalizados hoy",
+      "liveCount_one": "{{count}} en juego",
+      "liveCount_other": "{{count}} en juego",
+      "upcomingCount_one": "{{count}} por jugar",
+      "upcomingCount_other": "{{count}} por jugar",
+      "finishedCount_one": "{{count}} finalizado",
+      "finishedCount_other": "{{count}} finalizados",
+      "emptyTitle": "No hay partidos internacionales en esta jornada",
+      "empty": "Los nuevos amistosos se programan a los pocos minutos de terminar los anteriores.",
+      "error": "No se ha podido cargar la jornada internacional."
+    },
+    "results": {
+      "empty": "Aún no hay resultados de selecciones.",
+      "loadMore": "Cargar más",
+      "error": "No se han podido cargar los resultados.",
+      "refineSearch_one": "Coincide {{count}} país - sigue escribiendo para ver solo sus resultados.",
+      "refineSearch_other": "Coinciden {{count}} países - sigue escribiendo para ver los resultados de uno solo."
     },
     "worldCup": {
       "none": "Ahora mismo no hay ningún Mundial en marcha.",
+      "noneTitle": "Sin Mundial en marcha",
+      "nextEstimate": "Próximo Mundial: hacia el {{date}}",
       "titleWithSeason": "{{name}} - temporada {{season}}",
       "champion": "¡{{name}} son los campeones!",
       "groupStage": "Fase de grupos",
       "knockoutStage": "Fase de eliminatorias",
       "group": "Grupo {{name}}",
+      "matchday": "Jornada {{matchday}} · {{date}}",
+      "qualifiersNote": "Los dos primeros de cada grupo pasan a las eliminatorias.",
+      "rollOfHonour": "Palmarés",
+      "inProgress": "En juego",
       "standings": {
         "team": "Equipo",
         "played": "PJ",
+        "won": "G",
+        "drawn": "E",
+        "lost": "P",
+        "goalsFor": "GF",
+        "goalsAgainst": "GC",
         "goalDifference": "DG",
         "points": "Pts"
-      },
-      "noneTitle": "Sin Mundial en marcha"
+      }
     },
-    "live": {
-      "title": "En juego",
-      "friendly": "Amistoso",
-      "groupStage": "Fase de grupos",
-      "knockout": "Eliminatorias"
+    "teamMatches": {
+      "next": "Próximo partido",
+      "noNext": "Aún no tiene partido programado.",
+      "lastResults": "Últimos resultados",
+      "form": "Racha (últimos 5)",
+      "formShort": {
+        "W": "V",
+        "D": "E",
+        "L": "D"
+      },
+      "formLetters": {
+        "W": "Victoria",
+        "D": "Empate",
+        "L": "Derrota"
+      }
     }
   },
   "friendlies": {
@@ -1033,6 +1093,7 @@
     "loanOut": "Ceder",
     "tabs": {
       "summary": "Resumen",
+      "matches": "Partidos",
       "squad": "Plantilla",
       "academy": "Cantera",
       "history": "Historial"

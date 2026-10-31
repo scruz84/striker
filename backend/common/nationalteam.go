@@ -310,49 +310,6 @@ func GetNationalTeamCountry(dbCtx *DatabaseContext, teamId int64) (country strin
 	return country, err == nil, err
 }
 
-// Both exclude any match already linked into world_cup_group_matches: a group fixture is a real
-// friendly_matches row under the hood (see engine.startWorldCupGroup), but it belongs on the
-// World Cup tab's own group cards (see GetWorldCupGroups), not here - without this filter, a
-// country mid-group-stage has its whole round-robin (every group opponent, several weeks out, all
-// created at once) show up on the Amistosos tab at the same time, looking exactly like the
-// double-booking bug this file already guards against elsewhere even though every fixture is
-// legitimate (see GetCountriesWithPendingNationalTeamFriendly's own unrelated guard, and
-// ScheduleNationalTeamFriendlies pausing entirely during an active World Cup).
-const getUpcomingNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
-	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE ht.is_national_team = true AND fm.match_date > now() " +
-	"AND NOT EXISTS (SELECT 1 FROM world_cup_group_matches wcgm WHERE wcgm.match_id = fm.match_id) " +
-	"ORDER BY fm.match_date ASC LIMIT $1"
-
-const getRecentNationalTeamFriendliesStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.name, fm.away_team_id, at.name, fm.match_date, fm.played, fm.home_goals, fm.away_goals " +
-	"FROM friendly_matches fm JOIN teams ht ON ht.team_id = fm.home_team_id JOIN teams at ON at.team_id = fm.away_team_id " +
-	"WHERE ht.is_national_team = true AND fm.played = true " +
-	"AND NOT EXISTS (SELECT 1 FROM world_cup_group_matches wcgm WHERE wcgm.match_id = fm.match_id) " +
-	"ORDER BY fm.match_date DESC LIMIT $1"
-
-// GetUpcomingNationalTeamFriendlies lists every national team's upcoming ordinary friendly,
-// soonest first - the global, any-country counterpart to GetUpcomingFriendlies (which is scoped
-// to one club), since no single club "owns" a national-team fixture the friendlies page could
-// otherwise filter by. World Cup group fixtures are deliberately excluded (see this query's own
-// doc comment) - they're a different section of the same page (WorldCupSection's group cards).
-func GetUpcomingNationalTeamFriendlies(dbCtx *DatabaseContext, limit int) ([]FriendlyMatch, error) {
-	rows, err := dbCtx.Db.Query(getUpcomingNationalTeamFriendliesStmtSql, limit)
-	if err != nil {
-		return nil, err
-	}
-	return scanFriendlyMatches(rows)
-}
-
-// GetRecentNationalTeamFriendlies is GetUpcomingNationalTeamFriendlies' played counterpart, most
-// recent first.
-func GetRecentNationalTeamFriendlies(dbCtx *DatabaseContext, limit int) ([]FriendlyMatch, error) {
-	rows, err := dbCtx.Db.Query(getRecentNationalTeamFriendliesStmtSql, limit)
-	if err != nil {
-		return nil, err
-	}
-	return scanFriendlyMatches(rows)
-}
-
 // NationalTeamCallUp is one row in a player's "recent call-ups" list on their profile page - a
 // national-team friendly or World Cup knockout tie this player started for their birth country,
 // most recent first. Kind tells the frontend which detail page to link to ("friendly" ->
@@ -644,7 +601,13 @@ func scheduleNationalTeamFriendliesLocked(dbCtx *DatabaseContext) error {
 		return nil
 	}
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	lastKickoffs, err := GetLatestNationalTeamKickoffs(dbCtx)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	r := rand.New(rand.NewSource(now.UnixNano()))
 	pairs := pairNationalTeamCountries(eligible, r)
 
 	for _, pair := range pairs {
@@ -659,7 +622,8 @@ func scheduleNationalTeamFriendliesLocked(dbCtx *DatabaseContext) error {
 			continue
 		}
 
-		kickoff := NextLocalSaturdayKickoff(pair[0], NationalTeamFriendlyKickoffHour, NationalTeamFriendlyKickoffMinute)
+		kickoff := NextLocalSaturdayKickoffAfter(pair[0], NationalTeamFriendlyKickoffHour, NationalTeamFriendlyKickoffMinute,
+			nationalTeamFriendlyEarliestKickoff(now, lastKickoffs[pair[0]], lastKickoffs[pair[1]]))
 
 		var matchId int64
 		if err := dbCtx.Db.QueryRow(InsertNationalTeamFriendlyMatchStmtSql, homeTeamId, awayTeamId, kickoff).Scan(&matchId); err != nil {
@@ -668,6 +632,61 @@ func scheduleNationalTeamFriendliesLocked(dbCtx *DatabaseContext) error {
 		}
 	}
 	return nil
+}
+
+// NationalTeamFriendlyRest is the minimum gap between a country's previous national-team kickoff
+// and its next friendly's. A friendly is simulated (and flips played) up to 15 minutes before
+// kickoff, so the 5-minute pairing pass can see a country as free while its match has not even
+// started; without this gap NextLocalSaturdayKickoff would happily return "today 21:00" in the new
+// home side's timezone and the country would play twice the same evening. Six days rather than
+// seven because "Saturday 21:00 local" spans ~26 hours of real time across timezones: seven could
+// push a country a fortnight out, six still excludes the same weekend.
+const NationalTeamFriendlyRest = 6 * 24 * time.Hour
+
+// nationalTeamFriendlyEarliestKickoff is the earliest instant a friendly between two countries
+// whose latest national-team kickoffs were homeLast/awayLast (zero when they have none) may start.
+func nationalTeamFriendlyEarliestKickoff(now, homeLast, awayLast time.Time) time.Time {
+	earliest := now
+	for _, last := range []time.Time{homeLast, awayLast} {
+		if last.IsZero() {
+			continue
+		}
+		if rested := last.Add(NationalTeamFriendlyRest); rested.After(earliest) {
+			earliest = rested
+		}
+	}
+	return earliest
+}
+
+// getLatestNationalTeamKickoffsStmtSql is each national team's latest kickoff across every
+// fixture it has, played or not: weekly friendlies and World Cup group matches (friendly_matches)
+// and World Cup knockout ties (cup_ties).
+const getLatestNationalTeamKickoffsStmtSql = "SELECT country, latest FROM (SELECT t.country, GREATEST(" +
+	"(SELECT MAX(match_date) FROM friendly_matches WHERE home_team_id = t.team_id), " +
+	"(SELECT MAX(match_date) FROM friendly_matches WHERE away_team_id = t.team_id), " +
+	"(SELECT MAX(match_date) FROM cup_ties WHERE home_team_id = t.team_id), " +
+	"(SELECT MAX(match_date) FROM cup_ties WHERE away_team_id = t.team_id)) AS latest " +
+	"FROM teams t WHERE t.is_national_team = true) k WHERE latest IS NOT NULL"
+
+// GetLatestNationalTeamKickoffs maps each country to its national team's latest kickoff - see
+// NationalTeamFriendlyRest. A country that has never played is absent.
+func GetLatestNationalTeamKickoffs(dbCtx *DatabaseContext) (map[string]time.Time, error) {
+	rows, err := dbCtx.Db.Query(getLatestNationalTeamKickoffsStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	kickoffs := make(map[string]time.Time)
+	for rows.Next() {
+		var country string
+		var kickoff time.Time
+		if err := rows.Scan(&country, &kickoff); err != nil {
+			return nil, err
+		}
+		kickoffs[country] = kickoff
+	}
+	return kickoffs, rows.Err()
 }
 
 const getNationalTeamFriendliesNeedingCallUpStmtSql = "SELECT fm.match_id, fm.home_team_id, ht.country FROM friendly_matches fm " +

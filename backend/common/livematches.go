@@ -198,18 +198,34 @@ func minuteFromLiveMessage(msg LiveMatchMessage) (int, bool) {
 // broadcast's first message has actually been published yet (match_date just passed) or (far
 // less likely) if Redis itself is unreachable.
 func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) error {
-	if msg, ok := dbCtx.LiveHub.LastMessage(liveMatchChannel(*match)); ok {
-		if minute, ok := minuteFromLiveMessage(msg); ok {
-			match.Minute = minute
-			match.HomeGoals, match.AwayGoals = msg.HomeGoals, msg.AwayGoals
-			return nil
+	minute, homeGoals, awayGoals, _, err := liveScoreAsOfNow(dbCtx, match.Kind, match.MatchId, match.MatchDate)
+	if err != nil {
+		return err
+	}
+	match.Minute, match.HomeGoals, match.AwayGoals = minute, homeGoals, awayGoals
+	return nil
+}
+
+// liveScoreAsOfNow is the minute and score a viewer of kind/id's live broadcast (kind is one of
+// MatchKindLeague/MatchKindCup/MatchKindFriendly) is seeing right now, and whether that broadcast
+// has already published its "complete" message - see enrichSuggestedLiveMatch for the sources it
+// prefers. A match simulated ahead of its kickoff has not started broadcasting yet: minute 0, 0-0.
+func liveScoreAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time) (minute, homeGoals, awayGoals int, complete bool, err error) {
+	if time.Now().Before(kickoff) {
+		return 0, 0, 0, false, nil
+	}
+	if dbCtx.LiveHub != nil {
+		if msg, ok := dbCtx.LiveHub.LastMessage(liveMatchChannel(LiveMatchSummary{Kind: kind, MatchId: id})); ok {
+			if minute, ok := minuteFromLiveMessage(msg); ok {
+				return minute, msg.HomeGoals, msg.AwayGoals, msg.Type == "complete", nil
+			}
 		}
 	}
 
-	match.Minute = CurrentMatchMinute(match.MatchDate)
+	minute = CurrentMatchMinute(kickoff)
 
 	var stmtSql string
-	switch match.Kind {
+	switch kind {
 	case MatchKindLeague:
 		stmtSql = getMatchScoreAsOfMinuteStmtSql
 	case MatchKindCup:
@@ -217,21 +233,17 @@ func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) e
 	case MatchKindFriendly:
 		stmtSql = getFriendlyScoreAsOfMinuteStmtSql
 	default:
-		return nil
+		return minute, 0, 0, false, nil
 	}
 
-	var homeGoals, awayGoals int
-	err := dbCtx.Db.QueryRow(stmtSql, match.MatchId, match.Minute).Scan(&homeGoals, &awayGoals)
+	err = dbCtx.Db.QueryRow(stmtSql, id, minute).Scan(&homeGoals, &awayGoals)
 	if err == sql.ErrNoRows {
-		match.HomeGoals, match.AwayGoals = 0, 0
-		return nil
+		return minute, 0, 0, false, nil
 	}
 	if err != nil {
-		return err
+		return 0, 0, 0, false, err
 	}
-
-	match.HomeGoals, match.AwayGoals = homeGoals, awayGoals
-	return nil
+	return minute, homeGoals, awayGoals, false, nil
 }
 
 // GetLiveMatches lists every league match, cup tie, and friendly currently inside its

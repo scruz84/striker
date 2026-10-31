@@ -59,6 +59,8 @@ import { formatDivisionName } from '../../utils/divisionName'
 import { formatCurrency, formatNumber } from '../../utils/formatCurrency'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
 import { ratingTierColor } from '../../utils/playerRating'
+import { NationalTeamMatchesTab } from '../nationalteams/NationalTeamMatchesTab'
+import { teamTabs, type TeamTab } from './teamTabs'
 
 const RECENT_MATCHES_LIMIT = 5
 
@@ -88,8 +90,6 @@ function CupStatusChip({ label, status }: { label: string; status: CupStatus }) 
 
   return <Chip size="small" color={color} label={`${label}: ${statusLabel}`} />
 }
-
-type TeamTab = 'summary' | 'squad' | 'academy' | 'history'
 
 export function TeamDetailsPage() {
   const { t } = useTranslation()
@@ -129,11 +129,7 @@ export function TeamDetailsPage() {
 
   // Tabs mirror the sections the single long page used to stack: its own tab per concern, kept in
   // the URL (?tab=squad) so a section can be linked to and survives a reload.
-  const tabs: TeamTab[] = isNationalTeam
-    ? ['summary', 'squad']
-    : isOwnTeam
-      ? ['summary', 'squad', 'academy', 'history']
-      : ['summary', 'squad', 'history']
+  const tabs = teamTabs(isNationalTeam, isOwnTeam)
   const requestedTab = searchParams.get('tab') as TeamTab | null
   const tab: TeamTab = requestedTab && tabs.includes(requestedTab) ? requestedTab : 'summary'
 
@@ -232,6 +228,8 @@ export function TeamDetailsPage() {
           <SquadList players={teamDetails.players} isOwnTeam={isOwnTeam} unavailability={unavailability} transferListed={transferListed} />
         </Box>
       )}
+
+      {tab === 'matches' && isNationalTeam && <NationalTeamMatchesTab teamId={teamDetails.team.id} country={teamDetails.team.country} />}
 
       {tab === 'academy' && isOwnTeam && (
         <Box sx={{ pt: 1 }}>

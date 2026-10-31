@@ -1,112 +1,135 @@
 package common
 
 import (
-	"database/sql"
-	"os"
 	"testing"
 	"time"
 )
 
-// TestGetUpcomingAndRecentNationalTeamFriendlies_ExcludeWorldCupGroupMatches reproduces the
-// reported bug: a country's World Cup group stage is a real friendly_matches row under the hood
-// (see engine.startWorldCupGroup), and its whole round-robin - every group opponent, several
-// weeks apart, all created at once - used to show up on the national-teams page's "upcoming
-// friendlies" list at the same time, looking exactly like the national-team double-booking bug
-// this package already guards against elsewhere (see GetCountriesWithPendingNationalTeamFriendly)
-// even though every fixture is legitimate. GetUpcomingNationalTeamFriendlies/
-// GetRecentNationalTeamFriendlies must only surface a country's ordinary weekly friendlies; its
-// World Cup group fixtures belong on the World Cup tab's own group cards instead (see
-// GetWorldCupGroups). Runs against a real Postgres (STRIKER_TEST_DB_DSN, see
-// TestEnsureSchema_RestartDoesNotTouchPlayerData; skipped when unset).
-func TestGetUpcomingAndRecentNationalTeamFriendlies_ExcludeWorldCupGroupMatches(t *testing.T) {
-	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
-	if dsn == "" {
-		t.Skip("STRIKER_TEST_DB_DSN not set")
-	}
-	db, err := sql.Open("pgx", dsn)
-	if err != nil {
-		t.Fatalf("opening database: %s", err)
-	}
-	defer db.Close()
-	dbCtx := &DatabaseContext{Db: db}
-	if err := EnsureSchema(dbCtx); err != nil {
-		t.Fatalf("EnsureSchema: %s", err)
-	}
-
-	mustScan := func(dest *int64, query string, args ...any) {
-		t.Helper()
-		if err := db.QueryRow(query, args...).Scan(dest); err != nil {
-			t.Fatalf("%s: %s", query, err)
-		}
-	}
-	mustExec := func(query string, args ...any) {
+// TestNationalTeamRoundAndResults covers the national-teams page feeds against a real Postgres
+// (STRIKER_TEST_DB_DSN; skipped when unset):
+//   - the round lists unplayed matches, live ones and those that kicked off in the last 24 hours,
+//     uncapped (the old feeds stopped at 10 out of ~100 friendlies a Saturday);
+//   - a live match carries the score as of its current minute, never its final simulated score
+//     (the old "En juego" box showed the final score while the match page showed the live one);
+//   - World Cup group matches appear with their group and matchday;
+//   - results only hold matches whose broadcast has finished, 25 per page, filterable by team;
+//   - an owner's players in a saved call-up are counted per match.
+func TestNationalTeamRoundAndResults(t *testing.T) {
+	db, dbCtx := openEngineLocksTestDb(t)
+	exec := func(query string, args ...any) {
 		t.Helper()
 		if _, err := db.Exec(query, args...); err != nil {
 			t.Fatalf("%s: %s", query, err)
 		}
 	}
+	scanId := func(query string, args ...any) int64 {
+		t.Helper()
+		var id int64
+		if err := db.QueryRow(query, args...).Scan(&id); err != nil {
+			t.Fatalf("%s: %s", query, err)
+		}
+		return id
+	}
 
-	mustExec(`INSERT INTO countries (name) VALUES ('zr') ON CONFLICT DO NOTHING`)
-	mustExec(`INSERT INTO countries (name) VALUES ('zq') ON CONFLICT DO NOTHING`)
-	var teamZr, teamZq int64
-	mustScan(&teamZr, `INSERT INTO teams (name, country, is_national_team) VALUES ('ZR', 'zr', true) RETURNING team_id`)
-	mustScan(&teamZq, `INSERT INTO teams (name, country, is_national_team) VALUES ('ZQ', 'zq', true) RETURNING team_id`)
+	const countryA, countryB = "nm1", "nm2"
+	for _, country := range []string{countryA, countryB} {
+		exec(`INSERT INTO countries (name, current_season) VALUES ($1, 1) ON CONFLICT (name) DO NOTHING`, country)
+	}
+	teamA, err := ensureNationalTeam(dbCtx, countryA)
+	if err != nil {
+		t.Fatal(err)
+	}
+	teamB, err := ensureNationalTeam(dbCtx, countryB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	teams := []int64{teamA, teamB}
+	exec(`DELETE FROM friendly_lineup_positions WHERE lineup_id IN (SELECT fl.lineup_id FROM friendly_lineup fl JOIN friendly_matches fm ON fm.match_id = fl.match_id WHERE fm.home_team_id = ANY($1) OR fm.away_team_id = ANY($1))`, teams)
+	exec(`DELETE FROM friendly_lineup WHERE match_id IN (SELECT match_id FROM friendly_matches WHERE home_team_id = ANY($1) OR away_team_id = ANY($1))`, teams)
+	exec(`DELETE FROM friendly_events WHERE match_id IN (SELECT match_id FROM friendly_matches WHERE home_team_id = ANY($1) OR away_team_id = ANY($1))`, teams)
+	exec(`DELETE FROM world_cup_group_matches WHERE match_id IN (SELECT match_id FROM friendly_matches WHERE home_team_id = ANY($1) OR away_team_id = ANY($1))`, teams)
+	exec(`DELETE FROM friendly_matches WHERE home_team_id = ANY($1) OR away_team_id = ANY($1)`, teams)
 
 	now := time.Now().Truncate(time.Second)
+	insert := func(kickoff time.Time, played bool, home, away int) int64 {
+		return scanId(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date, played, home_goals, away_goals) VALUES ($1, $2, $3, $4, $5, $6) RETURNING match_id`,
+			teamA, teamB, kickoff, played, home, away)
+	}
+	scheduled := insert(now.Add(7*24*time.Hour), false, 0, 0)
+	live := insert(now.Add(-30*time.Minute), true, 2, 3)
+	exec(`INSERT INTO friendly_events (match_id, event_type, minute, home_goals, away_goals) VALUES ($1, 0, 10, 1, 0), ($1, 0, 80, 2, 3)`, live)
+	finished := insert(now.Add(-3*time.Hour), true, 1, 1)
+	old := make([]int64, 0, 26)
+	for i := 0; i < 26; i++ {
+		old = append(old, insert(now.Add(-time.Duration(72+i)*time.Hour), true, 0, i%3))
+	}
 
-	// An ordinary weekly friendly for zr, still pending - this is the only fixture either query
-	// should ever return as upcoming.
-	var ordinaryMatchId int64
-	mustScan(&ordinaryMatchId, InsertNationalTeamFriendlyMatchStmtSql, teamZr, teamZq, now.Add(7*24*time.Hour))
+	worldCupId := scanId(`INSERT INTO world_cups (season, name, stage, completed) VALUES (0, 'Test World Cup', 'groups', true) RETURNING world_cup_id`)
+	groupId := scanId(`INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'C') RETURNING group_id`, worldCupId)
+	groupMatch := insert(now.Add(8*24*time.Hour), false, 0, 0)
+	exec(`INSERT INTO world_cup_group_matches (group_id, round, match_id) VALUES ($1, 2, $2)`, groupId, groupMatch)
 
-	// A World Cup group fixture also involving zr, pending - linked into world_cup_group_matches
-	// the same way engine.startWorldCupGroup does.
-	var worldCupId, groupId, groupMatchId int64
-	mustScan(&worldCupId, `INSERT INTO world_cups (season, name, stage) VALUES (4, 'FIFA World Cup', 'groups') RETURNING world_cup_id`)
-	mustScan(&groupId, `INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'A') RETURNING group_id`, worldCupId)
-	mustScan(&groupMatchId, InsertNationalTeamFriendlyMatchStmtSql, teamZr, teamZq, now.Add(14*24*time.Hour))
-	mustExec(`INSERT INTO world_cup_group_matches (group_id, round, match_id) VALUES ($1, 1, $2)`, groupId, groupMatchId)
-
-	upcoming, err := GetUpcomingNationalTeamFriendlies(dbCtx, 50)
+	round, err := GetNationalTeamRound(dbCtx)
 	if err != nil {
-		t.Fatalf("GetUpcomingNationalTeamFriendlies: %s", err)
+		t.Fatalf("GetNationalTeamRound: %s", err)
 	}
-	for _, m := range upcoming {
-		if m.MatchId == groupMatchId {
-			t.Fatalf("GetUpcomingNationalTeamFriendlies returned World Cup group match %d alongside ordinary friendlies", groupMatchId)
+	byId := make(map[int64]NationalMatch)
+	for _, m := range round {
+		if m.HomeTeamId == teamA && m.AwayTeamId == teamB {
+			byId[m.Id] = m
 		}
 	}
-	foundOrdinary := false
-	for _, m := range upcoming {
-		if m.MatchId == ordinaryMatchId {
-			foundOrdinary = true
-		}
+	if len(byId) != 4 {
+		t.Fatalf("round has %d of this test's matches, want 4 (scheduled, live, finished today, group match): %+v", len(byId), byId)
 	}
-	if !foundOrdinary {
-		t.Fatalf("GetUpcomingNationalTeamFriendlies did not return the ordinary friendly %d", ordinaryMatchId)
+	if m := byId[scheduled]; m.Status != NationalMatchScheduled || m.HomeGoals != nil || m.Kind != NationalMatchKindFriendly || m.HomeCountry != countryA {
+		t.Errorf("scheduled match = %+v, want status scheduled, no score, kind friendly, home country %s", m, countryA)
+	}
+	if m := byId[live]; m.Status != NationalMatchLive || m.Minute == nil || *m.HomeGoals != 1 || *m.AwayGoals != 0 {
+		t.Errorf("live match = %+v, want status live with the minute-%v score 1-0, not the final 2-3", m, m.Minute)
+	}
+	if m := byId[finished]; m.Status != NationalMatchFinished || *m.HomeGoals != 1 || *m.AwayGoals != 1 {
+		t.Errorf("finished match = %+v, want finished 1-1", m)
+	}
+	if m := byId[groupMatch]; m.Kind != NationalMatchKindWorldCupGroup || m.GroupName != "C" || m.Round != 2 {
+		t.Errorf("group match = %+v, want kind worldCupGroup, group C, matchday 2", m)
 	}
 
-	// Mark both played so GetRecentNationalTeamFriendlies has something to return, and check the
-	// same exclusion holds there too.
-	mustExec(`UPDATE friendly_matches SET played = true, home_goals = 1, away_goals = 0 WHERE match_id = ANY($1)`,
-		[]int64{ordinaryMatchId, groupMatchId})
-
-	recent, err := GetRecentNationalTeamFriendlies(dbCtx, 50)
+	page0, err := GetNationalTeamResults(dbCtx, 0, teamA)
 	if err != nil {
-		t.Fatalf("GetRecentNationalTeamFriendlies: %s", err)
+		t.Fatalf("GetNationalTeamResults: %s", err)
 	}
-	for _, m := range recent {
-		if m.MatchId == groupMatchId {
-			t.Fatalf("GetRecentNationalTeamFriendlies returned World Cup group match %d alongside ordinary friendlies", groupMatchId)
+	if len(page0.Matches) != NationalTeamResultsPageSize || !page0.HasMore {
+		t.Fatalf("page 0 has %d matches (hasMore %v), want %d and more", len(page0.Matches), page0.HasMore, NationalTeamResultsPageSize)
+	}
+	if page0.Matches[0].Id != finished {
+		t.Errorf("newest result is %d, want the finished match %d (the live one must not be listed)", page0.Matches[0].Id, finished)
+	}
+	for _, m := range page0.Matches {
+		if m.Id == live {
+			t.Errorf("results include match %d whose broadcast has not finished", live)
 		}
 	}
-	foundOrdinary = false
-	for _, m := range recent {
-		if m.MatchId == ordinaryMatchId {
-			foundOrdinary = true
-		}
+	page1, err := GetNationalTeamResults(dbCtx, 1, teamB)
+	if err != nil {
+		t.Fatalf("GetNationalTeamResults page 1: %s", err)
 	}
-	if !foundOrdinary {
-		t.Fatalf("GetRecentNationalTeamFriendlies did not return the ordinary friendly %d", ordinaryMatchId)
+	if len(page1.Matches) != 2 || page1.HasMore || page1.Matches[1].Id != old[len(old)-1] {
+		t.Errorf("page 1 = %+v, want the 2 oldest results and no more", page1)
+	}
+
+	club := scanId(`INSERT INTO teams (name, country) VALUES ('Club NM', 'nm1') RETURNING team_id`)
+	player1 := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Uno', 'NM') RETURNING player_id`, club)
+	player2 := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Dos', 'NM') RETURNING player_id`, club)
+	other := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Otro', 'NM') RETURNING player_id`, teamB)
+	lineup := scanId(`INSERT INTO friendly_lineup (match_id, team_id) VALUES ($1, $2) RETURNING lineup_id`, scheduled, teamA)
+	exec(`INSERT INTO friendly_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, 1), ($1, $3, 2), ($1, $4, 3)`, lineup, player1, player2, other)
+
+	mine := []NationalMatch{byId[scheduled], byId[groupMatch]}
+	if err := SetMyPlayersInNationalMatches(dbCtx, club, mine); err != nil {
+		t.Fatalf("SetMyPlayersInNationalMatches: %s", err)
+	}
+	if mine[0].MyPlayers != 2 || mine[1].MyPlayers != 0 {
+		t.Errorf("my players = %d and %d, want 2 (called up) and 0 (no lineup saved yet)", mine[0].MyPlayers, mine[1].MyPlayers)
 	}
 }

@@ -3,6 +3,7 @@ package common
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestAssignWorldCupGroups_EveryCountryAppearsExactlyOnce(t *testing.T) {
@@ -178,5 +179,44 @@ func TestRankGroupStandings_DoesNotMutateInput(t *testing.T) {
 	_ = RankGroupStandings(standings)
 	if standings[0].TeamName != "B" || standings[1].TeamName != "A" {
 		t.Errorf("RankGroupStandings mutated its input: %+v", standings)
+	}
+}
+
+func TestNextWorldCupStart(t *testing.T) {
+	lastCheck := time.Date(2026, 10, 1, 3, 0, 0, 0, time.UTC)
+	cases := []struct {
+		counter int
+		want    time.Time
+	}{
+		{6, time.Date(2027, 1, 29, 3, 0, 0, 0, time.UTC)}, // two cycles to 8
+		{7, time.Date(2026, 11, 30, 3, 0, 0, 0, time.UTC)},
+		{8, lastCheck.Add(4 * InternationalCupCycle)}, // a World Cup at 8 already ran: the next is at 12
+	}
+	for _, c := range cases {
+		if got := nextWorldCupStart(c.counter, lastCheck); !got.Equal(c.want) {
+			t.Errorf("nextWorldCupStart(%d) = %v, want %v", c.counter, got, c.want)
+		}
+	}
+}
+
+func TestDeriveWorldCupGroupStandings_IgnoresMatchesStillBroadcasting(t *testing.T) {
+	cutoff := time.Date(2026, 10, 31, 19, 0, 0, 0, time.UTC)
+	teams := []WorldCupGroupStanding{{TeamId: 1, TeamName: "A", Played: 9, Won: 9}, {TeamId: 2, TeamName: "B"}, {TeamId: 3, TeamName: "C"}}
+	fixture := func(home, away int64, kickoff time.Time, played bool, hg, ag int) worldCupGroupFixture {
+		return worldCupGroupFixture{match: WorldCupGroupMatch{HomeTeamId: home, AwayTeamId: away, MatchDate: kickoff}, played: played, homeGoals: hg, awayGoals: ag}
+	}
+	got := deriveWorldCupGroupStandings(teams, []worldCupGroupFixture{
+		fixture(1, 2, cutoff.Add(-7*24*time.Hour), true, 1, 1),
+		fixture(3, 1, cutoff.Add(-time.Hour), true, 0, 2),
+		fixture(2, 3, cutoff.Add(time.Hour), true, 5, 0), // still broadcasting
+		fixture(1, 3, cutoff.Add(7*24*time.Hour), false, 0, 0),
+	}, cutoff)
+	if got[0].TeamId != 1 || got[0].Played != 2 || got[0].Points() != 4 || got[0].GoalsFor != 3 {
+		t.Errorf("leader = %+v, want team 1 with 2 played, 4 points, 3 goals (stored totals ignored)", got[0])
+	}
+	for _, s := range got {
+		if s.TeamId == 2 && (s.Played != 1 || s.GoalsFor != 1) {
+			t.Errorf("team 2 = %+v, want only the finished 1-1 counted", s)
+		}
 	}
 }

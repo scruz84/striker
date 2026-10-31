@@ -51,7 +51,8 @@ func (s WorldCupGroupStanding) Points() int         { return s.Won*3 + s.Drawn }
 func (s WorldCupGroupStanding) GoalDifference() int { return s.GoalsFor - s.GoalsAgainst }
 
 // WorldCupGroupMatch is one group fixture, enriched from its underlying friendly_matches row -
-// see GetWorldCupGroupMatches.
+// see GetWorldCupGroupMatches. Broadcast-safe like NationalMatch: Status is "scheduled" (no
+// score), "live" (Minute and the score as of that minute) or "finished" (the final score).
 type WorldCupGroupMatch struct {
 	MatchId      int64     `json:"matchId"`
 	Round        int       `json:"round"`
@@ -60,9 +61,19 @@ type WorldCupGroupMatch struct {
 	AwayTeamId   int64     `json:"awayTeamId"`
 	AwayTeamName string    `json:"awayTeamName"`
 	MatchDate    time.Time `json:"matchDate"`
-	Played       bool      `json:"played"`
-	HomeGoals    int       `json:"homeGoals"`
-	AwayGoals    int       `json:"awayGoals"`
+	Status       string    `json:"status"`
+	Minute       *int      `json:"minute,omitempty"`
+	HomeGoals    *int      `json:"homeGoals,omitempty"`
+	AwayGoals    *int      `json:"awayGoals,omitempty"`
+}
+
+// worldCupGroupFixture is a group match as stored, final score included - never sent to a
+// client as is (see GetWorldCupGroups).
+type worldCupGroupFixture struct {
+	match     WorldCupGroupMatch
+	played    bool
+	homeGoals int
+	awayGoals int
 }
 
 // WorldCupGroup is one group's name, ranked standings, and fixtures - see GetWorldCupGroups.
@@ -268,10 +279,15 @@ const getWorldCupGroupMatchesStmtSql = "SELECT wcgm.round, fm.match_id, fm.home_
 	"FROM world_cup_group_matches wcgm " +
 	"JOIN friendly_matches fm ON fm.match_id = wcgm.match_id " +
 	"JOIN teams th ON th.team_id = fm.home_team_id JOIN teams ta ON ta.team_id = fm.away_team_id " +
-	"WHERE wcgm.group_id = $1 ORDER BY wcgm.round, fm.match_id"
+	"WHERE wcgm.group_id = $1 ORDER BY wcgm.round, fm.match_date, fm.match_id"
 
 // GetWorldCupGroups returns every group of worldCupId, each with its standings (ranked, see
 // RankGroupStandings) and fixtures - the full payload a World Cup page's group-stage view needs.
+// Both are broadcast-safe: standings count only matches whose broadcast has finished (see
+// deriveWorldCupGroupStandings) and a match still being broadcast shows its live score (see
+// applyNationalMatchStatus). The stored running totals (world_cup_group_teams) are updated as
+// soon as a match is simulated, up to two hours before its broadcast ends, so they are only read
+// for the knockout draw (GetWorldCupGroupQualifiers), which happens after every match is played.
 func GetWorldCupGroups(dbCtx *DatabaseContext, worldCupId int64) ([]WorldCupGroup, error) {
 	rows, err := dbCtx.Db.Query(getWorldCupGroupsStmtSql, worldCupId)
 	if err != nil {
@@ -295,19 +311,74 @@ func GetWorldCupGroups(dbCtx *DatabaseContext, worldCupId int64) ([]WorldCupGrou
 		return nil, err
 	}
 
+	cutoff := LiveBroadcastCutoff()
+	lookup := func(kind string, id int64, kickoff time.Time) (int, int, int, bool, error) {
+		return liveScoreAsOfNow(dbCtx, kind, id, kickoff)
+	}
 	groups := make([]WorldCupGroup, 0, len(groupRows))
 	for _, gr := range groupRows {
-		standings, err := getWorldCupGroupStandings(dbCtx, gr.id)
+		stored, err := getWorldCupGroupStandings(dbCtx, gr.id)
 		if err != nil {
 			return nil, err
 		}
-		matches, err := GetWorldCupGroupMatches(dbCtx, gr.id)
+		fixtures, err := getWorldCupGroupFixtures(dbCtx, gr.id)
 		if err != nil {
 			return nil, err
 		}
-		groups = append(groups, WorldCupGroup{GroupId: gr.id, GroupName: gr.name, Standings: standings, Matches: matches})
+		matches := make([]WorldCupGroupMatch, 0, len(fixtures))
+		for _, f := range fixtures {
+			nm := NationalMatch{Kind: NationalMatchKindWorldCupGroup, Id: f.match.MatchId, Kickoff: f.match.MatchDate}
+			if err := applyNationalMatchStatus(&nm, f.played, f.homeGoals, f.awayGoals, cutoff, lookup); err != nil {
+				return nil, err
+			}
+			m := f.match
+			m.Status, m.Minute, m.HomeGoals, m.AwayGoals = nm.Status, nm.Minute, nm.HomeGoals, nm.AwayGoals
+			matches = append(matches, m)
+		}
+		groups = append(groups, WorldCupGroup{
+			GroupId:   gr.id,
+			GroupName: gr.name,
+			Standings: deriveWorldCupGroupStandings(stored, fixtures, cutoff),
+			Matches:   matches,
+		})
 	}
 	return groups, nil
+}
+
+// deriveWorldCupGroupStandings rebuilds a group's table from its fixtures, counting only those
+// played with a kickoff at or before cutoff (broadcast finished), then ranks it. teams supplies
+// the group's members and names; their stored totals are ignored.
+func deriveWorldCupGroupStandings(teams []WorldCupGroupStanding, fixtures []worldCupGroupFixture, cutoff time.Time) []WorldCupGroupStanding {
+	byTeam := make(map[int64]*WorldCupGroupStanding, len(teams))
+	standings := make([]WorldCupGroupStanding, len(teams))
+	for i, team := range teams {
+		standings[i] = WorldCupGroupStanding{TeamId: team.TeamId, TeamName: team.TeamName}
+		byTeam[team.TeamId] = &standings[i]
+	}
+	record := func(s *WorldCupGroupStanding, goalsFor, goalsAgainst int) {
+		if s == nil {
+			return
+		}
+		s.Played++
+		s.GoalsFor += goalsFor
+		s.GoalsAgainst += goalsAgainst
+		switch {
+		case goalsFor > goalsAgainst:
+			s.Won++
+		case goalsFor == goalsAgainst:
+			s.Drawn++
+		default:
+			s.Lost++
+		}
+	}
+	for _, f := range fixtures {
+		if !f.played || f.match.MatchDate.After(cutoff) {
+			continue
+		}
+		record(byTeam[f.match.HomeTeamId], f.homeGoals, f.awayGoals)
+		record(byTeam[f.match.AwayTeamId], f.awayGoals, f.homeGoals)
+	}
+	return RankGroupStandings(standings)
 }
 
 func getWorldCupGroupStandings(dbCtx *DatabaseContext, groupId int64) ([]WorldCupGroupStanding, error) {
@@ -328,23 +399,24 @@ func getWorldCupGroupStandings(dbCtx *DatabaseContext, groupId int64) ([]WorldCu
 	return RankGroupStandings(standings), rows.Err()
 }
 
-// GetWorldCupGroupMatches lists groupId's fixtures, earliest round first.
-func GetWorldCupGroupMatches(dbCtx *DatabaseContext, groupId int64) ([]WorldCupGroupMatch, error) {
+// getWorldCupGroupFixtures lists groupId's fixtures as stored, earliest matchday first.
+func getWorldCupGroupFixtures(dbCtx *DatabaseContext, groupId int64) ([]worldCupGroupFixture, error) {
 	rows, err := dbCtx.Db.Query(getWorldCupGroupMatchesStmtSql, groupId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	matches := make([]WorldCupGroupMatch, 0)
+	fixtures := make([]worldCupGroupFixture, 0)
 	for rows.Next() {
-		var m WorldCupGroupMatch
-		if err := rows.Scan(&m.Round, &m.MatchId, &m.HomeTeamId, &m.HomeTeamName, &m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &m.Played, &m.HomeGoals, &m.AwayGoals); err != nil {
+		var f worldCupGroupFixture
+		m := &f.match
+		if err := rows.Scan(&m.Round, &m.MatchId, &m.HomeTeamId, &m.HomeTeamName, &m.AwayTeamId, &m.AwayTeamName, &m.MatchDate, &f.played, &f.homeGoals, &f.awayGoals); err != nil {
 			return nil, err
 		}
-		matches = append(matches, m)
+		fixtures = append(fixtures, f)
 	}
-	return matches, rows.Err()
+	return fixtures, rows.Err()
 }
 
 const getWorldCupGroupIdForMatchStmtSql = "SELECT group_id FROM world_cup_group_matches WHERE match_id = $1"

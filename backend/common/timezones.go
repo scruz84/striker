@@ -296,11 +296,20 @@ func LocalTimeToServerSchedule(countryCode string, hour, minute int) (int, int) 
 // LocalTimeToServerSchedule - if today already is that Saturday but hour:minute has already
 // passed there, rolls forward to the following week instead of returning a moment in the past.
 func NextLocalSaturdayKickoff(countryCode string, hour, minute int) time.Time {
+	return NextLocalSaturdayKickoffAfter(countryCode, hour, minute, time.Now())
+}
+
+// NextLocalSaturdayKickoffAfter is NextLocalSaturdayKickoff anchored on earliest instead of now:
+// the first Saturday at hour:minute in countryCode's local timezone that is not before earliest.
+// ScheduleNationalTeamFriendlies passes the later of now and each side's rest boundary (see
+// NationalTeamFriendlyRest), so a country re-paired minutes after its previous friendly was
+// simulated lands on the following Saturday instead of the same evening.
+func NextLocalSaturdayKickoffAfter(countryCode string, hour, minute int, earliest time.Time) time.Time {
 	loc := countryLocation(countryCode)
-	now := time.Now().In(loc)
-	daysUntilSaturday := (int(time.Saturday) - int(now.Weekday()) + 7) % 7
-	candidate := time.Date(now.Year(), now.Month(), now.Day(), hour, minute, 0, 0, loc).AddDate(0, 0, daysUntilSaturday)
-	if candidate.Before(now) {
+	from := earliest.In(loc)
+	daysUntilSaturday := (int(time.Saturday) - int(from.Weekday()) + 7) % 7
+	candidate := time.Date(from.Year(), from.Month(), from.Day(), hour, minute, 0, 0, loc).AddDate(0, 0, daysUntilSaturday)
+	if candidate.Before(from) {
 		candidate = candidate.AddDate(0, 0, 7)
 	}
 	return candidate

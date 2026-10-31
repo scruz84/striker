@@ -77,6 +77,15 @@ Once every group match is played, the top two of each group SHALL be shuffled in
 - `common/worldcup.go` (`WorldCupGroupSize`, `MinWorldCupCountries`, `AssignWorldCupGroups`,
   `BuildRoundRobinRounds`, `RankGroupStandings`, `UpdateWorldCupStandingsAfterMatch`,
   `HasActiveWorldCup`), `common.CancelPendingNationalTeamFriendlies`.
+- Display: `common.GetWorldCupGroups` derives each group's table from its fixtures whose broadcast
+  has finished (`deriveWorldCupGroupStandings`, `LiveBroadcastCutoff`) and returns fixtures
+  broadcast-safe (`applyNationalMatchStatus` in `common/nationalmatches.go`); the stored
+  `world_cup_group_teams` totals are read only by `GetWorldCupGroupQualifiers`.
+- History and estimate: `common/worldcuphistory.go` (`GetWorldCupHistory`,
+  `GetNextWorldCupEstimate`, `nextWorldCupStart`, `WorldCupEveryInternationalCycles`,
+  `InternationalCupCycle`); handlers `CurrentWorldCupHandler`, `WorldCupHistoryHandler`
+  (`handlers/nationalTeamHandlers.go`).
+- Frontend: `features/nationalteams/WorldCupTab.tsx`.
 - Schema: `resources/sql/init72_world_cup.sql`.
 - Viewing a group match: it renders through `frontend/src/features/match/MatchViewer.tsx` (route
   adapter `features/friendlies/FriendlyMatchPage.tsx`, `fromFriendly` in `matchViewModel.ts`); the
