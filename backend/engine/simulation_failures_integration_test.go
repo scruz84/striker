@@ -3,6 +3,8 @@ package engine
 import (
 	"database/sql"
 	"fmt"
+	"net"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -88,6 +90,20 @@ func (e *simEnv) cupTie(attempts int) (cupId int64, tieId int64) {
 	return cupId, tieId
 }
 
+// requireRedisForTest skips a test that waits on a live replay when no Redis is reachable at
+// REDIS_HOST:REDIS_PORT: the replay publishes every minute through the LiveMatchHub and only
+// applies the deferred post-match effects once its broadcast completes, so without Redis it never
+// finishes (same check as handlers.redisReachableForTest).
+func requireRedisForTest(t *testing.T) {
+	t.Helper()
+	addr := os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT")
+	conn, err := net.DialTimeout("tcp", addr, time.Second)
+	if err != nil {
+		t.Skipf("redis not reachable at %s, skipping: %s", addr, err)
+	}
+	_ = conn.Close()
+}
+
 func waitFor(t *testing.T, what string, condition func() bool) {
 	t.Helper()
 	deadline := time.Now().Add(15 * time.Second)
@@ -149,6 +165,7 @@ func TestSimulateMatch_ConcurrentSimulationsBookOnce(t *testing.T) {
 
 // A completed replay applies the pending effects once and leaves no pending record behind.
 func TestSimulateMatch_CompletedReplayAppliesPendingEffectsOnce(t *testing.T) {
+	requireRedisForTest(t)
 	e := newSimEnv(t, "zs2")
 	// An injured player of the home side: the effects count this match against the injury.
 	playerId := e.scan(`SELECT player_id FROM players WHERE team_id = $1 ORDER BY player_id LIMIT 1`, e.home)

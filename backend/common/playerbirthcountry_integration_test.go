@@ -45,8 +45,13 @@ func TestSummaryRowsCarryBirthCountry(t *testing.T) {
 	mustExec(`INSERT INTO countries (name) VALUES ('zf') ON CONFLICT DO NOTHING`)
 	mustScan(&leagueId, `INSERT INTO leagues (country, group_number, name) VALUES ('zf', 1, 'L') RETURNING league_id`)
 	mustScan(&teamId, `INSERT INTO teams (name, country) VALUES ('Flag FC', 'zf') RETURNING team_id`)
-	mustScan(&withCountry, `INSERT INTO players (team_id, first_name, last_name, birth_country) VALUES ($1, 'Flaga', $2, 'zf') RETURNING player_id`, teamId, surname)
-	mustScan(&withoutCountry, `INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Flagb', $2) RETURNING player_id`, teamId, surname)
+	// Complete players, as the game generates them: 'zf' stays an active country in this shared
+	// database, so later tests (national squad selection, the national radar) read this player.
+	const insertPlayerSql = `INSERT INTO players (team_id, first_name, last_name, birth_day, goal_keeper, defense, "lateral", pass, midfield,
+		dribbling, shot, "header", quick, creative, technical, avatar, wage, age, contract_years_remaining, birth_country, shirt_number)
+		VALUES ($1, $2, $3, 0, 10, 40, 40, 40, 40, 40, 40, false, false, false, false, '', 1000, 25, 2, NULLIF($4, ''), $5) RETURNING player_id`
+	mustScan(&withCountry, insertPlayerSql, teamId, "Flaga", surname, "zf", 1)
+	mustScan(&withoutCountry, insertPlayerSql, teamId, "Flagb", surname, "", 2)
 
 	const season = 1
 	mustScan(&matchId, `INSERT INTO matches (league_id, season, played, match_date, home_team_id, away_team_id)

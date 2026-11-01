@@ -37,7 +37,10 @@ func TestGetAllTeamIds_ExcludesNationalTeams(t *testing.T) {
 		Scan(&clubTeamId); err != nil {
 		t.Fatalf("seeding club team: %s", err)
 	}
-	if err := db.QueryRow(`INSERT INTO teams (name, country, is_national_team) VALUES ('National', 'zy', true) RETURNING team_id`).
+	// A country has at most one national team (teams_national_team_country_idx), and the test
+	// database persists across runs, so reuse the one an earlier run created.
+	if err := db.QueryRow(`INSERT INTO teams (name, country, is_national_team) VALUES ('National', 'zy', true) `+
+		`ON CONFLICT (country) WHERE is_national_team DO UPDATE SET name = EXCLUDED.name RETURNING team_id`).
 		Scan(&nationalTeamId); err != nil {
 		t.Fatalf("seeding national team: %s", err)
 	}

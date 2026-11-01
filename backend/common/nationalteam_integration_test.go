@@ -119,9 +119,9 @@ func TestNationalTeamRoundAndResults(t *testing.T) {
 	}
 
 	club := scanId(`INSERT INTO teams (name, country) VALUES ('Club NM', 'nm1') RETURNING team_id`)
-	player1 := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Uno', 'NM') RETURNING player_id`, club)
-	player2 := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Dos', 'NM') RETURNING player_id`, club)
-	other := scanId(`INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'Otro', 'NM') RETURNING player_id`, teamB)
+	player1 := scanId(`INSERT INTO players (birth_day, team_id, first_name, last_name) VALUES (0, $1, 'Uno', 'NM') RETURNING player_id`, club)
+	player2 := scanId(`INSERT INTO players (birth_day, team_id, first_name, last_name) VALUES (0, $1, 'Dos', 'NM') RETURNING player_id`, club)
+	other := scanId(`INSERT INTO players (birth_day, team_id, first_name, last_name) VALUES (0, $1, 'Otro', 'NM') RETURNING player_id`, teamB)
 	lineup := scanId(`INSERT INTO friendly_lineup (match_id, team_id) VALUES ($1, $2) RETURNING lineup_id`, scheduled, teamA)
 	exec(`INSERT INTO friendly_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, 1), ($1, $3, 2), ($1, $4, 3)`, lineup, player1, player2, other)
 

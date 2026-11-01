@@ -46,8 +46,8 @@ func TestGetTopScorersFinal_CountsLiveWindowMatches(t *testing.T) {
 	mustScan(&leagueId, `INSERT INTO leagues (country, group_number, name) VALUES ('zy', 1, 'L') RETURNING league_id`)
 	mustScan(&teamA, `INSERT INTO teams (name, country) VALUES ('A', 'zy') RETURNING team_id`)
 	mustScan(&teamB, `INSERT INTO teams (name, country) VALUES ('B', 'zy') RETURNING team_id`)
-	mustScan(&playerA, `INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'A', 'A') RETURNING player_id`, teamA)
-	mustScan(&playerB, `INSERT INTO players (team_id, first_name, last_name) VALUES ($1, 'B', 'B') RETURNING player_id`, teamB)
+	mustScan(&playerA, `INSERT INTO players (birth_day, team_id, first_name, last_name) VALUES (0, $1, 'A', 'A') RETURNING player_id`, teamA)
+	mustScan(&playerB, `INSERT INTO players (birth_day, team_id, first_name, last_name) VALUES (0, $1, 'B', 'B') RETURNING player_id`, teamB)
 
 	const season = 1
 	insertMatch := func(dest *int64, date time.Time) {

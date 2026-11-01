@@ -36,7 +36,7 @@ func TestEnsureSchema_RestartDoesNotTouchPlayerData(t *testing.T) {
 	if err := db.QueryRow(`INSERT INTO teams (name, country) VALUES ('t', 'zz') RETURNING team_id`).Scan(&teamId); err != nil {
 		t.Fatalf("seeding team: %s", err)
 	}
-	if err := db.QueryRow(`INSERT INTO players (team_id) VALUES ($1) RETURNING player_id`, teamId).Scan(&playerId); err != nil {
+	if err := db.QueryRow(`INSERT INTO players (birth_day, team_id) VALUES (0, $1) RETURNING player_id`, teamId).Scan(&playerId); err != nil {
 		t.Fatalf("seeding player: %s", err)
 	}
 	// 9 is outside the [2, 4] range init21_contracts.sql would re-randomize into.

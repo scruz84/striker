@@ -24,6 +24,12 @@ func lifecycleInt(t *testing.T, db *sql.DB, query string, args ...any) int64 {
 
 func TestAccountLifecycle_ConcurrentReplicasReleaseWarnAndResetOnce(t *testing.T) {
 	db, dbCtx := openReplicaTestDb(t)
+	// The test database persists across runs and AssignTeam may hand out a 'jm' club an earlier
+	// run already released and reset, so only ledger rows written by this run are counted.
+	var started time.Time
+	if err := db.QueryRow(`SELECT now()`).Scan(&started); err != nil {
+		t.Fatal(err)
+	}
 
 	if _, err := db.Exec(`INSERT INTO countries (name) VALUES ('jm') ON CONFLICT DO NOTHING`); err != nil {
 		t.Fatal(err)
@@ -101,7 +107,7 @@ func TestAccountLifecycle_ConcurrentReplicasReleaseWarnAndResetOnce(t *testing.T
 		if n := lifecycleInt(t, db, `SELECT count(*) FROM players WHERE team_id = $1 AND in_academy = false`, club); n != int64(common.SquadSize) {
 			t.Errorf("club %d has %d senior players after concurrent resets, want exactly %d", club, n, common.SquadSize)
 		}
-		if n := lifecycleInt(t, db, `SELECT count(*) FROM team_transactions WHERE team_id = $1 AND reason = $2`, club, common.TRANSACTION_TEAM_RESET); n != 1 {
+		if n := lifecycleInt(t, db, `SELECT count(*) FROM team_transactions WHERE team_id = $1 AND reason = $2 AND created_at >= $3`, club, common.TRANSACTION_TEAM_RESET, started); n != 1 {
 			t.Errorf("club %d has %d reset ledger rows, want 1", club, n)
 		}
 		if n := lifecycleInt(t, db, `SELECT count(*) FROM teams WHERE team_id = $1 AND reset_pending_since IS NULL AND owner_id IS NULL AND ai_level >= 1`, club); n != 1 {
