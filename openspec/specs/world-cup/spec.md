@@ -110,7 +110,9 @@ When no World Cup is running, the current World Cup response SHALL include the e
   `CupJob` (`engine/tasks.go`).
 - `common/worldcup.go` (`WorldCupGroupSize`, `MinWorldCupCountries`, `AssignWorldCupGroups`,
   `BuildRoundRobinRounds`, `RankGroupStandings`, `UpdateWorldCupStandingsAfterMatch`,
-  `HasActiveWorldCup`), `common.CancelPendingNationalTeamFriendlies`.
+  `HasActiveWorldCup`, `IsWorldCupGroupStageComplete` - every group match played and the last
+  kickoff at or before `LiveBroadcastCutoff`, `SetWorldCupKnockoutStarted`),
+  `common.CancelPendingNationalTeamFriendlies`.
 - Display: `common.GetWorldCupGroups` derives each group's table from its fixtures whose broadcast
   has finished (`deriveWorldCupGroupStandings`, `LiveBroadcastCutoff`) and returns fixtures
   broadcast-safe (`applyNationalMatchStatus` in `common/nationalmatches.go`); the stored

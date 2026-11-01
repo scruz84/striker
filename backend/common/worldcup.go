@@ -459,18 +459,27 @@ func UpdateWorldCupStandingsAfterMatchTx(tx *sql.Tx, matchId int64, homeTeamId i
 	return err
 }
 
-const getWorldCupGroupMatchCountsStmtSql = "SELECT count(*), count(*) FILTER (WHERE fm.played) " +
+const getWorldCupGroupMatchCountsStmtSql = "SELECT count(*), count(*) FILTER (WHERE fm.played), MAX(fm.match_date) " +
 	"FROM world_cup_group_matches wcgm JOIN friendly_matches fm ON fm.match_id = wcgm.match_id " +
 	"JOIN world_cup_groups wcg ON wcg.group_id = wcgm.group_id WHERE wcg.world_cup_id = $1"
 
-// IsWorldCupGroupStageComplete reports whether every group match of worldCupId has been played.
+// IsWorldCupGroupStageComplete reports whether every group match of worldCupId has been played
+// and the last one's live broadcast has finished (its kickoff at or before LiveBroadcastCutoff).
+// A match is simulated up to 15 minutes before kickoff and broadcast for ~105 minutes, so
+// "every match played" alone would let engine.advanceWorldCup draw the knockout bracket - and
+// notify its call-ups - while the deciding group matches are still on air, revealing who
+// qualified. Cup rounds wait the same way (see GetUnresolvedCupTieCountStmtSql).
 func IsWorldCupGroupStageComplete(dbCtx *DatabaseContext, worldCupId int64) (bool, error) {
 	var total, played int
-	err := dbCtx.Db.QueryRow(getWorldCupGroupMatchCountsStmtSql, worldCupId).Scan(&total, &played)
+	var latestKickoff sql.NullTime
+	err := dbCtx.Db.QueryRow(getWorldCupGroupMatchCountsStmtSql, worldCupId).Scan(&total, &played, &latestKickoff)
 	if err != nil {
 		return false, err
 	}
-	return total > 0 && total == played, nil
+	if total == 0 || total != played || !latestKickoff.Valid {
+		return false, nil
+	}
+	return !latestKickoff.Time.After(LiveBroadcastCutoff()), nil
 }
 
 const getWorldCupGroupIdsStmtSql = "SELECT group_id FROM world_cup_groups WHERE world_cup_id = $1 ORDER BY group_name"
@@ -520,7 +529,7 @@ const setWorldCupKnockoutStmtSql = "UPDATE world_cups SET stage = 'knockout', kn
 // SetWorldCupKnockoutStarted records that worldCupId's group stage is done and its knockout
 // bracket is cupId - see engine.startWorldCupKnockout.
 func SetWorldCupKnockoutStarted(dbCtx *DatabaseContext, worldCupId int64, cupId int64) error {
-	_, err := dbCtx.Db.Exec(setWorldCupKnockoutStmtSql, worldCupId, cupId)
+	_, err := dbCtx.Db.Exec(setWorldCupKnockoutStmtSql, cupId, worldCupId)
 	return err
 }
 

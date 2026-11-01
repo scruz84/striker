@@ -108,3 +108,57 @@ func TestWorldCupGroups_StandingsWaitForTheBroadcast(t *testing.T) {
 		t.Errorf("history does not start with the newest World Cup %d: %+v", worldCupId, history)
 	}
 }
+
+// TestIsWorldCupGroupStageComplete_WaitsForTheLastBroadcast: every group match played is not
+// enough while the last one is still being broadcast - the knockout draw would reveal the
+// qualifiers (openspec delay-world-cup-knockout-draw). Runs against a real Postgres
+// (STRIKER_TEST_DB_DSN; skipped when unset).
+func TestIsWorldCupGroupStageComplete_WaitsForTheLastBroadcast(t *testing.T) {
+	db, dbCtx := openEngineLocksTestDb(t)
+	scanId := func(query string, args ...any) int64 {
+		t.Helper()
+		var id int64
+		if err := db.QueryRow(query, args...).Scan(&id); err != nil {
+			t.Fatalf("%s: %s", query, err)
+		}
+		return id
+	}
+	for _, country := range []string{"wk1", "wk2"} {
+		if _, err := db.Exec(`INSERT INTO countries (name, current_season) VALUES ($1, 1) ON CONFLICT (name) DO NOTHING`, country); err != nil {
+			t.Fatal(err)
+		}
+	}
+	home, err := ensureNationalTeam(dbCtx, "wk1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	away, err := ensureNationalTeam(dbCtx, "wk2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	worldCupId := scanId(`INSERT INTO world_cups (season, name, stage, completed) VALUES (0, 'Completion World Cup', 'groups', true) RETURNING world_cup_id`)
+	groupId := scanId(`INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'A') RETURNING group_id`, worldCupId)
+
+	if complete, err := IsWorldCupGroupStageComplete(dbCtx, worldCupId); err != nil || complete {
+		t.Fatalf("a group stage with no matches: complete = %v, %v; want false", complete, err)
+	}
+
+	first := scanId(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date, played) VALUES ($1, $2, now() - interval '7 days', true) RETURNING match_id`, home, away)
+	last := scanId(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date, played) VALUES ($2, $1, now() - interval '40 minutes', true) RETURNING match_id`, home, away)
+	for round, matchId := range []int64{first, last} {
+		if err := LinkWorldCupGroupMatch(dbCtx, groupId, round+1, matchId); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if complete, err := IsWorldCupGroupStageComplete(dbCtx, worldCupId); err != nil || complete {
+		t.Errorf("last group match kicked off 40 minutes ago: complete = %v, %v; want false until its broadcast ends", complete, err)
+	}
+
+	if _, err := db.Exec(`UPDATE friendly_matches SET match_date = $2 WHERE match_id = $1`, last, time.Now().Add(-LiveBroadcastWindow-time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if complete, err := IsWorldCupGroupStageComplete(dbCtx, worldCupId); err != nil || !complete {
+		t.Errorf("last broadcast over: complete = %v, %v; want true", complete, err)
+	}
+}
