@@ -1373,9 +1373,17 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		transferListedIds = append(transferListedIds, playerId)
 	}
 
+	// The dashboard's Afición tile reads this straight off /v1/user/team - leaving it out made
+	// every manager's own fanbase render as 0 while their finances page showed the real value.
+	fanbase, err5 := GetFanbase(dbCtx, team.Id)
+	if err5 != nil {
+		return nil, err5
+	}
+
 	return &TeamDetails{
 		Team:                    team,
 		Players:                 *players,
+		Fanbase:                 fanbase,
 		Unavailability:          unavailability,
 		TransferListedPlayerIds: transferListedIds,
 	}, nil

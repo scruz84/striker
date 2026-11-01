@@ -621,3 +621,19 @@ func TestGetAllUsersWithTeams_IncludesUsersWithoutCountryAndShowsLastSeen(t *tes
 	}
 	t.Fatalf("user %d missing from the admin list", id)
 }
+
+// The dashboard's Afición tile reads fanbase off the caller's own team (/v1/user/team) - it used
+// to be left out there, so every manager saw 0 regardless of the real value.
+func TestGetFullTeamDetailsByUser_IncludesFanbase(t *testing.T) {
+	dbCtx := accDb(t)
+	db := dbCtx.Db
+	league := accSeedLeague(t, db)
+	owner := accSeedUser(t, db)
+	team := accSeedTeam(t, dbCtx, league, &owner, 0)
+	accMust(t, SetFanbase(dbCtx, team, 73), "SetFanbase")
+	details, err := GetFullTeamDetailsByUser(owner, true, dbCtx)
+	accMust(t, err, "GetFullTeamDetailsByUser")
+	if details.Fanbase != 73 {
+		t.Errorf("own team's fanbase = %d, want 73", details.Fanbase)
+	}
+}
