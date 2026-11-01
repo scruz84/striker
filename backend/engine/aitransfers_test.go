@@ -361,3 +361,195 @@ func TestScoreOne_CarriesInternationalStandingIntoTheScore(t *testing.T) {
 		t.Errorf("international scored %v (reputation %v), domestic %v - want the international ahead", b.Total, b.Reputation, a.Total)
 	}
 }
+
+// loanCandidate is a loan-market listing: AskingPrice is its loan fee.
+func loanCandidate(id int64, p *common.Player, fee int64, seasons int, contribution int, option int64) transferCandidate {
+	return transferCandidate{
+		Player: *p, Kind: candidateLoan, ListingId: id, SellerTeamId: 99, AskingPrice: fee,
+		LoanSeasons: seasons, LoanWageContributionPercent: contribution, BuyOptionFee: option,
+	}
+}
+
+func TestPickNextTarget_LoanedInPlayersCountTowardsTheCap(t *testing.T) {
+	star := midfielder(500, 99)
+	star.Age = 27
+	loan := scoredCandidate{transferCandidate: loanCandidate(1, star, 0, 1, 0, 0)}
+	listed := scoredCandidate{transferCandidate: listedCandidate(2, star)}
+	option := scoredCandidate{transferCandidate: transferCandidate{Player: *star, Kind: candidateBuyOption, BuyOptionFee: 1}}
+
+	// SquadSize+2 owned players plus 2 loanees: at the SquadSize+4 ceiling.
+	state := stateOf(adultSquad(), 50_000_000)
+	for len(state.Squad) < common.MaxAiSquadSize-2 {
+		state.Squad = append(state.Squad, defender(int64(300+len(state.Squad)), 20))
+	}
+	state.LoanedIn = []*common.Player{midfielder(600, 50), midfielder(601, 50)}
+
+	for name, c := range map[string]scoredCandidate{"loan": loan, "transfer": listed} {
+		if got := pickNextTarget([]scoredCandidate{c}, state, 2); got != nil {
+			t.Errorf("a squad full of owned players and loanees must take on no %s, got %v", name, got.Kind)
+		}
+	}
+	if got := pickNextTarget([]scoredCandidate{option}, state, 2); got == nil {
+		t.Error("exercising a buy option adds no body, so it goes ahead at the ceiling")
+	}
+
+	// One loanee fewer leaves room for one more body - a transfer, but no loan while 2 are in.
+	state.LoanedIn = state.LoanedIn[:1]
+	if got := pickNextTarget([]scoredCandidate{listed}, state, 2); got == nil {
+		t.Error("with room under the ceiling a transfer goes ahead")
+	}
+}
+
+func TestPickNextTarget_NoMoreLoansAtTheLoanLimit(t *testing.T) {
+	star := midfielder(500, 99)
+	star.Age = 27
+	loan := scoredCandidate{transferCandidate: loanCandidate(1, star, 0, 1, 0, 0)}
+	listed := scoredCandidate{transferCandidate: listedCandidate(2, star)}
+	state := stateOf(adultSquad(), 50_000_000)
+
+	state.LoanedIn = []*common.Player{midfielder(600, 50)}
+	if got := pickNextTarget([]scoredCandidate{loan}, state, 2); got == nil {
+		t.Error("with one loanee a second loan is allowed")
+	}
+	state.LoanedIn = []*common.Player{midfielder(600, 50), midfielder(601, 50)}
+	if got := pickNextTarget([]scoredCandidate{loan}, state, 2); got != nil {
+		t.Errorf("with %d players on loan no loan is accepted, got %v", common.AiMaxLoanedIn, got.Kind)
+	}
+	if got := pickNextTarget([]scoredCandidate{loan, listed}, state, 2); got == nil || got.Kind != candidateListed {
+		t.Errorf("the pass moves on to the next candidate, got %v", got)
+	}
+}
+
+func TestScoreOne_LoanIsScoredAgainstPlayersAlreadyOnLoan(t *testing.T) {
+	profile := exact(common.AiTransferProfileFor(common.AiLevelManager))
+	target := striker(500, 97)
+	target.Age = 27
+	c := loanCandidate(1, target, 0, 1, 0, 0)
+
+	alone := stateOf(adultSquad(), 50_000_000)
+	without, ok := scoreOne(profile, alone, c, rngSeed(1))
+	if !ok || without.Improvement <= 0 {
+		t.Fatalf("test setup: a 97 striker should improve the squad, got %+v (ok=%v)", without, ok)
+	}
+
+	withLoanee := stateOf(adultSquad(), 50_000_000)
+	withLoanee.LoanedIn = []*common.Player{striker(501, 99), striker(502, 98), striker(503, 98), striker(504, 98), striker(505, 98)}
+	with, _ := scoreOne(profile, withLoanee, c, rngSeed(1))
+	if with.Improvement >= without.Improvement {
+		t.Errorf("a team whose strikers are all on loan already gains less (%v) than one without them (%v)", with.Improvement, without.Improvement)
+	}
+
+	// A transfer ignores the loanees: they go back, so it is judged against the owned squad.
+	transfer := listedCandidate(2, target)
+	a, _ := scoreOne(profile, alone, transfer, rngSeed(1))
+	b, _ := scoreOne(profile, withLoanee, transfer, rngSeed(1))
+	if a.Improvement != b.Improvement {
+		t.Errorf("a transfer's improvement should not depend on loanees: %v vs %v", a.Improvement, b.Improvement)
+	}
+}
+
+func TestRankCandidates_ALoanCanBeatATransfer(t *testing.T) {
+	profile := exact(common.AiTransferProfileFor(common.AiLevelManager))
+	state := stateOf(adultSquad(), 50_000_000)
+	star := midfielder(500, 98)
+	star.Age = 27
+	alternative := midfielder(501, 96)
+	alternative.Age = 27
+
+	ranked := rankCandidates(profile, state, []transferCandidate{
+		listedCandidate(1, alternative), loanCandidate(2, star, 0, 1, 0, 0),
+	}, map[int64]bool{}, rngSeed(1))
+	if len(ranked) == 0 || ranked[0].Kind != candidateLoan {
+		t.Fatalf("a free loan of a better player should lead the ranking, got %+v", ranked)
+	}
+	if got := pickNextTarget(ranked, state, 0); got == nil || got.Kind != candidateLoan {
+		t.Errorf("the pass should accept the loan, got %v", got)
+	}
+}
+
+func TestLoanListingCandidates_SkipsOwnListingsTheOldAndPlayersAlreadySeen(t *testing.T) {
+	young := midfielder(1, 80)
+	young.Age = 25
+	old := midfielder(2, 80)
+	old.Age = aiMaxPlayerAge + 1
+	own := midfielder(3, 80)
+	own.Age = 25
+	seenAlready := midfielder(4, 80)
+	seenAlready.Age = 25
+	listings := []common.LoanListing{
+		{ListingId: 11, Player: *young, LendingTeamId: 7, LoanFee: 5000, DurationSeasons: 2, WageContributionPercent: 30, BuyOptionFee: 90000},
+		{ListingId: 12, Player: *old, LendingTeamId: 7},
+		{ListingId: 13, Player: *own, LendingTeamId: 5},
+		{ListingId: 14, Player: *seenAlready, LendingTeamId: 7},
+	}
+	seen := map[int64]bool{4: true}
+
+	got := loanListingCandidates(listings, 5, seen)
+	if len(got) != 1 {
+		t.Fatalf("only the young player from another club qualifies, got %d candidates", len(got))
+	}
+	c := got[0]
+	if c.Kind != candidateLoan || c.Player.Id != 1 || c.ListingId != 11 || c.SellerTeamId != 7 || c.AskingPrice != 5000 ||
+		c.LoanSeasons != 2 || c.LoanWageContributionPercent != 30 || c.BuyOptionFee != 90000 {
+		t.Errorf("candidate = %+v, want the listing's terms carried over", c)
+	}
+	if !seen[1] {
+		t.Error("a player taken as a candidate is marked as seen")
+	}
+}
+
+func TestBuyOptionCandidates_OnlyInTheLastSeasonOfALoanWithAnOption(t *testing.T) {
+	mk := func(id int64, age int) *common.Player {
+		p := midfielder(id, 90)
+		p.Age = age
+		return p
+	}
+	state := stateOf(adultSquad(), 50_000_000)
+	state.CurrentSeason = 5
+	state.LoanedIn = []*common.Player{mk(601, 27), mk(602, 27), mk(603, 27), mk(604, aiMaxPlayerAge+1), mk(605, 27)}
+	state.Loans = []common.PlayerLoan{
+		{PlayerId: 601, FromTeamId: 9, ReturnSeason: 6, BuyOptionFee: 100_000}, // last season, option: yes
+		{PlayerId: 602, FromTeamId: 9, ReturnSeason: 7, BuyOptionFee: 100_000}, // two seasons left: no
+		{PlayerId: 603, FromTeamId: 9, ReturnSeason: 6, BuyOptionFee: 0},       // no option: no
+		{PlayerId: 604, FromTeamId: 9, ReturnSeason: 6, BuyOptionFee: 100_000}, // too old: no
+		{PlayerId: 999, FromTeamId: 9, ReturnSeason: 6, BuyOptionFee: 100_000}, // not in the squad: no
+	}
+
+	got := buyOptionCandidates(state)
+	if len(got) != 1 || got[0].Player.Id != 601 || got[0].Kind != candidateBuyOption || got[0].BuyOptionFee != 100_000 || got[0].SellerTeamId != 9 {
+		t.Fatalf("want only player 601's option, got %+v", got)
+	}
+}
+
+func TestRankCandidates_BuyOptionOnAStarterIsWorthExercising(t *testing.T) {
+	profile := exact(common.AiTransferProfileFor(common.AiLevelManager))
+	starter := midfielder(601, 99)
+	starter.Age = 27
+	starter.Wage = 1000
+	option := transferCandidate{Player: *starter, Kind: candidateBuyOption, SellerTeamId: 9, BuyOptionFee: common.MarketValue(*starter)}
+
+	// Without him the XI has nobody at that level: losing him would cost points, so keeping him scores.
+	state := stateOf(adultSquad(), 50_000_000)
+	state.LoanedIn = []*common.Player{starter}
+	ranked := rankCandidates(profile, state, []transferCandidate{option}, map[int64]bool{}, rngSeed(1))
+	if len(ranked) != 1 || ranked[0].Score.Improvement <= 0 {
+		t.Fatalf("a star loanee is worth his option, got %+v", ranked)
+	}
+
+	// A loanee the squad outclasses adds nothing to the XI, so his option is not worth exercising.
+	bench := midfielder(602, 30)
+	bench.Age = 27
+	weakOption := transferCandidate{Player: *bench, Kind: candidateBuyOption, SellerTeamId: 9, BuyOptionFee: common.MarketValue(*bench)}
+	redundant := stateOf(adultSquad(), 50_000_000)
+	redundant.LoanedIn = []*common.Player{bench}
+	if ranked := rankCandidates(profile, redundant, []transferCandidate{weakOption}, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+		t.Errorf("an option on a player who doesn't improve the XI should be passed, got %+v", ranked)
+	}
+
+	// Too dear for a Manager's reserve: not exercised.
+	poor := stateOf(adultSquad(), common.MarketValue(*starter)+1)
+	poor.LoanedIn = []*common.Player{starter}
+	if ranked := rankCandidates(profile, poor, []transferCandidate{option}, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+		t.Errorf("an option that would breach the budget reserve must not be exercised, got %+v", ranked)
+	}
+}

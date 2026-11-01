@@ -65,8 +65,17 @@ func TestAiTransferProfileFor_EachLevelIncludesTheOnesBelow(t *testing.T) {
 	if caretaker.ProtectsKeyPlayers || !manager.ProtectsKeyPlayers || !director.ProtectsKeyPlayers {
 		t.Error("only Manager and above protect key players")
 	}
-	if caretaker.SearchesFreeAgents || caretaker.SearchesTransferList || caretaker.SearchesUnlisted {
+	if caretaker.SearchesFreeAgents || caretaker.SearchesTransferList || caretaker.SearchesUnlisted || caretaker.SearchesLoanList {
 		t.Error("a Caretaker never shops")
+	}
+	if !manager.SearchesLoanList || !director.SearchesLoanList {
+		t.Error("a Manager and a Director read the loan market")
+	}
+	if caretaker.LendsPlayers || caretaker.LoansOutYouth || !manager.LendsPlayers || !director.LendsPlayers {
+		t.Error("a Manager and a Director lend surplus players, a Caretaker never does")
+	}
+	if manager.LoansOutYouth || !director.LoansOutYouth {
+		t.Error("development loans are Director-only")
 	}
 	if !manager.SearchesFreeAgents || !manager.SearchesTransferList || manager.SearchesUnlisted {
 		t.Error("a Manager shops free agents and the transfer list only")
@@ -513,5 +522,114 @@ func TestScoreTarget_InternationalsEarnAReputationBonusOnlyForDirectors(t *testi
 	ctx.InternationalCaps = 500
 	if huge := ScoreTarget(AiTransferProfileFor(AiLevelDirector), ctx, newRng(1)); huge.Reputation != internationalBonusBase+internationalCapsCap*internationalBonusPerCap {
 		t.Errorf("caps stop counting at %d, got reputation %v", internationalCapsCap, huge.Reputation)
+	}
+}
+
+// loanContext is scoreContext for a loan of seasons seasons at the given fee, with the
+// valuation noise switched off so the numbers can be checked exactly.
+func loanContext(squad []*Player, target *Player, fee int64, seasons int) (AiTransferProfile, TargetContext) {
+	profile := AiTransferProfileFor(AiLevelDirector)
+	profile.ValuationNoise = 0
+	ctx := scoreContext(squad, target)
+	ctx.Loan, ctx.LoanSeasons, ctx.Price = true, seasons, fee
+	return profile, ctx
+}
+
+func TestScoreTarget_LoanFeeIsJudgedAgainstTenPercentOfValuePerSeason(t *testing.T) {
+	squad := settledSquad()
+	target := midfielderAged(70, 90, 27)
+	value := MarketValue(*target)
+	fair := int64(float64(value) * 0.10 * 2) // a 2-season loan
+
+	profile, ctx := loanContext(squad, target, fair, 2)
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.ValueForMoney < -0.01 || s.ValueForMoney > 0.01 {
+		t.Errorf("a fair fee should be neutral, got value for money %v", s.ValueForMoney)
+	}
+	_, ctx = loanContext(squad, target, fair/2, 2)
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.ValueForMoney < 1.99 || s.ValueForMoney > 2.01 {
+		t.Errorf("half the fair fee should earn (1-0.5)*4 = 2, got %v", s.ValueForMoney)
+	}
+	_, ctx = loanContext(squad, target, fair*3, 2)
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.ValueForMoney != -valueForMoneyCap {
+		t.Errorf("a fee far above fair is capped at -%v, got %v", valueForMoneyCap, s.ValueForMoney)
+	}
+	// The same fee is dearer on a shorter loan.
+	_, one := loanContext(squad, target, fair, 1)
+	if s := ScoreTarget(profile, one, newRng(1)); s.ValueForMoney >= 0 {
+		t.Errorf("the 2-season fair fee over one season should be an overpay, got %v", s.ValueForMoney)
+	}
+}
+
+func TestScoreTarget_FreeLoanEarnsTheFullBargainBonus(t *testing.T) {
+	squad := settledSquad()
+	target := midfielderAged(70, 90, 27)
+	profile, ctx := loanContext(squad, target, 0, 1)
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.ValueForMoney != valueForMoneyCap {
+		t.Errorf("a free loan should earn +%v, got %v", valueForMoneyCap, s.ValueForMoney)
+	}
+}
+
+func TestScoreTarget_FairBuyOptionAddsABonusAnExpensiveOneDoesNot(t *testing.T) {
+	squad := settledSquad()
+	target := midfielderAged(70, 90, 27)
+	value := MarketValue(*target)
+	profile, ctx := loanContext(squad, target, 0, 1)
+	base := ScoreTarget(profile, ctx, newRng(1))
+
+	ctx.BuyOptionFee = value
+	fair := ScoreTarget(profile, ctx, newRng(1))
+	if fair.BuyOption != loanBuyOptionBonus || fair.Total != base.Total+loanBuyOptionBonus {
+		t.Errorf("an option at his value should add +%v, got bonus %v (total %v vs %v)", loanBuyOptionBonus, fair.BuyOption, fair.Total, base.Total)
+	}
+	ctx.BuyOptionFee = value + 1
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.BuyOption != 0 {
+		t.Errorf("an option above his value earns no bonus, got %v", s.BuyOption)
+	}
+	ctx.BuyOptionFee = 0
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.BuyOption != 0 {
+		t.Errorf("no option, no bonus, got %v", s.BuyOption)
+	}
+}
+
+func TestScoreTarget_LoanEarnsNoProjectionNorReputation(t *testing.T) {
+	squad := settledSquad()
+	youngster := midfielderAged(70, 85, 18)
+	profile := AiTransferProfileFor(AiLevelDirector)
+	transfer := scoreContext(squad, youngster)
+	transfer.Caps = &PlayerSkillCaps{MidfieldMax: 99, PassMax: 99}
+	transfer.Price, transfer.International, transfer.InternationalCaps = 0, true, 10
+	if s := ScoreTarget(profile, transfer, newRng(1)); s.Projection <= 0 || s.Reputation <= 0 {
+		t.Fatalf("test setup: the signing should have a projection and a reputation bonus, got %v / %v", s.Projection, s.Reputation)
+	}
+	loan := transfer
+	loan.Loan, loan.LoanSeasons = true, 1
+	if s := ScoreTarget(profile, loan, newRng(1)); s.Projection != 0 || s.Reputation != 0 || s.Project {
+		t.Errorf("a loan has no projection or reputation, got %v / %v / project=%v", s.Projection, s.Reputation, s.Project)
+	}
+}
+
+func TestScoreTarget_LoanPayrollOnlyCountsTheBorrowersShareOfTheWage(t *testing.T) {
+	squad := settledSquad()
+	target := midfielderAged(70, 95, 27)
+	target.Wage = 10_000
+	profile := AiTransferProfileFor(AiLevelDirector)
+	ctx := scoreContext(squad, target)
+	ctx.Price, ctx.WageBill, ctx.Budget = 0, 0, 150_000 // 20 rounds of the full wage need 200k, of half of it 100k
+
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.Affordable {
+		t.Fatal("test setup: signing him on his full wage should be unaffordable")
+	}
+	ctx.Loan, ctx.LoanSeasons = true, 1
+	if s := ScoreTarget(profile, ctx, newRng(1)); s.Affordable {
+		t.Error("a loan with no wage contribution carries the whole wage")
+	}
+	ctx.LoanWageContributionPercent = 50
+	if s := ScoreTarget(profile, ctx, newRng(1)); !s.Affordable {
+		t.Error("with the lender covering 50% the payroll runway is met")
+	}
+	ctx.LoanWageContributionPercent = 100
+	ctx.WageFactor = 2
+	if s := ScoreTarget(profile, ctx, newRng(1)); !s.Affordable {
+		t.Error("a lender covering everything leaves the payroll untouched whatever the wage factor")
 	}
 }

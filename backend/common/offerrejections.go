@@ -17,6 +17,13 @@ const (
 	AiMaxOpenOffersPerHumanPlayer = 3
 	// AiMaxOpenOffersPerTeam is how many offers one CPU team may have open at a time.
 	AiMaxOpenOffersPerTeam = 4
+	// AiMaxLoanedIn is how many players may be on loan to one CPU team at once.
+	AiMaxLoanedIn = 2
+	// AiMaxOpenLoanListings is how many loan listings one CPU team may have open, and
+	// AiMaxLoanedOut how many of its players may be out on loan, at a time (a team starts at most
+	// one new listing per management tick).
+	AiMaxOpenLoanListings = 2
+	AiMaxLoanedOut        = 3
 	// AiOfferCooldown is how long a CPU team leaves a player alone after he rejected (or ignored)
 	// its offer; when it comes back, it has to raise the bid - see AiRebidMultiple.
 	AiOfferCooldown = 72 * time.Hour

@@ -47,6 +47,10 @@ const (
 	candidateFreeAgent candidateKind = iota
 	candidateListed
 	candidateUnlisted
+	// candidateLoan is a listing on the loan market; candidateBuyOption a player already on loan to
+	// the team whose loan carries a buy option, scored as a permanent signing at the option fee.
+	candidateLoan
+	candidateBuyOption
 )
 
 // transferCandidate is one player a CPU team could sign, and how.
@@ -59,7 +63,13 @@ type transferCandidate struct {
 	// players have none (the team bids). MinBid is the least a rebid may be after a rejection.
 	AskingPrice int64
 	MinBid      int64
-	Caps        *common.PlayerSkillCaps
+	// LoanSeasons, LoanWageContributionPercent and BuyOptionFee are the terms of a loan listing
+	// (candidateLoan; AskingPrice is then its loan fee) or the buy option of a loan the team is
+	// already in (candidateBuyOption; BuyOptionFee is then the price).
+	LoanSeasons                 int
+	LoanWageContributionPercent int
+	BuyOptionFee                int64
+	Caps                        *common.PlayerSkillCaps
 	// International/NationalCaps say whether he is in a national-team pool (see
 	// common.NationalRadar) and with how many caps.
 	International bool
@@ -73,8 +83,14 @@ type transferState struct {
 	Squad      []*common.Player
 	Listed     map[int64]bool
 	LoanListed map[int64]bool
-	Budget     int64
-	WageBill   int64
+	// LoanedIn are the players on loan to the team and Loans the terms of those loans;
+	// CurrentSeason is the team's country's current season (a loan returns when it reaches the
+	// loan's ReturnSeason).
+	LoanedIn      []*common.Player
+	Loans         []common.PlayerLoan
+	CurrentSeason int
+	Budget        int64
+	WageBill      int64
 	// WageFactor is the team's division wage factor - WageBill already includes it.
 	WageFactor float64
 	// OpenOffers is how many offers the team currently has out.
@@ -84,9 +100,23 @@ type transferState struct {
 	Protected map[int64]bool
 }
 
-// available is the squad the team can count on: owned and not already up for sale.
+// available is the squad the team can count on: owned and not already up for sale, on the
+// transfer list or on the loan market.
 func (s *transferState) available() []*common.Player {
-	return withoutPlayers(s.Squad, s.Listed)
+	return withoutPlayers(withoutPlayers(s.Squad, s.Listed), s.LoanListed)
+}
+
+// playingSquad is available plus the players on loan to the team: everyone who will play for it
+// this season, which is what a loan or a buy option is scored against. A transfer is scored
+// against available alone, since a loanee goes back when his loan ends.
+func (s *transferState) playingSquad() []*common.Player {
+	return append(s.available(), s.LoanedIn...)
+}
+
+// playingSquadWithout is playingSquad minus one player - the squad a buy option's player would
+// leave behind.
+func (s *transferState) playingSquadWithout(playerId int64) []*common.Player {
+	return withoutPlayers(s.playingSquad(), map[int64]bool{playerId: true})
 }
 
 // projectsInUse approximates how many places the team has given to young players it has not yet
@@ -118,8 +148,15 @@ type scoredCandidate struct {
 // aiBaseBidMultiple of the team's valuation; if he already rejected an offer it must at least beat
 // the rebid floor, and a floor above aiMaxBidValueMultiple of the valuation rules the player out.
 func scoreOne(profile common.AiTransferProfile, state *transferState, c transferCandidate, rng *rand.Rand) (common.TargetScore, bool) {
+	squad := state.available()
+	switch c.Kind {
+	case candidateLoan:
+		squad = state.playingSquad()
+	case candidateBuyOption:
+		squad = state.playingSquadWithout(c.Player.Id)
+	}
 	ctx := common.TargetContext{
-		Squad:         state.available(),
+		Squad:         squad,
 		Target:        c.Player,
 		Caps:          c.Caps,
 		Price:         c.AskingPrice,
@@ -131,8 +168,14 @@ func scoreOne(profile common.AiTransferProfile, state *transferState, c transfer
 		International:     c.International,
 		InternationalCaps: c.NationalCaps,
 	}
-	if c.Kind == candidateUnlisted {
+	switch c.Kind {
+	case candidateUnlisted:
 		ctx.BidMultiple = aiBaseBidMultiple
+	case candidateLoan:
+		ctx.Loan, ctx.LoanSeasons = true, c.LoanSeasons
+		ctx.LoanWageContributionPercent, ctx.BuyOptionFee = c.LoanWageContributionPercent, c.BuyOptionFee
+	case candidateBuyOption:
+		ctx.Price = c.BuyOptionFee
 	}
 	score := common.ScoreTarget(profile, ctx, rng)
 	if c.Kind == candidateUnlisted && c.MinBid > score.Price {
@@ -172,16 +215,27 @@ func rankCandidates(profile common.AiTransferProfile, state *transferState, cand
 }
 
 // pickNextTarget chooses the best-ranked candidate the team can act on right now: a team whose
-// effective squad is at common.MaxAiSquadSize signs nobody (it has to sell first), and only
-// offersLeft more offers for unlisted players may be started this pass.
+// effective squad - owned players it can count on plus the ones on loan to it - is at
+// common.MaxAiSquadSize takes on nobody (it has to sell first; exercising a buy option adds no
+// body, so that still goes ahead), a team with common.AiMaxLoanedIn players on loan accepts no
+// more loans, and only offersLeft more offers for unlisted players may be started this pass.
 func pickNextTarget(ranked []scoredCandidate, state *transferState, offersLeft int) *scoredCandidate {
-	if len(state.available()) >= common.MaxAiSquadSize {
-		return nil
-	}
+	atCap := len(state.available())+len(state.LoanedIn) >= common.MaxAiSquadSize
 	for i := range ranked {
-		if ranked[i].Kind == candidateUnlisted &&
-			(offersLeft <= 0 || state.OpenOffers >= common.AiMaxOpenOffersPerTeam) {
-			continue
+		switch ranked[i].Kind {
+		case candidateBuyOption:
+		case candidateLoan:
+			if atCap || len(state.LoanedIn) >= common.AiMaxLoanedIn {
+				continue
+			}
+		case candidateUnlisted:
+			if atCap || offersLeft <= 0 || state.OpenOffers >= common.AiMaxOpenOffersPerTeam {
+				continue
+			}
+		default:
+			if atCap {
+				continue
+			}
 		}
 		return &ranked[i]
 	}
@@ -229,11 +283,11 @@ func planSellToBuy(profile common.AiTransferProfile, state *transferState, candi
 		return nil
 	}
 	available := state.available()
-	squadFull := len(available) >= common.MaxAiSquadSize
+	squadFull := len(available)+len(state.LoanedIn) >= common.MaxAiSquadSize
 
 	var best *sellPlan
 	for _, c := range candidates {
-		if attempted[c.Player.Id] || c.Kind == candidateFreeAgent {
+		if attempted[c.Player.Id] || c.Kind == candidateFreeAgent || c.Kind == candidateLoan || c.Kind == candidateBuyOption {
 			continue
 		}
 		base, ok := scoreOne(profile, state, c, rng)
@@ -301,16 +355,33 @@ func loadTransferState(dbCtx *common.DatabaseContext, team *common.Team) (*trans
 	if err != nil {
 		return nil, err
 	}
+	loans, err := common.GetLoansToTeam(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	currentSeason, err := common.GetCurrentSeasonForTeam(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
 	squad := ownedPlayers(*players, commitments.LoanedIn)
+	loanedIn := make([]*common.Player, 0, len(commitments.LoanedIn))
+	for _, p := range *players {
+		if commitments.LoanedIn[p.Id] {
+			loanedIn = append(loanedIn, p)
+		}
+	}
 	return &transferState{
-		Squad:      squad,
-		Listed:     commitments.TransferListed,
-		LoanListed: commitments.LoanListed,
-		Budget:     budget,
-		WageBill:   wageBill,
-		WageFactor: wageFactor,
-		OpenOffers: len(sent),
-		Protected:  protectedFromListing(dbCtx, team, squad),
+		Squad:         squad,
+		Listed:        commitments.TransferListed,
+		LoanListed:    commitments.LoanListed,
+		LoanedIn:      loanedIn,
+		Loans:         loans,
+		CurrentSeason: currentSeason,
+		Budget:        budget,
+		WageBill:      wageBill,
+		WageFactor:    wageFactor,
+		OpenOffers:    len(sent),
+		Protected:     protectedFromListing(dbCtx, team, squad),
 	}, nil
 }
 
@@ -404,6 +475,51 @@ func radarCandidateIds(radar *common.NationalRadar, available []*common.Player, 
 	return ids
 }
 
+// loanListingCandidate turns a loan-market listing into a candidate: AskingPrice is its loan fee.
+func loanListingCandidate(l common.LoanListing) transferCandidate {
+	return transferCandidate{
+		Player: l.Player, Kind: candidateLoan, ListingId: l.ListingId, SellerTeamId: l.LendingTeamId,
+		AskingPrice: l.LoanFee, LoanSeasons: l.DurationSeasons,
+		LoanWageContributionPercent: l.WageContributionPercent, BuyOptionFee: l.BuyOptionFee,
+	}
+}
+
+// loanListingCandidates are the loan-market listings a team may take: not its own, nobody it
+// already sees elsewhere, and nobody past aiMaxPlayerAge. Each player taken is marked in seen.
+func loanListingCandidates(listings []common.LoanListing, teamId int64, seen map[int64]bool) []transferCandidate {
+	candidates := make([]transferCandidate, 0)
+	for _, l := range listings {
+		if l.LendingTeamId == teamId || seen[l.Player.Id] || l.Player.Age > aiMaxPlayerAge {
+			continue
+		}
+		seen[l.Player.Id] = true
+		candidates = append(candidates, loanListingCandidate(l))
+	}
+	return candidates
+}
+
+// buyOptionCandidates are the players on loan to the team whose loan carries a buy option and
+// ends at the coming rollover (the loan returns once the season reaches its ReturnSeason, so in
+// its last season ReturnSeason - CurrentSeason is 1). Before that there is still time to see how
+// the player does, and a player past aiMaxPlayerAge isn't worth a fee.
+func buyOptionCandidates(state *transferState) []transferCandidate {
+	loanedIn := make(map[int64]*common.Player, len(state.LoanedIn))
+	for _, p := range state.LoanedIn {
+		loanedIn[p.Id] = p
+	}
+	candidates := make([]transferCandidate, 0)
+	for _, loan := range state.Loans {
+		p, ok := loanedIn[loan.PlayerId]
+		if !ok || loan.BuyOptionFee <= 0 || loan.ReturnSeason-state.CurrentSeason > 1 || p.Age > aiMaxPlayerAge {
+			continue
+		}
+		candidates = append(candidates, transferCandidate{
+			Player: *p, Kind: candidateBuyOption, SellerTeamId: loan.FromTeamId, BuyOptionFee: loan.BuyOptionFee,
+		})
+	}
+	return candidates
+}
+
 // gatherCandidates collects everyone the profile lets the team look at: the best free agents, the
 // transfer list, and - for a Director - the best players at each position anywhere in the world
 // (human managers' squads included) plus a scouting sample of youngsters. Players the team has an
@@ -413,6 +529,9 @@ func gatherCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile 
 	candidates := make([]transferCandidate, 0)
 	seen := map[int64]bool{}
 	for _, p := range state.Squad {
+		seen[p.Id] = true
+	}
+	for _, p := range state.LoanedIn {
 		seen[p.Id] = true
 	}
 
@@ -447,6 +566,15 @@ func gatherCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile 
 					SellerTeamId: l.SellingTeamId, AskingPrice: l.AskingPrice,
 				})
 			}
+		}
+	}
+
+	if profile.SearchesLoanList {
+		candidates = append(candidates, buyOptionCandidates(state)...)
+		if listings, err := common.GetActiveLoanListings(dbCtx); err != nil {
+			log.Errorf("error fetching loan listings for AI-managed team %d: %s", team.Id, err)
+		} else {
+			candidates = append(candidates, loanListingCandidates(listings, team.Id, seen)...)
 		}
 	}
 
@@ -558,6 +686,30 @@ func executeTransferMove(dbCtx *common.DatabaseContext, team *common.Team, profi
 			return false
 		}
 		recordAiMarketAction(team, "bought_listed", target.Player.Id, target.AskingPrice)
+		return true
+
+	case candidateLoan:
+		if err := common.AcceptLoan(dbCtx, target.ListingId, team.Id); err != nil {
+			if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
+				!errors.Is(err, common.ErrLoanListingNotFound) && !errors.Is(err, common.ErrCannotAcceptOwnLoan) &&
+				!errors.Is(err, common.ErrTeamInsolvent) {
+				log.Errorf("error accepting loan listing %d for AI-managed team %d: %s", target.ListingId, team.Id, err)
+			}
+			return false
+		}
+		recordAiMarketAction(team, "loaned_in", target.Player.Id, target.AskingPrice)
+		return true
+
+	case candidateBuyOption:
+		if err := common.ExerciseLoanBuyOption(dbCtx, target.Player.Id, team.Id); err != nil {
+			if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
+				!errors.Is(err, common.ErrPlayerNotOnLoan) && !errors.Is(err, common.ErrPlayerNotOnLoanToTeam) &&
+				!errors.Is(err, common.ErrNoBuyOptionOnLoan) && !errors.Is(err, common.ErrTeamInsolvent) {
+				log.Errorf("error exercising the buy option on player %d for AI-managed team %d: %s", target.Player.Id, team.Id, err)
+			}
+			return false
+		}
+		recordAiMarketAction(team, "exercised_buy_option", target.Player.Id, target.BuyOptionFee)
 		return true
 
 	default:

@@ -95,6 +95,8 @@ const DeletePlayerLoanStmtSql = "DELETE FROM player_loans WHERE loan_id = $1"
 // engine.AdvanceSeasonsIfComplete / engine.ReturnExpiredLoans).
 const GetExpiredLoansStmtSql = "SELECT pl.loan_id, pl.player_id, pl.from_team_id, pl.to_team_id, pl.return_season, pl.release_on_return " +
 	"FROM player_loans pl JOIN teams t ON t.team_id = pl.to_team_id WHERE t.country = $1 AND pl.return_season <= $2"
+const GetLoansToTeamStmtSql = "SELECT loan_id, player_id, from_team_id, to_team_id, return_season, wage_contribution_percent, buy_option_fee, release_on_return " +
+	"FROM player_loans WHERE to_team_id = $1 ORDER BY loan_id"
 const GetActiveLoanForPlayerForUpdateStmtSql = "SELECT loan_id, from_team_id, to_team_id, buy_option_fee FROM player_loans WHERE player_id = $1 " + ForUpdate
 
 // GetTeamLoanWageContributionStmtSql sums, for every player teamId currently has out on loan with
@@ -520,4 +522,25 @@ func ReturnLoan(dbCtx *DatabaseContext, loan PlayerLoan) error {
 	}
 
 	return tx.Commit()
+}
+
+// GetLoansToTeam lists every player currently on loan to teamId with the terms the loan carries
+// (return season, wage contribution, buy-option fee) - lets a CPU team decide on a buy option.
+func GetLoansToTeam(dbCtx *DatabaseContext, teamId int64) ([]PlayerLoan, error) {
+	rows, err := dbCtx.Db.Query(GetLoansToTeamStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	loans := make([]PlayerLoan, 0)
+	for rows.Next() {
+		var loan PlayerLoan
+		if err := rows.Scan(&loan.LoanId, &loan.PlayerId, &loan.FromTeamId, &loan.ToTeamId, &loan.ReturnSeason,
+			&loan.WageContributionPercent, &loan.BuyOptionFee, &loan.ReleaseOnReturn); err != nil {
+			return nil, err
+		}
+		loans = append(loans, loan)
+	}
+	return loans, rows.Err()
 }

@@ -88,8 +88,13 @@ Every CPU market action SHALL increment `striker.ai.market_actions` (by action) 
 
 ## Code map
 
-- `backend/engine/aitransfers.go` (`runAiTransferPass`, candidate sizes, bid constants).
-- `common/transferscoring.go` (`ScoreTarget`, `MaxAiSquadSize`, `MaxProjects`,
-  `ListingAskingPrice`), `common/aimanager.go` (`AiTransferProfile`), `common/aimarket.go`,
+- `backend/engine/aitransfers.go` (`runAiTransferPass`, candidate sizes, bid constants; loans:
+  `candidateLoan` / `candidateBuyOption`, `loanListingCandidates`, `buyOptionCandidates`,
+  `transferState.playingSquad`, the loan branches of `scoreOne`, `pickNextTarget` and
+  `executeTransferMove`).
+- `common/transferscoring.go` (`ScoreTarget` and its loan context `TargetContext.Loan`,
+  `loanFairFeeShare`, `loanBuyOptionBonus`, `MaxAiSquadSize`, `MaxProjects`,
+  `ListingAskingPrice`), loan readers in `common/loans.go` (`GetActiveLoanListings`,
+  `GetLoansToTeam`), limit `common.AiMaxLoanedIn` (`common/offerrejections.go`), `common/aimanager.go` (`AiTransferProfile`), `common/aimarket.go`,
   `common/offerrejections.go` (offer limits, cooldown, `player_offer_rejections`),
   `common/nationalradar.go` (`GetNationalRadar`), `common/telemetry.go`.

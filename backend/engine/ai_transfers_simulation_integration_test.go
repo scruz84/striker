@@ -50,6 +50,12 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	}
 
 	common.ResetNationalRadarCache() // pools are rebuilt over this world's players
+	// Earlier tests in the package leave listings and free agents in the shared database; clear
+	// what a CPU team could prefer to this world's market (free agents are put out of reach by
+	// age - the CPU ignores anyone over aiMaxPlayerAge - rather than deleted).
+	exec(`DELETE FROM loan_listings`)
+	exec(`DELETE FROM transfer_listings`)
+	exec(`UPDATE players SET age = 50 WHERE team_id IS NULL`)
 	exec(`INSERT INTO season (transfer_window_open) SELECT true WHERE NOT EXISTS (SELECT 1 FROM season)`)
 	exec(`UPDATE season SET transfer_window_open = true, offer_negotiation_window_minutes = 0`)
 	exec(`INSERT INTO countries (name, current_season) VALUES ('zx', 1) ON CONFLICT (name) DO NOTHING`)
@@ -113,6 +119,12 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 		seedSquad(h)
 		humanStars = append(humanStars, newPlayer(h, common.STRIKER, 97, 26))
 	}
+	// Each human also offers a very good striker on a free 1-season loan: a Manager or a Director
+	// with weaker strikers should take it, and a Caretaker never looks at the loan market.
+	for _, h := range humans {
+		loanStar := newPlayer(h, common.STRIKER, 96, 24)
+		exec(`INSERT INTO loan_listings (player_id, lending_team_id, duration_seasons) VALUES ($1, $2, 1)`, loanStar, h)
+	}
 	for i := 0; i < 6; i++ {
 		newPlayer(nil, []int{common.GOALKEEPER, common.DEFENSE, common.MIDFIELD, common.STRIKER}[i%4], 85+gen.Intn(10), 25)
 	}
@@ -135,6 +147,22 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 					t.Errorf("day %d: team %d (level %d) has %d players at position %d, under the minimum %d",
 						day, c.id, c.level, depth, position, common.MinPositionDepth[position])
 				}
+			}
+			commitments, err := common.GetTeamMarketCommitments(dbCtx, c.id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if n := len(commitments.LoanedIn); n > common.AiMaxLoanedIn {
+				t.Errorf("day %d: team %d has %d players on loan, over the cap %d", day, c.id, n, common.AiMaxLoanedIn)
+			}
+			if n := len(commitments.LoanListed); n > common.AiMaxOpenLoanListings {
+				t.Errorf("day %d: team %d has %d loan listings open, over the cap %d", day, c.id, n, common.AiMaxOpenLoanListings)
+			}
+			if n := len(commitments.LoanedOut) + len(commitments.LoanListed); n > common.AiMaxLoanedOut {
+				t.Errorf("day %d: team %d has %d players out or about to go out on loan, over the cap %d", day, c.id, n, common.AiMaxLoanedOut)
+			}
+			if c.level == common.AiLevelCaretaker && len(commitments.LoanedIn)+len(commitments.LoanedOut)+len(commitments.LoanListed) != 0 {
+				t.Errorf("day %d: caretaker %d is involved in a loan", day, c.id)
 			}
 			var open int
 			if err := db.QueryRow(`SELECT count(*) FROM transfer_offers WHERE from_team_id = $1`, c.id).Scan(&open); err != nil {
@@ -255,6 +283,17 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 		}
 	}
 
+	// The loan market is used: somebody borrowed a human's striker, and only a Manager or Director did.
+	loans := count(`SELECT count(*) FROM player_loans pl JOIN teams t ON t.team_id = pl.to_team_id WHERE t.owner_id IS NULL`)
+	if loans == 0 {
+		t.Error("no CPU team took a free loan of a 96-rated striker")
+	}
+	for _, caretaker := range isLevel(common.AiLevelCaretaker) {
+		if n := count(`SELECT count(*) FROM player_loans WHERE to_team_id = $1 OR from_team_id = $1`, caretaker); n != 0 {
+			t.Errorf("caretaker %d has %d loans, want 0", caretaker, n)
+		}
+	}
+
 	signings := 0
 	for _, c := range cpus {
 		signings += count(`SELECT count(*) FROM player_transfers WHERE to_team_id = $1 AND created_at > $2`, c.id, startedAt)
@@ -269,5 +308,5 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	if offers == 0 {
 		t.Errorf("no Director bid for the humans' 97-rated strikers in %d days", days)
 	}
-	t.Logf("over %d days: %d signings by CPU teams, %d offers by Directors (all turned down)", days, signings, offers)
+	t.Logf("over %d days: %d signings by CPU teams, %d offers by Directors (all turned down), %d loans to CPU teams", days, signings, offers, loans)
 }

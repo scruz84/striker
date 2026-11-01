@@ -131,6 +131,7 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 
 	renewExpiringContracts(dbCtx, team.Id, *players)
 	listSurplusPlayer(dbCtx, team, *players)
+	manageLoanListings(dbCtx, team, *players)
 	promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players)
 	maximizeTicketPrice(dbCtx, team.Id)
 }
@@ -381,12 +382,10 @@ func ownedPlayers(players []*common.Player, loanedIn map[int64]bool) []*common.P
 	return owned
 }
 
-// protectedFromListing is who a CPU team won't list as surplus: anyone it signed within
-// common.AiMinHoldPeriod, every international (a player in his country's national-team pool - see
-// common.NationalRadar), and - for a profile that signs projects - every player young enough to
-// still be one, since a prospect on the bench of a deep position is exactly what such a team
-// bought him to be.
-func protectedFromListing(dbCtx *common.DatabaseContext, team *common.Team, owned []*common.Player) map[int64]bool {
+// recentlySignedOrInternational is who a CPU team never sells or lends however surplus they look:
+// anyone it signed within common.AiMinHoldPeriod and every international (a player in his
+// country's national-team pool - see common.NationalRadar).
+func recentlySignedOrInternational(dbCtx *common.DatabaseContext, team *common.Team, owned []*common.Player) map[int64]bool {
 	protected, err := common.GetPlayerIdsAcquiredSince(dbCtx, team.Id, time.Now().Add(-common.AiMinHoldPeriod))
 	if err != nil {
 		log.Errorf("error reading recent signings of AI-managed team %d: %s", team.Id, err)
@@ -401,6 +400,15 @@ func protectedFromListing(dbCtx *common.DatabaseContext, team *common.Team, owne
 			}
 		}
 	}
+	return protected
+}
+
+// protectedFromListing is who a CPU team won't list as surplus: anyone it signed within
+// common.AiMinHoldPeriod, every international, and - for a profile that signs projects - every
+// player young enough to still be one, since a prospect on the bench of a deep position is
+// exactly what such a team bought him to be.
+func protectedFromListing(dbCtx *common.DatabaseContext, team *common.Team, owned []*common.Player) map[int64]bool {
+	protected := recentlySignedOrInternational(dbCtx, team, owned)
 	if common.AiTransferProfileFor(team.AiLevel).SignsProjects {
 		for _, p := range owned {
 			if p.Age < common.ProjectionMaxAge {

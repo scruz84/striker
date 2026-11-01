@@ -178,7 +178,15 @@ At kickoff of a friendly a CPU team SHALL start an XI and schedule 3 substitutio
 - `backend/engine/aiteams.go` (`isAiManagedTeam`, `RunAITeamMatchReaction`,
   `RunAITeamManagement`, `RespondToAllPendingOffers`, `manageRosterIfManager`,
   `listSurplusPlayer`, `promoteFromAcademyForWeakestPosition`, `maximizeTicketPrice`,
-  `manageMarketIfDirector`, `refreshAiTeamLineup`, `RunAiTeamDailyActivity`).
+  `manageMarketIfDirector`, `refreshAiTeamLineup`, `RunAiTeamDailyActivity`,
+  `recentlySignedOrInternational`, `protectedFromListing`).
+- Lending: `backend/engine/ailoans.go` (`manageLoanListings`, `pickPlayerToLoanOut`,
+  `loanOutEligible`, `loanOutRoom`, `planLoanListingWithdrawals`, the `ai*Loan*` constants);
+  limits `common.AiMaxOpenLoanListings` / `AiMaxLoanedOut` (`common/offerrejections.go`); readers
+  `common.GetTeamMarketCommitments` (`LoanedOut`), `common.GetTeamTransferListings`
+  (`common/transfers.go`); profile flags `LendsPlayers` / `LoansOutYouth`
+  (`common/aimanager.go`). Tests: `engine/ailoans_test.go`,
+  `engine/cpu_loan_market_integration_test.go`.
 - Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,
   `planCompetitiveSubstitutions`, `aiSubstitutionGain`) and `common/ailineupfriendly.go`
   (`planFriendlyRotation`), validated with `common.ValidateLineup` / `ValidateSubstitutions`

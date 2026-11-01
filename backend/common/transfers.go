@@ -339,6 +339,8 @@ func isUniqueViolation(err error) bool {
 const GetTeamLoanedInPlayerIdsStmtSql = "SELECT player_id FROM player_loans WHERE to_team_id = $1"
 const GetTeamTransferListedPlayerIdsStmtSql = "SELECT player_id FROM transfer_listings WHERE selling_team_id = $1"
 const GetTeamLoanListedPlayerIdsStmtSql = "SELECT player_id FROM loan_listings WHERE lending_team_id = $1"
+const GetTeamLoanedOutPlayerIdsStmtSql = "SELECT player_id FROM player_loans WHERE from_team_id = $1"
+const GetTeamTransferListingsStmtSql = "SELECT player_id, asking_price, listed_at FROM transfer_listings WHERE selling_team_id = $1"
 
 // TeamMarketCommitments is which of a team's current squad players are already tied up on the
 // market one way or another - see GetTeamMarketCommitments. Each map is keyed by player id.
@@ -349,6 +351,8 @@ type TeamMarketCommitments struct {
 	TransferListed map[int64]bool
 	// LoanListed are players this team has offered out on loan.
 	LoanListed map[int64]bool
+	// LoanedOut are players this team owns that are currently out on loan to another club.
+	LoanedOut map[int64]bool
 }
 
 // GetTeamMarketCommitments fetches TeamMarketCommitments for teamId in three small queries -
@@ -367,7 +371,37 @@ func GetTeamMarketCommitments(dbCtx *DatabaseContext, teamId int64) (*TeamMarket
 	if err != nil {
 		return nil, err
 	}
-	return &TeamMarketCommitments{LoanedIn: loanedIn, TransferListed: listed, LoanListed: loanListed}, nil
+	loanedOut, err := queryPlayerIdSet(dbCtx, GetTeamLoanedOutPlayerIdsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return &TeamMarketCommitments{LoanedIn: loanedIn, TransferListed: listed, LoanListed: loanListed, LoanedOut: loanedOut}, nil
+}
+
+// TeamTransferListing is one of a team's own open transfer listings: what it asks and since when.
+type TeamTransferListing struct {
+	PlayerId    int64
+	AskingPrice int64
+	ListedAt    time.Time
+}
+
+// GetTeamTransferListings returns teamId's open transfer listings keyed by player id - lets a CPU
+// team see how long a surplus player has gone unsold (see engine.manageLoanListings).
+func GetTeamTransferListings(dbCtx *DatabaseContext, teamId int64) (map[int64]TeamTransferListing, error) {
+	rows, err := dbCtx.Db.Query(GetTeamTransferListingsStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	listings := make(map[int64]TeamTransferListing)
+	for rows.Next() {
+		var l TeamTransferListing
+		if err := rows.Scan(&l.PlayerId, &l.AskingPrice, &l.ListedAt); err != nil {
+			return nil, err
+		}
+		listings[l.PlayerId] = l
+	}
+	return listings, rows.Err()
 }
 
 func queryPlayerIdSet(dbCtx *DatabaseContext, query string, teamId int64) (map[int64]bool, error) {

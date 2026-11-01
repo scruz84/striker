@@ -63,6 +63,14 @@ const (
 	// keyPlayerStrengthDrop is how many best-XI points losing a starter must cost for him to
 	// count as irreplaceable even when the position keeps its minimum depth.
 	keyPlayerStrengthDrop = 6
+
+	// loanFairFeeShare is the loan fee a team considers fair, per season of the loan, as a share
+	// of its own valuation of the player: a loan fee at that level scores 0 for value for money,
+	// a free loan the full valueForMoneyCap and a fee at twice that level the full penalty.
+	loanFairFeeShare = 0.10
+	// loanBuyOptionBonus is added to a loan's score when it carries a buy option the team could
+	// afford to use without overpaying (a fee above 0 and at most its valuation of the player).
+	loanBuyOptionBonus = 2.0
 )
 
 // ageValueFactor scales a player's transfer value by age: a veteran is worth progressively less
@@ -372,6 +380,16 @@ type TargetContext struct {
 	// InternationalCaps his caps count - both only matter to a profile that values them.
 	International     bool
 	InternationalCaps int
+
+	// Loan prices the signing as a loan (a candidate from the loan market): Price is then the loan
+	// fee, LoanSeasons how long the loan lasts, LoanWageContributionPercent the share of the wage
+	// the lender keeps covering (0 = the team pays all of it) and BuyOptionFee the fixed fee that
+	// would make the move permanent (0 = no option). A loan earns neither a growth projection
+	// nor a reputation bonus, since the player goes back when it ends.
+	Loan                        bool
+	LoanSeasons                 int
+	LoanWageContributionPercent int
+	BuyOptionFee                int64
 }
 
 // TargetScore is ScoreTarget's verdict, broken into the parts that make it up.
@@ -388,6 +406,8 @@ type TargetScore struct {
 	Projection    float64
 	ValueForMoney float64
 	Reputation    float64
+	// BuyOption is the bonus a loan earns for carrying a fair buy option (loans only).
+	BuyOption float64
 	// Value is the team's perceived worth of the candidate - what it would stop at when raising
 	// a bid. Price is what the signing was scored at (the context's, or the bid it implied).
 	Value int64
@@ -454,6 +474,9 @@ func ScoreTarget(profile AiTransferProfile, ctx TargetContext, rng *rand.Rand) T
 			newWage = int64(PlayerWageFromSkills(ctx.Target.GoalKeeper, ctx.Target.Defense, ctx.Target.Lateral,
 				ctx.Target.Pass, ctx.Target.Midfield, ctx.Target.Dribbling, ctx.Target.Shot))
 		}
+		if ctx.Loan {
+			newWage = newWage * int64(100-clampPercent(ctx.LoanWageContributionPercent)) / 100
+		}
 		if ctx.WageFactor > 0 {
 			newWage = ApplyWageFactor(newWage, ctx.WageFactor)
 		}
@@ -473,7 +496,7 @@ func ScoreTarget(profile AiTransferProfile, ctx TargetContext, rng *rand.Rand) T
 		score.Improvement += thinPositionBonus
 	}
 
-	if profile.SignsProjects && ctx.Target.Age < ProjectionMaxAge && ctx.ProjectsInUse < MaxProjects &&
+	if profile.SignsProjects && !ctx.Loan && ctx.Target.Age < ProjectionMaxAge && ctx.ProjectsInUse < MaxProjects &&
 		float64(score.Price) <= float64(ctx.Budget)*maxProjectBudgetShare {
 		projected := ProjectPlayer(seen, ctx.Caps, profile, rng)
 		withProjected := SquadStrength(append(append([]*Player(nil), ctx.Squad...), &projected))
@@ -487,11 +510,19 @@ func ScoreTarget(profile AiTransferProfile, ctx TargetContext, rng *rand.Rand) T
 	if score.Price == 0 {
 		score.ValueForMoney = valueForMoneyCap
 	} else if score.Value > 0 {
-		ratio := float64(score.Price) / float64(score.Value)
+		reference := float64(score.Value)
+		if ctx.Loan {
+			reference *= loanFairFeeShare * float64(maxInt(ctx.LoanSeasons, 1))
+		}
+		ratio := float64(score.Price) / reference
 		score.ValueForMoney = math.Max(-valueForMoneyCap, math.Min(valueForMoneyCap, (1-ratio)*valueForMoneyWeight))
 	}
 
-	if ctx.International && profile.InternationalPremium > 0 {
+	if ctx.Loan && ctx.BuyOptionFee > 0 && ctx.BuyOptionFee <= score.Value {
+		score.BuyOption = loanBuyOptionBonus
+	}
+
+	if ctx.International && !ctx.Loan && profile.InternationalPremium > 0 {
 		caps := ctx.InternationalCaps
 		if caps > internationalCapsCap {
 			caps = internationalCapsCap
@@ -499,6 +530,23 @@ func ScoreTarget(profile AiTransferProfile, ctx TargetContext, rng *rand.Rand) T
 		score.Reputation = internationalBonusBase + internationalBonusPerCap*float64(caps)
 	}
 
-	score.Total = score.Improvement + score.Projection + score.ValueForMoney + score.Reputation
+	score.Total = score.Improvement + score.Projection + score.ValueForMoney + score.Reputation + score.BuyOption
 	return score
+}
+
+func clampPercent(p int) int {
+	if p < 0 {
+		return 0
+	}
+	if p > 100 {
+		return 100
+	}
+	return p
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
