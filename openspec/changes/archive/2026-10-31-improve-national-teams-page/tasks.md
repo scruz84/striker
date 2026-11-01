@@ -40,7 +40,7 @@
 ## 6. Specs and verification
 
 - [x] 6.1 Update the `national-teams` spec Code map (new files, endpoints, frontend components) and the frontend part of the `world-cup` Code map; verify `openspec validate improve-national-teams-page --strict`
-- [ ] 6.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass
+- [x] 6.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass
 
 ## Workflow follow-up
 
