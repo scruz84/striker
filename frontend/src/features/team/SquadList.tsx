@@ -4,6 +4,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import ButtonBase from '@mui/material/ButtonBase'
 import Divider from '@mui/material/Divider'
 import Drawer from '@mui/material/Drawer'
@@ -14,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
@@ -28,6 +30,7 @@ import {
   POSITION_MIDFIELD,
   POSITION_SHORT_LABEL_KEYS,
   POSITION_STRIKER,
+  type LoanedInPlayer,
   type Player,
   type PlayerUnavailability,
 } from '../../api/types'
@@ -71,14 +74,17 @@ interface SquadListProps {
   isOwnTeam: boolean
   unavailability: Map<number, PlayerUnavailability>
   transferListed: Set<number>
+  /** Players of `players` who are only on loan to this club - they get a "Loan" chip. */
+  loanedIn?: LoanedInPlayer[]
 }
 
 /** The squad as compact one-row cards (~64px each), grouped by position with a counter for the
  * manager's own team. Everything beyond name, age, position and rating - skills, contract,
  * actions - lives in a bottom sheet opened by tapping the card, so the whole squad fits in a couple
  * of screens and every figure there is labelled. */
-export function SquadList({ players, isOwnTeam, unavailability, transferListed }: SquadListProps) {
+export function SquadList({ players, isOwnTeam, unavailability, transferListed, loanedIn = [] }: SquadListProps) {
   const { t } = useTranslation()
+  const loanedInById = useMemo(() => new Map(loanedIn.map((loan) => [loan.playerId, loan])), [loanedIn])
   const [sortField, setSortField] = useState<SquadSortField>('name')
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [openPlayerId, setOpenPlayerId] = useState<number | null>(null)
@@ -105,6 +111,7 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed }
       isOwnTeam={isOwnTeam}
       unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
       forSale={isOwnTeam && transferListed.has(player.id)}
+      loanedIn={loanedInById.get(player.id)}
       onOpen={() => setOpenPlayerId(player.id)}
     />
   )
@@ -160,12 +167,14 @@ function SquadPlayerCard({
   isOwnTeam,
   unavailability,
   forSale,
+  loanedIn,
   onOpen,
 }: {
   player: Player
   isOwnTeam: boolean
   unavailability?: PlayerUnavailability
   forSale?: boolean
+  loanedIn?: LoanedInPlayer
   onOpen: () => void
 }) {
   const { t } = useTranslation()
@@ -192,6 +201,11 @@ function SquadPlayerCard({
             <CountryFlag code={player.birthCountry} height={14} />
             {unavailability && <UnavailabilityBadge unavailability={unavailability} size={18} />}
             {forSale && <TransferListedBadge size={18} />}
+            {loanedIn && (
+              <Tooltip title={t('team.loanedInTooltip', { team: loanedIn.parentTeamName, season: loanedIn.returnSeason })}>
+                <Chip size="small" variant="outlined" color="info" label={t('team.loanedInChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
+              </Tooltip>
+            )}
           </Stack>
         </Box>
         <Stack sx={{ alignItems: 'center', flexShrink: 0, pr: 0.5 }}>

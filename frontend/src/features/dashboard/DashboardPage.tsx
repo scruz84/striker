@@ -8,6 +8,7 @@ import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
 import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone'
 import LiveTvTwoToneIcon from '@mui/icons-material/LiveTvTwoTone'
+import OutboundTwoToneIcon from '@mui/icons-material/OutboundTwoTone'
 import ShuffleTwoToneIcon from '@mui/icons-material/ShuffleTwoTone'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
 import Accordion from '@mui/material/Accordion'
@@ -57,6 +58,7 @@ import {
   type DivisionDetails,
   type FinancesResponse,
   type LiveMatchSummary,
+  type LoanedOutPlayer,
   type Player,
   type Team,
   type TeamMatchSummary,
@@ -102,6 +104,14 @@ export function currentStanding(
 // renders a W/L/D result - so a still-live match is dropped here entirely rather than spoiling it
 // the instant kickoff arrives, well before its broadcast (shown elsewhere on this very dashboard)
 // finishes.
+/** The loans the dashboard's "Loaned out" card lists: the `limit` that come back soonest (return
+ * season, then name), so the manager sees which players return next. */
+export function soonestLoanReturns(loanedOut: LoanedOutPlayer[], limit: number): LoanedOutPlayer[] {
+  return [...loanedOut]
+    .sort((a, b) => a.returnSeason - b.returnSeason || a.player.lastName.localeCompare(b.player.lastName))
+    .slice(0, limit)
+}
+
 export function selectRecentForm(playedMatches: TeamMatchSummary[], limit: number): TeamMatchSummary[] {
   return playedMatches
     .filter((m) => !mightStillBeLive(m.matchDate))
@@ -231,6 +241,7 @@ export function DashboardPage() {
           />
         </Grid>
       </Grid>
+      <LoanedOutCard teamId={team.id} loanedOut={userTeam.loanedOut ?? []} />
       <LiveMatchesCard />
       {isDesktop ? (
         secondary
@@ -982,6 +993,37 @@ function GroupSnapshotCard({ teamId }: { teamId: number }) {
         </Stack>
       )}
     </StatCard>
+  )
+}
+
+// The manager's players currently out on loan (count, the three returning soonest) with a link to
+// the full list on his squad tab. Not rendered at all when nobody is out.
+function LoanedOutCard({ teamId, loanedOut }: { teamId: number; loanedOut: LoanedOutPlayer[] }) {
+  const { t } = useTranslation()
+  if (loanedOut.length === 0) return null
+  return (
+    <Box sx={{ mb: 2 }} data-testid="dashboard-loaned-out">
+      <StatCard
+        icon={<OutboundTwoToneIcon color="primary" fontSize="small" />}
+        title={t('dashboard.loanedOut.title')}
+        action={
+          <Button size="small" component={RouterLink} to={`/team/${teamId}?tab=squad`}>
+            {t('dashboard.loanedOut.seeAll')}
+          </Button>
+        }
+      >
+        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+          {t('dashboard.loanedOut.count', { count: loanedOut.length })}
+        </Typography>
+        <Stack spacing={0.25}>
+          {soonestLoanReturns(loanedOut, 3).map((loan) => (
+            <Typography key={loan.player.id} variant="body2" color="text.secondary">
+              {loan.player.firstName} {loan.player.lastName} · {loan.borrowingTeamName} · {t('dashboard.loanedOut.returns', { season: loan.returnSeason })}
+            </Typography>
+          ))}
+        </Stack>
+      </StatCard>
+    </Box>
   )
 }
 

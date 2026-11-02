@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { ClassificationPosition, DivisionDetails, TeamMatchSummary, WeekMatch } from '../../api/types'
-import { currentStanding, selectLastResult, selectLiveMatch, selectRecentForm } from './DashboardPage'
+import type { ClassificationPosition, DivisionDetails, LoanedOutPlayer, Player, TeamMatchSummary, WeekMatch } from '../../api/types'
+import { currentStanding, selectLastResult, selectLiveMatch, selectRecentForm, soonestLoanReturns } from './DashboardPage'
 
 function teamMatch(overrides: Partial<TeamMatchSummary>): TeamMatchSummary {
   return {
@@ -196,5 +196,33 @@ describe('selectLastResult', () => {
     const live = teamMatch({ matchId: 2, matchDate: minutesFromNow(-100), played: true, homeGoals: 3, awayGoals: 2 })
     const lastWeek = teamMatch({ matchId: 1, matchDate: minutesFromNow(-7 * 24 * 60) })
     expect(selectLastResult([live, lastWeek], new Set(['league:2']))).toBe(live)
+  })
+})
+
+function loan(id: number, lastName: string, returnSeason: number): LoanedOutPlayer {
+  return {
+    player: { id, firstName: 'Leo', lastName } as Player,
+    borrowingTeamId: 9,
+    borrowingTeamName: 'Borrower',
+    borrowingDivisionId: 1,
+    borrowingDivisionName: '1B',
+    returnSeason,
+    wageContributionPercent: 0,
+    buyOptionFee: 0,
+    goalsForBorrower: 0,
+  }
+}
+
+describe('soonestLoanReturns', () => {
+  it('keeps the three that return soonest, ties broken by last name, without mutating the input', () => {
+    const loans = [loan(1, 'Zed', 7), loan(2, 'Mora', 5), loan(3, 'Alba', 5), loan(4, 'Gil', 6)]
+    const top = soonestLoanReturns(loans, 3)
+    expect(top.map((l) => l.player.id)).toEqual([3, 2, 4])
+    expect(loans.map((l) => l.player.id)).toEqual([1, 2, 3, 4])
+  })
+
+  it('returns everything when there are fewer than the limit, and nothing for no loans', () => {
+    expect(soonestLoanReturns([loan(1, 'Zed', 7)], 3)).toHaveLength(1)
+    expect(soonestLoanReturns([], 3)).toEqual([])
   })
 })

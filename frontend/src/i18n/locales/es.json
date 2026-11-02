@@ -278,7 +278,13 @@
     },
     "squadCount": "{{count}} jugadores",
     "positionValue": "{{position}}º",
-    "moreSection": "Más información"
+    "moreSection": "Más información",
+    "loanedOut": {
+      "title": "Cedidos",
+      "count": "{{count}} fuera",
+      "returns": "vuelve la temporada {{season}}",
+      "seeAll": "Ver todos"
+    }
   },
   "seasonRecap": {
     "promoted": "¡Ascenso!",
@@ -981,9 +987,21 @@
   "recentTransfers": {
     "title": "Traspasos recientes",
     "empty": "Todavía no hay traspasos esta temporada.",
-    "from": "desde"
+    "from": "desde",
+    "loanChip": "Cesión",
+    "onLoanFrom": "cedido por",
+    "free": "Gratis"
   },
   "team": {
+    "loanedOut": {
+      "title": "Cedidos ({{count}})",
+      "returns": "Vuelve la temporada {{season}}",
+      "wageShare": "Pagamos el {{percent}}% de la ficha",
+      "buyOption": "Opción de compra {{fee}}",
+      "goals": "Goles: {{count}}"
+    },
+    "loanedInChip": "Cedido",
+    "loanedInTooltip": "Cedido por {{team}} hasta la temporada {{season}}",
     "competitions": "Competiciones:",
     "classificationPosition": "Posición {{position}} en la clasificación",
     "fanbase": "Afición:",

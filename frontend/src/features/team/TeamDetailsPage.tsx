@@ -49,6 +49,7 @@ import { EmptyState } from '../../components/EmptyState'
 import { ResponsiveTable } from '../../components/ResponsiveTable'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { LoanedOutSection } from './LoanedOutSection'
 import { SquadList } from './SquadList'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
@@ -225,7 +226,14 @@ export function TeamDetailsPage() {
               {t('team.nationalTeam.squadNote')}
             </Typography>
           )}
-          <SquadList players={teamDetails.players} isOwnTeam={isOwnTeam} unavailability={unavailability} transferListed={transferListed} />
+          <SquadList
+            players={teamDetails.players}
+            isOwnTeam={isOwnTeam}
+            unavailability={unavailability}
+            transferListed={transferListed}
+            loanedIn={teamDetails.loanedIn}
+          />
+          <LoanedOutSection loanedOut={teamDetails.loanedOut ?? []} isOwnTeam={isOwnTeam} />
         </Box>
       )}
 

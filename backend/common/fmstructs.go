@@ -379,6 +379,12 @@ type TeamDetails struct {
 	// knowledge too), unlike the owner-only hire/fire actions themselves. Never populated for a
 	// national team (see getNationalTeamDetails), which has no manager to hire one.
 	Trainer *Trainer `json:"trainer,omitempty"`
+	// LoanedOut lists the players this club has out on loan (see GetLoanedOutPlayers) and LoanedIn
+	// the players in Players who are only there on loan (see GetLoanedInPlayers). Public, like the
+	// loan market and player histories they come from, and always arrays (empty for a national
+	// team, which has no loans).
+	LoanedOut []LoanedOutPlayer `json:"loanedOut"`
+	LoanedIn  []LoanedInPlayer  `json:"loanedIn"`
 }
 
 // PlayerUnavailability is one player's current suspension or injury - Reason is

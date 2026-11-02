@@ -1380,12 +1380,23 @@ func GetFullTeamDetailsByUser(userId int64, isOwner bool, dbCtx *DatabaseContext
 		return nil, err5
 	}
 
+	loanedOut, err6 := GetLoanedOutPlayers(dbCtx, team.Id)
+	if err6 != nil {
+		return nil, err6
+	}
+	loanedIn, err7 := GetLoanedInPlayers(dbCtx, team.Id)
+	if err7 != nil {
+		return nil, err7
+	}
+
 	return &TeamDetails{
 		Team:                    team,
 		Players:                 *players,
 		Fanbase:                 fanbase,
 		Unavailability:          unavailability,
 		TransferListedPlayerIds: transferListedIds,
+		LoanedOut:               loanedOut,
+		LoanedIn:                loanedIn,
 	}, nil
 }
 
@@ -1658,6 +1669,25 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	if err != nil {
 		return nil, err
 	}
+	loanedOut, err := GetLoanedOutPlayers(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	loanedIn, err := GetLoanedInPlayers(dbCtx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	// A loaned-out player is someone else's rostered player now, so a visitor gets the same
+	// redaction as for the club's own squad (wage stays visible, see above).
+	if !isOwner {
+		for i := range loanedOut {
+			p := &loanedOut[i].Player
+			wage := p.Wage
+			p.RedactFinancials()
+			p.Wage = wage
+			p.RedactSkills(false)
+		}
+	}
 
 	return &TeamDetails{
 		Team:    team,
@@ -1668,7 +1698,9 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 			Capacity:      stadium.Capacity,
 			LastHomeMatch: lastHomeMatch,
 		},
-		Trainer: trainer,
+		Trainer:   trainer,
+		LoanedOut: loanedOut,
+		LoanedIn:  loanedIn,
 	}, nil
 }
 
@@ -1710,7 +1742,9 @@ func getNationalTeamDetails(dbCtx *DatabaseContext, teamId int64, country string
 			TeamName:       name,
 			IsNationalTeam: true,
 		},
-		Players: players,
+		Players:   players,
+		LoanedOut: []LoanedOutPlayer{},
+		LoanedIn:  []LoanedInPlayer{},
 	}, nil
 }
 

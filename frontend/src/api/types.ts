@@ -439,6 +439,33 @@ export interface TeamDetails {
   // which never has one) - see backend common.TeamDetails.Trainer. Public, same visibility tier
   // as stadium/fanbase; only the hire/fire actions themselves stay owner-only.
   trainer?: Trainer
+  // Players this club has out on loan, and the players of `players` who are only there on loan -
+  // see backend common.TeamDetails. Public, always arrays (empty for a national team).
+  loanedOut: LoanedOutPlayer[]
+  loanedIn: LoanedInPlayer[]
+}
+
+// A player a club has out on loan, with the borrower and the loan's terms. Mirrors backend
+// common.LoanedOutPlayer. wageContributionPercent is the share of the wage the lender keeps
+// paying; buyOptionFee is 0 when the loan has no buy option.
+export interface LoanedOutPlayer {
+  player: Player
+  borrowingTeamId: number
+  borrowingTeamName: string
+  borrowingDivisionId: number
+  borrowingDivisionName: string
+  returnSeason: number
+  wageContributionPercent: number
+  buyOptionFee: number
+  goalsForBorrower: number
+}
+
+// A squad player who is only on loan to the club. Mirrors backend common.LoanedInPlayer.
+export interface LoanedInPlayer {
+  playerId: number
+  parentTeamId: number
+  parentTeamName: string
+  returnSeason: number
 }
 
 // One player's current suspension or injury - reason is UNAVAILABLE_SUSPENSION or
@@ -1319,7 +1346,10 @@ export interface TransferMarketStats {
 // details page and the dashboard).
 export interface LeagueTransfer {
   player: Player
+  // The fee paid (>= 0) - the loan fee for a loan, 0 when it was free.
   amount: number
+  // One of the PLAYER_TRANSFER_* values; PLAYER_TRANSFER_LOAN rows get a "Loan" chip.
+  kind: number
   buyerTeamId: number
   buyerTeamName: string
   sellerTeamId: number

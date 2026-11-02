@@ -89,8 +89,9 @@ Re-runnable, no data change. No new `TRANSACTION_*` reason, no new notification 
 - [Panel ordering changes for historic rows] → `player_transfers` was backfilled from the same
   ledger rows (`init78`), so pre-existing transfers keep their timestamps and fees.
 - [Team details payload grows] → bounded by the number of active loans of one club (CPU ≤ 3).
-- [Team details caching] → `GetTeamDetailsById` is not cached today; if a cache is added later it
-  must be invalidated by `AcceptLoan`, `ExerciseLoanBuyOption` and `ReturnLoan`.
+- [Team details caching] → `engine.GetTeamDetails` caches the public view for about a minute, so another
+  club's page can lag a loan by that long, exactly as its squad already does; the owner's own view
+  (`/v1/user/team`) is read uncached.
 
 ## Code map (for the new `player-loans` spec)
 

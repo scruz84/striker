@@ -544,3 +544,96 @@ func GetLoansToTeam(dbCtx *DatabaseContext, teamId int64) ([]PlayerLoan, error) 
 	}
 	return loans, rows.Err()
 }
+
+// LoanedOutPlayer is a player a club has out on loan, with where he is and on what terms - see
+// GetLoanedOutPlayers. The borrowing club's wage share is the complement of WageContributionPercent
+// (the part the lender keeps paying); BuyOptionFee is zero when the loan carries no buy option.
+type LoanedOutPlayer struct {
+	Player                  Player `json:"player"`
+	BorrowingTeamId         int64  `json:"borrowingTeamId"`
+	BorrowingTeamName       string `json:"borrowingTeamName"`
+	BorrowingDivisionId     int64  `json:"borrowingDivisionId"`
+	BorrowingDivisionName   string `json:"borrowingDivisionName"`
+	ReturnSeason            int    `json:"returnSeason"`
+	WageContributionPercent int    `json:"wageContributionPercent"`
+	BuyOptionFee            int64  `json:"buyOptionFee"`
+	GoalsForBorrower        int    `json:"goalsForBorrower"`
+}
+
+// LoanedInPlayer marks a player of a club's squad who is only there on loan, so the squad list
+// can flag him without a per-player status request - see TeamDetails.LoanedIn.
+type LoanedInPlayer struct {
+	PlayerId       int64  `json:"playerId"`
+	ParentTeamId   int64  `json:"parentTeamId"`
+	ParentTeamName string `json:"parentTeamName"`
+	ReturnSeason   int    `json:"returnSeason"`
+}
+
+// GetLoanedOutPlayersStmtSql returns each loaned player's columns (playerColumnsSql) followed by
+// the loan's terms and the borrowing club and its division. A release-on-return loan (the lender
+// was reset, see ResetReleasedTeam) never shows: the player is not coming back to that club.
+const GetLoanedOutPlayersStmtSql = "SELECT " + playerColumnsSql + ", pl.to_team_id, t.name, t.league_id, l.name, pl.return_season, " +
+	"pl.wage_contribution_percent, pl.buy_option_fee " +
+	"FROM player_loans pl JOIN players p ON p.player_id = pl.player_id " +
+	"JOIN teams t ON t.team_id = pl.to_team_id JOIN leagues l ON l.league_id = t.league_id " +
+	"WHERE pl.from_team_id = $1 AND NOT pl.release_on_return ORDER BY pl.return_season, p.last_name, p.player_id"
+
+// GetLoanedInPlayersStmtSql lists the players on loan to a club with their parent club.
+const GetLoanedInPlayersStmtSql = "SELECT pl.player_id, pl.from_team_id, t.name, pl.return_season " +
+	"FROM player_loans pl JOIN teams t ON t.team_id = pl.from_team_id WHERE pl.to_team_id = $1 ORDER BY pl.loan_id"
+
+// GetLoanedOutPlayers lists the players teamId has out on loan, soonest return first, with the
+// goals each has scored for his current (borrowing) club. Never nil.
+func GetLoanedOutPlayers(dbCtx *DatabaseContext, teamId int64) ([]LoanedOutPlayer, error) {
+	rows, err := dbCtx.Db.Query(GetLoanedOutPlayersStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	loaned := make([]LoanedOutPlayer, 0)
+	for rows.Next() {
+		var l LoanedOutPlayer
+		player, err := scanPlayer(rows, &l.BorrowingTeamId, &l.BorrowingTeamName, &l.BorrowingDivisionId, &l.BorrowingDivisionName,
+			&l.ReturnSeason, &l.WageContributionPercent, &l.BuyOptionFee)
+		if err != nil {
+			return nil, err
+		}
+		l.Player = *player
+		loaned = append(loaned, l)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	rows.Close()
+
+	// A club has at most a handful of players out (a CPU club is capped by AiMaxLoanedOut), so one
+	// small read per player is fine.
+	for i := range loaned {
+		stats, err := GetPlayerCareerStats(dbCtx, loaned[i].Player.Id, loaned[i].BorrowingTeamId)
+		if err != nil {
+			return nil, err
+		}
+		loaned[i].GoalsForBorrower = stats.GoalsForTeam
+	}
+	return loaned, nil
+}
+
+// GetLoanedInPlayers lists the players currently on loan to teamId. Never nil.
+func GetLoanedInPlayers(dbCtx *DatabaseContext, teamId int64) ([]LoanedInPlayer, error) {
+	rows, err := dbCtx.Db.Query(GetLoanedInPlayersStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	loaned := make([]LoanedInPlayer, 0)
+	for rows.Next() {
+		var l LoanedInPlayer
+		if err := rows.Scan(&l.PlayerId, &l.ParentTeamId, &l.ParentTeamName, &l.ReturnSeason); err != nil {
+			return nil, err
+		}
+		loaned = append(loaned, l)
+	}
+	return loaned, rows.Err()
+}

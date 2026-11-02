@@ -278,7 +278,13 @@
     },
     "squadCount": "{{count}} players",
     "positionValue": "{{position}}th",
-    "moreSection": "More info"
+    "moreSection": "More info",
+    "loanedOut": {
+      "title": "Loaned out",
+      "count": "{{count}} out",
+      "returns": "returns season {{season}}",
+      "seeAll": "See all"
+    }
   },
   "seasonRecap": {
     "promoted": "Promoted!",
@@ -981,9 +987,21 @@
   "recentTransfers": {
     "title": "Recent transfers",
     "empty": "No transfers yet this season.",
-    "from": "from"
+    "from": "from",
+    "loanChip": "Loan",
+    "onLoanFrom": "on loan from",
+    "free": "Free"
   },
   "team": {
+    "loanedOut": {
+      "title": "Loaned out ({{count}})",
+      "returns": "Returns season {{season}}",
+      "wageShare": "Wage share {{percent}}%",
+      "buyOption": "Buy option {{fee}}",
+      "goals": "Goals: {{count}}"
+    },
+    "loanedInChip": "Loan",
+    "loanedInTooltip": "On loan from {{team}} until season {{season}}",
     "competitions": "Competitions:",
     "classificationPosition": "Position {{position}} in the classification",
     "fanbase": "Fanbase:",
