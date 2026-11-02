@@ -46,7 +46,7 @@ The factors SHALL be: price `1 − (price − 10) / 30` clamped to [0, 1.3]; for
 - **THEN** the rival factor is multiplied by 1.2
 
 ### Requirement: Weather drawn once
-The weather SHALL be drawn once per match (league match, cup tie or friendly) and used both for attendance and the match report.
+The weather SHALL be drawn once per match (league match, cup tie or friendly), before the simulation, and used for attendance and the match report. The attendance is drawn right after it, also before the simulation, so the same crowd sets the home advantage (see match-simulation) and the gate revenue.
 
 #### Scenario: Rainy match
 - **WHEN** a match's weather is rain
@@ -59,6 +59,10 @@ The weather SHALL be drawn once per match (league match, cup tie or friendly) an
 #### Scenario: Sunny friendly
 - **WHEN** a friendly's weather is drawn as sunny
 - **THEN** its attendance uses ×1.05 and its stored report weather is sunny
+
+#### Scenario: Form of the match itself
+- **WHEN** the attendance of a league match is drawn
+- **THEN** its form factor uses the home side's last 5 league matches before this one
 
 ### Requirement: Optimal ticket price
 The optimal price SHALL be the integer price from 1 to 39 that maximises expected `price × min(capacity, demand)` against an average visitor in average weather, ties going to the lower price.
