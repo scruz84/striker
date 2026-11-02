@@ -507,6 +507,19 @@ export interface Lineup {
   positions: LineupPosition[]
   substitutions: LineupSubstitution[]
   projectedReplacements?: ProjectedReplacement[]
+  // How the side plays (see backend common/mentality.go): MENTALITY_DEFENSIVE, _BALANCED or
+  // _ATTACKING. A played match's lineup carries the mentality it kicked off with.
+  mentality?: number
+}
+
+export const MENTALITY_DEFENSIVE = -1
+export const MENTALITY_BALANCED = 0
+export const MENTALITY_ATTACKING = 1
+
+export const MENTALITY_KEYS: Record<number, 'defensive' | 'balanced' | 'attacking'> = {
+  [MENTALITY_DEFENSIVE]: 'defensive',
+  [MENTALITY_BALANCED]: 'balanced',
+  [MENTALITY_ATTACKING]: 'attacking',
 }
 
 export interface MatchEvent {

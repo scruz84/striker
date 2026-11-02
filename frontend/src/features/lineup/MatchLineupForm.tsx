@@ -10,10 +10,22 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import Stack from '@mui/material/Stack'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { useTranslation } from 'react-i18next'
-import { FORMATION_LABEL_KEYS, type Lineup, type LineupPosition, type LineupSubstitution, type Player } from '../../api/types'
+import {
+  FORMATION_LABEL_KEYS,
+  MENTALITY_ATTACKING,
+  MENTALITY_BALANCED,
+  MENTALITY_DEFENSIVE,
+  MENTALITY_KEYS,
+  type Lineup,
+  type LineupPosition,
+  type LineupSubstitution,
+  type Player,
+} from '../../api/types'
 import { LineupSaveBar } from './LineupSaveBar'
 import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { PlayerBench } from './PlayerBench'
@@ -38,7 +50,7 @@ export interface MatchLineupFormProps {
   teamId: number
   players: Player[]
   lineup: Lineup
-  onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[]) => void
+  onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number) => void
   isSaving: boolean
   isError: boolean
   isSuccess: boolean
@@ -115,6 +127,8 @@ export function MatchLineupForm({
   } = useSubstitutionDrafts(lineup, usedPlayerIds, unavailability)
 
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
+  // How the side plays (openspec/specs/match-simulation "Team mentality"), saved with the lineup.
+  const [mentality, setMentality] = useState(lineup.mentality ?? MENTALITY_BALANCED)
 
   // Who would take each unavailable starter's slot if the match kicked off now (computed by the
   // server for the saved lineup). Dropped once the manager has fielded the replacement himself.
@@ -135,6 +149,7 @@ export function MatchLineupForm({
   const handleLoadPreviousLineup = (loaded: Lineup) => {
     loadLineup(loaded)
     resetSubstitutionDrafts()
+    setMentality(loaded.mentality ?? MENTALITY_BALANCED)
   }
 
   const handleFormationChange = (event: SelectChangeEvent<number>) => {
@@ -144,13 +159,13 @@ export function MatchLineupForm({
   const handleSubmit = () => {
     if (!isComplete) return
     const positions = visibleSelections.map((s) => ({ position: s.position, playerId: s.playerId as number }))
-    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [])
+    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [], mentality)
   }
 
   // "Unsaved changes" = the editor differs from what was last saved (or loaded, before the first
   // save). The snapshot is taken when Save is pressed and promoted to the baseline once the save
   // reports success, so an edit made while the request is in flight still counts as unsaved.
-  const currentKey = JSON.stringify({ formation, visibleSelections, drafts: substitutionsEnabled ? substitutionDrafts : [] })
+  const currentKey = JSON.stringify({ formation, mentality, visibleSelections, drafts: substitutionsEnabled ? substitutionDrafts : [] })
   const [initialKey] = useState(currentKey)
   const pendingKey = useRef<string | null>(null)
   const [savedKey, setSavedKey] = useState<string | null>(null)
@@ -195,6 +210,28 @@ export function MatchLineupForm({
           {t('lineup.copyFromMatch')}
         </Button>
       </Stack>
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="caption" color="text.secondary" component="div" id="match-mentality-label" sx={{ mb: 0.5 }}>
+          {t('lineup.mentality.label')}
+        </Typography>
+        <ToggleButtonGroup
+          value={mentality}
+          exclusive
+          size="small"
+          fullWidth
+          aria-labelledby="match-mentality-label"
+          onChange={(_, value: number | null) => {
+            if (value !== null) setMentality(value)
+          }}
+          sx={{ maxWidth: { sm: 420 } }}
+        >
+          {[MENTALITY_DEFENSIVE, MENTALITY_BALANCED, MENTALITY_ATTACKING].map((value) => (
+            <ToggleButton key={value} value={value}>
+              {t(`lineup.mentality.${MENTALITY_KEYS[value]}`)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </Box>
       <Collapse in={copyOpen} unmountOnExit>
         <LoadPreviousLineupControl
           teamId={teamId}

@@ -102,8 +102,8 @@ function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; play
         teamId={team.id}
         players={players}
         lineup={lineup}
-        onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[]) =>
-          setFriendlyLineup.mutate({ formation, positions, substitutions })
+        onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number) =>
+          setFriendlyLineup.mutate({ formation, positions, substitutions, mentality })
         }
         isSaving={setFriendlyLineup.isPending}
         isError={setFriendlyLineup.isError}
@@ -127,8 +127,8 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       teamId={team.id}
       players={players}
       lineup={lineup}
-      onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[]) =>
-        setLineup.mutate({ formation, positions, substitutions })
+      onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number) =>
+        setLineup.mutate({ formation, positions, substitutions, mentality })
       }
       isSaving={setLineup.isPending}
       isError={setLineup.isError}

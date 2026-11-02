@@ -84,15 +84,18 @@ func (s ScorerSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Mat
 // A more lopsided midfield battle raises the odds, so a dominant team generates more chances
 // over the course of a match rather than just converting a fixed share of chances more often.
 func chanceProbability(match *common.MatchSimulation) float32 {
+	// Each Attacking side opens the match up by common.MentalityChanceShift and each Defensive side
+	// closes it down by as much (an Attacking side against a Defensive one cancels out).
+	shift := float32(common.MentalityChanceShift * float64(match.HomeMentality+match.AwayMentality))
 	totalMidfield := match.HomeQua.Midfield + match.AwayQua.Midfield
 	if totalMidfield <= 0 {
-		return ProbChance
+		return ProbChance + shift
 	}
 	dominance := (match.HomeQua.Midfield - match.AwayQua.Midfield) / totalMidfield
 	if dominance < 0 {
 		dominance = -dominance
 	}
-	return ProbChance + dominance*ProbChanceDominanceBonus
+	return ProbChance + dominance*ProbChanceDominanceBonus + shift
 }
 
 // FlankMidfieldSupportWeight is how much a flank's midfield battle nudges that same flank's

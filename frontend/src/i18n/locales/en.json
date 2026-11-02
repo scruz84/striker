@@ -372,7 +372,13 @@
     "subtitle": "vs {{opponent}} · {{date}} · {{side}}",
     "subtitleNone": "No match scheduled",
     "formationLabel": "Formation",
-    "cantSaveHint": "Fill every empty slot to save."
+    "cantSaveHint": "Fill every empty slot to save.",
+    "mentality": {
+      "label": "Mentality",
+      "defensive": "Defensive",
+      "balanced": "Balanced",
+      "attacking": "Attacking"
+    }
   },
   "positions": {
     "goalkeeper": "Goalkeeper",
@@ -1318,6 +1324,11 @@
       "vsAttackCenter": "vs opponent's attack",
       "vsAttackRight": "vs opponent's right attack",
       "help": "Each cell shows the share of that zone's strength held by each team, with each team's own strength beneath it. Tap a cell to see the matchup and both values to one decimal."
+    },
+    "mentality": {
+      "defensive": "Defensive",
+      "balanced": "Balanced",
+      "attacking": "Attacking"
     }
   },
   "preview": {

@@ -281,4 +281,46 @@ describe('MatchViewer', () => {
       expect(screen.getByTestId('pitch')).toBeInTheDocument()
     })
   })
+
+  // openspec/specs/match-viewer "Mentality in the lineups".
+  describe('mentality', () => {
+    const attacking = (keeperId: number): Lineup => ({ ...lineupWithKeeper(keeperId), mentality: 1 })
+    const defensive = (keeperId: number): Lineup => ({ ...lineupWithKeeper(keeperId), mentality: -1 })
+
+    it('labels each side in the tactics tab of a finished match, in the viewer language', async () => {
+      clock.past = true
+      await i18n.changeLanguage('es')
+      try {
+        renderViewer(baseView({ played: true, homeLineup: attacking(10), awayLineup: defensive(20) }))
+        fireEvent.click(screen.getByRole('tab', { name: i18n.t('match.tabs.tactics') }))
+        expect(screen.getByText('Ofensiva')).toBeInTheDocument()
+        expect(screen.getByText('Defensiva')).toBeInTheDocument()
+      } finally {
+        await i18n.changeLanguage('en')
+      }
+    })
+
+    it('labels each side next to the live lineups', () => {
+      clock.past = true
+      clock.mightStillBeLive = true
+      clock.due = true
+      clock.live = liveState({ homeLineup: attacking(10), awayLineup: { ...lineupWithKeeper(20), mentality: 0 } })
+      renderViewer(baseView())
+      expect(screen.getByText('Attacking')).toBeInTheDocument()
+      expect(screen.queryByText('Balanced')).toBeInTheDocument()
+    })
+
+    it('shows no mentality before kickoff', () => {
+      renderViewer(baseView({ homeLineup: attacking(10), awayLineup: defensive(20) }))
+      expect(screen.queryByText('Attacking')).not.toBeInTheDocument()
+      expect(screen.queryByText('Defensive')).not.toBeInTheDocument()
+    })
+
+    it('shows no label for a match played before mentality existed', () => {
+      clock.past = true
+      renderViewer(baseView({ played: true }))
+      fireEvent.click(screen.getByRole('tab', { name: i18n.t('match.tabs.tactics') }))
+      expect(screen.queryByText('Balanced')).not.toBeInTheDocument()
+    })
+  })
 })

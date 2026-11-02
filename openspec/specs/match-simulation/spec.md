@@ -376,6 +376,20 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
   (0 counts as 1), passed in through `runMatchSimulation`'s `homeAdvantage` parameter. Neutral
   fixtures: `common.IsWorldCupGroupMatch` and `common.IsWorldCupKnockoutCup` (`common/worldcup.go`).
   Calibration: `engine/home_advantage_test.go` (`TestHomeAdvantageCalibration`, `HOME_ADV_SIM=1`).
+- Team mentality: constants, validation and storage helpers in `common/mentality.go`
+  (`MENTALITY_*`, `MentalityAttackFactor` / `MentalityDefenseFactor`, `MentalityChanceShift`,
+  `MentalityFatigueShift`, `ValidateMentality`, `FatigueMaxPenaltyFor`, `Get/SetTeamMentality`,
+  `Get/SetTeamFriendlyMentality`); `common.Lineup.Mentality`, stored in the `mentality` column of
+  `lineup`, `cup_tie_lineup` and `friendly_lineup` and in `teams.mentality` /
+  `teams.friendly_mentality` (`resources/sql/init95_lineup_mentality.sql`), written by
+  `SetLineupForMatch` / `SetCupTieLineup` / `SetFriendlyLineup` (so the kickoff snapshot keeps it)
+  and read by every lineup getter. `MatchSimulation.HomeMentality` / `AwayMentality` are set from
+  the kickoff lineups in `runMatchSimulation` and read by `applyMentality`
+  (`engine/initial_simulation.go`, after `applyHomeAdvantage`), `chanceProbability`
+  (`engine/scorer_simulation.go`) and `applyFatigue` (`engine/stamina_simulation.go`, via
+  `common.FatigueMultiplierWithPenalty`). Tests: `engine/mentality_test.go` (including
+  `TestMentalityCalibration`, `MENTALITY_SIM=1`), `common/mentality_integration_test.go`,
+  `handlers/lineupMentality_test.go`.
 - Crowd before kickoff: `simulateMatch`, `simulateCupTie` and `simulateFriendly` call
   `engine.drawMatchdayConditions` (`engine/stadium.go`: weather, then `drawMatchdayCrowd` returning a
   `matchdayCrowd`) before `runMatchSimulation`, and after the save commits pass that crowd to

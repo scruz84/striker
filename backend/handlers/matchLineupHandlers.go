@@ -182,8 +182,12 @@ func SetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateMentality(req.Mentality); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
+		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting match lineup for match %d team %d: %s", matchId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
@@ -366,8 +370,12 @@ func SetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateMentality(req.Mentality); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
+		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting cup tie lineup for tie %d team %d: %s", tieId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return

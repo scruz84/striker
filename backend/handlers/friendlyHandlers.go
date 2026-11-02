@@ -529,8 +529,12 @@ func SetFriendlyLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateMentality(req.Mentality); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetFriendlyLineup(dbCtx, matchId, team.Id, req.Formation, req.Positions, req.Substitutions); err != nil {
+		if err := common.SetFriendlyLineup(dbCtx, matchId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions); err != nil {
 			log.Errorf("error setting friendly lineup for match %d team %d: %s", matchId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return

@@ -23,18 +23,19 @@ const FatigueMatchLength = common.FatigueMatchLength
 type StaminaSimulation struct{}
 
 func (s StaminaSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	match.EffectiveHomePlayers = applyFatigue(match.HomePlayers, match.HomeMinutesByPosition)
-	match.EffectiveAwayPlayers = applyFatigue(match.AwayPlayers, match.AwayMinutesByPosition)
+	match.EffectiveHomePlayers = applyFatigue(match.HomePlayers, match.HomeMinutesByPosition, match.HomeMentality)
+	match.EffectiveAwayPlayers = applyFatigue(match.AwayPlayers, match.AwayMinutesByPosition, match.AwayMentality)
 }
 
 // applyFatigue returns a fresh copy of players with their seven core skills scaled down by each
 // player's own fatigueMultiplier - every other field (traits, name, age, Stamina/Form
 // themselves...) is carried over unchanged, since fatigue only ever diminishes footballing
 // output, not who the player is.
-func applyFatigue(players *map[int64]common.Player, minutesByPosition map[int64]map[int]int) *map[int64]common.Player {
+func applyFatigue(players *map[int64]common.Player, minutesByPosition map[int64]map[int]int, mentality int) *map[int64]common.Player {
 	effective := make(map[int64]common.Player, len(*players))
+	maxPenalty := common.FatigueMaxPenaltyFor(mentality)
 	for id, p := range *players {
-		multiplier := fatigueMultiplier(p.Stamina, minutesPlayedSoFar(minutesByPosition[id]))
+		multiplier := common.FatigueMultiplierWithPenalty(p.Stamina, float64(minutesPlayedSoFar(minutesByPosition[id])), maxPenalty)
 		p.GoalKeeper = scaleSkill(p.GoalKeeper, multiplier)
 		p.Defense = scaleSkill(p.Defense, multiplier)
 		p.Lateral = scaleSkill(p.Lateral, multiplier)

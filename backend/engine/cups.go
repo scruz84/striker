@@ -429,7 +429,7 @@ func persistCupTieLineupSnapshot(dbCtx *common.DatabaseContext, tieId int64, tea
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for cup tie %d team %d: %s", tieId, teamId, err)
 	}
 }

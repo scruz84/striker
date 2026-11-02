@@ -5,6 +5,7 @@ import { POSITION_GOALKEEPER, type Lineup, type Player, type MatchInstant } from
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
 import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
+import { MentalityLabel } from './MentalityLabel'
 
 export interface LineupsProps {
   homeId: number
@@ -70,6 +71,7 @@ export function Lineups({
         <Box sx={{ maxWidth: 380, mx: 'auto' }}>
           <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center' }}>
             <TeamNameLink teamId={awayId}>{awayName}</TeamNameLink>
+            <MentalityLabel mentality={awayLineup?.mentality} />
           </Typography>
           <MatchHeadToHeadPitch
             homeLineup={homeLineup}
@@ -80,6 +82,7 @@ export function Lineups({
           />
           <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
             <TeamNameLink teamId={homeId}>{homeName}</TeamNameLink>
+            <MentalityLabel mentality={homeLineup?.mentality} />
           </Typography>
         </Box>
       </Grid>

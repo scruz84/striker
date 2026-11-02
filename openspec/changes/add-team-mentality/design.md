@@ -35,9 +35,11 @@ Migration `resources/sql/init95_lineup_mentality.sql` (renumber if needed): `men
 NOT NULL DEFAULT 0 CHECK (mentality BETWEEN -1 AND 1)` on `lineup`, `cup_tie_lineup` and
 `friendly_lineup`, plus `mentality` and `friendly_mentality` on `teams`. Constants
 `MENTALITY_DEFENSIVE = -1`, `MENTALITY_BALANCED = 0`, `MENTALITY_ATTACKING = 1` in
-`common/fmconstants.go`; `Lineup.Mentality int \`json:"mentality"\``. Every getter/setter listed in
-Context reads/writes the column; `SetDefaultLineup` / `SetDefaultFriendlyLineup` gain a mentality
-argument; validation rejects values outside −1..1. A missing field in a PUT means Balanced.
+`common/mentality.go`; `Lineup.Mentality int \`json:"mentality"\``. Every getter/setter listed in
+Context reads/writes the column; the per-fixture setters gain a mentality argument, and the two
+standing defaults store theirs with `SetTeamMentality` / `SetTeamFriendlyMentality` next to
+`SetTeamFormation` / `SetTeamFriendlyFormation` (the same way their formation is stored);
+validation rejects values outside −1..1. A missing field in a PUT means Balanced.
 *Alternative:* a separate `team_tactics` table. Rejected: the per-fixture override and the
 kickoff snapshot would need their own copies anyway.
 

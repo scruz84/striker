@@ -81,7 +81,7 @@ func TestApplyFatigue_LowStaminaPlayerWithManyMinutesHasReducedSkills(t *testing
 	}
 	minutesByPosition := map[int64]map[int]int{1: {common.STRIKER: FatigueMatchLength}}
 
-	effective := applyFatigue(&players, minutesByPosition)
+	effective := applyFatigue(&players, minutesByPosition, common.MENTALITY_BALANCED)
 	p := (*effective)[1]
 	if p.Shot >= 80 {
 		t.Fatalf("expected a fully fatigued player's Shot to drop below 80, got %d", p.Shot)
@@ -95,7 +95,7 @@ func TestApplyFatigue_PlayerWhoHasNotPlayedIsUnaffected(t *testing.T) {
 	players := map[int64]common.Player{
 		1: {Id: 1, Stamina: 0, Shot: 80},
 	}
-	effective := applyFatigue(&players, map[int64]map[int]int{})
+	effective := applyFatigue(&players, map[int64]map[int]int{}, common.MENTALITY_BALANCED)
 	if p := (*effective)[1]; p.Shot != 80 {
 		t.Fatalf("expected a player with no recorded minutes to keep their raw Shot value, got %d", p.Shot)
 	}

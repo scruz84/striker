@@ -194,6 +194,10 @@ Ratings shown live or at a minute picked on the scrubber SHALL use the rating fo
   (scrubber, live and finished), `features/match/TeamRatingsColumn.tsx` (rows, "s.c.", `RatingBreakdown`),
   `utils/liveMatchRatings.ts` (`computePlayerRatings`, `startingLineup`); the formula is in the match-ratings
   spec.
+- Mentality: `features/match/MentalityLabel.tsx`, shown next to each side's name in `Lineups.tsx`
+  (finished) and the live lineups of `MatchViewer.tsx`, from `Lineup.mentality` of the kickoff
+  lineups; labels `match.mentality.*`. The lineup editor's selector is in
+  `features/lineup/MatchLineupForm.tsx` (labels `lineup.mentality.*`).
 - Subtitle: `utils/matchSubtitle.ts`; labels `match.competition.*` in `i18n/locales/{en,es}.json`.
 - Backend payloads: `common.CupTieDetails` / `common.FriendlyMatch` (stadium, flavor, instants, World Cup
   group label); storage described in match-simulation's code map.

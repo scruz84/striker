@@ -11,6 +11,9 @@ type SetLineupRequest struct {
 	Formation     int                         `json:"formation"`
 	Positions     []common.LineupPosition     `json:"positions"`
 	Substitutions []common.LineupSubstitution `json:"substitutions"`
+	// Mentality is -1 (defensive), 0 (balanced) or 1 (attacking); a payload without it saves
+	// Balanced.
+	Mentality int `json:"mentality"`
 }
 
 // GetLineupHandler returns the caller's team's default lineup.
@@ -82,9 +85,18 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateMentality(req.Mentality); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
 		if err := common.SetTeamFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting formation for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetTeamMentality(dbCtx, team.Id, req.Mentality); err != nil {
+			log.Errorf("error setting mentality for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
@@ -185,9 +197,18 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateMentality(req.Mentality); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
 		if err := common.SetTeamFriendlyFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting friendly formation for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetTeamFriendlyMentality(dbCtx, team.Id, req.Mentality); err != nil {
+			log.Errorf("error setting friendly mentality for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}

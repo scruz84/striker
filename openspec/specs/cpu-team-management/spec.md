@@ -237,6 +237,11 @@ A CPU team SHALL withdraw any of its loan listings whose player stopped being el
   (`common/transfers.go`); profile flags `LendsPlayers` / `LoansOutYouth`
   (`common/aimanager.go`). Tests: `engine/ailoans_test.go`,
   `engine/cpu_loan_market_integration_test.go`.
+- Kickoff mentality: `engine/aikickoff.go` (`planAiKickoffs` sets the planned side's
+  `Lineup.Mentality` with `kickoffStrength` and `aiKickoffMentality`), `common.PickAiMentality` and
+  `common.LineupStrength` with the `AiManager*Ratio` / `AiDirector*Ratio` / `AiDirectorVenueFactor`
+  constants (`common/mentality.go`). Tests: `common/ailineup_test.go` (`TestPickAiMentality`),
+  `engine/aimentality_integration_test.go`.
 - Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,
   `planCompetitiveSubstitutions`, `aiSubstitutionGain`) and `common/ailineupfriendly.go`
   (`planFriendlyRotation`), validated with `common.ValidateLineup` / `ValidateSubstitutions`

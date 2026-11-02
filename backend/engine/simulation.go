@@ -40,7 +40,7 @@ func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64,
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for match %d team %d: %s", matchId, teamId, err)
 	}
 }
@@ -225,6 +225,14 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	if awayKickoff := kickoffLineup((*lineups)[awayTeamId], matchSimulation.AwayPlayersByPosition); awayKickoff != nil {
 		matchSimulation.AwayLineup = awayKickoff
 	}
+	// Each side's mentality starts from its kickoff lineup's; it lives on the simulation so a
+	// conditional order can change it mid-match.
+	if matchSimulation.HomeLineup != nil {
+		matchSimulation.HomeMentality = matchSimulation.HomeLineup.Mentality
+	}
+	if matchSimulation.AwayLineup != nil {
+		matchSimulation.AwayMentality = matchSimulation.AwayLineup.Mentality
+	}
 	if snapshot != nil {
 		snapshot(homeTeamId, matchSimulation.HomeLineup, homeSubstitutions)
 		snapshot(awayTeamId, matchSimulation.AwayLineup, awaySubstitutions)
@@ -288,6 +296,7 @@ func kickoffLineup(saved *common.Lineup, playersByPosition *map[int][]int64) *co
 		Formation:     saved.Formation,
 		Positions:     make([]common.LineupPosition, 0, 11),
 		Substitutions: saved.Substitutions,
+		Mentality:     saved.Mentality,
 	}
 	for _, position := range positions {
 		for _, id := range (*playersByPosition)[position] {

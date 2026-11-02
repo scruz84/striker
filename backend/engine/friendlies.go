@@ -81,7 +81,7 @@ func persistFriendlyLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64,
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Positions, substitutions); err != nil {
+	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for friendly %d team %d: %s", matchId, teamId, err)
 	}
 }

@@ -59,6 +59,7 @@ import type {
   TransferOfferResult,
   WeekMatch,
 } from './types'
+import { MENTALITY_BALANCED } from './types'
 
 export const queryKeys = {
   me: ['me'] as const,
@@ -452,11 +453,13 @@ export function useSetLineup() {
       formation,
       positions,
       substitutions,
+      mentality = MENTALITY_BALANCED,
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
-    }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions }),
+      mentality?: number
+    }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions, mentality }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -479,11 +482,13 @@ export function useSetFriendlyDefaultLineup() {
       formation,
       positions,
       substitutions,
+      mentality = MENTALITY_BALANCED,
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
-    }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions }),
+      mentality?: number
+    }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions, mentality }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyDefaultLineup })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -829,11 +834,13 @@ export function useSetCupTieLineup(tieId: string | undefined) {
       formation,
       positions,
       substitutions,
+      mentality = MENTALITY_BALANCED,
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
-    }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions }),
+      mentality?: number
+    }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions, mentality }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTieLineup(tieId ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -893,11 +900,13 @@ export function useSetMatchLineup(matchId: string | undefined) {
       formation,
       positions,
       substitutions,
+      mentality = MENTALITY_BALANCED,
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
-    }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions }),
+      mentality?: number
+    }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions, mentality }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.matchLineup(matchId ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -1509,11 +1518,13 @@ export function useSetFriendlyLineup(id: string | undefined) {
       formation,
       positions,
       substitutions,
+      mentality = MENTALITY_BALANCED,
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
-    }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions }),
+      mentality?: number
+    }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions, mentality }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyLineup(id ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })

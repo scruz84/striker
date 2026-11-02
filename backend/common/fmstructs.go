@@ -96,6 +96,9 @@ type Lineup struct {
 	Formation     int                  `json:"formation"`
 	Positions     []LineupPosition     `json:"positions"`
 	Substitutions []LineupSubstitution `json:"substitutions"`
+	// Mentality is how the side plays: MENTALITY_DEFENSIVE, _BALANCED (the default) or _ATTACKING
+	// (see common/mentality.go).
+	Mentality int `json:"mentality"`
 	// ProjectedReplacements is filled only by the lineup GET handlers a team owner opens (never
 	// stored): for each unavailable starter, who the pre-kickoff refill would put in his slot if
 	// the match kicked off now (see ProjectKickoffReplacements).
@@ -422,6 +425,11 @@ type MatchSimulation struct {
 	//Qualifications
 	HomeQua *TeamQualification
 	AwayQua *TeamQualification
+	//HomeMentality/AwayMentality: each side's mentality this minute (MENTALITY_*), initialised from
+	//its kickoff lineup and read every minute by InitialSimulation (ratings), ScorerSimulation
+	//(chance probability) and StaminaSimulation (fatigue).
+	HomeMentality int
+	AwayMentality int
 	//Calculations
 	MidfieldDiff         float32 // home midfield vs away midfield difference
 	HomeAttackRightDiff  float32

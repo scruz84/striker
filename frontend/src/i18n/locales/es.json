@@ -372,7 +372,13 @@
     "subtitle": "vs {{opponent}} · {{date}} · {{side}}",
     "subtitleNone": "Sin partido programado",
     "formationLabel": "Formación",
-    "cantSaveHint": "Rellena todos los huecos para guardar."
+    "cantSaveHint": "Rellena todos los huecos para guardar.",
+    "mentality": {
+      "label": "Mentalidad",
+      "defensive": "Defensiva",
+      "balanced": "Equilibrada",
+      "attacking": "Ofensiva"
+    }
   },
   "positions": {
     "goalkeeper": "Portero",
@@ -1318,6 +1324,11 @@
       "vsAttackCenter": "vs ataque central del rival",
       "vsAttackRight": "vs ataque derecho del rival",
       "help": "Cada casilla muestra qué porcentaje de la fuerza de esa zona tiene cada equipo y, debajo, la fuerza de cada uno. Toca una casilla para ver el cruce y ambos valores con un decimal."
+    },
+    "mentality": {
+      "defensive": "Defensiva",
+      "balanced": "Equilibrada",
+      "attacking": "Ofensiva"
     }
   },
   "preview": {

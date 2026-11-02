@@ -276,3 +276,43 @@ func TestPlanAiMatchLineup_EveryPlanPassesTheHumanValidation(t *testing.T) {
 		t.Fatalf("expected the random squads to exercise the planner: %d squads checked, %d plans with substitutions", checked, withSubstitutions)
 	}
 }
+
+// CPU mentality (openspec/specs/cpu-team-management "CPU mentality").
+func TestPickAiMentality(t *testing.T) {
+	cases := []struct {
+		name               string
+		level, own, opp    int
+		isHome, isFriendly bool
+		want               int
+	}{
+		{"manager favourite", AiLevelManager, 1150, 1000, true, false, MENTALITY_ATTACKING},
+		{"manager slight favourite", AiLevelManager, 1140, 1000, true, false, MENTALITY_BALANCED},
+		{"manager underdog", AiLevelManager, 870, 1000, false, false, MENTALITY_DEFENSIVE},
+		{"director away underdog", AiLevelDirector, 950, 1000, false, false, MENTALITY_DEFENSIVE},
+		{"director home even", AiLevelDirector, 1000, 1000, true, false, MENTALITY_BALANCED},
+		{"director home slight favourite", AiLevelDirector, 1020, 1000, true, false, MENTALITY_BALANCED},
+		{"director home favourite", AiLevelDirector, 1030, 1000, true, false, MENTALITY_ATTACKING},
+		{"director away favourite", AiLevelDirector, 1150, 1000, false, false, MENTALITY_BALANCED},
+		{"caretaker", AiLevelCaretaker, 2000, 1000, true, false, MENTALITY_BALANCED},
+		{"friendly", AiLevelDirector, 2000, 1000, true, true, MENTALITY_BALANCED},
+		{"unknown strength", AiLevelDirector, 1000, 0, true, false, MENTALITY_BALANCED},
+	}
+	for _, c := range cases {
+		if got := PickAiMentality(c.level, c.own, c.opp, c.isHome, c.isFriendly); got != c.want {
+			t.Errorf("%s: PickAiMentality = %d, want %d", c.name, got, c.want)
+		}
+	}
+}
+
+func TestValidateMentality(t *testing.T) {
+	for _, m := range []int{-1, 0, 1} {
+		if err := ValidateMentality(m); err != nil {
+			t.Errorf("ValidateMentality(%d) = %v", m, err)
+		}
+	}
+	for _, m := range []int{-2, 2} {
+		if err := ValidateMentality(m); err == nil {
+			t.Errorf("ValidateMentality(%d) accepted", m)
+		}
+	}
+}

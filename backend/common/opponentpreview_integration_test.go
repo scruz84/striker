@@ -75,7 +75,7 @@ func TestOpponentPreview_PublicHistory(t *testing.T) {
 		if i < 3 {
 			lineupIds = players[1:12]
 		}
-		if err := SetLineupForMatch(dbCtx, id, opponent, 2, xi(lineupIds), nil); err != nil {
+		if err := SetLineupForMatch(dbCtx, id, opponent, 2, MENTALITY_BALANCED, xi(lineupIds), nil); err != nil {
 			t.Fatal(err)
 		}
 		rate(id, players[0], 8.0)
@@ -101,7 +101,7 @@ func TestOpponentPreview_PublicHistory(t *testing.T) {
 
 	// Opponent changed its lineup: a completely new XI saved for an upcoming match is not used.
 	upcoming := insertMatch(-2, false)
-	if err := SetLineupForMatch(dbCtx, upcoming, opponent, 5, xi(players[1:12]), nil); err != nil {
+	if err := SetLineupForMatch(dbCtx, upcoming, opponent, 5, MENTALITY_BALANCED, xi(players[1:12]), nil); err != nil {
 		t.Fatal(err)
 	}
 	preview, err = GetOpponentPreview(dbCtx, opponent)
@@ -114,7 +114,7 @@ func TestOpponentPreview_PublicHistory(t *testing.T) {
 
 	// Latest match still being replayed: played flag set, kickoff 30 minutes ago.
 	replaying := insertMatch(0.5/24, true)
-	if err := SetLineupForMatch(dbCtx, replaying, opponent, 7, xi(players[1:12]), nil); err != nil {
+	if err := SetLineupForMatch(dbCtx, replaying, opponent, 7, MENTALITY_BALANCED, xi(players[1:12]), nil); err != nil {
 		t.Fatal(err)
 	}
 	rate(replaying, players[2], 10.0)

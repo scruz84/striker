@@ -25,6 +25,8 @@ func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Ma
 	calculateQua(match.HomeQua, match.HomeLineup, match.HomePlayersByPosition, match.EffectiveHomePlayers)
 	calculateQua(match.AwayQua, match.AwayLineup, match.AwayPlayersByPosition, match.EffectiveAwayPlayers)
 	applyHomeAdvantage(match.HomeQua, match.HomeAdvantage)
+	applyMentality(match.HomeQua, match.HomeMentality)
+	applyMentality(match.AwayQua, match.AwayMentality)
 
 	calculateDiffs(match)
 	//Append a new match instant
@@ -452,4 +454,23 @@ func sideContributions(playersByPosition *map[int][]int64, own sideDuelists, riv
 
 func roundTenth(v float32) float32 {
 	return float32(math.Round(float64(v)*10) / 10)
+}
+
+// applyMentality shifts a side's ratings for this minute by its mentality (see common/mentality.go):
+// an Attacking side's three attack ratings go up by common.MentalityAttackFactor and its three
+// defense ratings down by common.MentalityDefenseFactor, a Defensive side's the other way round.
+// Midfield, the goalkeeper and a Balanced side are untouched, so two Balanced sides play exactly as
+// before mentality existed.
+func applyMentality(qua *common.TeamQualification, mentality int) {
+	if qua == nil || mentality == common.MENTALITY_BALANCED {
+		return
+	}
+	attack := float32(1 + common.MentalityAttackFactor*float64(mentality))
+	defense := float32(1 - common.MentalityDefenseFactor*float64(mentality))
+	qua.Attack *= attack
+	qua.LeftAttack *= attack
+	qua.RightAttach *= attack
+	qua.Defense *= defense
+	qua.LeftDefense *= defense
+	qua.RightDefense *= defense
 }

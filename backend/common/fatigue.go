@@ -24,10 +24,17 @@ func FatigueMultiplier(stamina int, minutesPlayed int) float64 {
 // in minutes played, so a player's average multiplier over a stretch of play is the value at the
 // stretch's midpoint - which is what the CPU lineup planner uses to value a substitution.
 func FatigueMultiplierAt(stamina int, minutesPlayed float64) float64 {
+	return FatigueMultiplierWithPenalty(stamina, minutesPlayed, FatigueMaxPenalty)
+}
+
+// FatigueMultiplierWithPenalty is FatigueMultiplierAt with the side's own maximum penalty, which
+// its mentality sets (see FatigueMaxPenaltyFor): an Attacking side tires faster, a Defensive one
+// slower.
+func FatigueMultiplierWithPenalty(stamina int, minutesPlayed float64, maxPenalty float64) float64 {
 	if minutesPlayed > FatigueMatchLength {
 		minutesPlayed = FatigueMatchLength
 	}
 	elapsedFraction := minutesPlayed / float64(FatigueMatchLength)
 	staminaDeficit := float64(99-stamina) / 99
-	return 1 - FatigueMaxPenalty*elapsedFraction*staminaDeficit
+	return 1 - maxPenalty*elapsedFraction*staminaDeficit
 }

@@ -16,6 +16,7 @@ import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { Lineups, goalkeeperRating } from './Lineups'
 import { MatchEventsReport } from './MatchEventsReport'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
+import { MentalityLabel } from './MentalityLabel'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
 import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
 import { MatchRatingsTab } from './MatchRatingsTab'
@@ -179,7 +180,15 @@ function LiveView({
             <Typography variant="subtitle2" gutterBottom>
               {t('match.tabs.lineups')}
             </Typography>
+            <Typography variant="caption" color="text.secondary" component="div" sx={{ textAlign: 'center', mb: 1 }}>
+              {view.awayName}
+              <MentalityLabel mentality={lineups.awayLineup.mentality} />
+            </Typography>
             <MatchHeadToHeadPitch {...lineups} />
+            <Typography variant="caption" color="text.secondary" component="div" sx={{ textAlign: 'center', mt: 1 }}>
+              {view.homeName}
+              <MentalityLabel mentality={lineups.homeLineup.mentality} />
+            </Typography>
           </Paper>
         </>
       )}

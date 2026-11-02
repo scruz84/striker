@@ -102,7 +102,50 @@ func planAiKickoff(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int6
 func planAiKickoffs(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int64, homeTeamId int64, awayTeamId int64,
 	lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution,
 ) ([]common.LineupSubstitution, []common.LineupSubstitution) {
-	(*lineups)[homeTeamId], homeSubstitutions = planAiKickoff(dbCtx, kind, matchId, homeTeamId, (*lineups)[homeTeamId], homeSubstitutions)
-	(*lineups)[awayTeamId], awaySubstitutions = planAiKickoff(dbCtx, kind, matchId, awayTeamId, (*lineups)[awayTeamId], awaySubstitutions)
+	homeBefore, awayBefore := (*lineups)[homeTeamId], (*lineups)[awayTeamId]
+	(*lineups)[homeTeamId], homeSubstitutions = planAiKickoff(dbCtx, kind, matchId, homeTeamId, homeBefore, homeSubstitutions)
+	(*lineups)[awayTeamId], awaySubstitutions = planAiKickoff(dbCtx, kind, matchId, awayTeamId, awayBefore, awaySubstitutions)
+
+	// A side whose plan was taken (a fresh lineup, not the one passed in) picks its mentality now
+	// that both XIs are known - see common.PickAiMentality.
+	homePlanned := (*lineups)[homeTeamId] != nil && (*lineups)[homeTeamId] != homeBefore
+	awayPlanned := (*lineups)[awayTeamId] != nil && (*lineups)[awayTeamId] != awayBefore
+	if homePlanned || awayPlanned {
+		homeStrength, awayStrength := kickoffStrength(dbCtx, homeTeamId, (*lineups)[homeTeamId]), kickoffStrength(dbCtx, awayTeamId, (*lineups)[awayTeamId])
+		if homePlanned {
+			(*lineups)[homeTeamId].Mentality = aiKickoffMentality(dbCtx, homeTeamId, homeStrength, awayStrength, true, kind == kickoffFriendly)
+		}
+		if awayPlanned {
+			(*lineups)[awayTeamId].Mentality = aiKickoffMentality(dbCtx, awayTeamId, awayStrength, homeStrength, false, kind == kickoffFriendly)
+		}
+	}
 	return homeSubstitutions, awaySubstitutions
+}
+
+// kickoffStrength is a side's XI strength as the CPU judges it (see common.LineupStrength), from
+// its own squad; 0 when it can't be read.
+func kickoffStrength(dbCtx *common.DatabaseContext, teamId int64, lineup *common.Lineup) int {
+	if lineup == nil {
+		return 0
+	}
+	squad, err := common.GetPlayersForMatchTeam(dbCtx, teamId, lineup)
+	if err != nil {
+		log.Errorf("error reading the squad of team %d to weigh its kickoff XI: %s", teamId, err)
+		return 0
+	}
+	byId := make(map[int64]*common.Player, len(*squad))
+	for _, p := range *squad {
+		byId[p.Id] = p
+	}
+	return common.LineupStrength(lineup, byId)
+}
+
+// aiKickoffMentality is the mentality a CPU side kicks off with, by its AI level.
+func aiKickoffMentality(dbCtx *common.DatabaseContext, teamId int64, own int, opponent int, isHome bool, isFriendly bool) int {
+	team, err := common.GetTeamById(teamId, dbCtx)
+	if err != nil {
+		log.Errorf("error fetching team %d for its kickoff mentality: %s", teamId, err)
+		return common.MENTALITY_BALANCED
+	}
+	return common.PickAiMentality(team.AiLevel, own, opponent, isHome, isFriendly)
 }

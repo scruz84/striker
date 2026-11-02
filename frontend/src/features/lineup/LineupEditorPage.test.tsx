@@ -27,11 +27,11 @@ vi.mock('./MatchLineupForm', () => ({
   MatchLineupForm: (props: {
     substitutionsEnabled?: boolean
     isFriendly?: boolean
-    onSave: (formation: number, positions: never[], substitutions: LineupSubstitution[]) => void
+    onSave: (formation: number, positions: never[], substitutions: LineupSubstitution[], mentality: number) => void
   }) => (
     <div>
       <span data-testid="flags">{`subs=${!!props.substitutionsEnabled} friendly=${!!props.isFriendly}`}</span>
-      <button onClick={() => props.onSave(2, [], planned)}>save</button>
+      <button onClick={() => props.onSave(2, [], planned, 1)}>save</button>
     </div>
   ),
 }))
@@ -44,7 +44,7 @@ describe('LineupEditorPage standing substitutions', () => {
 
     expect(screen.getByTestId('flags').textContent).toBe('subs=true friendly=false')
     fireEvent.click(screen.getByText('save'))
-    expect(setLineup).toHaveBeenCalledWith({ formation: 2, positions: [], substitutions: planned })
+    expect(setLineup).toHaveBeenCalledWith({ formation: 2, positions: [], substitutions: planned, mentality: 1 })
     expect(setFriendlyLineup).not.toHaveBeenCalled()
   })
 
@@ -55,7 +55,7 @@ describe('LineupEditorPage standing substitutions', () => {
     expect(screen.getByTestId('flags').textContent).toBe('subs=true friendly=true')
     expect(screen.queryByText(/shared with the league|se comparten con/i)).toBeNull()
     fireEvent.click(screen.getByText('save'))
-    expect(setFriendlyLineup).toHaveBeenCalledWith({ formation: 2, positions: [], substitutions: planned })
+    expect(setFriendlyLineup).toHaveBeenCalledWith({ formation: 2, positions: [], substitutions: planned, mentality: 1 })
     expect(setLineup).not.toHaveBeenCalled()
   })
 })

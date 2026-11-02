@@ -357,8 +357,8 @@ func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, er
 	return &instants, rows.Err()
 }
 
-const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation) VALUES ($1, $2, $3) " +
-	"ON CONFLICT (tie_id, team_id) DO UPDATE SET formation = EXCLUDED.formation RETURNING lineup_id"
+const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation, mentality) VALUES ($1, $2, $3, $4) " +
+	"ON CONFLICT (tie_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality RETURNING lineup_id"
 const DeleteCupTieLineupPositionsStmtSql = "DELETE FROM cup_tie_lineup_positions WHERE lineup_id = $1"
 const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
@@ -369,7 +369,10 @@ const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions 
 // against cup_tie_lineup/cup_tie_lineup_positions rather than lineup/lineup_positions -
 // cup_ties.tie_id is its own id sequence, independent of matches.match_id, so a tie can never
 // safely share the league-match-keyed tables (see resources/sql/init38_match_lineup_overrides.sql).
-func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, positions []LineupPosition, substitutions []LineupSubstitution) error {
+func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution) error {
+	if err := ValidateMentality(mentality); err != nil {
+		return err
+	}
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
@@ -385,7 +388,7 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 	}
 
 	var lineupId int64
-	if err := tx.QueryRow(InsertCupTieLineupStmtSql, tieId, teamId, formation).Scan(&lineupId); err != nil {
+	if err := tx.QueryRow(InsertCupTieLineupStmtSql, tieId, teamId, formation, mentality).Scan(&lineupId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteCupTieLineupPositionsStmtSql, lineupId); err != nil {
@@ -420,7 +423,7 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 	return tx.Commit()
 }
 
-const GetCupTieLineupStmtSql = "SELECT lineup_id, formation FROM cup_tie_lineup WHERE tie_id = $1 AND team_id = $2"
+const GetCupTieLineupStmtSql = "SELECT lineup_id, formation, mentality FROM cup_tie_lineup WHERE tie_id = $1 AND team_id = $2"
 const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie_lineup_positions WHERE lineup_id = $1"
 
 // GetCupTieLineup returns teamId's saved override for one cup tie, including any substitutions
@@ -430,7 +433,7 @@ func GetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64) (Lineup,
 	lineup := Lineup{MatchId: tieId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
-	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(&lineupId, &lineup.Formation)
+	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(&lineupId, &lineup.Formation, &lineup.Mentality)
 	if errors.Is(err, sql.ErrNoRows) {
 		return lineup, false, nil
 	}
