@@ -8,8 +8,8 @@ import (
 )
 
 // TestProjectZoneDuel_MatchesARealSimulation runs against a real Postgres (STRIKER_TEST_DB_DSN;
-// skipped when unset): the projection of two lineups equals the zone ratings the first minute of a
-// real simulation of those same lineups records.
+// skipped when unset): the projection of two lineups, home advantage included, equals the zone ratings the
+// first minute of a real simulation of those same lineups records.
 func TestProjectZoneDuel_MatchesARealSimulation(t *testing.T) {
 	dbCtx, db, seed := matchViewerParityEnv(t)
 	home, away := seed("zpd1")
@@ -30,7 +30,8 @@ func TestProjectZoneDuel_MatchesARealSimulation(t *testing.T) {
 	}
 	lineups := map[int64]*common.Lineup{home: homeLineup, away: awayLineup}
 
-	simulation, err := runMatchSimulation(dbCtx, 1, 0, home, away, &lineups, nil, nil, true, nil)
+	const homeAdvantage = float32(1.12)
+	simulation, err := runMatchSimulation(dbCtx, 1, 0, home, away, &lineups, nil, nil, true, homeAdvantage, nil)
 	if err != nil {
 		t.Fatalf("runMatchSimulation: %s", err)
 	}
@@ -50,6 +51,7 @@ func TestProjectZoneDuel_MatchesARealSimulation(t *testing.T) {
 	projection := ProjectZoneDuel(
 		ZoneDuelSide{Lineup: homeLineup, Squad: *homeSquad},
 		ZoneDuelSide{Lineup: awayLineup, Squad: *awaySquad},
+		homeAdvantage, true,
 	)
 
 	same := func(name string, got, want float32) {
@@ -74,5 +76,22 @@ func TestProjectZoneDuel_MatchesARealSimulation(t *testing.T) {
 	}
 	if first.HomeQua.Midfield == 0 {
 		t.Fatal("the simulated midfield is zero: the comparison would be vacuous")
+	}
+}
+
+// TestExpectedHomeAdvantage_FromTheExpectedCrowd runs against a real Postgres (STRIKER_TEST_DB_DSN;
+// skipped when unset): the preview assumes a multiplier between an empty and a full ground, and 1
+// for a neutral fixture.
+func TestExpectedHomeAdvantage_FromTheExpectedCrowd(t *testing.T) {
+	dbCtx, _, seed := matchViewerParityEnv(t)
+	home, away := seed("zpd2")
+
+	got := ExpectedHomeAdvantage(dbCtx, home, away, 0, false)
+
+	if low, high := float32(1+HomeAdvantageBase), float32(1+HomeAdvantageBase+HomeAdvantageCrowdWeight); got < low-0.0001 || got > high+0.0001 {
+		t.Fatalf("expected a multiplier in [%v, %v], got %v", low, high, got)
+	}
+	if neutral := ExpectedHomeAdvantage(dbCtx, home, away, 0, true); neutral != 1 {
+		t.Fatalf("a neutral fixture has no advantage, got %v", neutral)
 	}
 }

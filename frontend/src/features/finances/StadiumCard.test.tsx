@@ -53,3 +53,11 @@ describe('StadiumCard price dialog', () => {
     expect(setTicketPrice).toHaveBeenCalledWith(18, expect.anything())
   })
 })
+
+describe('StadiumCard deep link', () => {
+  it('opens the price dialog straight away when asked to', () => {
+    render(<StadiumCard stadium={stadium} recommendedTicketPrice={18} maxTicketPrice={39} openPriceDialog />)
+
+    expect(screen.getByLabelText(/ticket price|precio de entrada/i, { selector: 'input' })).toBeTruthy()
+  })
+})

@@ -30,7 +30,7 @@ func TestProjectZoneDuel_StrongerMidfieldShowsInTheRatings(t *testing.T) {
 	own := zoneDuelSquad(1, 99)
 	opponent := zoneDuelSquad(100, 81)
 
-	got := ProjectZoneDuel(own, opponent)
+	got := ProjectZoneDuel(own, opponent, 1, true)
 
 	// two central midfielders at 99 vs 81 per player: 198 vs 162, a 55% / 45% share
 	if got.Own.Midfield <= got.Opponent.Midfield {
@@ -50,9 +50,29 @@ func TestProjectZoneDuel_DoesNotChangeItsInputs(t *testing.T) {
 	opponent := zoneDuelSquad(100, 80)
 	before := len(own.Lineup.Positions)
 
-	ProjectZoneDuel(own, opponent)
+	ProjectZoneDuel(own, opponent, 1.2, true)
 
 	if len(own.Lineup.Positions) != before || own.Squad[1].Defense != 90 {
 		t.Fatal("ProjectZoneDuel must not modify the lineup or the squad")
+	}
+}
+
+func TestProjectZoneDuel_HomeAdvantageBoostsTheHomeSidesNineZonesOnly(t *testing.T) {
+	own := zoneDuelSquad(1, 80)
+	opponent := zoneDuelSquad(100, 80)
+	base := ProjectZoneDuel(own, opponent, 1, true)
+
+	atHome := ProjectZoneDuel(own, opponent, 1.15, true)
+	away := ProjectZoneDuel(own, opponent, 1.15, false)
+
+	ratio := func(got, want float32) bool { return want > 0 && got/want > 1.1499 && got/want < 1.1501 }
+	if !ratio(atHome.Own.Midfield, base.Own.Midfield) || !ratio(atHome.Own.RightAttach, base.Own.RightAttach) || !ratio(atHome.Own.LeftDefense, base.Own.LeftDefense) {
+		t.Fatalf("own zones at home should be 1.15x: %+v vs %+v", atHome.Own, base.Own)
+	}
+	if atHome.Opponent != base.Opponent || atHome.OwnGoalkeeper != base.OwnGoalkeeper {
+		t.Fatal("the visitor and the goalkeepers must be untouched")
+	}
+	if !ratio(away.Opponent.Attack, base.Opponent.Attack) || away.Own != base.Own {
+		t.Fatalf("when own is the visitor the opponent gets the boost: %+v", away)
 	}
 }

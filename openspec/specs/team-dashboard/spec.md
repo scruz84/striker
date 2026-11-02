@@ -86,8 +86,14 @@ live one.
 
 - Dashboard: `frontend/src/features/dashboard/DashboardPage.tsx` (`selectLiveMatch`, `useOwnLiveMatch`,
   `selectLastResult`, `LiveMatchHero`, `NextMatchHero`, `LastResultCard`).
+- Pending panel: `frontend/src/features/dashboard/PendingPanel.tsx` (data wiring, snooze buttons, phone
+  "Show all (N)"), `features/dashboard/pendingItems.ts` (`buildPendingItems`, the severity order and the
+  `FORECAST_WARNING_WEEKS` / `TICKET_PRICE_GAP` / `CONTRACT_EXPIRY_WARNING_YEARS` thresholds),
+  `features/dashboard/pendingSnooze.ts` (localStorage snooze until local midnight, content key),
+  `features/finances/cashFlowForecast.ts` (`computeCashFlowForecast`) and the `?ticketPrice=1` deep link
+  that makes `StadiumCard` (`features/finances/FinancesPage.tsx`) open its price dialog.
 - Live broadcast: `frontend/src/api/useLiveMatch.ts` (`useLiveMatch`, `mightStillBeLive`, `isPast`).
 - Shared helpers: `frontend/src/utils/matchSummary.ts` (`liveMatchPath`), `utils/liveChip.ts` (pulsing LIVE
   style), `theme.ts` (`errorContainer` / `onErrorContainer` tokens).
-- Strings: `dashboard.liveNow`, `dashboard.watchLive`, `dashboard.liveMatchMinute`, `match.halftime` in
+- Strings: `dashboard.pending.*`, `dashboard.liveNow`, `dashboard.watchLive`, `dashboard.liveMatchMinute`, `match.halftime` in
   `i18n/locales/{en,es}.json`.

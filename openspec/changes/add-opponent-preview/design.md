@@ -52,8 +52,9 @@ each side's mentality and expected crowd fill, builds a `MatchSimulation` at min
 `InitialSimulation.Apply`, returning each side's `TeamQualification` and goalkeeper rating (the nine zone pairs are derived from them by `ZoneComparisonRows`). The owner's side uses his saved lineup for
 that fixture (override, else default / friendly default) after the same projected kickoff refill
 the editor already shows (`ProjectKickoffReplacements`); the opponent's likely XI is used as-is
-(its availability is not public). Without home advantage shipped, fill is ignored; without
-mentality, both sides are Balanced.
+(its availability is not public). Home advantage is included: the handler passes the multiplier from the
+expected crowd (`engine.ExpectedHomeAdvantage`: modelled demand in average weather, no random swing;
+1 for a World Cup fixture) and which side is at home; mentality, when it ships, will be passed the same way (until then both sides are Balanced).
 
 ### D4. Frontend
 `OpponentPreviewCard` (`features/lineup/`) with form chips (`FormStrip` pattern from the
@@ -82,7 +83,7 @@ No schema change. Rollback: redeploy the previous service and frontend.
   `GetOpponentLikelyLineup`, `aggregateInForm`) reading `GetTeamMatches`, `GetMatchLineupOverride` /
   `GetCupTieLineup` (kickoff snapshots), `GetMatchPlayerRatings` and `LiveBroadcastCutoff` (the filter that
   keeps a replaying match out).
-- Projection: `backend/engine/zoneduel.go` (`ProjectZoneDuel`, `ZoneDuelProjection`) running
+- Projection: `backend/engine/zoneduel.go` (`ProjectZoneDuel`, `ZoneDuelProjection`, `ExpectedHomeAdvantage`) running
   `StaminaSimulation` and `InitialSimulation` at minute 1; the owner's refilled XI comes from
   `common.ProjectKickoffReplacements` + `common.ApplyProjectedReplacements` (`common/kickoffrefill.go`).
 - Endpoint: `backend/handlers/previewHandlers.go` (`OpponentPreviewHandler`, 403 / 409 rules), routed as

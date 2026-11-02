@@ -208,10 +208,32 @@ type matchdayCrowd struct {
 // that the same as a genuinely empty house. A failed socios/form/rival lookup falls back to the
 // neutral value instead, so one bad read doesn't blank out a whole matchday's gate.
 func drawMatchdayCrowd(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) matchdayCrowd {
+	inputs, ok := loadCrowdInputs(dbCtx, homeTeamId, mc)
+	if !ok {
+		return matchdayCrowd{}
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	attendance := CalculateAttendance(inputs.stadium.Capacity, inputs.stadium.TicketPrice, inputs.socios, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, mc.cupRound, mc.weather, r)
+	return matchdayCrowd{Attendance: attendance, Capacity: inputs.stadium.Capacity, Revenue: TicketRevenue(attendance, inputs.stadium.TicketPrice)}
+}
+
+// crowdInputs is everything that shapes one home match's crowd besides the weather and the noise.
+type crowdInputs struct {
+	stadium      *common.Stadium
+	socios       int
+	formPoints   int
+	formMatches  int
+	rivalFanbase int
+}
+
+// loadCrowdInputs reads the figures drawMatchdayCrowd and expectedMatchdayCrowd both start from.
+// ok is false when the stadium lookup fails; a failed socios/form/rival lookup falls back to the
+// neutral value instead.
+func loadCrowdInputs(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) (crowdInputs, bool) {
 	stadium, err := common.GetStadium(dbCtx, homeTeamId)
 	if err != nil {
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
-		return matchdayCrowd{}
+		return crowdInputs{}, false
 	}
 	socios, err := common.GetSocios(dbCtx, homeTeamId)
 	if err != nil {
@@ -230,10 +252,7 @@ func drawMatchdayCrowd(dbCtx *common.DatabaseContext, homeTeamId int64, mc match
 			rivalFanbase = -1
 		}
 	}
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, socios, formPoints, formMatches, rivalFanbase, mc.cupRound, mc.weather, r)
-	return matchdayCrowd{Attendance: attendance, Capacity: stadium.Capacity, Revenue: TicketRevenue(attendance, stadium.TicketPrice)}
+	return crowdInputs{stadium: stadium, socios: socios, formPoints: formPoints, formMatches: formMatches, rivalFanbase: rivalFanbase}, true
 }
 
 // matchdayConditions is one match's weather and crowd, both drawn once before kickoff (see

@@ -37,16 +37,13 @@ import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   queryKeys,
-  useAcademy,
   useDivisionDetails,
   useFinances,
-  useFriendlyChallengesReceived,
   useGroupDetails,
   useHeadToHead,
   useLiveMatchesOverview,
   useMe,
   useMyGroups,
-  useOffersReceived,
   useRenameTeam,
   useTeamMatches,
   useTopScorers,
@@ -59,7 +56,6 @@ import {
   type FinancesResponse,
   type LiveMatchSummary,
   type LoanedOutPlayer,
-  type Player,
   type Team,
   type TeamMatchSummary,
 } from '../../api/types'
@@ -77,9 +73,9 @@ import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { PULSING_LIVE_SX } from '../../utils/liveChip'
 import { liveMatchPath, matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
-import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { hideStillLiveResults } from '../division/DivisionDetailsPage'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
+import { PendingPanel } from './PendingPanel'
 import { SeasonRecap } from './SeasonRecap'
 
 // currentStanding reads the team's classification row with the same "don't spoil a match that's
@@ -225,7 +221,7 @@ export function DashboardPage() {
       <SeasonRecap enabled={!!loggedUser} />
       {isDesktop && <TeamHeaderCard team={team} standing={standing} recentForm={recentForm} />}
       {liveMatch ? <LiveMatchHero match={liveMatch} live={live} team={team} /> : <NextMatchHero match={nextMatch} teamId={team.id} />}
-      <AttentionAlerts teamId={team.id} players={players} finances={finances} />
+      <PendingPanel teamId={team.id} players={players} finances={finances} nextMatch={nextMatch} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <LastResultCard match={lastMatch} recentForm={isDesktop ? undefined : recentForm} />
@@ -359,152 +355,6 @@ function SuggestedLiveMatch({
           {t('dashboard.watchLive')}
         </Button>
       </Stack>
-    </Stack>
-  )
-}
-
-// CONTRACT_EXPIRY_WARNING_YEARS mirrors the last value a rostered player's contractYearsRemaining
-// ever shows before AdvancePlayerContract releases them to free agency at season end (see
-// backend/common.Player.ContractYearsRemaining) - by the time it reads 1, there's exactly one
-// season left to renew or lose them for nothing.
-const CONTRACT_EXPIRY_WARNING_YEARS = 1
-
-// On a phone an Alert's action button squeezes into a narrow column beside the text and splits
-// over two lines; here it drops under the message at full width instead.
-const STACKED_ALERT_ACTION_SX = {
-  '@media (max-width: 599.95px)': {
-    '& .MuiAlert-root': { flexWrap: 'wrap' },
-    '& .MuiAlert-message': { flex: 1 },
-    '& .MuiAlert-action': { width: '100%', m: 0, p: 0, pl: '34px', justifyContent: 'flex-start' },
-  },
-} as const
-
-// A row of dismissal-free notices for things that need the owner's action but have no other
-// presence on the dashboard - insolvency, contracts about to lapse, unavailable players ahead of
-// the next match, an academy prospect ready to promote, and unanswered transfer offers/friendly
-// challenges. Renders nothing once there's nothing pending, so it never adds permanent clutter.
-// Ordered roughly by how costly ignoring each one is.
-function AttentionAlerts({
-  teamId,
-  players,
-  finances,
-}: {
-  teamId: number
-  players: Player[]
-  finances: FinancesResponse | undefined
-}) {
-  const { t } = useTranslation()
-  const unavailability = useSquadUnavailability()
-  const { data: academy } = useAcademy()
-  const { data: offersReceived } = useOffersReceived(true)
-  const { data: challengesReceived } = useFriendlyChallengesReceived(true)
-  const expiringContracts = players.filter((p) => p.contractYearsRemaining <= CONTRACT_EXPIRY_WARNING_YEARS)
-
-  const alerts: ReactNode[] = []
-
-  if (finances?.insolvent) {
-    alerts.push(
-      <Alert
-        key="insolvent"
-        severity="error"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to="/dashboard/finances">
-            {t('dashboard.viewFinances')}
-          </Button>
-        }
-      >
-        {t('dashboard.insolvent')}
-      </Alert>,
-    )
-  }
-
-  if (expiringContracts.length > 0) {
-    alerts.push(
-      <Alert
-        key="expiringContracts"
-        severity="warning"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
-            {t('dashboard.viewTeam')}
-          </Button>
-        }
-      >
-        {t('dashboard.contractsExpiring', { count: expiringContracts.length })}
-      </Alert>,
-    )
-  }
-
-  if (unavailability.size > 0) {
-    alerts.push(
-      <Alert
-        key="unavailable"
-        severity="warning"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
-            {t('dashboard.viewTeam')}
-          </Button>
-        }
-      >
-        {t('dashboard.unavailablePlayers', { count: unavailability.size })}
-      </Alert>,
-    )
-  }
-
-  if (academy?.canPromote) {
-    alerts.push(
-      <Alert
-        key="academy"
-        severity="success"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to={`/team/${teamId}`}>
-            {t('dashboard.viewTeam')}
-          </Button>
-        }
-      >
-        {t('team.academy.available')}
-      </Alert>,
-    )
-  }
-
-  if (offersReceived && offersReceived.length > 0) {
-    alerts.push(
-      <Alert
-        key="offers"
-        severity="info"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to="/transfers?tab=offers">
-            {t('dashboard.viewOffers')}
-          </Button>
-        }
-      >
-        {t('dashboard.offersReceived', { count: offersReceived.length })}
-      </Alert>,
-    )
-  }
-
-  if (challengesReceived && challengesReceived.length > 0) {
-    alerts.push(
-      <Alert
-        key="challenges"
-        severity="info"
-        action={
-          <Button color="inherit" size="small" component={RouterLink} to="/friendlies">
-            {t('dashboard.viewChallenges')}
-          </Button>
-        }
-      >
-        {t('dashboard.friendlyChallengesReceived', { count: challengesReceived.length })}
-      </Alert>,
-    )
-  }
-
-  if (alerts.length === 0) {
-    return null
-  }
-
-  return (
-    <Stack spacing={1} sx={{ mb: 2, ...STACKED_ALERT_ACTION_SX }}>
-      {alerts}
     </Stack>
   )
 }

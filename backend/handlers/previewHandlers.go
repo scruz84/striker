@@ -29,6 +29,11 @@ type previewFixture struct {
 	matchDate  time.Time
 	played     bool
 	friendly   bool
+	// homeAdvantage is the multiplier the home side's zone ratings will get at this fixture's
+	// ground, from the expected crowd (see engine.ExpectedHomeAdvantage), and ownIsHome whether
+	// the owner's club is that home side.
+	homeAdvantage float32
+	ownIsHome     bool
 	// ownLineup is the owner's lineup for this fixture as the lineup editor shows it: his saved
 	// override, else his standing default (or, for a friendly, his friendly default or best XI).
 	ownLineup func() (*common.Lineup, error)
@@ -114,6 +119,7 @@ func projectOpponentDuel(dbCtx *common.DatabaseContext, teamId int64, fixture *p
 	projection := engine.ProjectZoneDuel(
 		engine.ZoneDuelSide{Lineup: ownLineup, Squad: *ownSquad},
 		engine.ZoneDuelSide{Lineup: opponentLineup, Squad: *opponentSquad},
+		fixture.homeAdvantage, fixture.ownIsHome,
 	)
 	return &projection, nil
 }
@@ -130,9 +136,11 @@ func loadPreviewFixture(dbCtx *common.DatabaseContext, userId int64, kind string
 			return nil, nil, err
 		}
 		return team, &previewFixture{
-			opponentId: otherTeam(team.Id, match.Home, match.Away),
-			matchDate:  match.MatchDate,
-			played:     match.Played,
+			opponentId:    otherTeam(team.Id, match.Home, match.Away),
+			matchDate:     match.MatchDate,
+			played:        match.Played,
+			homeAdvantage: engine.ExpectedHomeAdvantage(dbCtx, match.Home, match.Away, 0, false),
+			ownIsHome:     team.Id == match.Home,
 			ownLineup: func() (*common.Lineup, error) {
 				return ownCompetitiveLineup(dbCtx, team.Id, id, common.GetMatchLineupOverride)
 			},
@@ -142,9 +150,15 @@ func loadPreviewFixture(dbCtx *common.DatabaseContext, userId int64, kind string
 		if err != nil {
 			return nil, nil, err
 		}
+		worldCup, err := common.IsWorldCupKnockoutCup(dbCtx, tie.CupId)
+		if err != nil {
+			return nil, nil, err
+		}
 		fixture := &previewFixture{
-			opponentId: otherTeam(team.Id, *tie.HomeTeamId, *tie.AwayTeamId),
-			played:     tie.Played,
+			opponentId:    otherTeam(team.Id, *tie.HomeTeamId, *tie.AwayTeamId),
+			played:        tie.Played,
+			homeAdvantage: engine.ExpectedHomeAdvantage(dbCtx, *tie.HomeTeamId, *tie.AwayTeamId, tie.Round, worldCup),
+			ownIsHome:     team.Id == *tie.HomeTeamId,
 			ownLineup: func() (*common.Lineup, error) {
 				return ownCompetitiveLineup(dbCtx, team.Id, id, common.GetCupTieLineup)
 			},
@@ -158,12 +172,18 @@ func loadPreviewFixture(dbCtx *common.DatabaseContext, userId int64, kind string
 		if err != nil {
 			return nil, nil, err
 		}
+		worldCup, err := common.IsWorldCupGroupMatch(dbCtx, id)
+		if err != nil {
+			return nil, nil, err
+		}
 		return team, &previewFixture{
-			opponentId: otherTeam(team.Id, match.HomeTeamId, match.AwayTeamId),
-			matchDate:  match.MatchDate,
-			played:     match.Played,
-			friendly:   true,
-			ownLineup:  func() (*common.Lineup, error) { return ownFriendlyLineup(dbCtx, team.Id, id) },
+			opponentId:    otherTeam(team.Id, match.HomeTeamId, match.AwayTeamId),
+			matchDate:     match.MatchDate,
+			played:        match.Played,
+			friendly:      true,
+			homeAdvantage: engine.ExpectedHomeAdvantage(dbCtx, match.HomeTeamId, match.AwayTeamId, 0, worldCup),
+			ownIsHome:     team.Id == match.HomeTeamId,
+			ownLineup:     func() (*common.Lineup, error) { return ownFriendlyLineup(dbCtx, team.Id, id) },
 		}, nil
 	}
 	return nil, nil, errPreviewBadKind

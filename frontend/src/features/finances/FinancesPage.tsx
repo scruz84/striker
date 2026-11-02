@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -47,6 +48,7 @@ export function FinancesPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
   const { data: finances, isLoading } = useFinances(!!loggedUser)
+  const [searchParams] = useSearchParams()
 
   if (isLoading || !finances) {
     return <Skeleton variant="rectangular" height={300} />
@@ -75,6 +77,7 @@ export function FinancesPage() {
               stadium={finances.stadium}
               recommendedTicketPrice={finances.recommendedTicketPrice}
               maxTicketPrice={finances.maxTicketPrice}
+              openPriceDialog={searchParams.get('ticketPrice') === '1'}
             />
           )}</Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
@@ -241,16 +244,19 @@ export function StadiumCard({
   stadium,
   recommendedTicketPrice,
   maxTicketPrice,
+  openPriceDialog = false,
 }: {
   stadium: Stadium
   recommendedTicketPrice: number
   maxTicketPrice: number
+  /** Open the ticket price dialog straight away - the dashboard's Pending panel links here. */
+  openPriceDialog?: boolean
 }) {
   const { t } = useTranslation()
   const setTicketPrice = useSetTicketPrice()
   const upgradeStadium = useUpgradeStadium()
   const renameStadium = useRenameStadium()
-  const [dialog, setDialog] = useState<'expand' | 'price' | null>(null)
+  const [dialog, setDialog] = useState<'expand' | 'price' | null>(openPriceDialog ? 'price' : null)
   const [price, setPrice] = useState(String(stadium.ticketPrice))
   const [seats, setSeats] = useState(String(DEFAULT_STADIUM_UPGRADE_SEATS))
   const [editingName, setEditingName] = useState(false)

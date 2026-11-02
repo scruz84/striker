@@ -1,6 +1,10 @@
 package engine
 
-import "github.com/scruz84/striker/common"
+import (
+	"math"
+
+	"github.com/scruz84/striker/common"
+)
 
 // ZoneDuelSide is one side of a projected zone duel: the XI it would field and the squad that XI
 // is drawn from.
@@ -24,9 +28,11 @@ type ZoneDuelProjection struct {
 // before the first minute (no minutes played yet) and runs InitialSimulation on it - the same code
 // that fills every real match's zone instants, so a projection can never drift from the engine.
 // Pure: it reads no database and changes neither lineup. Both lineups are used as given (the caller
-// resolves any pre-kickoff refill of the owner's side), and Own is rated as the home side - the
-// ratings of a side do not depend on which side it is until home advantage exists.
-func ProjectZoneDuel(own ZoneDuelSide, opponent ZoneDuelSide) ZoneDuelProjection {
+// resolves any pre-kickoff refill of the owner's side). homeAdvantage is the home side's zone-rating
+// multiplier (see ExpectedHomeAdvantage; 0 or 1 for none, as in a neutral fixture) and ownIsHome
+// says which of the two sides gets it - applied after the zone blend exactly as InitialSimulation
+// does, so a projection can never drift from the engine.
+func ProjectZoneDuel(own ZoneDuelSide, opponent ZoneDuelSide, homeAdvantage float32, ownIsHome bool) ZoneDuelProjection {
 	ownPlayers := playersToMapById(&own.Squad)
 	opponentPlayers := playersToMapById(&opponent.Squad)
 	events := make([]common.Event, 0)
@@ -48,6 +54,13 @@ func ProjectZoneDuel(own ZoneDuelSide, opponent ZoneDuelSide) ZoneDuelProjection
 	}
 	StaminaSimulation{}.Apply(nil, match)
 	InitialSimulation{}.Apply(nil, match)
+	// Own is simulated in the home slot whichever side it really is, so the multiplier is applied
+	// here, to the side that is really at home, rather than through MatchSimulation.HomeAdvantage.
+	if ownIsHome {
+		applyHomeAdvantage(match.HomeQua, homeAdvantage)
+	} else {
+		applyHomeAdvantage(match.AwayQua, homeAdvantage)
+	}
 
 	return ZoneDuelProjection{
 		Own:                *match.HomeQua,
@@ -66,4 +79,22 @@ func goalkeeperSkill(lineup *common.Lineup, players *map[int64]common.Player) fl
 		}
 	}
 	return 0
+}
+
+// ExpectedHomeAdvantage is the home side's zone-rating multiplier a preview should assume for a
+// match at homeTeamId's ground: the one the match will draw (see homeAdvantageFor), but from the
+// expected crowd - the modelled demand in average weather, without the random swing - since the
+// real crowd is only drawn at kickoff. 1 for a neutral fixture (a World Cup match) and, as when the
+// stadium cannot be read, an empty house. cupRound is 0 for a league match or friendly.
+func ExpectedHomeAdvantage(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64, cupRound int, neutral bool) float32 {
+	if neutral {
+		return 1
+	}
+	inputs, ok := loadCrowdInputs(dbCtx, homeTeamId, matchdayContext{awayTeamId: awayTeamId, cupRound: cupRound})
+	if !ok {
+		return homeAdvantageMultiplier(0, 0)
+	}
+	demand := attendanceDemand(inputs.socios, inputs.stadium.TicketPrice, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, cupRound, "") * meanWeatherAttendanceFactor
+	attendance := int(math.Max(0, math.Min(float64(inputs.stadium.Capacity), demand)))
+	return homeAdvantageMultiplier(attendance, inputs.stadium.Capacity)
 }

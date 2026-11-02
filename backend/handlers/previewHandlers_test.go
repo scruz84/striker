@@ -183,3 +183,32 @@ func TestOpponentPreviewHandler_UnknownKindIsABadRequest(t *testing.T) {
 		t.Fatalf("status = %d, want 400", rec.Code)
 	}
 }
+
+func TestOpponentPreviewHandler_ProjectionIncludesTheHomeAdvantage(t *testing.T) {
+	r := newPreviewRig(t)
+	atHome := r.insertLeagueMatch(24*time.Hour, false, r.ownerTeam, r.opponent)
+	away := r.insertLeagueMatch(25*time.Hour, false, r.opponent, r.ownerTeam)
+
+	midfield := func(id int64) (own float64, opponent float64) {
+		rec := r.get(r.ownerUser, common.MatchKindLeague, id)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d: %s", rec.Code, rec.Body.String())
+		}
+		var body struct {
+			Projection struct {
+				Own      struct{ Midfield float64 } `json:"own"`
+				Opponent struct{ Midfield float64 } `json:"opponent"`
+			} `json:"projection"`
+		}
+		if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+			t.Fatal(err)
+		}
+		return body.Projection.Own.Midfield, body.Projection.Opponent.Midfield
+	}
+	ownHome, opponentVisiting := midfield(atHome)
+	ownAway, opponentHosting := midfield(away)
+
+	if ownHome <= ownAway || opponentHosting <= opponentVisiting {
+		t.Fatalf("the home side must rate higher: own %v at home vs %v away, opponent %v hosting vs %v visiting", ownHome, ownAway, opponentHosting, opponentVisiting)
+	}
+}
