@@ -43,7 +43,7 @@ A substitution saved with the friendly default MUST pass the same checks as any 
 - **THEN** the save is rejected with 400
 
 ### Requirement: Substitutions a match falls back to
-A match SHALL use the substitutions paired with the lineup it plays. League match or cup tie: its override's own if it has one, else the league/cup set. Friendly: its override's own if it has one; else, when the friendly default lineup is used, the friendly set; else (computed best XI) none. A friendly MUST NOT use the league/cup set, nor a league match or cup tie the friendly set. CPU teams keep choosing theirs at kickoff.
+A match SHALL use the substitutions paired with the lineup it plays. League match or cup tie: its override's own if it has one, else the league/cup set. Friendly: its override's own if it has one; else, when the friendly default lineup is used, the friendly set; else (computed best XI) none. A friendly MUST NOT use the league/cup lineup or set, nor a league match or cup tie the friendly set. CPU teams keep choosing theirs at kickoff.
 
 #### Scenario: Friendly falls back to the friendly default
 - **WHEN** a human team with a saved friendly default and 2 friendly substitutions plays a friendly it saved no override for

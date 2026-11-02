@@ -71,11 +71,10 @@ is unchanged; `cpu-team-management` keeps choosing CPU substitutions at kickoff.
 - The friendly default's lineup validation keeping league availability rules (suspensions) for the
   XI itself; only the new substitutions use friendly rules.
 
-## Open questions for the owner
+## Owner decisions
 
-1. Copy each team's current league/cup substitutions into the new friendly table on migration?
-   Proposed: no. Friendlies falling back to the friendly default never played them, and they were
-   written against a different XI.
-2. Should a friendly that falls back to the friendly default play its substitutions (a behaviour
-   change: today it plays none)? Proposed: yes, it matches what the editor shows and what league
-   matches already do with their default.
+1. The migration does **not** copy each team's league/cup substitutions into the new friendly
+   table: every team starts with no friendly substitutions.
+2. A friendly that falls back to the friendly default **plays** that default's substitutions.
+   Friendlies follow only the friendly lineup (the friendly's own override, else the friendly
+   default) and never read the league/cup lineup or its substitutions.

@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS default_friendly_lineup_substitutions (
 );
 ```
 
-No data copy (proposal open question 1). Re-runnable by `IF NOT EXISTS`.
+No data copy (proposal, owner decision 1). Re-runnable by `IF NOT EXISTS`.
 *Alternative:* add a `kind` column to `default_lineup_substitutions` (0 = league/cup, 1 = friendly)
 and widen the primary key. Rejected: it rewrites the primary key of a live table, every existing
 query needs a new predicate, and the codebase already models each lineup kind with its own table
@@ -79,7 +79,8 @@ league/cup handler. Same order of writes and error handling as `SetLineupHandler
 instead of the two `GetFriendlyLineupSubstitutions` reads. `GetLineupsForFriendly` already returns:
 the override with its own substitutions (`GetFriendlyLineup`), the friendly default with (after D2)
 the friendly set, or the best XI with an empty set. So the XI and its substitutions can never come
-from different sources. `planAiKickoffs` and `persistFriendlyLineupSnapshot` are unchanged, so the
+from different sources, and a friendly never reads the league/cup lineup or substitutions
+(proposal, owner decision 2). `planAiKickoffs` and `persistFriendlyLineupSnapshot` are unchanged, so the
 snapshot freezes the substitutions that were played and a retried simulation reads them back as
 the override. National-team friendlies keep their call-up override. `GetFriendlyLineupHandler`
 needs no code change: its fallback now carries the friendly set automatically.
