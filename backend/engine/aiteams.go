@@ -98,6 +98,7 @@ func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 			continue
 		}
 		respondToReceivedOffers(dbCtx, teamId)
+		answerCountersAsBuyer(dbCtx, team)
 	}
 }
 
@@ -221,6 +222,10 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 	profile := common.AiTransferProfileFor(team.AiLevel)
 
 	for _, offer := range offers {
+		if offer.CounterAmount != nil {
+			// Already countered: it waits for the buyer (see answerCountersAsBuyer for a CPU one).
+			continue
+		}
 		squad, err := ownedSquad(dbCtx, teamId)
 		if err != nil {
 			log.Errorf("error fetching squad for AI-managed team %d offer response: %s", teamId, err)
@@ -237,6 +242,16 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 		}, rand.New(rand.NewSource(offer.OfferId)))
 
 		if !decision.Accept {
+			if counter, ok := cpuCounterAmount(profile.Level, decision, offer.Amount); ok {
+				err := common.CounterOffer(dbCtx, offer.OfferId, teamId, counter)
+				if err == nil || errors.Is(err, common.ErrOfferNotFound) || errors.Is(err, common.ErrOfferAlreadyCountered) {
+					continue
+				}
+				// A closed window can't take a counter: the offer is rejected, as it always was.
+				if !errors.Is(err, common.ErrTransferWindowClosed) {
+					log.Errorf("error countering offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
+				}
+			}
 			if err := common.RejectOffer(dbCtx, offer.OfferId, teamId); err != nil {
 				log.Errorf("error rejecting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
 			}
@@ -249,6 +264,121 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 			log.Errorf("error accepting offer %d for AI-managed team %d: %s", offer.OfferId, teamId, err)
 		}
 	}
+}
+
+// cpuCounterAmount is the counter-offer a CPU seller answers a rejected offer with (see
+// openspec/specs/transfer-negotiation): only a Manager or a Director, only for an offer of at least
+// common.CpuCounterMinShare of its threshold, and never when the sale itself is refused (squad or
+// position too thin) - the counter is then the threshold rounded up to the next
+// common.CpuCounterRounding. ok is false when the offer is simply rejected.
+func cpuCounterAmount(level int, decision common.OfferDecision, amount int64) (int64, bool) {
+	if decision.Accept || level < common.AiLevelManager || decision.Threshold <= 0 {
+		return 0, false
+	}
+	switch decision.Reason {
+	case common.OfferReasonBelowValue, common.OfferReasonKeyPlayer, common.OfferReasonInternational:
+	default:
+		return 0, false
+	}
+	if float64(amount) < common.CpuCounterMinShare*float64(decision.Threshold) {
+		return 0, false
+	}
+	counter := (decision.Threshold + common.CpuCounterRounding - 1) / common.CpuCounterRounding * common.CpuCounterRounding
+	if counter <= amount || counter > amount*common.MaxCounterOfferMultiple {
+		return 0, false
+	}
+	return counter, true
+}
+
+// answerCountersAsBuyer answers every counter-offer made to a CPU team's own offers, on its
+// offer-response sweep (see RespondToAllPendingOffers): it re-values the player with its profile
+// (seeded by the offer id, so the answer is stable) and accepts the counter through the same
+// common.AcceptCounterOffer a human uses when the fee is within aiMaxBidValueMultiple of that
+// valuation and still affordable, else declines it and remembers the original bid as rejected, so
+// the usual cooldown and rebid floor apply (see common.OfferRetryAllowed).
+func answerCountersAsBuyer(dbCtx *common.DatabaseContext, team *common.Team) {
+	sent, err := common.GetOffersSent(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error fetching sent offers of AI-managed team %d: %s", team.Id, err)
+		return
+	}
+	countered := make([]common.TransferOffer, 0)
+	for _, o := range sent {
+		if o.CounterAmount != nil {
+			countered = append(countered, o)
+		}
+	}
+	if len(countered) == 0 {
+		return
+	}
+	profile := common.AiTransferProfileFor(team.AiLevel)
+	radar, err := common.GetNationalRadar(dbCtx)
+	if err != nil {
+		log.Errorf("error loading the national-team radar for AI-managed team %d: %s", team.Id, err)
+	}
+
+	for _, offer := range countered {
+		state, err := loadTransferState(dbCtx, team)
+		if err != nil {
+			log.Errorf("error reading the state of AI-managed team %d to answer a counter: %s", team.Id, err)
+			return
+		}
+		accept := acceptsCounter(counterScore(profile, state, offer, skillCapsFor(dbCtx, offer.Player.Id), radar), *offer.CounterAmount)
+		if accept {
+			err := common.AcceptCounterOffer(dbCtx, offer.OfferId, team.Id)
+			if err == nil {
+				recordAiMarketAction(team, "counter_accepted", offer.Player.Id, *offer.CounterAmount)
+				continue
+			}
+			if errors.Is(err, common.ErrTransferWindowClosed) || errors.Is(err, common.ErrOfferNotFound) {
+				continue
+			}
+			if !errors.Is(err, common.ErrInsufficientBudget) && !errors.Is(err, common.ErrTeamInsolvent) &&
+				!errors.Is(err, common.ErrOfferNoLongerValid) {
+				log.Errorf("error accepting counter-offer %d for AI-managed team %d: %s", offer.OfferId, team.Id, err)
+				continue
+			}
+			// It can't go through after all: decline it like a counter that is too high.
+		}
+		if err := common.DeclineCounterOffer(dbCtx, offer.OfferId, team.Id); err != nil {
+			if !errors.Is(err, common.ErrOfferNotFound) {
+				log.Errorf("error declining counter-offer %d for AI-managed team %d: %s", offer.OfferId, team.Id, err)
+			}
+			continue
+		}
+		if err := common.RecordOfferRejection(dbCtx.Db, offer.Player.Id, team.Id, offer.Amount); err != nil {
+			log.Errorf("error recording the declined counter-offer %d: %s", offer.OfferId, err)
+		}
+		recordAiMarketAction(team, "counter_declined", offer.Player.Id, *offer.CounterAmount)
+	}
+}
+
+// counterScore is how a CPU buyer sees paying a counter fee for the player it bid on: the same
+// common.ScoreTarget its bids come from, priced at the counter.
+func counterScore(profile common.AiTransferProfile, state *transferState, offer common.TransferOffer,
+	caps *common.PlayerSkillCaps, radar *common.NationalRadar) common.TargetScore {
+	ctx := common.TargetContext{
+		Squad:         state.available(),
+		Target:        offer.Player,
+		Caps:          caps,
+		Price:         *offer.CounterAmount,
+		Budget:        state.Budget,
+		WageBill:      state.WageBill,
+		WageFactor:    state.WageFactor,
+		ProjectsInUse: state.projectsInUse(),
+	}
+	if radar != nil {
+		if entry, ok := radar.Lookup(offer.Player.Id); ok {
+			ctx.International, ctx.InternationalCaps = true, entry.Caps
+		}
+	}
+	return common.ScoreTarget(profile, ctx, rand.New(rand.NewSource(offer.OfferId)))
+}
+
+// acceptsCounter is a CPU buyer's answer to a counter: yes when it is affordable and at most
+// aiMaxBidValueMultiple of its valuation - the same ceiling as its own bids.
+func acceptsCounter(score common.TargetScore, counter int64) bool {
+	return score.Affordable && float64(counter) <= float64(score.Value)*aiMaxBidValueMultiple
 }
 
 // ownedSquad is a team's senior squad minus anyone on loan to it from another club - the players

@@ -18,7 +18,9 @@ import (
 // are randomized): moves happen when upgrades exist, a Caretaker never shops, only a Director
 // bids for unlisted players, no CPU squad drops under the minimum size or a position under its
 // minimum depth, the caps on open offers hold, a rejected team doesn't bid again straight away,
-// nobody is signed and sold on at once, and no international is put on the transfer list.
+// nobody is signed and sold on at once, and no international is put on the transfer list. The
+// second human counters every CPU offer instead (openspec/specs/transfer-negotiation): each
+// counter is answered on the next offer-response sweep, and a declined one starts the cooldown.
 func TestAiTransferMarket_Simulation(t *testing.T) {
 	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
 	if dsn == "" {
@@ -193,21 +195,80 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	}
 	checkInvariants(0)
 
+	type counterKey struct{ offerId, playerId, teamId int64 }
+	humanCounters := map[counterKey]bool{} // countered by the second human, not answered yet
+	countersAccepted, countersDeclined := 0, 0
+	cpuCounters := map[int64]bool{} // offers a CPU seller countered
+	// noteCpuCounters records every offer a CPU seller has countered and returns those whose buyer
+	// is a CPU team too (which the next sweep must answer).
+	noteCpuCounters := func() []int64 {
+		t.Helper()
+		rows, err := db.Query(`SELECT o.offer_id, b.owner_id IS NULL FROM transfer_offers o JOIN teams t ON t.team_id = o.to_team_id
+			JOIN teams b ON b.team_id = o.from_team_id WHERE o.counter_amount IS NOT NULL AND t.owner_id IS NULL`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer rows.Close()
+		cpuBuyers := make([]int64, 0)
+		for rows.Next() {
+			var id int64
+			var cpuBuyer bool
+			if err := rows.Scan(&id, &cpuBuyer); err != nil {
+				t.Fatal(err)
+			}
+			cpuCounters[id] = true
+			if cpuBuyer {
+				cpuBuyers = append(cpuBuyers, id)
+			}
+		}
+		return cpuBuyers
+	}
+
 	const days = 12
 	for day := 1; day <= days; day++ {
 		for _, c := range cpus {
 			RunAITeamManagement(dbCtx, c.id)
 		}
+		awaitingCpuBuyer := noteCpuCounters()
 		RespondToAllPendingOffers(dbCtx)
+		noteCpuCounters()
+		for _, offerId := range awaitingCpuBuyer {
+			if n := count0(t, db, `SELECT count(*) FROM transfer_offers WHERE offer_id = $1`, offerId); n != 0 {
+				t.Errorf("day %d: CPU counter on offer %d between CPU teams is still unanswered after a sweep", day, offerId)
+			}
+		}
+
+		// Every counter the second human made yesterday has been answered by this sweep.
+		for key := range humanCounters {
+			if n := count0(t, db, `SELECT count(*) FROM transfer_offers WHERE offer_id = $1`, key.offerId); n != 0 {
+				t.Errorf("day %d: counter on offer %d is still unanswered after a sweep", day, key.offerId)
+				continue
+			}
+			if count0(t, db, `SELECT COALESCE(team_id, 0) FROM players WHERE player_id = $1`, key.playerId) == int(key.teamId) {
+				countersAccepted++
+			} else {
+				countersDeclined++
+				rejectedAt[[2]int64{key.playerId, key.teamId}] = time.Now()
+			}
+			delete(humanCounters, key)
+		}
 		checkInvariants(day)
 
-		// The humans decline every CPU offer, remembering who they turned down.
-		for _, h := range humans {
+		// The first human declines every CPU offer, remembering who they turned down; the second
+		// counters each one at 20% more.
+		for i, h := range humans {
 			offers, err := common.GetOffersReceived(dbCtx, h)
 			if err != nil {
 				t.Fatal(err)
 			}
 			for _, o := range offers {
+				if i == 1 && o.CounterAmount == nil {
+					if err := common.CounterOffer(dbCtx, o.OfferId, h, o.Amount*12/10+1); err != nil {
+						t.Fatal(err)
+					}
+					humanCounters[counterKey{o.OfferId, o.Player.Id, o.FromTeamId}] = true
+					continue
+				}
 				if err := common.RejectOffer(dbCtx, o.OfferId, h); err != nil {
 					t.Fatal(err)
 				}
@@ -308,5 +369,19 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	if offers == 0 {
 		t.Errorf("no Director bid for the humans' 97-rated strikers in %d days", days)
 	}
-	t.Logf("over %d days: %d signings by CPU teams, %d offers by Directors (all turned down), %d loans to CPU teams", days, signings, offers, loans)
+	t.Logf("over %d days: %d signings by CPU teams, %d offers by Directors turned down, %d loans to CPU teams", days, signings, offers, loans)
+	t.Logf("counter-offers: %d by CPU sellers; the human's %d accepted and %d declined by CPU buyers (%d still pending)",
+		len(cpuCounters), countersAccepted, countersDeclined, len(humanCounters))
+	if len(cpuCounters)+countersAccepted+countersDeclined == 0 {
+		t.Error("no counter-offer was made in the whole run")
+	}
+}
+
+func count0(t *testing.T, db *sql.DB, query string, args ...any) int {
+	t.Helper()
+	var n int
+	if err := db.QueryRow(query, args...).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	return n
 }

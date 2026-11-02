@@ -87,6 +87,12 @@ type TransferOffer struct {
 	// admin-configurable window's length has one source of truth instead of a duplicated
 	// constant on each side.
 	AcceptableAt time.Time `json:"acceptableAt"`
+	// CounterAmount is the selling club's counter fee, CounteredAt when it was made and
+	// CounterExpiresAt when it lapses unanswered (CounteredAt + CounterOfferLifetime) - all three
+	// absent on an offer that was never countered. See CounterOffer.
+	CounterAmount    *int64     `json:"counterAmount,omitempty"`
+	CounteredAt      *time.Time `json:"counteredAt,omitempty"`
+	CounterExpiresAt *time.Time `json:"counterExpiresAt,omitempty"`
 }
 
 // TransferOfferResult mirrors ContractRenewalOffer/FreeAgentSigningResult's shape - the player
@@ -105,17 +111,17 @@ type TransferOfferResult struct {
 const InsertTransferOfferStmtSql = "INSERT INTO transfer_offers (player_id, from_team_id, to_team_id, amount, offered_wage, offered_years) " +
 	"VALUES ($1, $2, $3, $4, $5, $6) RETURNING offer_id"
 
-const GetOffersReceivedStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at " +
+const GetOffersReceivedStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at, o.counter_amount, o.countered_at " +
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
 	"WHERE o.to_team_id = $1 ORDER BY o.created_at DESC"
 
-const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at " +
+const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at, o.counter_amount, o.countered_at " +
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
 	"WHERE o.from_team_id = $1 ORDER BY o.created_at DESC"
 
 const GetOfferOwnersStmtSql = "SELECT player_id, from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
 const GetOfferOwnersAndAmountStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1"
-const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
+const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at, counter_amount FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
 
@@ -216,9 +222,16 @@ func scanTransferOffers(dbCtx *DatabaseContext, rows *sql.Rows) ([]TransferOffer
 	pending := make([]row, 0)
 	for rows.Next() {
 		var r row
+		var counterAmount sql.NullInt64
+		var counteredAt sql.NullTime
 		if err := rows.Scan(&r.offer.OfferId, &r.playerId, &r.offer.FromTeamId, &r.offer.FromTeamName,
-			&r.offer.ToTeamId, &r.offer.ToTeamName, &r.offer.Amount, &r.offer.OfferedWage, &r.offer.OfferedYears, &r.offer.CreatedAt); err != nil {
+			&r.offer.ToTeamId, &r.offer.ToTeamName, &r.offer.Amount, &r.offer.OfferedWage, &r.offer.OfferedYears, &r.offer.CreatedAt,
+			&counterAmount, &counteredAt); err != nil {
 			return nil, err
+		}
+		if counterAmount.Valid && counteredAt.Valid {
+			amount, at, expires := counterAmount.Int64, counteredAt.Time, counteredAt.Time.Add(CounterOfferLifetime)
+			r.offer.CounterAmount, r.offer.CounteredAt, r.offer.CounterExpiresAt = &amount, &at, &expires
 		}
 		pending = append(pending, r)
 	}
@@ -325,13 +338,14 @@ func RejectOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 // AcceptOffer executes the transfer at the offer's amount: moves the player, debits/credits both
 // budgets, logs both sides of the ledger, clears the seller's default lineup, and drops every
 // other pending offer on the same player (they're all stale once it's sold) plus any open
-// listing for it - all atomically. Re-checks that the player still belongs to toTeamId (they
-// might have been sold or loaned out since the offer was made) and that the buyer can still
-// afford it, since an offer can sit pending for a while before it's acted on. Also refuses an
-// offer still inside its admin-configured negotiation window (see ErrOfferNegotiationWindow,
-// GetOfferNegotiationWindowMinutes) - rejecting or withdrawing an offer is never gated this way,
-// only accepting one, so a seller comparing offers never risks losing the ones they'd rather
-// keep open.
+// listing for it - all atomically (see executeOfferTx). Re-checks that the player still belongs
+// to toTeamId (they might have been sold or loaned out since the offer was made) and that the
+// buyer can still afford it, since an offer can sit pending for a while before it's acted on.
+// Also refuses an offer still inside its admin-configured negotiation window (see
+// ErrOfferNegotiationWindow, GetOfferNegotiationWindowMinutes) - rejecting or withdrawing an
+// offer is never gated this way, only accepting one, so a seller comparing offers never risks
+// losing the ones they'd rather keep open - and an offer the seller already countered (see
+// CounterOffer): that one now waits for the buyer, at the counter fee.
 func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	if !IsTransferWindowOpen(dbCtx) {
 		return ErrTransferWindowClosed
@@ -349,115 +363,171 @@ func AcceptOffer(dbCtx *DatabaseContext, offerId int64, toTeamId int64) error {
 	}
 	defer tx.Rollback()
 
-	var playerId, fromTeamId, actualToTeamId, amount int64
-	var offeredWage, offeredYears int
-	var createdAt time.Time
-	err = tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&playerId, &fromTeamId, &actualToTeamId, &amount, &offeredWage, &offeredYears, &createdAt)
-	if errors.Is(err, sql.ErrNoRows) {
-		return ErrOfferNotFound
-	}
+	offer, err := lockOffer(tx, offerId)
 	if err != nil {
 		return err
 	}
-	if actualToTeamId != toTeamId {
+	if offer.toTeamId != toTeamId {
 		return ErrNotOfferRecipient
 	}
-	if !canAcceptOfferAt(createdAt, time.Now(), window) {
+	if offer.counterAmount.Valid {
+		return ErrOfferCountered
+	}
+	if !canAcceptOfferAt(offer.createdAt, time.Now(), window) {
 		return ErrOfferNegotiationWindow
 	}
 
-	var currentOwnerTeamId int64
-	if err := tx.QueryRow(GetPlayerTeamForUpdateStmtSql, playerId).Scan(&currentOwnerTeamId); err != nil {
+	done, err := executeOfferTx(dbCtx, tx, offer, offer.amount)
+	if err != nil {
 		return err
 	}
+	return finishOfferTransfer(dbCtx, tx, done, "accepted")
+}
+
+// lockedOffer is a transfer_offers row read under its row lock (see lockOffer).
+type lockedOffer struct {
+	offerId       int64
+	playerId      int64
+	fromTeamId    int64
+	toTeamId      int64
+	amount        int64
+	offeredWage   int
+	offeredYears  int
+	createdAt     time.Time
+	counterAmount sql.NullInt64
+}
+
+// lockOffer reads offerId FOR UPDATE inside tx - ErrOfferNotFound when it is gone, which is also
+// what a second caller sees after waiting on the lock of one that completed the transfer (the
+// row is deleted with it).
+func lockOffer(tx *sql.Tx, offerId int64) (*lockedOffer, error) {
+	o := &lockedOffer{offerId: offerId}
+	err := tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&o.playerId, &o.fromTeamId, &o.toTeamId, &o.amount,
+		&o.offeredWage, &o.offeredYears, &o.createdAt, &o.counterAmount)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrOfferNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return o, nil
+}
+
+// completedOfferTransfer is what executeOfferTx did inside the transaction, for
+// finishOfferTransfer to commit and announce.
+type completedOfferTransfer struct {
+	offer      *lockedOffer
+	fee        int64
+	playerName string
+	buyerName  string
+	sellerName string
+	flows      LedgerFlows
+}
+
+// executeOfferTx is the transfer behind an accepted offer or an accepted counter-offer, at fee,
+// inside tx (whose offer row the caller already locked): it re-checks under lock that the player
+// still belongs to the seller and that the buyer can pay fee, then moves the money and the player
+// with the personal terms the player agreed to when the offer was made, writes both ledger rows,
+// and drops every pending offer and listing on him. Nothing is committed here.
+func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee int64) (*completedOfferTransfer, error) {
+	playerId, fromTeamId, toTeamId := offer.playerId, offer.fromTeamId, offer.toTeamId
+
+	var currentOwnerTeamId int64
+	if err := tx.QueryRow(GetPlayerTeamForUpdateStmtSql, playerId).Scan(&currentOwnerTeamId); err != nil {
+		return nil, err
+	}
 	if currentOwnerTeamId != toTeamId {
-		return ErrOfferNoLongerValid
+		return nil, ErrOfferNoLongerValid
 	}
 
 	var buyerBudget int64
 	if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, fromTeamId).Scan(&buyerBudget); err != nil {
-		return err
+		return nil, err
 	}
-	if buyerBudget < amount {
-		return ErrInsufficientBudget
+	if buyerBudget < fee {
+		return nil, ErrInsufficientBudget
 	}
 
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	buyerTeam, err := GetTeamById(fromTeamId, dbCtx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	sellerTeam, err := GetTeamById(toTeamId, dbCtx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -amount, fromTeamId); err != nil {
-		return err
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -fee, fromTeamId); err != nil {
+		return nil, err
 	}
-	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, amount, toTeamId); err != nil {
-		return err
+	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, fee, toTeamId); err != nil {
+		return nil, err
 	}
 	if err := movePlayerToTeam(tx, fromTeamId, playerId); err != nil {
-		return err
+		return nil, err
 	}
 	if err := RecordPlayerClubHistory(tx, playerId, fromTeamId); err != nil {
-		return err
+		return nil, err
 	}
-	if err := RecordPlayerTransfer(tx, playerId, toTeamId, fromTeamId, amount, PLAYER_TRANSFER_OFFER); err != nil {
-		return err
+	if err := RecordPlayerTransfer(tx, playerId, toTeamId, fromTeamId, fee, PLAYER_TRANSFER_OFFER); err != nil {
+		return nil, err
 	}
 	// Applies the personal terms the player already agreed to when this offer was made (see
 	// MakeTransferOffer) - not re-judged against their expectations here, the same way an
 	// accepted contract renewal offer's terms aren't re-litigated later.
-	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offeredYears, offeredWage, playerId); err != nil {
-		return err
+	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offer.offeredYears, offer.offeredWage, playerId); err != nil {
+		return nil, err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := tx.Exec(DeleteOffersForPlayerStmtSql, playerId); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := tx.Exec(DeleteTransferListingByPlayerAndTeamStmtSql, playerId, toTeamId); err != nil {
-		return err
+		return nil, err
 	}
 	if _, err := tx.Exec(DeleteLoanListingByPlayerAndTeamStmtSql, playerId, toTeamId); err != nil {
-		return err
+		return nil, err
 	}
 
-	playerName := player.FirstName + " " + player.LastName
-	var flows LedgerFlows
-	if err := insertLedgerRow(tx, &flows, fromTeamId, -amount, TRANSACTION_TRANSFER_OUT,
-		"Bought "+playerName+" from "+sellerTeam.TeamName, playerId); err != nil {
-		return err
+	done := &completedOfferTransfer{offer: offer, fee: fee, playerName: player.FirstName + " " + player.LastName,
+		buyerName: buyerTeam.TeamName, sellerName: sellerTeam.TeamName}
+	if err := insertLedgerRow(tx, &done.flows, fromTeamId, -fee, TRANSACTION_TRANSFER_OUT,
+		"Bought "+done.playerName+" from "+done.sellerName, playerId); err != nil {
+		return nil, err
 	}
-	if err := insertLedgerRow(tx, &flows, toTeamId, amount, TRANSACTION_TRANSFER_IN,
-		"Sold "+playerName+" to "+buyerTeam.TeamName, playerId); err != nil {
-		return err
+	if err := insertLedgerRow(tx, &done.flows, toTeamId, fee, TRANSACTION_TRANSFER_IN,
+		"Sold "+done.playerName+" to "+done.buyerName, playerId); err != nil {
+		return nil, err
 	}
+	return done, nil
+}
 
+// finishOfferTransfer commits what executeOfferTx did, then records it and tells both owners
+// (best-effort, after the commit). outcome labels TransferOffersResolvedCounter.
+func finishOfferTransfer(dbCtx *DatabaseContext, tx *sql.Tx, done *completedOfferTransfer, outcome string) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
-	flows.Commit(context.Background())
+	done.flows.Commit(context.Background())
 
-	RecordTransferCompleted(context.Background(), amount)
-	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute("accepted")))
+	RecordTransferCompleted(context.Background(), done.fee)
+	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute(outcome)))
 
-	_ = NotifyTeamOwner(dbCtx, toTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
-		Text:   "Sold " + playerName + " to " + buyerTeam.TeamName,
+	_ = NotifyTeamOwner(dbCtx, done.offer.toTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Sold " + done.playerName + " to " + done.buyerName,
 		Key:    "notifications.messages.transferSold",
-		Params: map[string]any{"player": playerName, "team": buyerTeam.TeamName},
+		Params: map[string]any{"player": done.playerName, "team": done.buyerName},
 	})
-	_ = NotifyTeamOwner(dbCtx, fromTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
-		Text:   "Bought " + playerName + " from " + sellerTeam.TeamName,
+	_ = NotifyTeamOwner(dbCtx, done.offer.fromTeamId, NOTIFICATION_TRANSFER, NotificationMessage{
+		Text:   "Bought " + done.playerName + " from " + done.sellerName,
 		Key:    "notifications.messages.transferBought",
-		Params: map[string]any{"player": playerName, "team": sellerTeam.TeamName},
+		Params: map[string]any{"player": done.playerName, "team": done.sellerName},
 	})
-
 	return nil
 }

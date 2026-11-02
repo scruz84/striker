@@ -1323,6 +1323,40 @@ export function useAcceptOffer() {
   })
 }
 
+// One counter-offer round (openspec/specs/transfer-negotiation): the seller answers an offer with
+// a higher fee, then the buyer accepts it (the transfer completes at that fee) or declines it.
+export function useCounterOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ offerId, amount }: { offerId: number; amount: number }) => api.post(`/v1/offers/${offerId}/counter`, { amount }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersReceived })
+    },
+  })
+}
+
+export function useAcceptCounterOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.post(`/v1/offers/${offerId}/accept-counter`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.finances })
+    },
+  })
+}
+
+export function useDeclineCounterOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.post(`/v1/offers/${offerId}/decline-counter`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+    },
+  })
+}
+
 export function useFriendlyChallengesReceived(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.friendlyChallengesReceived,

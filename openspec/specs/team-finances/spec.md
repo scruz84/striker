@@ -190,11 +190,14 @@ The finance page SHALL show the allowed ticket price range (1–39) and a recomm
 - Stadium: `common/stadium.go` (`UpgradeStadium`, `StadiumUpgradeDuration`, `SetTicketPrice`);
   price bounds `common.MinTicketPrice`/`MaxTicketPrice` (`common/fmconstants.go`); recommended
   price `engine.RecommendedTicketPrice`; legacy-price cap `resources/sql/init87_cap_ticket_price.sql`.
-- Market money: `common/transfers.go`, `common/offers.go`, `common/loans.go`,
-  `common/contracts.go`; insolvency `common.MaxDebt`/`IsTeamSolvent`.
+- Market money: `common/transfers.go`, `common/offers.go` (an accepted offer or counter-offer
+  moves the money in `executeOfferTx`), `common/offercounters.go` (`AcceptCounterOffer` at the
+  counter fee; see transfer-negotiation), `common/loans.go`, `common/contracts.go`; insolvency
+  `common.MaxDebt`/`IsTeamSolvent`.
 - Frontend: `frontend/src/features/finances/` (`cashFlowForecast.ts`, `BudgetOverTimeChart`,
   `IncomeBreakdownChart`); ticket price dialog (range, recommended price) in `StadiumCard` of
-  `FinancesPage.tsx`; offer grouping `ReceivedOffersByPlayer` in `TransferMarketPage.tsx`.
+  `FinancesPage.tsx`; offer grouping `ReceivedOffersByPlayer` in `TransferMarketPage.tsx`, the
+  offer actions and counter-offers in `features/transfers/OfferCards.tsx`.
 - Balance check: `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v`
   (`engine/economysim_test.go`); background in
   `openspec/changes/archive/2026-10-19-rebalance-economy-socios/`.

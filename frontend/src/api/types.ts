@@ -1311,6 +1311,11 @@ export interface TransferOffer {
   // comparing offers instead of the first one in winning by default. Rejecting/withdrawing is
   // never gated by this, only accepting.
   acceptableAt: string
+  // The selling club's counter-offer (see backend common.CounterOffer): a higher fee that now
+  // waits for the buyer to accept or decline until counterExpiresAt. Absent when not countered.
+  counterAmount?: number
+  counteredAt?: string
+  counterExpiresAt?: string
 }
 
 // Mirrors backend/common.MostViewedPlayer - the currently-listed player whose profile has been
@@ -1668,6 +1673,7 @@ export const NOTIFICATION_PROGRESSION = 8
 export const NOTIFICATION_AWARD = 9
 export const NOTIFICATION_FANBASE = 11
 export const NOTIFICATION_ACCOUNT = 13
+export const NOTIFICATION_COUNTER_OFFER = 15
 
 export interface Notification {
   notificationId: number

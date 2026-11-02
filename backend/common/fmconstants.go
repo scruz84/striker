@@ -170,6 +170,10 @@ const NOTIFICATION_CALL_UP = 12
 // for inactivity, or the whole account is about to be erased - see engine.RunAccountLifecycle.
 const NOTIFICATION_ACCOUNT = 13
 
+// NOTIFICATION_COUNTER_OFFER tells a buyer the selling club answered their transfer offer with a
+// higher fee, which now waits for them to accept or decline - see common.CounterOffer.
+const NOTIFICATION_COUNTER_OFFER = 15
+
 // player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
 // translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.
 const PLAYER_TRANSFER_LISTING = 0    // bought a transfer-listed player at its asking price

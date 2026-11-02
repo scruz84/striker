@@ -210,11 +210,113 @@ func AcceptOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		case errors.Is(err, common.ErrOfferNoLongerValid),
 			errors.Is(err, common.ErrInsufficientBudget),
 			errors.Is(err, common.ErrTransferWindowClosed),
-			errors.Is(err, common.ErrOfferNegotiationWindow):
+			errors.Is(err, common.ErrOfferNegotiationWindow),
+			errors.Is(err, common.ErrOfferCountered):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting offer %d for team %d: %s", offerId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 		}
+	}
+}
+
+type CounterOfferRequest struct {
+	Amount int64 `json:"amount"`
+}
+
+// offerAndTeam reads the :id offer and the caller's team, answering the request itself (and
+// returning ok=false) when either is missing.
+func offerAndTeam(c *gin.Context, dbCtx *common.DatabaseContext) (int64, *common.Team, bool) {
+	userId := GetUserIdFromCookie(c)
+	if userId == nil {
+		c.JSON(http.StatusForbidden, nil)
+		return 0, nil, false
+	}
+	offerId, err := common.StringToInt64(c.Param(ID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, GetError(0, "invalid offer id"))
+		return 0, nil, false
+	}
+	team, err := common.GetTeamByOwner(*userId, dbCtx)
+	if err != nil {
+		c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+		return 0, nil, false
+	}
+	return offerId, team, true
+}
+
+// writeCounterOfferError maps the counter-offer errors (see common.CounterOffer and friends) to
+// their HTTP status.
+func writeCounterOfferError(c *gin.Context, err error, what string, offerId int64) {
+	switch {
+	case errors.Is(err, common.ErrOfferNotFound):
+		c.JSON(http.StatusNotFound, GetError(0, err.Error()))
+	case errors.Is(err, common.ErrNotOfferRecipient), errors.Is(err, common.ErrNotOfferSender):
+		c.JSON(http.StatusForbidden, GetError(0, err.Error()))
+	case errors.Is(err, common.ErrInvalidCounterAmount):
+		c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+	case errors.Is(err, common.ErrOfferAlreadyCountered),
+		errors.Is(err, common.ErrNoCounterOffer),
+		errors.Is(err, common.ErrOfferNoLongerValid),
+		errors.Is(err, common.ErrInsufficientBudget),
+		errors.Is(err, common.ErrTeamInsolvent),
+		errors.Is(err, common.ErrTransferWindowClosed):
+		c.JSON(http.StatusConflict, GetError(0, err.Error()))
+	default:
+		log.Errorf("error %s offer %d: %s", what, offerId, err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+	}
+}
+
+// CounterOfferHandler answers an offer on one of the caller's own players with a higher fee (see
+// common.CounterOffer) - once per offer.
+func CounterOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		offerId, team, ok := offerAndTeam(c, dbCtx)
+		if !ok {
+			return
+		}
+		var req CounterOfferRequest
+		if err := c.BindJSON(&req); err != nil || req.Amount <= 0 {
+			c.JSON(http.StatusBadRequest, GetError(0, "amount is required"))
+			return
+		}
+		if err := common.CounterOffer(dbCtx, offerId, team.Id, req.Amount); err != nil {
+			writeCounterOfferError(c, err, "countering", offerId)
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "offer countered"})
+	}
+}
+
+// AcceptCounterOfferHandler takes the seller's counter on one of the caller's own offers,
+// completing the transfer at the counter fee (see common.AcceptCounterOffer).
+func AcceptCounterOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		offerId, team, ok := offerAndTeam(c, dbCtx)
+		if !ok {
+			return
+		}
+		if err := common.AcceptCounterOffer(dbCtx, offerId, team.Id); err != nil {
+			writeCounterOfferError(c, err, "accepting the counter on", offerId)
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "counter-offer accepted"})
+	}
+}
+
+// DeclineCounterOfferHandler turns down the seller's counter on one of the caller's own offers,
+// which ends the offer (see common.DeclineCounterOffer).
+func DeclineCounterOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		offerId, team, ok := offerAndTeam(c, dbCtx)
+		if !ok {
+			return
+		}
+		if err := common.DeclineCounterOffer(dbCtx, offerId, team.Id); err != nil {
+			writeCounterOfferError(c, err, "declining the counter on", offerId)
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "counter-offer declined"})
 	}
 }

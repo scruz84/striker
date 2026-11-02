@@ -532,8 +532,9 @@ production rather than exhaustive coverage of every code path:
   wage/stadium upkeep. Can go negative in aggregate if enough teams are in debt (see
   `ErrTeamInsolvent`).
 - **Transfer offers** (`striker.offers.made`, and `striker.offers.resolved` labeled by `outcome`:
-  `accepted`/`rejected`/`withdrawn`) - the negotiated-offer side of the transfer market, separate
-  from the fixed-price listings above.
+  `accepted`/`rejected`/`withdrawn`, plus the counter-offer round's
+  `counter_accepted`/`counter_declined`/`counter_expired`) - the negotiated-offer side of the
+  transfer market, separate from the fixed-price listings above.
 - **Loans** (`striker.loans.listed`, `striker.loans.accepted`) - players newly offered out on
   loan, and loan listings a borrowing team took up.
 - **Academy promotions** (`striker.academy.promotions`) - youth academy prospects promoted to the

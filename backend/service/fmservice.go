@@ -244,6 +244,9 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1OfferGroup.DELETE("/:"+handlers.ID, handlers.WithdrawOfferHandler(dbCtx))
 	v1OfferGroup.POST("/:"+handlers.ID+"/accept", handlers.AcceptOfferHandler(dbCtx))
 	v1OfferGroup.POST("/:"+handlers.ID+"/reject", handlers.RejectOfferHandler(dbCtx))
+	v1OfferGroup.POST("/:"+handlers.ID+"/counter", handlers.CounterOfferHandler(dbCtx))
+	v1OfferGroup.POST("/:"+handlers.ID+"/accept-counter", handlers.AcceptCounterOfferHandler(dbCtx))
+	v1OfferGroup.POST("/:"+handlers.ID+"/decline-counter", handlers.DeclineCounterOfferHandler(dbCtx))
 
 	v1FriendGroup := v1Group.Group("/groups")
 	v1FriendGroup.Use(authMiddleware.MiddlewareFunc())

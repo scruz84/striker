@@ -270,3 +270,61 @@ func TestPickSurplusPlayerToList_SkipsProtectedPlayers(t *testing.T) {
 		t.Errorf("listed player %d, want %d", got.Id, want.Id)
 	}
 }
+
+// A CPU seller counters a near miss instead of rejecting it (openspec/specs/cpu-team-management,
+// "Answering transfer offers").
+func TestCpuCounterAmount(t *testing.T) {
+	below := func(threshold int64) common.OfferDecision {
+		return common.OfferDecision{Threshold: threshold, Reason: common.OfferReasonBelowValue}
+	}
+	cases := []struct {
+		name     string
+		level    int
+		decision common.OfferDecision
+		amount   int64
+		want     int64
+		ok       bool
+	}{
+		{"near-miss offer to a Director", common.AiLevelDirector, below(1234500), 1000000, 1235000, true},
+		{"key player at exactly 70%", common.AiLevelManager, common.OfferDecision{Threshold: 2000000, Reason: common.OfferReasonKeyPlayer}, 1400000, 2000000, true},
+		{"international near miss", common.AiLevelDirector, common.OfferDecision{Threshold: 1500001, Reason: common.OfferReasonInternational}, 1200000, 1501000, true},
+		{"low offer to a Manager", common.AiLevelManager, below(1000000), 699999, 0, false},
+		{"caretaker near miss", common.AiLevelCaretaker, below(1000000), 900000, 0, false},
+		{"thin position near miss", common.AiLevelDirector, common.OfferDecision{Threshold: 1000000, Reason: common.OfferReasonThinPosition}, 950000, 0, false},
+		{"squad too small near miss", common.AiLevelDirector, common.OfferDecision{Threshold: 1000000, Reason: common.OfferReasonSquadTooSmall}, 950000, 0, false},
+		{"accepted offer", common.AiLevelDirector, common.OfferDecision{Accept: true, Threshold: 1000000, Reason: common.OfferReasonAccepted}, 1000000, 0, false},
+	}
+	for _, c := range cases {
+		got, ok := cpuCounterAmount(c.level, c.decision, c.amount)
+		if got != c.want || ok != c.ok {
+			t.Errorf("%s: cpuCounterAmount = %d, %v; want %d, %v", c.name, got, ok, c.want, c.ok)
+		}
+	}
+}
+
+// A CPU buyer takes a counter up to 1.5 times its valuation, if it can afford it
+// (openspec/specs/cpu-transfer-market, "Answering counter-offers").
+func TestAcceptsCounter(t *testing.T) {
+	valued := common.TargetScore{Value: 1000000, Affordable: true}
+	if !acceptsCounter(valued, 1300000) {
+		t.Error("a 1,300,000 counter on a 1,000,000 valuation should be accepted")
+	}
+	if !acceptsCounter(valued, 1500000) {
+		t.Error("a counter at exactly 1.5 times the valuation should be accepted")
+	}
+	if acceptsCounter(valued, 1600000) {
+		t.Error("a 1,600,000 counter on a 1,000,000 valuation should be declined")
+	}
+	if acceptsCounter(common.TargetScore{Value: 1000000}, 1300000) {
+		t.Error("an unaffordable counter should be declined")
+	}
+	// After declining, the original 1,100,000 bid is the rejection: 3 days of cooldown, then
+	// 1,210,000 or more.
+	declined := common.OfferRejection{Amount: 1100000, RejectedAt: time.Now()}
+	if allowed, _ := common.OfferRetryAllowed(&declined, time.Now().Add(71*time.Hour)); allowed {
+		t.Error("rebid allowed during the cooldown")
+	}
+	if allowed, minBid := common.OfferRetryAllowed(&declined, time.Now().Add(73*time.Hour)); !allowed || minBid != 1210000 {
+		t.Errorf("after the cooldown: allowed %v, min bid %d; want true, 1,210,000", allowed, minBid)
+	}
+}

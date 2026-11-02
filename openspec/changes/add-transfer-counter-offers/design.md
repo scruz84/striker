@@ -86,3 +86,36 @@ offers show the counter, `counterExpiresAt` and Accept / Decline; hooks in `api/
 
 Additive migration; existing offers have no counter and behave as today. Rollback: redeploy the
 previous service and engine; countered offers then look like plain pending offers.
+
+## Code map (transfer-negotiation)
+
+The new `transfer-negotiation` spec's Code map. Archive does not carry a Code map from a delta spec, so
+append this section to `openspec/specs/transfer-negotiation/spec.md` when the change is archived.
+
+- `backend/common/offercounters.go` (`CounterOffer`, `AcceptCounterOffer`, `DeclineCounterOffer`,
+  `ExpireCounterOffers`, `CounterOfferLifetime`, `MaxCounterOfferMultiple`, the CPU constants
+  `CpuCounterMinShare` / `CpuCounterRounding`, `FormatFee`); the shared transfer in
+  `common/offers.go` (`lockOffer`, `executeOfferTx`, `finishOfferTransfer`; `AcceptOffer` refuses
+  a countered offer with `ErrOfferCountered`); `TransferOffer.CounterAmount` / `CounteredAt` /
+  `CounterExpiresAt` read by `scanTransferOffers`.
+- Storage: `resources/sql/init98_offer_counters.sql` (`transfer_offers.counter_amount`,
+  `countered_at`, partial index on `countered_at`).
+- API: `backend/handlers/offerHandlers.go` (`CounterOfferHandler`, `AcceptCounterOfferHandler`,
+  `DeclineCounterOfferHandler`, `writeCounterOfferError`), routed in `service/fmservice.go` as
+  `POST /v1/offers/:id/counter`, `/accept-counter`, `/decline-counter`.
+- Expiry: `engine/tasks.go` `OfferResponseJob.Execute` calls `ExpireCounterOffers` before
+  `RespondToAllPendingOffers`.
+- Notifications: `common.NOTIFICATION_COUNTER_OFFER` (`common/fmconstants.go`); keys
+  `notifications.messages.counterOffer`, `counterDeclined`, `counterExpired`,
+  `counterExpiredBuyer` with Spanish templates in `common/notificationtranslations.go`.
+- CPU: `engine/aiteams.go` (`cpuCounterAmount` in `respondToReceivedOffers`;
+  `answerCountersAsBuyer`, `counterScore`, `acceptsCounter`).
+- Frontend: `components/CounterOfferDialog.tsx` (with `TransferComparables`),
+  `features/transfers/OfferCards.tsx` (`ReceivedOfferActions`, `SentOfferCard`) used by
+  `TransferMarketPage.tsx`'s Offers tab; hooks `useCounterOffer`, `useAcceptCounterOffer`,
+  `useDeclineCounterOffer` (`api/hooks.ts`); strings `transfers.offers.counter*`,
+  `transfers.confirmAcceptCounter` / `confirmDeclineCounter`.
+- Tests: `common/offercounters_integration_test.go`, `handlers/counterOfferHandlers_test.go`,
+  `engine/counteroffers_integration_test.go`, `engine/aiteams_test.go` (`TestCpuCounterAmount`,
+  `TestAcceptsCounter`), `engine/ai_transfers_simulation_integration_test.go`,
+  `features/transfers/OfferCards.test.tsx`.

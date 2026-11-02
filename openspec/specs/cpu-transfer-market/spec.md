@@ -166,3 +166,8 @@ In the last season of a loan (the loan returns at the next rollover), a Manager 
   `GetLoansToTeam`), limit `common.AiMaxLoanedIn` (`common/offerrejections.go`), `common/aimanager.go` (`AiTransferProfile`), `common/aimarket.go`,
   `common/offerrejections.go` (offer limits, cooldown, `player_offer_rejections`),
   `common/nationalradar.go` (`GetNationalRadar`), `common/telemetry.go`.
+- Counter-offers to a CPU buyer: `engine/aiteams.go` (`answerCountersAsBuyer`, `counterScore`,
+  `acceptsCounter`), called from `RespondToAllPendingOffers`; it answers through
+  `common.AcceptCounterOffer` / `DeclineCounterOffer` and records the declined bid with
+  `common.RecordOfferRejection`. Tests: `engine/aiteams_test.go` (`TestAcceptsCounter`),
+  `engine/counteroffers_integration_test.go`, `engine/ai_transfers_simulation_integration_test.go`.

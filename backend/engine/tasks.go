@@ -323,6 +323,12 @@ func (pj *OfferResponseJob) Execute(context.Context) error {
 		return nil
 	}
 	log.Info("Offer response sweep job")
+	// Lapsed counter-offers go first, so no CPU team answers one that has already expired.
+	if expired, err := common.ExpireCounterOffers(pj.dbCtx, time.Now()); err != nil {
+		log.Errorf("error expiring counter-offers: %s", err)
+	} else if expired > 0 {
+		log.Infof("expired %d counter-offers", expired)
+	}
 	RespondToAllPendingOffers(pj.dbCtx)
 	return nil
 }

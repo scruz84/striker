@@ -119,7 +119,11 @@
       "loanBuyOptionExercised": "{{team}} exercised their buy option for {{player}}",
       "loanBuyOptionUsed": "Signed {{player}} permanently from {{team}}",
       "calledUp": "{{player}} was called up to {{team}} for this week's international friendly",
-      "loanEndedFreeAgent": "{{name}}'s loan has ended and he is now a free agent"
+      "loanEndedFreeAgent": "{{name}}'s loan has ended and he is now a free agent",
+      "counterOffer": "{{team}} countered your {{amount}} offer for {{player}}: they ask {{counter}}",
+      "counterDeclined": "{{team}} declined your {{counter}} counter-offer for {{player}}",
+      "counterExpired": "{{team}} didn't answer your {{counter}} counter-offer for {{player}}: the offer has expired",
+      "counterExpiredBuyer": "Your offer for {{player}} expired: you didn't answer {{team}}'s {{counter}} counter-offer"
     },
     "account": {
       "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
@@ -694,7 +698,19 @@
       "competingCount_other": "{{count}} competing offers",
       "bestOffer": "Best offer",
       "made": "Made {{date}}",
-      "termsLine": "Wage {{wage}}/match · {{years}}"
+      "termsLine": "Wage {{wage}}/match · {{years}}",
+      "counter": "Counter",
+      "counterTitle": "Counter-offer",
+      "counterAmount": "Your counter fee",
+      "counterHint": "{{team}} offered {{amount}}. Ask for more than that (at most {{max}}): they can accept or decline, once.",
+      "counterError": "Couldn't send the counter-offer.",
+      "send": "Send counter-offer",
+      "counteredBySeller": "You countered with {{amount}} - waiting for {{team}}",
+      "counterReceived": "{{team}} countered with {{amount}}",
+      "counterExpires": "Expires {{date}}",
+      "acceptCounter": "Accept counter",
+      "declineCounter": "Decline",
+      "answerError": "Couldn't answer the counter-offer."
     },
     "reject": "Reject",
     "withdraw": "Withdraw",
@@ -761,7 +777,9 @@
     "listDialog": {
       "selectPlayer": "Player to list",
       "hint": "Pick the player and the price you are asking for him."
-    }
+    },
+    "confirmAcceptCounter": "Buy {{name}} from {{team}} for {{amount}}? The transfer completes straight away.",
+    "confirmDeclineCounter": "Decline {{team}}'s {{amount}} counter-offer for {{name}}? Your offer ends."
   },
   "cup": {
     "titleWithSeason": "{{name}} - Season {{season}}",

@@ -119,7 +119,11 @@
       "loanBuyOptionExercised": "{{team}} ha ejecutado la opción de compra de {{player}}",
       "loanBuyOptionUsed": "Fichado {{player}} de forma permanente desde {{team}}",
       "calledUp": "{{player}} ha sido convocado por {{team}} para el amistoso internacional de esta semana",
-      "loanEndedFreeAgent": "La cesión de {{name}} ha terminado y ahora es agente libre"
+      "loanEndedFreeAgent": "La cesión de {{name}} ha terminado y ahora es agente libre",
+      "counterOffer": "{{team}} ha contraofertado tu oferta de {{amount}} por {{player}}: pide {{counter}}",
+      "counterDeclined": "{{team}} ha rechazado tu contraoferta de {{counter}} por {{player}}",
+      "counterExpired": "{{team}} no respondió a tu contraoferta de {{counter}} por {{player}}: la oferta ha caducado",
+      "counterExpiredBuyer": "Tu oferta por {{player}} ha caducado: no respondiste a la contraoferta de {{counter}} de {{team}}"
     },
     "account": {
       "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
@@ -694,7 +698,19 @@
       "competingCount_other": "{{count}} ofertas en competencia",
       "bestOffer": "Mejor oferta",
       "made": "Hecha el {{date}}",
-      "termsLine": "Salario {{wage}}/partido · {{years}}"
+      "termsLine": "Salario {{wage}}/partido · {{years}}",
+      "counter": "Contraofertar",
+      "counterTitle": "Contraoferta",
+      "counterAmount": "Tu precio",
+      "counterHint": "{{team}} ofrece {{amount}}. Pide más que eso (como mucho {{max}}): podrá aceptarlo o rechazarlo, una sola vez.",
+      "counterError": "No se pudo enviar la contraoferta.",
+      "send": "Enviar contraoferta",
+      "counteredBySeller": "Has contraofertado con {{amount}} - esperando a {{team}}",
+      "counterReceived": "{{team}} contraoferta con {{amount}}",
+      "counterExpires": "Caduca el {{date}}",
+      "acceptCounter": "Aceptar contraoferta",
+      "declineCounter": "Rechazar",
+      "answerError": "No se pudo responder a la contraoferta."
     },
     "reject": "Rechazar",
     "withdraw": "Retirar",
@@ -761,7 +777,9 @@
     "listDialog": {
       "selectPlayer": "Jugador a poner en venta",
       "hint": "Elige el jugador y el precio que pides por él."
-    }
+    },
+    "confirmAcceptCounter": "¿Comprar a {{name}} a {{team}} por {{amount}}? El traspaso se completa en el acto.",
+    "confirmDeclineCounter": "¿Rechazar la contraoferta de {{amount}} de {{team}} por {{name}}? Tu oferta termina."
   },
   "cup": {
     "titleWithSeason": "{{name}} - Temporada {{season}}",

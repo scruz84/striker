@@ -40,7 +40,6 @@ import {
   useWithdrawOffer,
 } from '../../api/hooks'
 import { POSITION_SHORT_LABEL_KEYS, type FreeAgentListing, type LoanListing, type Player, type Trainer, type TransferListing, type TransferOffer } from '../../api/types'
-import { isPast } from '../../api/useLiveMatch'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { EmptyState } from '../../components/EmptyState'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
@@ -51,7 +50,7 @@ import { ResponsiveDialog } from '../../components/ResponsiveDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { formatCurrency } from '../../utils/formatCurrency'
-import { formatDateTime, formatShortDate } from '../../utils/formatDate'
+import { formatShortDate } from '../../utils/formatDate'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating } from '../../utils/playerRating'
 import {
   ActiveFilterChips,
@@ -71,6 +70,7 @@ import {
 } from './marketUi'
 import { CountryFlag } from '../../components/CountryFlag'
 import { ListPlayerDialog } from './ListPlayerDialog'
+import { ReceivedOfferActions, SentOfferCard } from './OfferCards'
 
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
 type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
@@ -959,26 +959,15 @@ function OffersTab() {
       ) : (
         <ReceivedOffersByPlayer
           offers={received}
-          renderAction={(offer) => {
-            const acceptReady = isPast(offer.acceptableAt)
-            return (
-              <Stack spacing={0.5} sx={{ alignItems: 'flex-end' }}>
-                <Stack direction="row" spacing={1}>
-                  <Button color="secondary" variant="outlined" onClick={() => handleReject(offer)} disabled={rejectOffer.isPending}>
-                    {t('transfers.reject')}
-                  </Button>
-                  <Button variant="contained" onClick={() => handleAccept(offer)} disabled={acceptOffer.isPending || !acceptReady}>
-                    {t('transfers.accept')}
-                  </Button>
-                </Stack>
-                {!acceptReady && (
-                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
-                    {t('transfers.offers.acceptableAt', { date: formatDateTime(offer.acceptableAt) })}
-                  </Typography>
-                )}
-              </Stack>
-            )
-          }}
+          renderAction={(offer) => (
+            <ReceivedOfferActions
+              offer={offer}
+              onAccept={handleAccept}
+              onReject={handleReject}
+              acceptPending={acceptOffer.isPending}
+              rejectPending={rejectOffer.isPending}
+            />
+          )}
         />
       )}
 
@@ -990,39 +979,7 @@ function OffersTab() {
       ) : (
         <Stack spacing={1}>
           {sent.map((offer) => (
-            <Paper key={offer.offerId} variant="outlined" sx={{ p: 1.5 }}>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ minWidth: 0 }}>
-                  <Link component={RouterLink} to={`/player/${offer.player.id}`} underline="hover" color="inherit" sx={{ fontWeight: 600, overflowWrap: 'anywhere' }}>
-                    {offer.player.firstName} {offer.player.lastName}
-                  </Link>
-                  <Typography variant="caption" color="text.secondary" component="div">
-                    <TeamNameLink teamId={offer.toTeamId}>{offer.toTeamName}</TeamNameLink>
-                  </Typography>
-                </Box>
-                <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
-                  <Typography variant="caption" color="text.secondary" component="div">
-                    {t('transfers.table.amount')}
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                    {formatCurrency(offer.amount)}
-                  </Typography>
-                </Box>
-              </Stack>
-              <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
-                {t('transfers.offers.termsLine', {
-                  wage: formatCurrency(offer.offeredWage),
-                  years: t('team.contractDialog.yearsOption', { count: offer.offeredYears }),
-                })}
-                {' · '}
-                {t('transfers.offers.made', { date: formatShortDate(offer.createdAt) })}
-              </Typography>
-              <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 1 }}>
-                <Button color="secondary" variant="outlined" onClick={() => handleWithdraw(offer)} disabled={withdrawOffer.isPending}>
-                  {t('transfers.withdraw')}
-                </Button>
-              </Stack>
-            </Paper>
+            <SentOfferCard key={offer.offerId} offer={offer} onWithdraw={handleWithdraw} withdrawPending={withdrawOffer.isPending} />
           ))}
         </Stack>
       )}

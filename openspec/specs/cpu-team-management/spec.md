@@ -226,7 +226,10 @@ A CPU team SHALL withdraw any of its loan listings whose player stopped being el
   `RunAITeamManagement`, `RespondToAllPendingOffers`, `manageRosterIfManager`,
   `listSurplusPlayer`, `promoteFromAcademyForWeakestPosition`, `maximizeTicketPrice`,
   `manageMarketIfDirector`, `refreshAiTeamLineup`, `RunAiTeamDailyActivity`,
-  `recentlySignedOrInternational`, `protectedFromListing`).
+  `recentlySignedOrInternational`, `protectedFromListing`); near-miss counters in
+  `respondToReceivedOffers` via `cpuCounterAmount` (`common.CpuCounterMinShare` /
+  `CpuCounterRounding` in `common/offercounters.go`, `common.CounterOffer`). Tests:
+  `engine/aiteams_test.go` (`TestCpuCounterAmount`), `engine/counteroffers_integration_test.go`.
 - Lending: `backend/engine/ailoans.go` (`manageLoanListings`, `pickPlayerToLoanOut`,
   `loanOutEligible`, `loanOutRoom`, `planLoanListingWithdrawals`, the `ai*Loan*` constants);
   limits `common.AiMaxOpenLoanListings` / `AiMaxLoanedOut` (`common/offerrejections.go`); readers

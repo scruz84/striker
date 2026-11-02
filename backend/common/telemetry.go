@@ -118,7 +118,8 @@ var (
 		metric.WithDescription("Transfer offers made"))
 
 	// TransferOffersResolvedCounter counts every offer that leaves the pending state, labeled by
-	// "outcome" (accepted/rejected/withdrawn) - see OfferOutcomeAttribute. An "accepted" offer
+	// "outcome" (accepted/rejected/withdrawn, and counter_accepted/counter_declined/counter_expired
+	// for a countered one) - see OfferOutcomeAttribute. An "accepted" (or "counter_accepted") offer
 	// also drives TransfersCompletedCounter/TransferVolumeCounter via RecordTransferCompleted.
 	TransferOffersResolvedCounter, _ = Meter.Int64Counter("striker.offers.resolved",
 		metric.WithDescription("Transfer offers resolved, by outcome"))
