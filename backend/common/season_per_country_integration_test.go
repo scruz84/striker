@@ -54,6 +54,17 @@ func TestSeasonIsCountryIsolated(t *testing.T) {
 	teamC := scan(`INSERT INTO teams (name, country, league_id) VALUES ('C', 'zt', $1) RETURNING team_id`, leagueZt)
 	teamD := scan(`INSERT INTO teams (name, country, league_id) VALUES ('D', 'zt', $1) RETURNING team_id`, leagueZt)
 
+	// The test database persists across runs, so earlier runs' 'zs'/'zt' matches are still there:
+	// measure what this run adds rather than absolute counts.
+	zsTotalBefore, zsUnplayedBefore, err := GetSeasonMatchCounts(dbCtx, "zs", 10)
+	if err != nil {
+		t.Fatalf("GetSeasonMatchCounts(zs, 10) before seeding: %s", err)
+	}
+	ztTotalBefore, ztUnplayedBefore, err := GetSeasonMatchCounts(dbCtx, "zt", 3)
+	if err != nil {
+		t.Fatalf("GetSeasonMatchCounts(zt, 3) before seeding: %s", err)
+	}
+
 	// zs's season 10: fully played. zt's season 3: one match left unplayed.
 	exec(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id, played)
 		VALUES ($1, 10, 1, now() - interval '1 hour', $2, $3, true)`, leagueZs, teamA, teamB)
@@ -70,12 +81,14 @@ func TestSeasonIsCountryIsolated(t *testing.T) {
 	}
 
 	zsTotal, zsUnplayed, err := GetSeasonMatchCounts(dbCtx, "zs", zsSeason)
-	if err != nil || zsTotal != 1 || zsUnplayed != 0 {
-		t.Fatalf("GetSeasonMatchCounts(zs, 10): got total=%d unplayed=%d, %v; want 1, 0, nil", zsTotal, zsUnplayed, err)
+	if err != nil || zsTotal-zsTotalBefore != 1 || zsUnplayed-zsUnplayedBefore != 0 {
+		t.Fatalf("GetSeasonMatchCounts(zs, 10): this run added total=%d unplayed=%d, %v; want 1, 0, nil",
+			zsTotal-zsTotalBefore, zsUnplayed-zsUnplayedBefore, err)
 	}
 	ztTotal, ztUnplayed, err := GetSeasonMatchCounts(dbCtx, "zt", ztSeason)
-	if err != nil || ztTotal != 1 || ztUnplayed != 1 {
-		t.Fatalf("GetSeasonMatchCounts(zt, 3): got total=%d unplayed=%d, %v; want 1, 1, nil", ztTotal, ztUnplayed, err)
+	if err != nil || ztTotal-ztTotalBefore != 1 || ztUnplayed-ztUnplayedBefore != 1 {
+		t.Fatalf("GetSeasonMatchCounts(zt, 3): this run added total=%d unplayed=%d, %v; want 1, 1, nil",
+			ztTotal-ztTotalBefore, ztUnplayed-ztUnplayedBefore, err)
 	}
 
 	// Setting one country's season must not touch the other's.

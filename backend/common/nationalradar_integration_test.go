@@ -9,6 +9,11 @@ import "testing"
 func TestGetNationalRadar_BuildsPoolsFromTheDatabase(t *testing.T) {
 	db, dbCtx := openTransfersTestDB(t)
 	seedTransfersCountry(t, db, "zk")
+	// The test database persists across runs: an earlier run's 'zk' players (rated up to 99 by
+	// the cache check below) would still outrank this run's best, so drop them from the pool.
+	if _, err := db.Exec(`UPDATE players SET birth_country = NULL WHERE birth_country = 'zk'`); err != nil {
+		t.Fatal(err)
+	}
 	team := seedTransfersTeam(t, db, "Radar Team", "zk")
 
 	ids := make([]int64, 0)

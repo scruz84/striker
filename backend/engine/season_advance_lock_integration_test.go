@@ -54,7 +54,9 @@ func TestAdvanceCountrySeasonIfComplete_ConcurrentCallsDontDuplicateCup(t *testi
 		return id
 	}
 
-	const country = "zu2"
+	// A fresh code per run: the test database persists across runs, and an earlier run's cups for
+	// the same country and season would otherwise be counted too.
+	country := uniqueCountryCode()
 	exec(`INSERT INTO countries (name, current_season) VALUES ($1, 1) ON CONFLICT (name) DO UPDATE SET current_season = 1`, country)
 	leagueId := scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'L1', 1) RETURNING league_id`, country)
 	teamA := scan(`INSERT INTO teams (name, country, league_id) VALUES ('A', $1, $2) RETURNING team_id`, country, leagueId)

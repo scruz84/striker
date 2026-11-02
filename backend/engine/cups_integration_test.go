@@ -66,15 +66,22 @@ func TestInternationalCup_EntrantsAreMostRecentTier1Champions(t *testing.T) {
 		exec(`INSERT INTO classification (league_id, team_id, season, points) VALUES ($1, $2, 2, 10)`, tier1, champion)
 		return champion, stale
 	}
-	champion1, stale1 := seed("zq")
-	champion2, stale2 := seed("zr")
+	// Fresh codes per run: the test database persists across runs, and an earlier run's
+	// countries would otherwise still hold their own season_history champions.
+	country1 := uniqueCountryCode()
+	country2 := uniqueCountryCode()
+	for country2 == country1 {
+		country2 = uniqueCountryCode()
+	}
+	champion1, stale1 := seed(country1)
+	champion2, stale2 := seed(country2)
 
 	champions, err := common.GetMostRecentTier1Champions(dbCtx, CupTier)
 	if err != nil {
 		t.Fatalf("GetMostRecentTier1Champions: %s", err)
 	}
-	if champions["zq"] != champion1 || champions["zr"] != champion2 {
-		t.Fatalf("GetMostRecentTier1Champions: got %v, want zq=%d zr=%d", champions, champion1, champion2)
+	if champions[country1] != champion1 || champions[country2] != champion2 {
+		t.Fatalf("GetMostRecentTier1Champions: got %v, want %s=%d %s=%d", champions, country1, champion1, country2, champion2)
 	}
 
 	byRegion := make(map[string][]int64)
@@ -85,7 +92,8 @@ func TestInternationalCup_EntrantsAreMostRecentTier1Champions(t *testing.T) {
 	const season = 2
 	StartInternationalCupsForNewSeason(dbCtx, season, byRegion)
 
-	cupId := scan(`SELECT cup_id FROM cups WHERE region = 'europe' AND season = $1`, season)
+	// Earlier runs left their own europe cups for this season number: read the one just created.
+	cupId := scan(`SELECT cup_id FROM cups WHERE region = 'europe' AND season = $1 ORDER BY cup_id DESC LIMIT 1`, season)
 	ties, err := common.GetCupTies(dbCtx, cupId)
 	if err != nil {
 		t.Fatalf("GetCupTies: %s", err)

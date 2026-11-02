@@ -65,10 +65,17 @@ func TestRescheduleUnplayedMatchesForCountry(t *testing.T) {
 		}
 		return leagueId, firstWeekDate, secondWeekDate
 	}
-	leagueA, _, _ := seed("zr1")
-	leagueB, firstB, secondB := seed("zr2")
+	// Fresh codes per run: the test database persists across runs, and an earlier run's leagues
+	// for the same country would otherwise be rescheduled (and counted) too.
+	countryA := uniqueCountryCode()
+	countryB := uniqueCountryCode()
+	for countryB == countryA {
+		countryB = uniqueCountryCode()
+	}
+	leagueA, _, _ := seed(countryA)
+	leagueB, firstB, secondB := seed(countryB)
 
-	leagues, err := RescheduleUnplayedMatchesForCountry(dbCtx, "zr1")
+	leagues, err := RescheduleUnplayedMatchesForCountry(dbCtx, countryA)
 	if err != nil || leagues != 1 {
 		t.Fatalf("RescheduleUnplayedMatchesForCountry: got %d leagues, %v; want 1, nil", leagues, err)
 	}
@@ -85,16 +92,16 @@ func TestRescheduleUnplayedMatchesForCountry(t *testing.T) {
 	now := time.Now()
 	first, second := weekDate(leagueA, 1), weekDate(leagueA, 2)
 	if first.Before(now) || first.After(now.Add(25*time.Hour)) {
-		t.Errorf("zr1 week 1 rescheduled to %s, want the next daily 16:00 slot within a day of now (%s)", first, now)
+		t.Errorf("%s week 1 rescheduled to %s, want the next daily 16:00 slot within a day of now (%s)", countryA, first, now)
 	}
 	if !second.Equal(first.Add(24 * time.Hour)) {
-		t.Errorf("zr1 week 2 rescheduled to %s, want one day after week 1 (%s)", second, first.Add(24*time.Hour))
+		t.Errorf("%s week 2 rescheduled to %s, want one day after week 1 (%s)", countryA, second, first.Add(24*time.Hour))
 	}
 
 	if got := weekDate(leagueB, 1); !got.Equal(firstB) {
-		t.Errorf("zr2 week 1 changed to %s, want untouched %s", got, firstB)
+		t.Errorf("%s week 1 changed to %s, want untouched %s", countryB, got, firstB)
 	}
 	if got := weekDate(leagueB, 2); !got.Equal(secondB) {
-		t.Errorf("zr2 week 2 changed to %s, want untouched %s", got, secondB)
+		t.Errorf("%s week 2 changed to %s, want untouched %s", countryB, got, secondB)
 	}
 }
