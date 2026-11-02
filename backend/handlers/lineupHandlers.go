@@ -132,8 +132,10 @@ func GetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 
 // SetFriendlyDefaultLineupHandler replaces the caller's team's standing friendly-only default
 // lineup after the same formation/roster/availability validation SetLineupHandler applies to the
-// league/cup default. Scheduled substitutions aren't part of this request - those stay team-wide,
-// shared with the league/cup default (see common.GetDefaultLineupSubstitutions).
+// league/cup default. Scheduled substitutions are the friendly default's own (see
+// common.SetDefaultFriendlyLineupSubstitutions), validated with friendly availability rules (only
+// an injury bars a player from coming on) and independent of the league/cup set; a missing or
+// empty list clears them.
 func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := GetUserIdFromCookie(c)
@@ -173,6 +175,17 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			return
 		}
 
+		unavailableForFriendly, err := common.GetUnavailablePlayerIdsForFriendly(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error getting friendly-unavailable players for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := validateSubstitutions(req.Positions, req.Substitutions, players, unavailableForFriendly); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+
 		if err := common.SetTeamFriendlyFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting friendly formation for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -180,6 +193,11 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 		}
 		if err := common.SetDefaultFriendlyLineup(dbCtx, team.Id, req.Positions); err != nil {
 			log.Errorf("error setting friendly lineup for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultFriendlyLineupSubstitutions(dbCtx, team.Id, req.Substitutions); err != nil {
+			log.Errorf("error setting friendly substitutions for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}

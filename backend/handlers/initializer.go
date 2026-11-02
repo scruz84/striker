@@ -67,6 +67,7 @@ func teamPlayerDependentTables() []string {
 		"lineup",
 		"default_lineup_positions",
 		"default_lineup_substitutions",
+		"default_friendly_lineup_substitutions",
 		"match_instants",
 		"match_events",
 		"matches",

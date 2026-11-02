@@ -299,7 +299,7 @@
       "leagueCup": "League / Cup",
       "friendly": "Friendly"
     },
-    "friendlyHint": "This is the default lineup used for friendly matches that don't have their own lineup set. Scheduled substitutions are shared with the league/cup default.",
+    "friendlyHint": "This is the default lineup and substitutions used for friendly matches that don't have their own lineup set. They are independent of the league/cup default.",
     "formation": "Formation",
     "saveError": "Could not save the lineup. Check your selections.",
     "saveSuccess": "Lineup saved.",

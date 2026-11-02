@@ -470,8 +470,15 @@ export function useFriendlyDefaultLineup(enabled: boolean) {
 export function useSetFriendlyDefaultLineup() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ formation, positions }: { formation: number; positions: LineupPosition[] }) =>
-      api.put('/v1/user/team/lineup/friendly', { formation, positions }),
+    mutationFn: ({
+      formation,
+      positions,
+      substitutions,
+    }: {
+      formation: number
+      positions: LineupPosition[]
+      substitutions: LineupSubstitution[]
+    }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyDefaultLineup })
     },

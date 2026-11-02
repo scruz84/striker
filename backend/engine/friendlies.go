@@ -91,17 +91,12 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	if err != nil {
 		return err
 	}
-	// A friendly's scheduled substitutions are saved specifically for that match (see
-	// common.SetFriendlyLineup/GetFriendlyLineupSubstitutions), not the team's standing default
-	// lineup subs - see runMatchSimulation's own doc comment for why.
-	homeSubstitutions, err := common.GetFriendlyLineupSubstitutions(dbCtx, friendly.MatchId, friendly.HomeTeamId)
-	if err != nil {
-		return err
-	}
-	awaySubstitutions, err := common.GetFriendlyLineupSubstitutions(dbCtx, friendly.MatchId, friendly.AwayTeamId)
-	if err != nil {
-		return err
-	}
+	// A friendly's scheduled substitutions travel with the lineup it plays (see
+	// common.GetLineupsForFriendly): the per-match override's own, the friendly default's own, or
+	// none for a computed best XI. Never the league/cup default's - see runMatchSimulation's doc
+	// comment.
+	homeSubstitutions := (*lineups)[friendly.HomeTeamId].Substitutions
+	awaySubstitutions := (*lineups)[friendly.AwayTeamId].Substitutions
 	// Freeze the XI that actually kicks off as this friendly's own permanent override - see
 	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForFriendly's fallback alone
 	// isn't enough to keep a played friendly's lineup showing correctly forever. For a

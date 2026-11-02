@@ -197,10 +197,11 @@ const (
 
 	// Lineups: the club's standing lineups go, and so do its overrides for matches not played
 	// yet. Played-match lineups stay - match pages read them.
-	DeleteTeamDefaultLineupStmtSql             = "DELETE FROM default_lineup_positions WHERE team_id = $1"
-	DeleteTeamDefaultSubstitutionsStmtSql      = "DELETE FROM default_lineup_substitutions WHERE team_id = $1"
-	DeleteTeamDefaultFriendlyLineupStmtSql     = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
-	DeleteUnplayedLeagueLineupPositionsStmtSql = "DELETE FROM lineup_positions WHERE lineup_id IN " +
+	DeleteTeamDefaultLineupStmtSql                = "DELETE FROM default_lineup_positions WHERE team_id = $1"
+	DeleteTeamDefaultSubstitutionsStmtSql         = "DELETE FROM default_lineup_substitutions WHERE team_id = $1"
+	DeleteTeamDefaultFriendlyLineupStmtSql        = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
+	DeleteTeamDefaultFriendlySubstitutionsStmtSql = "DELETE FROM default_friendly_lineup_substitutions WHERE team_id = $1"
+	DeleteUnplayedLeagueLineupPositionsStmtSql    = "DELETE FROM lineup_positions WHERE lineup_id IN " +
 		"(SELECT l.lineup_id FROM lineup l JOIN matches m ON m.match_id = l.match_id WHERE l.team_id = $1 AND NOT m.played)"
 	DeleteUnplayedLeagueLineupsStmtSql           = "DELETE FROM lineup WHERE team_id = $1 AND match_id IN (SELECT match_id FROM matches WHERE NOT played)"
 	DeleteUnplayedLeagueSubstitutionsStmtSql     = "DELETE FROM lineup_substitutions WHERE team_id = $1 AND match_id IN (SELECT match_id FROM matches WHERE NOT played)"
@@ -335,6 +336,7 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 		DeleteTeamTransferListingsStmtSql, DeleteTeamLoanListingsStmtSql, DeleteTeamTransferOffersStmtSql,
 		DeleteTeamFriendlyChallengesStmtSql, ReleaseTeamTrainerStmtSql,
 		DeleteTeamDefaultLineupStmtSql, DeleteTeamDefaultSubstitutionsStmtSql, DeleteTeamDefaultFriendlyLineupStmtSql,
+		DeleteTeamDefaultFriendlySubstitutionsStmtSql,
 		DeleteUnplayedLeagueLineupPositionsStmtSql, DeleteUnplayedLeagueLineupsStmtSql, DeleteUnplayedLeagueSubstitutionsStmtSql,
 		DeleteUnplayedFriendlyLineupPositionsStmtSql, DeleteUnplayedFriendlyLineupsStmtSql,
 		DeleteUnplayedCupLineupPositionsStmtSql, DeleteUnplayedCupLineupsStmtSql, DeleteUnplayedCupSubstitutionsStmtSql,

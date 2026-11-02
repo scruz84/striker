@@ -169,6 +169,10 @@ func TestResetReleasedTeam_FullReset(t *testing.T) {
 		if _, err := db.Exec(`INSERT INTO default_lineup_positions (team_id, player_id, position) VALUES ($1, $2, 0)`, team, squad[4]); err != nil {
 			return err
 		}
+		if _, err := db.Exec(`INSERT INTO default_friendly_lineup_substitutions (team_id, slot, player_out_id, player_in_id, minute) VALUES ($1, 1, $2, $3, 60)`,
+			team, squad[4], squad[5]); err != nil {
+			return err
+		}
 		return nil
 	}(), "building market and loan state")
 	var scheduledFriendly int64
@@ -236,6 +240,7 @@ func TestResetReleasedTeam_FullReset(t *testing.T) {
 		`SELECT count(*) FROM transfer_offers WHERE from_team_id = $1 OR to_team_id = $1`,
 		`SELECT count(*) FROM friendly_challenges WHERE challenger_team_id = $1 OR opponent_team_id = $1`,
 		`SELECT count(*) FROM trainers WHERE team_id = $1`,
+		`SELECT count(*) FROM default_friendly_lineup_substitutions WHERE team_id = $1`,
 	} {
 		if n := accInt(t, db, q, team); n != 0 {
 			t.Errorf("%s = %d, want 0", q, n)

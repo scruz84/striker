@@ -2679,8 +2679,8 @@ func SetDefaultLineup(dbCtx *DatabaseContext, teamId int64, positions []LineupPo
 // GetDefaultLineup's league/cup default so a manager can field a weaker/experimental XI in
 // friendlies without touching their competitive default. Positions come back empty (never an
 // error) when the manager hasn't set one up yet; callers fall back to the league/cup default in
-// that case. Reuses the same scheduled substitutions as the league/cup default (see
-// GetDefaultLineupSubstitutions) - those are deliberately team-wide, not per-competition.
+// that case. Carries the friendly default's own scheduled substitutions (see
+// GetDefaultFriendlyLineupSubstitutions), independent of the league/cup default's.
 func GetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
 	rows, err := dbCtx.Db.Query(GetDefaultFriendlyLineupStmtSql, teamId)
 	if err != nil {
@@ -2703,7 +2703,7 @@ func GetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, er
 		return nil, err
 	}
 
-	substitutions, err := GetDefaultLineupSubstitutions(dbCtx, teamId)
+	substitutions, err := GetDefaultFriendlyLineupSubstitutions(dbCtx, teamId)
 	if err != nil {
 		return nil, err
 	}

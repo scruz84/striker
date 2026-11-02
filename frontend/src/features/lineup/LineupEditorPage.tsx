@@ -71,8 +71,9 @@ export function LineupEditorPage() {
 // The friendly-only default lineup, used as the fallback for any friendly without a per-match
 // override (see backend common.GetLineupsForFriendly) - independent of the league/cup default
 // above, so a manager can field a weaker/experimental XI in friendlies without touching their
-// competitive default. Reuses MatchLineupForm (no scheduled-substitutions section: those stay
-// team-wide, shared with the league/cup default).
+// competitive default. Reuses MatchLineupForm, including the scheduled-substitutions planner: the
+// friendly default has its own substitutions, independent of the league/cup default's, and
+// isFriendly gives the planner the friendly availability rules (a suspension doesn't bar a player).
 function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; players: Player[]; lineup: Lineup }) {
   const { t } = useTranslation()
   const setFriendlyLineup = useSetFriendlyDefaultLineup()
@@ -88,10 +89,14 @@ function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; play
         teamId={team.id}
         players={players}
         lineup={lineup}
-        onSave={(formation: number, positions: LineupPosition[]) => setFriendlyLineup.mutate({ formation, positions })}
+        onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[]) =>
+          setFriendlyLineup.mutate({ formation, positions, substitutions })
+        }
         isSaving={setFriendlyLineup.isPending}
         isError={setFriendlyLineup.isError}
         isSuccess={setFriendlyLineup.isSuccess}
+        substitutionsEnabled
+        isFriendly
         isDefaultLineup
         embedded
       />

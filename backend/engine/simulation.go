@@ -142,11 +142,11 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // cup_tie_lineup_positions/cup_tie_lineup_substitutions tables, keyed to cup_ties(tie_id) - a cup
 // tie's id is drawn from a different, independent sequence than a real match's, so it could never
 // safely share matches-keyed override rows), and simulateFriendly uses
-// common.GetLineupsForFriendly/GetFriendlyLineupSubstitutions (friendly_lineup/
-// friendly_lineup_positions/friendly_lineup_substitutions, keyed to friendly_matches(match_id), and
-// never falling back to the team-wide default - a friendly's starting XI can itself be a freshly
-// computed best XI rather than the default lineup, see common.GetLineupsForFriendly, so the two
-// would otherwise reference different players) - three parallel, deliberately separate override
+// common.GetLineupsForFriendly (friendly_lineup/friendly_lineup_positions/
+// friendly_lineup_substitutions, keyed to friendly_matches(match_id), falling back to the team's
+// friendly default lineup and its own default_friendly_lineup_substitutions - never to the
+// league/cup default or its substitutions; a computed best XI carries none, so a friendly's XI and
+// substitutions always come from the same source) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
 //
 // snapshot (nil to skip) is handed each side's kickoff XI and scheduled substitutions right after
