@@ -12,9 +12,10 @@ sporting decisions as well as financial ones.
 ## What Changes
 
 - The home side's zone ratings (attack, midfield and defense, centre and flanks) are multiplied
-  every minute by `1 + 0.04 + 0.06 × fill`, where `fill` is that match's attendance divided by the
-  home stadium's capacity (0 when the capacity is 0). An empty stadium still gives +4%, a full one
-  +10%.
+  every minute by `1 + 0.08 + 0.14 × fill`, where `fill` is that match's attendance divided by the
+  home stadium's capacity (0 when the capacity is 0). An empty stadium still gives +8%, a half-full
+  one +15% and a full one +22%. (First proposed as `1 + 0.04 + 0.06 × fill`; the calibration in
+  task 2.2 showed that was too weak to reach the targets, see tasks.md.)
 - To know the crowd before kickoff, the weather and attendance of league matches, cup ties and
   friendlies are drawn **before** the simulation instead of after it. The same numbers are still
   used for the gate revenue and the match report.
@@ -33,8 +34,9 @@ Out of scope:
 Open questions for the owner:
 - Should a national team's friendly at home get the advantage (the default here: yes, like any
   home match; only World Cup fixtures are neutral)?
-- Are +4% / +6% the right magnitudes? Task 2.2 calibrates them against the targets in the spec;
-  the owner may prefer a smaller effect.
+- Are +8% / +14% the right magnitudes? Task 2.2 calibrated them against the targets in the spec
+  (the first guess, +4% / +6%, fell short); the owner may prefer a smaller effect, which means
+  lowering the targets too.
 
 ## Capabilities
 

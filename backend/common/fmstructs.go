@@ -479,6 +479,10 @@ type MatchSimulation struct {
 	//card picked up in a friendly (see engine.DisciplineSimulation) carries no suspension at
 	//all, for a friendly or otherwise, since a friendly has no competitive stakes to sanction.
 	IsFriendly bool
+	//HomeAdvantage: the multiplier applied every minute to the home side's nine zone ratings
+	//(see engine.InitialSimulation and engine.homeAdvantageMultiplier), set before kickoff from
+	//the crowd drawn for the match. 1 for World Cup fixtures; 0 (unset) also counts as 1.
+	HomeAdvantage float32
 }
 
 // PendingUnavailability is a suspension or injury picked up during a match, not yet

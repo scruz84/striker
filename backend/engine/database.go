@@ -40,26 +40,16 @@ func UpdatePlayerAvailability(dbCtx *common.DatabaseContext, match *common.Match
 // event-driven, competitive-result-only reasoning as sponsorship, and the same reason friendlies
 // never reach this function at all.
 //
-// cupRound is 0 for a league match and the tie's round (1+) for a cup tie, and weather is the
-// match's already-drawn weather code - both feed the home crowd (see CalculateAttendance). A league
-// match excludes its own row from the home side's pre-kickoff form; a cup tie has no row in
-// matches, and its id could collide with an unrelated match's, so it excludes nothing.
-//
-// Returns the home side's computed attendance (see creditTicketRevenue) - simulateMatch reuses
-// this exact figure for the match's report flavor rather than drawing a second, independent one.
-func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation, cupRound int, weather string) int {
-	mc := matchdayContext{awayTeamId: match.Away, cupRound: cupRound, weather: weather}
-	if cupRound == 0 {
-		mc.excludeMatchId = match.Id
-	}
-	attendance := creditTicketRevenue(dbCtx, match.Home, mc)
+// crowd is the home crowd drawn before kickoff (see drawMatchdayConditions) - the same one the
+// home advantage used and the report shows; only its gate revenue is booked here.
+func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.MatchSimulation, crowd matchdayCrowd) {
+	creditTicketRevenue(dbCtx, match.Home, crowd)
 	creditSponsorship(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
 	creditSponsorship(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
 	applyFanbaseDrift(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
 	applyFanbaseDrift(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
 	RunAITeamMatchReaction(dbCtx, match.Home)
 	RunAITeamMatchReaction(dbCtx, match.Away)
-	return attendance
 }
 
 // NotifyMatchResult tells both teams' owners how their league match went.

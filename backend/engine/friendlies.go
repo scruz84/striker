@@ -107,7 +107,16 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
 		persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, teamId, lineup, substitutions)
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true, snapshot)
+	// Weather and crowd are drawn before kickoff - see simulateMatch. A World Cup group friendly is
+	// played as neutral: it still draws a crowd for the gate and the report, but gives the home side
+	// no advantage. Any other friendly, a national team's included, is an ordinary home match.
+	conditions := drawMatchdayConditions(dbCtx, friendly.HomeTeamId, matchdayContext{awayTeamId: friendly.AwayTeamId})
+	worldCup, err := common.IsWorldCupGroupMatch(dbCtx, friendly.MatchId)
+	if err != nil {
+		return err
+	}
+	homeAdvantage := homeAdvantageFor(conditions.crowd, worldCup)
+	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true, homeAdvantage, snapshot)
 	if err != nil {
 		return err
 	}
@@ -124,9 +133,8 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	// UpdateTeamFinancesAfterMatch for a league match/cup tie (see simulateMatch) - a budget
 	// change isn't the kind of visible-outside-this-page state (an injury, a skill jump, a
 	// notification) that needs to wait for the friendly's advertised kickoff to actually arrive.
-	weather := common.RandomWeather()
-	attendance := creditFriendlyTicketRevenue(dbCtx, friendly.HomeTeamId, friendly.AwayTeamId, weather)
-	updateMatchReportFlavor(dbCtx, "friendly", friendly.MatchId, attendance, weather,
+	creditFriendlyTicketRevenue(dbCtx, friendly.HomeTeamId, friendly.AwayTeamId, conditions.crowd)
+	updateMatchReportFlavor(dbCtx, "friendly", friendly.MatchId, conditions.crowd.Attendance, conditions.weather,
 		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
 			return common.UpdateFriendlyFlavor(dbCtx, friendly.MatchId, weather, attendance, referee, assistant1, assistant2)
 		})

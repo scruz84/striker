@@ -11,4 +11,4 @@ Fanbase SHALL affect attendance only through socios targets and as the visiting 
 
 #### Scenario: Big visitor fills the stadium
 - **WHEN** a Fanbase-99 visitor's pull takes the crowd from 80% to 92% of capacity
-- **THEN** the home side's multiplier rises from 1.088 to about 1.095, and nothing else about fanbase touches the simulation
+- **THEN** the home side's multiplier rises from 1.192 to about 1.209, and nothing else about fanbase touches the simulation

@@ -3,19 +3,19 @@
 ## ADDED Requirements
 
 ### Requirement: Home advantage
-Every minute, after the zone blend, each of the home side's nine zone ratings (attack, midfield and defense; centre, left and right) SHALL be multiplied by `1 + 0.04 + 0.06 × fill`, where fill is the match's attendance divided by the home stadium's capacity, 0 when the capacity is 0. World Cup group friendlies and World Cup knockout ties MUST use a multiplier of 1.
+Every minute, after the zone blend, each of the home side's nine zone ratings (attack, midfield and defense; centre, left and right) SHALL be multiplied by `1 + 0.08 + 0.14 × fill`, where fill is the match's attendance divided by the home stadium's capacity, 0 when the capacity is 0. World Cup group friendlies and World Cup knockout ties MUST use a multiplier of 1.
 
 #### Scenario: Full stadium
 - **WHEN** a league match is played with attendance equal to the home stadium's capacity
-- **THEN** every home zone rating is multiplied by 1.10
+- **THEN** every home zone rating is multiplied by 1.22
 
 #### Scenario: Empty stadium
 - **WHEN** a home match draws 0 spectators
-- **THEN** every home zone rating is multiplied by 1.04
+- **THEN** every home zone rating is multiplied by 1.08
 
 #### Scenario: Half-full stadium
 - **WHEN** 6,000 people attend a 12,000-seat stadium
-- **THEN** the multiplier is 1 + 0.04 + 0.06 × 0.5 = 1.07
+- **THEN** the multiplier is 1 + 0.08 + 0.14 × 0.5 = 1.15
 
 #### Scenario: World Cup group match
 - **WHEN** two national teams play a World Cup group friendly

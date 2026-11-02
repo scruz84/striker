@@ -66,7 +66,13 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
 		persistResolvedLineupSnapshot(dbCtx, match.MatchId, teamId, lineup, substitutions)
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false, snapshot)
+	// Weather and crowd are drawn once, before kickoff, so the same crowd sets the home advantage,
+	// is booked as gate revenue and is shown in the report. A league match excludes its own row
+	// from the home side's form. If the save below fails they are discarded with the attempt, and
+	// the retry draws again.
+	conditions := drawMatchdayConditions(dbCtx, match.Home, matchdayContext{awayTeamId: match.Away, excludeMatchId: match.MatchId})
+	homeAdvantage := homeAdvantageFor(conditions.crowd, false)
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false, homeAdvantage, snapshot)
 	if err != nil {
 		return nil, err
 	}
@@ -80,17 +86,14 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 		return nil, err
 	}
 
-	// Drawn once, up front, so the same weather both shapes the crowd (see CalculateAttendance) and
-	// is what the match report shows.
-	weather := common.RandomWeather()
-	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, 0, weather)
+	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, conditions.crowd)
 	// Wages track league match cadence, not cup ties or friendlies (see PayMatchdayWages) - a
 	// round-robin schedule gives every team exactly one league match per round, so this fires
 	// exactly once per round per team, here rather than inside UpdateTeamFinancesAfterMatch so a
 	// cup tie played the same week doesn't charge wages a second time.
 	PayMatchdayWages(dbCtx, matchSimulation.Home)
 	PayMatchdayWages(dbCtx, matchSimulation.Away)
-	updateMatchReportFlavor(dbCtx, "match", matchSimulation.Id, attendance, weather,
+	updateMatchReportFlavor(dbCtx, "match", matchSimulation.Id, conditions.crowd.Attendance, conditions.weather,
 		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
 			return common.UpdateMatchFlavor(dbCtx, matchSimulation.Id, weather, attendance, referee, assistant1, assistant2)
 		})
@@ -149,11 +152,14 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // substitutions always come from the same source) - three parallel, deliberately separate override
 // mechanisms, one per competitive-match id space.
 //
+// homeAdvantage is the multiplier for the home side's zone ratings (see homeAdvantageMultiplier;
+// 1 for a neutral World Cup fixture), computed by the caller from the crowd it drew before kickoff.
+//
 // snapshot (nil to skip) is handed each side's kickoff XI and scheduled substitutions right after
 // unavailable players are removed and their slots refilled (see excludeUnavailablePlayers), so a
 // match's stored lineup is the XI that actually started - each caller passes its own competition's
 // persist function (see persistResolvedLineupSnapshot).
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool, snapshot lineupSnapshotStore) (*common.MatchSimulation, error) {
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool, homeAdvantage float32, snapshot lineupSnapshotStore) (*common.MatchSimulation, error) {
 	homePlayers, err := resolveMatchTeamPlayers(dbCtx, homeTeamId, (*lineups)[homeTeamId])
 	if err != nil {
 		return nil, err
@@ -189,6 +195,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		HomeMinutesByPosition: make(map[int64]map[int]int),
 		AwayMinutesByPosition: make(map[int64]map[int]int),
 		IsFriendly:            isFriendly,
+		HomeAdvantage:         homeAdvantage,
 	}
 	events = nil
 	matchInstants = nil
@@ -391,8 +398,8 @@ func playersToMapById(players *[]*common.Player) *map[int64]common.Player {
 type reportFlavorStore func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error
 
 // updateMatchReportFlavor generates and persists a match's report flavor (weather, referee, two
-// assistant referees) plus the attendance already computed for ticket revenue (see
-// UpdateTeamFinancesAfterMatch) - purely cosmetic, for the Hattrick-style match report. Shared by
+// assistant referees) plus the weather and attendance drawn before kickoff (see
+// drawMatchdayConditions) - purely cosmetic, for the Hattrick-style match report. Shared by
 // league matches, cup ties and friendlies, which differ only in the store they write to; kind
 // ("match", "cup tie", "friendly") is only for the log lines. Errors are logged, not propagated:
 // the match itself is already fully simulated and persisted by this point, so a failure here

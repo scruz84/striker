@@ -425,6 +425,27 @@ const updateWorldCupGroupTeamStmtSql = "UPDATE world_cup_group_teams SET played 
 	"won = won + $1, drawn = drawn + $2, lost = lost + $3, goals_for = goals_for + $4, goals_against = goals_against + $5 " +
 	"WHERE group_id = $6 AND team_id = $7"
 
+// IsWorldCupGroupMatch reports whether friendly matchId is a World Cup group fixture (linked
+// through world_cup_group_matches) - played as neutral, with no home advantage.
+func IsWorldCupGroupMatch(dbCtx *DatabaseContext, matchId int64) (bool, error) {
+	var groupId int64
+	err := dbCtx.Db.QueryRow(getWorldCupGroupIdForMatchStmtSql, matchId).Scan(&groupId)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+	return err == nil, err
+}
+
+const isWorldCupKnockoutCupStmtSql = "SELECT EXISTS (SELECT 1 FROM world_cups WHERE knockout_cup_id = $1)"
+
+// IsWorldCupKnockoutCup reports whether cupId is a World Cup's knockout bracket - its ties are
+// played as neutral, with no home advantage.
+func IsWorldCupKnockoutCup(dbCtx *DatabaseContext, cupId int64) (bool, error) {
+	var exists bool
+	err := dbCtx.Db.QueryRow(isWorldCupKnockoutCupStmtSql, cupId).Scan(&exists)
+	return exists, err
+}
+
 // UpdateWorldCupStandingsAfterMatchTx updates both sides' running group record after matchId (a
 // friendly_matches row) is simulated, inside tx - a no-op for the (overwhelming) majority of
 // friendlies, which aren't part of any World Cup group at all. It runs in the same transaction as

@@ -42,8 +42,8 @@ simulation used, and the code would compute attendance twice.
 `MatchSimulation` gains `HomeAdvantage float32` (1 for World Cup fixtures and when no crowd
 could be drawn). `InitialSimulation.Apply` multiplies the nine home fields of `HomeQua` after
 `blendLine`, before `calculateDiffs`, so chance volume, chance share and conversion all see it.
-Constants in `engine/initial_simulation.go`: `HomeAdvantageBase = 0.04`,
-`HomeAdvantageCrowdWeight = 0.06`. `homeAdvantageMultiplier(attendance, capacity)` clamps fill to
+Constants in `engine/initial_simulation.go`: `HomeAdvantageBase = 0.08`,
+`HomeAdvantageCrowdWeight = 0.14` (retuned from 0.04 / 0.06 by the calibration, task 2.2). `homeAdvantageMultiplier(attendance, capacity)` clamps fill to
 [0, 1].
 *Alternative:* a flat bonus to the home conversion probability. Rejected: it would not touch the
 midfield battle, so the home side would not have more of the ball, and set pieces and open play
@@ -66,7 +66,7 @@ retry draws again. That matches the existing retry semantics (`engine/simulation
   run before/after (task 3.1); the shift is symmetric over a season (every team plays half its
   league matches at home).
 - [Big clubs with big stadiums get stronger] → the effect depends on fill, not size, so a small
-  club with a full ground gets the same +10%.
+  club with a full ground gets the same +22%.
 
 ## Migration Plan
 

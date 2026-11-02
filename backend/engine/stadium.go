@@ -181,9 +181,10 @@ func deductStadiumMaintenance(dbCtx *common.DatabaseContext, teamId int64) {
 }
 
 // matchdayContext is everything besides the home side itself that shapes one home match's crowd:
-// who is visiting, how big an occasion it is (cupRound, 0 for league/friendly), the weather
-// already drawn for the match, and the match id whose own result must not count toward the home
-// side's pre-kickoff form (0 for a cup tie or friendly, which has no row in matches).
+// who is visiting, how big an occasion it is (cupRound, 0 for league/friendly), the weather drawn
+// for the match (see drawMatchdayConditions), and the match id whose own result must not count
+// toward the home side's pre-kickoff form (0 for a cup tie or friendly, which has no row in
+// matches).
 type matchdayContext struct {
 	awayTeamId     int64
 	cupRound       int
@@ -191,18 +192,26 @@ type matchdayContext struct {
 	excludeMatchId int64
 }
 
-// stadiumAttendanceAndRevenue draws one home match's crowd size and resulting gate revenue from
-// homeTeamId's own stadium (capacity and ticket price), socios, recent form and the visiting
-// side's Fanbase - shared by creditTicketRevenue (which pays the home side the full amount) and
-// creditFriendlyTicketRevenue (which splits it in two). Returns a zero attendance/revenue pair,
-// rather than erroring, when the stadium lookup fails - callers treat that the same as a
-// genuinely empty house. A failed socios/form/rival lookup falls back to the neutral value
-// instead, so one bad read doesn't blank out a whole matchday's gate.
-func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) (int, int64) {
+// matchdayCrowd is one home match's crowd, drawn once before kickoff (see drawMatchdayCrowd): the
+// same figures set the home advantage (see homeAdvantageMultiplier), are booked as gate revenue
+// (see creditTicketRevenue / creditFriendlyTicketRevenue) and are shown in the match report.
+type matchdayCrowd struct {
+	Attendance int
+	Capacity   int
+	Revenue    int64
+}
+
+// drawMatchdayCrowd draws one home match's crowd size and resulting gate revenue from homeTeamId's
+// own stadium (capacity and ticket price), socios, recent form and the visiting side's Fanbase. It
+// only reads: nothing is booked until the result is saved and the caller credits the returned
+// crowd. Returns a zero crowd, rather than erroring, when the stadium lookup fails - callers treat
+// that the same as a genuinely empty house. A failed socios/form/rival lookup falls back to the
+// neutral value instead, so one bad read doesn't blank out a whole matchday's gate.
+func drawMatchdayCrowd(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) matchdayCrowd {
 	stadium, err := common.GetStadium(dbCtx, homeTeamId)
 	if err != nil {
 		log.Errorf("error getting stadium for team %d: %s", homeTeamId, err)
-		return 0, 0
+		return matchdayCrowd{}
 	}
 	socios, err := common.GetSocios(dbCtx, homeTeamId)
 	if err != nil {
@@ -224,55 +233,60 @@ func stadiumAttendanceAndRevenue(dbCtx *common.DatabaseContext, homeTeamId int64
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	attendance := CalculateAttendance(stadium.Capacity, stadium.TicketPrice, socios, formPoints, formMatches, rivalFanbase, mc.cupRound, mc.weather, r)
-	return attendance, TicketRevenue(attendance, stadium.TicketPrice)
+	return matchdayCrowd{Attendance: attendance, Capacity: stadium.Capacity, Revenue: TicketRevenue(attendance, stadium.TicketPrice)}
 }
 
-// creditTicketRevenue pays the home team its matchday gate receipts - see
-// UpdateTeamFinancesAfterMatch, which is the only caller (both league matches and cup ties route
-// through it, so both generate ticket revenue for the home side only). Returns the attendance
-// figure it computed (0 if the stadium lookup failed or the stadium is empty) so a league match's
-// report (see common.UpdateMatchFlavor) can show the exact same crowd size rather than drawing
-// its own, independent random attendance that could disagree with this transaction's own
-// description.
-func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) int {
-	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, mc)
-	if revenue == 0 {
-		return attendance
+// matchdayConditions is one match's weather and crowd, both drawn once before kickoff (see
+// drawMatchdayConditions).
+type matchdayConditions struct {
+	weather string
+	crowd   matchdayCrowd
+}
+
+// drawMatchdayConditions draws a match's weather and then its home crowd under that weather -
+// called by simulateMatch, simulateCupTie and simulateFriendly before the simulation, so the same
+// crowd sets the home advantage, the gate revenue and the report. mc.weather is overwritten.
+func drawMatchdayConditions(dbCtx *common.DatabaseContext, homeTeamId int64, mc matchdayContext) matchdayConditions {
+	mc.weather = common.RandomWeather()
+	return matchdayConditions{weather: mc.weather, crowd: drawMatchdayCrowd(dbCtx, homeTeamId, mc)}
+}
+
+// creditTicketRevenue pays the home team the gate receipts of a crowd already drawn before
+// kickoff (see drawMatchdayCrowd) - see UpdateTeamFinancesAfterMatch, which is the only caller
+// (both league matches and cup ties route through it, so both generate ticket revenue for the home
+// side only).
+func creditTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, crowd matchdayCrowd) {
+	if crowd.Revenue == 0 {
+		return
 	}
 
-	description := fmt.Sprintf("Matchday ticket revenue (%d attendance)", attendance)
-	if err := common.AdjustTeamBudget(dbCtx, homeTeamId, revenue, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
+	description := fmt.Sprintf("Matchday ticket revenue (%d attendance)", crowd.Attendance)
+	if err := common.AdjustTeamBudget(dbCtx, homeTeamId, crowd.Revenue, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
 		log.Errorf("error crediting ticket revenue for team %d: %s", homeTeamId, err)
 	}
-	return attendance
 }
 
-// creditFriendlyTicketRevenue pays both sides of a friendly half of the home team's own matchday
-// gate receipts each - see engine.simulateFriendly, the only caller. Unlike a league match or cup
-// tie (see creditTicketRevenue above), where the away side gets nothing, a friendly's away team
-// travels purely as a favor to the home side rather than for any competitive stake, so the gate it
-// helped draw is split evenly instead of going entirely to the home side. Any odd unit from
-// splitting an odd total stays with the home side, whose stadium actually generated it. Returns
-// the attendance figure it computed (0 if the stadium lookup failed or the stadium is empty),
-// same convention as creditTicketRevenue - simulateFriendly stores it as the friendly's report
-// attendance. weather is drawn once by the caller, so the same weather both shapes the crowd here
-// and is what the friendly's report shows.
-func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64, weather string) int {
-	attendance, revenue := stadiumAttendanceAndRevenue(dbCtx, homeTeamId, matchdayContext{awayTeamId: awayTeamId, weather: weather})
-	if revenue == 0 {
-		return attendance
+// creditFriendlyTicketRevenue pays both sides of a friendly half of the gate receipts of a crowd
+// already drawn before kickoff (see drawMatchdayCrowd) - see engine.simulateFriendly, the only
+// caller. Unlike a league match or cup tie (see creditTicketRevenue above), where the away side
+// gets nothing, a friendly's away team travels purely as a favor to the home side rather than for
+// any competitive stake, so the gate it helped draw is split evenly instead of going entirely to
+// the home side. Any odd unit from splitting an odd total stays with the home side, whose stadium
+// actually generated it.
+func creditFriendlyTicketRevenue(dbCtx *common.DatabaseContext, homeTeamId int64, awayTeamId int64, crowd matchdayCrowd) {
+	if crowd.Revenue == 0 {
+		return
 	}
 
-	homeShare, awayShare := splitRevenueEvenly(revenue)
+	homeShare, awayShare := splitRevenueEvenly(crowd.Revenue)
 
-	description := fmt.Sprintf("Friendly ticket revenue (%d attendance, half share)", attendance)
+	description := fmt.Sprintf("Friendly ticket revenue (%d attendance, half share)", crowd.Attendance)
 	if err := common.AdjustTeamBudget(dbCtx, homeTeamId, homeShare, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
 		log.Errorf("error crediting friendly ticket revenue for home team %d: %s", homeTeamId, err)
 	}
 	if err := common.AdjustTeamBudget(dbCtx, awayTeamId, awayShare, common.TRANSACTION_TICKET_REVENUE, description); err != nil {
 		log.Errorf("error crediting friendly ticket revenue for away team %d: %s", awayTeamId, err)
 	}
-	return attendance
 }
 
 // splitRevenueEvenly divides revenue into two integer shares that sum back to revenue exactly -

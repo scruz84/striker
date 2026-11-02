@@ -328,7 +328,7 @@ Every lineup a team owner reads for an upcoming league match, cup tie or friendl
   `persistCupTieLineupSnapshot` and `persistFriendlyLineupSnapshot`. `MatchSimulation.HomeLineup`/
   `AwayLineup` hold that kickoff XI too.
 - Stages: `engine/stamina_simulation.go`, `engine/initial_simulation.go` (`blendLine`,
-  `ZoneSpillover`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
+  `ZoneSpillover`, `applyHomeAdvantage`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
   `engine/injury_simulation.go` (`bringOnInjuryReplacement`), `engine/substitution_simulation.go`
   (`applyScheduledSubstitutions`, `bestEligibleBenchPlayer`, `teamSide`; substituted-off sets
   `MatchSimulation.HomeSubstitutedOff`/`AwaySubstitutedOff`).
@@ -339,6 +339,17 @@ Every lineup a team owner reads for an upcoming league match, cup tie or friendl
   Frontend: `utils/matchCommentary.tsx` (set-piece phrasing), `utils/matchGoals.ts` and
   `features/match/MatchScoreboard.tsx` (`(pen.)` / `(f.k.)` marks), `utils/matchEvents.ts`
   (a missed penalty always shows in `MatchEventsReport`).
+- Home advantage: `engine/initial_simulation.go` (`HomeAdvantageBase`, `HomeAdvantageCrowdWeight`,
+  `homeAdvantageMultiplier`, `homeAdvantageFor`, `applyHomeAdvantage`, called in
+  `InitialSimulation.Apply` right after `calculateQua`); `common.MatchSimulation.HomeAdvantage`
+  (0 counts as 1), passed in through `runMatchSimulation`'s `homeAdvantage` parameter. Neutral
+  fixtures: `common.IsWorldCupGroupMatch` and `common.IsWorldCupKnockoutCup` (`common/worldcup.go`).
+  Calibration: `engine/home_advantage_test.go` (`TestHomeAdvantageCalibration`, `HOME_ADV_SIM=1`).
+- Crowd before kickoff: `simulateMatch`, `simulateCupTie` and `simulateFriendly` call
+  `engine.drawMatchdayConditions` (`engine/stadium.go`: weather, then `drawMatchdayCrowd` returning a
+  `matchdayCrowd`) before `runMatchSimulation`, and after the save commits pass that crowd to
+  `UpdateTeamFinancesAfterMatch` / `creditFriendlyTicketRevenue` and `updateMatchReportFlavor`.
+  Covered by `engine/home_advantage_integration_test.go`.
 - Post-match processing (atomic, only-once result save): `common.SaveLeagueMatchResultTx`,
   `common.SaveFriendlyResultTx` and `common.SaveCupTieResultTx` (`common/matchresult.go`) write the
   result, events, instants, standings (under `LockNamespaceStandings`) and the pending post-match

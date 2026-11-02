@@ -59,3 +59,6 @@ Fanbase SHALL affect attendance only through socios targets and as the visiting 
   `driftFanbaseTierPull`, `FanbaseTierTarget`, `notifyFanbaseMilestone`,
   `fanbaseCommercialFactor`); storage `common/fanbase.go`.
 - Exposed via `common.TeamDetails.Fanbase` and `FinancesResponse.Fanbase` (`FanbaseCard`).
+- Reaches the simulation only through the attendance: the visiting side's Fanbase feeds
+  `rivalFactor` (`engine/stadium.go`), and the drawn crowd sets `homeAdvantageMultiplier`
+  (`engine/initial_simulation.go`).

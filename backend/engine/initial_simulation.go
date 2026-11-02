@@ -24,6 +24,7 @@ type InitialSimulation struct{}
 func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
 	calculateQua(match.HomeQua, match.HomeLineup, match.HomePlayersByPosition, match.EffectiveHomePlayers)
 	calculateQua(match.AwayQua, match.AwayLineup, match.AwayPlayersByPosition, match.EffectiveAwayPlayers)
+	applyHomeAdvantage(match.HomeQua, match.HomeAdvantage)
 
 	calculateDiffs(match)
 	//Append a new match instant
@@ -43,6 +44,55 @@ func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Ma
 		AwayAttackCenterDiff: match.AwayAttackCenterDiff,
 		PlayerContributions:  playerContributions(match),
 	})
+}
+
+// HomeAdvantageBase is the home side's edge with nobody in the stands, and
+// HomeAdvantageCrowdWeight what a full stadium adds on top: the home zone ratings are multiplied by
+// 1 + HomeAdvantageBase + HomeAdvantageCrowdWeight x fill (see homeAdvantageMultiplier), so 1.08
+// in an empty ground, 1.15 half full and 1.22 full. Calibrated so that, between identical squads at
+// a half-full ground, the home side wins about 46% and the away side about 30% (see
+// TestHomeAdvantageCalibration).
+const HomeAdvantageBase = 0.08
+const HomeAdvantageCrowdWeight = 0.14
+
+// homeAdvantageMultiplier is the home side's zone-rating multiplier for a match watched by
+// attendance in a stadium of capacity seats. fill is attendance / capacity, clamped to [0, 1], and
+// 0 when the capacity is 0.
+func homeAdvantageMultiplier(attendance int, capacity int) float32 {
+	fill := 0.0
+	if capacity > 0 {
+		fill = math.Max(0, math.Min(1, float64(attendance)/float64(capacity)))
+	}
+	return float32(1 + HomeAdvantageBase + HomeAdvantageCrowdWeight*fill)
+}
+
+// homeAdvantageFor is the home side's multiplier for a match with this pre-kickoff crowd: 1 for a
+// neutral fixture (a World Cup group friendly or knockout tie), otherwise homeAdvantageMultiplier
+// of the crowd's attendance and capacity.
+func homeAdvantageFor(crowd matchdayCrowd, neutral bool) float32 {
+	if neutral {
+		return 1
+	}
+	return homeAdvantageMultiplier(crowd.Attendance, crowd.Capacity)
+}
+
+// applyHomeAdvantage multiplies the nine zone ratings of a side (attack, midfield and defense;
+// centre and both flanks) by multiplier, right after calculateQua's zone blend and before the
+// diffs, so chance volume, chance share and conversion all see it. Goalkeeper is never populated
+// (see common.TeamQualification) and is left alone. A multiplier of 0 (unset) or 1 changes nothing.
+func applyHomeAdvantage(qua *common.TeamQualification, multiplier float32) {
+	if multiplier <= 0 || multiplier == 1 {
+		return
+	}
+	qua.LeftDefense *= multiplier
+	qua.Defense *= multiplier
+	qua.RightDefense *= multiplier
+	qua.LeftMidfield *= multiplier
+	qua.Midfield *= multiplier
+	qua.RightMidfield *= multiplier
+	qua.LeftAttack *= multiplier
+	qua.Attack *= multiplier
+	qua.RightAttach *= multiplier
 }
 
 func calculateDiffs(match *common.MatchSimulation) {

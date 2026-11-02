@@ -92,10 +92,12 @@ The owner SHALL be notified (`NOTIFICATION_FANBASE`, keys `sociosGrew`/`sociosSh
 ## Code map
 
 - Attendance and price: `backend/engine/stadium.go` (`CalculateAttendance`, `priceFactor`,
-  `formFactor`, `rivalFactor`, `weatherFactor`, `optimalTicketPrice`, `RecommendedTicketPrice`). The weather is drawn once per
-  match by the caller (`simulateMatch`, `simulateCupTie`, `simulateFriendly`) and passed to
-  `UpdateTeamFinancesAfterMatch` / `creditFriendlyTicketRevenue` (`weather` parameter), so it also
-  feeds the stored report flavor.
+  `formFactor`, `rivalFactor`, `weatherFactor`, `optimalTicketPrice`, `RecommendedTicketPrice`). The weather and
+  the crowd are drawn once per match, before the simulation, by `drawMatchdayConditions` /
+  `drawMatchdayCrowd` (`engine/stadium.go`), called from `simulateMatch`, `simulateCupTie` and
+  `simulateFriendly`; the returned `matchdayCrowd` sets the home advantage, is credited by
+  `creditTicketRevenue` (through `UpdateTeamFinancesAfterMatch`) / `creditFriendlyTicketRevenue`
+  after the save commits, and feeds the stored report flavor.
 - Drift: `engine/socios.go` (`sociosTarget`, `driftSocios`, `updateSociosAtSeasonEnd`), called
   from `awardSeasonTicketsAndMerchandising`; storage `common/socios.go`.
 - Initial backfill for existing teams: `resources/sql/init80_socios.sql`.

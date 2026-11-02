@@ -457,7 +457,17 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
 		persistCupTieLineupSnapshot(dbCtx, tie.TieId, teamId, lineup, substitutions)
 	}
-	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false, snapshot)
+	// Weather and crowd are drawn before kickoff - see simulateMatch. A cup tie has no row in
+	// matches, and its id could collide with an unrelated match's, so its form excludes nothing.
+	// A World Cup knockout tie is played as neutral: it still draws a crowd for the gate and the
+	// report, but gives the home side no advantage.
+	conditions := drawMatchdayConditions(dbCtx, *tie.HomeTeamId, matchdayContext{awayTeamId: *tie.AwayTeamId, cupRound: tie.Round})
+	worldCup, err := common.IsWorldCupKnockoutCup(dbCtx, tie.CupId)
+	if err != nil {
+		return err
+	}
+	homeAdvantage := homeAdvantageFor(conditions.crowd, worldCup)
+	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false, homeAdvantage, snapshot)
 	if err != nil {
 		return err
 	}
@@ -482,11 +492,8 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 		return err
 	}
 
-	// Drawn once, so the same weather both shapes the crowd and is what the tie's report shows -
-	// see simulateMatch, which does the same for a league match.
-	weather := common.RandomWeather()
-	attendance := UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, tie.Round, weather)
-	updateMatchReportFlavor(dbCtx, "cup tie", tie.TieId, attendance, weather,
+	UpdateTeamFinancesAfterMatch(dbCtx, matchSimulation, conditions.crowd)
+	updateMatchReportFlavor(dbCtx, "cup tie", tie.TieId, conditions.crowd.Attendance, conditions.weather,
 		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
 			return common.UpdateCupTieFlavor(dbCtx, tie.TieId, weather, attendance, referee, assistant1, assistant2)
 		})
