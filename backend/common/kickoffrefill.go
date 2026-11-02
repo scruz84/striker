@@ -99,3 +99,22 @@ func ProjectKickoffReplacements(lineup *Lineup, squad []*Player, unavailable map
 	}
 	return replacements
 }
+
+// ApplyProjectedReplacements returns a copy of lineup with each projected replacement swapped into
+// the slot of the unavailable starter it replaces - the XI the pre-kickoff refill would field if the
+// match kicked off now (see ProjectKickoffReplacements). lineup itself is not modified.
+func ApplyProjectedReplacements(lineup *Lineup, replacements []ProjectedReplacement) *Lineup {
+	projected := *lineup
+	projected.Positions = make([]LineupPosition, len(lineup.Positions))
+	copy(projected.Positions, lineup.Positions)
+	projected.ProjectedReplacements = nil
+	for _, r := range replacements {
+		for i, p := range projected.Positions {
+			if p.PlayerId == r.PlayerOutId && p.Position == r.Position {
+				projected.Positions[i].PlayerId = r.PlayerInId
+				break
+			}
+		}
+	}
+	return &projected
+}

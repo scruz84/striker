@@ -274,6 +274,7 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TeamGroup.GET("/team/evolutions", handlers.TeamLatestEvolutionsHandler(dbCtx))
 	v1TeamGroup.GET("/head-to-head/:teamA/:teamB", handlers.HeadToHeadHandler(dbCtx))
 	v1TeamGroup.GET("/matches/live", handlers.LiveMatchesOverviewHandler(dbCtx))
+	v1TeamGroup.GET("/preview/:"+handlers.KindParam+"/:"+handlers.ID, handlers.OpponentPreviewHandler(dbCtx))
 	v1TeamGroup.PUT("/match/:"+handlers.ID+"/lineup", handlers.SetMatchLineupHandler(dbCtx))
 	v1TeamGroup.GET("/match/:"+handlers.ID+"/lineup", handlers.GetMatchLineupHandler(dbCtx))
 

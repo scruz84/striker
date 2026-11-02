@@ -105,13 +105,14 @@ function liveState(overrides: Record<string, unknown> = {}) {
   }
 }
 
-function renderViewer(view: MatchView, extra: { lineupSection?: boolean; belowScoreboard?: boolean } = {}) {
+function renderViewer(view: MatchView, extra: { lineupSection?: boolean; previewSection?: boolean; belowScoreboard?: boolean } = {}) {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <MemoryRouter>
         <MatchViewer
           view={view}
           lineupSection={extra.lineupSection ? <div>lineup editor</div> : undefined}
+          previewSection={extra.previewSection ? <div>opponent preview</div> : undefined}
           belowScoreboard={extra.belowScoreboard ? <div>shootout line</div> : undefined}
         />
       </MemoryRouter>
@@ -134,6 +135,25 @@ describe('MatchViewer', () => {
       renderViewer(baseView(), { lineupSection: true })
       expect(screen.getByText('lineup editor')).toBeInTheDocument()
       expect(screen.getByTestId('scoreboard')).toHaveTextContent('scheduled')
+    })
+
+    it('shows the opponent preview below the lineup editor to a participant before the lock', () => {
+      renderViewer(baseView(), { lineupSection: true, previewSection: true })
+      const editor = screen.getByText('lineup editor')
+      const preview = screen.getByText('opponent preview')
+      expect(editor.compareDocumentPosition(preview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('drops the opponent preview together with the editor once the lock window starts', () => {
+      clock.lineupLocked = true
+      renderViewer(baseView(), { lineupSection: true, previewSection: true })
+      expect(screen.getByText('lineup locked')).toBeInTheDocument()
+      expect(screen.queryByText('opponent preview')).not.toBeInTheDocument()
+    })
+
+    it('shows no opponent preview to someone who is not a participant', () => {
+      renderViewer(baseView())
+      expect(screen.queryByText('opponent preview')).not.toBeInTheDocument()
     })
 
     it('swaps the editor for the locked notice once the lock window starts', () => {

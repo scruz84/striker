@@ -47,6 +47,7 @@ import type {
   SeasonHistoryEntry,
   Stadium,
   TeamDetails,
+  OpponentPreview,
   TeamMatchSummary,
   TransferComparablesResult,
   TierConfig,
@@ -69,6 +70,9 @@ export const queryKeys = {
   transferComparables: (id: string) => ['transferComparables', id] as const,
   teamEvolutions: (logIds: string) => ['teamEvolutions', logIds] as const,
   headToHead: (teamAId: number, teamBId: number) => ['headToHead', teamAId, teamBId] as const,
+  // Every opponent preview - invalidated whenever a lineup is saved, since the projection rates it.
+  opponentPreviews: ['opponentPreview'] as const,
+  opponentPreview: (kind: string, id: string) => ['opponentPreview', kind, id] as const,
   division: (id: string) => ['division', id] as const,
   leagueWeek: (leagueId: string, week: number) => ['leagueWeek', leagueId, week] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
@@ -455,6 +459,7 @@ export function useSetLineup() {
     }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
     },
   })
 }
@@ -481,6 +486,7 @@ export function useSetFriendlyDefaultLineup() {
     }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyDefaultLineup })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
     },
   })
 }
@@ -830,6 +836,7 @@ export function useSetCupTieLineup(tieId: string | undefined) {
     }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTieLineup(tieId ?? '') })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
     },
   })
 }
@@ -841,6 +848,19 @@ export function useTeamMatches(teamId: string | undefined) {
     queryKey: queryKeys.teamMatches(teamId ?? ''),
     queryFn: () => api.get<TeamMatchSummary[]>(`/v1/teams/team/${teamId}/matches`),
     enabled: !!teamId,
+  })
+}
+
+// useOpponentPreview loads the preview of one upcoming fixture of the logged-in owner's club -
+// see backend handlers.OpponentPreviewHandler. kind is league, cup or friendly. Refused (403/409)
+// for a fixture the owner does not play or whose lineup lock has started, so callers only enable
+// it for a fixture they know is still open.
+export function useOpponentPreview(kind: TeamMatchSummary['kind'], id: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.opponentPreview(kind, id ?? ''),
+    queryFn: () => api.get<OpponentPreview>(`/v1/teams/preview/${kind}/${id}`),
+    enabled: enabled && !!id,
+    retry: false,
   })
 }
 
@@ -880,6 +900,7 @@ export function useSetMatchLineup(matchId: string | undefined) {
     }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.matchLineup(matchId ?? '') })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
     },
   })
 }
@@ -1461,6 +1482,7 @@ export function useSetFriendlyLineup(id: string | undefined) {
     }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyLineup(id ?? '') })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
     },
   })
 }

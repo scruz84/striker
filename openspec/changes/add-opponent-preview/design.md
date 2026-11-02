@@ -35,7 +35,9 @@ See proposal.md - Why. Current state that shapes the approach:
 in it, and returns 409 once the lock window has started. Response:
 `{opponent: {id, name, position, form: TeamMatchSummary[]}, likely: {formation, positions,
 matchId} | null, inForm: [{playerId, name, position, averageRating, appearances}], projection:
-{zones: [{zone, own, opponent}]} | null}`.
+{own, opponent, ownGoalkeeper, opponentGoalkeeper} | null}`, where `own` / `opponent` are the
+`TeamQualification` of each side at minute 1 (the shape the viewer's zone duel already renders, so
+`ZoneComparisonRows` is reused as is).
 
 ### D2. Opponent data (`common/opponentpreview.go`)
 - Form: the opponent's last 5 league/cup `TeamMatchSummary` rows whose replay has finished
@@ -47,7 +49,7 @@ matchId} | null, inForm: [{playerId, name, position, averageRating, appearances}
 ### D3. Projection (`engine.ProjectZoneDuel`)
 A pure function that takes the two lineups, both squads, which side is home and (when present)
 each side's mentality and expected crowd fill, builds a `MatchSimulation` at minute 1 and runs only
-`InitialSimulation.Apply`, returning the nine zone pairs. The owner's side uses his saved lineup for
+`InitialSimulation.Apply`, returning each side's `TeamQualification` and goalkeeper rating (the nine zone pairs are derived from them by `ZoneComparisonRows`). The owner's side uses his saved lineup for
 that fixture (override, else default / friendly default) after the same projected kickoff refill
 the editor already shows (`ProjectKickoffReplacements`); the opponent's likely XI is used as-is
 (its availability is not public). Without home advantage shipped, fill is ignored; without
@@ -55,11 +57,12 @@ mentality, both sides are Balanced.
 
 ### D4. Frontend
 `OpponentPreviewCard` (`features/lineup/`) with form chips (`FormStrip` pattern from the
-dashboard), a mini pitch for the likely XI (`SoccerPitch` read-only), the in-form list and
+dashboard), the likely XI as lines from attack to goalkeeper (a compact list rather than a second
+pitch, so the card stays short on phones), the in-form list and
 `ZoneComparisonRows` fed from the projection. It is placed above `MatchLineupForm` in
 `LineupEditorPage` (next unlocked fixture from `useTeamMatches`) and in the scheduled view of
-`MatchViewer` for participants. The query key includes the lineup's saved version, so a save
-invalidates it. Keys `preview.*` in en/es.
+`MatchViewer` for participants. Every lineup save hook invalidates the `opponentPreview` query prefix, so a save
+refreshes the projection. Keys `preview.*` in en/es.
 
 ## Risks / Trade-offs
 
@@ -72,3 +75,21 @@ invalidates it. Keys `preview.*` in en/es.
 ## Migration Plan
 
 No schema change. Rollback: redeploy the previous service and frontend.
+
+## Code map (for the new `opponent-preview` spec)
+
+- Public data: `backend/common/opponentpreview.go` (`GetOpponentPreview`, `recentFinishedCompetitive`,
+  `GetOpponentLikelyLineup`, `aggregateInForm`) reading `GetTeamMatches`, `GetMatchLineupOverride` /
+  `GetCupTieLineup` (kickoff snapshots), `GetMatchPlayerRatings` and `LiveBroadcastCutoff` (the filter that
+  keeps a replaying match out).
+- Projection: `backend/engine/zoneduel.go` (`ProjectZoneDuel`, `ZoneDuelProjection`) running
+  `StaminaSimulation` and `InitialSimulation` at minute 1; the owner's refilled XI comes from
+  `common.ProjectKickoffReplacements` + `common.ApplyProjectedReplacements` (`common/kickoffrefill.go`).
+- Endpoint: `backend/handlers/previewHandlers.go` (`OpponentPreviewHandler`, 403 / 409 rules), routed as
+  `GET /v1/teams/preview/:kind/:id` in `backend/service/fmservice.go`.
+- Frontend: `frontend/src/features/lineup/OpponentPreviewCard.tsx` and `opponentPreviewLines.ts` (likely XI
+  lines), `useOpponentPreview` / `queryKeys.opponentPreviews` in `api/hooks.ts` (invalidated by every lineup
+  save), the zone duel drawn by `features/match/ZoneComparisonRows.tsx`.
+- Placement: `features/lineup/LineupEditorPage.tsx` (next fixture whose lock has not started,
+  `hasLineupLockStarted` in `api/useLiveMatch.ts`) and the `previewSection` slot of
+  `features/match/MatchViewer.tsx`, filled by the three route adapters.

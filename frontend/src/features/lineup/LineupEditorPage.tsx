@@ -15,10 +15,11 @@ import {
   useUserTeam,
 } from '../../api/hooks'
 import type { Lineup, LineupPosition, LineupSubstitution, Player, Team } from '../../api/types'
-import { isPast } from '../../api/useLiveMatch'
+import { hasLineupLockStarted, isPast } from '../../api/useLiveMatch'
 import { PageHeader } from '../../components/PageHeader'
 import { formatDayTime } from '../../utils/formatDate'
 import { MatchLineupForm } from './MatchLineupForm'
+import { OpponentPreviewCard } from './OpponentPreviewCard'
 
 export function LineupEditorPage() {
   const { t } = useTranslation()
@@ -37,6 +38,9 @@ export function LineupEditorPage() {
   // "Contra quién y cuándo" is the useful context for a lineup - the club is already in the
   // header, so it no longer repeats in the title.
   const nextMatch = teamMatches?.filter((m) => !isPast(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
+  // The preview is for the next fixture whose lineup can still change - not necessarily the next
+  // one overall (a match kicking off in 10 minutes is already locked, a friendly tomorrow is not).
+  const previewMatch = teamMatches?.filter((m) => !hasLineupLockStarted(m.matchDate)).sort((a, b) => a.matchDate.localeCompare(b.matchDate))[0]
   const subtitle = nextMatch
     ? t('lineup.subtitle', {
         opponent: nextMatch.opponentName,
@@ -52,6 +56,15 @@ export function LineupEditorPage() {
         <Tab label={t('lineup.tabs.leagueCup')} />
         <Tab label={t('lineup.tabs.friendly')} />
       </Tabs>
+      {previewMatch && (
+        <OpponentPreviewCard
+          key={`${previewMatch.kind}-${previewMatch.matchId}`}
+          kind={previewMatch.kind}
+          matchId={previewMatch.matchId}
+          teamId={userTeam.team.id}
+          teamName={userTeam.team.name}
+        />
+      )}
       {tab === 0 &&
         (lineupLoading || !lineup ? (
           <Skeleton variant="rectangular" height={300} />

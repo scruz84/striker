@@ -1591,6 +1591,43 @@ export interface TeamMatchSummary {
   round?: number
 }
 
+// OpponentPreview is the owner's preview of an upcoming fixture - see backend
+// common.GetOpponentPreview and handlers.OpponentPreviewHandler. Everything about the opponent is
+// public data (finished results, kickoff lineups, stored ratings); projection rates the owner's
+// saved lineup against the opponent's likely XI with the simulation's own minute-1 zone ratings
+// (null when the opponent has no history to project against).
+export interface OpponentPreviewPlayer {
+  playerId: number
+  name: string
+  position: number
+}
+
+export interface OpponentPreviewLikelyLineup {
+  kind: TeamMatchSummary['kind']
+  matchId: number
+  formation: number
+  players: OpponentPreviewPlayer[]
+}
+
+export interface OpponentPreviewInFormPlayer extends OpponentPreviewPlayer {
+  averageRating: number
+  appearances: number
+}
+
+export interface OpponentPreviewProjection {
+  own: TeamQualification
+  opponent: TeamQualification
+  ownGoalkeeper: number
+  opponentGoalkeeper: number
+}
+
+export interface OpponentPreview {
+  opponent: { id: number; name: string; position: number; form: TeamMatchSummary[] }
+  likely: OpponentPreviewLikelyLineup | null
+  inForm: OpponentPreviewInFormPlayer[]
+  projection: OpponentPreviewProjection | null
+}
+
 // LiveMatchSummary is one match currently inside its live-broadcast window, anywhere in the
 // world - see backend common.GetLiveMatches. Country/competitionName/tier are only set for a
 // league match (kind === 'league'); a cup tie or friendly has no division to report. minute is

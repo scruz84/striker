@@ -4,9 +4,10 @@ import Typography from '@mui/material/Typography'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useCupTieDetails, useCupTieLineup, useMe, useSetCupTieLineup, useUserTeam } from '../../api/hooks'
-import type { CupTieDetails, Player, Team } from '../../api/types'
+import { MATCH_KIND_CUP, type CupTieDetails, type Player, type Team } from '../../api/types'
 import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
+import { OpponentPreviewCard } from '../lineup/OpponentPreviewCard'
 import { MatchViewer } from '../match/MatchViewer'
 import { fromCupTie, type MatchView } from '../match/matchViewModel'
 
@@ -36,6 +37,11 @@ export function CupTieDetailsPage() {
       key={id}
       view={view}
       lineupSection={id && isParticipant && userTeam ? <CupTieLineupSection tieId={id} team={userTeam.team} players={userTeam.players} /> : undefined}
+      previewSection={
+        id && isParticipant && userTeam ? (
+          <OpponentPreviewCard kind={MATCH_KIND_CUP} matchId={id} teamId={userTeam.team.id} teamName={userTeam.team.name} />
+        ) : undefined
+      }
       belowScoreboard={<PenaltyShootoutLine view={view} />}
     />
   )

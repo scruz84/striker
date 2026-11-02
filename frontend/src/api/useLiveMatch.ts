@@ -168,6 +168,13 @@ export const LINEUP_LOCK_MINUTES = 20
 // already passed - the same instant a Set*LineupHandler call would itself start rejecting (see
 // common.IsLineupLocked). Callers use this to stop offering the lineup editor before the save
 // would fail anyway, not just to react to a failed save.
+// hasLineupLockStarted is useIsLineupLocked's one-off form, for a list of fixtures rather than one
+// page's countdown (it reads the clock when called, so call it from a helper or event handler, like
+// isPast).
+export function hasLineupLockStarted(isoDate: string): boolean {
+  return new Date(isoDate).getTime() - Date.now() < LINEUP_LOCK_MINUTES * 60 * 1000
+}
+
 export function useIsLineupLocked(matchDate: string): boolean {
   return useDueAt(new Date(matchDate).getTime() - LINEUP_LOCK_MINUTES * 60 * 1000)
 }

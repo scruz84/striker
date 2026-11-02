@@ -121,3 +121,16 @@ func TestProjectKickoffReplacements_NoReplacementWhenTheSquadRanOut(t *testing.T
 		t.Fatalf("expected no replacement when nobody is left to field, got %v", got)
 	}
 }
+
+func TestApplyProjectedReplacements_SwapsTheReplacementIntoTheSlotWithoutTouchingTheInput(t *testing.T) {
+	lineup := &Lineup{Positions: []LineupPosition{{PlayerId: 1, Position: GOALKEEPER}, {PlayerId: 2, Position: DEFENSE}, {PlayerId: 3, Position: STRIKER}}}
+
+	got := ApplyProjectedReplacements(lineup, []ProjectedReplacement{{PlayerOutId: 2, PlayerInId: 9, Position: DEFENSE}})
+
+	if got.Positions[1].PlayerId != 9 || got.Positions[0].PlayerId != 1 || got.Positions[2].PlayerId != 3 {
+		t.Fatalf("got %+v", got.Positions)
+	}
+	if lineup.Positions[1].PlayerId != 2 {
+		t.Fatal("the input lineup must not be modified")
+	}
+}

@@ -179,7 +179,8 @@ Ratings shown live or at a minute picked on the scrubber SHALL use the rating fo
 ## Code map
 
 - Viewer: `frontend/src/features/match/MatchViewer.tsx` (phase switch, live completion, scheduled / live /
-  finished views, `lineupSection` and `belowScoreboard` slots) and the view model
+  finished views, `lineupSection`, `previewSection` (the opponent preview, see opponent-preview) and
+  `belowScoreboard` slots) and the view model
   `features/match/matchViewModel.ts` (`MatchView`, `fromWeekMatch` - its league label is prefixed with the
   division name -, `fromCupTie`, `fromFriendly`, `positionOf`, `weeksInASeason`); each adapter's `liveUrl`
   comes from `liveMatchPath` in `utils/matchSummary.ts`.

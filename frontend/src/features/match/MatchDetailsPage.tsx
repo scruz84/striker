@@ -2,8 +2,9 @@ import Skeleton from '@mui/material/Skeleton'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDivisionDetails, useMatchDetails, useMatchLineup, useMe, useSetMatchLineup, useUserTeam } from '../../api/hooks'
-import type { Player, Team } from '../../api/types'
+import { MATCH_KIND_LEAGUE, type Player, type Team } from '../../api/types'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
+import { OpponentPreviewCard } from '../lineup/OpponentPreviewCard'
 import { MatchViewer } from './MatchViewer'
 import { fromWeekMatch } from './matchViewModel'
 
@@ -33,6 +34,11 @@ export function MatchDetailsPage() {
       view={fromWeekMatch(match, division, t)}
       lineupSection={
         id && isParticipant && userTeam ? <MatchLineupSection matchId={id} team={userTeam.team} players={userTeam.players} /> : undefined
+      }
+      previewSection={
+        id && isParticipant && userTeam ? (
+          <OpponentPreviewCard kind={MATCH_KIND_LEAGUE} matchId={id} teamId={userTeam.team.id} teamName={userTeam.team.name} />
+        ) : undefined
       }
     />
   )

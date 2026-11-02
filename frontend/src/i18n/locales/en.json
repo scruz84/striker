@@ -1286,6 +1286,22 @@
       "help": "Each cell shows the share of that zone's strength held by each team, with each team's own strength beneath it. Tap a cell to see the matchup and both values to one decimal."
     }
   },
+  "preview": {
+    "title": "Preview: {{opponent}}",
+    "position": "Currently {{position}}º in the league",
+    "show": "Show",
+    "hide": "Hide",
+    "noHistory": "{{opponent}} has no recent league or cup matches yet, so there is nothing to preview.",
+    "form": "Form:",
+    "formLatestFirst": "← latest",
+    "likelyXi": "Likely XI · {{formation}}",
+    "likelyXiSource": "The XI it kicked off with in its latest match",
+    "inForm": "In-form players",
+    "appearances_one": "{{count}} match",
+    "appearances_other": "{{count}} matches",
+    "projection": "Projected zone duel",
+    "projectionNote": "Your saved lineup against that XI, rated at kick-off without fatigue. A projection, not a prediction."
+  },
   "headToHead": {
     "title": "Head to head",
     "noMeetings": "These teams haven't played each other yet.",

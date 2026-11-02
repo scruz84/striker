@@ -2,8 +2,9 @@ import Skeleton from '@mui/material/Skeleton'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useFriendlyLineup, useFriendlyMatch, useMe, useSetFriendlyLineup, useUserTeam } from '../../api/hooks'
-import type { Player, Team } from '../../api/types'
+import { MATCH_KIND_FRIENDLY, type Player, type Team } from '../../api/types'
 import { MatchLineupForm } from '../lineup/MatchLineupForm'
+import { OpponentPreviewCard } from '../lineup/OpponentPreviewCard'
 import { MatchViewer } from '../match/MatchViewer'
 import { fromFriendly } from '../match/matchViewModel'
 
@@ -28,6 +29,11 @@ export function FriendlyMatchPage() {
       key={id}
       view={fromFriendly(match, t)}
       lineupSection={id && isParticipant && userTeam ? <FriendlyLineupEditor matchId={id} team={userTeam.team} players={userTeam.players} /> : undefined}
+      previewSection={
+        id && isParticipant && userTeam ? (
+          <OpponentPreviewCard kind={MATCH_KIND_FRIENDLY} matchId={id} teamId={userTeam.team.id} teamName={userTeam.team.name} />
+        ) : undefined
+      }
     />
   )
 }

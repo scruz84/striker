@@ -31,6 +31,9 @@ export interface MatchViewerProps {
   // view only, swapped for the "lineup locked" notice once the lock window starts; nobody else sees
   // either, and neither shows live or after full time.
   lineupSection?: ReactNode
+  // The opponent preview, shown right below the lineup editor and only while it is shown (never
+  // once the lineup lock starts); built by the same adapter, for the same participating owner.
+  previewSection?: ReactNode
   // Extra content right under a finished match's scoreboard - the cup tie's penalty-shootout line.
   belowScoreboard?: ReactNode
 }
@@ -38,7 +41,7 @@ export interface MatchViewerProps {
 // The single page that presents any match - league, cup tie or friendly - before kickoff, live and
 // after full time. The three routes (/match/:id, /cup/ties/:id, /friendlies/:id) are thin adapters
 // that load their own endpoint, map it onto a MatchView and render this.
-export function MatchViewer({ view, lineupSection, belowScoreboard }: MatchViewerProps) {
+export function MatchViewer({ view, lineupSection, previewSection, belowScoreboard }: MatchViewerProps) {
   const [liveComplete, setLiveComplete] = useState(false)
   const handleLiveComplete = useCallback(() => setLiveComplete(true), [])
 
@@ -53,13 +56,23 @@ export function MatchViewer({ view, lineupSection, belowScoreboard }: MatchViewe
   // stick with the live view until the broadcast itself reports completion via onComplete, rather
   // than switching the moment the next REST poll notices `played`.
   if ((!isPast(view.matchDate) || mightStillBeLive(view.matchDate)) && !liveComplete) {
-    return <LiveView view={view} lineupSection={lineupSection} onComplete={handleLiveComplete} />
+    return <LiveView view={view} lineupSection={lineupSection} previewSection={previewSection} onComplete={handleLiveComplete} />
   }
 
   return <FinishedView view={view} belowScoreboard={belowScoreboard} />
 }
 
-function LiveView({ view, lineupSection, onComplete }: { view: MatchView; lineupSection?: ReactNode; onComplete: () => void }) {
+function LiveView({
+  view,
+  lineupSection,
+  previewSection,
+  onComplete,
+}: {
+  view: MatchView
+  lineupSection?: ReactNode
+  previewSection?: ReactNode
+  onComplete: () => void
+}) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   // Opened as soon as this mounts, well before kickoff if the viewer got here early - so it's
@@ -123,7 +136,15 @@ function LiveView({ view, lineupSection, onComplete }: { view: MatchView; lineup
           status="scheduled"
           subtitle={subtitle}
         />
-        {lineupSection && (isLineupLocked ? <LineupLockedNotice /> : lineupSection)}
+        {lineupSection &&
+          (isLineupLocked ? (
+            <LineupLockedNotice />
+          ) : (
+            <>
+              {lineupSection}
+              {previewSection}
+            </>
+          ))}
       </Box>
     )
   }
