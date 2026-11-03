@@ -43,14 +43,19 @@ import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { CountryFlag } from '../../components/CountryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
+import { CONTRACT_EXPIRY_WARNING_YEARS } from '../dashboard/pendingItems'
 import { TransferListedBadge } from '../lineup/TransferListedBadge'
 import { UnavailabilityBadge } from '../lineup/UnavailabilityBadge'
 
 type SortDirection = 'asc' | 'desc'
-type SquadSortField = 'name' | 'age' | 'wage' | 'skill'
+type SquadSortField = 'name' | 'age' | 'wage' | 'skill' | 'contract'
+
+const playerName = (p: Player) => `${p.firstName} ${p.lastName}`
 
 function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): number {
   switch (field) {
+    case 'contract':
+      return a.contractYearsRemaining - b.contractYearsRemaining
     case 'age':
       return a.age - b.age
     case 'wage':
@@ -58,9 +63,15 @@ function compareSquadPlayers(a: Player, b: Player, field: SquadSortField): numbe
     case 'skill':
       return (a.averageSkill ?? overallRating(a)) - (b.averageSkill ?? overallRating(b))
     default:
-      return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
+      return playerName(a).localeCompare(playerName(b))
   }
 }
+
+/** A player of the manager's own club whose contract runs out at the end of this season - the
+ * same threshold as the dashboard's "contracts expiring" item. A loaned-in player's contract is
+ * the parent club's to renew, so that player never gets the warning. */
+const contractExpiring = (player: Player, loanedIn?: LoanedInPlayer) =>
+  !loanedIn && player.contractYearsRemaining <= CONTRACT_EXPIRY_WARNING_YEARS
 
 const POSITION_GROUPS = [
   { position: POSITION_GOALKEEPER, labelKey: 'team.squadGroups.goalkeepers' },
@@ -90,14 +101,30 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed, 
   const [openPlayerId, setOpenPlayerId] = useState<number | null>(null)
 
   const sorted = useMemo(
-    () => [...players].sort((a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField)),
+    // Ties fall back to the name, always A-Z whichever way the arrow points, so equal contracts
+    // (or ages, wages, ratings) read the same every time.
+    () =>
+      [...players].sort(
+        (a, b) => (sortDir === 'asc' ? 1 : -1) * compareSquadPlayers(a, b, sortField) || playerName(a).localeCompare(playerName(b)),
+      ),
     [players, sortField, sortDir],
   )
   const openPlayer = players.find((p) => p.id === openPlayerId)
 
+  // Contract terms are only the owning club's business - a rival's rostered players all read 0 -
+  // so the contract sort is offered on the manager's own squad only.
+  const sortByContract = isOwnTeam && sortField === 'contract'
+  const changeSortField = (field: SquadSortField) => {
+    setSortField(field)
+    // Picking the contract sort starts from the longest contracts; the arrow flips it to show
+    // the ones about to run out first.
+    if (field === 'contract') setSortDir('desc')
+  }
+
   // Grouping needs the real skills - a rival's rostered players only expose an aggregate (every
-  // individual skill is zeroed), so for them the list stays flat.
-  const groups = isOwnTeam
+  // individual skill is zeroed), so for them the list stays flat. The contract sort is flat too:
+  // it is the renewal overview, the whole squad in one list.
+  const groups = isOwnTeam && !sortByContract
     ? POSITION_GROUPS.map((group) => ({
         ...group,
         players: sorted.filter((p) => bestCorePosition(p) === group.position),
@@ -112,6 +139,7 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed, 
       unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
       forSale={isOwnTeam && transferListed.has(player.id)}
       loanedIn={loanedInById.get(player.id)}
+      showContract={sortByContract}
       onOpen={() => setOpenPlayerId(player.id)}
     />
   )
@@ -125,12 +153,13 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed, 
             labelId="squad-sort-label"
             label={t('team.sortBy')}
             value={sortField}
-            onChange={(event: SelectChangeEvent) => setSortField(event.target.value as SquadSortField)}
+            onChange={(event: SelectChangeEvent) => changeSortField(event.target.value as SquadSortField)}
           >
             <MenuItem value="name">{t('team.player')}</MenuItem>
             <MenuItem value="age">{t('team.age')}</MenuItem>
             <MenuItem value="wage">{t('team.wage')}</MenuItem>
             <MenuItem value="skill">{t('team.averageSkill')}</MenuItem>
+            {isOwnTeam && <MenuItem value="contract">{t('team.contract')}</MenuItem>}
           </Select>
         </FormControl>
         <IconButton onClick={() => setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))} aria-label={t(sortDir === 'asc' ? 'lineup.sortAscending' : 'lineup.sortDescending')}>
@@ -168,6 +197,7 @@ function SquadPlayerCard({
   unavailability,
   forSale,
   loanedIn,
+  showContract,
   onOpen,
 }: {
   player: Player
@@ -175,11 +205,14 @@ function SquadPlayerCard({
   unavailability?: PlayerUnavailability
   forSale?: boolean
   loanedIn?: LoanedInPlayer
+  /** Show the seasons left on the contract in the row (the contract sort). */
+  showContract?: boolean
   onOpen: () => void
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
   const rating = player.averageSkill ?? overallRating(player)
+  const expiring = isOwnTeam && contractExpiring(player, loanedIn)
 
   return (
     <Paper variant="outlined">
@@ -206,7 +239,17 @@ function SquadPlayerCard({
                 <Chip size="small" variant="outlined" color="info" label={t('team.loanedInChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
               </Tooltip>
             )}
+            {expiring && (
+              <Tooltip title={t('team.contractExpiringTooltip')}>
+                <Chip size="small" variant="outlined" color="warning" label={t('team.contractExpiringChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
+              </Tooltip>
+            )}
           </Stack>
+          {showContract && (
+            <Typography variant="caption" color={expiring ? 'warning.main' : 'text.secondary'} sx={{ display: 'block' }}>
+              {t('team.contractSeasons', { count: player.contractYearsRemaining })}
+            </Typography>
+          )}
         </Box>
         <Stack sx={{ alignItems: 'center', flexShrink: 0, pr: 0.5 }}>
           <Typography variant="stat" sx={{ fontSize: '1.375rem', color: ratingTierColor(rating, theme.palette) }}>

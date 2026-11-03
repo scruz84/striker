@@ -1086,6 +1086,8 @@
     "averageSkill": "Skill",
     "contractSeasons_one": "{{count}} season left",
     "contractSeasons_other": "{{count}} seasons left",
+    "contractExpiringChip": "Last season",
+    "contractExpiringTooltip": "The contract ends this season: renew it or the player leaves for free",
     "renewContract": "Renew",
     "releasePlayer": "Release",
     "confirmRelease": "Release {{name}}? They'll leave your squad immediately and can't be brought back.",

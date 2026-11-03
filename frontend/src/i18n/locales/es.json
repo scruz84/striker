@@ -1086,6 +1086,8 @@
     "averageSkill": "Habilidad",
     "contractSeasons_one": "{{count}} temporada restante",
     "contractSeasons_other": "{{count}} temporadas restantes",
+    "contractExpiringChip": "Último año",
+    "contractExpiringTooltip": "El contrato acaba esta temporada: renuévalo o se irá gratis",
     "renewContract": "Renovar",
     "releasePlayer": "Rescindir",
     "confirmRelease": "¿Rescindir el contrato de {{name}}? Saldrá de tu plantilla de inmediato y no podrá volver.",
