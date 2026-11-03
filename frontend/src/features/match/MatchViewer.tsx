@@ -128,6 +128,7 @@ function LiveView({
           homeId={view.homeId}
           homeName={view.homeName}
           stadiumName={view.homeStadiumName}
+          rivalry={view.rivalry}
           awayId={view.awayId}
           awayName={view.awayName}
           homePosition={view.homePosition}
@@ -161,6 +162,7 @@ function LiveView({
         homeId={view.homeId}
         homeName={view.homeName}
         stadiumName={view.homeStadiumName}
+        rivalry={view.rivalry}
         awayId={view.awayId}
         awayName={view.awayName}
         homePosition={view.homePosition}
@@ -257,6 +259,7 @@ function FinishedView({ view, belowScoreboard }: { view: MatchView; belowScorebo
         homeId={view.homeId}
         homeName={view.homeName}
         stadiumName={view.homeStadiumName}
+        rivalry={view.rivalry}
         awayId={view.awayId}
         awayName={view.awayName}
         homePosition={view.homePosition}

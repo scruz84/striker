@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
+import { RivalryChip } from '../../components/RivalryChip'
 import { SET_PIECE_DIRECT_FREE_KICK, SET_PIECE_PENALTY } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
@@ -37,6 +38,8 @@ export interface ScoreboardProps {
   // visible without scrolling down to the report. Omitted (or both empty) renders nothing.
   homeScorers?: ScorerLine[]
   awayScorers?: ScorerLine[]
+  // The match's rivalry level (RIVALRY_*) - a Rival or Clásico chip next to the status.
+  rivalry?: number
 }
 
 function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: 'left' | 'right' }) {
@@ -77,6 +80,7 @@ export function Scoreboard({
   awayPosition,
   homeScorers = [],
   awayScorers = [],
+  rivalry,
 }: ScoreboardProps) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -97,7 +101,7 @@ export function Scoreboard({
             {t('match.venue', { name: stadiumName })}
           </Typography>
         )}
-        <Stack direction="row" sx={{ justifyContent: 'center', mb: 1.5 }}>
+        <Stack direction="row" spacing={1} sx={{ justifyContent: 'center', mb: 1.5 }}>
           {status === 'live' && (
             <Chip
               size="small"
@@ -110,6 +114,7 @@ export function Scoreboard({
           {status === 'connecting' && <Chip size="small" label={t('match.connecting')} />}
           {status === 'scheduled' && <Chip size="small" variant="outlined" label={t('match.scheduled')} />}
           {status === 'played' && <Chip size="small" variant="outlined" label={t('match.fullTime')} />}
+          <RivalryChip level={rivalry} />
         </Stack>
         {/* Flexbox rather than a 12-column Grid split - the center score needs a
             width that fits "88 - 3" without wrapping (see issue report: a fractional

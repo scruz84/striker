@@ -269,6 +269,9 @@ func TestPlanAiMatchLineup_EveryPlanPassesTheHumanValidation(t *testing.T) {
 				if err := ValidateSubstitutions(plan.Positions, plan.Substitutions, &squad, unavailable); err != nil {
 					t.Fatalf("squad %d level %d friendly=%v: substitutions invalid: %s", i, level, friendly, err)
 				}
+				if err := ValidateRoles(plan.Positions, plan.Roles, &squad); err != nil {
+					t.Fatalf("squad %d level %d friendly=%v: roles invalid: %s", i, level, friendly, err)
+				}
 			}
 		}
 	}
@@ -352,5 +355,64 @@ func TestPlanAiMatchLineup_OrdersOnlyInCompetitiveMatches(t *testing.T) {
 	friendly := PlanAiMatchLineup(squad, nil, nil, AiLevelDirector, true, rand.New(rand.NewSource(1)))
 	if len(friendly.Orders) != 0 {
 		t.Errorf("Director friendly plan has %d orders, want none", len(friendly.Orders))
+	}
+}
+
+// CPU captain (openspec/specs/cpu-team-management "CPU captain").
+func TestPlanAiMatchLineup_VeteranCaptain(t *testing.T) {
+	for _, friendly := range []bool{false, true} {
+		squad := aiSquad(40, 90)
+		// The keeper is the oldest of all, but never captain; among the outfield starters 33 beats
+		// 31 and 24.
+		squad[0].Age = 38
+		squad[3].Age, squad[5].Age, squad[7].Age = 24, 31, 33
+		plan := PlanAiMatchLineup(squad, nil, nil, AiLevelManager, friendly, seeded())
+		if plan.Roles.CaptainId == nil || *plan.Roles.CaptainId != squad[7].Id {
+			t.Errorf("friendly=%v: captain %v, want the 33-year-old %d", friendly, plan.Roles.CaptainId, squad[7].Id)
+		}
+		// Takers: automatic.
+		if plan.Roles.PenaltyTakerId != nil || plan.Roles.FreeKickTakerId != nil {
+			t.Errorf("friendly=%v: CPU named set-piece takers %+v, want automatic", friendly, plan.Roles)
+		}
+	}
+}
+
+func TestAiCaptain_TieGoesToLowestId(t *testing.T) {
+	squad := []*Player{keeperPlayer(1, 80, 90, 40), fieldPlayer(9, 50, 90, 30), fieldPlayer(4, 50, 90, 30), fieldPlayer(2, 50, 90, 22)}
+	positions := []LineupPosition{{PlayerId: 1, Position: GOALKEEPER}, {PlayerId: 9, Position: DEFENSE}, {PlayerId: 4, Position: MIDFIELD}, {PlayerId: 2, Position: STRIKER}}
+	if got := AiCaptain(squad, positions); got == nil || *got != 4 {
+		t.Errorf("captain %v, want 4 (two 30-year-olds, lowest id)", got)
+	}
+	if got := AiCaptain(squad, positions[:1]); got != nil {
+		t.Errorf("captain %d with only a keeper, want none", *got)
+	}
+}
+
+// Lineup roles validation (openspec/specs/match-simulation "Lineup roles").
+func TestValidateRoles(t *testing.T) {
+	squad := aiSquad(40, 90) // 1 keeper, 2-11 outfield starters, 12 bench keeper, 13-18 bench outfielders
+	positions := []LineupPosition{{PlayerId: 1, Position: GOALKEEPER}}
+	for id := int64(2); id <= 11; id++ {
+		positions = append(positions, LineupPosition{PlayerId: id, Position: DEFENSE})
+	}
+	ptr := func(v int64) *int64 { return &v }
+	cases := []struct {
+		name  string
+		roles LineupRoles
+		ok    bool
+	}{
+		{"automatic", LineupRoles{}, true},
+		{"roles saved", LineupRoles{CaptainId: ptr(2), FreeKickTakerId: ptr(10)}, true},
+		{"bench taker", LineupRoles{PenaltyTakerId: ptr(13)}, true},
+		{"goalkeeper captain", LineupRoles{CaptainId: ptr(1)}, true},
+		{"goalkeeper as taker", LineupRoles{PenaltyTakerId: ptr(1)}, false},
+		{"bench goalkeeper as taker", LineupRoles{FreeKickTakerId: ptr(12)}, false},
+		{"not in the squad", LineupRoles{CaptainId: ptr(99)}, false},
+	}
+	for _, c := range cases {
+		err := ValidateRoles(positions, c.roles, &squad)
+		if (err == nil) != c.ok {
+			t.Errorf("%s: err = %v, want ok=%v", c.name, err, c.ok)
+		}
 	}
 }

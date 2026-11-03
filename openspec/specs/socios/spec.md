@@ -105,3 +105,7 @@ The owner SHALL be notified (`NOTIFICATION_FANBASE`, keys `sociosGrew`/`sociosSh
 - Drift: `engine/socios.go` (`sociosTarget`, `driftSocios`, `updateSociosAtSeasonEnd`), called
   from `awardSeasonTicketsAndMerchandising`; storage `common/socios.go`.
 - Initial backfill for existing teams: `resources/sql/init80_socios.sql`.
+- Rivalry multiplier: `rivalryAttendanceFactor` (`RivalryRivalAttendanceFactor`,
+  `RivalryClasicoAttendanceFactor`) inside `rivalFactor`, from `matchdayContext.rivalryLevel`, which
+  `simulateMatch` / `simulateCupTie` read at kickoff with `common.KickoffRivalryLevel` (friendlies
+  pass none). Tests: `engine/rivalries_test.go` (`TestRivalryEffects`).

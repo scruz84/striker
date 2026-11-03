@@ -46,8 +46,8 @@ func UpdateTeamFinancesAfterMatch(dbCtx *common.DatabaseContext, match *common.M
 	creditTicketRevenue(dbCtx, match.Home, crowd)
 	creditSponsorship(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
 	creditSponsorship(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
-	applyFanbaseDrift(dbCtx, match.Home, match.HomeGoals, match.AwayGoals)
-	applyFanbaseDrift(dbCtx, match.Away, match.AwayGoals, match.HomeGoals)
+	applyFanbaseDrift(dbCtx, match.Home, match.HomeGoals, match.AwayGoals, match.RivalryLevel)
+	applyFanbaseDrift(dbCtx, match.Away, match.AwayGoals, match.HomeGoals, match.RivalryLevel)
 	RunAITeamMatchReaction(dbCtx, match.Home)
 	RunAITeamMatchReaction(dbCtx, match.Away)
 }

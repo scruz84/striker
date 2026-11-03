@@ -72,3 +72,31 @@ reuses the existing buy / offer / loan / sign dialogs. Keys `watchlist.*` in en/
 
 Additive migration; empty watchlists for everyone. Rollback: redeploy the previous service; the
 table is ignored.
+
+## Code map
+
+To copy into `openspec/specs/player-watchlist/spec.md` as its `## Code map` when the change is
+archived.
+
+- Storage: `backend/resources/sql/init99_player_watchlist.sql` (`player_watchlist`, index on
+  `player_id`).
+- Core: `common/watchlist.go` (`MaxWatchlistSize`, `WatchPlayer` under the
+  `LockNamespaceWatchlist` advisory lock, `UnwatchPlayer`, `GetWatchlist` with each entry's
+  listing and the same redaction as a rival squad, `ClearWatchlist`, `exportWatchlist`,
+  `NotifyWatchers` with the `WatchEvent*` events, `DeletePlayerFromWatchlistStmtSql`).
+- Leaving the list on signing: `movePlayerToTeam` (`common/transfers.go`, covering transfers,
+  accepted offers and counter-offers, loans) and `SignFreeAgent` (`common/contracts.go`).
+- Notifications (`NOTIFICATION_WATCHLIST = 16`, keys `notifications.messages.watchlist*`, Spanish
+  templates in `common/notificationtranslations.go`), sent after each commit by
+  `CreateTransferListing`, `ExecuteTransfer` (`common/transfers.go`), `finishOfferTransfer`
+  (`common/offers.go`), `CreateLoanListing`, `notifyLoanAccepted`, `ExerciseLoanBuyOption`
+  (`common/loans.go`), `ReleasePlayer`, `SignFreeAgent` (`common/contracts.go`) and, for expired
+  contracts, `engine.ProgressPlayers` once every team is progressed.
+- API: `GET /v1/user/watchlist`, `PUT` / `DELETE /v1/user/watchlist/:id`
+  (`handlers/watchlistHandlers.go`, routes in `service/fmservice.go`).
+- Frontend: `src/components/WatchToggle.tsx` (on `PlayerProfileRail`, other clubs' `SquadList`
+  sheet, the transfer / loan / free-agent rows of `TransferMarketPage` and `SearchPage`),
+  `src/features/transfers/WatchlistTab.tsx` (the market's sixth tab), hooks `useWatchlist`,
+  `useWatchPlayer`, `useUnwatchPlayer`; strings `watchlist.*`.
+- Tests: `common/watchlist_integration_test.go`, `handlers/watchlist_test.go`,
+  `src/components/WatchToggle.test.tsx`.

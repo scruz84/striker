@@ -26,6 +26,9 @@ type MatchResult struct {
 	// PlayerRatings are the match's final per-player ratings (see ComputePlayerRatings), stored in
 	// match_player_ratings in the same transaction. Nil stores none (a default result).
 	PlayerRatings []PlayerRating
+	// RivalryLevel is the level the match kicked off with (RIVALRY_*, see common/rivalries.go),
+	// stored with a league match or cup tie so it always shows the level it was played at.
+	RivalryLevel int
 }
 
 // PostMatchPayload holds what is needed to apply a match's spoiler-gated post-match effects
@@ -54,6 +57,9 @@ type PostMatchPayload struct {
 	// appearances are left out, so Form treats them as featuring without a performance
 	// adjustment.
 	Ratings map[int64]float64 `json:"ratings,omitempty"`
+	// CupFinal marks a cup tie that was its cup's final - worth more rivalry points (see
+	// engine.rivalryPointsForMatch).
+	CupFinal bool `json:"cupFinal,omitempty"`
 }
 
 // StandingsDelta is the classification increment one side gets from a result.
@@ -77,14 +83,14 @@ func StandingsDeltaFor(goalsFor int, goalsAgainst int) StandingsDelta {
 	}
 }
 
-const saveLeagueMatchPlayedStmtSql = "UPDATE matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 " +
+const saveLeagueMatchPlayedStmtSql = "UPDATE matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2, rivalry_level = $4 " +
 	"WHERE match_id = $3 AND played = false RETURNING match_date"
 
 const saveFriendlyPlayedStmtSql = "UPDATE friendly_matches SET played = true, in_simulation = false, home_goals = $1, away_goals = $2 " +
 	"WHERE match_id = $3 AND played = false RETURNING match_date"
 
 const saveCupTiePlayedStmtSql = "UPDATE cup_ties SET played = true, in_simulation = false, home_goals = $1, away_goals = $2, " +
-	"went_to_penalties = $3, winner_team_id = $4 " +
+	"went_to_penalties = $3, winner_team_id = $4, rivalry_level = $6 " +
 	"WHERE tie_id = $5 AND played = false RETURNING match_date"
 
 const insertPendingPostMatchEffectsStmtSql = "INSERT INTO pending_post_match_effects (kind, match_id, due_at, payload) " +
@@ -104,7 +110,7 @@ func SaveLeagueMatchResultTx(dbCtx *DatabaseContext, matchId int64, divisionId i
 	defer tx.Rollback()
 
 	var matchDate time.Time
-	if err := tx.QueryRow(saveLeagueMatchPlayedStmtSql, result.HomeGoals, result.AwayGoals, matchId).Scan(&matchDate); err != nil {
+	if err := tx.QueryRow(saveLeagueMatchPlayedStmtSql, result.HomeGoals, result.AwayGoals, matchId, result.RivalryLevel).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
 	if err := replaceMatchEventsTx(tx, SimulationKindLeague, "match_events", "match_id", "match_instants", matchId, result, InsertMatchEventStmtSql, InsertMatchInstantStmtSql, true); err != nil {
@@ -169,7 +175,7 @@ func SaveCupTieResultTx(dbCtx *DatabaseContext, tieId int64, wentToPenalties boo
 	defer tx.Rollback()
 
 	var matchDate sql.NullTime
-	if err := tx.QueryRow(saveCupTiePlayedStmtSql, result.HomeGoals, result.AwayGoals, wentToPenalties, winnerTeamId, tieId).Scan(&matchDate); err != nil {
+	if err := tx.QueryRow(saveCupTiePlayedStmtSql, result.HomeGoals, result.AwayGoals, wentToPenalties, winnerTeamId, tieId, result.RivalryLevel).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
 	if err := replaceMatchEventsTx(tx, SimulationKindCup, "cup_tie_events", "tie_id", "cup_tie_instants", tieId, result, InsertCupTieEventStmtSql, InsertCupTieInstantStmtSql, false); err != nil {

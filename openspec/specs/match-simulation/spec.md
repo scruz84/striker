@@ -404,6 +404,15 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
   `Lineup.Orders` for the owner only (`withOwnerOrders` in `handlers/lineupHandlers.go`). Tests:
   `engine/conditional_orders_test.go`, `engine/conditional_orders_integration_test.go`,
   `common/lineuporders_integration_test.go`, `handlers/lineupOrders_test.go`.
+- Lineup roles: `common/lineuproles.go` (`LineupRoles` embedded in `Lineup`, `ValidateRoles`,
+  `rolesSelectSql` reading a sold player's role as NULL, `Get`/`SetDefaultLineupRoles`,
+  `RedactTakers` for the public match views, `CaptainCardCancelProbability`); columns on `lineup`,
+  `cup_tie_lineup`, `friendly_lineup` and table `default_lineup_roles`
+  (`resources/sql/init97_lineup_roles.sql`). Taker choice: `processSetPiece` with
+  `namedOnPitchOutfielder` / `sideRoles` (`engine/scorer_simulation.go`); captain:
+  `captainCancelsCard` in `DisciplineSimulation.Apply` (`engine/discipline_simulation.go`). Tests:
+  `engine/lineup_roles_test.go`, `engine/lineup_roles_integration_test.go`,
+  `common/lineuproles_integration_test.go`, `handlers/lineupRoles_test.go`.
 - Crowd before kickoff: `simulateMatch`, `simulateCupTie` and `simulateFriendly` call
   `engine.drawMatchdayConditions` (`engine/stadium.go`: weather, then `drawMatchdayCrowd` returning a
   `matchdayCrowd`) before `runMatchSimulation`, and after the save commits pass that crowd to
@@ -423,3 +432,8 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
   `cup_ties` and `friendly_matches` (`resources/sql/init83_match_viewer_parity.sql`).
 - Availability: `common.GetUnavailablePlayerIds`/`GetUnavailablePlayerIdsForFriendly`
   (`common/database.go`); substitutions cap `common.MaxScheduledSubstitutions`.
+- Rivalry level: `MatchSimulation.RivalryLevel`, passed to `runMatchSimulation` by `simulateMatch` /
+  `simulateCupTie` (read at kickoff with `common.KickoffRivalryLevel`; friendlies pass none), sets the
+  card rate through `cardIncidentProbability` (`ProbCardIncidentRival`, `ProbCardIncidentClasico` in
+  `engine/discipline_simulation.go`) and is stored with the result (`MatchResult.RivalryLevel`,
+  `matches.rivalry_level` / `cup_ties.rivalry_level`).

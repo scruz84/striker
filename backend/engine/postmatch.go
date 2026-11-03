@@ -25,6 +25,7 @@ func newMatchResult(match *common.MatchSimulation, wentToPenalties bool) common.
 		Instants:      instants,
 		Effects:       effects,
 		PlayerRatings: ratings,
+		RivalryLevel:  match.RivalryLevel,
 	}
 }
 
@@ -117,6 +118,8 @@ func applyPostMatchEffects(dbCtx *common.DatabaseContext, kind string, matchId i
 			updateSkillsAfterPlayedMatch(dbCtx, match)
 		}
 	}
+
+	applyRivalryForMatch(dbCtx, kind, payload)
 
 	switch kind {
 	case common.SimulationKindFriendly:

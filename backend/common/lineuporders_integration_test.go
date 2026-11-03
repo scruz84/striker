@@ -48,7 +48,7 @@ func TestLineupOrders_RoundTripInEveryLineupKind(t *testing.T) {
 		VALUES ($1, 1, 1, now() + interval '1 day', $2, $3) RETURNING match_id`, leagueId, home, away)
 	got, err = GetOrdersForMatch(dbCtx, matchId, home)
 	check("match without an override (the default's)", got, err, orders)
-	if err := SetLineupForMatch(dbCtx, matchId, home, FormationBalanced, MENTALITY_BALANCED, positions, nil, orders[:1]); err != nil {
+	if err := SetLineupForMatch(dbCtx, matchId, home, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, nil, orders[:1]); err != nil {
 		t.Fatal(err)
 	}
 	got, err = GetOrdersForMatch(dbCtx, matchId, home)
@@ -56,21 +56,21 @@ func TestLineupOrders_RoundTripInEveryLineupKind(t *testing.T) {
 
 	cupId := scan(`INSERT INTO cups (country, season, name) VALUES ('zo', 1, 'Orders Cup') RETURNING cup_id`)
 	tieId := scan(`INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id) VALUES ($1, 1, 1, $2, $3) RETURNING tie_id`, cupId, home, away)
-	if err := SetCupTieLineup(dbCtx, tieId, home, FormationBalanced, MENTALITY_BALANCED, positions, nil, orders[1:]); err != nil {
+	if err := SetCupTieLineup(dbCtx, tieId, home, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, nil, orders[1:]); err != nil {
 		t.Fatal(err)
 	}
 	got, err = GetOrdersForCupTie(dbCtx, tieId, home)
 	check("cup tie override", got, err, orders[1:])
 
 	friendlyId := scan(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date) VALUES ($1, $2, now() + interval '1 day') RETURNING match_id`, home, away)
-	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_BALANCED, positions, nil, orders); err != nil {
+	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, nil, orders); err != nil {
 		t.Fatal(err)
 	}
 	got, err = GetFriendlyLineupOrders(dbCtx, friendlyId, home)
 	check("friendly override", got, err, orders)
 
 	// Re-saving replaces them; saving none clears them.
-	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_BALANCED, positions, nil, nil); err != nil {
+	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	got, err = GetFriendlyLineupOrders(dbCtx, friendlyId, home)

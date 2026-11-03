@@ -27,6 +27,9 @@ const (
 	// a result save (an increment, see SaveLeagueMatchResultTx) and the one-off rebuild of drifted
 	// rows (engine.RepairStandingsOnce). Keyed by league id.
 	LockNamespaceStandings int64 = 4
+	// LockNamespaceWatchlist serializes one club's watchlist additions, so two follows racing at
+	// 29 players can never take it past common.MaxWatchlistSize. Keyed by team id.
+	LockNamespaceWatchlist int64 = 5
 )
 
 // NamespacedLockKey builds an advisory lock key for id inside namespace (see the constants above).

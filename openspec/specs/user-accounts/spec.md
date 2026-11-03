@@ -198,5 +198,8 @@ An account inactive for 365 days or more SHALL be deleted automatically with the
 - Frontend: `src/features/account/` (`AccountPage`, `DeleteAccountDialog`, `deleteConfirmation`),
   hooks in `src/api/hooks.ts` (`useAccount`, `useDeleteAccount`, `downloadMyData`,
   `useAdminDeleteUser`), admin users tab (`features/admin/UsersTab.tsx`), header menu entry.
+- Watchlist: `ResetReleasedTeam` empties it with `common.ClearWatchlist`; `ExportUserData` adds
+  `UserDataExport.Watchlist` (`common.exportWatchlist`, `ExportedWatchedPlayer`). Covered by
+  `common/watchlist_integration_test.go` (`TestWatchlist_ClubResetAndExport`).
 - Tests: `common/accounts_test.go`, `common/accounts_integration_test.go`,
   `engine/accountlifecycle_concurrency_test.go`, `service/security_test.go`.

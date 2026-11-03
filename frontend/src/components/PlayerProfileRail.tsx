@@ -22,6 +22,7 @@ import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
 import { TeamBadge } from './TeamBadge'
 import { TransferOfferDialog } from './TransferOfferDialog'
+import { WatchToggle } from './WatchToggle'
 
 const RING_SIZE_MOBILE = 64
 const RING_SIZE_DESKTOP = 96
@@ -258,6 +259,9 @@ export function PlayerProfileRail({
           <SpecRow label={t('playerPage.stats.redCards')} value={player.redCards} />
         </Stack>
 
+        <Stack direction="row" sx={{ justifyContent: 'center' }}>
+          <WatchToggle player={player} />
+        </Stack>
         {canListForTransfer && (
           <Button size="small" variant="outlined" fullWidth onClick={() => setListDialogOpen(true)}>
             {t('playerPage.listForTransfer.button')}

@@ -244,6 +244,39 @@ func bestOnPitchOutfielder(players *map[int64]common.Player, byPosition *map[int
 	return best
 }
 
+// namedOnPitchOutfielder returns the named player (a lineup role) when he is on the pitch in an
+// outfield position, or -1 when no one is named or he isn't there.
+func namedOnPitchOutfielder(byPosition *map[int][]int64, named *int64) int64 {
+	if named == nil {
+		return -1
+	}
+	for position, ids := range *byPosition {
+		if position == common.GOALKEEPER {
+			continue
+		}
+		for _, id := range ids {
+			if id == *named {
+				return id
+			}
+		}
+	}
+	return -1
+}
+
+// sideRoles are the lineup roles teamId kicked off with (none when its lineup is missing). The
+// kickoff lineup is never updated mid-match, but each role is only ever used while its player is
+// on the pitch, which *PlayersByPosition tracks.
+func sideRoles(match *common.MatchSimulation, teamId int64) common.LineupRoles {
+	lineup := match.AwayLineup
+	if teamId == match.Home {
+		lineup = match.HomeLineup
+	}
+	if lineup == nil {
+		return common.LineupRoles{}
+	}
+	return lineup.LineupRoles
+}
+
 func clampProbability(v float32, min float32, max float32) float32 {
 	if v < min {
 		return min
@@ -296,16 +329,26 @@ func processSetPiece(s ScorerSimulation, dbCtx *common.DatabaseContext, match *c
 		goalKeeper = (*match.EffectiveHomePlayers)[goalKeeperId]
 	}
 
+	// A side's named taker takes the set piece whenever he is on the pitch (see
+	// openspec match-simulation "Penalty resolution" / "Direct free-kick resolution"); otherwise -
+	// on the bench, substituted, sent off, or none named - the automatic rule picks him.
+	roles := sideRoles(match, teamChance)
 	var taker int64
 	var probSuccess float32
 	if kind == common.SET_PIECE_PENALTY {
-		taker = bestOnPitchOutfielder(players, byPosition, func(p common.Player) float32 { return float32(p.Shot) })
+		taker = namedOnPitchOutfielder(byPosition, roles.PenaltyTakerId)
+		if taker == -1 {
+			taker = bestOnPitchOutfielder(players, byPosition, func(p common.Player) float32 { return float32(p.Shot) })
+		}
 		if taker == -1 {
 			return
 		}
 		probSuccess = penaltyConversionProbability((*players)[taker].Shot, goalKeeper.GoalKeeper)
 	} else {
-		taker = bestOnPitchOutfielder(players, byPosition, freeKickTakerValue)
+		taker = namedOnPitchOutfielder(byPosition, roles.FreeKickTakerId)
+		if taker == -1 {
+			taker = bestOnPitchOutfielder(players, byPosition, freeKickTakerValue)
+		}
 		if taker == -1 {
 			return
 		}

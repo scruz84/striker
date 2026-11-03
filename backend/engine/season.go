@@ -215,6 +215,42 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 	}
 
 	recordSeasonHistory(dbCtx, season, results, promotedByTeam)
+	applyTitleRaceRivalries(dbCtx, country, results)
+}
+
+// applyTitleRaceRivalries adds the season's title race to each division's champion-runner-up pair
+// (see openspec rivalries "Season and transfer rivalry events"), then applies the country's yearly
+// decay to every pair, so a title race counts before the decay. A level the title race raised is
+// announced only if it is still raised once the decay is applied; a fall is never announced.
+// Runs inside advanceCountrySeasonIfComplete, under the country's rollover lock, so the decay is
+// applied once per rollover even with several engine replicas.
+func applyTitleRaceRivalries(dbCtx *common.DatabaseContext, country string, results []leagueFinalStandings) {
+	type raised struct {
+		a, b int64
+		old  float64
+	}
+	races := make([]raised, 0, len(results))
+	for _, result := range results {
+		if len(result.standings) < 2 {
+			continue
+		}
+		champion, runnerUp := result.standings[0].TeamId, result.standings[1].TeamId
+		if old, _, ok := common.AddRivalryEventQuietly(dbCtx, champion, runnerUp, common.RivalryTitleRacePoints); ok {
+			races = append(races, raised{champion, runnerUp, old})
+		}
+	}
+	if err := common.DecayCountryRivalries(dbCtx, country); err != nil {
+		log.Errorf("error decaying %s's rivalries: %s", country, err)
+		return
+	}
+	for _, race := range races {
+		score, err := common.GetRivalryScore(dbCtx, race.a, race.b)
+		if err != nil {
+			log.Errorf("error reading rivalry %d-%d after the decay: %s", race.a, race.b, err)
+			continue
+		}
+		common.NotifyRivalryRise(dbCtx, race.a, race.b, race.old, score)
+	}
 }
 
 // recordSeasonHistory upserts every team's final league position and promotion/relegation

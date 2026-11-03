@@ -123,7 +123,13 @@
       "counterOffer": "{{team}} ha contraofertado tu oferta de {{amount}} por {{player}}: pide {{counter}}",
       "counterDeclined": "{{team}} ha rechazado tu contraoferta de {{counter}} por {{player}}",
       "counterExpired": "{{team}} no respondió a tu contraoferta de {{counter}} por {{player}}: la oferta ha caducado",
-      "counterExpiredBuyer": "Tu oferta por {{player}} ha caducado: no respondiste a la contraoferta de {{counter}} de {{team}}"
+      "counterExpiredBuyer": "Tu oferta por {{player}} ha caducado: no respondiste a la contraoferta de {{counter}} de {{team}}",
+      "watchlistListed": "{{player}}, al que sigues, ha sido puesto en venta por {{team}} por {{price}}",
+      "watchlistLoanListed": "{{player}}, al que sigues, ha sido ofrecido en cesión por {{team}}",
+      "watchlistFreeAgent": "{{player}}, al que sigues, es agente libre y se puede fichar",
+      "watchlistMoved": "{{player}}, al que sigues, ha fichado por {{team}}",
+      "rivalryRival": "{{team}} es ahora tu rival",
+      "rivalryClasico": "Tus partidos contra {{team}} son ahora un clásico"
     },
     "account": {
       "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
@@ -399,6 +405,18 @@
       "actions": {
         "mentality": "Cambiar la mentalidad",
         "substitution": "Hacer un cambio"
+      }
+    },
+    "roles": {
+      "title": "Roles",
+      "captain": "Capitán",
+      "penalties": "Penaltis",
+      "freeKicks": "Faltas",
+      "automatic": "automático",
+      "badge": {
+        "captain": "C",
+        "penalties": "P",
+        "freeKicks": "F"
       }
     }
   },
@@ -797,7 +815,8 @@
       "loans": "Cesiones",
       "offers": "Ofertas",
       "freeAgents": "Libres",
-      "coaching": "Técnicos"
+      "coaching": "Técnicos",
+      "watchlist": "Seguidos"
     },
     "salaryPerMatch": "Salario {{amount}}/partido",
     "ageLabel": "Edad {{age}}",
@@ -1369,7 +1388,8 @@
       "defensive": "Defensiva",
       "balanced": "Equilibrada",
       "attacking": "Ofensiva"
-    }
+    },
+    "captain": "Capitán"
   },
   "preview": {
     "title": "Previa: {{opponent}}",
@@ -2569,5 +2589,28 @@
       "address": "Domicilio",
       "email": "Correo de contacto"
     }
+  },
+  "watchlist": {
+    "follow": "Seguir a {{name}}",
+    "unfollow": "Dejar de seguir a {{name}}",
+    "full": "Tu lista de seguidos está llena ({{count}} jugadores)",
+    "needTeam": "Dirige un club para seguir jugadores.",
+    "empty": "Todavía no sigues a nadie. Pulsa la estrella de cualquier jugador de otro club para seguirlo aquí.",
+    "count": "Sigues a {{count}} de {{max}} jugadores",
+    "takeOnLoan": "Fichar cedido",
+    "status": {
+      "transferListed": "En venta · {{price}}",
+      "loanListed_one": "Cedible · {{count}} temporada",
+      "loanListed_other": "Cedible · {{count}} temporadas",
+      "freeAgent": "Libre: se puede fichar ya",
+      "atClub": "No está en el mercado"
+    }
+  },
+  "rivalries": {
+    "title": "Rivales",
+    "rival": "Rival",
+    "clasico": "Clásico",
+    "score": "{{score}} / {{max}}",
+    "headToHead": "Cara a cara"
   }
 }

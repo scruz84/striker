@@ -13,7 +13,7 @@ func TestDriftFanbaseForResult_WinRaisesOverManyTrials(t *testing.T) {
 	rises := 0
 	const trials = 4000
 	for i := 0; i < trials; i++ {
-		if driftFanbaseForResult(fanbase, outcomeWin, r) > fanbase {
+		if driftFanbaseForResult(fanbase, outcomeWin, common.RIVALRY_NONE, r) > fanbase {
 			rises++
 		}
 	}
@@ -32,7 +32,7 @@ func TestDriftFanbaseForResult_LossLowersOverManyTrials(t *testing.T) {
 	drops := 0
 	const trials = 4000
 	for i := 0; i < trials; i++ {
-		if driftFanbaseForResult(fanbase, outcomeLoss, r) < fanbase {
+		if driftFanbaseForResult(fanbase, outcomeLoss, common.RIVALRY_NONE, r) < fanbase {
 			drops++
 		}
 	}
@@ -46,7 +46,7 @@ func TestDriftFanbaseForResult_DrawNeverMoves(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	fanbase := 50
 	for i := 0; i < 2000; i++ {
-		if got := driftFanbaseForResult(fanbase, outcomeDraw, r); got != fanbase {
+		if got := driftFanbaseForResult(fanbase, outcomeDraw, common.RIVALRY_NONE, r); got != fanbase {
 			t.Fatalf("draw should never move fanbase, got %d from %d", got, fanbase)
 		}
 	}
@@ -55,7 +55,7 @@ func TestDriftFanbaseForResult_DrawNeverMoves(t *testing.T) {
 func TestDriftFanbaseForResult_ClampsAtCeiling(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	for i := 0; i < 2000; i++ {
-		if got := driftFanbaseForResult(99, outcomeWin, r); got > 99 {
+		if got := driftFanbaseForResult(99, outcomeWin, common.RIVALRY_NONE, r); got > 99 {
 			t.Fatalf("expected fanbase to clamp at 99, got %d", got)
 		}
 	}
@@ -64,7 +64,7 @@ func TestDriftFanbaseForResult_ClampsAtCeiling(t *testing.T) {
 func TestDriftFanbaseForResult_ClampsAtFloor(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
 	for i := 0; i < 2000; i++ {
-		if got := driftFanbaseForResult(1, outcomeLoss, r); got < 1 {
+		if got := driftFanbaseForResult(1, outcomeLoss, common.RIVALRY_NONE, r); got < 1 {
 			t.Fatalf("expected fanbase to clamp at 1, got %d", got)
 		}
 	}

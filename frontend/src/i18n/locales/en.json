@@ -123,7 +123,13 @@
       "counterOffer": "{{team}} countered your {{amount}} offer for {{player}}: they ask {{counter}}",
       "counterDeclined": "{{team}} declined your {{counter}} counter-offer for {{player}}",
       "counterExpired": "{{team}} didn't answer your {{counter}} counter-offer for {{player}}: the offer has expired",
-      "counterExpiredBuyer": "Your offer for {{player}} expired: you didn't answer {{team}}'s {{counter}} counter-offer"
+      "counterExpiredBuyer": "Your offer for {{player}} expired: you didn't answer {{team}}'s {{counter}} counter-offer",
+      "watchlistListed": "{{player}}, on your watchlist, has been transfer-listed by {{team}} for {{price}}",
+      "watchlistLoanListed": "{{player}}, on your watchlist, has been loan-listed by {{team}}",
+      "watchlistFreeAgent": "{{player}}, on your watchlist, is a free agent and can be signed",
+      "watchlistMoved": "{{player}}, on your watchlist, has moved to {{team}}",
+      "rivalryRival": "{{team}} is now your rival",
+      "rivalryClasico": "Your matches against {{team}} are now a Clásico"
     },
     "account": {
       "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
@@ -399,6 +405,18 @@
       "actions": {
         "mentality": "Change mentality",
         "substitution": "Make a substitution"
+      }
+    },
+    "roles": {
+      "title": "Roles",
+      "captain": "Captain",
+      "penalties": "Penalties",
+      "freeKicks": "Free kicks",
+      "automatic": "automatic",
+      "badge": {
+        "captain": "C",
+        "penalties": "P",
+        "freeKicks": "FK"
       }
     }
   },
@@ -797,7 +815,8 @@
       "loans": "Loans",
       "offers": "Offers",
       "freeAgents": "Free",
-      "coaching": "Coaches"
+      "coaching": "Coaches",
+      "watchlist": "Watchlist"
     },
     "salaryPerMatch": "Wage {{amount}}/match",
     "ageLabel": "Age {{age}}",
@@ -1369,7 +1388,8 @@
       "defensive": "Defensive",
       "balanced": "Balanced",
       "attacking": "Attacking"
-    }
+    },
+    "captain": "Captain"
   },
   "preview": {
     "title": "Preview: {{opponent}}",
@@ -2569,5 +2589,28 @@
       "address": "Postal address",
       "email": "Contact email"
     }
+  },
+  "watchlist": {
+    "follow": "Follow {{name}}",
+    "unfollow": "Unfollow {{name}}",
+    "full": "Your watchlist is full ({{count}} players)",
+    "needTeam": "Take charge of a club to follow players.",
+    "empty": "You aren't following anyone yet. Tap the star on any player of another club to follow them here.",
+    "count": "Following {{count}} of {{max}} players",
+    "takeOnLoan": "Take on loan",
+    "status": {
+      "transferListed": "Transfer listed · {{price}}",
+      "loanListed_one": "Loan listed · {{count}} season",
+      "loanListed_other": "Loan listed · {{count}} seasons",
+      "freeAgent": "Free agent: can be signed now",
+      "atClub": "Not on the market"
+    }
+  },
+  "rivalries": {
+    "title": "Rivals",
+    "rival": "Rival",
+    "clasico": "Clásico",
+    "score": "{{score}} / {{max}}",
+    "headToHead": "Head-to-head"
   }
 }

@@ -201,6 +201,7 @@ const (
 	DeleteTeamDefaultSubstitutionsStmtSql         = "DELETE FROM default_lineup_substitutions WHERE team_id = $1"
 	DeleteTeamDefaultFriendlyLineupStmtSql        = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
 	DeleteTeamDefaultFriendlySubstitutionsStmtSql = "DELETE FROM default_friendly_lineup_substitutions WHERE team_id = $1"
+	DeleteTeamDefaultLineupRolesStmtSql           = "DELETE FROM default_lineup_roles WHERE team_id = $1"
 	DeleteUnplayedLeagueLineupPositionsStmtSql    = "DELETE FROM lineup_positions WHERE lineup_id IN " +
 		"(SELECT l.lineup_id FROM lineup l JOIN matches m ON m.match_id = l.match_id WHERE l.team_id = $1 AND NOT m.played)"
 	DeleteUnplayedLeagueLineupsStmtSql           = "DELETE FROM lineup WHERE team_id = $1 AND match_id IN (SELECT match_id FROM matches WHERE NOT played)"
@@ -336,7 +337,7 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 		DeleteTeamTransferListingsStmtSql, DeleteTeamLoanListingsStmtSql, DeleteTeamTransferOffersStmtSql,
 		DeleteTeamFriendlyChallengesStmtSql, ReleaseTeamTrainerStmtSql,
 		DeleteTeamDefaultLineupStmtSql, DeleteTeamDefaultSubstitutionsStmtSql, DeleteTeamDefaultFriendlyLineupStmtSql,
-		DeleteTeamDefaultFriendlySubstitutionsStmtSql,
+		DeleteTeamDefaultFriendlySubstitutionsStmtSql, DeleteTeamDefaultLineupRolesStmtSql,
 		DeleteUnplayedLeagueLineupPositionsStmtSql, DeleteUnplayedLeagueLineupsStmtSql, DeleteUnplayedLeagueSubstitutionsStmtSql,
 		DeleteUnplayedFriendlyLineupPositionsStmtSql, DeleteUnplayedFriendlyLineupsStmtSql,
 		DeleteUnplayedCupLineupPositionsStmtSql, DeleteUnplayedCupLineupsStmtSql, DeleteUnplayedCupSubstitutionsStmtSql,
@@ -345,6 +346,9 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 		if _, err := tx.Exec(stmt, teamId); err != nil {
 			return false, nil, fmt.Errorf("resetting team %d: %w (%.60s)", teamId, err, stmt)
 		}
+	}
+	if err := ClearWatchlist(tx, teamId); err != nil {
+		return false, nil, err
 	}
 
 	insertStmt, err := tx.Prepare(InsertNewPlayerStmtSql)

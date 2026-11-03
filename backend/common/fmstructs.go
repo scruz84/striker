@@ -103,6 +103,10 @@ type Lineup struct {
 	// ProjectedReplacements, only the lineup GET handlers a team owner opens fill it: a team's
 	// orders are never shown to anyone else, only their effects (events) are.
 	Orders []LineupOrder `json:"orders,omitempty"`
+	// LineupRoles are the optional captain and set-piece takers (see common/lineuproles.go). The
+	// takers are the owner's business: every lineup shown to other viewers goes through
+	// RedactTakers first.
+	LineupRoles
 	// ProjectedReplacements is filled only by the lineup GET handlers a team owner opens (never
 	// stored): for each unavailable starter, who the pre-kickoff refill would put in his slot if
 	// the match kicked off now (see ProjectKickoffReplacements).
@@ -434,6 +438,9 @@ type MatchSimulation struct {
 	//(chance probability) and StaminaSimulation (fatigue).
 	HomeMentality int
 	AwayMentality int
+	//RivalryLevel: the pair's rivalry level at kickoff (RIVALRY_*, see common/rivalries.go) - 0 in
+	//friendlies. Read by DisciplineSimulation (card rate) and stored with the result.
+	RivalryLevel int
 	//HomeOrders/AwayOrders: each side's conditional match orders (see common/lineuporders.go) and
 	//which of them have been spent, applied by engine.SubstitutionSimulation after the scheduled
 	//substitutions.
@@ -640,4 +647,7 @@ type WeekMatch struct {
 	// RatingsById). Keyed by player id (encoding/json marshals an integer-keyed map as a
 	// string-keyed JSON object, same as HomePlayers/AwayPlayers above).
 	Ratings *map[int64]float64 `json:"ratings,omitempty"`
+	// Rivalry is the match's rivalry level (RIVALRY_*): the one it was played at, or the pair's
+	// current one before kickoff - see GetFixtureRivalry. Only WeekMatchById fills it.
+	Rivalry int `json:"rivalry"`
 }

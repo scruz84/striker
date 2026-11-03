@@ -7,6 +7,7 @@ import SportsTwoToneIcon from '@mui/icons-material/SportsTwoTone'
 import Divider from '@mui/material/Divider'
 import InputAdornment from '@mui/material/InputAdornment'
 import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -18,6 +19,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { WatchToggle } from '../../components/WatchToggle'
 import { useSearch } from '../../api/hooks'
 import type { CoachSearchResult, PlayerSearchResult, StadiumSearchResult, TeamSearchResult } from '../../api/types'
 import { PageHeader } from '../../components/PageHeader'
@@ -144,21 +146,24 @@ function TeamResultRow({ team }: { team: TeamSearchResult }) {
 
 function PlayerResultRow({ player }: { player: PlayerSearchResult }) {
   const { t } = useTranslation()
+  // The follow star sits beside the row's link, not inside it.
   return (
-    <ListItemButton component={RouterLink} to={`/player/${player.id}`}>
-      <ListItemIcon>
-        <PersonTwoToneIcon />
-      </ListItemIcon>
-      <ListItemText
-        primary={
-          <>
-            <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
-            {player.firstName} {player.lastName}
-          </>
-        }
-        secondary={player.teamName || t('search.freeAgent')}
-      />
-    </ListItemButton>
+    <ListItem disablePadding secondaryAction={<WatchToggle player={player} />}>
+      <ListItemButton component={RouterLink} to={`/player/${player.id}`}>
+        <ListItemIcon>
+          <PersonTwoToneIcon />
+        </ListItemIcon>
+        <ListItemText
+          primary={
+            <>
+              <CountryFlag code={player.birthCountry} height={14} marginRight={0.5} />
+              {player.firstName} {player.lastName}
+            </>
+          }
+          secondary={player.teamName || t('search.freeAgent')}
+        />
+      </ListItemButton>
+    </ListItem>
   )
 }
 

@@ -31,10 +31,12 @@ import type {
   LeagueTransfer,
   Lineup,
   LineupOrder,
+  LineupRoles,
   LineupPosition,
   LineupSubstitution,
   LiveMatchesOverview,
   LoanListing,
+  WatchlistEntry,
   LoggedUser,
   Group,
   GroupDetails,
@@ -50,6 +52,7 @@ import type {
   TeamDetails,
   OpponentPreview,
   TeamMatchSummary,
+  TeamRivalry,
   TransferComparablesResult,
   TierConfig,
   Trainer,
@@ -103,6 +106,8 @@ export const queryKeys = {
   myGroups: ['myGroups'] as const,
   group: (id: string) => ['group', id] as const,
   loans: ['loans'] as const,
+  watchlist: ['watchlist'] as const,
+  teamRivalries: (id: string) => ['teamRivalries', id] as const,
   freeAgents: ['freeAgents'] as const,
   academy: ['academy'] as const,
   availableTrainers: ['availableTrainers'] as const,
@@ -456,13 +461,15 @@ export function useSetLineup() {
       substitutions,
       mentality = MENTALITY_BALANCED,
       orders = [],
+      roles = {},
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
       mentality?: number
       orders?: LineupOrder[]
-    }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions, mentality, orders }),
+      roles?: LineupRoles
+    }) => api.put('/v1/user/team/lineup', { formation, positions, substitutions, mentality, orders, ...roles }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.lineup })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -487,13 +494,15 @@ export function useSetFriendlyDefaultLineup() {
       substitutions,
       mentality = MENTALITY_BALANCED,
       orders = [],
+      roles = {},
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
       mentality?: number
       orders?: LineupOrder[]
-    }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions, mentality, orders }),
+      roles?: LineupRoles
+    }) => api.put('/v1/user/team/lineup/friendly', { formation, positions, substitutions, mentality, orders, ...roles }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyDefaultLineup })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -841,13 +850,15 @@ export function useSetCupTieLineup(tieId: string | undefined) {
       substitutions,
       mentality = MENTALITY_BALANCED,
       orders = [],
+      roles = {},
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
       mentality?: number
       orders?: LineupOrder[]
-    }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions, mentality, orders }),
+      roles?: LineupRoles
+    }) => api.put(`/v1/cups/ties/${tieId}/lineup`, { formation, positions, substitutions, mentality, orders, ...roles }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.cupTieLineup(tieId ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -909,13 +920,15 @@ export function useSetMatchLineup(matchId: string | undefined) {
       substitutions,
       mentality = MENTALITY_BALANCED,
       orders = [],
+      roles = {},
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
       mentality?: number
       orders?: LineupOrder[]
-    }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions, mentality, orders }),
+      roles?: LineupRoles
+    }) => api.put(`/v1/teams/match/${matchId}/lineup`, { formation, positions, substitutions, mentality, orders, ...roles }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.matchLineup(matchId ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -1529,13 +1542,15 @@ export function useSetFriendlyLineup(id: string | undefined) {
       substitutions,
       mentality = MENTALITY_BALANCED,
       orders = [],
+      roles = {},
     }: {
       formation: number
       positions: LineupPosition[]
       substitutions: LineupSubstitution[]
       mentality?: number
       orders?: LineupOrder[]
-    }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions, mentality, orders }),
+      roles?: LineupRoles
+    }) => api.put(`/v1/friendlies/${id}/lineup`, { formation, positions, substitutions, mentality, orders, ...roles }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.friendlyLineup(id ?? '') })
       void queryClient.invalidateQueries({ queryKey: queryKeys.opponentPreviews })
@@ -1689,5 +1704,45 @@ export function useDeleteGroup() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.myGroups })
     },
+  })
+}
+
+// The club's watchlist (openspec player-watchlist): loaded once and shared by every star toggle
+// (see WatchToggle) and the transfer market's Watchlist tab.
+export function useWatchlist(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.watchlist,
+    queryFn: () => api.get<WatchlistEntry[]>('/v1/user/watchlist'),
+    staleTime: MARKET_LIST_STALE_MS,
+    enabled,
+  })
+}
+
+export function useWatchPlayer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.put(`/v1/user/watchlist/${playerId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.watchlist })
+    },
+  })
+}
+
+export function useUnwatchPlayer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (playerId: number) => api.delete(`/v1/user/watchlist/${playerId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.watchlist })
+    },
+  })
+}
+
+// A club's top rivals (openspec rivalries "Rivalry visibility") - pairs with a level, highest first.
+export function useTeamRivalries(teamId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.teamRivalries(teamId ?? ''),
+    queryFn: () => api.get<TeamRivalry[]>(`/v1/teams/team/${teamId}/rivalries`),
+    enabled: !!teamId,
   })
 }

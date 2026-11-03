@@ -31,7 +31,7 @@ func TestProjectZoneDuel_MatchesARealSimulation(t *testing.T) {
 	lineups := map[int64]*common.Lineup{home: homeLineup, away: awayLineup}
 
 	const homeAdvantage = float32(1.12)
-	simulation, err := runMatchSimulation(dbCtx, 1, 0, home, away, &lineups, nil, nil, true, homeAdvantage, nil)
+	simulation, err := runMatchSimulation(dbCtx, 1, 0, home, away, &lineups, nil, nil, true, common.RIVALRY_NONE, homeAdvantage, nil)
 	if err != nil {
 		t.Fatalf("runMatchSimulation: %s", err)
 	}

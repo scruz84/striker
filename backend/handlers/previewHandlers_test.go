@@ -85,7 +85,7 @@ func newPreviewRig(t *testing.T) *previewRig {
 	}
 	r.opponentXI = best.Positions
 	past := r.insertLeagueMatch(-48*time.Hour, true, r.opponent, outsiderTeam)
-	if err := common.SetLineupForMatch(dbCtx, past, r.opponent, best.Formation, common.MENTALITY_BALANCED, best.Positions, nil, nil); err != nil {
+	if err := common.SetLineupForMatch(dbCtx, past, r.opponent, best.Formation, common.MENTALITY_BALANCED, common.LineupRoles{}, best.Positions, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 

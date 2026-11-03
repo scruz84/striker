@@ -49,6 +49,8 @@ import { Paginated } from '../../components/Paginated'
 import { ResponsiveDialog } from '../../components/ResponsiveDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
+import { WatchToggle } from '../../components/WatchToggle'
+import { WatchlistTab } from './WatchlistTab'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatShortDate } from '../../utils/formatDate'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating } from '../../utils/playerRating'
@@ -81,7 +83,7 @@ const LOAN_DURATION_OPTIONS = [1, 2, 3]
 
 // Order matches the <Tab> elements below - used to deep-link a specific tab (e.g. `?tab=coaching`
 // from TeamDetailsPage's coach card), rather than always landing on the first one.
-const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching'] as const
+const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching', 'watchlist'] as const
 
 // Parses a persisted filter string ("" when unset) into a number the filters can compare with.
 const num = (value: string) => Number(value)
@@ -187,12 +189,14 @@ export function TransferMarketPage() {
         <Tab label={t('transfers.tabsShort.offers')} />
         <Tab label={t('transfers.tabsShort.freeAgents')} />
         <Tab label={t('transfers.tabsShort.coaching')} />
+        <Tab label={t('transfers.tabsShort.watchlist')} />
       </Tabs>
       {tab === 0 && <TransfersTab />}
       {tab === 1 && <LoansTab />}
       {tab === 2 && <OffersTab />}
       {tab === 3 && <FreeAgentsTab />}
       {tab === 4 && <CoachingTab />}
+      {tab === 5 && <WatchlistTab />}
     </Box>
   )
 }
@@ -469,6 +473,7 @@ function MarketListingActions({
 
   return (
     <>
+      <WatchToggle player={listing.player} />
       <Button variant="outlined" onClick={() => setOfferOpen(true)}>
         {t('team.makeOffer')}
       </Button>
@@ -863,9 +868,12 @@ function LoansTab() {
                       key={listing.listingId}
                       listing={listing}
                       action={
-                        <Button variant="contained" onClick={() => handleAcceptLoan(listing)} disabled={acceptLoan.isPending}>
-                          {t('transfers.accept')}
-                        </Button>
+                        <>
+                          <WatchToggle player={listing.player} />
+                          <Button variant="contained" onClick={() => handleAcceptLoan(listing)} disabled={acceptLoan.isPending}>
+                            {t('transfers.accept')}
+                          </Button>
+                        </>
                       }
                     />
                   ))}
@@ -1211,9 +1219,12 @@ function FreeAgentsTab() {
                       priceLabel={t('transfers.freeAgents.wage')}
                       priceValue={t('team.perMatch', { amount: formatCurrency(player.wage) })}
                       actions={
-                        <Button variant="contained" onClick={() => setSigningPlayer(player)}>
-                          {t('transfers.freeAgents.sign')}
-                        </Button>
+                        <>
+                          <WatchToggle player={player} />
+                          <Button variant="contained" onClick={() => setSigningPlayer(player)}>
+                            {t('transfers.freeAgents.sign')}
+                          </Button>
+                        </>
                       }
                     />
                   ))}

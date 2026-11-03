@@ -104,3 +104,37 @@ for an upcoming one); the match viewer payload gains the same field.
 Additive migration; every pair starts at 0, so the first rivalries appear during the first season
 after release. Rollback: the feature reads level 0 when the table is empty, so dropping the reads
 restores today's behavior; the table and columns can stay.
+
+## Code map
+
+To copy into `openspec/specs/rivalries/spec.md` as its `## Code map` when the change is archived.
+Implementation notes: the migration is `init100_team_rivalries.sql` (init94 was taken), and the
+notification type is `NOTIFICATION_RIVALRY = 14`.
+
+- Storage: `backend/resources/sql/init100_team_rivalries.sql` (`team_rivalries`, `rivalry_level` on
+  `matches` and `cup_ties`).
+- Core: `common/rivalries.go` (`RIVALRY_*`, thresholds and point constants, `RivalryLevel`,
+  `DecayRivalryScore`, `AddRivalryPoints` - row created then locked `FOR UPDATE`, so concurrent
+  additions are exact -, `AddRivalryEvent` / `AddRivalryEventQuietly` with the human bonus and the
+  same-country, club-only check `rivalryPair`, `NotifyRivalryRise`, `GetRivalryLevel`,
+  `KickoffRivalryLevel`, `GetTopRivalries`, `DecayCountryRivalries`, `IsCupFinal`,
+  `fixtureRivalrySql` / `GetFixtureRivalry`).
+- Match events: `engine/rivalries.go` (`rivalryPointsForMatch`, `applyRivalryForMatch`, called from
+  `applyPostMatchEffects` in `engine/postmatch.go`, so after the replay); `PostMatchPayload.CupFinal`
+  set by `simulateCupTie`.
+- Season: `applyTitleRaceRivalries` (`engine/season.go`), from `applyPromotionRelegation` under the
+  rollover lock: title race, then the decay, then the rise notifications that survived it.
+- Transfers: `isKeyPlayerOf` judged before the move in `ExecuteTransfer` (`common/transfers.go`) and
+  `executeOfferTx` (`common/offers.go`), applied after the commit (`finishOfferTransfer`).
+- Effects: `cardIncidentProbability` (`engine/discipline_simulation.go`), `rivalryAttendanceFactor`
+  (`engine/stadium.go`), `fanbaseResultDriftProbability` (`engine/fanbase.go`).
+- Notification: `NOTIFICATION_RIVALRY`, keys `notifications.messages.rivalryRival` /
+  `rivalryClasico`, Spanish templates in `common/notificationtranslations.go`.
+- API: `GET /v1/teams/team/:id/rivalries` (`handlers/rivalryHandlers.go`); `rivalry` on
+  `TeamMatchSummary`, `WeekMatch` and `CupTieDetails`.
+- Frontend: `src/components/RivalryChip.tsx` (fixture rows in `TeamMatchesSection`, the dashboard's
+  `NextMatchHero`, the viewer's `Scoreboard`), `src/features/team/RivalsSection.tsx` (team page),
+  hook `useTeamRivalries`; strings `rivalries.*`.
+- Tests: `common/rivalries_test.go`, `common/rivalries_integration_test.go`,
+  `engine/rivalries_test.go` (with the calibration), `engine/rivalries_integration_test.go`,
+  `handlers/rivalryHandlers_test.go`, `src/features/team/RivalsSection.test.tsx`.

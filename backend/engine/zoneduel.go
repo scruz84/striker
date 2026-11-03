@@ -94,7 +94,7 @@ func ExpectedHomeAdvantage(dbCtx *common.DatabaseContext, homeTeamId int64, away
 	if !ok {
 		return homeAdvantageMultiplier(0, 0)
 	}
-	demand := attendanceDemand(inputs.socios, inputs.stadium.TicketPrice, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, cupRound, "") * meanWeatherAttendanceFactor
+	demand := attendanceDemand(inputs.socios, inputs.stadium.TicketPrice, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, cupRound, common.RIVALRY_NONE, "") * meanWeatherAttendanceFactor
 	attendance := int(math.Max(0, math.Min(float64(inputs.stadium.Capacity), demand)))
 	return homeAdvantageMultiplier(attendance, inputs.stadium.Capacity)
 }

@@ -40,7 +40,7 @@ func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64,
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
+	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.LineupRoles, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for match %d team %d: %s", matchId, teamId, err)
 	}
 }
@@ -78,9 +78,12 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	// is booked as gate revenue and is shown in the report. A league match excludes its own row
 	// from the home side's form. If the save below fails they are discarded with the attempt, and
 	// the retry draws again.
-	conditions := drawMatchdayConditions(dbCtx, match.Home, matchdayContext{awayTeamId: match.Away, excludeMatchId: match.MatchId})
+	// The rivalry level is fixed now, at kickoff: the match is played and shown at it, whatever
+	// points it earns the pair afterwards (see openspec rivalries "Rivalry levels").
+	rivalryLevel := common.KickoffRivalryLevel(dbCtx, match.Home, match.Away)
+	conditions := drawMatchdayConditions(dbCtx, match.Home, matchdayContext{awayTeamId: match.Away, excludeMatchId: match.MatchId, rivalryLevel: rivalryLevel})
 	homeAdvantage := homeAdvantageFor(conditions.crowd, false)
-	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false, homeAdvantage, snapshot)
+	matchSimulation, err := runMatchSimulation(dbCtx, match.MatchId, match.DivisionId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions, false, rivalryLevel, homeAdvantage, snapshot)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +170,7 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 // unavailable players are removed and their slots refilled (see excludeUnavailablePlayers), so a
 // match's stored lineup is the XI that actually started - each caller passes its own competition's
 // persist function (see persistResolvedLineupSnapshot).
-func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool, homeAdvantage float32, snapshot lineupSnapshotStore) (*common.MatchSimulation, error) {
+func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId int64, homeTeamId int64, awayTeamId int64, lineups *map[int64]*common.Lineup, homeSubstitutions []common.LineupSubstitution, awaySubstitutions []common.LineupSubstitution, isFriendly bool, rivalryLevel int, homeAdvantage float32, snapshot lineupSnapshotStore) (*common.MatchSimulation, error) {
 	homePlayers, err := resolveMatchTeamPlayers(dbCtx, homeTeamId, (*lineups)[homeTeamId])
 	if err != nil {
 		return nil, err
@@ -198,6 +201,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		MatchInstants:         &matchInstants,
 		YellowCards:           make(map[int64]bool),
 		SentOff:               make(map[int64]bool),
+		RivalryLevel:          rivalryLevel,
 		HomeSubstitutions:     homeSubstitutions,
 		AwaySubstitutions:     awaySubstitutions,
 		HomeMinutesByPosition: make(map[int64]map[int]int),
@@ -313,6 +317,7 @@ func kickoffLineup(saved *common.Lineup, playersByPosition *map[int][]int64) *co
 		Positions:     make([]common.LineupPosition, 0, 11),
 		Substitutions: saved.Substitutions,
 		Mentality:     saved.Mentality,
+		LineupRoles:   saved.LineupRoles,
 	}
 	for _, position := range positions {
 		for _, id := range (*playersByPosition)[position] {

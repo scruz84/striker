@@ -60,7 +60,7 @@ func (t *simTeam) formPointsAndMatches() (int, int) {
 // the ground out (league matches only) in the rolling window the CPU expansion rule reads.
 func (sc simScenario) attendance(t, opp *simTeam, price, cupRound int, r *rand.Rand) int {
 	points, matches := t.formPointsAndMatches()
-	att := CalculateAttendance(t.capacity, price, t.socios, points, matches, opp.fanbase, cupRound, common.RandomWeather(), r)
+	att := CalculateAttendance(t.capacity, price, t.socios, points, matches, opp.fanbase, cupRound, common.RIVALRY_NONE, common.RandomWeather(), r)
 	if cupRound == 0 {
 		t.sellouts = append(t.sellouts, att >= t.capacity)
 		if len(t.sellouts) > common.RecentSelloutMatches {
@@ -345,7 +345,7 @@ func runEconomySim(sc simScenario, seasons int, seed int64) simOutput {
 						points[t] += outcomePoints(o)
 						t.recordForm(outcomePoints(o))
 						t.add("sponsorship", sponsor(t, o))
-						t.fanbase = driftFanbaseForResult(t.fanbase, o, r)
+						t.fanbase = driftFanbaseForResult(t.fanbase, o, common.RIVALRY_NONE, r)
 						t.fanbase = driftFanbaseTierPull(t.fanbase, t.tier, r)
 
 						t.add("wages", -t.wageBill)

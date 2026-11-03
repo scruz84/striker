@@ -214,6 +214,8 @@ type UserDataExport struct {
 	PushSubscriptions       []ExportedPushSubscription `json:"pushSubscriptions"`
 	Groups                  []ExportedGroup            `json:"groups"`
 	Notifications           []ExportedNotification     `json:"notifications"`
+	// Watchlist is the players the user's club follows (see common/watchlist.go); empty without a club.
+	Watchlist []ExportedWatchedPlayer `json:"watchlist"`
 }
 
 const (
@@ -233,6 +235,7 @@ func ExportUserData(dbCtx *DatabaseContext, userId int64) (*UserDataExport, erro
 		PushSubscriptions: []ExportedPushSubscription{},
 		Groups:            []ExportedGroup{},
 		Notifications:     []ExportedNotification{},
+		Watchlist:         []ExportedWatchedPlayer{},
 	}
 	var termsVersion sql.NullInt64
 	var termsAt sql.NullTime
@@ -257,6 +260,9 @@ func ExportUserData(dbCtx *DatabaseContext, userId int64) (*UserDataExport, erro
 	switch err := dbCtx.Db.QueryRow(exportClubStmtSql, userId).Scan(&club.TeamId, &club.Name, &club.Country, &club.StadiumName); {
 	case err == nil:
 		out.Club = &club
+		if out.Watchlist, err = exportWatchlist(dbCtx, club.TeamId); err != nil {
+			return nil, err
+		}
 	case !errors.Is(err, sql.ErrNoRows):
 		return nil, err
 	}

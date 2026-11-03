@@ -21,17 +21,20 @@ import {
   MENTALITY_BALANCED,
   MENTALITY_DEFENSIVE,
   MENTALITY_KEYS,
+  POSITION_GOALKEEPER,
   type Lineup,
   type LineupOrder,
   type LineupPosition,
+  type LineupRoles,
   type LineupSubstitution,
   type Player,
 } from '../../api/types'
+import { bestCorePosition } from '../../utils/playerRating'
 import { LineupSaveBar } from './LineupSaveBar'
 import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { OrdersEditor } from './OrdersEditor'
 import { PlayerBench } from './PlayerBench'
-import { SelectedPlayerPanel } from './SelectedPlayerPanel'
+import { LINEUP_ROLES, SelectedPlayerPanel, type LineupRole } from './SelectedPlayerPanel'
 import { SoccerPitch } from './SoccerPitch'
 import { SubstitutionsEditor } from './SubstitutionsEditor'
 import { useLineupSelections } from './useLineupSelections'
@@ -53,7 +56,14 @@ export interface MatchLineupFormProps {
   teamId: number
   players: Player[]
   lineup: Lineup
-  onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number, orders: LineupOrder[]) => void
+  onSave: (
+    formation: number,
+    positions: LineupPosition[],
+    substitutions: LineupSubstitution[],
+    mentality: number,
+    orders: LineupOrder[],
+    roles: LineupRoles,
+  ) => void
   isSaving: boolean
   isError: boolean
   isSuccess: boolean
@@ -140,6 +150,9 @@ export function MatchLineupForm({
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
   // How the side plays (openspec/specs/match-simulation "Team mentality"), saved with the lineup.
   const [mentality, setMentality] = useState(lineup.mentality ?? MENTALITY_BALANCED)
+  // The optional captain and set-piece takers (openspec match-simulation "Lineup roles"), saved
+  // with the lineup; a role whose player has left the squad reads automatic.
+  const [roles, setRoles] = useState<LineupRoles>(() => squadRoles(lineup, players))
 
   // Who would take each unavailable starter's slot if the match kicked off now (computed by the
   // server for the saved lineup). Dropped once the manager has fielded the replacement himself.
@@ -162,17 +175,39 @@ export function MatchLineupForm({
     resetSubstitutionDrafts()
     resetOrderDrafts()
     setMentality(loaded.mentality ?? MENTALITY_BALANCED)
+    setRoles(squadRoles(loaded, players))
   }
 
   const handleFormationChange = (event: SelectChangeEvent<number>) => {
     setFormation(Number(event.target.value))
   }
 
+  // A goalkeeper never takes set pieces: a taker who ends up in goal is dropped back to automatic
+  // rather than blocking the save.
+  const goalkeeperId = visibleSelections.find((s) => s.position === POSITION_GOALKEEPER)?.playerId ?? null
+  const isGoalkeeper = (player: Player) =>
+    player.id === goalkeeperId || (!usedPlayerIds.has(player.id) && bestCorePosition(player) === POSITION_GOALKEEPER)
+  const savableRoles: LineupRoles = {
+    captainId: roles.captainId,
+    penaltyTakerId: takerOrAutomatic(roles.penaltyTakerId, players, isGoalkeeper),
+    freeKickTakerId: takerOrAutomatic(roles.freeKickTakerId, players, isGoalkeeper),
+  }
+  const handleToggleRole = (role: LineupRole, playerId: number) =>
+    setRoles((prev) => ({ ...prev, [role]: prev[role] === playerId ? undefined : playerId }))
+  const roleBadges = new Map<number, string>()
+  for (const { role, key } of LINEUP_ROLES) {
+    const id = savableRoles[role]
+    if (id !== undefined) {
+      const label = t(`lineup.roles.badge.${key}`)
+      roleBadges.set(id, roleBadges.has(id) ? `${roleBadges.get(id)} ${label}` : label)
+    }
+  }
+
   const canSave = isComplete && (!ordersEnabled || ordersValid)
   const handleSubmit = () => {
     if (!canSave) return
     const positions = visibleSelections.map((s) => ({ position: s.position, playerId: s.playerId as number }))
-    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [], mentality, ordersEnabled ? validOrders : [])
+    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [], mentality, ordersEnabled ? validOrders : [], savableRoles)
   }
 
   // "Unsaved changes" = the editor differs from what was last saved (or loaded, before the first
@@ -181,6 +216,7 @@ export function MatchLineupForm({
   const currentKey = JSON.stringify({
     formation,
     mentality,
+    roles: savableRoles,
     visibleSelections,
     drafts: substitutionsEnabled ? substitutionDrafts : [],
     orders: ordersEnabled ? orderDrafts : [],
@@ -284,8 +320,18 @@ export function MatchLineupForm({
             unavailability={unavailability}
             transferListed={transferListed}
             replacements={replacements}
+            roleBadges={roleBadges}
           />
-          {selectedPlayer && <SelectedPlayerPanel player={selectedPlayer} onClear={clearSelection} />}
+          {selectedPlayer && (
+            <SelectedPlayerPanel
+              player={selectedPlayer}
+              onClear={clearSelection}
+              roles={savableRoles}
+              onToggleRole={(role) => handleToggleRole(role, selectedPlayer.id)}
+              isGoalkeeper={isGoalkeeper(selectedPlayer)}
+            />
+          )}
+          <RolesSummary roles={savableRoles} players={players} />
         </Grid>
         <Grid size={{ xs: 12, md: 4 }}>
           <PlayerBench
@@ -340,4 +386,29 @@ export function MatchLineupForm({
   )
 
   return embedded ? <Box>{content}</Box> : <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 } }}>{content}</Paper>
+}
+
+/** The lineup's roles, dropping any whose player is no longer in the squad. */
+function squadRoles(lineup: Lineup, players: Player[]): LineupRoles {
+  const inSquad = (id?: number) => (id !== undefined && players.some((p) => p.id === id) ? id : undefined)
+  return { captainId: inSquad(lineup.captainId), penaltyTakerId: inSquad(lineup.penaltyTakerId), freeKickTakerId: inSquad(lineup.freeKickTakerId) }
+}
+
+function takerOrAutomatic(id: number | undefined, players: Player[], isGoalkeeper: (p: Player) => boolean): number | undefined {
+  const player = id === undefined ? undefined : players.find((p) => p.id === id)
+  return player && !isGoalkeeper(player) ? id : undefined
+}
+
+/** "Captain: Pérez · Penalties: automatic · Free kicks: Ruiz", under the pitch. */
+function RolesSummary({ roles, players }: { roles: LineupRoles; players: Player[] }) {
+  const { t } = useTranslation()
+  const name = (id?: number) => {
+    const player = id === undefined ? undefined : players.find((p) => p.id === id)
+    return player ? player.lastName : t('lineup.roles.automatic')
+  }
+  return (
+    <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 1, mb: 0 }} data-testid="lineup-roles-summary">
+      {LINEUP_ROLES.map(({ role, key }) => `${t(`lineup.roles.${key}`)}: ${name(roles[role])}`).join(' · ')}
+    </Typography>
+  )
 }

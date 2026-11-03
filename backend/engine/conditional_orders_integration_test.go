@@ -23,7 +23,7 @@ func TestSimulateMatch_OrdersFireAndAreStoredWithTheSnapshot(t *testing.T) {
 	}
 	away := (*lineups)[e.away]
 	humanOrders := []common.LineupOrder{{FromMinute: 1, Condition: common.ORDER_CONDITION_DRAWING, Action: common.ORDER_ACTION_MENTALITY, Mentality: common.MENTALITY_ATTACKING}}
-	if err := common.SetLineupForMatch(e.dbCtx, matchId, e.away, away.Formation, common.MENTALITY_DEFENSIVE, away.Positions, nil, humanOrders); err != nil {
+	if err := common.SetLineupForMatch(e.dbCtx, matchId, e.away, away.Formation, common.MENTALITY_DEFENSIVE, common.LineupRoles{}, away.Positions, nil, humanOrders); err != nil {
 		t.Fatal(err)
 	}
 

@@ -15,6 +15,22 @@ import (
 // features in). Most matches leave Fanbase untouched even mid-streak.
 const FanbaseResultDriftProbability = 0.15
 
+// The result-drift chance of a match between rivals (see openspec fanbase "Result drift").
+const FanbaseRivalResultDriftProbability = 0.30
+const FanbaseClasicoResultDriftProbability = 0.45
+
+// fanbaseResultDriftProbability is the result-drift chance of a match at rivalryLevel.
+func fanbaseResultDriftProbability(rivalryLevel int) float64 {
+	switch rivalryLevel {
+	case common.RIVALRY_CLASICO:
+		return FanbaseClasicoResultDriftProbability
+	case common.RIVALRY_RIVAL:
+		return FanbaseRivalResultDriftProbability
+	default:
+		return FanbaseResultDriftProbability
+	}
+}
+
 // FanbaseWinDelta/FanbaseLossDelta are how much Fanbase moves when a result-drift roll succeeds
 // (see FanbaseResultDriftProbability) - a draw moves it by 0, so a successful roll on a draw
 // simply does nothing.
@@ -46,8 +62,8 @@ func fanbaseTierTarget(tier int) int {
 // driftFanbaseTierPull - a pure function so the probability/delta logic is directly testable
 // without a database, same split as driftStamina/driftFormPlayed (engine/progression.go) vs. the
 // DB-writing callers that use them.
-func driftFanbaseForResult(fanbase int, outcome matchOutcome, r *rand.Rand) int {
-	if r.Float64() >= FanbaseResultDriftProbability {
+func driftFanbaseForResult(fanbase int, outcome matchOutcome, rivalryLevel int, r *rand.Rand) int {
+	if r.Float64() >= fanbaseResultDriftProbability(rivalryLevel) {
 		return fanbase
 	}
 	switch outcome {
@@ -83,7 +99,7 @@ func driftFanbaseTierPull(fanbase int, tier int, r *rand.Rand) int {
 // creditSponsorship uses) and, if it crossed into a new ten-point band, lets the owner know (see
 // notifyFanbaseMilestone). See UpdateTeamFinancesAfterMatch, the only caller - friendlies never
 // reach this, same "not a competitive result" carve-out sponsorship already uses.
-func applyFanbaseDrift(dbCtx *common.DatabaseContext, teamId int64, goalsFor int, goalsAgainst int) {
+func applyFanbaseDrift(dbCtx *common.DatabaseContext, teamId int64, goalsFor int, goalsAgainst int, rivalryLevel int) {
 	tier, err := common.GetTeamTier(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error getting tier for team %d fanbase drift: %s", teamId, err)
@@ -96,7 +112,7 @@ func applyFanbaseDrift(dbCtx *common.DatabaseContext, teamId int64, goalsFor int
 	}
 
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	updated := driftFanbaseForResult(fanbase, outcomeFor(goalsFor, goalsAgainst), r)
+	updated := driftFanbaseForResult(fanbase, outcomeFor(goalsFor, goalsAgainst), rivalryLevel, r)
 	updated = driftFanbaseTierPull(updated, tier, r)
 	if updated == fanbase {
 		return

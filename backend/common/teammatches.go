@@ -31,9 +31,12 @@ type TeamMatchSummary struct {
 	// Round is only meaningful for a cup tie (MatchKindCup) - the round number within that cup's
 	// bracket. Zero, and omitted, for league/friendly entries.
 	Round int `json:"round,omitempty"`
+	// Rivalry is the fixture's rivalry level (RIVALRY_*, see common/rivalries.go): the one it was
+	// played at, or the pair's current one for a fixture still to come. Always 0 for a friendly.
+	Rivalry int `json:"rivalry"`
 }
 
-const GetTeamLeagueMatchesStmtSql = "SELECT m.match_id, m.home_team_id, ht.name, m.away_team_id, at.name, m.match_date, m.played, m.home_goals, m.away_goals " +
+var GetTeamLeagueMatchesStmtSql = "SELECT m.match_id, m.home_team_id, ht.name, m.away_team_id, at.name, m.match_date, m.played, m.home_goals, m.away_goals, " + fixtureRivalrySql("m") + " " +
 	"FROM matches m JOIN teams ht ON ht.team_id = m.home_team_id JOIN teams at ON at.team_id = m.away_team_id " +
 	"WHERE m.home_team_id = $1 OR m.away_team_id = $1 ORDER BY m.match_date"
 
@@ -49,7 +52,7 @@ func getTeamLeagueMatches(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSumm
 		var matchId, homeId, awayId int64
 		var homeName, awayName string
 		var s TeamMatchSummary
-		if err := rows.Scan(&matchId, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals); err != nil {
+		if err := rows.Scan(&matchId, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals, &s.Rivalry); err != nil {
 			return nil, err
 		}
 		s.Kind = MatchKindLeague
@@ -67,7 +70,7 @@ func getTeamLeagueMatches(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSumm
 
 // getTeamCupTies lists teamId's real cup ties (an INNER JOIN on both teams naturally excludes
 // bye rounds, which have no away_team_id and thus nothing to click into or field a lineup for).
-const GetTeamCupTiesStmtSql = "SELECT ct.tie_id, ct.round, ct.home_team_id, th.name, ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals " +
+var GetTeamCupTiesStmtSql = "SELECT ct.tie_id, ct.round, ct.home_team_id, th.name, ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals, " + fixtureRivalrySql("ct") + " " +
 	"FROM cup_ties ct JOIN teams th ON th.team_id = ct.home_team_id JOIN teams ta ON ta.team_id = ct.away_team_id " +
 	"WHERE ct.home_team_id = $1 OR ct.away_team_id = $1 ORDER BY ct.match_date"
 
@@ -84,7 +87,7 @@ func getTeamCupTies(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSummary, e
 		var round int
 		var homeName, awayName string
 		var s TeamMatchSummary
-		if err := rows.Scan(&tieId, &round, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals); err != nil {
+		if err := rows.Scan(&tieId, &round, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals, &s.Rivalry); err != nil {
 			return nil, err
 		}
 		s.Kind = MatchKindCup

@@ -14,7 +14,7 @@ func avgAttendance(capacity, price, socios, formPoints, formMatches, rivalFanbas
 	r := rand.New(rand.NewSource(7))
 	total := 0
 	for i := 0; i < trials; i++ {
-		total += CalculateAttendance(capacity, price, socios, formPoints, formMatches, rivalFanbase, cupRound, weather, r)
+		total += CalculateAttendance(capacity, price, socios, formPoints, formMatches, rivalFanbase, cupRound, common.RIVALRY_NONE, weather, r)
 	}
 	return float64(total) / trials
 }
@@ -24,7 +24,7 @@ func TestCalculateAttendance_NeverExceedsCapacityOrGoesNegative(t *testing.T) {
 	for _, capacity := range []int{50, 1000, 30000} {
 		for _, socios := range []int{1, 500, 100000} {
 			for i := 0; i < 500; i++ {
-				got := CalculateAttendance(capacity, common.DefaultTicketPrice, socios, 15, 5, 99, 3, "sunny", r)
+				got := CalculateAttendance(capacity, common.DefaultTicketPrice, socios, 15, 5, 99, 3, common.RIVALRY_NONE, "sunny", r)
 				if got < 0 || got > capacity {
 					t.Fatalf("attendance %d out of [0, %d] (socios %d)", got, capacity, socios)
 				}
@@ -35,7 +35,7 @@ func TestCalculateAttendance_NeverExceedsCapacityOrGoesNegative(t *testing.T) {
 
 func TestCalculateAttendance_ZeroCapacity(t *testing.T) {
 	r := rand.New(rand.NewSource(1))
-	if got := CalculateAttendance(0, common.DefaultTicketPrice, common.DefaultSocios, 0, 0, -1, 0, "", r); got != 0 {
+	if got := CalculateAttendance(0, common.DefaultTicketPrice, common.DefaultSocios, 0, 0, -1, 0, common.RIVALRY_NONE, "", r); got != 0 {
 		t.Fatalf("expected 0 attendance for 0 capacity, got %d", got)
 	}
 }

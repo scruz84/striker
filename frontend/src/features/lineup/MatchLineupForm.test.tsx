@@ -80,7 +80,7 @@ describe('MatchLineupForm mentality', () => {
     expect(guard.dirty.at(-1)).toBe(true)
 
     fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
-    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 1, [])
+    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 1, [], {})
   })
 
   it('shows a lineup saved as Defensive as Defensive', () => {
@@ -142,7 +142,7 @@ describe('MatchLineupForm conditional orders', () => {
     fireEvent.change(minute, { target: { value: '70' } })
     expect(screen.queryByText('Between 1 and 89')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
-    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 0, [{ fromMinute: 70, condition: 0, action: 0, mentality: 1 }])
+    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 0, [{ fromMinute: 70, condition: 0, action: 0, mentality: 1 }], {})
   })
 
   it('allows at most 3 orders', () => {
@@ -158,5 +158,63 @@ describe('MatchLineupForm conditional orders', () => {
   it('has no orders section where orders are not enabled', () => {
     renderForm(vi.fn(), false)
     expect(screen.queryByRole('button', { name: 'Add order' })).not.toBeInTheDocument()
+  })
+})
+
+describe('MatchLineupForm lineup roles', () => {
+  beforeEach(async () => {
+    guard.dirty.length = 0
+    await i18n.changeLanguage('en')
+  })
+
+  function renderForm(onSave = vi.fn(), saved: Lineup = lineup) {
+    render(
+      <MemoryRouter>
+        <MatchLineupForm titleKey="lineup.title" teamId={7} players={players} lineup={saved} onSave={onSave} isSaving={false} isError={false} isSuccess={false} />
+      </MemoryRouter>,
+    )
+    return onSave
+  }
+  // Picks a player up on the pitch, which opens the selected-player panel with the role toggles.
+  const pick = (lastName: string) => fireEvent.click(screen.getByRole('button', { name: `P ${lastName} (undefined)` }))
+  const toggle = (name: string) => fireEvent.click(screen.getByRole('button', { name }))
+  const summary = () => screen.getByTestId('lineup-roles-summary').textContent
+
+  it('moves a role from one player to another, marks the lineup dirty and sends the roles on save', () => {
+    const onSave = renderForm()
+    expect(summary()).toBe('Captain: automatic · Penalties: automatic · Free kicks: automatic')
+
+    pick('2')
+    toggle('Captain')
+    toggle('Penalties')
+    expect(screen.getByRole('button', { name: 'Captain' })).toHaveAttribute('aria-pressed', 'true')
+    expect(summary()).toBe('Captain: 2 · Penalties: 2 · Free kicks: automatic')
+    expect(guard.dirty.at(-1)).toBe(true)
+
+    // The armband moves: one holder per role. (Tapping another pitch player while one is picked up
+    // would swap them, so drop the first one before picking the next.)
+    fireEvent.click(screen.getByRole('button', { name: 'Drop player' }))
+    pick('6')
+    toggle('Captain')
+    expect(summary()).toBe('Captain: 6 · Penalties: 2 · Free kicks: automatic')
+    expect(screen.getAllByTestId('role-badge').map((b) => b.textContent)).toEqual(expect.arrayContaining(['P', 'C']))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
+    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 0, [], { captainId: 6, penaltyTakerId: 2 })
+  })
+
+  it('never lets the goalkeeper take set pieces, but he may be captain', () => {
+    renderForm()
+    pick('1')
+    expect(screen.getByRole('button', { name: 'Penalties' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Free kicks' })).toBeDisabled()
+    toggle('Captain')
+    expect(summary()).toBe('Captain: 1 · Penalties: automatic · Free kicks: automatic')
+  })
+
+  it('starts from the saved roles and drops one whose player left the squad', () => {
+    renderForm(vi.fn(), { ...lineup, captainId: 3, freeKickTakerId: 99 })
+    expect(summary()).toBe('Captain: 3 · Penalties: automatic · Free kicks: automatic')
+    expect(guard.dirty.at(-1)).toBe(false)
   })
 })

@@ -51,7 +51,12 @@ func movePlayerToTeam(tx *sql.Tx, teamId int64, playerId int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(UpdatePlayerTeamStmtSql, teamId, shirtNumber, playerId)
+	if _, err := tx.Exec(UpdatePlayerTeamStmtSql, teamId, shirtNumber, playerId); err != nil {
+		return err
+	}
+	// A club that signs a player it follows stops following him (openspec player-watchlist
+	// "Signed by the follower").
+	_, err = tx.Exec(DeletePlayerFromWatchlistStmtSql, teamId, playerId)
 	return err
 }
 
@@ -157,7 +162,13 @@ func CreateTransferListing(dbCtx *DatabaseContext, playerId int64, sellingTeamId
 	if err != nil && isUniqueViolation(err) {
 		return ErrPlayerAlreadyListed
 	}
-	return err
+	if err != nil {
+		return err
+	}
+	if seller, err := GetTeamById(sellingTeamId, dbCtx); err == nil {
+		NotifyWatchers(dbCtx, playerId, WatchEventTransferListed, seller.TeamName, askingPrice, sellingTeamId)
+	}
+	return nil
 }
 
 // CancelTransferListing removes a player's listing, but only if it belongs to sellingTeamId.
@@ -264,6 +275,9 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if err != nil {
 		return err
 	}
+	// Judged from the seller's squad before the move; a domestic sale of a key player feeds the
+	// pair's rivalry once the transfer has committed (see openspec rivalries).
+	keyPlayer := isKeyPlayerOf(dbCtx, sellingTeamId, playerId)
 
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -askingPrice, buyerTeamId); err != nil {
 		return err
@@ -325,6 +339,10 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 		Key:    "notifications.messages.transferBought",
 		Params: map[string]any{"player": playerName, "team": sellerTeam.TeamName},
 	})
+	NotifyWatchers(dbCtx, playerId, WatchEventMoved, buyerTeam.TeamName, 0, sellingTeamId, buyerTeamId)
+	if keyPlayer {
+		AddRivalryEvent(dbCtx, sellingTeamId, buyerTeamId, RivalryKeyPlayerSalePoints)
+	}
 
 	return nil
 }

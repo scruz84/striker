@@ -436,6 +436,10 @@ func joinInt64s(ids []int64) string {
 // country rolls over.
 func ProgressPlayers(dbCtx *common.DatabaseContext, teamIds []int64) {
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
+	// Players whose contract expired this rollover, with the club they left - their followers are
+	// told once every team has been progressed (see common.NotifyWatchers).
+	type expiredContract struct{ playerId, teamId int64 }
+	expired := make([]expiredContract, 0)
 
 	for _, teamId := range teamIds {
 		players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
@@ -464,11 +468,15 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, teamIds []int64) {
 				log.Errorf("error advancing contract for player %d: %s", player.Id, err)
 			} else if released {
 				log.Infof("player %d (%s %s) released to free agency: contract expired", player.Id, player.FirstName, player.LastName)
+				expired = append(expired, expiredContract{player.Id, teamId})
 			}
 		}
 
 		topUpAcademy(dbCtx, teamId, trainerSkill)
 		autoManageLineupIfUnowned(dbCtx, teamId)
+	}
+	for _, e := range expired {
+		common.NotifyWatchers(dbCtx, e.playerId, common.WatchEventFreeAgent, "", 0, e.teamId)
 	}
 
 	if err := common.TopUpTrainerMarket(dbCtx); err != nil {

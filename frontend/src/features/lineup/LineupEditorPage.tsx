@@ -14,7 +14,7 @@ import {
   useTeamMatches,
   useUserTeam,
 } from '../../api/hooks'
-import type { Lineup, LineupOrder, LineupPosition, LineupSubstitution, Player, Team } from '../../api/types'
+import type { Lineup, LineupOrder, LineupPosition, LineupRoles, LineupSubstitution, Player, Team } from '../../api/types'
 import { hasLineupLockStarted, isPast } from '../../api/useLiveMatch'
 import { PageHeader } from '../../components/PageHeader'
 import { formatDayTime } from '../../utils/formatDate'
@@ -102,8 +102,8 @@ function FriendlyDefaultLineupForm({ team, players, lineup }: { team: Team; play
         teamId={team.id}
         players={players}
         lineup={lineup}
-        onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number) =>
-          setFriendlyLineup.mutate({ formation, positions, substitutions, mentality })
+        onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number, _orders: LineupOrder[], roles: LineupRoles) =>
+          setFriendlyLineup.mutate({ formation, positions, substitutions, mentality, roles })
         }
         isSaving={setFriendlyLineup.isPending}
         isError={setFriendlyLineup.isError}
@@ -127,8 +127,8 @@ function LineupForm({ team, players, lineup }: { team: Team; players: Player[]; 
       teamId={team.id}
       players={players}
       lineup={lineup}
-      onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number, orders: LineupOrder[]) =>
-        setLineup.mutate({ formation, positions, substitutions, mentality, orders })
+      onSave={(formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number, orders: LineupOrder[], roles: LineupRoles) =>
+        setLineup.mutate({ formation, positions, substitutions, mentality, orders, roles })
       }
       isSaving={setLineup.isPending}
       isError={setLineup.isError}

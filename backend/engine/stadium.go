@@ -75,37 +75,59 @@ func formFactor(formPoints int, formMatches int) float64 {
 }
 
 // rivalFactor is how much the visiting side pulls in a crowd, by its Fanbase (0-99); a cup tie
-// (cupRound > 0) adds CupRoundAttendanceBoost per round. A nil-equivalent rival (fanbase < 0, e.g.
-// unknown) is treated as the default fanbase.
-func rivalFactor(rivalFanbase int, cupRound int) float64 {
+// (cupRound > 0) adds CupRoundAttendanceBoost per round, and a Rival or Clásico visit multiplies it
+// by rivalryAttendanceFactor. A nil-equivalent rival (fanbase < 0, e.g. unknown) is treated as the
+// default fanbase.
+func rivalFactor(rivalFanbase int, cupRound int, rivalryLevel int) float64 {
 	if rivalFanbase < 0 {
 		rivalFanbase = common.DefaultFanbase
 	}
-	return (RivalFactorMin + RivalFactorSpan*float64(rivalFanbase)/99.0) * (1 + CupRoundAttendanceBoost*float64(cupRound))
+	return (RivalFactorMin + RivalFactorSpan*float64(rivalFanbase)/99.0) * (1 + CupRoundAttendanceBoost*float64(cupRound)) *
+		rivalryAttendanceFactor(rivalryLevel)
+}
+
+// Crowd multipliers of a match between rivals (see openspec socios "Attendance factors").
+const (
+	RivalryRivalAttendanceFactor   = 1.10
+	RivalryClasicoAttendanceFactor = 1.20
+)
+
+// rivalryAttendanceFactor is the crowd multiplier of a match at rivalryLevel: ×1.10 for a Rival
+// match, ×1.20 for a Clásico, 1 otherwise.
+func rivalryAttendanceFactor(rivalryLevel int) float64 {
+	switch rivalryLevel {
+	case common.RIVALRY_CLASICO:
+		return RivalryClasicoAttendanceFactor
+	case common.RIVALRY_RIVAL:
+		return RivalryRivalAttendanceFactor
+	default:
+		return 1
+	}
 }
 
 // attendanceDemand is the modelled crowd before noise and before the capacity cap.
-func attendanceDemand(socios int, ticketPrice int, formPoints int, formMatches int, rivalFanbase int, cupRound int, weather string) float64 {
+func attendanceDemand(socios int, ticketPrice int, formPoints int, formMatches int, rivalFanbase int, cupRound int, rivalryLevel int, weather string) float64 {
 	return float64(socios) * priceFactor(ticketPrice) * formFactor(formPoints, formMatches) *
-		rivalFactor(rivalFanbase, cupRound) * weatherFactor(weather)
+		rivalFactor(rivalFanbase, cupRound, rivalryLevel) * weatherFactor(weather)
 }
 
 // CalculateAttendance derives one home match's crowd size: the modelled demand (see
 // attendanceDemand) with +/- AttendanceNoise of random swing, never more than the stadium's
-// capacity and never negative. cupRound is 0 for a league match or friendly.
-func CalculateAttendance(capacity int, ticketPrice int, socios int, formPoints int, formMatches int, rivalFanbase int, cupRound int, weather string, r *rand.Rand) int {
+// capacity and never negative. cupRound is 0 for a league match or friendly, rivalryLevel 0 for a
+// friendly or a match between clubs that aren't rivals.
+func CalculateAttendance(capacity int, ticketPrice int, socios int, formPoints int, formMatches int, rivalFanbase int, cupRound int, rivalryLevel int, weather string, r *rand.Rand) int {
 	if capacity <= 0 {
 		return 0
 	}
 	noise := 1 + (r.Float64()*2-1)*AttendanceNoise
-	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, rivalFanbase, cupRound, weather) * noise
+	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, rivalFanbase, cupRound, rivalryLevel, weather) * noise
 	return int(math.Max(0, math.Min(float64(capacity), demand)))
 }
 
 // expectedGateRevenue is the revenue a ticket price is expected to earn at one league home match
 // against an average opponent in average weather - what optimalTicketPrice maximises.
 func expectedGateRevenue(capacity int, socios int, formPoints int, formMatches int, ticketPrice int) float64 {
-	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, common.DefaultFanbase, 0, "") * meanWeatherAttendanceFactor
+	demand := attendanceDemand(socios, ticketPrice, formPoints, formMatches, common.DefaultFanbase, 0, common.RIVALRY_NONE, "") * meanWeatherAttendanceFactor
 	return math.Min(float64(capacity), demand) * float64(ticketPrice)
 }
 
@@ -186,8 +208,11 @@ func deductStadiumMaintenance(dbCtx *common.DatabaseContext, teamId int64) {
 // toward the home side's pre-kickoff form (0 for a cup tie or friendly, which has no row in
 // matches).
 type matchdayContext struct {
-	awayTeamId     int64
-	cupRound       int
+	awayTeamId int64
+	cupRound   int
+	// rivalryLevel is the pair's rivalry level at kickoff (common.RIVALRY_*): a Rival or Clásico
+	// visit draws a bigger crowd (see rivalryAttendanceFactor). Always 0 for a friendly.
+	rivalryLevel   int
 	weather        string
 	excludeMatchId int64
 }
@@ -213,7 +238,7 @@ func drawMatchdayCrowd(dbCtx *common.DatabaseContext, homeTeamId int64, mc match
 		return matchdayCrowd{}
 	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	attendance := CalculateAttendance(inputs.stadium.Capacity, inputs.stadium.TicketPrice, inputs.socios, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, mc.cupRound, mc.weather, r)
+	attendance := CalculateAttendance(inputs.stadium.Capacity, inputs.stadium.TicketPrice, inputs.socios, inputs.formPoints, inputs.formMatches, inputs.rivalFanbase, mc.cupRound, mc.rivalryLevel, mc.weather, r)
 	return matchdayCrowd{Attendance: attendance, Capacity: inputs.stadium.Capacity, Revenue: TicketRevenue(attendance, inputs.stadium.TicketPrice)}
 }
 

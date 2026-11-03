@@ -274,6 +274,9 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, shirtNumber, playerId); err != nil {
 		return nil, err
 	}
+	if _, err := tx.Exec(DeletePlayerFromWatchlistStmtSql, teamId, playerId); err != nil {
+		return nil, err
+	}
 	if err := RecordPlayerClubHistory(tx, playerId, teamId); err != nil {
 		return nil, err
 	}
@@ -323,6 +326,9 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 			Key:    "notifications.messages.freeAgentPremium",
 			Params: map[string]any{"name": playerName},
 		})
+	}
+	if signing, err := GetTeamById(teamId, dbCtx); err == nil {
+		NotifyWatchers(dbCtx, playerId, WatchEventMoved, signing.TeamName, 0, teamId)
 	}
 	return result, nil
 }
@@ -593,6 +599,7 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 		return err
 	}
 	flows.Commit(context.Background())
+	NotifyWatchers(dbCtx, playerId, WatchEventFreeAgent, "", 0, teamId)
 	return nil
 }
 

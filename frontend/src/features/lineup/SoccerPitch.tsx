@@ -18,9 +18,11 @@ interface SoccerPitchProps {
   transferListed: Set<number>
   /** For each unavailable starter (by player id), who would replace him at kickoff. */
   replacements?: Map<number, Player>
+  /** Each role holder's short role label(s), e.g. "C" or "P FK" - see MatchLineupForm. */
+  roleBadges?: Map<number, string>
 }
 
-export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed, replacements }: SoccerPitchProps) {
+export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, unavailability, transferListed, replacements, roleBadges }: SoccerPitchProps) {
   // Only the half of the pitch a lineup ever actually occupies is shown here, drawn a little taller
   // than the read-only views (PITCH_HEIGHT_EDITOR) so chips at 360px never overlap.
   const slots = layoutPitchSlots(counts, true, true)
@@ -38,6 +40,7 @@ export function SoccerPitch({ counts, getPlayer, selectedPlayerId, onSlotClick, 
             unavailability={player ? unavailability.get(player.id) : undefined}
             replacedBy={player ? replacements?.get(player.id) : undefined}
             forSale={!!player && transferListed.has(player.id)}
+            roleBadge={player ? roleBadges?.get(player.id) : undefined}
             selected={selected}
             // Any slot other than the one already selected is a valid place to tap next while a
             // selection is active - an empty one moves the player there, an occupied one swaps.
@@ -56,6 +59,7 @@ function PitchSlotView({
   unavailability,
   replacedBy,
   forSale,
+  roleBadge,
   selected,
   highlight,
   onClick,
@@ -65,6 +69,7 @@ function PitchSlotView({
   unavailability?: PlayerUnavailability
   replacedBy?: Player
   forSale?: boolean
+  roleBadge?: string
   selected: boolean
   highlight: boolean
   onClick: () => void
@@ -84,6 +89,7 @@ function PitchSlotView({
           unavailability={unavailability}
           replacedBy={replacedBy}
           forSale={forSale}
+          roleBadge={roleBadge}
         />
       ) : (
         <ButtonBase onClick={onClick} sx={{ borderRadius: '50%' }} aria-label={t(POSITION_LABEL_KEYS[slot.position])}>

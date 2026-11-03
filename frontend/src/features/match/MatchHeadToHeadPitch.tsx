@@ -66,7 +66,7 @@ function renderTeamSlots(
         pitchHeight={PITCH_HEIGHT_HEAD_TO_HEAD}
       >
         {player ? (
-          <MatchPitchChip player={player} rating={rating} />
+          <MatchPitchChip player={player} rating={rating} captain={lineup.captainId !== undefined && lineup.captainId === playerId} />
         ) : (
           <Box
             sx={{

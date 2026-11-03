@@ -429,7 +429,7 @@ func persistCupTieLineupSnapshot(dbCtx *common.DatabaseContext, tieId int64, tea
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
+	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Mentality, lineup.LineupRoles, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for cup tie %d team %d: %s", tieId, teamId, err)
 	}
 }
@@ -468,13 +468,15 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	// matches, and its id could collide with an unrelated match's, so its form excludes nothing.
 	// A World Cup knockout tie is played as neutral: it still draws a crowd for the gate and the
 	// report, but gives the home side no advantage.
-	conditions := drawMatchdayConditions(dbCtx, *tie.HomeTeamId, matchdayContext{awayTeamId: *tie.AwayTeamId, cupRound: tie.Round})
+	// The rivalry level is fixed at kickoff - see simulateMatch.
+	rivalryLevel := common.KickoffRivalryLevel(dbCtx, *tie.HomeTeamId, *tie.AwayTeamId)
+	conditions := drawMatchdayConditions(dbCtx, *tie.HomeTeamId, matchdayContext{awayTeamId: *tie.AwayTeamId, cupRound: tie.Round, rivalryLevel: rivalryLevel})
 	worldCup, err := common.IsWorldCupKnockoutCup(dbCtx, tie.CupId)
 	if err != nil {
 		return err
 	}
 	homeAdvantage := homeAdvantageFor(conditions.crowd, worldCup)
-	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false, homeAdvantage, snapshot)
+	matchSimulation, err := runMatchSimulation(dbCtx, tie.TieId, 0, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, false, rivalryLevel, homeAdvantage, snapshot)
 	if err != nil {
 		return err
 	}
@@ -495,7 +497,14 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 
 	// The result, events, instants and pending post-match effects are stored in one transaction that
 	// only applies while the tie is still unplayed - see simulateMatch.
-	if err := common.SaveCupTieResultTx(dbCtx, tie.TieId, wentToPenalties, winnerTeamId, newMatchResult(matchSimulation, wentToPenalties)); err != nil {
+	result := newMatchResult(matchSimulation, wentToPenalties)
+	// A final is worth more to the pair's rivalry (see rivalryPointsForMatch).
+	if final, err := common.IsCupFinal(dbCtx, tie.CupId, tie.Round); err != nil {
+		log.Errorf("error checking whether cup tie %d is a final: %s", tie.TieId, err)
+	} else if result.Effects != nil {
+		result.Effects.CupFinal = final
+	}
+	if err := common.SaveCupTieResultTx(dbCtx, tie.TieId, wentToPenalties, winnerTeamId, result); err != nil {
 		return err
 	}
 

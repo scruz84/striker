@@ -357,8 +357,9 @@ func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, er
 	return &instants, rows.Err()
 }
 
-const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation, mentality) VALUES ($1, $2, $3, $4) " +
-	"ON CONFLICT (tie_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality RETURNING lineup_id"
+const InsertCupTieLineupStmtSql = "INSERT INTO cup_tie_lineup (tie_id, team_id, formation, mentality, captain_id, penalty_taker_id, free_kick_taker_id) VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+	"ON CONFLICT (tie_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality, " +
+	"captain_id = EXCLUDED.captain_id, penalty_taker_id = EXCLUDED.penalty_taker_id, free_kick_taker_id = EXCLUDED.free_kick_taker_id RETURNING lineup_id"
 const DeleteCupTieLineupPositionsStmtSql = "DELETE FROM cup_tie_lineup_positions WHERE lineup_id = $1"
 const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
@@ -369,7 +370,7 @@ const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions 
 // against cup_tie_lineup/cup_tie_lineup_positions rather than lineup/lineup_positions -
 // cup_ties.tie_id is its own id sequence, independent of matches.match_id, so a tie can never
 // safely share the league-match-keyed tables (see resources/sql/init38_match_lineup_overrides.sql).
-func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
+func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, roles LineupRoles, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -388,7 +389,7 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 	}
 
 	var lineupId int64
-	if err := tx.QueryRow(InsertCupTieLineupStmtSql, tieId, teamId, formation, mentality).Scan(&lineupId); err != nil {
+	if err := tx.QueryRow(InsertCupTieLineupStmtSql, append([]any{tieId, teamId, formation, mentality}, roleValues(roles)...)...).Scan(&lineupId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteCupTieLineupPositionsStmtSql, lineupId); err != nil {
@@ -427,7 +428,8 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 	return tx.Commit()
 }
 
-const GetCupTieLineupStmtSql = "SELECT lineup_id, formation, mentality FROM cup_tie_lineup WHERE tie_id = $1 AND team_id = $2"
+var GetCupTieLineupStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", cupTiePlayedSql("a")) + " FROM cup_tie_lineup a WHERE a.tie_id = $1 AND a.team_id = $2"
+
 const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie_lineup_positions WHERE lineup_id = $1"
 
 // GetCupTieLineup returns teamId's saved override for one cup tie, including any substitutions
@@ -437,13 +439,15 @@ func GetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64) (Lineup,
 	lineup := Lineup{MatchId: tieId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
-	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(&lineupId, &lineup.Formation, &lineup.Mentality)
+	var roles roleScan
+	err := dbCtx.Db.QueryRow(GetCupTieLineupStmtSql, tieId, teamId).Scan(append([]any{&lineupId, &lineup.Formation, &lineup.Mentality}, roles.targets()...)...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return lineup, false, nil
 	}
 	if err != nil {
 		return Lineup{}, false, err
 	}
+	lineup.LineupRoles = roles.roles()
 
 	rows, err := dbCtx.Db.Query(GetCupTieLineupPositionsStmtSql, lineupId)
 	if err != nil {
@@ -523,6 +527,8 @@ type CupTieDetails struct {
 	RefereeName     string `json:"refereeName,omitempty"`
 	Assistant1Name  string `json:"assistant1Name,omitempty"`
 	Assistant2Name  string `json:"assistant2Name,omitempty"`
+	// Rivalry is the tie's rivalry level - see GetFixtureRivalry.
+	Rivalry int `json:"rivalry"`
 }
 
 // GetCupTieDetails assembles one cup tie's full detail view - see CupTieDetails.
@@ -542,6 +548,7 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	if tie.HomeTeamId == nil || tie.AwayTeamId == nil {
 		return details, nil
 	}
+	details.Rivalry = GetFixtureRivalry(dbCtx, MatchKindCup, tieId)
 
 	var weather, refereeName, assistant1, assistant2, stadiumName sql.NullString
 	var attendance sql.NullInt64
@@ -571,6 +578,9 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	}
 	details.HomeLineup = (*lineups)[*tie.HomeTeamId]
 	details.AwayLineup = (*lineups)[*tie.AwayTeamId]
+	// The set-piece takers are the owning manager's business; only the captain's armband is public.
+	RedactLineupTakers(details.HomeLineup)
+	RedactLineupTakers(details.AwayLineup)
 
 	homePlayers, err := GetPlayersForMatchTeam(dbCtx, *tie.HomeTeamId, details.HomeLineup)
 	if err != nil {

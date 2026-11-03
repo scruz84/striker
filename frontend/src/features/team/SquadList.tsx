@@ -40,6 +40,7 @@ import { useConfirm } from '../../components/confirmDialogContext'
 import { ListPlayerForTransferDialog } from '../../components/ListPlayerForTransferDialog'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
+import { WatchToggle } from '../../components/WatchToggle'
 import { CountryFlag } from '../../components/CountryFlag'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
@@ -391,9 +392,12 @@ function PlayerSheet({
                 {releasePlayer.isError && <Alert severity="error">{t('team.releaseError')}</Alert>}
               </>
             ) : (
-              <Button variant="contained" onClick={() => setOfferOpen(true)}>
-                {t('team.makeOffer')}
-              </Button>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <WatchToggle player={player} />
+                <Button variant="contained" onClick={() => setOfferOpen(true)} sx={{ flex: 1 }}>
+                  {t('team.makeOffer')}
+                </Button>
+              </Stack>
             )}
           </Stack>
         </Box>

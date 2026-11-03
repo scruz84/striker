@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink } from 'react-router-dom'
 import type { Lineup, Player } from '../../api/types'
 import { matchRatingColor } from '../../utils/matchRating'
+import { CaptainArmband } from './CaptainArmband'
 
 const CHIP_SIZE = 44
 const RING_THICKNESS = 3
@@ -24,7 +25,7 @@ export function slotIndexWithinPosition(lineup: Lineup, target: Lineup['position
 // rating (out of matchRatingMax=10 - see backend common.ComputePlayerRatings) and colored by how
 // good it is. Replaces the old face + shirt-number + rating trio, which crammed three separate
 // pieces of information into one small pitch slot.
-export function MatchPitchChip({ player, rating }: { player: Player; rating?: number }) {
+export function MatchPitchChip({ player, rating, captain = false }: { player: Player; rating?: number; captain?: boolean }) {
   const theme = useTheme()
   const label =
     rating === undefined
@@ -51,6 +52,7 @@ export function MatchPitchChip({ player, rating }: { player: Player; rating?: nu
       >
         <Box
           sx={{
+            position: 'relative',
             width: CHIP_SIZE,
             height: CHIP_SIZE,
             borderRadius: '50%',
@@ -79,6 +81,11 @@ export function MatchPitchChip({ player, rating }: { player: Player; rating?: nu
               {rating === undefined ? player.shirtNumber ?? '' : rating.toFixed(1)}
             </Typography>
           </Box>
+          {captain && (
+            <Box sx={{ position: 'absolute', top: -4, right: -6, lineHeight: 0 }}>
+              <CaptainArmband />
+            </Box>
+          )}
         </Box>
         <Box sx={{ mt: 0.4, px: 0.5, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.6)', maxWidth: '100%' }}>
           <Typography noWrap sx={{ color: '#fff', fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.3, textAlign: 'center' }}>

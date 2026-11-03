@@ -26,6 +26,7 @@ import { TeamNameLink } from '../../components/TeamNameLink'
 import { MATCH_RATING_MIN_MINUTES } from '../../utils/liveMatchRatings'
 import { matchRatingColor } from '../../utils/matchRating'
 import { CountryFlag } from '../../components/CountryFlag'
+import { CaptainArmband } from './CaptainArmband'
 
 // Shared by MatchRatingsTab (a finished match's report) and MatchMinuteRatings (live, or scrubbed
 // back to an earlier minute) - both end up with the same PlayerRating records (stored by the
@@ -86,7 +87,7 @@ export function TeamRatingsColumn({
         if (!player) {
           return null
         }
-        return <RatingRow key={rating.playerId} rating={rating} player={player} />
+        return <RatingRow key={rating.playerId} rating={rating} player={player} captain={startingLineup?.captainId === rating.playerId} />
       })}
     </Stack>
   )
@@ -112,7 +113,7 @@ function positionRank(position: number): number {
   return rank < 0 ? POSITION_ORDER.length : rank
 }
 
-function RatingRow({ rating, player }: { rating: PlayerRating; player: Player }) {
+function RatingRow({ rating, player, captain }: { rating: PlayerRating; player: Player; captain: boolean }) {
   const { t } = useTranslation()
   const positionKey = POSITION_SHORT_LABEL_KEYS[rating.position]
   const details = [positionKey ? t(positionKey) : null, minutesLabel(rating, t)].filter(Boolean).join(' · ')
@@ -126,6 +127,11 @@ function RatingRow({ rating, player }: { rating: PlayerRating; player: Player })
           <PlayerNameLink playerId={rating.playerId}>
             {player.firstName} {player.lastName}
           </PlayerNameLink>
+          {captain && (
+            <Box component="span" sx={{ ml: 0.5, verticalAlign: 'text-bottom' }}>
+              <CaptainArmband size={15} />
+            </Box>
+          )}
         </Typography>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
           <Typography variant="caption" color="text.secondary" noWrap>

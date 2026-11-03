@@ -44,6 +44,9 @@ interface PlayerChipProps {
   /** The player who would take this (unavailable) starter's slot if the match kicked off now -
    * see ProjectedReplacement. Only shown on the pitch, next to the unavailability badge. */
   replacedBy?: Player
+  /** The player's lineup role label(s) ("C", "P", "FK" - see MatchLineupForm), shown under the
+   * name on the pitch. */
+  roleBadge?: string
 }
 
 // The ring drawn around a selected/highlighted player's avatar - a plain colored ring for the one
@@ -82,6 +85,7 @@ export function PlayerChip({
   unavailability,
   forSale,
   replacedBy,
+  roleBadge,
 }: PlayerChipProps) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -180,6 +184,15 @@ export function PlayerChip({
             sx={{ mt: 0.25, px: 0.5, maxWidth: '100%', borderRadius: 1, bgcolor: 'rgba(0,0,0,0.65)', color: '#fff', textAlign: 'center', lineHeight: 1.15 }}
           >
             {t('lineup.replacedBy', { name: replacedBy.lastName })}
+          </Typography>
+        )}
+        {roleBadge && (
+          <Typography
+            variant="chipLabel"
+            data-testid="role-badge"
+            sx={{ mt: 0.25, px: 0.5, borderRadius: 1, bgcolor: 'warning.main', color: 'warning.contrastText', fontWeight: 800, lineHeight: 1.2 }}
+          >
+            {roleBadge}
           </Typography>
         )}
       </ButtonBase>

@@ -13,6 +13,8 @@ type AiMatchPlan struct {
 	Substitutions []LineupSubstitution
 	// Orders are the CPU's conditional match orders (see AiConditionalOrders); none in friendlies.
 	Orders []LineupOrder
+	// Roles name the CPU's captain (see AiCaptain); its set-piece takers stay automatic.
+	Roles LineupRoles
 }
 
 // The CPU's conditional orders (see openspec/specs/cpu-team-management "CPU conditional orders"):
@@ -95,13 +97,41 @@ func PlanAiMatchLineup(squad []*Player, leagueUnavailable map[int64]bool, matchU
 	formation, regulars := SelectBestFormationAndLineup(regularsPool, aiLevel, rng)
 
 	if isFriendly {
-		return planFriendlyRotation(squad, regulars, formation, matchUnavailable, aiLevel)
+		plan := planFriendlyRotation(squad, regulars, formation, matchUnavailable, aiLevel)
+		plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions)}
+		return plan
 	}
 
 	plan := AiMatchPlan{Formation: formation, Positions: orderedLineupPositions(regulars)}
 	plan.Substitutions = planCompetitiveSubstitutions(squad, regulars, leagueUnavailable, aiLevel)
 	plan.Orders = AiConditionalOrders(aiLevel)
+	plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions)}
 	return plan
+}
+
+// AiCaptain is the CPU's captain (see openspec/specs/cpu-team-management "CPU captain"): the
+// oldest outfield starter, ties going to the lowest player id; nil when the XI has no outfielder
+// the squad holds.
+func AiCaptain(squad []*Player, positions []LineupPosition) *int64 {
+	byId := make(map[int64]*Player, len(squad))
+	for _, p := range squad {
+		byId[p.Id] = p
+	}
+	var captain *Player
+	for _, pos := range positions {
+		p, ok := byId[pos.PlayerId]
+		if !ok || pos.Position == GOALKEEPER {
+			continue
+		}
+		if captain == nil || p.Age > captain.Age || (p.Age == captain.Age && p.Id < captain.Id) {
+			captain = p
+		}
+	}
+	if captain == nil {
+		return nil
+	}
+	id := captain.Id
+	return &id
 }
 
 // orderedLineupPositions flattens a position -> players map in positionFillOrder, so the same

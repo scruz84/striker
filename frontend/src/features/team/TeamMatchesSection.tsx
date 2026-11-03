@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { RivalryChip } from '../../components/RivalryChip'
 import { useTeamMatches } from '../../api/hooks'
 import type { TeamMatchSummary } from '../../api/types'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
@@ -120,6 +121,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
         </NestedTeamNameLink>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.25 }}>
           <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20 }} />
+          <RivalryChip level={match.rivalry} />
           <HomeAwayIcon isHome={match.isHome} />
           <Typography variant="caption" color="text.secondary">
             {formatDayTime(match.matchDate)}

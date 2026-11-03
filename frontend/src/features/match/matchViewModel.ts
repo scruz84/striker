@@ -52,6 +52,8 @@ export interface MatchView {
   ratings?: Record<string, number>
   // Every player who featured, with his rating breakdown - see PlayerRating.
   playerRatings?: PlayerRating[]
+  // The rivalry level (RIVALRY_*) - league matches and cup ties only.
+  rivalry?: number
   // Report flavor (see backend common.UpdateMatchFlavor) - absent for a match played before it was stored.
   weather?: string
   attendance?: number
@@ -104,6 +106,7 @@ export function fromWeekMatch(match: WeekMatch, division: DivisionDetails | unde
     awayId: match.away,
     awayName: match.awayName,
     homeStadiumName: match.homeStadiumName,
+    rivalry: match.rivalry,
     homePosition: positionOf(division, match.home),
     awayPosition: positionOf(division, match.away),
     matchDate: match.matchDate,
@@ -144,6 +147,7 @@ export function fromCupTie(tie: CupTieDetails, cup: CupDetails | undefined, t: T
     awayId: tie.awayTeamId ?? 0,
     awayName: localizedTeamName(t, tie.awayTeamName),
     homeStadiumName: tie.homeStadiumName ?? '',
+    rivalry: tie.rivalry,
     matchDate: tie.matchDate ?? '',
     played: tie.played,
     homeGoals: tie.homeGoals,

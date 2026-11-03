@@ -630,8 +630,9 @@ const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, mi
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
 
-const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team_id, formation, mentality) VALUES ($1, $2, $3, $4) " +
-	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality RETURNING lineup_id"
+const InsertFriendlyLineupStmtSql = "INSERT INTO friendly_lineup (match_id, team_id, formation, mentality, captain_id, penalty_taker_id, free_kick_taker_id) VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality, " +
+	"captain_id = EXCLUDED.captain_id, penalty_taker_id = EXCLUDED.penalty_taker_id, free_kick_taker_id = EXCLUDED.free_kick_taker_id RETURNING lineup_id"
 const DeleteFriendlyLineupPositionsStmtSql = "DELETE FROM friendly_lineup_positions WHERE lineup_id = $1"
 const InsertFriendlyLineupPositionStmtSql = "INSERT INTO friendly_lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
@@ -641,7 +642,7 @@ const InsertFriendlyLineupPositionStmtSql = "INSERT INTO friendly_lineup_positio
 // replacing its positions and substitutions outright. Guarded by a non-blocking advisory lock
 // keyed on (matchId, teamId), the same race-avoidance convention as SetDefaultLineup, scoped to
 // just this match so editing one friendly never blocks editing another for the same team.
-func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
+func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, roles LineupRoles, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -660,7 +661,7 @@ func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 	}
 
 	var lineupId int64
-	if err := tx.QueryRow(InsertFriendlyLineupStmtSql, matchId, teamId, formation, mentality).Scan(&lineupId); err != nil {
+	if err := tx.QueryRow(InsertFriendlyLineupStmtSql, append([]any{matchId, teamId, formation, mentality}, roleValues(roles)...)...).Scan(&lineupId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteFriendlyLineupPositionsStmtSql, lineupId); err != nil {
@@ -699,7 +700,8 @@ func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 	return tx.Commit()
 }
 
-const GetFriendlyLineupStmtSql = "SELECT lineup_id, formation, mentality FROM friendly_lineup WHERE match_id = $1 AND team_id = $2"
+var GetFriendlyLineupStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", friendlyPlayedSql("a")) + " FROM friendly_lineup a WHERE a.match_id = $1 AND a.team_id = $2"
+
 const GetFriendlyLineupPositionsStmtSql = "SELECT player_id, position FROM friendly_lineup_positions WHERE lineup_id = $1"
 
 // GetFriendlyLineup returns teamId's saved override for one friendly, including any
@@ -711,13 +713,15 @@ func GetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64) (Lin
 	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
-	err := dbCtx.Db.QueryRow(GetFriendlyLineupStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation, &lineup.Mentality)
+	var roles roleScan
+	err := dbCtx.Db.QueryRow(GetFriendlyLineupStmtSql, matchId, teamId).Scan(append([]any{&lineupId, &lineup.Formation, &lineup.Mentality}, roles.targets()...)...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return lineup, false, nil
 	}
 	if err != nil {
 		return Lineup{}, false, err
 	}
+	lineup.LineupRoles = roles.roles()
 
 	rows, err := dbCtx.Db.Query(GetFriendlyLineupPositionsStmtSql, lineupId)
 	if err != nil {
@@ -921,6 +925,9 @@ func EnrichPlayedFriendly(dbCtx *DatabaseContext, match *FriendlyMatch) error {
 	}
 	match.HomeLineup = (*lineups)[match.HomeTeamId]
 	match.AwayLineup = (*lineups)[match.AwayTeamId]
+	// The set-piece takers are the owning manager's business; only the captain's armband is public.
+	RedactLineupTakers(match.HomeLineup)
+	RedactLineupTakers(match.AwayLineup)
 
 	homePlayers, err := GetPlayersForMatchTeam(dbCtx, match.HomeTeamId, match.HomeLineup)
 	if err != nil {

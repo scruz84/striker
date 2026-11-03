@@ -35,6 +35,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { RivalryChip } from '../../components/RivalryChip'
 import {
   queryKeys,
   useDivisionDetails,
@@ -549,6 +550,7 @@ function NextMatchHero({ match, teamId }: { match: TeamMatchSummary | undefined;
             {t('dashboard.nextMatch')}
           </Typography>
           <MatchKindChip kind={match.kind} />
+          <RivalryChip level={match.rivalry} />
         </Stack>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <TeamBadge teamId={match.opponentId} teamName={match.opponentName} size={48} />

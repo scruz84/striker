@@ -81,7 +81,7 @@ func persistFriendlyLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64,
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
+	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.LineupRoles, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for friendly %d team %d: %s", matchId, teamId, err)
 	}
 }
@@ -124,7 +124,7 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 		return err
 	}
 	homeAdvantage := homeAdvantageFor(conditions.crowd, worldCup)
-	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true, homeAdvantage, snapshot)
+	matchSimulation, err := runMatchSimulation(dbCtx, friendly.MatchId, 0, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions, true, common.RIVALRY_NONE, homeAdvantage, snapshot)
 	if err != nil {
 		return err
 	}

@@ -14,4 +14,4 @@
 ## 3. Specs and checks
 
 - [x] 3.1 Add the Code map to the new `opponent-preview` spec and update the Code map of `match-viewer`; verify `openspec validate add-opponent-preview --strict` passes.
-- [ ] 3.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.
+- [x] 3.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.

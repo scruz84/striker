@@ -17,6 +17,9 @@ type SetLineupRequest struct {
 	// Orders are the lineup's conditional match orders (at most 3; see common.ValidateOrders). The
 	// friendly default lineup carries none, so its handler ignores them.
 	Orders []common.LineupOrder `json:"orders"`
+	// LineupRoles are the optional captain, penalty taker and free-kick taker (captainId,
+	// penaltyTakerId, freeKickTakerId; missing = automatic) - see common.ValidateRoles.
+	common.LineupRoles
 }
 
 // GetLineupHandler returns the caller's team's default lineup.
@@ -95,6 +98,10 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateRoles(req.Positions, req.LineupRoles, players); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 		if err := common.ValidateOrders(req.Positions, req.Orders, players, unavailable); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
@@ -107,6 +114,11 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if err := common.SetTeamMentality(dbCtx, team.Id, req.Mentality); err != nil {
 			log.Errorf("error setting mentality for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultLineupRoles(dbCtx, team.Id, false, req.LineupRoles); err != nil {
+			log.Errorf("error setting lineup roles for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
@@ -216,6 +228,10 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateRoles(req.Positions, req.LineupRoles, players); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
 		if err := common.SetTeamFriendlyFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting friendly formation for team %d: %s", team.Id, err)
@@ -224,6 +240,11 @@ func SetFriendlyDefaultLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 		}
 		if err := common.SetTeamFriendlyMentality(dbCtx, team.Id, req.Mentality); err != nil {
 			log.Errorf("error setting friendly mentality for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultLineupRoles(dbCtx, team.Id, true, req.LineupRoles); err != nil {
+			log.Errorf("error setting lineup roles for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}

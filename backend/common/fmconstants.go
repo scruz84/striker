@@ -174,9 +174,17 @@ const NOTIFICATION_CALL_UP = 12
 // for inactivity, or the whole account is about to be erased - see engine.RunAccountLifecycle.
 const NOTIFICATION_ACCOUNT = 13
 
+// NOTIFICATION_RIVALRY tells a club's owner that another club became its Rival or Clásico - see
+// common.AddRivalryEvent. Never sent when a level falls.
+const NOTIFICATION_RIVALRY = 14
+
 // NOTIFICATION_COUNTER_OFFER tells a buyer the selling club answered their transfer offer with a
 // higher fee, which now waits for them to accept or decline - see common.CounterOffer.
 const NOTIFICATION_COUNTER_OFFER = 15
+
+// NOTIFICATION_WATCHLIST tells a club that a player it follows was transfer- or loan-listed,
+// became a free agent or moved club - see common.NotifyWatchers.
+const NOTIFICATION_WATCHLIST = 16
 
 // player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
 // translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.

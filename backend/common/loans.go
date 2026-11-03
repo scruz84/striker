@@ -185,6 +185,11 @@ func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int
 	}
 
 	_, err = dbCtx.Db.Exec(InsertLoanListingStmtSql, playerId, lendingTeamId, durationSeasons, loanFee, wageContributionPercent, buyOptionFee)
+	if err == nil {
+		if lender, lerr := GetTeamById(lendingTeamId, dbCtx); lerr == nil {
+			NotifyWatchers(dbCtx, playerId, WatchEventLoanListed, lender.TeamName, 0, lendingTeamId)
+		}
+	}
 	if err != nil {
 		if isUniqueViolation(err) {
 			return ErrPlayerAlreadyLoanListed
@@ -459,6 +464,7 @@ func ExerciseLoanBuyOption(dbCtx *DatabaseContext, playerId int64, borrowingTeam
 		Key:    "notifications.messages.loanBuyOptionUsed",
 		Params: map[string]any{"player": playerName, "team": lendingTeam.TeamName},
 	})
+	NotifyWatchers(dbCtx, playerId, WatchEventMoved, borrowingTeam.TeamName, 0, lendingTeamId, borrowingTeamId)
 
 	return nil
 }
@@ -484,6 +490,7 @@ func notifyLoanAccepted(dbCtx *DatabaseContext, playerId int64, lendingTeamId in
 		Key:    "notifications.messages.loanedOut",
 		Params: map[string]any{"player": playerName, "team": borrowingTeam.TeamName},
 	})
+	NotifyWatchers(dbCtx, playerId, WatchEventMoved, borrowingTeam.TeamName, 0, lendingTeamId, borrowingTeamId)
 }
 
 // GetExpiredLoans lists every active loan, owed back by a borrower in country, whose

@@ -57,11 +57,12 @@ const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.le
 // before this override existed (lineup/lineup_positions were always empty for a real match), so
 // this UNION ALL form (mirroring the Go-level hasOverride fallback GetFriendlyLineup/
 // GetCupTieLineup already use) is required now that SetLineupForMatch actually writes rows here.
-const GetLineupsForMatchStmtSql = "select c.team_id, d.player_id, d.\"position\", c.formation, c.mentality " +
+var GetLineupsForMatchStmtSql = "select c.team_id, d.player_id, d.\"position\", c.formation, c.mentality, " + rolesSelectSql("c", matchPlayedSql("c")) + " " +
 	"from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where c.team_id in ($1, $2) and c.match_id = $3 " +
 	"union all " +
-	"select a.team_id, a.player_id, a.\"position\", t.formation, t.mentality " +
+	"select a.team_id, a.player_id, a.\"position\", t.formation, t.mentality, " + rolesSelectSql("r", "false") + " " +
 	"from default_lineup_positions a join teams t on t.team_id = a.team_id " +
+	"left join default_lineup_roles r on r.team_id = a.team_id and r.friendly = false " +
 	"where a.team_id in ($1, $2) and a.team_id not in (select c.team_id from lineup c where c.team_id in ($1, $2) and c.match_id = $3)"
 
 const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
@@ -682,14 +683,16 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	var position int
 	var formation int
 	var mentality int
+	var roles roleScan
 	for rows.Next() {
-		err := rows.Scan(&teamId, &playerId, &position, &formation, &mentality)
+		err := rows.Scan(append([]any{&teamId, &playerId, &position, &formation, &mentality}, roles.targets()...)...)
 		if err != nil {
 			return nil, err
 		}
 		lineup := lineups[teamId]
 		lineup.Formation = formation
 		lineup.Mentality = mentality
+		lineup.LineupRoles = roles.roles()
 		lineup.Positions = append(lineup.Positions, LineupPosition{
 			PlayerId: playerId,
 			Position: position,
@@ -699,8 +702,9 @@ func GetLineupsForMatch(dbCtx *DatabaseContext, matchId int64, teamIds *[]int64)
 	return &lineups, nil
 }
 
-const InsertMatchLineupStmtSql = "INSERT INTO lineup (match_id, team_id, formation, mentality) VALUES ($1, $2, $3, $4) " +
-	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality RETURNING lineup_id"
+const InsertMatchLineupStmtSql = "INSERT INTO lineup (match_id, team_id, formation, mentality, captain_id, penalty_taker_id, free_kick_taker_id) VALUES ($1, $2, $3, $4, $5, $6, $7) " +
+	"ON CONFLICT (match_id, team_id) DO UPDATE SET formation = EXCLUDED.formation, mentality = EXCLUDED.mentality, " +
+	"captain_id = EXCLUDED.captain_id, penalty_taker_id = EXCLUDED.penalty_taker_id, free_kick_taker_id = EXCLUDED.free_kick_taker_id RETURNING lineup_id"
 const DeleteMatchLineupPositionsStmtSql = "DELETE FROM lineup_positions WHERE lineup_id = $1"
 const InsertMatchLineupPositionStmtSql = "INSERT INTO lineup_positions (lineup_id, player_id, position) VALUES ($1, $2, $3)"
 
@@ -711,7 +715,7 @@ const InsertMatchLineupPositionStmtSql = "INSERT INTO lineup_positions (lineup_i
 // lineup/lineup_positions tables to use: GetLineupsForMatch already reads them with a fallback to
 // default_lineup_positions, so a row inserted here is picked up by both simulation and the
 // played-match "Lineups" tab (WeekMatchById) with no further changes needed anywhere else.
-func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
+func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, roles LineupRoles, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -730,7 +734,7 @@ func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 	}
 
 	var lineupId int64
-	if err := tx.QueryRow(InsertMatchLineupStmtSql, matchId, teamId, formation, mentality).Scan(&lineupId); err != nil {
+	if err := tx.QueryRow(InsertMatchLineupStmtSql, append([]any{matchId, teamId, formation, mentality}, roleValues(roles)...)...).Scan(&lineupId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteMatchLineupPositionsStmtSql, lineupId); err != nil {
@@ -769,7 +773,8 @@ func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 	return tx.Commit()
 }
 
-const GetMatchLineupOverrideStmtSql = "SELECT lineup_id, formation, mentality FROM lineup WHERE match_id = $1 AND team_id = $2"
+var GetMatchLineupOverrideStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", matchPlayedSql("a")) + " FROM lineup a WHERE a.match_id = $1 AND a.team_id = $2"
+
 const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM lineup_positions WHERE lineup_id = $1"
 
 // GetMatchLineupOverride returns teamId's saved lineup override for one league match, including
@@ -781,13 +786,15 @@ func GetMatchLineupOverride(dbCtx *DatabaseContext, matchId int64, teamId int64)
 	lineup := Lineup{MatchId: matchId, TeamId: teamId, Positions: make([]LineupPosition, 0), Substitutions: make([]LineupSubstitution, 0)}
 
 	var lineupId int64
-	err := dbCtx.Db.QueryRow(GetMatchLineupOverrideStmtSql, matchId, teamId).Scan(&lineupId, &lineup.Formation, &lineup.Mentality)
+	var roles roleScan
+	err := dbCtx.Db.QueryRow(GetMatchLineupOverrideStmtSql, matchId, teamId).Scan(append([]any{&lineupId, &lineup.Formation, &lineup.Mentality}, roles.targets()...)...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return lineup, false, nil
 	}
 	if err != nil {
 		return Lineup{}, false, err
 	}
+	lineup.LineupRoles = roles.roles()
 
 	rows, err := dbCtx.Db.Query(GetMatchLineupOverridePositionsStmtSql, lineupId)
 	if err != nil {
@@ -1419,6 +1426,8 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 		return nil, nil
 	}
 	match := readWeekMatch(rows)
+	rows.Close()
+	match.Rivalry = GetFixtureRivalry(dbCtx, MatchKindLeague, matchId)
 	match.Events = GetMatchEvents(dbCtx, matchId)
 	match.MatchInstants = GetMatchInstants(dbCtx, matchId)
 	// The starting XIs, kept before any substitution is replayed below - the ratings fallback for
@@ -1430,6 +1439,9 @@ func WeekMatchById(dbCtx *DatabaseContext, matchId int64) (*WeekMatch, error) {
 	} else {
 		match.HomeLineup = (*lineups)[match.Home]
 		match.AwayLineup = (*lineups)[match.Away]
+		// The set-piece takers are the owning manager's business; only the captain's armband is public.
+		RedactLineupTakers(match.HomeLineup)
+		RedactLineupTakers(match.AwayLineup)
 		startingHome, startingAway = CopyLineup(match.HomeLineup), CopyLineup(match.AwayLineup)
 		// GetLineupsForMatch only ever returns the XI submitted before kickoff - replay every
 		// substitution this match actually had on top of it, so a finished match's report shows
@@ -2644,7 +2656,12 @@ func GetDefaultLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, error) {
 		return nil, err
 	}
 
-	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions, Substitutions: substitutions, Mentality: mentality}, nil
+	roles, err := GetDefaultLineupRoles(dbCtx, teamId, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions, Substitutions: substitutions, Mentality: mentality, LineupRoles: roles}, nil
 }
 
 // SetDefaultLineup atomically replaces a team's default lineup. Callers must have already
@@ -2729,7 +2746,12 @@ func GetDefaultFriendlyLineup(dbCtx *DatabaseContext, teamId int64) (*Lineup, er
 		return nil, err
 	}
 
-	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions, Substitutions: substitutions, Mentality: mentality}, nil
+	roles, err := GetDefaultLineupRoles(dbCtx, teamId, true)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Lineup{TeamId: teamId, Formation: formation, Positions: positions, Substitutions: substitutions, Mentality: mentality, LineupRoles: roles}, nil
 }
 
 // SetDefaultFriendlyLineup atomically replaces a team's standing friendly-only lineup. Callers

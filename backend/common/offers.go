@@ -422,6 +422,9 @@ type completedOfferTransfer struct {
 	buyerName  string
 	sellerName string
 	flows      LedgerFlows
+	// keyPlayer is whether the player was one of the seller's key players (see IsKeyPlayer),
+	// judged from the squad before the move - a domestic sale of one feeds the pair's rivalry.
+	keyPlayer bool
 }
 
 // executeOfferTx is the transfer behind an accepted offer or an accepted counter-offer, at fee,
@@ -460,6 +463,7 @@ func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee 
 	if err != nil {
 		return nil, err
 	}
+	keyPlayer := isKeyPlayerOf(dbCtx, toTeamId, playerId)
 
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, -fee, fromTeamId); err != nil {
 		return nil, err
@@ -496,7 +500,7 @@ func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee 
 	}
 
 	done := &completedOfferTransfer{offer: offer, fee: fee, playerName: player.FirstName + " " + player.LastName,
-		buyerName: buyerTeam.TeamName, sellerName: sellerTeam.TeamName}
+		buyerName: buyerTeam.TeamName, sellerName: sellerTeam.TeamName, keyPlayer: keyPlayer}
 	if err := insertLedgerRow(tx, &done.flows, fromTeamId, -fee, TRANSACTION_TRANSFER_OUT,
 		"Bought "+done.playerName+" from "+done.sellerName, playerId); err != nil {
 		return nil, err
@@ -529,5 +533,20 @@ func finishOfferTransfer(dbCtx *DatabaseContext, tx *sql.Tx, done *completedOffe
 		Key:    "notifications.messages.transferBought",
 		Params: map[string]any{"player": done.playerName, "team": done.sellerName},
 	})
+	NotifyWatchers(dbCtx, done.offer.playerId, WatchEventMoved, done.buyerName, 0, done.offer.toTeamId, done.offer.fromTeamId)
+	if done.keyPlayer {
+		AddRivalryEvent(dbCtx, done.offer.toTeamId, done.offer.fromTeamId, RivalryKeyPlayerSalePoints)
+	}
 	return nil
+}
+
+// isKeyPlayerOf reports whether playerId is one of teamId's key players (see IsKeyPlayer), from its
+// squad as it stands; false when the squad can't be read - only a rivalry depends on it.
+func isKeyPlayerOf(dbCtx *DatabaseContext, teamId int64, playerId int64) bool {
+	squad, err := GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error reading the squad of team %d to judge a sale: %s", teamId, err)
+		return false
+	}
+	return IsKeyPlayer(*squad, playerId)
 }

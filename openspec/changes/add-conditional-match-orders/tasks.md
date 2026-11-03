@@ -25,4 +25,4 @@
 ## 5. Specs and checks
 
 - [x] 5.1 Update the Code maps of `match-simulation`, `cpu-team-management` and `match-viewer`; verify `openspec validate add-conditional-match-orders --strict` passes.
-- [ ] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.
+- [x] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.

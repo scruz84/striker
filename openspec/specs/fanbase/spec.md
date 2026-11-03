@@ -66,3 +66,6 @@ Fanbase SHALL affect attendance only through socios targets and as the visiting 
 - Reaches the simulation only through the attendance: the visiting side's Fanbase feeds
   `rivalFactor` (`engine/stadium.go`), and the drawn crowd sets `homeAdvantageMultiplier`
   (`engine/initial_simulation.go`).
+- Rival matches: `fanbaseResultDriftProbability` (`FanbaseRivalResultDriftProbability`,
+  `FanbaseClasicoResultDriftProbability`) used by `driftFanbaseForResult`, with the match's
+  `MatchSimulation.RivalryLevel` passed by `UpdateTeamFinancesAfterMatch`.

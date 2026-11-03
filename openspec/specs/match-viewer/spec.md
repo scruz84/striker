@@ -203,6 +203,13 @@ Ratings shown live or at a minute picked on the scrubber SHALL use the rating fo
   (finished) and the live lineups of `MatchViewer.tsx`, from `Lineup.mentality` of the kickoff
   lineups; labels `match.mentality.*`. The lineup editor's selector is in
   `features/lineup/MatchLineupForm.tsx` (labels `lineup.mentality.*`).
+- Captain's armband: `features/match/CaptainArmband.tsx`, shown by `MatchPitchChip` (through
+  `MatchHeadToHeadPitch`, live and finished) and `TeamRatingsColumn` from `Lineup.captainId`; label
+  `match.captain`. The backend drops the set-piece takers from every public lineup
+  (`common.RedactLineupTakers` in `WeekMatchById`, `GetCupTieDetails`, the friendly details and
+  `engine.BroadcastMatchLive`). The editor's role toggles are in
+  `features/lineup/SelectedPlayerPanel.tsx` (`LINEUP_ROLES`) with the pitch badges and the summary in
+  `MatchLineupForm.tsx` (labels `lineup.roles.*`).
 - Subtitle: `utils/matchSubtitle.ts`; labels `match.competition.*` in `i18n/locales/{en,es}.json`.
 - Backend payloads: `common.CupTieDetails` / `common.FriendlyMatch` (stadium, flavor, instants, World Cup
   group label); storage described in match-simulation's code map.

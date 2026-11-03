@@ -513,6 +513,18 @@ export interface Lineup {
   // The lineup's conditional match orders (see backend common/lineuporders.go) - only in the
   // owner's own lineup editor payloads; nobody else ever sees a team's orders.
   orders?: LineupOrder[]
+  // The lineup's optional roles (see backend common/lineuproles.go); missing = automatic. A played
+  // match's lineups only carry the captain - the set-piece takers are the owner's business.
+  captainId?: number
+  penaltyTakerId?: number
+  freeKickTakerId?: number
+}
+
+// The three optional lineup roles, as the lineup PUT endpoints take them.
+export interface LineupRoles {
+  captainId?: number
+  penaltyTakerId?: number
+  freeKickTakerId?: number
 }
 
 // Mirrors backend common.LineupOrder: armed from fromMinute (1-89), fired once at the first minute
@@ -707,6 +719,8 @@ export interface WeekMatch {
   ratings?: Record<string, number>
   // Every player who featured, with his rating breakdown (see PlayerRating).
   playerRatings?: PlayerRating[]
+  // The match's rivalry level (RIVALRY_*): the one it was played at, or the pair's current one.
+  rivalry?: number
 }
 
 export interface ClassificationPosition {
@@ -1139,6 +1153,19 @@ export interface TransferListing {
   // This listing's player's international caps count - see backend common.GetPlayerCapsBatch.
   caps: number
 }
+
+// One followed player in the club's watchlist (see backend common.WatchlistEntry): his current
+// club (none for a free agent) and, when he is on the market, his open transfer or loan listing.
+export interface WatchlistEntry {
+  player: Player
+  teamName?: string
+  followedAt: string
+  transferListing?: TransferListing
+  loanListing?: LoanListing
+}
+
+// The most players a club can follow - mirrors backend common.MaxWatchlistSize.
+export const MAX_WATCHLIST_SIZE = 30
 
 export interface LoanListing {
   listingId: number
@@ -1621,6 +1648,8 @@ export interface CupTieDetails extends CupTie {
   refereeName?: string
   assistant1Name?: string
   assistant2Name?: string
+  // The match's rivalry level (RIVALRY_*): the one it was played at, or the pair's current one.
+  rivalry?: number
 }
 
 // Match kind discriminators for TeamMatchSummary.kind - see backend/common/teammatches.go.
@@ -1644,6 +1673,24 @@ export interface TeamMatchSummary {
   awayGoals: number
   // Only meaningful for a cup tie - the round number within that cup's bracket.
   round?: number
+  // The fixture's rivalry level (RIVALRY_*): the one it was played at, or the pair's current one
+  // for a fixture still to come. 0 for a friendly.
+  rivalry?: number
+}
+
+// Rivalry levels (backend common.RIVALRY_*, see openspec rivalries).
+export const RIVALRY_NONE = 0
+export const RIVALRY_RIVAL = 1
+export const RIVALRY_CLASICO = 2
+// The highest rivalry score a pair can reach (backend common.RivalryMaxScore).
+export const RIVALRY_MAX_SCORE = 40
+
+// One of a club's rivals as its team page lists it (backend common.TeamRivalry).
+export interface TeamRivalry {
+  teamId: number
+  teamName: string
+  score: number
+  level: number
 }
 
 // OpponentPreview is the owner's preview of an upcoming fixture - see backend
@@ -1723,7 +1770,9 @@ export const NOTIFICATION_PROGRESSION = 8
 export const NOTIFICATION_AWARD = 9
 export const NOTIFICATION_FANBASE = 11
 export const NOTIFICATION_ACCOUNT = 13
+export const NOTIFICATION_RIVALRY = 14
 export const NOTIFICATION_COUNTER_OFFER = 15
+export const NOTIFICATION_WATCHLIST = 16
 
 export interface Notification {
   notificationId: number

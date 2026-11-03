@@ -93,8 +93,12 @@ func planAiKickoff(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int6
 		log.Errorf("kickoff orders of team %d for match %d are invalid, keeping the stored lineup: %s", teamId, matchId, err)
 		return lineup, substitutions
 	}
+	if err := common.ValidateRoles(plan.Positions, plan.Roles, squad); err != nil {
+		log.Errorf("kickoff roles of team %d for match %d are invalid, keeping the stored lineup: %s", teamId, matchId, err)
+		return lineup, substitutions
+	}
 
-	planned := &common.Lineup{MatchId: matchId, TeamId: teamId, Formation: plan.Formation, Positions: plan.Positions, Substitutions: plan.Substitutions, Orders: plan.Orders}
+	planned := &common.Lineup{MatchId: matchId, TeamId: teamId, Formation: plan.Formation, Positions: plan.Positions, Substitutions: plan.Substitutions, Orders: plan.Orders, LineupRoles: plan.Roles}
 	if lineup != nil {
 		planned.MatchId = lineup.MatchId
 	}

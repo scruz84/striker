@@ -50,6 +50,7 @@ import { ResponsiveTable } from '../../components/ResponsiveTable'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { LoanedOutSection } from './LoanedOutSection'
+import { RivalsSection } from './RivalsSection'
 import { SquadList } from './SquadList'
 import { useSquadUnavailability } from '../lineup/useSquadUnavailability'
 import { useSquadTransferListed } from '../lineup/useSquadTransferListed'
@@ -207,6 +208,7 @@ export function TeamDetailsPage() {
           )}
           {teamDetails.stadium && <StadiumCard stadium={teamDetails.stadium} />}
           <RecentMatchesCard teamId={teamDetails.team.id} />
+          {!isNationalTeam && <RivalsSection teamId={teamDetails.team.id} teamName={teamDetails.team.name} />}
           {!isNationalTeam && <CoachCard trainer={teamDetails.trainer} isOwnTeam={isOwnTeam} />}
           {canChallenge && userTeam && (
             <HeadToHeadCard

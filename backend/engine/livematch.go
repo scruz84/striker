@@ -97,6 +97,9 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 	// actually evolve as the broadcast replays SUBSTITUTION events below, never the originals.
 	homeLineup := common.CopyLineup(match.HomeLineup)
 	awayLineup := common.CopyLineup(match.AwayLineup)
+	// Every viewer gets the broadcast: the captain's armband is public, the set-piece takers aren't.
+	common.RedactLineupTakers(homeLineup)
+	common.RedactLineupTakers(awayLineup)
 
 	go func() {
 		// Published once, before the first "instant". A cup tie or friendly missing either
