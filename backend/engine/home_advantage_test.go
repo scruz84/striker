@@ -21,33 +21,33 @@ func assertMultiplier(t *testing.T, name string, got float32, want float64) {
 }
 
 func TestHomeAdvantageMultiplier_FullStadium(t *testing.T) {
-	assertMultiplier(t, "full", homeAdvantageMultiplier(12000, 12000), 1.22)
+	assertMultiplier(t, "full", homeAdvantageMultiplier(12000, 12000), 1.11)
 }
 
 func TestHomeAdvantageMultiplier_EmptyStadium(t *testing.T) {
-	assertMultiplier(t, "nobody came", homeAdvantageMultiplier(0, 12000), 1.08)
-	assertMultiplier(t, "no capacity", homeAdvantageMultiplier(0, 0), 1.08)
+	assertMultiplier(t, "nobody came", homeAdvantageMultiplier(0, 12000), 1.04)
+	assertMultiplier(t, "no capacity", homeAdvantageMultiplier(0, 0), 1.04)
 }
 
 func TestHomeAdvantageMultiplier_HalfFullStadium(t *testing.T) {
-	assertMultiplier(t, "half", homeAdvantageMultiplier(6000, 12000), 1.15)
+	assertMultiplier(t, "half", homeAdvantageMultiplier(6000, 12000), 1.075)
 }
 
 func TestHomeAdvantageMultiplier_FillIsClampedToOne(t *testing.T) {
-	assertMultiplier(t, "over capacity", homeAdvantageMultiplier(15000, 12000), 1.22)
+	assertMultiplier(t, "over capacity", homeAdvantageMultiplier(15000, 12000), 1.11)
 }
 
-// fanbase "Big visitor fills the stadium": 80% -> 92% of capacity moves the multiplier from 1.192
-// to about 1.209.
+// fanbase "Big visitor fills the stadium": 80% -> 92% of capacity moves the multiplier from 1.096
+// to about 1.104.
 func TestHomeAdvantageMultiplier_BigVisitorFillsTheStadium(t *testing.T) {
-	assertMultiplier(t, "80%", homeAdvantageMultiplier(8000, 10000), 1.192)
-	assertMultiplier(t, "92%", homeAdvantageMultiplier(9200, 10000), 1.2088)
+	assertMultiplier(t, "80%", homeAdvantageMultiplier(8000, 10000), 1.096)
+	assertMultiplier(t, "92%", homeAdvantageMultiplier(9200, 10000), 1.1044)
 }
 
 func TestHomeAdvantageFor_WorldCupFixtureIsNeutral(t *testing.T) {
 	full := matchdayCrowd{Attendance: 40000, Capacity: 40000}
 	assertMultiplier(t, "World Cup", homeAdvantageFor(full, true), 1)
-	assertMultiplier(t, "ordinary match", homeAdvantageFor(full, false), 1.22)
+	assertMultiplier(t, "ordinary match", homeAdvantageFor(full, false), 1.11)
 }
 
 // evenSquad is a keeper (first id) and ten outfield starters at skill 60, plus a bench of a keeper
@@ -117,8 +117,8 @@ func TestInitialSimulation_HomeAdvantageMultipliesTheNineHomeZones(t *testing.T)
 	}
 	base, boosted := zones(neutral.HomeQua), zones(full.HomeQua)
 	for i := range base {
-		if base[i] <= 0 || math.Abs(float64(boosted[i]/base[i])-1.22) > 1e-5 {
-			t.Errorf("zone %d: %.4f with a full stadium vs %.4f neutral, want x1.22", i, boosted[i], base[i])
+		if base[i] <= 0 || math.Abs(float64(boosted[i]/base[i])-1.11) > 1e-5 {
+			t.Errorf("zone %d: %.4f with a full stadium vs %.4f neutral, want x1.11", i, boosted[i], base[i])
 		}
 	}
 	if *full.AwayQua != *neutral.AwayQua {
@@ -180,7 +180,7 @@ func measureHomeAdvantage(matches int, seed int64, homeAdvantage float32) homeAd
 
 // TestHomeAdvantageCalibration (match-simulation "Expected effect between even sides") simulates
 // 20,000 matches between identical squads at a half-full stadium and checks the home side wins
-// 43-49%, the away side 25-31%, and the home side scores 1.15-1.40x as many goals. It takes a
+// 38-45%, the away side 30-37%, and the home side scores 1.05-1.25x as many goals. It takes a
 // while, so it only runs with HOME_ADV_SIM=1:
 //
 //	HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v
@@ -197,13 +197,13 @@ func TestHomeAdvantageCalibration(t *testing.T) {
 	r := measureHomeAdvantage(matches, 7, homeAdvantageMultiplier(1, 2))
 	report("half-full", r)
 
-	if r.homeWins < 0.43 || r.homeWins > 0.49 {
-		t.Errorf("home side won %.1f%%, want 43-49%%", 100*r.homeWins)
+	if r.homeWins < 0.38 || r.homeWins > 0.45 {
+		t.Errorf("home side won %.1f%%, want 38-45%%", 100*r.homeWins)
 	}
-	if r.awayWins < 0.25 || r.awayWins > 0.31 {
-		t.Errorf("away side won %.1f%%, want 25-31%%", 100*r.awayWins)
+	if r.awayWins < 0.30 || r.awayWins > 0.37 {
+		t.Errorf("away side won %.1f%%, want 30-37%%", 100*r.awayWins)
 	}
-	if ratio := r.homeGoals / r.awayGoals; ratio < 1.15 || ratio > 1.40 {
-		t.Errorf("home/away goal ratio %.2f, want 1.15-1.40", ratio)
+	if ratio := r.homeGoals / r.awayGoals; ratio < 1.05 || ratio > 1.25 {
+		t.Errorf("home/away goal ratio %.2f, want 1.05-1.25", ratio)
 	}
 }

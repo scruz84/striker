@@ -325,19 +325,19 @@ Every lineup a team owner reads for an upcoming league match, cup tie or friendl
 - **THEN** he is back in the default lineup with no replacement shown, because the saved lineup was never edited
 
 ### Requirement: Home advantage
-Every minute, after the zone blend, each of the home side's nine zone ratings (attack, midfield and defense; centre, left and right) SHALL be multiplied by `1 + 0.08 + 0.14 × fill`, where fill is the match's attendance divided by the home stadium's capacity, 0 when the capacity is 0. World Cup group friendlies and World Cup knockout ties MUST use a multiplier of 1.
+Every minute, after the zone blend, each of the home side's nine zone ratings (attack, midfield and defense; centre, left and right) SHALL be multiplied by `1 + 0.04 + 0.07 × fill`, where fill is the match's attendance divided by the home stadium's capacity, 0 when the capacity is 0. World Cup group friendlies and World Cup knockout ties MUST use a multiplier of 1.
 
 #### Scenario: Full stadium
 - **WHEN** a league match is played with attendance equal to the home stadium's capacity
-- **THEN** every home zone rating is multiplied by 1.22
+- **THEN** every home zone rating is multiplied by 1.11
 
 #### Scenario: Empty stadium
 - **WHEN** a home match draws 0 spectators
-- **THEN** every home zone rating is multiplied by 1.08
+- **THEN** every home zone rating is multiplied by 1.04
 
 #### Scenario: Half-full stadium
 - **WHEN** 6,000 people attend a 12,000-seat stadium
-- **THEN** the multiplier is 1 + 0.08 + 0.14 × 0.5 = 1.15
+- **THEN** the multiplier is 1 + 0.04 + 0.07 × 0.5 = 1.075
 
 #### Scenario: World Cup group match
 - **WHEN** two national teams play a World Cup group friendly
@@ -345,7 +345,7 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
 
 #### Scenario: Expected effect between even sides
 - **WHEN** a large sample of league matches between sides with identical squads is simulated at a half-full stadium
-- **THEN** the home side wins 43%–49% of them, the away side 25%–31%, and the home side scores 1.15–1.40 times as many goals
+- **THEN** the home side wins 38%–45% of them, the away side 30%–37%, and the home side scores 1.05–1.25 times as many goals
 
 ## Code map
 

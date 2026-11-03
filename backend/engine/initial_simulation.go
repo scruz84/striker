@@ -50,12 +50,12 @@ func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Ma
 
 // HomeAdvantageBase is the home side's edge with nobody in the stands, and
 // HomeAdvantageCrowdWeight what a full stadium adds on top: the home zone ratings are multiplied by
-// 1 + HomeAdvantageBase + HomeAdvantageCrowdWeight x fill (see homeAdvantageMultiplier), so 1.08
-// in an empty ground, 1.15 half full and 1.22 full. Calibrated so that, between identical squads at
-// a half-full ground, the home side wins about 46% and the away side about 30% (see
+// 1 + HomeAdvantageBase + HomeAdvantageCrowdWeight x fill (see homeAdvantageMultiplier), so 1.04
+// in an empty ground, 1.075 half full and 1.11 full. Calibrated so that, between identical squads at
+// a half-full ground, the home side wins about 41.5% and the away side about 33.5% (see
 // TestHomeAdvantageCalibration).
-const HomeAdvantageBase = 0.08
-const HomeAdvantageCrowdWeight = 0.14
+const HomeAdvantageBase = 0.04
+const HomeAdvantageCrowdWeight = 0.07
 
 // homeAdvantageMultiplier is the home side's zone-rating multiplier for a match watched by
 // attendance in a stadium of capacity seats. fill is attendance / capacity, clamped to [0, 1], and
