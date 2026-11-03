@@ -15,11 +15,15 @@ Every team SHALL have a Fanbase from 1 to 99, starting at 50. It is public on an
 - **THEN** its Fanbase is 50
 
 ### Requirement: Result drift
-After each league match or cup tie (never a friendly) a team SHALL have a 15% chance of a result drift: +1 for a win, −1 for a loss, nothing for a draw.
+After each league match or cup tie (never a friendly) a team SHALL have a chance of a result drift: +1 for a win, −1 for a loss, nothing for a draw. The chance is 15%, or 30% in a Rival match and 45% in a Clásico (see rivalries).
 
 #### Scenario: Win with a successful roll
 - **WHEN** a team wins and its 15% roll succeeds
 - **THEN** its Fanbase rises by 1
+
+#### Scenario: Clásico defeat
+- **WHEN** a team loses a Clásico
+- **THEN** its Fanbase drops by 1 with probability 45%
 
 ### Requirement: Tier pull
 After each league match or cup tie a team SHALL independently have a 5% chance to move its Fanbase one point toward its division's target: 80 / 50 / 30 for tiers 1 / 2 / 3 (deeper tiers use 30).

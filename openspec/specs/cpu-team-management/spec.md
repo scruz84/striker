@@ -69,7 +69,7 @@ Every CPU team SHALL re-pick its best XI from the current squad whenever it acts
 - **THEN** he may play, because suspensions only bar league and cup matches
 
 ### Requirement: Answering transfer offers
-Every CPU team SHALL accept an offer, highest first, when the fee reaches its threshold: its perceived value (market value with level noise: 30% / 15% / 5%), raised for key starters (×2 Manager, ×2.5 Director) and internationals (Director +25% up to +50% at 20 caps). Sales that leave the squad or the position too thin MUST be refused.
+Every CPU team SHALL accept an offer, highest first, when the fee reaches its threshold: its perceived value (market value with level noise: 30% / 15% / 5%), raised for key starters (×2 Manager, ×2.5 Director) and internationals (Director +25% up to +50% at 20 caps). Sales that leave the squad or the position too thin MUST be refused. A Manager or Director counters an offer of at least 70% of its threshold (see transfer-negotiation) instead of rejecting it.
 
 #### Scenario: Thin position
 - **WHEN** selling would leave the squad under its size minus 2 or the player's position under its minimum depth
@@ -86,6 +86,22 @@ Every CPU team SHALL accept an offer, highest first, when the fee reaches its th
 #### Scenario: Caretaker and potential
 - **WHEN** a Caretaker values a teenager
 - **THEN** it ignores his hidden potential
+
+#### Scenario: Near-miss offer to a Director
+- **WHEN** a Director's threshold for a player is 1,234,500 and it receives an offer of 1,000,000
+- **THEN** it counters with 1,235,000 (the threshold rounded up to the next 1,000)
+
+#### Scenario: Low offer
+- **WHEN** a Manager receives an offer below 70% of its threshold
+- **THEN** it rejects the offer
+
+#### Scenario: Caretaker near miss
+- **WHEN** a Caretaker receives an offer at 90% of its threshold
+- **THEN** it rejects the offer
+
+#### Scenario: Thin position near miss
+- **WHEN** an offer at 95% of the threshold would leave the player's position too thin
+- **THEN** it is rejected, never countered
 
 ### Requirement: Manager roster upkeep
 A Manager or Director SHALL, in order: renew any player with one season or less left at his expected wage and maximum acceptable term; withdraw listings that are no longer surplus and list at most one surplus player; withdraw loan listings that are no longer surplus and offer at most one player on loan; promote an academy prospect into a thin position; set the revenue-maximising ticket price.
@@ -219,6 +235,43 @@ A CPU team SHALL withdraw any of its loan listings whose player stopped being el
 #### Scenario: Injury crisis
 - **WHEN** a loan-listed defender's position drops under its minimum depth after a sale
 - **THEN** the loan listing is withdrawn
+
+### Requirement: CPU mentality
+At the kickoff of a league match or cup tie a CPU team SHALL pick its mentality from the ratio R of its kickoff XI's strength to the opponent's kickoff XI's strength (sum of each player's value at his slot). A Caretaker is always Balanced. A Manager is Attacking when R ≥ 1.15, Defensive when R ≤ 0.87, Balanced otherwise. A Director first multiplies R by 1.07 at home and by 1/1.07 away, then uses 1.10 and 0.90. In friendlies every CPU team is Balanced.
+
+#### Scenario: Manager favourite
+- **WHEN** a Manager's XI is worth 1,150 against an opponent's 1,000
+- **THEN** it plays Attacking
+
+#### Scenario: Director away underdog
+- **WHEN** a Director's XI is worth 950 against 1,000 away from home
+- **THEN** R becomes 0.95 / 1.07 ≈ 0.888 and it plays Defensive
+
+#### Scenario: Caretaker
+- **WHEN** a Caretaker plays any match
+- **THEN** it plays Balanced
+
+### Requirement: CPU conditional orders
+At the kickoff of a league match or cup tie a CPU team SHALL add conditional orders by AI level. A Caretaker adds none. A Manager adds "from 70, if losing, go Attacking". A Director adds "from 65, if losing, go Attacking" and "from 75, if winning, go Defensive". In friendlies CPU teams add no orders.
+
+#### Scenario: Director protecting a lead
+- **WHEN** a Director leads 1–0 at the start of minute 75
+- **THEN** it switches to Defensive in minute 75
+
+#### Scenario: Manager chasing the game
+- **WHEN** a Manager is losing 0–1 at the start of minute 80 and was drawing until then
+- **THEN** it switches to Attacking in minute 80
+
+### Requirement: CPU captain
+At kickoff of every match a CPU team SHALL name as captain its oldest outfield starter, ties going to the lowest player id, and leave both set-piece takers automatic.
+
+#### Scenario: Veteran captain
+- **WHEN** a CPU team's outfield starters are aged 24, 31 and 33 among others, with 33 the oldest
+- **THEN** the 33-year-old is its captain
+
+#### Scenario: Takers
+- **WHEN** a CPU team wins a penalty
+- **THEN** its taker is chosen by the automatic rule
 
 ## Code map
 

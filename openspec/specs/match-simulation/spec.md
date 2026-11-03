@@ -9,11 +9,11 @@ forfeits are decided. All three competitions share the same engine.
 ## Requirements
 
 ### Requirement: Per-minute simulation pipeline
-The simulator SHALL run, for every minute from 1 to 90, the stages in this order: substitutions, stamina (fatigue), team qualification, scorer, discipline, injury.
+The simulator SHALL run, for every minute from 1 to 90, the stages in this order: substitutions (scheduled substitutions, then conditional orders), stamina (fatigue), team qualification, scorer, discipline, injury.
 
 #### Scenario: A minute is simulated
 - **WHEN** minute N is simulated
-- **THEN** due scheduled substitutions are applied first
+- **THEN** due scheduled substitutions are applied first, then due conditional orders
 - **AND** fatigue-adjusted player copies are rebuilt before qualification and scoring read them
 - **AND** cards and injuries are rolled after the scoring stage
 
@@ -37,19 +37,23 @@ Before kickoff the simulator MUST remove from the saved lineup every outfield pl
 - **THEN** he fills the defence slot, because defence comes first in slot order, and the midfield slot takes the next best player
 
 ### Requirement: In-match fatigue
-Each minute, every player's seven core skills SHALL be scaled by `1 - 0.30 × (minutes played / 90) × ((99 - Stamina) / 99)`, and every later stage MUST read these effective skills.
+Each minute, every player's seven core skills SHALL be scaled by `1 - P × (minutes played / 90) × ((99 - Stamina) / 99)`, where P is 0.30 for a Balanced side, 0.33 for an Attacking side and 0.27 for a Defensive side at that minute, and every later stage MUST read these effective skills.
 
 #### Scenario: Stamina 99
 - **WHEN** a Stamina-99 player has played 90 minutes
 - **THEN** his effective skills equal his raw skills
 
 #### Scenario: Stamina 0 at full time
-- **WHEN** a Stamina-0 player has played 90 minutes
+- **WHEN** a Stamina-0 player of a Balanced side has played 90 minutes
 - **THEN** each of his core skills is reduced by 30%
 
 #### Scenario: Not yet on the pitch
 - **WHEN** a player has played 0 minutes this match
 - **THEN** he is unaffected whatever his Stamina
+
+#### Scenario: Attacking side at full time
+- **WHEN** a Stamina-0 player of an Attacking side has played 90 minutes
+- **THEN** each of his core skills is reduced by 33%
 
 ### Requirement: Team qualification recomputed every minute
 The simulator SHALL recompute each team's attack, midfield and defense ratings (center, left and right) every minute from whoever is on the pitch, so red cards, injuries and substitutions take effect immediately.
@@ -70,15 +74,23 @@ The simulator SHALL recompute each team's attack, midfield and defense ratings (
 - **AND** the center's blended value is scaled back up by its player count
 
 ### Requirement: Chance generation
-Each minute SHALL produce an attacking chance with probability 14% plus up to 10 points scaled by midfield dominance. The attacking side MUST be chosen by a midfield-weighted share bounded to 32%–68%.
+Each minute SHALL produce an attacking chance with probability 14% plus up to 10 points scaled by midfield dominance, plus 1 point for each Attacking side and minus 1 point for each Defensive side. The attacking side MUST be chosen by a midfield-weighted share bounded to 32%–68%.
 
 #### Scenario: Even midfields
-- **WHEN** both midfields are equal
+- **WHEN** both midfields are equal and both sides are Balanced
 - **THEN** a chance occurs with 14% probability and each side gets it half of the time
 
 #### Scenario: Total midfield dominance
-- **WHEN** one side holds almost all the midfield strength
+- **WHEN** one side holds almost all the midfield strength and both sides are Balanced
 - **THEN** the chance probability approaches 24% and that side gets at most 68% of chances
+
+#### Scenario: Two Attacking sides
+- **WHEN** both midfields are equal and both sides are Attacking
+- **THEN** a chance occurs with 16% probability
+
+#### Scenario: Attacking against Defensive
+- **WHEN** one side is Attacking and the other Defensive
+- **THEN** the mentality adjustments cancel and the probability is the same as for two Balanced sides
 
 ### Requirement: Chance resolution
 An open-play chance SHALL be central 50%, left 25% or right 25%, taken by a striker 70%, midfielder 20% or defender 10% (falling back to any remaining line), and converted with a logistic probability bounded to 5%–65% and centered on 28% for an even matchup. Set-piece chances are resolved separately (see "Set-piece chances").
@@ -126,7 +138,7 @@ Each attacking chance SHALL first be classified: a penalty with probability 2.2%
 - **AND** that holds because each set piece replaces an open-play chance worth ~0.24 goals with a penalty worth 0.78 or a free kick worth 0.06
 
 ### Requirement: Penalty resolution
-A penalty SHALL be taken by the attacking side's on-pitch outfield player with the highest fatigue-adjusted Shot, ties going to the lowest player id. It is scored with probability `0.78 + 0.30 × (taker Shot − keeper GoalKeeper) / 99`, bounded to 60%–92%. It uses neither the open-play clear-cut roll nor the flank logic.
+A penalty SHALL be taken by the attacking side's named penalty taker when he is on the pitch; otherwise by its on-pitch outfield player with the highest fatigue-adjusted Shot, ties going to the lowest player id. It is scored with probability `0.78 + 0.30 × (taker Shot − keeper GoalKeeper) / 99`, bounded to 60%–92%. It uses neither the open-play clear-cut roll nor the flank logic.
 
 #### Scenario: Even taker and keeper
 - **WHEN** the taker's Shot equals the opposing keeper's GoalKeeper
@@ -141,15 +153,23 @@ A penalty SHALL be taken by the attacking side's on-pitch outfield player with t
 - **THEN** the probability is 0.78 − 0.30 × 60/99 ≈ 0.598, bounded to 60%
 
 #### Scenario: Best finisher already sent off
-- **WHEN** the side's highest-Shot player has been sent off, injured off or substituted
+- **WHEN** the side has no named taker and its highest-Shot player has been sent off, injured off or substituted
 - **THEN** the best remaining on-pitch outfield player takes the penalty
 
 #### Scenario: No outfield player left
 - **WHEN** the attacking side has no outfield player on the pitch
 - **THEN** the penalty is discarded, the same as an open-play chance
 
+#### Scenario: Named taker on the pitch
+- **WHEN** the named penalty taker has Shot 60 and a team-mate on the pitch has Shot 75
+- **THEN** the named taker takes the penalty and it is scored with the probability for Shot 60
+
+#### Scenario: Named taker on the bench
+- **WHEN** the named penalty taker has not come on yet
+- **THEN** the automatic rule picks the taker
+
 ### Requirement: Direct free-kick resolution
-A direct free kick SHALL be taken by the attacking side's on-pitch outfield player with the highest `0.6 × Shot + 0.4 × Pass` (fatigue-adjusted), ties going to the lowest player id. It is scored with probability `0.06 + 0.10 × (taker value − keeper GoalKeeper) / 99`, bounded to 2%–15%.
+A direct free kick SHALL be taken by the attacking side's named free-kick taker when he is on the pitch; otherwise by its on-pitch outfield player with the highest `0.6 × Shot + 0.4 × Pass` (fatigue-adjusted), ties going to the lowest player id. It is scored with probability `0.06 + 0.10 × (taker value − keeper GoalKeeper) / 99`, bounded to 2%–15%.
 
 #### Scenario: Even taker and keeper
 - **WHEN** the taker's value equals the keeper's GoalKeeper
@@ -162,6 +182,10 @@ A direct free kick SHALL be taken by the attacking side's on-pitch outfield play
 #### Scenario: Bounds
 - **WHEN** the taker value exceeds the keeper's GoalKeeper by 99, or trails it by 99
 - **THEN** the probability is 15% and 2% respectively
+
+#### Scenario: Named free-kick taker substituted off
+- **WHEN** the named free-kick taker was substituted off in minute 60 and a free kick comes in minute 70
+- **THEN** the automatic rule picks the taker
 
 ### Requirement: Set-piece event recording
 A set-piece outcome SHALL be recorded as the usual goal or missed-chance event, carrying a set-piece kind (0 open play, 1 penalty, 2 direct free kick) and naming the defending goalkeeper as the other team's player. Every goal count (score, top scorers, awards, player stats, match ratings) MUST include set-piece goals.
@@ -183,7 +207,7 @@ A set-piece outcome SHALL be recorded as the usual goal or missed-chance event, 
 - **THEN** it is marked as a penalty or a free kick next to the scorer's name in the viewer's language
 
 ### Requirement: Discipline
-Each minute SHALL have a 3% chance of a card for a random outfield player of either side; 6% of first cards are straight reds, and a second yellow becomes a red. A sent-off player MUST leave the pitch unreplaced. Goalkeepers are never booked.
+Each minute SHALL have a chance of a card for a random outfield player of either side: 3%, or 3.6% in a Rival match and 4.2% in a Clásico (league and cup only, see rivalries). 6% of first cards are straight reds, and a second yellow becomes a red. A sent-off player MUST leave the pitch unreplaced. Goalkeepers are never booked.
 
 #### Scenario: Straight red in a league match
 - **WHEN** a player gets a straight red in a league or cup match
@@ -196,6 +220,10 @@ Each minute SHALL have a 3% chance of a card for a random outfield player of eit
 #### Scenario: Red card in a friendly
 - **WHEN** a player is sent off in a friendly
 - **THEN** he leaves the match but carries no suspension
+
+#### Scenario: Clásico
+- **WHEN** a league match between Clásico rivals is simulated
+- **THEN** each minute has a 4.2% chance of a card, about 3.8 cards per match instead of 2.7
 
 ### Requirement: Injuries
 Each minute SHALL have a 0.5% chance of injuring a random outfield player, removing him for the rest of the match and sidelining him for 1–5 matches. If the team has not used its 3 substitutions, the best available bench player MUST replace him as a logged substitution. A player already substituted off this match is not available. Goalkeepers are never injured.
@@ -346,6 +374,114 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
 #### Scenario: Expected effect between even sides
 - **WHEN** a large sample of league matches between sides with identical squads is simulated at a half-full stadium
 - **THEN** the home side wins 38%–45% of them, the away side 30%–37%, and the home side scores 1.05–1.25 times as many goals
+
+### Requirement: Team mentality
+Every lineup SHALL carry a mentality: Defensive (−1), Balanced (0, the default) or Attacking (+1). Every minute, after the zone blend and the home advantage, an Attacking side's three attack ratings MUST be multiplied by 1.08 and its three defense ratings by 0.92; a Defensive side's the other way round. Midfield ratings and a Balanced side are unchanged.
+
+#### Scenario: Attacking side
+- **WHEN** an Attacking side has a central attack of 200 and a central defense of 180 after the blend
+- **THEN** they are 216 and 165.6 for that minute
+
+#### Scenario: Two Balanced sides
+- **WHEN** both sides are Balanced
+- **THEN** the match is simulated exactly as without mentality
+
+#### Scenario: Lineup saved before this change
+- **WHEN** a lineup saved before this change is used
+- **THEN** it plays Balanced
+
+### Requirement: Mentality effect sizes
+Between sides with identical squads, an Attacking side facing a Balanced one SHALL score 8%–20% more goals and concede 8%–20% more than a Balanced side does against a Balanced side; a Defensive side facing a Balanced one SHALL concede 8%–20% fewer goals and score 8%–20% fewer.
+
+#### Scenario: Calibration sample
+- **WHEN** 20,000 matches of an Attacking side against a Balanced side with identical squads are simulated
+- **THEN** the Attacking side's goals for and goals against are both 8%–20% above the Balanced-vs-Balanced average
+
+### Requirement: Conditional match orders
+A lineup that can schedule substitutions SHALL also hold up to 3 conditional orders, each with a from-minute from 1 to 89, a score condition (losing, losing by 2+, drawing, winning, winning by 2+, from the side's own point of view) and one action: set the mentality, or substitute a starter for a bench player. A saved order MUST pass the same player checks as a scheduled substitution.
+
+#### Scenario: Valid orders
+- **WHEN** a manager saves "from 60, if losing, go Attacking" and "from 75, if winning, striker A off for defender B"
+- **THEN** both orders are stored with the lineup
+
+#### Scenario: Too many orders
+- **WHEN** a manager saves 4 orders
+- **THEN** the lineup is rejected with a validation error
+
+#### Scenario: Invalid substitution order
+- **WHEN** an order's incoming player is also a starter
+- **THEN** the lineup is rejected, the same as an invalid scheduled substitution
+
+### Requirement: Order firing
+In the substitution stage of each minute, after scheduled substitutions, every unfired order whose from-minute is at most the current minute SHALL be checked, in slot order, against the score at the start of that minute. An order whose condition holds fires once and is never checked again. An order that never meets its condition by minute 90 MUST NOT fire.
+
+#### Scenario: Going behind late
+- **WHEN** an order "from 60, if losing, go Attacking" exists and the side goes 0–1 down in minute 72
+- **THEN** the side plays Attacking from minute 73 to the end
+
+#### Scenario: Condition met before the from-minute
+- **WHEN** a side is losing from minute 20 and its order is "from 60, if losing, go Attacking"
+- **THEN** the order fires in minute 60
+
+#### Scenario: Condition never met
+- **WHEN** a side wins 2–0 and its only order is "from 60, if losing, go Attacking"
+- **THEN** the order never fires and the side stays at its kickoff mentality
+
+#### Scenario: Two orders on the same minute
+- **WHEN** orders in slots 1 and 2 both become due and hold in the same minute
+- **THEN** slot 1 fires first, then slot 2
+
+### Requirement: Substitution orders
+A substitution order that fires SHALL be applied with the scheduled-substitution rules: it needs its outgoing player on the pitch and fewer than 3 substitutions used, counting injury replacements and scheduled substitutions, and an ineligible incoming player is replaced by the best eligible bench player for that position. A substitution order that cannot be applied MUST be spent without counting against the 3.
+
+#### Scenario: Cap already reached
+- **WHEN** a side has used 3 substitutions and a substitution order's condition holds
+- **THEN** the order is spent and no substitution happens
+
+#### Scenario: Outgoing player sent off
+- **WHEN** a substitution order's outgoing player was sent off earlier
+- **THEN** the order is spent without a substitution
+
+### Requirement: Mentality change event
+A fired mentality order that changes the side's mentality SHALL be recorded as a `MENTALITY_CHANGE` event (type 8) at that minute, naming the team and the new mentality. An order that sets the mentality the side already has is spent without an event.
+
+#### Scenario: Switch to Defensive
+- **WHEN** a Balanced side's order "from 75, if winning, go Defensive" fires in minute 75
+- **THEN** a `MENTALITY_CHANGE` event for minute 75 with mentality Defensive is stored
+
+#### Scenario: Already Attacking
+- **WHEN** an Attacking side's order "go Attacking" fires
+- **THEN** no event is stored
+
+### Requirement: Lineup roles
+Every lineup SHALL be able to name a captain, a penalty taker and a free-kick taker, each optional ("automatic" when empty). Each named player MUST be in that lineup's XI or bench; the two takers MUST NOT be goalkeepers. A named player who later leaves the squad is treated as automatic.
+
+#### Scenario: Roles saved
+- **WHEN** a manager names his number 10 as free-kick taker and his centre-back as captain
+- **THEN** both are stored with the lineup and the penalty taker stays automatic
+
+#### Scenario: Goalkeeper as taker
+- **WHEN** a manager names his goalkeeper as penalty taker
+- **THEN** the lineup is rejected with a validation error
+
+#### Scenario: Taker sold
+- **WHEN** the named penalty taker is sold after the lineup was saved
+- **THEN** the lineup's penalty taker is automatic
+
+### Requirement: Captain's calming effect
+When a card is drawn for an outfield player whose side has its captain on the pitch, and that player is not the captain, the card SHALL be cancelled with probability 10% and nothing is recorded. A side without a captain on the pitch MUST be booked exactly as today.
+
+#### Scenario: Captain on the pitch
+- **WHEN** a card is drawn for a midfielder whose captain is playing
+- **THEN** with probability 10% no card is shown, and otherwise the card is shown as usual
+
+#### Scenario: Captain booked
+- **WHEN** the card is drawn for the captain himself
+- **THEN** it is never cancelled
+
+#### Scenario: Captain sent off
+- **WHEN** the captain was sent off earlier in the match
+- **THEN** his team-mates' cards are no longer cancelled
 
 ## Code map
 

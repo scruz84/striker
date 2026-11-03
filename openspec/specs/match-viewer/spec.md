@@ -21,7 +21,7 @@ League matches (`/match/:id`), cup ties (`/cup/ties/:id`, which includes interna
 
 ### Requirement: Viewer phases
 The viewer SHALL show one of three views:
-- **Scheduled**, before kickoff: the scoreboard marked as scheduled, plus the lineup section.
+- **Scheduled**, before kickoff: the scoreboard marked as scheduled, plus the lineup section and, for a participating owner before the lineup lock, the opponent preview (see opponent-preview).
 - **Live**, from kickoff until the live replay reports completion: the live scoreboard, lineups pitch, chronicle, zone duel, minute-by-minute ratings and head-to-head card.
 - **Finished**: the scoreboard and the three tabs.
 
@@ -32,6 +32,10 @@ The viewer SHALL show one of three views:
 #### Scenario: Played flag set before kickoff
 - **WHEN** a match is already marked played 10 minutes before its advertised kickoff
 - **THEN** the viewer still shows the scheduled view until kickoff
+
+#### Scenario: Participant before kickoff
+- **WHEN** a participating owner opens his upcoming league match before the lineup lock
+- **THEN** the scheduled view shows his lineup editor and the opponent preview
 
 ### Requirement: Live spoiler withholding
 In the live view, the viewer SHALL hide injury and red-card events, for every competition, until the replay completes. Live per-player ratings are shown, but they MUST be computed without the withheld injury and red-card events. The finished view shows every event and the stored ratings.
@@ -175,6 +179,39 @@ Ratings shown live or at a minute picked on the scrubber SHALL use the rating fo
 #### Scenario: Back to full time
 - **WHEN** the viewer moves the scrubber back to the final minute
 - **THEN** every rating equals the stored rating shown in the breakdown
+
+### Requirement: Mentality in the lineups
+From kickoff on, the lineups pitch of the live and finished views SHALL show each side's mentality at kickoff (Defensive, Balanced or Attacking) in the viewer's language. Before kickoff only a participating owner sees his own side's mentality, in his lineup editor.
+
+#### Scenario: Finished match
+- **WHEN** a viewer opens a finished league match in which the home side played Attacking
+- **THEN** the lineups pitch labels the home side "Attacking" ("Ofensiva" in Spanish)
+
+#### Scenario: Before kickoff
+- **WHEN** a manager opens an upcoming match of two other clubs
+- **THEN** no mentality is shown for either side
+
+### Requirement: Mentality change in the chronicle
+The live chronicle and the finished report SHALL list every `MENTALITY_CHANGE` event at its minute, naming the team and its new mentality in the viewer's language. During the live view it MUST appear only once the replay reaches its minute.
+
+#### Scenario: Live replay
+- **WHEN** a viewer watches a match whose away side switches to Attacking in minute 70
+- **THEN** at minute 70 the chronicle shows that the away side moves to an attacking approach
+
+#### Scenario: Before the minute
+- **WHEN** the replay is at minute 50
+- **THEN** that minute-70 change is not shown
+
+### Requirement: Captain's armband
+From kickoff on, the lineups pitch and the ratings list of the live and finished views SHALL mark each side's captain with a "C" armband. Named set-piece takers MUST NOT be shown to other managers.
+
+#### Scenario: Finished match
+- **WHEN** a viewer opens a finished match in which the home captain started
+- **THEN** his chip on the lineups pitch shows a "C" armband
+
+#### Scenario: No captain
+- **WHEN** a side played without a named captain
+- **THEN** no armband is shown for it
 
 ## Code map
 
