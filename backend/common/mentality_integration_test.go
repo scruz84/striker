@@ -48,7 +48,7 @@ func TestLineupMentality_RoundTripsInEveryLineupKind(t *testing.T) {
 	// League match override, and the fallback to the default for a team without one.
 	matchId := scan(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id)
 		VALUES ($1, 1, 1, now() + interval '1 day', $2, $3) RETURNING match_id`, leagueId, home, away)
-	if err := SetLineupForMatch(dbCtx, matchId, away, FormationBalanced, MENTALITY_DEFENSIVE, positions, nil); err != nil {
+	if err := SetLineupForMatch(dbCtx, matchId, away, FormationBalanced, MENTALITY_DEFENSIVE, positions, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	if lineup, _, err := GetMatchLineupOverride(dbCtx, matchId, away); err != nil || lineup.Mentality != MENTALITY_DEFENSIVE {
@@ -65,14 +65,14 @@ func TestLineupMentality_RoundTripsInEveryLineupKind(t *testing.T) {
 		t.Errorf("resolved match mentalities = %d / %d, want Attacking (default) / Defensive (override)",
 			(*lineups)[home].Mentality, (*lineups)[away].Mentality)
 	}
-	if err := SetLineupForMatch(dbCtx, matchId, away, FormationBalanced, -2, positions, nil); err != ErrInvalidMentality {
+	if err := SetLineupForMatch(dbCtx, matchId, away, FormationBalanced, -2, positions, nil, nil); err != ErrInvalidMentality {
 		t.Errorf("SetLineupForMatch(-2) = %v, want ErrInvalidMentality", err)
 	}
 
 	// Cup tie override.
 	cupId := scan(`INSERT INTO cups (country, season, name) VALUES ('zm', 1, 'Mentality Cup') RETURNING cup_id`)
 	tieId := scan(`INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id) VALUES ($1, 1, 1, $2, $3) RETURNING tie_id`, cupId, home, away)
-	if err := SetCupTieLineup(dbCtx, tieId, home, FormationBalanced, MENTALITY_ATTACKING, positions, nil); err != nil {
+	if err := SetCupTieLineup(dbCtx, tieId, home, FormationBalanced, MENTALITY_ATTACKING, positions, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	if lineup, _, err := GetCupTieLineup(dbCtx, tieId, home); err != nil || lineup.Mentality != MENTALITY_ATTACKING {
@@ -81,7 +81,7 @@ func TestLineupMentality_RoundTripsInEveryLineupKind(t *testing.T) {
 
 	// Friendly override.
 	friendlyId := scan(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date) VALUES ($1, $2, now() + interval '1 day') RETURNING match_id`, home, away)
-	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_DEFENSIVE, positions, nil); err != nil {
+	if err := SetFriendlyLineup(dbCtx, friendlyId, home, FormationBalanced, MENTALITY_DEFENSIVE, positions, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	if lineup, _, err := GetFriendlyLineup(dbCtx, friendlyId, home); err != nil || lineup.Mentality != MENTALITY_DEFENSIVE {

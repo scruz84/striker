@@ -77,11 +77,11 @@ func simulateFriendliesNow(dbCtx *common.DatabaseContext, friendlies []common.Fr
 // into friendly_lineup/friendly_lineup_positions (via common.SetFriendlyLineup) instead of the
 // league-match tables, since a friendly's id space is kept deliberately separate (see
 // GetLineupsForFriendly's doc comment).
-func persistFriendlyLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+func persistFriendlyLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
+	if err := common.SetFriendlyLineup(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for friendly %d team %d: %s", matchId, teamId, err)
 	}
 }
@@ -103,9 +103,17 @@ func simulateFriendly(dbCtx *common.DatabaseContext, friendly *common.FriendlyMa
 	// national-team friendly, which already has an explicit override saved at call-up time (see
 	// common.SetNationalTeamLineup), this just rewrites the same XI - call-ups are never
 	// unavailable.
+	// Only a per-friendly override carries conditional orders (the friendly default has none).
+	for _, teamId := range []int64{friendly.HomeTeamId, friendly.AwayTeamId} {
+		orders, err := common.GetFriendlyLineupOrders(dbCtx, friendly.MatchId, teamId)
+		if err != nil {
+			return err
+		}
+		(*lineups)[teamId].Orders = orders
+	}
 	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffFriendly, friendly.MatchId, friendly.HomeTeamId, friendly.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions)
-	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
-		persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, teamId, lineup, substitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
+		persistFriendlyLineupSnapshot(dbCtx, friendly.MatchId, teamId, lineup, substitutions, orders)
 	}
 	// Weather and crowd are drawn before kickoff - see simulateMatch. A World Cup group friendly is
 	// played as neutral: it still draws a crowd for the gate and the report, but gives the home side

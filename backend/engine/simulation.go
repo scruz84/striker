@@ -36,11 +36,11 @@ const ForfeitGoals = 3
 // runMatchSimulation calls it (through a lineupSnapshotStore) right after the pre-kickoff removal
 // and refill of unavailable players, so the stored lineup is the XI that actually kicked off - an
 // injured starter in a saved lineup never shows as a starter, and his replacement is in his slot.
-func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+func persistResolvedLineupSnapshot(dbCtx *common.DatabaseContext, matchId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
+	if err := common.SetLineupForMatch(dbCtx, matchId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for match %d team %d: %s", matchId, teamId, err)
 	}
 }
@@ -61,10 +61,18 @@ func simulateMatch(dbCtx *common.DatabaseContext, match *common.WeekMatch) (*com
 	if err != nil {
 		return nil, err
 	}
+	// Conditional orders resolve like the substitutions (common.GetOrdersForMatch).
+	for _, teamId := range []int64{match.Home, match.Away} {
+		orders, err := common.GetOrdersForMatch(dbCtx, match.MatchId, teamId)
+		if err != nil {
+			return nil, err
+		}
+		(*lineups)[teamId].Orders = orders
+	}
 	// An AI-managed team decides its XI, formation and substitutions now, just before kickoff.
 	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffLeague, match.MatchId, match.Home, match.Away, lineups, homeSubstitutions, awaySubstitutions)
-	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
-		persistResolvedLineupSnapshot(dbCtx, match.MatchId, teamId, lineup, substitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
+		persistResolvedLineupSnapshot(dbCtx, match.MatchId, teamId, lineup, substitutions, orders)
 	}
 	// Weather and crowd are drawn once, before kickoff, so the same crowd sets the home advantage,
 	// is booked as gate revenue and is shown in the report. A league match excludes its own row
@@ -227,6 +235,14 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	}
 	// Each side's mentality starts from its kickoff lineup's; it lives on the simulation so a
 	// conditional order can change it mid-match.
+	// Conditional orders travel in the incoming lineups' Orders and live on the simulation from
+	// here on; the kickoff lineups (broadcast live) never carry them.
+	if lineup := (*lineups)[homeTeamId]; lineup != nil {
+		matchSimulation.HomeOrders = lineup.Orders
+	}
+	if lineup := (*lineups)[awayTeamId]; lineup != nil {
+		matchSimulation.AwayOrders = lineup.Orders
+	}
 	if matchSimulation.HomeLineup != nil {
 		matchSimulation.HomeMentality = matchSimulation.HomeLineup.Mentality
 	}
@@ -234,8 +250,8 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		matchSimulation.AwayMentality = matchSimulation.AwayLineup.Mentality
 	}
 	if snapshot != nil {
-		snapshot(homeTeamId, matchSimulation.HomeLineup, homeSubstitutions)
-		snapshot(awayTeamId, matchSimulation.AwayLineup, awaySubstitutions)
+		snapshot(homeTeamId, matchSimulation.HomeLineup, homeSubstitutions, matchSimulation.HomeOrders)
+		snapshot(awayTeamId, matchSimulation.AwayLineup, awaySubstitutions, matchSimulation.AwayOrders)
 	}
 
 	// A squad crisis can leave a side unable to even kick off with enough players (the backfill
@@ -276,7 +292,7 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 }
 
 // lineupSnapshotStore records the lineup a side actually kicked off with - see runMatchSimulation.
-type lineupSnapshotStore func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution)
+type lineupSnapshotStore func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder)
 
 // kickoffLineup rebuilds a side's lineup from who is on the pitch at minute 0, keeping the saved
 // lineup's identity (match id, team, formation) and listing positions in a fixed order.

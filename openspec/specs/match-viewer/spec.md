@@ -194,6 +194,11 @@ Ratings shown live or at a minute picked on the scrubber SHALL use the rating fo
   (scrubber, live and finished), `features/match/TeamRatingsColumn.tsx` (rows, "s.c.", `RatingBreakdown`),
   `utils/liveMatchRatings.ts` (`computePlayerRatings`, `startingLineup`); the formula is in the match-ratings
   spec.
+- Mentality changes: `EVENT_TYPE_MENTALITY_CHANGE` narrated by `utils/matchCommentary.tsx`
+  (`match.commentary.mentalityChange.*`) and listed by `features/match/MatchEventsReport.tsx`; live,
+  it arrives with the other events of its minute (`engine.BroadcastMatchLive`). The orders editor
+  is `features/lineup/OrdersEditor.tsx` with `useOrderDrafts.ts`, shown by `MatchLineupForm` when
+  `ordersEnabled` (labels `lineup.orders.*`).
 - Mentality: `features/match/MentalityLabel.tsx`, shown next to each side's name in `Lineups.tsx`
   (finished) and the live lineups of `MatchViewer.tsx`, from `Lineup.mentality` of the kickoff
   lineups; labels `match.mentality.*`. The lineup editor's selector is in

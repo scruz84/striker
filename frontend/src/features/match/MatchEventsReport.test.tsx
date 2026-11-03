@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { EVENT_TYPE_MATCH_DEFAULT_RESULT, type MatchEvent } from '../../api/types'
+import { EVENT_TYPE_MATCH_DEFAULT_RESULT, EVENT_TYPE_MENTALITY_CHANGE, type MatchEvent } from '../../api/types'
 import i18n from '../../i18n'
 import { MatchEventsReport } from './MatchEventsReport'
 
@@ -43,5 +43,36 @@ describe('MatchEventsReport default result', () => {
     expect(container.textContent).toContain('Real Norte')
     expect(container.textContent).toContain('Atlético Sur')
     expect(screen.getByLabelText(label)).toHaveTextContent('🤝')
+  })
+})
+
+// openspec/specs/match-viewer "Mentality change in the chronicle".
+describe('MatchEventsReport mentality change', () => {
+  const change: MatchEvent = { ...defaultResult, eventType: EVENT_TYPE_MENTALITY_CHANGE, minute: 70, teamOwner: 2, otherTeam: 1, mentality: 1 }
+
+  it.each([
+    ['en', 'attacking'],
+    ['es', 'ataque'],
+  ])('narrates the away side moving to an attacking approach at its minute in %s', async (language, word) => {
+    await i18n.changeLanguage(language)
+    const { container } = render(
+      <MemoryRouter>
+        <MatchEventsReport events={[change]} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" />
+      </MemoryRouter>,
+    )
+    expect(container.textContent).toContain('Atlético Sur')
+    expect(container.textContent?.toLowerCase()).toContain(word)
+    expect(container.textContent).toContain('70')
+  })
+
+  it('shows nothing of the change while the replay has not reached its minute', () => {
+    // The live view only holds the events broadcast so far (see BroadcastMatchLive) - at minute 50
+    // the minute-70 change hasn't arrived.
+    const { container } = render(
+      <MemoryRouter>
+        <MatchEventsReport events={[]} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" />
+      </MemoryRouter>,
+    )
+    expect(container.textContent?.toLowerCase()).not.toContain('attacking')
   })
 })

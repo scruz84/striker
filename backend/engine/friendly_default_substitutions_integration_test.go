@@ -114,7 +114,7 @@ func TestSimulateFriendly_OverridePlaysOnlyItsOwnSubstitutions(t *testing.T) {
 		t.Fatalf("BestLineupForTeam: %s", err)
 	}
 	own := []common.LineupSubstitution{{PlayerOutId: starters[1], PlayerInId: bench[1], Minute: 75}}
-	if err := common.SetFriendlyLineup(e.dbCtx, friendlyId, e.home, best.Formation, common.MENTALITY_BALANCED, best.Positions, own); err != nil {
+	if err := common.SetFriendlyLineup(e.dbCtx, friendlyId, e.home, best.Formation, common.MENTALITY_BALANCED, best.Positions, own, nil); err != nil {
 		t.Fatalf("SetFriendlyLineup: %s", err)
 	}
 

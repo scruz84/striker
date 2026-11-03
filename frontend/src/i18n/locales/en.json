@@ -378,6 +378,28 @@
       "defensive": "Defensive",
       "balanced": "Balanced",
       "attacking": "Attacking"
+    },
+    "orders": {
+      "title": "Conditional orders",
+      "description": "Up to {{max}} plans the team follows during the match: from a minute on, as soon as the score meets the condition, the order is carried out once. A substitution order counts against the 3 substitutions.",
+      "orderN": "Order {{n}}",
+      "remove": "Remove order",
+      "add": "Add order",
+      "fromMinute": "From minute",
+      "fromMinuteRange": "Between {{min}} and {{max}}",
+      "condition": "If we are",
+      "action": "Then",
+      "conditions": {
+        "losing": "Losing",
+        "losingBy2": "Losing by 2 or more",
+        "drawing": "Drawing",
+        "winning": "Winning",
+        "winningBy2": "Winning by 2 or more"
+      },
+      "actions": {
+        "mentality": "Change mentality",
+        "substitution": "Make a substitution"
+      }
     }
   },
   "positions": {
@@ -1300,7 +1322,23 @@
         "{{player}}'s free kick for {{team}} is held by {{keeper}}.",
         "Free kick for {{team}}! {{player}} strikes it, but it's off target.",
         "{{player}} tries the direct free kick for {{team}} - {{keeper}} is equal to it!"
-      ]
+      ],
+      "mentalityChange": {
+        "attacking": [
+          "{{team}} push forward and switch to an attacking approach.",
+          "{{team}} go for it: an attacking approach from here on.",
+          "Change of plan for {{team}}, who now play on the attack."
+        ],
+        "balanced": [
+          "{{team}} settle down and return to a balanced approach.",
+          "{{team}} go back to a balanced game."
+        ],
+        "defensive": [
+          "{{team}} drop deep and switch to a defensive approach.",
+          "{{team}} shut up shop: a defensive approach from here on.",
+          "Change of plan for {{team}}, who now protect what they have."
+        ]
+      }
     },
     "setPiece": {
       "penaltyShort": "pen.",

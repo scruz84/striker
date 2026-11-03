@@ -11,6 +11,34 @@ type AiMatchPlan struct {
 	Formation     int
 	Positions     []LineupPosition
 	Substitutions []LineupSubstitution
+	// Orders are the CPU's conditional match orders (see AiConditionalOrders); none in friendlies.
+	Orders []LineupOrder
+}
+
+// The CPU's conditional orders (see openspec/specs/cpu-team-management "CPU conditional orders"):
+// a Manager chases a losing game from aiManagerChaseMinute; a Director chases from
+// aiDirectorChaseMinute and protects a lead from aiDirectorProtectMinute.
+const (
+	aiManagerChaseMinute    = 70
+	aiDirectorChaseMinute   = 65
+	aiDirectorProtectMinute = 75
+)
+
+// AiConditionalOrders are the conditional orders a CPU team of aiLevel plays a league match or cup
+// tie with: none for a Caretaker.
+func AiConditionalOrders(aiLevel int) []LineupOrder {
+	switch {
+	case aiLevel >= AiLevelDirector:
+		return []LineupOrder{
+			{FromMinute: aiDirectorChaseMinute, Condition: ORDER_CONDITION_LOSING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_ATTACKING},
+			{FromMinute: aiDirectorProtectMinute, Condition: ORDER_CONDITION_WINNING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_DEFENSIVE},
+		}
+	case aiLevel >= AiLevelManager:
+		return []LineupOrder{
+			{FromMinute: aiManagerChaseMinute, Condition: ORDER_CONDITION_LOSING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_ATTACKING},
+		}
+	}
+	return nil
 }
 
 // Minutes and thresholds of the CPU's planned substitutions (see planCompetitiveSubstitutions and
@@ -72,6 +100,7 @@ func PlanAiMatchLineup(squad []*Player, leagueUnavailable map[int64]bool, matchU
 
 	plan := AiMatchPlan{Formation: formation, Positions: orderedLineupPositions(regulars)}
 	plan.Substitutions = planCompetitiveSubstitutions(squad, regulars, leagueUnavailable, aiLevel)
+	plan.Orders = AiConditionalOrders(aiLevel)
 	return plan
 }
 

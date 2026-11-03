@@ -425,11 +425,11 @@ func simulateCupTieOnce(dbCtx *common.DatabaseContext, tie *common.CupTie) error
 // persistCupTieLineupSnapshot is persistResolvedLineupSnapshot's cup-tie equivalent, writing into
 // cup_tie_lineup/cup_tie_lineup_positions (via common.SetCupTieLineup) instead of the league-match
 // tables, since a tie's id space is its own (see SetCupTieLineup's doc comment).
-func persistCupTieLineupSnapshot(dbCtx *common.DatabaseContext, tieId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
+func persistCupTieLineupSnapshot(dbCtx *common.DatabaseContext, tieId int64, teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
 	if lineup == nil || len(lineup.Positions) == 0 {
 		return
 	}
-	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions); err != nil {
+	if err := common.SetCupTieLineup(dbCtx, tieId, teamId, lineup.Formation, lineup.Mentality, lineup.Positions, substitutions, orders); err != nil {
 		log.Errorf("error persisting resolved lineup snapshot for cup tie %d team %d: %s", tieId, teamId, err)
 	}
 }
@@ -453,9 +453,16 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 	// Freeze the XI that actually kicks off as this tie's own permanent override - see
 	// persistResolvedLineupSnapshot's doc comment for why GetLineupsForCupTie's fallback alone
 	// isn't enough to keep a played tie's lineup showing correctly forever.
+	for _, teamId := range []int64{*tie.HomeTeamId, *tie.AwayTeamId} {
+		orders, err := common.GetOrdersForCupTie(dbCtx, tie.TieId, teamId)
+		if err != nil {
+			return err
+		}
+		(*lineups)[teamId].Orders = orders
+	}
 	homeSubstitutions, awaySubstitutions = planAiKickoffs(dbCtx, kickoffCup, tie.TieId, *tie.HomeTeamId, *tie.AwayTeamId, lineups, homeSubstitutions, awaySubstitutions)
-	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution) {
-		persistCupTieLineupSnapshot(dbCtx, tie.TieId, teamId, lineup, substitutions)
+	snapshot := func(teamId int64, lineup *common.Lineup, substitutions []common.LineupSubstitution, orders []common.LineupOrder) {
+		persistCupTieLineupSnapshot(dbCtx, tie.TieId, teamId, lineup, substitutions, orders)
 	}
 	// Weather and crowd are drawn before kickoff - see simulateMatch. A cup tie has no row in
 	// matches, and its id could collide with an unrelated match's, so its form excludes nothing.

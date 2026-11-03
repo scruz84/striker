@@ -378,6 +378,28 @@
       "defensive": "Defensiva",
       "balanced": "Equilibrada",
       "attacking": "Ofensiva"
+    },
+    "orders": {
+      "title": "Órdenes condicionales",
+      "description": "Hasta {{max}} planes que el equipo sigue durante el partido: desde un minuto, en cuanto el marcador cumpla la condición, la orden se ejecuta una vez. Una orden de cambio cuenta para las 3 sustituciones.",
+      "orderN": "Orden {{n}}",
+      "remove": "Quitar orden",
+      "add": "Añadir orden",
+      "fromMinute": "Desde el minuto",
+      "fromMinuteRange": "Entre {{min}} y {{max}}",
+      "condition": "Si vamos",
+      "action": "Entonces",
+      "conditions": {
+        "losing": "Perdiendo",
+        "losingBy2": "Perdiendo por 2 o más",
+        "drawing": "Empatando",
+        "winning": "Ganando",
+        "winningBy2": "Ganando por 2 o más"
+      },
+      "actions": {
+        "mentality": "Cambiar la mentalidad",
+        "substitution": "Hacer un cambio"
+      }
     }
   },
   "positions": {
@@ -1300,7 +1322,23 @@
         "La falta de {{player}} para {{team}} la detiene {{keeper}}.",
         "¡Falta para {{team}}! {{player}} dispara, pero se va fuera.",
         "{{player}} prueba la falta directa para {{team}}: ¡{{keeper}} responde!"
-      ]
+      ],
+      "mentalityChange": {
+        "attacking": [
+          "{{team}} da un paso adelante y pasa a una propuesta ofensiva.",
+          "{{team}} va a por todas: juega al ataque desde ahora.",
+          "Cambio de plan en {{team}}, que ahora juega al ataque."
+        ],
+        "balanced": [
+          "{{team}} se serena y vuelve a una propuesta equilibrada.",
+          "{{team}} recupera un juego equilibrado."
+        ],
+        "defensive": [
+          "{{team}} se repliega y pasa a una propuesta defensiva.",
+          "{{team}} cierra filas: juega a la defensiva desde ahora.",
+          "Cambio de plan en {{team}}, que ahora protege lo que tiene."
+        ]
+      }
     },
     "setPiece": {
       "penaltyShort": "p.",

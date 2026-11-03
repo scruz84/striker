@@ -45,6 +45,10 @@ const MATCH_ABANDONED = 6
 // the away side. It is the only event such a fixture stores.
 const MATCH_DEFAULT_RESULT = 7
 
+// MENTALITY_CHANGE marks a conditional order switching a side's mentality mid-match (see
+// engine.applyConditionalOrders) - TeamOwner is that side, Event.Mentality its new mentality.
+const MENTALITY_CHANGE = 8
+
 // Event.SetPiece: how a GOAL / NO_GOAL event came about. A set piece is an attribute of the
 // usual goal event rather than an event type of its own, so every reader that counts
 // event_type = GOAL (top scorers, awards, ratings, scoreboards) keeps counting penalties and

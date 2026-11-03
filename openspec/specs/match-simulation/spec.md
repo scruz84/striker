@@ -390,6 +390,20 @@ Every minute, after the zone blend, each of the home side's nine zone ratings (a
   `common.FatigueMultiplierWithPenalty`). Tests: `engine/mentality_test.go` (including
   `TestMentalityCalibration`, `MENTALITY_SIM=1`), `common/mentality_integration_test.go`,
   `handlers/lineupMentality_test.go`.
+- Conditional orders: `common/lineuporders.go` (`LineupOrder`, `ORDER_CONDITION_*`,
+  `ORDER_ACTION_*`, `MaxConditionalOrders`, `OrderConditionHolds`, `ValidateOrders`, storage per
+  lineup kind, `GetOrdersForMatch` / `GetOrdersForCupTie` / `GetFriendlyLineupOrders`); tables
+  `default_lineup_orders`, `lineup_orders`, `cup_tie_lineup_orders`, `friendly_lineup_orders` and
+  the `mentality` column of the three event tables (`resources/sql/init96_lineup_orders.sql`).
+  `simulateMatch` / `simulateCupTie` / `simulateFriendly` put the resolved orders on the incoming
+  lineups; `runMatchSimulation` moves them to `MatchSimulation.HomeOrders` / `AwayOrders` (the
+  kickoff lineups never carry them) and the snapshot callback stores them. Firing:
+  `engine/substitution_simulation.go` (`applyConditionalOrders` after `applyScheduledSubstitutions`,
+  `applySubstitution` shared by both, `teamSide.orders` / `ordersFired` / `mentality`);
+  `common.MENTALITY_CHANGE` events carry `Event.Mentality`. Lineup GET handlers fill
+  `Lineup.Orders` for the owner only (`withOwnerOrders` in `handlers/lineupHandlers.go`). Tests:
+  `engine/conditional_orders_test.go`, `engine/conditional_orders_integration_test.go`,
+  `common/lineuporders_integration_test.go`, `handlers/lineupOrders_test.go`.
 - Crowd before kickoff: `simulateMatch`, `simulateCupTie` and `simulateFriendly` call
   `engine.drawMatchdayConditions` (`engine/stadium.go`: weather, then `drawMatchdayCrowd` returning a
   `matchdayCrowd`) before `runMatchSimulation`, and after the save commits pass that crowd to

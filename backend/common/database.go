@@ -162,7 +162,7 @@ const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, playe
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece " +
+const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality " +
 	"FROM match_events WHERE match_id = $1 order by minute asc"
 
 const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions" +
@@ -188,8 +188,8 @@ const InsertDefaultFriendlyLineupPositionsStmtSql = "INSERT INTO default_friendl
 const GetDefaultFriendlyLineupStmtSql = "SELECT player_id, position FROM default_friendly_lineup_positions WHERE team_id = $1"
 const DeleteDefaultFriendlyLineupPositionsStmtSql = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
 
-const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)"
+const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
 
 const InsertMatchInstantStmtSql = "" +
 	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
@@ -711,7 +711,7 @@ const InsertMatchLineupPositionStmtSql = "INSERT INTO lineup_positions (lineup_i
 // lineup/lineup_positions tables to use: GetLineupsForMatch already reads them with a fallback to
 // default_lineup_positions, so a row inserted here is picked up by both simulation and the
 // played-match "Lineups" tab (WeekMatchById) with no further changes needed anywhere else.
-func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution) error {
+func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -760,6 +760,10 @@ func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 		if _, err := insertSubStmt.Exec(matchId, teamId, i+1, s.PlayerOutId, s.PlayerInId, s.Minute); err != nil {
 			return err
 		}
+	}
+
+	if err := replaceOrders(tx, DeleteMatchLineupOrdersStmtSql, InsertMatchLineupOrderStmtSql, []any{matchId, teamId}, orders); err != nil {
+		return err
 	}
 
 	return tx.Commit()
@@ -1495,8 +1499,9 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var homeGoals int
 		var awayGoals int
 		var setPiece int
+		var mentality sql.NullInt64
 		rows.Scan(&eventId, &matchId, &eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece)
+			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece, &mentality)
 
 		event := Event{
 			EventType:             eventType,
@@ -1510,6 +1515,7 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			HomeGoals:             homeGoals,
 			AwayGoals:             awayGoals,
 			SetPiece:              setPiece,
+			Mentality:             nullableInt(mentality),
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)

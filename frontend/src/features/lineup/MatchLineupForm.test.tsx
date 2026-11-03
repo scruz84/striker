@@ -80,7 +80,7 @@ describe('MatchLineupForm mentality', () => {
     expect(guard.dirty.at(-1)).toBe(true)
 
     fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
-    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 1)
+    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 1, [])
   })
 
   it('shows a lineup saved as Defensive as Defensive', () => {
@@ -99,5 +99,64 @@ describe('MatchLineupForm mentality', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('button', { name: 'Defensive' })).toHaveAttribute('aria-pressed', 'true')
+  })
+})
+
+describe('MatchLineupForm conditional orders', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('en')
+  })
+
+  function renderForm(onSave = vi.fn(), ordersEnabled = true) {
+    render(
+      <MemoryRouter>
+        <MatchLineupForm
+          titleKey="lineup.title"
+          teamId={7}
+          players={players}
+          lineup={lineup}
+          onSave={onSave}
+          isSaving={false}
+          isError={false}
+          isSuccess={false}
+          substitutionsEnabled
+          ordersEnabled={ordersEnabled}
+        />
+      </MemoryRouter>,
+    )
+    return onSave
+  }
+
+  it('adds an order, rejects a from-minute outside 1-89 and sends the order on save', () => {
+    const onSave = renderForm()
+    fireEvent.click(screen.getByRole('button', { name: 'Add order' }))
+    const minute = screen.getByLabelText('From minute')
+
+    fireEvent.change(minute, { target: { value: '0' } })
+    expect(screen.getByText('Between 1 and 89')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save lineup' })).toBeDisabled()
+    // Above the range the field stops at 89.
+    fireEvent.change(minute, { target: { value: '95' } })
+    expect(minute).toHaveValue('89')
+
+    fireEvent.change(minute, { target: { value: '70' } })
+    expect(screen.queryByText('Between 1 and 89')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
+    expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 0, [{ fromMinute: 70, condition: 0, action: 0, mentality: 1 }])
+  })
+
+  it('allows at most 3 orders', () => {
+    renderForm()
+    const add = screen.getByRole('button', { name: 'Add order' })
+    fireEvent.click(add)
+    fireEvent.click(add)
+    fireEvent.click(add)
+    expect(screen.getAllByText(/^Order \d$/)).toHaveLength(3)
+    expect(add).toBeDisabled()
+  })
+
+  it('has no orders section where orders are not enabled', () => {
+    renderForm(vi.fn(), false)
+    expect(screen.queryByRole('button', { name: 'Add order' })).not.toBeInTheDocument()
   })
 })

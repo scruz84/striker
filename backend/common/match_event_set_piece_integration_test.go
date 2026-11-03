@@ -39,7 +39,7 @@ func TestMatchEventSetPiece_RoundTrips(t *testing.T) {
 
 	// League: written the way common.SaveLeagueMatchResultTx does.
 	mustExec(InsertMatchEventStmtSql, matchId, penalty.EventType, penalty.TeamOwner, penalty.OtherTeam, penalty.Minute,
-		`[7]`, `["Taker"]`, `[1]`, `["Keeper"]`, penalty.HomeGoals, penalty.AwayGoals, penalty.SetPiece)
+		`[7]`, `["Taker"]`, `[1]`, `["Keeper"]`, penalty.HomeGoals, penalty.AwayGoals, penalty.SetPiece, nil)
 	mustExec(`INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players)
 		VALUES ($1, $2, $3, $4, 40, '[8]')`, matchId, NO_GOAL, teamA, teamB)
 	events := *GetMatchEvents(dbCtx, matchId)

@@ -219,10 +219,10 @@ func replaceMatchEventsTx(tx *sql.Tx, kind string, eventsTable string, idColumn 
 			otherPlayersJson, _ := json.Marshal(e.OtherTeamPlayers)
 			otherPlayerNamesJson, _ := json.Marshal(e.OtherTeamPlayersNames)
 			_, err = insertEvent.Exec(id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamPlayersJson,
-				teamPlayerNamesJson, otherPlayersJson, otherPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece)
+				teamPlayerNamesJson, otherPlayersJson, otherPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece, e.Mentality)
 		} else {
 			_, err = insertEvent.Exec(id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-				teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece)
+				teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece, e.Mentality)
 		}
 		if err != nil {
 			return err

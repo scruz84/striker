@@ -316,3 +316,41 @@ func TestValidateMentality(t *testing.T) {
 		}
 	}
 }
+
+// CPU conditional orders by AI level (openspec/specs/cpu-team-management "CPU conditional orders").
+func TestAiConditionalOrders(t *testing.T) {
+	if got := AiConditionalOrders(AiLevelCaretaker); len(got) != 0 {
+		t.Errorf("Caretaker orders = %+v, want none", got)
+	}
+	manager := AiConditionalOrders(AiLevelManager)
+	if len(manager) != 1 || manager[0] != (LineupOrder{FromMinute: 70, Condition: ORDER_CONDITION_LOSING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_ATTACKING}) {
+		t.Errorf("Manager orders = %+v", manager)
+	}
+	director := AiConditionalOrders(AiLevelDirector)
+	if len(director) != 2 ||
+		director[0] != (LineupOrder{FromMinute: 65, Condition: ORDER_CONDITION_LOSING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_ATTACKING}) ||
+		director[1] != (LineupOrder{FromMinute: 75, Condition: ORDER_CONDITION_WINNING, Action: ORDER_ACTION_MENTALITY, Mentality: MENTALITY_DEFENSIVE}) {
+		t.Errorf("Director orders = %+v", director)
+	}
+	for _, o := range director {
+		if err := ValidateOrders(nil, []LineupOrder{o}, &[]*Player{}, nil); err != nil {
+			t.Errorf("a CPU order fails validation: %s", err)
+		}
+	}
+}
+
+func TestPlanAiMatchLineup_OrdersOnlyInCompetitiveMatches(t *testing.T) {
+	squad := make([]*Player, 0, 18)
+	for i := int64(1); i <= 18; i++ {
+		squad = append(squad, fieldPlayer(i, 50, 80, 27))
+	}
+	squad[0].GoalKeeper, squad[1].GoalKeeper = 70, 65
+	competitive := PlanAiMatchLineup(squad, nil, nil, AiLevelDirector, false, rand.New(rand.NewSource(1)))
+	if len(competitive.Orders) != 2 {
+		t.Errorf("Director league plan has %d orders, want 2", len(competitive.Orders))
+	}
+	friendly := PlanAiMatchLineup(squad, nil, nil, AiLevelDirector, true, rand.New(rand.NewSource(1)))
+	if len(friendly.Orders) != 0 {
+		t.Errorf("Director friendly plan has %d orders, want none", len(friendly.Orders))
+	}
+}

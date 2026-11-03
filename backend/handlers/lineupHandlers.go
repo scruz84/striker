@@ -14,6 +14,9 @@ type SetLineupRequest struct {
 	// Mentality is -1 (defensive), 0 (balanced) or 1 (attacking); a payload without it saves
 	// Balanced.
 	Mentality int `json:"mentality"`
+	// Orders are the lineup's conditional match orders (at most 3; see common.ValidateOrders). The
+	// friendly default lineup carries none, so its handler ignores them.
+	Orders []common.LineupOrder `json:"orders"`
 }
 
 // GetLineupHandler returns the caller's team's default lineup.
@@ -35,6 +38,9 @@ func GetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		if err != nil {
 			log.Errorf("error getting default lineup for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if !withOwnerOrders(c, lineup, func() ([]common.LineupOrder, error) { return common.GetDefaultLineupOrders(dbCtx, team.Id) }) {
 			return
 		}
 		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, lineup, false))
@@ -89,6 +95,10 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateOrders(req.Positions, req.Orders, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
 		if err := common.SetTeamFormation(dbCtx, team.Id, req.Formation); err != nil {
 			log.Errorf("error setting formation for team %d: %s", team.Id, err)
@@ -107,6 +117,11 @@ func SetLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		if err := common.SetDefaultLineupSubstitutions(dbCtx, team.Id, req.Substitutions); err != nil {
 			log.Errorf("error setting substitutions for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.SetDefaultLineupOrders(dbCtx, team.Id, req.Orders); err != nil {
+			log.Errorf("error setting conditional orders for team %d: %s", team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
@@ -269,4 +284,18 @@ func validateLineup(formation int, positions []common.LineupPosition, teamPlayer
 
 func validateSubstitutions(positions []common.LineupPosition, subs []common.LineupSubstitution, teamPlayers *[]*common.Player, unavailable map[int64]bool) error {
 	return common.ValidateSubstitutions(positions, subs, teamPlayers, unavailable)
+}
+
+// withOwnerOrders fills lineup.Orders with the conditional orders load returns, for the lineup
+// GET handlers a team owner opens - a team's orders are never shown to anyone else (see
+// common.Lineup.Orders). A failed read answers the request with a 500 and returns false.
+func withOwnerOrders(c *gin.Context, lineup *common.Lineup, load func() ([]common.LineupOrder, error)) bool {
+	orders, err := load()
+	if err != nil {
+		log.Errorf("error getting conditional orders for team %d: %s", lineup.TeamId, err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		return false
+	}
+	lineup.Orders = orders
+	return true
 }

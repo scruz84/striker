@@ -99,6 +99,10 @@ type Lineup struct {
 	// Mentality is how the side plays: MENTALITY_DEFENSIVE, _BALANCED (the default) or _ATTACKING
 	// (see common/mentality.go).
 	Mentality int `json:"mentality"`
+	// Orders are the lineup's conditional match orders (see common/lineuporders.go). Like
+	// ProjectedReplacements, only the lineup GET handlers a team owner opens fill it: a team's
+	// orders are never shown to anyone else, only their effects (events) are.
+	Orders []LineupOrder `json:"orders,omitempty"`
 	// ProjectedReplacements is filled only by the lineup GET handlers a team owner opens (never
 	// stored): for each unavailable starter, who the pre-kickoff refill would put in his slot if
 	// the match kicked off now (see ProjectKickoffReplacements).
@@ -430,6 +434,13 @@ type MatchSimulation struct {
 	//(chance probability) and StaminaSimulation (fatigue).
 	HomeMentality int
 	AwayMentality int
+	//HomeOrders/AwayOrders: each side's conditional match orders (see common/lineuporders.go) and
+	//which of them have been spent, applied by engine.SubstitutionSimulation after the scheduled
+	//substitutions.
+	HomeOrders      []LineupOrder
+	AwayOrders      []LineupOrder
+	HomeOrdersFired []bool
+	AwayOrdersFired []bool
 	//Calculations
 	MidfieldDiff         float32 // home midfield vs away midfield difference
 	HomeAttackRightDiff  float32
@@ -584,6 +595,8 @@ type Event struct {
 	// meaningful on GOAL / NO_GOAL events. A set-piece event lists the defending goalkeeper in
 	// OtherTeamPlayers.
 	SetPiece int `json:"setPiece"`
+	// Mentality is the side's new mentality on a MENTALITY_CHANGE event; nil on every other event.
+	Mentality *int `json:"mentality,omitempty"`
 }
 
 type WeekMatch struct {

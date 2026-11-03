@@ -10,6 +10,7 @@ import {
   EVENT_TYPE_INJURY,
   EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_MATCH_DEFAULT_RESULT,
+  EVENT_TYPE_MENTALITY_CHANGE,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
@@ -31,6 +32,7 @@ const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_MATCH_DEFAULT_RESULT,
+  EVENT_TYPE_MENTALITY_CHANGE,
 ]
 
 interface TeamStats {
@@ -289,6 +291,8 @@ function iconFor(eventType: number): string | null {
       return '⛔'
     case EVENT_TYPE_MATCH_DEFAULT_RESULT:
       return '🤝'
+    case EVENT_TYPE_MENTALITY_CHANGE:
+      return '📋'
     default:
       return null
   }

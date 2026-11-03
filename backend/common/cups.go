@@ -86,7 +86,7 @@ const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, home_team_id, away_te
 	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL AND " + simulationEligibleSql + " " + ForUpdate
 
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
+	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 
 const InsertCupTieInstantStmtSql = "INSERT INTO cup_tie_instants(tie_id, minute, home_goals, away_goals, home_qua, away_qua, " +
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
@@ -101,7 +101,7 @@ const GetCupTieInstantsStmtSql = "SELECT tie_id, minute, home_goals, away_goals,
 const GetCupTieFlavorStmtSql = "SELECT ct.weather, ct.attendance, ct.referee_name, ct.assistant1_name, ct.assistant2_name, t.stadium_name " +
 	"FROM cup_ties ct LEFT JOIN teams t ON t.team_id = ct.home_team_id WHERE ct.tie_id = $1"
 
-const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
+const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality " +
 	"FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC"
 
 // CreateCup starts a new single-elimination cup for a country's season.
@@ -369,7 +369,7 @@ const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions 
 // against cup_tie_lineup/cup_tie_lineup_positions rather than lineup/lineup_positions -
 // cup_ties.tie_id is its own id sequence, independent of matches.match_id, so a tie can never
 // safely share the league-match-keyed tables (see resources/sql/init38_match_lineup_overrides.sql).
-func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution) error {
+func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -418,6 +418,10 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 		if _, err := insertSubStmt.Exec(tieId, teamId, i+1, s.PlayerOutId, s.PlayerInId, s.Minute); err != nil {
 			return err
 		}
+	}
+
+	if err := replaceOrders(tx, DeleteCupTieLineupOrdersStmtSql, InsertCupTieLineupOrderStmtSql, []any{tieId, teamId}, orders); err != nil {
+		return err
 	}
 
 	return tx.Commit()
@@ -603,10 +607,12 @@ func GetCupTieEvents(dbCtx *DatabaseContext, tieId int64) ([]Event, error) {
 	for rows.Next() {
 		var e Event
 		var teamPlayers, teamPlayerNames string
+		var mentality sql.NullInt64
 		if err := rows.Scan(&e.EventType, &e.TeamOwner, &e.OtherTeam, &e.Minute, &teamPlayers, &teamPlayerNames,
-			&e.HomeGoals, &e.AwayGoals, &e.SetPiece); err != nil {
+			&e.HomeGoals, &e.AwayGoals, &e.SetPiece, &mentality); err != nil {
 			return nil, err
 		}
+		e.Mentality = nullableInt(mentality)
 		if teamPlayers != "" {
 			_ = json.Unmarshal([]byte(teamPlayers), &e.TeamOwnerPlayers)
 		}

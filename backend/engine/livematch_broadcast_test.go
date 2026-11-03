@@ -154,3 +154,34 @@ func awaitBroadcastMessage(t *testing.T, ch chan common.LiveMatchMessage) common
 		panic("unreachable")
 	}
 }
+
+// A conditional order's MENTALITY_CHANGE is broadcast at its own minute (after the previous
+// minute's instant, never earlier), carrying the new mentality (openspec/specs/match-viewer
+// "Mentality change in the chronicle").
+func TestBroadcastMatchLive_MentalityChangeArrivesAtItsMinute(t *testing.T) {
+	hub := common.NewLiveMatchHub()
+	if err := hub.Ping(); err != nil {
+		t.Skipf("redis not reachable, skipping: %s", err)
+	}
+	channel := "test-broadcast-mentality"
+	sub, unsubscribe := hub.Subscribe(channel)
+	defer unsubscribe()
+
+	attacking := common.MENTALITY_ATTACKING
+	events := []common.Event{{EventType: common.MENTALITY_CHANGE, Minute: 70, TeamOwner: 2, OtherTeam: 1, Mentality: &attacking}}
+	instants := []common.MatchInstant{{Minute: 69}, {Minute: 70}}
+	match := &common.MatchSimulation{Events: &events, MatchInstants: &instants}
+	done := make(chan struct{})
+	// Far enough in the past that minute 70 (after the halftime pause) is already due.
+	BroadcastMatchLive(&common.DatabaseContext{LiveHub: hub}, channel, match, time.Now().Add(-3*time.Hour), func() { close(done) })
+
+	if msg := awaitBroadcastMessage(t, sub); msg.Type != "instant" || msg.Instant.Minute != 69 {
+		t.Fatalf("expected the minute-69 instant first, got %+v", msg)
+	}
+	msg := awaitBroadcastMessage(t, sub)
+	if msg.Type != "event" || msg.Event.EventType != common.MENTALITY_CHANGE || msg.Event.Minute != 70 ||
+		msg.Event.Mentality == nil || *msg.Event.Mentality != common.MENTALITY_ATTACKING {
+		t.Fatalf("expected the minute-70 mentality change next, got %+v", msg)
+	}
+	<-done
+}

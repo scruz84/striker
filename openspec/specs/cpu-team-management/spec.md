@@ -242,6 +242,11 @@ A CPU team SHALL withdraw any of its loan listings whose player stopped being el
   `common.LineupStrength` with the `AiManager*Ratio` / `AiDirector*Ratio` / `AiDirectorVenueFactor`
   constants (`common/mentality.go`). Tests: `common/ailineup_test.go` (`TestPickAiMentality`),
   `engine/aimentality_integration_test.go`.
+- Kickoff orders: `common.AiConditionalOrders` (`aiManagerChaseMinute`, `aiDirectorChaseMinute`,
+  `aiDirectorProtectMinute` in `common/ailineup.go`), set as `AiMatchPlan.Orders` by
+  `PlanAiMatchLineup` for competitive matches only and checked with `common.ValidateOrders` in
+  `planAiKickoff`. Tests: `common/ailineup_test.go` (`TestAiConditionalOrders`),
+  `engine/conditional_orders_test.go` (`TestCpuConditionalOrders_*`).
 - Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,
   `planCompetitiveSubstitutions`, `aiSubstitutionGain`) and `common/ailineupfriendly.go`
   (`planFriendlyRotation`), validated with `common.ValidateLineup` / `ValidateSubstitutions`

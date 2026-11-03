@@ -4,12 +4,14 @@ import {
   EVENT_TYPE_INJURY,
   EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_MATCH_DEFAULT_RESULT,
+  EVENT_TYPE_MENTALITY_CHANGE,
   EVENT_TYPE_NO_GOAL,
   EVENT_TYPE_RED_CARD,
   EVENT_TYPE_SUBSTITUTION,
   EVENT_TYPE_YELLOW_CARD,
   SET_PIECE_DIRECT_FREE_KICK,
   SET_PIECE_PENALTY,
+  MENTALITY_KEYS,
   type MatchEvent,
 } from '../api/types'
 import { PlayerNameLink } from '../components/PlayerNameLink'
@@ -40,6 +42,11 @@ const SET_PIECE_COMMENTARY_KEYS: Partial<Record<number, Partial<Record<number, s
 }
 
 function commentaryKey(event: MatchEvent): string | undefined {
+  // A mentality change narrates the side's new approach (match.commentary.mentalityChange.*).
+  if (event.eventType === EVENT_TYPE_MENTALITY_CHANGE) {
+    const mentality = event.mentality === undefined ? undefined : MENTALITY_KEYS[event.mentality]
+    return mentality ? `match.commentary.mentalityChange.${mentality}` : undefined
+  }
   return SET_PIECE_COMMENTARY_KEYS[event.eventType]?.[event.setPiece ?? 0] ?? COMMENTARY_KEYS[event.eventType]
 }
 
@@ -139,7 +146,11 @@ export function commentaryFor(
   // Unlike every other event type, an abandoned match names no player - just the short-handed
   // team (event.teamOwner, resolved to team/teamName by the caller) and the side awarded the win.
   // A default result likewise names no player: just the two sides (team is the home side).
-  if (event.eventType === EVENT_TYPE_MATCH_ABANDONED || event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT) {
+  if (
+    event.eventType === EVENT_TYPE_MATCH_ABANDONED ||
+    event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT ||
+    event.eventType === EVENT_TYPE_MENTALITY_CHANGE
+  ) {
     return interpolateNodes(template, {
       team: { text: teamName, teamId },
       opponent: { text: opponentName, teamId: opponentId },

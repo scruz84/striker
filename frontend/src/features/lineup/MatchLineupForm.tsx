@@ -22,17 +22,20 @@ import {
   MENTALITY_DEFENSIVE,
   MENTALITY_KEYS,
   type Lineup,
+  type LineupOrder,
   type LineupPosition,
   type LineupSubstitution,
   type Player,
 } from '../../api/types'
 import { LineupSaveBar } from './LineupSaveBar'
 import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
+import { OrdersEditor } from './OrdersEditor'
 import { PlayerBench } from './PlayerBench'
 import { SelectedPlayerPanel } from './SelectedPlayerPanel'
 import { SoccerPitch } from './SoccerPitch'
 import { SubstitutionsEditor } from './SubstitutionsEditor'
 import { useLineupSelections } from './useLineupSelections'
+import { useOrderDrafts } from './useOrderDrafts'
 import { useSubstitutionDrafts } from './useSubstitutionDrafts'
 import { UnavailableStartersWarning } from './UnavailableStartersWarning'
 import { useSquadUnavailability } from './useSquadUnavailability'
@@ -50,7 +53,7 @@ export interface MatchLineupFormProps {
   teamId: number
   players: Player[]
   lineup: Lineup
-  onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number) => void
+  onSave: (formation: number, positions: LineupPosition[], substitutions: LineupSubstitution[], mentality: number, orders: LineupOrder[]) => void
   isSaving: boolean
   isError: boolean
   isSuccess: boolean
@@ -62,6 +65,9 @@ export interface MatchLineupFormProps {
   // common.GetSubstitutionsForMatch/GetSubstitutionsForCupTie and common.GetLineupsForFriendly: a
   // friendly falls back to the friendly default's own set, never the league/cup one).
   substitutionsEnabled?: boolean
+  // Shows the conditional-orders section (see OrdersEditor) - every lineup that can schedule
+  // substitutions except the friendly default, which carries no orders.
+  ordersEnabled?: boolean
   // A red-card suspension carries no sanction into a friendly (see useSquadUnavailability) - set
   // this for FriendlyMatchPage's caller so a suspended-only player isn't wrongly flagged/blocked.
   isFriendly?: boolean
@@ -91,6 +97,7 @@ export function MatchLineupForm({
   isError,
   isSuccess,
   substitutionsEnabled,
+  ordersEnabled,
   isFriendly,
   isDefaultLineup,
   embedded = false,
@@ -125,6 +132,10 @@ export function MatchLineupForm({
     resetSubstitutionDrafts,
     validSubstitutions,
   } = useSubstitutionDrafts(lineup, usedPlayerIds, unavailability)
+  const { orderDrafts, handleAddOrder, handleRemoveOrder, handleOrderChange, resetOrderDrafts, ordersValid, validOrders } = useOrderDrafts(
+    lineup,
+    usedPlayerIds,
+  )
 
   const starters = players.filter((p) => usedPlayerIds.has(p.id))
   // How the side plays (openspec/specs/match-simulation "Team mentality"), saved with the lineup.
@@ -149,6 +160,7 @@ export function MatchLineupForm({
   const handleLoadPreviousLineup = (loaded: Lineup) => {
     loadLineup(loaded)
     resetSubstitutionDrafts()
+    resetOrderDrafts()
     setMentality(loaded.mentality ?? MENTALITY_BALANCED)
   }
 
@@ -156,16 +168,23 @@ export function MatchLineupForm({
     setFormation(Number(event.target.value))
   }
 
+  const canSave = isComplete && (!ordersEnabled || ordersValid)
   const handleSubmit = () => {
-    if (!isComplete) return
+    if (!canSave) return
     const positions = visibleSelections.map((s) => ({ position: s.position, playerId: s.playerId as number }))
-    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [], mentality)
+    onSave(formation, positions, substitutionsEnabled ? validSubstitutions : [], mentality, ordersEnabled ? validOrders : [])
   }
 
   // "Unsaved changes" = the editor differs from what was last saved (or loaded, before the first
   // save). The snapshot is taken when Save is pressed and promoted to the baseline once the save
   // reports success, so an edit made while the request is in flight still counts as unsaved.
-  const currentKey = JSON.stringify({ formation, mentality, visibleSelections, drafts: substitutionsEnabled ? substitutionDrafts : [] })
+  const currentKey = JSON.stringify({
+    formation,
+    mentality,
+    visibleSelections,
+    drafts: substitutionsEnabled ? substitutionDrafts : [],
+    orders: ordersEnabled ? orderDrafts : [],
+  })
   const [initialKey] = useState(currentKey)
   const pendingKey = useRef<string | null>(null)
   const [savedKey, setSavedKey] = useState<string | null>(null)
@@ -294,9 +313,21 @@ export function MatchLineupForm({
         />
       )}
 
+      {ordersEnabled && (
+        <OrdersEditor
+          starters={starters}
+          benchPlayers={benchPlayers}
+          unavailability={unavailability}
+          drafts={orderDrafts}
+          onAdd={handleAddOrder}
+          onRemove={handleRemoveOrder}
+          onChange={handleOrderChange}
+        />
+      )}
+
       <LineupSaveBar
         dirty={dirty}
-        canSave={isComplete}
+        canSave={canSave}
         saving={isSaving}
         saved={isSuccess && !dirty}
         hint={!isComplete && unavailableStarters.length === 0 ? t('lineup.cantSaveHint') : undefined}

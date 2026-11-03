@@ -510,7 +510,39 @@ export interface Lineup {
   // How the side plays (see backend common/mentality.go): MENTALITY_DEFENSIVE, _BALANCED or
   // _ATTACKING. A played match's lineup carries the mentality it kicked off with.
   mentality?: number
+  // The lineup's conditional match orders (see backend common/lineuporders.go) - only in the
+  // owner's own lineup editor payloads; nobody else ever sees a team's orders.
+  orders?: LineupOrder[]
 }
+
+// Mirrors backend common.LineupOrder: armed from fromMinute (1-89), fired once at the first minute
+// whose starting score meets condition, doing action.
+export interface LineupOrder {
+  fromMinute: number
+  condition: number
+  action: number
+  mentality: number
+  playerOutId?: number
+  playerInId?: number
+}
+
+export const ORDER_CONDITION_LOSING = 0
+export const ORDER_CONDITION_LOSING_BY_2 = 1
+export const ORDER_CONDITION_DRAWING = 2
+export const ORDER_CONDITION_WINNING = 3
+export const ORDER_CONDITION_WINNING_BY_2 = 4
+export const ORDER_CONDITION_KEYS: Record<number, string> = {
+  [ORDER_CONDITION_LOSING]: 'losing',
+  [ORDER_CONDITION_LOSING_BY_2]: 'losingBy2',
+  [ORDER_CONDITION_DRAWING]: 'drawing',
+  [ORDER_CONDITION_WINNING]: 'winning',
+  [ORDER_CONDITION_WINNING_BY_2]: 'winningBy2',
+}
+export const ORDER_ACTION_MENTALITY = 0
+export const ORDER_ACTION_SUBSTITUTION = 1
+export const MAX_CONDITIONAL_ORDERS = 3
+export const ORDER_MIN_FROM_MINUTE = 1
+export const ORDER_MAX_FROM_MINUTE = 89
 
 export const MENTALITY_DEFENSIVE = -1
 export const MENTALITY_BALANCED = 0
@@ -536,6 +568,8 @@ export interface MatchEvent {
   // How a GOAL / NO_GOAL came about (SET_PIECE_*); optional so an old or cached payload without it
   // reads as open play. A set-piece event lists the defending goalkeeper in otherTeamPlayers.
   setPiece?: number
+  // The side's new mentality on an EVENT_TYPE_MENTALITY_CHANGE event (MENTALITY_*).
+  mentality?: number
 }
 
 // SetPiece values from backend/common/fmconstants.go
@@ -554,6 +588,9 @@ export const EVENT_TYPE_MATCH_ABANDONED = 6
 // A fixture settled 0-0 after repeated simulation failures (backend common.MATCH_DEFAULT_RESULT) -
 // teamOwner is the home side, otherTeam the away side; it is the only event such a match stores.
 export const EVENT_TYPE_MATCH_DEFAULT_RESULT = 7
+// A conditional order switched teamOwner's mentality (backend common.MENTALITY_CHANGE) - its new
+// mentality is in `mentality`.
+export const EVENT_TYPE_MENTALITY_CHANGE = 8
 
 // TeamQualification is a team's per-zone strength for one minute of simulation - see
 // backend/common/fmstructs.go. These are the actual numbers the simulation compares (a team's

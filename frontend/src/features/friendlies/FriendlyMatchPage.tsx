@@ -51,11 +51,12 @@ function FriendlyLineupEditor({ matchId, team, players }: { matchId: string; tea
       teamId={team.id}
       players={players}
       lineup={lineup}
-      onSave={(formation, positions, substitutions, mentality) => setLineup.mutate({ formation, positions, substitutions, mentality })}
+      onSave={(formation, positions, substitutions, mentality, orders) => setLineup.mutate({ formation, positions, substitutions, mentality, orders })}
       isSaving={setLineup.isPending}
       isError={setLineup.isError}
       isSuccess={setLineup.isSuccess}
       substitutionsEnabled
+      ordersEnabled
       isFriendly
     />
   )

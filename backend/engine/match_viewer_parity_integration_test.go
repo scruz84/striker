@@ -333,8 +333,8 @@ func TestWeekMatchById_LegacyMatchRatesSubstitutedOffScorer(t *testing.T) {
 	e.exec(`UPDATE match_instants SET player_contributions = NULL WHERE match_id = $1`, matchId)
 	e.exec(`DELETE FROM match_events WHERE match_id = $1`, matchId)
 	e.exec(`UPDATE matches SET home_goals = 1, away_goals = 0 WHERE match_id = $1`, matchId)
-	e.exec(common.InsertMatchEventStmtSql, matchId, common.GOAL, e.home, e.away, 20, fmt.Sprintf("[%d]", starter), `["S"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE)
-	e.exec(common.InsertMatchEventStmtSql, matchId, common.SUBSTITUTION, e.home, e.away, 60, fmt.Sprintf("[%d, %d]", starter, bench), `["S", "B"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.GOAL, e.home, e.away, 20, fmt.Sprintf("[%d]", starter), `["S"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.SUBSTITUTION, e.home, e.away, 60, fmt.Sprintf("[%d, %d]", starter, bench), `["S", "B"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil)
 
 	match, err := common.WeekMatchById(e.dbCtx, matchId)
 	if err != nil || match == nil {

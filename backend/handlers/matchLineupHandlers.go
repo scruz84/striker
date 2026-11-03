@@ -103,6 +103,9 @@ func GetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if hasOverride {
+			if !withOwnerOrders(c, &lineup, func() ([]common.LineupOrder, error) { return common.GetMatchLineupOrders(dbCtx, matchId, team.Id) }) {
+				return
+			}
 			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, &lineup, false))
 			return
 		}
@@ -121,6 +124,9 @@ func GetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		defaultLineup.MatchId = matchId
 		defaultLineup.Formation = formation
+		if !withOwnerOrders(c, defaultLineup, func() ([]common.LineupOrder, error) { return common.GetDefaultLineupOrders(dbCtx, team.Id) }) {
+			return
+		}
 		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, defaultLineup, false))
 	}
 }
@@ -186,8 +192,12 @@ func SetMatchLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateOrders(req.Positions, req.Orders, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions); err != nil {
+		if err := common.SetLineupForMatch(dbCtx, matchId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions, req.Orders); err != nil {
 			log.Errorf("error setting match lineup for match %d team %d: %s", matchId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
@@ -292,6 +302,9 @@ func GetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if hasOverride {
+			if !withOwnerOrders(c, &lineup, func() ([]common.LineupOrder, error) { return common.GetCupTieLineupOrders(dbCtx, tieId, team.Id) }) {
+				return
+			}
 			c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, &lineup, false))
 			return
 		}
@@ -310,6 +323,9 @@ func GetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 		defaultLineup.MatchId = tieId
 		defaultLineup.Formation = formation
+		if !withOwnerOrders(c, defaultLineup, func() ([]common.LineupOrder, error) { return common.GetDefaultLineupOrders(dbCtx, team.Id) }) {
+			return
+		}
 		c.JSON(http.StatusOK, withProjectedReplacements(dbCtx, team.Id, defaultLineup, false))
 	}
 }
@@ -374,8 +390,12 @@ func SetCupTieLineupHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
+		if err := common.ValidateOrders(req.Positions, req.Orders, players, unavailable); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
-		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions); err != nil {
+		if err := common.SetCupTieLineup(dbCtx, tieId, team.Id, req.Formation, req.Mentality, req.Positions, req.Substitutions, req.Orders); err != nil {
 			log.Errorf("error setting cup tie lineup for tie %d team %d: %s", tieId, team.Id, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return

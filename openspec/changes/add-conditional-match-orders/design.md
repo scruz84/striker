@@ -37,7 +37,7 @@ Migration `resources/sql/init96_lineup_orders.sql` (renumber if needed): tables
 slot, …)`, each with `from_minute smallint`, `condition smallint`, `action smallint`,
 `mentality smallint NULL`, `player_out_id bigint NULL`, `player_in_id bigint NULL`, primary key
 on the owner columns + `slot`, `CHECK (slot BETWEEN 1 AND 3)`. Players reference `players` with
-`ON DELETE SET NULL`, like the substitution tables. Constants: `ORDER_CONDITION_LOSING = 0`,
+`ON DELETE CASCADE`, like the substitution tables (a deleted player takes his orders with him). Constants: `ORDER_CONDITION_LOSING = 0`,
 `…_LOSING_BY_2 = 1`, `…_DRAWING = 2`, `…_WINNING = 3`, `…_WINNING_BY_2 = 4`;
 `ORDER_ACTION_MENTALITY = 0`, `ORDER_ACTION_SUBSTITUTION = 1`; `MaxConditionalOrders = 3`.
 `common.LineupOrder{FromMinute, Condition, Action, Mentality, PlayerOutId, PlayerInId}` and
@@ -74,6 +74,15 @@ condition select, action select (mentality or substitution with the two player p
 from `SubstitutionsEditor`). `useSubstitutionDrafts` pattern for unsaved changes. Chronicle text in
 `utils/matchCommentary.tsx`. Keys `lineup.orders.*` and `match.commentary.mentalityChange` in
 en/es.
+
+### D6. Visibility and the friendly default (as implemented)
+`Lineup.Orders` is filled only by the lineup GET handlers a team owner opens (`withOwnerOrders`),
+like `ProjectedReplacements`; every other payload - the played match's lineups, the live
+"lineups" message, the opponent preview - carries none. The friendly default lineup has no orders
+table (proposal: out of scope), so `MatchLineupForm` shows the orders section through its own
+`ordersEnabled` prop, set everywhere `substitutionsEnabled` is except the friendly-default tab, and
+`SetFriendlyDefaultLineupHandler` ignores any orders sent. The editor shows the orders expanded,
+like the substitutions planner, rather than collapsed.
 
 ## Risks / Trade-offs
 

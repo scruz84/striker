@@ -167,7 +167,7 @@ func TestSimulateCupTies_ConcurrentReplicasSimulateEachTieOnce(t *testing.T) {
 			t.Fatalf("GetPlayersFromTeamId: %s", err)
 		}
 		positions := common.FlattenLineup(common.SelectBestLineup(*players))
-		if err := common.SetCupTieLineup(dbCtx, tieId, teamId, common.FormationBalanced, common.MENTALITY_BALANCED, positions, nil); err != nil {
+		if err := common.SetCupTieLineup(dbCtx, tieId, teamId, common.FormationBalanced, common.MENTALITY_BALANCED, positions, nil, nil); err != nil {
 			t.Fatalf("SetCupTieLineup: %s", err)
 		}
 	}

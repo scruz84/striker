@@ -197,7 +197,7 @@ func SetNationalTeamLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, 
 	if err != nil {
 		return err
 	}
-	if err := SetFriendlyLineup(dbCtx, matchId, teamId, FormationBalanced, MENTALITY_BALANCED, positions, []LineupSubstitution{}); err != nil {
+	if err := SetFriendlyLineup(dbCtx, matchId, teamId, FormationBalanced, MENTALITY_BALANCED, positions, []LineupSubstitution{}, nil); err != nil {
 		return err
 	}
 	notifyCalledUpPlayers(dbCtx, players, positions, country, "/friendlies/"+strconv.FormatInt(matchId, 10))
@@ -213,7 +213,7 @@ func SetNationalTeamCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int
 	if err != nil {
 		return err
 	}
-	if err := SetCupTieLineup(dbCtx, tieId, teamId, FormationBalanced, MENTALITY_BALANCED, positions, []LineupSubstitution{}); err != nil {
+	if err := SetCupTieLineup(dbCtx, tieId, teamId, FormationBalanced, MENTALITY_BALANCED, positions, []LineupSubstitution{}, nil); err != nil {
 		return err
 	}
 	notifyCalledUpPlayers(dbCtx, players, positions, country, "/cup/ties/"+strconv.FormatInt(tieId, 10))

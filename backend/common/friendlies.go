@@ -625,7 +625,7 @@ func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 }
 
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals, set_piece) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
+	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
 const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
@@ -641,7 +641,7 @@ const InsertFriendlyLineupPositionStmtSql = "INSERT INTO friendly_lineup_positio
 // replacing its positions and substitutions outright. Guarded by a non-blocking advisory lock
 // keyed on (matchId, teamId), the same race-avoidance convention as SetDefaultLineup, scoped to
 // just this match so editing one friendly never blocks editing another for the same team.
-func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution) error {
+func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, formation int, mentality int, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
 	}
@@ -690,6 +690,10 @@ func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 		if _, err := insertSubStmt.Exec(matchId, teamId, i+1, s.PlayerOutId, s.PlayerInId, s.Minute); err != nil {
 			return err
 		}
+	}
+
+	if err := replaceOrders(tx, DeleteFriendlyLineupOrdersStmtSql, InsertFriendlyLineupOrderStmtSql, []any{matchId, teamId}, orders); err != nil {
+		return err
 	}
 
 	return tx.Commit()
@@ -779,7 +783,7 @@ func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int6
 	return &lineups, nil
 }
 
-const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece " +
+const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality " +
 	"FROM friendly_events WHERE match_id = $1 order by minute asc"
 
 // GetFriendlyEvents reads back a played friendly's events (see SaveFriendlyResultTx) - the friendly
@@ -804,8 +808,9 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var homeGoals int
 		var awayGoals int
 		var setPiece int
+		var mentality sql.NullInt64
 		if err := rows.Scan(&eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&homeGoals, &awayGoals, &setPiece); err != nil {
+			&homeGoals, &awayGoals, &setPiece, &mentality); err != nil {
 			continue
 		}
 
@@ -817,6 +822,7 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			HomeGoals: homeGoals,
 			AwayGoals: awayGoals,
 			SetPiece:  setPiece,
+			Mentality: nullableInt(mentality),
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)
