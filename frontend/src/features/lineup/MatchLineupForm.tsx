@@ -35,6 +35,7 @@ import { LoadPreviousLineupControl } from './LoadPreviousLineupControl'
 import { OrdersEditor } from './OrdersEditor'
 import { PlayerBench } from './PlayerBench'
 import { LINEUP_ROLES, SelectedPlayerPanel, type LineupRole } from './SelectedPlayerPanel'
+import { TOUCH } from '../../touchMedia'
 import { SoccerPitch } from './SoccerPitch'
 import { SubstitutionsEditor } from './SubstitutionsEditor'
 import { useLineupSelections } from './useLineupSelections'
@@ -265,8 +266,8 @@ export function MatchLineupForm({
           {t('lineup.copyFromMatch')}
         </Button>
       </Stack>
-      <Box sx={{ mb: 1 }}>
-        <Typography variant="caption" color="text.secondary" component="div" id="match-mentality-label" sx={{ mb: 0.5 }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 1, alignItems: 'center' }}>
+        <Typography variant="caption" color="text.secondary" component="div" id="match-mentality-label" sx={{ flexShrink: 0 }}>
           {t('lineup.mentality.label')}
         </Typography>
         <ToggleButtonGroup
@@ -278,7 +279,7 @@ export function MatchLineupForm({
           onChange={(_, value: number | null) => {
             if (value !== null) setMentality(value)
           }}
-          sx={{ maxWidth: { sm: 420 } }}
+          sx={{ maxWidth: { sm: 360 }, '& .MuiToggleButton-root': { py: 0.25, px: 0.75, minHeight: 32, [TOUCH]: { minHeight: 36 }, textTransform: 'none', lineHeight: 1.2 } }}
         >
           {[MENTALITY_DEFENSIVE, MENTALITY_BALANCED, MENTALITY_ATTACKING].map((value) => (
             <ToggleButton key={value} value={value}>
@@ -286,7 +287,7 @@ export function MatchLineupForm({
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
-      </Box>
+      </Stack>
       <Collapse in={copyOpen} unmountOnExit>
         <LoadPreviousLineupControl
           teamId={teamId}

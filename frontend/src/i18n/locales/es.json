@@ -365,8 +365,8 @@
     "showSkills": "Ver habilidades",
     "hideSkills": "Ocultar habilidades",
     "selected": {
-      "skills": "Habilidades",
-      "clear": "Soltar jugador"
+      "clear": "Soltar jugador",
+      "profile": "Ver perfil"
     },
     "unsavedChanges": "Cambios sin guardar",
     "savedStatus": "Alineación guardada",

@@ -1,6 +1,7 @@
 import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities'
 import type { CSSProperties } from 'react'
 import { createTheme } from '@mui/material/styles'
+import { TOUCH } from './touchMedia'
 import type { PaletteColorOptions, Theme } from '@mui/material/styles'
 import type { Scheme } from '@material/material-color-utilities'
 
@@ -160,9 +161,6 @@ const typography = {
   pageTitle: { fontFamily: '"Oswald", "Roboto", sans-serif', fontWeight: 600, fontSize: '1.375rem', lineHeight: '1.75rem' },
 }
 
-// Interactive controls get a 44px touch target on touch devices and phone-width viewports
-// (WCAG 2.5.5 / M3 guidance) without changing how they look on a desktop pointer.
-const TOUCH = '@media (pointer: coarse), (max-width: 599.95px)'
 
 // An invisible box centered on a control, used as its ::after to enlarge the tap area without
 // changing the layout. Callers set the horizontal extent and the height.

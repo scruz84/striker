@@ -365,8 +365,8 @@
     "showSkills": "Show skills",
     "hideSkills": "Hide skills",
     "selected": {
-      "skills": "Skills",
-      "clear": "Drop player"
+      "clear": "Drop player",
+      "profile": "View profile"
     },
     "unsavedChanges": "Unsaved changes",
     "savedStatus": "Lineup saved",
