@@ -199,11 +199,14 @@ func (h *LiveMatchHub) Publish(channel string, msg LiveMatchMessage) {
 // should Subscribe before calling History (never the reverse): any message not yet visible in
 // the returned slice is then guaranteed to still arrive on the channel Subscribe returned, so
 // nothing published in between the two calls can be missed.
-func (h *LiveMatchHub) History(channel string) []LiveMatchMessage {
+//
+// A Redis read error is returned rather than swallowed into an empty history: serveLiveMatch
+// reads "no history for a played match" as "its broadcast is long over" and reports the final
+// score, which for a read that merely failed mid-broadcast would reveal the result live.
+func (h *LiveMatchHub) History(channel string) ([]LiveMatchMessage, error) {
 	raw, err := h.client.LRange(context.Background(), historyKey(channel), 0, -1).Result()
 	if err != nil {
-		log.Errorf("error reading live match history for %s: %s", channel, err)
-		return nil
+		return nil, err
 	}
 	messages := make([]LiveMatchMessage, 0, len(raw))
 	for _, payload := range raw {
@@ -214,7 +217,7 @@ func (h *LiveMatchHub) History(channel string) []LiveMatchMessage {
 		}
 		messages = append(messages, msg)
 	}
-	return messages
+	return messages, nil
 }
 
 // LastMessage returns the most recently published message for channel, if any - the same source

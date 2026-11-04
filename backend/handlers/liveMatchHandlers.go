@@ -132,7 +132,14 @@ func serveLiveMatch(c *gin.Context, dbCtx *common.DatabaseContext, channel strin
 	ch, unsubscribe := dbCtx.LiveHub.Subscribe(channel)
 	defer unsubscribe()
 
-	history := dbCtx.LiveHub.History(channel)
+	history, err := dbCtx.LiveHub.History(channel)
+	if err != nil {
+		// Closing (rather than carrying on as if there were no history, which for a played match
+		// would report "complete" with the final score) leaves the client to reconnect and try
+		// again - see useLiveMatch's reconnect logic.
+		log.Errorf("error reading live match history for %s: %s", channel, err)
+		return
+	}
 	var lastSeq int64
 	for _, msg := range history {
 		if msg.Type == "complete" {

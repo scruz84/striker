@@ -6,7 +6,7 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { isPast, mightStillBeLive, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
+import { isPast, mightStillBeLive, useIsBroadcastOver, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { goalScorers } from '../../utils/matchGoals'
@@ -82,6 +82,7 @@ function LiveView({
   // viewer regardless of how far off matchDate is).
   const live = useLiveMatch(view.liveUrl, true)
   const isDue = useIsDue(view.matchDate)
+  const isBroadcastOver = useIsBroadcastOver(view.matchDate)
   const isLineupLocked = useIsLineupLocked(view.matchDate)
   // Shared by the zone-comparison panel below, so scrubbing it moves any other scrub-aware panel
   // in lockstep instead of each one tracking its own independent minute.
@@ -102,17 +103,21 @@ function LiveView({
     // confirms the match is actually over, restoring the pre-#37-fix resilience where a broken
     // socket never stranded a viewer once the match had genuinely finished.
     //
-    // `played` alone isn't "actually over" either: it flips true in the DB up to 15 minutes
-    // before matchDate (see GetSimulableMatchesStmtSql), so a viewer who opens the page in that
-    // early window and hits a flaky socket (a proxy timeout, a network blip - anything that
-    // burns through the reconnect attempts) would otherwise get dropped straight into the
-    // finished-match report before their own match's advertised kickoff had even arrived. `isDue`
-    // guards against that the same way the scheduled-vs-live branch below does.
-    if (live.complete || (live.giveUp && view.played && isDue)) {
+    // `played` alone isn't "actually over" either, and neither is `played` plus kickoff having
+    // arrived: the match is simulated (and `played` flips true) up to 15 minutes before matchDate
+    // (see GetSimulableMatchesStmtSql), and its broadcast then runs ~105 more minutes after
+    // kickoff. A viewer who hits a flaky socket anywhere in that span (a proxy timeout, a network
+    // blip, a phone that suspended the page while the screen was locked - anything that burns
+    // through the reconnect attempts) would otherwise be dropped straight into the finished-match
+    // report, final score and every goal included, while the match is still being broadcast live.
+    // Only the broadcast window itself having elapsed (isBroadcastOver) says it's really over;
+    // until then a given-up socket stays on the live view, which useLiveMatch retries as soon as
+    // the page is visible or back online again.
+    if (live.complete || (live.giveUp && view.played && isBroadcastOver)) {
       void queryClient.invalidateQueries({ queryKey: view.queryKey })
       onComplete()
     }
-  }, [live.complete, live.giveUp, view.played, isDue, view.queryKey, queryClient, onComplete])
+  }, [live.complete, live.giveUp, view.played, isBroadcastOver, view.queryKey, queryClient, onComplete])
 
   if (live.complete) {
     return <Typography color="text.secondary">{t('match.matchFinished')}</Typography>

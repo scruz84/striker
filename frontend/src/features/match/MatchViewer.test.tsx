@@ -12,6 +12,7 @@ const clock = vi.hoisted(() => ({
   past: false,
   mightStillBeLive: false,
   due: false,
+  broadcastOver: false,
   lineupLocked: false,
   live: {} as Record<string, unknown>,
 }))
@@ -22,6 +23,7 @@ vi.mock('../../api/useLiveMatch', () => ({
   isPast: () => clock.past,
   mightStillBeLive: () => clock.mightStillBeLive,
   useIsDue: () => clock.due,
+  useIsBroadcastOver: () => clock.broadcastOver,
   useIsLineupLocked: () => clock.lineupLocked,
   useLiveMatch: () => clock.live,
 }))
@@ -126,6 +128,7 @@ describe('MatchViewer', () => {
     clock.past = false
     clock.mightStillBeLive = false
     clock.due = false
+    clock.broadcastOver = false
     clock.lineupLocked = false
     clock.live = liveState()
   })
@@ -221,6 +224,23 @@ describe('MatchViewer', () => {
       expect(screen.getByTestId('stadium-entry')).toBeInTheDocument()
       expect(screen.getByTestId('live-report')).toBeInTheDocument()
       expect(screen.getByTestId('head-to-head')).toBeInTheDocument()
+    })
+
+    // A phone that suspends the page mid-match exhausts the socket's reconnect attempts while the
+    // match (simulated, so `played`, before kickoff) is still being broadcast - that must not
+    // drop the viewer into the finished report with the final score and every goal.
+    it('stays live when the socket gives up while the broadcast is still running', () => {
+      clock.live = liveState({ connected: false, giveUp: true })
+      renderViewer(baseView({ played: true, homeGoals: 3, awayGoals: 1 }))
+      expect(screen.getByTestId('scoreboard')).toHaveTextContent('connecting')
+      expect(screen.queryByTestId('report-tab')).not.toBeInTheDocument()
+    })
+
+    it('falls back to the finished view when the socket gives up after the broadcast window', () => {
+      clock.live = liveState({ connected: false, giveUp: true })
+      clock.broadcastOver = true
+      renderViewer(baseView({ played: true, homeGoals: 3, awayGoals: 1 }))
+      expect(screen.getByTestId('report-tab')).toBeInTheDocument()
     })
   })
 

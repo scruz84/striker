@@ -165,7 +165,10 @@ func TestLiveMatchHub_HistoryReturnsPublishedMessagesInOrder(t *testing.T) {
 	hub.Publish(channel, LiveMatchMessage{Type: "event", Event: &Event{Minute: 5}})
 	hub.Publish(channel, LiveMatchMessage{Type: "complete", HomeGoals: 1, AwayGoals: 0})
 
-	history := hub.History(channel)
+	history, err := hub.History(channel)
+	if err != nil {
+		t.Fatalf("History: %s", err)
+	}
 	if len(history) != 3 {
 		t.Fatalf("expected 3 history messages, got %d: %+v", len(history), history)
 	}
@@ -191,7 +194,10 @@ func TestLiveMatchHub_HistoryCatchesUpALateSubscriber(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	assertNoMessage(t, ch)
 
-	history := hub.History(channel)
+	history, err := hub.History(channel)
+	if err != nil {
+		t.Fatalf("History: %s", err)
+	}
 	if len(history) != 1 || history[0].HomeGoals != 3 {
 		t.Fatalf("expected history to contain the earlier publish, got: %+v", history)
 	}
@@ -210,7 +216,10 @@ func TestLiveMatchHub_PublishAssignsStrictlyIncreasingSeq(t *testing.T) {
 	hub.Publish(channel, LiveMatchMessage{Type: "event"})
 	hub.Publish(channel, LiveMatchMessage{Type: "complete"})
 
-	history := hub.History(channel)
+	history, err := hub.History(channel)
+	if err != nil {
+		t.Fatalf("History: %s", err)
+	}
 	if len(history) != 3 {
 		t.Fatalf("expected 3 history messages, got %d: %+v", len(history), history)
 	}

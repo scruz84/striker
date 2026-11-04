@@ -88,6 +88,42 @@ describe('useLiveMatch', () => {
     expect(result.current.events).toHaveLength(1)
     expect(result.current.homeGoals).toBe(1)
   })
+
+  // A phone suspends a backgrounded page's network: every reconnect attempt fails within seconds
+  // and the hook gives up, mid-match. Coming back to the page has to try again rather than leave
+  // the viewer given up for the rest of the broadcast.
+  it('reconnects when the page becomes visible again after giving up', () => {
+    const { result } = renderHook(() => useLiveMatch('/v1/friendlies/1/live', true))
+
+    for (let i = 0; i <= 5; i++) {
+      act(() => FakeWebSocket.instances.at(-1)?.onclose?.())
+      act(() => {
+        vi.advanceTimersByTime(3000)
+      })
+    }
+    expect(result.current.giveUp).toBe(true)
+    const attempts = FakeWebSocket.instances.length
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+
+    expect(FakeWebSocket.instances).toHaveLength(attempts + 1)
+    expect(result.current.giveUp).toBe(false)
+    act(() => FakeWebSocket.instances.at(-1)?.onopen?.())
+    expect(result.current.connected).toBe(true)
+  })
+
+  it('does not open a second socket while the current one is still alive', () => {
+    renderHook(() => useLiveMatch('/v1/friendlies/1/live', true))
+    act(() => FakeWebSocket.instances[0].onopen?.())
+
+    act(() => {
+      window.dispatchEvent(new Event('online'))
+    })
+
+    expect(FakeWebSocket.instances).toHaveLength(1)
+  })
 })
 
 describe('mightStillBeLive', () => {

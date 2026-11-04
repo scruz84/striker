@@ -52,13 +52,15 @@ export interface LiveMatchState {
   awayPlayers: Record<string, Player> | null
   complete: boolean
   // True once reconnection has been exhausted without ever seeing a "complete" message - the
-  // live channel itself is unreachable (a downed Redis, a persistent proxy/network problem),
-  // not just between messages. Callers combine this with the REST-polled `played` flag as a
-  // fallback: if the match is already known to be over, there's nothing more the socket could
-  // tell them anyway, so it's safe to fall back to the plain REST view instead of leaving the
-  // viewer stuck on a "connecting" state that will never resolve (see MatchDetailsPage and
-  // siblings, and issue #37's own regression - the socket used to be a nice-to-have rather than
-  // the only path out of the live view).
+  // live channel itself is unreachable (a downed Redis, a persistent proxy/network problem, a
+  // phone that suspended the page's network while it sat in the background), not just between
+  // messages. Callers combine this with useIsBroadcastOver as a fallback: once the broadcast
+  // window has certainly elapsed there's nothing more the socket could tell them anyway, so it's
+  // safe to fall back to the plain REST view instead of leaving the viewer stuck on a
+  // "connecting" state that will never resolve (see MatchViewer, and issue #37's own regression -
+  // the socket used to be a nice-to-have rather than the only path out of the live view). It is
+  // not reset by itself: the hook tries again (resetting it) as soon as the page becomes visible
+  // or the browser comes back online.
   giveUp: boolean
 }
 
@@ -118,6 +120,14 @@ export function mightStillBeLive(matchDate: string): boolean {
 // of comparing against `Date.now()` directly during render - oxlint's purity check flags a
 // component body that calls the impure `Date.now()` itself, but not one that calls a plain
 // helper function that happens to use it (same reasoning as mightStillBeLive above).
+// useIsBroadcastOver flips true once matchDate's whole live-broadcast window (see
+// mightStillBeLive) has elapsed - the point after which a match's broadcast has certainly
+// finished, whatever its socket did. `played` alone can't tell that: it flips true when the match
+// is simulated, up to 15 minutes before kickoff and ~105 minutes before its broadcast ends.
+export function useIsBroadcastOver(matchDate: string): boolean {
+  return useDueAt(new Date(matchDate).getTime() + maxLiveBroadcastWindowMs)
+}
+
 export function isPast(isoDate: string): boolean {
   return new Date(isoDate).getTime() <= Date.now()
 }
@@ -193,6 +203,9 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
     let attempt = 0
     let isComplete = false
 
+    // Whether the current socket is still connecting or open - see resume below.
+    let socketAlive = false
+
     const connect = () => {
       // The backend always replays a channel's *entire* published history to a freshly connected
       // socket (see backend/handlers/liveMatchHandlers.go's serveLiveMatch), including on a
@@ -202,14 +215,16 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
       // append that whole replayed history a second time onto whatever had already accumulated
       // from the first connection, doubling up every event and instant seen so far.
       setState(initialState)
-      socket = new WebSocket(getWsEndpoint(path))
+      const ws = new WebSocket(getWsEndpoint(path))
+      socket = ws
+      socketAlive = true
 
-      socket.onopen = () => {
+      ws.onopen = () => {
         attempt = 0
         setState((prev) => ({ ...prev, connected: true }))
       }
 
-      socket.onmessage = (messageEvent) => {
+      ws.onmessage = (messageEvent) => {
         let msg: LiveMatchMessage
         try {
           msg = JSON.parse(messageEvent.data as string) as LiveMatchMessage
@@ -238,9 +253,14 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
         }))
       }
 
-      socket.onerror = () => setState((prev) => ({ ...prev, connected: false }))
+      ws.onerror = () => setState((prev) => ({ ...prev, connected: false }))
 
-      socket.onclose = () => {
+      ws.onclose = () => {
+        // A socket that resume has already replaced - only the current one drives reconnects.
+        if (socket !== ws) {
+          return
+        }
+        socketAlive = false
         if (cancelled || isComplete) {
           setState((prev) => ({ ...prev, connected: false }))
           return
@@ -255,10 +275,30 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
       }
     }
 
+    // A phone suspends a backgrounded page's network, so a viewer who locks the screen or
+    // switches app mid-match burns through every reconnect attempt above within seconds and ends
+    // up with giveUp. Coming back to the page (or the network coming back) is the moment a
+    // connection can work again, so start over right then - the backend replays the whole
+    // broadcast so far - instead of staying given up for the rest of the match.
+    const resume = () => {
+      if (cancelled || isComplete || socketAlive || document.visibilityState === 'hidden') {
+        return
+      }
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+      }
+      attempt = 0
+      connect()
+    }
+
     connect()
+    document.addEventListener('visibilitychange', resume)
+    window.addEventListener('online', resume)
 
     return () => {
       cancelled = true
+      document.removeEventListener('visibilitychange', resume)
+      window.removeEventListener('online', resume)
       if (reconnectTimer) {
         clearTimeout(reconnectTimer)
       }
