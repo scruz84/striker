@@ -35,6 +35,7 @@ import {
 import { NumberField } from '../../components/NumberField'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { CountryFlag } from '../../components/CountryFlag'
+import { WatchToggle } from '../../components/WatchToggle'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 export type SortDirection = 'asc' | 'desc'
@@ -166,6 +167,13 @@ export function ListingCard({
       <Stack direction="row" spacing={0.75} sx={{ alignItems: 'flex-start' }}>
         <PlayerCell player={player} formerClub={formerClub} />
         {badge}
+        {/* The follow star sits in the header, beside the rating - in the bottom row it squeezed the
+            price column and ended up drawn over the price. Renders nothing for your own players. The
+            box is one name-line tall so the 44px touch target overflows it evenly instead of pushing
+            the skill strip down (Stack resets child margins, so negative margins don't work here). */}
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '1.4em', flexShrink: 0, position: 'relative', left: 8 }}>
+          <WatchToggle player={player} size="small" />
+        </Box>
       </Stack>
       <SkillChipsRow player={player} />
       {meta && (
@@ -174,8 +182,13 @@ export function ListingCard({
         </Stack>
       )}
       {extra}
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-        <Box sx={{ minWidth: 0 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        useFlexGap
+        sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', mt: 1 }}
+      >
+        <Box sx={{ flexShrink: 0 }}>
           <Typography variant="caption" color="text.secondary" component="div">
             {priceLabel}
           </Typography>
@@ -188,7 +201,7 @@ export function ListingCard({
             </Typography>
           )}
         </Box>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexShrink: 0, ml: 'auto' }}>
           {actions}
         </Stack>
       </Stack>

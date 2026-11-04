@@ -49,7 +49,6 @@ import { Paginated } from '../../components/Paginated'
 import { ResponsiveDialog } from '../../components/ResponsiveDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
-import { WatchToggle } from '../../components/WatchToggle'
 import { WatchlistTab } from './WatchlistTab'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatShortDate } from '../../utils/formatDate'
@@ -473,7 +472,6 @@ function MarketListingActions({
 
   return (
     <>
-      <WatchToggle player={listing.player} />
       <Button variant="outlined" onClick={() => setOfferOpen(true)}>
         {t('team.makeOffer')}
       </Button>
@@ -868,12 +866,9 @@ function LoansTab() {
                       key={listing.listingId}
                       listing={listing}
                       action={
-                        <>
-                          <WatchToggle player={listing.player} />
-                          <Button variant="contained" onClick={() => handleAcceptLoan(listing)} disabled={acceptLoan.isPending}>
-                            {t('transfers.accept')}
-                          </Button>
-                        </>
+                        <Button variant="contained" onClick={() => handleAcceptLoan(listing)} disabled={acceptLoan.isPending}>
+                          {t('transfers.accept')}
+                        </Button>
                       }
                     />
                   ))}
@@ -1219,12 +1214,9 @@ function FreeAgentsTab() {
                       priceLabel={t('transfers.freeAgents.wage')}
                       priceValue={t('team.perMatch', { amount: formatCurrency(player.wage) })}
                       actions={
-                        <>
-                          <WatchToggle player={player} />
-                          <Button variant="contained" onClick={() => setSigningPlayer(player)}>
-                            {t('transfers.freeAgents.sign')}
-                          </Button>
-                        </>
+                        <Button variant="contained" onClick={() => setSigningPlayer(player)}>
+                          {t('transfers.freeAgents.sign')}
+                        </Button>
                       }
                     />
                   ))}
