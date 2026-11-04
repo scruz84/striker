@@ -328,3 +328,27 @@ func TestAcceptsCounter(t *testing.T) {
 		t.Errorf("after the cooldown: allowed %v, min bid %d; want true, 1,210,000", allowed, minBid)
 	}
 }
+
+func TestContractsToRenew_ManagerRenewsEveryExpiringContract(t *testing.T) {
+	squad := squadOf(2, 5, 6, 5)
+	squad[0].ContractYearsRemaining, squad[3].ContractYearsRemaining, squad[10].ContractYearsRemaining = 1, 0, 3
+	for _, level := range []int{common.AiLevelManager, common.AiLevelDirector} {
+		got := contractsToRenew(level, squad, nil)
+		if len(got) != 17 {
+			t.Errorf("level %d renews %d players, want the 17 with one season or less left", level, len(got))
+		}
+	}
+}
+
+func TestContractsToRenew_CaretakerRenewsOnlyExpiringStarters(t *testing.T) {
+	squad := squadOf(2, 5, 6, 5)
+	for _, p := range squad {
+		p.ContractYearsRemaining = 1
+	}
+	squad[2].ContractYearsRemaining = 4 // a starter who isn't due yet
+	starters := map[int64]bool{squad[0].Id: true, squad[2].Id: true, squad[5].Id: true}
+	got := contractsToRenew(common.AiLevelCaretaker, squad, starters)
+	if len(got) != 2 || got[0].Id != squad[0].Id || got[1].Id != squad[5].Id {
+		t.Errorf("caretaker renews %v, want only the expiring starters %d and %d", got, squad[0].Id, squad[5].Id)
+	}
+}

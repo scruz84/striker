@@ -70,6 +70,7 @@ func RunAITeamManagement(dbCtx *common.DatabaseContext, teamId int64) {
 		return
 	}
 
+	renewExpiringContracts(dbCtx, team)
 	manageRosterIfManager(dbCtx, team)
 	runAiTransferPass(dbCtx, team)
 	manageMarketIfDirector(dbCtx, team)
@@ -102,7 +103,7 @@ func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 	}
 }
 
-// contractRenewalThresholdYears is how few seasons a Manager-level AI team lets a player's
+// contractRenewalThresholdYears is how few seasons an AI-managed team lets a player's
 // contract run down to before proactively renewing it (see renewExpiringContracts) - a real
 // owner wouldn't let a useful squad player walk for nothing at season end just from inattention.
 const contractRenewalThresholdYears = 1
@@ -114,7 +115,8 @@ const contractRenewalThresholdYears = 1
 const surplusDepthMargin = 1
 
 // manageRosterIfManager runs every Manager-level (see common.AiLevelManager) roster/business
-// action for an unowned team: keep valuable players under contract, trim genuinely surplus
+// action for an unowned team (contract renewals run just before it, for every level - see
+// renewExpiringContracts): trim genuinely surplus
 // depth, promote a cantera prospect into a thin position, and charge what the gate will bear.
 // Signing from outside (free agents, the transfer list, unlisted players) is the transfer pass's
 // job - see runAiTransferPass. A no-op below Manager level - see RunAITeamManagement, the only caller. Responding to incoming
@@ -130,7 +132,6 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 		return
 	}
 
-	renewExpiringContracts(dbCtx, team.Id, *players)
 	listSurplusPlayer(dbCtx, team, *players)
 	manageLoanListings(dbCtx, team, *players)
 	promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players)
@@ -421,24 +422,77 @@ func skillCapsFor(dbCtx *common.DatabaseContext, playerId int64) *common.PlayerS
 	return nil
 }
 
-// renewExpiringContracts extends every squad player's contract once it's down to
-// contractRenewalThresholdYears seasons or fewer remaining - a Manager tier team always prefers
-// keeping a player on the books over losing them to free agency for nothing, so it offers
-// exactly what the player is guaranteed to accept (their own market wage and their own
-// age-appropriate maximum term - see common.PlayerWageFromSkills/MaxAcceptableRenewalYears)
-// rather than lowballing and risking a decline. ErrPlayerOnLoan (the parent club's contract, not
-// this team's to renew) is an expected outcome, not a failure, and is silently skipped.
-func renewExpiringContracts(dbCtx *common.DatabaseContext, teamId int64, players []*common.Player) {
+// renewExpiringContracts extends the contract of every player contractsToRenew picks once it's
+// down to contractRenewalThresholdYears seasons or fewer remaining, so a CPU club doesn't lose its
+// squad to free agency for nothing at season end. Runs for every AI level (see RunAITeamManagement):
+// a Manager or Director renews everyone, a Caretaker only its current starters (its default
+// lineup, which aiTeamBaselineReaction has just refreshed). Each renewal goes through renewContract,
+// which meets the player's own terms. A failed fetch of the squad or lineup skips the pass - it
+// runs again on the team's next management pass.
+func renewExpiringContracts(dbCtx *common.DatabaseContext, team *common.Team) {
+	players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error fetching squad for AI-managed team %d contract renewals: %s", team.Id, err)
+		return
+	}
+	var starters map[int64]bool
+	if team.AiLevel < common.AiLevelManager {
+		lineup, err := common.GetDefaultLineup(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error fetching lineup for AI-managed team %d contract renewals: %s", team.Id, err)
+			return
+		}
+		starters = make(map[int64]bool, len(lineup.Positions))
+		for _, id := range common.LineupPlayerIds(lineup) {
+			starters[id] = true
+		}
+	}
+	for _, p := range contractsToRenew(team.AiLevel, *players, starters) {
+		renewContract(dbCtx, team.Id, p)
+	}
+}
+
+// contractsToRenew picks the squad players whose contract an AI-managed team of aiLevel renews
+// this pass: everyone with contractRenewalThresholdYears seasons or fewer left for a Manager or
+// Director; for a Caretaker, only those of them who are in starters (its current XI) - the rest
+// leave as free agents when their contract runs out, the Caretaker's inattention a human manager
+// can profit from.
+func contractsToRenew(aiLevel int, players []*common.Player, starters map[int64]bool) []*common.Player {
+	picked := make([]*common.Player, 0)
 	for _, p := range players {
 		if p.ContractYearsRemaining > contractRenewalThresholdYears {
 			continue
 		}
-		wage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
-		years := common.MaxAcceptableRenewalYears(p.Age)
-		if _, err := common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, wage, years); err != nil &&
-			!errors.Is(err, common.ErrPlayerOnLoan) {
+		if aiLevel < common.AiLevelManager && !starters[p.Id] {
+			continue
+		}
+		picked = append(picked, p)
+	}
+	return picked
+}
+
+// renewContract offers p his market wage and his age-appropriate maximum term (see
+// common.PlayerWageFromSkills/MaxAcceptableRenewalYears). A player who has just improved expects
+// a raise on top (see common.ExpectedWageWithIntelligence), so a declined offer is retried once
+// with exactly the terms the player reported back - the same thing a human manager does with the
+// renewal dialog. Without that retry, the improving players (often the club's youngsters) were
+// precisely the ones a CPU club let walk. ErrPlayerOnLoan (the parent club's contract, not this
+// team's to renew) is an expected outcome, not a failure, and is silently skipped.
+func renewContract(dbCtx *common.DatabaseContext, teamId int64, p *common.Player) {
+	wage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
+	years := common.MaxAcceptableRenewalYears(p.Age)
+	offer, err := common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, wage, years)
+	if err == nil && !offer.Accepted {
+		offer, err = common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, offer.ExpectedWage, offer.MaxAcceptableYears)
+	}
+	if err != nil {
+		if !errors.Is(err, common.ErrPlayerOnLoan) {
 			log.Errorf("error renewing contract for AI-managed team %d player %d: %s", teamId, p.Id, err)
 		}
+		return
+	}
+	if !offer.Accepted {
+		log.Warnf("AI-managed team %d player %d declined a renewal on his own terms: %s", teamId, p.Id, offer.Reason)
 	}
 }
 

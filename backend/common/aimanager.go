@@ -4,8 +4,9 @@ import "math/rand"
 
 // AI difficulty tiers for an unowned team - see RunAITeamManagement (added in a later phase).
 // Each tier is a strict superset of the capabilities below it: Caretaker only reacts (keeps the
-// lineup fresh, accepts clearly-good incoming offers); Manager adds roster maintenance (contract
-// renewals/releases, free-agent signings, ticket pricing); Director adds active market
+// lineup fresh, accepts clearly-good incoming offers, renews its starters' expiring contracts);
+// Manager adds roster maintenance (renewing every expiring contract, free-agent signings, ticket
+// pricing); Director adds active market
 // participation (transfer shopping, stadium upgrades, trainer hiring).
 const (
 	AiLevelCaretaker = 1

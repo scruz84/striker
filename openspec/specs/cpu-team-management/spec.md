@@ -103,8 +103,23 @@ Every CPU team SHALL accept an offer, highest first, when the fee reaches its th
 - **WHEN** an offer at 95% of the threshold would leave the player's position too thin
 - **THEN** it is rejected, never countered
 
+### Requirement: Contract renewals
+Every time it acts, a CPU team SHALL renew the contract of each player with one season or less left: a Manager or Director every such player, a Caretaker only those in its current default XI. The offer MUST be the player's skill-based wage at his age's maximum term; if the player declines it, the team MUST repeat the offer once at exactly the wage and term the player reported he expects. A player on loan is never renewed by the borrowing club.
+
+#### Scenario: Improving player asks for a raise
+- **WHEN** a Manager's player with one season left has just improved and declines his skill-based wage
+- **THEN** the team renews him at the higher wage he asked for instead of letting him leave as a free agent
+
+#### Scenario: Caretaker bench player
+- **WHEN** a Caretaker's player with one season left is not in its current default XI
+- **THEN** his contract is not renewed and he leaves as a free agent at season end
+
+#### Scenario: Caretaker starter
+- **WHEN** a Caretaker's player with one season left is in its current default XI
+- **THEN** his contract is renewed
+
 ### Requirement: Manager roster upkeep
-A Manager or Director SHALL, in order: renew any player with one season or less left at his expected wage and maximum acceptable term; withdraw listings that are no longer surplus and list at most one surplus player; withdraw loan listings that are no longer surplus and offer at most one player on loan; promote an academy prospect into a thin position; set the revenue-maximising ticket price.
+A Manager or Director SHALL, in order: withdraw listings that are no longer surplus and list at most one surplus player; withdraw loan listings that are no longer surplus and offer at most one player on loan; promote an academy prospect into a thin position; set the revenue-maximising ticket price.
 
 #### Scenario: Surplus listing
 - **WHEN** a core position's unlisted depth exceeds its minimum by more than one
