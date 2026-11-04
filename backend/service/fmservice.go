@@ -269,6 +269,8 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/", handlers.DivisionDetailsHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/top-scorers", handlers.TopScorersHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/weeks/:week", handlers.LeagueWeekMatchesHandler(dbCtx))
+	v1TeamGroup.GET("/division/:"+handlers.ID+"/seasons", handlers.LeagueSeasonsHandler(dbCtx))
+	v1TeamGroup.GET("/division/:"+handlers.ID+"/seasons/:season", handlers.LeagueSeasonTableHandler(dbCtx))
 	v1TeamGroup.GET("/division/:"+handlers.ID+"/recent-transfers", handlers.RecentLeagueTransfersHandler(dbCtx))
 	v1TeamGroup.GET("/leagues", handlers.LeagueDirectoryHandler(dbCtx))
 	v1TeamGroup.GET("/search", handlers.SearchHandler(dbCtx))

@@ -1063,7 +1063,12 @@
     "previousMatchday": "Jornada anterior",
     "nextMatchday": "Jornada siguiente",
     "backToCurrent": "Jornada actual",
-    "matchdayError": "No se pudo cargar esta jornada"
+    "matchdayError": "No se pudo cargar esta jornada",
+    "seasonPicker": "Temporada",
+    "seasonOption": "Temporada {{season}}",
+    "seasonCurrent": "Temporada {{season}} (actual)",
+    "seasonFinal": "Temporada {{season}} · Clasificación final",
+    "champion": "Campeón"
   },
   "recentTransfers": {
     "title": "Traspasos recientes",

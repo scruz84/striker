@@ -59,8 +59,9 @@ func parseLeagueWeek(leagueParam, weekParam string) (leagueId int64, week int, e
 	return leagueId, week, nil
 }
 
-// LeagueWeekMatchesHandler returns one matchday's matches of a league's current season, in the
-// same shape as DivisionDetails' previousWeekMatches - so the league page can browse any matchday.
+// LeagueWeekMatchesHandler returns one matchday's matches of a league's current season (or of the
+// season in the optional `season` query parameter, at least 1), in the same shape as
+// DivisionDetails' previousWeekMatches - so the league page can browse any matchday.
 // Public, same reasoning as TopScorersHandler. A week past the season's last one is an empty list.
 func LeagueWeekMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -70,8 +71,13 @@ func LeagueWeekMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueId)
-		if err != nil {
+		var season int
+		if param, ok := c.GetQuery("season"); ok {
+			if season, err = parseSeason(param); err != nil {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+		} else if season, err = common.GetCurrentSeasonForLeague(dbCtx, leagueId); err != nil {
 			log.Errorf("error getting current season for league week: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return

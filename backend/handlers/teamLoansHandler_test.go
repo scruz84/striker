@@ -20,7 +20,8 @@ func (c *loansTestCache) SetValue(key, value string)          { c.values[key] = 
 func (c *loansTestCache) SetValueLongDuration(key, value string) {
 	c.values[key] = value
 }
-func (c *loansTestCache) DeleteValue(key string) { delete(c.values, key) }
+func (c *loansTestCache) SetValueNoExpiry(key, value string) { c.values[key] = value }
+func (c *loansTestCache) DeleteValue(key string)             { delete(c.values, key) }
 
 // The public team endpoint carries loanedOut / loanedIn for an anonymous client (see
 // openspec/specs/player-loans). Runs against a real Postgres (STRIKER_TEST_DB_DSN; skipped when unset).

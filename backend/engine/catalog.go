@@ -10,6 +10,7 @@ import (
 const ClassificationKey = "classDet_key"
 const CurrentSeasonKeyPrefix = "currentSeason_key_"
 const LeagueWeekKey = "leagueWeek_key"
+const LeagueSeasonTableKey = "leagueSeasonTable_key_"
 const FullTeamDetailsKey = "fullTeamDet_key_"
 const MatchDetailsKey = "matchDet_key_"
 const PlayersFromTeamKey = "playTeam_key_"
@@ -169,6 +170,27 @@ func GetLeagueWeekMatches(dbCtx *common.DatabaseContext, leagueId int64, season 
 	value, _ := json.Marshal(result)
 	dbCtx.ObjectCache.SetValue(key, string(value))
 	return result, nil
+}
+
+// GetLeagueSeasonTable returns a league's final table for a past season (see
+// common.GetLeagueSeasonTable), cached with no expiry: a finished season's table never changes, and
+// league ids are never reused after a world reset. nil when the season has no table; that is not
+// cached, so a season that rolls over later is picked up.
+func GetLeagueSeasonTable(dbCtx *common.DatabaseContext, leagueId int64, season int) (*common.LeagueSeasonTable, error) {
+	key := LeagueSeasonTableKey + strconv.FormatInt(leagueId, 10) + "_" + strconv.Itoa(season)
+	if v, _ := dbCtx.ObjectCache.GetValue(key); v != "" {
+		var cached common.LeagueSeasonTable
+		if err := json.Unmarshal([]byte(v), &cached); err == nil && len(cached.Positions) > 0 {
+			return &cached, nil
+		}
+	}
+	table, err := common.GetLeagueSeasonTable(dbCtx, leagueId, season)
+	if err != nil || table == nil {
+		return table, err
+	}
+	value, _ := json.Marshal(table)
+	dbCtx.ObjectCache.SetValueNoExpiry(key, string(value))
+	return table, nil
 }
 
 func GetTeamDetails(dbCtx *common.DatabaseContext, owner bool, teamId int64) (*common.TeamDetails, error) {

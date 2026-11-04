@@ -45,6 +45,22 @@ function match(overrides: Partial<WeekMatch>): WeekMatch {
 }
 
 describe('hideStillLiveResults', () => {
+  it('breaks an exact tie by the starting order, then the team id', () => {
+    // A still-live 1-1 draw between teams 1 and 2 reverts both to an untouched team 3's line.
+    const drawn = { points: 1, matches: 1, draws: 1, goalsScored: 1, goalsReceived: 1 }
+    const positions = [
+      position({ teamId: 1, position: 1, seed: null, ...drawn }),
+      position({ teamId: 2, position: 2, seed: 2, ...drawn }),
+      position({ teamId: 3, position: 3, seed: 1 }),
+      position({ teamId: 4, position: 4 }),
+    ]
+    const matches = [match({ home: 1, away: 2, homeGoals: 1, awayGoals: 1 })]
+
+    const result = hideStillLiveResults(positions, matches)
+    expect(result.map((row) => row.teamId)).toEqual([3, 2, 1, 4])
+    expect(result.map((row) => row.position)).toEqual([1, 2, 3, 4])
+  })
+
   it('leaves classification untouched when no match is still live', () => {
     const positions = [position({ teamId: 1, points: 10 })]
     const matches = [match({ matchDate: '2020-01-01T00:00:00Z' })]

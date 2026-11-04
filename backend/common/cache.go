@@ -12,6 +12,8 @@ type Cache interface {
 	GetValue(key string) (string, error)
 	SetValue(key string, value string)
 	SetValueLongDuration(key string, value string)
+	// SetValueNoExpiry stores a value that never changes once written (a past season's table).
+	SetValueNoExpiry(key string, value string)
 	DeleteValue(key string)
 }
 
@@ -44,6 +46,10 @@ func (r RedisCache) SetValue(key string, value string) {
 
 func (r RedisCache) SetValueLongDuration(key string, value string) {
 	r.client.Set(*r.ctx, key, value, time.Minute*30)
+}
+
+func (r RedisCache) SetValueNoExpiry(key string, value string) {
+	r.client.Set(*r.ctx, key, value, 0)
 }
 
 func (r RedisCache) DeleteValue(key string) {

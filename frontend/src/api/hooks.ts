@@ -28,6 +28,8 @@ import type {
   FinishStuckMatchesResult,
   FriendlyMatch,
   FriendlySchedule,
+  LeagueSeasons,
+  LeagueSeasonTable,
   LeagueTransfer,
   Lineup,
   LineupOrder,
@@ -79,7 +81,10 @@ export const queryKeys = {
   opponentPreviews: ['opponentPreview'] as const,
   opponentPreview: (kind: string, id: string) => ['opponentPreview', kind, id] as const,
   division: (id: string) => ['division', id] as const,
-  leagueWeek: (leagueId: string, week: number) => ['leagueWeek', leagueId, week] as const,
+  // season is undefined for the league's current season.
+  leagueWeek: (leagueId: string, week: number, season?: number) => ['leagueWeek', leagueId, week, season ?? 'current'] as const,
+  leagueSeasons: (leagueId: string) => ['leagueSeasons', leagueId] as const,
+  leagueSeasonTable: (leagueId: string, season: number) => ['leagueSeasonTable', leagueId, season] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
   recentLeagueTransfers: (leagueId: string) => ['recentLeagueTransfers', leagueId] as const,
   leagueDirectory: ['leagueDirectory'] as const,
@@ -373,23 +378,44 @@ export function useDivisionDetails(divisionId: string | undefined) {
   })
 }
 
-// One matchday of a league's current season. `seed` is a matchday division details already carried
-// (its previous/next week) - handed over as initial data, stamped with the division query's own
-// fetch time, so the default pair never costs a /weeks/ request. staleTime matches the backend's
-// 1-minute cache, so a seeded entry isn't refetched on mount.
+// One matchday of a league's current season, or of a past `season`. `seed` is a matchday division
+// details already carried (its previous/next week) - handed over as initial data, stamped with the
+// division query's own fetch time, so the default pair never costs a /weeks/ request. staleTime
+// matches the backend's 1-minute cache, so a seeded entry isn't refetched on mount.
 export function useLeagueWeekMatches(
   leagueId: string | undefined,
   week: number,
   seed?: { matches: WeekMatch[]; updatedAt: number },
+  season?: number,
 ) {
   return useQuery({
-    queryKey: queryKeys.leagueWeek(leagueId ?? '', week),
-    queryFn: () => api.get<WeekMatch[]>(`/v1/teams/division/${leagueId}/weeks/${week}`),
+    queryKey: queryKeys.leagueWeek(leagueId ?? '', week, season),
+    queryFn: () =>
+      api.get<WeekMatch[]>(`/v1/teams/division/${leagueId}/weeks/${week}${season === undefined ? '' : `?season=${season}`}`),
     enabled: !!leagueId && week >= 1,
     staleTime: 60_000,
     initialData: seed?.matches,
     initialDataUpdatedAt: seed?.updatedAt,
     placeholderData: keepPreviousData,
+  })
+}
+
+// The league page's season picker: the current season and the past ones.
+export function useLeagueSeasons(leagueId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.leagueSeasons(leagueId ?? ''),
+    queryFn: () => api.get<LeagueSeasons>(`/v1/teams/division/${leagueId}/seasons`),
+    enabled: !!leagueId,
+  })
+}
+
+// A past season's final table. It never changes, so it is never refetched once loaded.
+export function useLeagueSeasonTable(leagueId: string | undefined, season: number | undefined) {
+  return useQuery({
+    queryKey: queryKeys.leagueSeasonTable(leagueId ?? '', season ?? 0),
+    queryFn: () => api.get<LeagueSeasonTable>(`/v1/teams/division/${leagueId}/seasons/${season}`),
+    enabled: !!leagueId && season !== undefined,
+    staleTime: Infinity,
   })
 }
 

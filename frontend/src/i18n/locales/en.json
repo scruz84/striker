@@ -1063,7 +1063,12 @@
     "previousMatchday": "Previous matchday",
     "nextMatchday": "Next matchday",
     "backToCurrent": "Current matchday",
-    "matchdayError": "Couldn't load this matchday"
+    "matchdayError": "Couldn't load this matchday",
+    "seasonPicker": "Season",
+    "seasonOption": "Season {{season}}",
+    "seasonCurrent": "Season {{season}} (current)",
+    "seasonFinal": "Season {{season}} · Final standings",
+    "champion": "Champion"
   },
   "recentTransfers": {
     "title": "Recent transfers",

@@ -65,16 +65,24 @@ var GetLineupsForMatchStmtSql = "select c.team_id, d.player_id, d.\"position\", 
 	"left join default_lineup_roles r on r.team_id = a.team_id and r.friendly = false " +
 	"where a.team_id in ($1, $2) and a.team_id not in (select c.team_id from lineup c where c.team_id in ($1, $2) and c.match_id = $3)"
 
-const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received " +
+// standingsOrderSql is the ordering of every league table (see openspec league-page "Starting
+// order breaks exact ties"): points, goal difference, goals scored, wins, draws, then the season's
+// starting order (classification.seed, unseeded rows last) and the team id, so the order is total
+// and a new season reads in its starting order on matchday 0. Columns of classification, unqualified.
+const standingsOrderSql = "points DESC, goals_scored - goals_received DESC, goals_scored DESC, wins DESC, draws DESC, " +
+	"seed ASC NULLS LAST, team_id ASC"
+
+const GetDivisionDetailsStmtSql = "SELECT a.team_id, b.name, a.matches, a.points, a.wins, a.losses, a.draws, a.goals_scored, a.goals_received, a.seed " +
 	" FROM classification a JOIN teams b ON a.team_id = b.team_id " +
-	"WHERE a.league_id = $1 and a.season = $2 ORDER BY a.points DESC, a.goals_scored-a.goals_received DESC, a.goals_scored DESC, a.wins DESC, a.draws DESC"
+	"WHERE a.league_id = $1 and a.season = $2 ORDER BY a.points DESC, a.goals_scored-a.goals_received DESC, a.goals_scored DESC, a.wins DESC, a.draws DESC, " +
+	"a.seed ASC NULLS LAST, a.team_id ASC"
 
 // GetTeamClassificationPositionStmtSql ranks every team in a league/season with the same
-// ordering GetDivisionDetailsStmtSql uses (points, then goal difference, goals scored, wins,
-// draws), then picks out the requested team's rank - used by GetTeamDetailsById so a team's page
-// can show where it actually sits without the caller fetching (and ranking) the whole division.
+// ordering GetDivisionDetailsStmtSql uses (standingsOrderSql), then picks out the requested team's
+// rank - used by GetTeamDetailsById so a team's page can show where it actually sits without the
+// caller fetching (and ranking) the whole division.
 const GetTeamClassificationPositionStmtSql = "SELECT position FROM (" +
-	"SELECT team_id, ROW_NUMBER() OVER (ORDER BY points DESC, goals_scored-goals_received DESC, goals_scored DESC, wins DESC, draws DESC) AS position " +
+	"SELECT team_id, ROW_NUMBER() OVER (ORDER BY " + standingsOrderSql + ") AS position " +
 	"FROM classification WHERE league_id = $1 AND season = $2" +
 	") ranked WHERE team_id = $3"
 
@@ -236,7 +244,16 @@ const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1, in_si
 const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues ORDER BY country, tier, group_number"
 
 const GetRankedClassificationStmtSql = "SELECT team_id, points, goals_scored - goals_received, goals_scored " +
-	"FROM classification WHERE league_id = $1 ORDER BY points DESC, (goals_scored - goals_received) DESC, goals_scored DESC"
+	"FROM classification WHERE league_id = $1 ORDER BY " + standingsOrderSql
+
+// GetFinalClassificationStmtSql is a league's full table lines in GetRankedClassificationStmtSql's
+// order, read at rollover so season_history keeps each team's whole final line.
+const GetFinalClassificationStmtSql = "SELECT team_id, matches, points, wins, draws, losses, goals_scored, goals_received " +
+	"FROM classification WHERE league_id = $1 ORDER BY " + standingsOrderSql
+
+const clearLeagueSeedsStmtSql = "UPDATE classification SET seed = NULL WHERE league_id = $1"
+
+const UpdateClassificationSeedStmtSql = "UPDATE classification SET seed = $1 WHERE league_id = $2 AND team_id = $3"
 
 const UpdateTeamLeagueStmtSql = "UPDATE teams SET league_id = $1 WHERE team_id = $2"
 
@@ -1216,8 +1233,14 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 		var draws int
 		var goalsScored int
 		var goalsReceived int
+		var seed sql.NullInt64
 
-		rows.Scan(&teamId, &teamName, &matches, &points, &wins, &losses, &draws, &goalsScored, &goalsReceived)
+		rows.Scan(&teamId, &teamName, &matches, &points, &wins, &losses, &draws, &goalsScored, &goalsReceived, &seed)
+		var seedPtr *int
+		if seed.Valid {
+			v := int(seed.Int64)
+			seedPtr = &v
+		}
 		positions[teamPosition-1] = ClassificationPosition{
 			Position:      teamPosition,
 			TeamId:        teamId,
@@ -1229,6 +1252,7 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 			Losses:        losses,
 			GoalsScored:   goalsScored,
 			GoalsReceived: goalsReceived,
+			Seed:          seedPtr,
 		}
 		teamPosition++
 	}
@@ -1974,8 +1998,8 @@ func GetTeamTier(dbCtx *DatabaseContext, teamId int64) (int, error) {
 	return tier, err
 }
 
-// GetRankedClassification returns a league's teams ordered best to worst (points, then goal
-// difference, then goals scored - same tiebreak GetDivisionDetailsStmtSql uses).
+// GetRankedClassification returns a league's teams ordered best to worst (standingsOrderSql, the
+// same ordering GetDivisionDetailsStmtSql uses).
 func GetRankedClassification(dbCtx *DatabaseContext, leagueId int64) ([]TeamStanding, error) {
 	rows, err := dbCtx.Db.Query(GetRankedClassificationStmtSql, leagueId)
 	if err != nil {
@@ -1998,6 +2022,47 @@ func GetRankedClassification(dbCtx *DatabaseContext, leagueId int64) ([]TeamStan
 func UpdateTeamLeague(dbCtx *DatabaseContext, teamId int64, newLeagueId int64) error {
 	_, err := dbCtx.Db.Exec(UpdateTeamLeagueStmtSql, newLeagueId, teamId)
 	return err
+}
+
+// GetFinalClassification returns a league's full table lines best to worst (standingsOrderSql),
+// with Position set to the 1-based rank. TeamName is left empty.
+func GetFinalClassification(dbCtx *DatabaseContext, leagueId int64) ([]ClassificationPosition, error) {
+	rows, err := dbCtx.Db.Query(GetFinalClassificationStmtSql, leagueId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	lines := make([]ClassificationPosition, 0)
+	for rows.Next() {
+		var l ClassificationPosition
+		if err := rows.Scan(&l.TeamId, &l.Matches, &l.Points, &l.Wins, &l.Draws, &l.Losses, &l.GoalsScored, &l.GoalsReceived); err != nil {
+			return nil, err
+		}
+		l.Position = len(lines) + 1
+		lines = append(lines, l)
+	}
+	return lines, rows.Err()
+}
+
+// SetLeagueSeeds replaces a league's starting order (classification.seed) with seeds, team id to
+// seed, in one transaction: the league's other rows are left without a seed, so they sort after
+// every seeded team. Rerunning it with the same seeds writes the same values.
+func SetLeagueSeeds(dbCtx *DatabaseContext, leagueId int64, seeds map[int64]int) error {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err := tx.Exec(clearLeagueSeedsStmtSql, leagueId); err != nil {
+		return err
+	}
+	for teamId, seed := range seeds {
+		if _, err := tx.Exec(UpdateClassificationSeedStmtSql, seed, leagueId, teamId); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 // UpdateClassificationLeague repoints a team's existing classification row at its new league

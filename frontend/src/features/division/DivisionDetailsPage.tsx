@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
+import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -27,8 +28,15 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useDivisionDetails, useLeagueWeekMatches, useTopScorers, useUserTeam } from '../../api/hooks'
-import type { ClassificationPosition, ScorerStanding, WeekMatch } from '../../api/types'
+import {
+  useDivisionDetails,
+  useLeagueSeasons,
+  useLeagueSeasonTable,
+  useLeagueWeekMatches,
+  useTopScorers,
+  useUserTeam,
+} from '../../api/hooks'
+import type { ClassificationPosition, LeagueSeasonTable, ScorerStanding, WeekMatch } from '../../api/types'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
 import { TeamBadge } from '../../components/TeamBadge'
@@ -50,12 +58,44 @@ export function DivisionDetailsPage() {
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const { id } = useParams<{ id: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { data: divisionDetails, isLoading, dataUpdatedAt: divisionUpdatedAt } = useDivisionDetails(id)
+  const { data: seasons, isLoading: seasonsLoading } = useLeagueSeasons(id)
   const { data: userTeam } = useUserTeam(true)
   const [tab, setTab] = useState<DivisionTab>('table')
 
-  if (isLoading || !divisionDetails) {
+  // A `season` that is not one of the league's past seasons shows the current season.
+  const pastSeasons = Array.isArray(seasons?.past) ? seasons.past : []
+  const requested = requestedSeason(searchParams.get('season'))
+  const pastSeason = requested !== undefined && pastSeasons.includes(requested) ? requested : undefined
+  const { data: seasonTable, isLoading: seasonTableLoading } = useLeagueSeasonTable(id, pastSeason)
+
+  const waitingForSeason = requested !== undefined && (seasonsLoading || (pastSeason !== undefined && seasonTableLoading))
+  if (isLoading || !divisionDetails || waitingForSeason) {
     return <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
+  }
+
+  const selectSeason = (season: number) => {
+    // A new season starts on its default matchday pair, so the `week` of the other one is dropped.
+    setSearchParams(season === seasons?.current ? {} : { season: String(season) }, { replace: true })
+  }
+  const picker =
+    pastSeasons.length > 0 && seasons ? (
+      <SeasonPicker current={seasons.current} past={pastSeasons} value={pastSeason ?? seasons.current} onSelect={selectSeason} />
+    ) : null
+
+  if (pastSeason !== undefined && seasonTable) {
+    return (
+      <PastSeasonView
+        leagueId={id}
+        table={seasonTable}
+        picker={picker}
+        myTeamId={userTeam?.team.id}
+        isDesktop={isDesktop}
+        tab={tab === 'fixtures' ? 'fixtures' : 'table'}
+        onTab={setTab}
+      />
+    )
   }
 
   // Reverted once and reused below for both the round counter and the table itself - positions[0]'s
@@ -67,13 +107,20 @@ export function DivisionDetailsPage() {
   const totalWeeks = Math.max(0, (teamCount - 1) * 2)
   const myTeamId = userTeam?.team.id
 
+  const promotionSlots = divisionDetails.promotionSlots ?? 0
+  const relegationSlots = divisionDetails.relegationSlots ?? 0
+  const rowCount = positions.filter((row) => row.teamId !== 0).length
   const table = (
-    <ClassificationTable
-      positions={positions}
-      myTeamId={myTeamId}
-      promotionSlots={divisionDetails.promotionSlots ?? 0}
-      relegationSlots={divisionDetails.relegationSlots ?? 0}
-    />
+    <Stack spacing={1}>
+      {picker}
+      <ClassificationTable
+        positions={positions}
+        myTeamId={myTeamId}
+        zoneOf={(row) => zoneFor(row.position, rowCount, promotionSlots, relegationSlots)}
+        showPromotionLegend={promotionSlots > 0}
+        showRelegationLegend={relegationSlots > 0}
+      />
+    </Stack>
   )
   const fixtures = (
     <MatchdayFixtures
@@ -139,6 +186,153 @@ export function DivisionDetailsPage() {
   )
 }
 
+// PastSeasonView is a finished season, read-only: its final table (zones from the recorded
+// promotions and relegations, a trophy on the champion) and its matchdays, opening on the last pair
+// with no chips. Top scorers and recent transfers belong to the current season and are not shown.
+function PastSeasonView({
+  leagueId,
+  table,
+  picker,
+  myTeamId,
+  isDesktop,
+  tab,
+  onTab,
+}: {
+  leagueId: string | undefined
+  table: LeagueSeasonTable
+  picker: ReactNode
+  myTeamId: number | undefined
+  isDesktop: boolean
+  tab: 'table' | 'fixtures'
+  onTab: (tab: DivisionTab) => void
+}) {
+  const { t } = useTranslation()
+  const positions = pastSeasonPositions(table)
+  const byTeam = new Map(table.positions.map((row) => [row.teamId, row]))
+  const standings = (
+    <Stack spacing={1}>
+      {picker}
+      <ClassificationTable
+        positions={positions}
+        myTeamId={myTeamId}
+        zoneOf={(row) => pastSeasonZone(byTeam.get(row.teamId))}
+        champion
+        showPromotionLegend={table.positions.some((row) => row.promoted)}
+        showRelegationLegend={table.positions.some((row) => row.relegated)}
+      />
+    </Stack>
+  )
+  const fixtures = (
+    <MatchdayFixtures
+      leagueId={leagueId}
+      season={table.season}
+      currentWeek={table.totalWeeks}
+      totalWeeks={table.totalWeeks}
+      backendWeek={0}
+      previousWeekMatches={[]}
+      nextWeekMatches={[]}
+      updatedAt={0}
+      myTeamId={myTeamId}
+    />
+  )
+
+  return (
+    <Box>
+      <PageHeader
+        title={formatDivisionName(t, table.name)}
+        titleText={table.name}
+        subtitle={t('division.seasonFinal', { season: table.season })}
+      />
+      {isDesktop ? (
+        <Stack spacing={2}>
+          <Grid container spacing={2}>
+            <Grid size={{ md: 8 }}>{standings}</Grid>
+          </Grid>
+          {fixtures}
+        </Stack>
+      ) : (
+        <>
+          <Tabs
+            value={tab}
+            onChange={(_event, value: DivisionTab) => onTab(value)}
+            variant="fullWidth"
+            sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab value="table" label={t('division.tabs.table')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="fixtures" label={t('division.tabs.fixtures')} sx={{ minWidth: 0, px: 1 }} />
+          </Tabs>
+          {tab === 'table' && standings}
+          {tab === 'fixtures' && fixtures}
+        </>
+      )}
+    </Box>
+  )
+}
+
+// pastSeasonPositions shapes a past season's final table like the live classification.
+function pastSeasonPositions(table: LeagueSeasonTable): ClassificationPosition[] {
+  return table.positions.map((row) => ({
+    position: row.position,
+    teamId: row.teamId,
+    teamName: row.name,
+    points: row.points,
+    matches: row.matches,
+    wins: row.wins,
+    draws: row.draws,
+    losses: row.losses,
+    goalsScored: row.goalsScored,
+    goalsReceived: row.goalsReceived,
+  }))
+}
+
+// A past season's zones are what really happened, not the current slot counts.
+function pastSeasonZone(row: { promoted: boolean; relegated: boolean } | undefined): Zone {
+  if (row?.promoted) return 'promotion'
+  if (row?.relegated) return 'relegation'
+  return undefined
+}
+
+// requestedSeason reads the `season` query parameter: anything that isn't a positive integer is ignored.
+function requestedSeason(param: string | null): number | undefined {
+  if (param === null || !/^\d+$/.test(param)) return undefined
+  const season = Number(param)
+  return season >= 1 ? season : undefined
+}
+
+// The season picker above the standings: the current season, then the past ones, newest first.
+function SeasonPicker({
+  current,
+  past,
+  value,
+  onSelect,
+}: {
+  current: number
+  past: number[]
+  value: number
+  onSelect: (season: number) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <TextField
+      select
+      size="small"
+      value={value}
+      onChange={(event) => onSelect(Number(event.target.value))}
+      slotProps={{ htmlInput: { 'aria-label': t('division.seasonPicker') } }}
+      sx={{ alignSelf: 'flex-start', minWidth: 200, maxWidth: '100%', '& .MuiInputBase-root': { minHeight: TAP_TARGET } }}
+    >
+      <MenuItem value={current} sx={{ minHeight: TAP_TARGET }}>
+        {t('division.seasonCurrent', { season: current })}
+      </MenuItem>
+      {past.map((season) => (
+        <MenuItem key={season} value={season} sx={{ minHeight: TAP_TARGET }}>
+          {t('division.seasonOption', { season })}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+}
+
 // matchdayPair resolves which two matchdays the fixtures section shows: `left` and left + 1. It
 // is the requested week (the `week` query parameter), or the current week by default, clamped so
 // both fit in the season (1..totalWeeks - 1, and 1 for a season too short to have two). isDefault
@@ -168,6 +362,7 @@ function requestedWeek(param: string | null): number | undefined {
 
 function MatchdayFixtures({
   leagueId,
+  season,
   currentWeek,
   totalWeeks,
   backendWeek,
@@ -177,6 +372,8 @@ function MatchdayFixtures({
   myTeamId,
 }: {
   leagueId: string | undefined
+  // A past season: no seeds, no chips, and every matchday is requested for that season.
+  season?: number
   currentWeek: number
   totalWeeks: number
   backendWeek: number
@@ -190,16 +387,22 @@ function MatchdayFixtures({
   const right = left + 1
 
   const seedFor = (week: number) => {
+    if (season !== undefined) return undefined
     if (week === backendWeek) return { matches: previousWeekMatches, updatedAt }
     if (week === backendWeek + 1) return { matches: nextWeekMatches, updatedAt }
     return undefined
   }
-  const leftQuery = useLeagueWeekMatches(leagueId, left, seedFor(left))
-  const rightQuery = useLeagueWeekMatches(leagueId, right, seedFor(right))
+  const leftQuery = useLeagueWeekMatches(leagueId, left, seedFor(left), season)
+  const rightQuery = useLeagueWeekMatches(leagueId, right, seedFor(right), season)
+  const chipFor = (week: number) => (season === undefined ? matchdayChip(week, currentWeek) : undefined)
 
   const goTo = (week: number) => {
     const { left: target, isDefault: toDefault } = matchdayPair({ currentWeek, totalWeeks, requested: week })
-    setSearchParams(toDefault ? {} : { week: String(target) }, { replace: true })
+    // Only `week` changes: a chosen `season` stays.
+    const next = new URLSearchParams(searchParams)
+    if (toDefault) next.delete('week')
+    else next.set('week', String(target))
+    setSearchParams(next, { replace: true })
   }
 
   return (
@@ -209,7 +412,7 @@ function MatchdayFixtures({
         <Grid size={{ xs: 12, md: 6 }}>
           <FixturesCard
             week={left}
-            chip={matchdayChip(left, currentWeek)}
+            chip={chipFor(left)}
             matches={leftQuery.data}
             failed={leftQuery.isError}
             myTeamId={myTeamId}
@@ -218,7 +421,7 @@ function MatchdayFixtures({
         <Grid size={{ xs: 12, md: 6 }}>
           <FixturesCard
             week={right}
-            chip={matchdayChip(right, currentWeek)}
+            chip={chipFor(right)}
             matches={rightQuery.data}
             failed={rightQuery.isError}
             myTeamId={myTeamId}
@@ -343,7 +546,12 @@ export function hideStillLiveResults(positions: ClassificationPosition[], previo
     if (diffB !== diffA) return diffB - diffA
     if (b.goalsScored !== a.goalsScored) return b.goalsScored - a.goalsScored
     if (b.wins !== a.wins) return b.wins - a.wins
-    return b.draws - a.draws
+    if (b.draws !== a.draws) return b.draws - a.draws
+    // Then the season's starting order (no seed last) and the team id, as the backend does.
+    const seedA = a.seed ?? Number.MAX_SAFE_INTEGER
+    const seedB = b.seed ?? Number.MAX_SAFE_INTEGER
+    if (seedA !== seedB) return seedA - seedB
+    return a.teamId - b.teamId
   })
   return reverted.map((row, index) => ({ ...row, position: index + 1 }))
 }
@@ -361,13 +569,18 @@ function zoneFor(position: number, total: number, promotionSlots: number, relega
 function ClassificationTable({
   positions,
   myTeamId,
-  promotionSlots,
-  relegationSlots,
+  zoneOf,
+  champion = false,
+  showPromotionLegend,
+  showRelegationLegend,
 }: {
   positions: ClassificationPosition[]
   myTeamId: number | undefined
-  promotionSlots: number
-  relegationSlots: number
+  zoneOf: (row: ClassificationPosition) => Zone
+  // A finished season: a trophy marks the team in first place.
+  champion?: boolean
+  showPromotionLegend: boolean
+  showRelegationLegend: boolean
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -407,7 +620,7 @@ function ClassificationTable({
               const isMyTeam = row.teamId === myTeamId
               const goalDiff = row.goalsScored - row.goalsReceived
               const rankColor = RANK_COLORS[row.position - 1]
-              const zone = zoneFor(row.position, rows.length, promotionSlots, relegationSlots)
+              const zone = zoneOf(row)
 
               return (
                 <TableRow
@@ -443,6 +656,13 @@ function ClassificationTable({
                       <TeamNameLink teamId={row.teamId} variant="body2" noWrap sx={{ minWidth: 0, fontWeight: isMyTeam ? 700 : 400 }}>
                         {row.teamName}
                       </TeamNameLink>
+                      {champion && row.position === 1 && (
+                        <EmojiEventsTwoToneIcon
+                          titleAccess={t('division.champion')}
+                          fontSize="small"
+                          sx={{ color: RANK_COLORS[0], flexShrink: 0 }}
+                        />
+                      )}
                       {isMyTeam && <Chip label={t('division.table.you')} size="small" color="primary" variant="outlined" sx={{ height: 20 }} />}
                     </Stack>
                   </TableCell>
@@ -472,8 +692,8 @@ function ClassificationTable({
         </Table>
       </TableContainer>
       <Stack direction="row" spacing={2} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 0.5 }} aria-label={t('division.legend.title')}>
-        {promotionSlots > 0 && <ZoneLegend color={zoneColor.promotion} label={t('division.legend.promotion')} />}
-        {relegationSlots > 0 && <ZoneLegend color={zoneColor.relegation} label={t('division.legend.relegation')} />}
+        {showPromotionLegend && <ZoneLegend color={zoneColor.promotion} label={t('division.legend.promotion')} />}
+        {showRelegationLegend && <ZoneLegend color={zoneColor.relegation} label={t('division.legend.relegation')} />}
         <Typography variant="caption" color="text.secondary">
           {t('division.legend.columns')}
         </Typography>

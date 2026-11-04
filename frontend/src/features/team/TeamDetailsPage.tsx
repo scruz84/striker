@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -278,7 +278,7 @@ export function TeamDetailsPage() {
 // consistently as "gold" wherever it shows up in the UI.
 const CHAMPION_COLOR = '#D4AF37'
 
-function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
+export function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   const { t } = useTranslation()
   if (history.length === 0) {
     return <EmptyState compact title={t('team.noSeasons')} />
@@ -291,6 +291,15 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
       {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
     </Stack>
   )
+  // A season with a recorded league links to that league's table for that season.
+  const seasonLink = (entry: SeasonHistoryEntry, label: ReactNode) =>
+    entry.leagueId === null ? (
+      label
+    ) : (
+      <Link component={RouterLink} to={`/division/${entry.leagueId}?season=${entry.season}`} underline="hover">
+        {label}
+      </Link>
+    )
   const position = (entry: SeasonHistoryEntry) => (
     <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
       <span>{entry.finalPosition ?? '-'}</span>
@@ -308,13 +317,13 @@ function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
       getKey={(entry) => entry.season}
       ariaLabel={t('team.trophyCabinet')}
       columns={[
-        { id: 'season', header: t('team.table.season'), cell: (entry) => entry.season },
-        { id: 'league', header: t('team.table.league'), cell: (entry) => entry.leagueName ?? '-' },
+        { id: 'season', header: t('team.table.season'), cell: (entry) => seasonLink(entry, entry.season) },
+        { id: 'league', header: t('team.table.league'), cell: (entry) => seasonLink(entry, entry.leagueName ?? '-') },
         { id: 'position', header: t('team.table.finalPosition'), align: 'right', cell: position },
         { id: 'outcome', header: t('team.table.outcome'), cell: outcomeChips },
       ]}
       mobile={{
-        primary: (entry) => `${t('team.table.season')} ${entry.season} · ${entry.leagueName ?? '-'}`,
+        primary: (entry) => seasonLink(entry, `${t('team.table.season')} ${entry.season} · ${entry.leagueName ?? '-'}`),
         secondary: (entry) => (entry.promoted || entry.relegated || entry.cupResult ? outcomeChips(entry) : null),
         end: (entry) => (
           <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>

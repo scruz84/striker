@@ -734,6 +734,8 @@ export interface ClassificationPosition {
   losses: number
   goalsScored: number
   goalsReceived: number
+  // Place in the season's starting order, the last tie-break before the team id; null when the team has none.
+  seed?: number | null
 }
 
 export interface Classification {
@@ -1208,11 +1210,44 @@ export interface GroupDetails {
 export interface SeasonHistoryEntry {
   teamId: number
   season: number
+  // The league the team played in that season; null when it was not recorded.
+  leagueId: number | null
   leagueName: string | null
   finalPosition: number | null
   promoted: boolean
   relegated: boolean
   cupResult: string | null
+}
+
+// A league's season picker: the current season and every past one, newest first.
+export interface LeagueSeasons {
+  current: number
+  past: number[]
+}
+
+// One line of a past season's final table. `name` is the club's current name.
+export interface LeagueSeasonPosition {
+  position: number
+  teamId: number
+  name: string
+  matches: number
+  points: number
+  wins: number
+  draws: number
+  losses: number
+  goalsScored: number
+  goalsReceived: number
+  promoted: boolean
+  relegated: boolean
+}
+
+// A league's final table for a past season. `name` is the league name recorded that season.
+export interface LeagueSeasonTable {
+  id: number
+  name: string
+  season: number
+  totalWeeks: number
+  positions: LeagueSeasonPosition[]
 }
 
 export interface ScorerStanding {

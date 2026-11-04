@@ -112,7 +112,7 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 	}
 	ProgressPlayers(dbCtx, teamIds)
 	ReturnExpiredLoans(dbCtx, country, newSeason)
-	applyPromotionRelegation(dbCtx, country, currentSeason)
+	finalStandings, moves := applyPromotionRelegation(dbCtx, country, currentSeason)
 	if err := StartCupForCountry(dbCtx, country, newSeason); err != nil {
 		log.Errorf("error starting cup for %s season %d: %s", country, newSeason, err)
 	}
@@ -128,6 +128,7 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 			log.Errorf("error resetting classification for league %d season %d: %s", leagueId, newSeason, err)
 		}
 	}
+	writeSeasonSeeds(dbCtx, leagueIds, finalStandings, moves)
 
 	if err := common.SetCurrentSeasonForCountry(dbCtx, country, newSeason); err != nil {
 		log.Errorf("error advancing %s's current season to %d: %s", country, newSeason, err)
@@ -143,12 +144,34 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 	}
 }
 
+// writeSeasonSeeds stores every league's starting order for the new season (see
+// ComputeSeasonSeeds) once its classification has been reset. Runs under the country's rollover
+// lock; a league's seeds are replaced in one transaction, so a rerun writes the same values. A
+// league that got no seeds (its standings could not be read) is left as it was.
+func writeSeasonSeeds(dbCtx *common.DatabaseContext, leagueIds []int64, finalStandings []LeagueStandings, moves []LeagueMove) {
+	if len(finalStandings) == 0 {
+		return
+	}
+	seeds := ComputeSeasonSeeds(finalStandings, moves)
+	for _, leagueId := range leagueIds {
+		leagueSeeds, ok := seeds[leagueId]
+		if !ok {
+			continue
+		}
+		if err := common.SetLeagueSeeds(dbCtx, leagueId, leagueSeeds); err != nil {
+			log.Errorf("error writing the starting order of league %d: %s", leagueId, err)
+		}
+	}
+}
+
 // leagueFinalStandings pairs one league's final ranked standings with what season_history needs
-// to describe it - see recordSeasonHistory.
+// to describe it - see recordSeasonHistory. lines holds each team's full final table line, read
+// before any promotion/relegation move repoints the classification rows.
 type leagueFinalStandings struct {
 	leagueId   int64
 	leagueName string
 	standings  []common.TeamStanding
+	lines      map[int64]common.ClassificationPosition
 }
 
 // applyPromotionRelegation ranks country's own leagues' final standings, computes its
@@ -156,12 +179,13 @@ type leagueFinalStandings struct {
 // teams and on their existing classification row, so the per-league reset that follows resets
 // the right rows - and records every team's final position and promotion/relegation outcome for
 // `season` into its season_history (see recordSeasonHistory) before that classification data is
-// gone for good.
-func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, season int) {
+// gone for good. It returns every league's final standings and the moves applied, from which the
+// new season's starting order is built (see ComputeSeasonSeeds).
+func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, season int) ([]LeagueStandings, []LeagueMove) {
 	leagues, err := common.GetLeaguesWithTierForCountry(dbCtx, country)
 	if err != nil {
 		log.Errorf("error listing leagues for %s promotion/relegation: %s", country, err)
-		return
+		return nil, nil
 	}
 
 	results := make([]leagueFinalStandings, 0, len(leagues))
@@ -180,7 +204,15 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 		if err != nil {
 			log.Errorf("error getting name for league %d: %s", league.LeagueId, err)
 		}
-		results = append(results, leagueFinalStandings{leagueId: league.LeagueId, leagueName: leagueName, standings: standings})
+		finalLines, err := common.GetFinalClassification(dbCtx, league.LeagueId)
+		if err != nil {
+			log.Errorf("error getting the final table of league %d: %s", league.LeagueId, err)
+		}
+		lines := make(map[int64]common.ClassificationPosition, len(finalLines))
+		for _, line := range finalLines {
+			lines[line.TeamId] = line
+		}
+		results = append(results, leagueFinalStandings{leagueId: league.LeagueId, leagueName: leagueName, standings: standings, lines: lines})
 
 		if leaguesByCountryAndTier[league.Country] == nil {
 			leaguesByCountryAndTier[league.Country] = make(map[int][]LeagueStandings)
@@ -193,8 +225,10 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 
 	config := common.GetPromotionRelegationConfig(dbCtx)
 	promotedByTeam := make(map[int64]bool)
+	allMoves := make([]LeagueMove, 0)
 	for country, leaguesByTier := range leaguesByCountryAndTier {
 		moves := ComputePromotionRelegation(leaguesByTier, config)
+		allMoves = append(allMoves, moves...)
 		for _, move := range moves {
 			promotedByTeam[move.TeamId] = move.Promoted
 		}
@@ -216,6 +250,12 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 
 	recordSeasonHistory(dbCtx, season, results, promotedByTeam)
 	applyTitleRaceRivalries(dbCtx, country, results)
+
+	finalStandings := make([]LeagueStandings, 0, len(results))
+	for _, result := range results {
+		finalStandings = append(finalStandings, LeagueStandings{LeagueId: result.leagueId, Standings: result.standings})
+	}
+	return finalStandings, allMoves
 }
 
 // applyTitleRaceRivalries adds the season's title race to each division's champion-runner-up pair
@@ -253,8 +293,8 @@ func applyTitleRaceRivalries(dbCtx *common.DatabaseContext, country string, resu
 	}
 }
 
-// recordSeasonHistory upserts every team's final league position and promotion/relegation
-// outcome for `season` - see common.RecordSeasonHistoryLeagueResult. moved is true (and its
+// recordSeasonHistory upserts every team's final league position, final table line and
+// promotion/relegation outcome for `season` - see common.RecordSeasonHistoryLeagueResult. moved is true (and its
 // value meaningful) only for teams that actually appear in promotedByTeam; everyone else neither
 // promoted nor relegated.
 func recordSeasonHistory(dbCtx *common.DatabaseContext, season int, results []leagueFinalStandings, promotedByTeam map[int64]bool) {
@@ -262,7 +302,11 @@ func recordSeasonHistory(dbCtx *common.DatabaseContext, season int, results []le
 		for i, standing := range result.standings {
 			promoted, moved := promotedByTeam[standing.TeamId]
 			relegated := moved && !promoted
-			if err := common.RecordSeasonHistoryLeagueResult(dbCtx, standing.TeamId, season, result.leagueId, result.leagueName, i+1, promoted, relegated); err != nil {
+			var line *common.ClassificationPosition
+			if l, ok := result.lines[standing.TeamId]; ok {
+				line = &l
+			}
+			if err := common.RecordSeasonHistoryLeagueResult(dbCtx, standing.TeamId, season, result.leagueId, result.leagueName, i+1, line, promoted, relegated); err != nil {
 				log.Errorf("error recording season history for team %d season %d: %s", standing.TeamId, season, err)
 			}
 		}

@@ -16,6 +16,9 @@ type ClassificationPosition struct {
 	Losses        int    `json:"losses"`
 	GoalsScored   int    `json:"goalsScored"`
 	GoalsReceived int    `json:"goalsReceived"`
+	// Seed is the team's place in the season's starting order (see engine.ComputeSeasonSeeds), the
+	// last tie-break before the team id; nil for a team with no starting place.
+	Seed *int `json:"seed"`
 }
 
 type Classification struct {
