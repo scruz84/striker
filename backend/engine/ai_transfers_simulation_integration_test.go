@@ -15,7 +15,7 @@ import (
 // real Postgres (STRIKER_TEST_DB_DSN; skipped when unset) - six CPU teams (two per AI level), two
 // human managers who turn down everything offered to them, and a few good free agents - and
 // checks the invariants the transfer plan promises rather than exact outcomes (the CPU's choices
-// are randomized): moves happen when upgrades exist, a Caretaker never shops, only a Director
+// are randomized): moves happen when upgrades exist, a Caretaker only signs to fill a hole, only a Director
 // bids for unlisted players, no CPU squad drops under the minimum size or a position under its
 // minimum depth, the caps on open offers hold, a rejected team doesn't bid again straight away,
 // nobody is signed and sold on at once, and no international is put on the transfer list. The
@@ -163,6 +163,9 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 			if n := len(commitments.LoanedOut) + len(commitments.LoanListed); n > common.AiMaxLoanedOut {
 				t.Errorf("day %d: team %d has %d players out or about to go out on loan, over the cap %d", day, c.id, n, common.AiMaxLoanedOut)
 			}
+			if c.level == common.AiLevelCaretaker && len(*players) > common.SquadSize {
+				t.Errorf("day %d: caretaker %d grew to %d players, over the squad size %d", day, c.id, len(*players), common.SquadSize)
+			}
 			if c.level == common.AiLevelCaretaker && len(commitments.LoanedIn)+len(commitments.LoanedOut)+len(commitments.LoanListed) != 0 {
 				t.Errorf("day %d: caretaker %d is involved in a loan", day, c.id)
 			}
@@ -297,8 +300,11 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	}
 
 	for _, caretaker := range isLevel(common.AiLevelCaretaker) {
-		if n := count(`SELECT count(*) FROM player_transfers WHERE to_team_id = $1 AND created_at > $2`, caretaker, startedAt); n != 0 {
-			t.Errorf("caretaker %d signed %d players, want 0", caretaker, n)
+		// A Caretaker only signs to fill a hole, so it never buys more players than it lost.
+		signed := count(`SELECT count(*) FROM player_transfers WHERE to_team_id = $1 AND created_at > $2`, caretaker, startedAt)
+		sold := count(`SELECT count(*) FROM player_transfers WHERE from_team_id = $1 AND created_at > $2`, caretaker, startedAt)
+		if signed > sold {
+			t.Errorf("caretaker %d signed %d players after losing %d, want no more than it lost", caretaker, signed, sold)
 		}
 		if n := count(`SELECT count(*) FROM player_offer_rejections WHERE from_team_id = $1`, caretaker); n != 0 {
 			t.Errorf("caretaker %d made offers", caretaker)

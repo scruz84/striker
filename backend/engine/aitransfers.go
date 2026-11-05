@@ -33,8 +33,10 @@ const (
 	// minimum score asks for - interest buys a margin.
 	aiBidBumpPerScorePoint = 0.02
 	aiMaxBidBump           = 0.25
-	// aiMaxBidValueMultiple is the most a team will bid, relative to its own valuation - a rebid
-	// after a rejection only goes ahead if its valuation allows it.
+	// aiMaxBidValueMultiple is the most a team will pay for a permanent signing, relative to its
+	// own valuation: a bid (or a rebid after a rejection) never goes above it, and neither does
+	// the asking price of a listing or a loan's buy-option fee - a team that won't offer more than
+	// this for a player nobody listed doesn't pay three times his worth because somebody did.
 	aiMaxBidValueMultiple = 1.5
 	// aiPassIterationsPerMove bounds how many candidates a pass tries per move it may make, so a
 	// run of failures (a listing someone else just bought) can't loop forever.
@@ -147,6 +149,9 @@ type scoredCandidate struct {
 // scoreOne scores one candidate for the team as it stands. A bid for an unlisted player starts at
 // aiBaseBidMultiple of the team's valuation; if he already rejected an offer it must at least beat
 // the rebid floor, and a floor above aiMaxBidValueMultiple of the valuation rules the player out.
+// The same ceiling rules out a listing, or a buy option, priced above aiMaxBidValueMultiple of the
+// valuation: the value-for-money term alone is capped, so without it a big enough upgrade would
+// be bought at any price.
 func scoreOne(profile common.AiTransferProfile, state *transferState, c transferCandidate, rng *rand.Rand) (common.TargetScore, bool) {
 	squad := state.available()
 	switch c.Kind {
@@ -178,6 +183,10 @@ func scoreOne(profile common.AiTransferProfile, state *transferState, c transfer
 		ctx.Price = c.BuyOptionFee
 	}
 	score := common.ScoreTarget(profile, ctx, rng)
+	if (c.Kind == candidateListed || c.Kind == candidateBuyOption) &&
+		float64(score.Price) > float64(score.Value)*aiMaxBidValueMultiple {
+		return score, false
+	}
 	if c.Kind == candidateUnlisted && c.MinBid > score.Price {
 		if float64(c.MinBid) > float64(score.Value)*aiMaxBidValueMultiple {
 			return score, false
@@ -189,14 +198,30 @@ func scoreOne(profile common.AiTransferProfile, state *transferState, c transfer
 	return score, true
 }
 
+// fillsNeed reports whether signing p plugs a hole in the team: its squad (owned and available,
+// plus players on loan to it) is under common.SquadSize, or p's position is under
+// common.MinPositionDepth - the only signings a profile that BuysOnlyForNeeds makes.
+func fillsNeed(state *transferState, p common.Player) bool {
+	available := state.available()
+	if len(available)+len(state.LoanedIn) < common.SquadSize {
+		return true
+	}
+	position := common.BestCorePosition(p)
+	return positionDepth(available, position) < common.MinPositionDepth[position]
+}
+
 // rankCandidates scores every candidate not yet attempted and keeps the ones that clear the
-// profile's bar - affordable, and a score of at least MinScore - best first. Pure given the rng,
+// profile's bar - affordable, a score of at least MinScore and, for a profile that
+// BuysOnlyForNeeds, filling a need - best first. Pure given the rng,
 // so the choice of targets can be tested without a database.
 func rankCandidates(profile common.AiTransferProfile, state *transferState, candidates []transferCandidate,
 	attempted map[int64]bool, rng *rand.Rand) []scoredCandidate {
 	ranked := make([]scoredCandidate, 0)
 	for _, c := range candidates {
 		if attempted[c.Player.Id] {
+			continue
+		}
+		if profile.BuysOnlyForNeeds && !fillsNeed(state, c.Player) {
 			continue
 		}
 		score, ok := scoreOne(profile, state, c, rng)

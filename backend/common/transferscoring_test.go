@@ -50,8 +50,8 @@ func TestAiTransferProfileFor_EachLevelIncludesTheOnesBelow(t *testing.T) {
 	manager := AiTransferProfileFor(AiLevelManager)
 	director := AiTransferProfileFor(AiLevelDirector)
 
-	if caretaker.MovesPerPass != 0 || manager.MovesPerPass != 1 || director.MovesPerPass < 2 || director.MovesPerPass > 3 {
-		t.Errorf("moves per pass = %d/%d/%d, want 0/1/2-3", caretaker.MovesPerPass, manager.MovesPerPass, director.MovesPerPass)
+	if caretaker.MovesPerPass != 1 || manager.MovesPerPass != 1 || director.MovesPerPass < 2 || director.MovesPerPass > 3 {
+		t.Errorf("moves per pass = %d/%d/%d, want 1/1/2-3", caretaker.MovesPerPass, manager.MovesPerPass, director.MovesPerPass)
 	}
 	if !(caretaker.ValuationNoise > manager.ValuationNoise && manager.ValuationNoise > director.ValuationNoise) {
 		t.Errorf("valuation noise should shrink with level: %v %v %v", caretaker.ValuationNoise, manager.ValuationNoise, director.ValuationNoise)
@@ -65,8 +65,14 @@ func TestAiTransferProfileFor_EachLevelIncludesTheOnesBelow(t *testing.T) {
 	if caretaker.ProtectsKeyPlayers || !manager.ProtectsKeyPlayers || !director.ProtectsKeyPlayers {
 		t.Error("only Manager and above protect key players")
 	}
-	if caretaker.SearchesFreeAgents || caretaker.SearchesTransferList || caretaker.SearchesUnlisted || caretaker.SearchesLoanList {
-		t.Error("a Caretaker never shops")
+	if !caretaker.SearchesFreeAgents || !caretaker.SearchesTransferList || caretaker.SearchesUnlisted || caretaker.SearchesLoanList {
+		t.Error("a Caretaker looks at free agents and the transfer list only")
+	}
+	if !caretaker.BuysOnlyForNeeds || manager.BuysOnlyForNeeds || director.BuysOnlyForNeeds {
+		t.Error("only a Caretaker limits itself to signings that fill a hole")
+	}
+	if caretaker.BudgetReserve < manager.BudgetReserve {
+		t.Error("a Caretaker keeps at least a Manager's budget reserve")
 	}
 	if !manager.SearchesLoanList || !director.SearchesLoanList {
 		t.Error("a Manager and a Director read the loan market")

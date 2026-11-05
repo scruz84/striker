@@ -553,3 +553,93 @@ func TestRankCandidates_BuyOptionOnAStarterIsWorthExercising(t *testing.T) {
 		t.Errorf("an option that would breach the budget reserve must not be exercised, got %+v", ranked)
 	}
 }
+
+func TestRankCandidates_ListingFarAboveValuationIsNotBought(t *testing.T) {
+	// A big upgrade clears the bar by far more than the capped value-for-money penalty, so only
+	// the price ceiling keeps a CPU team from paying any asking price for him.
+	star := midfielder(500, 99)
+	star.Age = 27
+	for _, level := range []int{common.AiLevelManager, common.AiLevelDirector} {
+		profile := exact(common.AiTransferProfileFor(level))
+		state := stateOf(adultSquad(), 500_000_000)
+
+		fair := listedCandidate(1, star)
+		if ranked := rankCandidates(profile, state, []transferCandidate{fair}, map[int64]bool{}, rngSeed(1)); len(ranked) != 1 {
+			t.Fatalf("level %d: setup: the star at his market value should be a target, got %d", level, len(ranked))
+		}
+		dear := fair
+		dear.AskingPrice = common.MarketValue(*star) * 3
+		if ranked := rankCandidates(profile, state, []transferCandidate{dear}, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+			t.Errorf("level %d: a listing at 3x the valuation must not be bought, got %+v", level, ranked)
+		}
+		pricey := fair
+		pricey.AskingPrice = common.MarketValue(*star) * 14 / 10
+		if ranked := rankCandidates(profile, state, []transferCandidate{pricey}, map[int64]bool{}, rngSeed(1)); len(ranked) != 1 {
+			t.Errorf("level %d: a listing within the bid ceiling is still worth buying, got %d", level, len(ranked))
+		}
+	}
+}
+
+func TestRankCandidates_BuyOptionFarAboveValuationIsNotExercised(t *testing.T) {
+	profile := exact(common.AiTransferProfileFor(common.AiLevelDirector))
+	starter := midfielder(601, 99)
+	starter.Age = 27
+	starter.Wage = 1000
+	option := transferCandidate{Player: *starter, Kind: candidateBuyOption, SellerTeamId: 9, BuyOptionFee: common.MarketValue(*starter) * 3}
+	state := stateOf(adultSquad(), 500_000_000)
+	state.LoanedIn = []*common.Player{starter}
+	if ranked := rankCandidates(profile, state, []transferCandidate{option}, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+		t.Errorf("a buy option at 3x the valuation must not be exercised, got %+v", ranked)
+	}
+}
+
+func TestRankCandidates_CaretakerOnlyBuysToFillAHole(t *testing.T) {
+	profile := exact(common.AiTransferProfileFor(common.AiLevelCaretaker))
+	star := midfielder(500, 99)
+	star.Age = 27
+	candidates := []transferCandidate{listedCandidate(1, star)}
+
+	// A full squad with every position covered: even a clear upgrade isn't bought.
+	if ranked := rankCandidates(profile, stateOf(adultSquad(), 50_000_000), candidates, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+		t.Errorf("a Caretaker with no hole to fill should sign nobody, got %+v", ranked)
+	}
+
+	// Down to two midfielders (under the minimum of three): a midfielder is signed, a striker isn't.
+	short := make([]*common.Player, 0)
+	midfielders := 0
+	for _, p := range adultSquad() {
+		if common.BestCorePosition(*p) == common.MIDFIELD {
+			if midfielders == 2 {
+				continue
+			}
+			midfielders++
+		}
+		short = append(short, p)
+	}
+	for len(short) < common.SquadSize {
+		extra := defender(int64(200+len(short)), 20)
+		extra.Age = 28
+		short = append(short, extra)
+	}
+	forward := striker(501, 99)
+	forward.Age = 27
+	ranked := rankCandidates(profile, stateOf(short, 50_000_000), []transferCandidate{listedCandidate(1, star), listedCandidate(2, forward)},
+		map[int64]bool{}, rngSeed(1))
+	if len(ranked) != 1 || ranked[0].Player.Id != 500 {
+		t.Errorf("a Caretaker short of midfielders should sign only the midfielder, got %+v", ranked)
+	}
+
+	// Short of bodies (under SquadSize): any position will do, but not at a loss.
+	small := adultSquad()[:common.SquadSize-1]
+	filler := defender(502, 20)
+	filler.Age = 27
+	free := transferCandidate{Player: *filler, Kind: candidateFreeAgent}
+	if ranked := rankCandidates(profile, stateOf(small, 50_000_000), []transferCandidate{free}, map[int64]bool{}, rngSeed(1)); len(ranked) != 1 {
+		t.Errorf("a Caretaker under the squad size should sign a free agent, got %d", len(ranked))
+	}
+	dear := listedCandidate(3, filler)
+	dear.AskingPrice = common.MarketValue(*filler) * 14 / 10
+	if ranked := rankCandidates(profile, stateOf(small, 50_000_000), []transferCandidate{dear}, map[int64]bool{}, rngSeed(1)); len(ranked) != 0 {
+		t.Errorf("a filler who adds nothing isn't worth paying over the odds for, got %+v", ranked)
+	}
+}

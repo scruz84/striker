@@ -2,25 +2,33 @@
 
 ## Purpose
 
-How Manager- and Director-level CPU teams shop for players: which markets they look at, how a
+How CPU teams shop for players - a Caretaker only to fill a hole, a Manager and a Director for upgrades: which markets they look at, how a
 candidate is scored, how they bid and the limits that keep them from flooding humans with offers,
 plus how national-team status acts as a scouting radar.
 
 ## Requirements
 
 ### Requirement: Transfer pass
-Every Manager and Director SHALL run one shopping pass per management tick, after roster upkeep, with no signing quota. A Manager signs at most 1 player per pass; a Director up to 3, of which at most 2 new offers. Accepting a loan and exercising a buy option each count as one signing.
+Every CPU team SHALL run one shopping pass per management tick, after roster upkeep, with no signing quota. A Caretaker or a Manager signs at most 1 player per pass; a Director up to 3, of which at most 2 new offers. Accepting a loan and exercising a buy option each count as one signing.
 
 #### Scenario: Nothing worth buying
 - **WHEN** no candidate clears the team's minimum score
 - **THEN** it signs nobody
+
+#### Scenario: Caretaker fills a hole
+- **WHEN** a Caretaker's squad is under 18 players, or a position is under its minimum depth
+- **THEN** it may sign one free agent or listed player that fills it (any position when the squad is short), with a score of at least 0 and at most 1.5 × its valuation, keeping half its budget in reserve
+
+#### Scenario: Caretaker with no hole
+- **WHEN** a Caretaker's squad is full and every position at its minimum depth
+- **THEN** it signs nobody, however good the candidate
 
 #### Scenario: Loan beats a transfer
 - **WHEN** a Manager's best-scoring candidate is a loan listing and the next one a listed player
 - **THEN** it accepts the loan and signs nobody else that pass
 
 ### Requirement: Markets searched
-A Manager SHALL consider the best 60 free agents, the transfer list and the loan market. A Director MUST additionally consider the best players at each core position anywhere (other humans' included), a random sample of 20 youngsters, and the national-team radar. Players older than 36 are ignored.
+A Caretaker SHALL consider the best 60 free agents and the transfer list; a Manager also the loan market. A Director MUST additionally consider the best players at each core position anywhere (other humans' included), a random sample of 20 youngsters, and the national-team radar. Players older than 36 are ignored.
 
 #### Scenario: Unlisted target
 - **WHEN** a Director finds a strong player nobody listed
@@ -39,7 +47,7 @@ A candidate SHALL score the best-XI points he adds as perceived through the leve
 
 #### Scenario: Minimum score
 - **WHEN** a candidate is scored
-- **THEN** a Manager needs at least 5 and a Director at least 3 to sign him
+- **THEN** a Manager needs at least 5, a Director at least 3 and a Caretaker (filling a hole) at least 0 to sign him
 
 #### Scenario: Hidden potential
 - **WHEN** a Director projects a youngster
@@ -50,18 +58,22 @@ A candidate SHALL score the best-XI points he adds as perceived through the leve
 - **THEN** it keeps at most 3 such projects and spends at most a quarter of its budget on one
 
 ### Requirement: Affordability
-A signing MUST leave the budget above the level's reserve: 50% for a Manager, 15% for a Director, who also needs 20 rounds of the new payroll (scaled by its division wage factor).
+A signing MUST leave the budget above the level's reserve: 50% for a Caretaker or a Manager, 15% for a Director, who also needs 20 rounds of the new payroll (scaled by its division wage factor).
 
 #### Scenario: Reserve breached
 - **WHEN** a Manager's signing would leave less than half its budget
 - **THEN** the candidate is unaffordable
 
 ### Requirement: Bidding
-For an unlisted player a Director SHALL bid valuation × 1.1 × (1 + 0.02 per score point above its minimum score, bump capped at 0.25), never above 1.5 × its valuation nor its spendable budget. Listed players are bought at the asking price; free agents cost the usual premium to their last club.
+For an unlisted player a Director SHALL bid valuation × 1.1 × (1 + 0.02 per score point above its minimum score, bump capped at 0.25), never above 1.5 × its valuation nor its spendable budget. Listed players are bought at the asking price, and a loanee's buy option at its fee, but never when that price is above 1.5 × the team's valuation - the same ceiling as its bids; free agents cost the usual premium to their last club.
 
 #### Scenario: Very wanted target
 - **WHEN** a Director's target scores 20
 - **THEN** the bump is capped at 0.25 and the bid is valuation × 1.375
+
+#### Scenario: Overpriced listing
+- **WHEN** a player the team values at 10,000 is listed at 30,000
+- **THEN** it does not buy him, however much he would improve the XI
 
 ### Requirement: Offer limits
 CPU offers MUST respect: at most 3 open on one human's player, from different teams (each notified to the human); at most 1 open on another CPU team's player; at most 4 open per CPU team; offers unanswered for 3 days are withdrawn.

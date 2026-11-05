@@ -4,7 +4,8 @@ import "math/rand"
 
 // AI difficulty tiers for an unowned team - see RunAITeamManagement (added in a later phase).
 // Each tier is a strict superset of the capabilities below it: Caretaker only reacts (keeps the
-// lineup fresh, accepts clearly-good incoming offers, renews its starters' expiring contracts);
+// lineup fresh, accepts clearly-good incoming offers, renews its starters' expiring contracts,
+// signs a free agent or a listed player when a position or the squad falls short);
 // Manager adds roster maintenance (renewing every expiring contract, free-agent signings, ticket
 // pricing); Director adds active market
 // participation (transfer shopping, stadium upgrades, trainer hiring).
@@ -68,6 +69,11 @@ type AiTransferProfile struct {
 	BudgetReserve     float64
 	ConsidersWageBill bool
 
+	// BuysOnlyForNeeds limits the team to signings that fill a hole: a position under
+	// MinPositionDepth or a squad under SquadSize (Caretaker). It still picks the best-scoring such
+	// candidate, but needs no minimum score beyond not losing on the deal.
+	BuysOnlyForNeeds bool
+
 	// MovesPerPass caps signings per management pass (0 = the team never shops);
 	// MaxNewOffersPerPass caps how many of those may be new offers for unlisted players.
 	MovesPerPass        int
@@ -81,6 +87,13 @@ func AiTransferProfileFor(level int) AiTransferProfile {
 		Level:                    AiLevelCaretaker,
 		ValuationNoise:           0.30,
 		KeyPlayerPriceMultiplier: 1,
+		// A Caretaker doesn't shop, but it does plug holes - otherwise every player it sells or
+		// lets go is only replaced at the season rollover, by a 15-40 rated academy kid.
+		SearchesFreeAgents:   true,
+		SearchesTransferList: true,
+		BuysOnlyForNeeds:     true,
+		BudgetReserve:        0.5,
+		MovesPerPass:         1,
 	}
 	if level >= AiLevelManager {
 		profile.Level = AiLevelManager
@@ -93,10 +106,9 @@ func AiTransferProfileFor(level int) AiTransferProfile {
 		profile.SearchesTransferList = true
 		profile.SearchesLoanList = true
 		profile.LendsPlayers = true
+		profile.BuysOnlyForNeeds = false
 		profile.MinScore = 5
 		profile.ListsSurplus = true
-		profile.BudgetReserve = 0.5
-		profile.MovesPerPass = 1
 	}
 	if level >= AiLevelDirector {
 		profile.Level = AiLevelDirector
