@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
@@ -192,7 +193,10 @@ func (m *memoryCache) GetValue(key string) (string, error) {
 func (m *memoryCache) SetValue(key string, value string)             { m.values[key] = value }
 func (m *memoryCache) SetValueLongDuration(key string, value string) { m.values[key] = value }
 func (m *memoryCache) SetValueNoExpiry(key string, value string)     { m.values[key] = value }
-func (m *memoryCache) DeleteValue(key string)                        { delete(m.values, key) }
+func (m *memoryCache) SetValueFor(key string, value string, _ time.Duration) {
+	m.values[key] = value
+}
+func (m *memoryCache) DeleteValue(key string) { delete(m.values, key) }
 
 // TestGetPlayerCapsBatch_CachesResult checks a second call for the same set of players (in any
 // order) is served from ObjectCache without touching the database.

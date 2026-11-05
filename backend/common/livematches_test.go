@@ -170,3 +170,59 @@ func TestEnrichSuggestedLiveMatch_CompleteMessageReportsFinalMinute(t *testing.T
 		t.Errorf("expected the final score (3-0), got %d-%d", match.HomeGoals, match.AwayGoals)
 	}
 }
+
+// publishLiveForTest publishes msgs to a friendly's channel and returns the dbCtx and id to read
+// them back with liveStateAsOfNow.
+func publishLiveForTest(t *testing.T, idOffset int64, msgs ...LiveMatchMessage) (*DatabaseContext, int64) {
+	t.Helper()
+	hub := liveHubForTest(t)
+	id := time.Now().UnixNano() + idOffset
+	channel := FriendlyMatchChannel(id)
+	t.Cleanup(func() { hub.client.Del(context.Background(), historyKey(channel), lastPublishKey(channel)) })
+	for _, msg := range msgs {
+		hub.Publish(channel, msg)
+	}
+	return &DatabaseContext{LiveHub: hub}, id
+}
+
+func TestLiveStateAsOfNow_SimulatedAheadOfKickoffIsPending(t *testing.T) {
+	// A message is already on the channel, but kickoff is still 5 minutes away: no Redis lookup,
+	// no score.
+	dbCtx, id := publishLiveForTest(t, 10, LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 3}, HomeGoals: 1})
+	state, err := liveStateAsOfNow(dbCtx, MatchKindFriendly, id, time.Now().Add(5*time.Minute), true)
+	if err != nil || state != (LiveState{Status: LiveStatusPending}) {
+		t.Errorf("got %+v, %v; want pending 0-0 at minute 0", state, err)
+	}
+}
+
+func TestLiveStateAsOfNow_NotSimulatedYetIsPending(t *testing.T) {
+	// Kickoff was 3 minutes ago but the engine has not simulated the match (played = false).
+	state, err := liveStateAsOfNow(&DatabaseContext{}, MatchKindLeague, 1, time.Now().Add(-3*time.Minute), false)
+	if err != nil || state != (LiveState{Status: LiveStatusPending}) {
+		t.Errorf("got %+v, %v; want pending 0-0 at minute 0", state, err)
+	}
+}
+
+func TestLiveStateAsOfNow_ReadsBroadcastStatus(t *testing.T) {
+	cases := []struct {
+		name string
+		msg  LiveMatchMessage
+		want LiveState
+	}{
+		{"live", LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 63}, HomeGoals: 1, AwayGoals: 2},
+			LiveState{Status: LiveStatusLive, Minute: 63, HomeGoals: 1, AwayGoals: 2}},
+		{"half-time", LiveMatchMessage{Type: "halftime", HomeGoals: 0, AwayGoals: 1},
+			LiveState{Status: LiveStatusHalftime, Minute: 45, HomeGoals: 0, AwayGoals: 1}},
+		{"broadcast finished", LiveMatchMessage{Type: "complete", HomeGoals: 3, AwayGoals: 2},
+			LiveState{Status: LiveStatusFinished, Minute: 90, HomeGoals: 3, AwayGoals: 2}},
+	}
+	for i, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			dbCtx, id := publishLiveForTest(t, int64(20+i), c.msg)
+			state, err := liveStateAsOfNow(dbCtx, MatchKindFriendly, id, time.Now().Add(-40*time.Minute), true)
+			if err != nil || state != c.want {
+				t.Errorf("got %+v, %v; want %+v", state, err, c.want)
+			}
+		})
+	}
+}

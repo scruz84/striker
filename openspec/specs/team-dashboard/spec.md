@@ -82,6 +82,43 @@ live one.
 - **WHEN** the team won 2-0 last week and is now playing a live friendly
 - **THEN** "Last result" shows the 2-0 win and no "your match is live" alert appears above the hero
 
+### Requirement: Rest of the matchday in the live hero
+When the live hero shows a league match, it SHALL include a "Rest of the matchday" section listing the division live scores entries of the same `weekNumber`, excluding the owner's own match, in kickoff then match id order. Each row SHALL show both teams, the score and the state ("63'", "Half-time", "FT", or the kickoff time while `pending`) and link to `/match/:id`.
+
+#### Scenario: League match live
+- **WHEN** the owner's league match of matchday 12 is live and the other 7 matches of matchday 12 are broadcasting
+- **THEN** the hero lists those 7 matches with their broadcast scores and minutes, and not the owner's own match
+
+#### Scenario: Score as broadcast
+- **WHEN** another match of the matchday is at minute 63 with 1-2 and its stored result is 3-2
+- **THEN** its row reads "1 - 2" and "63'", never "3 - 2"
+
+#### Scenario: Cup tie live
+- **WHEN** the owner's live match is a cup tie or a friendly
+- **THEN** the hero shows no "Rest of the matchday" section and makes no live scores request
+
+### Requirement: Rest of the matchday when there is nothing to list
+The section SHALL be hidden when the division live scores list no other match of the same matchday, while the first response is loading, and when the request fails. The owner's own score, minute and "Watch live" button SHALL never depend on it.
+
+#### Scenario: Endpoint down
+- **WHEN** the division live scores request fails while the owner's league match is live
+- **THEN** the hero shows the own match as before and no "Rest of the matchday" section
+
+### Requirement: Rest of the matchday layout
+On phone-width screens the section SHALL start collapsed behind a toggle that reads the summary "N matches · G goals", N being the listed matches and G the sum of their broadcast goals. On desktop it SHALL start expanded. Rows MUST fit at 360 px wide without horizontal scroll and stay readable on the hero's error-container surface.
+
+#### Scenario: Phone summary
+- **WHEN** an owner on a 360 px phone has a live league match and the other 7 matches have 12 goals between them
+- **THEN** the hero shows a collapsed toggle reading "7 matches · 12 goals", and tapping it lists the 7 matches
+
+#### Scenario: Desktop
+- **WHEN** the same owner opens the dashboard on a 1280 px screen
+- **THEN** the 7 matches are listed without tapping anything
+
+#### Scenario: Spanish summary
+- **WHEN** the language is Spanish and there is 1 other match with 0 goals
+- **THEN** the toggle reads "1 partido · 0 goles"
+
 ### Requirement: Pending panel
 The owner's dashboard SHALL show a Pending panel listing every pending item (see "Pending items") as one row with an icon, a text and one action, ordered error, warning, info, success, then by the order of "Pending items". With no pending item the panel MUST NOT be shown.
 
@@ -137,7 +174,12 @@ On a phone-width screen the panel SHALL show at most the 3 first items and a "Sh
 ## Code map
 
 - Dashboard: `frontend/src/features/dashboard/DashboardPage.tsx` (`selectLiveMatch`, `useOwnLiveMatch`,
-  `selectLastResult`, `LiveMatchHero`, `NextMatchHero`, `LastResultCard`).
+  `selectLastResult`, `LiveMatchHero` and its "Rest of the matchday" section `RestOfMatchday`, `NextMatchHero`,
+  `LastResultCard`).
+- Rest of the matchday: `frontend/src/components/DivisionLiveScores.tsx` (collapsible list, the
+  "N matches · G goals" summary), `utils/liveScoreLabel.ts` (state chip: minute, half-time, FT, kickoff),
+  `api/hooks.ts` (`useDivisionLiveScores`, `divisionLiveScoresRefetchInterval`) over
+  `GET /v1/teams/division/:id/live` (see the `division-live-scores` spec).
 - Pending panel: `frontend/src/features/dashboard/PendingPanel.tsx` (data wiring, snooze buttons, phone
   "Show all (N)"), `features/dashboard/pendingItems.ts` (`buildPendingItems`, the severity order and the
   `FORECAST_WARNING_WEEKS` / `TICKET_PRICE_GAP` / `CONTRACT_EXPIRY_WARNING_YEARS` thresholds),
@@ -147,5 +189,5 @@ On a phone-width screen the panel SHALL show at most the 3 first items and a "Sh
 - Live broadcast: `frontend/src/api/useLiveMatch.ts` (`useLiveMatch`, `mightStillBeLive`, `isPast`).
 - Shared helpers: `frontend/src/utils/matchSummary.ts` (`liveMatchPath`), `utils/liveChip.ts` (pulsing LIVE
   style), `theme.ts` (`errorContainer` / `onErrorContainer` tokens).
-- Strings: `dashboard.pending.*`, `dashboard.liveNow`, `dashboard.watchLive`, `dashboard.liveMatchMinute`, `match.halftime` in
-  `i18n/locales/{en,es}.json`.
+- Strings: `dashboard.pending.*`, `dashboard.liveNow`, `dashboard.watchLive`, `dashboard.liveMatchMinute`, `match.halftime`,
+  `liveScores.*` in `i18n/locales/{en,es}.json`.

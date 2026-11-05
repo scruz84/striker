@@ -119,6 +119,10 @@ func (m *memoryObjectCache) SetValueNoExpiry(key string, value string) {
 	m.SetValue(key, value)
 }
 
+func (m *memoryObjectCache) SetValueFor(key string, value string, _ time.Duration) {
+	m.SetValue(key, value)
+}
+
 func (m *memoryObjectCache) DeleteValue(key string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

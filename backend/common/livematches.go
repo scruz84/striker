@@ -2,8 +2,10 @@ package common
 
 import (
 	"database/sql"
+	"encoding/json"
 	"math"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -206,23 +208,58 @@ func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) e
 	return nil
 }
 
+// Live broadcast statuses reported by liveStateAsOfNow (and by the division live scores).
+const (
+	LiveStatusPending  = "pending"
+	LiveStatusLive     = "live"
+	LiveStatusHalftime = "halftime"
+	LiveStatusFinished = "finished"
+)
+
+// LiveState is what a viewer of one match's live broadcast is seeing right now.
+type LiveState struct {
+	Status    string
+	Minute    int
+	HomeGoals int
+	AwayGoals int
+}
+
 // liveScoreAsOfNow is the minute and score a viewer of kind/id's live broadcast (kind is one of
 // MatchKindLeague/MatchKindCup/MatchKindFriendly) is seeing right now, and whether that broadcast
 // has already published its "complete" message - see enrichSuggestedLiveMatch for the sources it
 // prefers. A match simulated ahead of its kickoff has not started broadcasting yet: minute 0, 0-0.
 func liveScoreAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time) (minute, homeGoals, awayGoals int, complete bool, err error) {
-	if time.Now().Before(kickoff) {
-		return 0, 0, 0, false, nil
+	state, err := liveStateAsOfNow(dbCtx, kind, id, kickoff, true)
+	if err != nil {
+		return 0, 0, 0, false, err
+	}
+	return state.Minute, state.HomeGoals, state.AwayGoals, state.Status == LiveStatusFinished, nil
+}
+
+// liveStateAsOfNow is liveScoreAsOfNow plus an explicit status. A match that is not simulated yet
+// (played false) or whose kickoff has not arrived is pending (minute 0, 0-0) without touching
+// Redis; otherwise the broadcast's own last message decides (halftime, finished, or live), and
+// only when it has none does the time-based estimate plus the score-as-of-that-minute apply.
+func liveStateAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time, played bool) (LiveState, error) {
+	if !played || time.Now().Before(kickoff) {
+		return LiveState{Status: LiveStatusPending}, nil
 	}
 	if dbCtx.LiveHub != nil {
 		if msg, ok := dbCtx.LiveHub.LastMessage(liveMatchChannel(LiveMatchSummary{Kind: kind, MatchId: id})); ok {
 			if minute, ok := minuteFromLiveMessage(msg); ok {
-				return minute, msg.HomeGoals, msg.AwayGoals, msg.Type == "complete", nil
+				status := LiveStatusLive
+				switch msg.Type {
+				case "halftime":
+					status = LiveStatusHalftime
+				case "complete":
+					status = LiveStatusFinished
+				}
+				return LiveState{Status: status, Minute: minute, HomeGoals: msg.HomeGoals, AwayGoals: msg.AwayGoals}, nil
 			}
 		}
 	}
 
-	minute = CurrentMatchMinute(kickoff)
+	state := LiveState{Status: LiveStatusLive, Minute: CurrentMatchMinute(kickoff)}
 
 	var stmtSql string
 	switch kind {
@@ -233,17 +270,113 @@ func liveScoreAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff tim
 	case MatchKindFriendly:
 		stmtSql = getFriendlyScoreAsOfMinuteStmtSql
 	default:
-		return minute, 0, 0, false, nil
+		return state, nil
 	}
 
-	err = dbCtx.Db.QueryRow(stmtSql, id, minute).Scan(&homeGoals, &awayGoals)
+	err := dbCtx.Db.QueryRow(stmtSql, id, state.Minute).Scan(&state.HomeGoals, &state.AwayGoals)
 	if err == sql.ErrNoRows {
-		return minute, 0, 0, false, nil
+		return state, nil
 	}
 	if err != nil {
-		return 0, 0, 0, false, err
+		return LiveState{}, err
 	}
-	return minute, homeGoals, awayGoals, false, nil
+	return state, nil
+}
+
+// liveEarlySimulationWindow is how far ahead of its kickoff a league match can already be
+// simulated (the engine simulates up to 15 minutes early), mirroring the frontend's
+// maxEarlySimulationMs. Such a match is inside the division live scores as "pending".
+const liveEarlySimulationWindow = 15 * time.Minute
+
+// leagueLiveScoresCacheTTL bounds how stale a division's live scores can be, whatever the number
+// of viewers polling them.
+const leagueLiveScoresCacheTTL = 5 * time.Second
+
+// getLeagueLiveMatchesStmtSql deliberately selects no goal column: every goal in a division live
+// score comes from the match's live broadcast (liveStateAsOfNow), never from the stored final
+// result, so this query cannot spoil a match that is still being played out.
+const getLeagueLiveMatchesStmtSql = "SELECT m.match_id, m.week_number, m.match_date, m.played, " +
+	"m.home_team_id, ht.name, m.away_team_id, at.name " +
+	"FROM matches m " +
+	"JOIN teams ht ON ht.team_id = m.home_team_id " +
+	"JOIN teams at ON at.team_id = m.away_team_id " +
+	"WHERE m.league_id = $1 AND m.match_date > $2 AND m.match_date <= $3 " +
+	"ORDER BY m.match_date, m.match_id"
+
+// LeagueLiveScore is one league match inside its live window, as its broadcast shows it right now.
+type LeagueLiveScore struct {
+	MatchId    int64     `json:"matchId"`
+	WeekNumber int       `json:"weekNumber"`
+	MatchDate  time.Time `json:"matchDate"`
+	Home       int64     `json:"home"`
+	HomeName   string    `json:"homeName"`
+	Away       int64     `json:"away"`
+	AwayName   string    `json:"awayName"`
+	Status     string    `json:"status"`
+	Minute     int       `json:"minute"`
+	HomeGoals  int       `json:"homeGoals"`
+	AwayGoals  int       `json:"awayGoals"`
+}
+
+func leagueLiveScoresCacheKey(leagueId int64) string {
+	return "league_live_scores:" + strconv.FormatInt(leagueId, 10)
+}
+
+// GetLeagueLiveScores lists the league matches of leagueId whose kickoff is between
+// LiveBroadcastWindow ago and liveEarlySimulationWindow from now, ordered by kickoff then match id,
+// each with the broadcast's own status, minute and score (see liveStateAsOfNow). Never the stored
+// result. Always a non-nil slice. The response is cached for a few seconds per league, so its cost
+// does not grow with the number of viewers; a cache error never fails the request.
+func GetLeagueLiveScores(dbCtx *DatabaseContext, leagueId int64) ([]LeagueLiveScore, error) {
+	cacheKey := leagueLiveScoresCacheKey(leagueId)
+	if dbCtx.ObjectCache != nil {
+		if cached, err := dbCtx.ObjectCache.GetValue(cacheKey); err == nil && cached != "" {
+			var scores []LeagueLiveScore
+			if json.Unmarshal([]byte(cached), &scores) == nil && scores != nil {
+				return scores, nil
+			}
+		}
+	}
+
+	rows, err := dbCtx.Db.Query(getLeagueLiveMatchesStmtSql, leagueId, LiveBroadcastCutoff(), time.Now().Add(liveEarlySimulationWindow))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	type liveMatchRow struct {
+		score  LeagueLiveScore
+		played bool
+	}
+	matches := make([]liveMatchRow, 0)
+	for rows.Next() {
+		var m liveMatchRow
+		if err := rows.Scan(&m.score.MatchId, &m.score.WeekNumber, &m.score.MatchDate, &m.played,
+			&m.score.Home, &m.score.HomeName, &m.score.Away, &m.score.AwayName); err != nil {
+			return nil, err
+		}
+		matches = append(matches, m)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	scores := make([]LeagueLiveScore, 0, len(matches))
+	for _, m := range matches {
+		state, err := liveStateAsOfNow(dbCtx, MatchKindLeague, m.score.MatchId, m.score.MatchDate, m.played)
+		if err != nil {
+			return nil, err
+		}
+		m.score.Status, m.score.Minute, m.score.HomeGoals, m.score.AwayGoals = state.Status, state.Minute, state.HomeGoals, state.AwayGoals
+		scores = append(scores, m.score)
+	}
+
+	if dbCtx.ObjectCache != nil {
+		if encoded, err := json.Marshal(scores); err == nil {
+			dbCtx.ObjectCache.SetValueFor(cacheKey, string(encoded), leagueLiveScoresCacheTTL)
+		}
+	}
+	return scores, nil
 }
 
 // GetLiveMatches lists every league match, cup tie, and friendly currently inside its

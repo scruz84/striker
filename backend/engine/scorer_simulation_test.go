@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestGetPlayerForChance_ReturnsSentinelWhenNoOutfieldPlayersLeft(t *testing.T) {
@@ -218,7 +219,10 @@ func (c *setPieceTestCache) SetValueLongDuration(key string, value string) {
 	c.values[key] = value
 }
 func (c *setPieceTestCache) SetValueNoExpiry(key string, value string) { c.values[key] = value }
-func (c *setPieceTestCache) DeleteValue(key string)                    { delete(c.values, key) }
+func (c *setPieceTestCache) SetValueFor(key string, value string, _ time.Duration) {
+	c.values[key] = value
+}
+func (c *setPieceTestCache) DeleteValue(key string) { delete(c.values, key) }
 
 func newSetPieceTestMatch() (*common.MatchSimulation, *common.DatabaseContext) {
 	home := map[int64]common.Player{

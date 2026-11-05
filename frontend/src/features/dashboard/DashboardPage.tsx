@@ -39,6 +39,7 @@ import { RivalryChip } from '../../components/RivalryChip'
 import {
   queryKeys,
   useDivisionDetails,
+  useDivisionLiveScores,
   useFinances,
   useGroupDetails,
   useHeadToHead,
@@ -62,6 +63,7 @@ import {
 } from '../../api/types'
 import { isPast, mightStillBeLive, useLiveMatch, type LiveMatchState } from '../../api/useLiveMatch'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
+import { DivisionLiveScores } from '../../components/DivisionLiveScores'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { CountryFlag } from '../../components/CountryFlag'
@@ -222,7 +224,7 @@ export function DashboardPage() {
     <Box>
       <SeasonRecap enabled={!!loggedUser} />
       {isDesktop && <TeamHeaderCard team={team} standing={standing} recentForm={recentForm} />}
-      {liveMatch ? <LiveMatchHero match={liveMatch} live={live} team={team} /> : <NextMatchHero match={nextMatch} teamId={team.id} />}
+      {liveMatch ? <LiveMatchHero match={liveMatch} live={live} team={team} divisionId={team.divisionId} /> : <NextMatchHero match={nextMatch} teamId={team.id} />}
       <PendingPanel teamId={team.id} players={players} finances={finances} nextMatch={nextMatch} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -596,7 +598,17 @@ function NextMatchHero({ match, teamId }: { match: TeamMatchSummary | undefined;
 // the broadcast's, never the stored result (which is final as soon as the match is simulated), so
 // the hero cannot spoil what the viewer has not watched yet. When the live channel is unreachable
 // it keeps the label and the button but drops the numbers rather than show a wrong score.
-export function LiveMatchHero({ match, live, team }: { match: TeamMatchSummary; live: LiveMatchState; team: Pick<Team, 'id' | 'name'> }) {
+export function LiveMatchHero({
+  match,
+  live,
+  team,
+  divisionId,
+}: {
+  match: TeamMatchSummary
+  live: LiveMatchState
+  team: Pick<Team, 'id' | 'name'>
+  divisionId?: number
+}) {
   const { t } = useTranslation()
   const home = match.isHome ? { id: team.id, name: team.name } : { id: match.opponentId, name: match.opponentName }
   const away = match.isHome ? { id: match.opponentId, name: match.opponentName } : { id: team.id, name: team.name }
@@ -630,9 +642,23 @@ export function LiveMatchHero({ match, live, team }: { match: TeamMatchSummary; 
         <Button component={RouterLink} to={matchSummaryLink(match)} variant="contained" color="error" fullWidth sx={{ mt: 2, maxWidth: { sm: 260 } }}>
           {t('dashboard.watchLive')}
         </Button>
+        {match.kind === 'league' && divisionId !== undefined && <RestOfMatchday divisionId={divisionId} ownMatchId={match.matchId} />}
       </CardContent>
     </Card>
   )
+}
+
+// The other matches of the owner's league matchday with their broadcast score and minute (the
+// division live scores, never the stored results). Hidden while loading, when the request fails,
+// when the own match is not in the response (so its matchday is unknown) and when there is nothing
+// else to list - the hero's own score, minute and button never depend on it.
+function RestOfMatchday({ divisionId, ownMatchId }: { divisionId: number; ownMatchId: number }) {
+  const { data } = useDivisionLiveScores(divisionId, true)
+  const own = data?.find((entry) => entry.matchId === ownMatchId)
+  if (!data || !own) return null
+  const others = data.filter((entry) => entry.weekNumber === own.weekNumber && entry.matchId !== ownMatchId)
+  if (others.length === 0) return null
+  return <DivisionLiveScores entries={others} />
 }
 
 function HeroTeam({ id, name }: { id: number; name: string }) {

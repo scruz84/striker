@@ -1,6 +1,16 @@
 package handlers
 
-import "testing"
+import (
+	"database/sql"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/scruz84/striker/common"
+)
 
 func TestParseLeagueWeek(t *testing.T) {
 	cases := []struct {
@@ -28,5 +38,38 @@ func TestParseLeagueWeek(t *testing.T) {
 				t.Errorf("parseLeagueWeek(%q, %q) = %d, %d; want %d, %d", c.league, c.week, league, week, c.wantLeague, c.wantWeek)
 			}
 		})
+	}
+}
+
+// The division live scores endpoint (openspec division-live-scores "Division live scores
+// endpoint"). Needs STRIKER_TEST_DB_DSN, no Redis: a league with nothing in play never reads a
+// broadcast.
+func TestLeagueLiveScoresHandler(t *testing.T) {
+	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
+	if dsn == "" {
+		t.Skip("STRIKER_TEST_DB_DSN not set")
+	}
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		t.Fatalf("opening database: %s", err)
+	}
+	t.Cleanup(func() { db.Close() })
+	dbCtx := &common.DatabaseContext{Db: db, ObjectCache: &loansTestCache{values: map[string]string{}}}
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/division/:"+ID+"/live", LeagueLiveScoresHandler(dbCtx))
+	get := func(path string) *httptest.ResponseRecorder {
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		return rec
+	}
+
+	if rec := get("/division/abc/live"); rec.Code != http.StatusBadRequest {
+		t.Errorf("invalid id: got %d, want 400", rec.Code)
+	}
+	rec := get("/division/-1/live")
+	if rec.Code != http.StatusOK || strings.TrimSpace(rec.Body.String()) != "[]" {
+		t.Errorf("empty league: got %d %q, want 200 []", rec.Code, rec.Body.String())
 	}
 }

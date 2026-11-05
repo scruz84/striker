@@ -1068,7 +1068,19 @@
     "seasonOption": "Season {{season}}",
     "seasonCurrent": "Season {{season}} (current)",
     "seasonFinal": "Season {{season}} · Final standings",
-    "champion": "Champion"
+    "champion": "Champion",
+    "liveTable": "Live",
+    "positionUp": "Up {{count}}",
+    "positionDown": "Down {{count}}"
+  },
+  "liveScores": {
+    "restOfMatchday": "Rest of the matchday",
+    "matchCount_one": "{{count}} match",
+    "matchCount_other": "{{count}} matches",
+    "goalCount_one": "{{count}} goal",
+    "goalCount_other": "{{count}} goals",
+    "summary": "{{matches}} · {{goals}}",
+    "fullTime": "FT"
   },
   "recentTransfers": {
     "title": "Recent transfers",

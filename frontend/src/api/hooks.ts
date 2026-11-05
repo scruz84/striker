@@ -36,6 +36,7 @@ import type {
   LineupRoles,
   LineupPosition,
   LineupSubstitution,
+  LeagueLiveScore,
   LiveMatchesOverview,
   LoanListing,
   WatchlistEntry,
@@ -134,6 +135,7 @@ export const queryKeys = {
   adminLeagues: ['adminLeagues'] as const,
   devLoginUsers: ['devLoginUsers'] as const,
   liveMatchesOverview: ['liveMatchesOverview'] as const,
+  divisionLiveScores: (id: number | string) => ['divisionLiveScores', String(id)] as const,
   search: (query: string) => ['search', query] as const,
 }
 
@@ -926,6 +928,28 @@ export function useLiveMatchesOverview(enabled: boolean) {
     queryFn: () => api.get<LiveMatchesOverview>('/v1/teams/matches/live'),
     enabled,
     refetchInterval: 5000,
+  })
+}
+
+// How often the division live scores refresh while at least one match is not over yet.
+export const DIVISION_LIVE_SCORES_POLL_MS = 15_000
+
+// divisionLiveScoresRefetchInterval polls while any entry is not finished, and stops once the list is
+// empty or every match has reported full time (openspec division-live-scores "Client polling").
+export function divisionLiveScoresRefetchInterval(data: LeagueLiveScore[] | undefined): number | false {
+  if (!data || data.length === 0 || data.every((entry) => entry.status === 'finished')) return false
+  return DIVISION_LIVE_SCORES_POLL_MS
+}
+
+// useDivisionLiveScores loads the broadcast score, minute and state of every league match of a
+// division inside its live window - see backend common.GetLeagueLiveScores. Views treat an error as
+// "no live scores" and keep what they show without them.
+export function useDivisionLiveScores(leagueId: number | string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.divisionLiveScores(leagueId ?? ''),
+    queryFn: () => api.get<LeagueLiveScore[]>(`/v1/teams/division/${leagueId}/live`),
+    enabled: enabled && !!leagueId,
+    refetchInterval: (query) => divisionLiveScoresRefetchInterval(query.state.data),
   })
 }
 

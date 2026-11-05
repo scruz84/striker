@@ -1796,6 +1796,25 @@ export interface LiveMatchesOverview {
   suggested?: LiveMatchSummary
 }
 
+// LeagueLiveScore is one league match inside its live-broadcast window, as its broadcast shows it
+// right now (never the stored result) - see backend common.GetLeagueLiveScores. A pending entry is
+// a match that has not kicked off or is not simulated yet (minute 0, 0-0).
+export type LeagueLiveStatus = 'pending' | 'live' | 'halftime' | 'finished'
+
+export interface LeagueLiveScore {
+  matchId: number
+  weekNumber: number
+  matchDate: string
+  home: number
+  homeName: string
+  away: number
+  awayName: string
+  status: LeagueLiveStatus
+  minute: number
+  homeGoals: number
+  awayGoals: number
+}
+
 // notifications.notification_type values from backend/common/fmconstants.go
 export const NOTIFICATION_MATCH_RESULT = 0
 export const NOTIFICATION_PROMOTION = 1

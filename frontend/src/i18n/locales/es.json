@@ -1068,7 +1068,19 @@
     "seasonOption": "Temporada {{season}}",
     "seasonCurrent": "Temporada {{season}} (actual)",
     "seasonFinal": "Temporada {{season}} · Clasificación final",
-    "champion": "Campeón"
+    "champion": "Campeón",
+    "liveTable": "En directo",
+    "positionUp": "Sube {{count}}",
+    "positionDown": "Baja {{count}}"
+  },
+  "liveScores": {
+    "restOfMatchday": "Resto de la jornada",
+    "matchCount_one": "{{count}} partido",
+    "matchCount_other": "{{count}} partidos",
+    "goalCount_one": "{{count}} gol",
+    "goalCount_other": "{{count}} goles",
+    "summary": "{{matches}} · {{goals}}",
+    "fullTime": "Final"
   },
   "recentTransfers": {
     "title": "Traspasos recientes",

@@ -30,13 +30,14 @@ import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom
 import { useTranslation } from 'react-i18next'
 import {
   useDivisionDetails,
+  useDivisionLiveScores,
   useLeagueSeasons,
   useLeagueSeasonTable,
   useLeagueWeekMatches,
   useTopScorers,
   useUserTeam,
 } from '../../api/hooks'
-import type { ClassificationPosition, LeagueSeasonTable, ScorerStanding, WeekMatch } from '../../api/types'
+import type { ClassificationPosition, LeagueLiveScore, LeagueSeasonTable, ScorerStanding, WeekMatch } from '../../api/types'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
 import { TeamBadge } from '../../components/TeamBadge'
@@ -45,6 +46,9 @@ import { TeamNameLink } from '../../components/TeamNameLink'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDivisionName } from '../../utils/divisionName'
 import { formatDate, formatDateTime } from '../../utils/formatDate'
+import { PULSING_LIVE_SX } from '../../utils/liveChip'
+import { liveScoreLabel } from '../../utils/liveScoreLabel'
+import { applyLiveScores, compareClassification, type LiveTable } from './liveTable'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { CountryFlag } from '../../components/CountryFlag'
 
@@ -63,6 +67,8 @@ export function DivisionDetailsPage() {
   const { data: seasons, isLoading: seasonsLoading } = useLeagueSeasons(id)
   const { data: userTeam } = useUserTeam(true)
   const [tab, setTab] = useState<DivisionTab>('table')
+  // The live table switch: on by default, not remembered between visits.
+  const [liveTableOn, setLiveTableOn] = useState(true)
 
   // A `season` that is not one of the league's past seasons shows the current season.
   const pastSeasons = Array.isArray(seasons?.past) ? seasons.past : []
@@ -71,6 +77,16 @@ export function DivisionDetailsPage() {
   const { data: seasonTable, isLoading: seasonTableLoading } = useLeagueSeasonTable(id, pastSeason)
 
   const waitingForSeason = requested !== undefined && (seasonsLoading || (pastSeason !== undefined && seasonTableLoading))
+
+  // The broadcast scores of the matchday in play, requested only on the current season and only
+  // while the previous matchday carried by the details has a played match inside its live window -
+  // the same set hideStillLiveResults reverts, so the table and the cards agree on what is live. A
+  // failed request is treated as "no live scores": the page keeps its LIVE chips.
+  const liveWindowOpen = !!divisionDetails && divisionDetails.previousWeekMatches.some((m) => m.played && mightStillBeLive(m.matchDate))
+  const liveScoresQuery = useDivisionLiveScores(id, pastSeason === undefined && !waitingForSeason && liveWindowOpen)
+  const liveScores = liveScoresQuery.isError ? undefined : liveScoresQuery.data
+  const liveById = new Map((liveScores ?? []).map((entry) => [entry.matchId, entry]))
+
   if (isLoading || !divisionDetails || waitingForSeason) {
     return <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
   }
@@ -110,11 +126,28 @@ export function DivisionDetailsPage() {
   const promotionSlots = divisionDetails.promotionSlots ?? 0
   const relegationSlots = divisionDetails.relegationSlots ?? 0
   const rowCount = positions.filter((row) => row.teamId !== 0).length
+
+  // The live table: the reverted standings plus the broadcast scores. The switch only exists
+  // while at least one match is on air or over inside its window, on the current season.
+  const liveSwitchShown = (liveScores ?? []).some((entry) => entry.status !== 'pending')
+  const liveTable = liveSwitchShown && liveTableOn ? applyLiveScores(positions, divisionDetails.previousWeekMatches, liveById) : undefined
   const table = (
     <Stack spacing={1}>
-      {picker}
+      {picker || liveSwitchShown ? (
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 0.5 }}>
+          {picker ?? <Box />}
+          {liveSwitchShown && (
+            <FormControlLabel
+              sx={{ ml: 0, mr: 0 }}
+              control={<Switch size="small" checked={liveTableOn} onChange={(event) => setLiveTableOn(event.target.checked)} />}
+              label={<Typography variant="body2">{t('division.liveTable')}</Typography>}
+            />
+          )}
+        </Stack>
+      ) : null}
       <ClassificationTable
-        positions={positions}
+        positions={liveTable?.positions ?? positions}
+        live={liveTable}
         myTeamId={myTeamId}
         zoneOf={(row) => zoneFor(row.position, rowCount, promotionSlots, relegationSlots)}
         showPromotionLegend={promotionSlots > 0}
@@ -134,6 +167,7 @@ export function DivisionDetailsPage() {
       nextWeekMatches={divisionDetails.nextWeekMatches}
       updatedAt={divisionUpdatedAt}
       myTeamId={myTeamId}
+      liveScores={liveById}
     />
   )
 
@@ -370,6 +404,7 @@ function MatchdayFixtures({
   nextWeekMatches,
   updatedAt,
   myTeamId,
+  liveScores,
 }: {
   leagueId: string | undefined
   // A past season: no seeds, no chips, and every matchday is requested for that season.
@@ -381,6 +416,8 @@ function MatchdayFixtures({
   nextWeekMatches: WeekMatch[]
   updatedAt: number
   myTeamId: number | undefined
+  // Broadcast scores by match id, for the matches still inside their live window (current season).
+  liveScores?: Map<number, LeagueLiveScore>
 }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { left, isDefault } = matchdayPair({ currentWeek, totalWeeks, requested: requestedWeek(searchParams.get('week')) })
@@ -416,6 +453,7 @@ function MatchdayFixtures({
             matches={leftQuery.data}
             failed={leftQuery.isError}
             myTeamId={myTeamId}
+            liveScores={liveScores}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -425,6 +463,7 @@ function MatchdayFixtures({
             matches={rightQuery.data}
             failed={rightQuery.isError}
             myTeamId={myTeamId}
+            liveScores={liveScores}
           />
         </Grid>
       </Grid>
@@ -539,20 +578,7 @@ export function hideStillLiveResults(positions: ClassificationPosition[], previo
   // Re-sort by the same ordering the backend itself uses (see GetDivisionDetailsStmtSql), then
   // reassign positions - a team whose still-live match briefly overstated its points would
   // otherwise keep its post-match rank until the broadcast catches up.
-  reverted.sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points
-    const diffA = a.goalsScored - a.goalsReceived
-    const diffB = b.goalsScored - b.goalsReceived
-    if (diffB !== diffA) return diffB - diffA
-    if (b.goalsScored !== a.goalsScored) return b.goalsScored - a.goalsScored
-    if (b.wins !== a.wins) return b.wins - a.wins
-    if (b.draws !== a.draws) return b.draws - a.draws
-    // Then the season's starting order (no seed last) and the team id, as the backend does.
-    const seedA = a.seed ?? Number.MAX_SAFE_INTEGER
-    const seedB = b.seed ?? Number.MAX_SAFE_INTEGER
-    if (seedA !== seedB) return seedA - seedB
-    return a.teamId - b.teamId
-  })
+  reverted.sort(compareClassification)
   return reverted.map((row, index) => ({ ...row, position: index + 1 }))
 }
 
@@ -571,12 +597,15 @@ function ClassificationTable({
   myTeamId,
   zoneOf,
   champion = false,
+  live,
   showPromotionLegend,
   showRelegationLegend,
 }: {
   positions: ClassificationPosition[]
   myTeamId: number | undefined
   zoneOf: (row: ClassificationPosition) => Zone
+  // The live table's position changes and the teams on air; the zones already follow row.position.
+  live?: Pick<LiveTable, 'deltas' | 'playing'>
   // A finished season: a trophy marks the team in first place.
   champion?: boolean
   showPromotionLegend: boolean
@@ -621,6 +650,8 @@ function ClassificationTable({
               const goalDiff = row.goalsScored - row.goalsReceived
               const rankColor = RANK_COLORS[row.position - 1]
               const zone = zoneOf(row)
+              const delta = live?.deltas.get(row.teamId)
+              const onAir = live?.playing.has(row.teamId) ?? false
 
               return (
                 <TableRow
@@ -649,6 +680,16 @@ function ClassificationTable({
                     >
                       {row.position}
                     </Box>
+                    {delta !== undefined && delta !== 0 && (
+                      <Typography
+                        component="div"
+                        aria-label={t(delta > 0 ? 'division.positionUp' : 'division.positionDown', { count: Math.abs(delta) })}
+                        sx={{ typography: 'chipLabel', fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', color: delta > 0 ? 'success.main' : 'error.main' }}
+                      >
+                        {delta > 0 ? '▲' : '▼'}
+                        {Math.abs(delta)}
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell sx={{ maxWidth: { xs: 150, sm: 'none' } }}>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
@@ -661,6 +702,13 @@ function ClassificationTable({
                           titleAccess={t('division.champion')}
                           fontSize="small"
                           sx={{ color: RANK_COLORS[0], flexShrink: 0 }}
+                        />
+                      )}
+                      {onAir && (
+                        <Box
+                          role="img"
+                          aria-label={t('match.live')}
+                          sx={{ ...PULSING_LIVE_SX, width: 8, height: 8, borderRadius: '50%', bgcolor: 'error.main', flexShrink: 0 }}
                         />
                       )}
                       {isMyTeam && <Chip label={t('division.table.you')} size="small" color="primary" variant="outlined" sx={{ height: 20 }} />}
@@ -793,6 +841,7 @@ function FixturesCard({
   matches,
   failed,
   myTeamId,
+  liveScores,
 }: {
   week: number
   chip: 'lastWeek' | 'nextWeek' | undefined
@@ -800,6 +849,7 @@ function FixturesCard({
   matches: WeekMatch[] | undefined
   failed?: boolean
   myTeamId: number | undefined
+  liveScores?: Map<number, LeagueLiveScore>
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -846,6 +896,11 @@ function FixturesCard({
                 // the team matches list). Show a LIVE chip instead until that window has elapsed.
                 const stillLive = match.played && mightStillBeLive(match.matchDate)
                 const showScore = !stillLive && match.played && isPast(match.matchDate)
+                // The broadcast's own score and state replace the bare LIVE chip once the match is
+                // on air; a pending entry (not kicked off yet) or no entry keeps the chip.
+                const liveEntry = stillLive ? liveScores?.get(match.matchId) : undefined
+                const liveOnAir = liveEntry !== undefined && liveEntry.status !== 'pending'
+                const liveLabel = liveOnAir ? liveScoreLabel(liveEntry, t) : undefined
                 const mine = match.home === myTeamId || match.away === myTeamId
                 return (
                   <Box
@@ -867,15 +922,15 @@ function FixturesCard({
                   >
                     <Stack spacing={0.5} sx={{ flexGrow: 1, minWidth: 0 }}>
                       {[
-                        { id: match.home, name: match.homeName, goals: match.homeGoals },
-                        { id: match.away, name: match.awayName, goals: match.awayGoals },
+                        { id: match.home, name: match.homeName, goals: liveOnAir ? liveEntry.homeGoals : match.homeGoals },
+                        { id: match.away, name: match.awayName, goals: liveOnAir ? liveEntry.awayGoals : match.awayGoals },
                       ].map((side) => (
                         <Stack key={side.id} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                           <TeamBadge teamId={side.id} teamName={side.name} size={20} />
                           <Typography variant="body2" sx={{ fontWeight: side.id === myTeamId ? 700 : 500, overflowWrap: 'anywhere', flexGrow: 1 }}>
                             {side.name}
                           </Typography>
-                          {showScore && (
+                          {(showScore || liveOnAir) && (
                             <Typography variant="body2" sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
                               {side.goals}
                             </Typography>
@@ -883,7 +938,17 @@ function FixturesCard({
                         </Stack>
                       ))}
                     </Stack>
-                    {stillLive && <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />}
+                    {liveLabel ? (
+                      <Chip
+                        label={liveLabel.text}
+                        color={liveLabel.color}
+                        variant={liveLabel.color === 'error' ? 'filled' : 'outlined'}
+                        size="small"
+                        sx={liveLabel.pulsing ? PULSING_LIVE_SX : { fontWeight: 700 }}
+                      />
+                    ) : (
+                      stillLive && <Chip label={t('match.live')} color="error" size="small" sx={{ fontWeight: 700 }} />
+                    )}
                   </Box>
                 )
               })}

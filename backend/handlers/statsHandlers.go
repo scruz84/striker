@@ -93,6 +93,29 @@ func LeagueWeekMatchesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	}
 }
 
+// LeagueLiveScoresHandler returns the live scores of every match of a league inside its
+// live-broadcast window - see common.GetLeagueLiveScores. Scores are the broadcast's own, never the
+// stored result, so (like the other league stats) it is open to any signed-in user. A league with
+// nothing in play is an empty list, never null.
+func LeagueLiveScoresHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		leagueId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid league id"))
+			return
+		}
+
+		scores, err := common.GetLeagueLiveScores(dbCtx, leagueId)
+		if err != nil {
+			log.Errorf("error getting live scores for league %d: %s", leagueId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+
+		c.JSON(http.StatusOK, scores)
+	}
+}
+
 // RecentLeagueTransfersHandler returns a league's most recent completed transfers - see
 // common.GetRecentLeagueTransfers. Public, same reasoning as TopScorersHandler.
 func RecentLeagueTransfersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
