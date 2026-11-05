@@ -68,7 +68,7 @@ describe('OverviewTab', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     confirm.mockResolvedValue(true)
-    overview.current = { ...overview.current, simulation: defaultSimulation }
+    overview.current = { ...overview.current, simulation: defaultSimulation, aiLevels: undefined }
     setPhone(false)
   })
 
@@ -104,6 +104,26 @@ describe('OverviewTab', () => {
     expect(screen.getByText('index out of range [11] with length 11')).toBeInTheDocument()
     // The attempts column of the failing match's row.
     expect(within(screen.getByText('Real Norte - Atlético Sur').closest('tr') as HTMLElement).getByText('2')).toBeInTheDocument()
+  })
+
+  it('compares the clubs of each AI level, skipping levels that run no club', () => {
+    overview.current = {
+      ...overview.current,
+      aiLevels: [
+        { level: 'human', teams: 4, averageBudget: 500000, insolvent: 0, pointsPerMatch: 1.75 },
+        { level: 'caretaker', teams: 0, averageBudget: 0, insolvent: 0, pointsPerMatch: 0 },
+        { level: 'manager', teams: 30, averageBudget: 250000, insolvent: 2, pointsPerMatch: 1.31 },
+        { level: 'director', teams: 12, averageBudget: 25000, insolvent: 1, pointsPerMatch: 1.4 },
+      ],
+    }
+    renderTab()
+    expect(screen.getByText(i18n.t('admin.overview.aiLevels.title'))).toBeInTheDocument()
+    expect(screen.queryByText(i18n.t('admin.overview.aiLevels.caretaker'))).not.toBeInTheDocument()
+    const director = screen.getByText(i18n.t('admin.overview.aiLevels.director')).closest('tr') as HTMLElement
+    expect(within(director).getByText('12')).toBeInTheDocument()
+    expect(within(director).getByText('1.40')).toBeInTheDocument()
+    expect(within(director).getByText('1')).toBeInTheDocument()
+    expect(within(screen.getByText(i18n.t('admin.overview.aiLevels.human')).closest('tr') as HTMLElement).getByText('1.75')).toBeInTheDocument()
   })
 
   it('lists the failing matches as cards on a phone', () => {

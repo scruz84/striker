@@ -318,6 +318,29 @@ At kickoff of every match a CPU team SHALL name as captain its oldest outfield s
 - Kickoff captain: `common.AiCaptain` (`common/ailineup.go`), set as `AiMatchPlan.Roles` by
   `PlanAiMatchLineup` in every match and checked with `common.ValidateRoles` in `planAiKickoff`.
   Tests: `common/ailineup_test.go` (`TestPlanAiMatchLineup_VeteranCaptain`, `TestAiCaptain_*`).
+  `AiCaptain` skips the plan's outgoing players (`oldestOutfieldStarter`); tests
+  `TestAiCaptain_SkipsScheduledOutgoingPlayer`, `TestPlanAiMatchLineup_CaptainStaysOnThePitch`.
+- Director cup orders: `common.AiCupDrawOrder` (`aiCupDrawOrderMinute`), appended for cup ties by
+  `setAiKickoffTactics` / `applyAiKickoffTactics` in `engine/aikickoff.go`. Tests:
+  `common/ailineup_test.go` (`TestAiCupDrawOrder`), `engine/aikickoff_tactics_test.go`.
+- Sponsor deal and Manager trainer: `engine/aibusiness.go` (`chooseSponsorDealIfManager`,
+  `bestSponsorDeal`, `expectedSponsorPayout` over `sponsorshipAmount`, `aiSponsorMinMatches`;
+  `hireTrainerIfManager`, `pickManagerTrainer`, `aiManagerTrainerMaxSkill`), called from
+  `manageRosterIfManager`; season record from `common.GetTeamSeasonRecord`
+  (`common/sponsordeal.go`). Tests: `engine/aibusiness_test.go`,
+  `engine/ai_business_integration_test.go`.
+- Financial discipline: `engine/aifinances.go` (`inFinancialCrisis`, `teamInCrisis`,
+  `pickCrisisSale`, `listForFundsIfInCrisis`, `pickVeteranToRelease`,
+  `releaseUnsoldVeteranIfManager`, the `aiCrisis*` / `aiVeteran*` / `aiMaxRenewalRaise`
+  constants); `RunAITeamManagement` reads the budget once and skips `runAiTransferPass` in a
+  crisis; selective renewals in `contractsToRenew` / `shouldMeetRenewalTerms`
+  (`engine/aiteams.go`); offer discount `common.OfferContext.Distressed` / `CrisisOfferShare`
+  (`common/transferscoring.go`); loan listing ages `common.GetTeamLoanListingTimes`
+  (`common/loans.go`). Tests: `engine/aifinances_test.go`, `engine/aiteams_test.go`
+  (`TestContractsToRenew_*`, `TestShouldMeetRenewalTerms`), `common/transferscoring_test.go`
+  (`TestEvaluateIncomingOffer_CrisisDiscount`), `engine/ai_finances_integration_test.go`.
+- Calibration: `engine/ai_level_calibration_test.go` (`TestAiLevelCalibration`,
+  `calibrationSquad`, `measureAiLevel`; `AI_LEVEL_SIM=1`).
 - Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,
   `planCompetitiveSubstitutions`, `aiSubstitutionGain`) and `common/ailineupfriendly.go`
   (`planFriendlyRotation`), validated with `common.ValidateLineup` / `ValidateSubstitutions`

@@ -1512,7 +1512,19 @@
       "activeCups": "Active cups",
       "transferWindow": "Transfer window",
       "open": "Open",
-      "closed": "Closed"
+      "closed": "Closed",
+      "aiLevels": {
+        "title": "Clubs by AI level",
+        "level": "Managed by",
+        "teams": "Clubs",
+        "averageBudget": "Average budget",
+        "insolvent": "Insolvent",
+        "pointsPerMatch": "Points per match",
+        "human": "Human managers",
+        "caretaker": "CPU Caretaker",
+        "manager": "CPU Manager",
+        "director": "CPU Director"
+      }
     },
     "actions": {
       "title": "Manual triggers",

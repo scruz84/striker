@@ -180,6 +180,12 @@ The team page of a national team SHALL offer a Partidos tab with its next fixtur
   (`getLatestNationalTeamKickoffsStmtSql`), `CallUpNationalTeamSquads`,
   `nationalTeamCallUpWindow`, `SetNationalTeamLineup`, `SetNationalTeamCupTieLineup`,
   `notifyCalledUpPlayers`, `GetRecentNationalTeamCallUps`).
+- Call-up plan: `selectNationalSquadLineup` (drops injured players via `GetInjuredPlayerIds`),
+  `planNationalCallUp` / `nationalCallUp` (formation from `SelectBestFormationAndLineup` at
+  `AiLevelDirector`, captain from `AiCaptain`, orders from `AiConditionalOrders`) in
+  `common/nationalteam.go`; a national side's roles are read back as saved (`rolesSelectSql` in
+  `common/lineuproles.go`). Tests: `common/nationalcallup_test.go`,
+  `common/nationalcallup_integration_test.go`.
 - Kickoff: `common.NextLocalSaturdayKickoffAfter` (`common/timezones.go`).
 - Jobs: `StartNationalTeamFriendlyScheduler`, `StartNationalTeamCallUpScheduler`
   (`engine/scheduler.go`).

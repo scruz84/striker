@@ -1927,6 +1927,18 @@ export interface AdminOverview {
   relegationSlotsPerGroup: number
   freeAgentInjectionsPerWeek: number
   offerNegotiationWindowMinutes: number
+  // One row per AI level (backend common.AiLevelStats), human = owned clubs.
+  aiLevels?: AiLevelStats[]
+}
+
+// One AI level's clubs (backend common.AiLevelStats): how many, their average budget, how many
+// are insolvent and the league points per match they have taken this season.
+export interface AiLevelStats {
+  level: 'human' | 'caretaker' | 'manager' | 'director'
+  teams: number
+  averageBudget: number
+  insolvent: number
+  pointsPerMatch: number
 }
 
 // Weekday bitmask values for AdminOverview.matchScheduleWeekdaysMask and

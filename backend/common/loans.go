@@ -651,3 +651,26 @@ func GetLoanedInPlayers(dbCtx *DatabaseContext, teamId int64) ([]LoanedInPlayer,
 	}
 	return loaned, rows.Err()
 }
+
+const GetTeamLoanListingTimesStmtSql = "SELECT player_id, listed_at FROM loan_listings WHERE lending_team_id = $1"
+
+// GetTeamLoanListingTimes is when each of teamId's open loan listings was made, by player id - what
+// a CPU club reads to tell how long a player has gone without a taker (see
+// engine.releaseUnsoldVeteranIfManager).
+func GetTeamLoanListingTimes(dbCtx *DatabaseContext, teamId int64) (map[int64]time.Time, error) {
+	rows, err := dbCtx.Db.Query(GetTeamLoanListingTimesStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	times := make(map[int64]time.Time)
+	for rows.Next() {
+		var id int64
+		var at time.Time
+		if err := rows.Scan(&id, &at); err != nil {
+			return nil, err
+		}
+		times[id] = at
+	}
+	return times, rows.Err()
+}

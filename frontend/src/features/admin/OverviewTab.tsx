@@ -28,7 +28,8 @@ import {
 
 import { useConfirm } from '../../components/confirmDialogContext'
 import { useNotify } from '../../components/notifyContext'
-import type { FailingFixture, FixtureKindCounts } from '../../api/types'
+import type { AiLevelStats, FailingFixture, FixtureKindCounts } from '../../api/types'
+import { formatCurrency, formatNumber } from '../../utils/formatCurrency'
 import { useSortedCountries } from '../../utils/countryOrder'
 import { formatDateTime } from '../../utils/formatDate'
 import { AdminSection } from './components/AdminSection'
@@ -171,7 +172,89 @@ function Overview({ overview }: { overview: NonNullable<ReturnType<typeof useAdm
         </Grid>
       </Grid>
       <SeasonsByCountryTable seasons={overview.seasons} />
+      <AiLevelsTable levels={overview.aiLevels ?? []} />
     </>
+  )
+}
+
+// AiLevelsTable compares the clubs each kind of manager runs - humans and the three CPU levels -
+// on size, money and results this season (backend common.GetAiLevelStats), so an admin can tell
+// whether the CPU levels actually play differently.
+function AiLevelsTable({ levels }: { levels: AiLevelStats[] }) {
+  const { t } = useTranslation()
+  const isPhone = useIsPhone()
+  const shown = levels.filter((level) => level.teams > 0)
+
+  if (shown.length === 0) {
+    return null
+  }
+
+  const title = (
+    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+      {t('admin.overview.aiLevels.title')}
+    </Typography>
+  )
+  const ppm = (level: AiLevelStats) => level.pointsPerMatch.toFixed(2)
+
+  if (isPhone) {
+    return (
+      <Box sx={{ mb: 2 }}>
+        {title}
+        <Stack spacing={1}>
+          {shown.map((level) => (
+            <Paper key={level.level} variant="outlined" sx={{ p: 1.5 }}>
+              <Stack direction="row" sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 600 }}>{t(`admin.overview.aiLevels.${level.level}`)}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('admin.overview.aiLevels.teams')}: {formatNumber(level.teams)}
+                </Typography>
+              </Stack>
+              <Typography variant="body2">
+                {t('admin.overview.aiLevels.pointsPerMatch')}: {ppm(level)}
+              </Typography>
+              <Typography variant="body2">
+                {t('admin.overview.aiLevels.averageBudget')}: {formatCurrency(level.averageBudget)}
+              </Typography>
+              <Typography variant="body2" color={level.insolvent > 0 ? 'error' : undefined}>
+                {t('admin.overview.aiLevels.insolvent')}: {formatNumber(level.insolvent)}
+              </Typography>
+            </Paper>
+          ))}
+        </Stack>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      {title}
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>{t('admin.overview.aiLevels.level')}</TableCell>
+              <TableCell align="right">{t('admin.overview.aiLevels.teams')}</TableCell>
+              <TableCell align="right">{t('admin.overview.aiLevels.pointsPerMatch')}</TableCell>
+              <TableCell align="right">{t('admin.overview.aiLevels.averageBudget')}</TableCell>
+              <TableCell align="right">{t('admin.overview.aiLevels.insolvent')}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {shown.map((level) => (
+              <TableRow key={level.level}>
+                <TableCell>{t(`admin.overview.aiLevels.${level.level}`)}</TableCell>
+                <TableCell align="right">{formatNumber(level.teams)}</TableCell>
+                <TableCell align="right">{ppm(level)}</TableCell>
+                <TableCell align="right">{formatCurrency(level.averageBudget)}</TableCell>
+                <TableCell align="right" sx={level.insolvent > 0 ? { color: 'error.main' } : undefined}>
+                  {formatNumber(level.insolvent)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   )
 }
 

@@ -45,7 +45,7 @@ func TestSimulateMatch_RolesAreStoredWithTheSnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := common.AiCaptain(*squad, cpu.Positions)
+	want := common.AiCaptain(*squad, cpu.Positions, cpu.Substitutions)
 	if cpu.CaptainId == nil || want == nil || *cpu.CaptainId != *want {
 		t.Errorf("CPU snapshot captain = %v, want its oldest outfield starter %v", cpu.CaptainId, want)
 	}

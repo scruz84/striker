@@ -422,6 +422,10 @@ func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 			regErr = err
 			return
 		}
+		if err := registerAiLevelGauges(dbCtx); err != nil {
+			regErr = err
+			return
+		}
 	})
 	return regErr
 }
@@ -818,4 +822,51 @@ func registerProcessHealthGauges() error {
 	}
 
 	return nil
+}
+
+// AiLevelAttribute labels a CPU level gauge with its bucket.
+func AiLevelAttribute(bucket string) attribute.KeyValue {
+	return attribute.String("ai_level", bucket)
+}
+
+// registerAiLevelGauges registers striker.ai.teams, striker.ai.average_budget,
+// striker.ai.insolvent_teams and striker.ai.points_per_match, all fed by one GetAiLevelStats query
+// per export tick through a single callback. Engine-only and DB-wide like the other gauges of
+// RegisterMarketGauges, so dashboards read them with max().
+func registerAiLevelGauges(dbCtx *DatabaseContext) error {
+	teams, err := Meter.Int64ObservableGauge("striker.ai.teams",
+		metric.WithDescription("Clubs per AI level (human = owned)"))
+	if err != nil {
+		return err
+	}
+	budget, err := Meter.Int64ObservableGauge("striker.ai.average_budget",
+		metric.WithDescription("Average club budget per AI level"))
+	if err != nil {
+		return err
+	}
+	insolvent, err := Meter.Int64ObservableGauge("striker.ai.insolvent_teams",
+		metric.WithDescription("Clubs below the insolvency line per AI level"))
+	if err != nil {
+		return err
+	}
+	ppm, err := Meter.Float64ObservableGauge("striker.ai.points_per_match",
+		metric.WithDescription("Current-season league points per match per AI level"))
+	if err != nil {
+		return err
+	}
+	_, err = Meter.RegisterCallback(func(_ context.Context, o metric.Observer) error {
+		stats, err := GetAiLevelStats(dbCtx)
+		if err != nil {
+			return err
+		}
+		for _, s := range stats {
+			attrs := metric.WithAttributes(AiLevelAttribute(s.Level))
+			o.ObserveInt64(teams, s.Teams, attrs)
+			o.ObserveInt64(budget, s.AverageBudget, attrs)
+			o.ObserveInt64(insolvent, s.Insolvent, attrs)
+			o.ObserveFloat64(ppm, s.PointsPerMatch, attrs)
+		}
+		return nil
+	}, teams, budget, insolvent, ppm)
+	return err
 }

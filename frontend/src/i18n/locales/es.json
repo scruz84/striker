@@ -1512,7 +1512,19 @@
       "activeCups": "Copas activas",
       "transferWindow": "Mercado de fichajes",
       "open": "Abierto",
-      "closed": "Cerrado"
+      "closed": "Cerrado",
+      "aiLevels": {
+        "title": "Clubes por nivel de IA",
+        "level": "Gestionado por",
+        "teams": "Clubes",
+        "averageBudget": "Presupuesto medio",
+        "insolvent": "Insolventes",
+        "pointsPerMatch": "Puntos por partido",
+        "human": "Mánagers humanos",
+        "caretaker": "CPU Cuidador",
+        "manager": "CPU Gerente",
+        "director": "CPU Director"
+      }
     },
     "actions": {
       "title": "Acciones manuales",

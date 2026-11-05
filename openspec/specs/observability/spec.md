@@ -164,6 +164,11 @@ The Per node row SHALL be filterable by the template variables `job` and `instan
   `RegisterMarketGauges`, `registerMatchBacklogGauges`, `RegisterDBPoolMetrics`, `LedgerFlows`,
   `transactionReasonLabel`, `RecordEngineJobRun`, `RecordEngineJobClaim`, `EngineJobAttribute`,
   `RecordPushOutcome`, `CountMatchBacklog` / `CountMatchBacklogStmtSql`).
+- CPU level gauges: `registerAiLevelGauges` and `AiLevelAttribute` (`common/telemetry.go`), fed by
+  `GetAiLevelStats` / `GetAiLevelStatsStmtSql` / `foldAiLevelStats` (`common/ailevelstats.go`),
+  which also fill `AdminOverview.AiLevels` (`handlers/adminHandlers.go`, frontend
+  `features/admin/OverviewTab.tsx` `AiLevelsTable`). Tests: `common/ailevelstats_test.go`,
+  `common/ailevelstats_integration_test.go`.
 - Ledger flow: `insertLedgerRow` and `insertLedgerRowForAllTeams` (`common/database.go`), called by
   `AdjustTeamBudget`, `AdjustAllTeamsBudget` and the transactions in `common/transfers.go`,
   `offers.go`, `loans.go`, `contracts.go` and `stadium.go`.

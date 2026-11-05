@@ -329,13 +329,75 @@ func TestAcceptsCounter(t *testing.T) {
 	}
 }
 
-func TestContractsToRenew_ManagerRenewsEveryExpiringContract(t *testing.T) {
+func TestContractsToRenew_ManagerRenewsEveryExpiringPlayerUnder30(t *testing.T) {
 	squad := squadOf(2, 5, 6, 5)
 	squad[0].ContractYearsRemaining, squad[3].ContractYearsRemaining, squad[10].ContractYearsRemaining = 1, 0, 3
 	for _, level := range []int{common.AiLevelManager, common.AiLevelDirector} {
-		got := contractsToRenew(level, squad, nil)
+		got := contractsToRenew(level, squad, nil, false)
 		if len(got) != 17 {
 			t.Errorf("level %d renews %d players, want the 17 with one season or less left", level, len(got))
+		}
+	}
+}
+
+// cpu-team-management "Contract renewals": "Bench veteran" and "Veteran keeping the depth".
+func TestContractsToRenew_LetsBenchVeteransGoUnlessNeededForDepth(t *testing.T) {
+	squad := squadOf(2, 5, 6, 5) // ids 1-2 GK, 3-7 D, 8-13 M, 14-18 S
+	for _, p := range squad {
+		p.Age = 25
+		p.ContractYearsRemaining = 3
+	}
+	benchMid, backupKeeper, starterMid := squad[12], squad[1], squad[7]
+	for _, p := range []*common.Player{benchMid, backupKeeper, starterMid} {
+		p.Age, p.ContractYearsRemaining = 31, 1
+	}
+	backupKeeper.Age = 33
+	starters := map[int64]bool{starterMid.Id: true}
+
+	got := contractsToRenew(common.AiLevelDirector, squad, starters, false)
+	ids := map[int64]bool{}
+	for _, p := range got {
+		ids[p.Id] = true
+	}
+	if ids[benchMid.Id] {
+		t.Errorf("the bench veteran midfielder %d was renewed (6 midfielders, depth 3)", benchMid.Id)
+	}
+	if !ids[backupKeeper.Id] {
+		t.Errorf("the 33-year-old second keeper %d was not renewed, the keepers would fall under depth 2", backupKeeper.Id)
+	}
+	if !ids[starterMid.Id] {
+		t.Errorf("the veteran starter %d was not renewed", starterMid.Id)
+	}
+}
+
+// A club in financial crisis keeps only its starters, whatever its level.
+func TestContractsToRenew_CrisisKeepsOnlyStarters(t *testing.T) {
+	squad := squadOf(2, 5, 6, 5)
+	for _, p := range squad {
+		p.Age, p.ContractYearsRemaining = 22, 1
+	}
+	starters := map[int64]bool{squad[3].Id: true}
+	got := contractsToRenew(common.AiLevelDirector, squad, starters, true)
+	if len(got) != 1 || got[0].Id != squad[3].Id {
+		t.Errorf("crisis renews %v, want only the starter %d", got, squad[3].Id)
+	}
+}
+
+// "Greedy bench player": the second offer is only made to a starter or within 1.25 x the wage.
+func TestShouldMeetRenewalTerms(t *testing.T) {
+	cases := []struct {
+		starter        bool
+		skill, expects int
+		want           bool
+	}{
+		{false, 1000, 1200, true},
+		{false, 1000, 1250, true},
+		{false, 1000, 1400, false},
+		{true, 1000, 1400, true},
+	}
+	for _, c := range cases {
+		if got := shouldMeetRenewalTerms(c.starter, c.skill, c.expects); got != c.want {
+			t.Errorf("starter=%v skill %d expects %d: %v, want %v", c.starter, c.skill, c.expects, got, c.want)
 		}
 	}
 }
@@ -347,7 +409,7 @@ func TestContractsToRenew_CaretakerRenewsOnlyExpiringStarters(t *testing.T) {
 	}
 	squad[2].ContractYearsRemaining = 4 // a starter who isn't due yet
 	starters := map[int64]bool{squad[0].Id: true, squad[2].Id: true, squad[5].Id: true}
-	got := contractsToRenew(common.AiLevelCaretaker, squad, starters)
+	got := contractsToRenew(common.AiLevelCaretaker, squad, starters, false)
 	if len(got) != 2 || got[0].Id != squad[0].Id || got[1].Id != squad[5].Id {
 		t.Errorf("caretaker renews %v, want only the expiring starters %d and %d", got, squad[0].Id, squad[5].Id)
 	}

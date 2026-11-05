@@ -174,16 +174,83 @@ func GetPlayersByBirthCountry(dbCtx *DatabaseContext, country string) ([]*Player
 	return players, rows.Err()
 }
 
-// selectNationalSquadLineup is SetNationalTeamLineup/SetNationalTeamCupTieLineup's shared first
-// step: fetch country's current eligible pool and pick its best XI (see GetPlayersByBirthCountry/
-// SelectBestLineup). Returned alongside the flattened positions so the caller can still look up
-// each selected player's name/club for the call-up notification without a second query.
-func selectNationalSquadLineup(dbCtx *DatabaseContext, country string) ([]*Player, []LineupPosition, error) {
-	players, err := GetPlayersByBirthCountry(dbCtx, country)
-	if err != nil {
-		return nil, nil, err
+// nationalCallUp is one national side's selection for a fixture: the fit pool it was drawn from,
+// and the XI, formation, captain and orders it saves.
+type nationalCallUp struct {
+	players   []*Player
+	formation int
+	positions []LineupPosition
+	roles     LineupRoles
+	orders    []LineupOrder
+}
+
+var GetInjuredPlayerIdsStmtSql = "SELECT player_id FROM player_unavailability WHERE player_id = ANY($1) " +
+	"AND matches_remaining > 0 AND reason = " + strconv.Itoa(UNAVAILABLE_INJURY)
+
+// GetInjuredPlayerIds is the subset of playerIds currently injured, whatever club they play for -
+// what bars a player from his national team (a club suspension does not, see
+// openspec/specs/national-teams "Call-up shortly before kickoff").
+func GetInjuredPlayerIds(dbCtx *DatabaseContext, playerIds []int64) (map[int64]bool, error) {
+	injured := make(map[int64]bool)
+	if len(playerIds) == 0 {
+		return injured, nil
 	}
-	return players, FlattenLineup(SelectBestLineup(players)), nil
+	rows, err := dbCtx.Db.Query(GetInjuredPlayerIdsStmtSql, playerIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		injured[id] = true
+	}
+	return injured, rows.Err()
+}
+
+// planNationalCallUp picks a national side's XI from its fit pool the way a Director picks a
+// competitive XI (see openspec/specs/national-teams "Call-up shortly before kickoff"): the
+// strongest of the six formations, a captain by the CPU captain rule and the Director's
+// conditional mentality orders. No bench: a national side's match roster is its saved XI. Pure.
+func planNationalCallUp(fit []*Player) nationalCallUp {
+	formation, lineup := SelectBestFormationAndLineup(fit, AiLevelDirector, nil)
+	positions := orderedLineupPositions(lineup)
+	return nationalCallUp{
+		players:   fit,
+		formation: formation,
+		positions: positions,
+		roles:     LineupRoles{CaptainId: AiCaptain(fit, positions, nil)},
+		orders:    AiConditionalOrders(AiLevelDirector),
+	}
+}
+
+// selectNationalSquadLineup is SetNationalTeamLineup/SetNationalTeamCupTieLineup's shared first
+// step: fetch country's current eligible pool (see GetPlayersByBirthCountry), drop its injured
+// players and plan the XI (see planNationalCallUp). The fit pool comes back with the plan so the
+// caller can still look up each selected player's name/club for the call-up notification without
+// a second query.
+func selectNationalSquadLineup(dbCtx *DatabaseContext, country string) (nationalCallUp, error) {
+	pool, err := GetPlayersByBirthCountry(dbCtx, country)
+	if err != nil {
+		return nationalCallUp{}, err
+	}
+	ids := make([]int64, len(pool))
+	for i, p := range pool {
+		ids[i] = p.Id
+	}
+	injured, err := GetInjuredPlayerIds(dbCtx, ids)
+	if err != nil {
+		return nationalCallUp{}, err
+	}
+	fit := make([]*Player, 0, len(pool))
+	for _, p := range pool {
+		if !injured[p.Id] {
+			fit = append(fit, p)
+		}
+	}
+	return planNationalCallUp(fit), nil
 }
 
 // SetNationalTeamLineup picks country's current best eligible XI and persists it as teamId's
@@ -193,14 +260,14 @@ func selectNationalSquadLineup(dbCtx *DatabaseContext, country string) ([]*Playe
 // international caps are counted from later (see GetPlayerCareerStats) - a player appears in it
 // regardless of which club actually employs them.
 func SetNationalTeamLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, country string) error {
-	players, positions, err := selectNationalSquadLineup(dbCtx, country)
+	callUp, err := selectNationalSquadLineup(dbCtx, country)
 	if err != nil {
 		return err
 	}
-	if err := SetFriendlyLineup(dbCtx, matchId, teamId, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, []LineupSubstitution{}, nil); err != nil {
+	if err := SetFriendlyLineup(dbCtx, matchId, teamId, callUp.formation, MENTALITY_BALANCED, callUp.roles, callUp.positions, []LineupSubstitution{}, callUp.orders); err != nil {
 		return err
 	}
-	notifyCalledUpPlayers(dbCtx, players, positions, country, "/friendlies/"+strconv.FormatInt(matchId, 10))
+	notifyCalledUpPlayers(dbCtx, callUp.players, callUp.positions, country, "/friendlies/"+strconv.FormatInt(matchId, 10))
 	return nil
 }
 
@@ -209,14 +276,14 @@ func SetNationalTeamLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, 
 // SetCupTieLineup) - called from engine.createRoundTies for every tie a national team is part of,
 // covering every knockout round the same way SetNationalTeamLineup covers every weekly friendly.
 func SetNationalTeamCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, country string) error {
-	players, positions, err := selectNationalSquadLineup(dbCtx, country)
+	callUp, err := selectNationalSquadLineup(dbCtx, country)
 	if err != nil {
 		return err
 	}
-	if err := SetCupTieLineup(dbCtx, tieId, teamId, FormationBalanced, MENTALITY_BALANCED, LineupRoles{}, positions, []LineupSubstitution{}, nil); err != nil {
+	if err := SetCupTieLineup(dbCtx, tieId, teamId, callUp.formation, MENTALITY_BALANCED, callUp.roles, callUp.positions, []LineupSubstitution{}, callUp.orders); err != nil {
 		return err
 	}
-	notifyCalledUpPlayers(dbCtx, players, positions, country, "/cup/ties/"+strconv.FormatInt(tieId, 10))
+	notifyCalledUpPlayers(dbCtx, callUp.players, callUp.positions, country, "/cup/ties/"+strconv.FormatInt(tieId, 10))
 	return nil
 }
 

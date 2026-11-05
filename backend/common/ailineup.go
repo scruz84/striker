@@ -98,21 +98,35 @@ func PlanAiMatchLineup(squad []*Player, leagueUnavailable map[int64]bool, matchU
 
 	if isFriendly {
 		plan := planFriendlyRotation(squad, regulars, formation, matchUnavailable, aiLevel)
-		plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions)}
+		plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions, plan.Substitutions)}
 		return plan
 	}
 
 	plan := AiMatchPlan{Formation: formation, Positions: orderedLineupPositions(regulars)}
 	plan.Substitutions = planCompetitiveSubstitutions(squad, regulars, leagueUnavailable, aiLevel)
 	plan.Orders = AiConditionalOrders(aiLevel)
-	plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions)}
+	plan.Roles = LineupRoles{CaptainId: AiCaptain(squad, plan.Positions, plan.Substitutions)}
 	return plan
 }
 
 // AiCaptain is the CPU's captain (see openspec/specs/cpu-team-management "CPU captain"): the
-// oldest outfield starter, ties going to the lowest player id; nil when the XI has no outfielder
-// the squad holds.
-func AiCaptain(squad []*Player, positions []LineupPosition) *int64 {
+// oldest outfield starter who is not the outgoing player of one of substitutions, ties going to
+// the lowest player id - so the armband (and its calming effect) stays on the pitch. When every
+// outfield starter is due off it falls back to the oldest outfield starter; nil when the XI has
+// no outfielder the squad holds.
+func AiCaptain(squad []*Player, positions []LineupPosition, substitutions []LineupSubstitution) *int64 {
+	dueOff := make(map[int64]bool, len(substitutions))
+	for _, s := range substitutions {
+		dueOff[s.PlayerOutId] = true
+	}
+	if captain := oldestOutfieldStarter(squad, positions, dueOff); captain != nil {
+		return captain
+	}
+	return oldestOutfieldStarter(squad, positions, nil)
+}
+
+// oldestOutfieldStarter is the oldest outfield starter not in excluded (lowest id on a tie), or nil.
+func oldestOutfieldStarter(squad []*Player, positions []LineupPosition, excluded map[int64]bool) *int64 {
 	byId := make(map[int64]*Player, len(squad))
 	for _, p := range squad {
 		byId[p.Id] = p
@@ -120,7 +134,7 @@ func AiCaptain(squad []*Player, positions []LineupPosition) *int64 {
 	var captain *Player
 	for _, pos := range positions {
 		p, ok := byId[pos.PlayerId]
-		if !ok || pos.Position == GOALKEEPER {
+		if !ok || pos.Position == GOALKEEPER || excluded[p.Id] {
 			continue
 		}
 		if captain == nil || p.Age > captain.Age || (p.Age == captain.Age && p.Id < captain.Id) {
@@ -132,6 +146,24 @@ func AiCaptain(squad []*Player, positions []LineupPosition) *int64 {
 	}
 	id := captain.Id
 	return &id
+}
+
+// aiCupDrawOrderMinute is when a Director settles a level cup tie (see AiCupDrawOrder).
+const aiCupDrawOrderMinute = 75
+
+// AiCupDrawOrder is the extra order a Director plays a cup tie with (see
+// openspec/specs/cpu-team-management "Director cup orders"): a draw goes to a coin-flip shootout,
+// so from minute 75 a level tie is chased (Attacking) by a side at least as strong as its opponent
+// and held (Defensive) by a weaker one. Nil below Director or when either strength is unknown.
+func AiCupDrawOrder(aiLevel int, ownStrength int, opponentStrength int) *LineupOrder {
+	if aiLevel < AiLevelDirector || ownStrength <= 0 || opponentStrength <= 0 {
+		return nil
+	}
+	mentality := MENTALITY_DEFENSIVE
+	if ownStrength >= opponentStrength {
+		mentality = MENTALITY_ATTACKING
+	}
+	return &LineupOrder{FromMinute: aiCupDrawOrderMinute, Condition: ORDER_CONDITION_DRAWING, Action: ORDER_ACTION_MENTALITY, Mentality: mentality}
 }
 
 // orderedLineupPositions flattens a position -> players map in positionFillOrder, so the same

@@ -22,7 +22,7 @@ func TestAiContractRenewals_ManagerMeetsAnImprovingPlayersRaise(t *testing.T) {
 		VALUES ($1, 1, 21, 21, 0, 0, 0, 0, 0, 0, 40, 50, 0, 0, 40, 50, 40, 50)`, improver)
 	baseWage := common.PlayerWageFromSkills(0, 0, 0, 50, 0, 50, 50)
 
-	renewExpiringContracts(w.dbCtx, w.teamOf(team))
+	renewExpiringContracts(w.dbCtx, w.teamOf(team), false)
 
 	if years := w.count(`SELECT contract_years_remaining FROM players WHERE player_id = $1`, improver); years <= 1 {
 		t.Fatalf("improving player still has %d season(s) left, want a renewal", years)
@@ -49,7 +49,7 @@ func TestAiContractRenewals_CaretakerRenewsOnlyItsStarters(t *testing.T) {
 		t.Fatalf("default lineup has %d players, want 11", len(lineup.Positions))
 	}
 
-	renewExpiringContracts(w.dbCtx, w.teamOf(team))
+	renewExpiringContracts(w.dbCtx, w.teamOf(team), false)
 
 	renewedStarters := w.count(`SELECT COUNT(*) FROM players p JOIN default_lineup_positions d ON d.player_id = p.player_id AND d.team_id = p.team_id
 		WHERE p.team_id = $1 AND p.contract_years_remaining > 1`, team)

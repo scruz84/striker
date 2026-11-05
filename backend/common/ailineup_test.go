@@ -380,10 +380,10 @@ func TestPlanAiMatchLineup_VeteranCaptain(t *testing.T) {
 func TestAiCaptain_TieGoesToLowestId(t *testing.T) {
 	squad := []*Player{keeperPlayer(1, 80, 90, 40), fieldPlayer(9, 50, 90, 30), fieldPlayer(4, 50, 90, 30), fieldPlayer(2, 50, 90, 22)}
 	positions := []LineupPosition{{PlayerId: 1, Position: GOALKEEPER}, {PlayerId: 9, Position: DEFENSE}, {PlayerId: 4, Position: MIDFIELD}, {PlayerId: 2, Position: STRIKER}}
-	if got := AiCaptain(squad, positions); got == nil || *got != 4 {
+	if got := AiCaptain(squad, positions, nil); got == nil || *got != 4 {
 		t.Errorf("captain %v, want 4 (two 30-year-olds, lowest id)", got)
 	}
-	if got := AiCaptain(squad, positions[:1]); got != nil {
+	if got := AiCaptain(squad, positions[:1], nil); got != nil {
 		t.Errorf("captain %d with only a keeper, want none", *got)
 	}
 }
@@ -414,5 +414,72 @@ func TestValidateRoles(t *testing.T) {
 		if (err == nil) != c.ok {
 			t.Errorf("%s: err = %v, want ok=%v", c.name, err, c.ok)
 		}
+	}
+}
+
+// cpu-team-management "CPU captain": "Veteran due off" - the oldest outfield starter is passed over
+// when the plan takes him off, and taken back when every outfielder is due off.
+func TestAiCaptain_SkipsScheduledOutgoingPlayer(t *testing.T) {
+	squad := []*Player{keeperPlayer(1, 80, 90, 40), fieldPlayer(2, 50, 90, 24), fieldPlayer(3, 50, 90, 31), fieldPlayer(4, 50, 90, 33)}
+	positions := []LineupPosition{{PlayerId: 1, Position: GOALKEEPER}, {PlayerId: 2, Position: DEFENSE}, {PlayerId: 3, Position: MIDFIELD}, {PlayerId: 4, Position: STRIKER}}
+	if got := AiCaptain(squad, positions, nil); got == nil || *got != 4 {
+		t.Errorf("captain %v, want the 33-year-old 4", got)
+	}
+	off := []LineupSubstitution{{PlayerOutId: 4, PlayerInId: 9, Minute: 70}}
+	if got := AiCaptain(squad, positions, off); got == nil || *got != 3 {
+		t.Errorf("captain %v with the 33-year-old due off, want the 31-year-old 3", got)
+	}
+	allOff := []LineupSubstitution{{PlayerOutId: 2, PlayerInId: 7}, {PlayerOutId: 3, PlayerInId: 8}, {PlayerOutId: 4, PlayerInId: 9}}
+	if got := AiCaptain(squad, positions, allOff); got == nil || *got != 4 {
+		t.Errorf("captain %v with every outfielder due off, want the oldest, 4", got)
+	}
+}
+
+// A Director's plan never hands the armband to a starter it schedules off.
+func TestPlanAiMatchLineup_CaptainStaysOnThePitch(t *testing.T) {
+	for _, level := range []int{AiLevelCaretaker, AiLevelManager, AiLevelDirector} {
+		for _, friendly := range []bool{false, true} {
+			// Tired starters, a strong bench and the oldest outfielders the most tired, so every
+			// level plans changes that would take its veterans off.
+			squad := aiSquad(66, 30)
+			for _, p := range squad {
+				p.Age = 20 + int(p.Id)
+				if p.Id >= 2 && p.Id <= 11 {
+					p.Stamina = 40 - int(p.Id)*3
+				}
+			}
+			plan := PlanAiMatchLineup(squad, nil, nil, level, friendly, rand.New(rand.NewSource(1)))
+			if len(plan.Substitutions) == 0 {
+				t.Fatalf("level %d friendly=%v: no substitutions planned, the test squad must force some", level, friendly)
+			}
+			if plan.Roles.CaptainId == nil {
+				t.Fatalf("level %d friendly=%v: no captain", level, friendly)
+			}
+			for _, s := range plan.Substitutions {
+				if s.PlayerOutId == *plan.Roles.CaptainId {
+					t.Errorf("level %d friendly=%v: captain %d is scheduled off at %d", level, friendly, s.PlayerOutId, s.Minute)
+				}
+			}
+		}
+	}
+}
+
+// cpu-team-management "Director cup orders".
+func TestAiCupDrawOrder(t *testing.T) {
+	fav := AiCupDrawOrder(AiLevelDirector, 1050, 1000)
+	if fav == nil || fav.FromMinute != 75 || fav.Condition != ORDER_CONDITION_DRAWING || fav.Action != ORDER_ACTION_MENTALITY || fav.Mentality != MENTALITY_ATTACKING {
+		t.Errorf("favourite: %+v, want from 75 if drawing go Attacking", fav)
+	}
+	if even := AiCupDrawOrder(AiLevelDirector, 1000, 1000); even == nil || even.Mentality != MENTALITY_ATTACKING {
+		t.Errorf("even sides: %+v, want Attacking", even)
+	}
+	if dog := AiCupDrawOrder(AiLevelDirector, 950, 1000); dog == nil || dog.Mentality != MENTALITY_DEFENSIVE {
+		t.Errorf("underdog: %+v, want Defensive", dog)
+	}
+	if o := AiCupDrawOrder(AiLevelManager, 1050, 1000); o != nil {
+		t.Errorf("Manager: %+v, want none", o)
+	}
+	if o := AiCupDrawOrder(AiLevelDirector, 0, 1000); o != nil {
+		t.Errorf("unknown strength: %+v, want none", o)
 	}
 }

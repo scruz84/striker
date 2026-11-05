@@ -97,6 +97,9 @@ type AdminOverview struct {
 	RelegationSlotsPerGroup       int              `json:"relegationSlotsPerGroup"`
 	FreeAgentInjectionsPerWeek    int              `json:"freeAgentInjectionsPerWeek"`
 	OfferNegotiationWindowMinutes int              `json:"offerNegotiationWindowMinutes"`
+	// AiLevels is each AI level's club count, average budget, insolvent clubs and points per match
+	// (see GetAiLevelStats) - the same figures as the striker.ai.* gauges.
+	AiLevels []AiLevelStats `json:"aiLevels"`
 }
 
 func CountUsers(dbCtx *DatabaseContext) (int, error) {

@@ -540,8 +540,16 @@ production rather than exhaustive coverage of every code path:
 - **Academy promotions** (`striker.academy.promotions`) - youth academy prospects promoted to the
   senior squad (`common.PromoteFromAcademy`).
 - **CPU market actions** (`striker.ai.market_actions`, labeled by `action`: `signed_free_agent`,
-  `bought_listed`, `offer_made`, `offer_expired`, `listed_surplus`, `listed_to_fund`) - what
+  `bought_listed`, `offer_made`, `offer_expired`, `listed_surplus`, `listed_to_fund`,
+  `listed_in_crisis`, `released_veteran`) - what
   CPU-managed teams do on the transfer market, so a day's activity can be read off this series.
+- **CPU levels** (`striker.ai.teams`, `striker.ai.average_budget`, `striker.ai.insolvent_teams`,
+  `striker.ai.points_per_match`, labeled by `ai_level`: `human`, `caretaker`, `manager`,
+  `director`) - how many clubs each kind of manager runs, their average budget, how many are
+  insolvent and the league points per match they take this season, from one grouped query per
+  export tick (`common.GetAiLevelStats`, also shown in the admin overview). Engine-only, read
+  with max(). `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` plays each level
+  against a Caretaker with identical squads to check the levels are apart.
 - **Logins** (`striker.logins`, labeled by `provider`) and **new user registrations**
   (`striker.users.registered`) - the simplest signal of how much the game is actually being
   played.

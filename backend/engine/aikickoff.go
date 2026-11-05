@@ -121,10 +121,10 @@ func planAiKickoffs(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int
 	if homePlanned || awayPlanned {
 		homeStrength, awayStrength := kickoffStrength(dbCtx, homeTeamId, (*lineups)[homeTeamId]), kickoffStrength(dbCtx, awayTeamId, (*lineups)[awayTeamId])
 		if homePlanned {
-			(*lineups)[homeTeamId].Mentality = aiKickoffMentality(dbCtx, homeTeamId, homeStrength, awayStrength, true, kind == kickoffFriendly)
+			applyAiKickoffTactics(dbCtx, kind, homeTeamId, (*lineups)[homeTeamId], homeStrength, awayStrength, true)
 		}
 		if awayPlanned {
-			(*lineups)[awayTeamId].Mentality = aiKickoffMentality(dbCtx, awayTeamId, awayStrength, homeStrength, false, kind == kickoffFriendly)
+			applyAiKickoffTactics(dbCtx, kind, awayTeamId, (*lineups)[awayTeamId], awayStrength, homeStrength, false)
 		}
 	}
 	return homeSubstitutions, awaySubstitutions
@@ -148,12 +148,25 @@ func kickoffStrength(dbCtx *common.DatabaseContext, teamId int64, lineup *common
 	return common.LineupStrength(lineup, byId)
 }
 
-// aiKickoffMentality is the mentality a CPU side kicks off with, by its AI level.
-func aiKickoffMentality(dbCtx *common.DatabaseContext, teamId int64, own int, opponent int, isHome bool, isFriendly bool) int {
+// applyAiKickoffTactics sets a CPU side's kickoff mentality from its AI level and both XIs'
+// strengths (see common.PickAiMentality) and, in a cup tie, appends a Director's drawing order
+// (see common.AiCupDrawOrder) while the lineup still has room for one.
+func applyAiKickoffTactics(dbCtx *common.DatabaseContext, kind kickoffKind, teamId int64, lineup *common.Lineup, own int, opponent int, isHome bool) {
 	team, err := common.GetTeamById(teamId, dbCtx)
 	if err != nil {
 		log.Errorf("error fetching team %d for its kickoff mentality: %s", teamId, err)
-		return common.MENTALITY_BALANCED
+		lineup.Mentality = common.MENTALITY_BALANCED
+		return
 	}
-	return common.PickAiMentality(team.AiLevel, own, opponent, isHome, isFriendly)
+	setAiKickoffTactics(team.AiLevel, kind, lineup, own, opponent, isHome)
+}
+
+// setAiKickoffTactics is applyAiKickoffTactics once the AI level is known - pure, for tests.
+func setAiKickoffTactics(aiLevel int, kind kickoffKind, lineup *common.Lineup, own int, opponent int, isHome bool) {
+	lineup.Mentality = common.PickAiMentality(aiLevel, own, opponent, isHome, kind == kickoffFriendly)
+	if kind == kickoffCup && len(lineup.Orders) < common.MaxConditionalOrders {
+		if order := common.AiCupDrawOrder(aiLevel, own, opponent); order != nil {
+			lineup.Orders = append(append([]common.LineupOrder(nil), lineup.Orders...), *order)
+		}
+	}
 }

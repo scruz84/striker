@@ -179,6 +179,8 @@ On its next offer-response sweep a CPU buyer SHALL accept a counter-offer when t
 
 ## Code map
 
+- The pass is skipped for a club in financial crisis by `RunAITeamManagement`
+  (`engine/aiteams.go`, `inFinancialCrisis` in `engine/aifinances.go`).
 - `backend/engine/aitransfers.go` (`runAiTransferPass`, candidate sizes, bid constants; loans:
   `candidateLoan` / `candidateBuyOption`, `loanListingCandidates`, `buyOptionCandidates`,
   `transferState.playingSquad`, the loan branches of `scoreOne`, `pickNextTarget` and

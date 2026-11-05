@@ -1,6 +1,7 @@
 package common
 
 import (
+	"math"
 	"math/rand"
 	"testing"
 )
@@ -637,5 +638,30 @@ func TestScoreTarget_LoanPayrollOnlyCountsTheBorrowersShareOfTheWage(t *testing.
 	ctx.WageFactor = 2
 	if s := ScoreTarget(profile, ctx, newRng(1)); !s.Affordable {
 		t.Error("a lender covering everything leaves the payroll untouched whatever the wage factor")
+	}
+}
+
+// cpu-team-management "Crisis offer discount": a club in crisis takes CrisisOfferShare of its
+// usual threshold, and its thin-position refusals are unchanged.
+func TestEvaluateIncomingOffer_CrisisDiscount(t *testing.T) {
+	squad := settledSquad()
+	benchwarmer := midfielderAged(60, 50, 26)
+	squad = append(squad, benchwarmer)
+	profile := AiTransferProfileFor(AiLevelManager)
+	usual := EvaluateIncomingOffer(profile, offerContext(squad, benchwarmer, 0), newRng(7)).Threshold
+	offer := int64(math.Ceil(float64(usual) * 0.82))
+
+	calm := EvaluateIncomingOffer(profile, offerContext(squad, benchwarmer, offer), newRng(7))
+	if calm.Accept {
+		t.Fatalf("a solvent Manager accepted 82%% of its threshold: %+v", calm)
+	}
+	distressed := offerContext(squad, benchwarmer, offer)
+	distressed.Distressed = true
+	crisis := EvaluateIncomingOffer(profile, distressed, newRng(7))
+	if !crisis.Accept {
+		t.Errorf("a Manager in crisis rejected 82%% of its usual threshold: %+v", crisis)
+	}
+	if want := int64(math.Round(float64(usual) * CrisisOfferShare)); crisis.Threshold < want-1 || crisis.Threshold > want+1 {
+		t.Errorf("crisis threshold %d, want about %d", crisis.Threshold, want)
 	}
 }

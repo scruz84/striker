@@ -1,6 +1,9 @@
 package common
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+)
 
 // SponsorDeal is a team's chosen tradeoff between guaranteed per-match sponsorship income and a
 // bonus tied to that match's result - see engine.sponsorshipAmount, which applies the actual
@@ -81,4 +84,25 @@ func IsSponsorDealLocked(dbCtx *DatabaseContext, teamId int64) (bool, error) {
 		return false, err
 	}
 	return lockedSeason == currentSeason, nil
+}
+
+// TeamSeasonRecord is a team's league record so far this season (its classification row).
+type TeamSeasonRecord struct {
+	Matches int
+	Wins    int
+	Draws   int
+}
+
+const GetTeamSeasonRecordStmtSql = "SELECT COALESCE(matches, 0), COALESCE(wins, 0), COALESCE(draws, 0) FROM classification WHERE team_id = $1"
+
+// GetTeamSeasonRecord reads teamId's league record this season - the CPU's sponsor-deal choice
+// (see engine.chooseSponsorDealIfManager) weighs it. A team with no classification row (a
+// national team) has an empty record.
+func GetTeamSeasonRecord(dbCtx *DatabaseContext, teamId int64) (TeamSeasonRecord, error) {
+	var r TeamSeasonRecord
+	err := dbCtx.Db.QueryRow(GetTeamSeasonRecordStmtSql, teamId).Scan(&r.Matches, &r.Wins, &r.Draws)
+	if errors.Is(err, sql.ErrNoRows) {
+		return TeamSeasonRecord{}, nil
+	}
+	return r, err
 }

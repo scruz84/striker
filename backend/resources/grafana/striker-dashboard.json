@@ -953,6 +953,176 @@
       }
     },
     {
+      "id": 62,
+      "type": "timeseries",
+      "title": "Points per match, by AI level",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (ai_level)(striker_ai_points_per_match)",
+          "legendFormat": "{{ai_level}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Current-season league points per match of the clubs at each AI level (human = owned clubs). A Director line below the Manager one means the levels are not doing their job.",
+      "gridPos": {
+        "x": 0,
+        "y": 67,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 63,
+      "type": "timeseries",
+      "title": "Average club budget, by AI level",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "stacking": {
+              "mode": "none"
+            },
+            "pointSize": 5
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (ai_level)(striker_ai_average_budget)",
+          "legendFormat": "{{ai_level}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Average budget of the clubs at each AI level (human = owned clubs). A steadily falling line is a level spending more than it earns.",
+      "gridPos": {
+        "x": 8,
+        "y": 67,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "id": 64,
+      "type": "table",
+      "title": "Clubs and insolvent clubs, by AI level",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "How many clubs each AI level runs and how many of them are below the insolvency line (budget under -200,000), right now.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {},
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (ai_level)(striker_ai_teams)",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "expr": "max by (ai_level)(striker_ai_insolvent_teams)",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        }
+      ],
+      "options": {
+        "showHeader": true
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "ai_level": "AI level",
+              "Value #A": "Clubs",
+              "Value #B": "Insolvent"
+            }
+          }
+        }
+      ],
+      "gridPos": {
+        "x": 16,
+        "y": 67,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
       "id": 45,
       "type": "row",
       "title": "Economy",
@@ -960,7 +1130,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 67,
+        "y": 75,
         "w": 24,
         "h": 1
       }
@@ -975,7 +1145,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 68,
+        "y": 76,
         "w": 8,
         "h": 8
       },
@@ -1018,7 +1188,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 68,
+        "y": 76,
         "w": 8,
         "h": 8
       },
@@ -1068,7 +1238,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 68,
+        "y": 76,
         "w": 8,
         "h": 8
       },
@@ -1125,7 +1295,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 76,
+        "y": 84,
         "w": 24,
         "h": 1
       }
@@ -1176,7 +1346,7 @@
       "description": "Everything the ledger credited to teams, per day, stacked by TRANSACTION_* reason.",
       "gridPos": {
         "x": 0,
-        "y": 77,
+        "y": 85,
         "w": 12,
         "h": 8
       }
@@ -1227,7 +1397,7 @@
       "description": "Everything the ledger debited from teams, per day, stacked by reason.",
       "gridPos": {
         "x": 12,
-        "y": 77,
+        "y": 85,
         "w": 12,
         "h": 8
       }
@@ -1278,7 +1448,7 @@
       "description": "Credited minus debited per day, leaving out transfer_in, transfer_out and loan_fee: those move money between teams and net to zero. Positive means the economy is inflating (sponsors, prizes, ticket sales outpace wages and upkeep).",
       "gridPos": {
         "x": 0,
-        "y": 85,
+        "y": 93,
         "w": 12,
         "h": 8
       }
@@ -1329,7 +1499,7 @@
       "description": "The same figure as the stat in the Economy row, over time. It should move by the net creation panel above.",
       "gridPos": {
         "x": 12,
-        "y": 85,
+        "y": 93,
         "w": 12,
         "h": 8
       }
@@ -1342,7 +1512,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 93,
+        "y": 101,
         "w": 24,
         "h": 1
       }
@@ -1357,7 +1527,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 94,
+        "y": 102,
         "w": 6,
         "h": 8
       },
@@ -1397,7 +1567,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 94,
+        "y": 102,
         "w": 6,
         "h": 8
       },
@@ -1437,7 +1607,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 94,
+        "y": 102,
         "w": 6,
         "h": 8
       },
@@ -1477,7 +1647,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 94,
+        "y": 102,
         "w": 6,
         "h": 8
       },
@@ -1536,7 +1706,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 102,
+        "y": 110,
         "w": 12,
         "h": 8
       },
@@ -1631,7 +1801,7 @@
       "description": "What CPU teams do on the transfer market: signings, purchases, offers, listings.",
       "gridPos": {
         "x": 12,
-        "y": 102,
+        "y": 110,
         "w": 12,
         "h": 8
       }
@@ -1644,7 +1814,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 110,
+        "y": 118,
         "w": 24,
         "h": 1
       }
@@ -1659,7 +1829,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 111,
+        "y": 119,
         "w": 8,
         "h": 8
       },
@@ -1709,7 +1879,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 111,
+        "y": 119,
         "w": 8,
         "h": 8
       },
@@ -1759,7 +1929,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 111,
+        "y": 119,
         "w": 8,
         "h": 8
       },
@@ -1809,7 +1979,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 119,
+        "y": 127,
         "w": 8,
         "h": 8
       },
@@ -1857,7 +2027,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 127,
+        "y": 135,
         "w": 24,
         "h": 1
       }
@@ -1908,7 +2078,7 @@
       "description": "Live-match websockets currently open on each svc instance.",
       "gridPos": {
         "x": 0,
-        "y": 128,
+        "y": 136,
         "w": 8,
         "h": 8
       }
@@ -1959,7 +2129,7 @@
       "description": "sent: the push service accepted it. expired: the subscription was gone (404/410) and was deleted. failed: a transport error or any other status (429, 5xx, ...); these are not retried.",
       "gridPos": {
         "x": 8,
-        "y": 128,
+        "y": 136,
         "w": 8,
         "h": 8
       }
@@ -2010,7 +2180,7 @@
       "description": "database/sql pool state per process. The pool is capped at 50 connections per process: in use sitting at the cap means requests are queueing for a connection.",
       "gridPos": {
         "x": 16,
-        "y": 128,
+        "y": 136,
         "w": 8,
         "h": 8
       }
@@ -2061,7 +2231,7 @@
       "description": "How often a caller had to wait for a free connection. Should sit at 0.",
       "gridPos": {
         "x": 0,
-        "y": 136,
+        "y": 144,
         "w": 12,
         "h": 8
       }
@@ -2112,7 +2282,7 @@
       "description": "Seconds spent waiting for a connection per second of wall time, summed over callers.",
       "gridPos": {
         "x": 12,
-        "y": 136,
+        "y": 144,
         "w": 12,
         "h": 8
       }
@@ -2125,7 +2295,7 @@
       "panels": [],
       "gridPos": {
         "x": 0,
-        "y": 144,
+        "y": 152,
         "w": 24,
         "h": 1
       }
@@ -2141,7 +2311,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 145,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -2192,7 +2362,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 145,
+        "y": 153,
         "w": 12,
         "h": 8
       },
@@ -2245,7 +2415,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 153,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -2296,7 +2466,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 153,
+        "y": 161,
         "w": 12,
         "h": 8
       },
@@ -2349,7 +2519,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 161,
+        "y": 169,
         "w": 12,
         "h": 8
       },
@@ -2400,7 +2570,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 161,
+        "y": 169,
         "w": 12,
         "h": 8
       },
@@ -2451,7 +2621,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 169,
+        "y": 177,
         "w": 12,
         "h": 8
       },
@@ -2503,7 +2673,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 169,
+        "y": 177,
         "w": 12,
         "h": 8
       },

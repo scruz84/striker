@@ -311,7 +311,14 @@ type OfferContext struct {
 	International bool
 	// InternationalCaps is his international caps count, which raises the premium.
 	InternationalCaps int
+	// Distressed is whether the selling club is in financial crisis (budget below 0): it then
+	// settles for CrisisOfferShare of its usual threshold (openspec/specs/cpu-team-management
+	// "Crisis offer discount").
+	Distressed bool
 }
+
+// CrisisOfferShare is the share of its usual threshold a CPU club in financial crisis accepts.
+const CrisisOfferShare = 0.8
 
 // OfferDecision is a CPU team's answer to an offer: Threshold is the lowest fee it would have
 // taken for this player in this squad, Reason one of the OfferReason* constants.
@@ -345,6 +352,9 @@ func EvaluateIncomingOffer(profile AiTransferProfile, ctx OfferContext, rng *ran
 	if profile.ProtectsKeyPlayers && IsKeyPlayer(ctx.Squad, ctx.Player.Id) {
 		threshold *= profile.KeyPlayerPriceMultiplier
 		reason = OfferReasonKeyPlayer
+	}
+	if ctx.Distressed {
+		threshold *= CrisisOfferShare
 	}
 
 	decision := OfferDecision{Threshold: int64(math.Round(threshold)), Reason: reason}

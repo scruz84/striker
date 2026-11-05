@@ -83,8 +83,14 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		aiLevels, err := common.GetAiLevelStats(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		c.JSON(http.StatusOK, common.AdminOverview{
 			Seasons:                       seasons,
+			AiLevels:                      aiLevels,
 			UserCount:                     userCount,
 			TeamCount:                     teamCount,
 			LeagueCount:                   leagueCount,

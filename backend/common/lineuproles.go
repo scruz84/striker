@@ -88,10 +88,13 @@ func ValidateRoles(positions []LineupPosition, roles LineupRoles, teamPlayers *[
 // played (played, an SQL condition), each reads back as NULL when its player no longer belongs to
 // the lineup's team - a sold or released player's role is "automatic" from then on (openspec
 // match-simulation "Taker sold"); a played fixture's kickoff snapshot keeps its roles as they were,
-// so the captain a match was played with still wears the armband in its report.
+// so the captain a match was played with still wears the armband in its report. A national side's
+// called-up players stay on their clubs' rosters, so its roles are kept as saved: its lineup is a
+// fixed call-up snapshot, not a squad players leave.
 func rolesSelectSql(a string, played string) string {
 	col := func(c string) string {
-		return "CASE WHEN (" + played + ") OR EXISTS (SELECT 1 FROM players rp WHERE rp.player_id = " + a + "." + c + " AND rp.team_id = " + a + ".team_id) THEN " + a + "." + c + " END"
+		return "CASE WHEN (" + played + ") OR EXISTS (SELECT 1 FROM players rp WHERE rp.player_id = " + a + "." + c + " AND rp.team_id = " + a + ".team_id) " +
+			"OR EXISTS (SELECT 1 FROM teams rt WHERE rt.team_id = " + a + ".team_id AND rt.is_national_team) THEN " + a + "." + c + " END"
 	}
 	return col("captain_id") + ", " + col("penalty_taker_id") + ", " + col("free_kick_taker_id")
 }
