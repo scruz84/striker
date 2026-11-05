@@ -2,6 +2,8 @@ package engine
 
 import (
 	"errors"
+	"math/rand"
+	"time"
 
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -123,5 +125,106 @@ func hireTrainerIfManager(dbCtx *common.DatabaseContext, team *common.Team) {
 	if err := common.HireTrainer(dbCtx, pick.Id, team.Id); err != nil &&
 		!errors.Is(err, common.ErrTeamAlreadyHasTrainer) && !errors.Is(err, common.ErrTrainerNotAvailable) {
 		log.Errorf("error hiring trainer %d for AI-managed team %d: %s", pick.Id, team.Id, err)
+	}
+}
+
+const getLeagueTierStmtSql = "SELECT tier FROM leagues WHERE league_id = $1"
+
+// redrawAiLevelAfterMove moves a CPU club that just changed division one step towards a level
+// drawn with its new tier's weights (see common.RandomAiLevelFrom / StepAiLevelToward and
+// openspec/specs/cpu-team-management "AI level after a division change"). Owned clubs and clubs
+// with no AI level are untouched. Runs inside the season rollover, under the country's lock.
+func redrawAiLevelAfterMove(dbCtx *common.DatabaseContext, teamId int64, newLeagueId int64, rng *rand.Rand) {
+	team, err := common.GetTeamById(teamId, dbCtx)
+	if err != nil {
+		log.Errorf("error fetching team %d to redraw its AI level: %s", teamId, err)
+		return
+	}
+	if !isAiManagedTeam(team) {
+		return
+	}
+	var tier int
+	if err := dbCtx.Db.QueryRow(getLeagueTierStmtSql, newLeagueId).Scan(&tier); err != nil {
+		log.Errorf("error reading the tier of league %d to redraw team %d's AI level: %s", newLeagueId, teamId, err)
+		return
+	}
+	next := common.StepAiLevelToward(team.AiLevel, common.RandomAiLevelFrom(tier, rng))
+	if next == team.AiLevel {
+		return
+	}
+	if err := common.SetTeamAiLevel(dbCtx, teamId, next); err != nil {
+		log.Errorf("error setting team %d's AI level to %d: %s", teamId, next, err)
+		return
+	}
+	log.Infof("ai-level team=%d from=%d to=%d tier=%d", teamId, team.AiLevel, next, tier)
+}
+
+// pickProspectByPotential is the academy prospect a club that signs projects promotes for his
+// future (see openspec/specs/cpu-team-management "Prospects by potential"), or nil: the one whose
+// projected value at his best core position (common.ProjectPlayer, through the profile's potential
+// noise) beats the squad's weakest starter there (weakestStarterValue) by the widest margin, ties
+// to the lowest id. A position with no starter of its own sets no bar. Pure given rng.
+func pickProspectByPotential(cantera []*common.Player, caps map[int64]common.PlayerSkillCaps, squad []*common.Player,
+	profile common.AiTransferProfile, rng *rand.Rand) *common.Player {
+	var pick *common.Player
+	bestMargin := 0
+	for _, p := range cantera {
+		var c *common.PlayerSkillCaps
+		if pc, ok := caps[p.Id]; ok {
+			c = &pc
+		}
+		projected := common.ProjectPlayer(*p, c, profile, rng)
+		position := common.BestCorePosition(projected)
+		bar := weakestStarterValue(squad, position)
+		if bar <= 0 {
+			continue
+		}
+		margin := common.PositionValue(position, projected) - bar
+		if margin < 0 {
+			continue
+		}
+		if pick == nil || margin > bestMargin || (margin == bestMargin && p.Id < pick.Id) {
+			pick, bestMargin = p, margin
+		}
+	}
+	return pick
+}
+
+// promoteProspectByPotential has a club that signs projects (every Director, and youth-style
+// Managers - see common.ApplyClubStyle) promote its most promising academy prospect (see
+// pickProspectByPotential) through the same CanPromoteFromAcademy / PromoteFromAcademy a human
+// uses, so the weekly cap applies. The rng is seeded from the team and the week, so a re-run of the
+// same week reads the prospects the same way.
+func promoteProspectByPotential(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player) {
+	profile := aiProfile(team)
+	if !profile.SignsProjects {
+		return
+	}
+	canPromote, _, err := common.CanPromoteFromAcademy(dbCtx, team.Id)
+	if err != nil || !canPromote {
+		return
+	}
+	cantera, err := common.GetCantera(dbCtx, team.Id)
+	if err != nil || len(cantera) == 0 {
+		return
+	}
+	ids := make([]int64, len(cantera))
+	for i, p := range cantera {
+		ids[i] = p.Id
+	}
+	caps, err := common.GetPlayerSkillCaps(dbCtx, ids)
+	if err != nil {
+		log.Errorf("error reading the academy ceilings of AI-managed team %d: %s", team.Id, err)
+		return
+	}
+	_, week := time.Now().ISOWeek()
+	rng := rand.New(rand.NewSource(team.Id*53 + int64(week)))
+	prospect := pickProspectByPotential(cantera, caps, players, profile, rng)
+	if prospect == nil {
+		return
+	}
+	if err := common.PromoteFromAcademy(dbCtx, prospect.Id, team.Id); err != nil &&
+		!errors.Is(err, common.ErrAcademyPromotionAlreadyUsedThisWeek) {
+		log.Errorf("error promoting academy prospect %d for AI-managed team %d: %s", prospect.Id, team.Id, err)
 	}
 }

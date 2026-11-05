@@ -142,12 +142,23 @@ var defaultAiLevelWeights = [3]int{60, 30, 10}
 // RandomAiLevel picks a weighted-random AI level (1-3) for a newly created team in the given
 // division tier.
 func RandomAiLevel(tier int) int {
+	return RandomAiLevelFrom(tier, nil)
+}
+
+// RandomAiLevelFrom is RandomAiLevel drawing from rng (the global source when nil), so a caller
+// can make the draw reproducible.
+func RandomAiLevelFrom(tier int, rng *rand.Rand) int {
 	weights, ok := aiLevelWeightsByTier[tier]
 	if !ok {
 		weights = defaultAiLevelWeights
 	}
 	total := weights[0] + weights[1] + weights[2]
-	roll := rand.Intn(total)
+	var roll int
+	if rng != nil {
+		roll = rng.Intn(total)
+	} else {
+		roll = rand.Intn(total)
+	}
 	if roll < weights[0] {
 		return AiLevelCaretaker
 	}
@@ -155,6 +166,18 @@ func RandomAiLevel(tier int) int {
 		return AiLevelManager
 	}
 	return AiLevelDirector
+}
+
+// StepAiLevelToward moves current one level towards drawn (see openspec/specs/cpu-team-management
+// "AI level after a division change"): up one if drawn is higher, down one if lower.
+func StepAiLevelToward(current int, drawn int) int {
+	switch {
+	case drawn > current:
+		return current + 1
+	case drawn < current:
+		return current - 1
+	}
+	return current
 }
 
 const SetTeamAiLevelStmtSql = "UPDATE teams SET ai_level = $1 WHERE team_id = $2"

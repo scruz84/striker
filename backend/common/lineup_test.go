@@ -238,7 +238,7 @@ func TestSelectBestFormationAndLineup_DirectorFindsTheGenuinelyStrongestFormatio
 	}
 }
 
-func TestSelectBestFormationAndLineup_ManagerSettlesForTheSecondBest(t *testing.T) {
+func TestSelectBestFormationAndLineup_ManagerTakesTheStrongest(t *testing.T) {
 	players := diverseSquadForFormationTest()
 	playersById := make(map[int64]*Player, len(players))
 	for _, p := range players {
@@ -247,8 +247,8 @@ func TestSelectBestFormationAndLineup_ManagerSettlesForTheSecondBest(t *testing.
 	ranked := rankedFormationStrengths(players)
 
 	_, lineup := SelectBestFormationAndLineup(players, AiLevelManager, nil)
-	if got := lineupStrength(lineup, playersById); got != ranked[1] {
-		t.Fatalf("expected Manager's lineup strength to equal the second best (%d), got %d", ranked[1], got)
+	if got := lineupStrength(lineup, playersById); got != ranked[0] {
+		t.Fatalf("expected Manager's lineup strength to equal the strongest (%d), got %d", ranked[0], got)
 	}
 }
 
@@ -276,10 +276,10 @@ func TestFormationRankForAiLevel_DirectorAlwaysRankZero(t *testing.T) {
 	}
 }
 
-func TestFormationRankForAiLevel_ManagerAlwaysRankOne(t *testing.T) {
+func TestFormationRankForAiLevel_ManagerAlwaysRankZero(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		if r := formationRankForAiLevel(AiLevelManager, 6, nil); r != 1 {
-			t.Fatalf("expected Manager to always pick rank 1, got %d", r)
+		if r := formationRankForAiLevel(AiLevelManager, 6, nil); r != 0 {
+			t.Fatalf("expected Manager to always pick rank 0, got %d", r)
 		}
 	}
 }

@@ -102,7 +102,7 @@ func listForFundsIfInCrisis(dbCtx *common.DatabaseContext, team *common.Team, pl
 		return
 	}
 	international, caps := nationalStanding(dbCtx, target.Id)
-	asking := int64(math.Round(float64(common.ListingAskingPrice(*target, common.AiTransferProfileFor(team.AiLevel), international, caps)) * aiCrisisPriceShare))
+	asking := int64(math.Round(float64(common.ListingAskingPrice(*target, aiProfile(team), international, caps)) * aiCrisisPriceShare))
 	err = common.CreateTransferListing(dbCtx, target.Id, team.Id, asking)
 	if err == nil {
 		recordAiMarketAction(team, "listed_in_crisis", target.Id, asking)

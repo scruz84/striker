@@ -81,6 +81,9 @@ func StartSvc() {
 	if err := common.ClearOwnedTeamAiLevels(dbCtx); err != nil {
 		log.Errorf("error clearing owned team AI levels at startup: %s", err)
 	}
+	if err := common.BackfillAiStyles(dbCtx); err != nil {
+		log.Errorf("error backfilling CPU club styles at startup: %s", err)
+	}
 	// Creates a national team for any active country that existed before this feature shipped -
 	// see common.BackfillNationalTeams.
 	if err := common.BackfillNationalTeams(dbCtx); err != nil {

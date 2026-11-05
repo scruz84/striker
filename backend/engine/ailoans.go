@@ -191,7 +191,7 @@ func planLoanListingWithdrawals(owned []*common.Player, transferListed, loanList
 // put back at its old price. Every step goes through the same functions a human uses, so a closed
 // transfer window stops it - which is an expected outcome, not a failure.
 func manageLoanListings(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player) {
-	profile := common.AiTransferProfileFor(team.AiLevel)
+	profile := aiProfile(team)
 	if !profile.LendsPlayers {
 		return
 	}

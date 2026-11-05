@@ -96,7 +96,7 @@ const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
 // The owner's name is deliberately not selected: the public team API must not expose the real
 // (Google) name of a club's owner - see the privacy-and-legal spec.
-const GetTeamStmtByIdSql = "SELECT a.owner_id, a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level " +
+const GetTeamStmtByIdSql = "SELECT a.owner_id, a.country, a.league_id, b.name league_name, a.name team_name, a.ai_level, a.ai_style " +
 	"FROM teams a JOIN leagues b ON (a.league_id = b.league_id) " +
 	"WHERE a.team_id = $1"
 
@@ -1153,7 +1153,8 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 	var leagueName string
 	var name string
 	var aiLevel int
-	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &country, &leagueId, &leagueName, &name, &aiLevel)
+	var aiStyle sql.NullInt64
+	err := dbCtx.Db.QueryRow(GetTeamStmtByIdSql, teamId).Scan(&userId, &country, &leagueId, &leagueName, &name, &aiLevel, &aiStyle)
 	if err != nil {
 		return nil, err
 	}
@@ -1165,6 +1166,7 @@ func GetTeamById(teamId int64, dbCtx *DatabaseContext) (*Team, error) {
 		DivisionId:   leagueId,
 		DivisionName: leagueName,
 		AiLevel:      aiLevel,
+		AiStyle:      AiStyleFromCode(aiStyle),
 	}, nil
 }
 

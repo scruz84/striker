@@ -2,6 +2,7 @@ package engine
 
 import (
 	"math"
+	"math/rand"
 	"testing"
 
 	"github.com/scruz84/striker/common"
@@ -58,5 +59,39 @@ func TestPickManagerTrainer(t *testing.T) {
 	}
 	if got := pickManagerTrainer(nil); got != nil {
 		t.Errorf("empty market: %+v, want nobody", got)
+	}
+}
+
+// cpu-team-management "Prospects by potential": "Gifted prospect", "Ordinary prospect" and
+// "Balanced Manager".
+func TestPickProspectByPotential(t *testing.T) {
+	squad := squadOf(2, 5, 6, 5) // ids 14-18 strikers
+	for _, p := range squad[13:] {
+		p.Shot, p.Pass, p.Dribbling = 60, 60, 60
+	}
+	prospect := func(id int64, skill int) *common.Player {
+		return &common.Player{Id: id, Age: 17, Shot: skill, Pass: skill, Dribbling: skill}
+	}
+	caps := func(ids ...int64) map[int64]common.PlayerSkillCaps {
+		m := map[int64]common.PlayerSkillCaps{}
+		for _, id := range ids {
+			m[id] = common.PlayerSkillCaps{GoalKeeperMax: 99, DefenseMax: 99, LateralMax: 99, PassMax: 99, MidfieldMax: 99, DribblingMax: 99, ShotMax: 99}
+		}
+		return m
+	}
+	director := common.AiTransferProfileFor(common.AiLevelDirector)
+	gifted, ordinary := prospect(101, 52), prospect(102, 38)
+
+	if got := pickProspectByPotential([]*common.Player{ordinary, gifted}, caps(101, 102), squad, director, rand.New(rand.NewSource(1))); got == nil || got.Id != gifted.Id {
+		t.Errorf("picked %v, want the gifted 17-year-old (52 now, about 64 in 3 seasons) over a weakest starter of 60", got)
+	}
+	if got := pickProspectByPotential([]*common.Player{ordinary}, caps(102), squad, director, rand.New(rand.NewSource(1))); got != nil {
+		t.Errorf("promoted the ordinary prospect %d (about 50 in 3 seasons)", got.Id)
+	}
+	if balanced := common.ApplyClubStyle(common.AiTransferProfileFor(common.AiLevelManager), common.AiStyleBalanced); balanced.SignsProjects {
+		t.Error("a balanced Manager signs projects, so it would promote for potential")
+	}
+	if youth := common.ApplyClubStyle(common.AiTransferProfileFor(common.AiLevelManager), common.AiStyleYouth); !youth.SignsProjects {
+		t.Error("a youth Manager does not promote for potential")
 	}
 }

@@ -131,12 +131,10 @@ func lineupStrength(lineup map[int][]int64, playersById map[int64]*Player) int {
 }
 
 // formationRankForAiLevel decides which rank (0 = strongest) among AllFormations' candidates an
-// AI-managed team of this level settles for. Only Director reliably finds the genuinely best
-// shape for its squad; anyone less sharp settles for "almost the best" rather than the best
-// outright, and how far from the top grows as the level drops - Manager's "almost the best" is
-// tighter (always the second-best) than Caretaker's (the third or fourth best, decided by a coin
-// flip each time it's recomputed) matching the tiers' own documented gap in sophistication (see
-// common.AiLevelCaretaker/Manager/Director). numCandidates guards against a shorter list than the
+// AI-managed team of this level settles for. A Manager and a Director take the strongest shape by
+// XI strength (a Director then re-picks against its opponent at kickoff, by expected goals - see
+// engine.chooseFormationAgainst); a Caretaker settles for the third or fourth best, decided by a
+// coin flip each time it's recomputed (see common.AiLevelCaretaker/Manager/Director). numCandidates guards against a shorter list than the
 // chosen rank expects (there are only ever len(AllFormations), but this keeps the function safe
 // for any slice length). rng drives the Caretaker's coin flip, so a caller that needs the same pick
 // twice (the CPU kickoff planner, see PlanAiMatchLineup) can pass a seeded one; nil falls back to
@@ -144,10 +142,10 @@ func lineupStrength(lineup map[int][]int64, playersById map[int64]*Player) int {
 func formationRankForAiLevel(aiLevel int, numCandidates int, rng *rand.Rand) int {
 	rank := 0
 	switch aiLevel {
-	case AiLevelDirector:
+	case AiLevelDirector, AiLevelManager:
+		// A Manager settles for the strongest shape by XI strength; a Director goes on to pick
+		// its formation against the opponent at kickoff (see engine.chooseFormationAgainst).
 		rank = 0
-	case AiLevelManager:
-		rank = 1
 	default: // AiLevelCaretaker, and any unassigned/legacy level below it
 		if rng != nil {
 			rank = 2 + rng.Intn(2)

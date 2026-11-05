@@ -40,6 +40,13 @@ func aiKickoffSeed(matchId int64, teamId int64) int64 { return matchId*31 + team
 // stored only as the match's kickoff snapshot (see runMatchSimulation).
 func planAiKickoff(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int64, teamId int64,
 	lineup *common.Lineup, substitutions []common.LineupSubstitution) (*common.Lineup, []common.LineupSubstitution) {
+	return planAiKickoffWithFormation(dbCtx, kind, matchId, teamId, lineup, substitutions, nil)
+}
+
+// planAiKickoffWithFormation is planAiKickoff with the formation fixed when formation is set (a
+// Director's pick against its opponent, see directorFormationAgainst).
+func planAiKickoffWithFormation(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int64, teamId int64,
+	lineup *common.Lineup, substitutions []common.LineupSubstitution, formation *int) (*common.Lineup, []common.LineupSubstitution) {
 	team, err := common.GetTeamById(teamId, dbCtx)
 	if err != nil {
 		log.Errorf("error fetching team %d for its kickoff lineup in match %d: %s", teamId, matchId, err)
@@ -76,7 +83,9 @@ func planAiKickoff(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int6
 	}
 
 	rng := rand.New(rand.NewSource(aiKickoffSeed(matchId, teamId)))
-	plan := common.PlanAiMatchLineup(*squad, leagueUnavailable, matchUnavailable, team.AiLevel, kind == kickoffFriendly, rng)
+	opts := aiPlanOptions(dbCtx, kind, team)
+	opts.Formation = formation
+	plan := common.PlanAiMatchLineupWithOptions(*squad, leagueUnavailable, matchUnavailable, team.AiLevel, kind == kickoffFriendly, rng, opts)
 
 	// The same checks a human's saved lineup goes through. A Caretaker's XI may name unavailable
 	// players (the kickoff backfill replaces them); a Manager's or Director's may not.
@@ -105,6 +114,22 @@ func planAiKickoff(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int6
 	return planned, plan.Substitutions
 }
 
+// aiDirectorYouthStarts is how many youngsters a Director with nothing at stake starts in a
+// league match (see common.AiPlanOptions).
+const aiDirectorYouthStarts = 2
+
+// aiPlanOptions are the situation options of a CPU side's kickoff plan: a Director's league match
+// with nothing left at stake gives aiDirectorYouthStarts youngsters a start.
+func aiPlanOptions(dbCtx *common.DatabaseContext, kind kickoffKind, team *common.Team) common.AiPlanOptions {
+	if kind != kickoffLeague || team.AiLevel < common.AiLevelDirector {
+		return common.AiPlanOptions{}
+	}
+	if common.TeamSeasonObjective(dbCtx, team.Id) != common.SeasonObjectiveNothingAtStake {
+		return common.AiPlanOptions{}
+	}
+	return common.AiPlanOptions{YouthStarts: aiDirectorYouthStarts}
+}
+
 // planAiKickoffs applies planAiKickoff to both sides of a match, replacing their entries in
 // lineups and returning each side's substitutions.
 func planAiKickoffs(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int64, homeTeamId int64, awayTeamId int64,
@@ -113,6 +138,23 @@ func planAiKickoffs(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int
 	homeBefore, awayBefore := (*lineups)[homeTeamId], (*lineups)[awayTeamId]
 	(*lineups)[homeTeamId], homeSubstitutions = planAiKickoff(dbCtx, kind, matchId, homeTeamId, homeBefore, homeSubstitutions)
 	(*lineups)[awayTeamId], awaySubstitutions = planAiKickoff(dbCtx, kind, matchId, awayTeamId, awayBefore, awaySubstitutions)
+
+	// A Director re-picks its formation against the other side's XI now that it is known (see
+	// directorFormationAgainst) - each side against the other's first-pass XI, so the order of the
+	// two re-picks doesn't matter.
+	if kind != kickoffFriendly {
+		homeFirst, awayFirst := (*lineups)[homeTeamId], (*lineups)[awayTeamId]
+		if homeFirst != nil && homeFirst != homeBefore {
+			if f, ok := directorFormationAgainst(dbCtx, homeTeamId, homeFirst, awayTeamId, awayFirst, true); ok {
+				(*lineups)[homeTeamId], homeSubstitutions = planAiKickoffWithFormation(dbCtx, kind, matchId, homeTeamId, homeBefore, homeSubstitutions, &f)
+			}
+		}
+		if awayFirst != nil && awayFirst != awayBefore {
+			if f, ok := directorFormationAgainst(dbCtx, awayTeamId, awayFirst, homeTeamId, homeFirst, false); ok {
+				(*lineups)[awayTeamId], awaySubstitutions = planAiKickoffWithFormation(dbCtx, kind, matchId, awayTeamId, awayBefore, awaySubstitutions, &f)
+			}
+		}
+	}
 
 	// A side whose plan was taken (a fresh lineup, not the one passed in) picks its mentality now
 	// that both XIs are known - see common.PickAiMentality.
@@ -128,6 +170,44 @@ func planAiKickoffs(dbCtx *common.DatabaseContext, kind kickoffKind, matchId int
 		}
 	}
 	return homeSubstitutions, awaySubstitutions
+}
+
+// directorFormationAgainst is the formation a Director side (planned, its first-pass XI) should
+// play against the opponent's XI (see chooseFormationAgainst), and whether it differs from the
+// planned one; false for any other level, an unknown opponent XI or a read error. The XIs are
+// rated on a neutral ground: the home advantage multiplies every zone alike, so it hardly changes
+// which shape is best.
+func directorFormationAgainst(dbCtx *common.DatabaseContext, teamId int64, planned *common.Lineup, opponentId int64, opponentLineup *common.Lineup, isHome bool) (int, bool) {
+	if opponentLineup == nil || len(opponentLineup.Positions) == 0 {
+		return 0, false
+	}
+	team, err := common.GetTeamById(teamId, dbCtx)
+	if err != nil || team.AiLevel < common.AiLevelDirector {
+		return 0, false
+	}
+	squad, err := common.GetPlayersFromTeamId(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error reading the squad of team %d to pick its formation: %s", teamId, err)
+		return 0, false
+	}
+	unavailable, err := common.GetUnavailablePlayerIds(dbCtx, teamId)
+	if err != nil {
+		log.Errorf("error reading the unavailable players of team %d to pick its formation: %s", teamId, err)
+		return 0, false
+	}
+	opponentSquad, err := common.GetPlayersForMatchTeam(dbCtx, opponentId, opponentLineup)
+	if err != nil {
+		log.Errorf("error reading the squad of team %d to pick its opponent's formation: %s", opponentId, err)
+		return 0, false
+	}
+	available := make([]*common.Player, 0, len(*squad))
+	for _, p := range *squad {
+		if !unavailable[p.Id] {
+			available = append(available, p)
+		}
+	}
+	f := chooseFormationAgainst(available, ZoneDuelSide{Lineup: opponentLineup, Squad: *opponentSquad}, 1, isHome)
+	return f, f != planned.Formation
 }
 
 // kickoffStrength is a side's XI strength as the CPU judges it (see common.LineupStrength), from

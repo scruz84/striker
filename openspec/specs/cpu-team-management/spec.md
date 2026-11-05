@@ -339,6 +339,30 @@ At kickoff of every match a CPU team SHALL name as captain its oldest outfield s
   (`common/loans.go`). Tests: `engine/aifinances_test.go`, `engine/aiteams_test.go`
   (`TestContractsToRenew_*`, `TestShouldMeetRenewalTerms`), `common/transferscoring_test.go`
   (`TestEvaluateIncomingOffer_CrisisDiscount`), `engine/ai_finances_integration_test.go`.
+- Season objective: `common/seasonobjective.go` (`SeasonSituation`, `SeasonObjectiveFor`,
+  `SeasonObjectiveStartShare`, `SeasonObjectiveMargin`, `GetTeamSeasonSituation` with
+  `CountRemainingLeagueMatchesStmtSql`, `TeamSeasonObjective`). Youth starts:
+  `common.AiPlanOptions`, `PlanAiMatchLineupWithOptions`, `giveYouthStarts` (`aiYouthMaxAge`,
+  `aiYouthMinValueRatio`) in `common/ailineup.go`, set by `aiPlanOptions`
+  (`aiDirectorYouthStarts`) in `engine/aikickoff.go`. Tests: `common/seasonobjective_test.go`,
+  `common/seasonobjective_integration_test.go`, `engine/ai_season_context_integration_test.go`.
+- Director formation against the opponent: `engine/expectedgoals.go` (`ProjectExpectedGoals`,
+  `expectedConversion`, `shooterMix`, over `ProjectZoneDuel`), `engine/aiformation.go`
+  (`chooseFormationAgainst`), the second pass in `planAiKickoffs` (`directorFormationAgainst`,
+  `planAiKickoffWithFormation`, `common.AiPlanOptions.Formation`) in `engine/aikickoff.go`.
+  Manager rank 0 in `common.formationRankForAiLevel`. Tests: `engine/expectedgoals_test.go`,
+  `engine/aiformation_test.go`, `common/lineup_test.go`.
+- Club identity: `common/aistyle.go` (`AiClubStyleFor`, `AiStyleCode` / `AiStyleFromCode`,
+  `AssignAiStyle`, `BackfillAiStyles`, `ApplyClubStyle`, `AiTransferProfileForTeam`), column
+  `teams.ai_style` (`resources/sql/init102_team_ai_style.sql`) read into `Team.AiStyle` by
+  `GetTeamById`, assigned in `handlers.createTeam` and at startup (`service.StartSvc`); the engine
+  reads every CPU profile through `aiProfile` (`engine/aiteams.go`). Level after a division change:
+  `common.RandomAiLevelFrom` / `StepAiLevelToward` (`common/aimanager.go`) and
+  `redrawAiLevelAfterMove` (`engine/aibusiness.go`), called per move in `engine/season.go`.
+  Prospects by potential: `pickProspectByPotential` / `promoteProspectByPotential`
+  (`engine/aibusiness.go`), after `promoteFromAcademyForWeakestPosition` in
+  `manageRosterIfManager`. Tests: `common/aistyle_test.go`, `engine/aibusiness_test.go`,
+  `engine/ai_club_identity_integration_test.go`.
 - Calibration: `engine/ai_level_calibration_test.go` (`TestAiLevelCalibration`,
   `calibrationSquad`, `measureAiLevel`; `AI_LEVEL_SIM=1`).
 - Kickoff lineups: `common/ailineup.go` (`PlanAiMatchLineup`, `AiMatchPlan`,

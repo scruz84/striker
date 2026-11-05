@@ -10,8 +10,9 @@ import (
 )
 
 // cpu-team-management "AI level calibration": each CPU level plays a Caretaker with the same squad
-// on a neutral ground, both sides planning their kickoff exactly as planAiKickoff does at a league
-// match (PlanAiMatchLineup, then PickAiMentality against the other XI). It is what later CPU changes
+// on a neutral ground, both sides planning their kickoff exactly as planAiKickoffs does at a league
+// match (PlanAiMatchLineup, a Director's formation re-picked against the other XI, then
+// PickAiMentality against the other XI). It is what later CPU changes
 // are tuned against, and it only runs with AI_LEVEL_SIM=1:
 //
 //	AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v
@@ -131,6 +132,11 @@ func measureAiLevel(matches int, seed int64, level int) (levelRecord, levelRecor
 		squadSeed := rng.Int63()
 		ownSide := planCalibrationSide(calibrationSquad(rand.New(rand.NewSource(squadSeed)), 1), level, int64(i))
 		careSide := planCalibrationSide(calibrationSquad(rand.New(rand.NewSource(squadSeed)), 101), common.AiLevelCaretaker, int64(i)+1)
+		if level >= common.AiLevelDirector {
+			// As planAiKickoffs does: a Director re-picks its formation against the other XI.
+			f := chooseFormationAgainst(ownSide.squad, ZoneDuelSide{Squad: careSide.squad, Lineup: careSide.lineup(2, 0)}, 1, i%2 == 0)
+			ownSide.plan = common.PlanAiMatchLineupWithOptions(ownSide.squad, nil, nil, level, false, rand.New(rand.NewSource(int64(i))), common.AiPlanOptions{Formation: &f})
+		}
 		var ownGoals, careGoals int
 		if i%2 == 0 {
 			ownGoals, careGoals = playCalibrationMatch(rng, ownSide, level, careSide, common.AiLevelCaretaker)

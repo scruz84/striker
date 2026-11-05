@@ -188,6 +188,9 @@ type Team struct {
 	// ever populates it; GetTeamDetailsById (every manager-facing team lookup) clears it back to
 	// 0 before it can reach a JSON response.
 	AiLevel int `json:"aiLevel,omitempty"`
+	// AiStyle is a CPU club's style (see common.AiClubStyle*), read only by GetTeamById for the CPU
+	// routines - never sent to clients.
+	AiStyle string `json:"-"`
 }
 
 type Player struct {

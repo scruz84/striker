@@ -181,6 +181,9 @@ On its next offer-response sweep a CPU buyer SHALL accept a counter-offer when t
 
 - The pass is skipped for a club in financial crisis by `RunAITeamManagement`
   (`engine/aiteams.go`, `inFinancialCrisis` in `engine/aifinances.go`).
+- Market urgency: `common.AdjustProfileForObjective` (`common/seasonobjective.go`), applied at the
+  top of `runAiTransferPass` with `common.TeamSeasonObjective`. Test:
+  `common/seasonobjective_test.go` (`TestAdjustProfileForObjective`).
 - `backend/engine/aitransfers.go` (`runAiTransferPass`, candidate sizes, bid constants; loans:
   `candidateLoan` / `candidateBuyOption`, `loanListingCandidates`, `buyOptionCandidates`,
   `transferState.playingSquad`, the loan branches of `scoreOne`, `pickNextTarget` and

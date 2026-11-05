@@ -284,6 +284,9 @@ func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, t
 	// gets an AI level right away - see common.RandomAiLevel.
 	aiLevel := common.RandomAiLevel(tier)
 	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &stadiumName, &capacity, &aiLevel).Scan(&teamId)
+	if err := common.AssignAiStyle(dbCtx, teamId); err != nil {
+		log.Errorf("error assigning a CPU style to team %d: %s", teamId, err)
+	}
 	common.CreatePlayers(dbCtx, teamId, country)
 	if err := common.GenerateTrainerCandidates(dbCtx, country, common.TrainerCandidatesPerTeam); err != nil {
 		log.Errorf("error generating trainer candidates for team %d: %s", teamId, err)

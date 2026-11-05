@@ -90,11 +90,36 @@ const (
 // reserves play (planFriendlyRotation).
 func PlanAiMatchLineup(squad []*Player, leagueUnavailable map[int64]bool, matchUnavailable map[int64]bool,
 	aiLevel int, isFriendly bool, rng *rand.Rand) AiMatchPlan {
+	return PlanAiMatchLineupWithOptions(squad, leagueUnavailable, matchUnavailable, aiLevel, isFriendly, rng, AiPlanOptions{})
+}
+
+// AiPlanOptions adjusts a CPU kickoff plan to the club's situation. YouthStarts is how many of its
+// fit bench players aged aiYouthMaxAge or under it starts in a competitive match (see
+// giveYouthStarts) - a Director with nothing at stake (openspec/specs/cpu-team-management "Youth
+// minutes when nothing is at stake").
+type AiPlanOptions struct {
+	YouthStarts int
+	// Formation, when set, is the formation the XI is picked for instead of the one the level's
+	// own ranking settles on - a Director's choice against its opponent (see
+	// engine.chooseFormationAgainst).
+	Formation *int
+}
+
+// PlanAiMatchLineupWithOptions is PlanAiMatchLineup with situation options applied to the XI
+// before the substitutions, orders and captain are planned for it.
+func PlanAiMatchLineupWithOptions(squad []*Player, leagueUnavailable map[int64]bool, matchUnavailable map[int64]bool,
+	aiLevel int, isFriendly bool, rng *rand.Rand, opts AiPlanOptions) AiMatchPlan {
 	regularsPool := squad
 	if aiLevel >= AiLevelManager {
 		regularsPool = playersWithout(squad, leagueUnavailable)
 	}
 	formation, regulars := SelectBestFormationAndLineup(regularsPool, aiLevel, rng)
+	if opts.Formation != nil && IsValidFormation(*opts.Formation) {
+		formation, regulars = *opts.Formation, SelectBestLineupForFormation(regularsPool, *opts.Formation)
+	}
+	if !isFriendly && opts.YouthStarts > 0 {
+		regulars = giveYouthStarts(squad, regulars, leagueUnavailable, opts.YouthStarts)
+	}
 
 	if isFriendly {
 		plan := planFriendlyRotation(squad, regulars, formation, matchUnavailable, aiLevel)
@@ -146,6 +171,68 @@ func oldestOutfieldStarter(squad []*Player, positions []LineupPosition, excluded
 	}
 	id := captain.Id
 	return &id
+}
+
+// aiYouthMaxAge and aiYouthMinValueRatio: a youth start goes to a bench player this young who is
+// worth at least this share of the starter he replaces at that slot.
+const (
+	aiYouthMaxAge        = 21
+	aiYouthMinValueRatio = 0.80
+)
+
+// giveYouthStarts returns a copy of lineup in which up to n fit bench players aged aiYouthMaxAge or
+// under start: walking the outfield starters from the lowest value at their slot up, each is
+// replaced by the best such bench player at that slot when he is worth at least
+// aiYouthMinValueRatio of the starter. Ties go to the lower id. Pure.
+func giveYouthStarts(squad []*Player, lineup map[int][]int64, unavailable map[int64]bool, n int) map[int][]int64 {
+	result := make(map[int][]int64, len(lineup))
+	for position, ids := range lineup {
+		result[position] = append([]int64(nil), ids...)
+	}
+	starters := aiStarters(squad, lineup, true)
+	sort.SliceStable(starters, func(i, j int) bool {
+		vi, vj := PositionValue(starters[i].position, *starters[i].player), PositionValue(starters[j].position, *starters[j].player)
+		if vi != vj {
+			return vi < vj
+		}
+		return starters[i].player.Id < starters[j].player.Id
+	})
+	used := make(map[int64]bool)
+	youth := make([]*Player, 0)
+	for _, p := range aiBench(squad, lineup, unavailable) {
+		if p.Age <= aiYouthMaxAge {
+			youth = append(youth, p)
+		}
+	}
+	started := 0
+	for _, s := range starters {
+		if started == n {
+			break
+		}
+		var best *Player
+		for _, y := range youth {
+			if used[y.Id] {
+				continue
+			}
+			if best == nil || PositionValue(s.position, *y) > PositionValue(s.position, *best) ||
+				(PositionValue(s.position, *y) == PositionValue(s.position, *best) && y.Id < best.Id) {
+				best = y
+			}
+		}
+		if best == nil || float64(PositionValue(s.position, *best)) < aiYouthMinValueRatio*float64(PositionValue(s.position, *s.player)) {
+			continue
+		}
+		ids := result[s.position]
+		for i, id := range ids {
+			if id == s.player.Id {
+				ids[i] = best.Id
+				break
+			}
+		}
+		used[best.Id] = true
+		started++
+	}
+	return result
 }
 
 // aiCupDrawOrderMinute is when a Director settles a level cup tie (see AiCupDrawOrder).

@@ -148,7 +148,9 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team, bud
 	listForFundsIfInCrisis(dbCtx, team, *players, inFinancialCrisis(budget))
 	manageLoanListings(dbCtx, team, *players)
 	releaseUnsoldVeteranIfManager(dbCtx, team, *players, budget)
-	promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players)
+	if !promoteFromAcademyForWeakestPosition(dbCtx, team.Id, *players) {
+		promoteProspectByPotential(dbCtx, team, *players)
+	}
 	maximizeTicketPrice(dbCtx, team.Id)
 	chooseSponsorDealIfManager(dbCtx, team)
 	hireTrainerIfManager(dbCtx, team)
@@ -236,7 +238,7 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 		return
 	}
 	sort.SliceStable(offers, func(i, j int) bool { return offers[i].Amount > offers[j].Amount })
-	profile := common.AiTransferProfileFor(team.AiLevel)
+	profile := aiProfile(team)
 	// A club in financial crisis sells cheaper (openspec/specs/cpu-team-management "Crisis offer
 	// discount").
 	distressed := teamInCrisis(dbCtx, teamId)
@@ -332,7 +334,7 @@ func answerCountersAsBuyer(dbCtx *common.DatabaseContext, team *common.Team) {
 	if len(countered) == 0 {
 		return
 	}
-	profile := common.AiTransferProfileFor(team.AiLevel)
+	profile := aiProfile(team)
 	radar, err := common.GetNationalRadar(dbCtx)
 	if err != nil {
 		log.Errorf("error loading the national-team radar for AI-managed team %d: %s", team.Id, err)
@@ -553,7 +555,7 @@ const minSquadSizeAfterSale = common.MinSquadSizeAfterSale
 // silently rejected, which used to leave a team stuck retrying the same unlistable player every
 // match. The transfer window being closed is an expected outcome, not a failure.
 func listSurplusPlayer(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player) {
-	if !common.AiTransferProfileFor(team.AiLevel).ListsSurplus {
+	if !aiProfile(team).ListsSurplus {
 		return
 	}
 	teamId := team.Id
@@ -579,7 +581,7 @@ func listSurplusPlayer(dbCtx *common.DatabaseContext, team *common.Team, players
 	}
 
 	international, nationalCaps := nationalStanding(dbCtx, target.Id)
-	askingPrice := common.ListingAskingPrice(*target, common.AiTransferProfileFor(team.AiLevel), international, nationalCaps)
+	askingPrice := common.ListingAskingPrice(*target, aiProfile(team), international, nationalCaps)
 
 	if err := common.CreateTransferListing(dbCtx, target.Id, teamId, askingPrice); err != nil &&
 		!errors.Is(err, common.ErrPlayerAlreadyListed) && !errors.Is(err, common.ErrTransferWindowClosed) &&
@@ -628,7 +630,7 @@ func recentlySignedOrInternational(dbCtx *common.DatabaseContext, team *common.T
 // exactly what such a team bought him to be.
 func protectedFromListing(dbCtx *common.DatabaseContext, team *common.Team, owned []*common.Player) map[int64]bool {
 	protected := recentlySignedOrInternational(dbCtx, team, owned)
-	if common.AiTransferProfileFor(team.AiLevel).SignsProjects {
+	if aiProfile(team).SignsProjects {
 		for _, p := range owned {
 			if p.Age < common.ProjectionMaxAge {
 				protected[p.Id] = true
@@ -1060,4 +1062,10 @@ func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, team
 		!errors.Is(err, common.ErrFriendlyLimitReached) && !errors.Is(err, common.ErrFriendlyChallengeAlreadyExists) {
 		log.Errorf("error challenging team %d to a friendly for AI-managed team %d: %s", opponent, teamId, err)
 	}
+}
+
+// aiProfile is a CPU team's transfer profile: its AI level's, adjusted by its club style (see
+// common.AiTransferProfileForTeam). Every CPU market decision reads it through here.
+func aiProfile(team *common.Team) common.AiTransferProfile {
+	return common.AiTransferProfileForTeam(team)
 }

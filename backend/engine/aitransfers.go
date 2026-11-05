@@ -798,10 +798,13 @@ func makeAiOffer(dbCtx *common.DatabaseContext, team *common.Team, profile commo
 // nothing is affordable (or the squad is full) lists the player a target would replace, to buy
 // him in a later pass. Called from RunAITeamManagement; a no-op for a profile that never shops.
 func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
-	profile := common.AiTransferProfileFor(team.AiLevel)
+	profile := aiProfile(team)
 	if profile.MovesPerPass == 0 {
 		return
 	}
+	// A club fighting relegation (or a Director chasing promotion) shops with a lower bar - see
+	// openspec/specs/cpu-transfer-market "Market urgency".
+	profile = common.AdjustProfileForObjective(profile, common.TeamSeasonObjective(dbCtx, team.Id))
 	now := time.Now()
 	rng := rand.New(rand.NewSource(now.UnixNano() + team.Id))
 

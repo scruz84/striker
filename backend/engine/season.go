@@ -2,6 +2,8 @@ package engine
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
@@ -245,6 +247,7 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 				log.Errorf("error repointing classification for team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
 			}
 			notifyPromotionRelegation(dbCtx, move)
+			redrawAiLevelAfterMove(dbCtx, move.TeamId, move.NewLeagueId, rand.New(rand.NewSource(time.Now().UnixNano()+move.TeamId)))
 		}
 	}
 
