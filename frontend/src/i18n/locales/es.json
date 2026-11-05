@@ -308,7 +308,7 @@
     "loanedOut": {
       "title": "Cedidos",
       "count": "{{count}} fuera",
-      "returns": "vuelve la temporada {{season}}",
+      "returns": "vuelve en la temporada {{season}} de {{country}}",
       "seeAll": "Ver todos"
     }
   },
@@ -1081,7 +1081,7 @@
   "team": {
     "loanedOut": {
       "title": "Cedidos ({{count}})",
-      "returns": "Vuelve la temporada {{season}}",
+      "returns": "Vuelve en la temporada {{season}} de {{country}} (va por la {{current}})",
       "wageShare": "Pagamos el {{percent}}% de la ficha",
       "buyOption": "Opción de compra {{fee}}",
       "goals": "Goles: {{count}}"

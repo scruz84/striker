@@ -454,6 +454,10 @@ export interface LoanedOutPlayer {
   borrowingTeamName: string
   borrowingDivisionId: number
   borrowingDivisionName: string
+  // The borrowing club's country and that country's current season: returnSeason counts in that
+  // country's own seasons, which need not match the lender's.
+  borrowingCountry: string
+  borrowingCountrySeason: number
   returnSeason: number
   wageContributionPercent: number
   buyOptionFee: number

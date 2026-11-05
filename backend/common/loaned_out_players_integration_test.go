@@ -37,7 +37,8 @@ func loanSeed(t *testing.T, country string) (db *sql.DB, dbCtx *DatabaseContext,
 
 // TestGetLoanedOutPlayers_FollowsTheLoansLife covers the lender's view of his loans (needs
 // STRIKER_TEST_DB_DSN): the player shows from the accept with the borrower, its division, the
-// return season and the terms, and leaves on return, on a buy option and for a release-on-return loan.
+// return season with the borrower's country and its current season, and the terms, and leaves on
+// return, on a buy option and for a release-on-return loan.
 func TestGetLoanedOutPlayers_FollowsTheLoansLife(t *testing.T) {
 	db, dbCtx, lender, borrower, loanOut := loanSeed(t, "zl")
 	later := seedTransfersPlayer(t, db, lender, "zl")
@@ -62,6 +63,7 @@ func TestGetLoanedOutPlayers_FollowsTheLoansLife(t *testing.T) {
 	first := out[0]
 	if first.Player.Id != soon || first.BorrowingTeamId != borrower || first.BorrowingTeamName != "Loaned Out Borrower zl" ||
 		first.BorrowingDivisionName != "L1" || first.BorrowingDivisionId == 0 ||
+		first.BorrowingCountry != "zl" || first.BorrowingCountrySeason != first.ReturnSeason-1 ||
 		first.ReturnSeason != 2 || first.WageContributionPercent != 50 || first.BuyOptionFee != 1200000 {
 		t.Errorf("first row = %+v", first)
 	}

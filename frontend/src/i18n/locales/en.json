@@ -308,7 +308,7 @@
     "loanedOut": {
       "title": "Loaned out",
       "count": "{{count}} out",
-      "returns": "returns season {{season}}",
+      "returns": "returns in {{country}}'s season {{season}}",
       "seeAll": "See all"
     }
   },
@@ -1081,7 +1081,7 @@
   "team": {
     "loanedOut": {
       "title": "Loaned out ({{count}})",
-      "returns": "Returns season {{season}}",
+      "returns": "Returns in {{country}}'s season {{season}} (now in season {{current}})",
       "wageShare": "Wage share {{percent}}%",
       "buyOption": "Buy option {{fee}}",
       "goals": "Goals: {{count}}"

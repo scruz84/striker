@@ -8,6 +8,7 @@ import { POSITION_SHORT_LABEL_KEYS, type LoanedOutPlayer } from '../../api/types
 import { CountryFlag } from '../../components/CountryFlag'
 import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamNameLink } from '../../components/TeamNameLink'
+import { localizedCountryName } from '../../utils/countryOrder'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { bestCorePosition } from '../../utils/playerRating'
 
@@ -19,7 +20,8 @@ interface LoanedOutSectionProps {
 }
 
 /** The players a club has out on loan, below its squad list: where each one is, when he comes back
- * and the loan's terms. Renders nothing when nobody is out. */
+ * and the loan's terms. Renders nothing when nobody is out. The return season counts in the
+ * borrowing club's country's own seasons, so it is shown with that country and its current season. */
 export function LoanedOutSection({ loanedOut, isOwnTeam }: LoanedOutSectionProps) {
   const { t } = useTranslation()
   if (loanedOut.length === 0) return null
@@ -50,11 +52,16 @@ export function LoanedOutSection({ loanedOut, isOwnTeam }: LoanedOutSectionProps
             </Stack>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>
               <Typography variant="caption" color="text.secondary">
+                <CountryFlag code={loan.borrowingCountry} height={12} marginRight={0.5} />
                 <TeamNameLink teamId={loan.borrowingTeamId}>{loan.borrowingTeamName}</TeamNameLink>
               </Typography>
               <Chip size="small" variant="outlined" label={loan.borrowingDivisionName} />
               <Typography variant="caption" color="text.secondary">
-                {t('team.loanedOut.returns', { season: loan.returnSeason })}
+                {t('team.loanedOut.returns', {
+                  season: loan.returnSeason,
+                  country: localizedCountryName(t, loan.borrowingCountry),
+                  current: loan.borrowingCountrySeason,
+                })}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {t('team.loanedOut.goals', { count: loan.goalsForBorrower })}

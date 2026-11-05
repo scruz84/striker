@@ -555,12 +555,17 @@ func GetLoansToTeam(dbCtx *DatabaseContext, teamId int64) ([]PlayerLoan, error) 
 // LoanedOutPlayer is a player a club has out on loan, with where he is and on what terms - see
 // GetLoanedOutPlayers. The borrowing club's wage share is the complement of WageContributionPercent
 // (the part the lender keeps paying); BuyOptionFee is zero when the loan carries no buy option.
+// ReturnSeason counts in the borrowing club's own country's seasons (see GetExpiredLoansStmtSql),
+// so BorrowingCountry and BorrowingCountrySeason (that country's current season) come along: a
+// lender abroad reads the return against the right clock, not his own country's.
 type LoanedOutPlayer struct {
 	Player                  Player `json:"player"`
 	BorrowingTeamId         int64  `json:"borrowingTeamId"`
 	BorrowingTeamName       string `json:"borrowingTeamName"`
 	BorrowingDivisionId     int64  `json:"borrowingDivisionId"`
 	BorrowingDivisionName   string `json:"borrowingDivisionName"`
+	BorrowingCountry        string `json:"borrowingCountry"`
+	BorrowingCountrySeason  int    `json:"borrowingCountrySeason"`
 	ReturnSeason            int    `json:"returnSeason"`
 	WageContributionPercent int    `json:"wageContributionPercent"`
 	BuyOptionFee            int64  `json:"buyOptionFee"`
@@ -577,12 +582,14 @@ type LoanedInPlayer struct {
 }
 
 // GetLoanedOutPlayersStmtSql returns each loaned player's columns (playerColumnsSql) followed by
-// the loan's terms and the borrowing club and its division. A release-on-return loan (the lender
-// was reset, see ResetReleasedTeam) never shows: the player is not coming back to that club.
-const GetLoanedOutPlayersStmtSql = "SELECT " + playerColumnsSql + ", pl.to_team_id, t.name, t.league_id, l.name, pl.return_season, " +
-	"pl.wage_contribution_percent, pl.buy_option_fee " +
+// the borrowing club, its division, its country and that country's current season, and the loan's
+// terms. A release-on-return loan (the lender was reset, see ResetReleasedTeam) never shows: the
+// player is not coming back to that club.
+const GetLoanedOutPlayersStmtSql = "SELECT " + playerColumnsSql + ", pl.to_team_id, t.name, t.league_id, l.name, " +
+	"t.country, c.current_season, pl.return_season, pl.wage_contribution_percent, pl.buy_option_fee " +
 	"FROM player_loans pl JOIN players p ON p.player_id = pl.player_id " +
 	"JOIN teams t ON t.team_id = pl.to_team_id JOIN leagues l ON l.league_id = t.league_id " +
+	"JOIN countries c ON c.name = t.country " +
 	"WHERE pl.from_team_id = $1 AND NOT pl.release_on_return ORDER BY pl.return_season, p.last_name, p.player_id"
 
 // GetLoanedInPlayersStmtSql lists the players on loan to a club with their parent club.
@@ -602,7 +609,7 @@ func GetLoanedOutPlayers(dbCtx *DatabaseContext, teamId int64) ([]LoanedOutPlaye
 	for rows.Next() {
 		var l LoanedOutPlayer
 		player, err := scanPlayer(rows, &l.BorrowingTeamId, &l.BorrowingTeamName, &l.BorrowingDivisionId, &l.BorrowingDivisionName,
-			&l.ReturnSeason, &l.WageContributionPercent, &l.BuyOptionFee)
+			&l.BorrowingCountry, &l.BorrowingCountrySeason, &l.ReturnSeason, &l.WageContributionPercent, &l.BuyOptionFee)
 		if err != nil {
 			return nil, err
 		}

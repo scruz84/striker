@@ -206,6 +206,8 @@ function loan(id: number, lastName: string, returnSeason: number): LoanedOutPlay
     borrowingTeamName: 'Borrower',
     borrowingDivisionId: 1,
     borrowingDivisionName: '1B',
+    borrowingCountry: 'es',
+    borrowingCountrySeason: 1,
     returnSeason,
     wageContributionPercent: 0,
     buyOptionFee: 0,

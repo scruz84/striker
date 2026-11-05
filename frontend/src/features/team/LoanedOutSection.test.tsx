@@ -13,6 +13,8 @@ function loan(overrides: Partial<LoanedOutPlayer> & { id: number; lastName: stri
     borrowingTeamName: `Borrower ${id}`,
     borrowingDivisionId: 5,
     borrowingDivisionName: '1B',
+    borrowingCountry: 'it',
+    borrowingCountrySeason: 4,
     returnSeason: 5,
     wageContributionPercent: 0,
     buyOptionFee: 0,
@@ -41,13 +43,14 @@ describe('LoanedOutSection', () => {
     expect(screen.queryByTestId('loaned-out-section')).toBeNull()
   })
 
-  it('lists a loan without wage share or buy option: club link, division, return season, goals', () => {
+  it('lists a loan without wage share or buy option: club link, division, return season in the borrower country, goals', () => {
     renderIt([loan({ id: 1, lastName: 'Vega' })])
     expect(screen.getByText('Loaned out (1)')).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Leo Vega' }).getAttribute('href')).toBe('/player/1')
     expect(screen.getByRole('link', { name: 'Borrower 1' }).getAttribute('href')).toBe('/team/91')
     expect(screen.getByText('1B')).toBeTruthy()
-    expect(screen.getByText('Returns season 5')).toBeTruthy()
+    expect(screen.getByText("Returns in Italy's season 5 (now in season 4)")).toBeTruthy()
+    expect(screen.getByRole('img', { name: 'Italy' })).toBeTruthy()
     expect(screen.getByText('Goals: 2')).toBeTruthy()
     expect(screen.queryByText(/Wage share/)).toBeNull()
     expect(screen.queryByText(/Buy option/)).toBeNull()

@@ -70,6 +70,7 @@ import { useNow } from '../../utils/useNow'
 import { formatDivisionName } from '../../utils/divisionName'
 import { ratingTierColor } from '../../utils/playerRating'
 import { HomeAwayIcon } from '../../components/HomeAwayIcon'
+import { localizedCountryName } from '../../utils/countryOrder'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { PULSING_LIVE_SX } from '../../utils/liveChip'
@@ -870,7 +871,7 @@ function LoanedOutCard({ teamId, loanedOut }: { teamId: number; loanedOut: Loane
         <Stack spacing={0.25}>
           {soonestLoanReturns(loanedOut, 3).map((loan) => (
             <Typography key={loan.player.id} variant="body2" color="text.secondary">
-              {loan.player.firstName} {loan.player.lastName} · {loan.borrowingTeamName} · {t('dashboard.loanedOut.returns', { season: loan.returnSeason })}
+              {loan.player.firstName} {loan.player.lastName} · {loan.borrowingTeamName} · {t('dashboard.loanedOut.returns', { season: loan.returnSeason, country: localizedCountryName(t, loan.borrowingCountry) })}
             </Typography>
           ))}
         </Stack>
