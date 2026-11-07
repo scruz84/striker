@@ -8,10 +8,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// WorldCupFrequencySeasons is how often (in completed seasons) a new World Cup starts - real
-// tournaments come around every four years, so this mirrors that against this game's own season
-// counter rather than running one every single season the way the regional international cup
-// does (see StartInternationalCupsForNewSeason).
+// WorldCupFrequencySeasons is how often (in international cycles, see WorldCupCycleCadence) a new
+// World Cup starts - real tournaments come around every four years, so this mirrors that against
+// the game's own international cycle counter.
 const WorldCupFrequencySeasons = common.WorldCupEveryInternationalCycles
 
 // worldCupGroupMatchdayGap mirrors cupRoundGap's own spacing logic: a group's first matchday
@@ -26,8 +25,8 @@ const worldCupGroupMatchdayGap = 7 * 24 * time.Hour
 // Every active country enters, including one that still has an ordinary weekly friendly pending
 // from before the tournament started - common.CancelPendingNationalTeamFriendlies clears any such
 // fixture first, so that country doesn't end up double-booked into both it and its first group
-// match. Called from StartInternationalCupsIfDue, alongside StartInternationalCupsForNewSeason,
-// on that job's own decoupled cadence rather than any one country's season rollover.
+// match. Called from StartWorldCupIfDue on its own decoupled cadence rather than any one country's
+// season rollover.
 //
 // Holds the national-team scheduling lock (see common.WithNationalTeamSchedulingLock) for the
 // whole start, waiting for it rather than skipping: common.ScheduleNationalTeamFriendlies takes

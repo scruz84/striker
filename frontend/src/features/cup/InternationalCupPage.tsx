@@ -11,8 +11,9 @@ import { regionForCountry } from '../../components/avatar/traits'
 import { CupBracket } from './CupPage'
 
 /** The international-cup counterpart to CupPage (issue #64): one cup per region, entrants being
- * one team per active country in that region (that country's previous season's tier-1 champion -
- * see backend engine.StartInternationalCupsForNewSeason). Reuses CupPage's bracket rendering
+ * the tier-1 champion of each country in that region with a new champion since the previous
+ * edition - see backend engine.StartRegionalCupsIfDue. A regional cup's `season` is its edition
+ * number within the region. Reuses CupPage's bracket rendering
  * outright - a tie is a tie regardless of which competition it belongs to. The logged-in user's
  * region comes from their own team's country via regionForCountry, the same region grouping the
  * backend uses to decide entrants. */
@@ -45,7 +46,7 @@ export function InternationalCupPage() {
   return (
     <Box>
       <PageHeader
-        title={t('cup.titleWithSeason', { name: translateCupName(t, cup.name), season: cup.season })}
+        title={t('cup.titleWithEdition', { name: translateCupName(t, cup.name), edition: cup.season })}
         subtitle={t('cup.entryCriteria')}
       />
       {cup.completed && (

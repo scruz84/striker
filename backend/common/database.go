@@ -1871,8 +1871,8 @@ func SetTransferWindowOpen(dbCtx *DatabaseContext, open bool) error {
 }
 
 // international_cup_season/last_international_cup_check (added by
-// init75_season_per_country.sql) drive the decoupled regional/international cup and World Cup
-// cadence (see engine.StartInternationalCupsIfDue) - unlike a domestic season, these can no
+// init75_season_per_country.sql) drive the decoupled World Cup cadence (see
+// engine.StartWorldCupIfDue) - unlike a domestic season, these can no
 // longer be tied to any one country's own rollover, so they get their own counter and their own
 // "when did we last check" timestamp instead.
 // $1 is the cadence in seconds (time.Duration.Seconds()) - built into an interval via

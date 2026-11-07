@@ -9,7 +9,7 @@ it is shown.
 ## Requirements
 
 ### Requirement: World Cup cadence
-A new World Cup SHALL start when the international cup counter (advanced every 60 days by the daily 03:00 UTC international cup job) reaches a multiple of 4, no World Cup is running, and at least 8 countries are active. Every active country enters.
+A new World Cup SHALL start when the international cup counter (advanced every 60 days by the daily 03:00 UTC World Cup job, which no longer starts regional club cups) reaches a multiple of 4, no World Cup is running, and at least 8 countries are active. Every active country enters.
 
 #### Scenario: Fourth international cycle
 - **WHEN** the international cup counter reaches 8 and no World Cup is active with 12 active countries
@@ -20,8 +20,12 @@ A new World Cup SHALL start when the international cup counter (advanced every 6
 - **THEN** no World Cup starts
 
 #### Scenario: Several engine replicas
-- **WHEN** the international cup job fires on several replicas at once with a round due
-- **THEN** exactly one claims the round, so at most one World Cup starts
+- **WHEN** the World Cup job fires on several replicas at once with a cycle due
+- **THEN** exactly one claims the cycle, so at most one World Cup starts
+
+#### Scenario: Regional cups are independent
+- **WHEN** the daily job claims a new cycle
+- **THEN** no regional club cup is started by it
 
 ### Requirement: Clearing pending friendlies
 Before entering countries into a new World Cup the engine MUST cancel every unplayed national-team friendly involving them, together with any saved lineup.
@@ -111,7 +115,7 @@ When no World Cup is running, the current World Cup response SHALL include the e
 
 - `backend/engine/worldcup.go` (`WorldCupFrequencySeasons`, `StartWorldCupForNewSeason`,
   `startWorldCupGroup`, `AdvanceWorldCups`, `startWorldCupKnockout`), started from
-  `StartInternationalCupsIfDue` (`engine/cups.go`, `InternationalCupCadence`) and advanced by
+  `StartWorldCupIfDue` (`engine/cups.go`, `WorldCupCycleCadence`) and advanced by
   `CupJob` (`engine/tasks.go`).
 - `common/worldcup.go` (`WorldCupGroupSize`, `MinWorldCupCountries`, `AssignWorldCupGroups`,
   `BuildRoundRobinRounds`, `RankGroupStandings`, `UpdateWorldCupStandingsAfterMatch`,

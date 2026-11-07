@@ -47,11 +47,15 @@ Advancing a cup (next round or completion) SHALL hold a session lock keyed `cupI
 - **THEN** it is simulated once and its round prize is paid once
 
 ### Requirement: International cups and World Cup start
-The international cup round SHALL be claimed by one statement that checks the 60-day cadence and increments the counter together. Starting a World Cup MUST hold the national-team scheduling lock (waiting for it), so no friendlies pass can pair a country while its group fixtures are created.
+The World Cup cycle SHALL be claimed by one statement that checks the 60-day cadence and increments the counter together. Starting a World Cup MUST hold the national-team scheduling lock (waiting for it), so no friendlies pass can pair a country while its group fixtures are created. Regional club cup editions SHALL be started under one global lock taken without waiting, with each region's state re-read inside it.
 
 #### Scenario: Daily job on two replicas
-- **WHEN** the 03:00 UTC job fires on two replicas with a round due
-- **THEN** exactly one claims it and one set of international cups starts
+- **WHEN** the 03:00 UTC job fires on two replicas with a cycle due
+- **THEN** exactly one claims it
+
+#### Scenario: Regional cup check on three replicas
+- **WHEN** the 5-minute regional cup check runs on three replicas with a European Cup due
+- **THEN** exactly one European Cup edition and one set of entries are created
 
 ### Requirement: World Cup knockout start once
 Moving a World Cup from groups to knockout SHALL run under a session lock keyed to that World Cup, re-reading its stage inside the lock.
@@ -162,8 +166,10 @@ The engine SHALL run, once per deployment of this change via a job slot claim, a
   `in_simulation_since`).
 - Rollover: `advanceCountrySeasonIfComplete` (`engine/season.go`). Fixtures:
   `generateMatchesForOneLeague` (`engine/engine.go`).
-- Cups: `advanceCup`, `simulateCupTieOnce`, `StartInternationalCupsIfDue` (`engine/cups.go`),
-  `common.ClaimInternationalCupSeason` (`common/database.go`), `common.IsCupTiePlayed`.
+- Cups: `advanceCup`, `simulateCupTieOnce`, `StartWorldCupIfDue`, `StartRegionalCupsIfDue`
+  (`engine/cups.go`, lock `LockNamespaceRegionalCupStart`), `common.ClaimInternationalCupSeason`
+  (`common/database.go`), `common.CreateRegionalCup` (`common/regionalcups.go`),
+  `common.IsCupTiePlayed`.
 - World Cup: `StartWorldCupForNewSeason`, `advanceWorldCup` (`engine/worldcup.go`).
 - National teams: `ScheduleNationalTeamFriendlies`, `WithNationalTeamSchedulingLock`,
   `CallUpNationalTeamSquads` (`common/nationalteam.go`).

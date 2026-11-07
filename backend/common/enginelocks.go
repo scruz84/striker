@@ -30,6 +30,9 @@ const (
 	// LockNamespaceWatchlist serializes one club's watchlist additions, so two follows racing at
 	// 29 players can never take it past common.MaxWatchlistSize. Keyed by team id.
 	LockNamespaceWatchlist int64 = 5
+	// LockNamespaceRegionalCupStart serializes starting regional international club cup editions
+	// (engine.StartRegionalCupsIfDue). One global key (id 0).
+	LockNamespaceRegionalCupStart int64 = 6
 )
 
 // NamespacedLockKey builds an advisory lock key for id inside namespace (see the constants above).

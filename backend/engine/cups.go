@@ -13,46 +13,26 @@ import (
 // CupTier is the league tier a cup draws its entrants from (1 = top division).
 const CupTier = 1
 
-// InternationalCupCadence is how often, in real time, StartInternationalCupsIfDue actually
-// starts a new regional/international cup round - since countries no longer all finish their
-// domestic season together (see init75_season_per_country.sql), there's no single shared
-// rollover moment left to hang this on, so it runs on its own clock instead, standing in for
-// "roughly how long a domestic season takes" to play out.
-const InternationalCupCadence = common.InternationalCupCycle
+// WorldCupCycleCadence is how often, in real time, StartWorldCupIfDue claims a new international
+// cycle (season.international_cup_season); a World Cup starts every WorldCupFrequencySeasons
+// cycles. Regional club cups no longer follow this clock - see StartRegionalCupsIfDue.
+const WorldCupCycleCadence = common.InternationalCupCycle
 
-// StartInternationalCupsIfDue starts a new regional/international cup round (see
-// StartInternationalCupsForNewSeason) and, every WorldCupFrequencySeasons rounds, a new World
-// Cup (see StartWorldCupForNewSeason) - gated on InternationalCupCadence via
-// season.last_international_cup_check (see common.ClaimInternationalCupSeason), so this only
-// actually fires roughly that often even though the job polling it (see
-// StartInternationalCupScheduler) ticks far more frequently. Entrants are each country's most
-// recently completed season's tier-1 champion (see common.GetMostRecentTier1Champions), grouped
-// by region (see common.RegionForCountry) - not any one moment's live standings, since countries
-// can now be mid-season at wildly different points when this runs.
-func StartInternationalCupsIfDue(dbCtx *common.DatabaseContext) {
-	newSeason, claimed, err := common.ClaimInternationalCupSeason(dbCtx, InternationalCupCadence)
+// StartWorldCupIfDue claims the next international cycle once WorldCupCycleCadence has passed
+// since the last one (see common.ClaimInternationalCupSeason, a single atomic statement so only
+// one replica claims it) and starts a World Cup when that cycle is due one (see
+// StartWorldCupForNewSeason). The job polling it (see StartInternationalCupScheduler) ticks daily.
+func StartWorldCupIfDue(dbCtx *common.DatabaseContext) {
+	cycle, claimed, err := common.ClaimInternationalCupSeason(dbCtx, WorldCupCycleCadence)
 	if err != nil {
-		log.Errorf("error claiming the next international cup round: %s", err)
+		log.Errorf("error claiming the next international cycle: %s", err)
 		return
 	}
 	if !claimed {
-		// Not due yet, or another replica claimed this round at the same instant.
+		// Not due yet, or another replica claimed this cycle at the same instant.
 		return
 	}
-
-	championsByCountry, err := common.GetMostRecentTier1Champions(dbCtx, InternationalCupTier)
-	if err != nil {
-		log.Errorf("error finding each country's most recent tier-1 champion for international cups: %s", err)
-		return
-	}
-	championsByRegion := make(map[string][]int64, len(championsByCountry))
-	for country, teamId := range championsByCountry {
-		region := common.RegionForCountry(country)
-		championsByRegion[region] = append(championsByRegion[region], teamId)
-	}
-
-	StartInternationalCupsForNewSeason(dbCtx, newSeason, championsByRegion)
-	StartWorldCupForNewSeason(dbCtx, newSeason)
+	StartWorldCupForNewSeason(dbCtx, cycle)
 }
 
 // StartCupsForNewSeason creates a fresh single-elimination cup for every country, entrants
@@ -138,7 +118,8 @@ func classificationPointsForSeeding(dbCtx *common.DatabaseContext, teamIds []int
 }
 
 // InternationalCupTier is the league tier whose champion represents a country in its region's
-// international cup (issue #64) - same tier the domestic cup draws its entrants from.
+// international cup (issue #64, see StartRegionalCupsIfDue) - same tier the domestic cup draws its
+// entrants from.
 const InternationalCupTier = CupTier
 
 // internationalCupNames gives each region's cup a name distinct from any country's domestic
@@ -157,33 +138,116 @@ func internationalCupName(region string) string {
 	return "International Cup"
 }
 
-// StartInternationalCupsForNewSeason creates a fresh international cup for every region with at
-// least two countries that have a recorded tier-1 champion, entrants being one team per country
-// - that country's most recently completed season's tier-1 champion. `champions` comes from
-// common.GetMostRecentTier1Champions, grouped by region (see StartInternationalCupsIfDue) -
-// reads persisted season_history rather than any one moment's live standings, since countries no
-// longer all finish their season together (see init75_season_per_country.sql). Mirrors
-// StartCupsForNewSeason's per-country cup, one level up.
-func StartInternationalCupsForNewSeason(dbCtx *common.DatabaseContext, season int, champions map[string][]int64) {
-	for region, teamIds := range champions {
-		if len(teamIds) < 2 {
-			continue // not enough countries in this region yet for a cup
+// MinRegionalCupCountries is how many countries of a region must have a new champion for an
+// edition of its cup to start.
+const MinRegionalCupCountries = 2
+
+// RegionalCupMaxUnusedChampions: once one country of a region has this many champions that have
+// not played the cup, the region stops waiting for its slower countries (see regionalCupEntrants).
+const RegionalCupMaxUnusedChampions = 2
+
+// regionalCupEntrants decides, from one region's country states (see
+// common.GetRegionalCupCountryStates), whether a new edition of its cup is due and returns its
+// entrants - every fresh country, with its latest champion - or nil when it is not due. An edition
+// is due once at least MinRegionalCupCountries countries are fresh and either every country of the
+// region is, or one has RegionalCupMaxUnusedChampions unused champions: a slow (weekly schedule,
+// just activated or stuck) country never holds the others back by more than one season of the
+// fastest one. Pure, so the rule is unit-tested without a database.
+func regionalCupEntrants(states []common.RegionalCupCountryState) []common.RegionalCupCountryState {
+	fresh := make([]common.RegionalCupCountryState, 0, len(states))
+	overdue := false
+	for _, s := range states {
+		if !s.Fresh() {
+			continue
 		}
-		if err := startInternationalCupForRegion(dbCtx, region, season, teamIds); err != nil {
-			log.Errorf("error starting international cup for region %s season %d: %s", region, season, err)
+		fresh = append(fresh, s)
+		if s.UnusedChampions >= RegionalCupMaxUnusedChampions {
+			overdue = true
 		}
+	}
+	if len(fresh) < MinRegionalCupCountries {
+		return nil
+	}
+	if len(fresh) < len(states) && !overdue {
+		return nil
+	}
+	return fresh
+}
+
+// StartRegionalCupsIfDue starts a new edition of every region's international club cup that is
+// due (see regionalCupEntrants and openspec/specs/international-cup). Runs every few minutes (see
+// StartRegionalCupScheduler) under one global advisory lock taken without waiting: a replica that
+// loses it skips the tick, and the winner re-reads every region's state inside the lock, so each
+// edition is created once however many replicas tick together.
+func StartRegionalCupsIfDue(dbCtx *common.DatabaseContext) {
+	startRegionalCups(dbCtx, func() (map[string][]string, error) {
+		countries, err := common.GetActiveCountries(dbCtx)
+		if err != nil {
+			return nil, err
+		}
+		byRegion := make(map[string][]string)
+		for _, country := range countries {
+			region := common.RegionForCountry(country)
+			byRegion[region] = append(byRegion[region], country)
+		}
+		return byRegion, nil
+	})
+}
+
+// startRegionalCups is StartRegionalCupsIfDue with the region-to-countries grouping injected, so
+// tests can run it against regions of their own. regions is called inside the lock.
+func startRegionalCups(dbCtx *common.DatabaseContext, regions func() (map[string][]string, error)) {
+	key := common.NamespacedLockKey(common.LockNamespaceRegionalCupStart, 0)
+	if _, err := common.TryWithSessionAdvisoryLock(dbCtx, key, func() error {
+		byRegion, err := regions()
+		if err != nil {
+			return err
+		}
+		for region, regionCountries := range byRegion {
+			if err := startRegionalCupIfDue(dbCtx, region, regionCountries); err != nil {
+				log.Errorf("error starting the %s international cup: %s", region, err)
+			}
+		}
+		return nil
+	}); err != nil {
+		log.Errorf("error checking regional international cups: %s", err)
 	}
 }
 
-func startInternationalCupForRegion(dbCtx *common.DatabaseContext, region string, season int, teamIds []int64) error {
-	cupId, err := common.CreateInternationalCup(dbCtx, region, season, internationalCupName(region))
+// startRegionalCupIfDue starts region's next edition from its countries when one is due. The
+// caller holds the regional cup start lock.
+func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countries []string) error {
+	active, err := common.HasActiveRegionalCup(dbCtx, region)
+	if err != nil || active {
+		return err
+	}
+	states, err := common.GetRegionalCupCountryStates(dbCtx, InternationalCupTier, countries)
 	if err != nil {
 		return err
 	}
+	entrants := regionalCupEntrants(states)
+	if entrants == nil {
+		return nil
+	}
 
+	teamIds := make([]int64, len(entrants))
+	for i, e := range entrants {
+		teamIds[i] = e.ChampionTeamId
+	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	pairs := BuildFirstRoundPairings(teamIds, r, classificationPointsForSeeding(dbCtx, teamIds))
-	return createRoundTies(dbCtx, cupId, 1, pairs)
+	ties := make([]common.RegionalCupTieSeed, 0, len(pairs))
+	for _, pair := range pairs {
+		// A bye is always the second side (see BuildFirstRoundPairings).
+		ties = append(ties, common.RegionalCupTieSeed{HomeTeamId: pair[0], AwayTeamId: asTeamIdPtr(pair[1])})
+	}
+
+	cupId, edition, err := common.CreateRegionalCup(dbCtx, region, internationalCupName(region), entrants, ties, time.Now().Add(cupRoundGap))
+	if err != nil {
+		return err
+	}
+	log.Infof("%s edition %d (cup %d) started with %d countries", internationalCupName(region), edition, cupId, len(entrants))
+	return nil
 }
 
 // cupRoundGap is how far ahead of "now" a round's ties are scheduled - both for a fresh cup's

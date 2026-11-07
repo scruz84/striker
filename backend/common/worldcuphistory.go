@@ -10,8 +10,9 @@ import (
 // engine.StartWorldCupForNewSeason, whose WorldCupFrequencySeasons is this value).
 const WorldCupEveryInternationalCycles = 4
 
-// InternationalCupCycle is the real time between two international cup cycles (see
-// engine.StartInternationalCupsIfDue, whose InternationalCupCadence is this value).
+// InternationalCupCycle is the real time between two international cycles, the World Cup's clock
+// (see engine.StartWorldCupIfDue, whose WorldCupCycleCadence is this value). Regional club cups do
+// not follow it (see engine.StartRegionalCupsIfDue).
 const InternationalCupCycle = 60 * 24 * time.Hour
 
 const getWorldCupHistoryStmtSql = "SELECT wc.world_cup_id, wc.season, wc.name, wc.stage, wc.completed, wc.champion_team_id, wc.knockout_cup_id, " +

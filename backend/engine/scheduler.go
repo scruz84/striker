@@ -62,10 +62,17 @@ func StartFreeAgentProgressionScheduler(freeAgentProgressionJob quartz.Job) {
 }
 
 func StartInternationalCupScheduler(internationalCupJob quartz.Job) {
-	// Ticks daily, same as StartFreeAgentProgressionScheduler, but InternationalCupCadence
+	// Ticks daily, same as StartFreeAgentProgressionScheduler, but WorldCupCycleCadence
 	// (engine/cups.go) gates how often it actually starts anything - cheap to check this often,
 	// since most ticks just read season.last_international_cup_check and return.
 	scheduleJob(internationalCupJob, "0 0 3 * * ?", "international_cup")
+}
+
+func StartRegionalCupScheduler(regionalCupJob quartz.Job) {
+	// Every 5 minutes, half a minute after the season-rollover check, so a region whose last
+	// country just rolled over starts its next edition within minutes. Most ticks only read a
+	// few rows per region and return.
+	scheduleJob(regionalCupJob, "30 */5 * * * *", "regional_cup")
 }
 
 func StartCupScheduler(cupJob quartz.Job) {

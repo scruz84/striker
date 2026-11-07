@@ -830,9 +830,10 @@
   },
   "cup": {
     "titleWithSeason": "{{name}} - Season {{season}}",
+    "titleWithEdition": "{{name}} - Edition {{edition}}",
     "champion": "Champion: {{name}}",
     "noCup": "No cup found for your country yet.",
-    "noInternationalCup": "No international cup found for your region yet - it starts once at least two countries in your region are active and have finished a season.",
+    "noInternationalCup": "No international cup for your region yet - an edition starts once every country in your region has a new champion, or sooner if one of them finishes two seasons first (at least two countries are needed).",
     "round": "Round {{round}}",
     "playInRound": "Qualifying round",
     "final": "Final",
@@ -840,7 +841,7 @@
     "quarterfinal": "Quarterfinal",
     "bye": "Bye",
     "byeRests": "{{team}} rests this round",
-    "entryCriteria": "Entrants: each active country's most recently crowned top-tier champion, grouped by region.",
+    "entryCriteria": "Entrants: the top-tier champion of each country in the region that has finished a season since the previous edition.",
     "pens": "(pens)",
     "pensWinner": "{{team}} advances after winning the penalty shootout",
     "tbd": "TBD",
@@ -2320,7 +2321,7 @@
           },
           {
             "q": "What is the international cup?",
-            "a": "A regional knockout competition between clubs from different countries. It only starts once at least two countries in that region are active and have completed a season."
+            "a": "A regional knockout competition between the league champions of the countries in a region. A new edition starts when every country in the region has crowned a new champion since the last one, or as soon as one country has finished two seasons, so a slower league never holds the rest back for long. At least two countries are needed."
           }
         ]
       },

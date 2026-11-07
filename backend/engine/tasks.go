@@ -87,10 +87,10 @@ func NewFreeAgentProgressionJob(dbCtx *common.DatabaseContext) *FreeAgentProgres
 	return &FreeAgentProgressionJob{desc: "free agent progression job", dbCtx: dbCtx}
 }
 
-// InternationalCupJob implements the quartz.Job interface: starts a new regional/international
-// cup round, and (every WorldCupFrequencySeasons rounds) a new World Cup - see
-// StartInternationalCupsIfDue, which gates the actual cadence internally
-// (InternationalCupCadence) so this can tick far more often than it actually fires.
+// InternationalCupJob implements the quartz.Job interface: claims a new international cycle and,
+// every WorldCupFrequencySeasons cycles, starts a World Cup - see StartWorldCupIfDue, which gates
+// the actual cadence internally (WorldCupCycleCadence) so this can tick far more often than it
+// actually fires. Regional club cups run from RegionalCupJob instead.
 type InternationalCupJob struct {
 	desc  string
 	dbCtx *common.DatabaseContext
@@ -101,12 +101,32 @@ func (pj *InternationalCupJob) Description() string {
 }
 
 func (pj *InternationalCupJob) Execute(context.Context) error {
-	StartInternationalCupsIfDue(pj.dbCtx)
+	StartWorldCupIfDue(pj.dbCtx)
 	return nil
 }
 
 func NewInternationalCupJob(dbCtx *common.DatabaseContext) *InternationalCupJob {
 	return &InternationalCupJob{desc: "international cup job", dbCtx: dbCtx}
+}
+
+// RegionalCupJob implements the quartz.Job interface: starts each region's next international
+// club cup edition once its countries have new champions - see StartRegionalCupsIfDue.
+type RegionalCupJob struct {
+	desc  string
+	dbCtx *common.DatabaseContext
+}
+
+func (pj *RegionalCupJob) Description() string {
+	return pj.desc
+}
+
+func (pj *RegionalCupJob) Execute(context.Context) error {
+	StartRegionalCupsIfDue(pj.dbCtx)
+	return nil
+}
+
+func NewRegionalCupJob(dbCtx *common.DatabaseContext) *RegionalCupJob {
+	return &RegionalCupJob{desc: "regional cup job", dbCtx: dbCtx}
 }
 
 // CupJob implements the quartz.Job interface: each tick, it simulates any due cup ties and

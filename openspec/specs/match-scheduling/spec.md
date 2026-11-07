@@ -17,9 +17,9 @@ The engine SHALL run each competition's simulation from its own cron job, each p
 
 #### Scenario: Slower housekeeping jobs
 - **WHEN** the engine process is running
-- **THEN** the season-rollover check, the CPU daily activity, national-team friendly pairing, national-team call-ups and stale live-broadcast recovery each run every 5 minutes
+- **THEN** the season-rollover check, the regional cup check, the CPU daily activity, national-team friendly pairing, national-team call-ups and stale live-broadcast recovery each run every 5 minutes
 - **AND** stuck-simulation recovery runs every 15 minutes
-- **AND** player birthdays run daily at 01:00 UTC, free-agent progression daily at 02:00 UTC, the international cup job daily at 03:00 UTC, pending-offer responses at 00:00 and 12:00 UTC, and free-agent injection weekly on Sunday at 00:00 UTC
+- **AND** player birthdays run daily at 01:00 UTC, free-agent progression daily at 02:00 UTC, the World Cup job daily at 03:00 UTC, pending-offer responses at 00:00 and 12:00 UTC, and free-agent injection weekly on Sunday at 00:00 UTC
 
 ### Requirement: Early simulation window
 A league match or friendly MUST become eligible for simulation once its kickoff is less than 15 minutes away (or already past) and it is neither played nor in simulation. A cup tie MUST only become eligible once its kickoff has arrived.

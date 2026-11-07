@@ -35,9 +35,9 @@ func AdvanceSeasonsIfComplete(dbCtx *common.DatabaseContext) {
 //
 // Regional/international cups and the World Cup are deliberately NOT started here - they used to
 // assume every country finished together, which is no longer true once each country advances on
-// its own clock; they now run on their own independent, decoupled cadence instead (see
-// StartInternationalCupsJob in engine/cups.go), reading each country's most recently completed
-// champion rather than waiting for every country to roll over at once.
+// its own clock. A region's cup starts from its own check once enough of its countries have new
+// champions (see StartRegionalCupsIfDue), and the World Cup runs on its own clock (see
+// StartWorldCupIfDue).
 //
 // Guarded by a non-blocking, session-level advisory lock on a dedicated connection, held for the
 // whole function body - the same shape advanceCup uses for the same reason (see its own doc

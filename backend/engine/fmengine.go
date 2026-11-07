@@ -48,6 +48,7 @@ func StartEngine() {
 	StartAdvanceSeasonScheduler(NewAdvanceSeasonJob(dbCtx))
 	StartFreeAgentProgressionScheduler(NewFreeAgentProgressionJob(dbCtx))
 	StartInternationalCupScheduler(NewInternationalCupJob(dbCtx))
+	StartRegionalCupScheduler(NewRegionalCupJob(dbCtx))
 	StartCupScheduler(NewCupJob(dbCtx))
 	StartFreeAgentInjectionScheduler(NewFreeAgentInjectionJob(dbCtx))
 	StartFriendlyScheduler(NewFriendlyJob(dbCtx))

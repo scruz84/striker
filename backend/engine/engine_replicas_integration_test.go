@@ -235,10 +235,10 @@ func TestAdvanceWorldCup_ConcurrentReplicasStartOneKnockout(t *testing.T) {
 	}
 }
 
-// TestStartInternationalCupsIfDue_ConcurrentReplicasStartOneRound: the due check and the season
+// TestStartWorldCupIfDue_ConcurrentReplicasClaimOneCycle: the due check and the season
 // increment were two statements, so every replica firing the daily job at the same instant
-// started its own international cup round.
-func TestStartInternationalCupsIfDue_ConcurrentReplicasStartOneRound(t *testing.T) {
+// claimed its own international cycle (and could start its own World Cup).
+func TestStartWorldCupIfDue_ConcurrentReplicasClaimOneCycle(t *testing.T) {
 	db, dbCtx := openReplicaTestDb(t)
 	if _, err := db.Exec(`INSERT INTO season SELECT WHERE NOT EXISTS (SELECT 1 FROM season)`); err != nil {
 		t.Fatalf("seeding the season row: %s", err)
@@ -250,7 +250,7 @@ func TestStartInternationalCupsIfDue_ConcurrentReplicasStartOneRound(t *testing.
 
 	claimed := make(chan int, replicas)
 	runConcurrently(replicas, func() {
-		if season, ok, err := common.ClaimInternationalCupSeason(dbCtx, InternationalCupCadence); err != nil {
+		if season, ok, err := common.ClaimInternationalCupSeason(dbCtx, WorldCupCycleCadence); err != nil {
 			t.Errorf("ClaimInternationalCupSeason: %s", err)
 		} else if ok {
 			claimed <- season
@@ -263,6 +263,29 @@ func TestStartInternationalCupsIfDue_ConcurrentReplicasStartOneRound(t *testing.
 	}
 	if season := <-claimed; season != before+1 {
 		t.Errorf("claimed season %d, want %d", season, before+1)
+	}
+}
+
+// TestStartRegionalCupsIfDue_ConcurrentReplicasStartOneEdition: every replica runs the 5-minute
+// regional cup check at the same instant; a due edition must be created once, with one set of
+// entries.
+func TestStartRegionalCupsIfDue_ConcurrentReplicasStartOneEdition(t *testing.T) {
+	f := newRegionalCupFixture(t)
+	es, fr := f.country(), f.country()
+	f.champion(es, 1, f.team(es, "champion"))
+	f.champion(fr, 1, f.team(fr, "champion"))
+
+	runConcurrently(replicas, func() { f.run(es, fr) })
+
+	if n := f.cupCount(); n != 1 {
+		t.Fatalf("concurrent checks created %d editions, want 1", n)
+	}
+	cupId, _ := f.latestCup()
+	if n := f.scan(`SELECT count(*) FROM international_cup_entries WHERE cup_id = $1`, cupId); n != 2 {
+		t.Errorf("edition %d has %d entries, want 2", cupId, n)
+	}
+	if n := f.scan(`SELECT count(*) FROM cup_ties WHERE cup_id = $1`, cupId); n != 1 {
+		t.Errorf("edition %d has %d first-round ties, want 1", cupId, n)
 	}
 }
 

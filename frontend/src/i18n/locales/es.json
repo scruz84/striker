@@ -830,9 +830,10 @@
   },
   "cup": {
     "titleWithSeason": "{{name}} - Temporada {{season}}",
+    "titleWithEdition": "{{name}} - Edición {{edition}}",
     "champion": "Campeón: {{name}}",
     "noCup": "Aún no hay copa para tu país.",
-    "noInternationalCup": "Aún no hay copa internacional para tu región - empieza cuando al menos dos países de tu región estén activos y hayan terminado una temporada.",
+    "noInternationalCup": "Aún no hay copa internacional para tu región - cada edición empieza cuando todos los países de tu región tienen un campeón nuevo, o antes si alguno termina dos temporadas primero (hacen falta al menos dos países).",
     "round": "Ronda {{round}}",
     "playInRound": "Ronda previa",
     "final": "Final",
@@ -840,7 +841,7 @@
     "quarterfinal": "Cuartos de final",
     "bye": "Exento",
     "byeRests": "{{team}} descansa esta ronda",
-    "entryCriteria": "Participan: el último campeón de la máxima categoría de cada país activo, agrupados por región.",
+    "entryCriteria": "Participan: el campeón de la máxima categoría de cada país de la región que haya terminado una temporada desde la edición anterior.",
     "pens": "(pens)",
     "pensWinner": "{{team}} avanza tras ganar en la tanda de penaltis",
     "tbd": "Por determinar",
@@ -2320,7 +2321,7 @@
           },
           {
             "q": "¿Qué es la copa internacional?",
-            "a": "Una competición eliminatoria regional entre clubes de distintos países. Solo comienza una vez que al menos dos países de esa región están activos y han terminado una temporada."
+            "a": "Una competición eliminatoria regional entre los campeones de liga de los países de una región. Una nueva edición empieza cuando todos los países de la región han coronado un campeón nuevo desde la anterior, o en cuanto un país termina dos temporadas, para que una liga más lenta no retrase mucho al resto. Hacen falta al menos dos países."
           }
         ]
       },
