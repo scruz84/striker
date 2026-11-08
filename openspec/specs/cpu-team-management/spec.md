@@ -288,6 +288,70 @@ At kickoff of every match a CPU team SHALL name as captain its oldest outfield s
 - **WHEN** a CPU team wins a penalty
 - **THEN** its taker is chosen by the automatic rule
 
+### Requirement: Selling contracts it will not renew
+A Manager or Director not in financial crisis SHALL, at most once per management pass, transfer-list one owned player in his last season whom it does not renew, at his asking price: the most valuable one who is not listed, loan-listed, an international or signed in the last 14 days, and whose sale keeps his position's minimum depth and the squad at size − 2.
+
+#### Scenario: Bench veteran with one season left
+- **WHEN** a Director does not renew a 31-year-old bench midfielder worth 200,000 with 1 season left
+- **THEN** it lists him at 120,000 (contract factor 0.6) instead of waiting for him to leave free
+
+#### Scenario: Nobody buys him
+- **WHEN** the listing is still open at the season rollover
+- **THEN** his contract expires and he leaves as a free agent, as before
+
+#### Scenario: Caretaker
+- **WHEN** a Caretaker does not renew a bench player
+- **THEN** it does not list him
+
+### Requirement: Director early renewals
+A Director not in financial crisis SHALL renew, on its management pass, every owned key player and every starter under 24 who has exactly 2 seasons left, offering his expected wage at his age's maximum term and, if he declines, once more on his own terms.
+
+#### Scenario: Rising star
+- **WHEN** a Director's 21-year-old starter has 2 seasons left
+- **THEN** it renews him to 3 seasons now, before his last season
+
+#### Scenario: Bench player with two seasons
+- **WHEN** a Director's 26-year-old bench player has 2 seasons left
+- **THEN** it does not renew him yet
+
+#### Scenario: Manager
+- **WHEN** a Manager's key player has 2 seasons left
+- **THEN** it waits until his last season, as before
+
+### Requirement: Answering pre-contract offers
+On its offer sweep a Manager or Director with a pending pre-contract offer on a player it would keep (see "Contract renewals") SHALL counter by renewing him at his raised expectation when that is at most 1.5 × his skill-based wage for a starter (2 × for a Director's key player) or 1.25 × for anyone else; otherwise it lists him under "Selling contracts it will not renew" when that rule allows it. A Caretaker MUST NOT react beyond its usual renewals.
+
+#### Scenario: Manager keeps its starter
+- **WHEN** a Manager's starter with a skill-based wage of 2,000 receives a pre-contract offer that raises his expectation to 2,800
+- **THEN** it renews him at 2,800 on its next sweep and the offer is cancelled
+
+#### Scenario: Rival outbids the ceiling
+- **WHEN** the same starter's expectation rises to 3,200 (1.6 × his skill-based wage)
+- **THEN** the Manager does not renew him and, if the rule allows it, lists him for transfer
+
+#### Scenario: Director key player
+- **WHEN** a Director's key player with a skill-based wage of 2,000 has an expectation of 3,800
+- **THEN** it renews him at 3,800
+
+#### Scenario: Director lets a bench veteran go
+- **WHEN** a Director's 32-year-old bench player it does not renew receives an offer
+- **THEN** it lists him for transfer instead of renewing him
+
+#### Scenario: Caretaker bench player
+- **WHEN** a Caretaker's bench player in his last season receives an offer
+- **THEN** it does nothing, and after 72 hours he signs the pre-contract
+
+### Requirement: Release clauses in CPU renewals
+When it renews a player, a Manager SHALL set a release clause of 2 × its valuation for a non-starter and none for a starter; a Director 4 × its valuation unless he is a key player or an international; a Caretaker none. A clause below the minimum is raised to it, and the wage offered is the discounted expected wage.
+
+#### Scenario: Manager bench renewal
+- **WHEN** a Manager renews a bench player it values at 300,000, his market value on a 3-season contract, with an expected wage of 1,500
+- **THEN** it sets a 600,000 clause and offers 1,350
+
+#### Scenario: Director key player
+- **WHEN** a Director renews its key striker
+- **THEN** it sets no clause and pays his full expected wage
+
 ## Code map
 
 - `backend/engine/aiteams.go` (`isAiManagedTeam`, `RunAITeamMatchReaction`,

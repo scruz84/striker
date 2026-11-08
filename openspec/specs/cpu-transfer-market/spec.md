@@ -177,6 +177,54 @@ On its next offer-response sweep a CPU buyer SHALL accept a counter-offer when t
 - **WHEN** the same Director is countered at 1,600,000
 - **THEN** it declines, and it cannot bid for him again for 3 days, then only at 1,210,000 or more
 
+### Requirement: Contract length in valuations
+Every CPU valuation of a player (asking prices, offer thresholds, bids and surplus loan fees) SHALL multiply his market value by a contract factor: 0.6 with 1 season or less left, 0.85 with 2 seasons and 1.0 with 3.
+
+#### Scenario: Last season
+- **WHEN** a player's market value is 500,000 and he has 1 season left
+- **THEN** a CPU club lists him at 300,000 and, as a Director, bids from 300,000 × 1.1
+
+#### Scenario: Fresh contract
+- **WHEN** the same player has 3 seasons left
+- **THEN** his value stays 500,000
+
+### Requirement: CPU personal terms
+A CPU offer or renewal SHALL propose exactly the player's expected wage (with the wage floor) and his age's maximum term, so a CPU club never makes an offer the player refuses on personal terms.
+
+#### Scenario: Overpaid target
+- **WHEN** a Director bids for a player earning 3,000 whose market wage is 2,500
+- **THEN** its offer carries a wage of 3,000
+
+### Requirement: Pre-contract targets
+A Manager or Director SHALL also scan the best players in their last season at each core position (a Director 10 per position, a Manager 5) and score each as a free signing at his offered wage. It MAY make one pre-contract offer per pass, at exactly 1.10 × his expected wage, to a candidate clearing its minimum score, with at most 2 signed pre-contracts, which count toward its squad size cap.
+
+#### Scenario: Director plans next season
+- **WHEN** a Director finds a striker in his last season whose expected wage is 3,000 and who scores above its minimum
+- **THEN** it offers him a pre-contract at 3,300 and his club is notified
+
+#### Scenario: Two signed already
+- **WHEN** a Manager already has 2 signed pre-contracts
+- **THEN** it makes no pre-contract offer
+
+#### Scenario: Pile-up on a human's player
+- **WHEN** three CPU clubs have pending pre-contract offers on a human's player
+- **THEN** no other CPU club offers him one
+
+### Requirement: Paying release clauses
+A Director SHALL treat a scanned player whose release clause is at most 1.5 × its valuation as buyable at the clause, scored like a listed player, and pay at most one clause per pass, counted as a signing. No CPU club MAY pay a clause on a human club's player when a CPU club paid one on that human club in the last 7 days.
+
+#### Scenario: Cheap clause
+- **WHEN** a Director values a player at 1,000,000, his clause is 1,400,000 and he clears its minimum score
+- **THEN** it pays the clause and signs him
+
+#### Scenario: Clause above its ceiling
+- **WHEN** the clause is 1,600,000
+- **THEN** it does not pay it
+
+#### Scenario: Rate limit
+- **WHEN** a CPU club paid a clause on a human club 3 days ago
+- **THEN** no CPU club pays another clause on that human club's players
+
 ## Code map
 
 - The pass is skipped for a club in financial crisis by `RunAITeamManagement`
