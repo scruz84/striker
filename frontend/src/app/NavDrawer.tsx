@@ -1,20 +1,3 @@
-import type { ReactNode } from 'react'
-import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
-import AdminPanelSettingsTwoToneIcon from '@mui/icons-material/AdminPanelSettingsTwoTone'
-import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone'
-import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
-import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone'
-import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
-import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
-import HelpTwoToneIcon from '@mui/icons-material/HelpTwoTone'
-import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone'
-import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
-import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
-import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
-import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone'
-import WorkspacePremiumTwoToneIcon from '@mui/icons-material/WorkspacePremiumTwoTone'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
@@ -22,42 +5,39 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMe, useUserTeam } from '../api/hooks'
+import { useMe } from '../api/hooks'
 import { LegalLinks } from '../features/legal/LegalLinks'
-import { isNavSelected } from './navigation'
+import { isNavSelected, STICKY_NAV_COLUMN_SX } from './navigation'
+import { navIcon, useNavGroups } from './navItems'
 
-export const NAV_DRAWER_WIDTH = 232
+export const NAV_DRAWER_WIDTH = 256
 
-interface NavItem {
-  to: string
-  label: string
-  icon: ReactNode
-  /** Extra path prefixes that keep this entry selected (e.g. /cup/ties for Cup). */
-  alsoMatches?: string[]
-}
+/** M3 navigation drawer item: a 56px pill, the current one in secondaryContainer. Styled here
+ * rather than in the theme because other lists use ListItemButton with their own look. */
+const ITEM_SX = {
+  minHeight: 56,
+  mx: 1.5,
+  px: 2,
+  borderRadius: 7,
+  color: 'onSurfaceVariant',
+  '& .MuiListItemIcon-root': { color: 'inherit', minWidth: 40 },
+  '& .MuiListItemText-primary': { fontWeight: 500 },
+  '&.Mui-selected, &.Mui-selected:hover': { bgcolor: 'secondaryContainer', color: 'onSecondaryContainer' },
+} as const
 
-interface NavGroup {
-  key: string
-  label?: string
-  items: NavItem[]
-}
-
-/** The app's full site navigation, grouped (My club / Competitions / Social / Other). It is a
- * permanent sidebar on desktop; on a phone it opens from the bottom bar's "More" entry (the
- * four daily destinations live in the bottom bar itself). On a phone it slides in from the left,
- * the same side as the desktop sidebar, so the navigation lives in one place at every width - the
- * right edge is the notification panel's. */
-export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) {
+/** The app's full site navigation, grouped (My club / Competitions / Social / Other).
+ * - `standard`: the permanent drawer from 1200px, a column that stays under the header while the
+ *   page scrolls (it is never drawn over the header).
+ * - `modal`: opened from the navigation bar's "More" (phones) or the rail's menu button (laptop
+ *   widths); it slides in from the left, the same side as the rail and the standard drawer - the
+ *   right edge is the notification panel's. */
+export function NavDrawer({ variant, open = false, onClose }: { variant: 'modal' | 'standard'; open?: boolean; onClose: () => void }) {
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const location = useLocation()
   const { data: loggedUser } = useMe()
-  const { data: userTeam } = useUserTeam(!!loggedUser)
+  const groups = useNavGroups()
 
   // Nothing here applies before a team exists - a pending user only ever sees the onboarding
   // country picker itself (see Layout's redirect), so the site nav would just be dead weight.
@@ -65,103 +45,38 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
     return null
   }
 
-  const groups: NavGroup[] = [
-    {
-      key: 'club',
-      label: t('nav.groups.club'),
-      items: [
-        { to: '/dashboard', label: t('header.nav.dashboard'), icon: <DashboardTwoToneIcon /> },
-        ...(userTeam
-          ? [
-              { to: `/team/${userTeam.team.id}`, label: t('header.nav.squad'), icon: <PersonTwoToneIcon /> },
-              {
-                to: `/team/${userTeam.team.id}/matches`,
-                label: t('header.nav.matches'),
-                icon: <CalendarMonthTwoToneIcon />,
-              },
-            ]
-          : []),
-        { to: '/dashboard/lineup', label: t('header.nav.lineup'), icon: <SportsSoccerTwoToneIcon /> },
-        { to: '/transfers', label: t('header.nav.transferMarket'), icon: <SwapHorizTwoToneIcon /> },
-        { to: '/dashboard/finances', label: t('header.nav.finances'), icon: <AccountBalanceWalletTwoToneIcon /> },
-      ],
-    },
-    {
-      key: 'competitions',
-      label: t('nav.groups.competitions'),
-      items: [
-        { to: '/leagues', label: t('header.nav.leagues'), icon: <PublicTwoToneIcon />, alsoMatches: ['/division'] },
-        { to: '/cup', label: t('header.nav.cup'), icon: <EmojiEventsTwoToneIcon />, alsoMatches: ['/cup/ties'] },
-        { to: '/international-cup', label: t('header.nav.internationalCup'), icon: <WorkspacePremiumTwoToneIcon /> },
-        { to: '/national-teams', label: t('header.nav.nationalTeams'), icon: <FlagTwoToneIcon /> },
-      ],
-    },
-    {
-      key: 'social',
-      label: t('nav.groups.social'),
-      items: [
-        { to: '/friendlies', label: t('header.nav.friendlies'), icon: <HandshakeTwoToneIcon />, alsoMatches: ['/friendlies'] },
-        { to: '/groups', label: t('header.nav.friendGroups'), icon: <GroupsTwoToneIcon /> },
-      ],
-    },
-    {
-      key: 'other',
-      label: t('nav.groups.other'),
-      items: [
-        { to: '/search', label: t('header.nav.search'), icon: <SearchTwoToneIcon /> },
-        { to: '/help', label: t('header.nav.help'), icon: <HelpTwoToneIcon /> },
-        { to: '/account', label: t('header.nav.account'), icon: <ManageAccountsTwoToneIcon /> },
-        ...(loggedUser.isAdmin
-          ? [{ to: '/admin', label: t('header.nav.admin'), icon: <AdminPanelSettingsTwoToneIcon /> }]
-          : []),
-      ],
-    },
-  ]
-
   const content = (
-    <Box sx={{ width: NAV_DRAWER_WIDTH, pb: 'env(safe-area-inset-bottom)' }} role="presentation">
+    <Box sx={{ width: NAV_DRAWER_WIDTH, py: 1, pb: 'max(8px, env(safe-area-inset-bottom))' }} role="presentation">
       {groups.map((group) => (
         <List
           key={group.key}
-          dense={false}
           subheader={
-            group.label ? (
-              <ListSubheader disableSticky sx={{ bgcolor: 'transparent', lineHeight: '36px', typography: 'overline' }}>
-                {group.label}
-              </ListSubheader>
-            ) : undefined
+            <ListSubheader disableSticky sx={{ bgcolor: 'transparent', px: 3.5, lineHeight: '40px', typography: 'overline', color: 'onSurfaceVariant' }}>
+              {group.label}
+            </ListSubheader>
           }
+          sx={{ py: 0.5 }}
         >
-          {group.items.map((item) => (
-            <ListItemButton
-              key={item.to}
-              component={RouterLink}
-              to={item.to}
-              selected={isNavSelected(item.to, location.pathname, item.alsoMatches)}
-              onClick={onClose}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          ))}
+          {group.items.map((item) => {
+            const selected = isNavSelected(item.to, location.pathname, item.alsoMatches)
+            return (
+              <ListItemButton key={item.to} component={RouterLink} to={item.to} selected={selected} onClick={onClose} sx={ITEM_SX}>
+                <ListItemIcon>{navIcon(item, selected)}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            )
+          })}
         </List>
       ))}
-      <LegalLinks onNavigate={onClose} sx={{ px: 2, py: 1.5 }} />
+      <LegalLinks onNavigate={onClose} sx={{ px: 3.5, py: 1.5 }} />
     </Box>
   )
 
-  if (isDesktop) {
+  if (variant === 'standard') {
     return (
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: NAV_DRAWER_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': { position: 'relative', width: NAV_DRAWER_WIDTH, boxSizing: 'border-box' },
-        }}
-      >
+      <Box component="nav" aria-label={t('nav.bottom.more')} sx={{ ...STICKY_NAV_COLUMN_SX, width: NAV_DRAWER_WIDTH }}>
         {content}
-      </Drawer>
+      </Box>
     )
   }
 
@@ -169,10 +84,14 @@ export function NavDrawer({ mobileOpen, onClose }: { mobileOpen: boolean; onClos
     <Drawer
       variant="temporary"
       anchor="left"
-      open={mobileOpen}
+      open={open}
       onClose={onClose}
       ModalProps={{ keepMounted: true }}
-      sx={{ '& .MuiDrawer-paper': { width: NAV_DRAWER_WIDTH, boxSizing: 'border-box' } }}
+      slotProps={{
+        paper: {
+          sx: { bgcolor: 'surfaceContainerLow', borderRadius: '0 16px 16px 0' },
+        },
+      }}
     >
       {content}
     </Drawer>

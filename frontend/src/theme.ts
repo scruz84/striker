@@ -472,6 +472,45 @@ function buildComponents() {
         }),
       },
     },
+    // M3 navigation bar (BottomNav, the app's only BottomNavigation): 80px on surfaceContainer,
+    // a 64x32 pill behind the current entry's icon, 12px labels (MUI would grow the current one
+    // to 14px). See the app-navigation spec.
+    MuiBottomNavigation: {
+      styleOverrides: {
+        root: ({ theme }: { theme: Theme }) => ({ height: 80, backgroundColor: theme.palette.surfaceContainer }),
+      },
+    },
+    MuiBottomNavigationAction: {
+      styleOverrides: {
+        root: ({ theme }: { theme: Theme }) => ({
+          minWidth: 0,
+          gap: 4,
+          paddingTop: 12,
+          justifyContent: 'flex-start',
+          color: theme.palette.onSurfaceVariant,
+          '& .MuiSvgIcon-root': {
+            width: 64,
+            height: 32,
+            padding: '4px 20px',
+            boxSizing: 'border-box' as const,
+            borderRadius: 16,
+            transition: 'background-color 200ms',
+          },
+          '&.Mui-selected': { color: theme.palette.onSurface },
+          '&.Mui-selected .MuiSvgIcon-root': {
+            backgroundColor: theme.palette.secondaryContainer,
+            color: theme.palette.onSecondaryContainer,
+          },
+        }),
+        label: {
+          fontSize: '0.75rem',
+          lineHeight: '1rem',
+          fontWeight: 500,
+          whiteSpace: 'nowrap' as const,
+          '&.Mui-selected': { fontSize: '0.75rem', fontWeight: 700 },
+        },
+      },
+    },
     MuiTableContainer: {
       styleOverrides: { root: { borderRadius: 12 } },
     },

@@ -1,3 +1,5 @@
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { matchPath } from 'react-router-dom'
 
 /** Pages that are a drill-down from somewhere else (a match, a player, another club, a cup tie…):
@@ -81,4 +83,32 @@ export function parseDivisionName(name: string): ParsedDivisionName | undefined 
     return undefined
   }
   return { tier: romanToInt(match[1]), group: match[2] ? Number(match[2]) : undefined }
+}
+
+/** The navigation rail's width. */
+export const NAV_RAIL_WIDTH = 80
+/** The header's height from `md` up, where the rail and the standard drawer sit under it. */
+export const DESKTOP_HEADER_HEIGHT = 64
+
+/** A navigation column that stays under the header while the page scrolls (the rail and the
+ * standard drawer). */
+export const STICKY_NAV_COLUMN_SX = {
+  position: 'sticky',
+  top: DESKTOP_HEADER_HEIGHT,
+  height: `calc(100dvh - ${DESKTOP_HEADER_HEIGHT}px)`,
+  overflowY: 'auto',
+  flexShrink: 0,
+  bgcolor: 'background.default',
+} as const
+
+/** Which Material 3 navigation layout the signed-in chrome uses: a bottom navigation bar under
+ * `md` (900px), a navigation rail from `md`, and a standard (permanent) navigation drawer from
+ * `lg` (1200px). See the app-navigation spec. */
+export type NavMode = 'bar' | 'rail' | 'drawer'
+
+export function useNavMode(): NavMode {
+  const theme = useTheme()
+  const isRail = useMediaQuery(theme.breakpoints.up('md'))
+  const isDrawer = useMediaQuery(theme.breakpoints.up('lg'))
+  return isDrawer ? 'drawer' : isRail ? 'rail' : 'bar'
 }

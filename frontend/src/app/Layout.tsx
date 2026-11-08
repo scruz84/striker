@@ -14,7 +14,8 @@ import { BOTTOM_NAV_HEIGHT, BottomNav } from './BottomNav'
 import { DetailBackBar } from './DetailBackBar'
 import { Header } from './Header'
 import { NavDrawer } from './NavDrawer'
-import { findDetailRoute } from './navigation'
+import { NavRail } from './NavRail'
+import { findDetailRoute, useNavMode } from './navigation'
 import { Subheader } from './Subheader'
 
 // The legal texts stay readable by everyone, including a user still waiting at a gate.
@@ -30,6 +31,7 @@ export function Layout() {
   const location = useLocation()
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const navMode = useNavMode()
 
   // Nobody gets anywhere before accepting the current Privacy Policy and Terms (a first sign-in, or
   // after the policy version was raised): /accept-terms comes before the onboarding redirect below.
@@ -50,7 +52,11 @@ export function Layout() {
     return <Navigate to="/onboarding" replace />
   }
 
-  const showBottomNav = !!loggedUser && !loggedUser.pendingCountrySelection && !isDesktop
+  // One M3 navigation layout per window width (see useNavMode): a bottom bar on phones, a rail on
+  // laptop widths and a standard drawer from 1200px; the bar's "More" and the rail's menu button
+  // open the same modal drawer.
+  const showNav = !!loggedUser && !loggedUser.pendingCountrySelection
+  const showBottomNav = showNav && navMode === 'bar'
   const detailRoute = isDesktop ? undefined : findDetailRoute(location.pathname, userTeam?.team.id)
 
   return (
@@ -58,7 +64,12 @@ export function Layout() {
       <DevLoginWarning />
       <Header />
       <Box sx={{ display: 'flex' }}>
-        <NavDrawer mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+        {showNav && navMode === 'rail' && <NavRail menuOpen={mobileNavOpen} onMenu={() => setMobileNavOpen(true)} />}
+        {navMode === 'drawer' ? (
+          <NavDrawer variant="standard" onClose={() => {}} />
+        ) : (
+          <NavDrawer variant="modal" open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+        )}
         <Box
           component="main"
           sx={{

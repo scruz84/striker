@@ -301,7 +301,9 @@ src/
                 (hand-written types mirroring backend JSON - see its own header comment: field
                 names follow the backend's json tags, not its Go field names)
   app/          App.tsx (routes), Layout.tsx (chrome + the onboarding redirect gate), Header,
-                NavDrawer, Subheader, theme mode provider
+                Subheader, theme mode provider, and the M3 navigation: `useNavMode`
+                (navigation.ts) picks BottomNav (< 900px), NavRail (900-1199px) or the
+                standard NavDrawer (>= 1200px); all read their destinations from navItems.tsx
   components/   shared presentational components (avatars, country flags, pitch/formation rendering, dialogs)
   features/     one folder per page/domain (dashboard, team, match, player, transfers, admin,
                 onboarding, ...) - this is where almost all UI code lives

@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { findDetailRoute, isClubPage, isNavSelected, parseDivisionName } from './navigation'
+import { renderHook } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { stubViewportWidth } from '../testUtils/viewport'
+import { findDetailRoute, isClubPage, isNavSelected, parseDivisionName, useNavMode } from './navigation'
 
 describe('parseDivisionName', () => {
   it('reads roman tier and group', () => {
@@ -35,5 +37,23 @@ describe('isNavSelected', () => {
   it('keeps a section selected on its sub-routes', () => {
     expect(isNavSelected('/cup', '/cup/ties/4', ['/cup/ties'])).toBe(true)
     expect(isNavSelected('/cup', '/friendlies')).toBe(false)
+  })
+})
+
+// app-navigation "Navigation layout by window width".
+describe('useNavMode', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it.each([
+    [360, 'bar'],
+    [899, 'bar'],
+    [900, 'rail'],
+    [1024, 'rail'],
+    [1199, 'rail'],
+    [1200, 'drawer'],
+    [1280, 'drawer'],
+  ])('at %ipx uses the %s', (width, mode) => {
+    stubViewportWidth(width)
+    expect(renderHook(() => useNavMode()).result.current).toBe(mode)
   })
 })
