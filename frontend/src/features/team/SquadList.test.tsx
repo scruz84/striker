@@ -14,6 +14,7 @@ const render = (ui: ReactElement) => baseRender(<ThemeProvider theme={testTheme}
 
 vi.mock('../../api/hooks', () => ({
   useReleasePlayer: () => ({ mutate: vi.fn(), isPending: false, isError: false }),
+  usePreContractsReceived: () => ({ data: [] }),
 }))
 
 function player(id: number, lastName: string): Player {

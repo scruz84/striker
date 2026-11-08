@@ -457,6 +457,7 @@ func ProgressPlayers(dbCtx *common.DatabaseContext, teamIds []int64) {
 
 		for _, player := range *players {
 			if ShouldRetire(player.Age, r) {
+				common.LapsePreContractsOnRetirement(dbCtx, player.Id)
 				if err := common.RetirePlayer(dbCtx, player.Id); err != nil {
 					log.Errorf("error retiring player %d: %s", player.Id, err)
 				}

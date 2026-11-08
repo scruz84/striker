@@ -29,6 +29,9 @@ import {
   useMe,
   useOffersReceived,
   useOffersSent,
+  usePreContractsReceived,
+  usePreContractsSent,
+  useWithdrawPreContractOffer,
   useRejectOffer,
   useTeamTrainer,
   useTransferListings,
@@ -39,7 +42,7 @@ import {
   useUserTeam,
   useWithdrawOffer,
 } from '../../api/hooks'
-import { POSITION_SHORT_LABEL_KEYS, type FreeAgentListing, type LoanListing, type Player, type Trainer, type TransferListing, type TransferOffer } from '../../api/types'
+import { POSITION_SHORT_LABEL_KEYS, type FreeAgentListing, type LoanListing, type Player, type PreContractOffer, type Trainer, type TransferListing, type TransferOffer } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { EmptyState } from '../../components/EmptyState'
 import { FreeAgentSigningDialog } from '../../components/FreeAgentSigningDialog'
@@ -72,6 +75,7 @@ import {
 import { CountryFlag } from '../../components/CountryFlag'
 import { ListPlayerDialog } from './ListPlayerDialog'
 import { ReceivedOfferActions, SentOfferCard } from './OfferCards'
+import { PreContractsSection } from './PreContractCards'
 
 type TransferSortField = 'age' | 'price' | 'listed' | 'salary' | 'skill'
 type LoanSortField = 'age' | 'duration' | 'listed' | 'skill'
@@ -888,6 +892,9 @@ function OffersTab() {
   const { data: loggedUser } = useMe()
   const { data: received, isLoading: receivedLoading } = useOffersReceived(!!loggedUser)
   const { data: sent, isLoading: sentLoading } = useOffersSent(!!loggedUser)
+  const { data: preReceived } = usePreContractsReceived(!!loggedUser)
+  const { data: preSent } = usePreContractsSent(!!loggedUser)
+  const withdrawPreContract = useWithdrawPreContractOffer()
 
   const acceptOffer = useAcceptOffer()
   const rejectOffer = useRejectOffer()
@@ -948,6 +955,17 @@ function OffersTab() {
     }
   }
 
+  const handleWithdrawPreContract = async (offer: PreContractOffer) => {
+    const ok = await confirm({
+      message: t('transfers.preContract.confirmWithdraw', { name: `${offer.player.firstName} ${offer.player.lastName}` }),
+      confirmLabel: t('transfers.withdraw'),
+      destructive: true,
+    })
+    if (ok) {
+      withdrawPreContract.mutate(offer.offerId)
+    }
+  }
+
   return (
     <Box>
       <Alert severity="info" sx={{ mb: 2 }}>
@@ -986,6 +1004,13 @@ function OffersTab() {
           ))}
         </Stack>
       )}
+
+      <PreContractsSection
+        received={preReceived ?? []}
+        sent={preSent ?? []}
+        onWithdraw={handleWithdrawPreContract}
+        withdrawPending={withdrawPreContract.isPending}
+      />
     </Box>
   )
 }

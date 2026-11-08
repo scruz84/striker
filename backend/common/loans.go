@@ -176,6 +176,11 @@ func CreateLoanListing(dbCtx *DatabaseContext, playerId int64, lendingTeamId int
 	if onLoan {
 		return ErrPlayerOnLoan
 	}
+	if signed, err := IsPlayerPreContracted(dbCtx.Db, playerId); err != nil {
+		return err
+	} else if signed {
+		return ErrPlayerPreContracted
+	}
 	transferListed, err := IsPlayerTransferListed(dbCtx, playerId)
 	if err != nil {
 		return err
@@ -313,6 +318,11 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if _, err := tx.Exec(DeleteLoanListingStmtSql, listingId); err != nil {
 		return err
 	}
+	// Loaned out: every pending pre-contract offer on him is off (openspec/specs/pre-contracts).
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
+		return err
+	}
 	returnSeason := currentSeason + durationSeasons
 	if _, err := tx.Exec(InsertPlayerLoanStmtSql, playerId, lendingTeamId, borrowingTeamId, returnSeason,
 		wageContributionPercent, buyOptionFee); err != nil {
@@ -358,6 +368,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 		return err
 	}
 	flows.Commit(context.Background())
+	notifyPreContractsCancelled(dbCtx, playerId, preContractBuyers)
 
 	LoansAcceptedCounter.Add(context.Background(), 1)
 	notifyLoanAccepted(dbCtx, playerId, lendingTeamId, borrowingTeamId)

@@ -90,13 +90,35 @@ func ageValueFactor(age int) float64 {
 	}
 }
 
+// Contract factors (openspec/specs/cpu-transfer-market "Contract length in valuations"): a
+// player who can leave for nothing at the next rollover is worth much less than one tied down for
+// three seasons.
+const (
+	LastSeasonContractValueFactor = 0.6
+	TwoSeasonContractValueFactor  = 0.85
+)
+
+// contractValueFactor scales a player's value by the seasons left on his contract. 0 (a free
+// agent, or a player whose contract is unknown) reads as a fresh deal: whoever signs him gets a
+// new contract.
+func contractValueFactor(years int) float64 {
+	switch {
+	case years == 1:
+		return LastSeasonContractValueFactor
+	case years == 2:
+		return TwoSeasonContractValueFactor
+	default:
+		return 1.0
+	}
+}
+
 // MarketValue is the base transfer value of a player - his market wage times
-// TransferFeeWageMultiplier, scaled by age. It is the price a CPU team asks when listing him and
-// the starting point of every valuation; EvaluateIncomingOffer and ScoreTarget perturb it per
-// AiTransferProfile.
+// TransferFeeWageMultiplier, scaled by age and by the seasons left on his contract (see
+// contractValueFactor). It is the price a CPU team asks when listing him and the starting point
+// of every valuation; EvaluateIncomingOffer and ScoreTarget perturb it per AiTransferProfile.
 func MarketValue(p Player) int64 {
 	wage := PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
-	return int64(math.Round(float64(wage*TransferFeeWageMultiplier) * ageValueFactor(p.Age)))
+	return int64(math.Round(float64(wage*TransferFeeWageMultiplier) * ageValueFactor(p.Age) * contractValueFactor(p.ContractYearsRemaining)))
 }
 
 // internationalCapsPremiumUnit/internationalCapsCap shape how much more a national-team player

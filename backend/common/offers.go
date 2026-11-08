@@ -108,8 +108,8 @@ type TransferOfferResult struct {
 	OfferId int64 `json:"offerId,omitempty"`
 }
 
-const InsertTransferOfferStmtSql = "INSERT INTO transfer_offers (player_id, from_team_id, to_team_id, amount, offered_wage, offered_years) " +
-	"VALUES ($1, $2, $3, $4, $5, $6) RETURNING offer_id"
+const InsertTransferOfferStmtSql = "INSERT INTO transfer_offers (player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, offered_release_clause) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING offer_id"
 
 const GetOffersReceivedStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf.name, o.to_team_id, tt.name, o.amount, o.offered_wage, o.offered_years, o.created_at, o.counter_amount, o.countered_at " +
 	"FROM transfer_offers o JOIN teams tf ON tf.team_id = o.from_team_id JOIN teams tt ON tt.team_id = o.to_team_id " +
@@ -121,7 +121,7 @@ const GetOffersSentStmtSql = "SELECT o.offer_id, o.player_id, o.from_team_id, tf
 
 const GetOfferOwnersStmtSql = "SELECT player_id, from_team_id, to_team_id FROM transfer_offers WHERE offer_id = $1"
 const GetOfferOwnersAndAmountStmtSql = "SELECT player_id, from_team_id, to_team_id, amount FROM transfer_offers WHERE offer_id = $1"
-const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at, counter_amount FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
+const GetOfferForUpdateStmtSql = "SELECT player_id, from_team_id, to_team_id, amount, offered_wage, offered_years, created_at, counter_amount, offered_release_clause FROM transfer_offers WHERE offer_id = $1 " + ForUpdate
 const DeleteTransferOfferStmtSql = "DELETE FROM transfer_offers WHERE offer_id = $1"
 const DeleteOffersForPlayerStmtSql = "DELETE FROM transfer_offers WHERE player_id = $1"
 
@@ -143,6 +143,12 @@ const GetPlayerTeamForUpdateStmtSql = "SELECT COALESCE(team_id, 0) FROM players 
 // CreateTransferListing), a duplicate offer from the same team on the same player (enforced by a
 // unique constraint), or anything while the transfer window is closed.
 func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64, amount int64, offeredWage int, offeredYears int) (*TransferOfferResult, error) {
+	return MakeTransferOfferWithClause(dbCtx, playerId, fromTeamId, amount, offeredWage, offeredYears, nil)
+}
+
+// MakeTransferOfferWithClause is MakeTransferOffer whose personal terms also carry an optional
+// release clause for the player's new contract (nil for none), which lowers the wage he asks.
+func MakeTransferOfferWithClause(dbCtx *DatabaseContext, playerId int64, fromTeamId int64, amount int64, offeredWage int, offeredYears int, clause *int64) (*TransferOfferResult, error) {
 	if amount <= 0 {
 		return nil, ErrInvalidOfferAmount
 	}
@@ -173,10 +179,20 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 	if onLoan {
 		return nil, ErrPlayerOnLoan
 	}
+	if signed, err := IsPlayerPreContracted(dbCtx.Db, playerId); err != nil {
+		return nil, err
+	} else if signed {
+		return nil, ErrPlayerPreContracted
+	}
 
-	expectedWage := PlayerWageFromSkills(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot)
-	maxYears := MaxAcceptableRenewalYears(player.Age)
+	if err := ValidateReleaseClause(*player, clause); err != nil {
+		return nil, err
+	}
+	expectedWage, maxYears, err := PlayerTermsExpectation(dbCtx, *player, TermsTransfer)
+	if err != nil {
+		return nil, err
+	}
+	expectedWage = DiscountedWage(*player, expectedWage, clause)
 	result := &TransferOfferResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
 	var reasons []string
@@ -192,7 +208,7 @@ func MakeTransferOffer(dbCtx *DatabaseContext, playerId int64, fromTeamId int64,
 	}
 
 	var offerId int64
-	err = dbCtx.Db.QueryRow(InsertTransferOfferStmtSql, playerId, fromTeamId, player.TeamId, amount, offeredWage, offeredYears).Scan(&offerId)
+	err = dbCtx.Db.QueryRow(InsertTransferOfferStmtSql, playerId, fromTeamId, player.TeamId, amount, offeredWage, offeredYears, clauseArg(clause)).Scan(&offerId)
 	if err != nil {
 		if isUniqueViolation(err) {
 			return nil, ErrOfferAlreadyExists
@@ -395,6 +411,8 @@ type lockedOffer struct {
 	offeredYears  int
 	createdAt     time.Time
 	counterAmount sql.NullInt64
+	// offeredClause is the release clause the player's new contract carries (NULL for none).
+	offeredClause sql.NullInt64
 }
 
 // lockOffer reads offerId FOR UPDATE inside tx - ErrOfferNotFound when it is gone, which is also
@@ -403,7 +421,7 @@ type lockedOffer struct {
 func lockOffer(tx *sql.Tx, offerId int64) (*lockedOffer, error) {
 	o := &lockedOffer{offerId: offerId}
 	err := tx.QueryRow(GetOfferForUpdateStmtSql, offerId).Scan(&o.playerId, &o.fromTeamId, &o.toTeamId, &o.amount,
-		&o.offeredWage, &o.offeredYears, &o.createdAt, &o.counterAmount)
+		&o.offeredWage, &o.offeredYears, &o.createdAt, &o.counterAmount, &o.offeredClause)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrOfferNotFound
 	}
@@ -425,6 +443,8 @@ type completedOfferTransfer struct {
 	// keyPlayer is whether the player was one of the seller's key players (see IsKeyPlayer),
 	// judged from the squad before the move - a domestic sale of one feeds the pair's rivalry.
 	keyPlayer bool
+	// preContractBuyers are the clubs whose pending pre-contract offers on him the sale cancelled.
+	preContractBuyers []int64
 }
 
 // executeOfferTx is the transfer behind an accepted offer or an accepted counter-offer, at fee,
@@ -483,7 +503,11 @@ func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee 
 	// Applies the personal terms the player already agreed to when this offer was made (see
 	// MakeTransferOffer) - not re-judged against their expectations here, the same way an
 	// accepted contract renewal offer's terms aren't re-litigated later.
-	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offer.offeredYears, offer.offeredWage, playerId); err != nil {
+	var clause any
+	if offer.offeredClause.Valid {
+		clause = offer.offeredClause.Int64
+	}
+	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offer.offeredYears, offer.offeredWage, playerId, clause); err != nil {
 		return nil, err
 	}
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
@@ -498,8 +522,13 @@ func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee 
 	if _, err := tx.Exec(DeleteLoanListingByPlayerAndTeamStmtSql, playerId, toTeamId); err != nil {
 		return nil, err
 	}
+	// Sold: every pending pre-contract offer on him is off (openspec/specs/pre-contracts).
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
+		return nil, err
+	}
 
-	done := &completedOfferTransfer{offer: offer, fee: fee, playerName: player.FirstName + " " + player.LastName,
+	done := &completedOfferTransfer{preContractBuyers: preContractBuyers, offer: offer, fee: fee, playerName: player.FirstName + " " + player.LastName,
 		buyerName: buyerTeam.TeamName, sellerName: sellerTeam.TeamName, keyPlayer: keyPlayer}
 	if err := insertLedgerRow(tx, &done.flows, fromTeamId, -fee, TRANSACTION_TRANSFER_OUT,
 		"Bought "+done.playerName+" from "+done.sellerName, playerId); err != nil {
@@ -519,6 +548,7 @@ func finishOfferTransfer(dbCtx *DatabaseContext, tx *sql.Tx, done *completedOffe
 		return err
 	}
 	done.flows.Commit(context.Background())
+	notifyPreContractsCancelled(dbCtx, done.offer.playerId, done.preContractBuyers)
 
 	RecordTransferCompleted(context.Background(), done.fee)
 	TransferOffersResolvedCounter.Add(context.Background(), 1, metric.WithAttributes(OfferOutcomeAttribute(outcome)))

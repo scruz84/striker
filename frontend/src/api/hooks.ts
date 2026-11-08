@@ -64,6 +64,9 @@ import type {
   TransferMarketStats,
   TransferOffer,
   TransferOfferResult,
+  PreContractOffer,
+  PreContractOfferResult,
+  ReleaseClauseResult,
   WeekMatch,
 } from './types'
 import { MENTALITY_BALANCED } from './types'
@@ -97,6 +100,8 @@ export const queryKeys = {
   transferWindow: ['transferWindow'] as const,
   transferMarketStats: ['transferMarketStats'] as const,
   offersReceived: ['offersReceived'] as const,
+  preContractsReceived: ['preContractsReceived'] as const,
+  preContractsSent: ['preContractsSent'] as const,
   offersSent: ['offersSent'] as const,
   friendlyChallengesReceived: ['friendlyChallengesReceived'] as const,
   friendlyChallengesSent: ['friendlyChallengesSent'] as const,
@@ -726,8 +731,8 @@ export function useFreeAgents(enabled: boolean) {
 export function useSignFreeAgent() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ playerId, wage, years }: { playerId: number; wage: number; years: number }) =>
-      api.post<FreeAgentSigningResult>(`/v1/free-agents/${playerId}/sign`, { wage, years }),
+    mutationFn: ({ playerId, wage, years, releaseClause }: { playerId: number; wage: number; years: number; releaseClause?: number }) =>
+      api.post<FreeAgentSigningResult>(`/v1/free-agents/${playerId}/sign`, { wage, years, releaseClause }),
     onSuccess: (result) => {
       if (result.accepted) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.freeAgents })
@@ -744,11 +749,13 @@ export function useSignFreeAgent() {
 export function useRenewContract() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ playerId, wage, years }: { playerId: number; wage: number; years: number }) =>
-      api.post<ContractRenewalOffer>(`/v1/user/team/players/${playerId}/renew-contract`, { wage, years }),
+    mutationFn: ({ playerId, wage, years, releaseClause }: { playerId: number; wage: number; years: number; releaseClause?: number }) =>
+      api.post<ContractRenewalOffer>(`/v1/user/team/players/${playerId}/renew-contract`, { wage, years, releaseClause }),
     onSuccess: (offer) => {
       if (offer.accepted) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
+        // A renewal cancels the pending pre-contract offers on him.
+        void queryClient.invalidateQueries({ queryKey: queryKeys.preContractsReceived })
       }
     },
   })
@@ -1359,11 +1366,67 @@ export function useOffersSent(enabled: boolean) {
 export function useMakeOffer() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ playerId, amount, wage, years }: { playerId: number; amount: number; wage: number; years: number }) =>
-      api.post<TransferOfferResult>('/v1/offers', { playerId, amount, wage, years }),
+    mutationFn: ({ playerId, amount, wage, years, releaseClause }: { playerId: number; amount: number; wage: number; years: number; releaseClause?: number }) =>
+      api.post<TransferOfferResult>('/v1/offers', { playerId, amount, wage, years, releaseClause }),
     onSuccess: (result) => {
       if (result.accepted) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.offersSent })
+      }
+    },
+  })
+}
+
+export function usePreContractsReceived(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.preContractsReceived,
+    queryFn: () => api.get<PreContractOffer[]>('/v1/pre-contracts/received'),
+    enabled,
+  })
+}
+
+export function usePreContractsSent(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.preContractsSent,
+    queryFn: () => api.get<PreContractOffer[]>('/v1/pre-contracts/sent'),
+    enabled,
+  })
+}
+
+// Like useMakeOffer: the player judges the terms at once, and a refusal is a normal 200 with
+// accepted: false carrying the wage he would accept to leave his club.
+export function useMakePreContractOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ playerId, wage, years, releaseClause }: { playerId: number; wage: number; years: number; releaseClause?: number }) =>
+      api.post<PreContractOfferResult>('/v1/pre-contracts', { playerId, wage, years, releaseClause }),
+    onSuccess: (result) => {
+      if (result.accepted) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.preContractsSent })
+      }
+    },
+  })
+}
+
+export function useWithdrawPreContractOffer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (offerId: number) => api.delete(`/v1/pre-contracts/${offerId}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.preContractsSent })
+    },
+  })
+}
+
+// Pays another club's player's release clause and signs him at once (backend PayReleaseClause): a
+// refusal of the personal terms is a normal 200 with accepted: false and what he wants.
+export function usePayReleaseClause() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ playerId, wage, years, releaseClause }: { playerId: number; wage: number; years: number; releaseClause?: number }) =>
+      api.post<ReleaseClauseResult>('/v1/release-clauses', { playerId, wage, years, releaseClause }),
+    onSuccess: (result) => {
+      if (result.accepted) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.userTeam })
       }
     },
   })

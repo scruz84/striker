@@ -8,6 +8,7 @@ import { useMakeOffer, useTransferComparables } from '../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
 import { ContractTermsFields } from './ContractTermsFields'
+import { clauseValue } from '../utils/contractTerms'
 import { NumberField } from './NumberField'
 import { ResponsiveDialog } from './ResponsiveDialog'
 import { TransferComparables } from './TransferComparables'
@@ -32,12 +33,14 @@ export function TransferOfferDialog({ player, open, onClose, askingPrice }: Tran
   const [amount, setAmount] = useState('')
   const [wage, setWage] = useState(String(player.wage || ''))
   const [years, setYears] = useState('1')
+  const [clause, setClause] = useState('')
 
   useEffect(() => {
     if (open) {
       setAmount(askingPrice ? String(askingPrice) : '')
       setWage(String(player.wage || ''))
       setYears('1')
+      setClause('')
       makeOffer.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,7 +54,7 @@ export function TransferOfferDialog({ player, open, onClose, askingPrice }: Tran
     const wageNum = Number(wage)
     const yearsNum = Number(years)
     if (!amountNum || amountNum <= 0 || !wageNum || wageNum <= 0 || !yearsNum || yearsNum < 1) return
-    makeOffer.mutate({ playerId: player.id, amount: amountNum, wage: wageNum, years: yearsNum })
+    makeOffer.mutate({ playerId: player.id, amount: amountNum, wage: wageNum, years: yearsNum, releaseClause: clauseValue(clause) })
   }
 
   const handleUseExpectations = () => {
@@ -98,7 +101,8 @@ export function TransferOfferDialog({ player, open, onClose, askingPrice }: Tran
               onWageChange={setWage}
               onYearsChange={setYears}
               currentWage={player.wage}
-            />
+              wageFloor={player.wage}
+            clause={clause} onClauseChange={setClause} />
           </>
         )}
 

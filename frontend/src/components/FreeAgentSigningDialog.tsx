@@ -8,6 +8,7 @@ import { useSignFreeAgent } from '../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
 import { ContractTermsFields } from './ContractTermsFields'
+import { clauseValue } from '../utils/contractTerms'
 import { ResponsiveDialog } from './ResponsiveDialog'
 
 interface FreeAgentSigningDialogProps {
@@ -25,11 +26,13 @@ export function FreeAgentSigningDialog({ player, open, onClose }: FreeAgentSigni
   const sign = useSignFreeAgent()
   const [wage, setWage] = useState(String(player.wage || ''))
   const [years, setYears] = useState('1')
+  const [clause, setClause] = useState('')
 
   useEffect(() => {
     if (open) {
       setWage(String(player.wage || ''))
       setYears('1')
+      setClause('')
       sign.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,7 +46,7 @@ export function FreeAgentSigningDialog({ player, open, onClose }: FreeAgentSigni
     const wageNum = Number(wage)
     const yearsNum = Number(years)
     if (!wageNum || wageNum <= 0 || !yearsNum || yearsNum < 1) return
-    sign.mutate({ playerId: player.id, wage: wageNum, years: yearsNum })
+    sign.mutate({ playerId: player.id, wage: wageNum, years: yearsNum, releaseClause: clauseValue(clause) })
   }
 
   const handleUseExpectations = () => {
@@ -82,7 +85,7 @@ export function FreeAgentSigningDialog({ player, open, onClose }: FreeAgentSigni
               onWageChange={setWage}
               onYearsChange={setYears}
               currentWage={player.wage}
-            />
+            clause={clause} onClauseChange={setClause} />
           </>
         )}
 

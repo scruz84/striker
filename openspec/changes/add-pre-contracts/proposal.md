@@ -72,5 +72,5 @@ Open questions for the owner:
   `engine/aitransfers.go`, `engine/aiteams.go` (CPU buyer and seller); handlers and routes.
 - New notification type `NOTIFICATION_PRE_CONTRACT` and player transfer kind
   `PLAYER_TRANSFER_PRE_CONTRACT`. No TRANSACTION_* reason: no money moves.
-- Frontend: "Last season" chip, an "Expiring contracts" filter on the Transfers tab, a
-  pre-contract dialog, pre-contracts in the Offers tab, a "Signed for …" chip in the squad list.
+- Frontend: "Last season" chip, a pre-contract dialog, pre-contracts in the Offers tab, a
+  "Leaving: …" chip in the squad list.

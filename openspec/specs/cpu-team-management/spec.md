@@ -339,6 +339,17 @@ At kickoff of every match a CPU team SHALL name as captain its oldest outfield s
   (`common/loans.go`). Tests: `engine/aifinances_test.go`, `engine/aiteams_test.go`
   (`TestContractsToRenew_*`, `TestShouldMeetRenewalTerms`), `common/transferscoring_test.go`
   (`TestEvaluateIncomingOffer_CrisisDiscount`), `engine/ai_finances_integration_test.go`.
+- Selling contracts it will not renew: `listUnrenewedPlayer` / `pickUnrenewedToList`
+  (`engine/aiteams.go`, action `listed_expiring`), called from `manageRosterIfManager` outside a
+  crisis. Director early renewals: `contractsToRenewEarly` (`earlyRenewalYears`) in
+  `renewExpiringContracts`. Renewals offer the player's own terms at once (`renewContract` with
+  `common.PlayerTermsExpectation`), capped for non-starters by `shouldMeetRenewalTerms`. Tests:
+  `engine/aicontractterms_test.go`, `engine/contract_terms_integration_test.go`.
+- Answering pre-contract offers: `answerPreContractOffers` (from `RespondToAllPendingOffers`),
+  `acceptsCounterBar` (`aiCounterStarterCap`, `aiCounterKeyPlayerCap`) with
+  `common.PlayerRenewalExpectation` in `renewContract`, `listUnrenewedPlayerAmong`. Release clauses
+  in renewals: `aiRenewalClause`, `renewalClauseAmount` (`aiManagerClauseMultiple`,
+  `aiDirectorClauseMultiple`) in `engine/aiteams.go`.
 - Season objective: `common/seasonobjective.go` (`SeasonSituation`, `SeasonObjectiveFor`,
   `SeasonObjectiveStartShare`, `SeasonObjectiveMargin`, `GetTeamSeasonSituation` with
   `CountRemainingLeagueMatchesStmtSql`, `TeamSeasonObjective`). Youth starts:

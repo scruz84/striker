@@ -8,28 +8,34 @@ import { useRenewContract } from '../api/hooks'
 import { MAX_CONTRACT_YEARS_REMAINING, type Player } from '../api/types'
 import { formatCurrency } from '../utils/formatCurrency'
 import { ContractTermsFields } from './ContractTermsFields'
+import { clauseValue, renewalWageFloor } from '../utils/contractTerms'
 import { ResponsiveDialog } from './ResponsiveDialog'
 
 interface ContractRenewalDialogProps {
   player: Player
   open: boolean
   onClose: () => void
+  /** A starting wage instead of his current one - the wage that keeps him against pending
+   * pre-contract offers (see PreContractsSection). */
+  initialWage?: number
 }
 
 /** The team's side of a contract renewal negotiation - propose a wage and duration, the player
  * decides on the spot against their own market wage and age-appropriate max term (see backend's
  * MakeContractRenewalOffer). A decline reveals exactly what they want instead, so retrying with
  * better terms is the whole "negotiation" - there's no other back-and-forth modeled server-side. */
-export function ContractRenewalDialog({ player, open, onClose }: ContractRenewalDialogProps) {
+export function ContractRenewalDialog({ player, open, onClose, initialWage }: ContractRenewalDialogProps) {
   const { t } = useTranslation()
   const renew = useRenewContract()
-  const [wage, setWage] = useState(String(player.wage))
+  const [wage, setWage] = useState(String(initialWage ?? player.wage))
   const [years, setYears] = useState('1')
+  const [clause, setClause] = useState('')
 
   useEffect(() => {
     if (open) {
-      setWage(String(player.wage))
+      setWage(String(initialWage ?? player.wage))
       setYears('1')
+      setClause('')
       renew.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,7 +48,7 @@ export function ContractRenewalDialog({ player, open, onClose }: ContractRenewal
     const wageNum = Number(wage)
     const yearsNum = Number(years)
     if (!wageNum || wageNum <= 0 || !yearsNum || yearsNum < 1) return
-    renew.mutate({ playerId: player.id, wage: wageNum, years: yearsNum })
+    renew.mutate({ playerId: player.id, wage: wageNum, years: yearsNum, releaseClause: clauseValue(clause) })
   }
 
   const handleUseExpectations = () => {
@@ -80,7 +86,8 @@ export function ContractRenewalDialog({ player, open, onClose }: ContractRenewal
               onWageChange={setWage}
               onYearsChange={setYears}
               currentWage={player.wage}
-            />
+              wageFloor={renewalWageFloor(player.wage, player.contractYearsRemaining)}
+            clause={clause} onClauseChange={setClause} />
           </>
         )}
 

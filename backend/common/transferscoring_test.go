@@ -665,3 +665,20 @@ func TestEvaluateIncomingOffer_CrisisDiscount(t *testing.T) {
 		t.Errorf("crisis threshold %d, want about %d", crisis.Threshold, want)
 	}
 }
+
+// cpu-transfer-market "Contract length in valuations": "Last season" and "Fresh contract".
+func TestMarketValue_ContractFactor(t *testing.T) {
+	p := Player{Age: 25, GoalKeeper: 70, Defense: 70, Lateral: 70, Pass: 70, Midfield: 70, Dribbling: 70, Shot: 70}
+	p.ContractYearsRemaining = 3
+	full := MarketValue(p)
+	cases := []struct {
+		years int
+		want  float64
+	}{{3, 1.0}, {2, 0.85}, {1, 0.6}, {0, 1.0}}
+	for _, c := range cases {
+		p.ContractYearsRemaining = c.years
+		if got, want := MarketValue(p), int64(math.Round(float64(full)*c.want)); got != want {
+			t.Errorf("%d seasons left: value %d, want %d", c.years, got, want)
+		}
+	}
+}

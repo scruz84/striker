@@ -194,6 +194,17 @@ On its next offer-response sweep a CPU buyer SHALL accept a counter-offer when t
   `GetLoansToTeam`), limit `common.AiMaxLoanedIn` (`common/offerrejections.go`), `common/aimanager.go` (`AiTransferProfile`), `common/aimarket.go`,
   `common/offerrejections.go` (offer limits, cooldown, `player_offer_rejections`),
   `common/nationalradar.go` (`GetNationalRadar`), `common/telemetry.go`.
+- Contract length in valuations: `contractValueFactor` in `common.MarketValue`
+  (`LastSeasonContractValueFactor`, `TwoSeasonContractValueFactor`, `common/transferscoring.go`;
+  test `TestMarketValue_ContractFactor`). CPU personal terms: `common.PlayerTermsExpectation` in
+  `makeAiOffer` (`engine/aitransfers.go`) and `renewContract` (`engine/aiteams.go`).
+- Pre-contract targets: `preContractCandidates`, `makeAiPreContractOffer`,
+  `aiPreContractOffersPerPass`, `candidatePreContract` and `transferState.SignedPreContracts` in
+  `engine/aitransfers.go`; search `common.GetExpiringCandidatesForPosition` (`common/aimarket.go`),
+  `AiTransferProfile.PreContractCandidates`. Release clauses: `candidateReleaseClause`,
+  `payableClauses`, `payAiReleaseClause`, `aiReleaseClausesPerPass`, `common.CpuMayPayClauseOn`.
+  Tests: `engine/precontracts_integration_test.go`, `engine/releaseclauses_integration_test.go`,
+  `engine/aicontractterms_test.go`.
 - Counter-offers to a CPU buyer: `engine/aiteams.go` (`answerCountersAsBuyer`, `counterScore`,
   `acceptsCounter`), called from `RespondToAllPendingOffers`; it answers through
   `common.AcceptCounterOffer` / `DeclineCounterOffer` and records the declined bid with

@@ -53,6 +53,13 @@ const (
 	// the team whose loan carries a buy option, scored as a permanent signing at the option fee.
 	candidateLoan
 	candidateBuyOption
+	// candidatePreContract is another club's player in his last season, offered a contract for
+	// next season (openspec/specs/cpu-transfer-market "Pre-contract targets"): no fee, his Wage is
+	// the one the team would offer.
+	candidatePreContract
+	// candidateReleaseClause is another club's player whose release clause the team can pay
+	// (openspec/specs/cpu-transfer-market "Paying release clauses"): AskingPrice is the clause.
+	candidateReleaseClause
 )
 
 // transferCandidate is one player a CPU team could sign, and how.
@@ -100,6 +107,9 @@ type transferState struct {
 	// Protected are squad players the team won't sell to fund a signing - see
 	// protectedFromListing.
 	Protected map[int64]bool
+	// SignedPreContracts is how many players have signed a pre-contract with the team - they join
+	// at the next rollover, so they count toward the squad cap.
+	SignedPreContracts int
 }
 
 // available is the squad the team can count on: owned and not already up for sale, on the
@@ -183,7 +193,7 @@ func scoreOne(profile common.AiTransferProfile, state *transferState, c transfer
 		ctx.Price = c.BuyOptionFee
 	}
 	score := common.ScoreTarget(profile, ctx, rng)
-	if (c.Kind == candidateListed || c.Kind == candidateBuyOption) &&
+	if (c.Kind == candidateListed || c.Kind == candidateBuyOption || c.Kind == candidateReleaseClause) &&
 		float64(score.Price) > float64(score.Value)*aiMaxBidValueMultiple {
 		return score, false
 	}
@@ -244,10 +254,24 @@ func rankCandidates(profile common.AiTransferProfile, state *transferState, cand
 // common.MaxAiSquadSize takes on nobody (it has to sell first; exercising a buy option adds no
 // body, so that still goes ahead), a team with common.AiMaxLoanedIn players on loan accepts no
 // more loans, and only offersLeft more offers for unlisted players may be started this pass.
-func pickNextTarget(ranked []scoredCandidate, state *transferState, offersLeft int) *scoredCandidate {
-	atCap := len(state.available())+len(state.LoanedIn) >= common.MaxAiSquadSize
+func pickNextTarget(ranked []scoredCandidate, state *transferState, offersLeft int, preContractsLeft int) *scoredCandidate {
+	return pickNextTargetWithClauses(ranked, state, offersLeft, preContractsLeft, 0)
+}
+
+// pickNextTargetWithClauses is pickNextTarget that may also pick a release clause to pay while
+// clausesLeft is positive.
+func pickNextTargetWithClauses(ranked []scoredCandidate, state *transferState, offersLeft int, preContractsLeft int, clausesLeft int) *scoredCandidate {
+	atCap := len(state.available())+len(state.LoanedIn)+state.SignedPreContracts >= common.MaxAiSquadSize
 	for i := range ranked {
 		switch ranked[i].Kind {
+		case candidatePreContract:
+			if atCap || preContractsLeft <= 0 || state.SignedPreContracts >= common.AiMaxSignedPreContracts {
+				continue
+			}
+		case candidateReleaseClause:
+			if atCap || clausesLeft <= 0 {
+				continue
+			}
 		case candidateBuyOption:
 		case candidateLoan:
 			if atCap || len(state.LoanedIn) >= common.AiMaxLoanedIn {
@@ -395,18 +419,23 @@ func loadTransferState(dbCtx *common.DatabaseContext, team *common.Team) (*trans
 			loanedIn = append(loanedIn, p)
 		}
 	}
+	signedPreContracts, err := common.CountSignedPreContracts(dbCtx.Db, teamId)
+	if err != nil {
+		return nil, err
+	}
 	return &transferState{
-		Squad:         squad,
-		Listed:        commitments.TransferListed,
-		LoanListed:    commitments.LoanListed,
-		LoanedIn:      loanedIn,
-		Loans:         loans,
-		CurrentSeason: currentSeason,
-		Budget:        budget,
-		WageBill:      wageBill,
-		WageFactor:    wageFactor,
-		OpenOffers:    len(sent),
-		Protected:     protectedFromListing(dbCtx, team, squad),
+		SignedPreContracts: signedPreContracts,
+		Squad:              squad,
+		Listed:             commitments.TransferListed,
+		LoanListed:         commitments.LoanListed,
+		LoanedIn:           loanedIn,
+		Loans:              loans,
+		CurrentSeason:      currentSeason,
+		Budget:             budget,
+		WageBill:           wageBill,
+		WageFactor:         wageFactor,
+		OpenOffers:         len(sent),
+		Protected:          protectedFromListing(dbCtx, team, squad),
 	}, nil
 }
 
@@ -603,6 +632,10 @@ func gatherCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile 
 		}
 	}
 
+	if profile.PreContractCandidates > 0 {
+		candidates = append(candidates, preContractCandidates(dbCtx, team, profile, state, seen)...)
+	}
+
 	if profile.SearchesUnlisted {
 		unlisted := make([]int64, 0)
 		available := state.available()
@@ -642,7 +675,12 @@ func gatherCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile 
 			log.Errorf("error reading open offers of AI-managed team %d: %s", team.Id, err)
 			sentOffers = map[int64]bool{}
 		}
+		clauses := payableClauses(dbCtx, fresh, now)
 		for _, p := range loadPlayers(dbCtx, fresh) {
+			if clause, ok := clauses[p.Id]; ok && cpuMayPayClauseOn(dbCtx, p.TeamId, now) {
+				// His clause is another way to sign him: paid at once, no consent needed.
+				candidates = append(candidates, transferCandidate{Player: *p, Kind: candidateReleaseClause, SellerTeamId: p.TeamId, AskingPrice: clause})
+			}
 			if sentOffers[p.Id] {
 				continue
 			}
@@ -725,6 +763,12 @@ func executeTransferMove(dbCtx *common.DatabaseContext, team *common.Team, profi
 		recordAiMarketAction(team, "loaned_in", target.Player.Id, target.AskingPrice)
 		return true
 
+	case candidatePreContract:
+		return makeAiPreContractOffer(dbCtx, team, target)
+
+	case candidateReleaseClause:
+		return payAiReleaseClause(dbCtx, team, target)
+
 	case candidateBuyOption:
 		if err := common.ExerciseLoanBuyOption(dbCtx, target.Player.Id, team.Id); err != nil {
 			if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
@@ -764,9 +808,15 @@ func makeAiOffer(dbCtx *common.DatabaseContext, team *common.Team, profile commo
 	}
 
 	p := target.Player
-	wage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
+	// Exactly the terms the player accepts (openspec/specs/cpu-transfer-market "CPU personal
+	// terms"), so the offer is never refused on personal terms.
+	wage, years, err := common.PlayerTermsExpectation(dbCtx, p, common.TermsTransfer)
+	if err != nil {
+		log.Errorf("error reading the personal terms of player %d for AI-managed team %d: %s", p.Id, team.Id, err)
+		return false
+	}
 	amount := bidAmount(profile, state, target)
-	result, err := common.MakeTransferOffer(dbCtx, p.Id, team.Id, amount, wage, common.MaxAcceptableRenewalYears(p.Age))
+	result, err := common.MakeTransferOffer(dbCtx, p.Id, team.Id, amount, wage, years)
 	if err != nil {
 		if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrOfferAlreadyExists) &&
 			!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerIsFreeAgent) &&
@@ -834,9 +884,11 @@ func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
 	attempted := map[int64]bool{}
 	movesLeft := profile.MovesPerPass
 	offersLeft := profile.MaxNewOffersPerPass
+	preContractsLeft := aiPreContractOffersPerPass
+	clausesLeft := aiReleaseClausesPerPass
 	for i := 0; i < profile.MovesPerPass*aiPassIterationsPerMove && movesLeft > 0; i++ {
 		ranked := rankCandidates(profile, state, candidates, attempted, rng)
-		target := pickNextTarget(ranked, state, offersLeft)
+		target := pickNextTargetWithClauses(ranked, state, offersLeft, preContractsLeft, clausesLeft)
 		if target == nil {
 			if plan := planSellToBuy(profile, state, candidates, attempted, rng); plan != nil {
 				if err := common.CreateTransferListing(dbCtx, plan.Seller.Id, team.Id, plan.Asking); err == nil {
@@ -851,15 +903,190 @@ func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
 
 		attempted[target.Player.Id] = true
 		if !executeTransferMove(dbCtx, team, profile, state, *target) {
+			if target.Kind == candidatePreContract {
+				// One failed pre-contract offer ends them for this pass, so they can't use up the
+				// iterations the pass's signings need.
+				preContractsLeft = 0
+			}
 			continue
 		}
-		movesLeft--
+		// A pre-contract offer is not a signing (the player only decides in 72 hours and joins next
+		// season), so it uses the pass's one pre-contract slot but none of its moves.
+		if target.Kind == candidatePreContract {
+			preContractsLeft--
+		} else {
+			movesLeft--
+		}
 		if target.Kind == candidateUnlisted {
 			offersLeft--
+		}
+		if target.Kind == candidateReleaseClause {
+			clausesLeft--
 		}
 		if state, err = loadTransferState(dbCtx, team); err != nil {
 			log.Errorf("error re-reading the state of AI-managed team %d during its transfer pass: %s", team.Id, err)
 			return
 		}
 	}
+}
+
+// aiPreContractOffersPerPass is how many pre-contract offers a CPU team makes per transfer pass.
+const aiPreContractOffersPerPass = 1
+
+// preContractCandidates are the players in their last season a Manager or Director scouts for a
+// pre-contract: at each core position the best profile.PreContractCandidates of other clubs who
+// beat its weakest starter there, nobody it already sees elsewhere or already made a pre-contract
+// offer to, and nobody past aiMaxPlayerAge. Each candidate's Wage is the one the team would offer:
+// common.PreContractMinimumWage of his transfer expectation. Each player taken is marked in seen.
+func preContractCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile common.AiTransferProfile,
+	state *transferState, seen map[int64]bool) []transferCandidate {
+	offered, err := common.GetPlayersWithPreContractOfferFromTeam(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error reading pre-contract offers of AI-managed team %d: %s", team.Id, err)
+		return nil
+	}
+	available := state.available()
+	ids := make([]int64, 0)
+	for _, position := range common.CorePositions {
+		found, err := common.GetExpiringCandidatesForPosition(dbCtx, team.Id, position,
+			weakestStarterValue(available, position), aiMaxPlayerAge, profile.PreContractCandidates)
+		if err != nil {
+			log.Errorf("error searching last-season players for AI-managed team %d: %s", team.Id, err)
+			continue
+		}
+		ids = append(ids, found...)
+	}
+	fresh := make([]int64, 0, len(ids))
+	for _, id := range ids {
+		if !seen[id] && !offered[id] {
+			fresh = append(fresh, id)
+		}
+	}
+	candidates := make([]transferCandidate, 0, len(fresh))
+	// Only players whose league is far enough along can be offered one (common.
+	// PreContractSeasonOpen); one read per club.
+	open := map[int64]bool{}
+	for _, p := range loadPlayers(dbCtx, fresh) {
+		isOpen, known := open[p.TeamId]
+		if !known {
+			situation, err := common.GetTeamSeasonSituation(dbCtx, p.TeamId)
+			isOpen = err == nil && common.PreContractSeasonOpen(situation.Played, situation.Remaining)
+			open[p.TeamId] = isOpen
+		}
+		if !isOpen {
+			continue
+		}
+		expected, _, err := common.PlayerTermsExpectation(dbCtx, *p, common.TermsTransfer)
+		if err != nil {
+			log.Errorf("error reading the terms of player %d for AI-managed team %d: %s", p.Id, team.Id, err)
+			continue
+		}
+		seen[p.Id] = true
+		target := *p
+		target.Wage = common.PreContractMinimumWage(expected)
+		candidates = append(candidates, transferCandidate{Player: target, Kind: candidatePreContract, SellerTeamId: p.TeamId})
+	}
+	return candidates
+}
+
+// makeAiPreContractOffer offers a pre-contract at exactly the wage the player asks to leave his
+// club (target.Player.Wage, see preContractCandidates) and his age's maximum term, within the
+// limits on pending CPU offers: at most common.AiMaxPreContractOffersPerHumanPlayer on a human
+// club's player, one on a CPU club's.
+func makeAiPreContractOffer(dbCtx *common.DatabaseContext, team *common.Team, target scoredCandidate) bool {
+	p := target.Player
+	owner, err := common.GetTeamOwner(dbCtx, target.SellerTeamId)
+	if err != nil {
+		log.Errorf("error looking up the owner of team %d: %s", target.SellerTeamId, err)
+		return false
+	}
+	pending, err := common.CountAiPreContractOffersOnPlayer(dbCtx, p.Id)
+	if err != nil {
+		log.Errorf("error counting CPU pre-contract offers on player %d: %s", p.Id, err)
+		return false
+	}
+	if (owner > 0 && pending >= common.AiMaxPreContractOffersPerHumanPlayer) || (owner <= 0 && pending >= 1) {
+		return false
+	}
+	current, err := common.GetPlayerById(dbCtx, p.Id)
+	if err != nil {
+		return false
+	}
+	_, years, err := common.PlayerTermsExpectation(dbCtx, *current, common.TermsTransfer)
+	if err != nil {
+		return false
+	}
+	result, err := common.MakePreContractOffer(dbCtx, p.Id, team.Id, p.Wage, years)
+	if err != nil {
+		if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrPreContractAlreadyOffered) &&
+			!errors.Is(err, common.ErrPreContractTooEarly) && !errors.Is(err, common.ErrPreContractNotLastSeason) &&
+			!errors.Is(err, common.ErrPlayerPreContracted) && !errors.Is(err, common.ErrPlayerOnLoan) &&
+			!errors.Is(err, common.ErrTeamInsolvent) && !errors.Is(err, common.ErrPreContractLimit) &&
+			!errors.Is(err, common.ErrPlayerIsFreeAgent) {
+			log.Errorf("error making a pre-contract offer for player %d on behalf of AI-managed team %d: %s", p.Id, team.Id, err)
+		}
+		return false
+	}
+	if !result.Accepted {
+		return false
+	}
+	recordAiMarketAction(team, "pre_contract_offered", p.Id, int64(p.Wage))
+	return true
+}
+
+// aiReleaseClausesPerPass is how many release clauses a Director pays per transfer pass.
+const aiReleaseClausesPerPass = 1
+
+// payableClauses reads the release clauses of the players in ids that can be paid now (past their
+// lock-in), by player id.
+func payableClauses(dbCtx *common.DatabaseContext, ids []int64, now time.Time) map[int64]int64 {
+	clauses := map[int64]int64{}
+	for _, id := range ids {
+		p, err := common.GetPlayerById(dbCtx, id)
+		if err != nil || p.ReleaseClause == nil {
+			continue
+		}
+		if p.ReleaseClausePayableAt != nil && now.Before(*p.ReleaseClausePayableAt) {
+			continue
+		}
+		clauses[id] = *p.ReleaseClause
+	}
+	return clauses
+}
+
+// cpuMayPayClauseOn is common.CpuMayPayClauseOn, false when it can't be read.
+func cpuMayPayClauseOn(dbCtx *common.DatabaseContext, sellerTeamId int64, now time.Time) bool {
+	ok, err := common.CpuMayPayClauseOn(dbCtx, sellerTeamId, now)
+	if err != nil {
+		log.Errorf("error reading the release clause payments on team %d: %s", sellerTeamId, err)
+		return false
+	}
+	return ok
+}
+
+// payAiReleaseClause pays target's release clause on the player's own transfer terms, with no
+// clause in his new contract.
+func payAiReleaseClause(dbCtx *common.DatabaseContext, team *common.Team, target scoredCandidate) bool {
+	p := target.Player
+	wage, years, err := common.PlayerTermsExpectation(dbCtx, p, common.TermsTransfer)
+	if err != nil {
+		log.Errorf("error reading the personal terms of player %d for AI-managed team %d: %s", p.Id, team.Id, err)
+		return false
+	}
+	result, err := common.PayReleaseClause(dbCtx, p.Id, team.Id, wage, years, nil)
+	if err != nil {
+		if !errors.Is(err, common.ErrTransferWindowClosed) && !errors.Is(err, common.ErrInsufficientBudget) &&
+			!errors.Is(err, common.ErrNoReleaseClause) && !errors.Is(err, common.ErrReleaseClauseLockedIn) &&
+			!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerPreContracted) &&
+			!errors.Is(err, common.ErrTeamInsolvent) && !errors.Is(err, common.ErrCannotOfferOnOwnPlayer) &&
+			!errors.Is(err, common.ErrPlayerIsFreeAgent) {
+			log.Errorf("error paying the release clause of player %d for AI-managed team %d: %s", p.Id, team.Id, err)
+		}
+		return false
+	}
+	if !result.Accepted {
+		return false
+	}
+	recordAiMarketAction(team, "paid_release_clause", p.Id, result.Fee)
+	return true
 }

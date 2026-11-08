@@ -129,7 +129,17 @@
       "watchlistFreeAgent": "{{player}}, al que sigues, es agente libre y se puede fichar",
       "watchlistMoved": "{{player}}, al que sigues, ha fichado por {{team}}",
       "rivalryRival": "{{team}} es ahora tu rival",
-      "rivalryClasico": "Tus partidos contra {{team}} son ahora un clásico"
+      "rivalryClasico": "Tus partidos contra {{team}} son ahora un clásico",
+      "preContractOffered": "{{team}} ha ofrecido un precontrato a {{player}}: {{wage}} por {{years}} temporada(s). Decide en {{hours}} horas; renuévalo por {{keepWage}} para quedártelo",
+      "preContractDecisionSoon": "{{player}} decide sobre sus ofertas de precontrato en menos de 24 horas; renuévalo por {{keepWage}} para quedártelo",
+      "preContractSigned": "{{player}} ha firmado tu precontrato: llegará al final de la temporada",
+      "preContractSignedAway": "{{player}} ha firmado un precontrato con {{team}}: se marchará al final de la temporada",
+      "preContractRejected": "{{player}} ha rechazado tu oferta de precontrato",
+      "preContractCancelled": "Tu oferta de precontrato por {{player}} ya no sigue: ha renovado o ya no está disponible",
+      "preContractJoined": "{{player}} se ha incorporado a {{team}} desde {{from}} con un precontrato",
+      "preContractRetired": "{{player}} se ha retirado: su precontrato contigo queda sin efecto",
+      "releaseClausePaid": "{{team}} ha pagado la cláusula de rescisión de {{player}} ({{fee}}): se ha marchado",
+      "releaseClauseSigned": "Has fichado a {{player}} de {{team}} pagando su cláusula de rescisión de {{fee}}"
     },
     "account": {
       "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
@@ -826,7 +836,33 @@
       "hint": "Elige el jugador y el precio que pides por él."
     },
     "confirmAcceptCounter": "¿Comprar a {{name}} a {{team}} por {{amount}}? El traspaso se completa en el acto.",
-    "confirmDeclineCounter": "¿Rechazar la contraoferta de {{amount}} de {{team}} por {{name}}? Tu oferta termina."
+    "confirmDeclineCounter": "¿Rechazar la contraoferta de {{amount}} de {{team}} por {{name}}? Tu oferta termina.",
+    "preContract": {
+      "button": "Precontrato",
+      "title": "Oferta de precontrato",
+      "subtitle": "Está en la última temporada de su contrato: ofrécele un contrato para la próxima temporada, sin traspaso. Pide un 10% más de lo habitual para dejar su club, decide 72 horas después de su primera oferta y su club aún puede retenerlo renovándolo.",
+      "submit": "Enviar oferta",
+      "sent": "Oferta enviada. Su club ya lo sabe y él decidirá en 72 horas.",
+      "declined": "No basta para dejar su club: quiere al menos {{wage}}/partido y no firmará más de {{years}}.",
+      "error": "No se pudo enviar la oferta. Debe estar en la última temporada de su contrato, su liga al menos a mitad de temporada y el mercado abierto.",
+      "onYourPlayers": "Ofertas de precontrato por tus jugadores",
+      "noneReceived": "No hay ofertas de precontrato por tus jugadores.",
+      "yours": "Tus ofertas de precontrato",
+      "noneSent": "No has hecho ofertas de precontrato.",
+      "decidesAt": "Decide el {{date}}",
+      "keepWage": "Renuévalo por {{wage}}/partido para quedártelo",
+      "signedAway": "Ha firmado con {{team}}: se marchará al final de la temporada",
+      "signed": "Firmado: llegará al final de la temporada",
+      "confirmWithdraw": "¿Retirar tu oferta de precontrato por {{name}}?"
+    },
+    "releaseClause": {
+      "button": "Pagar cláusula",
+      "title": "Pagar la cláusula de rescisión",
+      "subtitle": "Paga {{fee}} a su club y se incorpora al momento, sin su permiso. Aun así tiene que aceptar tus condiciones personales.",
+      "submit": "Pagar {{fee}}",
+      "signed": "Hecho: ya es tu jugador.",
+      "error": "No se pudo pagar la cláusula. Puede que sea demasiado reciente (14 días), que no te llegue el presupuesto o que el mercado esté cerrado."
+    }
   },
   "cup": {
     "titleWithSeason": "{{name}} - Temporada {{season}}",
@@ -1142,7 +1178,10 @@
       "submit": "Enviar oferta",
       "error": "No se pudo enviar la oferta. Inténtalo de nuevo.",
       "currentWage": "Salario actual: {{wage}}/partido",
-      "sameWage": "Mismo salario"
+      "sameWage": "Mismo salario",
+      "noPayCut": "No aceptará una rebaja: al menos {{wage}}/partido.",
+      "releaseClause": "Cláusula de rescisión (opcional)",
+      "releaseClauseHint": "Cualquier club puede pagarla para ficharlo sin tu permiso. Hasta 2 veces su valor pide un 10% menos de sueldo, hasta 4 veces un 5% menos; como mínimo 1,5 veces su valor."
     },
     "academy": {
       "title": "Cantera",
@@ -1218,7 +1257,11 @@
       "history": "Historial"
     },
     "challenge": "Retar a un amistoso",
-    "noHistoryChart": "La gráfica aparece al completar 2 temporadas."
+    "noHistoryChart": "La gráfica aparece al completar 2 temporadas.",
+    "lastSeasonChip": "Último año",
+    "lastSeasonTooltip": "En la última temporada de su contrato: puedes ofrecerle un precontrato",
+    "signedForChip": "Se va: {{team}}",
+    "signedForTooltip": "Ha firmado un precontrato con {{team}}: se marchará al final de la temporada"
   },
   "match": {
     "matchFinished": "Partido finalizado - cargando el resultado...",
@@ -1788,7 +1831,8 @@
       "redCards": "Tarjetas rojas",
       "contract": "Contrato",
       "wage": "Salario",
-      "averageSkill": "Habilidad media"
+      "averageSkill": "Habilidad media",
+      "releaseClause": "Cláusula de rescisión"
     },
     "listForTransfer": {
       "button": "Poner en el mercado"
@@ -1825,7 +1869,9 @@
         "loan": "Cesión",
         "buyOption": "Opción de compra",
         "release": "Liberación",
-        "permanent": "Traspaso"
+        "permanent": "Traspaso",
+        "preContract": "Precontrato",
+        "releaseClause": "Cláusula de rescisión"
       }
     },
     "clubHistory": {

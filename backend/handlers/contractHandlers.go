@@ -28,6 +28,9 @@ func BrowseFreeAgentsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 type SignFreeAgentRequest struct {
 	Wage  int `json:"wage"`
 	Years int `json:"years"`
+	// ReleaseClause is an optional release clause for the new contract (openspec/specs/
+	// release-clauses).
+	ReleaseClause *int64 `json:"releaseClause,omitempty"`
 }
 
 // SignFreeAgentHandler proposes wage/contract-length terms to sign a free agent to the caller's
@@ -57,11 +60,11 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		result, err := common.SignFreeAgent(dbCtx, playerId, team.Id, body.Wage, body.Years)
+		result, err := common.SignFreeAgentWithClause(dbCtx, playerId, team.Id, body.Wage, body.Years, body.ReleaseClause)
 		switch {
 		case err == nil:
 			c.JSON(http.StatusOK, result)
-		case errors.Is(err, common.ErrInvalidFreeAgentOffer):
+		case errors.Is(err, common.ErrInvalidFreeAgentOffer), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
@@ -82,6 +85,8 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 type RenewalOfferRequest struct {
 	Wage  int `json:"wage"`
 	Years int `json:"years"`
+	// ReleaseClause is an optional release clause for the new contract; none clears the old one.
+	ReleaseClause *int64 `json:"releaseClause,omitempty"`
 }
 
 // RenewContractHandler proposes new terms for one of the caller's own players' contracts. The
@@ -109,17 +114,17 @@ func RenewContractHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		offer, err := common.MakeContractRenewalOffer(dbCtx, playerId, team.Id, body.Wage, body.Years)
+		offer, err := common.MakeContractRenewalOfferWithClause(dbCtx, playerId, team.Id, body.Wage, body.Years, body.ReleaseClause)
 		switch {
 		case err == nil:
 			c.JSON(http.StatusOK, offer)
-		case errors.Is(err, common.ErrInvalidRenewalOffer):
+		case errors.Is(err, common.ErrInvalidRenewalOffer), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotFound):
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotOwnedByTeam):
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrPlayerOnLoan):
+		case errors.Is(err, common.ErrPlayerOnLoan), errors.Is(err, common.ErrPlayerPreContracted):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error making renewal offer for player %d, team %d: %s", playerId, team.Id, err)
@@ -156,7 +161,7 @@ func ReleasePlayerHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrPlayerNotOwnedByTeam):
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrInsufficientBudget), errors.Is(err, common.ErrPlayerOnLoan):
+		case errors.Is(err, common.ErrInsufficientBudget), errors.Is(err, common.ErrPlayerOnLoan), errors.Is(err, common.ErrPlayerPreContracted):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error releasing player %d, team %d: %s", playerId, team.Id, err)

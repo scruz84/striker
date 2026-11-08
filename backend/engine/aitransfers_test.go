@@ -149,11 +149,11 @@ func TestPickNextTarget_RespectsOfferAllowanceAndSquadCeiling(t *testing.T) {
 	unlisted := scoredCandidate{transferCandidate: unlistedCandidate(star)}
 	state := stateOf(adultSquad(), 50_000_000)
 
-	if got := pickNextTarget([]scoredCandidate{unlisted, listed}, state, 0); got == nil || got.Kind != candidateListed {
+	if got := pickNextTarget([]scoredCandidate{unlisted, listed}, state, 0, 1); got == nil || got.Kind != candidateListed {
 		t.Errorf("with no offers left the pass must skip to the listed target, got %v", got)
 	}
 	state.OpenOffers = common.AiMaxOpenOffersPerTeam
-	if got := pickNextTarget([]scoredCandidate{unlisted}, state, 2); got != nil {
+	if got := pickNextTarget([]scoredCandidate{unlisted}, state, 2, 1); got != nil {
 		t.Error("a team with the maximum offers out starts no more")
 	}
 
@@ -161,11 +161,11 @@ func TestPickNextTarget_RespectsOfferAllowanceAndSquadCeiling(t *testing.T) {
 	for i := len(full.Squad); i < common.MaxAiSquadSize; i++ {
 		full.Squad = append(full.Squad, defender(int64(300+i), 20))
 	}
-	if got := pickNextTarget([]scoredCandidate{listed}, full, 2); got != nil {
+	if got := pickNextTarget([]scoredCandidate{listed}, full, 2, 1); got != nil {
 		t.Error("a squad at its ceiling signs nobody")
 	}
 	full.Listed[full.Squad[len(full.Squad)-1].Id] = true
-	if got := pickNextTarget([]scoredCandidate{listed}, full, 2); got == nil {
+	if got := pickNextTarget([]scoredCandidate{listed}, full, 2, 1); got == nil {
 		t.Error("a player already on the transfer list doesn't count against the ceiling")
 	}
 }
@@ -385,17 +385,17 @@ func TestPickNextTarget_LoanedInPlayersCountTowardsTheCap(t *testing.T) {
 	state.LoanedIn = []*common.Player{midfielder(600, 50), midfielder(601, 50)}
 
 	for name, c := range map[string]scoredCandidate{"loan": loan, "transfer": listed} {
-		if got := pickNextTarget([]scoredCandidate{c}, state, 2); got != nil {
+		if got := pickNextTarget([]scoredCandidate{c}, state, 2, 1); got != nil {
 			t.Errorf("a squad full of owned players and loanees must take on no %s, got %v", name, got.Kind)
 		}
 	}
-	if got := pickNextTarget([]scoredCandidate{option}, state, 2); got == nil {
+	if got := pickNextTarget([]scoredCandidate{option}, state, 2, 1); got == nil {
 		t.Error("exercising a buy option adds no body, so it goes ahead at the ceiling")
 	}
 
 	// One loanee fewer leaves room for one more body - a transfer, but no loan while 2 are in.
 	state.LoanedIn = state.LoanedIn[:1]
-	if got := pickNextTarget([]scoredCandidate{listed}, state, 2); got == nil {
+	if got := pickNextTarget([]scoredCandidate{listed}, state, 2, 1); got == nil {
 		t.Error("with room under the ceiling a transfer goes ahead")
 	}
 }
@@ -408,14 +408,14 @@ func TestPickNextTarget_NoMoreLoansAtTheLoanLimit(t *testing.T) {
 	state := stateOf(adultSquad(), 50_000_000)
 
 	state.LoanedIn = []*common.Player{midfielder(600, 50)}
-	if got := pickNextTarget([]scoredCandidate{loan}, state, 2); got == nil {
+	if got := pickNextTarget([]scoredCandidate{loan}, state, 2, 1); got == nil {
 		t.Error("with one loanee a second loan is allowed")
 	}
 	state.LoanedIn = []*common.Player{midfielder(600, 50), midfielder(601, 50)}
-	if got := pickNextTarget([]scoredCandidate{loan}, state, 2); got != nil {
+	if got := pickNextTarget([]scoredCandidate{loan}, state, 2, 1); got != nil {
 		t.Errorf("with %d players on loan no loan is accepted, got %v", common.AiMaxLoanedIn, got.Kind)
 	}
-	if got := pickNextTarget([]scoredCandidate{loan, listed}, state, 2); got == nil || got.Kind != candidateListed {
+	if got := pickNextTarget([]scoredCandidate{loan, listed}, state, 2, 1); got == nil || got.Kind != candidateListed {
 		t.Errorf("the pass moves on to the next candidate, got %v", got)
 	}
 }
@@ -462,7 +462,7 @@ func TestRankCandidates_ALoanCanBeatATransfer(t *testing.T) {
 	if len(ranked) == 0 || ranked[0].Kind != candidateLoan {
 		t.Fatalf("a free loan of a better player should lead the ranking, got %+v", ranked)
 	}
-	if got := pickNextTarget(ranked, state, 0); got == nil || got.Kind != candidateLoan {
+	if got := pickNextTarget(ranked, state, 0, 1); got == nil || got.Kind != candidateLoan {
 		t.Errorf("the pass should accept the loan, got %v", got)
 	}
 }

@@ -186,12 +186,19 @@ const NOTIFICATION_COUNTER_OFFER = 15
 // became a free agent or moved club - see common.NotifyWatchers.
 const NOTIFICATION_WATCHLIST = 16
 
+// NOTIFICATION_PRE_CONTRACT tells a club about a pre-contract (openspec/specs/pre-contracts): an
+// offer on its player (with the wage that keeps him), the reminder before he decides, his
+// decision, a cancelled or lapsed offer, and his move at the rollover.
+const NOTIFICATION_PRE_CONTRACT = 17
+
 // player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
 // translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.
-const PLAYER_TRANSFER_LISTING = 0    // bought a transfer-listed player at its asking price
-const PLAYER_TRANSFER_OFFER = 1      // a negotiated offer the selling club accepted
-const PLAYER_TRANSFER_FREE_AGENT = 2 // signed as a free agent - fee is the premium paid to the last club, if any
-const PLAYER_TRANSFER_LOAN = 3       // temporary loan - fee is the loan fee, if any
-const PLAYER_TRANSFER_BUY_OPTION = 4 // a loan made permanent by exercising its buy option
-const PLAYER_TRANSFER_RELEASE = 5    // contract terminated early or expired - no destination club
-const PLAYER_TRANSFER_PERMANENT = 6  // a permanent transfer from before this table existed (listing vs offer unknown)
+const PLAYER_TRANSFER_LISTING = 0      // bought a transfer-listed player at its asking price
+const PLAYER_TRANSFER_OFFER = 1        // a negotiated offer the selling club accepted
+const PLAYER_TRANSFER_FREE_AGENT = 2   // signed as a free agent - fee is the premium paid to the last club, if any
+const PLAYER_TRANSFER_LOAN = 3         // temporary loan - fee is the loan fee, if any
+const PLAYER_TRANSFER_BUY_OPTION = 4   // a loan made permanent by exercising its buy option
+const PLAYER_TRANSFER_RELEASE = 5      // contract terminated early or expired - no destination club
+const PLAYER_TRANSFER_PERMANENT = 6    // a permanent transfer from before this table existed (listing vs offer unknown)
+const PLAYER_TRANSFER_PRE_CONTRACT = 7   // a free move at the rollover agreed in the last season of his contract - fee 0
+const PLAYER_TRANSFER_RELEASE_CLAUSE = 8 // signed by paying his release clause, without his club's consent - fee is the clause

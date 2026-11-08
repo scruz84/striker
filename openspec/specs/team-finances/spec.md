@@ -194,6 +194,13 @@ The finance page SHALL show the allowed ticket price range (1–39) and a recomm
   moves the money in `executeOfferTx`), `common/offercounters.go` (`AcceptCounterOffer` at the
   counter fee; see transfer-negotiation), `common/loans.go`, `common/contracts.go`; insolvency
   `common.MaxDebt`/`IsTeamSolvent`.
+- Personal terms (renewals, transfer offers, free agents): `common.PersonalTermsExpectation` /
+  `PlayerTermsExpectation` with `TermsKind` and the wage floors `RenewalWageFloorShare`,
+  `LastSeasonWageFloorShare`, `TransferWageFloorShare` (`common/contracts.go`), used by
+  `MakeContractRenewalOffer`, `SignFreeAgent` and `MakeTransferOffer`. Tests:
+  `common/personalterms_test.go`, `engine/contract_terms_integration_test.go`. Frontend hint:
+  `wageFloor` of `components/ContractTermsFields.tsx`, `utils/contractTerms.ts`
+  (`renewalWageFloor`), string `team.contractDialog.noPayCut`.
 - Frontend: `frontend/src/features/finances/` (`cashFlowForecast.ts`, `BudgetOverTimeChart`,
   `IncomeBreakdownChart`); ticket price dialog (range, recommended price) in `StadiumCard` of
   `FinancesPage.tsx`; offer grouping `ReceivedOffersByPlayer` in `TransferMarketPage.tsx`, the

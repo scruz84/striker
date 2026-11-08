@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/scruz84/striker/common"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"math/rand"
 	"sort"
 	"time"
@@ -110,6 +111,7 @@ func RespondToAllPendingOffers(dbCtx *common.DatabaseContext) {
 		}
 		respondToReceivedOffers(dbCtx, teamId)
 		answerCountersAsBuyer(dbCtx, team)
+		answerPreContractOffers(dbCtx, team)
 	}
 }
 
@@ -145,6 +147,9 @@ func manageRosterIfManager(dbCtx *common.DatabaseContext, team *common.Team, bud
 	}
 
 	listSurplusPlayer(dbCtx, team, *players)
+	if !inFinancialCrisis(budget) {
+		listUnrenewedPlayer(dbCtx, team, *players)
+	}
 	listForFundsIfInCrisis(dbCtx, team, *players, inFinancialCrisis(budget))
 	manageLoanListings(dbCtx, team, *players)
 	releaseUnsoldVeteranIfManager(dbCtx, team, *players, budget)
@@ -473,8 +478,35 @@ func renewExpiringContracts(dbCtx *common.DatabaseContext, team *common.Team, cr
 	}
 	owned := ownedPlayers(*players, commitments.LoanedIn)
 	for _, p := range contractsToRenew(team.AiLevel, owned, starters, crisis) {
-		renewContract(dbCtx, team.Id, p, starters[p.Id])
+		renewContract(dbCtx, team, p, starters[p.Id], common.IsKeyPlayer(owned, p.Id))
 	}
+	if team.AiLevel >= common.AiLevelDirector && !crisis {
+		// A Director locks in its key players and rising starters a season early
+		// (openspec/specs/cpu-team-management "Director early renewals").
+		for _, p := range contractsToRenewEarly(owned, starters) {
+			renewContract(dbCtx, team, p, true, common.IsKeyPlayer(owned, p.Id))
+		}
+	}
+}
+
+// earlyRenewalYears is how many seasons a Director's key player or young starter has left when
+// it renews him early (see contractsToRenewEarly).
+const earlyRenewalYears = 2
+
+// contractsToRenewEarly picks the owned players a Director renews before their last season: those
+// with exactly earlyRenewalYears seasons left who are key players (common.IsKeyPlayer over the
+// owned squad) or starters under common.ProjectionMaxAge. Pure.
+func contractsToRenewEarly(owned []*common.Player, starters map[int64]bool) []*common.Player {
+	picked := make([]*common.Player, 0)
+	for _, p := range owned {
+		if p.ContractYearsRemaining != earlyRenewalYears {
+			continue
+		}
+		if (starters[p.Id] && p.Age < common.ProjectionMaxAge) || common.IsKeyPlayer(owned, p.Id) {
+			picked = append(picked, p)
+		}
+	}
+	return picked
 }
 
 // contractsToRenew picks the owned players whose contract an AI-managed team of aiLevel renews this
@@ -501,34 +533,122 @@ func contractsToRenew(aiLevel int, owned []*common.Player, starters map[int64]bo
 	return picked
 }
 
-// renewContract offers p his market wage and his age-appropriate maximum term (see
-// common.PlayerWageFromSkills/MaxAcceptableRenewalYears). A player who has just improved expects
-// a raise on top (see common.ExpectedWageWithIntelligence), so a declined offer is retried once
-// with exactly the terms the player reported back - the same thing a human manager does with the
-// renewal dialog - for a starter, or when those terms are within aiMaxRenewalRaise of the
-// skill-based wage (see shouldMeetRenewalTerms). ErrPlayerOnLoan (the parent club's contract, not
-// this team's to renew) is an expected outcome, not a failure, and is silently skipped.
-func renewContract(dbCtx *common.DatabaseContext, teamId int64, p *common.Player, starter bool) {
-	wage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
-	years := common.MaxAcceptableRenewalYears(p.Age)
-	offer, err := common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, wage, years)
-	if err == nil && !offer.Accepted && shouldMeetRenewalTerms(starter, wage, offer.ExpectedWage) {
-		offer, err = common.MakeContractRenewalOffer(dbCtx, p.Id, teamId, offer.ExpectedWage, offer.MaxAcceptableYears)
-	}
+// renewContract offers p exactly the terms he expects (see common.PlayerRenewalExpectation: his
+// market wage, raised if he has just improved, never below his wage floor and - while other clubs
+// have pre-contract offers pending on him - at least the wage that keeps him, at his age's maximum
+// term), so a renewal the club makes is one the player accepts (openspec/specs/cpu-transfer-market
+// "CPU personal terms"). It only meets those terms within a ceiling: against pending pre-contract
+// offers acceptsCounterBar's (openspec/specs/cpu-team-management "Answering pre-contract offers"),
+// otherwise shouldMeetRenewalTerms'; above it the club lets him go. ErrPlayerOnLoan (the parent
+// club's contract, not this team's to renew) is an expected outcome, not a failure, and is
+// silently skipped.
+func renewContract(dbCtx *common.DatabaseContext, team *common.Team, p *common.Player, starter bool, key bool) {
+	teamId := team.Id
+	wage, years, contested, err := common.PlayerRenewalExpectation(dbCtx, *p)
 	if err != nil {
-		if !errors.Is(err, common.ErrPlayerOnLoan) {
+		log.Errorf("error reading the renewal terms of player %d for AI-managed team %d: %s", p.Id, teamId, err)
+		return
+	}
+	// A clause in the new contract buys a cheaper wage (openspec/specs/cpu-team-management "Release
+	// clauses in CPU renewals").
+	clause := aiRenewalClause(dbCtx, team, p, starter, key)
+	wage = common.DiscountedWage(*p, wage, clause)
+	skillWage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
+	meets := shouldMeetRenewalTerms(starter, skillWage, wage)
+	if contested {
+		meets = acceptsCounterBar(team.AiLevel, starter, key, skillWage, wage)
+	}
+	if !meets {
+		log.Infof("AI-managed team %d lets player %d go: he asks %d, skill-based wage %d", teamId, p.Id, wage, skillWage)
+		return
+	}
+	offer, err := common.MakeContractRenewalOfferWithClause(dbCtx, p.Id, teamId, wage, years, clause)
+	if err != nil {
+		if !errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerPreContracted) {
 			log.Errorf("error renewing contract for AI-managed team %d player %d: %s", teamId, p.Id, err)
 		}
 		return
 	}
 	if !offer.Accepted {
 		log.Infof("AI-managed team %d player %d declined a renewal: %s", teamId, p.Id, offer.Reason)
+		return
+	}
+	if contested {
+		recordAiMarketAction(team, "pre_contract_countered", p.Id, int64(wage))
 	}
 }
 
-// shouldMeetRenewalTerms reports whether a CPU club makes its second renewal offer on the
-// player's own terms: always for a starter, otherwise only when expectedWage is at most
-// aiMaxRenewalRaise times the skill-based wage. Pure.
+// Release clauses a CPU club writes into a renewal, as multiples of its valuation of the player on
+// the new contract (openspec/specs/cpu-team-management "Release clauses in CPU renewals").
+const (
+	aiManagerClauseMultiple  = 2.0
+	aiDirectorClauseMultiple = 4.0
+)
+
+// aiRenewalClause is the release clause a CPU club puts in p's renewal, nil for none: a Manager
+// sets one on a non-starter, a Director on anyone who is neither a key player nor an
+// international, a Caretaker never.
+func aiRenewalClause(dbCtx *common.DatabaseContext, team *common.Team, p *common.Player, starter bool, key bool) *int64 {
+	var multiple float64
+	switch {
+	case team.AiLevel >= common.AiLevelDirector:
+		if key {
+			return nil
+		}
+		if international, _ := nationalStanding(dbCtx, p.Id); international {
+			return nil
+		}
+		multiple = aiDirectorClauseMultiple
+	case team.AiLevel >= common.AiLevelManager:
+		if starter {
+			return nil
+		}
+		multiple = aiManagerClauseMultiple
+	default:
+		return nil
+	}
+	return renewalClauseAmount(aiProfile(team), *p, skillCapsFor(dbCtx, p.Id), multiple)
+}
+
+// renewalClauseAmount is multiple x the club's valuation of p on a fresh 3-season contract, raised
+// to common.MinReleaseClause. The valuation's noise is seeded from his id, so the same club sets
+// the same clause. Pure given its inputs.
+func renewalClauseAmount(profile common.AiTransferProfile, p common.Player, caps *common.PlayerSkillCaps, multiple float64) *int64 {
+	fresh := p
+	fresh.ContractYearsRemaining = common.MaxContractYearsRemaining
+	value := common.PerceivedValue(fresh, caps, profile, rand.New(rand.NewSource(p.Id)))
+	amount := int64(math.Round(float64(value) * multiple))
+	if minimum := common.MinReleaseClause(p); amount < minimum {
+		amount = minimum
+	}
+	return &amount
+}
+
+// The ceilings, as multiples of the skill-based wage, up to which a CPU club renews a player whose
+// expectation pending pre-contract offers have raised (openspec/specs/cpu-team-management
+// "Answering pre-contract offers"): a starter, a Director's key player, anyone else
+// (aiMaxRenewalRaise).
+const (
+	aiCounterStarterCap   = 1.5
+	aiCounterKeyPlayerCap = 2.0
+)
+
+// acceptsCounterBar reports whether a CPU club of aiLevel renews a player asking expectedWage
+// against pending pre-contract offers. Pure.
+func acceptsCounterBar(aiLevel int, starter bool, key bool, skillWage int, expectedWage int) bool {
+	ceiling := aiMaxRenewalRaise
+	if starter {
+		ceiling = aiCounterStarterCap
+	}
+	if key && aiLevel >= common.AiLevelDirector {
+		ceiling = aiCounterKeyPlayerCap
+	}
+	return float64(expectedWage) <= ceiling*float64(skillWage)
+}
+
+// shouldMeetRenewalTerms reports whether a CPU club meets a player's renewal terms: always for a
+// starter, otherwise only when expectedWage is at most aiMaxRenewalRaise times the skill-based
+// wage. Pure.
 func shouldMeetRenewalTerms(starter bool, skillWage int, expectedWage int) bool {
 	return starter || float64(expectedWage) <= aiMaxRenewalRaise*float64(skillWage)
 }
@@ -588,6 +708,108 @@ func listSurplusPlayer(dbCtx *common.DatabaseContext, team *common.Team, players
 		!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerAlreadyLoanListed) {
 		log.Errorf("error listing surplus player %d for AI-managed team %d: %s", target.Id, teamId, err)
 	}
+}
+
+// listUnrenewedPlayer puts on the transfer list, at his asking price, one player in his last
+// season this club did not renew (renewExpiringContracts ran just before, so anyone still on one
+// season is a player it let go), so it sells him while he is still worth something instead of
+// losing him for nothing at the rollover (openspec/specs/cpu-team-management "Selling contracts it
+// will not renew"). The asking price already carries the last-season contract factor.
+func listUnrenewedPlayer(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player) {
+	listUnrenewedPlayerAmong(dbCtx, team, players, nil)
+}
+
+// listUnrenewedPlayerAmong is listUnrenewedPlayer restricted to the players in among (every player
+// when among is nil).
+func listUnrenewedPlayerAmong(dbCtx *common.DatabaseContext, team *common.Team, players []*common.Player, among map[int64]bool) {
+	commitments, err := common.GetTeamMarketCommitments(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error fetching market commitments for AI-managed team %d: %s", team.Id, err)
+		return
+	}
+	owned := ownedPlayers(players, commitments.LoanedIn)
+	target := pickUnrenewedToListAmong(owned, commitments.TransferListed, commitments.LoanListed,
+		recentlySignedOrInternational(dbCtx, team, owned), among)
+	if target == nil {
+		return
+	}
+	askingPrice := common.ListingAskingPrice(*target, aiProfile(team), false, 0)
+	if err := common.CreateTransferListing(dbCtx, target.Id, team.Id, askingPrice); err != nil {
+		if !errors.Is(err, common.ErrPlayerAlreadyListed) && !errors.Is(err, common.ErrTransferWindowClosed) &&
+			!errors.Is(err, common.ErrPlayerOnLoan) && !errors.Is(err, common.ErrPlayerAlreadyLoanListed) {
+			log.Errorf("error listing unrenewed player %d for AI-managed team %d: %s", target.Id, team.Id, err)
+		}
+		return
+	}
+	recordAiMarketAction(team, "listed_expiring", target.Id, askingPrice)
+}
+
+// pickUnrenewedToList is the player in his last season (contractRenewalThresholdYears or fewer
+// seasons left) a club lists, or nil: the most valuable one (common.MarketValue, ties to the lowest
+// id) who is not transfer- or loan-listed, not protected (a recent signing or an international),
+// and whose sale keeps his position at minimum depth and the squad at minSquadSizeAfterSale owned,
+// unlisted players. Pure.
+func pickUnrenewedToList(owned []*common.Player, transferListed map[int64]bool, loanListed map[int64]bool, protected map[int64]bool) *common.Player {
+	return pickUnrenewedToListAmong(owned, transferListed, loanListed, protected, nil)
+}
+
+// pickUnrenewedToListAmong is pickUnrenewedToList restricted to the players in among (every player
+// when among is nil). Pure.
+func pickUnrenewedToListAmong(owned []*common.Player, transferListed map[int64]bool, loanListed map[int64]bool, protected map[int64]bool, among map[int64]bool) *common.Player {
+	available := withoutPlayers(owned, transferListed)
+	if len(available)-1 < minSquadSizeAfterSale {
+		return nil
+	}
+	var best *common.Player
+	var bestValue int64
+	for _, p := range available {
+		if p.ContractYearsRemaining > contractRenewalThresholdYears || loanListed[p.Id] || protected[p.Id] || (among != nil && !among[p.Id]) {
+			continue
+		}
+		position := common.BestCorePosition(*p)
+		if positionDepth(available, position)-1 < common.MinPositionDepth[position] {
+			continue
+		}
+		value := common.MarketValue(*p)
+		if best == nil || value > bestValue || (value == bestValue && p.Id < best.Id) {
+			best, bestValue = p, value
+		}
+	}
+	return best
+}
+
+// answerPreContractOffers is a Manager's or Director's answer to the pre-contract offers other
+// clubs made its players (openspec/specs/cpu-team-management "Answering pre-contract offers"): it
+// runs its renewals at once, which counter by renewing each player it keeps within
+// acceptsCounterBar's ceiling, then lists for transfer one player still contested that it let go,
+// when "Selling contracts it will not renew" allows it. A Caretaker does not react.
+func answerPreContractOffers(dbCtx *common.DatabaseContext, team *common.Team) {
+	if team.AiLevel < common.AiLevelManager {
+		return
+	}
+	contested, err := common.GetTeamPlayersWithPendingPreContracts(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error reading pre-contract offers on AI-managed team %d: %s", team.Id, err)
+		return
+	}
+	if len(contested) == 0 {
+		return
+	}
+	crisis := teamInCrisis(dbCtx, team.Id)
+	renewExpiringContracts(dbCtx, team, crisis)
+	if crisis {
+		return
+	}
+	stillContested, err := common.GetTeamPlayersWithPendingPreContracts(dbCtx, team.Id)
+	if err != nil || len(stillContested) == 0 {
+		return
+	}
+	players, err := common.GetPlayersFromTeamId(dbCtx, team.Id)
+	if err != nil {
+		log.Errorf("error fetching squad for AI-managed team %d pre-contract answers: %s", team.Id, err)
+		return
+	}
+	listUnrenewedPlayerAmong(dbCtx, team, *players, stillContested)
 }
 
 // ownedPlayers drops every player on loan to this team from another club - they count towards

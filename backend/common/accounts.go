@@ -347,6 +347,11 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 			return false, nil, fmt.Errorf("resetting team %d: %w (%.60s)", teamId, err, stmt)
 		}
 	}
+	// Its pre-contract offers, pending or signed, go with its old owner (openspec/specs/
+	// pre-contracts): the reset club starts with nobody arriving.
+	if _, err := tx.Exec(deleteTeamPreContractOffersStmtSql, teamId); err != nil {
+		return false, nil, err
+	}
 	if err := ClearWatchlist(tx, teamId); err != nil {
 		return false, nil, err
 	}

@@ -53,6 +53,7 @@ func ListPlayerHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			switch {
 			case errors.Is(err, common.ErrPlayerAlreadyListed),
 				errors.Is(err, common.ErrPlayerOnLoan),
+				errors.Is(err, common.ErrPlayerPreContracted),
 				errors.Is(err, common.ErrPlayerAlreadyLoanListed),
 				errors.Is(err, common.ErrTransferWindowClosed):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))

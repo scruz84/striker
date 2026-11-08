@@ -19,7 +19,8 @@ import (
 // reads them back in this order.
 const playerColumnsSql = "p.player_id, COALESCE(p.team_id, 0), p.first_name, p.last_name, p.birth_day, p.goal_keeper, p.defense, p.\"lateral\", p.pass, p.midfield, " +
 	"p.dribbling, p.shot, p.\"header\", p.quick, p.creative, p.technical, p.wage, p.age, p.avatar, p.contract_years_remaining, p.birth_country, " +
-	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(p.shirt_number, 0), p.stamina, p.form"
+	"p.free_agent_seasons, COALESCE(p.last_team_id, 0), COALESCE(p.shirt_number, 0), p.stamina, p.form, " +
+	"p.release_clause, p.release_clause_set_at"
 
 const GetPlayerByIdStmtSql = "SELECT " + playerColumnsSql + " FROM players p WHERE p.player_id = $1"
 
@@ -79,13 +80,16 @@ func scanPlayer(row rowScanner, extra ...any) (*Player, error) {
 	var birthDay int64
 	var avatar string
 	var birthCountry sql.NullString
+	var clause sql.NullInt64
+	var clauseSetAt sql.NullTime
 	dest := append([]any{&p.Id, &p.TeamId, &p.FirstName, &p.LastName, &birthDay,
 		&p.GoalKeeper, &p.Defense, &p.Lateral, &p.Pass, &p.Midfield, &p.Dribbling, &p.Shot,
 		&p.Header, &p.Quick, &p.Creative, &p.Technical, &p.Wage, &p.Age, &avatar, &p.ContractYearsRemaining, &birthCountry,
-		&p.FreeAgentSeasons, &p.LastTeamId, &p.ShirtNumber, &p.Stamina, &p.Form}, extra...)
+		&p.FreeAgentSeasons, &p.LastTeamId, &p.ShirtNumber, &p.Stamina, &p.Form, &clause, &clauseSetAt}, extra...)
 	if err := row.Scan(dest...); err != nil {
 		return nil, err
 	}
+	p.setReleaseClause(clause, clauseSetAt)
 	p.BirthDay = time.UnixMilli(birthDay)
 	p.Avatar = GetAvatarFromString(avatar)
 	p.BirthCountry = birthCountry.String
@@ -149,6 +153,11 @@ func CreateTransferListing(dbCtx *DatabaseContext, playerId int64, sellingTeamId
 	}
 	if onLoan {
 		return ErrPlayerOnLoan
+	}
+	if signed, err := IsPlayerPreContracted(dbCtx.Db, playerId); err != nil {
+		return err
+	} else if signed {
+		return ErrPlayerPreContracted
 	}
 	loanListed, err := IsPlayerLoanListed(dbCtx, playerId)
 	if err != nil {
@@ -300,6 +309,11 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if _, err := tx.Exec(DeleteTransferListingStmtSql, listingId); err != nil {
 		return err
 	}
+	// Sold: every pending pre-contract offer on him is off (openspec/specs/pre-contracts).
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
+		return err
+	}
 
 	playerName := player.FirstName + " " + player.LastName
 	var flows LedgerFlows
@@ -316,6 +330,7 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 		return err
 	}
 	flows.Commit(context.Background())
+	notifyPreContractsCancelled(dbCtx, playerId, preContractBuyers)
 
 	// Counted alongside negotiated offers (see MakeTransferOffer) toward the transfer market
 	// stats panel's "offers made" figure, so an AI-managed team buying a listing outright -

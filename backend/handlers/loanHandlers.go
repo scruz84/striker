@@ -65,6 +65,7 @@ func ListPlayerForLoanHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 				errors.Is(err, common.ErrInvalidWageContributionPercent),
 				errors.Is(err, common.ErrInvalidBuyOptionFee),
 				errors.Is(err, common.ErrPlayerOnLoan),
+				errors.Is(err, common.ErrPlayerPreContracted),
 				errors.Is(err, common.ErrPlayerAlreadyListed),
 				errors.Is(err, common.ErrPlayerAlreadyLoanListed),
 				errors.Is(err, common.ErrTransferWindowClosed):

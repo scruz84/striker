@@ -21,7 +21,7 @@ import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useReleasePlayer } from '../../api/hooks'
+import { usePreContractsReceived, useReleasePlayer } from '../../api/hooks'
 import {
   COUNTRY_NAME_KEYS,
   MAX_CONTRACT_YEARS_REMAINING,
@@ -38,10 +38,12 @@ import { CartoonAvatar } from '../../components/avatar/CartoonAvatar'
 import { ContractRenewalDialog } from '../../components/ContractRenewalDialog'
 import { useConfirm } from '../../components/confirmDialogContext'
 import { ListPlayerForTransferDialog } from '../../components/ListPlayerForTransferDialog'
+import { PreContractDialog } from '../../components/PreContractDialog'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { WatchToggle } from '../../components/WatchToggle'
 import { CountryFlag } from '../../components/CountryFlag'
+import { isLastSeason } from '../../utils/contractTerms'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 import { CONTRACT_EXPIRY_WARNING_YEARS } from '../dashboard/pendingItems'
@@ -100,6 +102,13 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed, 
   const [sortField, setSortField] = useState<SquadSortField>('name')
   const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [openPlayerId, setOpenPlayerId] = useState<number | null>(null)
+  // Own players who signed a pre-contract with another club, with that club's name (openspec/
+  // specs/pre-contracts "Pre-contracted player").
+  const { data: preContracts } = usePreContractsReceived(isOwnTeam)
+  const signedFor = useMemo(
+    () => new Map((preContracts ?? []).filter((o) => o.signedAt).map((o) => [o.player.id, o.fromTeamName])),
+    [preContracts],
+  )
 
   const sorted = useMemo(
     // Ties fall back to the name, always A-Z whichever way the arrow points, so equal contracts
@@ -140,6 +149,7 @@ export function SquadList({ players, isOwnTeam, unavailability, transferListed, 
       unavailability={isOwnTeam ? unavailability.get(player.id) : undefined}
       forSale={isOwnTeam && transferListed.has(player.id)}
       loanedIn={loanedInById.get(player.id)}
+      signedFor={isOwnTeam ? signedFor.get(player.id) : undefined}
       showContract={sortByContract}
       onOpen={() => setOpenPlayerId(player.id)}
     />
@@ -198,6 +208,7 @@ function SquadPlayerCard({
   unavailability,
   forSale,
   loanedIn,
+  signedFor,
   showContract,
   onOpen,
 }: {
@@ -206,6 +217,8 @@ function SquadPlayerCard({
   unavailability?: PlayerUnavailability
   forSale?: boolean
   loanedIn?: LoanedInPlayer
+  /** The club this own player signed a pre-contract with - he leaves at the end of the season. */
+  signedFor?: string
   /** Show the seasons left on the contract in the row (the contract sort). */
   showContract?: boolean
   onOpen: () => void
@@ -214,6 +227,8 @@ function SquadPlayerCard({
   const theme = useTheme()
   const rating = player.averageSkill ?? overallRating(player)
   const expiring = isOwnTeam && contractExpiring(player, loanedIn)
+  // Another club's player in his last season can be offered a pre-contract.
+  const rivalLastSeason = !isOwnTeam && isLastSeason(player)
 
   return (
     <Paper variant="outlined">
@@ -240,7 +255,17 @@ function SquadPlayerCard({
                 <Chip size="small" variant="outlined" color="info" label={t('team.loanedInChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
               </Tooltip>
             )}
-            {expiring && (
+            {signedFor && (
+              <Tooltip title={t('team.signedForTooltip', { team: signedFor })}>
+                <Chip size="small" variant="outlined" color="error" label={t('team.signedForChip', { team: signedFor })} sx={{ height: 18, fontSize: '0.6875rem' }} />
+              </Tooltip>
+            )}
+            {rivalLastSeason && (
+              <Tooltip title={t('team.lastSeasonTooltip')}>
+                <Chip size="small" variant="outlined" color="warning" label={t('team.lastSeasonChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
+              </Tooltip>
+            )}
+            {!signedFor && expiring && (
               <Tooltip title={t('team.contractExpiringTooltip')}>
                 <Chip size="small" variant="outlined" color="warning" label={t('team.contractExpiringChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
               </Tooltip>
@@ -287,6 +312,7 @@ function PlayerSheet({
   const [renewalOpen, setRenewalOpen] = useState(false)
   const [listOpen, setListOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
+  const [preContractOpen, setPreContractOpen] = useState(false)
   const maxContract = player.contractYearsRemaining >= MAX_CONTRACT_YEARS_REMAINING
 
   const handleRelease = async () => {
@@ -397,6 +423,11 @@ function PlayerSheet({
                 <Button variant="contained" onClick={() => setOfferOpen(true)} sx={{ flex: 1 }}>
                   {t('team.makeOffer')}
                 </Button>
+                {isLastSeason(player) && (
+                  <Button variant="outlined" onClick={() => setPreContractOpen(true)} sx={{ flex: 1 }}>
+                    {t('transfers.preContract.button')}
+                  </Button>
+                )}
               </Stack>
             )}
           </Stack>
@@ -405,6 +436,7 @@ function PlayerSheet({
       {isOwnTeam && <ContractRenewalDialog player={player} open={renewalOpen} onClose={() => setRenewalOpen(false)} />}
       {isOwnTeam && <ListPlayerForTransferDialog player={player} open={listOpen} onClose={() => setListOpen(false)} />}
       {!isOwnTeam && <TransferOfferDialog player={player} open={offerOpen} onClose={() => setOfferOpen(false)} />}
+      {!isOwnTeam && preContractOpen && <PreContractDialog player={player} open={preContractOpen} onClose={() => setPreContractOpen(false)} />}
     </>
   )
 }

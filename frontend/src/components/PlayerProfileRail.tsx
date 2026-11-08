@@ -22,6 +22,9 @@ import { CartoonAvatar } from './avatar/CartoonAvatar'
 import { ListPlayerForTransferDialog } from './ListPlayerForTransferDialog'
 import { TeamBadge } from './TeamBadge'
 import { TransferOfferDialog } from './TransferOfferDialog'
+import { PreContractDialog } from './PreContractDialog'
+import { PayReleaseClauseDialog } from './PayReleaseClauseDialog'
+import { isLastSeason } from '../utils/contractTerms'
 import { WatchToggle } from './WatchToggle'
 
 const RING_SIZE_MOBILE = 64
@@ -87,6 +90,17 @@ export function PlayerProfileRail({
   // of only after navigating to that player's team page first.
   const canMakeOffer = !canSeeFinancials
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
+  // Another club's player in his last season can also be offered a pre-contract (openspec/specs/
+  // pre-contracts).
+  const canOfferPreContract = canMakeOffer && isLastSeason(player)
+  const [preContractOpen, setPreContractOpen] = useState(false)
+  // Another club's player with a release clause past its lock-in can be signed by paying it
+  // (openspec/specs/release-clauses).
+  const clausePayable =
+    canMakeOffer &&
+    player.releaseClause !== undefined &&
+    (!player.releaseClausePayableAt || new Date(player.releaseClausePayableAt).getTime() <= Date.now())
+  const [clauseOpen, setClauseOpen] = useState(false)
 
   // A buy-option fee only appears on PlayerStatus when the viewer's own team is the one
   // currently borrowing this player (see backend common.GetPlayerStatus/ExerciseLoanBuyOption) -
@@ -249,6 +263,12 @@ export function PlayerProfileRail({
           {canSeeFinancials && (
             <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
           )}
+          {player.releaseClause !== undefined && (
+            <SpecRow label={t('playerPage.stats.releaseClause')} value={formatCurrency(player.releaseClause)} />
+          )}
+          {!canSeeFinancials && player.contractExpiring && (
+            <SpecRow label={t('playerPage.stats.contract')} value={t('team.lastSeasonChip')} />
+          )}
           <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />
           <SpecRow label={t('playerPage.stats.caps')} value={player.caps} />
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
@@ -272,6 +292,16 @@ export function PlayerProfileRail({
             {t('team.makeOffer')}
           </Button>
         )}
+        {clausePayable && (
+          <Button size="small" variant="outlined" color="warning" fullWidth onClick={() => setClauseOpen(true)}>
+            {t('transfers.releaseClause.button')}
+          </Button>
+        )}
+        {canOfferPreContract && (
+          <Button size="small" variant="outlined" fullWidth onClick={() => setPreContractOpen(true)}>
+            {t('transfers.preContract.button')}
+          </Button>
+        )}
         {canExerciseBuyOption && (
           <Button size="small" variant="contained" fullWidth disabled={exerciseBuyOption.isPending} onClick={handleExerciseBuyOption}>
             {t('playerPage.buyOption.button')} ({formatCurrency(player.onLoanBuyOptionFee ?? 0)})
@@ -280,6 +310,8 @@ export function PlayerProfileRail({
       </Stack>
       <ListPlayerForTransferDialog player={player} open={listDialogOpen} onClose={() => setListDialogOpen(false)} />
       {canMakeOffer && <TransferOfferDialog player={player} open={offerDialogOpen} onClose={() => setOfferDialogOpen(false)} />}
+      {clausePayable && clauseOpen && <PayReleaseClauseDialog player={player} open={clauseOpen} onClose={() => setClauseOpen(false)} />}
+      {canOfferPreContract && preContractOpen && <PreContractDialog player={player} open={preContractOpen} onClose={() => setPreContractOpen(false)} />}
     </Paper>
   )
 }

@@ -48,17 +48,21 @@ wage it offers is the discounted one.
 
 ### D5. CPU buyer
 `candidateReleaseClause` for a Director over the players it already scans (core positions,
-youngsters, radar) with a clause ≤ `aiMaxBidValueMultiple` (1.5) × its valuation, scored with
-`ScoreTarget` at price = clause. Counts as one of its 3 signings, not as a new offer; at most one
+youngsters, radar) whose clause is past its lock-in (`payableClauses`), added next to the usual
+bid candidate for the same player and ruled out when the clause is above `aiMaxBidValueMultiple`
+(1.5) × its valuation, scored with `ScoreTarget` at price = clause. Counts as one of its 3 signings, not as a new offer; at most one
 per pass. Rate limit: `common.LastCpuClausePaymentOn(sellerTeamId)` from `player_transfers` (kind
 release clause, buyer unowned) must be older than 7 days for a human seller. Action label
 `paid_release_clause`.
 
 ### D6. API and frontend
-Renewal, free-agent, offer and pre-contract bodies accept `releaseClause` (optional);
-`POST /v1/players/:id/release-clause` `{wage, years, releaseClause?}`. `Player.ReleaseClause` is
-public. Frontend: `ContractTermsFields` gains the optional clause with the live discount shown;
-player page and market rows show the clause; `PayReleaseClauseDialog`.
+Renewal, free-agent, offer and pre-contract bodies accept `releaseClause` (optional; the common
+functions gain `...WithClause` variants and the old names pass nil); `POST /v1/release-clauses`
+`{playerId, wage, years, releaseClause?}`. `Player.ReleaseClause` and `ReleaseClausePayableAt` are
+public, read through `playerColumnsSql`. Frontend: `ContractTermsFields` gains the optional
+clause field (with the discount bands as a hint) in the renewal, free-agent, offer and
+pre-contract dialogs; the player page shows the clause and, once payable, a "Pay release clause"
+button opening `PayReleaseClauseDialog`.
 
 ## Risks / Trade-offs
 
@@ -69,3 +73,24 @@ player page and market rows show the clause; `PayReleaseClauseDialog`.
 ## Migration
 
 `init105_release_clauses.sql`. No new TRANSACTION_* reason or notification type.
+
+## Code map (for the new `release-clauses` spec when the change is archived)
+
+- Core: `backend/common/releaseclauses.go` (`ClauseBaseValue`, `MinReleaseClause`,
+  `ReleaseClauseDiscount`, `DiscountedWage`, `ValidateReleaseClause`, `PayReleaseClause`,
+  `CpuMayPayClauseOn`, `ReleaseClauseLockIn`); storage `resources/sql/init105_release_clauses.sql`
+  (`players.release_clause`, `release_clause_set_at`, `transfer_offers.offered_release_clause`,
+  `pre_contract_offers.release_clause`).
+- Contracts: `ApplyRenewalOfferStmtSql` / `SignFreeAgentStmtSql` set the clause,
+  `ReleaseFromTeamStmtSql` clears it; `MakeContractRenewalOfferWithClause`,
+  `SignFreeAgentWithClause`, `MakeTransferOfferWithClause`, `MakePreContractOfferWithClause`;
+  `Player.ReleaseClause` / `ReleaseClausePayableAt` read by `scanPlayer` (`playerColumnsSql`).
+- API: `handlers/releaseClauseHandlers.go` (`POST /v1/release-clauses`), `releaseClause` in the
+  renewal, free-agent, offer and pre-contract bodies.
+- Notifications: `notifications.messages.releaseClausePaid` / `releaseClauseSigned`.
+- Frontend: clause field in `components/ContractTermsFields.tsx` (`clauseValue` in
+  `utils/contractTerms.ts`), `components/PayReleaseClauseDialog.tsx`, clause row and button in
+  `components/PlayerProfileRail.tsx`, hook `usePayReleaseClause`, strings
+  `transfers.releaseClause.*`, `team.contractDialog.releaseClause*`.
+- Tests: `common/releaseclauses_test.go`, `engine/releaseclauses_integration_test.go`,
+  `handlers/releaseClauseHandlers_test.go`, `components/PayReleaseClauseDialog.test.tsx`.

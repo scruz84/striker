@@ -225,6 +225,14 @@ type Player struct {
 	// it hits zero the player is released to free agency (TeamId becomes unset - see
 	// GetFreeAgents) rather than staying with their club forever.
 	ContractYearsRemaining int `json:"contractYearsRemaining"`
+	// ContractExpiring is true for another club's player in the last season of his contract, set by
+	// RedactFinancials when it hides his contract years (openspec/specs/pre-contracts).
+	ContractExpiring bool `json:"contractExpiring,omitempty"`
+	// ReleaseClause is the public fee any club may pay to sign him without his club's consent, and
+	// ReleaseClausePayableAt when it can first be paid (openspec/specs/release-clauses); both nil
+	// without a clause, and only read where the player is loaded with playerColumnsSql.
+	ReleaseClause          *int64     `json:"releaseClause,omitempty"`
+	ReleaseClausePayableAt *time.Time `json:"releaseClausePayableAt,omitempty"`
 	// BirthCountry is the country whose name pool generated this player (see doCreatePlayers) -
 	// independent of TeamId's current country, since the transfer market has no country
 	// restriction and a player can end up anywhere.
@@ -269,6 +277,9 @@ func (p *Player) RedactFinancials() {
 	if p.TeamId == 0 {
 		return
 	}
+	// The last season of a contract stays public (openspec/specs/pre-contracts "Last-season
+	// marker"): other clubs need it to offer him a pre-contract.
+	p.ContractExpiring = p.ContractYearsRemaining == 1
 	p.Wage = 0
 	p.ContractYearsRemaining = 0
 }

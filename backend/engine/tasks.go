@@ -350,6 +350,9 @@ func (pj *OfferResponseJob) Execute(context.Context) error {
 		log.Infof("expired %d counter-offers", expired)
 	}
 	RespondToAllPendingOffers(pj.dbCtx)
+	// After the CPU clubs answered (renewing the players they keep), the players with pending
+	// pre-contract offers whose 72 hours are up decide (openspec/specs/pre-contracts).
+	common.DecidePreContracts(pj.dbCtx, time.Now())
 	return nil
 }
 

@@ -129,7 +129,17 @@
       "watchlistFreeAgent": "{{player}}, on your watchlist, is a free agent and can be signed",
       "watchlistMoved": "{{player}}, on your watchlist, has moved to {{team}}",
       "rivalryRival": "{{team}} is now your rival",
-      "rivalryClasico": "Your matches against {{team}} are now a Clásico"
+      "rivalryClasico": "Your matches against {{team}} are now a Clásico",
+      "preContractOffered": "{{team}} offered {{player}} a pre-contract: {{wage}} for {{years}} season(s). He decides in {{hours}} hours; renew him at {{keepWage}} to keep him",
+      "preContractDecisionSoon": "{{player}} decides on his pre-contract offers within 24 hours; renew him at {{keepWage}} to keep him",
+      "preContractSigned": "{{player}} signed your pre-contract: he joins at the end of the season",
+      "preContractSignedAway": "{{player}} signed a pre-contract with {{team}}: he leaves at the end of the season",
+      "preContractRejected": "{{player}} turned down your pre-contract offer",
+      "preContractCancelled": "Your pre-contract offer for {{player}} is off: he renewed his contract or is no longer available",
+      "preContractJoined": "{{player}} joined {{team}} from {{from}} on a pre-contract",
+      "preContractRetired": "{{player}} retired: your pre-contract with him lapsed",
+      "releaseClausePaid": "{{team}} paid {{player}}'s {{fee}} release clause: he has left",
+      "releaseClauseSigned": "You signed {{player}} from {{team}} by paying his {{fee}} release clause"
     },
     "account": {
       "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
@@ -826,7 +836,33 @@
       "hint": "Pick the player and the price you are asking for him."
     },
     "confirmAcceptCounter": "Buy {{name}} from {{team}} for {{amount}}? The transfer completes straight away.",
-    "confirmDeclineCounter": "Decline {{team}}'s {{amount}} counter-offer for {{name}}? Your offer ends."
+    "confirmDeclineCounter": "Decline {{team}}'s {{amount}} counter-offer for {{name}}? Your offer ends.",
+    "preContract": {
+      "button": "Pre-contract",
+      "title": "Pre-contract offer",
+      "subtitle": "He's in the last season of his contract: offer him a contract for next season, with no fee. He wants 10% more than usual to leave his club, decides 72 hours after his first offer, and his club can still keep him by renewing.",
+      "submit": "Send offer",
+      "sent": "Offer sent. His club has been told and he decides within 72 hours.",
+      "declined": "Not enough to leave his club: he wants at least {{wage}}/match, and won't commit to more than {{years}}.",
+      "error": "Couldn't send the offer. He must be in the last season of his contract, his league at least halfway through and the transfer window open.",
+      "onYourPlayers": "Pre-contract offers on your players",
+      "noneReceived": "No pre-contract offers on your players.",
+      "yours": "Your pre-contract offers",
+      "noneSent": "You haven't made any pre-contract offers.",
+      "decidesAt": "He decides {{date}}",
+      "keepWage": "Renew him at {{wage}}/match to keep him",
+      "signedAway": "Signed with {{team}}: he leaves at the end of the season",
+      "signed": "Signed: he joins at the end of the season",
+      "confirmWithdraw": "Withdraw your pre-contract offer for {{name}}?"
+    },
+    "releaseClause": {
+      "button": "Pay release clause",
+      "title": "Pay the release clause",
+      "subtitle": "Pay {{fee}} to his club and he joins you at once, without its consent. He still has to accept your personal terms.",
+      "submit": "Pay {{fee}}",
+      "signed": "Done: he's your player.",
+      "error": "Couldn't pay the clause. It may be too recent (14 days), your budget too short or the transfer window closed."
+    }
   },
   "cup": {
     "titleWithSeason": "{{name}} - Season {{season}}",
@@ -1142,7 +1178,10 @@
       "submit": "Send offer",
       "error": "Could not send that offer. Please try again.",
       "currentWage": "Current wage: {{wage}}/match",
-      "sameWage": "Same wage"
+      "sameWage": "Same wage",
+      "noPayCut": "They won't take a pay cut: at least {{wage}}/match.",
+      "releaseClause": "Release clause (optional)",
+      "releaseClauseHint": "Any club can pay it to sign him without your consent. Up to 2x his value he asks 10% less wage, up to 4x 5% less; at least 1.5x his value."
     },
     "academy": {
       "title": "Youth academy",
@@ -1218,7 +1257,11 @@
       "history": "History"
     },
     "challenge": "Challenge to a friendly",
-    "noHistoryChart": "The chart appears after 2 completed seasons."
+    "noHistoryChart": "The chart appears after 2 completed seasons.",
+    "lastSeasonChip": "Last season",
+    "lastSeasonTooltip": "In the last season of his contract: you can offer him a pre-contract",
+    "signedForChip": "Leaving: {{team}}",
+    "signedForTooltip": "Signed a pre-contract with {{team}}: he leaves at the end of the season"
   },
   "match": {
     "matchFinished": "Match finished - loading the result...",
@@ -1788,7 +1831,8 @@
       "redCards": "Red cards",
       "contract": "Contract",
       "wage": "Wage",
-      "averageSkill": "Average skill"
+      "averageSkill": "Average skill",
+      "releaseClause": "Release clause"
     },
     "listForTransfer": {
       "button": "List for transfer"
@@ -1825,7 +1869,9 @@
         "loan": "Loan",
         "buyOption": "Buy option",
         "release": "Release",
-        "permanent": "Transfer"
+        "permanent": "Transfer",
+        "preContract": "Pre-contract",
+        "releaseClause": "Release clause"
       }
     },
     "clubHistory": {

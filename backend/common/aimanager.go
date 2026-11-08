@@ -49,6 +49,9 @@ type AiTransferProfile struct {
 	// SearchesLoanList: also read the loan market - a loan listing is scored like a signing, and
 	// the team may exercise a buy option on a player on loan to it (Manager and Director).
 	SearchesLoanList bool
+	// PreContractCandidates is how many players in their last season per core position the team
+	// scouts for a pre-contract (0 = none; Manager 5, Director 10).
+	PreContractCandidates int
 	// LendsPlayers: offer surplus players out on loan once the transfer list found no buyer.
 	// LoansOutYouth: also loan out benched under-22s so they get the minutes that develop them.
 	LendsPlayers  bool
@@ -105,6 +108,7 @@ func AiTransferProfileFor(level int) AiTransferProfile {
 		profile.SearchesFreeAgents = true
 		profile.SearchesTransferList = true
 		profile.SearchesLoanList = true
+		profile.PreContractCandidates = 5
 		profile.LendsPlayers = true
 		profile.BuysOnlyForNeeds = false
 		profile.MinScore = 5
@@ -117,6 +121,7 @@ func AiTransferProfileFor(level int) AiTransferProfile {
 		profile.KeyPlayerPriceMultiplier = 2.5
 		profile.InternationalPremium = 0.25
 		profile.SearchesUnlisted = true
+		profile.PreContractCandidates = 10
 		profile.SignsProjects = true
 		profile.LoansOutYouth = true
 		profile.MinScore = 3

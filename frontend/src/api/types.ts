@@ -86,6 +86,14 @@ export interface Player {
   wage: number
   age: number
   contractYearsRemaining: number
+  // True when the player belongs to a club and is in the last season of his contract - public
+  // even when contractYearsRemaining is redacted to 0 for another club's player (backend
+  // Player.ContractExpiring, openspec/specs/pre-contracts "Last-season marker").
+  contractExpiring?: boolean
+  // The public release clause any club may pay to sign him without his club's consent, and when
+  // it can first be paid (backend Player.ReleaseClause, openspec/specs/release-clauses).
+  releaseClause?: number
+  releaseClausePayableAt?: string
   // The country whose name pool generated this player - independent of which team/country they
   // currently play for, since the transfer market has no country restriction. Empty for anyone
   // created before this field existed. See COUNTRY_NAME_KEYS.
@@ -363,6 +371,45 @@ export interface TransferOfferResult {
   expectedWage: number
   maxAcceptableYears: number
   offerId?: number
+}
+
+// A pre-contract offer (backend common.PreContractOffer, openspec/specs/pre-contracts): a club's
+// contract for next season to another club's player in his last season. Pending until signedAt is
+// set; decidesAt is when the player chooses among the pending offers, keepWage the renewal wage
+// that keeps him (only reported to his own club).
+export interface PreContractOffer {
+  offerId: number
+  player: Player
+  fromTeamId: number
+  fromTeamName: string
+  toTeamId: number
+  toTeamName: string
+  wage: number
+  years: number
+  createdAt: string
+  signedAt?: string
+  decidesAt?: string
+  keepWage?: number
+}
+
+// The player judges a pre-contract offer at once (backend MakePreContractOffer): expectedWage is
+// the least he accepts to leave his club (his usual expectation x 1.10).
+export interface PreContractOfferResult {
+  accepted: boolean
+  reason?: string
+  expectedWage: number
+  maxAcceptableYears: number
+  offerId?: number
+}
+
+// Paying a release clause (backend ReleaseClauseResult): the player judges the personal terms at
+// once; fee is the clause paid when accepted.
+export interface ReleaseClauseResult {
+  accepted: boolean
+  reason?: string
+  expectedWage: number
+  maxAcceptableYears: number
+  fee?: number
 }
 
 // Mirrors backend/common.MaxContractYearsRemaining - the server enforces the real cap, this
@@ -922,6 +969,8 @@ export const PLAYER_TRANSFER_LOAN = 3
 export const PLAYER_TRANSFER_BUY_OPTION = 4
 export const PLAYER_TRANSFER_RELEASE = 5
 export const PLAYER_TRANSFER_PERMANENT = 6
+export const PLAYER_TRANSFER_PRE_CONTRACT = 7
+export const PLAYER_TRANSFER_RELEASE_CLAUSE = 8
 
 // Values are i18n keys under "playerPage.history.kinds.*".
 export const PLAYER_TRANSFER_KIND_KEYS: Record<number, string> = {
@@ -932,6 +981,8 @@ export const PLAYER_TRANSFER_KIND_KEYS: Record<number, string> = {
   [PLAYER_TRANSFER_BUY_OPTION]: 'playerPage.history.kinds.buyOption',
   [PLAYER_TRANSFER_RELEASE]: 'playerPage.history.kinds.release',
   [PLAYER_TRANSFER_PERMANENT]: 'playerPage.history.kinds.permanent',
+  [PLAYER_TRANSFER_PRE_CONTRACT]: 'playerPage.history.kinds.preContract',
+  [PLAYER_TRANSFER_RELEASE_CLAUSE]: 'playerPage.history.kinds.releaseClause',
 }
 
 // One row of a player's transfer history. A missing fromTeamId means the player came from free
@@ -1831,6 +1882,7 @@ export const NOTIFICATION_ACCOUNT = 13
 export const NOTIFICATION_RIVALRY = 14
 export const NOTIFICATION_COUNTER_OFFER = 15
 export const NOTIFICATION_WATCHLIST = 16
+export const NOTIFICATION_PRE_CONTRACT = 17
 
 export interface Notification {
   notificationId: number

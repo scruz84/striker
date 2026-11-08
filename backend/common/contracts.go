@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"math"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -58,8 +59,14 @@ const GetPlayerOwnershipForUpdateStmtSql = "SELECT team_id, wage, contract_years
 // free_agent_seasons resets to 0 on signing - see engine.ProgressFreeAgents, which increments it
 // once per season a player stays unsigned, and AdvanceFreeAgencyClock's doc comment. shirt_number
 // is assigned by the caller (see nextFreeShirtNumber) - a free agent has none to carry over.
-const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0, shirt_number = $4 WHERE player_id = $5"
-const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2 WHERE player_id = $3"
+const SignFreeAgentStmtSql = "UPDATE players SET team_id = $1, contract_years_remaining = $2, wage = $3, free_agent_seasons = 0, shirt_number = $4, " +
+	"release_clause = $6, release_clause_set_at = CASE WHEN $6::bigint IS NULL THEN NULL ELSE now() END WHERE player_id = $5"
+
+// ApplyRenewalOfferStmtSql sets a player's new contract: years, wage and its release clause ($4,
+// NULL for none - a new contract without one clears the old one; see openspec/specs/
+// release-clauses), stamped with now() so its lock-in starts.
+const ApplyRenewalOfferStmtSql = "UPDATE players SET contract_years_remaining = $1, wage = $2, release_clause = $4, " +
+	"release_clause_set_at = CASE WHEN $4::bigint IS NULL THEN NULL ELSE now() END WHERE player_id = $3"
 
 // GetPlayerCurrentTeamStmtSql reads the team a player belongs to right now (0 for a free agent) -
 // AdvancePlayerContract needs it before ReleaseFromTeamStmtSql clears team_id.
@@ -69,7 +76,8 @@ const GetPlayerCurrentTeamStmtSql = "SELECT COALESCE(team_id, 0) FROM players WH
 // see SignFreeAgent, which charges that club a transfer premium if this player is re-signed
 // within their first season of free agency. shirt_number is cleared too - it belonged to the
 // team the player is leaving, not to them (issue #42).
-const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0, shirt_number = NULL WHERE player_id = $1"
+const ReleaseFromTeamStmtSql = "UPDATE players SET last_team_id = team_id, team_id = NULL, contract_years_remaining = 0, shirt_number = NULL, " +
+	"release_clause = NULL, release_clause_set_at = NULL WHERE player_id = $1"
 
 // GetFreeAgentListingsStmtSql mirrors GetFreeAgentsStmtSql but left-joins in the last club's name
 // for display on the transfer market's free agents tab (see GetFreeAgentListings) - a free agent
@@ -191,6 +199,12 @@ type FreeAgentSigningResult struct {
 // top of the wage they're now taking on. The player row is locked for the duration so two teams
 // can't both sign the same free agent.
 func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int) (*FreeAgentSigningResult, error) {
+	return SignFreeAgentWithClause(dbCtx, playerId, teamId, offeredWage, offeredYears, nil)
+}
+
+// SignFreeAgentWithClause is SignFreeAgent with an optional release clause in the new contract
+// (nil for none), which lowers the wage he asks (see DiscountedWage).
+func SignFreeAgentWithClause(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int, clause *int64) (*FreeAgentSigningResult, error) {
 	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
 		return nil, ErrInvalidFreeAgentOffer
 	}
@@ -230,9 +244,11 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if err != nil {
 		return nil, err
 	}
-	expectedWage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
-	maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend)
+	if err := ValidateReleaseClause(*player, clause); err != nil {
+		return nil, err
+	}
+	expectedWage, maxYears := PersonalTermsExpectation(*player, intelligence, trend, TermsFreeAgent)
+	expectedWage = DiscountedWage(*player, expectedWage, clause)
 
 	result := &FreeAgentSigningResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
@@ -271,7 +287,7 @@ func SignFreeAgent(dbCtx *DatabaseContext, playerId int64, teamId int64, offered
 	if err != nil {
 		return nil, err
 	}
-	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, shirtNumber, playerId); err != nil {
+	if _, err := tx.Exec(SignFreeAgentStmtSql, teamId, offeredYears, offeredWage, shirtNumber, playerId, clauseArg(clause)); err != nil {
 		return nil, err
 	}
 	if _, err := tx.Exec(DeletePlayerFromWatchlistStmtSql, teamId, playerId); err != nil {
@@ -351,10 +367,9 @@ func SignFreeAgentAtMarketRate(dbCtx *DatabaseContext, playerId int64, teamId in
 	if err != nil {
 		return nil, err
 	}
-	wage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
+	wage, maxYears := PersonalTermsExpectation(*player, intelligence, trend, TermsFreeAgent)
 	years := RandomContractYears()
-	if maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend); years > maxYears {
+	if years > maxYears {
 		years = maxYears
 	}
 	return SignFreeAgent(dbCtx, playerId, teamId, wage, years)
@@ -440,6 +455,74 @@ func ExpectedWageWithIntelligence(goalKeeper, defense, lateral, pass, midfield, 
 	return base + raise
 }
 
+// TermsKind is the situation a player judges contract terms in (see PersonalTermsExpectation):
+// a renewal with his own club, a move to another club (a transfer offer's personal terms) or a
+// fresh deal as a free agent.
+type TermsKind int
+
+const (
+	TermsRenewal TermsKind = iota
+	TermsTransfer
+	TermsFreeAgent
+)
+
+// Wage floors (openspec/specs/team-finances "Contract renewal and release" and "Personal terms of
+// a transfer offer"): the share of his current wage a player insists on keeping. While he has 2 or
+// more seasons left he renews for no less than he earns (RenewalWageFloorShare); in his last
+// season he accepts a small cut (LastSeasonWageFloorShare); he never moves to another club for
+// less than he earns (TransferWageFloorShare). A free agent has no current wage to protect.
+const (
+	RenewalWageFloorShare    = 1.0
+	LastSeasonWageFloorShare = 0.85
+	TransferWageFloorShare   = 1.0
+)
+
+// wageFloorShare is the share of his current wage p insists on in a negotiation of kind.
+func wageFloorShare(p Player, kind TermsKind) float64 {
+	switch kind {
+	case TermsRenewal:
+		if p.ContractYearsRemaining >= 2 {
+			return RenewalWageFloorShare
+		}
+		return LastSeasonWageFloorShare
+	case TermsTransfer:
+		return TransferWageFloorShare
+	default:
+		return 0
+	}
+}
+
+// PersonalTermsExpectation is the lowest wage and the longest term p accepts in a negotiation of
+// kind: his market wage nudged by his intelligence and skill trend (ExpectedWageWithIntelligence),
+// never below the wage floor of kind (see wageFloorShare), and his age's maximum term
+// (MaxAcceptableRenewalYearsWithIntelligence). Pure - the one rule every renewal, transfer offer
+// and free-agent signing judges personal terms by.
+func PersonalTermsExpectation(p Player, intelligence, trend int, kind TermsKind) (wage int, years int) {
+	wage = ExpectedWageWithIntelligence(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot, intelligence, trend)
+	if share := wageFloorShare(p, kind); share > 0 {
+		if floor := int(math.Ceil(float64(p.Wage) * share)); floor > wage {
+			wage = floor
+		}
+	}
+	return wage, MaxAcceptableRenewalYearsWithIntelligence(p.Age, intelligence, trend)
+}
+
+// PlayerTermsExpectation reads p's intelligence and skill trend and returns
+// PersonalTermsExpectation for kind - what a CPU club offers so the player accepts (see
+// engine.renewContract and makeAiOffer).
+func PlayerTermsExpectation(dbCtx *DatabaseContext, p Player, kind TermsKind) (wage int, years int, err error) {
+	intelligence, err := GetPlayerIntelligence(dbCtx, p.Id)
+	if err != nil {
+		return 0, 0, err
+	}
+	trend, err := PlayerSkillTrend(dbCtx, p.Id)
+	if err != nil {
+		return 0, 0, err
+	}
+	wage, years = PersonalTermsExpectation(p, intelligence, trend, kind)
+	return wage, years, nil
+}
+
 // MakeContractRenewalOffer proposes offeredWage/offeredYears to one of the team's own players.
 // The player judges it against their own market wage (ExpectedWageWithIntelligence - what a
 // similarly-skilled player earns, nudged up if they've recently been improving) and their
@@ -451,6 +534,13 @@ func ExpectedWageWithIntelligence(goalKeeper, defense, lateral, pass, midfield, 
 // reason as ReleasePlayer - team_id belongs to the borrower for the loan's duration, but the
 // contract belongs to the parent club, not them.
 func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int) (*ContractRenewalOffer, error) {
+	return MakeContractRenewalOfferWithClause(dbCtx, playerId, teamId, offeredWage, offeredYears, nil)
+}
+
+// MakeContractRenewalOfferWithClause is MakeContractRenewalOffer with an optional release clause
+// in the new contract (nil for none): the player then asks the discounted wage (see
+// DiscountedWage), and the renewal replaces whatever clause the old contract carried.
+func MakeContractRenewalOfferWithClause(dbCtx *DatabaseContext, playerId int64, teamId int64, offeredWage int, offeredYears int, clause *int64) (*ContractRenewalOffer, error) {
 	if offeredWage <= 0 || offeredYears < 1 || offeredYears > MaxContractYearsRemaining {
 		return nil, ErrInvalidRenewalOffer
 	}
@@ -478,6 +568,11 @@ func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int
 	if onLoan {
 		return nil, ErrPlayerOnLoan
 	}
+	if signed, err := IsPlayerPreContracted(tx, playerId); err != nil {
+		return nil, err
+	} else if signed {
+		return nil, ErrPlayerPreContracted
+	}
 
 	player, err := GetPlayerById(dbCtx, playerId)
 	if err != nil {
@@ -491,9 +586,20 @@ func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int
 	if err != nil {
 		return nil, err
 	}
-	expectedWage := ExpectedWageWithIntelligence(player.GoalKeeper, player.Defense, player.Lateral, player.Pass,
-		player.Midfield, player.Dribbling, player.Shot, intelligence, trend)
-	maxYears := MaxAcceptableRenewalYearsWithIntelligence(player.Age, intelligence, trend)
+	expectedWage, maxYears := PersonalTermsExpectation(*player, intelligence, trend, TermsRenewal)
+	// While pre-contract offers are pending he stays for the best of them less the move premium
+	// (openspec/specs/pre-contracts "Right to counter-offer").
+	bar, err := PreContractCounterBar(tx, playerId)
+	if err != nil {
+		return nil, err
+	}
+	if bar > expectedWage {
+		expectedWage = bar
+	}
+	if err := ValidateReleaseClause(*player, clause); err != nil {
+		return nil, err
+	}
+	expectedWage = DiscountedWage(*player, expectedWage, clause)
 
 	result := &ContractRenewalOffer{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
@@ -509,12 +615,17 @@ func MakeContractRenewalOffer(dbCtx *DatabaseContext, playerId int64, teamId int
 		return result, nil
 	}
 
-	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offeredYears, offeredWage, playerId); err != nil {
+	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offeredYears, offeredWage, playerId, clauseArg(clause)); err != nil {
+		return nil, err
+	}
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
 		return nil, err
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
+	notifyPreContractsCancelled(dbCtx, playerId, preContractBuyers)
 
 	result.Accepted = true
 	result.NewContractYears = offeredYears
@@ -561,6 +672,11 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if onLoan {
 		return ErrPlayerOnLoan
 	}
+	if signed, err := IsPlayerPreContracted(tx, playerId); err != nil {
+		return err
+	} else if signed {
+		return ErrPlayerPreContracted
+	}
 
 	severance := int64(wage * EarlyReleaseWageMultiplier)
 
@@ -594,11 +710,16 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if err := RecordPlayerTransfer(tx, playerId, teamId, 0, 0, PLAYER_TRANSFER_RELEASE); err != nil {
 		return err
 	}
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
+		return err
+	}
 
 	if err := tx.Commit(); err != nil {
 		return err
 	}
 	flows.Commit(context.Background())
+	notifyPreContractsCancelled(dbCtx, playerId, preContractBuyers)
 	NotifyWatchers(dbCtx, playerId, WatchEventFreeAgent, "", 0, teamId)
 	return nil
 }
@@ -609,12 +730,14 @@ const DecrementPlayerContractStmtSql = "UPDATE players SET contract_years_remain
 	"WHERE player_id = $1 RETURNING contract_years_remaining"
 
 // AdvancePlayerContract decrements a player's remaining contract by one season and, if it just
-// expired, releases them to free agency (team_id set to NULL - see GetFreeAgents). Skipped
-// entirely for a player currently out on loan (IsPlayerOnActiveLoan): the parent club's contract
-// keeps ticking, but expiring it mid-loan would race the loan-return job over who gets to
-// reassign team_id, so release is simply deferred until the loan ends. Meant to run once per
-// season from engine.ProgressPlayers, alongside aging. Returns whether the player was released
-// this call.
+// expired, either moves him to the club he signed a pre-contract with (openspec/specs/
+// pre-contracts "Pre-contracted player") or releases him to free agency (team_id set to NULL - see
+// GetFreeAgents). Skipped entirely for a player currently out on loan (IsPlayerOnActiveLoan): the
+// parent club's contract keeps ticking, but expiring it mid-loan would race the loan-return job
+// over who gets to reassign team_id, so release is simply deferred until the loan ends. Meant to
+// run once per season from engine.ProgressPlayers, alongside aging. Returns whether the player was
+// released to free agency this call (a pre-contract move is not a release: both clubs and his
+// followers are told here).
 func AdvancePlayerContract(dbCtx *DatabaseContext, playerId int64) (bool, error) {
 	onLoan, err := IsPlayerOnActiveLoan(dbCtx, playerId)
 	if err != nil {
@@ -624,27 +747,54 @@ func AdvancePlayerContract(dbCtx *DatabaseContext, playerId int64) (bool, error)
 		return false, nil
 	}
 
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	var expiringTeamId int64
+	if err := tx.QueryRow(GetPlayerTeamForUpdateStmtSql, playerId).Scan(&expiringTeamId); err != nil {
+		return false, err
+	}
 	var remaining int
-	if err := dbCtx.Db.QueryRow(DecrementPlayerContractStmtSql, playerId).Scan(&remaining); err != nil {
+	if err := tx.QueryRow(DecrementPlayerContractStmtSql, playerId).Scan(&remaining); err != nil {
 		return false, err
 	}
 	if remaining > 0 {
+		return false, tx.Commit()
+	}
+
+	buyer, err := completePreContractTx(tx, playerId, expiringTeamId)
+	if err != nil {
+		return false, err
+	}
+	if buyer != 0 {
+		if err := tx.Commit(); err != nil {
+			return false, err
+		}
+		notifyPreContractJoined(dbCtx, playerId, expiringTeamId, buyer)
 		return false, nil
 	}
 
-	if _, err := dbCtx.Db.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
 		return false, err
 	}
-	var expiringTeamId int64
-	if err := dbCtx.Db.QueryRow(GetPlayerCurrentTeamStmtSql, playerId).Scan(&expiringTeamId); err != nil {
+	if _, err := tx.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {
 		return false, err
 	}
-	if _, err := dbCtx.Db.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {
+	if err := RecordPlayerTransfer(tx, playerId, expiringTeamId, 0, 0, PLAYER_TRANSFER_RELEASE); err != nil {
 		return false, err
 	}
-	if err := RecordPlayerTransfer(dbCtx.Db, playerId, expiringTeamId, 0, 0, PLAYER_TRANSFER_RELEASE); err != nil {
+	// Any offer still pending on him lapses with his contract.
+	preContractBuyers, err := cancelPendingPreContracts(tx, playerId)
+	if err != nil {
 		return false, err
 	}
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+	notifyPreContractsCancelled(dbCtx, playerId, preContractBuyers)
 	return true, nil
 }
 

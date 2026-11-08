@@ -68,8 +68,9 @@ when it reaches 0 and a signed pre-contract exists, moves the player to the buye
 the agreed wage and years, `RecordPlayerClubHistory`, `RecordPlayerTransfer` with kind
 `PLAYER_TRANSFER_PRE_CONTRACT` and fee 0), deletes the pre-contract row and, after the commit,
 notifies both clubs and `NotifyWatchers(…, WatchEventMoved, …)`. With no pre-contract it releases
-him as today. `RetirePlayer` deletes his pre-contract offers. A buyer reset or deleted cascades
-away its offers.
+him as today. `RetirePlayer` deletes his pre-contract offers (the buyers are told first by
+`LapsePreContractsOnRetirement`). A deleted buyer cascades away its offers; `ResetReleasedTeam`
+deletes a reset club's.
 
 ### D6. CPU buyer
 `common.GetExpiringCandidatesForPosition` mirrors `GetMarketCandidatesForPosition` with
@@ -77,19 +78,21 @@ away its offers.
 per core position, a Manager the best 5. They become `candidatePreContract` in
 `runAiTransferPass`, scored with `ScoreTarget` at price 0 and the offered wage as payroll, using
 the usual minimum score; signed pre-contracts count toward `MaxAiSquadSize`. The wage offered is
-`ceil(1.10 × expected)`. At most 1 pre-contract offer per pass (counted as one of a Director's 2
-new offers); at most 3 CPU pre-contract offers pending on one human's player, 1 on a CPU club's.
-Action labels `pre_contract_offered`, `pre_contract_signed`.
+`ceil(1.10 × expected)`. At most 1 pre-contract offer per pass (`aiPreContractOffersPerPass`;
+it is not a signing, so it uses none of the pass's moves, and a failed one ends pre-contracts for
+that pass), only to players whose league is past half its season; at most 3 CPU pre-contract offers pending on one human's
+player, 1 on a CPU club's. Action label `pre_contract_offered`.
 
 ### D7. CPU seller
 `answerPreContractOffers(team)` in `RespondToAllPendingOffers`: for each own player with a pending
-offer that `contractsToRenew` keeps, a Manager or Director renews him at his raised expectation
-(read from the declined first offer, as `renewContract` already does) when
+offer, a Manager or Director runs `renewExpiringContracts` at once: `renewContract` reads the
+raised expectation with `common.PlayerRenewalExpectation` and, for a contested player, renews
+when
 `acceptsCounterBar(expected, skillWage, starter, key, level)` holds: ≤ `aiCounterStarterCap`
 (1.5) × skill wage for a starter, ≤ `aiCounterKeyPlayerCap` (2.0) for a Director's key player,
 ≤ `aiMaxRenewalRaise` (1.25) otherwise. Otherwise, or for a player it would not keep, it lists him
 through rework-contract-terms' `pickUnrenewedToList` rule if it applies. A Caretaker does nothing
-beyond its normal pass. Action labels `pre_contract_countered`, `pre_contract_let_go`.
+beyond its normal pass. Action label `pre_contract_countered`.
 
 ### D8. Notifications
 `NOTIFICATION_PRE_CONTRACT` (17). Keys, each with a Spanish template in
@@ -97,15 +100,20 @@ beyond its normal pass. Action labels `pre_contract_countered`, `pre_contract_le
 club: buyer, player, wage, years, decision time and the wage that keeps him),
 `preContractDecisionSoon` (to the owning club, 24 h before the decision), `preContractSigned` (to the buyer), `preContractSignedAway` (to the
 owning club), `preContractRejected` (to a losing buyer), `preContractCancelled` (to every pending
-buyer when the player is renewed or sold), `preContractJoined` (to both clubs at the move).
+buyer when the player is renewed, sold, loaned, released or his contract runs out),
+`preContractJoined` (to both clubs at the move), `preContractRetired` (to every buyer when he
+retires).
 
 ### D9. API and frontend
-`POST /v1/players/:id/pre-contract` `{wage, years}`, `DELETE /v1/pre-contracts/:id` (pending only),
-`GET /v1/user/team/pre-contracts` (sent and received). `Player.ContractExpiring` (`json:
-"contractExpiring"`, true when owned and in his last season) is never redacted. Frontend:
-"Last season" chip on player rows, an "Expiring contracts" filter on the Transfers tab search,
-`PreContractDialog` (wage and years, the 1.10 hint), a Pre-contracts section in the Offers tab,
-and a "Signed for <club>" chip in the squad list.
+`POST /v1/pre-contracts` `{playerId, wage, years}`, `DELETE /v1/pre-contracts/:id` (pending only),
+`GET /v1/pre-contracts/received` and `/sent`. `Player.ContractExpiring` (`json:
+"contractExpiring"`) is set by `RedactFinancials` when it hides another club's player's contract,
+so the last season stays public. Frontend:
+a "Last season" chip on another club's squad rows and player page, a "Pre-contract" button there
+opening `PreContractDialog` (wage and years, the 1.10 hint), a Pre-contracts section in the Offers
+tab (`features/transfers/PreContractCards.tsx`) and a "Leaving: <club>" chip in the own squad
+list. A market-wide search of last-season players is left for later: managers find them on rival
+squads, their watchlist and player pages.
 
 ## Risks / Trade-offs
 
@@ -118,3 +126,28 @@ and a "Signed for <club>" chip in the squad list.
 ## Migration
 
 `init104_pre_contracts.sql`. No TRANSACTION_* reason: no money moves.
+
+## Code map (for the new `pre-contracts` spec when the change is archived)
+
+- Core: `backend/common/precontracts.go` (`MakePreContractOffer` / `MakePreContractOfferWithClause`,
+  `WithdrawPreContractOffer`, `DecidePreContracts` with `remindPreContractDecisions` /
+  `decidePreContract`, `PreContractCounterBar`, `PreContractMinimumWage`, `PreContractKeepWage`,
+  `completePreContractTx`, `LapsePreContractsOnRetirement`, `cancelPendingPreContracts`, the
+  `PreContract*` constants); storage `resources/sql/init104_pre_contracts.sql`.
+- Wiring: `common.MakeContractRenewalOffer` (counter bar, cancellation), `ReleasePlayer`,
+  `CreateTransferListing`, `CreateLoanListing`, `MakeTransferOffer` (refuse a signed player),
+  `ExecuteTransfer`, `executeOfferTx`, `AcceptLoan` (cancel pending offers),
+  `AdvancePlayerContract` (completion), `ResetReleasedTeam` (clears a reset club's offers),
+  `Player.ContractExpiring` set by `RedactFinancials`; `engine/tasks.go` `OfferResponseJob`;
+  `engine/progression.go` (retirement).
+- API: `handlers/preContractHandlers.go`, routes `/v1/pre-contracts` in `service/fmservice.go`.
+- Notifications: `NOTIFICATION_PRE_CONTRACT`, keys `notifications.messages.preContract*` with
+  Spanish templates in `common/notificationtranslations.go`.
+- Frontend: `components/PreContractDialog.tsx`, `features/transfers/PreContractCards.tsx` (Offers
+  tab), `utils/contractTerms.ts` (`isLastSeason`), chips in `features/team/SquadList.tsx`, button in
+  `components/PlayerProfileRail.tsx`; hooks `usePreContractsReceived`, `usePreContractsSent`,
+  `useMakePreContractOffer`, `useWithdrawPreContractOffer`; strings `transfers.preContract.*`,
+  `team.lastSeason*`, `team.signedFor*`.
+- Tests: `common/precontracts_test.go`, `engine/precontracts_integration_test.go`,
+  `handlers/preContractHandlers_test.go`, `features/transfers/PreContractCards.test.tsx`,
+  `utils/contractTerms.test.ts`.

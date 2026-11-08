@@ -19,7 +19,8 @@ var positionSkillSQL = map[int]string{
 // different path), and not on the searching team itself.
 const marketCandidateFilter = "p.team_id <> $1 AND p.in_academy = false AND t.is_national_team = false " +
 	"AND NOT EXISTS (SELECT 1 FROM player_loans l WHERE l.player_id = p.player_id) " +
-	"AND NOT EXISTS (SELECT 1 FROM transfer_listings tl WHERE tl.player_id = p.player_id)"
+	"AND NOT EXISTS (SELECT 1 FROM transfer_listings tl WHERE tl.player_id = p.player_id) " +
+	"AND NOT EXISTS (SELECT 1 FROM pre_contract_offers pc WHERE pc.player_id = p.player_id AND pc.signed_at IS NOT NULL)"
 
 // GetMarketCandidatesForPosition returns the ids of up to limit players, from any other club in
 // the world, whose rating for position is at least minValue and who are no older than maxAge,
@@ -31,6 +32,19 @@ func GetMarketCandidatesForPosition(dbCtx *DatabaseContext, excludeTeamId int64,
 	}
 	query := "SELECT p.player_id FROM players p JOIN teams t ON t.team_id = p.team_id WHERE " + marketCandidateFilter +
 		" AND p.age <= $2 AND " + expr + " >= $3 ORDER BY " + expr + " DESC, p.player_id LIMIT $4"
+	return queryIds(dbCtx, query, excludeTeamId, maxAge, minValue, limit)
+}
+
+// GetExpiringCandidatesForPosition is GetMarketCandidatesForPosition narrowed to players in the
+// last season of their contract (and without a signed pre-contract) - the CPU's pre-contract
+// targets (openspec/specs/cpu-transfer-market "Pre-contract targets").
+func GetExpiringCandidatesForPosition(dbCtx *DatabaseContext, excludeTeamId int64, position int, minValue int, maxAge int, limit int) ([]int64, error) {
+	expr, ok := positionSkillSQL[position]
+	if !ok {
+		return nil, fmt.Errorf("no market search for position %d", position)
+	}
+	query := "SELECT p.player_id FROM players p JOIN teams t ON t.team_id = p.team_id WHERE " + marketCandidateFilter +
+		" AND p.contract_years_remaining = 1 AND p.age <= $2 AND " + expr + " >= $3 ORDER BY " + expr + " DESC, p.player_id LIMIT $4"
 	return queryIds(dbCtx, query, excludeTeamId, maxAge, minValue, limit)
 }
 

@@ -254,6 +254,19 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1OfferGroup.POST("/:"+handlers.ID+"/accept-counter", handlers.AcceptCounterOfferHandler(dbCtx))
 	v1OfferGroup.POST("/:"+handlers.ID+"/decline-counter", handlers.DeclineCounterOfferHandler(dbCtx))
 
+	v1PreContractGroup := v1Group.Group("/pre-contracts")
+	v1PreContractGroup.Use(authMiddleware.MiddlewareFunc())
+	v1PreContractGroup.Use(activity)
+	v1PreContractGroup.POST("", handlers.MakePreContractOfferHandler(dbCtx))
+	v1PreContractGroup.GET("/received", handlers.PreContractsReceivedHandler(dbCtx))
+	v1PreContractGroup.GET("/sent", handlers.PreContractsSentHandler(dbCtx))
+	v1PreContractGroup.DELETE("/:"+handlers.ID, handlers.WithdrawPreContractHandler(dbCtx))
+
+	v1ReleaseClauseGroup := v1Group.Group("/release-clauses")
+	v1ReleaseClauseGroup.Use(authMiddleware.MiddlewareFunc())
+	v1ReleaseClauseGroup.Use(activity)
+	v1ReleaseClauseGroup.POST("", handlers.PayReleaseClauseHandler(dbCtx))
+
 	v1FriendGroup := v1Group.Group("/groups")
 	v1FriendGroup.Use(authMiddleware.MiddlewareFunc())
 	v1FriendGroup.Use(activity)

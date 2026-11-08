@@ -13,6 +13,8 @@ type MakeOfferRequest struct {
 	Amount   int64 `json:"amount"`
 	Wage     int   `json:"wage"`
 	Years    int   `json:"years"`
+	// ReleaseClause is an optional release clause for the player's new contract.
+	ReleaseClause *int64 `json:"releaseClause,omitempty"`
 }
 
 // MakeOfferHandler proposes a price plus personal terms (wage/contract length) for any player,
@@ -40,10 +42,13 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		result, err := common.MakeTransferOffer(dbCtx, req.PlayerId, team.Id, req.Amount, req.Wage, req.Years)
+		result, err := common.MakeTransferOfferWithClause(dbCtx, req.PlayerId, team.Id, req.Amount, req.Wage, req.Years, req.ReleaseClause)
 		switch {
 		case err == nil:
 			c.JSON(http.StatusOK, result)
+			return
+		case errors.Is(err, common.ErrReleaseClauseTooLow):
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		case errors.Is(err, common.ErrInvalidOfferAmount),
 			errors.Is(err, common.ErrInvalidPersonalTerms),
@@ -51,6 +56,7 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			errors.Is(err, common.ErrPlayerIsFreeAgent),
 			errors.Is(err, common.ErrOfferAlreadyExists),
 			errors.Is(err, common.ErrPlayerOnLoan),
+			errors.Is(err, common.ErrPlayerPreContracted),
 			errors.Is(err, common.ErrTeamInsolvent),
 			errors.Is(err, common.ErrTransferWindowClosed):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
