@@ -2,7 +2,6 @@ import { useState } from 'react'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
-import InputAdornment from '@mui/material/InputAdornment'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
@@ -11,9 +10,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import { useTranslation } from 'react-i18next'
 import {
   useAdminDeleteUser,
@@ -23,6 +20,7 @@ import {
 } from '../../api/hooks'
 
 import { useConfirm } from '../../components/confirmDialogContext'
+import { SearchBar } from '../../components/m3/SearchBar'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { filterUsers } from './userFilter'
 import { useAdminFeedback } from './useAdminFeedback'
@@ -49,23 +47,12 @@ export function UsersTab() {
       <Typography variant="h6" sx={{ mb: 1 }}>
         {t('admin.usersTitle')}
       </Typography>
-      <TextField
+      <SearchBar
+        compact
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={setQuery}
         placeholder={t('admin.usersSearch.placeholder')}
-        size="small"
-        fullWidth
         sx={{ mb: 2, maxWidth: { sm: 420 } }}
-        slotProps={{
-          htmlInput: { 'aria-label': t('admin.usersSearch.placeholder') },
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchTwoToneIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          },
-        }}
       />
       {shown.length === 0 ? (
         <Typography color="text.secondary">{t('admin.usersSearch.none', { query: query.trim() })}</Typography>

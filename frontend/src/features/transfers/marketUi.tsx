@@ -1,13 +1,11 @@
 import { useState, type ReactNode } from 'react'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
-import CloseIcon from '@mui/icons-material/Close'
 import TuneIcon from '@mui/icons-material/Tune'
 import Badge from '@mui/material/Badge'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
-import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
@@ -32,6 +30,7 @@ import {
   POSITION_STRIKER,
   type Player,
 } from '../../api/types'
+import { BottomSheet } from '../../components/m3/BottomSheet'
 import { NumberField } from '../../components/NumberField'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { CountryFlag } from '../../components/CountryFlag'
@@ -278,38 +277,25 @@ export function FilterSheet({
 }) {
   const { t } = useTranslation()
   return (
-    <Drawer
-      anchor="bottom"
+    <BottomSheet
       open={open}
       onClose={onClose}
-      slotProps={{ paper: { sx: { borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90dvh', maxWidth: 560, mx: 'auto', width: '100%' } } }}
+      title={t('transfers.filters.title')}
+      footer={
+        <>
+          <Button onClick={onClear} disabled={!hasActiveFilters}>
+            {t('transfers.filters.clear')}
+          </Button>
+          <Button variant="contained" onClick={onClose} sx={{ flex: 1 }}>
+            {t('transfers.filters.showResults', { count: resultCount })}
+          </Button>
+        </>
+      }
     >
-      <Stack direction="row" sx={{ alignItems: 'center', px: 2, pt: 1, pb: 0.5 }}>
-        <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600, flex: 1 }}>
-          {t('transfers.filters.title')}
-        </Typography>
-        <IconButton onClick={onClose} aria-label={t('common.close')} edge="end">
-          <CloseIcon />
-        </IconButton>
+      <Stack spacing={2.5} sx={{ pt: 1 }}>
+        {children}
       </Stack>
-      <Box sx={{ overflowY: 'auto', px: 2, pb: 2 }}>
-        <Stack spacing={2.5} sx={{ pt: 1 }}>
-          {children}
-        </Stack>
-      </Box>
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{ p: 2, pb: 'max(16px, env(safe-area-inset-bottom))', borderTop: 1, borderColor: 'divider' }}
-      >
-        <Button onClick={onClear} disabled={!hasActiveFilters}>
-          {t('transfers.filters.clear')}
-        </Button>
-        <Button variant="contained" onClick={onClose} sx={{ flex: 1 }}>
-          {t('transfers.filters.showResults', { count: resultCount })}
-        </Button>
-      </Stack>
-    </Drawer>
+    </BottomSheet>
   )
 }
 

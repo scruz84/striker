@@ -2,10 +2,8 @@ import { useState } from 'react'
 import ApartmentTwoToneIcon from '@mui/icons-material/ApartmentTwoTone'
 import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
 import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone'
 import SportsTwoToneIcon from '@mui/icons-material/SportsTwoTone'
 import Divider from '@mui/material/Divider'
-import InputAdornment from '@mui/material/InputAdornment'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -15,10 +13,10 @@ import ListSubheader from '@mui/material/ListSubheader'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { SearchBar } from '../../components/m3/SearchBar'
 import { WatchToggle } from '../../components/WatchToggle'
 import { useSearch } from '../../api/hooks'
 import type { CoachSearchResult, PlayerSearchResult, StadiumSearchResult, TeamSearchResult } from '../../api/types'
@@ -42,22 +40,7 @@ export function SearchPage() {
     <Stack spacing={2}>
       <PageHeader title={t('search.title')} subtitle={t('search.subtitle')} />
 
-      <TextField
-        autoFocus
-        fullWidth
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={t('search.placeholder')}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchTwoToneIcon color="action" />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+      <SearchBar autoFocus value={query} onChange={setQuery} placeholder={t('search.placeholder')} />
 
       {!trimmed && (
         <Typography variant="body2" color="text.secondary">

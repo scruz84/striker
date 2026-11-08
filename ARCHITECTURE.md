@@ -304,7 +304,9 @@ src/
                 Subheader, theme mode provider, and the M3 navigation: `useNavMode`
                 (navigation.ts) picks BottomNav (< 900px), NavRail (900-1199px) or the
                 standard NavDrawer (>= 1200px); all read their destinations from navItems.tsx
-  components/   shared presentational components (avatars, country flags, pitch/formation rendering, dialogs)
+  components/   shared presentational components (avatars, country flags, pitch/formation rendering, dialogs);
+                components/m3/ holds the Material 3 building blocks with no domain knowledge (SearchBar,
+                BottomSheet, StatTile) - use them instead of hand-building those patterns
   features/     one folder per page/domain (dashboard, team, match, player, transfers, admin,
                 onboarding, ...) - this is where almost all UI code lives
   i18n/         en/es locale JSON, i18next setup

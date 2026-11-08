@@ -1,11 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined'
 import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone'
 import EditIcon from '@mui/icons-material/Edit'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
-import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined'
 import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone'
 import LiveTvTwoToneIcon from '@mui/icons-material/LiveTvTwoTone'
 import OutboundTwoToneIcon from '@mui/icons-material/OutboundTwoTone'
@@ -18,7 +20,6 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
-import CardActionArea from '@mui/material/CardActionArea'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
 import Chip from '@mui/material/Chip'
@@ -35,6 +36,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { StatTile } from '../../components/m3/StatTile'
 import { RivalryChip } from '../../components/RivalryChip'
 import {
   queryKeys,
@@ -739,7 +741,7 @@ function KpiGrid({
   const tiles = [
     {
       key: 'budget',
-      icon: <AccountBalanceWalletTwoToneIcon color="primary" fontSize="small" />,
+      icon: <AccountBalanceWalletOutlinedIcon />,
       label: t('dashboard.kpi.budget'),
       to: '/dashboard/finances',
       value: budget === undefined ? <Skeleton width={80} height={32} /> : formatCurrency(budget, { compact: true }),
@@ -747,21 +749,21 @@ function KpiGrid({
     },
     {
       key: 'squad',
-      icon: <GroupsTwoToneIcon color="primary" fontSize="small" />,
+      icon: <GroupsOutlinedIcon />,
       label: t('dashboard.kpi.squad'),
       to: `/team/${teamId}`,
       value: squadSize,
     },
     {
       key: 'position',
-      icon: <LeaderboardTwoToneIcon color="primary" fontSize="small" />,
+      icon: <LeaderboardOutlinedIcon />,
       label: t('dashboard.kpi.position'),
       to: `/division/${divisionId}`,
       value: standing ? t('dashboard.positionValue', { position: standing.position }) : '-',
     },
     {
       key: 'fanbase',
-      icon: <EmojiEventsTwoToneIcon color="primary" fontSize="small" />,
+      icon: <EmojiEventsOutlinedIcon />,
       label: t('dashboard.kpi.fanbase'),
       to: '/dashboard/finances',
       value: fanbase,
@@ -773,19 +775,7 @@ function KpiGrid({
     <Grid container spacing={1.5}>
       {tiles.map((tile) => (
         <Grid key={tile.key} size={6}>
-          <Card variant="outlined" sx={{ height: '100%' }}>
-            <CardActionArea component={RouterLink} to={tile.to} sx={{ height: '100%', p: 1.5, minHeight: 80 }}>
-              <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', mb: 0.5 }}>
-                {tile.icon}
-                <Typography variant="overline" color="text.secondary" sx={{ lineHeight: 1 }}>
-                  {tile.label}
-                </Typography>
-              </Stack>
-              <Typography variant="stat" component="div" sx={{ fontSize: '1.5rem', color: tile.color }}>
-                {tile.value}
-              </Typography>
-            </CardActionArea>
-          </Card>
+          <StatTile icon={tile.icon} label={tile.label} value={tile.value} valueColor={tile.color} to={tile.to} />
         </Grid>
       ))}
     </Grid>

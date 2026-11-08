@@ -77,7 +77,7 @@ describe('UsersTab', () => {
   it('filters the list as you type, and says when nothing matches', () => {
     setPhone(true)
     renderTab()
-    const search = screen.getByRole('textbox', { name: i18n.t('admin.usersSearch.placeholder') })
+    const search = screen.getByRole('searchbox', { name: i18n.t('admin.usersSearch.placeholder') })
 
     fireEvent.change(search, { target: { value: 'bob' } })
     expect(screen.getByText('Bob Manager')).toBeInTheDocument()

@@ -1,11 +1,9 @@
 import Chip from '@mui/material/Chip'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
-import TextField from '@mui/material/TextField'
-import SearchIcon from '@mui/icons-material/Search'
 import { useTranslation } from 'react-i18next'
+import { SearchBar } from '../../components/m3/SearchBar'
 import { NATIONAL_REGIONS, type NationalMatchFilter } from './nationalMatches'
 
 /** Country search, region chips and (when the viewer owns a club) the "only my players" toggle -
@@ -24,23 +22,7 @@ export function NationalMatchFilters({
   const { t } = useTranslation()
   return (
     <Stack spacing={1}>
-      <TextField
-        size="small"
-        fullWidth
-        value={filter.query}
-        onChange={(event) => onChange({ ...filter, query: event.target.value })}
-        placeholder={t('nationalTeams.filters.search')}
-        slotProps={{
-          htmlInput: { 'aria-label': t('nationalTeams.filters.search') },
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+      <SearchBar compact value={filter.query} onChange={(query) => onChange({ ...filter, query })} placeholder={t('nationalTeams.filters.search')} />
       {showRegions && (
         <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
           <Chip
