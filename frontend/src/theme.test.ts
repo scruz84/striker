@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Palette } from '@mui/material/styles'
-import { darkTheme, lightTheme } from './theme'
+import { darkTheme, highContrastDarkTheme, highContrastLightTheme, lightTheme } from './theme'
 
 // WCAG 2.x relative luminance and contrast ratio of two #rrggbb colours.
 function luminance(hex: string): number {
@@ -99,3 +99,75 @@ describe('ui-theme surface hierarchy', () => {
     expect(raisedPanelBackground(darkTheme)).toBe('#1a1c19')
   })
 })
+
+describe('ui-theme motion and state layers', () => {
+  it('uses M3 easing and durations (Dialog opens)', () => {
+    const { easing, duration } = lightTheme.transitions
+    expect(easing.easeInOut).toBe('cubic-bezier(0.2, 0, 0, 1)')
+    expect(easing.easeOut).toBe('cubic-bezier(0.05, 0.7, 0.1, 1)')
+    expect(easing.easeIn).toBe('cubic-bezier(0.3, 0, 0.8, 0.15)')
+    expect(duration.enteringScreen).toBe(400)
+    expect(duration.leavingScreen).toBe(200)
+    expect(duration.standard).toBe(300)
+  })
+
+  it('hovers at 8% and focuses at 10% of the content colour (Hovering a list item)', () => {
+    const { action } = lightTheme.palette
+    expect(action.hover).toBe('rgba(26, 28, 25, 0.08)')
+    expect(action.hoverOpacity).toBe(0.08)
+    expect(action.focus).toBe('rgba(26, 28, 25, 0.1)')
+    expect(action.focusOpacity).toBe(0.1)
+    expect(action.active).toBe(lightTheme.palette.onSurfaceVariant)
+  })
+
+  it('finishes every transition and animation at once under reduced motion (Reduce motion on)', () => {
+    const overrides = lightTheme.components?.MuiCssBaseline?.styleOverrides as Record<string, Record<string, Record<string, string>>>
+    const rule = overrides['@media (prefers-reduced-motion: reduce)']['*, *::before, *::after']
+    expect(rule.transitionDuration).toBe('0.01ms !important')
+    expect(rule.animationDuration).toBe('0.01ms !important')
+    expect(rule.animationIterationCount).toBe('1 !important')
+  })
+})
+
+describe('ui-theme high contrast', () => {
+  const highModes = [
+    ['light', highContrastLightTheme.palette],
+    ['dark', highContrastDarkTheme.palette],
+  ] as const
+
+  it('switches to the high-contrast scheme in light mode (Increase contrast in light mode)', () => {
+    expect(highContrastLightTheme.palette.primary.main).toBe('#003509')
+    expect(highContrastLightTheme.palette.onSurfaceVariant).toBe('#000000')
+  })
+
+  it('switches to the high-contrast scheme in dark mode (Increase contrast in dark mode)', () => {
+    expect(highContrastDarkTheme.palette.primary.main).toBe('#c5ffbc')
+  })
+
+  it.each(highModes)('reaches 7:1 for every text pair and 4.5:1 for the outline in %s mode', (_mode, p) => {
+    const pairs: [string, string, string][] = [
+      ['primary', p.primary.contrastText, p.primary.main],
+      ['secondary', p.secondary.contrastText, p.secondary.main],
+      ['tertiary', p.tertiary.contrastText, p.tertiary.main],
+      ['error', p.error.contrastText, p.error.main],
+      ['primaryContainer', p.onPrimaryContainer, p.primaryContainer],
+      ['secondaryContainer', p.onSecondaryContainer, p.secondaryContainer],
+      ['tertiaryContainer', p.onTertiaryContainer, p.tertiaryContainer],
+      ['errorContainer', p.onErrorContainer, p.errorContainer],
+    ]
+    for (const surface of [p.background.default, ...surfaceLevels(p)]) {
+      pairs.push([`onSurface on ${surface}`, p.onSurface, surface])
+      pairs.push([`onSurfaceVariant on ${surface}`, p.onSurfaceVariant, surface])
+    }
+    for (const [name, fg, bg] of pairs) {
+      expect(contrastRatio(fg, bg), name).toBeGreaterThanOrEqual(7)
+    }
+    expect(contrastRatio(p.outline, p.background.default)).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('leaves the standard themes as they were (No preference)', () => {
+    expect(lightTheme.palette.primary.main).toBe('#006e1c')
+    expect(darkTheme.palette.primary.main).toBe('#78dc77')
+  })
+})
+

@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
-import { darkTheme, lightTheme } from '../theme'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { darkTheme, highContrastDarkTheme, highContrastLightTheme, lightTheme } from '../theme'
 import { getInitialMode, STORAGE_KEY, ThemeModeContext, type ThemeMode } from './themeMode'
 
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>(getInitialMode)
+  // M3's high-contrast scheme when the system asks for more contrast (an OS accessibility setting).
+  const moreContrast = useMediaQuery('(prefers-contrast: more)')
 
   useEffect(() => {
     try {
@@ -22,7 +25,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeModeContext.Provider value={value}>
-      <ThemeProvider theme={mode === 'dark' ? darkTheme : lightTheme}>
+      <ThemeProvider theme={moreContrast ? (mode === 'dark' ? highContrastDarkTheme : highContrastLightTheme) : mode === 'dark' ? darkTheme : lightTheme}>
         <CssBaseline enableColorScheme />
         {children}
       </ThemeProvider>

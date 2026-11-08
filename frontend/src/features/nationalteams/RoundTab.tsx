@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
+import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined'
 import { useTranslation } from 'react-i18next'
 import { useNationalTeamRound, useUserTeam } from '../../api/hooks'
 import type { NationalMatch } from '../../api/types'
@@ -44,7 +44,7 @@ export function RoundTab() {
 
       {visible.length === 0 && (
         <EmptyState
-          icon={<SportsSoccerTwoToneIcon fontSize="inherit" />}
+          icon={<SportsSoccerOutlinedIcon fontSize="inherit" />}
           title={data.length === 0 ? t('nationalTeams.round.emptyTitle') : t('nationalTeams.filters.noMatches')}
           text={data.length === 0 ? t('nationalTeams.round.empty') : undefined}
         />

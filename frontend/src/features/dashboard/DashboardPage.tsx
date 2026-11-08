@@ -1,18 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined'
-import CalendarTodayTwoToneIcon from '@mui/icons-material/CalendarTodayTwoTone'
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
-import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined'
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined'
-import LeaderboardTwoToneIcon from '@mui/icons-material/LeaderboardTwoTone'
-import LiveTvTwoToneIcon from '@mui/icons-material/LiveTvTwoTone'
-import OutboundTwoToneIcon from '@mui/icons-material/OutboundTwoTone'
-import ShuffleTwoToneIcon from '@mui/icons-material/ShuffleTwoTone'
-import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
+import LiveTvOutlinedIcon from '@mui/icons-material/LiveTvOutlined'
+import OutboundOutlinedIcon from '@mui/icons-material/OutboundOutlined'
+import ShuffleOutlinedIcon from '@mui/icons-material/ShuffleOutlined'
+import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -288,7 +286,7 @@ function LiveMatchesCard() {
           sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between' }}
         >
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-            <LiveTvTwoToneIcon color="error" />
+            <LiveTvOutlinedIcon color="error" />
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
                 {t('dashboard.liveWorldwide')}
@@ -353,7 +351,7 @@ function SuggestedLiveMatch({
         <Tooltip title={t('dashboard.shuffleLiveMatch')}>
           <span>
             <IconButton size="small" onClick={() => onShuffle()} disabled={isFetching}>
-              <ShuffleTwoToneIcon fontSize="small" />
+              <ShuffleOutlinedIcon fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>
@@ -507,15 +505,18 @@ function OpponentLine({ match }: { match: TeamMatchSummary }) {
   )
 }
 
-function MatchKindChip({ kind }: { kind: TeamMatchSummary['kind'] }) {
+/** `onContainer`: the chip sits on a coloured hero (primaryContainer, errorContainer), so it takes
+ * the hero's own text colour - a primary/secondary outline would vanish there, above all in the
+ * high-contrast scheme. */
+function MatchKindChip({ kind, onContainer = false }: { kind: TeamMatchSummary['kind']; onContainer?: boolean }) {
   const { t } = useTranslation()
   return (
     <Chip
       size="small"
       variant="outlined"
-      color={matchKindColor(kind)}
+      color={onContainer ? 'default' : matchKindColor(kind)}
       label={t(matchKindLabelKey(kind))}
-      sx={{ height: 20, alignSelf: 'flex-start' }}
+      sx={{ height: 20, alignSelf: 'flex-start', ...(onContainer && { color: 'inherit', borderColor: 'currentColor' }) }}
     />
   )
 }
@@ -550,11 +551,11 @@ function NextMatchHero({ match, teamId }: { match: TeamMatchSummary | undefined;
     <Card sx={{ mb: 2, bgcolor: 'primaryContainer', color: 'onPrimaryContainer' }}>
       <CardContent>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1, flexWrap: 'wrap', rowGap: 0.5 }}>
-          <CalendarTodayTwoToneIcon fontSize="small" />
+          <CalendarTodayOutlinedIcon fontSize="small" />
           <Typography variant="overline" sx={{ lineHeight: 1 }}>
             {t('dashboard.nextMatch')}
           </Typography>
-          <MatchKindChip kind={match.kind} />
+          <MatchKindChip kind={match.kind} onContainer />
           <RivalryChip level={match.rivalry} />
         </Stack>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
@@ -679,7 +680,7 @@ function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undef
 
   if (!match) {
     return (
-      <StatCard icon={<SportsSoccerTwoToneIcon color="primary" fontSize="small" />} title={t('dashboard.lastResult')}>
+      <StatCard icon={<SportsSoccerOutlinedIcon color="primary" fontSize="small" />} title={t('dashboard.lastResult')}>
         <Typography variant="body2" color="text.secondary">
           {t('dashboard.noRecentMatch')}
         </Typography>
@@ -696,7 +697,7 @@ function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undef
 
   return (
     <StatCard
-      icon={<SportsSoccerTwoToneIcon color="primary" fontSize="small" />}
+      icon={<SportsSoccerOutlinedIcon color="primary" fontSize="small" />}
       title={t('dashboard.lastResult')}
       action={
         <Button size="small" component={RouterLink} to={matchSummaryLink(match)}>
@@ -759,7 +760,7 @@ function KpiGrid({
       icon: <LeaderboardOutlinedIcon />,
       label: t('dashboard.kpi.position'),
       to: `/division/${divisionId}`,
-      value: standing ? t('dashboard.positionValue', { position: standing.position }) : '-',
+      value: standing ? t('dashboard.positionValue', { count: standing.position, ordinal: true }) : '-',
     },
     {
       key: 'fanbase',
@@ -789,7 +790,7 @@ function TopScorerCard({ leagueId }: { leagueId: string }) {
 
   return (
     <StatCard
-      icon={<EmojiEventsTwoToneIcon color="primary" fontSize="small" />}
+      icon={<EmojiEventsOutlinedIcon color="primary" fontSize="small" />}
       title={t('dashboard.topScorer')}
       action={
         <Button size="small" component={RouterLink} to={`/division/${leagueId}`}>
@@ -835,7 +836,7 @@ function GroupSnapshotCard({ teamId }: { teamId: number }) {
 
   return (
     <StatCard
-      icon={<LeaderboardTwoToneIcon color="primary" fontSize="small" />}
+      icon={<LeaderboardOutlinedIcon color="primary" fontSize="small" />}
       title={t('groups.title')}
       action={
         <Button size="small" component={RouterLink} to="/groups">
@@ -873,7 +874,7 @@ function LoanedOutCard({ teamId, loanedOut }: { teamId: number; loanedOut: Loane
   return (
     <Box sx={{ mb: 2 }} data-testid="dashboard-loaned-out">
       <StatCard
-        icon={<OutboundTwoToneIcon color="primary" fontSize="small" />}
+        icon={<OutboundOutlinedIcon color="primary" fontSize="small" />}
         title={t('dashboard.loanedOut.title')}
         action={
           <Button size="small" component={RouterLink} to={`/team/${teamId}?tab=squad`}>
@@ -900,7 +901,7 @@ function SponsorDealCard({ finances }: { finances: FinancesResponse | undefined 
   const { t } = useTranslation()
   return (
     <StatCard
-      icon={<HandshakeTwoToneIcon color="primary" fontSize="small" />}
+      icon={<HandshakeOutlinedIcon color="primary" fontSize="small" />}
       title={t('finances.sponsorDeal.title')}
       action={
         <Button size="small" component={RouterLink} to="/dashboard/finances">

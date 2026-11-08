@@ -58,7 +58,7 @@ export function OpponentPreviewCard({ kind, matchId, teamId, teamName }: Opponen
           </Typography>
           {preview.opponent.position > 0 && (
             <Typography variant="caption" color="text.secondary">
-              {t('preview.position', { position: preview.opponent.position })}
+              {t('preview.position', { count: preview.opponent.position, ordinal: true })}
             </Typography>
           )}
         </Box>

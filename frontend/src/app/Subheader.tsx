@@ -23,7 +23,7 @@ export function Subheader() {
 
   const position = userTeam.team.classificationPosition
   const divisionLabel = `${formatDivisionName(t, userTeam.team.divisionName)}${
-    position > 0 ? ` · ${t('subheader.position', { position })}` : ''
+    position > 0 ? ` · ${t('subheader.position', { count: position, ordinal: true })}` : ''
   }`
 
   return (

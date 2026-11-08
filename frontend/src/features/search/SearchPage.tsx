@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import ApartmentTwoToneIcon from '@mui/icons-material/ApartmentTwoTone'
-import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
-import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone'
-import SportsTwoToneIcon from '@mui/icons-material/SportsTwoTone'
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
+import SportsOutlinedIcon from '@mui/icons-material/SportsOutlined'
 import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -61,25 +61,25 @@ export function SearchPage() {
           <List disablePadding>
             <ResultSection
               title={t('search.teams')}
-              icon={<GroupsTwoToneIcon />}
+              icon={<GroupsOutlinedIcon />}
               items={results.teams}
               renderItem={(team) => <TeamResultRow key={team.id} team={team} />}
             />
             <ResultSection
               title={t('search.players')}
-              icon={<PersonTwoToneIcon />}
+              icon={<PersonOutlinedIcon />}
               items={results.players}
               renderItem={(player) => <PlayerResultRow key={player.id} player={player} />}
             />
             <ResultSection
               title={t('search.coaches')}
-              icon={<SportsTwoToneIcon />}
+              icon={<SportsOutlinedIcon />}
               items={results.coaches}
               renderItem={(coach) => <CoachResultRow key={coach.id} coach={coach} />}
             />
             <ResultSection
               title={t('search.stadiums')}
-              icon={<ApartmentTwoToneIcon />}
+              icon={<ApartmentOutlinedIcon />}
               items={results.stadiums}
               renderItem={(stadium) => <StadiumResultRow key={stadium.teamId} stadium={stadium} />}
             />
@@ -120,7 +120,7 @@ function TeamResultRow({ team }: { team: TeamSearchResult }) {
   return (
     <ListItemButton component={RouterLink} to={`/team/${team.id}`}>
       <ListItemIcon>
-        <GroupsTwoToneIcon />
+        <GroupsOutlinedIcon />
       </ListItemIcon>
       <ListItemText primary={team.name} secondary={team.divisionName || undefined} />
     </ListItemButton>
@@ -134,7 +134,7 @@ function PlayerResultRow({ player }: { player: PlayerSearchResult }) {
     <ListItem disablePadding secondaryAction={<WatchToggle player={player} />}>
       <ListItemButton component={RouterLink} to={`/player/${player.id}`}>
         <ListItemIcon>
-          <PersonTwoToneIcon />
+          <PersonOutlinedIcon />
         </ListItemIcon>
         <ListItemText
           primary={
@@ -155,7 +155,7 @@ function CoachResultRow({ coach }: { coach: CoachSearchResult }) {
   return (
     <ListItemButton component={RouterLink} to={`/team/${coach.teamId}`}>
       <ListItemIcon>
-        <SportsTwoToneIcon />
+        <SportsOutlinedIcon />
       </ListItemIcon>
       <ListItemText
         primary={`${coach.firstName} ${coach.lastName}`}
@@ -170,7 +170,7 @@ function StadiumResultRow({ stadium }: { stadium: StadiumSearchResult }) {
   return (
     <ListItemButton component={RouterLink} to={`/team/${stadium.teamId}`}>
       <ListItemIcon>
-        <ApartmentTwoToneIcon />
+        <ApartmentOutlinedIcon />
       </ListItemIcon>
       <ListItemText primary={stadium.stadiumName} secondary={t('search.stadiumOf', { team: stadium.teamName })} />
     </ListItemButton>

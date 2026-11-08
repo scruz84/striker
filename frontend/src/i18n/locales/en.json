@@ -314,7 +314,10 @@
       "fanbase": "Fans"
     },
     "squadCount": "{{count}} players",
-    "positionValue": "{{position}}th",
+    "positionValue_ordinal_one": "{{count}}st",
+    "positionValue_ordinal_two": "{{count}}nd",
+    "positionValue_ordinal_few": "{{count}}rd",
+    "positionValue_ordinal_other": "{{count}}th",
     "moreSection": "More info",
     "loanedOut": {
       "title": "Loaned out",
@@ -1455,7 +1458,10 @@
   },
   "preview": {
     "title": "Preview: {{opponent}}",
-    "position": "Currently {{position}}º in the league",
+    "position_ordinal_one": "Currently {{count}}st in the league",
+    "position_ordinal_two": "Currently {{count}}nd in the league",
+    "position_ordinal_few": "Currently {{count}}rd in the league",
+    "position_ordinal_other": "Currently {{count}}th in the league",
     "show": "Show",
     "hide": "Hide",
     "noHistory": "{{opponent}} has no recent league or cup matches yet, so there is nothing to preview.",
@@ -2466,7 +2472,10 @@
     "tierShort": "Div. {{tier}}"
   },
   "subheader": {
-    "position": "{{position}}th"
+    "position_ordinal_one": "{{count}}st",
+    "position_ordinal_two": "{{count}}nd",
+    "position_ordinal_few": "{{count}}rd",
+    "position_ordinal_other": "{{count}}th"
   },
   "teamAutocomplete": {
     "hint": "Type at least 2 letters of the team name",

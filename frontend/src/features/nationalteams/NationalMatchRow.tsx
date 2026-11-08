@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import { Link as RouterLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { NationalMatch } from '../../api/types'
@@ -60,7 +60,7 @@ export function NationalMatchRow({ match, hideLabel = false }: { match: National
         )}
         {!!match.myPlayers && (
           <Chip
-            icon={<GroupsTwoToneIcon />}
+            icon={<GroupsOutlinedIcon />}
             label={t('nationalTeams.row.myPlayers', { count: match.myPlayers })}
             color="primary"
             size="small"

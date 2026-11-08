@@ -11,7 +11,7 @@ import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
-import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
+import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined'
 import Collapse from '@mui/material/Collapse'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
@@ -158,7 +158,7 @@ export function FriendliesPage() {
 
       {nothingToShow ? (
         <EmptyState
-          icon={<HandshakeTwoToneIcon fontSize="inherit" />}
+          icon={<HandshakeOutlinedIcon fontSize="inherit" />}
           title={t('friendlies.challenge.emptyTitle')}
           text={t('friendlies.challenge.emptyText')}
           action={

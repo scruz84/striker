@@ -1,5 +1,5 @@
 import Chip from '@mui/material/Chip'
-import WhatshotTwoToneIcon from '@mui/icons-material/WhatshotTwoTone'
+import WhatshotOutlinedIcon from '@mui/icons-material/WhatshotOutlined'
 import { useTranslation } from 'react-i18next'
 import { RIVALRY_CLASICO, RIVALRY_RIVAL } from '../api/types'
 
@@ -14,7 +14,7 @@ export function RivalryChip({ level, size = 'small' }: { level?: number; size?: 
   return (
     <Chip
       size={size}
-      icon={<WhatshotTwoToneIcon />}
+      icon={<WhatshotOutlinedIcon />}
       color={clasico ? 'error' : 'warning'}
       variant={clasico ? 'filled' : 'outlined'}
       label={t(clasico ? 'rivalries.clasico' : 'rivalries.rival')}

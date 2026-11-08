@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
@@ -82,7 +82,7 @@ function CountryTiers({ country }: { country: CountryLeagueDirectory }) {
         return (
           <Box key={tier}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
-              {tier === 1 && <EmojiEventsTwoToneIcon color="primary" fontSize="small" />}
+              {tier === 1 && <EmojiEventsOutlinedIcon color="primary" fontSize="small" />}
               <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                 {t('leagues.tier', { tier })}
               </Typography>

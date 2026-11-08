@@ -1,15 +1,15 @@
 import type { SvgIconComponent } from '@mui/icons-material'
-import AccountBalanceWalletTwoToneIcon from '@mui/icons-material/AccountBalanceWalletTwoTone'
-import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
-import FlagTwoToneIcon from '@mui/icons-material/FlagTwoTone'
-import GroupsTwoToneIcon from '@mui/icons-material/GroupsTwoTone'
-import HandshakeTwoToneIcon from '@mui/icons-material/HandshakeTwoTone'
-import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
-import SchoolTwoToneIcon from '@mui/icons-material/SchoolTwoTone'
-import SmartphoneTwoToneIcon from '@mui/icons-material/SmartphoneTwoTone'
-import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
-import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone'
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined'
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined'
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import SmartphoneOutlinedIcon from '@mui/icons-material/SmartphoneOutlined'
+import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined'
+import SwapHorizOutlinedIcon from '@mui/icons-material/SwapHorizOutlined'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -27,19 +27,19 @@ interface HelpItem {
 }
 
 const SECTIONS: { key: string; icon: SvgIconComponent }[] = [
-  { key: 'access', icon: SmartphoneTwoToneIcon },
-  { key: 'gettingStarted', icon: FlagTwoToneIcon },
-  { key: 'dashboard', icon: DashboardTwoToneIcon },
-  { key: 'lineup', icon: SportsSoccerTwoToneIcon },
-  { key: 'matches', icon: SportsSoccerTwoToneIcon },
-  { key: 'transfers', icon: SwapHorizTwoToneIcon },
-  { key: 'squadDevelopment', icon: SchoolTwoToneIcon },
-  { key: 'finances', icon: AccountBalanceWalletTwoToneIcon },
-  { key: 'leagues', icon: PublicTwoToneIcon },
-  { key: 'cup', icon: EmojiEventsTwoToneIcon },
-  { key: 'friendlies', icon: HandshakeTwoToneIcon },
-  { key: 'nationalTeams', icon: FlagTwoToneIcon },
-  { key: 'groups', icon: GroupsTwoToneIcon },
+  { key: 'access', icon: SmartphoneOutlinedIcon },
+  { key: 'gettingStarted', icon: FlagOutlinedIcon },
+  { key: 'dashboard', icon: DashboardOutlinedIcon },
+  { key: 'lineup', icon: SportsSoccerOutlinedIcon },
+  { key: 'matches', icon: SportsSoccerOutlinedIcon },
+  { key: 'transfers', icon: SwapHorizOutlinedIcon },
+  { key: 'squadDevelopment', icon: SchoolOutlinedIcon },
+  { key: 'finances', icon: AccountBalanceWalletOutlinedIcon },
+  { key: 'leagues', icon: PublicOutlinedIcon },
+  { key: 'cup', icon: EmojiEventsOutlinedIcon },
+  { key: 'friendlies', icon: HandshakeOutlinedIcon },
+  { key: 'nationalTeams', icon: FlagOutlinedIcon },
+  { key: 'groups', icon: GroupsOutlinedIcon },
 ]
 
 type Translate = (key: string, options: { returnObjects: true }) => unknown

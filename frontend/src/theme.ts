@@ -1,6 +1,6 @@
 import { argbFromHex, DynamicScheme, Hct, hexFromArgb, TonalPalette, Variant } from '@material/material-color-utilities'
 import type { CSSProperties } from 'react'
-import { createTheme } from '@mui/material/styles'
+import { alpha, createTheme } from '@mui/material/styles'
 import { TOUCH } from './touchMedia'
 import type { PaletteColorOptions, Theme } from '@mui/material/styles'
 
@@ -14,12 +14,14 @@ import type { PaletteColorOptions, Theme } from '@mui/material/styles'
 const SEED_COLOR = '#4CAF50'
 const seedHct = Hct.fromInt(argbFromHex(SEED_COLOR))
 
-function buildScheme(isDark: boolean): DynamicScheme {
+// contrastLevel 0 is M3's standard scheme; 1 is its high-contrast scheme, used when the system
+// asks for more contrast (prefers-contrast: more - see ThemeModeProvider).
+function buildScheme(isDark: boolean, contrastLevel = 0): DynamicScheme {
   const { hue, chroma } = seedHct
   return new DynamicScheme({
     sourceColorHct: seedHct,
     variant: Variant.TONAL_SPOT,
-    contrastLevel: 0,
+    contrastLevel,
     isDark,
     primaryPalette: TonalPalette.fromHueAndChroma(hue, Math.max(48, chroma)),
     secondaryPalette: TonalPalette.fromHueAndChroma(hue, 16),
@@ -179,6 +181,16 @@ function buildPalette(scheme: DynamicScheme, mode: 'light' | 'dark') {
     surfaceContainerHigh: hex(scheme.surfaceContainerHigh),
     surfaceContainerHighest: hex(scheme.surfaceContainerHighest),
     rating: buildRatingScale(hex(scheme.outline), hex(scheme.primary), mode),
+    // M3 state layers: hover 8%, focus and pressed 10% of the content colour (MUI defaults to
+    // 4% / 12%). Text, outlined and icon buttons, list items and menus all derive from these.
+    action: {
+      active: hex(scheme.onSurfaceVariant),
+      hover: alpha(hex(scheme.onSurface), 0.08),
+      hoverOpacity: 0.08,
+      focus: alpha(hex(scheme.onSurface), 0.1),
+      focusOpacity: 0.1,
+      activatedOpacity: 0.1,
+    },
   }
 }
 
@@ -236,7 +248,20 @@ const ELEVATION_1 = '0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0
 
 function buildComponents() {
   return {
-    MuiCssBaseline: { styleOverrides: {} },
+    MuiCssBaseline: {
+      styleOverrides: {
+        // Honour the system's "reduce motion" setting: transitions and animations (slides,
+        // ripples, the pulsing LIVE chip) finish at once instead of moving.
+        '@media (prefers-reduced-motion: reduce)': {
+          '*, *::before, *::after': {
+            animationDuration: '0.01ms !important',
+            animationIterationCount: '1 !important',
+            transitionDuration: '0.01ms !important',
+            scrollBehavior: 'auto !important',
+          },
+        },
+      },
+    },
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
@@ -520,16 +545,40 @@ function buildComponents() {
   }
 }
 
-export const lightTheme = createTheme({
-  palette: buildPalette(buildScheme(false), 'light'),
-  shape: { borderRadius: 12 },
-  typography,
-  components: buildComponents(),
-})
+// M3 motion: the standard and emphasized easing curves and the duration tokens (short4 200ms for
+// exits, medium2 300ms for most changes, medium4 400ms for entering surfaces) in place of MUI's
+// Material 2 values - see https://m3.material.io/styles/motion/easing-and-duration/tokens-specs.
+export const M3_TRANSITIONS = {
+  easing: {
+    easeInOut: 'cubic-bezier(0.2, 0, 0, 1)', // standard
+    easeOut: 'cubic-bezier(0.05, 0.7, 0.1, 1)', // emphasized decelerate (entering)
+    easeIn: 'cubic-bezier(0.3, 0, 0.8, 0.15)', // emphasized accelerate (exiting)
+    sharp: 'cubic-bezier(0.3, 0, 1, 1)', // standard accelerate
+  },
+  duration: {
+    shortest: 100,
+    shorter: 150,
+    short: 200,
+    standard: 300,
+    complex: 400,
+    enteringScreen: 400,
+    leavingScreen: 200,
+  },
+}
 
-export const darkTheme = createTheme({
-  palette: buildPalette(buildScheme(true), 'dark'),
-  shape: { borderRadius: 12 },
-  typography,
-  components: buildComponents(),
-})
+/** The app theme for a mode, in M3's standard scheme or, when the system asks for more contrast,
+ * its high-contrast scheme. */
+export function buildTheme(mode: 'light' | 'dark', highContrast = false): Theme {
+  return createTheme({
+    palette: buildPalette(buildScheme(mode === 'dark', highContrast ? 1 : 0), mode),
+    shape: { borderRadius: 12 },
+    typography,
+    transitions: M3_TRANSITIONS,
+    components: buildComponents(),
+  })
+}
+
+export const lightTheme = buildTheme('light')
+export const darkTheme = buildTheme('dark')
+export const highContrastLightTheme = buildTheme('light', true)
+export const highContrastDarkTheme = buildTheme('dark', true)

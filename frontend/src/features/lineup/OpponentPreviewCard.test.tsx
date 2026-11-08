@@ -79,7 +79,7 @@ describe('OpponentPreviewCard', () => {
 
     expect(hook.calls[0]).toEqual(['league', '77'])
     expect(screen.getByText('Preview: Rivals FC')).toBeInTheDocument()
-    expect(screen.getByText('Currently 3º in the league')).toBeInTheDocument()
+    expect(screen.getByText('Currently 3rd in the league')).toBeInTheDocument()
     expect(screen.getByLabelText(/Win: Beta 2-0/)).toBeInTheDocument()
     expect(screen.getByLabelText(/Draw: Gamma 1-1/)).toBeInTheDocument()
     expect(screen.getByText(/Likely XI · /)).toBeInTheDocument()

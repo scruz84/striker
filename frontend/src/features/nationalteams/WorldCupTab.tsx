@@ -12,8 +12,8 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
-import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useCurrentWorldCup, useWorldCupHistory } from '../../api/hooks'
 import type { NationalMatch, WorldCupGroup, WorldCupGroupMatch } from '../../api/types'
@@ -45,7 +45,7 @@ export function WorldCupTab() {
   return (
     <Stack spacing={2}>
       {isError || !worldCup ? (
-        <EmptyState icon={<PublicTwoToneIcon fontSize="inherit" />} title={t('nationalTeams.worldCup.noneTitle')} text={estimate ?? t('nationalTeams.worldCup.none')} />
+        <EmptyState icon={<PublicOutlinedIcon fontSize="inherit" />} title={t('nationalTeams.worldCup.noneTitle')} text={estimate ?? t('nationalTeams.worldCup.none')} />
       ) : (
         <>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 1 }}>
@@ -232,7 +232,7 @@ function RollOfHonour() {
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
-        <EmojiEventsTwoToneIcon color="warning" />
+        <EmojiEventsOutlinedIcon color="warning" />
         <Typography variant="subtitle1" component="h3">
           {t('nationalTeams.worldCup.rollOfHonour')}
         </Typography>

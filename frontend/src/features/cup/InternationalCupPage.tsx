@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Skeleton from '@mui/material/Skeleton'
-import PublicTwoToneIcon from '@mui/icons-material/PublicTwoTone'
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined'
 import { useTranslation } from 'react-i18next'
 import { useCupDetails, useLatestInternationalCupId, useMe } from '../../api/hooks'
 import { EmptyState } from '../../components/EmptyState'
@@ -33,7 +33,7 @@ export function InternationalCupPage() {
       <Box>
         <PageHeader title={t('header.nav.internationalCup')} />
         <EmptyState
-          icon={<PublicTwoToneIcon fontSize="inherit" />}
+          icon={<PublicOutlinedIcon fontSize="inherit" />}
           title={t('cup.noInternationalCupTitle')}
           text={t('cup.noInternationalCup')}
         />

@@ -1,4 +1,4 @@
-import SwapHorizTwoToneIcon from '@mui/icons-material/SwapHorizTwoTone'
+import SwapHorizOutlinedIcon from '@mui/icons-material/SwapHorizOutlined'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
@@ -25,7 +25,7 @@ export function RecentLeagueTransfers({ leagueId }: { leagueId: string | undefin
   return (
     <Paper variant="outlined">
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', p: 2, pb: 1 }}>
-        <SwapHorizTwoToneIcon color="primary" fontSize="small" />
+        <SwapHorizOutlinedIcon color="primary" fontSize="small" />
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
           {t('recentTransfers.title')}
         </Typography>

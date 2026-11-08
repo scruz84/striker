@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -153,7 +153,7 @@ export function TeamDetailsPage() {
                 component={RouterLink}
                 to={`/division/${teamDetails.team.divisionId}`}
                 clickable
-                label={`${formatDivisionName(t, teamDetails.team.divisionName)} · ${t('subheader.position', { position: teamDetails.team.classificationPosition })}`}
+                label={`${formatDivisionName(t, teamDetails.team.divisionName)} · ${t('subheader.position', { count: teamDetails.team.classificationPosition, ordinal: true })}`}
               />
               <CupStatusChip label={t('team.cup.domestic')} status={cupStatus} />
               <CupStatusChip label={t('team.cup.international')} status={internationalCupStatus} />
@@ -305,7 +305,7 @@ export function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
       <span>{entry.finalPosition ?? '-'}</span>
       {entry.finalPosition === 1 && (
         <Tooltip title={t('team.leagueChampion')}>
-          <EmojiEventsTwoToneIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
+          <EmojiEventsOutlinedIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
         </Tooltip>
       )}
     </Stack>

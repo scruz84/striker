@@ -314,7 +314,7 @@
       "fanbase": "Afición"
     },
     "squadCount": "{{count}} jugadores",
-    "positionValue": "{{position}}º",
+    "positionValue_ordinal_other": "{{count}}º",
     "moreSection": "Más información",
     "loanedOut": {
       "title": "Cedidos",
@@ -1455,7 +1455,7 @@
   },
   "preview": {
     "title": "Previa: {{opponent}}",
-    "position": "Ahora {{position}}º en la liga",
+    "position_ordinal_other": "Ahora {{count}}º en la liga",
     "show": "Ver",
     "hide": "Ocultar",
     "noHistory": "{{opponent}} aún no ha jugado partidos de liga o copa, así que no hay nada que mostrar.",
@@ -2466,7 +2466,7 @@
     "tierShort": "{{tier}}ª Div."
   },
   "subheader": {
-    "position": "{{position}}º"
+    "position_ordinal_other": "{{count}}º"
   },
   "teamAutocomplete": {
     "hint": "Escribe al menos 2 letras del nombre del equipo",

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
-import SportsSoccerTwoToneIcon from '@mui/icons-material/SportsSoccerTwoTone'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
+import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -698,7 +698,7 @@ function ClassificationTable({
                         {row.teamName}
                       </TeamNameLink>
                       {champion && row.position === 1 && (
-                        <EmojiEventsTwoToneIcon
+                        <EmojiEventsOutlinedIcon
                           titleAccess={t('division.champion')}
                           fontSize="small"
                           sx={{ color: RANK_COLORS[0], flexShrink: 0 }}
@@ -768,7 +768,7 @@ function TopScorers({ leagueId, limit }: { leagueId: string | undefined; limit: 
   return (
     <Paper variant="outlined" sx={{ height: '100%' }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', p: 2, pb: 1 }}>
-        <SportsSoccerTwoToneIcon color="primary" fontSize="small" />
+        <SportsSoccerOutlinedIcon color="primary" fontSize="small" />
         <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 700 }}>
           {t('division.topScorers.title')}
         </Typography>

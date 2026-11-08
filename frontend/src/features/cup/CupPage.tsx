@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { useState } from 'react'
-import EmojiEventsTwoToneIcon from '@mui/icons-material/EmojiEventsTwoTone'
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import ButtonBase from '@mui/material/ButtonBase'
@@ -41,7 +41,7 @@ export function CupPage() {
     return (
       <Box>
         <PageHeader title={t('header.nav.cup')} />
-        <EmptyState icon={<EmojiEventsTwoToneIcon fontSize="inherit" />} title={t('cup.noCupTitle')} text={t('cup.noCup')} />
+        <EmptyState icon={<EmojiEventsOutlinedIcon fontSize="inherit" />} title={t('cup.noCupTitle')} text={t('cup.noCup')} />
       </Box>
     )
   }
