@@ -20,5 +20,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     globals: true,
+    // @material/material-color-utilities ships ESM with extensionless relative imports, which
+    // Node's resolver rejects; let Vite transform it so tests can import theme.ts.
+    server: { deps: { inline: ['@material/material-color-utilities'] } },
   },
 })

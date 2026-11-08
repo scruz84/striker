@@ -14,7 +14,7 @@ The header SHALL use the `surface` role as background, `onSurface` for its icons
 - **THEN** the header stays visible with background `#eeeee8`
 
 ### Requirement: Button emphasis levels
-Buttons SHALL come in four emphasis levels: filled (`primary` / `onPrimary`), tonal (`secondaryContainer` / `onSecondaryContainer`), outlined (`outline` border, `primary` text) and text. Every level SHALL be pill-shaped, at least 40 px tall with a pointer and 44 px on touch screens, with sentence-case labels.
+Buttons SHALL come in four emphasis levels: filled (`primary` / `onPrimary`), tonal (`secondaryContainer` / `onSecondaryContainer`), outlined (`outline` border, `primary` text) and text. Every level SHALL be pill-shaped with sentence-case labels; a default-size button is at least 40 px tall with a pointer, the compact size keeps its height, and every button is at least 44 px tall on touch screens.
 
 #### Scenario: Tonal button
 - **WHEN** a tonal button is rendered in light mode
@@ -69,12 +69,12 @@ Tabs SHALL mark the active tab with a 3 px `primary` indicator with rounded top 
 - **THEN** its tap area is at least 44 px tall
 
 ### Requirement: Menus and dialogs
-Menus and popovers SHALL use `surfaceContainer` with 4 px corners. Dialogs SHALL use `surfaceContainerHigh` with 28 px corners, except the full-screen dialogs phones get, which keep square corners.
+Menus and popovers SHALL use `surfaceContainer` with 4 px corners. Dialogs SHALL use `surfaceContainerHigh` with 28 px corners, except the full-screen dialogs phones get, which are square and use the page `surface`.
 
 #### Scenario: Dialog in light mode
 - **WHEN** a confirmation dialog opens on a 1280 px screen in light mode
 - **THEN** its background is `#e8e9e2` with 28 px corners
 
 #### Scenario: Full-screen dialog on a phone
-- **WHEN** a responsive dialog opens full-screen on a 360 px phone
-- **THEN** it has square corners
+- **WHEN** a responsive dialog opens full-screen on a 360 px phone in light mode
+- **THEN** it has square corners and the `#f9faf4` page surface

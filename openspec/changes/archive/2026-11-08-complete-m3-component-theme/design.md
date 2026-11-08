@@ -37,8 +37,8 @@ after `add-m3-color-roles`:
 
 All styles go into `buildComponents`. New visual variants use MUI's `variants` array with module
 augmentation: `ButtonPropsVariantOverrides { tonal: true }` and
-`CardPropsVariantOverrides { elevated: true; filled: true }` (`outlined` already exists on
-`Card`, through `Paper`). Pages opt in with `variant="tonal"` and `variant="filled"`, typed.
+`PaperPropsVariantOverrides { elevated: true; filled: true }` (MUI has no Card-specific variant
+interface: `Card` takes `Paper`'s variants, and `outlined` already exists there). Pages opt in with `variant="tonal"` and `variant="filled"`, typed.
 
 *Alternative considered:* `components/m3/TonalButton.tsx`-style wrappers. Rejected for this
 phase: wrappers mean editing call sites, and `variants` gives the same typing with zero page
@@ -58,8 +58,9 @@ is not affected.
 
 `MuiChip.root` → `borderRadius: 8`, `height: 32`; `sizeSmall` → `height: 24`. The 44 px `::after`
 hit area stays. A selected filter chip is expressed as `color="primary"` + `variant="filled"` +
-a check icon: the override maps `colorPrimary` filled chips to `secondaryContainer` /
-`onSecondaryContainer`. The existing `success`/`error`/`warning`/`info` chips keep MUI's palette
+a check icon: the `filled` override maps `&.MuiChip-colorPrimary` to `secondaryContainer` /
+`onSecondaryContainer` (MUI 9 no longer applies the compound `filledPrimary` key), and the
+`outlined` override gives default-colour outlined chips the `outlineVariant` border. The existing `success`/`error`/`warning`/`info` chips keep MUI's palette
 colours (owner question 2 in the proposal).
 
 *Risk checked:* the 7 `color="primary"` chips today are used as selected or highlighted
@@ -69,7 +70,9 @@ markers, which is what the new style means; each is reviewed in task 2.3.
 
 `MuiToggleButtonGroup` → `firstButton`/`lastButton` slots with `borderRadius: 9999`,
 `grouped` border `outline`; `MuiToggleButton` → selected background `secondaryContainer`, text
-`onSecondaryContainer`, `minHeight: 40` (44 under `TOUCH`), `textTransform: 'none'`. A leading
+`onSecondaryContainer`, `minHeight: 40` (44 under `TOUCH`), `textTransform: 'none'`. A page `sx`
+on the group (`& .MuiToggleButton-root`) out-specifies these, which is how the lineup mentality
+picker keeps 32/36 px. A leading
 check icon on the selected segment is left to pages (it costs width at 360 px; the spec does not
 require it).
 
@@ -84,7 +87,8 @@ and `checked` slots; no custom component.
 ### 6. Surfaces of floating containers
 
 `MuiMenu.paper` and `MuiPopover.paper` → `surfaceContainer`, `borderRadius: 4`;
-`MuiDialog.paper` → `surfaceContainerHigh`, 28 px, and `paperFullScreen` → `borderRadius: 0`.
+`MuiDialog.paper` → `surfaceContainerHigh`, 28 px, and `paperFullScreen` → `borderRadius: 0` on
+the page `surface`, matching the app bar `ResponsiveDialog` draws over it.
 `MuiTabs.indicator` → 3 px, `borderRadius: '3px 3px 0 0'`; `MuiTab` inactive colour
 `onSurfaceVariant`. `MuiLinearProgress` → 4 px, rounded, track `secondaryContainer`.
 `MuiCard` → `variants` for `elevated` (`surfaceContainerLow`, level-1 shadow

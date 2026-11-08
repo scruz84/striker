@@ -284,8 +284,15 @@ follow an existing call site's pattern instead of reading `played`/`classificati
 
 ## Frontend (`frontend/`)
 
-Vite + React 19 + TypeScript + MUI (Material 3, single seed color - see `theme.ts`) + TanStack
-Query for all server state + React Router. No Redux/global client state store - server state
+Vite + React 19 + TypeScript + MUI + TanStack Query for all server state + React Router. The
+look is Material 3 from one seed color (`theme.ts`): an M3 `DynamicScheme` over the app's core
+palettes gives every color role, including the five `surfaceContainer*` levels, as
+`theme.palette.*`; `theme.test.ts` pins those colors and their contrast. Every MUI component is
+restyled to M3 from `buildComponents` in the theme, so pages use plain MUI: ask for M3 emphasis
+with `<Button variant="tonal">` and `<Card variant="elevated" | "filled" | "outlined">`, a
+selected marker with a filled `color="primary"` Chip, and segmented buttons with
+`ToggleButtonGroup` (`theme.components.test.tsx` covers them). The `ui-theme` spec states the
+colors and component styles. No Redux/global client state store - server state
 lives entirely in the Query cache, keyed by `queryKeys` in `api/hooks.ts`.
 
 ```

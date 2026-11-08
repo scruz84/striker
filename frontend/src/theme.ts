@@ -1,24 +1,39 @@
-import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities'
+import { argbFromHex, DynamicScheme, Hct, hexFromArgb, TonalPalette, Variant } from '@material/material-color-utilities'
 import type { CSSProperties } from 'react'
 import { createTheme } from '@mui/material/styles'
 import { TOUCH } from './touchMedia'
 import type { PaletteColorOptions, Theme } from '@mui/material/styles'
-import type { Scheme } from '@material/material-color-utilities'
 
 // Material 3's color system starts from one seed color and derives every role (primary,
-// secondary, tertiary, error, surface, outline, and their "container"/"on" pairs) from its hue -
-// see https://m3.material.io/styles/color/system/how-the-system-works. The seed below is the
-// app's existing brand green, so this is a restyle of the established identity onto real M3
-// tonal-palette tokens, not a rebrand.
+// secondary, tertiary, error, the surface and surface-container levels, outline, and their
+// "container"/"on" pairs) from its hue - see https://m3.material.io/styles/color/system/how-the-system-works.
+// The seed is the app's brand green. The scheme is an M3 DynamicScheme (tonal-spot role tones,
+// including the surface containers) built over the same core palettes the legacy `Scheme` used:
+// the preset SchemeTonalSpot caps primary chroma at 36 and would turn the brand green into an
+// olive (#3b6939 instead of #006e1c). theme.test.ts pins the resulting colors and their contrast.
 const SEED_COLOR = '#4CAF50'
-const m3 = themeFromSourceColor(argbFromHex(SEED_COLOR))
+const seedHct = Hct.fromInt(argbFromHex(SEED_COLOR))
+
+function buildScheme(isDark: boolean): DynamicScheme {
+  const { hue, chroma } = seedHct
+  return new DynamicScheme({
+    sourceColorHct: seedHct,
+    variant: Variant.TONAL_SPOT,
+    contrastLevel: 0,
+    isDark,
+    primaryPalette: TonalPalette.fromHueAndChroma(hue, Math.max(48, chroma)),
+    secondaryPalette: TonalPalette.fromHueAndChroma(hue, 16),
+    tertiaryPalette: TonalPalette.fromHueAndChroma(hue + 60, 24),
+    neutralPalette: TonalPalette.fromHueAndChroma(hue, 4),
+    neutralVariantPalette: TonalPalette.fromHueAndChroma(hue, 8),
+  })
+}
 
 function hex(argb: number): string {
   return hexFromArgb(argb)
 }
 
-// Blends `amount` of `tint` into `base` - used to approximate M3's tonal elevation (elevated
-// surfaces take on a whisper of the primary color instead of relying on shadow alone).
+// Blends `amount` of `tint` into `base` - used to build the rating scale.
 function mixHex(base: string, tint: string, amount: number): string {
   const b = parseInt(base.slice(1), 16)
   const t = parseInt(tint.slice(1), 16)
@@ -62,6 +77,14 @@ declare module '@mui/material/styles' {
     inverseSurface: string
     inverseOnSurface: string
     inversePrimary: string
+    onSurface: string
+    surfaceDim: string
+    surfaceBright: string
+    surfaceContainerLowest: string
+    surfaceContainerLow: string
+    surfaceContainer: string
+    surfaceContainerHigh: string
+    surfaceContainerHighest: string
     // One-tone sequential scale (neutral -> primary) for player ratings, so low values do not
     // read as errors and the scale survives colour-blindness / grayscale (#283).
     rating: string[]
@@ -83,7 +106,31 @@ declare module '@mui/material/styles' {
     inverseSurface?: string
     inverseOnSurface?: string
     inversePrimary?: string
+    onSurface?: string
+    surfaceDim?: string
+    surfaceBright?: string
+    surfaceContainerLowest?: string
+    surfaceContainerLow?: string
+    surfaceContainer?: string
+    surfaceContainerHigh?: string
+    surfaceContainerHighest?: string
     rating?: string[]
+  }
+}
+
+declare module '@mui/material/Button' {
+  // M3's tonal button: between filled (contained) and outlined in emphasis.
+  interface ButtonPropsVariantOverrides {
+    tonal: true
+  }
+}
+
+declare module '@mui/material/Paper' {
+  // M3 card styles, used as <Card variant="elevated" | "filled" | "outlined"> (Card takes
+  // Paper's variants). "outlined" is MUI's own.
+  interface PaperPropsVariantOverrides {
+    elevated: true
+    filled: true
   }
 }
 
@@ -95,15 +142,16 @@ declare module '@mui/material/Typography' {
   }
 }
 
-function buildPalette(scheme: Scheme, mode: 'light' | 'dark') {
+function buildPalette(scheme: DynamicScheme, mode: 'light' | 'dark') {
   return {
     mode,
     primary: { main: hex(scheme.primary), contrastText: hex(scheme.onPrimary) },
     secondary: { main: hex(scheme.secondary), contrastText: hex(scheme.onSecondary) },
     tertiary: { main: hex(scheme.tertiary), contrastText: hex(scheme.onTertiary) },
     error: { main: hex(scheme.error), contrastText: hex(scheme.onError) },
-    background: { default: hex(scheme.background), paper: hex(scheme.surface) },
-    text: { primary: hex(scheme.onBackground), secondary: hex(scheme.onSurfaceVariant) },
+    // Outlined panels sit on the page colour; raised ones get surfaceContainerLow (MuiPaper below).
+    background: { default: hex(scheme.surface), paper: hex(scheme.surface) },
+    text: { primary: hex(scheme.onSurface), secondary: hex(scheme.onSurfaceVariant) },
     divider: hex(scheme.outlineVariant),
     primaryContainer: hex(scheme.primaryContainer),
     onPrimaryContainer: hex(scheme.onPrimaryContainer),
@@ -113,13 +161,23 @@ function buildPalette(scheme: Scheme, mode: 'light' | 'dark') {
     onTertiaryContainer: hex(scheme.onTertiaryContainer),
     errorContainer: hex(scheme.errorContainer),
     onErrorContainer: hex(scheme.onErrorContainer),
-    surfaceVariant: hex(scheme.surfaceVariant),
+    // M3 deprecated surfaceVariant in favour of surfaceContainerHighest; kept for the disabled
+    // button style below.
+    surfaceVariant: hex(scheme.surfaceContainerHighest),
     onSurfaceVariant: hex(scheme.onSurfaceVariant),
     outline: hex(scheme.outline),
     outlineVariant: hex(scheme.outlineVariant),
     inverseSurface: hex(scheme.inverseSurface),
     inverseOnSurface: hex(scheme.inverseOnSurface),
     inversePrimary: hex(scheme.inversePrimary),
+    onSurface: hex(scheme.onSurface),
+    surfaceDim: hex(scheme.surfaceDim),
+    surfaceBright: hex(scheme.surfaceBright),
+    surfaceContainerLowest: hex(scheme.surfaceContainerLowest),
+    surfaceContainerLow: hex(scheme.surfaceContainerLow),
+    surfaceContainer: hex(scheme.surfaceContainer),
+    surfaceContainerHigh: hex(scheme.surfaceContainerHigh),
+    surfaceContainerHighest: hex(scheme.surfaceContainerHighest),
     rating: buildRatingScale(hex(scheme.outline), hex(scheme.primary), mode),
   }
 }
@@ -166,11 +224,17 @@ const typography = {
 // changing the layout. Callers set the horizontal extent and the height.
 const TOUCH_HIT_AREA = { content: '""', position: 'absolute', top: '50%', transform: 'translateY(-50%)' } as const
 
-// M3's shape scale, applied per-component below: pill-shaped buttons/chips ("full"), medium
-// (12dp) cards and menus, extra-large (28dp) dialogs - see
+// M3 components on top of MUI, from the theme alone so pages need no changes (see the ui-theme
+// spec): a surface-coloured top app bar, four button emphasis levels (contained = filled,
+// variant="tonal", outlined, text), 8dp chips, segmented buttons (ToggleButtonGroup), card
+// styles (variant="elevated" | "filled" | "outlined"), and M3 tabs, switches, linear progress,
+// menus and dialogs. Shapes follow the M3 scale - full (pill) buttons, small (8dp) chips, medium
+// (12dp) cards, extra-small (4dp) menus, extra-large (28dp) dialogs - see
 // https://m3.material.io/styles/shape/shape-scale-tokens.
-function buildComponents(mode: 'light' | 'dark') {
-  const tintAmount = mode === 'light' ? 0.05 : 0.1
+// A level-1 M3 elevation shadow (key + ambient), for elevated cards.
+const ELEVATION_1 = '0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15)'
+
+function buildComponents() {
   return {
     MuiCssBaseline: { styleOverrides: {} },
     MuiButton: {
@@ -193,9 +257,23 @@ function buildComponents(mode: 'light' | 'dark') {
           },
           '&.MuiButton-outlined.Mui-disabled': { borderColor: theme.palette.outline },
         }),
+        // M3 buttons are 40dp tall; the compact size the app uses in dense rows keeps MUI's.
+        sizeMedium: { minHeight: 40 },
+        sizeLarge: { minHeight: 40 },
         sizeSmall: { paddingLeft: 16, paddingRight: 16 },
         textSizeSmall: { [TOUCH]: { minWidth: 44 } },
       },
+      variants: [
+        {
+          props: { variant: 'tonal' as const },
+          style: ({ theme }: { theme: Theme }) => ({
+            backgroundColor: theme.palette.secondaryContainer,
+            color: theme.palette.onSecondaryContainer,
+            // M3 state layer: 8% of the content colour on hover.
+            '&:hover': { backgroundColor: `color-mix(in srgb, ${theme.palette.onSecondaryContainer} 8%, ${theme.palette.secondaryContainer})` },
+          }),
+        },
+      ],
     },
     MuiIconButton: {
       styleOverrides: {
@@ -205,7 +283,8 @@ function buildComponents(mode: 'light' | 'dark') {
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 9999,
+          borderRadius: 8,
+          height: 32,
           // Clickable chips keep their compact look but grow an invisible hit area at least 44px
           // tall (8px past each side, more for a short chip).
           '&.MuiChip-clickable, &.MuiChip-deletable': {
@@ -213,7 +292,20 @@ function buildComponents(mode: 'light' | 'dark') {
             [TOUCH]: { '&::after': { ...TOUCH_HIT_AREA, left: -8, right: -8, height: 'max(calc(100% + 16px), 44px)' } },
           },
         },
+        sizeSmall: { height: 24 },
         labelSmall: { fontSize: '0.6875rem' },
+        outlined: ({ theme }: { theme: Theme }) => ({
+          '&.MuiChip-colorDefault': { borderColor: theme.palette.outlineVariant },
+        }),
+        // A filled primary chip marks something selected ("You", the chosen sponsor deal...): M3's
+        // selected filter chip colours. Status colours (success, error...) keep MUI's palette.
+        filled: ({ theme }: { theme: Theme }) => ({
+          '&.MuiChip-colorPrimary': {
+            backgroundColor: theme.palette.secondaryContainer,
+            color: theme.palette.onSecondaryContainer,
+            '& .MuiChip-icon': { color: 'inherit' },
+          },
+        }),
       },
     },
     MuiLink: {
@@ -230,6 +322,9 @@ function buildComponents(mode: 'light' | 'dark') {
         button: { [TOUCH]: { minHeight: 44 } },
       },
     },
+    MuiTabs: {
+      styleOverrides: { indicator: { height: 3, borderRadius: '3px 3px 0 0' } },
+    },
     MuiTab: {
       styleOverrides: { root: { minHeight: 48 } },
     },
@@ -240,7 +335,37 @@ function buildComponents(mode: 'light' | 'dark') {
       styleOverrides: { root: { [TOUCH]: { minHeight: 48 } } },
     },
     MuiSwitch: {
-      styleOverrides: { root: { [TOUCH]: { '& .MuiSwitch-switchBase': { padding: 9 } } } },
+      // M3 switch: a 52x32 track inside a 64x48 tap area; the thumb is 16px (outline colour) off
+      // and 24px (onPrimary) on, 16px from the track's end either way.
+      styleOverrides: {
+        root: { width: 68, height: 48, padding: 8 },
+        switchBase: ({ theme }: { theme: Theme }) => ({
+          top: 8,
+          left: 8,
+          padding: 8,
+          color: theme.palette.outline,
+          '&.Mui-checked': { transform: 'translateX(20px)', color: theme.palette.primary.contrastText },
+          '&.Mui-checked + .MuiSwitch-track': { opacity: 1, backgroundColor: theme.palette.primary.main, borderColor: theme.palette.primary.main },
+          '&.Mui-checked .MuiSwitch-thumb': { width: 24, height: 24, margin: -4 },
+          '&.Mui-disabled + .MuiSwitch-track': { opacity: 0.12 },
+        }),
+        thumb: { width: 16, height: 16, boxShadow: 'none' },
+        track: ({ theme }: { theme: Theme }) => ({
+          boxSizing: 'border-box' as const,
+          height: 32,
+          borderRadius: 16,
+          opacity: 1,
+          backgroundColor: theme.palette.surfaceContainerHighest,
+          border: `2px solid ${theme.palette.outline}`,
+        }),
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: { height: 4, borderRadius: 2 },
+        colorPrimary: ({ theme }: { theme: Theme }) => ({ backgroundColor: theme.palette.secondaryContainer }),
+        bar: { borderRadius: 2 },
+      },
     },
     MuiTextField: {
       // One TextField variant and height (40px with a mouse, 44px on touch - see MuiOutlinedInput)
@@ -254,8 +379,31 @@ function buildComponents(mode: 'light' | 'dark') {
       // MUI pads a slider to 40px on touch screens; the small variant's 2px rail leaves it at 42.
       styleOverrides: { root: { [TOUCH]: { '&:not(.MuiSlider-vertical)': { paddingTop: 21, paddingBottom: 21 } } } },
     },
+    // Single-choice button groups render as M3 segmented buttons: a pill outline, 1px dividers
+    // and the selected segment in secondaryContainer. A page that compacts a group with sx keeps
+    // its own height.
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        grouped: ({ theme }: { theme: Theme }) => ({ borderColor: theme.palette.outline }),
+        firstButton: { borderTopLeftRadius: 9999, borderBottomLeftRadius: 9999 },
+        lastButton: { borderTopRightRadius: 9999, borderBottomRightRadius: 9999 },
+      },
+    },
     MuiToggleButton: {
-      styleOverrides: { root: { [TOUCH]: { minHeight: 44 } } },
+      styleOverrides: {
+        root: ({ theme }: { theme: Theme }) => ({
+          minHeight: 40,
+          borderRadius: 9999,
+          textTransform: 'none' as const,
+          color: theme.palette.onSurface,
+          borderColor: theme.palette.outline,
+          [TOUCH]: { minHeight: 44 },
+          '&.Mui-selected, &.Mui-selected:hover': {
+            backgroundColor: theme.palette.secondaryContainer,
+            color: theme.palette.onSecondaryContainer,
+          },
+        }),
+      },
     },
     MuiPaper: {
       styleOverrides: {
@@ -265,14 +413,43 @@ function buildComponents(mode: 'light' | 'dark') {
           borderColor: theme.palette.outlineVariant,
           boxShadow: 'none',
         }),
+        // A raised panel sits one surface-container level up instead of casting a shadow or
+        // blending in the primary colour.
         elevation1: ({ theme }: { theme: Theme }) => ({
           boxShadow: 'none',
-          backgroundColor: mixHex(theme.palette.background.paper, theme.palette.primary.main, tintAmount),
+          backgroundColor: theme.palette.surfaceContainerLow,
         }),
       },
     },
+    MuiCard: {
+      variants: [
+        {
+          props: { variant: 'elevated' as const },
+          style: ({ theme }: { theme: Theme }) => ({ backgroundColor: theme.palette.surfaceContainerLow, boxShadow: ELEVATION_1 }),
+        },
+        {
+          props: { variant: 'filled' as const },
+          style: ({ theme }: { theme: Theme }) => ({ backgroundColor: theme.palette.surfaceContainerHighest, boxShadow: 'none' }),
+        },
+      ],
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: ({ theme }: { theme: Theme }) => ({ backgroundColor: theme.palette.surfaceContainer, borderRadius: 4 }),
+      },
+    },
+    MuiPopover: {
+      styleOverrides: {
+        paper: ({ theme }: { theme: Theme }) => ({ backgroundColor: theme.palette.surfaceContainer, borderRadius: 4 }),
+      },
+    },
     MuiDialog: {
-      styleOverrides: { paper: { borderRadius: 28 } },
+      styleOverrides: {
+        paper: ({ theme }: { theme: Theme }) => ({ borderRadius: 28, backgroundColor: theme.palette.surfaceContainerHigh }),
+        // Phones get full-screen dialogs (ResponsiveDialog): square, on the page surface like
+        // the app bar ResponsiveDialog draws on top of them.
+        paperFullScreen: ({ theme }: { theme: Theme }) => ({ borderRadius: 0, backgroundColor: theme.palette.background.default }),
+      },
     },
     MuiDialogTitle: {
       styleOverrides: { root: { overflowWrap: 'anywhere' as const } },
@@ -282,8 +459,18 @@ function buildComponents(mode: 'light' | 'dark') {
       // compact with a mouse.
       styleOverrides: { root: { borderRadius: 4, [TOUCH]: { minHeight: 44 } } },
     },
+    // M3 top app bar: the page surface, onSurface content, no shadow. Header.tsx switches it to
+    // surfaceContainer while content is scrolled under it.
     MuiAppBar: {
-      styleOverrides: { root: { boxShadow: 'none' } },
+      defaultProps: { color: 'default' as const },
+      styleOverrides: {
+        root: { boxShadow: 'none' },
+        colorDefault: ({ theme }: { theme: Theme }) => ({
+          backgroundColor: theme.palette.background.default,
+          color: theme.palette.onSurface,
+          transition: 'background-color 200ms',
+        }),
+      },
     },
     MuiTableContainer: {
       styleOverrides: { root: { borderRadius: 12 } },
@@ -295,15 +482,15 @@ function buildComponents(mode: 'light' | 'dark') {
 }
 
 export const lightTheme = createTheme({
-  palette: buildPalette(m3.schemes.light, 'light'),
+  palette: buildPalette(buildScheme(false), 'light'),
   shape: { borderRadius: 12 },
   typography,
-  components: buildComponents('light'),
+  components: buildComponents(),
 })
 
 export const darkTheme = createTheme({
-  palette: buildPalette(m3.schemes.dark, 'dark'),
+  palette: buildPalette(buildScheme(true), 'dark'),
   shape: { borderRadius: 12 },
   typography,
-  components: buildComponents('dark'),
+  components: buildComponents(),
 })

@@ -17,6 +17,8 @@ import {
   type Player,
 } from '../../api/types'
 import i18n from '../../i18n'
+import { lightTheme } from '../../theme'
+import { TOUCH } from '../../touchMedia'
 import { MatchLineupForm } from './MatchLineupForm'
 
 const testTheme = createTheme({ palette: { rating: ['#ccc', '#bbb', '#aaa', '#999', '#888'] } })
@@ -81,6 +83,34 @@ describe('MatchLineupForm mentality', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save lineup' }))
     expect(onSave).toHaveBeenCalledWith(FORMATION_BALANCED, lineup.positions, [], 1, [], {})
+  })
+
+  // ui-theme "Compact mentality picker": the app theme draws it as M3 segmented buttons while the
+  // picker keeps its own compact height (32px with a pointer, 36px on touch screens).
+  it('keeps its compact height with the app theme and takes the segmented-button colours', () => {
+    baseRender(
+      <ThemeProvider theme={lightTheme}>
+        <MemoryRouter>
+          <MatchLineupForm titleKey="lineup.title" teamId={7} players={players} lineup={lineup} onSave={vi.fn()} isSaving={false} isError={false} isSuccess={false} />
+        </MemoryRouter>
+      </ThemeProvider>,
+    )
+    const balanced = screen.getByRole('button', { name: 'Balanced' })
+    const style = getComputedStyle(balanced)
+    expect(style.minHeight).toBe('32px')
+    expect(style.backgroundColor).toBe('rgb(213, 232, 207)')
+    expect(getComputedStyle(screen.getByRole('button', { name: 'Defensive' })).borderTopLeftRadius).toBe('9999px')
+    const touchMinHeights = Array.from(document.styleSheets)
+      .flatMap((sheet) => Array.from(sheet.cssRules))
+      .filter((rule): rule is CSSMediaRule => rule instanceof CSSMediaRule && `@media ${rule.conditionText}` === TOUCH)
+      .flatMap((rule) => Array.from(rule.cssRules))
+      .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule && balanced.matches(rule.selectorText))
+      .filter((rule) => rule.style.getPropertyValue('min-height'))
+      // The winning declaration: highest specificity (class count, enough for emotion's
+      // class-only selectors), then the later rule.
+      .map((rule, index) => ({ value: rule.style.getPropertyValue('min-height'), classes: rule.selectorText.split('.').length, index }))
+      .sort((a, b) => a.classes - b.classes || a.index - b.index)
+    expect(touchMinHeights.at(-1)?.value).toBe('36px')
   })
 
   it('shows a lineup saved as Defensive as Defensive', () => {

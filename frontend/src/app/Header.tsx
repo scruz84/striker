@@ -46,13 +46,15 @@ export function Header() {
   const theme = useTheme()
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const scrolledDown = useScrollTrigger({ threshold: 64 })
+  // M3 top app bar: the page surface at the top, surfaceContainer while content scrolls under it.
+  const contentUnder = useScrollTrigger({ disableHysteresis: true, threshold: 0 })
 
   return (
     <Slide appear={false} direction="down" in={isDesktop || !scrolledDown}>
-      <AppBar position="sticky">
+      <AppBar position="sticky" sx={contentUnder ? { bgcolor: 'surfaceContainer' } : undefined}>
         <Toolbar sx={{ gap: { xs: 0, md: 0.5 }, minHeight: { xs: 56, md: 64 } }}>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Link component={RouterLink} to="/" underline="none" color="inherit" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>
+            <Link component={RouterLink} to="/" underline="none" color="primary" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}>
               <Logo />
             </Link>
           </Box>
