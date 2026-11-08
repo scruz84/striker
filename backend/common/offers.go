@@ -192,7 +192,7 @@ func MakeTransferOfferWithClause(dbCtx *DatabaseContext, playerId int64, fromTea
 	if err != nil {
 		return nil, err
 	}
-	expectedWage = DiscountedWage(*player, expectedWage, clause)
+	expectedWage = DiscountedWage(*player, expectedWage, clause, negotiationTier(dbCtx.Db, playerId))
 	result := &TransferOfferResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
 	var reasons []string

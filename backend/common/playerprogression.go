@@ -2,6 +2,7 @@ package common
 
 import (
 	"database/sql"
+	"math"
 	"time"
 )
 
@@ -174,19 +175,51 @@ func SkillTrendFromEvolution(e *PlayerEvolution) int {
 	return after - before
 }
 
-// PlayerSkillTrend is how much a player's combined seven core skills changed in their most
-// recently logged progression run (see GetLatestPlayerEvolution) - the signal a contract
-// negotiation reacts to, scaled by the player's own intelligence tier (see
+// SkillTrendRuns is how many of a player's latest progression runs his negotiation trend averages
+// (openspec/specs/player-negotiation "Skill trend in negotiations"), so one good or bad match
+// doesn't move his demands on its own.
+const SkillTrendRuns = 5
+
+// GetRecentPlayerEvolutionsStmtSql reads a player's latest progression runs, newest first.
+const GetRecentPlayerEvolutionsStmtSql = "SELECT " + playerEvolutionColumns +
+	" FROM player_progression_log WHERE player_id = $1 ORDER BY id DESC LIMIT $2"
+
+// PlayerSkillTrend is the average change of a player's combined seven core skills over his last
+// SkillTrendRuns progression runs (see AverageSkillTrend) - the signal a contract negotiation
+// reacts to, scaled by the player's own intelligence tier (see
 // ExpectedWageWithIntelligence/MaxAcceptableRenewalYearsWithIntelligence). 0 for a player who's
 // never been through a progression run (too new, or never featured in a match since this table
-// started tracking) - same as a flat trend, so their negotiation behaves exactly as it did before
-// this feature shipped.
+// started tracking) - same as a flat trend.
 func PlayerSkillTrend(dbCtx *DatabaseContext, playerId int64) (int, error) {
-	evolution, err := GetLatestPlayerEvolution(dbCtx, playerId)
+	rows, err := dbCtx.Db.Query(GetRecentPlayerEvolutionsStmtSql, playerId, SkillTrendRuns)
 	if err != nil {
 		return 0, err
 	}
-	return SkillTrendFromEvolution(evolution), nil
+	defer rows.Close()
+	trends := make([]int, 0, SkillTrendRuns)
+	for rows.Next() {
+		evolution, err := scanPlayerEvolution(rows.Scan)
+		if err != nil {
+			return 0, err
+		}
+		trends = append(trends, SkillTrendFromEvolution(&evolution))
+	}
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	return AverageSkillTrend(trends), nil
+}
+
+// AverageSkillTrend is the mean of trends rounded half away from zero, 0 for none. Pure.
+func AverageSkillTrend(trends []int) int {
+	if len(trends) == 0 {
+		return 0
+	}
+	sum := 0
+	for _, t := range trends {
+		sum += t
+	}
+	return int(math.Round(float64(sum) / float64(len(trends))))
 }
 
 func scanTeamPlayerEvolutions(rows *sql.Rows) ([]TeamPlayerEvolution, error) {

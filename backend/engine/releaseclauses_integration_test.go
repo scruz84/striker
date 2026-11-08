@@ -29,7 +29,7 @@ func TestReleaseClauses_SetDiscountAndClear(t *testing.T) {
 	}
 
 	clause := 2 * common.ClauseBaseValue(p)
-	discounted := common.DiscountedWage(p, w.skillWage(), &clause)
+	discounted := common.DiscountedWage(p, w.skillWage(), &clause, common.IntelligenceNaive)
 	offer, err := common.MakeContractRenewalOfferWithClause(w.dbCtx, w.striker, w.home, discounted, 3, &clause)
 	if err != nil || !offer.Accepted {
 		t.Fatalf("renewal with a 2x clause at %d: %+v, %v", discounted, offer, err)

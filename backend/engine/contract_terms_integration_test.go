@@ -27,7 +27,7 @@ func TestContractTerms_NoFreeWageCut(t *testing.T) {
 	}
 
 	w.exec(`UPDATE players SET contract_years_remaining = 1 WHERE player_id = $1`, player)
-	floor := int(math.Ceil(float64(current) * common.LastSeasonWageFloorShare))
+	floor := int(math.Ceil(float64(current) * common.LastSeasonFloorShare(common.IntelligenceNaive)))
 	offer, err = common.MakeContractRenewalOffer(w.dbCtx, player, team, floor, 2)
 	if err != nil {
 		t.Fatal(err)
@@ -120,5 +120,30 @@ func TestContractTerms_ManagerListsTheVeteranItDoesNotRenew(t *testing.T) {
 		if price := int64(w.count(`SELECT asking_price FROM transfer_listings WHERE player_id = $1`, veteran)); price != want {
 			t.Errorf("asking price %d, want %d (contract factor 0.6)", price, want)
 		}
+	}
+}
+
+// player-negotiation "Skill trend in negotiations": the trend averages the latest runs.
+func TestContractTerms_TrendAveragesTheLatestRuns(t *testing.T) {
+	const country = "zw"
+	w := newLoanWorld(t, country)
+	team := w.team(country, "Trend FC", common.AiLevelManager, nil, 1_000_000)
+	player := w.player(country, team, common.STRIKER, 50, 22)
+	insert := func(gain int) {
+		w.exec(`INSERT INTO player_progression_log (player_id, season, age_before, age_after, goal_keeper_before, goal_keeper_after,
+			defense_before, defense_after, lateral_before, lateral_after, pass_before, pass_after, midfield_before, midfield_after,
+			dribbling_before, dribbling_after, shot_before, shot_after)
+			VALUES ($1, 1, 22, 22, 0, 0, 0, 0, 0, 0, 50, 50, 0, 0, 50, 50, 50, $2)`, player, 50+gain)
+	}
+	insert(3)
+	insert(4)
+	if trend, err := common.PlayerSkillTrend(w.dbCtx, player); err != nil || trend != 4 {
+		t.Fatalf("trend over +3 and +4: %d (%v), want 4", trend, err)
+	}
+	for i := 0; i < 5; i++ {
+		insert(0)
+	}
+	if trend, err := common.PlayerSkillTrend(w.dbCtx, player); err != nil || trend != 0 {
+		t.Errorf("trend after 5 flat runs: %d (%v), want 0 (older runs fall out)", trend, err)
 	}
 }

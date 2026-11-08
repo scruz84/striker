@@ -347,8 +347,9 @@ attributes, nothing else:
 
 - **Wage**: at least their market rate (`common.PlayerWageFromSkills` - the same formula used to
   price a free agent's fresh contract), i.e. what a similarly-skilled player earns.
-- **No pay cut**: never below their current wage while 2 or more seasons are left, 85% of it in
-  the last season (`common.PersonalTermsExpectation`). A transfer offer's personal terms follow
+- **No pay cut**: never below their current wage while 2 or more seasons are left, and in the
+  last season 75% (Naive) to 95% (Mastermind) of it by negotiation tier
+  (`common.PersonalTermsExpectation`, `LastSeasonFloorShare`). A transfer offer's personal terms follow
   the same rule with the whole current wage as the floor; a free agent has no floor.
 - **Duration**: at most `common.MaxAcceptableRenewalYears(age)` - the full 3-season cap under
   30, 2 seasons from 30 up to (not including) 33, 1 season at 33+ (mirroring
@@ -363,12 +364,21 @@ beyond the player's own acceptance. A Manager-tier AI team (see "AI teams" below
 exactly what its own player is guaranteed to accept, so it never fails to retain someone it's
 trying to keep.
 
+**Negotiation intelligence** (`common/playerintelligence.go`): every player has a hidden tier,
+Naive, Casual, Aware, Shrewd or Mastermind. It scales how much of his skill trend (the average of
+his last 5 progression runs, `common.PlayerSkillTrend`) he turns into a raise or a longer term, and
+sets his last-season wage floor, his pre-contract premium and his clause discount (see above).
+A club that has negotiated with a player (renewal, free-agent signing, transfer offer,
+pre-contract or clause payment; `negotiation_insights`, `init106_negotiation_insights.sql`) sees
+his tier on his page (`negotiationStyle` in `GET /v1/teams/player/:id/`).
+
 **Pre-contracts** (`common/precontracts.go`, `resources/sql/init104_pre_contracts.sql`): once a
 player's league has played half its season, any other club may offer a player in the last season
 of his contract a deal for next season (`POST /v1/pre-contracts` `{playerId, wage, years}`, no fee).
-He only considers offers of at least 1.10 x his expected wage, and decides 72 hours after the first
+He only considers offers of at least his move premium x his expected wage (1.05 for a Naive
+player up to 1.20 for a Mastermind, `common.PreContractPremium`), and decides 72 hours after the first
 one (`common.DecidePreContracts`, run from `OfferResponseJob`), signing the best. Until then his
-club is told each offer's terms and keeps him by renewing at the best offer / 1.10 (the renewal
+club is told each offer's terms and keeps him by renewing at the best offer / his premium (the renewal
 expectation is raised to that bar); a renewal, sale or loan cancels the offers. A signed player
 can't be renewed, released, listed or offered for, and joins the buyer at his country's next
 rollover (`AdvancePlayerContract`, transfer kind `PLAYER_TRANSFER_PRE_CONTRACT`). Another club's
@@ -379,8 +389,8 @@ make pre-contract offers and counter the ones they receive (see `engine/aitransf
 **Release clauses** (`common/releaseclauses.go`, `resources/sql/init105_release_clauses.sql`): a
 renewal, a free-agent signing, a transfer offer's personal terms and a pre-contract may carry an
 optional, public release clause (`releaseClause` in the request body) of at least 1.5 x the
-player's market value on a 3-season contract. The player asks 10% less wage for a clause of at
-most 2 x that value, 5% less up to 4 x. Any other solvent club may pay it 14 days or more after
+player's market value on a 3-season contract. The player asks 5% (Naive) to 15% (Mastermind)
+less wage for a clause of at most 2 x that value, half of that up to 4 x (`ClauseDiscountFor`). Any other solvent club may pay it 14 days or more after
 the contract was agreed (`POST /v1/release-clauses` `{playerId, wage, years}`) and sign him at
 once without his club's consent, on personal terms he accepts (`common.PayReleaseClause`,
 transfer kind `PLAYER_TRANSFER_RELEASE_CLAUSE`). CPU Managers set clauses on bench renewals,

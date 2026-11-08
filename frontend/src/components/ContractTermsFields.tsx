@@ -18,6 +18,9 @@ interface ContractTermsFieldsProps {
   /** The lowest wage the player accepts because he won't take a pay cut (see backend's
    * PersonalTermsExpectation) - shown as a hint under the wage field. */
   wageFloor?: number
+  /** When the floor depends on the player's negotiation tier, its top - the hint then shows the
+   * range from wageFloor to wageFloorMax. */
+  wageFloorMax?: number
   /** An optional release clause for the new contract (digits, empty for none) - the field is shown
    * only when onClauseChange is given (openspec/specs/release-clauses). */
   clause?: string
@@ -26,7 +29,7 @@ interface ContractTermsFieldsProps {
 
 /** The wage + duration pair shared by the renewal, free-agent signing and transfer-offer dialogs:
  * a numeric money field with a visible label, the current wage as context and one-tap raises. */
-export function ContractTermsFields({ wage, years, onWageChange, onYearsChange, currentWage, wageFloor, clause, onClauseChange }: ContractTermsFieldsProps) {
+export function ContractTermsFields({ wage, years, onWageChange, onYearsChange, currentWage, wageFloor, wageFloorMax, clause, onClauseChange }: ContractTermsFieldsProps) {
   const { t } = useTranslation()
   const base = currentWage && currentWage > 0 ? currentWage : undefined
 
@@ -42,7 +45,9 @@ export function ContractTermsFields({ wage, years, onWageChange, onYearsChange, 
       />
       {wageFloor !== undefined && wageFloor > 0 && (
         <Typography variant="caption" color="text.secondary">
-          {t('team.contractDialog.noPayCut', { wage: formatCurrency(wageFloor) })}
+          {wageFloorMax !== undefined && wageFloorMax > wageFloor
+            ? t('team.contractDialog.noPayCutRange', { min: formatCurrency(wageFloor), max: formatCurrency(wageFloorMax) })
+            : t('team.contractDialog.noPayCut', { wage: formatCurrency(wageFloor) })}
         </Typography>
       )}
       {base && (

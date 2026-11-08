@@ -41,6 +41,7 @@ func PayReleaseClauseHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		result, err := common.PayReleaseClause(dbCtx, req.PlayerId, team.Id, req.Wage, req.Years, req.ReleaseClause)
 		switch {
 		case err == nil:
+			noteNegotiation(dbCtx, team.Id, req.PlayerId)
 			c.JSON(http.StatusOK, result)
 		case errors.Is(err, common.ErrInvalidPersonalTerms), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
@@ -56,5 +57,13 @@ func PayReleaseClauseHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			log.Errorf("error paying the release clause of player %d: %s", req.PlayerId, err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 		}
+	}
+}
+
+// noteNegotiation records, best-effort, that teamId has negotiated with playerId (see
+// common.RecordNegotiationInsight): the player judged its terms, whatever his answer.
+func noteNegotiation(dbCtx *common.DatabaseContext, teamId int64, playerId int64) {
+	if err := common.RecordNegotiationInsight(dbCtx, teamId, playerId); err != nil {
+		log.Errorf("error recording the negotiation of team %d with player %d: %s", teamId, playerId, err)
 	}
 }

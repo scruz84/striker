@@ -830,7 +830,8 @@
       "offers": "Offers",
       "freeAgents": "Free",
       "coaching": "Coaches",
-      "watchlist": "Watchlist"
+      "watchlist": "Watchlist",
+      "lastSeason": "Last year"
     },
     "salaryPerMatch": "Wage {{amount}}/match",
     "ageLabel": "Age {{age}}",
@@ -844,7 +845,7 @@
     "preContract": {
       "button": "Pre-contract",
       "title": "Pre-contract offer",
-      "subtitle": "He's in the last season of his contract: offer him a contract for next season, with no fee. He wants 10% more than usual to leave his club, decides 72 hours after his first offer, and his club can still keep him by renewing.",
+      "subtitle": "He's in the last season of his contract: offer him a contract for next season, with no fee. He wants 5% to 20% more than usual to leave his club, depending on how shrewd he is, decides 72 hours after his first offer, and his club can still keep him by renewing.",
       "submit": "Send offer",
       "sent": "Offer sent. His club has been told and he decides within 72 hours.",
       "declined": "Not enough to leave his club: he wants at least {{wage}}/match, and won't commit to more than {{years}}.",
@@ -865,7 +866,15 @@
       "subtitle": "Pay {{fee}} to his club and he joins you at once, without its consent. He still has to accept your personal terms.",
       "submit": "Pay {{fee}}",
       "signed": "Done: he's your player.",
-      "error": "Couldn't pay the clause. It may be too recent (14 days), your budget too short or the transfer window closed."
+      "error": "Couldn't pay the clause. It may be too recent (14 days), your budget too short or the transfer window closed.",
+      "meta": "Release clause {{fee}}"
+    },
+    "lastSeason": {
+      "intro": "Players of other clubs in the last season of their contract. Once their league is halfway through you can offer them a pre-contract: no fee, they join you next season unless their club renews them.",
+      "empty": "No players of other clubs are in the last season of their contract.",
+      "averageSkill": "Rating {{skill}}",
+      "notOpen": "Pre-contracts open once his league is halfway through.",
+      "offered": "Offer sent"
     }
   },
   "cup": {
@@ -1185,7 +1194,8 @@
       "sameWage": "Same wage",
       "noPayCut": "They won't take a pay cut: at least {{wage}}/match.",
       "releaseClause": "Release clause (optional)",
-      "releaseClauseHint": "Any club can pay it to sign him without your consent. Up to 2x his value he asks 10% less wage, up to 4x 5% less; at least 1.5x his value."
+      "releaseClauseHint": "Any club can pay it to sign him without your consent. Up to 2x his value he asks 5% to 15% less wage depending on how shrewd he is, up to 4x half that; at least 1.5x his value.",
+      "noPayCutRange": "In his last season he accepts a small cut, depending on how shrewd he is: at least {{min}} to {{max}}/match."
     },
     "academy": {
       "title": "Youth academy",
@@ -1839,7 +1849,8 @@
       "contract": "Contract",
       "wage": "Wage",
       "averageSkill": "Average skill",
-      "releaseClause": "Release clause"
+      "releaseClause": "Release clause",
+      "negotiator": "Negotiator"
     },
     "listForTransfer": {
       "button": "List for transfer"
@@ -1903,6 +1914,13 @@
       "result": "Result",
       "vs": "vs",
       "upcoming": "Upcoming"
+    },
+    "negotiationStyles": {
+      "1": "Naive",
+      "2": "Casual",
+      "3": "Aware",
+      "4": "Shrewd",
+      "5": "Mastermind"
     }
   },
   "countries": {
@@ -2307,7 +2325,7 @@
           },
           {
             "q": "What is contract-negotiation intelligence?",
-            "a": "When renewing or signing, a player weighs not just their current skills but their recent trend: an improving player asks for more years and a better wage, while a declining one settles for more modest terms."
+            "a": "Every player has a hidden negotiation intelligence, from Naive to Mastermind, which you learn once you have negotiated with him. A sharper player reacts more to his recent form (a raise when improving, more seasons when declining), keeps more of his wage in his last season (75% to 95%), asks more to leave on a pre-contract (5% to 20% above his usual wage) and gives up more wage for a low release clause (5% to 15%)."
           },
           {
             "q": "Do players age and retire?",

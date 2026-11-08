@@ -4,13 +4,14 @@ import { clauseValue, isLastSeason, renewalWageFloor } from './contractTerms'
 // team-finances "Contract renewal and release": "No free wage cut" and "Last-season veteran".
 describe('renewalWageFloor', () => {
   it('keeps the whole wage with 2 or more seasons left', () => {
-    expect(renewalWageFloor(2000, 3)).toBe(2000)
-    expect(renewalWageFloor(2000, 2)).toBe(2000)
+    expect(renewalWageFloor(2000, 3)).toEqual({ min: 2000, max: 2000 })
+    expect(renewalWageFloor(2000, 2)).toEqual({ min: 2000, max: 2000 })
   })
 
-  it('accepts 85% in the last season, rounded up', () => {
-    expect(renewalWageFloor(2000, 1)).toBe(1700)
-    expect(renewalWageFloor(1001, 1)).toBe(851)
+  // player-negotiation: 75% (Naive) to 95% (Mastermind) in the last season, rounded up.
+  it('accepts 75% to 95% in the last season, rounded up', () => {
+    expect(renewalWageFloor(2000, 1)).toEqual({ min: 1500, max: 1900 })
+    expect(renewalWageFloor(1001, 1)).toEqual({ min: 751, max: 951 })
   })
 })
 

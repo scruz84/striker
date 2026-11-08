@@ -260,6 +260,7 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1PreContractGroup.POST("", handlers.MakePreContractOfferHandler(dbCtx))
 	v1PreContractGroup.GET("/received", handlers.PreContractsReceivedHandler(dbCtx))
 	v1PreContractGroup.GET("/sent", handlers.PreContractsSentHandler(dbCtx))
+	v1PreContractGroup.GET("/market", handlers.PreContractMarketHandler(dbCtx))
 	v1PreContractGroup.DELETE("/:"+handlers.ID, handlers.WithdrawPreContractHandler(dbCtx))
 
 	v1ReleaseClauseGroup := v1Group.Group("/release-clauses")

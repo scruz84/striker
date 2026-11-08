@@ -827,7 +827,8 @@
       "offers": "Ofertas",
       "freeAgents": "Libres",
       "coaching": "Técnicos",
-      "watchlist": "Seguidos"
+      "watchlist": "Seguidos",
+      "lastSeason": "Último año"
     },
     "salaryPerMatch": "Salario {{amount}}/partido",
     "ageLabel": "Edad {{age}}",
@@ -841,7 +842,7 @@
     "preContract": {
       "button": "Precontrato",
       "title": "Oferta de precontrato",
-      "subtitle": "Está en la última temporada de su contrato: ofrécele un contrato para la próxima temporada, sin traspaso. Pide un 10% más de lo habitual para dejar su club, decide 72 horas después de su primera oferta y su club aún puede retenerlo renovándolo.",
+      "subtitle": "Está en la última temporada de su contrato: ofrécele un contrato para la próxima temporada, sin traspaso. Pide entre un 5% y un 20% más de lo habitual para dejar su club, según lo listo que sea, decide 72 horas después de su primera oferta y su club aún puede retenerlo renovándolo.",
       "submit": "Enviar oferta",
       "sent": "Oferta enviada. Su club ya lo sabe y él decidirá en 72 horas.",
       "declined": "No basta para dejar su club: quiere al menos {{wage}}/partido y no firmará más de {{years}}.",
@@ -862,7 +863,15 @@
       "subtitle": "Paga {{fee}} a su club y se incorpora al momento, sin su permiso. Aun así tiene que aceptar tus condiciones personales.",
       "submit": "Pagar {{fee}}",
       "signed": "Hecho: ya es tu jugador.",
-      "error": "No se pudo pagar la cláusula. Puede que sea demasiado reciente (14 días), que no te llegue el presupuesto o que el mercado esté cerrado."
+      "error": "No se pudo pagar la cláusula. Puede que sea demasiado reciente (14 días), que no te llegue el presupuesto o que el mercado esté cerrado.",
+      "meta": "Cláusula {{fee}}"
+    },
+    "lastSeason": {
+      "intro": "Jugadores de otros clubes en la última temporada de su contrato. Cuando su liga llega a la mitad puedes ofrecerles un precontrato: sin traspaso, llegan la temporada siguiente salvo que su club los renueve.",
+      "empty": "No hay jugadores de otros clubes en la última temporada de su contrato.",
+      "averageSkill": "Media {{skill}}",
+      "notOpen": "Los precontratos se abren cuando su liga llega a la mitad.",
+      "offered": "Oferta enviada"
     }
   },
   "cup": {
@@ -1182,7 +1191,8 @@
       "sameWage": "Mismo salario",
       "noPayCut": "No aceptará una rebaja: al menos {{wage}}/partido.",
       "releaseClause": "Cláusula de rescisión (opcional)",
-      "releaseClauseHint": "Cualquier club puede pagarla para ficharlo sin tu permiso. Hasta 2 veces su valor pide un 10% menos de sueldo, hasta 4 veces un 5% menos; como mínimo 1,5 veces su valor."
+      "releaseClauseHint": "Cualquier club puede pagarla para ficharlo sin tu permiso. Hasta 2 veces su valor pide entre un 5% y un 15% menos de sueldo según lo listo que sea, hasta 4 veces la mitad; como mínimo 1,5 veces su valor.",
+      "noPayCutRange": "En su última temporada acepta una pequeña rebaja, según lo listo que sea: al menos de {{min}} a {{max}}/partido."
     },
     "academy": {
       "title": "Cantera",
@@ -1833,7 +1843,8 @@
       "contract": "Contrato",
       "wage": "Salario",
       "averageSkill": "Habilidad media",
-      "releaseClause": "Cláusula de rescisión"
+      "releaseClause": "Cláusula de rescisión",
+      "negotiator": "Negociador"
     },
     "listForTransfer": {
       "button": "Poner en el mercado"
@@ -1897,6 +1908,13 @@
       "result": "Resultado",
       "vs": "vs",
       "upcoming": "Próximo"
+    },
+    "negotiationStyles": {
+      "1": "Ingenuo",
+      "2": "Despreocupado",
+      "3": "Atento",
+      "4": "Astuto",
+      "5": "Maestro"
     }
   },
   "countries": {
@@ -2301,7 +2319,7 @@
           },
           {
             "q": "¿Qué es la inteligencia de negociación de contratos?",
-            "a": "Al renovar o firmar, el jugador no solo mira sus habilidades actuales sino su tendencia reciente: si está mejorando, pide más años y mejor salario; si está en declive, se conforma con condiciones más modestas."
+            "a": "Cada jugador tiene una inteligencia de negociación oculta, de Ingenuo a Maestro, que descubres en cuanto negocias con él. Cuanto más listo, más reacciona a su forma reciente (pide aumento si mejora, acepta más temporadas si decae), más sueldo conserva en su última temporada (del 75% al 95%), más pide por irse con un precontrato (del 5% al 20% sobre su sueldo habitual) y más sueldo cede por una cláusula baja (del 5% al 15%)."
           },
           {
             "q": "¿Los jugadores envejecen y se retiran?",

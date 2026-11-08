@@ -66,6 +66,7 @@ import type {
   TransferOfferResult,
   PreContractOffer,
   PreContractOfferResult,
+  PreContractMarketEntry,
   ReleaseClauseResult,
   WeekMatch,
 } from './types'
@@ -102,6 +103,7 @@ export const queryKeys = {
   offersReceived: ['offersReceived'] as const,
   preContractsReceived: ['preContractsReceived'] as const,
   preContractsSent: ['preContractsSent'] as const,
+  preContractMarket: ['preContractMarket'] as const,
   offersSent: ['offersSent'] as const,
   friendlyChallengesReceived: ['friendlyChallengesReceived'] as const,
   friendlyChallengesSent: ['friendlyChallengesSent'] as const,
@@ -1384,6 +1386,14 @@ export function usePreContractsReceived(enabled: boolean) {
   })
 }
 
+export function usePreContractMarket(enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.preContractMarket,
+    queryFn: () => api.get<PreContractMarketEntry[]>('/v1/pre-contracts/market'),
+    enabled,
+  })
+}
+
 export function usePreContractsSent(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.preContractsSent,
@@ -1402,6 +1412,7 @@ export function useMakePreContractOffer() {
     onSuccess: (result) => {
       if (result.accepted) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.preContractsSent })
+        void queryClient.invalidateQueries({ queryKey: queryKeys.preContractMarket })
       }
     },
   })

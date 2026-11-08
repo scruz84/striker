@@ -29,11 +29,15 @@ While the transfer window is open, a solvent club SHALL be able to offer a contr
 - **THEN** the offer is pending and his club is told the buyer, the offered wage and years, and when the player will decide
 
 ### Requirement: Player demands
-A player SHALL only consider a pre-contract offer whose wage is at least 1.10 × his expected wage and whose length is at most his age's maximum term; an offer below that MUST be refused at once, reporting the wage he would accept.
+A player SHALL only consider a pre-contract offer whose wage is at least his move premium × his expected wage - 1.05, 1.075, 1.10, 1.15 or 1.20 for a Naive, Casual, Aware, Shrewd or Mastermind player - and whose length is at most his age's maximum term; an offer below that MUST be refused at once, reporting the wage he would accept.
 
 #### Scenario: Below the premium
-- **WHEN** a player's expected wage is 2,000 and the offer is 2,100
+- **WHEN** an Aware player's expected wage is 2,000 and the offer is 2,100
 - **THEN** no offer is created and he reports 2,200
+
+#### Scenario: Mastermind
+- **WHEN** a Mastermind player's expected wage is 2,000
+- **THEN** he only considers offers of 2,400 or more
 
 ### Requirement: Signing a pre-contract
 72 hours after a player's first pending offer, he SHALL sign the best pending offer that still meets his demands: highest wage, then most years, then the earliest. The other offers are declined. The decision MUST happen once even when several engine replicas run at the same time.
@@ -43,10 +47,10 @@ A player SHALL only consider a pre-contract offer whose wage is at least 1.10 ×
 - **THEN** he signs the 3-year offer and the other buyer is told he declined
 
 ### Requirement: Right to counter-offer
-Before the player decides, his club SHALL be told each offer's buyer, wage and years and the decision time, and MAY counter by renewing him. While offers are pending, his renewal expectation is at least the best pending wage ÷ 1.10, rounded up (he stays for 10% less than the best rival offer). A renewal, sale or loan cancels every pending offer and tells each buyer, without the renewal's terms.
+Before the player decides, his club SHALL be told each offer's buyer, wage and years and the decision time, and MAY counter by renewing him. While offers are pending, his renewal expectation is at least the best pending wage ÷ his move premium, rounded up. A renewal, sale or loan cancels every pending offer and tells each buyer, without the renewal's terms.
 
 #### Scenario: Matching a rival
-- **WHEN** a player's expected wage is 2,000 and the best pending offer is 3,300
+- **WHEN** an Aware player's expected wage is 2,000 and the best pending offer is 3,300
 - **THEN** his club must offer at least 3,000 to renew him
 
 #### Scenario: Renewed in time
@@ -87,6 +91,21 @@ Every pre-contract event SHALL notify the clubs involved with a `NOTIFICATION_PR
 - **WHEN** a human's player signs a pre-contract with a CPU club
 - **THEN** the human is told the player will leave at the end of the season
 
+### Requirement: Pre-contract market
+The transfer market SHALL list the best 100 players (by combined skills) of other clubs in the last season of their contract, not on loan and without a signed pre-contract, each with his club, best position, age, average skill, wage and clause, whether his league is far enough along for a pre-contract offer, and whether the viewer already made him one. His skills and contract years stay hidden as on any squad page.
+
+#### Scenario: Not open yet
+- **WHEN** a listed player's league has played 10 of its 30 rounds
+- **THEN** his row says pre-contracts open at half the season and its Pre-contract action is disabled
+
+#### Scenario: Own players
+- **WHEN** a manager opens the list
+- **THEN** none of his own players is in it
+
+#### Scenario: Already offered
+- **WHEN** the manager has a pending offer on a listed player
+- **THEN** the row shows the offer as sent instead of a Pre-contract action
+
 ## Code map
 
 - Core: `backend/common/precontracts.go` (`MakePreContractOffer` / `MakePreContractOfferWithClause`,
@@ -101,6 +120,9 @@ Every pre-contract event SHALL notify the clubs involved with a `NOTIFICATION_PR
   `Player.ContractExpiring` set by `RedactFinancials`; `engine/tasks.go` `OfferResponseJob`;
   `engine/progression.go` (retirement).
 - API: `handlers/preContractHandlers.go`, routes `/v1/pre-contracts` in `service/fmservice.go`.
+- Pre-contract market: `common.GetPreContractMarket` (`PreContractMarketSize`), `PreContractMarketHandler`
+  (`GET /v1/pre-contracts/market`); frontend `features/transfers/LastSeasonTab.tsx` (`usePreContractMarket`,
+  strings `transfers.lastSeason.*`). Tests: `TestPreContractMarketHandler`, `LastSeasonTab.test.tsx`.
 - Notifications: `NOTIFICATION_PRE_CONTRACT`, keys `notifications.messages.preContract*` with
   Spanish templates in `common/notificationtranslations.go`.
 - Frontend: `components/PreContractDialog.tsx`, `features/transfers/PreContractCards.tsx` (Offers

@@ -63,6 +63,7 @@ func SignFreeAgentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		result, err := common.SignFreeAgentWithClause(dbCtx, playerId, team.Id, body.Wage, body.Years, body.ReleaseClause)
 		switch {
 		case err == nil:
+			noteNegotiation(dbCtx, team.Id, playerId)
 			c.JSON(http.StatusOK, result)
 		case errors.Is(err, common.ErrInvalidFreeAgentOffer), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
@@ -117,6 +118,7 @@ func RenewContractHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		offer, err := common.MakeContractRenewalOfferWithClause(dbCtx, playerId, team.Id, body.Wage, body.Years, body.ReleaseClause)
 		switch {
 		case err == nil:
+			noteNegotiation(dbCtx, team.Id, playerId)
 			c.JSON(http.StatusOK, offer)
 		case errors.Is(err, common.ErrInvalidRenewalOffer), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))

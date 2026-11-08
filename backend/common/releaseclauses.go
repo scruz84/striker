@@ -15,11 +15,9 @@ const (
 	// MinReleaseClauseMultiple is the lowest clause allowed, as a multiple of ClauseBaseValue.
 	MinReleaseClauseMultiple = 1.5
 	// A clause of at most releaseClauseLowMultiple x ClauseBaseValue lowers the wage the player asks
-	// by releaseClauseLowDiscount; one of at most releaseClauseMidMultiple x by releaseClauseMidDiscount.
+	// by his tier's ClauseDiscountFor; one of at most releaseClauseMidMultiple x by half of it.
 	releaseClauseLowMultiple = 2.0
-	releaseClauseLowDiscount = 0.10
 	releaseClauseMidMultiple = 4.0
-	releaseClauseMidDiscount = 0.05
 	// ReleaseClauseLockIn is how long after a contract was agreed its clause can first be paid.
 	ReleaseClauseLockIn = 14 * 24 * time.Hour
 	// AiReleaseClauseCooldown is how long after a CPU club paid a clause on a human club's player no
@@ -44,17 +42,18 @@ func MinReleaseClause(p Player) int64 {
 	return int64(math.Ceil(float64(ClauseBaseValue(p)) * MinReleaseClauseMultiple))
 }
 
-// ReleaseClauseDiscount is the share of his expected wage a player gives up for a clause of clause
-// against a base value of base: 10% up to 2x, 5% up to 4x, none above or without a clause. Pure.
-func ReleaseClauseDiscount(clause *int64, base int64) float64 {
+// ReleaseClauseDiscount is the share of his expected wage a player of negotiation tier
+// intelligence gives up for a clause of clause against a base value of base: ClauseDiscountFor up
+// to 2x (10% for an Aware player), half of it up to 4x, none above or without a clause. Pure.
+func ReleaseClauseDiscount(clause *int64, base int64, intelligence int) float64 {
 	if clause == nil || base <= 0 {
 		return 0
 	}
 	switch ratio := float64(*clause) / float64(base); {
 	case ratio <= releaseClauseLowMultiple:
-		return releaseClauseLowDiscount
+		return ClauseDiscountFor(intelligence)
 	case ratio <= releaseClauseMidMultiple:
-		return releaseClauseMidDiscount
+		return ClauseDiscountFor(intelligence) / 2
 	default:
 		return 0
 	}
@@ -69,10 +68,10 @@ func ValidateReleaseClause(p Player, clause *int64) error {
 	return nil
 }
 
-// DiscountedWage is the wage p accepts instead of expected when his new contract carries clause
-// (see ReleaseClauseDiscount), rounded up. Pure.
-func DiscountedWage(p Player, expected int, clause *int64) int {
-	discount := ReleaseClauseDiscount(clause, ClauseBaseValue(p))
+// DiscountedWage is the wage p, of negotiation tier intelligence, accepts instead of expected when
+// his new contract carries clause (see ReleaseClauseDiscount), rounded up. Pure.
+func DiscountedWage(p Player, expected int, clause *int64, intelligence int) int {
+	discount := ReleaseClauseDiscount(clause, ClauseBaseValue(p), intelligence)
 	if discount == 0 {
 		return expected
 	}
@@ -180,7 +179,7 @@ func PayReleaseClause(dbCtx *DatabaseContext, playerId int64, buyerTeamId int64,
 	if err != nil {
 		return nil, err
 	}
-	expected = DiscountedWage(*player, expected, newClause)
+	expected = DiscountedWage(*player, expected, newClause, negotiationTier(tx, playerId))
 	result := &ReleaseClauseResult{ExpectedWage: expected, MaxAcceptableYears: maxYears}
 	var reasons []string
 	if wage < expected {

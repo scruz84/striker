@@ -2,6 +2,7 @@ package engine
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -390,4 +391,65 @@ func count0(t *testing.T, db *sql.DB, query string, args ...any) int {
 		t.Fatal(err)
 	}
 	return n
+}
+
+// TestAiTransferMarket_PreContractSeason plays the last days of a season for a CPU Director whose
+// strikers are weak while a human club's star striker is in the last season of his contract
+// (openspec/specs/pre-contracts, cpu-transfer-market "Pre-contract targets"): each day the
+// Director runs its transfer pass and the offer sweep decides, with the clock moved a day on.
+// The Director offers him a pre-contract, the human is told and reminded, the player signs after
+// 72 hours, nothing can be agreed for him with his club any more, and he joins the Director at the
+// rollover on the agreed terms.
+func TestAiTransferMarket_PreContractSeason(t *testing.T) {
+	w := newPreContractWorld(t, "zy")
+	director := w.team("zy", "PC Season Director", common.AiLevelDirector, nil, 50_000_000)
+	w.squad("zy", director)
+	w.exec(`UPDATE players SET pass = 99, dribbling = 99, shot = 99 WHERE player_id = $1`, w.striker)
+	// Earlier tests leave last-season players in the shared database; move them out of the
+	// Director's last-season search so this world's star is the one it finds.
+	w.exec(`UPDATE players SET contract_years_remaining = 2 WHERE contract_years_remaining = 1 AND player_id <> $1`, w.striker)
+	w.exec(`DELETE FROM pre_contract_offers`)
+	w.halfSeason(w.home)
+	team := w.teamOf(director)
+
+	var offeredOnDay int
+	for day := 1; day <= 5; day++ {
+		runAiTransferPass(w.dbCtx, team)
+		if offeredOnDay == 0 && w.count(`SELECT count(*) FROM pre_contract_offers WHERE player_id = $1 AND from_team_id = $2`, w.striker, director) == 1 {
+			offeredOnDay = day
+		}
+		if signed := w.count(`SELECT count(*) FROM pre_contract_offers WHERE from_team_id = $1 AND signed_at IS NOT NULL`, director); signed > common.AiMaxSignedPreContracts {
+			t.Fatalf("day %d: the Director holds %d signed pre-contracts, more than %d", day, signed, common.AiMaxSignedPreContracts)
+		}
+		// A day passes before the sweep.
+		w.exec(`UPDATE pre_contract_offers SET created_at = created_at - interval '24 hours' WHERE signed_at IS NULL`)
+		RespondToAllPendingOffers(w.dbCtx)
+		common.DecidePreContracts(w.dbCtx, time.Now())
+	}
+
+	if offeredOnDay == 0 {
+		t.Fatal("the Director never offered the star a pre-contract")
+	}
+	if n := w.count(`SELECT count(*) FROM pre_contract_offers WHERE player_id = $1 AND from_team_id = $2 AND signed_at IS NOT NULL`, w.striker, director); n != 1 {
+		t.Fatalf("the star did not sign the Director's pre-contract (offered on day %d)", offeredOnDay)
+	}
+	for _, key := range []string{"preContractOffered", "preContractDecisionSoon", "preContractSignedAway"} {
+		if n := w.notified(w.homeOwner, key); n != 1 {
+			t.Errorf("the human club got %d %s notifications, want 1", n, key)
+		}
+	}
+	if _, err := common.MakeContractRenewalOffer(w.dbCtx, w.striker, w.home, 50_000, 3); !errors.Is(err, common.ErrPlayerPreContracted) {
+		t.Errorf("renewing the signed star: %v, want ErrPlayerPreContracted", err)
+	}
+	agreed := w.count(`SELECT wage FROM pre_contract_offers WHERE player_id = $1 AND signed_at IS NOT NULL`, w.striker)
+
+	if released, err := common.AdvancePlayerContract(w.dbCtx, w.striker); err != nil || released {
+		t.Fatalf("rollover: released=%v err=%v, want a move", released, err)
+	}
+	if team := w.playerTeam(w.striker); team != director {
+		t.Fatalf("after the rollover the star plays for %d, want the Director %d", team, director)
+	}
+	if wage := w.count(`SELECT wage FROM players WHERE player_id = $1`, w.striker); wage != agreed {
+		t.Errorf("wage at the Director %d, want the agreed %d", wage, agreed)
+	}
 }

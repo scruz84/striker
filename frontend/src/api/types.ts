@@ -392,6 +392,17 @@ export interface PreContractOffer {
   keepWage?: number
 }
 
+// One player of the pre-contract market (backend common.PreContractMarketEntry): another club's
+// player in his last season, seen as on that club's squad page; open says his league is far enough
+// along for an offer, offered that the viewer already made him one.
+export interface PreContractMarketEntry {
+  player: Player
+  teamName: string
+  bestPosition: number
+  open: boolean
+  offered: boolean
+}
+
 // The player judges a pre-contract offer at once (backend MakePreContractOffer): expectedWage is
 // the least he accepts to leave his club (his usual expectation x 1.10).
 export interface PreContractOfferResult {
@@ -1323,6 +1334,9 @@ export const UNAVAILABLE_INJURY = 1
 // PlayerDetails is the full profile shown on a player's page - see
 // backend/common/playerdetails.go's PlayerDetails and handlers.PlayerDetailsHandler.
 export interface PlayerDetails extends Player {
+  // The player's negotiation tier (1 Naive .. 5 Mastermind), only once the viewer's club has
+  // negotiated with him (backend negotiation_insights, openspec/specs/player-negotiation).
+  negotiationStyle?: number
   teamName: string
   divisionId: number
   divisionName: string

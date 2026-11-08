@@ -48,7 +48,7 @@ func (w *preContractWorld) notified(userId int64, key string) int {
 // ("Below the premium").
 func TestPreContracts_OfferRules(t *testing.T) {
 	w := newPreContractWorld(t, "pa")
-	minimum := common.PreContractMinimumWage(w.skillWage())
+	minimum := common.PreContractMinimumWage(w.skillWage(), common.IntelligenceNaive)
 
 	if _, err := common.MakePreContractOffer(w.dbCtx, w.striker, w.buyer, minimum, 2); !errors.Is(err, common.ErrPreContractTooEarly) {
 		t.Fatalf("offer before half the season: %v, want ErrPreContractTooEarly", err)
@@ -84,8 +84,8 @@ func TestPreContracts_OfferRules(t *testing.T) {
 	if err != nil || len(received) != 1 {
 		t.Fatalf("received offers: %v, %v", received, err)
 	}
-	if received[0].DecidesAt == nil || received[0].KeepWage != common.PreContractKeepWage(minimum) {
-		t.Errorf("received offer %+v, want a decision time and keep wage %d", received[0], common.PreContractKeepWage(minimum))
+	if received[0].DecidesAt == nil || received[0].KeepWage != common.PreContractKeepWage(minimum, common.IntelligenceNaive) {
+		t.Errorf("received offer %+v, want a decision time and keep wage %d", received[0], common.PreContractKeepWage(minimum, common.IntelligenceNaive))
 	}
 }
 
@@ -93,11 +93,11 @@ func TestPreContracts_OfferRules(t *testing.T) {
 func TestPreContracts_CounterOfferByRenewal(t *testing.T) {
 	w := newPreContractWorld(t, "pb")
 	w.halfSeason(w.home)
-	best := common.PreContractMinimumWage(w.skillWage()) + 1100
+	best := common.PreContractMinimumWage(w.skillWage(), common.IntelligenceNaive) + 1100
 	if r, err := common.MakePreContractOffer(w.dbCtx, w.striker, w.buyer, best, 2); err != nil || !r.Accepted {
 		t.Fatalf("offer: %+v, %v", r, err)
 	}
-	keep := common.PreContractKeepWage(best)
+	keep := common.PreContractKeepWage(best, common.IntelligenceNaive)
 
 	offer, err := common.MakeContractRenewalOffer(w.dbCtx, w.striker, w.home, keep-1, 3)
 	if err != nil {
@@ -123,7 +123,7 @@ func TestPreContracts_CounterOfferByRenewal(t *testing.T) {
 func TestPreContracts_DecisionAndRollover(t *testing.T) {
 	w := newPreContractWorld(t, "pc")
 	w.halfSeason(w.home)
-	wage := common.PreContractMinimumWage(w.skillWage()) + 100
+	wage := common.PreContractMinimumWage(w.skillWage(), common.IntelligenceNaive) + 100
 	for _, buyer := range []struct {
 		team  int64
 		years int
@@ -190,7 +190,7 @@ func TestPreContracts_DecisionAndRollover(t *testing.T) {
 func TestPreContracts_RetirementLapses(t *testing.T) {
 	w := newPreContractWorld(t, "pd")
 	w.halfSeason(w.home)
-	if r, err := common.MakePreContractOffer(w.dbCtx, w.striker, w.buyer, common.PreContractMinimumWage(w.skillWage()), 1); err != nil || !r.Accepted {
+	if r, err := common.MakePreContractOffer(w.dbCtx, w.striker, w.buyer, common.PreContractMinimumWage(w.skillWage(), common.IntelligenceNaive), 1); err != nil || !r.Accepted {
 		t.Fatalf("offer: %+v, %v", r, err)
 	}
 	common.LapsePreContractsOnRetirement(w.dbCtx, w.striker)
@@ -219,7 +219,7 @@ func TestPreContracts_CpuSellerAnswers(t *testing.T) {
 			w.exec(`DELETE FROM default_lineup_positions WHERE player_id = $1`, star)
 		}
 		skill := common.PlayerWageFromSkills(0, 0, 0, 70, 0, 70, 70)
-		if r, err := common.MakePreContractOffer(w.dbCtx, star, w.buyer, common.PreContractMinimumWage(skill)*12/10, 2); err != nil || !r.Accepted {
+		if r, err := common.MakePreContractOffer(w.dbCtx, star, w.buyer, common.PreContractMinimumWage(skill, common.IntelligenceNaive)*12/10, 2); err != nil || !r.Accepted {
 			t.Fatalf("offer: %+v, %v", r, err)
 		}
 
@@ -268,7 +268,7 @@ func TestPreContracts_DirectorOffersOne(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want := common.PreContractMinimumWage(expected); found.Player.Wage != want {
+	if want := common.PreContractMinimumWage(expected, common.IntelligenceNaive); found.Player.Wage != want {
 		t.Errorf("candidate wage %d, want %d (1.10 x expectation)", found.Player.Wage, want)
 	}
 	if !makeAiPreContractOffer(w.dbCtx, team, scoredCandidate{transferCandidate: *found}) {

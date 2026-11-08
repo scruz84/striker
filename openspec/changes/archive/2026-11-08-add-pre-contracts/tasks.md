@@ -17,7 +17,7 @@
 
 - [x] 3.1 Add `GetExpiringCandidatesForPosition` and `candidatePreContract` in `runAiTransferPass`; verify "Director plans next season", "Two signed already" and "Pile-up on a human's player" with unit and integration tests.
 - [x] 3.2 Add `answerPreContractOffers`; verify "Manager keeps its starter", "Rival outbids the ceiling", "Director key player", "Director lets a bench veteran go" and "Caretaker bench player".
-- [ ] 3.3 Extend `ai_transfers_simulation_integration_test.go` so a simulated season shows CPU pre-contracts being offered, signed and completed.
+- [x] 3.3 Extend `ai_transfers_simulation_integration_test.go` so a simulated season shows CPU pre-contracts being offered, signed and completed.
 
 ## 4. Frontend
 
@@ -26,4 +26,4 @@
 ## 5. Specs and checks
 
 - [x] 5.1 Add the Code map to the new `pre-contracts` spec, update the Code maps of `cpu-transfer-market` and `cpu-team-management` and `backend/README.md` "Player contracts & free agency"; verify `openspec validate add-pre-contracts --strict` passes.
-- [ ] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.
+- [x] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.

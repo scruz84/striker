@@ -246,13 +246,15 @@ A Director SHALL treat a scanned player whose release clause is at most 1.5 × i
   (`LastSeasonContractValueFactor`, `TwoSeasonContractValueFactor`, `common/transferscoring.go`;
   test `TestMarketValue_ContractFactor`). CPU personal terms: `common.PlayerTermsExpectation` in
   `makeAiOffer` (`engine/aitransfers.go`) and `renewContract` (`engine/aiteams.go`).
-- Pre-contract targets: `preContractCandidates`, `makeAiPreContractOffer`,
+- Pre-contract targets: `preContractCandidates`, `offerBestPreContract` (its own phase after
+  `runAiSignings`, so it uses none of the pass's moves), `makeAiPreContractOffer`,
   `aiPreContractOffersPerPass`, `candidatePreContract` and `transferState.SignedPreContracts` in
   `engine/aitransfers.go`; search `common.GetExpiringCandidatesForPosition` (`common/aimarket.go`),
   `AiTransferProfile.PreContractCandidates`. Release clauses: `candidateReleaseClause`,
   `payableClauses`, `payAiReleaseClause`, `aiReleaseClausesPerPass`, `common.CpuMayPayClauseOn`.
   Tests: `engine/precontracts_integration_test.go`, `engine/releaseclauses_integration_test.go`,
-  `engine/aicontractterms_test.go`.
+  `engine/aicontractterms_test.go`, `TestAiTransferMarket_PreContractSeason`
+  (`engine/ai_transfers_simulation_integration_test.go`).
 - Counter-offers to a CPU buyer: `engine/aiteams.go` (`answerCountersAsBuyer`, `counterScore`,
   `acceptsCounter`), called from `RespondToAllPendingOffers`; it answers through
   `common.AcceptCounterOffer` / `DeclineCounterOffer` and records the declined bid with

@@ -53,6 +53,7 @@ import { ResponsiveDialog } from '../../components/ResponsiveDialog'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { TransferOfferDialog } from '../../components/TransferOfferDialog'
 import { WatchlistTab } from './WatchlistTab'
+import { LastSeasonTab } from './LastSeasonTab'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatShortDate } from '../../utils/formatDate'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating } from '../../utils/playerRating'
@@ -86,7 +87,7 @@ const LOAN_DURATION_OPTIONS = [1, 2, 3]
 
 // Order matches the <Tab> elements below - used to deep-link a specific tab (e.g. `?tab=coaching`
 // from TeamDetailsPage's coach card), rather than always landing on the first one.
-const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'coaching', 'watchlist'] as const
+const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'lastSeason', 'coaching', 'watchlist'] as const
 
 // Parses a persisted filter string ("" when unset) into a number the filters can compare with.
 const num = (value: string) => Number(value)
@@ -191,6 +192,7 @@ export function TransferMarketPage() {
         <Tab label={t('transfers.tabsShort.loans')} />
         <Tab label={t('transfers.tabsShort.offers')} />
         <Tab label={t('transfers.tabsShort.freeAgents')} />
+        <Tab label={t('transfers.tabsShort.lastSeason')} />
         <Tab label={t('transfers.tabsShort.coaching')} />
         <Tab label={t('transfers.tabsShort.watchlist')} />
       </Tabs>
@@ -198,8 +200,9 @@ export function TransferMarketPage() {
       {tab === 1 && <LoansTab />}
       {tab === 2 && <OffersTab />}
       {tab === 3 && <FreeAgentsTab />}
-      {tab === 4 && <CoachingTab />}
-      {tab === 5 && <WatchlistTab />}
+      {tab === 4 && <LastSeasonTab />}
+      {tab === 5 && <CoachingTab />}
+      {tab === 6 && <WatchlistTab />}
     </Box>
   )
 }

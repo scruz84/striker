@@ -42,6 +42,7 @@ func MakePreContractOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc 
 		result, err := common.MakePreContractOfferWithClause(dbCtx, req.PlayerId, team.Id, req.Wage, req.Years, req.ReleaseClause)
 		switch {
 		case err == nil:
+			noteNegotiation(dbCtx, team.Id, req.PlayerId)
 			c.JSON(http.StatusOK, result)
 		case errors.Is(err, common.ErrInvalidPreContractTerms), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
@@ -63,34 +64,12 @@ func MakePreContractOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc 
 // PreContractsReceivedHandler lists the pre-contract offers, pending or signed, on the caller's
 // players.
 func PreContractsReceivedHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
-	return preContractsHandler(dbCtx, common.GetPreContractOffersReceived)
+	return preContractListHandler(dbCtx, common.GetPreContractOffersReceived)
 }
 
 // PreContractsSentHandler lists the pre-contract offers, pending or signed, the caller made.
 func PreContractsSentHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
-	return preContractsHandler(dbCtx, common.GetPreContractOffersSent)
-}
-
-func preContractsHandler(dbCtx *common.DatabaseContext, list func(*common.DatabaseContext, int64) ([]common.PreContractOffer, error)) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userId := GetUserIdFromCookie(c)
-		if userId == nil {
-			c.JSON(http.StatusForbidden, nil)
-			return
-		}
-		team, err := common.GetTeamByOwner(*userId, dbCtx)
-		if err != nil {
-			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
-			return
-		}
-		offers, err := list(dbCtx, team.Id)
-		if err != nil {
-			log.Errorf("error listing pre-contract offers of team %d: %s", team.Id, err)
-			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
-			return
-		}
-		c.JSON(http.StatusOK, offers)
-	}
+	return preContractListHandler(dbCtx, common.GetPreContractOffersSent)
 }
 
 // WithdrawPreContractHandler withdraws one of the caller's pending pre-contract offers; a signed
@@ -122,5 +101,33 @@ func WithdrawPreContractHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, nil)
+	}
+}
+
+// PreContractMarketHandler lists the players of other clubs in the last season of their contract,
+// the ones the caller can offer a pre-contract (openspec/specs/pre-contracts "Pre-contract market").
+func PreContractMarketHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return preContractListHandler(dbCtx, common.GetPreContractMarket)
+}
+
+func preContractListHandler[T any](dbCtx *common.DatabaseContext, list func(*common.DatabaseContext, int64) ([]T, error)) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := GetUserIdFromCookie(c)
+		if userId == nil {
+			c.JSON(http.StatusForbidden, nil)
+			return
+		}
+		team, err := common.GetTeamByOwner(*userId, dbCtx)
+		if err != nil {
+			c.JSON(http.StatusNotFound, GetError(0, "team not found for user"))
+			return
+		}
+		entries, err := list(dbCtx, team.Id)
+		if err != nil {
+			log.Errorf("error listing pre-contract data for team %d: %s", team.Id, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, entries)
 	}
 }

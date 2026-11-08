@@ -15,7 +15,7 @@ func TestReleaseClauseDiscount(t *testing.T) {
 		{amount(2_000_000), 0},
 	}
 	for _, c := range cases {
-		if got := ReleaseClauseDiscount(c.clause, 400_000); got != c.want {
+		if got := ReleaseClauseDiscount(c.clause, 400_000, IntelligenceAware); got != c.want {
 			t.Errorf("clause %v against 400,000: discount %v, want %v", c.clause, got, c.want)
 		}
 	}
@@ -39,10 +39,18 @@ func TestValidateReleaseClauseAndDiscountedWage(t *testing.T) {
 		t.Errorf("no clause: %v", err)
 	}
 	twice := 2 * base
-	if got := DiscountedWage(p, 2001, &twice); got != 1801 {
+	if got := DiscountedWage(p, 2001, &twice, IntelligenceAware); got != 1801 {
 		t.Errorf("wage with a 2x clause: %d, want 1,801 (90%% of 2,001, rounded up)", got)
 	}
-	if got := DiscountedWage(p, 2000, nil); got != 2000 {
+	// "Mastermind and a low clause": 15% off; half of a tier's discount for a clause up to 4x.
+	if got := DiscountedWage(p, 2000, &twice, IntelligenceMastermind); got != 1700 {
+		t.Errorf("Mastermind wage with a 2x clause: %d, want 1,700", got)
+	}
+	thrice := 3 * base
+	if got := ReleaseClauseDiscount(&thrice, base, IntelligenceShrewd); got != 0.0625 {
+		t.Errorf("Shrewd discount for a 3x clause: %v, want 0.0625", got)
+	}
+	if got := DiscountedWage(p, 2000, nil, IntelligenceAware); got != 2000 {
 		t.Errorf("wage without a clause: %d, want 2,000", got)
 	}
 }

@@ -23,9 +23,10 @@ const (
 	// PreContractSeasonShare is the share of his club's league season that must be played before a
 	// player in his last season can be offered a pre-contract.
 	PreContractSeasonShare = 0.5
-	// PreContractMovePremium is how much more than his usual expected wage a player asks to leave
-	// his club: a pre-contract offer must reach it, and while offers are pending his own club keeps
-	// him for the best pending wage divided by it (see PreContractCounterBar).
+	// PreContractMovePremium is how much more than his usual expected wage an Aware player asks to
+	// leave his club (the premium of each tier is PreContractPremium): a pre-contract offer must
+	// reach it, and while offers are pending his own club keeps him for the best pending wage
+	// divided by it (see PreContractCounterBar).
 	PreContractMovePremium = 1.10
 	// PreContractDecisionDelay is how long after a player's first pending offer he decides.
 	PreContractDecisionDelay = 72 * time.Hour
@@ -112,19 +113,21 @@ type PreContractOfferResult struct {
 	OfferId            int64  `json:"offerId,omitempty"`
 }
 
-// PreContractMinimumWage is the least a pre-contract offer must pay a player whose usual
-// expectation is expected: expected × PreContractMovePremium, rounded up. Pure.
-func PreContractMinimumWage(expected int) int {
-	return int(math.Ceil(float64(expected) * PreContractMovePremium))
+// PreContractMinimumWage is the least a pre-contract offer must pay a player of negotiation tier
+// intelligence whose usual expectation is expected: expected × PreContractPremium(intelligence),
+// rounded up. Pure.
+func PreContractMinimumWage(expected int, intelligence int) int {
+	return int(math.Ceil(float64(expected)*PreContractPremium(intelligence) - 1e-9))
 }
 
-// PreContractKeepWage is the wage a player's club must offer to keep him while best is the best
-// pending pre-contract wage: best ÷ PreContractMovePremium, rounded up; 0 without offers. Pure.
-func PreContractKeepWage(best int) int {
+// PreContractKeepWage is the wage the club of a player of negotiation tier intelligence must offer
+// to keep him while best is the best pending pre-contract wage: best ÷ PreContractPremium,
+// rounded up; 0 without offers. Pure.
+func PreContractKeepWage(best int, intelligence int) int {
 	if best <= 0 {
 		return 0
 	}
-	return int(math.Ceil(float64(best)/PreContractMovePremium - 1e-9))
+	return int(math.Ceil(float64(best)/PreContractPremium(intelligence) - 1e-9))
 }
 
 // PreContractSeasonOpen reports whether a league season with played matches played and remaining
@@ -154,7 +157,20 @@ func PreContractCounterBar(q sqlQuerier, playerId int64) (int, error) {
 	if err := q.QueryRow(bestPendingPreContractStmtSql, playerId).Scan(&best, &first); err != nil {
 		return 0, err
 	}
-	return PreContractKeepWage(best), nil
+	return PreContractKeepWage(best, negotiationTier(q, playerId)), nil
+}
+
+// negotiationTierStmtSql reads a player's negotiation tier.
+const negotiationTierStmtSql = "SELECT intelligence FROM players WHERE player_id = $1"
+
+// negotiationTier is playerId's negotiation tier (see IntelligenceNaive..IntelligenceMastermind),
+// 0 - read as Aware - when it can't be read.
+func negotiationTier(q sqlQuerier, playerId int64) int {
+	var tier int
+	if err := q.QueryRow(negotiationTierStmtSql, playerId).Scan(&tier); err != nil {
+		return 0
+	}
+	return tier
 }
 
 // CountAiPreContractOffersOnPlayer is how many CPU clubs have a pending pre-contract offer on him.
@@ -251,8 +267,9 @@ func MakePreContractOfferWithClause(dbCtx *DatabaseContext, playerId int64, from
 	if err != nil {
 		return nil, err
 	}
-	expected = DiscountedWage(*player, expected, clause)
-	result := &PreContractOfferResult{ExpectedWage: PreContractMinimumWage(expected), MaxAcceptableYears: maxYears}
+	tier := negotiationTier(tx, playerId)
+	expected = DiscountedWage(*player, expected, clause, tier)
+	result := &PreContractOfferResult{ExpectedWage: PreContractMinimumWage(expected, tier), MaxAcceptableYears: maxYears}
 	var reasons []string
 	if wage < result.ExpectedWage {
 		reasons = append(reasons, "wage below what they want to leave their club")
@@ -291,10 +308,10 @@ func MakePreContractOfferWithClause(dbCtx *DatabaseContext, playerId int64, from
 	}
 	_ = NotifyTeamOwnerWithLink(dbCtx, ownerTeamId.Int64, NOTIFICATION_PRE_CONTRACT, NotificationMessage{
 		Text: buyerName + " offered " + playerName + " a pre-contract: " + FormatFee(int64(wage)) + " for " + strconv.Itoa(years) +
-			" season(s). He decides in " + strconv.Itoa(hours) + " hours; renew him at " + FormatFee(int64(PreContractKeepWage(best))) + " to keep him",
+			" season(s). He decides in " + strconv.Itoa(hours) + " hours; renew him at " + FormatFee(int64(PreContractKeepWage(best, tier))) + " to keep him",
 		Key: "notifications.messages.preContractOffered",
 		Params: map[string]any{"team": buyerName, "player": playerName, "wage": FormatFee(int64(wage)), "years": years,
-			"hours": hours, "keepWage": FormatFee(int64(PreContractKeepWage(best)))},
+			"hours": hours, "keepWage": FormatFee(int64(PreContractKeepWage(best, tier)))},
 	}, "/transfers?tab=offers")
 	return result, nil
 }
@@ -416,7 +433,7 @@ func queryPreContractOffers(dbCtx *DatabaseContext, query string, teamId int64) 
 		} else if first.Valid {
 			t := PreContractDecisionTime(first.Time)
 			o.DecidesAt = &t
-			o.KeepWage = PreContractKeepWage(best)
+			o.KeepWage = PreContractKeepWage(best, negotiationTier(dbCtx.Db, playerId))
 		}
 		o.Player.Id = playerId
 		offers = append(offers, o)
@@ -544,10 +561,11 @@ func decidePreContract(dbCtx *DatabaseContext, playerId int64) error {
 		if err != nil {
 			return err
 		}
+		tier := negotiationTier(tx, playerId)
 		for i := range offers {
 			o := offers[i]
 			// A clause in the offered contract lowers what he asks (see DiscountedWage).
-			if o.wage < PreContractMinimumWage(DiscountedWage(*player, expected, o.clause)) || o.years > maxYears {
+			if o.wage < PreContractMinimumWage(DiscountedWage(*player, expected, o.clause, tier), tier) || o.years > maxYears {
 				continue
 			}
 			signed, err := CountSignedPreContracts(tx, o.fromTeamId)
@@ -799,4 +817,62 @@ func PlayerRenewalExpectation(dbCtx *DatabaseContext, p Player) (wage int, years
 		wage = bar
 	}
 	return wage, years, bar > 0, nil
+}
+
+// PreContractMarketSize is how many last-season players the pre-contract market lists.
+const PreContractMarketSize = 100
+
+// PreContractMarketEntry is one player in the pre-contract market (openspec/specs/pre-contracts
+// "Pre-contract market"): another club's player in the last season of his contract, seen as on
+// any other club's squad page (skills and contract terms hidden, wage, average skill and clause
+// public), with his best position, whether his league is far enough along for an offer and
+// whether the viewer already made him one.
+type PreContractMarketEntry struct {
+	Player       Player `json:"player"`
+	TeamName     string `json:"teamName"`
+	BestPosition int    `json:"bestPosition"`
+	Open         bool   `json:"open"`
+	Offered      bool   `json:"offered"`
+}
+
+const getPreContractMarketStmtSql = "SELECT " + playerColumnsSql + ", t.name, " +
+	"COALESCE((SELECT cl.matches FROM classification cl WHERE cl.team_id = t.team_id LIMIT 1), 0), " +
+	"(SELECT count(*) FROM matches m WHERE m.league_id = t.league_id AND m.season = co.current_season AND m.played = false " +
+	"AND (m.home_team_id = t.team_id OR m.away_team_id = t.team_id)), " +
+	"EXISTS (SELECT 1 FROM pre_contract_offers o WHERE o.player_id = p.player_id AND o.from_team_id = $1) " +
+	"FROM players p JOIN teams t ON t.team_id = p.team_id JOIN leagues l ON l.league_id = t.league_id " +
+	"JOIN countries co ON co.name = l.country " +
+	"WHERE p.contract_years_remaining = 1 AND p.team_id <> $1 AND p.in_academy = false AND t.is_national_team = false " +
+	"AND NOT EXISTS (SELECT 1 FROM player_loans pl WHERE pl.player_id = p.player_id) " +
+	"AND NOT EXISTS (SELECT 1 FROM pre_contract_offers s WHERE s.player_id = p.player_id AND s.signed_at IS NOT NULL) " +
+	"ORDER BY (p.goal_keeper + p.defense + p.\"lateral\" + p.pass + p.midfield + p.dribbling + p.shot) DESC, p.player_id LIMIT $2"
+
+// GetPreContractMarket lists the best PreContractMarketSize players of other clubs than
+// viewerTeamId in the last season of their contract, not on loan and not already signed by anyone,
+// best first.
+func GetPreContractMarket(dbCtx *DatabaseContext, viewerTeamId int64) ([]PreContractMarketEntry, error) {
+	rows, err := dbCtx.Db.Query(getPreContractMarketStmtSql, viewerTeamId, PreContractMarketSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	entries := make([]PreContractMarketEntry, 0)
+	for rows.Next() {
+		var e PreContractMarketEntry
+		var played, remaining int
+		player, err := scanPlayer(rows, &e.TeamName, &played, &remaining, &e.Offered)
+		if err != nil {
+			return nil, err
+		}
+		e.BestPosition = BestCorePosition(*player)
+		e.Open = PreContractSeasonOpen(played, remaining)
+		player.AverageSkill = AverageSkill(*player)
+		wage := player.Wage
+		player.RedactFinancials()
+		player.Wage = wage
+		player.RedactSkills(false)
+		e.Player = *player
+		entries = append(entries, e)
+	}
+	return entries, rows.Err()
 }

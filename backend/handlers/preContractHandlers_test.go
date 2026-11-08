@@ -76,3 +76,41 @@ func TestPreContractHandlers(t *testing.T) {
 		t.Errorf("second withdraw = %d, want 404", rec.Code)
 	}
 }
+
+// pre-contracts "Pre-contract market": another club's last-season player is listed with the public
+// marker, his position and whether an offer is open yet; the viewer's own players are not.
+func TestPreContractMarketHandler(t *testing.T) {
+	r := newCounterHandlerRig(t)
+	r.router.GET("/pre-contracts/market", PreContractMarketHandler(r.dbCtx))
+	if _, err := r.db.Exec(`UPDATE players SET contract_years_remaining = 1 WHERE player_id = $1`, r.player); err != nil {
+		t.Fatal(err)
+	}
+	market := func(as int64) []common.PreContractMarketEntry {
+		r.as = as
+		rec := httptest.NewRecorder()
+		r.router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/pre-contracts/market", nil))
+		var entries []common.PreContractMarketEntry
+		if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &entries) != nil {
+			t.Fatalf("market = %d %s", rec.Code, rec.Body.String())
+		}
+		return entries
+	}
+	find := func(entries []common.PreContractMarketEntry) *common.PreContractMarketEntry {
+		for i := range entries {
+			if entries[i].Player.Id == r.player {
+				return &entries[i]
+			}
+		}
+		return nil
+	}
+	if find(market(r.sellerUser)) != nil {
+		t.Error("the seller sees his own player in the pre-contract market")
+	}
+	e := find(market(r.buyerUser))
+	if e == nil {
+		t.Skip("the player is not among the market's best 100 in this shared database")
+	}
+	if !e.Player.ContractExpiring || e.Player.ContractYearsRemaining != 0 || e.Player.AverageSkill == 0 || e.Open || e.Offered {
+		t.Errorf("market entry %+v: want the public marker, the average skill, not yet open and not offered", e)
+	}
+}

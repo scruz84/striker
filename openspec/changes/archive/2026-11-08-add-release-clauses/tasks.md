@@ -24,4 +24,4 @@
 ## 5. Specs and checks
 
 - [x] 5.1 Add the Code map to the new `release-clauses` spec and update the Code maps of `cpu-transfer-market` and `cpu-team-management` and `backend/README.md`; verify `openspec validate add-release-clauses --strict` passes.
-- [ ] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.
+- [x] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify all pass.

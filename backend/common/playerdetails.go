@@ -279,10 +279,13 @@ func GetPlayerTransactions(dbCtx *DatabaseContext, playerId int64, limit int) ([
 // team, career stats, current status, and transfer history. See handlers.PlayerDetailsHandler.
 type PlayerDetails struct {
 	Player
-	TeamName     string `json:"teamName"`
-	DivisionId   int64  `json:"divisionId"`
-	DivisionName string `json:"divisionName"`
-	Country      string `json:"country"`
+	// NegotiationStyle is the player's negotiation tier (IntelligenceNaive..IntelligenceMastermind),
+	// set only for a viewer whose club has negotiated with him (see NegotiationStyleFor).
+	NegotiationStyle *int   `json:"negotiationStyle,omitempty"`
+	TeamName         string `json:"teamName"`
+	DivisionId       int64  `json:"divisionId"`
+	DivisionName     string `json:"divisionName"`
+	Country          string `json:"country"`
 	// BestPosition is one of GOALKEEPER/DEFENSE/MIDFIELD/STRIKER - whichever PositionValue rates
 	// highest for this player - see BestCorePosition. Left/right lateral positions are
 	// deliberately excluded: their value formulas don't depend on side, so they'd always tie

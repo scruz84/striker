@@ -86,7 +86,8 @@ export function ContractRenewalDialog({ player, open, onClose, initialWage }: Co
               onWageChange={setWage}
               onYearsChange={setYears}
               currentWage={player.wage}
-              wageFloor={renewalWageFloor(player.wage, player.contractYearsRemaining)}
+              wageFloor={renewalWageFloor(player.wage, player.contractYearsRemaining).min}
+              wageFloorMax={renewalWageFloor(player.wage, player.contractYearsRemaining).max}
             clause={clause} onClauseChange={setClause} />
           </>
         )}

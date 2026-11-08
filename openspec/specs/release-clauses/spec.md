@@ -18,11 +18,15 @@ A renewal, a free-agent signing, a transfer offer's personal terms and a pre-con
 - **THEN** he has no clause afterwards
 
 ### Requirement: Wage discount for a clause
-A player SHALL accept 10% less than his expected wage when the clause is at most 2 × his market value on a 3-season contract, and 5% less when it is at most 4 ×.
+A player SHALL accept less than his expected wage when his contract carries a clause of at most 2 × his market value on a 3-season contract - 5%, 7.5%, 10%, 12.5% or 15% less for a Naive, Casual, Aware, Shrewd or Mastermind player - and half that discount for a clause of at most 4 ×.
 
 #### Scenario: Low clause
-- **WHEN** a player whose value is 400,000 and expected wage 2,000 is offered a clause of 800,000
+- **WHEN** an Aware player whose value is 400,000 and expected wage 2,000 is offered a clause of 800,000
 - **THEN** he accepts a wage of 1,800
+
+#### Scenario: Mastermind and a low clause
+- **WHEN** the same player is a Mastermind
+- **THEN** he accepts 1,700
 
 #### Scenario: High clause
 - **WHEN** the clause is 2,000,000
@@ -46,6 +50,17 @@ A player's clause SHALL be visible to every manager. A paid clause MUST notify t
 - **WHEN** a CPU Director pays a human's player's clause
 - **THEN** the human is told who paid it and how much he received
 
+### Requirement: Clause on market rows
+Every transfer market card (listings, loans, free agents) and every row of the pre-contract market SHALL show the player's release clause when he has one, and the "Last season" marker when he is another club's player in the last season of his contract.
+
+#### Scenario: Listed player with a clause
+- **WHEN** a transfer-listed player has a 900,000 clause
+- **THEN** his card shows "Release clause 900,000"
+
+#### Scenario: No clause
+- **WHEN** a listed player has no clause and 2 seasons left
+- **THEN** his card shows neither
+
 ## Code map
 
 - Core: `backend/common/releaseclauses.go` (`ClauseBaseValue`, `MinReleaseClause`,
@@ -60,6 +75,8 @@ A player's clause SHALL be visible to every manager. A paid clause MUST notify t
 - API: `handlers/releaseClauseHandlers.go` (`POST /v1/release-clauses`), `releaseClause` in the
   renewal, free-agent, offer and pre-contract bodies.
 - Notifications: `notifications.messages.releaseClausePaid` / `releaseClauseSigned`.
+- Market rows: `ContractMeta` in `features/transfers/marketUi.tsx` (on `ListingCard` and the last-season rows),
+  string `transfers.releaseClause.meta`.
 - Frontend: clause field in `components/ContractTermsFields.tsx` (`clauseValue` in
   `utils/contractTerms.ts`), `components/PayReleaseClauseDialog.tsx`, clause row and button in
   `components/PlayerProfileRail.tsx`, hook `usePayReleaseClause`, strings

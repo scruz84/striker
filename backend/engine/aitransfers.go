@@ -881,14 +881,37 @@ func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
 		return
 	}
 
+	// Pre-contract offers are not signings: they get their own phase after the signings (see
+	// offerBestPreContract), so a pass that spends its moves elsewhere still makes one.
+	signings := make([]transferCandidate, 0, len(candidates))
+	preContracts := make([]transferCandidate, 0)
+	for _, c := range candidates {
+		if c.Kind == candidatePreContract {
+			preContracts = append(preContracts, c)
+		} else {
+			signings = append(signings, c)
+		}
+	}
+	state = runAiSignings(dbCtx, team, profile, state, signings, rng)
+	if state != nil && len(preContracts) > 0 {
+		offerBestPreContract(dbCtx, team, profile, state, preContracts, rng)
+	}
+}
+
+// runAiSignings is the signing part of a transfer pass: up to profile.MovesPerPass signings, loans,
+// buy options, bids and clause payments, best-ranked first, listing a player to fund a target it
+// can't take yet when nothing else is possible. It returns the team's state after them, nil when
+// it can't be re-read.
+func runAiSignings(dbCtx *common.DatabaseContext, team *common.Team, profile common.AiTransferProfile,
+	state *transferState, candidates []transferCandidate, rng *rand.Rand) *transferState {
 	attempted := map[int64]bool{}
 	movesLeft := profile.MovesPerPass
 	offersLeft := profile.MaxNewOffersPerPass
-	preContractsLeft := aiPreContractOffersPerPass
 	clausesLeft := aiReleaseClausesPerPass
+	var err error
 	for i := 0; i < profile.MovesPerPass*aiPassIterationsPerMove && movesLeft > 0; i++ {
 		ranked := rankCandidates(profile, state, candidates, attempted, rng)
-		target := pickNextTargetWithClauses(ranked, state, offersLeft, preContractsLeft, clausesLeft)
+		target := pickNextTargetWithClauses(ranked, state, offersLeft, 0, clausesLeft)
 		if target == nil {
 			if plan := planSellToBuy(profile, state, candidates, attempted, rng); plan != nil {
 				if err := common.CreateTransferListing(dbCtx, plan.Seller.Id, team.Id, plan.Asking); err == nil {
@@ -898,25 +921,14 @@ func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
 					log.Errorf("error listing player %d to fund a signing for AI-managed team %d: %s", plan.Seller.Id, team.Id, err)
 				}
 			}
-			return
+			return state
 		}
 
 		attempted[target.Player.Id] = true
 		if !executeTransferMove(dbCtx, team, profile, state, *target) {
-			if target.Kind == candidatePreContract {
-				// One failed pre-contract offer ends them for this pass, so they can't use up the
-				// iterations the pass's signings need.
-				preContractsLeft = 0
-			}
 			continue
 		}
-		// A pre-contract offer is not a signing (the player only decides in 72 hours and joins next
-		// season), so it uses the pass's one pre-contract slot but none of its moves.
-		if target.Kind == candidatePreContract {
-			preContractsLeft--
-		} else {
-			movesLeft--
-		}
+		movesLeft--
 		if target.Kind == candidateUnlisted {
 			offersLeft--
 		}
@@ -925,6 +937,26 @@ func runAiTransferPass(dbCtx *common.DatabaseContext, team *common.Team) {
 		}
 		if state, err = loadTransferState(dbCtx, team); err != nil {
 			log.Errorf("error re-reading the state of AI-managed team %d during its transfer pass: %s", team.Id, err)
+			return nil
+		}
+	}
+	return state
+}
+
+// offerBestPreContract makes the pass's one pre-contract offer (aiPreContractOffersPerPass): to the
+// best-ranked candidate the team may still take on (see pickNextTarget), trying the next only when
+// an offer can't be made, at most aiPassIterationsPerMove times.
+func offerBestPreContract(dbCtx *common.DatabaseContext, team *common.Team, profile common.AiTransferProfile,
+	state *transferState, candidates []transferCandidate, rng *rand.Rand) {
+	attempted := map[int64]bool{}
+	for i := 0; i < aiPassIterationsPerMove; i++ {
+		ranked := rankCandidates(profile, state, candidates, attempted, rng)
+		target := pickNextTarget(ranked, state, 0, aiPreContractOffersPerPass)
+		if target == nil {
+			return
+		}
+		attempted[target.Player.Id] = true
+		if makeAiPreContractOffer(dbCtx, team, *target) {
 			return
 		}
 	}
@@ -983,7 +1015,7 @@ func preContractCandidates(dbCtx *common.DatabaseContext, team *common.Team, pro
 		}
 		seen[p.Id] = true
 		target := *p
-		target.Wage = common.PreContractMinimumWage(expected)
+		target.Wage = common.PreContractMinimumWage(expected, playerTier(dbCtx, p.Id))
 		candidates = append(candidates, transferCandidate{Player: target, Kind: candidatePreContract, SellerTeamId: p.TeamId})
 	}
 	return candidates

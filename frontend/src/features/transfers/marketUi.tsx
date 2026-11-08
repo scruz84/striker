@@ -35,6 +35,8 @@ import { NumberField } from '../../components/NumberField'
 import { SkillChipsRow } from '../../components/SkillChipsRow'
 import { CountryFlag } from '../../components/CountryFlag'
 import { WatchToggle } from '../../components/WatchToggle'
+import { isLastSeason } from '../../utils/contractTerms'
+import { formatCurrency } from '../../utils/formatCurrency'
 import { SKILL_FIELDS, SKILL_LABEL_KEYS, bestCorePosition, overallRating, ratingTierColor } from '../../utils/playerRating'
 
 export type SortDirection = 'asc' | 'desc'
@@ -180,6 +182,7 @@ export function ListingCard({
           {meta}
         </Stack>
       )}
+      <ContractMeta player={player} />
       {extra}
       <Stack
         direction="row"
@@ -205,6 +208,25 @@ export function ListingCard({
         </Stack>
       </Stack>
     </Paper>
+  )
+}
+
+/** The public contract facts of a club's player (openspec/specs/release-clauses "Clause visibility
+ * and notifications", pre-contracts "Last-season marker"): his release clause and whether he is in
+ * the last season of his contract. Renders nothing for a player with neither. */
+export function ContractMeta({ player }: { player: Player }) {
+  const { t } = useTranslation()
+  const lastSeason = isLastSeason(player)
+  if (player.releaseClause === undefined && !lastSeason) return null
+  return (
+    <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', alignItems: 'center', rowGap: 0.25, mt: 0.5 }}>
+      {player.releaseClause !== undefined && (
+        <MetaItem>{t('transfers.releaseClause.meta', { fee: formatCurrency(player.releaseClause) })}</MetaItem>
+      )}
+      {lastSeason && (
+        <Chip size="small" variant="outlined" color="warning" label={t('team.lastSeasonChip')} sx={{ height: 18, fontSize: '0.6875rem' }} />
+      )}
+    </Stack>
   )
 }
 

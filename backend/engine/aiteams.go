@@ -552,7 +552,7 @@ func renewContract(dbCtx *common.DatabaseContext, team *common.Team, p *common.P
 	// A clause in the new contract buys a cheaper wage (openspec/specs/cpu-team-management "Release
 	// clauses in CPU renewals").
 	clause := aiRenewalClause(dbCtx, team, p, starter, key)
-	wage = common.DiscountedWage(*p, wage, clause)
+	wage = common.DiscountedWage(*p, wage, clause, playerTier(dbCtx, p.Id))
 	skillWage := common.PlayerWageFromSkills(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot)
 	meets := shouldMeetRenewalTerms(starter, skillWage, wage)
 	if contested {
@@ -1290,4 +1290,13 @@ func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, team
 // common.AiTransferProfileForTeam). Every CPU market decision reads it through here.
 func aiProfile(team *common.Team) common.AiTransferProfile {
 	return common.AiTransferProfileForTeam(team)
+}
+
+// playerTier is a player's negotiation tier, 0 (read as Aware) when it can't be read.
+func playerTier(dbCtx *common.DatabaseContext, playerId int64) int {
+	tier, err := common.GetPlayerIntelligence(dbCtx, playerId)
+	if err != nil {
+		return 0
+	}
+	return tier
 }

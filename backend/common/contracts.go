@@ -248,7 +248,7 @@ func SignFreeAgentWithClause(dbCtx *DatabaseContext, playerId int64, teamId int6
 		return nil, err
 	}
 	expectedWage, maxYears := PersonalTermsExpectation(*player, intelligence, trend, TermsFreeAgent)
-	expectedWage = DiscountedWage(*player, expectedWage, clause)
+	expectedWage = DiscountedWage(*player, expectedWage, clause, intelligence)
 
 	result := &FreeAgentSigningResult{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 
@@ -469,22 +469,25 @@ const (
 // Wage floors (openspec/specs/team-finances "Contract renewal and release" and "Personal terms of
 // a transfer offer"): the share of his current wage a player insists on keeping. While he has 2 or
 // more seasons left he renews for no less than he earns (RenewalWageFloorShare); in his last
-// season he accepts a small cut (LastSeasonWageFloorShare); he never moves to another club for
-// less than he earns (TransferWageFloorShare). A free agent has no current wage to protect.
+// season he accepts a cut that depends on his negotiation tier (LastSeasonFloorShare: 75% for a
+// Naive player up to 95% for a Mastermind, LastSeasonWageFloorShare for an Aware one); he never
+// moves to another club for less than he earns (TransferWageFloorShare). A free agent has no
+// current wage to protect.
 const (
 	RenewalWageFloorShare    = 1.0
 	LastSeasonWageFloorShare = 0.85
 	TransferWageFloorShare   = 1.0
 )
 
-// wageFloorShare is the share of his current wage p insists on in a negotiation of kind.
-func wageFloorShare(p Player, kind TermsKind) float64 {
+// wageFloorShare is the share of his current wage p, of negotiation tier intelligence, insists on
+// in a negotiation of kind.
+func wageFloorShare(p Player, kind TermsKind, intelligence int) float64 {
 	switch kind {
 	case TermsRenewal:
 		if p.ContractYearsRemaining >= 2 {
 			return RenewalWageFloorShare
 		}
-		return LastSeasonWageFloorShare
+		return LastSeasonFloorShare(intelligence)
 	case TermsTransfer:
 		return TransferWageFloorShare
 	default:
@@ -499,7 +502,7 @@ func wageFloorShare(p Player, kind TermsKind) float64 {
 // and free-agent signing judges personal terms by.
 func PersonalTermsExpectation(p Player, intelligence, trend int, kind TermsKind) (wage int, years int) {
 	wage = ExpectedWageWithIntelligence(p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot, intelligence, trend)
-	if share := wageFloorShare(p, kind); share > 0 {
+	if share := wageFloorShare(p, kind, intelligence); share > 0 {
 		if floor := int(math.Ceil(float64(p.Wage) * share)); floor > wage {
 			wage = floor
 		}
@@ -599,7 +602,7 @@ func MakeContractRenewalOfferWithClause(dbCtx *DatabaseContext, playerId int64, 
 	if err := ValidateReleaseClause(*player, clause); err != nil {
 		return nil, err
 	}
-	expectedWage = DiscountedWage(*player, expectedWage, clause)
+	expectedWage = DiscountedWage(*player, expectedWage, clause, intelligence)
 
 	result := &ContractRenewalOffer{ExpectedWage: expectedWage, MaxAcceptableYears: maxYears}
 

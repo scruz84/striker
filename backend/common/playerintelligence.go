@@ -76,3 +76,71 @@ func GetPlayerIntelligence(dbCtx *DatabaseContext, playerId int64) (int, error) 
 	err := dbCtx.Db.QueryRow(GetPlayerIntelligenceStmtSql, playerId).Scan(&level)
 	return level, err
 }
+
+// intelligenceTerms are the contract terms a player's negotiation tier shapes (openspec/specs/
+// player-negotiation, team-finances "Contract renewal and release", pre-contracts "Player
+// demands", release-clauses "Wage discount for a clause"): the share of his wage he keeps when he
+// renews in his last season, how much above his usual wage he asks to leave on a pre-contract,
+// and the wage he gives up for a release clause of at most twice his value (half that for one of
+// at most four times).
+type intelligenceTerms struct {
+	lastSeasonFloor float64
+	movePremium     float64
+	clauseDiscount  float64
+}
+
+var intelligenceTable = map[int]intelligenceTerms{
+	IntelligenceNaive:      {lastSeasonFloor: 0.75, movePremium: 1.05, clauseDiscount: 0.05},
+	IntelligenceCasual:     {lastSeasonFloor: 0.80, movePremium: 1.075, clauseDiscount: 0.075},
+	IntelligenceAware:      {lastSeasonFloor: 0.85, movePremium: 1.10, clauseDiscount: 0.10},
+	IntelligenceShrewd:     {lastSeasonFloor: 0.90, movePremium: 1.15, clauseDiscount: 0.125},
+	IntelligenceMastermind: {lastSeasonFloor: 0.95, movePremium: 1.20, clauseDiscount: 0.15},
+}
+
+// termsForIntelligence is tier's row; an unknown tier (0 before the backfill) reads as Aware, the
+// middle tier, which keeps the flat values these rules had before tiers shaped them.
+func termsForIntelligence(tier int) intelligenceTerms {
+	if t, ok := intelligenceTable[tier]; ok {
+		return t
+	}
+	return intelligenceTable[IntelligenceAware]
+}
+
+// LastSeasonFloorShare is the share of his wage a player of tier keeps when he renews in the last
+// season of his contract.
+func LastSeasonFloorShare(tier int) float64 { return termsForIntelligence(tier).lastSeasonFloor }
+
+// PreContractPremium is how many times his expected wage a player of tier asks to leave his club on
+// a pre-contract.
+func PreContractPremium(tier int) float64 { return termsForIntelligence(tier).movePremium }
+
+// ClauseDiscountFor is the share of his wage a player of tier gives up for a release clause of at
+// most twice his value.
+func ClauseDiscountFor(tier int) float64 { return termsForIntelligence(tier).clauseDiscount }
+
+const recordNegotiationInsightStmtSql = "INSERT INTO negotiation_insights (team_id, player_id) VALUES ($1, $2) ON CONFLICT DO NOTHING"
+const hasNegotiationInsightStmtSql = "SELECT EXISTS (SELECT 1 FROM negotiation_insights WHERE team_id = $1 AND player_id = $2)"
+const clearTeamNegotiationInsightsStmtSql = "DELETE FROM negotiation_insights WHERE team_id = $1"
+
+// RecordNegotiationInsight notes that teamId has negotiated with playerId, so it sees his
+// negotiation tier from now on (openspec/specs/player-negotiation "Negotiation insight"). The
+// handlers call it once the player has judged the terms, after the negotiation's own transaction
+// is over (its player row lock would block the insert's foreign-key check).
+func RecordNegotiationInsight(dbCtx *DatabaseContext, teamId int64, playerId int64) error {
+	_, err := dbCtx.Db.Exec(recordNegotiationInsightStmtSql, teamId, playerId)
+	return err
+}
+
+// NegotiationStyleFor is playerId's negotiation tier as teamId may see it: the tier once teamId has
+// negotiated with him, nil before.
+func NegotiationStyleFor(dbCtx *DatabaseContext, teamId int64, playerId int64) (*int, error) {
+	var known bool
+	if err := dbCtx.Db.QueryRow(hasNegotiationInsightStmtSql, teamId, playerId).Scan(&known); err != nil || !known {
+		return nil, err
+	}
+	tier, err := GetPlayerIntelligence(dbCtx, playerId)
+	if err != nil || tier == 0 {
+		return nil, err
+	}
+	return &tier, nil
+}

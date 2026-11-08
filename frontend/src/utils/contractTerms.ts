@@ -1,11 +1,14 @@
-/** The share of his current wage a player keeps when renewing in his last season (backend's
- * LastSeasonWageFloorShare); with 2 or more seasons left, or when moving club, he keeps it all. */
-export const LAST_SEASON_WAGE_FLOOR_SHARE = 0.85
+/** The shares of his current wage a player keeps when renewing in his last season, from a Naive to
+ * a Mastermind negotiator (backend LastSeasonFloorShare); with 2 or more seasons left, or when
+ * moving club, he keeps it all. */
+export const LAST_SEASON_WAGE_FLOOR_RANGE = [0.75, 0.95] as const
 
-/** The wage below which a player refuses a renewal: his current wage, or 85% of it in his last
- * season. */
-export function renewalWageFloor(currentWage: number, contractYearsRemaining: number): number {
-  return contractYearsRemaining <= 1 ? Math.ceil(currentWage * LAST_SEASON_WAGE_FLOOR_SHARE) : currentWage
+/** The wage below which a player refuses a renewal: his current wage, or - in his last season,
+ * where it depends on how shrewd he is - the range from 75% to 95% of it. */
+export function renewalWageFloor(currentWage: number, contractYearsRemaining: number): { min: number; max: number } {
+  if (contractYearsRemaining > 1) return { min: currentWage, max: currentWage }
+  const [low, high] = LAST_SEASON_WAGE_FLOOR_RANGE
+  return { min: Math.ceil(currentWage * low), max: Math.ceil(currentWage * high) }
 }
 
 /** Whether a club's player is in the last season of his contract: the public marker for another
