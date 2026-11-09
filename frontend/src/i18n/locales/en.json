@@ -706,6 +706,8 @@
       "duration": "Duration",
       "maxDurationLabel": "Maximum duration",
       "minCapsLabel": "Caps (min)",
+      "salary": "Salary",
+      "releaseClause": "Release clause",
       "active": {
         "age": "Age {{min}}–{{max}}",
         "ageFrom": "Age ≥ {{value}}",
@@ -719,7 +721,13 @@
         "skill": "{{skill}} ≥ {{value}}",
         "caps": "Caps ≥ {{value}}",
         "duration": "Up to {{count}} seasons",
-        "search": "“{{value}}”"
+        "search": "“{{value}}”",
+        "salary": "Salary {{min}}–{{max}}",
+        "salaryFrom": "Salary ≥ {{value}}",
+        "salaryTo": "Salary ≤ {{value}}",
+        "clause": "Clause {{min}}–{{max}}",
+        "clauseFrom": "Clause ≥ {{value}}",
+        "clauseTo": "Clause ≤ {{value}}"
       }
     },
     "buy": "Buy",

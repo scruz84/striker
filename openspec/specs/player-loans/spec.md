@@ -10,7 +10,7 @@ the transfer market.
 ## Requirements
 
 ### Requirement: Loaned-out section on the team page
-The squad tab of every club SHALL show, below the squad list, a "Loaned out (n)" section listing each player the club has out on loan: name, position, age, borrowing club (link, with its country's flag) and its division, return season, goals for the borrower, and the lender's wage share and buy-option fee when the loan carries them. The return season counts in the borrowing club's country's own seasons, so it MUST name that country and its current season. It MUST be hidden when the club has nobody out, and is visible to every visitor.
+The squad tab of every club SHALL show, below the squad list, a "Loaned out (n)" section listing each player the club has out on loan: name, position, age, borrowing club (link, with its country's flag) and its division, return season, goals for the borrower, and the lender's wage share and buy-option fee when the loan carries them. It MUST be hidden when the club has nobody out, and is visible to every visitor.
 
 #### Scenario: Owner loans a player out
 - **WHEN** a manager's 19-year-old striker is loaned for 1 season to an Italian club in division "1B" during Italy's season 4, with a 50% wage share and no buy option
@@ -31,6 +31,13 @@ The squad tab of every club SHALL show, below the squad list, a "Loaned out (n)"
 #### Scenario: Lender was reset
 - **WHEN** a loan is flagged to release the player on return because the lending club was reset
 - **THEN** the player does not appear in the reset club's "Loaned out" section
+
+### Requirement: Return season in the borrower's country
+The return season of a loaned-out player SHALL count in the borrowing club's country's own seasons, so the "Loaned out" row MUST name that country and its current season.
+
+#### Scenario: Loan abroad
+- **WHEN** a player is loaned for 1 season to an Italian club during Italy's season 4, while the lender's country is in its season 7
+- **THEN** his "Loaned out" row reads "Returns in Italy's season 5 (now in season 4)"
 
 ### Requirement: Loaned-out list follows the loan's life
 A player SHALL appear in his lender's "Loaned out" section from the moment the loan is accepted until it ends: he MUST leave it when he returns at the rollover of the return season and when the borrower exercises the buy option.

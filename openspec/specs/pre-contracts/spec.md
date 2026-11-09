@@ -92,7 +92,7 @@ Every pre-contract event SHALL notify the clubs involved with a `NOTIFICATION_PR
 - **THEN** the human is told the player will leave at the end of the season
 
 ### Requirement: Pre-contract market
-The transfer market SHALL list the best 100 players (by combined skills) of other clubs in the last season of their contract, not on loan and without a signed pre-contract, each with his club, best position, age, average skill, wage and clause, whether his league is far enough along for a pre-contract offer, and whether the viewer already made him one. His skills and contract years stay hidden as on any squad page.
+The transfer market SHALL list the best 100 players (by combined skills) of other clubs in the last season of their contract, not on loan and without a signed pre-contract, each with his club, best position, age, average skill, wage and clause, whether his league is far enough along for a pre-contract offer, and whether the viewer already made him one. His skills and contract years stay hidden as on any squad page. Like the other market tabs, the list SHALL be searchable by name, filterable by best position, age, rating, wage and clause, and sortable by rating, age, wage or clause.
 
 #### Scenario: Not open yet
 - **WHEN** a listed player's league has played 10 of its 30 rounds
@@ -105,6 +105,10 @@ The transfer market SHALL list the best 100 players (by combined skills) of othe
 #### Scenario: Already offered
 - **WHEN** the manager has a pending offer on a listed player
 - **THEN** the row shows the offer as sent instead of a Pre-contract action
+
+#### Scenario: Filtered
+- **WHEN** the manager filters the list to strikers with a clause of at most 500,000
+- **THEN** only those players are listed, and a chip for each active filter lets him remove it
 
 ## Code map
 

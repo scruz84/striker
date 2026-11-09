@@ -703,6 +703,8 @@
       "duration": "Duración",
       "maxDurationLabel": "Duración máxima",
       "minCapsLabel": "Internacionalidades (mín.)",
+      "salary": "Salario",
+      "releaseClause": "Cláusula de rescisión",
       "active": {
         "age": "Edad {{min}}–{{max}}",
         "ageFrom": "Edad ≥ {{value}}",
@@ -716,7 +718,13 @@
         "skill": "{{skill}} ≥ {{value}}",
         "caps": "Internac. ≥ {{value}}",
         "duration": "Hasta {{count}} temp.",
-        "search": "“{{value}}”"
+        "search": "“{{value}}”",
+        "salary": "Salario {{min}}–{{max}}",
+        "salaryFrom": "Salario ≥ {{value}}",
+        "salaryTo": "Salario ≤ {{value}}",
+        "clause": "Cláusula {{min}}–{{max}}",
+        "clauseFrom": "Cláusula ≥ {{value}}",
+        "clauseTo": "Cláusula ≤ {{value}}"
       }
     },
     "buy": "Comprar",
