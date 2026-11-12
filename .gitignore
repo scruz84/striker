@@ -1,7 +1,27 @@
+# Editors / OS
 .idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
 
+# Local configuration and secrets: never commit them, only the *.sample templates
+.env
+.env.*
+*.env
+!*.sample
+!*.env.sample
+!.env*.sample
 /backend/app.env
-fmfrontend/node_modules/.bin
-fmfrontend/node_modules/.cache
+**/configs/client_secret*.json
+**/client_secret*.json
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local Go build binaries and local data
+/backend/striker
+/backend/cmd/cmd
 dump.rdb
-/fmfrontend/node_modules/
