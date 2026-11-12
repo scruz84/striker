@@ -100,3 +100,20 @@ func TestApplyFatigue_PlayerWhoHasNotPlayedIsUnaffected(t *testing.T) {
 		t.Fatalf("expected a player with no recorded minutes to keep their raw Shot value, got %d", p.Shot)
 	}
 }
+
+// "Deep into added time" (match-simulation "In-match fatigue"): a Stamina-0 player of a Balanced
+// side who has played 95 minutes, added minutes included, loses 30% of each core skill - the same
+// as at 90.
+func TestApplyFatigue_AddedTimeIsCappedAtTheFullTimePenalty(t *testing.T) {
+	players := map[int64]common.Player{
+		1: {Id: 1, Stamina: 0, Shot: 80, Defense: 80, Lateral: 80, Pass: 80, Midfield: 80, Dribbling: 80, GoalKeeper: 80},
+	}
+	atFullTime := applyFatigue(&players, map[int64]map[int]int{1: {common.STRIKER: 90}}, common.MENTALITY_BALANCED)
+	deepIntoAddedTime := applyFatigue(&players, map[int64]map[int]int{1: {common.STRIKER: 50, common.MIDFIELD: 45}}, common.MENTALITY_BALANCED)
+	if got := (*deepIntoAddedTime)[1]; got.Shot != 56 || got.Midfield != 56 {
+		t.Fatalf("after 95 minutes Shot %d and Midfield %d, want 56 (80 - 30%%)", got.Shot, got.Midfield)
+	}
+	if (*deepIntoAddedTime)[1] != (*atFullTime)[1] {
+		t.Fatalf("95 minutes %+v differs from 90 %+v", (*deepIntoAddedTime)[1], (*atFullTime)[1])
+	}
+}

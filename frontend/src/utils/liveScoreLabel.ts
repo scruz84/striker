@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { LeagueLiveScore } from '../api/types'
 import { intlLocale } from './locale'
+import { matchMinuteText } from './matchMinute'
 
 export interface LiveScoreLabel {
   text: string
@@ -16,12 +17,12 @@ function kickoffTime(iso: string): string {
 }
 
 // The state chip of a division live score, shared by the dashboard's "rest of the matchday" list and
-// the league page's matchday cards: "63'" while live, "Half-time", "FT"/"Final" once over, and the
-// kickoff time while the match has not started broadcasting.
-export function liveScoreLabel(entry: Pick<LeagueLiveScore, 'status' | 'minute' | 'matchDate'>, t: TFunction): LiveScoreLabel {
+// the league page's matchday cards: "63'" (or "90+2'" in added time) while live, "Half-time",
+// "FT"/"Final" once over, and the kickoff time while the match has not started broadcasting.
+export function liveScoreLabel(entry: Pick<LeagueLiveScore, 'status' | 'minute' | 'addedMinute' | 'matchDate'>, t: TFunction): LiveScoreLabel {
   switch (entry.status) {
     case 'live':
-      return { text: t('dashboard.liveMatchMinute', { minute: entry.minute }), color: 'error', pulsing: true }
+      return { text: t('dashboard.liveMatchMinute', { minute: matchMinuteText(entry.minute, entry.addedMinute) }), color: 'error', pulsing: true }
     case 'halftime':
       return { text: t('match.halftime'), color: 'default', pulsing: false }
     case 'finished':

@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+// The scrub position is a step of the match's timeline (see utils/matchMinute.matchTimeline): 0 is
+// before kickoff and n the n-th simulated minute, added minutes included, so 45+1 and 45+2 are
+// steps of their own between 45 and 46. Callers turn a step into a minute with timelineMinute.
 export interface MinuteScrub {
   minute: number
   atNow: boolean

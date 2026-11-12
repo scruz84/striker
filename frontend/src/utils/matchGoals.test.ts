@@ -34,8 +34,8 @@ describe('goalScorers', () => {
       event(EVENT_TYPE_GOAL, 80, 2, null),
     ]
     expect(goalScorers(events, 1)).toEqual({
-      home: [{ name: 'Berlana', goals: [{ minute: 3, setPiece: 0 }, { minute: 70, setPiece: 0 }] }],
-      away: [{ name: 'Lerma', goals: [{ minute: 40, setPiece: 0 }] }],
+      home: [{ name: 'Berlana', goals: [{ minute: 3, addedMinute: 0, setPiece: 0 }, { minute: 70, addedMinute: 0, setPiece: 0 }] }],
+      away: [{ name: 'Lerma', goals: [{ minute: 40, addedMinute: 0, setPiece: 0 }] }],
     })
   })
 
@@ -51,13 +51,28 @@ describe('goalScorers', () => {
         {
           name: 'Berlana',
           goals: [
-            { minute: 16, setPiece: SET_PIECE_PENALTY },
-            { minute: 33, setPiece: 0 },
-            { minute: 70, setPiece: SET_PIECE_DIRECT_FREE_KICK },
+            { minute: 16, addedMinute: 0, setPiece: SET_PIECE_PENALTY },
+            { minute: 33, addedMinute: 0, setPiece: 0 },
+            { minute: 70, addedMinute: 0, setPiece: SET_PIECE_DIRECT_FREE_KICK },
           ],
         },
       ],
-      away: [{ name: 'Lerma', goals: [{ minute: 50, setPiece: SET_PIECE_PENALTY }] }],
+      away: [{ name: 'Lerma', goals: [{ minute: 50, addedMinute: 0, setPiece: SET_PIECE_PENALTY }] }],
     })
+  })
+
+  // match-viewer "Minute labels with added time": a goal at 45+2 keeps its added minute and sorts
+  // after 45 and before 46.
+  it('keeps added-time goals in match order', () => {
+    const events = [
+      { ...event(EVENT_TYPE_GOAL, 46, 1, 'Berlana'), homeGoals: 3 },
+      { ...event(EVENT_TYPE_GOAL, 45, 1, 'Berlana'), addedMinute: 2 },
+      event(EVENT_TYPE_GOAL, 45, 1, 'Berlana'),
+    ]
+    expect(goalScorers(events, 1).home[0].goals).toEqual([
+      { minute: 45, addedMinute: 0, setPiece: 0 },
+      { minute: 45, addedMinute: 2, setPiece: 0 },
+      { minute: 46, addedMinute: 0, setPiece: 0 },
+    ])
   })
 })

@@ -342,3 +342,64 @@ func TestComputePlayerRatings_ParityFixture(t *testing.T) {
 		}
 	}
 }
+
+// withAddedTime appends first- and second-half added minutes (45+1..45+first after minute 45 and
+// 90+1..90+second at the end) to instantsWith's 90 regulation instants. A player is on the pitch in
+// an added minute when his [from, to] covers the clock minute (45 or 90) and addedFrom <= it, so a
+// starter is listed throughout and a player with addedFrom 1 at 90 comes on at 90+1.
+func withAddedTime(first int, second int, players ...onPitch) []MatchInstant {
+	regulation := instantsWith(players...)
+	added := func(clock int, count int) []MatchInstant {
+		out := make([]MatchInstant, 0, count)
+		for a := 1; a <= count; a++ {
+			c := &InstantContributions{Home: map[int64]PlayerContribution{}, Away: map[int64]PlayerContribution{}}
+			for _, p := range players {
+				onAtClock := clock >= p.from && clock <= p.to
+				cameOnInAddedTime := p.from > 90 && clock == 90 && a >= p.from-90
+				if !onAtClock && !cameOnInAddedTime {
+					continue
+				}
+				side := c.Away
+				if p.home {
+					side = c.Home
+				}
+				side[p.playerId] = PlayerContribution{Position: p.position, Own: p.own, Rival: p.rival}
+			}
+			out = append(out, MatchInstant{Minute: clock, AddedMinute: a, PlayerContributions: c})
+		}
+		return out
+	}
+	instants := append([]MatchInstant{}, regulation[:45]...)
+	instants = append(instants, added(45, first)...)
+	instants = append(instants, regulation[45:]...)
+	return append(instants, added(90, second)...)
+}
+
+// "Full match with added time" (match-ratings "Added minutes count as minutes played"): a defender
+// who plays the whole of a 2-1 win with 2 and 5 added minutes has 97 minutes and the full +0.3.
+func TestComputePlayerRatings_FullMatchWithAddedTime(t *testing.T) {
+	instants := withAddedTime(2, 5, onPitch{playerId: 1, home: true, position: DEFENSE, from: 1, to: 90, own: 50, rival: 50})
+	events := []Event{goal(20, ratingsHome, 9, 1, 0), goal(50, ratingsAway, 30, 1, 1), {EventType: GOAL, Minute: 90, AddedMinute: 3,
+		TeamOwner: ratingsHome, TeamOwnerPlayers: []int64{9}, HomeGoals: 2, AwayGoals: 1}}
+	r := ratingOf(t, ComputePlayerRatings(ratingsHome, ratingsAway, nil, nil, instants, events, MatchFinalMinute(instants, events)), 1)
+	if r.Minutes != 97 || r.Result != 0.3 || !r.Rated {
+		t.Fatalf("full match with added time: %+v, want 97 minutes and +0.3", r)
+	}
+}
+
+// "Substitute in added time" (match-ratings): a striker who comes on through a substitution order
+// at 90+1 of a match with 5 added minutes has 5 minutes and is unrated ("s.c.").
+func TestComputePlayerRatings_SubstituteInAddedTimeIsUnrated(t *testing.T) {
+	instants := withAddedTime(1, 5,
+		onPitch{playerId: 1, home: true, position: STRIKER, from: 1, to: 90, own: 50, rival: 50},
+		onPitch{playerId: 21, home: true, position: STRIKER, from: 91, to: 95, own: 50, rival: 50},
+	)
+	events := []Event{{EventType: SUBSTITUTION, Minute: 90, AddedMinute: 1, TeamOwner: ratingsHome, TeamOwnerPlayers: []int64{1, 21}}}
+	ratings := ComputePlayerRatings(ratingsHome, ratingsAway, nil, nil, instants, events, MatchFinalMinute(instants, events))
+	if r := ratingOf(t, ratings, 21); r.Minutes != 5 || r.Rated {
+		t.Fatalf("substitute at 90+1: %+v, want 5 minutes and s.c.", r)
+	}
+	if final := MatchFinalMinute(instants, events); final != 90 {
+		t.Fatalf("MatchFinalMinute = %d, want 90: the clock minute every second-half added minute hangs off", final)
+	}
+}

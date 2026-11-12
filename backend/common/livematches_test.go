@@ -2,6 +2,8 @@ package common
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 )
@@ -96,20 +98,25 @@ func TestMinuteFromLiveMessage(t *testing.T) {
 		name       string
 		msg        LiveMatchMessage
 		wantMinute int
+		wantAdded  int
 		wantOk     bool
 	}{
-		{"instant", LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 23}}, 23, true},
-		{"event", LiveMatchMessage{Type: "event", Event: &Event{Minute: 67}}, 67, true},
-		{"halftime", LiveMatchMessage{Type: "halftime"}, liveMatchFirstHalfMinutes, true},
-		{"complete", LiveMatchMessage{Type: "complete"}, liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, true},
-		{"lineups has no minute yet", LiveMatchMessage{Type: "lineups"}, 0, false},
-		{"instant missing its payload", LiveMatchMessage{Type: "instant"}, 0, false},
-		{"event missing its payload", LiveMatchMessage{Type: "event"}, 0, false},
+		{"instant", LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 23}}, 23, 0, true},
+		{"instant in added time", LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 90, AddedMinute: 2}}, 90, 2, true},
+		{"event", LiveMatchMessage{Type: "event", Event: &Event{Minute: 67}}, 67, 0, true},
+		{"event in added time", LiveMatchMessage{Type: "event", Event: &Event{Minute: 45, AddedMinute: 1}}, 45, 1, true},
+		{"halftime published before added time", LiveMatchMessage{Type: "halftime"}, liveMatchFirstHalfMinutes, 0, true},
+		{"halftime after added time", LiveMatchMessage{Type: "halftime", Minute: 45, AddedMinute: 2}, 45, 2, true},
+		{"complete published before added time", LiveMatchMessage{Type: "complete"}, liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, 0, true},
+		{"complete after added time", LiveMatchMessage{Type: "complete", Minute: 90, AddedMinute: 4}, 90, 4, true},
+		{"lineups has no minute yet", LiveMatchMessage{Type: "lineups"}, 0, 0, false},
+		{"instant missing its payload", LiveMatchMessage{Type: "instant"}, 0, 0, false},
+		{"event missing its payload", LiveMatchMessage{Type: "event"}, 0, 0, false},
 	}
 	for _, c := range cases {
-		minute, ok := minuteFromLiveMessage(c.msg)
-		if minute != c.wantMinute || ok != c.wantOk {
-			t.Errorf("%s: minuteFromLiveMessage(%+v) = (%d, %v), want (%d, %v)", c.name, c.msg, minute, ok, c.wantMinute, c.wantOk)
+		minute, added, ok := minuteFromLiveMessage(c.msg)
+		if minute != c.wantMinute || added != c.wantAdded || ok != c.wantOk {
+			t.Errorf("%s: minuteFromLiveMessage(%+v) = (%d+%d, %v), want (%d+%d, %v)", c.name, c.msg, minute, added, ok, c.wantMinute, c.wantAdded, c.wantOk)
 		}
 	}
 }
@@ -130,7 +137,7 @@ func TestEnrichSuggestedLiveMatch_PrefersRealBroadcastOverFormula(t *testing.T) 
 
 	hub.Publish(channel, LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 12}, HomeGoals: 2, AwayGoals: 1})
 
-	if formulaMinute := CurrentMatchMinute(match.MatchDate); formulaMinute == 12 {
+	if formulaMinute, _ := CurrentMatchMinute(match.MatchDate, 0, 0); formulaMinute == 12 {
 		t.Fatalf("test setup invalid: the formula's own estimate (%d) must differ from the real broadcast minute to prove which one enrichSuggestedLiveMatch actually used", formulaMinute)
 	}
 
@@ -224,5 +231,14 @@ func TestLiveStateAsOfNow_ReadsBroadcastStatus(t *testing.T) {
 				t.Errorf("got %+v, %v; want %+v", state, err, c.want)
 			}
 		})
+	}
+}
+
+// The division live scores entry always carries addedMinute (division-live-scores "Live score
+// entry content"), 0 outside added time, so the client never has to guess it.
+func TestLeagueLiveScore_JsonCarriesAddedMinute(t *testing.T) {
+	encoded, err := json.Marshal(LeagueLiveScore{Status: LiveStatusLive, Minute: 63})
+	if err != nil || !strings.Contains(string(encoded), `"minute":63,"addedMinute":0`) {
+		t.Fatalf("got %s, %v; want minute and addedMinute", encoded, err)
 	}
 }

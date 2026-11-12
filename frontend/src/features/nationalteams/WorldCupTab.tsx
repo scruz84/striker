@@ -217,6 +217,7 @@ function groupMatchAsNational(match: WorldCupGroupMatch, groupName: string): Nat
     kickoff: match.matchDate,
     status: match.status,
     minute: match.minute,
+    addedMinute: match.addedMinute,
     homeGoals: match.homeGoals,
     awayGoals: match.awayGoals,
     groupName,

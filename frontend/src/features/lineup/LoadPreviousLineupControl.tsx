@@ -56,7 +56,7 @@ interface LoadPreviousLineupControlProps {
 // selectPastLeagueMatches picks the league matches this control may offer to copy a lineup from -
 // most recent first, capped at `limit`. m.played flips true up to 15 minutes before matchDate
 // (see GetSimulableMatchesStmtSql) and stays true well before the match's live broadcast finishes
-// pacing out (~105 real minutes - see mightStillBeLive), so both isPast and !mightStillBeLive are
+// pacing out (up to 108 real minutes with added time - see mightStillBeLive), so both isPast and !mightStillBeLive are
 // required - without them this dropdown would offer, and reveal the final score of, a match the
 // viewer hasn't even seen kick off yet, or is still watching live elsewhere in the app.
 export function selectPastLeagueMatches(matches: TeamMatchSummary[], limit: number): TeamMatchSummary[] {

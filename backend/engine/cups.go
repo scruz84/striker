@@ -253,7 +253,7 @@ func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countri
 // cupRoundGap is how far ahead of "now" a round's ties are scheduled - both for a fresh cup's
 // first round and for each next round AdvanceCups generates once the previous one resolves. A
 // round only counts as "resolved" once every tie is simulated (see IsCupRoundResolved), which
-// happens well before that tie's live broadcast finishes pacing out to viewers (~90 real minutes,
+// happens well before that tie's live broadcast finishes pacing out to viewers (up to 108 real minutes,
 // see engine.liveMatchMinuteDelay) - scheduling the next round only 15 minutes later (this file's
 // original delay) meant a manager could still be watching one round's tie live while the next
 // round's was already kicking off (issue #55). A full day comfortably clears that broadcast

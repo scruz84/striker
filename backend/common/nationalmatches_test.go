@@ -10,10 +10,16 @@ func TestApplyNationalMatchStatus(t *testing.T) {
 	now := time.Date(2026, 10, 31, 21, 30, 0, 0, time.UTC)
 	cutoff := now.Add(-LiveBroadcastWindow)
 	liveAt := func(minute, home, away int, complete bool) liveScoreLookup {
-		return func(string, int64, time.Time) (int, int, int, bool, error) { return minute, home, away, complete, nil }
+		status := LiveStatusLive
+		if complete {
+			status = LiveStatusFinished
+		}
+		return func(string, int64, time.Time) (LiveState, error) {
+			return LiveState{Status: status, Minute: minute, HomeGoals: home, AwayGoals: away}, nil
+		}
 	}
-	noLookup := func(string, int64, time.Time) (int, int, int, bool, error) {
-		return 0, 0, 0, false, errors.New("must not look up a live score")
+	noLookup := func(string, int64, time.Time) (LiveState, error) {
+		return LiveState{}, errors.New("must not look up a live score")
 	}
 
 	t.Run("not simulated yet", func(t *testing.T) {
@@ -61,11 +67,23 @@ func TestApplyNationalMatchStatus(t *testing.T) {
 			t.Errorf("got %+v, want finished 2-3", m)
 		}
 	})
+	t.Run("live in added time", func(t *testing.T) {
+		m := NationalMatch{Kickoff: now.Add(-106 * time.Minute)}
+		lookup := func(string, int64, time.Time) (LiveState, error) {
+			return LiveState{Status: LiveStatusLive, Minute: 90, AddedMinute: 3, HomeGoals: 1, AwayGoals: 1}, nil
+		}
+		if err := applyNationalMatchStatus(&m, true, 2, 1, cutoff, lookup); err != nil {
+			t.Fatal(err)
+		}
+		if m.Status != NationalMatchLive || *m.Minute != 90 || m.AddedMinute != 3 || *m.HomeGoals != 1 {
+			t.Errorf("got %+v, want live at 90+3, 1-1", m)
+		}
+	})
 	t.Run("knockout ties use the cup-tie broadcast", func(t *testing.T) {
 		var gotKind string
-		lookup := func(kind string, _ int64, _ time.Time) (int, int, int, bool, error) {
+		lookup := func(kind string, _ int64, _ time.Time) (LiveState, error) {
 			gotKind = kind
-			return 10, 0, 0, false, nil
+			return LiveState{Status: LiveStatusLive, Minute: 10}, nil
 		}
 		m := NationalMatch{Kind: NationalMatchKindWorldCupKnockout, Kickoff: now.Add(-10 * time.Minute)}
 		if err := applyNationalMatchStatus(&m, true, 1, 0, cutoff, lookup); err != nil {

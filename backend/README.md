@@ -158,8 +158,21 @@ the result (`common.SaveLeagueMatchResultTx` and its friendly/cup counterparts).
 completion claims the record with `DELETE ... RETURNING` and applies it
 (`engine.completePostMatchEffects`); `LiveBroadcastRecoveryJob` (every 5 minutes) applies any record
 still pending once kickoff + the 2-hour live-broadcast window has passed
-(`engine.ApplyDuePostMatchEffects`), so an engine restart during the ~105-minute replay no longer
-loses them. Whoever deletes the row applies it, so the effects are applied at most once.
+(`engine.ApplyDuePostMatchEffects`), so an engine restart during the replay (up to 108 minutes) no
+longer loses them. Whoever deletes the row applies it, so the effects are applied at most once.
+
+#### Added time
+
+Each half gets 1-5 added minutes, worked out from the time its regulation minutes lost to goals,
+substitutions, injuries, cards and penalties (`engine/stoppage_time.go`, openspec/specs/stoppage-time)
+and played with the normal per-minute stages (`engine.playMatchMinutes`). A minute in added time is
+stored as its clock minute (45 or 90) plus `added_minute`, an `ADDED_TIME` event (type 9) records the
+board, and each fixture keeps `first_half_added_time` / `second_half_added_time`
+(`resources/sql/init107_stoppage_time.sql`). The replay plays the added minutes at one per real minute;
+the half-time break absorbs the first half's, so minute 46 still starts 59 minutes after kickoff and
+the final whistle comes at most 108 minutes after kickoff - `engine.TestLongestBroadcastFitsLiveWindow`
+keeps that at least 5 minutes inside the 2-hour live-broadcast window every time-based spoiler gate
+relies on.
 
 A simulation that fails (an error or a panic) counts an attempt, releases its claim and stores the
 reason (`simulation_attempts`, `last_simulation_error`); it is retried no sooner than 10 minutes

@@ -92,3 +92,13 @@ A view showing division live scores SHALL refresh them every 15 seconds while at
 - Tests: `backend/common/league_live_scores_integration_test.go`, `backend/common/livematches_test.go`,
   `backend/handlers/statsHandlers_test.go`, `frontend/src/api/divisionLiveScores.test.tsx`,
   `frontend/src/components/DivisionLiveScores.test.tsx`, `frontend/src/utils/liveScoreLabel.test.ts`.
+- Added time: `LeagueLiveScore.AddedMinute` and `LiveState.AddedMinute`; `minuteFromLiveMessage` reads it
+  from the message (the "halftime" / "complete" `Minute` / `AddedMinute`), and the estimate is
+  `CurrentMatchMinute(kickoff, firstHalfAddedTime, secondHalfAddedTime)` (`common/livebroadcast.go`)
+  over the fixture's stored added time (`get*AddedTimeStmtSql`) with the score as of
+  `(minute, added_minute)` (`get*ScoreAsOfMinuteStmtSql`). The same state feeds the dashboard's
+  suggested live match (`LiveMatchSummary.AddedMinute`) and the national-team feeds
+  (`NationalMatch.AddedMinute`, `liveScoreLookup`). Frontend: `utils/liveScoreLabel.ts` labels it with
+  `matchMinuteText`. Tests: `TestGetLeagueLiveScores_AddedTime`,
+  `TestGetLeagueLiveScores_EstimateWithAddedTime`, `TestCurrentMatchMinute`,
+  `TestMinuteFromLiveMessage`, `TestLeagueLiveScore_JsonCarriesAddedMinute`.

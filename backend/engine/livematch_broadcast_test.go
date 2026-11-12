@@ -185,3 +185,73 @@ func TestBroadcastMatchLive_MentalityChangeArrivesAtItsMinute(t *testing.T) {
 	}
 	<-done
 }
+
+// TestBroadcastMatchLive_AddedTime (match-scheduling "Live replay of a simulated result"): a goal
+// at 45+1 is published with the 45+1 instant, not with minute 45's; half time follows the last
+// first-half added minute and names it; the final whistle follows 90+N and names it. matchDate is
+// in the past, so the late-simulation catch-up publishes everything at once, in match order.
+func TestBroadcastMatchLive_AddedTime(t *testing.T) {
+	hub := common.NewLiveMatchHub()
+	if err := hub.Ping(); err != nil {
+		t.Skipf("redis not reachable, skipping: %s", err)
+	}
+
+	channel := "test-broadcast-added-time"
+	sub, unsubscribe := hub.Subscribe(channel)
+	defer unsubscribe()
+
+	two, one := 2, 1
+	events := []common.Event{
+		{EventType: common.ADDED_TIME, Minute: 45, AddedTime: &two},
+		{EventType: common.GOAL, Minute: 45, AddedMinute: 1, HomeGoals: 1},
+		{EventType: common.ADDED_TIME, Minute: 90, HomeGoals: 1, AddedTime: &one},
+		{EventType: common.GOAL, Minute: 90, AddedMinute: 1, HomeGoals: 1, AwayGoals: 1},
+	}
+	instants := []common.MatchInstant{{Minute: 45}, {Minute: 45, AddedMinute: 1}, {Minute: 45, AddedMinute: 2}, {Minute: 46}, {Minute: 90}, {Minute: 90, AddedMinute: 1}}
+	match := &common.MatchSimulation{HomeGoals: 1, AwayGoals: 1, Events: &events, MatchInstants: &instants,
+		FirstHalfAddedTime: 2, SecondHalfAddedTime: 1}
+
+	done := make(chan struct{})
+	BroadcastMatchLive(&common.DatabaseContext{LiveHub: hub}, channel, match, time.Now().Add(-3*time.Hour), func() { close(done) })
+
+	type seen struct {
+		kind          string
+		minute, added int
+		eventType     int
+		home, away    int
+	}
+	want := []seen{
+		{"event", 45, 0, common.ADDED_TIME, 0, 0},
+		{"instant", 45, 0, -1, 0, 0},
+		{"event", 45, 1, common.GOAL, 1, 0},
+		{"instant", 45, 1, -1, 1, 0},
+		{"instant", 45, 2, -1, 1, 0},
+		{"halftime", 45, 2, -1, 1, 0},
+		{"instant", 46, 0, -1, 1, 0},
+		{"event", 90, 0, common.ADDED_TIME, 1, 0},
+		{"instant", 90, 0, -1, 1, 0},
+		{"event", 90, 1, common.GOAL, 1, 1},
+		{"instant", 90, 1, -1, 1, 1},
+		{"complete", 90, 1, -1, 1, 1},
+	}
+	for i, w := range want {
+		msg := awaitBroadcastMessage(t, sub)
+		got := seen{kind: msg.Type, eventType: -1, home: msg.HomeGoals, away: msg.AwayGoals}
+		switch msg.Type {
+		case "event":
+			got.minute, got.added, got.eventType = msg.Event.Minute, msg.Event.AddedMinute, msg.Event.EventType
+		case "instant":
+			got.minute, got.added = msg.Instant.Minute, msg.Instant.AddedMinute
+		default:
+			got.minute, got.added = msg.Minute, msg.AddedMinute
+		}
+		if got != w {
+			t.Fatalf("message %d: got %+v, want %+v", i, got, w)
+		}
+	}
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("onComplete was never called")
+	}
+}

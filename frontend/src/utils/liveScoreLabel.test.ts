@@ -15,6 +15,11 @@ describe('liveScoreLabel', () => {
     expect(liveScoreLabel({ ...base, status: 'live', minute: 63 }, t)).toEqual({ text: "63'", color: 'error', pulsing: true })
   })
 
+  it('reads the added minute in added time (division-live-scores "Entry in added time")', () => {
+    expect(liveScoreLabel({ ...base, status: 'live', minute: 90, addedMinute: 2 }, t).text).toBe("90+2'")
+    expect(liveScoreLabel({ ...base, status: 'live', minute: 45, addedMinute: 0 }, t).text).toBe("45'")
+  })
+
   it('reads Half-time without pulsing', () => {
     expect(liveScoreLabel({ ...base, status: 'halftime', minute: 45 }, t)).toEqual({ text: 'Half-time', color: 'default', pulsing: false })
   })

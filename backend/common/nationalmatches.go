@@ -44,37 +44,40 @@ type NationalMatch struct {
 	Kickoff      time.Time `json:"kickoff"`
 	Status       string    `json:"status"`
 	Minute       *int      `json:"minute,omitempty"`
-	HomeGoals    *int      `json:"homeGoals,omitempty"`
-	AwayGoals    *int      `json:"awayGoals,omitempty"`
-	GroupName    string    `json:"groupName,omitempty"`
-	Round        int       `json:"round,omitempty"`
-	TotalRounds  int       `json:"totalRounds,omitempty"`
-	MyPlayers    int       `json:"myPlayers,omitempty"`
+	// AddedMinute is 1..N while a live match is in a half's added time (Minute then reads 45 or 90).
+	AddedMinute int    `json:"addedMinute,omitempty"`
+	HomeGoals   *int   `json:"homeGoals,omitempty"`
+	AwayGoals   *int   `json:"awayGoals,omitempty"`
+	GroupName   string `json:"groupName,omitempty"`
+	Round       int    `json:"round,omitempty"`
+	TotalRounds int    `json:"totalRounds,omitempty"`
+	MyPlayers   int    `json:"myPlayers,omitempty"`
 }
 
 // liveScoreLookup is liveScoreAsOfNow's shape, injectable so applyNationalMatchStatus can be
 // unit-tested without a database or Redis.
-type liveScoreLookup func(kind string, id int64, kickoff time.Time) (minute, homeGoals, awayGoals int, complete bool, err error)
+type liveScoreLookup func(kind string, id int64, kickoff time.Time) (LiveState, error)
 
 // applyNationalMatchStatus is the one place deciding what a national-team feed may reveal about a
 // match: nothing but the fixture until it is simulated; while its kickoff is after cutoff (see
-// LiveBroadcastCutoff - simulated up to 15 minutes early, broadcast for ~105) the minute and the
+// LiveBroadcastCutoff - simulated up to 15 minutes early, broadcast for up to 108) the minute and the
 // score a live viewer sees, never the final one; afterwards the final score. A broadcast that
 // already published its "complete" message is finished even inside the window.
 func applyNationalMatchStatus(m *NationalMatch, played bool, finalHome, finalAway int, cutoff time.Time, lookup liveScoreLookup) error {
-	m.Minute, m.HomeGoals, m.AwayGoals = nil, nil, nil
+	m.Minute, m.AddedMinute, m.HomeGoals, m.AwayGoals = nil, 0, nil, nil
 	if !played {
 		m.Status = NationalMatchScheduled
 		return nil
 	}
 	if m.Kickoff.After(cutoff) {
-		minute, home, away, complete, err := lookup(liveMatchKindForNational(m.Kind), m.Id, m.Kickoff)
+		state, err := lookup(liveMatchKindForNational(m.Kind), m.Id, m.Kickoff)
 		if err != nil {
 			return err
 		}
-		if !complete {
+		if state.Status != LiveStatusFinished {
 			m.Status = NationalMatchLive
-			m.Minute, m.HomeGoals, m.AwayGoals = &minute, &home, &away
+			m.Minute, m.HomeGoals, m.AwayGoals = &state.Minute, &state.HomeGoals, &state.AwayGoals
+			m.AddedMinute = state.AddedMinute
 			return nil
 		}
 	}
@@ -201,7 +204,7 @@ func scanNationalMatches(dbCtx *DatabaseContext, rows *sql.Rows) ([]NationalMatc
 
 	// Live scores are looked up only after the rows are closed: the lookup may itself query.
 	cutoff := LiveBroadcastCutoff()
-	lookup := func(kind string, id int64, kickoff time.Time) (int, int, int, bool, error) {
+	lookup := func(kind string, id int64, kickoff time.Time) (LiveState, error) {
 		return liveScoreAsOfNow(dbCtx, kind, id, kickoff)
 	}
 	matches := make([]NationalMatch, 0, len(all))

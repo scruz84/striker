@@ -24,8 +24,8 @@ var liveMatchUpgrader = websocket.Upgrader{
 const liveMatchWriteTimeout = 10 * time.Second
 
 // liveMatchMaxConnectionLifetime caps how long serveLiveMatch will hold a connection open
-// waiting for messages that may never come - comfortably above the ~105-real-minute broadcast
-// itself (see engine.liveMatchMinuteDelay/engine.liveMatchHalftimeDelay) plus scheduler lag, so it never cuts off a genuinely
+// waiting for messages that may never come - comfortably above the broadcast itself (up to 108
+// real minutes) (see engine.liveMatchMinuteDelay/engine.liveMatchHalftimeDelay) plus scheduler lag, so it never cuts off a genuinely
 // in-progress match, but still bounds the damage of a channel that's stuck for any reason (a
 // downed Redis, a bug, a match that somehow never gets a "complete" published) - without this, a
 // stuck connection's goroutines and file descriptor stay held indefinitely, and enough of those
@@ -111,7 +111,7 @@ func LiveFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 // engine.BroadcastMatchLive) to it, catching the client up on anything already published before
 // it connected rather than deciding purely from the played flag whether there's anything left to
 // show it - `played` flips true in the DB the instant the match is simulated, well before its
-// ~90-real-minute broadcast finishes pacing out to viewers, so a client connecting any time after
+// broadcast (up to 108 real minutes, added time included) finishes pacing out to viewers, so a client connecting any time after
 // that (the common case - see issue #37) would otherwise be told the match is already "complete"
 // with no events at all, even while the broadcast is still very much in progress for everyone
 // else watching.

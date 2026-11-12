@@ -86,23 +86,24 @@ const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, home_team_id, away_te
 	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL AND " + simulationEligibleSql + " " + ForUpdate
 
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
+	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
 
 const InsertCupTieInstantStmtSql = "INSERT INTO cup_tie_instants(tie_id, minute, home_goals, away_goals, home_qua, away_qua, " +
-	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
-	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
+	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, added_minute) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
 const GetCupTieInstantsStmtSql = "SELECT tie_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, " +
-	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions " +
-	"FROM cup_tie_instants WHERE tie_id = $1 order by minute asc"
+	"homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, " +
+	"added_minute FROM cup_tie_instants WHERE tie_id = $1 order by minute asc, added_minute asc"
 
 // GetCupTieFlavorStmtSql reads a cup tie's report flavor plus the home team's stadium name in one
 // go (a bye or a national team has no home stadium, so that column can be NULL).
 const GetCupTieFlavorStmtSql = "SELECT ct.weather, ct.attendance, ct.referee_name, ct.assistant1_name, ct.assistant2_name, t.stadium_name " +
 	"FROM cup_ties ct LEFT JOIN teams t ON t.team_id = ct.home_team_id WHERE ct.tie_id = $1"
 
-const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality " +
-	"FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC"
+const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality, " +
+	"added_minute, added_time FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC, added_minute ASC, event_id ASC"
 
 // CreateCup starts a new single-elimination cup for a country's season.
 func CreateCup(dbCtx *DatabaseContext, country string, season int, name string) (int64, error) {
@@ -342,7 +343,7 @@ func GetCupTieInstants(dbCtx *DatabaseContext, tieId int64) (*[]MatchInstant, er
 		var contributions sql.NullString
 		if err := rows.Scan(&i.MatchId, &i.Minute, &i.HomeGoals, &i.AwayGoals, &homeQua, &awayQua, &i.MidfieldDiff,
 			&i.HomeAttackRightDiff, &i.HomeAttackLeftDiff, &i.HomeAttackCenterDiff,
-			&i.AwayAttackRightDiff, &i.AwayAttackLeftDiff, &i.AwayAttackCenterDiff, &contributions); err != nil {
+			&i.AwayAttackRightDiff, &i.AwayAttackLeftDiff, &i.AwayAttackCenterDiff, &contributions, &i.AddedMinute); err != nil {
 			return nil, err
 		}
 		i.PlayerContributions = decodePlayerContributions(contributions)
@@ -617,12 +618,13 @@ func GetCupTieEvents(dbCtx *DatabaseContext, tieId int64) ([]Event, error) {
 	for rows.Next() {
 		var e Event
 		var teamPlayers, teamPlayerNames string
-		var mentality sql.NullInt64
+		var mentality, addedTime sql.NullInt64
 		if err := rows.Scan(&e.EventType, &e.TeamOwner, &e.OtherTeam, &e.Minute, &teamPlayers, &teamPlayerNames,
-			&e.HomeGoals, &e.AwayGoals, &e.SetPiece, &mentality); err != nil {
+			&e.HomeGoals, &e.AwayGoals, &e.SetPiece, &mentality, &e.AddedMinute, &addedTime); err != nil {
 			return nil, err
 		}
 		e.Mentality = nullableInt(mentality)
+		e.AddedTime = nullableInt(addedTime)
 		if teamPlayers != "" {
 			_ = json.Unmarshal([]byte(teamPlayers), &e.TeamOwnerPlayers)
 		}

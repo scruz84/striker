@@ -12,6 +12,10 @@ import "time"
 // scorers table, a cup bracket's next round) - see GetHeadToHead, GetTopScorers,
 // GetPlayerCareerStats, and engine.IsCupRoundResolved. Season awards are the deliberate exception
 // (see GetTopScorersFinal).
+//
+// The longest replay, with the second half's maximum added time, publishes its final whistle 108
+// minutes after kickoff (engine.MaxBroadcastDuration); engine.TestLongestBroadcastFitsLiveWindow
+// keeps it at least 5 minutes inside this window (openspec/specs/stoppage-time).
 const LiveBroadcastWindow = 2 * time.Hour
 
 // LiveBroadcastCutoff is the match_date a match must be at or before to be safely treated as
@@ -44,29 +48,42 @@ const liveMatchHalftimeDelay = 15 * time.Minute
 const liveMatchFirstHalfMinutes = 45
 const liveMatchSecondHalfMinutes = 45
 
-// CurrentMatchMinute estimates which match-minute a live broadcast that kicked off at matchDate
-// is showing right now, given the fixed real-time pacing above (45 minutes, then a real
-// liveMatchHalftimeDelay pause, then another 45 minutes) - the same schedule
-// engine.BroadcastMatchLive actually paces its messages on. Used for a dashboard-wide glance at a
-// suggested live match (see GetLiveMatchesOverview) where opening an actual live connection just
-// to read the current minute would be overkill. Clamps to the last minute of each half, so a
-// caller checking in during the halftime break or right at the end still gets a sensible number
-// rather than one that overshoots.
-func CurrentMatchMinute(matchDate time.Time) int {
+// CurrentMatchMinute estimates which minute - clock minute plus added minute - a live broadcast
+// that kicked off at matchDate is showing right now, given the match's first- and second-half added
+// time and the real-time pacing above: 45 minutes, the first half's added minutes, the rest of a
+// liveMatchHalftimeDelay pause (minute 46 always starts 59 minutes after kickoff), another 45
+// minutes, then the second half's added minutes - the same schedule engine.BroadcastMatchLive
+// paces its messages on (engine.minutePublishOffset). Used where opening an actual live connection
+// just to read the current minute would be overkill (see liveStateAsOfNow). Clamps to the last
+// minute of each half, so a caller checking in during the halftime break or after the last added
+// minute still gets a sensible minute rather than one that overshoots.
+func CurrentMatchMinute(matchDate time.Time, firstHalfAddedTime int, secondHalfAddedTime int) (minute int, addedMinute int) {
 	elapsed := time.Since(matchDate)
+	if elapsed < 0 {
+		return 1, 0
+	}
 	firstHalf := time.Duration(liveMatchFirstHalfMinutes) * liveMatchMinuteDelay
 	if elapsed < firstHalf {
-		return int(elapsed/liveMatchMinuteDelay) + 1
+		return int(elapsed/liveMatchMinuteDelay) + 1, 0
+	}
+	if added := int((elapsed-firstHalf)/liveMatchMinuteDelay) + 1; added <= firstHalfAddedTime {
+		return liveMatchFirstHalfMinutes, added
 	}
 
-	afterHalftime := elapsed - firstHalf - liveMatchHalftimeDelay
-	if afterHalftime < 0 {
-		return liveMatchFirstHalfMinutes
+	// Minute 46 publishes liveMatchHalftimeDelay after minute 45 did, i.e. 59 minutes after kickoff.
+	secondHalfStart := firstHalf - liveMatchMinuteDelay + liveMatchHalftimeDelay
+	if elapsed < secondHalfStart {
+		return liveMatchFirstHalfMinutes, firstHalfAddedTime
 	}
 
-	minute := liveMatchFirstHalfMinutes + int(afterHalftime/liveMatchMinuteDelay) + 1
-	if maxMinute := liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes; minute > maxMinute {
-		return maxMinute
+	minute = liveMatchFirstHalfMinutes + 1 + int((elapsed-secondHalfStart)/liveMatchMinuteDelay)
+	fullTime := liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes
+	if minute <= fullTime {
+		return minute, 0
 	}
-	return minute
+	addedMinute = minute - fullTime
+	if addedMinute > secondHalfAddedTime {
+		addedMinute = secondHalfAddedTime
+	}
+	return fullTime, addedMinute
 }

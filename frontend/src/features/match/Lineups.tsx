@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import { POSITION_GOALKEEPER, type Lineup, type Player, type MatchInstant } from '../../api/types'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { MatchHeadToHeadPitch } from './MatchHeadToHeadPitch'
+import { matchTimeline } from '../../utils/matchMinute'
 import { MatchMinuteZoneComparison } from './MatchMinuteZoneComparison'
 import { MentalityLabel } from './MentalityLabel'
 
@@ -63,7 +64,7 @@ export function Lineups({
             homeGoalkeeperRating={goalkeeperRating(homeLineup, homePlayers)}
             awayGoalkeeperRating={goalkeeperRating(awayLineup, awayPlayers)}
             matchInstants={zoneHistory}
-            currentMinute={zoneHistory[zoneHistory.length - 1].minute}
+            timeline={matchTimeline(zoneHistory)}
           />
         </Grid>
       )}

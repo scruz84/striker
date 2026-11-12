@@ -17,6 +17,7 @@ import {
   type PlayerRating,
 } from '../../api/types'
 import i18n from '../../i18n'
+import { matchTimeline } from '../../utils/matchMinute'
 import { MatchMinuteRatings } from './MatchMinuteRatings'
 import { RatingBreakdown, TeamRatingsColumn } from './TeamRatingsColumn'
 
@@ -190,7 +191,7 @@ describe('MatchMinuteRatings', () => {
           awayPlayers={{ '101': player(101, 'Rival') }}
           events={events}
           instants={instants}
-          currentMinute={90}
+          timeline={matchTimeline(instants)}
           finalRatings={finalRatings}
         />
       </MemoryRouter>,
@@ -225,12 +226,76 @@ describe('MatchMinuteRatings', () => {
           awayPlayers={{ '101': player(101, 'Rival') }}
           events={withSub}
           instants={[]}
-          currentMinute={90}
+          timeline={matchTimeline([], withSub)}
         />
       </MemoryRouter>,
     )
     // No contributions: the fallback reads the starting XI back from the substituted lineup.
     expect(screen.getByText('P Winger')).toBeInTheDocument()
     expect(screen.getByText('P Sub')).toBeInTheDocument()
+  })
+
+  // match-viewer "Scrubbers cover added minutes": one step per simulated minute, added minutes
+  // included, and the last step is the final minute with the stored ratings.
+  describe('with added time', () => {
+    const contribution = { h: { '6': { p: POSITION_STRIKER, o: 50, r: 50 } }, a: { '101': { p: POSITION_GOALKEEPER, o: 50, r: 50 } } }
+    const withAddedTime = [
+      ...Array.from({ length: 45 }, (_, i) => ({ minute: i + 1 })),
+      { minute: 45, addedMinute: 1 },
+      { minute: 45, addedMinute: 2 },
+      ...Array.from({ length: 45 }, (_, i) => ({ minute: i + 46 })),
+      ...Array.from({ length: 4 }, (_, i) => ({ minute: 90, addedMinute: i + 1 })),
+    ].map((m) => ({ ...m, playerContributions: contribution })) as unknown as MatchInstant[]
+
+    function renderAddedTime() {
+      render(
+        <MemoryRouter>
+          <MatchMinuteRatings
+            homeId={1}
+            homeName="Home"
+            awayId={2}
+            awayName="Away"
+            homeLineup={{ ...lineup, positions: [{ playerId: 6, position: POSITION_STRIKER }] }}
+            awayLineup={awayLineup}
+            homePlayers={players}
+            awayPlayers={{ '101': player(101, 'Rival') }}
+            events={events}
+            instants={withAddedTime}
+            timeline={matchTimeline(withAddedTime)}
+            finalRatings={finalRatings}
+          />
+        </MemoryRouter>,
+      )
+    }
+    // The step's label shows both beside the slider and in its value label.
+    const shown = (text: string) => expect(screen.getAllByText(text).length).toBeGreaterThan(0)
+    const previous = () => fireEvent.click(screen.getByRole('button', { name: i18n.t('match.ratings.previousMinute') }))
+    const next = () => fireEvent.click(screen.getByRole('button', { name: i18n.t('match.ratings.nextMinute') }))
+
+    it('ends on 90+4 with the stored ratings', () => {
+      renderAddedTime()
+      shown("90+4'")
+      expect(screen.getByText('7.9')).toBeInTheDocument()
+      previous()
+      shown("90+3'")
+      expect(screen.getByText(i18n.t('match.ratings.atMinute', { minute: '90+3' }))).toBeInTheDocument()
+    })
+
+    it('steps from 45 through 45+1 and 45+2 to 46', () => {
+      renderAddedTime()
+      // From 90+4 back to 45: 4 added minutes, 90..46 (45 steps), then 45+2 and 45+1.
+      for (let i = 0; i < 4 + 45 + 2; i++) {
+        previous()
+      }
+      shown("45'")
+      next()
+      shown("45+1'")
+      next()
+      shown("45+2'")
+      // As of 45+2 the winger has played 47 minutes, added minutes included.
+      expect(screen.getAllByText(new RegExp(`(^|\\s)${i18n.t('match.ratings.minutes', { minutes: 47 })}`)).length).toBeGreaterThan(0)
+      next()
+      shown("46'")
+    })
   })
 })

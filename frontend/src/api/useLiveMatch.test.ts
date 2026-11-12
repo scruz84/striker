@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mightStillBeLive, useLiveMatch } from './useLiveMatch'
+import { maxLiveBroadcastWindowMs, mightStillBeLive, useLiveMatch } from './useLiveMatch'
 
 // A minimal fake WebSocket that behaves like the real one for what this hook actually uses:
 // onopen/onmessage/onerror/onclose handlers assigned after construction, plus close(). Tracks
@@ -89,6 +89,33 @@ describe('useLiveMatch', () => {
     expect(result.current.homeGoals).toBe(1)
   })
 
+  // Added time (match-scheduling "Live replay of a simulated result"): an instant at 45+2 moves the
+  // live clock to 45+2, half time names the minute the first half ended on, and the final whistle
+  // the one the match ended on.
+  it('follows the broadcast into added time', () => {
+    const { result } = renderHook(() => useLiveMatch('/v1/teams/match/1/live', true))
+    const socket = FakeWebSocket.instances[0]
+    act(() => socket.onopen?.())
+
+    send(socket, { type: 'instant', instant: { matchId: 1, minute: 45, addedMinute: 2 }, homeGoals: 1, awayGoals: 0 })
+    expect([result.current.minute, result.current.addedMinute]).toEqual([45, 2])
+
+    send(socket, { type: 'halftime', minute: 45, addedMinute: 2, homeGoals: 1, awayGoals: 0 })
+    expect(result.current.halftime).toBe(true)
+    expect([result.current.minute, result.current.addedMinute]).toEqual([45, 2])
+
+    send(socket, { type: 'instant', instant: { matchId: 1, minute: 46 }, homeGoals: 1, awayGoals: 0 })
+    expect([result.current.minute, result.current.addedMinute]).toEqual([46, 0])
+
+    send(socket, { type: 'event', event: { eventType: 0, minute: 90, addedMinute: 3, teamOwner: 2 }, homeGoals: 1, awayGoals: 1 })
+    expect([result.current.minute, result.current.addedMinute]).toEqual([46, 0])
+    expect(result.current.events[0].addedMinute).toBe(3)
+
+    send(socket, { type: 'complete', minute: 90, addedMinute: 4, homeGoals: 1, awayGoals: 1 })
+    expect(result.current.complete).toBe(true)
+    expect([result.current.minute, result.current.addedMinute]).toEqual([90, 4])
+  })
+
   // A phone suspends a backgrounded page's network: every reconnect attempt fails within seconds
   // and the hook gives up, mid-match. Coming back to the page has to try again rather than leave
   // the viewer given up for the rest of the broadcast.
@@ -160,5 +187,20 @@ describe('mightStillBeLive', () => {
   it('is false once the broadcast has certainly finished', () => {
     const matchDate = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
     expect(mightStillBeLive(matchDate)).toBe(false)
+  })
+
+  // stoppage-time "Results stay hidden until the final whistle": the longest replay, 90+5 with the
+  // second half's maximum added time, blows its final whistle 108 minutes after kickoff - still
+  // inside the window, so nothing reveals the result before it.
+  it('is still true at the final whistle of the longest match', () => {
+    const matchDate = new Date(Date.now() - 108 * 60 * 1000).toISOString()
+    expect(mightStillBeLive(matchDate)).toBe(true)
+  })
+
+  // Mirrors backend common.LiveBroadcastWindow (2 hours): the backend's
+  // TestLongestBroadcastFitsLiveWindow keeps the longest replay at least 5 minutes inside it.
+  it('is the same 2-hour window as the backend', () => {
+    expect(maxLiveBroadcastWindowMs).toBe(2 * 60 * 60 * 1000)
+    expect(maxLiveBroadcastWindowMs - 108 * 60 * 1000).toBeGreaterThanOrEqual(5 * 60 * 1000)
   })
 })

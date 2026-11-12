@@ -250,3 +250,62 @@ func TestCpuConditionalOrders_ManagerChasingTheGame(t *testing.T) {
 		t.Errorf("losing 0-1 at the start of 80: mentality %d events %+v, want Attacking at 80", match.HomeMentality, e)
 	}
 }
+
+// playAddedMinutes runs the substitution stage for clock minute clock's added minutes from..to.
+func playAddedMinutes(match *common.MatchSimulation, clock, from, to int, goals map[int][2]int) {
+	for added := from; added <= to; added++ {
+		match.Minute, match.AddedMinute = clock, added
+		SubstitutionSimulation{}.Apply(nil, match)
+		if g, ok := goals[added]; ok {
+			match.HomeGoals, match.AwayGoals = g[0], g[1]
+		}
+	}
+}
+
+// "Going behind in added time" (match-simulation "Order firing").
+func TestConditionalOrders_GoingBehindInAddedTime(t *testing.T) {
+	match := orderMatch(attackingIfLosing(80))
+	playMinutes(match, 1, 90, nil)
+	playAddedMinutes(match, 90, 1, 1, map[int][2]int{1: {0, 1}})
+	if match.HomeMentality != common.MENTALITY_BALANCED {
+		t.Fatalf("switched before going behind: %d", match.HomeMentality)
+	}
+	playAddedMinutes(match, 90, 2, 4, nil)
+	events := mentalityEvents(match)
+	if len(events) != 1 || events[0].Minute != 90 || events[0].AddedMinute != 0 || match.HomeMentality != common.MENTALITY_ATTACKING {
+		t.Fatalf("events %+v, mentality %d; want one Attacking change", events, match.HomeMentality)
+	}
+	// The stage itself records the clock minute; runMatchSimulation's playMinute stamps the added
+	// minute on everything a minute records (see TestPlayMatchMinutes_OrderAndBoards).
+}
+
+// "From-minute in the first-half added time" (match-simulation "Order firing").
+func TestConditionalOrders_FromMinute45FiresInFirstHalfAddedTime(t *testing.T) {
+	match := orderMatch(attackingIfLosing(45))
+	playMinutes(match, 1, 45, nil)
+	playAddedMinutes(match, 45, 1, 1, map[int][2]int{1: {0, 1}})
+	if len(mentalityEvents(match)) != 0 {
+		t.Fatal("fired before the side went behind")
+	}
+	playAddedMinutes(match, 45, 2, 2, nil)
+	if events := mentalityEvents(match); len(events) != 1 || match.HomeMentality != common.MENTALITY_ATTACKING {
+		t.Fatalf("events %+v, want the order to fire at 45+2", events)
+	}
+}
+
+// "Scheduled substitutions in added time" (match-simulation "Per-minute simulation pipeline"): a
+// substitution scheduled for minute 45 fires once, at 45 itself, never again in 45+1 or 45+2.
+func TestScheduledSubstitution_AtMinute45FiresOnce(t *testing.T) {
+	subs := []common.LineupSubstitution{{PlayerOutId: 10, PlayerInId: 99, Minute: 45}, {PlayerOutId: 20, PlayerInId: 98, Minute: 45}}
+	match := newSubMatch(45, map[int][]int64{common.GOALKEEPER: {1}, common.MIDFIELD: {10, 20}}, subs)
+	match.AddedMinute = 1
+	SubstitutionSimulation{}.Apply(nil, match)
+	if len(*match.Events) != 0 {
+		t.Fatalf("a scheduled substitution fired in added time: %+v", *match.Events)
+	}
+	match.AddedMinute = 0
+	SubstitutionSimulation{}.Apply(nil, match)
+	if len(*match.Events) != 2 {
+		t.Fatalf("want both minute-45 substitutions at 45, got %+v", *match.Events)
+	}
+}

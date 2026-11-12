@@ -11,6 +11,7 @@ import { HeadToHeadCard } from '../../components/HeadToHeadCard'
 import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { goalScorers } from '../../utils/matchGoals'
 import { matchSubtitle } from '../../utils/matchSubtitle'
+import { matchTimeline } from '../../utils/matchMinute'
 import { useMinuteScrub } from '../../utils/useMinuteScrub'
 import { LineupLockedNotice } from '../lineup/LineupLockedNotice'
 import { Lineups, goalkeeperRating } from './Lineups'
@@ -86,7 +87,9 @@ function LiveView({
   const isLineupLocked = useIsLineupLocked(view.matchDate)
   // Shared by the zone-comparison panel below, so scrubbing it moves any other scrub-aware panel
   // in lockstep instead of each one tracking its own independent minute.
-  const minuteScrub = useMinuteScrub(live.minute)
+  // Steps through every minute broadcast so far, added minutes included (see matchTimeline).
+  const liveTimeline = matchTimeline(live.instants)
+  const minuteScrub = useMinuteScrub(liveTimeline.length)
   // Injury/red-card events are withheld from everything fed live events below (the narrated
   // report and MatchMinuteRatings alike) - a live viewer shouldn't learn a team just went down to
   // ten men, or which player just got injured, before the match itself is over (see
@@ -105,7 +108,7 @@ function LiveView({
     //
     // `played` alone isn't "actually over" either, and neither is `played` plus kickoff having
     // arrived: the match is simulated (and `played` flips true) up to 15 minutes before matchDate
-    // (see GetSimulableMatchesStmtSql), and its broadcast then runs ~105 more minutes after
+    // (see GetSimulableMatchesStmtSql), and its broadcast then runs up to 108 more minutes (added time included) after
     // kickoff. A viewer who hits a flaky socket anywhere in that span (a proxy timeout, a network
     // blip, a phone that suspended the page while the screen was locked - anything that burns
     // through the reconnect attempts) would otherwise be dropped straight into the finished-match
@@ -176,6 +179,7 @@ function LiveView({
         awayGoals={live.awayGoals}
         status={live.connected ? (live.halftime ? 'halftime' : 'live') : 'connecting'}
         minute={live.minute}
+        addedMinute={live.addedMinute}
         homeScorers={liveScorers.home}
         awayScorers={liveScorers.away}
         subtitle={subtitle}
@@ -228,7 +232,7 @@ function LiveView({
           homeGoalkeeperRating={goalkeeperRating(live.homeLineup, live.homePlayers)}
           awayGoalkeeperRating={goalkeeperRating(live.awayLineup, live.awayPlayers)}
           matchInstants={live.instants}
-          currentMinute={live.minute}
+          timeline={liveTimeline}
           live
           scrub={minuteScrub}
         />
@@ -242,7 +246,7 @@ function LiveView({
           {...lineups}
           events={liveEvents}
           instants={live.instants}
-          currentMinute={live.minute}
+          timeline={liveTimeline}
           live
           scrub={minuteScrub}
         />

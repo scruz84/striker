@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import {
+  EVENT_TYPE_ADDED_TIME,
   EVENT_TYPE_GOAL,
   EVENT_TYPE_INJURY,
   EVENT_TYPE_MATCH_ABANDONED,
@@ -19,6 +20,7 @@ import {
 } from '../../api/types'
 import { formatNumber } from '../../utils/formatCurrency'
 import { commentaryFor } from '../../utils/matchCommentary'
+import { compareMatchMinute, formatMatchMinute } from '../../utils/matchMinute'
 import { isMinorMissedChance } from '../../utils/matchEvents'
 import { TeamBadge } from '../../components/TeamBadge'
 import { matchTeamColors } from '../../utils/teamColors'
@@ -33,6 +35,7 @@ const NOTABLE_EVENT_TYPES: number[] = [
   EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_MATCH_DEFAULT_RESULT,
   EVENT_TYPE_MENTALITY_CHANGE,
+  EVENT_TYPE_ADDED_TIME,
 ]
 
 interface TeamStats {
@@ -122,7 +125,9 @@ export function MatchEventsReport({
   // substitutions, so they're hidden until the viewer asks for the full commentary - except a
   // missed penalty, which always shows (see isMissedPenalty).
   const [fullCommentary, setFullCommentary] = useState(false)
-  const notable = events.filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType)).sort((a, b) => a.minute - b.minute)
+  // In match order (45+2 after 45, before 46); a stable sort keeps each minute's events - and the
+  // added-time board after the minute's other events - in the order they were recorded.
+  const notable = events.filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType)).sort(compareMatchMinute)
   const hasMissedChances = notable.some(isMinorMissedChance)
   const visible = fullCommentary ? notable : notable.filter((event) => !isMinorMissedChance(event))
 
@@ -151,6 +156,23 @@ export function MatchEventsReport({
         </Box>
       )}
       {visible.map((event, idx) => {
+        // The fourth official's board belongs to neither side: no team badge, just how long the half
+        // goes on for.
+        if (event.eventType === EVENT_TYPE_ADDED_TIME) {
+          return (
+            <ReportRow
+              key={idx}
+              minute={event.minute}
+              addedMinute={event.addedMinute}
+              homeGoals={event.homeGoals}
+              awayGoals={event.awayGoals}
+              text={t('match.addedTime.board', { count: event.addedTime ?? 0 })}
+              icon={iconFor(event.eventType)}
+              iconLabel={t('match.addedTime.label')}
+              emphasized
+            />
+          )
+        }
         const isHome = event.teamOwner === homeId
         const teamId = isHome ? homeId : awayId
         const teamName = isHome ? homeName : awayName
@@ -164,6 +186,7 @@ export function MatchEventsReport({
           <ReportRow
             key={idx}
             minute={event.minute}
+            addedMinute={event.addedMinute}
             homeGoals={event.homeGoals}
             awayGoals={event.awayGoals}
             text={commentary}
@@ -293,6 +316,8 @@ function iconFor(eventType: number): string | null {
       return '🤝'
     case EVENT_TYPE_MENTALITY_CHANGE:
       return '📋'
+    case EVENT_TYPE_ADDED_TIME:
+      return '⏱️'
     default:
       return null
   }
@@ -311,6 +336,7 @@ function ReportParagraph({ text }: { text: string }) {
 // shown in the full commentary. No per-row card or colored bar: the badge says whose event it is.
 function ReportRow({
   minute,
+  addedMinute,
   homeGoals,
   awayGoals,
   text,
@@ -321,20 +347,22 @@ function ReportRow({
   emphasized,
 }: {
   minute: number
+  addedMinute?: number
   homeGoals: number
   awayGoals: number
   text: ReactNode
   icon: string | null
   iconLabel?: string
-  teamId: number
-  teamName: string
+  // Omitted for an event that belongs to neither side (the added-time board).
+  teamId?: number
+  teamName?: string
   emphasized: boolean
 }) {
   return (
     <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', py: 0.25 }}>
       <Box sx={{ minWidth: 40, flexShrink: 0 }}>
         <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-          {minute}&apos;
+          {formatMatchMinute(minute, addedMinute)}
         </Typography>
         {emphasized && (
           <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
@@ -350,8 +378,8 @@ function ReportRow({
       >
         {icon}
       </Typography>
-      <Box sx={{ pt: 0.25, flexShrink: 0 }}>
-        <TeamBadge teamId={teamId} teamName={teamName} size={18} />
+      <Box sx={{ pt: 0.25, flexShrink: 0, width: 18 }}>
+        {teamId !== undefined && teamName !== undefined && <TeamBadge teamId={teamId} teamName={teamName} size={18} />}
       </Box>
       <Typography variant="body2" sx={{ flex: 1, pt: 0.25, fontWeight: emphasized ? 600 : 400, color: emphasized ? 'text.primary' : 'text.secondary' }}>
         {text}

@@ -132,23 +132,16 @@ func TestInitialSimulation_HomeAdvantageMultipliesTheNineHomeZones(t *testing.T)
 	}
 }
 
-// playEvenMatch plays one 90-minute match between identical squads (goals and cards drawn from rng;
-// injuries need the database and are symmetrical, so they are left out) and returns the score.
+// playEvenMatch plays one full match, added time included (see playMatchMinutes), between identical
+// squads (goals and cards drawn from rng; injuries need the database and are symmetrical, so they
+// are left out) and returns the score.
 func playEvenMatch(rng *rand.Rand, homeAdvantage float32) (int, int) {
 	dbCtx, match := newEvenMatch(homeAdvantage)
 	pipeline := SimulationPipelineImpl{simulations: []Simulation{
 		SubstitutionSimulation{}, StaminaSimulation{}, InitialSimulation{},
 		ScorerSimulation{r: rng}, DisciplineSimulation{r: rng},
 	}}
-	for minute := 1; minute <= 90; minute++ {
-		match.Minute = minute
-		pipeline.Simulate(dbCtx, match)
-		trackMinutesByPosition(match.HomePlayersByPosition, match.HomeMinutesByPosition)
-		trackMinutesByPosition(match.AwayPlayersByPosition, match.AwayMinutesByPosition)
-		if applyForfeitIfUnderstaffed(match) {
-			break
-		}
-	}
+	playMatchMinutes(dbCtx, match, pipeline)
 	return match.HomeGoals, match.AwayGoals
 }
 

@@ -171,11 +171,11 @@ const GetWeekMatchesByIdStmtSql = "select match_id, w.league_id, w.season, playe
 	"FROM matches where match_id = $1) w " +
 	"join teams t0 on (w.home_team_id = t0.team_id) join teams t1 on (w.away_team_id = t1.team_id)"
 
-const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality " +
-	"FROM match_events WHERE match_id = $1 order by minute asc"
+const GetWeekMatchesEventsByIdStmtSql = "SELECT event_id, match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time " +
+	"FROM match_events WHERE match_id = $1 order by minute asc, added_minute asc, event_id asc"
 
-const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions" +
-	" FROM match_instants WHERE match_id = $1 order by minute asc"
+const GetWeekMatchesInstantsByIdStmtSql = "SELECT match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, added_minute" +
+	" FROM match_instants WHERE match_id = $1 order by minute asc, added_minute asc"
 
 const InsertTeamToClassificationStmtSql = "INSERT INTO classification (league_id, season, team_id) values ($1, $2, $3)"
 
@@ -197,12 +197,12 @@ const InsertDefaultFriendlyLineupPositionsStmtSql = "INSERT INTO default_friendl
 const GetDefaultFriendlyLineupStmtSql = "SELECT player_id, position FROM default_friendly_lineup_positions WHERE team_id = $1"
 const DeleteDefaultFriendlyLineupPositionsStmtSql = "DELETE FROM default_friendly_lineup_positions WHERE team_id = $1"
 
-const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+const InsertMatchEventStmtSql = "INSERT INTO match_events (match_id, event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
 const InsertMatchInstantStmtSql = "" +
-	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions) " +
-	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)"
+	"INSERT INTO match_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, added_minute) " +
+	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
 // RegisterPendingUserStmtSql registers a brand-new sign-in without a country - used the first
 // time someone logs in (Google or dev), before they've picked which country to play in (see
@@ -1538,8 +1538,10 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var awayGoals int
 		var setPiece int
 		var mentality sql.NullInt64
+		var addedMinute int
+		var addedTime sql.NullInt64
 		rows.Scan(&eventId, &matchId, &eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece, &mentality)
+			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece, &mentality, &addedMinute, &addedTime)
 
 		event := Event{
 			EventType:             eventType,
@@ -1554,6 +1556,8 @@ func GetMatchEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			AwayGoals:             awayGoals,
 			SetPiece:              setPiece,
 			Mentality:             nullableInt(mentality),
+			AddedMinute:           addedMinute,
+			AddedTime:             nullableInt(addedTime),
 		}
 		if teamPlayers != "" {
 			players := make([]int64, 0)
@@ -1602,9 +1606,10 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 		var awayAttackLeftDiff float32
 		var awayAttackCenterDiff float32
 		var contributions sql.NullString
+		var addedMinute int
 		rows.Scan(&matchId, &minute, &homeGoals, &awayGoals, &homeQua, &awayQua, &midFieldDiff,
 			&homeAttackRightDiff, &homeAttackLeftDiff, &homeAttackCenterDiff,
-			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff, &contributions)
+			&awayAttackRightDiff, &awayAttackLeftDiff, &awayAttackCenterDiff, &contributions, &addedMinute)
 
 		homeTeamQua := TeamQualification{}
 		awayTeamQua := TeamQualification{}
@@ -1617,6 +1622,7 @@ func GetMatchInstants(dbCtx *DatabaseContext, matchId int64) *[]MatchInstant {
 		instants = append(instants, MatchInstant{
 			MatchId:              matchId,
 			Minute:               minute,
+			AddedMinute:          addedMinute,
 			HomeGoals:            homeGoals,
 			AwayGoals:            awayGoals,
 			HomeQua:              homeTeamQua,

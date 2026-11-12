@@ -77,6 +77,7 @@ import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 import { PULSING_LIVE_SX } from '../../utils/liveChip'
 import { liveMatchPath, matchKindColor, matchKindLabelKey, matchSummaryLink } from '../../utils/matchSummary'
+import { matchMinuteText } from '../../utils/matchMinute'
 import { hideStillLiveResults } from '../division/DivisionDetailsPage'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { PendingPanel } from './PendingPanel'
@@ -338,7 +339,7 @@ function SuggestedLiveMatch({
             <Chip
               size="small"
               color="error"
-              label={t('dashboard.liveMatchMinute', { minute: match.minute })}
+              label={t('dashboard.liveMatchMinute', { minute: matchMinuteText(match.minute, match.addedMinute) })}
               sx={{ height: 20, fontSize: '0.6875rem', fontWeight: 700 }}
             />
           )}
@@ -616,7 +617,7 @@ export function LiveMatchHero({
   const home = match.isHome ? { id: team.id, name: team.name } : { id: match.opponentId, name: match.opponentName }
   const away = match.isHome ? { id: match.opponentId, name: match.opponentName } : { id: team.id, name: team.name }
   const showNumbers = !live.giveUp
-  const status = live.halftime ? t('match.halftime') : live.minute > 0 ? t('dashboard.liveMatchMinute', { minute: live.minute }) : undefined
+  const status = live.halftime ? t('match.halftime') : live.minute > 0 ? t('dashboard.liveMatchMinute', { minute: matchMinuteText(live.minute, live.addedMinute) }) : undefined
 
   return (
     <Card sx={{ mb: 2, bgcolor: 'errorContainer', color: 'onErrorContainer' }}>

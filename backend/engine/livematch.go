@@ -9,7 +9,7 @@ import (
 // matches here are computed instantly (see runMatchSimulation), so this is what turns that
 // instant result into something that looks like a match unfolding live for anyone watching -
 // one real minute per simulated minute, so a viewer who checks in partway through a match's
-// scheduled kickoff-to-90th-minute window sees it at roughly the corresponding point, the same
+// scheduled kickoff-to-final-whistle window sees it at roughly the corresponding point, the same
 // way a real broadcast would. A much shorter delay here was tried first, but compressing the
 // whole match into a few seconds around kickoff meant anyone who didn't happen to be watching in
 // that exact narrow window never saw anything "live" at all - by the time they checked back it
@@ -20,24 +20,34 @@ const liveMatchMinuteDelay = 60 * time.Second
 // halftime break (see liveMatchHalftimeDelay) instead of the ordinary per-minute delay.
 const liveMatchHalftimeMinute = 45
 
-// liveMatchHalftimeDelay replaces the ordinary liveMatchMinuteDelay just once, between minute
-// 45 and minute 46 - a real match doesn't play straight through from kickoff to full time, and a
-// viewer who'd been following the first half live would otherwise see the second half start
-// exactly as fast as any other minute, with no sense that a break happened at all. So a match
-// that kicks off at 14:00 now reaches half time at 14:45, resumes at 15:00, and finishes at
-// 15:45 - 105 real minutes end to end rather than a flat 90.
+// liveMatchHalftimeDelay is how long after minute 45 is published minute 46 is - a real match
+// doesn't play straight through from kickoff to full time, and a viewer who'd been following the
+// first half live would otherwise see the second half start exactly as fast as any other minute,
+// with no sense that a break happened at all. The first half's added minutes (45+1..45+N, see
+// playMatchMinutes) are played out of this same window, so the break itself lasts 15 - N minutes
+// and minute 46 always publishes 59 minutes after kickoff. A match that kicks off at 14:00 with 3
+// and 5 added minutes reaches 45 at 14:44, plays 45+1..45+3 until 14:48, resumes at 14:59,
+// reaches 90 at 15:43 and blows the final whistle after 90+5, at 15:48.
 const liveMatchHalftimeDelay = 15 * time.Minute
 
-// minutePublishOffset is how long after kickoff (matchDate) instant.Minute should be published,
-// under the fixed pacing above (45 minutes, a liveMatchHalftimeDelay break, then 45 more) - the
-// mirror image of common.CurrentMatchMinute, which goes the other way (elapsed time -> minute)
-// for the same schedule. Minute 1 publishes right at kickoff (offset zero); minute 46 publishes
-// right as the halftime break ends.
-func minutePublishOffset(minute int) time.Duration {
+// minutePublishOffset is how long after kickoff (matchDate) the minute (minute, addedMinute)
+// should be published, under the pacing above - the mirror image of common.CurrentMatchMinute,
+// which goes the other way (elapsed time -> minute) for the same schedule. Minute 1 publishes
+// right at kickoff (offset zero); 45+N one minute per added minute after 45; minute 46 right as
+// the halftime break ends; 90+N one minute per added minute after 90.
+func minutePublishOffset(minute int, addedMinute int) time.Duration {
 	if minute <= liveMatchHalftimeMinute {
-		return time.Duration(minute-1) * liveMatchMinuteDelay
+		return time.Duration(minute-1+addedMinute) * liveMatchMinuteDelay
 	}
-	return time.Duration(minute-2)*liveMatchMinuteDelay + liveMatchHalftimeDelay
+	return time.Duration(minute-2+addedMinute)*liveMatchMinuteDelay + liveMatchHalftimeDelay
+}
+
+// MaxBroadcastDuration is how long after kickoff the longest possible replay publishes its final
+// whistle: minute 90 plus the most added minutes a second half can get. It must stay well inside
+// common.LiveBroadcastWindow (see TestLongestBroadcastFitsLiveWindow), which every time-based
+// spoiler gate relies on to know a match has finished.
+func MaxBroadcastDuration() time.Duration {
+	return minutePublishOffset(secondHalfLastMinute, MaxAddedSecondHalf)
 }
 
 // BroadcastMatchLive replays a just-simulated match's events/instants, minute by minute, to
@@ -63,14 +73,15 @@ func minutePublishOffset(minute int) time.Duration {
 // "does anyone have this channel open right now" check would race a viewer who opens the match
 // page a moment later: once that check said no, nothing would ever get published for this match
 // again, even though the check and the viewer's page load could easily land within the same
-// handful of milliseconds. A few hundred lightweight Redis publishes over ~105 real minutes per
-// match (90 minutes of play plus the halftime break - see liveMatchHalftimeDelay) is cheap enough
+// handful of milliseconds. A few hundred lightweight Redis publishes over up to 108 real minutes
+// per match (90 minutes of play, the halftime break and the added time - see liveMatchHalftimeDelay
+// and MaxBroadcastDuration) is cheap enough
 // at this app's scale (see maxConcurrentSimulations) - it's just a sleeping goroutine between
 // publishes, not active work - that there's no real efficiency case for that risk.
 //
 // This runs in its own goroutine so it never delays the caller (simulateMatch/simulateCupTie):
 // the match is already fully computed and persisted by this point, so pacing its broadcast out
-// over ~105 minutes is purely cosmetic for live viewers and must not hold up match processing.
+// over up to 108 minutes is purely cosmetic for live viewers and must not hold up match processing.
 //
 // onComplete runs after the final "complete" publish, once the whole broadcast has played out -
 // callers use it to send the result notification (see simulateMatch/simulateCupTie/
@@ -86,9 +97,11 @@ func minutePublishOffset(minute int) time.Duration {
 // intact for an on-time match too: nothing publishes before kickoff has actually arrived.
 func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *common.MatchSimulation, matchDate time.Time, onComplete func()) {
 	instants := append([]common.MatchInstant(nil), *match.MatchInstants...)
-	eventsByMinute := make(map[int][]common.Event)
+	// Keyed by clock minute and added minute: 45 and 45+1 are different minutes of the replay.
+	eventsByMinute := make(map[[2]int][]common.Event)
 	for _, event := range *match.Events {
-		eventsByMinute[event.Minute] = append(eventsByMinute[event.Minute], event)
+		key := [2]int{event.Minute, event.AddedMinute}
+		eventsByMinute[key] = append(eventsByMinute[key], event)
 	}
 
 	// match.HomeLineup/AwayLineup are always the XI submitted before kickoff - nothing in the
@@ -126,11 +139,17 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 		// instant. Events, appended after whichever stage actually changed the score, don't have
 		// that lag.
 		homeGoals, awayGoals := 0, 0
+		// The minute the replay ended on, which the "complete" message carries (90+N for a full
+		// match, earlier for one abandoned for lack of players).
+		lastMinute, lastAddedMinute := secondHalfLastMinute, match.SecondHalfAddedTime
+		if len(instants) > 0 {
+			lastMinute, lastAddedMinute = 0, 0
+		}
 		for _, instant := range instants {
-			if wait := time.Until(matchDate.Add(minutePublishOffset(instant.Minute))); wait > 0 {
+			if wait := time.Until(matchDate.Add(minutePublishOffset(instant.Minute, instant.AddedMinute))); wait > 0 {
 				time.Sleep(wait)
 			}
-			for _, event := range eventsByMinute[instant.Minute] {
+			for _, event := range eventsByMinute[[2]int{instant.Minute, instant.AddedMinute}] {
 				e := event
 				homeGoals, awayGoals = e.HomeGoals, e.AwayGoals
 				msg := common.LiveMatchMessage{
@@ -153,11 +172,14 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 			dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 				Type: "instant", Instant: &i, HomeGoals: homeGoals, AwayGoals: awayGoals,
 			})
-			if instant.Minute == liveMatchHalftimeMinute {
+			// Half time comes after the last minute of the first half: 45 plus its added time.
+			if instant.Minute == liveMatchHalftimeMinute && instant.AddedMinute == match.FirstHalfAddedTime {
 				dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 					Type: "halftime", HomeGoals: homeGoals, AwayGoals: awayGoals,
+					Minute: instant.Minute, AddedMinute: instant.AddedMinute,
 				})
 			}
+			lastMinute, lastAddedMinute = instant.Minute, instant.AddedMinute
 		}
 		// Falls back to the match's own authoritative final score rather than whatever the last
 		// event happened to leave homeGoals/awayGoals at - the two always agree except when the
@@ -167,6 +189,7 @@ func BroadcastMatchLive(dbCtx *common.DatabaseContext, channel string, match *co
 		homeGoals, awayGoals = match.HomeGoals, match.AwayGoals
 		dbCtx.LiveHub.Publish(channel, common.LiveMatchMessage{
 			Type: "complete", HomeGoals: homeGoals, AwayGoals: awayGoals,
+			Minute: lastMinute, AddedMinute: lastAddedMinute,
 		})
 		onComplete()
 	}()

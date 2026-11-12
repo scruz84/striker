@@ -144,7 +144,8 @@ func updateSkillsAfterPlayedMatch(dbCtx *common.DatabaseContext, match *common.M
 }
 
 // runMatchSimulation builds both teams' qualifications from the given lineups and runs the full
-// 90-minute simulation pipeline (goals, cards, injuries). It does NOT persist anything - callers
+// simulation pipeline (goals, cards, injuries) over 90 minutes plus each half's added time (see
+// playMatchMinutes). It does NOT persist anything - callers
 // decide what to do with the result, since a league match updates classification differently
 // than a cup tie does (see simulateMatch vs engine/cups.go's simulateCupTie).
 //
@@ -271,28 +272,93 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 		simulations: simulations,
 	}
 
-	//simulation by minute
-	endMinute := 90
-	for min := 1; min <= endMinute; min++ {
-		matchSimulation.Minute = min
-		pipeline.Simulate(dbCtx, matchSimulation)
-		// Tallied after this minute's stages have run, so a player substituted/sent off/injured
-		// this exact minute doesn't get it counted, and whoever replaced them does - see
-		// SubstitutionSimulation, DisciplineSimulation, InjurySimulation, all of which mutate
-		// *PlayersByPosition before this point in the same minute.
-		trackMinutesByPosition(matchSimulation.HomePlayersByPosition, matchSimulation.HomeMinutesByPosition)
-		trackMinutesByPosition(matchSimulation.AwayPlayersByPosition, matchSimulation.AwayMinutesByPosition)
+	playMatchMinutes(dbCtx, matchSimulation, pipeline)
+	return matchSimulation, nil
+}
 
-		// A red card (never replaced) or an injury with no scheduled substitutions left (see
-		// DisciplineSimulation/InjurySimulation) can thin a side below MinPlayersToContinueMatch
-		// mid-match - stop right there rather than simulating the rest of the match with a side
-		// that, in a real match, would have already been abandoned.
-		if applyForfeitIfUnderstaffed(matchSimulation) {
-			break
+// playMatchMinutes runs the per-minute pipeline over the whole match: minutes 1-45, the first
+// half's added time (45+1..45+A1), 46-90, then the second half's added time (90+1..90+A2). Each
+// half's added time is fixed from its regulation minutes as soon as they end (see
+// firstHalfAddedMinutes) and announced with an ADDED_TIME event; a forfeit ends the match at the
+// minute it happens, leaving any half not reached with 0 added minutes.
+func playMatchMinutes(dbCtx *common.DatabaseContext, match *common.MatchSimulation, pipeline SimulationPipeline) {
+	if playRegulation(dbCtx, match, pipeline, 1, firstHalfLastMinute) {
+		return
+	}
+	match.FirstHalfAddedTime = firstHalfAddedMinutes(*match.Events)
+	announceAddedTime(match, match.FirstHalfAddedTime)
+	if playAddedTime(dbCtx, match, pipeline, match.FirstHalfAddedTime) {
+		return
+	}
+	if playRegulation(dbCtx, match, pipeline, firstHalfLastMinute+1, secondHalfLastMinute) {
+		return
+	}
+	match.SecondHalfAddedTime = secondHalfAddedMinutes(*match.Events)
+	announceAddedTime(match, match.SecondHalfAddedTime)
+	playAddedTime(dbCtx, match, pipeline, match.SecondHalfAddedTime)
+}
+
+// playRegulation plays clock minutes from..to and reports whether the match was abandoned.
+func playRegulation(dbCtx *common.DatabaseContext, match *common.MatchSimulation, pipeline SimulationPipeline, from int, to int) bool {
+	for minute := from; minute <= to; minute++ {
+		if playMinute(dbCtx, match, pipeline, minute, 0) {
+			return true
 		}
 	}
+	return false
+}
 
-	return matchSimulation, nil
+// playAddedTime plays the added minutes 1..added of the half whose last clock minute is
+// match.Minute (45 or 90) and reports whether the match was abandoned.
+func playAddedTime(dbCtx *common.DatabaseContext, match *common.MatchSimulation, pipeline SimulationPipeline, added int) bool {
+	clock := match.Minute
+	for addedMinute := 1; addedMinute <= added; addedMinute++ {
+		if playMinute(dbCtx, match, pipeline, clock, addedMinute) {
+			return true
+		}
+	}
+	return false
+}
+
+// playMinute simulates one minute (clock minute plus added minute, 0 in regulation) and reports
+// whether the match was abandoned in it. Every event the minute's stages record carries its added
+// minute.
+func playMinute(dbCtx *common.DatabaseContext, match *common.MatchSimulation, pipeline SimulationPipeline, minute int, addedMinute int) bool {
+	eventsBefore := len(*match.Events)
+	match.Minute, match.AddedMinute = minute, addedMinute
+	match.PlayedMinutes++
+	pipeline.Simulate(dbCtx, match)
+	// Tallied after this minute's stages have run, so a player substituted/sent off/injured
+	// this exact minute doesn't get it counted, and whoever replaced them does - see
+	// SubstitutionSimulation, DisciplineSimulation, InjurySimulation, all of which mutate
+	// *PlayersByPosition before this point in the same minute.
+	trackMinutesByPosition(match.HomePlayersByPosition, match.HomeMinutesByPosition)
+	trackMinutesByPosition(match.AwayPlayersByPosition, match.AwayMinutesByPosition)
+
+	// A red card (never replaced) or an injury with no scheduled substitutions left (see
+	// DisciplineSimulation/InjurySimulation) can thin a side below MinPlayersToContinueMatch
+	// mid-match - stop right there rather than simulating the rest of the match with a side
+	// that, in a real match, would have already been abandoned.
+	abandoned := applyForfeitIfUnderstaffed(match)
+	for i := eventsBefore; i < len(*match.Events); i++ {
+		(*match.Events)[i].AddedMinute = addedMinute
+	}
+	return abandoned
+}
+
+// announceAddedTime records the fourth official's board for the half that just finished its
+// regulation minutes (match.Minute is 45 or 90), after every other event of that minute.
+func announceAddedTime(match *common.MatchSimulation, added int) {
+	minutes := added
+	*match.Events = append(*match.Events, common.Event{
+		EventType: common.ADDED_TIME,
+		Minute:    match.Minute,
+		TeamOwner: match.Home,
+		OtherTeam: match.Away,
+		HomeGoals: match.HomeGoals,
+		AwayGoals: match.AwayGoals,
+		AddedTime: &minutes,
+	})
 }
 
 // lineupSnapshotStore records the lineup a side actually kicked off with - see runMatchSimulation.

@@ -11,6 +11,7 @@ import {
   type PlayerContribution,
   type PlayerRating,
 } from '../api/types'
+import { isAtOrBefore, type MatchMinute } from './matchMinute'
 
 // A line-by-line port of backend common.ComputePlayerRatings (matchratings.go) - the formula the
 // engine stores each match's final ratings with. This copy rebuilds them as of any earlier minute
@@ -59,7 +60,11 @@ interface Participant {
 
 /** Rates every player who featured in a match as of `upToMinute` - see the backend's
  * ComputePlayerRatings doc comment for the rules. Returns null when nothing can be rated (no
- * contributions and a missing lineup), otherwise the ratings sorted by player id. */
+ * contributions and a missing lineup), otherwise the ratings sorted by player id.
+ *
+ * upToMinute is either a clock minute - which, like the backend's, includes every added minute
+ * hanging off it (90 covers 90+1..90+N) - or an exact minute of the timeline (a scrubber step),
+ * which stops at that added minute: as of 45+2, 45+3 has not happened yet. */
 export function computePlayerRatings(
   homeTeamId: number,
   awayTeamId: number,
@@ -67,8 +72,11 @@ export function computePlayerRatings(
   awayLineup: Lineup | null,
   instants: MatchInstant[],
   events: MatchEvent[],
-  upToMinute: number,
+  upToMinute: number | MatchMinute,
 ): PlayerRating[] | null {
+  const upTo: MatchMinute =
+    typeof upToMinute === 'number' ? { minute: upToMinute, addedMinute: Number.POSITIVE_INFINITY } : upToMinute
+  const reached = (at: { minute: number; addedMinute?: number }) => isAtOrBefore(at, upTo)
   const participants = new Map<number, Participant>()
   const participant = (playerId: number, teamId: number): Participant => {
     let p = participants.get(playerId)
@@ -94,11 +102,11 @@ export function computePlayerRatings(
   }
 
   let elapsed = 0
-  const withContributions = instants.some((instant) => instant.minute <= upToMinute && instant.playerContributions != null)
+  const withContributions = instants.some((instant) => reached(instant) && instant.playerContributions != null)
 
   if (withContributions) {
     for (const instant of instants) {
-      if (instant.minute > upToMinute || instant.playerContributions == null) {
+      if (!reached(instant) || instant.playerContributions == null) {
         continue
       }
       elapsed++
@@ -136,9 +144,9 @@ export function computePlayerRatings(
         participant(pos.playerId, lineup.teamId).firstPosition = pos.position
       }
     }
-    elapsed = upToMinute
+    elapsed = upTo.minute
     for (const event of events) {
-      if (event.minute <= upToMinute && event.eventType === EVENT_TYPE_MATCH_ABANDONED && event.minute < elapsed) {
+      if (reached(event) && event.eventType === EVENT_TYPE_MATCH_ABANDONED && event.minute < elapsed) {
         elapsed = event.minute
       }
     }
@@ -150,7 +158,7 @@ export function computePlayerRatings(
   let homeGoals = 0
   let awayGoals = 0
   for (const event of events) {
-    if (event.minute > upToMinute) {
+    if (!reached(event)) {
       continue
     }
     const players = event.teamOwnerPlayers ?? []

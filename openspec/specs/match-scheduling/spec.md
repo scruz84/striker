@@ -188,3 +188,10 @@ The spoiler-gated post-match effects (availability countdown and new injuries an
 - Schedules: `common/leagueschedule.go`, `common/matchschedule.go`, `engine/schedule.go`
   (`ComputeFixtureDates`), `engine/reschedule.go`; friendly delay `friendlyScheduleDelay`
   (`common/friendlies.go`).
+- Added time in the replay: `engine.minutePublishOffset(minute, addedMinute)` (45+N one minute per
+  added minute after 45, 46 always at kickoff + 59 minutes, 90+N after 90), `engine.MaxBroadcastDuration`
+  and `TestLongestBroadcastFitsLiveWindow` (`engine/livematch_test.go`), which keeps the longest
+  replay at least 5 minutes inside `common.LiveBroadcastWindow`. `BroadcastMatchLive` keys events by
+  `(minute, addedMinute)` and sends "halftime" after `45+FirstHalfAddedTime` and "complete" after the
+  last instant, both carrying `LiveMatchMessage.Minute` / `AddedMinute`
+  (`TestBroadcastMatchLive_AddedTime`).

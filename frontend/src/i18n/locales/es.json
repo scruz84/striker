@@ -1469,7 +1469,12 @@
       "balanced": "Equilibrada",
       "attacking": "Ofensiva"
     },
-    "captain": "Capitán"
+    "captain": "Capitán",
+    "addedTime": {
+      "board_one": "+{{count}} minuto",
+      "board_other": "+{{count}} minutos",
+      "label": "Tiempo añadido"
+    }
   },
   "preview": {
     "title": "Previa: {{opponent}}",

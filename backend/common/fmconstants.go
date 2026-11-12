@@ -49,6 +49,12 @@ const MATCH_DEFAULT_RESULT = 7
 // engine.applyConditionalOrders) - TeamOwner is that side, Event.Mentality its new mentality.
 const MENTALITY_CHANGE = 8
 
+// ADDED_TIME is the fourth official's board at the end of a half's regulation minutes (minute 45
+// or 90, added minute 0): Event.AddedTime is how many minutes that half adds (see
+// engine.addedMinutesFor and openspec/specs/stoppage-time). It belongs to neither side - like
+// MATCH_DEFAULT_RESULT, TeamOwner is the home side and OtherTeam the away side.
+const ADDED_TIME = 9
+
 // Event.SetPiece: how a GOAL / NO_GOAL event came about. A set piece is an attribute of the
 // usual goal event rather than an event type of its own, so every reader that counts
 // event_type = GOAL (top scorers, awards, ratings, scoreboards) keeps counting penalties and
@@ -193,12 +199,12 @@ const NOTIFICATION_PRE_CONTRACT = 17
 
 // player_transfers.kind - see RecordPlayerTransfer. Stored as a number so the frontend can
 // translate it (playerPage.transfers.kinds.*) instead of showing free-form English text.
-const PLAYER_TRANSFER_LISTING = 0      // bought a transfer-listed player at its asking price
-const PLAYER_TRANSFER_OFFER = 1        // a negotiated offer the selling club accepted
-const PLAYER_TRANSFER_FREE_AGENT = 2   // signed as a free agent - fee is the premium paid to the last club, if any
-const PLAYER_TRANSFER_LOAN = 3         // temporary loan - fee is the loan fee, if any
-const PLAYER_TRANSFER_BUY_OPTION = 4   // a loan made permanent by exercising its buy option
-const PLAYER_TRANSFER_RELEASE = 5      // contract terminated early or expired - no destination club
-const PLAYER_TRANSFER_PERMANENT = 6    // a permanent transfer from before this table existed (listing vs offer unknown)
+const PLAYER_TRANSFER_LISTING = 0        // bought a transfer-listed player at its asking price
+const PLAYER_TRANSFER_OFFER = 1          // a negotiated offer the selling club accepted
+const PLAYER_TRANSFER_FREE_AGENT = 2     // signed as a free agent - fee is the premium paid to the last club, if any
+const PLAYER_TRANSFER_LOAN = 3           // temporary loan - fee is the loan fee, if any
+const PLAYER_TRANSFER_BUY_OPTION = 4     // a loan made permanent by exercising its buy option
+const PLAYER_TRANSFER_RELEASE = 5        // contract terminated early or expired - no destination club
+const PLAYER_TRANSFER_PERMANENT = 6      // a permanent transfer from before this table existed (listing vs offer unknown)
 const PLAYER_TRANSFER_PRE_CONTRACT = 7   // a free move at the rollover agreed in the last season of his contract - fee 0
 const PLAYER_TRANSFER_RELEASE_CLAUSE = 8 // signed by paying his release clause, without his club's consent - fee is the clause

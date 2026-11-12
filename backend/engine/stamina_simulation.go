@@ -10,7 +10,8 @@ import (
 // CPU lineup planner (see common.FatigueMultiplier).
 const FatigueMaxPenalty = common.FatigueMaxPenalty
 
-// FatigueMatchLength must match runMatchSimulation's own endMinute.
+// FatigueMatchLength is the length fatigue is normalised to: a full 90 minutes. Added time (see
+// playMatchMinutes) counts as minutes played but never fatigues a player beyond the full-time value.
 const FatigueMatchLength = common.FatigueMatchLength
 
 // StaminaSimulation rebuilds each team's fatigue-adjusted "effective" player snapshot

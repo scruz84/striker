@@ -426,13 +426,22 @@ type PlayerUnavailability struct {
 type MatchSimulation struct {
 	Id         int64
 	DivisionId int64
-	Minute     int
-	Home       int64
-	Away       int64
-	HomeLineup *Lineup
-	AwayLineup *Lineup
-	HomeGoals  int
-	AwayGoals  int
+	// Minute is the clock minute being simulated (1-90); during a half's added time it stays at
+	// 45 or 90 while AddedMinute counts 1..N (0 in regulation). PlayedMinutes counts every minute
+	// simulated so far, added minutes included.
+	Minute        int
+	AddedMinute   int
+	PlayedMinutes int
+	// FirstHalfAddedTime/SecondHalfAddedTime are each half's added minutes, fixed when its
+	// regulation minutes end (0 for a half never reached).
+	FirstHalfAddedTime  int
+	SecondHalfAddedTime int
+	Home                int64
+	Away                int64
+	HomeLineup          *Lineup
+	AwayLineup          *Lineup
+	HomeGoals           int
+	AwayGoals           int
 	//Players
 	HomePlayers           *map[int64]Player
 	AwayPlayers           *map[int64]Player
@@ -564,10 +573,12 @@ type TeamQualification struct {
 }
 
 type MatchInstant struct {
-	MatchId   int64 `json:"matchId"`
-	Minute    int   `json:"minute"`
-	HomeGoals int   `json:"homeGoals"`
-	AwayGoals int   `json:"awayGoals"`
+	MatchId int64 `json:"matchId"`
+	Minute  int   `json:"minute"`
+	// AddedMinute is 1..N inside a half's added time (Minute then reads 45 or 90), 0 otherwise.
+	AddedMinute int `json:"addedMinute"`
+	HomeGoals   int `json:"homeGoals"`
+	AwayGoals   int `json:"awayGoals"`
 	//Qualifications
 	HomeQua TeamQualification `json:"homeQua"`
 	AwayQua TeamQualification `json:"awayQua"`
@@ -621,6 +632,12 @@ type Event struct {
 	SetPiece int `json:"setPiece"`
 	// Mentality is the side's new mentality on a MENTALITY_CHANGE event; nil on every other event.
 	Mentality *int `json:"mentality,omitempty"`
+	// AddedMinute is 1..N for an event in a half's added time (Minute then reads 45 or 90), 0
+	// otherwise.
+	AddedMinute int `json:"addedMinute"`
+	// AddedTime is the number of added minutes an ADDED_TIME event announces; nil on every other
+	// event.
+	AddedTime *int `json:"addedTime,omitempty"`
 }
 
 type WeekMatch struct {

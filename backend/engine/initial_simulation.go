@@ -33,6 +33,7 @@ func (s InitialSimulation) Apply(dbCtx *common.DatabaseContext, match *common.Ma
 	*match.MatchInstants = append(*match.MatchInstants, common.MatchInstant{
 		MatchId:              match.Id,
 		Minute:               match.Minute,
+		AddedMinute:          match.AddedMinute,
 		HomeGoals:            match.HomeGoals,
 		AwayGoals:            match.AwayGoals,
 		HomeQua:              *match.HomeQua,

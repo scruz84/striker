@@ -1,7 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { EVENT_TYPE_MATCH_DEFAULT_RESULT, EVENT_TYPE_MENTALITY_CHANGE, type MatchEvent } from '../../api/types'
+import {
+  EVENT_TYPE_ADDED_TIME,
+  EVENT_TYPE_GOAL,
+  EVENT_TYPE_MATCH_DEFAULT_RESULT,
+  EVENT_TYPE_MENTALITY_CHANGE,
+  type MatchEvent,
+} from '../../api/types'
 import i18n from '../../i18n'
 import { MatchEventsReport } from './MatchEventsReport'
 
@@ -76,3 +82,54 @@ describe('MatchEventsReport mentality change', () => {
     expect(container.textContent?.toLowerCase()).not.toContain('attacking')
   })
 })
+
+// openspec/specs/match-viewer "Added-time board in the chronicle" and "Minute labels with added
+// time".
+describe('MatchEventsReport added time', () => {
+  const goal = (minute: number, addedMinute: number, homeGoals: number): MatchEvent => ({
+    ...defaultResult,
+    eventType: EVENT_TYPE_GOAL,
+    minute,
+    addedMinute,
+    teamOwnerPlayers: [7],
+    teamOwnerPlayerNames: ['Berlana'],
+    homeGoals,
+  })
+  const board = (minute: number, addedTime: number): MatchEvent => ({ ...defaultResult, eventType: EVENT_TYPE_ADDED_TIME, minute, addedTime })
+
+  function minutes(container: HTMLElement): string[] {
+    return Array.from(container.querySelectorAll('p'))
+      .map((p) => p.textContent ?? '')
+      .filter((text) => /^\d+(\+\d+)?'$/.test(text))
+  }
+
+  it.each([
+    ['en', '+5 minutes', '+1 minute', 'Added time'],
+    ['es', '+5 minutos', '+1 minuto', 'Tiempo añadido'],
+  ])('shows the board at its minute, after the minute\'s other events, in %s', async (language, five, one, label) => {
+    await i18n.changeLanguage(language)
+    const events = [goal(46, 0, 3), board(90, 5), goal(45, 2, 2), board(45, 1), goal(45, 0, 1), goal(90, 3, 4)]
+    const { container } = render(
+      <MemoryRouter>
+        <MatchEventsReport events={events} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" />
+      </MemoryRouter>,
+    )
+    expect(container.textContent).toContain(five)
+    expect(container.textContent).toContain(one)
+    expect(screen.getAllByLabelText(label)).toHaveLength(2)
+    expect(minutes(container)).toEqual(["45'", "45'", "45+2'", "46'", "90'", "90+3'"])
+  })
+
+  it('leaves the board out of a live chronicle that has not reached it yet', async () => {
+    await i18n.changeLanguage('en')
+    // A live viewer at minute 88 has only the events published so far: no second-half board.
+    const { container } = render(
+      <MemoryRouter>
+        <MatchEventsReport events={[goal(30, 0, 1)]} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" />
+      </MemoryRouter>,
+    )
+    expect(container.textContent).not.toContain('minutes')
+    expect(minutes(container)).toEqual(["30'"])
+  })
+})
+

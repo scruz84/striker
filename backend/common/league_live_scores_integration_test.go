@@ -176,3 +176,74 @@ func TestGetLeagueLiveScores_ServedFromCacheWithinTTL(t *testing.T) {
 		t.Errorf("third call after the cache expired: %+v, %v; want 2 entries", third, err)
 	}
 }
+
+// "Entry in added time", "Winner scored in added time" and "Broadcast finished" with added time
+// (division-live-scores): entries carry the broadcast's added minute, and a winner stored at 90+3
+// is not revealed while the broadcast is at 90+1.
+func TestGetLeagueLiveScores_AddedTime(t *testing.T) {
+	dbCtx, leagueId, addMatch := leagueLiveScoresFixture(t)
+	kickoff := time.Now().Add(-105 * time.Minute)
+	inAddedTime := addMatch(12, kickoff, true, 2, 2)
+	winnerLate := addMatch(12, kickoff.Add(time.Second), true, 2, 1)
+	finished := addMatch(12, kickoff.Add(2*time.Second), true, 3, 2)
+	halftime := addMatch(13, time.Now().Add(-47*time.Minute), true, 0, 1)
+
+	dbCtx.LiveHub.Publish(LeagueMatchChannel(inAddedTime), LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 90, AddedMinute: 2}, HomeGoals: 2, AwayGoals: 2})
+	dbCtx.LiveHub.Publish(LeagueMatchChannel(winnerLate), LiveMatchMessage{Type: "instant", Instant: &MatchInstant{Minute: 90, AddedMinute: 1}, HomeGoals: 1, AwayGoals: 1})
+	dbCtx.LiveHub.Publish(LeagueMatchChannel(finished), LiveMatchMessage{Type: "complete", Minute: 90, AddedMinute: 4, HomeGoals: 3, AwayGoals: 2})
+	dbCtx.LiveHub.Publish(LeagueMatchChannel(halftime), LiveMatchMessage{Type: "halftime", Minute: 45, AddedMinute: 2, AwayGoals: 1})
+
+	scores, err := GetLeagueLiveScores(dbCtx, leagueId)
+	if err != nil || len(scores) != 4 {
+		t.Fatalf("got %+v, %v", scores, err)
+	}
+	byId := map[int64]LeagueLiveScore{}
+	for _, s := range scores {
+		byId[s.MatchId] = s
+	}
+	if s := byId[inAddedTime]; s.Status != LiveStatusLive || s.Minute != 90 || s.AddedMinute != 2 || s.HomeGoals != 2 || s.AwayGoals != 2 {
+		t.Errorf("entry in added time: got %+v, want live 90+2 at 2-2", s)
+	}
+	if s := byId[winnerLate]; s.Status != LiveStatusLive || s.Minute != 90 || s.AddedMinute != 1 || s.HomeGoals != 1 || s.AwayGoals != 1 {
+		t.Errorf("winner in added time: got %+v, want live 90+1 at 1-1 (stored 2-1)", s)
+	}
+	if s := byId[finished]; s.Status != LiveStatusFinished || s.Minute != 90 || s.AddedMinute != 4 || s.HomeGoals != 3 {
+		t.Errorf("finished after 90+4: got %+v", s)
+	}
+	if s := byId[halftime]; s.Status != LiveStatusHalftime || s.Minute != 45 || s.AddedMinute != 2 || s.AwayGoals != 1 {
+		t.Errorf("half-time after 2 added minutes: got %+v, want halftime 45+2 at 0-1", s)
+	}
+}
+
+// "Estimate in first-half added time" and "Estimate past the last added minute"
+// (division-live-scores "Estimate before the first broadcast message"): with no broadcast state,
+// the estimate follows the stored added time and never reports finished; the score is the one as
+// of the estimated minute, added minutes included.
+func TestGetLeagueLiveScores_EstimateWithAddedTime(t *testing.T) {
+	dbCtx, leagueId, addMatch := leagueLiveScoresFixture(t)
+	firstHalf := addMatch(12, time.Now().Add(-46*time.Minute), true, 1, 0)
+	pastTheEnd := addMatch(12, time.Now().Add(-115*time.Minute), true, 2, 1)
+	if _, err := dbCtx.Db.Exec(`UPDATE matches SET first_half_added_time = 3, second_half_added_time = 4 WHERE match_id IN ($1, $2)`, firstHalf, pastTheEnd); err != nil {
+		t.Fatalf("setting added time: %s", err)
+	}
+	if _, err := dbCtx.Db.Exec(`INSERT INTO match_events (match_id, minute, added_minute, event_type, home_goals, away_goals) VALUES
+		($1, 45, 1, 0, 1, 0), ($1, 45, 3, 0, 2, 0), ($2, 90, 0, 0, 1, 1), ($2, 90, 4, 0, 2, 1)`, firstHalf, pastTheEnd); err != nil {
+		t.Fatalf("seeding events: %s", err)
+	}
+	dbCtx.LiveHub = nil
+
+	scores, err := GetLeagueLiveScores(dbCtx, leagueId)
+	if err != nil || len(scores) != 2 {
+		t.Fatalf("got %+v, %v", scores, err)
+	}
+	byId := map[int64]LeagueLiveScore{}
+	for _, s := range scores {
+		byId[s.MatchId] = s
+	}
+	if s := byId[firstHalf]; s.Status != LiveStatusLive || s.Minute != 45 || s.AddedMinute != 2 || s.HomeGoals != 1 {
+		t.Errorf("first-half added time: got %+v, want live 45+2 at 1-0 (the 45+3 goal not yet)", s)
+	}
+	if s := byId[pastTheEnd]; s.Status != LiveStatusLive || s.Minute != 90 || s.AddedMinute != 4 || s.HomeGoals != 2 || s.AwayGoals != 1 {
+		t.Errorf("past the last added minute: got %+v, want live 90+4 at 2-1", s)
+	}
+}

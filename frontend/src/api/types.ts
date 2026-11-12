@@ -644,6 +644,11 @@ export interface MatchEvent {
   setPiece?: number
   // The side's new mentality on an EVENT_TYPE_MENTALITY_CHANGE event (MENTALITY_*).
   mentality?: number
+  // 1..N for an event in a half's added time (minute then reads 45 or 90), 0 or absent otherwise
+  // (every event stored before added time existed) - see utils/matchMinute.ts.
+  addedMinute?: number
+  // How many minutes an EVENT_TYPE_ADDED_TIME board announces.
+  addedTime?: number
 }
 
 // SetPiece values from backend/common/fmconstants.go
@@ -665,6 +670,10 @@ export const EVENT_TYPE_MATCH_DEFAULT_RESULT = 7
 // A conditional order switched teamOwner's mentality (backend common.MENTALITY_CHANGE) - its new
 // mentality is in `mentality`.
 export const EVENT_TYPE_MENTALITY_CHANGE = 8
+// The fourth official's board at minute 45 or 90 (backend common.ADDED_TIME): `addedTime` is how
+// many minutes that half adds. Like the default result, teamOwner is the home side and otherTeam
+// the away side - it belongs to neither.
+export const EVENT_TYPE_ADDED_TIME = 9
 
 // TeamQualification is a team's per-zone strength for one minute of simulation - see
 // backend/common/fmstructs.go. These are the actual numbers the simulation compares (a team's
@@ -689,6 +698,8 @@ export interface TeamQualification {
 export interface MatchInstant {
   matchId: number
   minute: number
+  // 1..N inside a half's added time (minute then reads 45 or 90), 0 or absent otherwise.
+  addedMinute?: number
   homeGoals: number
   awayGoals: number
   homeQua: TeamQualification
@@ -1680,6 +1691,7 @@ export interface WorldCupGroupMatch {
   matchDate: string
   status: NationalMatchStatus
   minute?: number
+  addedMinute?: number
   homeGoals?: number
   awayGoals?: number
 }
@@ -1719,6 +1731,7 @@ export interface NationalMatch {
   kickoff: string
   status: NationalMatchStatus
   minute?: number
+  addedMinute?: number
   homeGoals?: number
   awayGoals?: number
   groupName?: string
@@ -1852,6 +1865,7 @@ export interface LiveMatchSummary {
   competitionName?: string
   tier?: number
   minute?: number
+  addedMinute?: number
 }
 
 // LiveMatchesOverview is the dashboard's "matches in play right now" summary - see backend
@@ -1876,6 +1890,9 @@ export interface LeagueLiveScore {
   awayName: string
   status: LeagueLiveStatus
   minute: number
+  // 1..N while the broadcast is in a half's added time (minute then reads 45 or 90); absent from a
+  // response cached before added time existed.
+  addedMinute?: number
   homeGoals: number
   awayGoals: number
 }

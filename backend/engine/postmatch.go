@@ -26,6 +26,9 @@ func newMatchResult(match *common.MatchSimulation, wentToPenalties bool) common.
 		Effects:       effects,
 		PlayerRatings: ratings,
 		RivalryLevel:  match.RivalryLevel,
+
+		FirstHalfAddedTime:  match.FirstHalfAddedTime,
+		SecondHalfAddedTime: match.SecondHalfAddedTime,
 	}
 }
 

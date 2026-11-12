@@ -162,13 +162,17 @@ func TestSimulateCupTie_StoresInstantsAndFlavor(t *testing.T) {
 		t.Fatalf("expected the tie to store its per-minute instants")
 	}
 	instants := *details.MatchInstants
-	for i, instant := range instants {
-		if instant.Minute != i+1 {
-			t.Fatalf("instant %d has minute %d, want one instant per consecutive minute starting at 1", i, instant.Minute)
-		}
+	assertStoredAddedTime(t, db, "cup_ties", "tie_id", tieId, instants, details.Events)
+	// "Cup tie level after added time" (match-simulation): the shoot-out is decided on the score
+	// after the last added minute.
+	var homeGoals, awayGoals int
+	var wentToPenalties bool
+	if err := db.QueryRow(`SELECT home_goals, away_goals, went_to_penalties FROM cup_ties WHERE tie_id = $1`, tieId).
+		Scan(&homeGoals, &awayGoals, &wentToPenalties); err != nil {
+		t.Fatalf("reading the tie result: %s", err)
 	}
-	if len(instants) != 90 {
-		t.Errorf("expected 90 instants for a full-length tie, got %d", len(instants))
+	if wentToPenalties != (homeGoals == awayGoals) {
+		t.Errorf("went_to_penalties = %v for a %d-%d tie", wentToPenalties, homeGoals, awayGoals)
 	}
 	if details.Weather == "" || details.RefereeName == "" || details.Assistant1Name == "" || details.Assistant2Name == "" {
 		t.Errorf("expected stored weather and referees, got %+v", details)
@@ -180,6 +184,56 @@ func TestSimulateCupTie_StoresInstantsAndFlavor(t *testing.T) {
 		t.Errorf("expected the home stadium name, got %q", details.HomeStadiumName)
 	}
 	assertStoredRatingsRebuildFromInstants(t, details.PlayerRatings, *details.HomeTeamId, *details.AwayTeamId, instants, details.Events)
+}
+
+// assertStoredAddedTime pins a just-simulated fixture's added time (openspec/specs/stoppage-time)
+// against what it stored: both halves' added minutes on the fixture row (1-5 each), one instant per
+// simulated minute in match order (1..45, 45+1..45+A1, 46..90, 90+1..90+A2), and the two ADDED_TIME
+// boards announcing those same minutes. A match abandoned for lack of players is left out.
+func assertStoredAddedTime(t *testing.T, db *sql.DB, table string, idColumn string, id int64, instants []common.MatchInstant, events []common.Event) {
+	t.Helper()
+	for _, e := range events {
+		if e.EventType == common.MATCH_ABANDONED {
+			return
+		}
+	}
+	var first, second int
+	if err := db.QueryRow("SELECT first_half_added_time, second_half_added_time FROM "+table+" WHERE "+idColumn+" = $1", id).Scan(&first, &second); err != nil {
+		t.Fatalf("reading %s added time: %s", table, err)
+	}
+	if first < MinAddedMinutes || first > MaxAddedFirstHalf || second < MinAddedMinutes || second > MaxAddedSecondHalf {
+		t.Fatalf("%s added time %d and %d, want 1-5 each", table, first, second)
+	}
+	want := make([][2]int, 0, 90+first+second)
+	for m := 1; m <= 45; m++ {
+		want = append(want, [2]int{m, 0})
+	}
+	for a := 1; a <= first; a++ {
+		want = append(want, [2]int{45, a})
+	}
+	for m := 46; m <= 90; m++ {
+		want = append(want, [2]int{m, 0})
+	}
+	for a := 1; a <= second; a++ {
+		want = append(want, [2]int{90, a})
+	}
+	if len(instants) != len(want) {
+		t.Fatalf("%s: %d instants, want %d (90 + %d + %d)", table, len(instants), len(want), first, second)
+	}
+	for i, w := range want {
+		if instants[i].Minute != w[0] || instants[i].AddedMinute != w[1] {
+			t.Fatalf("%s: instant %d is %d+%d, want %d+%d", table, i, instants[i].Minute, instants[i].AddedMinute, w[0], w[1])
+		}
+	}
+	boards := make([][2]int, 0, 2)
+	for _, e := range events {
+		if e.EventType == common.ADDED_TIME && e.AddedTime != nil {
+			boards = append(boards, [2]int{e.Minute, *e.AddedTime})
+		}
+	}
+	if len(boards) != 2 || boards[0] != [2]int{45, first} || boards[1] != [2]int{90, second} {
+		t.Errorf("%s: boards %v, want +%d at 45 and +%d at 90", table, boards, first, second)
+	}
 }
 
 // assertStoredRatingsRebuildFromInstants pins the stored ratings of a just-simulated fixture
@@ -266,6 +320,7 @@ func TestSimulateFriendly_StoredAttendanceMatchesTicketRevenue(t *testing.T) {
 		t.Fatal("expected the played friendly's instants and events")
 	}
 	assertStoredRatingsRebuildFromInstants(t, played.PlayerRatings, home, away, *played.MatchInstants, *played.Events)
+	assertStoredAddedTime(t, db, "friendly_matches", "match_id", matchId, *played.MatchInstants, *played.Events)
 
 	var description string
 	if err := db.QueryRow(`SELECT description FROM team_transactions WHERE team_id = $1 AND reason = $2 ORDER BY 1 LIMIT 1`,
@@ -296,6 +351,7 @@ func TestSimulateMatch_StoresPlayerRatings(t *testing.T) {
 		t.Fatal("expected the match's instants and events")
 	}
 	assertStoredRatingsRebuildFromInstants(t, match.PlayerRatings, e.home, e.away, *match.MatchInstants, *match.Events)
+	assertStoredAddedTime(t, e.db, "matches", "match_id", matchId, *match.MatchInstants, *match.Events)
 	if match.Ratings == nil {
 		t.Fatal("expected the id -> rating map")
 	}
@@ -341,8 +397,8 @@ func TestWeekMatchById_LegacyMatchRatesSubstitutedOffScorer(t *testing.T) {
 	e.exec(`UPDATE match_instants SET player_contributions = NULL WHERE match_id = $1`, matchId)
 	e.exec(`DELETE FROM match_events WHERE match_id = $1`, matchId)
 	e.exec(`UPDATE matches SET home_goals = 1, away_goals = 0 WHERE match_id = $1`, matchId)
-	e.exec(common.InsertMatchEventStmtSql, matchId, common.GOAL, e.home, e.away, 20, fmt.Sprintf("[%d]", starter), `["S"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil)
-	e.exec(common.InsertMatchEventStmtSql, matchId, common.SUBSTITUTION, e.home, e.away, 60, fmt.Sprintf("[%d, %d]", starter, bench), `["S", "B"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.GOAL, e.home, e.away, 20, fmt.Sprintf("[%d]", starter), `["S"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil, 0, nil)
+	e.exec(common.InsertMatchEventStmtSql, matchId, common.SUBSTITUTION, e.home, e.away, 60, fmt.Sprintf("[%d, %d]", starter, bench), `["S", "B"]`, `[]`, `[]`, 1, 0, common.SET_PIECE_NONE, nil, 0, nil)
 
 	match, err := common.WeekMatchById(e.dbCtx, matchId)
 	if err != nil || match == nil {

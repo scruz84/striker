@@ -1472,7 +1472,12 @@
       "balanced": "Balanced",
       "attacking": "Attacking"
     },
-    "captain": "Captain"
+    "captain": "Captain",
+    "addedTime": {
+      "board_one": "+{{count}} minute",
+      "board_other": "+{{count}} minutes",
+      "label": "Added time"
+    }
   },
   "preview": {
     "title": "Preview: {{opponent}}",

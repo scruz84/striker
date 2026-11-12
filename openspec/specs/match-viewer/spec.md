@@ -250,3 +250,13 @@ From kickoff on, the lineups pitch and the ratings list of the live and finished
 - Subtitle: `utils/matchSubtitle.ts`; labels `match.competition.*` in `i18n/locales/{en,es}.json`.
 - Backend payloads: `common.CupTieDetails` / `common.FriendlyMatch` (stadium, flavor, instants, World Cup
   group label); storage described in match-simulation's code map.
+- Added time: `utils/matchMinute.ts` (`formatMatchMinute`, `matchMinuteText`, `compareMatchMinute`,
+  `isAtOrBefore`, `matchTimeline`, `timelineMinute`). The scoreboard's goal list and live clock
+  (`MatchScoreboard.tsx`, `ScoreboardProps.addedMinute`, `utils/matchGoals.ts`), the report rows and the
+  `EVENT_TYPE_ADDED_TIME` board (`MatchEventsReport.tsx`, labels `match.addedTime.*`), and the
+  scrubbers (`MatchMinuteZoneComparison` / `MatchMinuteRatings` take a `timeline` and step through it;
+  `useMinuteScrub` counts steps) use them. `useLiveMatch` tracks `addedMinute` from instants and the
+  "halftime" / "complete" messages. Tests: `utils/matchMinute.test.ts`,
+  `features/match/MatchScoreboard.test.tsx`, `MatchEventsReport.test.tsx` (added time),
+  `MatchMinuteRatings.test.tsx` (with added time), `MatchMinuteZoneComparison.test.tsx`,
+  `api/useLiveMatch.test.ts`.

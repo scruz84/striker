@@ -7,13 +7,13 @@ package common
 const FatigueMaxPenalty = 0.30
 
 // FatigueMatchLength is the match length (in minutes) FatigueMultiplier normalizes elapsed
-// playing time against - matches the engine's own endMinute.
+// playing time against: the 90 regulation minutes, whatever added time a match gets.
 const FatigueMatchLength = 90
 
 // FatigueMultiplier scales down linearly with both elapsed playing time (as a fraction of
-// FatigueMatchLength) and how little Stamina (0-99) the player has, capped so extra time logged
-// beyond FatigueMatchLength (there isn't any - matches run exactly 90 minutes - but this keeps the
-// formula well-defined regardless) never pushes the penalty past FatigueMaxPenalty. It lives in
+// FatigueMatchLength) and how little Stamina (0-99) the player has, capped so added time played
+// beyond FatigueMatchLength (see engine.playMatchMinutes) never pushes the penalty past
+// FatigueMaxPenalty. It lives in
 // common so the engine's StaminaSimulation and the CPU lineup planner (see PlanAiMatchLineup) read
 // the exact same formula.
 func FatigueMultiplier(stamina int, minutesPlayed int) float64 {

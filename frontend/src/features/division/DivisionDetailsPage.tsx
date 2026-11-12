@@ -890,7 +890,7 @@ function FixturesCard({
             <Stack divider={<Box sx={{ borderBottom: '1px solid', borderColor: 'divider' }} />}>
               {group.matches.map((match) => {
                 // played flips true in the DB the instant a match is simulated, well before its
-                // result finishes broadcasting to viewers in real time (~90 minutes, see
+                // result finishes broadcasting to viewers in real time (up to 108 minutes with added time, see
                 // mightStillBeLive's comment) - showing the final score here immediately would
                 // spoil a match that still looks "live" everywhere else (the match details page,
                 // the team matches list). Show a LIVE chip instead until that window has elapsed.

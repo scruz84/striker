@@ -125,3 +125,8 @@ A played match with no stored ratings SHALL be rated on read from its starting l
   pinned to the Go formula by `frontend/src/utils/testdata/match_ratings_parity.json`
   (`TestComputePlayerRatings_ParityFixture`, `liveMatchRatings.test.ts`; regenerate with
   `STRIKER_WRITE_RATINGS_FIXTURE=1`).
+- Added minutes: the backend counts one minute per instant up to the clock minute it is called with,
+  so `MatchFinalMinute` (90) covers 90+1..90+N (`TestComputePlayerRatings_FullMatchWithAddedTime`,
+  `TestComputePlayerRatings_SubstituteInAddedTimeIsUnrated`); the frontend's `computePlayerRatings`
+  also takes an exact minute of the timeline (`MatchMinute`), which stops at that added minute
+  (`liveMatchRatings.test.ts`, "computePlayerRatings in added time").

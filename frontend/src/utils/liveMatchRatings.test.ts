@@ -81,3 +81,43 @@ describe('startingLineup', () => {
     expect(startingLineup(lineup([1, 7, 3]), [sub(60, 1, 7, 17)])?.positions.map((p) => p.playerId)).toEqual([1, 7, 3])
   })
 })
+
+// match-ratings "Ratings as of an added minute": as of 45+2 a rating counts minutes, contributions,
+// events and score up to and including 45+2, and nothing after it; a plain clock minute keeps the
+// backend's meaning and covers every added minute hanging off it.
+describe('computePlayerRatings in added time', () => {
+  const contribution = { h: { '7': { p: 7, o: 50, r: 50 } }, a: {} }
+  const instants = [
+    ...Array.from({ length: 45 }, (_, i) => ({ minute: i + 1 })),
+    { minute: 45, addedMinute: 1 },
+    { minute: 45, addedMinute: 2 },
+    { minute: 45, addedMinute: 3 },
+    { minute: 46 },
+  ].map((m) => ({ ...m, playerContributions: contribution })) as unknown as MatchInstant[]
+  const goal = (addedMinute: number, homeGoals: number): MatchEvent => ({
+    eventType: 0,
+    minute: 45,
+    addedMinute,
+    teamOwner: 1,
+    teamOwnerPlayers: [7],
+    teamOwnerPlayerNames: ['S'],
+    otherTeam: 2,
+    otherTeamPlayers: null,
+    otherTeamPlayerNames: null,
+    homeGoals,
+    awayGoals: 0,
+  })
+  const events = [goal(2, 1), goal(3, 2)]
+
+  it('stops at the exact added minute', () => {
+    const [r] = computePlayerRatings(1, 2, null, null, instants, events, { minute: 45, addedMinute: 2 }) ?? []
+    expect(r.minutes).toBe(47)
+    expect(r.goals).toBe(1.4)
+  })
+
+  it('reads a clock minute as covering all of its added minutes', () => {
+    const [r] = computePlayerRatings(1, 2, null, null, instants, events, 45) ?? []
+    expect(r.minutes).toBe(48)
+    expect(r.goals).toBe(2.8)
+  })
+})

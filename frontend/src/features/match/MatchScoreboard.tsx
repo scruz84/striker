@@ -11,6 +11,7 @@ import { SET_PIECE_DIRECT_FREE_KICK, SET_PIECE_PENALTY } from '../../api/types'
 import { TeamBadge } from '../../components/TeamBadge'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import type { ScorerLine } from '../../utils/matchGoals'
+import { formatMatchMinute } from '../../utils/matchMinute'
 import { PULSING_LIVE_SX } from '../../utils/liveChip'
 
 // Shared by the league match details page and the friendly match page - a live or played
@@ -25,6 +26,8 @@ export interface ScoreboardProps {
   awayGoals: number
   status: 'scheduled' | 'live' | 'halftime' | 'connecting' | 'played'
   minute?: number
+  // 1..N while the live clock is in a half's added time ("90+3'").
+  addedMinute?: number
   subtitle?: string
   // The home team's stadium - shown as a caption next to the status chip when known (omitted
   // for a friendly, which doesn't track stadium flavor - see WeekMatch.homeStadiumName).
@@ -44,15 +47,17 @@ export interface ScoreboardProps {
 
 function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: 'left' | 'right' }) {
   const { t } = useTranslation()
-  // "16'" for an open-play goal, "16' (pen.)" / "16' (f.k.)" for a penalty / direct free kick.
+  // "16'" for an open-play goal, "16' (pen.)" / "16' (f.k.)" for a penalty / direct free kick,
+  // "45+2'" for a goal in added time.
   const goalLabel = (goal: ScorerLine['goals'][number]) => {
+    const minute = formatMatchMinute(goal.minute, goal.addedMinute)
     if (goal.setPiece === SET_PIECE_PENALTY) {
-      return `${goal.minute}' (${t('match.setPiece.penaltyShort')})`
+      return `${minute} (${t('match.setPiece.penaltyShort')})`
     }
     if (goal.setPiece === SET_PIECE_DIRECT_FREE_KICK) {
-      return `${goal.minute}' (${t('match.setPiece.freeKickShort')})`
+      return `${minute} (${t('match.setPiece.freeKickShort')})`
     }
-    return `${goal.minute}'`
+    return minute
   }
   return (
     <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0, textAlign: align }}>
@@ -74,6 +79,7 @@ export function Scoreboard({
   awayGoals,
   status,
   minute,
+  addedMinute,
   subtitle,
   stadiumName,
   homePosition,
@@ -143,7 +149,7 @@ export function Scoreboard({
             </Typography>
             {typeof minute === 'number' && minute > 0 && (
               <Typography variant="body2" align="center" color="text.secondary">
-                {minute}&apos;
+                {formatMatchMinute(minute, addedMinute)}
               </Typography>
             )}
           </Box>

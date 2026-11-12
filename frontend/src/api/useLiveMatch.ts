@@ -15,13 +15,21 @@ interface LiveMatchMessage {
   awayPlayers?: Record<string, Player>
   homeGoals: number
   awayGoals: number
+  // Only on "halftime" and "complete": the minute the first half or the whole broadcast ended on
+  // (45+N, 90+N - see backend engine.BroadcastMatchLive). Absent from one published before added
+  // time existed.
+  minute?: number
+  addedMinute?: number
 }
 
 export interface LiveMatchState {
   connected: boolean
   homeGoals: number
   awayGoals: number
+  // The minute the broadcast is at: its clock minute, plus addedMinute (1..N) inside a half's
+  // added time - see utils/matchMinute.ts.
   minute: number
+  addedMinute: number
   events: MatchEvent[]
   // The most recent per-minute zone-by-zone strength snapshot broadcast for this match (see
   // backend common.MatchInstant) - null until the first "instant" message arrives. Lets a live
@@ -69,6 +77,7 @@ const initialState: LiveMatchState = {
   homeGoals: 0,
   awayGoals: 0,
   minute: 0,
+  addedMinute: 0,
   events: [],
   homeQua: null,
   awayQua: null,
@@ -90,7 +99,7 @@ const maxReconnectAttempts = 5
 const reconnectDelayMs = 3000
 
 // maxLiveBroadcastWindowMs generously bounds how long after kickoff a match's live broadcast
-// (~105 real minutes - see liveMatchMinuteDelay/liveMatchHalftimeDelay in backend/engine/livematch.go - plus whatever lag
+// (up to 108 real minutes with added time - see minutePublishOffset in backend/engine/livematch.go - plus whatever lag
 // the scheduler has before it even starts simulating) could still be in progress. Callers use
 // this to decide whether it's worth opening a live connection at all for a match the REST data
 // already reports as played: `played` flips true in the DB the instant the match is simulated,
@@ -99,7 +108,9 @@ const reconnectDelayMs = 3000
 // match played hours or days ago has certainly finished broadcasting, so there's no point
 // connecting a websocket just to be told "complete" immediately (which the backend does handle
 // correctly either way - see serveLiveMatch - this is purely to skip the pointless round trip).
-const maxLiveBroadcastWindowMs = 2 * 60 * 60 * 1000
+// It mirrors backend common.LiveBroadcastWindow, which the longest replay must end at least 5
+// minutes inside (backend TestLongestBroadcastFitsLiveWindow); useLiveMatch.test.ts pins both.
+export const maxLiveBroadcastWindowMs = 2 * 60 * 60 * 1000
 
 // maxEarlySimulationMs mirrors the backend's own early-claim window (see
 // GetSimulableFriendliesStmtSql/GetSimulableMatchesStmtSql): a match can be simulated, and flip
@@ -123,7 +134,7 @@ export function mightStillBeLive(matchDate: string): boolean {
 // useIsBroadcastOver flips true once matchDate's whole live-broadcast window (see
 // mightStillBeLive) has elapsed - the point after which a match's broadcast has certainly
 // finished, whatever its socket did. `played` alone can't tell that: it flips true when the match
-// is simulated, up to 15 minutes before kickoff and ~105 minutes before its broadcast ends.
+// is simulated, up to 15 minutes before kickoff and up to 108 minutes before its broadcast ends.
 export function useIsBroadcastOver(matchDate: string): boolean {
   return useDueAt(new Date(matchDate).getTime() + maxLiveBroadcastWindowMs)
 }
@@ -189,6 +200,18 @@ export function useIsLineupLocked(matchDate: string): boolean {
   return useDueAt(new Date(matchDate).getTime() - LINEUP_LOCK_MINUTES * 60 * 1000)
 }
 
+// messageMinute is the minute a broadcast message moves the viewer to: an instant's own minute,
+// the minute a "halftime" or "complete" message names, and otherwise the minute already shown.
+function messageMinute(msg: LiveMatchMessage, prev: LiveMatchState): Pick<LiveMatchState, 'minute' | 'addedMinute'> {
+  if (msg.instant) {
+    return { minute: msg.instant.minute, addedMinute: msg.instant.addedMinute ?? 0 }
+  }
+  if ((msg.type === 'halftime' || msg.type === 'complete') && msg.minute) {
+    return { minute: msg.minute, addedMinute: msg.addedMinute ?? 0 }
+  }
+  return { minute: prev.minute, addedMinute: prev.addedMinute }
+}
+
 export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMatchState {
   const [state, setState] = useState<LiveMatchState>(initialState)
 
@@ -238,7 +261,7 @@ export function useLiveMatch(path: string | undefined, enabled: boolean): LiveMa
           connected: true,
           homeGoals: msg.homeGoals,
           awayGoals: msg.awayGoals,
-          minute: msg.instant?.minute ?? prev.minute,
+          ...messageMinute(msg, prev),
           events: msg.event ? [...prev.events, msg.event] : prev.events,
           homeQua: msg.instant?.homeQua ?? prev.homeQua,
           awayQua: msg.instant?.awayQua ?? prev.awayQua,

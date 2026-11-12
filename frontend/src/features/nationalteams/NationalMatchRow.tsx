@@ -10,6 +10,7 @@ import { COUNTRY_NAME_KEYS } from '../../api/types'
 import { CountryFlag } from '../../components/CountryFlag'
 import { NestedTeamNameLink } from '../../components/TeamNameLink'
 import { formatDayTime } from '../../utils/formatDate'
+import { matchMinuteText } from '../../utils/matchMinute'
 import { nationalMatchLabel, nationalMatchLink } from './nationalMatches'
 
 /** One national-team match as a compact two-line row that fits a 360 px screen: the competition
@@ -48,7 +49,7 @@ export function NationalMatchRow({ match, hideLabel = false }: { match: National
         )}
         {match.status === 'live' ? (
           <Chip
-            label={t('nationalTeams.row.liveMinute', { minute: match.minute ?? 0 })}
+            label={t('nationalTeams.row.liveMinute', { minute: matchMinuteText(match.minute ?? 0, match.addedMinute) })}
             color="error"
             size="small"
             sx={{ height: 20, fontSize: '0.6875rem', fontWeight: 700 }}

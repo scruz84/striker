@@ -16,6 +16,7 @@ import RestoreIcon from '@mui/icons-material/Restore'
 import { useTranslation } from 'react-i18next'
 import type { Lineup, MatchEvent, MatchInstant, Player, PlayerRating } from '../../api/types'
 import { computePlayerRatings, startingLineup } from '../../utils/liveMatchRatings'
+import { formatMatchMinute, matchMinuteText, timelineMinute, type MatchMinute } from '../../utils/matchMinute'
 import { useMinuteScrub, type MinuteScrub } from '../../utils/useMinuteScrub'
 import { TeamRatingsColumn } from './TeamRatingsColumn'
 
@@ -32,12 +33,13 @@ export interface MatchMinuteRatingsProps {
   // The per-minute instants so far (live) or of the whole match (finished) - their
   // playerContributions feed each player's zone component (see utils/liveMatchRatings).
   instants: MatchInstant[]
-  // The latest minute a viewer can scrub to - the broadcast's current minute for a live match, or
-  // the final whistle's minute for a played one.
-  currentMinute: number
+  // The minutes a viewer can scrub through, in match order, added minutes included (see
+  // utils/matchMinute.matchTimeline): its last one is the broadcast's current minute for a live
+  // match, or the final whistle's for a played one.
+  timeline: MatchMinute[]
   // True for a still-broadcasting match - only affects the title/copy shown at the current minute.
   live?: boolean
-  // The backend's stored final ratings, shown once the scrubber is at `currentMinute` - the same
+  // The backend's stored final ratings, shown once the scrubber is at the timeline's end - the same
   // numbers utils/liveMatchRatings rebuilds there, but the stored ones are the record. Omitted for
   // a still-live match, which has no "final" yet.
   finalRatings?: PlayerRating[]
@@ -62,14 +64,17 @@ export function MatchMinuteRatings({
   awayPlayers,
   events,
   instants,
-  currentMinute,
+  timeline,
   live = false,
   finalRatings,
   scrub,
 }: MatchMinuteRatingsProps) {
   const { t } = useTranslation()
-  const ownScrub = useMinuteScrub(currentMinute)
-  const { minute, atNow, goToMinute } = scrub ?? ownScrub
+  // The scrubber moves in timeline steps (see useMinuteScrub): the last step is "now".
+  const lastStep = timeline.length
+  const ownScrub = useMinuteScrub(lastStep)
+  const { minute: step, atNow, goToMinute } = scrub ?? ownScrub
+  const at = timelineMinute(timeline, step)
   // On a phone the list opens ranked by rating (the quickest answer to "who played well"); on a
   // wider screen it keeps the lineup's positional order. Either way the viewer can switch.
   const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'))
@@ -85,12 +90,14 @@ export function MatchMinuteRatings({
     if (atNow && finalRatings) {
       return finalRatings
     }
-    return computePlayerRatings(homeId, awayId, homeStart, awayStart, instants, events, minute) ?? []
-  }, [atNow, finalRatings, homeId, awayId, homeStart, awayStart, instants, events, minute])
+    return computePlayerRatings(homeId, awayId, homeStart, awayStart, instants, events, at) ?? []
+  }, [atNow, finalRatings, homeId, awayId, homeStart, awayStart, instants, events, at])
   const homeRatings = ratings.filter((rating) => rating.teamId === homeId)
   const awayRatings = ratings.filter((rating) => rating.teamId === awayId)
 
-  const title = atNow ? t(live ? 'match.ratings.liveTitle' : 'match.ratings.title') : t('match.ratings.atMinute', { minute })
+  const title = atNow
+    ? t(live ? 'match.ratings.liveTitle' : 'match.ratings.title')
+    : t('match.ratings.atMinute', { minute: matchMinuteText(at.minute, at.addedMinute) })
 
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
@@ -107,38 +114,41 @@ export function MatchMinuteRatings({
           <ToggleButton value="position">{t('match.ratings.sortByPosition')}</ToggleButton>
         </ToggleButtonGroup>
         {!atNow && (
-          <IconButton size="small" aria-label={t('match.ratings.jumpToNow')} title={t('match.ratings.jumpToNow')} onClick={() => goToMinute(currentMinute)}>
+          <IconButton size="small" aria-label={t('match.ratings.jumpToNow')} title={t('match.ratings.jumpToNow')} onClick={() => goToMinute(lastStep)}>
             <RestoreIcon fontSize="small" />
           </IconButton>
         )}
       </Stack>
-      {currentMinute > 0 && (
+      {lastStep > 0 && (
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
-          <IconButton size="small" aria-label={t('match.ratings.previousMinute')} disabled={minute <= 0} onClick={() => goToMinute(minute - 1)}>
+          <IconButton size="small" aria-label={t('match.ratings.previousMinute')} disabled={step <= 0} onClick={() => goToMinute(step - 1)}>
             <ChevronLeftIcon fontSize="small" />
           </IconButton>
           <Slider
             size="small"
-            value={minute}
+            value={step}
             min={0}
-            max={currentMinute}
+            max={lastStep}
             step={1}
             valueLabelDisplay="auto"
-            valueLabelFormat={(value) => `${value}'`}
+            valueLabelFormat={(value) => {
+              const label = timelineMinute(timeline, value)
+              return formatMatchMinute(label.minute, label.addedMinute)
+            }}
             onChange={(_event, value) => goToMinute(Array.isArray(value) ? value[0] : value)}
             sx={{ flex: 1 }}
           />
           <IconButton
             size="small"
             aria-label={t('match.ratings.nextMinute')}
-            disabled={minute >= currentMinute}
-            onClick={() => goToMinute(minute + 1)}
+            disabled={step >= lastStep}
+            onClick={() => goToMinute(step + 1)}
           >
             <ChevronRightIcon fontSize="small" />
           </IconButton>
-          <Box sx={{ minWidth: 32, textAlign: 'right' }}>
+          <Box sx={{ minWidth: 40, textAlign: 'right' }}>
             <Typography variant="body2" color="text.secondary">
-              {minute}&apos;
+              {formatMatchMinute(at.minute, at.addedMinute)}
             </Typography>
           </Box>
         </Stack>

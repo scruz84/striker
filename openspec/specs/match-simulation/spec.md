@@ -573,3 +573,21 @@ When a card is drawn for an outfield player whose side has its captain on the pi
   card rate through `cardIncidentProbability` (`ProbCardIncidentRival`, `ProbCardIncidentClasico` in
   `engine/discipline_simulation.go`) and is stored with the result (`MatchResult.RivalryLevel`,
   `matches.rivalry_level` / `cup_ties.rivalry_level`).
+- Added time (see stoppage-time): `engine/stoppage_time.go` (the `Stoppage*` costs, `MinAddedMinutes`,
+  `MaxAddedFirstHalf` / `MaxAddedSecondHalf`, `timeLost`, `addedMinutesFor`) and the minute loop in
+  `engine/simulation.go` (`playMatchMinutes`, `playRegulation`, `playAddedTime`, `playMinute` - which
+  stamps `Event.AddedMinute` on whatever a minute records - and `announceAddedTime` for the
+  `common.ADDED_TIME` board). `MatchSimulation.AddedMinute` / `PlayedMinutes` /
+  `FirstHalfAddedTime` / `SecondHalfAddedTime`, `MatchInstant.AddedMinute` (set in
+  `InitialSimulation.Apply`), `Event.AddedTime`; scheduled substitutions skip added time in
+  `applyScheduledSubstitutions`. Stored through `MatchResult.FirstHalfAddedTime` /
+  `SecondHalfAddedTime` (`engine.newMatchResult`, `common.Save*ResultTx`) in the
+  `added_minute` / `added_time` columns of the event and instant tables and the
+  `first_half_added_time` / `second_half_added_time` columns of `matches`, `cup_ties` and
+  `friendly_matches` (`resources/sql/init107_stoppage_time.sql`); readers order by
+  `minute, added_minute, event_id`. Tests: `engine/stoppage_time_test.go`,
+  `engine/conditional_orders_test.go` (added-time orders), `engine/stamina_simulation_test.go`
+  (`TestApplyFatigue_AddedTimeIsCappedAtTheFullTimePenalty`),
+  `engine/match_viewer_parity_integration_test.go` (`assertStoredAddedTime`),
+  `common/stoppage_time_integration_test.go`. The calibration helpers (`playEvenMatch`,
+  `measureMentality`) play the real loop, added time included.

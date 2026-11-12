@@ -119,7 +119,13 @@ func isEligibleBenchPlayer(match *common.MatchSimulation, side teamSide, playerI
 // on the pitch, already substituted off) the best eligible bench player for that slot comes on
 // instead; with nobody eligible the substitution is skipped, also uncounted. The outgoing player
 // is then marked substituted off, so nobody re-enters after leaving.
+//
+// Scheduled substitutions only have minutes 1 to 90, so none fires in added time: one scheduled
+// for minute 45 fires once, at 45 itself.
 func applyScheduledSubstitutions(match *common.MatchSimulation, side teamSide) {
+	if match.AddedMinute != 0 {
+		return
+	}
 	for _, sub := range side.substitutions {
 		if sub.Minute != match.Minute {
 			continue

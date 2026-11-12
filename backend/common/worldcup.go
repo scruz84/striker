@@ -312,7 +312,7 @@ func GetWorldCupGroups(dbCtx *DatabaseContext, worldCupId int64) ([]WorldCupGrou
 	}
 
 	cutoff := LiveBroadcastCutoff()
-	lookup := func(kind string, id int64, kickoff time.Time) (int, int, int, bool, error) {
+	lookup := func(kind string, id int64, kickoff time.Time) (LiveState, error) {
 		return liveScoreAsOfNow(dbCtx, kind, id, kickoff)
 	}
 	groups := make([]WorldCupGroup, 0, len(groupRows))
@@ -486,7 +486,7 @@ const getWorldCupGroupMatchCountsStmtSql = "SELECT count(*), count(*) FILTER (WH
 
 // IsWorldCupGroupStageComplete reports whether every group match of worldCupId has been played
 // and the last one's live broadcast has finished (its kickoff at or before LiveBroadcastCutoff).
-// A match is simulated up to 15 minutes before kickoff and broadcast for ~105 minutes, so
+// A match is simulated up to 15 minutes before kickoff and broadcast for up to 108 minutes, so
 // "every match played" alone would let engine.advanceWorldCup draw the knockout bracket - and
 // notify its call-ups - while the deciding group matches are still on air, revealing who
 // qualified. Cup rounds wait the same way (see GetUnresolvedCupTieCountStmtSql).

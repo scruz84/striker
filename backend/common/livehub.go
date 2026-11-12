@@ -42,6 +42,11 @@ type LiveMatchMessage struct {
 	AwayPlayers *map[int64]Player `json:"awayPlayers,omitempty"`
 	HomeGoals   int               `json:"homeGoals"`
 	AwayGoals   int               `json:"awayGoals"`
+	// Minute/AddedMinute are set on "halftime" and "complete": the minute the first half or the
+	// whole replay ended on (45+N, 90+N - see engine.BroadcastMatchLive), so a reader never has to
+	// guess the added time.
+	Minute      int `json:"minute,omitempty"`
+	AddedMinute int `json:"addedMinute,omitempty"`
 }
 
 // liveMatchChannelBuffer is generous enough that a momentarily slow consumer (a WS write in
@@ -53,7 +58,7 @@ const liveMatchChannelBuffer = 8
 const liveMatchKeyPrefix = "livematch:"
 
 // liveMatchHistoryTTL bounds how long a broadcast's message history sticks around in Redis -
-// comfortably longer than the ~105 real-minute broadcast itself (see engine.liveMatchMinuteDelay/
+// comfortably longer than the broadcast itself (up to 108 real minutes) (see engine.liveMatchMinuteDelay/
 // engine.liveMatchHalftimeDelay) so a viewer connecting even quite late still gets the full catch-up (see History/serveLiveMatch),
 // but not indefinitely - this is purely cosmetic replay data, not the source of truth (that's the
 // match's own played/events columns).

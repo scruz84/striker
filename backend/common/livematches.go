@@ -28,8 +28,10 @@ type LiveMatchSummary struct {
 	Tier int `json:"tier,omitempty"`
 	// Minute is only set on the one match GetLiveMatchesOverview suggests (see
 	// enrichSuggestedLiveMatch) - populating it for every live match in the world on every poll
-	// would mean one extra query per match for a number nothing else here uses.
-	Minute int `json:"minute,omitempty"`
+	// would mean one extra query per match for a number nothing else here uses. AddedMinute is
+	// 1..N while that match is in a half's added time (Minute then reads 45 or 90).
+	Minute      int `json:"minute,omitempty"`
+	AddedMinute int `json:"addedMinute,omitempty"`
 }
 
 const getLiveLeagueMatchesStmtSql = "SELECT m.match_id, ht.name, at.name, m.match_date, m.home_goals, m.away_goals, l.country, l.name, l.tier " +
@@ -141,12 +143,20 @@ func GetLiveMatchesOverview(dbCtx *DatabaseContext) (LiveMatchesOverview, error)
 	return overview, nil
 }
 
+// The score as of a minute ($2 clock minute, $3 added minute): the last event at or before it, in
+// match order (45+2 comes after 45 and before 46).
 const getMatchScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM match_events " +
-	"WHERE match_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+	"WHERE match_id = $1 AND (minute, added_minute) <= ($2, $3) ORDER BY minute DESC, added_minute DESC, event_id DESC LIMIT 1"
 const getCupTieScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM cup_tie_events " +
-	"WHERE tie_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+	"WHERE tie_id = $1 AND (minute, added_minute) <= ($2, $3) ORDER BY minute DESC, added_minute DESC, event_id DESC LIMIT 1"
 const getFriendlyScoreAsOfMinuteStmtSql = "SELECT home_goals, away_goals FROM friendly_events " +
-	"WHERE match_id = $1 AND minute <= $2 ORDER BY minute DESC, event_id DESC LIMIT 1"
+	"WHERE match_id = $1 AND (minute, added_minute) <= ($2, $3) ORDER BY minute DESC, added_minute DESC, event_id DESC LIMIT 1"
+
+// Each fixture's stored added time (see openspec/specs/stoppage-time), which the time-based minute
+// estimate (CurrentMatchMinute) needs.
+const getMatchAddedTimeStmtSql = "SELECT first_half_added_time, second_half_added_time FROM matches WHERE match_id = $1"
+const getCupTieAddedTimeStmtSql = "SELECT first_half_added_time, second_half_added_time FROM cup_ties WHERE tie_id = $1"
+const getFriendlyAddedTimeStmtSql = "SELECT first_half_added_time, second_half_added_time FROM friendly_matches WHERE match_id = $1"
 
 // liveMatchChannel returns the LiveMatchHub channel match's own broadcast actually publishes to
 // (see LeagueMatchChannel/CupTieChannel/FriendlyMatchChannel) - the same one its own live-viewer
@@ -163,26 +173,33 @@ func liveMatchChannel(match LiveMatchSummary) string {
 	}
 }
 
-// minuteFromLiveMessage extracts the match-minute msg actually represents, if any - "lineups"
-// (published once, before the broadcast's first real minute) has none, so callers fall back to
-// an estimate for that one brief case; every other type maps onto a concrete minute the same way
-// engine.BroadcastMatchLive paces them out.
-func minuteFromLiveMessage(msg LiveMatchMessage) (int, bool) {
+// minuteFromLiveMessage extracts the minute (clock minute and added minute) msg actually
+// represents, if any - "lineups" (published once, before the broadcast's first real minute) has
+// none, so callers fall back to an estimate for that one brief case; every other type maps onto a
+// concrete minute the same way engine.BroadcastMatchLive paces them out. "halftime" and
+// "complete" carry the minute they followed; one published before they did reads as 45 and 90.
+func minuteFromLiveMessage(msg LiveMatchMessage) (minute int, addedMinute int, ok bool) {
 	switch msg.Type {
 	case "instant":
 		if msg.Instant != nil {
-			return msg.Instant.Minute, true
+			return msg.Instant.Minute, msg.Instant.AddedMinute, true
 		}
 	case "event":
 		if msg.Event != nil {
-			return msg.Event.Minute, true
+			return msg.Event.Minute, msg.Event.AddedMinute, true
 		}
 	case "halftime":
-		return liveMatchFirstHalfMinutes, true
+		if msg.Minute > 0 {
+			return msg.Minute, msg.AddedMinute, true
+		}
+		return liveMatchFirstHalfMinutes, 0, true
 	case "complete":
-		return liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, true
+		if msg.Minute > 0 {
+			return msg.Minute, msg.AddedMinute, true
+		}
+		return liveMatchFirstHalfMinutes + liveMatchSecondHalfMinutes, 0, true
 	}
-	return 0, false
+	return 0, 0, false
 }
 
 // enrichSuggestedLiveMatch fills in Minute and overwrites HomeGoals/AwayGoals (freshly queried
@@ -200,11 +217,11 @@ func minuteFromLiveMessage(msg LiveMatchMessage) (int, bool) {
 // broadcast's first message has actually been published yet (match_date just passed) or (far
 // less likely) if Redis itself is unreachable.
 func enrichSuggestedLiveMatch(dbCtx *DatabaseContext, match *LiveMatchSummary) error {
-	minute, homeGoals, awayGoals, _, err := liveScoreAsOfNow(dbCtx, match.Kind, match.MatchId, match.MatchDate)
+	state, err := liveStateAsOfNow(dbCtx, match.Kind, match.MatchId, match.MatchDate, true)
 	if err != nil {
 		return err
 	}
-	match.Minute, match.HomeGoals, match.AwayGoals = minute, homeGoals, awayGoals
+	match.Minute, match.AddedMinute, match.HomeGoals, match.AwayGoals = state.Minute, state.AddedMinute, state.HomeGoals, state.AwayGoals
 	return nil
 }
 
@@ -216,37 +233,38 @@ const (
 	LiveStatusFinished = "finished"
 )
 
-// LiveState is what a viewer of one match's live broadcast is seeing right now.
+// LiveState is what a viewer of one match's live broadcast is seeing right now. AddedMinute is
+// 1..N inside a half's added time (Minute then reads 45 or 90), 0 otherwise.
 type LiveState struct {
-	Status    string
-	Minute    int
-	HomeGoals int
-	AwayGoals int
+	Status      string
+	Minute      int
+	AddedMinute int
+	HomeGoals   int
+	AwayGoals   int
 }
 
 // liveScoreAsOfNow is the minute and score a viewer of kind/id's live broadcast (kind is one of
-// MatchKindLeague/MatchKindCup/MatchKindFriendly) is seeing right now, and whether that broadcast
-// has already published its "complete" message - see enrichSuggestedLiveMatch for the sources it
-// prefers. A match simulated ahead of its kickoff has not started broadcasting yet: minute 0, 0-0.
-func liveScoreAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time) (minute, homeGoals, awayGoals int, complete bool, err error) {
-	state, err := liveStateAsOfNow(dbCtx, kind, id, kickoff, true)
-	if err != nil {
-		return 0, 0, 0, false, err
-	}
-	return state.Minute, state.HomeGoals, state.AwayGoals, state.Status == LiveStatusFinished, nil
+// MatchKindLeague/MatchKindCup/MatchKindFriendly) is seeing right now, with a status that reads
+// finished once that broadcast has published its "complete" message - see enrichSuggestedLiveMatch
+// for the sources it prefers. A match simulated ahead of its kickoff has not started broadcasting
+// yet: pending, minute 0, 0-0.
+func liveScoreAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time) (LiveState, error) {
+	return liveStateAsOfNow(dbCtx, kind, id, kickoff, true)
 }
 
 // liveStateAsOfNow is liveScoreAsOfNow plus an explicit status. A match that is not simulated yet
 // (played false) or whose kickoff has not arrived is pending (minute 0, 0-0) without touching
 // Redis; otherwise the broadcast's own last message decides (halftime, finished, or live), and
-// only when it has none does the time-based estimate plus the score-as-of-that-minute apply.
+// only when it has none does the time-based estimate (from the fixture's stored added time) plus
+// the score-as-of-that-minute apply. The estimate is always live: only the broadcast's own final
+// whistle reports a match finished.
 func liveStateAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff time.Time, played bool) (LiveState, error) {
 	if !played || time.Now().Before(kickoff) {
 		return LiveState{Status: LiveStatusPending}, nil
 	}
 	if dbCtx.LiveHub != nil {
 		if msg, ok := dbCtx.LiveHub.LastMessage(liveMatchChannel(LiveMatchSummary{Kind: kind, MatchId: id})); ok {
-			if minute, ok := minuteFromLiveMessage(msg); ok {
+			if minute, addedMinute, ok := minuteFromLiveMessage(msg); ok {
 				status := LiveStatusLive
 				switch msg.Type {
 				case "halftime":
@@ -254,26 +272,32 @@ func liveStateAsOfNow(dbCtx *DatabaseContext, kind string, id int64, kickoff tim
 				case "complete":
 					status = LiveStatusFinished
 				}
-				return LiveState{Status: status, Minute: minute, HomeGoals: msg.HomeGoals, AwayGoals: msg.AwayGoals}, nil
+				return LiveState{Status: status, Minute: minute, AddedMinute: addedMinute, HomeGoals: msg.HomeGoals, AwayGoals: msg.AwayGoals}, nil
 			}
 		}
 	}
 
-	state := LiveState{Status: LiveStatusLive, Minute: CurrentMatchMinute(kickoff)}
-
-	var stmtSql string
+	var stmtSql, addedTimeSql string
 	switch kind {
 	case MatchKindLeague:
-		stmtSql = getMatchScoreAsOfMinuteStmtSql
+		stmtSql, addedTimeSql = getMatchScoreAsOfMinuteStmtSql, getMatchAddedTimeStmtSql
 	case MatchKindCup:
-		stmtSql = getCupTieScoreAsOfMinuteStmtSql
+		stmtSql, addedTimeSql = getCupTieScoreAsOfMinuteStmtSql, getCupTieAddedTimeStmtSql
 	case MatchKindFriendly:
-		stmtSql = getFriendlyScoreAsOfMinuteStmtSql
+		stmtSql, addedTimeSql = getFriendlyScoreAsOfMinuteStmtSql, getFriendlyAddedTimeStmtSql
 	default:
-		return state, nil
+		minute, addedMinute := CurrentMatchMinute(kickoff, 0, 0)
+		return LiveState{Status: LiveStatusLive, Minute: minute, AddedMinute: addedMinute}, nil
 	}
 
-	err := dbCtx.Db.QueryRow(stmtSql, id, state.Minute).Scan(&state.HomeGoals, &state.AwayGoals)
+	var firstHalfAddedTime, secondHalfAddedTime int
+	if err := dbCtx.Db.QueryRow(addedTimeSql, id).Scan(&firstHalfAddedTime, &secondHalfAddedTime); err != nil && err != sql.ErrNoRows {
+		return LiveState{}, err
+	}
+	state := LiveState{Status: LiveStatusLive}
+	state.Minute, state.AddedMinute = CurrentMatchMinute(kickoff, firstHalfAddedTime, secondHalfAddedTime)
+
+	err := dbCtx.Db.QueryRow(stmtSql, id, state.Minute, state.AddedMinute).Scan(&state.HomeGoals, &state.AwayGoals)
 	if err == sql.ErrNoRows {
 		return state, nil
 	}
@@ -314,8 +338,11 @@ type LeagueLiveScore struct {
 	AwayName   string    `json:"awayName"`
 	Status     string    `json:"status"`
 	Minute     int       `json:"minute"`
-	HomeGoals  int       `json:"homeGoals"`
-	AwayGoals  int       `json:"awayGoals"`
+	// AddedMinute is 1..N while the broadcast is in a half's added time (Minute then reads 45 or
+	// 90), 0 otherwise.
+	AddedMinute int `json:"addedMinute"`
+	HomeGoals   int `json:"homeGoals"`
+	AwayGoals   int `json:"awayGoals"`
 }
 
 func leagueLiveScoresCacheKey(leagueId int64) string {
@@ -367,7 +394,8 @@ func GetLeagueLiveScores(dbCtx *DatabaseContext, leagueId int64) ([]LeagueLiveSc
 		if err != nil {
 			return nil, err
 		}
-		m.score.Status, m.score.Minute, m.score.HomeGoals, m.score.AwayGoals = state.Status, state.Minute, state.HomeGoals, state.AwayGoals
+		m.score.Status, m.score.Minute, m.score.AddedMinute = state.Status, state.Minute, state.AddedMinute
+		m.score.HomeGoals, m.score.AwayGoals = state.HomeGoals, state.AwayGoals
 		scores = append(scores, m.score)
 	}
 

@@ -141,15 +141,7 @@ func measureMentality(matches int, seed int64, mentality int) (goalsFor, goalsAg
 			SubstitutionSimulation{}, StaminaSimulation{}, InitialSimulation{},
 			ScorerSimulation{r: rng}, DisciplineSimulation{r: rng},
 		}}
-		for minute := 1; minute <= 90; minute++ {
-			match.Minute = minute
-			pipeline.Simulate(dbCtx, match)
-			trackMinutesByPosition(match.HomePlayersByPosition, match.HomeMinutesByPosition)
-			trackMinutesByPosition(match.AwayPlayersByPosition, match.AwayMinutesByPosition)
-			if applyForfeitIfUnderstaffed(match) {
-				break
-			}
-		}
+		playMatchMinutes(dbCtx, match, pipeline)
 		goalsFor += float64(match.HomeGoals)
 		goalsAgainst += float64(match.AwayGoals)
 	}
