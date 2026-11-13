@@ -134,13 +134,17 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 	var attack float32
 	var defense float32
 	var goalKeeperValue int
+	// The defending goalkeeper whose rating defends this chance - recorded on the event too, the
+	// same way processSetPiece does (openspec match-simulation "Defending keeper on every chance").
+	var goalKeeperId int64 = -1
 	var attackPlayers *map[int][]int64
 	var players *map[int64]common.Player
 	if teamChance == match.Home {
 		players = match.EffectiveHomePlayers
 		attackPlayers = match.HomePlayersByPosition
 		otherTeam = match.Away
-		goalKeeperValue = (*match.EffectiveAwayPlayers)[(*match.AwayPlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
+		goalKeeperId = (*match.AwayPlayersByPosition)[common.GOALKEEPER][0]
+		goalKeeperValue = (*match.EffectiveAwayPlayers)[goalKeeperId].GoalKeeper
 		if isRight {
 			attack = match.HomeQua.RightAttach + flankMidfieldSupport(match.HomeQua.RightMidfield, match.AwayQua.LeftMidfield)
 			defense = match.AwayQua.LeftDefense
@@ -155,7 +159,8 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 		players = match.EffectiveAwayPlayers
 		attackPlayers = match.AwayPlayersByPosition
 		otherTeam = match.Home
-		goalKeeperValue = (*match.EffectiveHomePlayers)[(*match.HomePlayersByPosition)[common.GOALKEEPER][0]].GoalKeeper
+		goalKeeperId = (*match.HomePlayersByPosition)[common.GOALKEEPER][0]
+		goalKeeperValue = (*match.EffectiveHomePlayers)[goalKeeperId].GoalKeeper
 		if isRight {
 			attack = match.AwayQua.RightAttach + flankMidfieldSupport(match.AwayQua.RightMidfield, match.HomeQua.LeftMidfield)
 			defense = match.HomeQua.LeftDefense
@@ -194,6 +199,13 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 	}
 
 	attackPlayerName, _ := GetPlayerFullName(dbCtx, attackPlayer)
+	var keeperIds []int64
+	var keeperNames []string
+	if goalKeeperId > 0 {
+		keeperName, _ := GetPlayerFullName(dbCtx, goalKeeperId)
+		keeperIds = []int64{goalKeeperId}
+		keeperNames = []string{keeperName}
+	}
 
 	*match.Events = append(*match.Events, common.Event{
 		EventType:             eventType,
@@ -202,7 +214,8 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 		TeamOwnerPlayers:      []int64{attackPlayer},
 		TeamOwnerPlayersNames: []string{attackPlayerName},
 		OtherTeam:             otherTeam,
-		OtherTeamPlayers:      nil,
+		OtherTeamPlayers:      keeperIds,
+		OtherTeamPlayersNames: keeperNames,
 		HomeGoals:             match.HomeGoals,
 		AwayGoals:             match.AwayGoals,
 	})

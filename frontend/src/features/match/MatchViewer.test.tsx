@@ -18,6 +18,7 @@ const clock = vi.hoisted(() => ({
 }))
 const zoneProps = vi.hoisted(() => ({ calls: [] as Array<{ home: number; away: number; live: boolean }> }))
 const ratingsProps = vi.hoisted(() => ({ calls: [] as Array<{ events: Array<{ eventType: number }>; instants: unknown[]; live?: boolean }> }))
+const reportProps = vi.hoisted(() => ({ calls: [] as Array<{ firstHalfOver?: boolean }> }))
 
 vi.mock('../../api/useLiveMatch', () => ({
   isPast: () => clock.past,
@@ -40,7 +41,12 @@ vi.mock('./MatchMinuteZoneComparison', () => ({
     return <div data-testid="zone-duel" />
   },
 }))
-vi.mock('./MatchEventsReport', () => ({ MatchEventsReport: () => <div data-testid="live-report" /> }))
+vi.mock('./MatchEventsReport', () => ({
+  MatchEventsReport: (props: { firstHalfOver?: boolean }) => {
+    reportProps.calls.push(props)
+    return <div data-testid="live-report" />
+  },
+}))
 vi.mock('./MatchHeadToHeadPitch', () => ({ MatchHeadToHeadPitch: () => <div data-testid="pitch" /> }))
 vi.mock('./MatchMinuteRatings', () => ({
   MatchMinuteRatings: (props: { events: Array<{ eventType: number }>; instants: unknown[]; live?: boolean }) => {
@@ -217,6 +223,18 @@ describe('MatchViewer', () => {
       expect(call?.live).toBe(true)
       expect(call?.instants).toEqual([instant])
       expect(call?.events.map((e) => e.eventType)).toEqual([EVENT_TYPE_GOAL])
+    })
+
+    // match-viewer "Half-time line in the chronicle": live, the line waits for the break.
+    it.each([
+      [{ minute: 45, addedMinute: 1, halftime: false }, false],
+      [{ minute: 45, halftime: true }, true],
+      [{ minute: 46, halftime: false }, true],
+    ])('tells the report whether the first half is over (%o)', (state, expected) => {
+      reportProps.calls.length = 0
+      clock.live = liveState(state)
+      renderViewer(baseView())
+      expect(reportProps.calls.at(-1)?.firstHalfOver).toBe(expected)
     })
 
     it('shows the stadium entry, the report and the head-to-head card', () => {

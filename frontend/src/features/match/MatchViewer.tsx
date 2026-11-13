@@ -218,6 +218,10 @@ function LiveView({
           refereeName={view.refereeName}
           assistant1Name={view.assistant1Name}
           assistant2Name={view.assistant2Name}
+          // The half-time line shows once the broadcast pauses for the break or reaches the second
+          // half - first-half added time still reads minute 45, so it never shows early.
+          firstHalfOver={live.halftime || live.minute > 45}
+          matchKey={view.matchDate}
         />
       </Paper>
       {live.instants.length > 0 && (

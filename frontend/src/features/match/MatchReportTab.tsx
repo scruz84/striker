@@ -17,6 +17,7 @@ export function MatchReportTab({ match }: { match: MatchView }) {
       refereeName={match.refereeName}
       assistant1Name={match.assistant1Name}
       assistant2Name={match.assistant2Name}
+      matchKey={match.matchDate}
       final
     />
   )

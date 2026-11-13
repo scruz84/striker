@@ -1312,8 +1312,66 @@
     },
     "report": {
       "intro": "Gracias al tiempo {{weather}}, un total de {{attendance}} aficionados se reunieron para presenciar el partido. {{referee}} fue el árbitro designado, junto a los asistentes {{assistant1}} y {{assistant2}}.",
-      "kickoff": "¡Todo está listo, el partido está a punto de comenzar!",
+      "kickoff": [
+        "¡Todo está listo, el partido está a punto de comenzar!",
+        "Rueda el balón entre {{home}} y {{away}}. ¡Que empiece el espectáculo!",
+        "Los capitanes se dan la mano, el árbitro mira el reloj... ¡y arranca el partido!",
+        "Ambiente de las grandes ocasiones para el {{home}} - {{away}}. ¡Empezamos!",
+        "Pitido inicial. {{home}} y {{away}} se juegan mucho hoy.",
+        "¡Echa a rodar el balón! Ponte cómodo: esto promete.",
+        "Saque inicial y primeras carreras. {{home}} y {{away}}, cara a cara con todo por decidir."
+      ],
       "fullTime": "El árbitro pita el final del partido.",
+      "halfTime": {
+        "goalless": [
+          "Descanso: 0-0 y todo por decidir.",
+          "Se llega al descanso sin goles. Toca charla en el vestuario.",
+          "Final de la primera parte: mucho esfuerzo, pocas ocasiones y ningún gol.",
+          "Descanso con el marcador a cero. La segunda parte tiene que ser otra cosa."
+        ],
+        "level": [
+          "Descanso con empate: {{score}}.",
+          "Tablas al descanso ({{score}}). Partido abierto.",
+          "Se llega al intermedio con {{score}}. Que no pare la fiesta."
+        ],
+        "homeLeads": [
+          "Descanso: {{home}} gana {{score}}.",
+          "Al intermedio con ventaja para {{home}}: {{score}}.",
+          "{{home}} se marcha al vestuario por delante ({{score}}). {{away}} tiene deberes."
+        ],
+        "awayLeads": [
+          "Descanso: {{away}} gana {{score}}.",
+          "Al intermedio, {{away}} va por delante: {{score}}.",
+          "{{away}} se marcha al vestuario con ventaja ({{score}}). {{home}} tiene deberes."
+        ]
+      },
+      "fullTimeResult": {
+        "goallessDraw": [
+          "Pitido final: 0-0. Ninguno de los dos encontró la portería contraria.",
+          "Se acabó sin goles. Hoy los porteros han ganado la partida.",
+          "Final del partido: {{home}} 0-0 {{away}}."
+        ],
+        "scoringDraw": [
+          "Final del partido: {{score}}. Reparto de goles y emociones.",
+          "Pitido final con empate ({{score}}). Nadie se ha aburrido.",
+          "Se acabó: {{home}} {{score}} {{away}}. Igualdad hasta el final."
+        ],
+        "homeWin": [
+          "¡Final! {{home}} gana {{score}} y su afición lo celebra.",
+          "Se acabó: victoria de {{home}} por {{score}} ante {{away}}.",
+          "Pitido final. {{home}} cumple con nota: {{score}}."
+        ],
+        "awayWin": [
+          "¡Final! {{away}} gana {{score}} y se lleva el partido.",
+          "Se acabó: victoria de {{away}} por {{score}} ante {{home}}.",
+          "Pitido final. {{away}} sale con la victoria: {{score}}."
+        ],
+        "bigWin": [
+          "¡Final! Exhibición de {{winner}}: {{score}}.",
+          "Se acabó. {{winner}} pasa por encima de {{loser}} ({{score}}).",
+          "Pitido final de un partido que {{winner}} recordará mucho tiempo: {{score}}."
+        ]
+      },
       "defaultResultLabel": "Resultado por defecto",
       "summary": {
         "title": "Resumen del partido",
@@ -1366,35 +1424,75 @@
     "commentary": {
       "goal": [
         "¡GOL! ¡{{player}} manda el balón a la red para {{team}}!",
-        "¡{{player}} marca para {{team}} - qué gran definición!",
-        "¡La mete dentro! {{player}} bate al portero para {{team}}.",
-        "¡GOOOL! {{player}} pone a {{team}} en el marcador."
+        "¡{{player}} marca para {{team}}! Qué definición, con la calma de quien lo ha hecho mil veces.",
+        "¡La mete! {{player}} se planta solo, levanta la cabeza, la cruza... y {{keeper}} no llega.",
+        "¡GOOOL! {{player}} pone a {{team}} en el marcador con un disparo seco.",
+        "¡Golazo de {{player}}! Control orientado, recorte y zapatazo a la escuadra para {{team}}.",
+        "¡Gol de {{team}}! Centro medido y {{player}} cabecea a la red; {{keeper}} ni se mueve.",
+        "¡Lo ha hecho {{player}}! Remate a la media vuelta que sorprende a todos, {{keeper}} incluido.",
+        "¡GOL! Jugada de tiralíneas de {{team}} que {{player}} culmina empujándola a puerta vacía.",
+        "¡Adentro! {{player}} aprovecha un rechace en el área y no perdona para {{team}}.",
+        "¡Qué zurdazo de {{player}}! El balón entra pegado al palo y {{keeper}} solo puede mirar.",
+        "¡GOL de {{player}}! Se cuela entre dos defensas de {{opponent}} y define con un toque sutil.",
+        "¡Vaselina de {{player}}! Sale {{keeper}} a la desesperada y el balón le pasa por encima. ¡Gol de {{team}}!",
+        "¡Gol! {{player}} remata a bocajarro y la red de {{opponent}} todavía tiembla.",
+        "¡Contragolpe letal de {{team}}! {{player}} corre medio campo y la pone donde {{keeper}} no llega."
       ],
       "noGoal": [
         "{{player}} lo intenta para {{team}}, ¡pero se va fuera!",
-        "¡Ocasión para {{team}}! El disparo de {{player}} es atajado.",
-        "¡Qué cerca! {{player}} no encuentra la escuadra para {{team}}.",
-        "{{player}} prueba fortuna con {{team}} - ¡el portero lo evita!"
+        "¡Ocasión para {{team}}! El disparo de {{player}} lo ataja {{keeper}} sin problemas.",
+        "¡Qué cerca! {{player}} no encuentra la escuadra por un palmo.",
+        "{{player}} prueba fortuna desde lejos, pero {{keeper}} la atrapa en dos tiempos.",
+        "¡Al palo! El remate de {{player}} se estrella en la madera. ¡Qué mala suerte para {{team}}!",
+        "¡Paradón! Vuela {{keeper}} para sacar a mano cambiada el disparo de {{player}}.",
+        "{{player}} se queda solo ante {{keeper}}... y la manda a las nubes.",
+        "Cabezazo de {{player}} que se marcha rozando el larguero. ¡Uy!",
+        "{{player}} se adorna más de la cuenta y la defensa de {{opponent}} le roba la cartera.",
+        "Disparo cruzado de {{player}} que se pasea por delante de la portería sin que nadie la empuje.",
+        "¡La tenía {{team}}! {{player}} remata a bocajarro y {{keeper}} la saca con el pie.",
+        "Chut de {{player}} desde fuera del área... más cerca del banderín de córner que de la portería.",
+        "{{player}} engancha una volea preciosa que despeja {{keeper}} con una estirada de cine.",
+        "Mano a mano para {{player}}... y lo gana {{keeper}}, que achica a la perfección."
       ],
       "yellowCard": [
         "{{player}} se lleva la amarilla en {{team}}.",
-        "Tarjeta amarilla para {{player}} de {{team}}.",
-        "El árbitro amonesta a {{player}} ({{team}})."
+        "Tarjeta amarilla para {{player}} por una entrada a destiempo.",
+        "El colegiado amonesta a {{player}} ({{team}}) por protestar.",
+        "Amarilla para {{player}}: frena con la mano un contragolpe de {{opponent}}.",
+        "{{player}} llega tarde y el árbitro no duda: tarjeta amarilla.",
+        "Cartulina amarilla para {{player}}, que ya juega con fuego.",
+        "{{player}} pierde los papeles y ve la amarilla. Tendrá que medir cada entrada.",
+        "Amonestado {{player}} por tirarse en el área. El árbitro no se lo ha creído.",
+        "Tarjeta para {{player}} por perder tiempo en un saque de banda."
       ],
       "redCard": [
         "¡{{player}} es expulsado! {{team}} se queda con diez.",
-        "¡Tarjeta roja! El partido de {{player}} termina para {{team}}.",
-        "Roja directa para {{player}} - problemas para {{team}}."
+        "¡Tarjeta roja! Se acabó el partido para {{player}}, que se marcha cabizbajo al vestuario.",
+        "Roja directa para {{player}} tras una entrada durísima. Problemas para {{team}}.",
+        "¡Expulsión! {{player}} deja a {{team}} en inferioridad y su entrenador se lleva las manos a la cabeza.",
+        "El árbitro saca la roja sin pensárselo: {{player}}, a la calle.",
+        "¡Roja para {{player}}! {{team}} tendrá que remar con uno menos.",
+        "{{player}} corta con falta una ocasión clarísima de {{opponent}} y ve la roja directa."
       ],
       "injury": [
-        "{{player}} está en el suelo y parece dolorido en {{team}}.",
-        "Preocupación en {{team}}: {{player}} no puede continuar.",
-        "{{player}} tiene que retirarse lesionado."
+        "{{player}} está en el suelo y parece dolorido. Preocupación en {{team}}.",
+        "Malas noticias para {{team}}: {{player}} no puede continuar.",
+        "{{player}} tiene que retirarse lesionado, entre los aplausos de la grada.",
+        "{{player}} se echa la mano al muslo tras un sprint. Mala pinta.",
+        "Entran las asistencias: {{player}} se ha hecho daño en el tobillo.",
+        "{{player}} pide el cambio, cojeando. Caras largas en el banquillo de {{team}}.",
+        "Golpe fortuito y {{player}} se queda tendido en el césped. No podrá seguir."
       ],
       "substitution": [
         "Cambio en {{team}}: {{outPlayer}} deja su lugar a {{inPlayer}}.",
-        "Sustitución en {{team}} - {{inPlayer}} entra por {{outPlayer}}.",
-        "{{outPlayer}} sale, {{inPlayer}} entra en {{team}}."
+        "Movimiento en el banquillo de {{team}}: entra {{inPlayer}} por {{outPlayer}}.",
+        "{{outPlayer}} sale, {{inPlayer}} entra. El entrenador de {{team}} mueve ficha.",
+        "Sustitución en {{team}}: {{inPlayer}} salta al campo con ganas de comerse el mundo; se retira {{outPlayer}}.",
+        "Se acabó la tarde para {{outPlayer}}. Su sitio lo ocupa {{inPlayer}}.",
+        "{{team}} refresca el equipo: {{inPlayer}} por {{outPlayer}}.",
+        "Cambio táctico en {{team}}: se va {{outPlayer}} y entra {{inPlayer}}.",
+        "{{inPlayer}} termina de calentar, choca la mano de {{outPlayer}} y entra en el partido.",
+        "Relevo en {{team}}: {{outPlayer}} deja el campo y {{inPlayer}} toma el testigo."
       ],
       "abandoned": [
         "{{team}} se queda sin suficientes jugadores para continuar - el partido se suspende y {{opponent}} se lleva la victoria.",
@@ -1402,43 +1500,190 @@
         "El árbitro suspende el encuentro: {{team}} se queda con muy pocos jugadores para seguir, y {{opponent}} es declarado ganador por 3-0."
       ],
       "defaultResult": [
-        "El partido no pudo disputarse: se registra como un 0-0 por defecto entre {{team}} y {{opponent}}."
+        "El partido no pudo disputarse: se registra como un 0-0 por defecto entre {{team}} y {{opponent}}.",
+        "No hubo partido: {{team}} y {{opponent}} se reparten un 0-0 por defecto."
       ],
       "penaltyGoal": [
-        "¡PENALTI! {{player}} engaña a {{keeper}} y marca para {{team}}.",
-        "{{player}} se encarga del penalti y lo convierte para {{team}}: ¡{{keeper}} no pudo hacer nada!",
-        "¡Con total frialdad! {{player}} bate a {{keeper}} desde los once metros para {{team}}.",
-        "¡Gol de penalti! {{player}} no falla para {{team}}."
+        "¡Gol de penalti! {{player}} lanza a un lado y {{keeper}} se tira al otro.",
+        "{{player}} se encarga del penalti y lo convierte para {{team}}. Nada que hacer para {{keeper}}.",
+        "¡Con total frialdad! {{player}} la pone en la escuadra desde los once metros.",
+        "¡PENALTI convertido! {{player}} no falla para {{team}}.",
+        "Carrerilla corta, mirada fija... y {{player}} la pica a lo Panenka. ¡Qué sangre fría!",
+        "{{player}} engaña con la mirada, {{keeper}} adivina el lado... pero no llega. ¡Gol de {{team}}!",
+        "Penalti ejecutado con potencia por {{player}}: balón arriba y {{keeper}} sin opciones."
       ],
       "penaltyMiss": [
-        "¡PENALTI FALLADO! ¡{{keeper}} detiene el lanzamiento de {{player}} para {{team}}!",
+        "¡PENALTI FALLADO! Lo detiene {{keeper}}, que adivina el lanzamiento de {{player}}.",
         "{{player}} lanza para {{team}}... ¡y {{keeper}} lo para!",
-        "¡Desastre desde los once metros! El penalti de {{player}} se pierde para {{team}}."
+        "¡Desastre desde los once metros! El penalti de {{player}} se va al limbo.",
+        "¡Al palo! {{player}} estrella el penalti en el poste y {{team}} se queda sin premio.",
+        "{{player}} intenta la Panenka... y {{keeper}} se queda quieto para atraparla. ¡Qué mal trago!",
+        "Penalti a las nubes de {{player}}. El balón todavía está subiendo.",
+        "¡Lo para {{keeper}}! Estirada felina para negarle el gol a {{player}}."
       ],
       "freeKickGoal": [
-        "¡QUÉ GOLAZO DE FALTA! {{player}} la cuela por encima de {{keeper}} para {{team}}.",
-        "{{player}} golpea la falta para {{team}} y ¡es gol! {{keeper}} solo puede mirar.",
-        "¡GOL! La falta directa de {{player}} se cuela en la esquina para {{team}}."
+        "¡QUÉ GOLAZO DE FALTA! {{player}} la cuela por encima de la barrera y {{keeper}} ni la ve.",
+        "{{player}} golpea la falta para {{team}} y ¡es gol! Solo puede mirar {{keeper}}.",
+        "¡GOL! La falta directa de {{player}} se cuela en la esquina para {{team}}.",
+        "¡Folha seca de {{player}}! El balón cae de golpe y se mete bajo el larguero.",
+        "Falta al borde del área, {{player}} coloca el balón con mimo... ¡y la clava en la escuadra!",
+        "¡Gol de falta! {{player}} la pasa por debajo de la barrera, que había saltado. ¡Listísimo!",
+        "Lanzamiento perfecto de {{player}}: rosca, efecto y gol, con {{keeper}} estirándose en vano."
       ],
       "freeKickMiss": [
         "La falta de {{player}} para {{team}} la detiene {{keeper}}.",
         "¡Falta para {{team}}! {{player}} dispara, pero se va fuera.",
-        "{{player}} prueba la falta directa para {{team}}: ¡{{keeper}} responde!"
+        "{{player}} prueba la falta directa: ¡responde {{keeper}} con una gran estirada!",
+        "La falta de {{player}} se estrella en la barrera. A alguien de {{opponent}} le va a doler mañana.",
+        "{{player}} le pega con el alma... y el balón acaba en el tercer anfiteatro.",
+        "Falta peligrosa de {{player}} que se marcha lamiendo el poste.",
+        "Toque sutil de {{player}} por encima de la barrera, pero {{keeper}} la atrapa sin despeinarse."
       ],
       "mentalityChange": {
         "attacking": [
           "{{team}} da un paso adelante y pasa a una propuesta ofensiva.",
           "{{team}} va a por todas: juega al ataque desde ahora.",
-          "Cambio de plan en {{team}}, que ahora juega al ataque."
+          "Cambio de plan en {{team}}, que ahora juega al ataque.",
+          "{{team}} adelanta líneas: es momento de arriesgar."
         ],
         "balanced": [
           "{{team}} se serena y vuelve a una propuesta equilibrada.",
-          "{{team}} recupera un juego equilibrado."
+          "{{team}} recupera un juego equilibrado.",
+          "{{team}} levanta el pie del acelerador y busca el equilibrio.",
+          "Ni todo al ataque ni todo atrás: {{team}} vuelve al término medio."
         ],
         "defensive": [
           "{{team}} se repliega y pasa a una propuesta defensiva.",
           "{{team}} cierra filas: juega a la defensiva desde ahora.",
-          "Cambio de plan en {{team}}, que ahora protege lo que tiene."
+          "Cambio de plan en {{team}}, que ahora protege lo que tiene.",
+          "{{team}} echa el cerrojo y aparca el autobús delante de su portería."
+        ]
+      },
+      "secondYellow": [
+        "¡Segunda amarilla para {{player}}! Y con ella, la roja: {{team}} se queda con diez.",
+        "{{player}}, que ya estaba amonestado, repite falta y se va a la calle por doble amarilla.",
+        "¡Expulsado {{player}}! La segunda amarilla le manda a la ducha antes de tiempo.",
+        "Lo estaba buscando y lo ha encontrado: segunda amarilla para {{player}} y {{team}} con uno menos.",
+        "Doble amarilla para {{player}}. El entrenador de {{team}} no quiere ni mirar."
+      ],
+      "situation": {
+        "hatTrick": [
+          "¡HAT-TRICK de {{player}}! Ya lleva {{goals}} y el balón del partido se va con él a casa.",
+          "¡Triplete! {{player}} firma una tarde para enmarcar: {{goals}} goles y subiendo.",
+          "Ya van {{goals}} de {{player}} hoy. Que alguien avise a su familia.",
+          "{{player}} no tiene bastante: su gol número {{goals}} del partido deja el {{score}}.",
+          "La grada corea el nombre de {{player}}, que ya suma {{goals}} goles."
+        ],
+        "lateWinner": [
+          "¡En el último suspiro! {{team}} pone el {{score}} cuando ya nadie lo esperaba.",
+          "¡Gol en el minuto de la verdad! {{team}} acaricia la victoria con este {{score}}.",
+          "¡Locura en el estadio! Con el tiempo casi cumplido, {{team}} pone el {{score}}.",
+          "¡Qué final de partido! {{player}} puede haberle dado la victoria a {{team}}.",
+          "El banquillo de {{team}} invade la banda: ¡este gol puede valer un partido!"
+        ],
+        "lateEqualiser": [
+          "¡Empate agónico! {{team}} rescata el {{score}} cuando el partido se le escapaba.",
+          "¡Lo empata {{team}} al final! El {{score}} sabe a gloria para los suyos.",
+          "¡No se rinde {{team}}! Empate en los minutos finales: {{score}}.",
+          "¡Qué golpe para {{opponent}}! Lo tenía en el bolsillo y {{team}} empata a última hora.",
+          "¡Empate in extremis! {{player}} se convierte en el héroe de {{team}}."
+        ],
+        "comeback": [
+          "¡REMONTADA! {{team}} iba perdiendo y ahora manda: {{score}}.",
+          "¡Le ha dado la vuelta {{team}}! Del sufrimiento al {{score}}.",
+          "¿Quién dijo que estaba perdido? {{team}} completa la remontada.",
+          "¡Qué reacción de {{team}}! Estaba contra las cuerdas y ahora va por delante.",
+          "{{opponent}} no da crédito: {{team}} ha remontado y pone el {{score}}."
+        ],
+        "brace": [
+          "¡Doblete de {{player}}! Su segundo gol de la tarde.",
+          "{{player}} repite: ya lleva dos en el partido.",
+          "¡Otra vez {{player}}! Que alguien lo marque, por favor.",
+          "Dos de dos para {{player}}, que está en estado de gracia.",
+          "{{player}} se viste de héroe con su segundo gol del día."
+        ],
+        "opener": [
+          "¡Se rompe el empate inicial! {{team}} golpea primero: {{score}}.",
+          "Primer gol del partido, y es para {{team}}.",
+          "¡Se abre la lata! {{score}} en el marcador.",
+          "{{team}} estrena el marcador y su afición respira.",
+          "El primer golpe es de {{team}}. Ahora le toca reaccionar a {{opponent}}."
+        ],
+        "equaliser": [
+          "¡Empate! {{team}} iguala el partido: {{score}}.",
+          "Todo vuelve a empezar: {{score}} en el marcador.",
+          "{{team}} no se rinde y pone las tablas en el marcador.",
+          "¡Respuesta de {{team}}! El partido vuelve a estar igualado.",
+          "Se esfuma la ventaja de {{opponent}}: {{score}}."
+        ],
+        "goAhead": [
+          "¡{{team}} se pone por delante! {{score}}.",
+          "Ahora manda {{team}}: {{score}} en el luminoso.",
+          "Golpe sobre la mesa de {{team}}, que deshace el empate.",
+          "{{team}} rompe la igualdad y {{opponent}} tendrá que remar.",
+          "¡Ventaja para {{team}}! El partido cambia de color: {{score}}."
+        ],
+        "rout": [
+          "¡Esto ya es una goleada! {{score}} y {{opponent}} no sabe dónde meterse.",
+          "{{team}} está de fiesta: {{score}}. ¡Paliza!",
+          "Festival de {{team}}. El marcador ({{score}}) empieza a parecer de baloncesto.",
+          "Tarde para olvidar en {{opponent}}: ya van {{score}}.",
+          "¡Otro más! A estas alturas, el portero de {{opponent}} ya ha dejado de contarlos."
+        ],
+        "extendLead": [
+          "{{team}} amplía la ventaja: {{score}}.",
+          "Golpe casi definitivo de {{team}}, que pone tierra de por medio.",
+          "¡Más madera! {{team}} se distancia en el marcador: {{score}}.",
+          "{{team}} hace daño otra vez y {{opponent}} se queda muy tocado.",
+          "Con este gol, {{team}} empieza a ver el partido encarrilado."
+        ],
+        "pullsOneBack": [
+          "¡{{team}} recorta distancias! {{score}} y hay partido.",
+          "{{team}} se mete de nuevo en el partido: {{score}}.",
+          "Este gol da vida a {{team}}. ¡A por el empate!",
+          "Se aprieta el marcador: {{score}}. {{opponent}} empieza a sudar.",
+          "{{team}} no tira la toalla y se acerca en el marcador."
+        ],
+        "consolation": [
+          "Gol del honor para {{team}}, aunque el marcador sigue muy cuesta arriba: {{score}}.",
+          "{{team}} maquilla el resultado: {{score}}.",
+          "Al menos {{team}} se lleva un gol que celebrar.",
+          "Un gol para la estadística: {{team}} sigue lejos, {{score}}.",
+          "La afición de {{team}} celebra este gol como si fuera una final. Bien por ellos."
+        ]
+      },
+      "lateMiss": [
+        "¡No puede ser! Era la ocasión para salvar el partido.",
+        "¡Se le escapa a {{team}} la más clara en el tramo final!",
+        "El banquillo de {{team}} se lleva las manos a la cabeza: esa no se podía fallar.",
+        "Se esfuma una oportunidad de oro para {{team}} cuando ya queda tan poco.",
+        "El reloj corre en contra de {{team}}, que acaba de perdonar una clarísima.",
+        "{{player}} se lamenta tendido en el césped. Ocasiones así no sobran a estas alturas."
+      ],
+      "colour": {
+        "miss": [
+          "La grada se lleva las manos a la cabeza.",
+          "El entrenador de {{team}} le da una patada a una botella de agua.",
+          "Un aficionado de la grada ya había empezado a celebrarlo.",
+          "El balón acaba en la grada y un niño se lo queda de recuerdo.",
+          "{{player}} mira al cielo, buscando una explicación.",
+          "El utillero de {{team}} tendrá que ir a buscar ese balón al aparcamiento.",
+          "Se oye un «¡uuuy!» que llega hasta el pueblo de al lado.",
+          "Los compañeros de {{player}} le aplauden el intento. Bueno, casi todos.",
+          "Hasta el cámara de la televisión ha perdido el balón de vista.",
+          "Suspiros de alivio en la defensa rival.",
+          "Aviso serio de {{team}}."
+        ],
+        "yellowCard": [
+          "{{player}} protesta, pero el árbitro ni le mira.",
+          "El banquillo de {{team}} se queja airadamente. El árbitro, impasible.",
+          "{{player}} tendrá que andarse con cuidado a partir de ahora.",
+          "La grada pedía más, pero el árbitro se conforma con la amarilla.",
+          "{{player}} aplaude irónicamente al colegiado. Mejor no seguir por ahí.",
+          "El entrenador de {{team}} ya está pensando en un cambio.",
+          "Los jugadores de {{opponent}} rodean al árbitro pidiendo la roja. No hay más.",
+          "{{player}} jura con la mano en el pecho que tocó balón. No cuela.",
+          "El cuarto árbitro toma nota con cara de pocos amigos."
         ]
       }
     },

@@ -647,8 +647,8 @@ func GetStuckFriendlies(dbCtx *DatabaseContext) ([]FriendlyMatch, error) {
 }
 
 const InsertFriendlyEventStmtSql = "INSERT INTO friendly_events (match_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+	"team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 const InsertFriendlyInstantStmtSql = "INSERT INTO friendly_instants(match_id, minute, home_goals, away_goals, home_qua, away_qua, " +
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, added_minute) " +
 	"VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
@@ -810,13 +810,13 @@ func GetLineupsForFriendly(dbCtx *DatabaseContext, matchId int64, teamIds []int6
 	return &lineups, nil
 }
 
-const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality, " +
+const GetFriendlyEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, " +
+	"home_goals, away_goals, set_piece, mentality, " +
 	"added_minute, added_time FROM friendly_events WHERE match_id = $1 order by minute asc, added_minute asc, event_id asc"
 
 // GetFriendlyEvents reads back a played friendly's events (see SaveFriendlyResultTx) - the friendly
-// equivalent of GetMatchEvents. friendly_events has no other_team_players/other_team_player_names
-// columns (nothing in this codebase reads them even for league matches - see Event's own doc
-// comment), so those two fields are always left nil here.
+// equivalent of GetMatchEvents, the other side's players (the defending keeper on a chance)
+// included. A row stored before init108 has NULL there and reads as no keeper.
 func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 	rows, err := dbCtx.Db.Query(GetFriendlyEventsStmtSql, matchId)
 	if err != nil {
@@ -832,6 +832,7 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var minute int
 		var teamPlayers string
 		var teamPlayerNames string
+		var otherTeamPlayers, otherTeamPlayerNames sql.NullString
 		var homeGoals int
 		var awayGoals int
 		var setPiece int
@@ -839,7 +840,7 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 		var addedMinute int
 		var addedTime sql.NullInt64
 		if err := rows.Scan(&eventType, &teamOwner, &otherTeam, &minute, &teamPlayers, &teamPlayerNames,
-			&homeGoals, &awayGoals, &setPiece, &mentality, &addedMinute, &addedTime); err != nil {
+			&otherTeamPlayers, &otherTeamPlayerNames, &homeGoals, &awayGoals, &setPiece, &mentality, &addedMinute, &addedTime); err != nil {
 			continue
 		}
 
@@ -864,6 +865,12 @@ func GetFriendlyEvents(dbCtx *DatabaseContext, matchId int64) *[]Event {
 			names := make([]string, 0)
 			_ = json.Unmarshal([]byte(teamPlayerNames), &names)
 			event.TeamOwnerPlayersNames = names
+		}
+		if otherTeamPlayers.Valid && otherTeamPlayers.String != "" {
+			_ = json.Unmarshal([]byte(otherTeamPlayers.String), &event.OtherTeamPlayers)
+		}
+		if otherTeamPlayerNames.Valid && otherTeamPlayerNames.String != "" {
+			_ = json.Unmarshal([]byte(otherTeamPlayerNames.String), &event.OtherTeamPlayersNames)
 		}
 		events = append(events, event)
 	}

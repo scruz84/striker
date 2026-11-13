@@ -297,3 +297,8 @@ The minute scrubbers of the zone duel and the ratings by minute SHALL have one s
   `features/match/MatchScoreboard.test.tsx`, `MatchEventsReport.test.tsx` (added time),
   `MatchMinuteRatings.test.tsx` (with added time), `MatchMinuteZoneComparison.test.tsx`,
   `api/useLiveMatch.test.ts`.
+- Half-time line: `MatchEventsReport.tsx` (`firstHalfOver` prop, defaulting to `final`; the line goes
+  before the first second-half row, from `halfTimeLine` in `utils/matchCommentary.tsx`, labels
+  `match.report.halfTime.*`). `MatchViewer.tsx` passes `live.halftime || live.minute > 45` live and
+  `MatchReportTab.tsx` relies on `final`; both pass the kickoff (`matchKey`) used to seed the lines.
+  Tests: `MatchEventsReport.test.tsx` (commentary bookends), `MatchViewer.test.tsx` (first half over).

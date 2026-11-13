@@ -1315,8 +1315,66 @@
     },
     "report": {
       "intro": "Thanks to the {{weather}} weather, a crowd of {{attendance}} gathered to watch the match. {{referee}} was the referee, assisted by {{assistant1}} and {{assistant2}}.",
-      "kickoff": "Everyone is ready - the match is about to begin!",
+      "kickoff": [
+        "Everyone is ready - the match is about to begin!",
+        "The ball is rolling between {{home}} and {{away}}. Let the show begin!",
+        "The captains shake hands, the referee checks the watch... and we're under way!",
+        "A big-match atmosphere for {{home}} against {{away}}. Here we go!",
+        "Kick-off. {{home}} and {{away}} have a lot riding on this one.",
+        "And we're off! Get comfortable: this one looks promising.",
+        "First whistle and the first sprints. {{home}} and {{away}}, face to face with everything to play for."
+      ],
       "fullTime": "The referee blows the whistle for full time.",
+      "halfTime": {
+        "goalless": [
+          "Half time: 0-0 and everything still to play for.",
+          "Goalless at the break. Time for a team talk.",
+          "End of the first half: lots of running, few chances, no goals.",
+          "Half time with nothing on the board. The second half needs to be something else."
+        ],
+        "level": [
+          "Half time and all square: {{score}}.",
+          "Level at the break ({{score}}). Wide open.",
+          "We reach the interval at {{score}}. Long may the fun continue."
+        ],
+        "homeLeads": [
+          "Half time: {{home}} lead {{score}}.",
+          "{{home}} go in at the break ahead: {{score}}.",
+          "{{home}} head for the dressing room in front ({{score}}). {{away}} have homework to do."
+        ],
+        "awayLeads": [
+          "Half time: {{away}} lead {{score}}.",
+          "At the interval, {{away}} are in front: {{score}}.",
+          "{{away}} head for the dressing room ahead ({{score}}). {{home}} have homework to do."
+        ]
+      },
+      "fullTimeResult": {
+        "goallessDraw": [
+          "Full time: 0-0. Neither side found a way through.",
+          "It ends goalless. The goalkeepers win this one.",
+          "Final whistle: {{home}} 0-0 {{away}}."
+        ],
+        "scoringDraw": [
+          "Full time: {{score}}. Goals and drama shared out.",
+          "The final whistle goes with the sides level ({{score}}). Nobody got bored.",
+          "That's it: {{home}} {{score}} {{away}}. Nothing to separate them."
+        ],
+        "homeWin": [
+          "Full time! {{home}} win {{score}} and their fans love it.",
+          "It's over: victory for {{home}}, {{score}} against {{away}}.",
+          "Final whistle. {{home}} get the job done: {{score}}."
+        ],
+        "awayWin": [
+          "Full time! {{away}} win {{score}} and take the match.",
+          "It's over: victory for {{away}}, {{score}} against {{home}}.",
+          "Final whistle. {{away}} come away with the win: {{score}}."
+        ],
+        "bigWin": [
+          "Full time! A masterclass from {{winner}}: {{score}}.",
+          "It's over. {{winner}} roll over {{loser}} ({{score}}).",
+          "Final whistle on a day {{winner}} will remember for a long time: {{score}}."
+        ]
+      },
       "defaultResultLabel": "Default result",
       "summary": {
         "title": "Match summary",
@@ -1370,34 +1428,74 @@
       "goal": [
         "GOAL! {{player}} finds the net for {{team}}!",
         "{{player}} scores for {{team}} - what a finish!",
-        "It's in! {{player}} beats the goalkeeper for {{team}}!",
-        "GOOOAL! {{player}} gets {{team}} on the scoresheet!"
+        "It's in! {{player}} is clean through, looks up, picks a spot... and {{keeper}} can't reach it.",
+        "GOOOAL! {{player}} gets {{team}} on the scoresheet with a crisp strike.",
+        "What a goal from {{player}}! One touch to control, one to set, and a rocket into the top corner.",
+        "Goal for {{team}}! A pinpoint cross and {{player}} heads it home; {{keeper}} doesn't move.",
+        "{{player}} spins and shoots on the turn - it surprises everyone, {{keeper}} included!",
+        "GOAL! A move straight off the training ground, finished by {{player}} into an empty net.",
+        "In it goes! {{player}} pounces on a loose ball in the box and makes no mistake.",
+        "What a strike from {{player}}! It hugs the post on its way in and {{keeper}} can only watch.",
+        "{{player}} slaloms between two {{opponent}} defenders and slots it home. Lovely stuff.",
+        "Chipped! Out rushes {{keeper}} and {{player}} lifts it over the top. Goal for {{team}}!",
+        "Goal! {{player}} fires it in from close range and the {{opponent}} net is still shaking.",
+        "Lethal counter from {{team}}! {{player}} races half the length of the pitch and finishes past {{keeper}}."
       ],
       "noGoal": [
         "{{player}} goes close for {{team}}, but it's off target!",
-        "Chance for {{team}}! {{player}}'s effort is saved!",
-        "So close! {{player}} can't quite find the corner for {{team}}.",
-        "{{player}} tries their luck for {{team}} - denied by the keeper!"
+        "Chance for {{team}}! {{player}}'s effort is gathered comfortably by {{keeper}}.",
+        "So close! {{player}} can't quite find the corner.",
+        "{{player}} tries their luck from distance, but {{keeper}} gathers at the second attempt.",
+        "Off the post! {{player}}'s effort crashes against the woodwork. Unlucky for {{team}}!",
+        "What a save! Full stretch from {{keeper}} to keep out {{player}}'s shot.",
+        "{{player}} is through on {{keeper}}... and blazes it over the bar.",
+        "A header from {{player}} skims the top of the crossbar. Ooh!",
+        "{{player}} tries one trick too many and the {{opponent}} defence picks their pocket.",
+        "{{player}}'s cross-shot rolls agonisingly across the face of goal with nobody there to tap it in.",
+        "{{team}} had to score there! {{player}} shoots from point-blank range and {{keeper}} saves with a foot.",
+        "{{player}} lets fly from outside the box... closer to the corner flag than the goal.",
+        "A gorgeous volley from {{player}}, tipped away by {{keeper}} with a save for the highlights reel.",
+        "One on one for {{player}}... and {{keeper}} wins it, narrowing the angle perfectly."
       ],
       "yellowCard": [
         "{{player}} goes into the book for {{team}}.",
-        "Yellow card shown to {{player}} of {{team}}.",
-        "The referee cautions {{player}} ({{team}})."
+        "Yellow card for {{player}} after a late challenge.",
+        "The referee cautions {{player}} ({{team}}) for dissent.",
+        "Booked! {{player}} handles the ball to stop a {{opponent}} counter.",
+        "{{player}} arrives late and the referee doesn't hesitate: yellow card.",
+        "A yellow for {{player}}, who is now walking a tightrope.",
+        "{{player}} loses their cool and is shown a yellow. Every tackle counts from here.",
+        "{{player}} is booked for diving. The referee wasn't buying it.",
+        "Yellow card for {{player}} for wasting time at a throw-in."
       ],
       "redCard": [
-        "{{player}} is sent off! {{team}} down to ten men.",
-        "Red card! {{player}}'s night is over for {{team}}.",
-        "Straight red for {{player}} - {{team}} in trouble now."
+        "{{player}} is sent off! {{team}} are down to ten.",
+        "Red card! {{player}}'s afternoon is over, and it's a long walk to the tunnel.",
+        "Straight red for {{player}} after a reckless tackle. {{team}} are in trouble now.",
+        "Sent off! {{player}} leaves {{team}} a player short, and their manager can't believe it.",
+        "No hesitation from the referee: red card, and {{player}} is off.",
+        "Red for {{player}}! {{team}} will have to dig in with a player fewer.",
+        "{{player}} brings down a {{opponent}} attacker who was through on goal and sees a straight red."
       ],
       "injury": [
-        "{{player}} is down and looks in trouble for {{team}}.",
-        "Concern for {{team}} as {{player}} can't continue.",
-        "{{player}} has to be withdrawn injured."
+        "{{player}} is down and looks in pain. Worry for {{team}}.",
+        "Bad news for {{team}}: {{player}} can't continue.",
+        "{{player}} has to come off injured, applauded by the crowd.",
+        "{{player}} clutches a thigh after a sprint. That doesn't look good.",
+        "The physios are on: {{player}} has hurt an ankle.",
+        "{{player}} limps off asking for a change. Grim faces on the {{team}} bench.",
+        "An accidental collision leaves {{player}} on the turf. They won't be able to carry on."
       ],
       "substitution": [
         "{{team}} make a change: {{outPlayer}} makes way for {{inPlayer}}.",
-        "Substitution for {{team}} - {{inPlayer}} replaces {{outPlayer}}.",
-        "{{outPlayer}} comes off, {{inPlayer}} comes on for {{team}}."
+        "Movement on the {{team}} bench: {{inPlayer}} comes on for {{outPlayer}}.",
+        "{{outPlayer}} off, {{inPlayer}} on. The {{team}} manager makes a move.",
+        "Substitution for {{team}}: {{inPlayer}} bounds onto the pitch; {{outPlayer}} heads off.",
+        "That's the afternoon done for {{outPlayer}}. {{inPlayer}} takes their place.",
+        "Fresh legs for {{team}}: {{inPlayer}} for {{outPlayer}}.",
+        "Tactical change from {{team}}: off goes {{outPlayer}}, on comes {{inPlayer}}.",
+        "{{inPlayer}} finishes warming up, high-fives {{outPlayer}} and is into the action.",
+        "Change for {{team}}: {{outPlayer}} leaves the pitch and {{inPlayer}} picks up the baton."
       ],
       "abandoned": [
         "{{team}} can no longer field enough players to continue - the match is abandoned, and {{opponent}} are awarded the win.",
@@ -1405,43 +1503,190 @@
         "The referee abandons the match: {{team}} are down to too few players to carry on, and {{opponent}} are awarded a 3-0 win."
       ],
       "defaultResult": [
-        "The match could not be played: it is recorded as a 0-0 default result between {{team}} and {{opponent}}."
+        "The match could not be played: it is recorded as a 0-0 default result between {{team}} and {{opponent}}.",
+        "No match today: {{team}} and {{opponent}} are given a 0-0 by default."
       ],
       "penaltyGoal": [
         "PENALTY! {{player}} sends {{keeper}} the wrong way and scores for {{team}}!",
-        "{{player}} steps up and converts the penalty for {{team}} - {{keeper}} had no chance!",
-        "Cool as you like! {{player}} slots the spot-kick past {{keeper}} for {{team}}.",
-        "GOAL from the spot! {{player}} makes no mistake for {{team}}."
+        "{{player}} steps up and converts the penalty for {{team}}. Nothing {{keeper}} could do.",
+        "Cool as you like! {{player}} tucks the spot-kick into the top corner.",
+        "GOAL from the spot! {{player}} makes no mistake for {{team}}.",
+        "Short run-up, steely stare... and {{player}} chips it down the middle, Panenka-style. Nerves of steel!",
+        "{{player}} looks one way, {{keeper}} guesses right... but can't reach it. Goal for {{team}}!",
+        "Hit with real power by {{player}}: high into the net, and {{keeper}} has no chance."
       ],
       "penaltyMiss": [
-        "PENALTY MISSED! {{keeper}} saves {{player}}'s spot-kick for {{team}}!",
+        "PENALTY SAVED! It's kept out by {{keeper}}, who reads {{player}}'s spot-kick perfectly.",
         "{{player}} steps up for {{team}}... and {{keeper}} keeps it out!",
-        "Disaster from the spot! {{player}}'s penalty for {{team}} is wasted."
+        "Disaster from the spot! {{player}}'s penalty sails off into the night.",
+        "Off the post! {{player}} hits the upright from the spot and {{team}} come away with nothing.",
+        "{{player}} tries a Panenka... and {{keeper}} simply stands still and catches it. Ouch.",
+        "{{player}} blazes the penalty over. That ball is still climbing.",
+        "Saved by {{keeper}}! A cat-like dive to deny {{player}} from twelve yards."
       ],
       "freeKickGoal": [
-        "WHAT A FREE KICK! {{player}} curls it past {{keeper}} for {{team}}!",
-        "{{player}} strikes the free kick for {{team}} and it's in! {{keeper}} can only watch.",
-        "GOAL! A direct free kick from {{player}} finds the corner for {{team}}!"
+        "WHAT A FREE KICK! {{player}} bends it over the wall and {{keeper}} never sees it.",
+        "{{player}} strikes the free kick for {{team}} and it's in! All {{keeper}} can do is watch.",
+        "GOAL! A direct free kick from {{player}} finds the corner for {{team}}!",
+        "A dipping free kick from {{player}}! It drops like a stone just under the bar.",
+        "Free kick on the edge of the box, {{player}} places the ball with care... and buries it in the top corner!",
+        "Free-kick goal! {{player}} rolls it under the jumping wall. Clever, clever stuff!",
+        "A perfect strike from {{player}}: curl, dip and goal, with {{keeper}} stretching in vain."
       ],
       "freeKickMiss": [
         "{{player}}'s free kick for {{team}} is held by {{keeper}}.",
         "Free kick for {{team}}! {{player}} strikes it, but it's off target.",
-        "{{player}} tries the direct free kick for {{team}} - {{keeper}} is equal to it!"
+        "{{player}} tries the direct free kick - and {{keeper}} is equal to it with a fine stretch!",
+        "{{player}}'s free kick thuds into the wall. Somebody from {{opponent}} will feel that one tomorrow.",
+        "{{player}} puts everything into it... and the ball ends up in the upper tier.",
+        "A dangerous free kick from {{player}} that whistles just past the post.",
+        "A delicate dink from {{player}} over the wall, but {{keeper}} gathers without breaking sweat."
       ],
       "mentalityChange": {
         "attacking": [
           "{{team}} push forward and switch to an attacking approach.",
           "{{team}} go for it: an attacking approach from here on.",
-          "Change of plan for {{team}}, who now play on the attack."
+          "Change of plan for {{team}}, who now play on the attack.",
+          "{{team}} push their lines up: time to take some risks."
         ],
         "balanced": [
           "{{team}} settle down and return to a balanced approach.",
-          "{{team}} go back to a balanced game."
+          "{{team}} go back to a balanced game.",
+          "{{team}} ease off the accelerator and look for balance.",
+          "Not all-out attack, not all-out defence: {{team}} find the middle ground."
         ],
         "defensive": [
           "{{team}} drop deep and switch to a defensive approach.",
           "{{team}} shut up shop: a defensive approach from here on.",
-          "Change of plan for {{team}}, who now protect what they have."
+          "Change of plan for {{team}}, who now protect what they have.",
+          "{{team}} park the bus in front of their own goal."
+        ]
+      },
+      "secondYellow": [
+        "Second yellow for {{player}}! And that means red: {{team}} are down to ten.",
+        "{{player}}, already booked, commits another foul and is off for two yellows.",
+        "Sent off! A second yellow sends {{player}} for an early shower.",
+        "That one was coming: a second yellow for {{player}}, and {{team}} are a player short.",
+        "Two yellows make a red for {{player}}. The {{team}} manager can't bear to look."
+      ],
+      "situation": {
+        "hatTrick": [
+          "HAT-TRICK for {{player}}! That's {{goals}} today, and the match ball is going home with them.",
+          "Hat-trick! {{player}} is having a day to frame: {{goals}} goals and counting.",
+          "That's {{goals}} for {{player}} today. Somebody call their family.",
+          "{{player}} isn't done yet: goal number {{goals}} of the match makes it {{score}}.",
+          "The crowd is chanting {{player}}'s name - that's {{goals}} goals now."
+        ],
+        "lateWinner": [
+          "At the death! {{team}} make it {{score}} when nobody saw it coming.",
+          "A goal at the crucial moment! {{team}} can almost taste victory at {{score}}.",
+          "Bedlam in the stadium! With time nearly up, {{team}} make it {{score}}.",
+          "What a finish to the match! {{player}} may just have won it for {{team}}.",
+          "The {{team}} bench spills onto the touchline: this could be the winner!"
+        ],
+        "lateEqualiser": [
+          "Late, late drama! {{team}} level at {{score}} just as the match was slipping away.",
+          "{{team}} equalise at the end! That {{score}} feels like a win to them.",
+          "{{team}} refuse to give in! Level in the closing minutes: {{score}}.",
+          "What a blow for {{opponent}}! They had it in the bag and {{team}} pull level at the last.",
+          "Equaliser at the last gasp! {{player}} is the {{team}} hero."
+        ],
+        "comeback": [
+          "COMEBACK! {{team}} were behind and now they lead: {{score}}.",
+          "{{team}} have turned it around! From suffering to {{score}}.",
+          "Who said it was over? {{team}} complete the comeback.",
+          "What a response from {{team}}! On the ropes before, in front now.",
+          "{{opponent}} can't believe it: {{team}} have come from behind to make it {{score}}."
+        ],
+        "brace": [
+          "A brace for {{player}}! Their second of the day.",
+          "{{player}} does it again: that's two in the match.",
+          "{{player}} again! Somebody mark them, please.",
+          "Two out of two for {{player}}, who is in the form of their life.",
+          "{{player}} turns hero with a second goal of the day."
+        ],
+        "opener": [
+          "The deadlock is broken! {{team}} strike first: {{score}}.",
+          "First goal of the match, and it belongs to {{team}}.",
+          "We're off and running! {{score}} on the scoreboard.",
+          "{{team}} open the scoring and their fans can breathe.",
+          "First blood to {{team}}. Over to you, {{opponent}}."
+        ],
+        "equaliser": [
+          "Level! {{team}} pull it back to {{score}}.",
+          "All square again: {{score}}.",
+          "{{team}} refuse to lie down and draw level.",
+          "{{team}} hit back! We're level once more.",
+          "The {{opponent}} lead is gone: {{score}}."
+        ],
+        "goAhead": [
+          "{{team}} are in front! {{score}}.",
+          "{{team}} lead now: {{score}} on the board.",
+          "{{team}} slam their fist on the table and edge back in front.",
+          "{{team}} go ahead, and {{opponent}} have work to do.",
+          "Advantage {{team}}! The match changes complexion: {{score}}."
+        ],
+        "rout": [
+          "This is a rout! {{score}}, and {{opponent}} don't know where to hide.",
+          "{{team}} are partying: {{score}}. A thrashing!",
+          "{{team}} put on a show. The scoreline ({{score}}) is starting to look like basketball.",
+          "A day to forget for {{opponent}}: it's {{score}} now.",
+          "Another one! By now the {{opponent}} keeper has stopped counting."
+        ],
+        "extendLead": [
+          "{{team}} extend their lead: {{score}}.",
+          "Nearly a knockout blow from {{team}}, who pull clear.",
+          "More where that came from! {{team}} stretch the lead: {{score}}.",
+          "{{team}} strike again and {{opponent}} are reeling.",
+          "With this goal, {{team}} start to look in control."
+        ],
+        "pullsOneBack": [
+          "{{team}} pull one back! {{score}}, game on.",
+          "{{team}} are back in it: {{score}}.",
+          "That goal breathes life into {{team}}. Go on, find an equaliser!",
+          "It's tight again: {{score}}. {{opponent}} start to sweat.",
+          "{{team}} won't throw in the towel and close the gap."
+        ],
+        "consolation": [
+          "A consolation for {{team}}, though it's still a mountain to climb: {{score}}.",
+          "{{team}} put a better gloss on the scoreline: {{score}}.",
+          "At least {{team}} have a goal to cheer.",
+          "One for the record books: {{team}} are still well behind, {{score}}.",
+          "The {{team}} fans celebrate like it's a cup final. Good for them."
+        ]
+      },
+      "lateMiss": [
+        "It can't be! That was the chance to rescue something.",
+        "{{team}} let the clearest one slip away in the closing stages!",
+        "Heads in hands on the {{team}} bench: you can't miss that.",
+        "A golden opportunity goes begging for {{team}}, with so little time left.",
+        "The clock is against {{team}}, and they've just wasted a sitter.",
+        "{{player}} sinks to the turf. Chances like that don't come along this late."
+      ],
+      "colour": {
+        "miss": [
+          "Heads in hands all around the ground.",
+          "The {{team}} manager boots a water bottle.",
+          "A fan in the stands had already started celebrating.",
+          "The ball ends up in the crowd and a kid keeps it as a souvenir.",
+          "{{player}} looks to the heavens for an explanation.",
+          "The {{team}} kit man will have to fetch that one from the car park.",
+          "An \"ooooh\" you could hear in the next town.",
+          "{{player}}'s teammates applaud the effort. Well, most of them.",
+          "Even the TV cameraman lost track of that ball.",
+          "Sighs of relief in the defence.",
+          "A serious warning from {{team}}."
+        ],
+        "yellowCard": [
+          "{{player}} protests, but the referee isn't interested.",
+          "The {{team}} bench is up in arms. The referee is unmoved.",
+          "{{player}} will have to tread carefully from now on.",
+          "The crowd wanted more, but the referee settles for yellow.",
+          "{{player}} gives the referee a sarcastic clap. Best not go down that road.",
+          "The {{team}} manager is already thinking about a substitution.",
+          "The {{opponent}} players surround the referee demanding red. It stays yellow.",
+          "{{player}} swears they got the ball. Nobody is convinced.",
+          "The fourth official makes a note, looking far from amused."
         ]
       }
     },

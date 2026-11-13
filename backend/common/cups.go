@@ -86,8 +86,8 @@ const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, home_team_id, away_te
 	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL AND " + simulationEligibleSql + " " + ForUpdate
 
 const InsertCupTieEventStmtSql = "INSERT INTO cup_tie_events (tie_id, event_type, team_owner, other_team, minute, " +
-	"team_players, team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
-	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)"
+	"team_players, team_player_names, other_team_players, other_team_player_names, home_goals, away_goals, set_piece, mentality, added_minute, added_time) " +
+	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
 const InsertCupTieInstantStmtSql = "INSERT INTO cup_tie_instants(tie_id, minute, home_goals, away_goals, home_qua, away_qua, " +
 	"midfield_diff, homeattack_right_diff, homeattack_left_diff, homeattack_center_diff, awayattack_right_diff, awayattack_left_diff, awayattack_center_diff, player_contributions, added_minute) " +
@@ -102,7 +102,8 @@ const GetCupTieInstantsStmtSql = "SELECT tie_id, minute, home_goals, away_goals,
 const GetCupTieFlavorStmtSql = "SELECT ct.weather, ct.attendance, ct.referee_name, ct.assistant1_name, ct.assistant2_name, t.stadium_name " +
 	"FROM cup_ties ct LEFT JOIN teams t ON t.team_id = ct.home_team_id WHERE ct.tie_id = $1"
 
-const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, home_goals, away_goals, set_piece, mentality, " +
+const GetCupTieEventsStmtSql = "SELECT event_type, team_owner, other_team, minute, team_players, team_player_names, other_team_players, other_team_player_names, " +
+	"home_goals, away_goals, set_piece, mentality, " +
 	"added_minute, added_time FROM cup_tie_events WHERE tie_id = $1 ORDER BY minute ASC, added_minute ASC, event_id ASC"
 
 // CreateCup starts a new single-elimination cup for a country's season.
@@ -618,10 +619,18 @@ func GetCupTieEvents(dbCtx *DatabaseContext, tieId int64) ([]Event, error) {
 	for rows.Next() {
 		var e Event
 		var teamPlayers, teamPlayerNames string
+		var otherTeamPlayers, otherTeamPlayerNames sql.NullString
 		var mentality, addedTime sql.NullInt64
 		if err := rows.Scan(&e.EventType, &e.TeamOwner, &e.OtherTeam, &e.Minute, &teamPlayers, &teamPlayerNames,
-			&e.HomeGoals, &e.AwayGoals, &e.SetPiece, &mentality, &e.AddedMinute, &addedTime); err != nil {
+			&otherTeamPlayers, &otherTeamPlayerNames, &e.HomeGoals, &e.AwayGoals, &e.SetPiece, &mentality, &e.AddedMinute, &addedTime); err != nil {
 			return nil, err
+		}
+		// NULL on a row stored before init108 (no keeper recorded).
+		if otherTeamPlayers.Valid && otherTeamPlayers.String != "" {
+			_ = json.Unmarshal([]byte(otherTeamPlayers.String), &e.OtherTeamPlayers)
+		}
+		if otherTeamPlayerNames.Valid && otherTeamPlayerNames.String != "" {
+			_ = json.Unmarshal([]byte(otherTeamPlayerNames.String), &e.OtherTeamPlayersNames)
 		}
 		e.Mentality = nullableInt(mentality)
 		e.AddedTime = nullableInt(addedTime)

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -19,7 +19,7 @@ import {
   type MatchEvent,
 } from '../../api/types'
 import { formatNumber } from '../../utils/formatCurrency'
-import { commentaryFor } from '../../utils/matchCommentary'
+import { fullTimeLine, halfTimeLine, kickoffLine, narrateMatch } from '../../utils/matchCommentary'
 import { compareMatchMinute, formatMatchMinute } from '../../utils/matchMinute'
 import { isMinorMissedChance } from '../../utils/matchEvents'
 import { TeamBadge } from '../../components/TeamBadge'
@@ -97,6 +97,13 @@ export interface MatchEventsReportProps {
   // True once the match has actually finished - adds the closing "full time" line. Omitted for a
   // still-broadcasting match, which has no full-time moment yet.
   final?: boolean
+  // True once the first half is over, which adds the half-time line (match-viewer "Half-time line
+  // in the chronicle"). Defaults to `final`: a live view passes whether its broadcast is in the
+  // break or past minute 45.
+  firstHalfOver?: boolean
+  // Tells this fixture apart from another between the same sides (its kickoff time), so a rematch
+  // gets different lines - see NarrationTeams.matchKey.
+  matchKey?: string
 }
 
 // A Hattrick-style narrative report: an intro paragraph (weather/crowd/referee flavor, when
@@ -118,18 +125,40 @@ export function MatchEventsReport({
   assistant1Name,
   assistant2Name,
   final = false,
+  firstHalfOver = final,
+  matchKey,
 }: MatchEventsReportProps) {
   const { t } = useTranslation()
+  const teams = useMemo(() => ({ homeId, homeName, awayId, awayName, matchKey }), [homeId, homeName, awayId, awayName, matchKey])
 
   // Missed chances ("¡Qué cerca!...") are most of the narration and bury the goals, cards and
   // substitutions, so they're hidden until the viewer asks for the full commentary - except a
   // missed penalty, which always shows (see isMissedPenalty).
   const [fullCommentary, setFullCommentary] = useState(false)
-  // In match order (45+2 after 45, before 46); a stable sort keeps each minute's events - and the
-  // added-time board after the minute's other events - in the order they were recorded.
-  const notable = events.filter((event) => NOTABLE_EVENT_TYPES.includes(event.eventType)).sort(compareMatchMinute)
-  const hasMissedChances = notable.some(isMinorMissedChance)
-  const visible = fullCommentary ? notable : notable.filter((event) => !isMinorMissedChance(event))
+  // Every event is narrated, in match order (45+2 after 45, before 46; a stable sort keeps each
+  // minute's events - and the added-time board after the minute's other events - in the order they
+  // were recorded), before the "key events only" filter, so collapsing the missed chances never
+  // changes another line (match-commentary "No repeated lines within a match").
+  const narrated = useMemo(() => narrateMatch(events, teams, t), [events, teams, t])
+  const notable = narrated.filter((entry) => NOTABLE_EVENT_TYPES.includes(entry.event.eventType))
+  const hasMissedChances = notable.some((entry) => isMinorMissedChance(entry.event))
+  const visible = fullCommentary ? notable : notable.filter((entry) => !isMinorMissedChance(entry.event))
+
+  // The match-ending events: a default result or an abandoned match keeps the neutral closing line,
+  // and one abandoned in the first half has no half-time line either.
+  const ordered = [...events].sort(compareMatchMinute)
+  const defaultResult = ordered.some((event) => event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT)
+  const abandoned = ordered.find((event) => event.eventType === EVENT_TYPE_MATCH_ABANDONED)
+  const showHalfTime = firstHalfOver && !defaultResult && !(abandoned && abandoned.minute <= 45)
+  const firstHalf = ordered.filter((event) => event.minute <= 45)
+  const halfTimeScore = firstHalf.length > 0 ? firstHalf[firstHalf.length - 1] : { homeGoals: 0, awayGoals: 0 }
+  const lastEvent = ordered.length > 0 ? ordered[ordered.length - 1] : { homeGoals: 0, awayGoals: 0 }
+  // The half-time line sits before the first second-half row shown, or after every row so far.
+  const firstSecondHalfRow = visible.findIndex((entry) => entry.event.minute > 45)
+  const halfTimeAt = firstSecondHalfRow === -1 ? visible.length : firstSecondHalfRow
+  const halfTime = showHalfTime ? halfTimeLine(t, teams, halfTimeScore.homeGoals, halfTimeScore.awayGoals) : undefined
+  const kickoff = kickoffLine(t, teams)
+  const fullTime = defaultResult || abandoned ? undefined : fullTimeLine(t, teams, lastEvent.homeGoals, lastEvent.awayGoals)
 
   const hasFlavor = !!(weather && refereeName && assistant1Name && assistant2Name)
 
@@ -147,7 +176,7 @@ export function MatchEventsReport({
           })}
         />
       )}
-      <ReportParagraph text={t('match.report.kickoff')} />
+      {kickoff && <ReportParagraph text={kickoff} />}
       {hasMissedChances && (
         <Box>
           <Button size="small" onClick={() => setFullCommentary((value) => !value)}>
@@ -155,50 +184,59 @@ export function MatchEventsReport({
           </Button>
         </Box>
       )}
-      {visible.map((event, idx) => {
+      {visible.map((entry, idx) => {
+        const { event } = entry
+        const halfTimeRow = halfTime && idx === halfTimeAt ? <ReportParagraph text={halfTime} /> : null
         // The fourth official's board belongs to neither side: no team badge, just how long the half
         // goes on for.
         if (event.eventType === EVENT_TYPE_ADDED_TIME) {
           return (
-            <ReportRow
-              key={idx}
-              minute={event.minute}
-              addedMinute={event.addedMinute}
-              homeGoals={event.homeGoals}
-              awayGoals={event.awayGoals}
-              text={t('match.addedTime.board', { count: event.addedTime ?? 0 })}
-              icon={iconFor(event.eventType)}
-              iconLabel={t('match.addedTime.label')}
-              emphasized
-            />
+            <Fragment key={idx}>
+              {halfTimeRow}
+              <ReportRow
+                minute={event.minute}
+                addedMinute={event.addedMinute}
+                homeGoals={event.homeGoals}
+                awayGoals={event.awayGoals}
+                text={t('match.addedTime.board', { count: event.addedTime ?? 0 })}
+                icon={iconFor(event.eventType)}
+                iconLabel={t('match.addedTime.label')}
+                emphasized
+              />
+            </Fragment>
           )
         }
         const isHome = event.teamOwner === homeId
         const teamId = isHome ? homeId : awayId
         const teamName = isHome ? homeName : awayName
-        const opponentId = isHome ? awayId : homeId
-        const opponentName = isHome ? awayName : homeName
-        const commentary = commentaryFor(event, t, teamId, teamName, opponentId, opponentName)
-        if (!commentary) {
-          return null
+        if (!entry.text) {
+          return <Fragment key={idx}>{halfTimeRow}</Fragment>
         }
         return (
-          <ReportRow
-            key={idx}
-            minute={event.minute}
-            addedMinute={event.addedMinute}
-            homeGoals={event.homeGoals}
-            awayGoals={event.awayGoals}
-            text={commentary}
-            icon={iconFor(event.eventType)}
-            iconLabel={event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT ? t('match.report.defaultResultLabel') : undefined}
-            teamId={teamId}
-            teamName={teamName}
-            emphasized={!isMinorMissedChance(event)}
-          />
+          <Fragment key={idx}>
+            {halfTimeRow}
+            <ReportRow
+              minute={event.minute}
+              addedMinute={event.addedMinute}
+              homeGoals={event.homeGoals}
+              awayGoals={event.awayGoals}
+              text={
+                <>
+                  {entry.text}
+                  {entry.tail && <> {entry.tail}</>}
+                </>
+              }
+              icon={iconFor(event.eventType)}
+              iconLabel={event.eventType === EVENT_TYPE_MATCH_DEFAULT_RESULT ? t('match.report.defaultResultLabel') : undefined}
+              teamId={teamId}
+              teamName={teamName}
+              emphasized={!isMinorMissedChance(event)}
+            />
+          </Fragment>
         )
       })}
-      {final && <ReportParagraph text={t('match.report.fullTime')} />}
+      {halfTime && halfTimeAt === visible.length && <ReportParagraph text={halfTime} />}
+      {final && <ReportParagraph text={fullTime ?? t('match.report.fullTime')} />}
     </Stack>
   )
 }
@@ -323,7 +361,7 @@ function iconFor(eventType: number): string | null {
   }
 }
 
-function ReportParagraph({ text }: { text: string }) {
+function ReportParagraph({ text }: { text: ReactNode }) {
   return (
     <Typography variant="body2" color="text.secondary">
       {text}

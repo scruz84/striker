@@ -244,6 +244,7 @@ func newSetPieceTestMatch() (*common.MatchSimulation, *common.DatabaseContext) {
 	cache := &setPieceTestCache{values: map[string]string{
 		PlayerNameKey + "3": "Home Striker", PlayerNameKey + "4": "Home Passer", PlayerNameKey + "11": "Away Keeper",
 		PlayerNameKey + "1": "Home Keeper", PlayerNameKey + "13": "Away Striker",
+		PlayerNameKey + "2": "Home Defender", PlayerNameKey + "12": "Away Defender",
 	}}
 	return match, &common.DatabaseContext{ObjectCache: cache}
 }
@@ -346,5 +347,48 @@ func TestSetPieceCalibration_GoalsPerChanceStayPutInAnEvenMatchup(t *testing.T) 
 	penaltiesPerMatch := float64(penalties) / chances * chancesPerMatch
 	if math.Abs(penaltiesPerMatch-0.28) > 0.02 {
 		t.Fatalf("expected 0.28 ± 0.02 penalties per match, got %.3f", penaltiesPerMatch)
+	}
+}
+
+// openPlayEvents runs processChance until it has n open-play events for side (set pieces are
+// skipped - processSetPiece has its own tests) and returns them.
+func openPlayEvents(t *testing.T, side func(*common.MatchSimulation) int64, n int) ([]common.Event, *common.MatchSimulation) {
+	t.Helper()
+	match, dbCtx := newSetPieceTestMatch()
+	match.HomeQua = &common.TeamQualification{Attack: 50, Defense: 50}
+	match.AwayQua = &common.TeamQualification{Attack: 50, Defense: 50}
+	s := ScorerSimulation{r: rand.New(rand.NewSource(7))}
+	var open []common.Event
+	for i := 0; i < 1000 && len(open) < n; i++ {
+		*match.Events = (*match.Events)[:0]
+		processChance(s, dbCtx, match, side(match))
+		for _, e := range *match.Events {
+			if e.SetPiece == common.SET_PIECE_NONE {
+				open = append(open, e)
+			}
+		}
+	}
+	if len(open) < n {
+		t.Fatalf("expected %d open-play events, got %d", n, len(open))
+	}
+	return open, match
+}
+
+func TestProcessChance_OpenPlayRecordsTheAwayKeeper(t *testing.T) {
+	events, _ := openPlayEvents(t, func(m *common.MatchSimulation) int64 { return m.Home }, 20)
+	for _, e := range events {
+		if len(e.OtherTeamPlayers) != 1 || e.OtherTeamPlayers[0] != 11 ||
+			len(e.OtherTeamPlayersNames) != 1 || e.OtherTeamPlayersNames[0] != "Away Keeper" {
+			t.Fatalf("home open-play chance must name the away keeper, got %+v", e)
+		}
+	}
+}
+
+func TestProcessChance_OpenPlayRecordsTheHomeKeeper(t *testing.T) {
+	events, _ := openPlayEvents(t, func(m *common.MatchSimulation) int64 { return m.Away }, 20)
+	for _, e := range events {
+		if len(e.OtherTeamPlayers) != 1 || e.OtherTeamPlayers[0] != 1 || e.OtherTeamPlayersNames[0] != "Home Keeper" {
+			t.Fatalf("away open-play chance must name the home keeper, got %+v", e)
+		}
 	}
 }

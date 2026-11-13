@@ -531,6 +531,13 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `bestOnPitchOutfielder`, `penaltyConversionProbability`, `freeKickConversionProbability`);
   `common.Event.SetPiece` and `common.SET_PIECE_*`; persisted in the `set_piece` column of
   `match_events`, `cup_tie_events` and `friendly_events` (`resources/sql/init82_match_event_set_piece.sql`).
+  Defending keeper on every chance: `processChance` and `processSetPiece` fill
+  `Event.OtherTeamPlayers`/`OtherTeamPlayersNames`; every event table stores them
+  (`other_team_players`, `other_team_player_names`; cup and friendly columns added by
+  `resources/sql/init108_event_other_team_players.sql`), written by `common.replaceMatchEventsTx`
+  and read by `GetMatchEvents`, `GetCupTieEvents` and `GetFriendlyEvents`. Tests:
+  `engine/scorer_simulation_test.go` (`TestProcessChance_OpenPlayRecords*`),
+  `common/open_play_keeper_integration_test.go`.
   Frontend: `utils/matchCommentary.tsx` (set-piece phrasing), `utils/matchGoals.ts` and
   `features/match/MatchScoreboard.tsx` (`(pen.)` / `(f.k.)` marks), `utils/matchEvents.ts`
   (a missed penalty always shows in `MatchEventsReport`).

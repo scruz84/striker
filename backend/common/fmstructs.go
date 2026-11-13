@@ -627,8 +627,9 @@ type Event struct {
 	HomeGoals             int      `json:"homeGoals"`
 	AwayGoals             int      `json:"awayGoals"`
 	// SetPiece is SET_PIECE_NONE (open play), SET_PIECE_PENALTY or SET_PIECE_DIRECT_FREE_KICK; only
-	// meaningful on GOAL / NO_GOAL events. A set-piece event lists the defending goalkeeper in
-	// OtherTeamPlayers.
+	// meaningful on GOAL / NO_GOAL events. Every GOAL / NO_GOAL event, open play included, lists the
+	// defending goalkeeper in OtherTeamPlayers / OtherTeamPlayersNames (stored for league, cup and
+	// friendly events alike; empty on events stored before init108_event_other_team_players.sql).
 	SetPiece int `json:"setPiece"`
 	// Mentality is the side's new mentality on a MENTALITY_CHANGE event; nil on every other event.
 	Mentality *int `json:"mentality,omitempty"`

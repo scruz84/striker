@@ -121,7 +121,7 @@ func SaveLeagueMatchResultTx(dbCtx *DatabaseContext, matchId int64, divisionId i
 		result.FirstHalfAddedTime, result.SecondHalfAddedTime).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, SimulationKindLeague, "match_events", "match_id", "match_instants", matchId, result, InsertMatchEventStmtSql, InsertMatchInstantStmtSql, true); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindLeague, "match_events", "match_id", "match_instants", matchId, result, InsertMatchEventStmtSql, InsertMatchInstantStmtSql); err != nil {
 		return err
 	}
 
@@ -160,7 +160,7 @@ func SaveFriendlyResultTx(dbCtx *DatabaseContext, matchId int64, homeTeamId int6
 		result.FirstHalfAddedTime, result.SecondHalfAddedTime).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, SimulationKindFriendly, "friendly_events", "match_id", "friendly_instants", matchId, result, InsertFriendlyEventStmtSql, InsertFriendlyInstantStmtSql, false); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindFriendly, "friendly_events", "match_id", "friendly_instants", matchId, result, InsertFriendlyEventStmtSql, InsertFriendlyInstantStmtSql); err != nil {
 		return err
 	}
 	// A no-op for the overwhelming majority of friendlies, which aren't a World Cup group fixture.
@@ -188,7 +188,7 @@ func SaveCupTieResultTx(dbCtx *DatabaseContext, tieId int64, wentToPenalties boo
 		result.FirstHalfAddedTime, result.SecondHalfAddedTime).Scan(&matchDate); err != nil {
 		return savePlayedError(err)
 	}
-	if err := replaceMatchEventsTx(tx, SimulationKindCup, "cup_tie_events", "tie_id", "cup_tie_instants", tieId, result, InsertCupTieEventStmtSql, InsertCupTieInstantStmtSql, false); err != nil {
+	if err := replaceMatchEventsTx(tx, SimulationKindCup, "cup_tie_events", "tie_id", "cup_tie_instants", tieId, result, InsertCupTieEventStmtSql, InsertCupTieInstantStmtSql); err != nil {
 		return err
 	}
 	kickoff := time.Now()
@@ -209,10 +209,11 @@ func savePlayedError(err error) error {
 }
 
 // replaceMatchEventsTx deletes the events and instants an earlier failed attempt may have left
-// for id, then inserts result's, returning every insert error. withOtherTeam is true only for the
-// league table, which also stores the other side's players (see InsertMatchEventStmtSql).
+// for id, then inserts result's, returning every insert error. All three event tables take the
+// same columns in the same order, the other side's players included (the defending keeper on a
+// chance - see openspec match-simulation "Defending keeper on every chance").
 func replaceMatchEventsTx(tx *sql.Tx, kind string, eventsTable string, idColumn string, instantsTable string, id int64, result MatchResult,
-	insertEventSql string, insertInstantSql string, withOtherTeam bool) error {
+	insertEventSql string, insertInstantSql string) error {
 	if _, err := tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE %s = $1", eventsTable, idColumn), id); err != nil {
 		return err
 	}
@@ -231,16 +232,11 @@ func replaceMatchEventsTx(tx *sql.Tx, kind string, eventsTable string, idColumn 
 	for _, e := range result.Events {
 		teamPlayersJson, _ := json.Marshal(e.TeamOwnerPlayers)
 		teamPlayerNamesJson, _ := json.Marshal(e.TeamOwnerPlayersNames)
-		if withOtherTeam {
-			otherPlayersJson, _ := json.Marshal(e.OtherTeamPlayers)
-			otherPlayerNamesJson, _ := json.Marshal(e.OtherTeamPlayersNames)
-			_, err = insertEvent.Exec(id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamPlayersJson,
-				teamPlayerNamesJson, otherPlayersJson, otherPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece, e.Mentality,
-				e.AddedMinute, e.AddedTime)
-		} else {
-			_, err = insertEvent.Exec(id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute,
-				teamPlayersJson, teamPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece, e.Mentality, e.AddedMinute, e.AddedTime)
-		}
+		otherPlayersJson, _ := json.Marshal(e.OtherTeamPlayers)
+		otherPlayerNamesJson, _ := json.Marshal(e.OtherTeamPlayersNames)
+		_, err = insertEvent.Exec(id, e.EventType, e.TeamOwner, e.OtherTeam, e.Minute, teamPlayersJson,
+			teamPlayerNamesJson, otherPlayersJson, otherPlayerNamesJson, e.HomeGoals, e.AwayGoals, e.SetPiece, e.Mentality,
+			e.AddedMinute, e.AddedTime)
 		if err != nil {
 			return err
 		}

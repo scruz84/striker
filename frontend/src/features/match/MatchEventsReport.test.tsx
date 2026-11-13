@@ -1,11 +1,13 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   EVENT_TYPE_ADDED_TIME,
   EVENT_TYPE_GOAL,
+  EVENT_TYPE_MATCH_ABANDONED,
   EVENT_TYPE_MATCH_DEFAULT_RESULT,
   EVENT_TYPE_MENTALITY_CHANGE,
+  EVENT_TYPE_NO_GOAL,
   type MatchEvent,
 } from '../../api/types'
 import i18n from '../../i18n'
@@ -39,13 +41,17 @@ describe('MatchEventsReport default result', () => {
   })
 
   it.each([
-    ['en', 'recorded as a 0-0 default result between', 'Default result'],
-    ['es', 'se registra como un 0-0 por defecto entre', 'Resultado por defecto'],
-  ])('narrates the default result in %s', async (language, sentence, label) => {
+    ['en', 'Default result'],
+    ['es', 'Resultado por defecto'],
+  ])('narrates the default result in %s', async (language, label) => {
     await i18n.changeLanguage(language)
     const { container } = renderReport()
 
-    expect(container.textContent).toContain(sentence)
+    // One of the default-result lines, filled in with the two sides.
+    const lines = (i18n.t('match.commentary.defaultResult', { returnObjects: true }) as string[]).map((line) =>
+      line.replace('{{team}}', 'Real Norte').replace('{{opponent}}', 'Atlético Sur'),
+    )
+    expect(lines.some((line) => container.textContent?.includes(line))).toBe(true)
     expect(container.textContent).toContain('Real Norte')
     expect(container.textContent).toContain('Atlético Sur')
     expect(screen.getByLabelText(label)).toHaveTextContent('🤝')
@@ -56,18 +62,17 @@ describe('MatchEventsReport default result', () => {
 describe('MatchEventsReport mentality change', () => {
   const change: MatchEvent = { ...defaultResult, eventType: EVENT_TYPE_MENTALITY_CHANGE, minute: 70, teamOwner: 2, otherTeam: 1, mentality: 1 }
 
-  it.each([
-    ['en', 'attacking'],
-    ['es', 'ataque'],
-  ])('narrates the away side moving to an attacking approach at its minute in %s', async (language, word) => {
+  it.each(['en', 'es'])('narrates the away side moving to an attacking approach at its minute in %s', async (language) => {
     await i18n.changeLanguage(language)
     const { container } = render(
       <MemoryRouter>
         <MatchEventsReport events={[change]} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" />
       </MemoryRouter>,
     )
-    expect(container.textContent).toContain('Atlético Sur')
-    expect(container.textContent?.toLowerCase()).toContain(word)
+    const lines = (i18n.t('match.commentary.mentalityChange.attacking', { returnObjects: true }) as string[]).map((line) =>
+      line.replace('{{team}}', 'Atlético Sur'),
+    )
+    expect(lines.some((line) => container.textContent?.includes(line))).toBe(true)
     expect(container.textContent).toContain('70')
   })
 
@@ -133,3 +138,114 @@ describe('MatchEventsReport added time', () => {
   })
 })
 
+
+// openspec match-viewer "Half-time line in the chronicle" and match-commentary "Full-time line by
+// result" / "No repeated lines within a match".
+describe('MatchEventsReport commentary bookends', () => {
+  const base = { ...defaultResult, teamOwnerPlayers: [7], teamOwnerPlayerNames: ['Berlana'] }
+  const goal = (minute: number, homeGoals: number, awayGoals: number, side: 1 | 2 = 1, player = 7): MatchEvent => ({
+    ...base,
+    eventType: EVENT_TYPE_GOAL,
+    minute,
+    teamOwner: side,
+    otherTeam: side === 1 ? 2 : 1,
+    teamOwnerPlayers: [player],
+    teamOwnerPlayerNames: [`Player${player}`],
+    homeGoals,
+    awayGoals,
+  })
+  const miss = (minute: number, homeGoals: number, awayGoals: number, player: number): MatchEvent => ({
+    ...goal(minute, homeGoals, awayGoals, 1, player),
+    eventType: EVENT_TYPE_NO_GOAL,
+  })
+
+  // The case's lines, filled in the way the report fills them.
+  function linesOf(key: string, score: string): string[] {
+    const pool = i18n.t(key, { returnObjects: true }) as string[]
+    return pool.map((line) =>
+      line
+        .replaceAll('{{home}}', 'Real Norte')
+        .replaceAll('{{away}}', 'Atlético Sur')
+        .replaceAll('{{score}}', score)
+        .replaceAll('{{winner}}', 'Atlético Sur')
+        .replaceAll('{{loser}}', 'Real Norte'),
+    )
+  }
+
+  function report(events: MatchEvent[], props: { final?: boolean; firstHalfOver?: boolean } = {}) {
+    return render(
+      <MemoryRouter>
+        <MatchEventsReport events={events} homeId={1} homeName="Real Norte" awayId={2} awayName="Atlético Sur" {...props} />
+      </MemoryRouter>,
+    )
+  }
+
+  function foundLine(text: string, lines: string[]): string | undefined {
+    return lines.find((line) => text.includes(line))
+  }
+
+  beforeEach(async () => {
+    await i18n.changeLanguage('en')
+  })
+
+  it('puts the half-time line between the halves of a finished match', () => {
+    const { container } = report([goal(30, 1, 0, 1, 7), goal(70, 2, 0, 1, 8)], { final: true })
+    const text = container.textContent ?? ''
+    const line = foundLine(text, linesOf('match.report.halfTime.homeLeads', '1-0'))
+    expect(line).toBeDefined()
+    expect(text.indexOf('Player7')).toBeLessThan(text.indexOf(line!))
+    expect(text.indexOf(line!)).toBeLessThan(text.indexOf('Player8'))
+  })
+
+  it('shows no half-time line live before the break, and shows it during the break', () => {
+    const events = [goal(30, 1, 0)]
+    const before = report(events, { firstHalfOver: false })
+    expect(foundLine(before.container.textContent ?? '', linesOf('match.report.halfTime.homeLeads', '1-0'))).toBeUndefined()
+    before.unmount()
+    const during = report(events, { firstHalfOver: true })
+    expect(foundLine(during.container.textContent ?? '', linesOf('match.report.halfTime.homeLeads', '1-0'))).toBeDefined()
+  })
+
+  it('has no half-time line for a match abandoned in the first half', () => {
+    const abandoned: MatchEvent = { ...base, eventType: EVENT_TYPE_MATCH_ABANDONED, minute: 30, teamOwner: 1, otherTeam: 2 }
+    const { container } = report([abandoned], { final: true })
+    const text = container.textContent ?? ''
+    for (const key of ['goalless', 'level', 'homeLeads', 'awayLeads']) {
+      expect(foundLine(text, linesOf(`match.report.halfTime.${key}`, '0-0'))).toBeUndefined()
+    }
+    expect(text).toContain(i18n.t('match.report.fullTime'))
+  })
+
+  it('closes a 0-4 with a big-win line naming the away side', () => {
+    const events = [goal(10, 0, 1, 2, 21), goal(20, 0, 2, 2, 22), goal(50, 0, 3, 2, 23), goal(80, 0, 4, 2, 24)]
+    const { container } = report(events, { final: true })
+    expect(foundLine(container.textContent ?? '', linesOf('match.report.fullTimeResult.bigWin', '0-4'))).toBeDefined()
+  })
+
+  it('keeps the neutral full-time line for a default result', () => {
+    const { container } = report([defaultResult], { final: true })
+    expect(container.textContent).toContain(i18n.t('match.report.fullTime'))
+  })
+
+  it('opens with the same kickoff line live and finished', () => {
+    const kickoffs = linesOf('match.report.kickoff', '')
+    const live = report([goal(30, 1, 0)])
+    const liveLine = foundLine(live.container.textContent ?? '', kickoffs)
+    live.unmount()
+    const finished = report([goal(30, 1, 0)], { final: true })
+    expect(liveLine).toBeDefined()
+    expect(foundLine(finished.container.textContent ?? '', kickoffs)).toBe(liveLine)
+  })
+
+  it('reads every key event the same with the full commentary on or off', () => {
+    const events = [miss(5, 0, 0, 30), goal(12, 1, 0, 1, 31), miss(20, 1, 0, 32), miss(33, 1, 0, 33), goal(60, 2, 0, 1, 34)]
+    const { container } = report(events, { final: true })
+    const rowText = (name: string) =>
+      [...container.querySelectorAll('p, span, div')].find((node) => node.childElementCount > 0 && node.textContent?.includes(name) && node.textContent.length < 400)
+        ?.textContent
+    const collapsed = [rowText('Player31'), rowText('Player34')]
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('match.report.fullCommentary') }))
+    expect(container.textContent).toContain('Player30')
+    expect([rowText('Player31'), rowText('Player34')]).toEqual(collapsed)
+  })
+})
