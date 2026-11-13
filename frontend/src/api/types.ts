@@ -1345,9 +1345,6 @@ export const UNAVAILABLE_INJURY = 1
 // PlayerDetails is the full profile shown on a player's page - see
 // backend/common/playerdetails.go's PlayerDetails and handlers.PlayerDetailsHandler.
 export interface PlayerDetails extends Player {
-  // The player's negotiation tier (1 Naive .. 5 Mastermind), only once the viewer's club has
-  // negotiated with him (backend negotiation_insights, openspec/specs/player-negotiation).
-  negotiationStyle?: number
   teamName: string
   divisionId: number
   divisionName: string

@@ -2108,8 +2108,7 @@
       "contract": "Contract",
       "wage": "Wage",
       "averageSkill": "Average skill",
-      "releaseClause": "Release clause",
-      "negotiator": "Negotiator"
+      "releaseClause": "Release clause"
     },
     "listForTransfer": {
       "button": "List for transfer"
@@ -2173,13 +2172,6 @@
       "result": "Result",
       "vs": "vs",
       "upcoming": "Upcoming"
-    },
-    "negotiationStyles": {
-      "1": "Naive",
-      "2": "Casual",
-      "3": "Aware",
-      "4": "Shrewd",
-      "5": "Mastermind"
     }
   },
   "countries": {
@@ -2584,7 +2576,7 @@
           },
           {
             "q": "What is contract-negotiation intelligence?",
-            "a": "Every player has a hidden negotiation intelligence, from Naive to Mastermind, which you learn once you have negotiated with him. A sharper player reacts more to his recent form (a raise when improving, more seasons when declining), keeps more of his wage in his last season (75% to 95%), asks more to leave on a pre-contract (5% to 20% above his usual wage) and gives up more wage for a low release clause (5% to 15%)."
+            "a": "Every player has a hidden negotiation intelligence that is never revealed: you have to read it from how he negotiates. A sharper player reacts more to his recent form (a raise when improving, more seasons when declining), keeps more of his wage in his last season (75% to 95%), asks more to leave on a pre-contract (5% to 20% above his usual wage) and gives up more wage for a low release clause (5% to 15%)."
           },
           {
             "q": "Do players age and retire?",

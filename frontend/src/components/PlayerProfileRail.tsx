@@ -263,9 +263,6 @@ export function PlayerProfileRail({
           {canSeeFinancials && (
             <SpecRow label={t('playerPage.stats.contract')} value={t('team.contractSeasons', { count: player.contractYearsRemaining })} />
           )}
-          {player.negotiationStyle !== undefined && (
-            <SpecRow label={t('playerPage.stats.negotiator')} value={t(`playerPage.negotiationStyles.${player.negotiationStyle}`)} />
-          )}
           {player.releaseClause !== undefined && (
             <SpecRow label={t('playerPage.stats.releaseClause')} value={formatCurrency(player.releaseClause)} />
           )}

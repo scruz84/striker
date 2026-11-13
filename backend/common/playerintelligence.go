@@ -117,30 +117,3 @@ func PreContractPremium(tier int) float64 { return termsForIntelligence(tier).mo
 // ClauseDiscountFor is the share of his wage a player of tier gives up for a release clause of at
 // most twice his value.
 func ClauseDiscountFor(tier int) float64 { return termsForIntelligence(tier).clauseDiscount }
-
-const recordNegotiationInsightStmtSql = "INSERT INTO negotiation_insights (team_id, player_id) VALUES ($1, $2) ON CONFLICT DO NOTHING"
-const hasNegotiationInsightStmtSql = "SELECT EXISTS (SELECT 1 FROM negotiation_insights WHERE team_id = $1 AND player_id = $2)"
-const clearTeamNegotiationInsightsStmtSql = "DELETE FROM negotiation_insights WHERE team_id = $1"
-
-// RecordNegotiationInsight notes that teamId has negotiated with playerId, so it sees his
-// negotiation tier from now on (openspec/specs/player-negotiation "Negotiation insight"). The
-// handlers call it once the player has judged the terms, after the negotiation's own transaction
-// is over (its player row lock would block the insert's foreign-key check).
-func RecordNegotiationInsight(dbCtx *DatabaseContext, teamId int64, playerId int64) error {
-	_, err := dbCtx.Db.Exec(recordNegotiationInsightStmtSql, teamId, playerId)
-	return err
-}
-
-// NegotiationStyleFor is playerId's negotiation tier as teamId may see it: the tier once teamId has
-// negotiated with him, nil before.
-func NegotiationStyleFor(dbCtx *DatabaseContext, teamId int64, playerId int64) (*int, error) {
-	var known bool
-	if err := dbCtx.Db.QueryRow(hasNegotiationInsightStmtSql, teamId, playerId).Scan(&known); err != nil || !known {
-		return nil, err
-	}
-	tier, err := GetPlayerIntelligence(dbCtx, playerId)
-	if err != nil || tier == 0 {
-		return nil, err
-	}
-	return &tier, nil
-}

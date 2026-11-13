@@ -164,17 +164,6 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			teamOwner, _ := engine.GetUserOfTeamId(dbCtx, player.TeamId)
 			isOwner = userId != nil && teamOwner >= 0 && *userId == teamOwner
 		}
-		// The viewer's club sees the player's negotiation tier once it has negotiated with him
-		// (openspec/specs/player-negotiation "Negotiation insight").
-		if userId != nil {
-			if viewerTeam, err := common.GetTeamByOwner(*userId, dbCtx); err == nil {
-				if style, err := common.NegotiationStyleFor(dbCtx, viewerTeam.Id, playerId); err != nil {
-					log.Errorf("error reading the negotiation insight on player %d: %s", playerId, err)
-				} else {
-					details.NegotiationStyle = style
-				}
-			}
-		}
 		if !isOwner {
 			wage := details.Wage
 			details.RedactFinancials()

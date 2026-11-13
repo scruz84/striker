@@ -352,10 +352,6 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 	if _, err := tx.Exec(deleteTeamPreContractOffersStmtSql, teamId); err != nil {
 		return false, nil, err
 	}
-	// What its old owner learned negotiating goes with him (openspec/specs/player-negotiation).
-	if _, err := tx.Exec(clearTeamNegotiationInsightsStmtSql, teamId); err != nil {
-		return false, nil, err
-	}
 	if err := ClearWatchlist(tx, teamId); err != nil {
 		return false, nil, err
 	}

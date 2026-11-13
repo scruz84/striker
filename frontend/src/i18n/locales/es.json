@@ -2102,8 +2102,7 @@
       "contract": "Contrato",
       "wage": "Salario",
       "averageSkill": "Habilidad media",
-      "releaseClause": "Cláusula de rescisión",
-      "negotiator": "Negociador"
+      "releaseClause": "Cláusula de rescisión"
     },
     "listForTransfer": {
       "button": "Poner en el mercado"
@@ -2167,13 +2166,6 @@
       "result": "Resultado",
       "vs": "vs",
       "upcoming": "Próximo"
-    },
-    "negotiationStyles": {
-      "1": "Ingenuo",
-      "2": "Despreocupado",
-      "3": "Atento",
-      "4": "Astuto",
-      "5": "Maestro"
     }
   },
   "countries": {
@@ -2578,7 +2570,7 @@
           },
           {
             "q": "¿Qué es la inteligencia de negociación de contratos?",
-            "a": "Cada jugador tiene una inteligencia de negociación oculta, de Ingenuo a Maestro, que descubres en cuanto negocias con él. Cuanto más listo, más reacciona a su forma reciente (pide aumento si mejora, acepta más temporadas si decae), más sueldo conserva en su última temporada (del 75% al 95%), más pide por irse con un precontrato (del 5% al 20% sobre su sueldo habitual) y más sueldo cede por una cláusula baja (del 5% al 15%)."
+            "a": "Cada jugador tiene una inteligencia de negociación oculta que nunca se revela: tendrás que intuirla por cómo negocia. Cuanto más listo, más reacciona a su forma reciente (pide aumento si mejora, acepta más temporadas si decae), más sueldo conserva en su última temporada (del 75% al 95%), más pide por irse con un precontrato (del 5% al 20% sobre su sueldo habitual) y más sueldo cede por una cláusula baja (del 5% al 15%)."
           },
           {
             "q": "¿Los jugadores envejecen y se retiran?",

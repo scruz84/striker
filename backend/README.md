@@ -381,9 +381,8 @@ trying to keep.
 Naive, Casual, Aware, Shrewd or Mastermind. It scales how much of his skill trend (the average of
 his last 5 progression runs, `common.PlayerSkillTrend`) he turns into a raise or a longer term, and
 sets his last-season wage floor, his pre-contract premium and his clause discount (see above).
-A club that has negotiated with a player (renewal, free-agent signing, transfer offer,
-pre-contract or clause payment; `negotiation_insights`, `init106_negotiation_insights.sql`) sees
-his tier on his page (`negotiationStyle` in `GET /v1/teams/player/:id/`).
+The tier is private: no API response gives it to a manager, not even after negotiating with him
+(the old `negotiation_insights` table is dropped by `init109_drop_negotiation_insights.sql`).
 
 **Pre-contracts** (`common/precontracts.go`, `resources/sql/init104_pre_contracts.sql`): once a
 player's league has played half its season, any other club may offer a player in the last season

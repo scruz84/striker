@@ -42,7 +42,6 @@ func MakePreContractOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc 
 		result, err := common.MakePreContractOfferWithClause(dbCtx, req.PlayerId, team.Id, req.Wage, req.Years, req.ReleaseClause)
 		switch {
 		case err == nil:
-			noteNegotiation(dbCtx, team.Id, req.PlayerId)
 			c.JSON(http.StatusOK, result)
 		case errors.Is(err, common.ErrInvalidPreContractTerms), errors.Is(err, common.ErrReleaseClauseTooLow):
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))

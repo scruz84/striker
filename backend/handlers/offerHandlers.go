@@ -45,7 +45,6 @@ func MakeOfferHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		result, err := common.MakeTransferOfferWithClause(dbCtx, req.PlayerId, team.Id, req.Amount, req.Wage, req.Years, req.ReleaseClause)
 		switch {
 		case err == nil:
-			noteNegotiation(dbCtx, team.Id, req.PlayerId)
 			c.JSON(http.StatusOK, result)
 			return
 		case errors.Is(err, common.ErrReleaseClauseTooLow):
