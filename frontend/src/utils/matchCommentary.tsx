@@ -294,7 +294,13 @@ export class LinePicker {
   private readonly uses = new Map<string, number>()
   private readonly orders = new Map<string, number[]>()
 
-  constructor(private readonly teams: Pick<NarrationTeams, 'homeId' | 'awayId' | 'matchKey'>) {}
+  private readonly teams: Pick<NarrationTeams, 'homeId' | 'awayId' | 'matchKey'>
+
+  // A plain field rather than a constructor parameter property: the build's tsconfig has
+  // erasableSyntaxOnly, which rejects parameter properties.
+  constructor(teams: Pick<NarrationTeams, 'homeId' | 'awayId' | 'matchKey'>) {
+    this.teams = teams
+  }
 
   next(key: string, count: number): number {
     let order = this.orders.get(key)

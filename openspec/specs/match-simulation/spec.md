@@ -219,6 +219,21 @@ A set-piece outcome SHALL be recorded as the usual goal or missed-chance event, 
 - **WHEN** a match report or live replay lists a set-piece goal
 - **THEN** it is marked as a penalty or a free kick next to the scorer's name in the viewer's language
 
+### Requirement: Defending keeper on every chance
+Every GOAL and NO_GOAL event, open play included, SHALL name the defending side's goalkeeper on the pitch at that minute as the other team's player (id and full name). League matches, cup ties and friendlies MUST all store it and return it with the match's events. Events stored before this change return no keeper.
+
+#### Scenario: Open-play save in a cup tie
+- **WHEN** an away open-play chance is missed in a cup tie whose home goalkeeper is Ruiz
+- **THEN** the stored missed-chance event lists Ruiz as the other team's player, and the cup tie's events endpoint returns him
+
+#### Scenario: Friendly goal
+- **WHEN** a home open-play goal is scored in a friendly
+- **THEN** the stored goal event lists the away goalkeeper as the other team's player
+
+#### Scenario: Old event
+- **WHEN** a cup tie event stored before this change is read
+- **THEN** its other-team players and names are empty
+
 ### Requirement: Discipline
 Each minute SHALL have a chance of a card for a random outfield player of either side: 3%, or 3.6% in a Rival match and 4.2% in a Clásico (league and cup only, see rivalries). 6% of first cards are straight reds, and a second yellow becomes a red. A sent-off player MUST leave the pitch unreplaced. Goalkeepers are never booked.
 
