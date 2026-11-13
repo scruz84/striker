@@ -159,3 +159,31 @@ func TestNextLocalSaturdayKickoffAfter(t *testing.T) {
 		}
 	}
 }
+
+func TestNextLocalKickoffAfter(t *testing.T) {
+	cases := []struct {
+		name         string
+		country      string
+		hour, minute int
+		earliest     time.Time
+		want         time.Time
+	}{
+		// 13 Nov 2026, Madrid is UTC+1: 17:00 local is 16:00 UTC.
+		{"later today", "es", 17, 0, time.Date(2026, 11, 13, 10, 0, 0, 0, time.UTC), time.Date(2026, 11, 13, 16, 0, 0, 0, time.UTC)},
+		{"exactly at kickoff", "es", 17, 0, time.Date(2026, 11, 13, 16, 0, 0, 0, time.UTC), time.Date(2026, 11, 13, 16, 0, 0, 0, time.UTC)},
+		{"already passed today", "es", 17, 0, time.Date(2026, 11, 13, 16, 1, 0, 0, time.UTC), time.Date(2026, 11, 14, 16, 0, 0, 0, time.UTC)},
+		// Summer time: Madrid is UTC+2, so 20:45 local is 18:45 UTC.
+		{"daylight saving", "es", 20, 45, time.Date(2026, 7, 1, 12, 0, 0, 0, time.UTC), time.Date(2026, 7, 1, 18, 45, 0, 0, time.UTC)},
+		// The night before the October change (UTC+2) to a kickoff after it (UTC+1).
+		{"across the DST change", "es", 17, 0, time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC), time.Date(2026, 10, 25, 16, 0, 0, 0, time.UTC)},
+		// 23:00 UTC is already the next day in Apia (UTC+13), 12:00 local: its 17:00 is 04:00 UTC.
+		{"local date ahead of UTC", "ws", 17, 0, time.Date(2026, 11, 13, 23, 0, 0, 0, time.UTC), time.Date(2026, 11, 14, 4, 0, 0, 0, time.UTC)},
+		{"unknown country uses UTC", "zz", 20, 45, time.Date(2026, 11, 13, 21, 0, 0, 0, time.UTC), time.Date(2026, 11, 14, 20, 45, 0, 0, time.UTC)},
+	}
+	for _, c := range cases {
+		got := NextLocalKickoffAfter(c.country, c.hour, c.minute, c.earliest)
+		if !got.Equal(c.want) {
+			t.Errorf("%s: NextLocalKickoffAfter(%q, %02d:%02d, %v) = %v, want %v", c.name, c.country, c.hour, c.minute, c.earliest, got.UTC(), c.want)
+		}
+	}
+}

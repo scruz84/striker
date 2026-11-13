@@ -35,7 +35,13 @@ import {
   useWithdrawFriendlyChallenge,
 } from '../../api/hooks'
 import type { FriendlyChallenge, FriendlyMatch, TeamSearchResult } from '../../api/types'
-import { defaultKickoffValue, isWeekdayAllowed, MIN_KICKOFF_LEAD_MINUTES, toDateTimeLocalValue } from '../../utils/friendlyKickoff'
+import {
+  defaultKickoffValue,
+  KICKOFF_STEP_SECONDS,
+  kickoffErrorKey,
+  MIN_KICKOFF_LEAD_MINUTES,
+  toDateTimeLocalValue,
+} from '../../utils/friendlyKickoff'
 import { formatDateTime } from '../../utils/formatDate'
 
 export function FriendliesPage() {
@@ -56,7 +62,8 @@ export function FriendliesPage() {
   const [proposedKickoff, setProposedKickoff] = useState('')
   const [challengerIsHome, setChallengerIsHome] = useState(true)
 
-  const proposedKickoffAllowed = isWeekdayAllowed(schedule, proposedKickoff)
+  const proposedKickoffError = kickoffErrorKey(schedule, proposedKickoff)
+  const proposedKickoffAllowed = proposedKickoffError === null
 
   const handleChallenge = (event: FormEvent) => {
     event.preventDefault()
@@ -123,8 +130,8 @@ export function FriendliesPage() {
             value={proposedKickoff}
             onChange={(e) => setProposedKickoff(e.target.value)}
             error={!proposedKickoffAllowed}
-            helperText={!proposedKickoffAllowed ? t('friendlies.received.kickoffNotAllowed') : undefined}
-            slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+            helperText={proposedKickoffError ? t(proposedKickoffError) : undefined}
+            slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES), step: KICKOFF_STEP_SECONDS } }}
             fullWidth
           />
           <ToggleButtonGroup
@@ -244,7 +251,8 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
     )
   }
 
-  const weekdayAllowed = (value: string) => isWeekdayAllowed(schedule, value)
+  const kickoffError = kickoffErrorKey(schedule, kickoff)
+  const kickoffAllowed = kickoffError === null
 
   const handleReject = async (challenge: FriendlyChallenge) => {
     const ok = await confirm({
@@ -258,7 +266,7 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
   }
 
   const handleConfirm = (challengeId: number) => {
-    if (!kickoff || !weekdayAllowed(kickoff)) return
+    if (!kickoff || !kickoffAllowed) return
     acceptChallenge.mutate(
       { challengeId, kickoff: new Date(kickoff).toISOString() },
       { onSuccess: () => setPickingId(null) },
@@ -318,15 +326,15 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
                     label={t('friendlies.received.kickoff')}
                     value={kickoff}
                     onChange={(e) => setKickoff(e.target.value)}
-                    error={!weekdayAllowed(kickoff)}
-                    helperText={!weekdayAllowed(kickoff) ? t('friendlies.received.kickoffNotAllowed') : ' '}
-                    slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES) } }}
+                    error={!kickoffAllowed}
+                    helperText={kickoffError ? t(kickoffError) : ' '}
+                    slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES), step: KICKOFF_STEP_SECONDS } }}
                   />
                   <Button
                     size="small"
                     variant="contained"
                     onClick={() => handleConfirm(c.challengeId)}
-                    disabled={acceptChallenge.isPending || !kickoff || !weekdayAllowed(kickoff)}
+                    disabled={acceptChallenge.isPending || !kickoff || !kickoffAllowed}
                   >
                     {t('friendlies.received.confirmKickoff')}
                   </Button>

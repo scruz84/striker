@@ -1040,6 +1040,7 @@
       "kickoff": "Kickoff",
       "proposedKickoff": "Proposed: {{date}}",
       "kickoffNotAllowed": "That day isn't open for friendlies - pick another.",
+      "kickoffNotQuarterHour": "Friendlies kick off on the hour, at quarter past, half past or quarter to.",
       "confirmKickoff": "Confirm",
       "confirmReject": "Reject {{team}}'s challenge?",
       "cancel": "Cancel",
@@ -2401,11 +2402,11 @@
         "items": [
           {
             "q": "How does the domestic cup work?",
-            "a": "A straight knockout: quarterfinals, semifinals, and a final. If a tie is level after normal play, it's settled on penalties. A team can also get a bye through a round if the bracket doesn't fill evenly."
+            "a": "A straight knockout: quarterfinals, semifinals, and a final. If a tie is level after normal play, it's settled on penalties. A team can also get a bye through a round if the bracket doesn't fill evenly. Ties kick off at 17:00, the country's local time, one round a day."
           },
           {
             "q": "What is the international cup?",
-            "a": "A regional knockout competition between the league champions of the countries in a region. A new edition starts when every country in the region has crowned a new champion since the last one, or as soon as one country has finished two seasons, so a slower league never holds the rest back for long. At least two countries are needed."
+            "a": "A regional knockout competition between the league champions of the countries in a region. A new edition starts when every country in the region has crowned a new champion since the last one, or as soon as one country has finished two seasons, so a slower league never holds the rest back for long. At least two countries are needed. Each tie kicks off at 20:45, local time in the home side's country."
           }
         ]
       },
@@ -2418,7 +2419,7 @@
           },
           {
             "q": "How do I set one up?",
-            "a": "Challenge a team directly (optionally proposing a kickoff time). They have to accept before it's scheduled, and there's a weekly limit on how many friendlies a team can accept, set by the admins."
+            "a": "Challenge a team directly (optionally proposing a kickoff time: on the hour, quarter past, half past or quarter to). They have to accept before it's scheduled, and there's a weekly limit on how many friendlies a team can accept, set by the admins."
           },
           {
             "q": "What days can friendlies kick off on?",

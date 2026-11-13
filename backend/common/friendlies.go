@@ -16,7 +16,7 @@ var ErrNotChallengeSender = errors.New("you did not send this friendly challenge
 var ErrNotChallengeRecipient = errors.New("this friendly challenge is not for your team")
 var ErrInvalidFriendlyLimit = errors.New("max friendlies per week must be zero or greater")
 var ErrInvalidFriendlySchedule = errors.New("friendly schedule must select at least one weekday")
-var ErrInvalidFriendlyKickoff = errors.New("kickoff must be far enough in the future and fall on a day the friendly schedule allows")
+var ErrInvalidFriendlyKickoff = errors.New("kickoff must be far enough in the future, on the hour, quarter past, half past or quarter to, and fall on a day the friendly schedule allows")
 var ErrNotFriendlyParticipant = errors.New("your team is not part of this friendly")
 var ErrFriendlyAlreadyPlayed = errors.New("this friendly has already been played")
 
@@ -139,8 +139,29 @@ func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
 	return candidate // unreachable given a validated (non-zero) mask
 }
 
+// friendlyKickoffStep is the grid friendlies kick off on: only on the hour, at quarter past, half
+// past or quarter to. Every timezone offset in use is a multiple of 15 minutes, so a kickoff on
+// this grid in UTC is on it in every viewer's local time too.
+const friendlyKickoffStep = 15 * time.Minute
+
+// IsFriendlyKickoffSlot reports whether kickoff falls exactly on a friendlyKickoffStep slot
+// (:00, :15, :30 or :45, zero seconds).
+func IsFriendlyKickoffSlot(kickoff time.Time) bool {
+	return kickoff.Equal(kickoff.Truncate(friendlyKickoffStep))
+}
+
+// nextFriendlyKickoffSlot rounds t up to the next friendlyKickoffStep slot, t itself if it is one.
+func nextFriendlyKickoffSlot(t time.Time) time.Time {
+	slot := t.Truncate(friendlyKickoffStep)
+	if slot.Before(t) {
+		slot = slot.Add(friendlyKickoffStep)
+	}
+	return slot
+}
+
 // isAllowedFriendlyKickoff reports whether kickoff clears the simulation scheduler's polling
-// window (see friendlyScheduleDelay) and falls on a weekday GetFriendlyScheduleWeekdays allows.
+// window (see friendlyScheduleDelay), falls on a quarter-hour slot (see IsFriendlyKickoffSlot) and
+// on a weekday GetFriendlyScheduleWeekdays allows.
 // now is the reference instant the "far enough ahead" check is measured from - a human-chosen
 // kickoff is checked against the actual current time, while the auto-accept path (see
 // ChallengeToFriendly) passes the same now it used to derive kickoff via nextAllowedFriendlyDate,
@@ -149,7 +170,7 @@ func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
 // time.Now() here for that path made this fail on every call, since real time only ever advances
 // between the two.
 func isAllowedFriendlyKickoff(dbCtx *DatabaseContext, kickoff time.Time, now time.Time) bool {
-	if kickoff.Before(now.Add(friendlyScheduleDelay)) {
+	if kickoff.Before(now.Add(friendlyScheduleDelay)) || !IsFriendlyKickoffSlot(kickoff) {
 		return false
 	}
 	bit := 1 << int(kickoff.Weekday())
@@ -222,9 +243,10 @@ const GetFriendlyChallengeForUpdateStmtSql = GetFriendlyChallengeStmtSql + " " +
 const DeleteFriendlyChallengeStmtSql = "DELETE FROM friendly_challenges WHERE challenge_id = $1"
 const InsertFriendlyMatchStmtSql = "INSERT INTO friendly_matches (home_team_id, away_team_id, match_date) VALUES ($1, $2, $3)"
 
-// friendlyScheduleDelay is how soon after acceptance a friendly kicks off - short enough to feel
-// immediate, long enough to comfortably clear the simulation scheduler's per-minute polling (see
-// engine.StartFriendlyScheduler).
+// friendlyScheduleDelay is the least notice a friendly gets: an auto-accepted one kicks off at the
+// first quarter-hour slot (see nextFriendlyKickoffSlot) at least this long after acceptance -
+// short enough to feel immediate, long enough to comfortably clear the simulation scheduler's
+// per-minute polling (see engine.StartFriendlyScheduler).
 const friendlyScheduleDelay = 5 * time.Minute
 
 // ChallengeToFriendly proposes a friendly match to opponentTeamId, on behalf of challengerTeamId,
@@ -283,7 +305,7 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 	// see its own comment on why a second, independently-captured time.Now() there made this
 	// fail on every call.
 	now := time.Now()
-	defaultKickoff := nextAllowedFriendlyDate(now.Add(friendlyScheduleDelay), GetFriendlyScheduleWeekdays(dbCtx))
+	defaultKickoff := nextAllowedFriendlyDate(nextFriendlyKickoffSlot(now.Add(friendlyScheduleDelay)), GetFriendlyScheduleWeekdays(dbCtx))
 	kickoff := defaultKickoff
 	if proposedKickoff != nil && isAllowedFriendlyKickoff(dbCtx, *proposedKickoff, now) {
 		kickoff = *proposedKickoff

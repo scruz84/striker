@@ -1037,6 +1037,7 @@
       "kickoff": "Fecha y hora",
       "proposedKickoff": "Propuesta: {{date}}",
       "kickoffNotAllowed": "Ese día no está habilitado para amistosos - elige otro.",
+      "kickoffNotQuarterHour": "Los amistosos empiezan en punto, y cuarto, y media o menos cuarto.",
       "confirmKickoff": "Confirmar",
       "confirmReject": "¿Rechazar el reto de {{team}}?",
       "cancel": "Cancelar",
@@ -2395,11 +2396,11 @@
         "items": [
           {
             "q": "¿Cómo funciona la copa nacional?",
-            "a": "Es una eliminatoria directa: cuartos de final, semifinales y una final. Si una eliminatoria termina empatada tras el partido, se decide por penaltis. Un equipo también puede pasar de ronda con un \"bye\" si el cuadro no se completa de forma pareja."
+            "a": "Es una eliminatoria directa: cuartos de final, semifinales y una final. Si una eliminatoria termina empatada tras el partido, se decide por penaltis. Un equipo también puede pasar de ronda con un \"bye\" si el cuadro no se completa de forma pareja. Los partidos se juegan a las 17:00, hora local del país, una ronda al día."
           },
           {
             "q": "¿Qué es la copa internacional?",
-            "a": "Una competición eliminatoria regional entre los campeones de liga de los países de una región. Una nueva edición empieza cuando todos los países de la región han coronado un campeón nuevo desde la anterior, o en cuanto un país termina dos temporadas, para que una liga más lenta no retrase mucho al resto. Hacen falta al menos dos países."
+            "a": "Una competición eliminatoria regional entre los campeones de liga de los países de una región. Una nueva edición empieza cuando todos los países de la región han coronado un campeón nuevo desde la anterior, o en cuanto un país termina dos temporadas, para que una liga más lenta no retrase mucho al resto. Hacen falta al menos dos países. Cada eliminatoria se juega a las 20:45, hora local del país del equipo local."
           }
         ]
       },
@@ -2412,7 +2413,7 @@
           },
           {
             "q": "¿Cómo organizo uno?",
-            "a": "Reta directamente a un equipo (proponiendo opcionalmente una fecha y hora). El otro equipo debe aceptar antes de que se programe, y hay un límite semanal de amistosos que un equipo puede aceptar, fijado por la administración."
+            "a": "Reta directamente a un equipo (proponiendo opcionalmente una fecha y hora: en punto, y cuarto, y media o menos cuarto). El otro equipo debe aceptar antes de que se programe, y hay un límite semanal de amistosos que un equipo puede aceptar, fijado por la administración."
           },
           {
             "q": "¿Qué días pueden jugarse los amistosos?",

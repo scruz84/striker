@@ -234,15 +234,25 @@ func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countri
 	for i, e := range entrants {
 		teamIds[i] = e.ChampionTeamId
 	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	teamCountry := make(map[int64]string, len(entrants))
+	for _, e := range entrants {
+		teamCountry[e.ChampionTeamId] = e.Country
+	}
+	now := time.Now()
+	regionalCup := &common.Cup{Region: region}
+	r := rand.New(rand.NewSource(now.UnixNano()))
 	pairs := BuildFirstRoundPairings(teamIds, r, classificationPointsForSeeding(dbCtx, teamIds))
 	ties := make([]common.RegionalCupTieSeed, 0, len(pairs))
 	for _, pair := range pairs {
 		// A bye is always the second side (see BuildFirstRoundPairings).
-		ties = append(ties, common.RegionalCupTieSeed{HomeTeamId: pair[0], AwayTeamId: asTeamIdPtr(pair[1])})
+		ties = append(ties, common.RegionalCupTieSeed{
+			HomeTeamId: pair[0],
+			AwayTeamId: asTeamIdPtr(pair[1]),
+			MatchDate:  cupTieKickoff(regionalCup, teamCountry[pair[0]], now),
+		})
 	}
 
-	cupId, edition, err := common.CreateRegionalCup(dbCtx, region, internationalCupName(region), entrants, ties, time.Now().Add(cupRoundGap))
+	cupId, edition, err := common.CreateRegionalCup(dbCtx, region, internationalCupName(region), entrants, ties)
 	if err != nil {
 		return err
 	}
@@ -250,29 +260,63 @@ func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countri
 	return nil
 }
 
-// cupRoundGap is how far ahead of "now" a round's ties are scheduled - both for a fresh cup's
-// first round and for each next round AdvanceCups generates once the previous one resolves. A
-// round only counts as "resolved" once every tie is simulated (see IsCupRoundResolved), which
-// happens well before that tie's live broadcast finishes pacing out to viewers (up to 108 real minutes,
-// see engine.liveMatchMinuteDelay) - scheduling the next round only 15 minutes later (this file's
-// original delay) meant a manager could still be watching one round's tie live while the next
-// round's was already kicking off (issue #55). A full day comfortably clears that broadcast
-// window and, as a side effect, spreads rounds across different days rather than back-to-back.
+// cupRoundGap is how far ahead of "now" a World Cup knockout round's ties are scheduled - for a
+// fresh bracket's first round and for each next round AdvanceCups generates once the previous one
+// resolves. A round only counts as "resolved" once every tie is simulated and out of its live
+// broadcast (see IsCupRoundResolved), so a full day comfortably clears that window and spreads
+// rounds across different days rather than back-to-back (issue #55). Domestic and regional cup
+// ties kick off at a fixed local time instead - see cupTieKickoff.
 const cupRoundGap = 24 * time.Hour
 
+// cupMinimumLead is the least notice a domestic or regional cup tie gets: it kicks off at the
+// first local cup kick-off time (see common.NationalCupKickoffHour and
+// common.InternationalCupKickoffHour) at least this far after its round is created. Twelve hours
+// leaves owners time to set a lineup while keeping one round a day: the next round is created
+// about two hours after the previous one's kick-off (its live broadcast, see IsCupRoundResolved),
+// so it lands on the following day's slot.
+const cupMinimumLead = 12 * time.Hour
+
+// worldCupRegion is the cups.region of a World Cup's knockout bracket (see startWorldCupKnockout).
+const worldCupRegion = "world"
+
+// cupTieKickoff dates one real tie of cup: a domestic cup (Country set) at 17:00 in that country,
+// a regional cup at 20:45 in homeCountry (the home side's country), each the first such local
+// time at least cupMinimumLead after now. A World Cup knockout tie keeps cupRoundGap.
+func cupTieKickoff(cup *common.Cup, homeCountry string, now time.Time) time.Time {
+	switch {
+	case cup.Country != "":
+		return common.NextLocalKickoffAfter(cup.Country, common.NationalCupKickoffHour, common.NationalCupKickoffMinute, now.Add(cupMinimumLead))
+	case cup.Region != "" && cup.Region != worldCupRegion:
+		return common.NextLocalKickoffAfter(homeCountry, common.InternationalCupKickoffHour, common.InternationalCupKickoffMinute, now.Add(cupMinimumLead))
+	default:
+		return now.Add(cupRoundGap)
+	}
+}
+
 // createRoundTies persists one round's pairings as cup_ties. A pairing with a bye (one side is
-// ByeTeamId) is recorded as already resolved, with no match_date - see common.CreateCupTie. For a
-// real tie, any side that turns out to be a national team (true only for a World Cup's knockout
-// bracket - see engine.startWorldCupKnockout) immediately gets its lineup auto-selected, the same
-// way SetNationalTeamLineup does for a weekly friendly - a national team has no manager to set one
-// otherwise, and this covers every round a World Cup's knockout stage generates, not just its
-// first.
+// ByeTeamId) is recorded as already resolved, with no match_date - see common.CreateCupTie; a
+// real tie is dated by cupTieKickoff. For a real tie, any side that turns out to be a national
+// team (true only for a World Cup's knockout bracket - see engine.startWorldCupKnockout)
+// immediately gets its lineup auto-selected, the same way SetNationalTeamLineup does for a weekly
+// friendly - a national team has no manager to set one otherwise, and this covers every round a
+// World Cup's knockout stage generates, not just its first.
 func createRoundTies(dbCtx *common.DatabaseContext, cupId int64, round int, pairs [][2]int64) error {
-	matchDate := time.Now().Add(cupRoundGap)
+	cup, err := common.GetCup(dbCtx, cupId)
+	if err != nil {
+		return err
+	}
+	now := time.Now()
 	for i, pair := range pairs {
 		home, away := asTeamIdPtr(pair[0]), asTeamIdPtr(pair[1])
 		var scheduledAt *time.Time
 		if home != nil && away != nil {
+			homeCountry := ""
+			if cup.Region != "" && cup.Region != worldCupRegion {
+				if homeCountry, err = common.GetTeamCountry(dbCtx, *home); err != nil {
+					return err
+				}
+			}
+			matchDate := cupTieKickoff(cup, homeCountry, now)
 			scheduledAt = &matchDate
 		}
 		tieId, err := common.CreateCupTie(dbCtx, cupId, round, i+1, home, away, scheduledAt)

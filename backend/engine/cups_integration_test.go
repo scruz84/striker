@@ -197,7 +197,7 @@ func TestCreateRegionalCup_FailureLeavesNothing(t *testing.T) {
 		{Country: "zzzz", ChampionSeason: 1, ChampionTeamId: -1},
 	}
 	ties := []common.RegionalCupTieSeed{{HomeTeamId: team}}
-	if _, _, err := common.CreateRegionalCup(f.dbCtx, f.region, "Test Cup", entrants, ties, time.Now()); err == nil {
+	if _, _, err := common.CreateRegionalCup(f.dbCtx, f.region, "Test Cup", entrants, ties); err == nil {
 		t.Fatalf("CreateRegionalCup with a missing team succeeded, want an error")
 	}
 	if n := f.cupCount(); n != 0 {

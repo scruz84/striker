@@ -86,17 +86,20 @@ const InsertRegionalCupStmtSql = "INSERT INTO cups (country, region, season, nam
 const InsertInternationalCupEntryStmtSql = "INSERT INTO international_cup_entries (cup_id, country, season, team_id) VALUES ($1, $2, $3, $4)"
 
 // RegionalCupTieSeed is one first-round bracket slot: AwayTeamId nil is a bye for HomeTeamId.
+// MatchDate is the tie's kickoff (20:45 in the home side's country, see engine.cupTieKickoff),
+// ignored for a bye.
 type RegionalCupTieSeed struct {
 	HomeTeamId int64
 	AwayTeamId *int64
+	MatchDate  time.Time
 }
 
 // CreateRegionalCup writes a new edition of region's cup in one transaction: the cups row
 // (numbered within the region), one international_cup_entries row per entrant and the first
-// round's ties, real ties kicking off at matchDate and byes stored as already won (as
+// round's ties, real ties kicking off at their own MatchDate and byes stored as already won (as
 // CreateCupTie does). It returns the cup id and its edition number. Nothing is left behind on
 // failure, so a half-written edition can never block its region (see HasActiveRegionalCup).
-func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entrants []RegionalCupCountryState, ties []RegionalCupTieSeed, matchDate time.Time) (int64, int, error) {
+func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entrants []RegionalCupCountryState, ties []RegionalCupTieSeed) (int64, int, error) {
 	tx, err := dbCtx.Db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return 0, 0, err
@@ -119,6 +122,7 @@ func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entra
 		var winner *int64
 		played := false
 		if tie.AwayTeamId != nil {
+			matchDate := tie.MatchDate
 			scheduledAt = &matchDate
 		} else {
 			winner, played = &home, true

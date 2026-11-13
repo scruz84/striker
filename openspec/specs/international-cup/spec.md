@@ -46,7 +46,7 @@ Each fresh country SHALL enter once, with its most recent tier-1 champion (lowes
 - **THEN** that entry is recorded and Spain is fresh only after finishing season 4
 
 ### Requirement: Regional cup editions
-An edition SHALL be created with its entries and first round in one transaction, numbered 1, 2, 3... within its region, and run as a single-elimination cup whose rounds kick off 24 hours apart. The cups are European Cup, Copa America, Asian Cup and African Cup.
+An edition SHALL be created with its entries and first round in one transaction, numbered 1, 2, 3... within its region, and run as a single-elimination cup, one round a day, each tie kicking off at 20:45 in its home side's country (see match-scheduling). The cups are European Cup, Copa America, Asian Cup and African Cup.
 
 #### Scenario: Third edition
 - **WHEN** the americas region already had two Copa America editions and a new one starts
@@ -78,7 +78,7 @@ The International Cup page SHALL show every region's latest edition to every use
 
 - Engine: `backend/engine/cups.go` (`StartRegionalCupsIfDue`, `regionalCupEntrants`,
   `MinRegionalCupCountries`, `RegionalCupMaxUnusedChampions`, `internationalCupNames`,
-  `cupRoundGap`), run by `RegionalCupJob` (`engine/tasks.go`, `StartRegionalCupScheduler` in
+  `cupTieKickoff`), run by `RegionalCupJob` (`engine/tasks.go`, `StartRegionalCupScheduler` in
   `engine/scheduler.go`). Rounds advance through `AdvanceCups` like a domestic cup.
 - Data: `backend/common/regionalcups.go` (`GetRegionalCupCountryStates`, `HasActiveRegionalCup`,
   `CreateRegionalCup`), `common/cups.go` (`GetLatestCupForRegion`); regions in `common/regions.go`

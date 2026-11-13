@@ -315,6 +315,30 @@ func NextLocalSaturdayKickoffAfter(countryCode string, hour, minute int, earlies
 	return candidate
 }
 
+// NationalCupKickoffHour/Minute and InternationalCupKickoffHour/Minute are the local kick-off
+// times of cup ties: a domestic cup tie kicks off at 17:00 in its country's own timezone, a
+// regional (international) cup tie at 20:45 in its home side's country - see engine.cupTieKickoff.
+const (
+	NationalCupKickoffHour        = 17
+	NationalCupKickoffMinute      = 0
+	InternationalCupKickoffHour   = 20
+	InternationalCupKickoffMinute = 45
+)
+
+// NextLocalKickoffAfter returns the first instant at hour:minute in countryCode's local timezone
+// (see CountryTimezone; UTC for an unmapped code) that is not before earliest - today's if it is
+// still ahead, otherwise the next day's. Built with time.Date in that location, so the local
+// clock time holds across a daylight-saving change.
+func NextLocalKickoffAfter(countryCode string, hour, minute int, earliest time.Time) time.Time {
+	loc := countryLocation(countryCode)
+	from := earliest.In(loc)
+	candidate := time.Date(from.Year(), from.Month(), from.Day(), hour, minute, 0, 0, loc)
+	if candidate.Before(from) {
+		candidate = time.Date(from.Year(), from.Month(), from.Day()+1, hour, minute, 0, 0, loc)
+	}
+	return candidate
+}
+
 // IsWithinLocalActivityWindow reports whether now falls within countryCode's local awake-hours
 // window (see LocalActivityStartHour/LocalActivityEndHour) - the gate engine.RunAiTeamDailyActivity
 // checks before letting an AI-managed team initiate a friendly challenge or run its proactive

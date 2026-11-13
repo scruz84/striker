@@ -58,3 +58,41 @@ func TestStartOfDay_ConvertsToUtcFirst(t *testing.T) {
 		t.Fatalf("expected %v, got %v", want, got)
 	}
 }
+
+func TestIsFriendlyKickoffSlot(t *testing.T) {
+	cases := []struct {
+		kickoff time.Time
+		want    bool
+	}{
+		{time.Date(2026, 11, 13, 18, 0, 0, 0, time.UTC), true},
+		{time.Date(2026, 11, 13, 18, 15, 0, 0, time.UTC), true},
+		{time.Date(2026, 11, 13, 18, 30, 0, 0, time.UTC), true},
+		{time.Date(2026, 11, 13, 18, 45, 0, 0, time.UTC), true},
+		{time.Date(2026, 11, 13, 18, 5, 0, 0, time.UTC), false},
+		{time.Date(2026, 11, 13, 18, 50, 0, 0, time.UTC), false},
+		{time.Date(2026, 11, 13, 18, 15, 30, 0, time.UTC), false},
+		// 20:45 in Kathmandu (UTC+5:45) is 15:00 UTC - still a slot.
+		{time.Date(2026, 11, 13, 20, 45, 0, 0, time.FixedZone("NPT", 5*3600+45*60)), true},
+	}
+	for _, c := range cases {
+		if got := IsFriendlyKickoffSlot(c.kickoff); got != c.want {
+			t.Errorf("IsFriendlyKickoffSlot(%v) = %v, want %v", c.kickoff, got, c.want)
+		}
+	}
+}
+
+func TestNextFriendlyKickoffSlot(t *testing.T) {
+	cases := []struct {
+		from, want time.Time
+	}{
+		{time.Date(2026, 11, 13, 18, 0, 0, 0, time.UTC), time.Date(2026, 11, 13, 18, 0, 0, 0, time.UTC)},
+		{time.Date(2026, 11, 13, 18, 0, 1, 0, time.UTC), time.Date(2026, 11, 13, 18, 15, 0, 0, time.UTC)},
+		{time.Date(2026, 11, 13, 18, 37, 0, 0, time.UTC), time.Date(2026, 11, 13, 18, 45, 0, 0, time.UTC)},
+		{time.Date(2026, 11, 13, 23, 50, 0, 0, time.UTC), time.Date(2026, 11, 14, 0, 0, 0, 0, time.UTC)},
+	}
+	for _, c := range cases {
+		if got := nextFriendlyKickoffSlot(c.from); !got.Equal(c.want) {
+			t.Errorf("nextFriendlyKickoffSlot(%v) = %v, want %v", c.from, got, c.want)
+		}
+	}
+}

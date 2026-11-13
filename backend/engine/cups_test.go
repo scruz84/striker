@@ -2,6 +2,7 @@ package engine
 
 import (
 	"testing"
+	"time"
 
 	"github.com/scruz84/striker/common"
 )
@@ -102,5 +103,30 @@ func TestRegionalCupEntrants(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestCupTieKickoff(t *testing.T) {
+	// Friday 13 Nov 2026, 10:00 UTC: Madrid is UTC+1, Buenos Aires UTC-3.
+	now := time.Date(2026, 11, 13, 10, 0, 0, 0, time.UTC)
+	cases := []struct {
+		name        string
+		cup         common.Cup
+		homeCountry string
+		want        time.Time
+	}{
+		// 10:00 + 12h lead = 22:00 UTC, past 17:00 Madrid (16:00 UTC): the next day's.
+		{"domestic cup at 17:00 local", common.Cup{Country: "es"}, "", time.Date(2026, 11, 14, 16, 0, 0, 0, time.UTC)},
+		// 20:45 Madrid is 19:45 UTC, before 22:00 UTC: the next day's.
+		{"regional cup at 20:45 in the home country", common.Cup{Region: "europe"}, "es", time.Date(2026, 11, 14, 19, 45, 0, 0, time.UTC)},
+		// 22:00 UTC is 19:00 in Buenos Aires: tonight's 20:45 local (23:45 UTC) is still ahead.
+		{"regional cup in another timezone", common.Cup{Region: "americas"}, "ar", time.Date(2026, 11, 13, 23, 45, 0, 0, time.UTC)},
+		{"World Cup knockout keeps the 24h gap", common.Cup{Region: worldCupRegion}, "es", now.Add(cupRoundGap)},
+	}
+	for _, c := range cases {
+		cup := c.cup
+		if got := cupTieKickoff(&cup, c.homeCountry, now); !got.Equal(c.want) {
+			t.Errorf("%s: got %v, want %v", c.name, got.UTC(), c.want)
+		}
 	}
 }

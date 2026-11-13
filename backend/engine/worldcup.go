@@ -217,7 +217,7 @@ func startWorldCupKnockout(dbCtx *common.DatabaseContext, worldCup *common.World
 		return nil
 	}
 
-	cupId, err := common.CreateInternationalCup(dbCtx, "world", worldCup.Season, worldCup.Name)
+	cupId, err := common.CreateInternationalCup(dbCtx, worldCupRegion, worldCup.Season, worldCup.Name)
 	if err != nil {
 		return err
 	}

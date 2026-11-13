@@ -107,11 +107,33 @@ Changing a specific match's lineup (league match, cup tie or friendly) MUST be r
 - **THEN** the change is accepted
 
 ### Requirement: League kickoff schedule
-Each league's kickoff weekdays and time SHALL come from its own admin-set schedule, or the app-wide default when it has none; fixtures are generated a season at a time on that cadence. Cup ties and friendlies kick off a short fixed delay after being scheduled.
+Each league's kickoff weekdays and time SHALL come from its own admin-set schedule, or the app-wide default when it has none; fixtures are generated a season at a time on that cadence.
+
+### Requirement: Cup kickoff times
+A domestic cup tie SHALL kick off at 17:00 in its country's local time, a regional (international) cup tie at 20:45 in the home side's country, each at the first such local time at least 12 hours after its round is created (one round a day). A World Cup knockout tie kicks off 24 hours after its round is created.
+
+#### Scenario: Domestic cup round
+- **WHEN** a Spanish cup round is created on Friday 13 Nov 2026 at 10:00 UTC
+- **THEN** its ties kick off on Saturday 14 Nov at 17:00 Madrid time (16:00 UTC)
+
+#### Scenario: Regional cup across timezones
+- **WHEN** a Copa America round is created at 10:00 UTC with an Argentine and a Mexican home side
+- **THEN** each tie kicks off at 20:45 local time in Buenos Aires and in Mexico City respectively
+
+#### Scenario: Daylight saving
+- **WHEN** a domestic cup round is dated across a daylight-saving change
+- **THEN** it still kicks off at 17:00 on the local clock
+
+### Requirement: Friendly kickoff slots
+A friendly MUST kick off on the hour, at quarter past, half past or quarter to (:00, :15, :30, :45, zero seconds) and at least 5 minutes after it is accepted. A kickoff off that grid is rejected with `ErrInvalidFriendlyKickoff`; an auto-accepted friendly takes the first slot at least 5 minutes ahead.
 
 #### Scenario: Accepted friendly challenge
-- **WHEN** a friendly challenge is accepted
-- **THEN** the friendly is dated 5 minutes later
+- **WHEN** a CPU team accepts a friendly challenge at 18:07
+- **THEN** the friendly is dated 18:15
+
+#### Scenario: Off-grid kickoff
+- **WHEN** an owner accepts a challenge with a kickoff at 18:50
+- **THEN** the request is rejected and the pickers already flag it, offering only quarter-hour steps
 
 ### Requirement: Rescheduling on schedule change
 Changing a league's schedule override, clearing it, or changing the app-wide default MUST immediately re-date every unplayed match of the affected leagues onto the new schedule, keeping round order. A league with its own override is unaffected by a default change.
@@ -203,8 +225,12 @@ The spoiler-gated post-match effects (availability countdown and new injuries an
   `SetMatchLineupHandler`/`SetCupTieLineupHandler`/`SetFriendlyLineupHandler`; frontend
   `useIsLineupLocked` (`frontend/src/api/useLiveMatch.ts`).
 - Schedules: `common/leagueschedule.go`, `common/matchschedule.go`, `engine/schedule.go`
-  (`ComputeFixtureDates`), `engine/reschedule.go`; friendly delay `friendlyScheduleDelay`
-  (`common/friendlies.go`).
+  (`ComputeFixtureDates`), `engine/reschedule.go`; friendly delay `friendlyScheduleDelay` and
+  quarter-hour grid `IsFriendlyKickoffSlot`/`nextFriendlyKickoffSlot` (`common/friendlies.go`),
+  mirrored by `isQuarterHour`/`kickoffErrorKey` (`frontend/src/utils/friendlyKickoff.ts`).
+- Cup kickoffs: `engine.cupTieKickoff` (`cupMinimumLead`, `cupRoundGap`, `engine/cups.go`) with
+  `common.NextLocalKickoffAfter` and `NationalCupKickoffHour`/`InternationalCupKickoffHour`
+  (`common/timezones.go`); tests `TestCupTieKickoff`, `TestNextLocalKickoffAfter`.
 - Added time in the replay: `engine.minutePublishOffset(minute, addedMinute)` (45+N one minute per
   added minute after 45, 46 always at kickoff + 59 minutes, 90+N after 90), `engine.MaxBroadcastDuration`
   and `TestLongestBroadcastFitsLiveWindow` (`engine/livematch_test.go`), which keeps the longest
