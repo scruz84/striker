@@ -63,6 +63,17 @@ The regional cup check SHALL run under one global session lock taken without wai
 - **WHEN** three replicas run the check at once with a European Cup due
 - **THEN** exactly one European Cup edition is created
 
+### Requirement: Regional cup page
+The International Cup page SHALL show every region's latest edition to every user, one tab per region in the order European Cup, Copa America, Asian Cup, African Cup. It MUST open on the user's own region (from their team's country) and show an empty state for a region with no edition yet.
+
+#### Scenario: Watching another region's cup
+- **WHEN** a user whose team is in Argentina opens the page and picks the European Cup tab
+- **THEN** the page shows the latest European Cup edition and its bracket
+
+#### Scenario: Region without an edition
+- **WHEN** a user picks the Asian Cup tab and no Asian Cup has started yet
+- **THEN** the page says that region has no edition yet
+
 ## Code map
 
 - Engine: `backend/engine/cups.go` (`StartRegionalCupsIfDue`, `regionalCupEntrants`,
@@ -75,6 +86,7 @@ The regional cup check SHALL run under one global session lock taken without wai
 - Schema: `resources/sql/init103_international_cup_entries.sql`
   (`international_cup_entries`), `history/init52_international_cup.sql` (`cups.region`).
 - API: `LatestInternationalCupHandler` (`handlers/cupHandlers.go`).
-- Frontend: `features/cup/InternationalCupPage.tsx`.
+- Frontend: `features/cup/InternationalCupPage.tsx` (`INTERNATIONAL_CUP_REGIONS`, one tab per
+  region); test `features/cup/InternationalCupPage.test.tsx`.
 - Tests: `engine/cups_test.go` (`regionalCupEntrants`), `engine/cups_integration_test.go`,
   `engine/engine_replicas_integration_test.go`.

@@ -887,7 +887,7 @@
     "titleWithEdition": "{{name}} - Edición {{edition}}",
     "champion": "Campeón: {{name}}",
     "noCup": "Aún no hay copa para tu país.",
-    "noInternationalCup": "Aún no hay copa internacional para tu región - cada edición empieza cuando todos los países de tu región tienen un campeón nuevo, o antes si alguno termina dos temporadas primero (hacen falta al menos dos países).",
+    "noInternationalCup": "Aún no hay copa en esta región - cada edición empieza cuando todos los países de la región tienen un campeón nuevo, o antes si alguno termina dos temporadas primero (hacen falta al menos dos países).",
     "round": "Ronda {{round}}",
     "playInRound": "Ronda previa",
     "final": "Final",
@@ -911,7 +911,7 @@
       "international": "Copa Internacional"
     },
     "noCupTitle": "Aún no hay copa",
-    "noInternationalCupTitle": "Aún no hay Copa Internacional"
+    "noInternationalCupTitle": "Aún no hay edición"
   },
   "nationalTeams": {
     "title": "Selecciones",

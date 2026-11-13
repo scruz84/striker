@@ -890,7 +890,7 @@
     "titleWithEdition": "{{name}} - Edition {{edition}}",
     "champion": "Champion: {{name}}",
     "noCup": "No cup found for your country yet.",
-    "noInternationalCup": "No international cup for your region yet - an edition starts once every country in your region has a new champion, or sooner if one of them finishes two seasons first (at least two countries are needed).",
+    "noInternationalCup": "No cup in this region yet - an edition starts once every country in the region has a new champion, or sooner if one of them finishes two seasons first (at least two countries are needed).",
     "round": "Round {{round}}",
     "playInRound": "Qualifying round",
     "final": "Final",
@@ -914,7 +914,7 @@
       "international": "International Cup"
     },
     "noCupTitle": "No cup yet",
-    "noInternationalCupTitle": "No International Cup yet"
+    "noInternationalCupTitle": "No edition yet"
   },
   "nationalTeams": {
     "title": "National teams",
