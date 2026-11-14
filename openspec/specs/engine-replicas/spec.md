@@ -22,7 +22,7 @@ Every engine step that reads state and then writes data derived from it MUST giv
 - **THEN** it ships with an integration test that runs it from several goroutines at once against Postgres
 
 ### Requirement: Season rollover once per country
-A country's rollover (aging, loans, promotion/relegation, prizes, cup start, classification reset, season bump, fixtures) SHALL run under a session advisory lock keyed `hashtext(country)`, re-reading the current season and its match counts from the database inside the lock. New fixtures MUST be built from the leagues as they stand after promotion/relegation.
+A country's rollover (aging, loans, promotion/relegation including playoff outcomes, restructure, prizes, cup start, classification reset, season bump, fixtures) SHALL run under a session advisory lock keyed `hashtext(country)`. Inside the lock it re-reads from the database the current season, its match counts and its playoff state. New fixtures MUST be built from the leagues as they stand after promotion/relegation and any restructure.
 
 #### Scenario: Three replicas see the season complete
 - **WHEN** three replicas run the rollover for the same finished country at once
@@ -31,6 +31,10 @@ A country's rollover (aging, loans, promotion/relegation, prizes, cup start, cla
 #### Scenario: Relegated team
 - **WHEN** a team is relegated from division D1 at rollover
 - **THEN** no new-season D1 fixture includes it
+
+#### Scenario: Restructure on three replicas
+- **WHEN** three replicas run the rollover for a country that must be restructured
+- **THEN** its leagues are archived and created once, and the bottom tier is topped up once with exactly the missing CPU teams
 
 ### Requirement: League fixtures generated once
 A league's fixtures SHALL be inserted in one transaction holding `pg_advisory_xact_lock(leagueId)`, which waits rather than skips, and re-checks inside the lock whether the league already has upcoming matches for the season.
@@ -138,6 +142,17 @@ The engine SHALL run, once per deployment of this change via a job slot claim, a
 #### Scenario: Consistent standings
 - **WHEN** every classification row already matches its played matches
 - **THEN** the pass changes nothing
+
+### Requirement: Playoff created once
+A country's playoff ties SHALL be created under the same per-country lock as its rollover, after re-reading inside the lock whether the season already has a playoff. A unique index on (country, season) for playoffs MUST reject a second one. The playoff's ties are simulated under the existing per-tie cup lock.
+
+#### Scenario: Two replicas see the league end
+- **WHEN** two replicas' season jobs find the same country's league matches all broadcast
+- **THEN** exactly one playoff with one set of ties is created, and each team gets one qualification notification
+
+#### Scenario: Cup advance ignores the playoff
+- **WHEN** the cup job runs while every playoff tie is resolved
+- **THEN** it creates no second round and crowns no champion for the playoff
 
 ## Incident history
 
