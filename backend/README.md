@@ -191,6 +191,15 @@ independent per-league clocks, so there's no single "week of the season" to deri
 an admin toggles it with `PUT /v1/admin/transfer-window` (`{"open": true|false}`), and
 `GET /v1/transfers/window` reports the current state to anyone.
 
+A player's listings and offers never outlive his time at the club they name. Whenever he leaves -
+sold, released (`ReleasePlayer`), out of contract (`AdvancePlayerContract`), signed on an accepted
+offer, a paid release clause or a pre-contract - his transfer listing, loan listing and pending
+offers go in the same transaction (`common.clearPlayerMarketTx` and its equivalents). As a second
+line of defence, `ExecuteTransfer` and `AcceptLoan` re-read the player's club under lock and,
+when it is no longer the seller's or lender's, delete the stale listing and answer
+`ErrListingNotFound` / `ErrLoanListingNotFound` without moving money or the player.
+`init111_drop_orphan_market_rows.sql` removed the stale rows written before this rule.
+
 ### Match schedule
 
 New league fixtures (a full season's worth, generated in one batch at world init or season

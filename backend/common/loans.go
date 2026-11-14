@@ -298,6 +298,20 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if lendingTeamId == borrowingTeamId {
 		return ErrCannotAcceptOwnLoan
 	}
+	// A listing whose player has since left the lender is stale: it goes, and no loan starts.
+	var ownerTeamId int64
+	if err := tx.QueryRow(GetPlayerTeamForUpdateStmtSql, playerId).Scan(&ownerTeamId); err != nil {
+		return err
+	}
+	if ownerTeamId != lendingTeamId {
+		if _, err := tx.Exec(DeleteLoanListingStmtSql, listingId); err != nil {
+			return err
+		}
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		return ErrLoanListingNotFound
+	}
 
 	if loanFee > 0 {
 		var borrowerBudget int64

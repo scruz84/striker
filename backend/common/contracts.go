@@ -707,6 +707,9 @@ func ReleasePlayer(dbCtx *DatabaseContext, playerId int64, teamId int64) error {
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
 		return err
 	}
+	if err := clearPlayerMarketTx(tx, playerId, teamId); err != nil {
+		return err
+	}
 	if _, err := tx.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {
 		return err
 	}
@@ -781,6 +784,9 @@ func AdvancePlayerContract(dbCtx *DatabaseContext, playerId int64) (bool, error)
 	}
 
 	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+		return false, err
+	}
+	if err := clearPlayerMarketTx(tx, playerId, expiringTeamId); err != nil {
 		return false, err
 	}
 	if _, err := tx.Exec(ReleaseFromTeamStmtSql, playerId); err != nil {

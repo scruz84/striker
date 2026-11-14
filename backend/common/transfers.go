@@ -40,6 +40,22 @@ const DeleteTransferListingStmtSql = "DELETE FROM transfer_listings WHERE listin
 
 const DeletePlayerLineupPositionsStmtSql = "DELETE FROM default_lineup_positions WHERE player_id = $1"
 
+// clearPlayerMarketTx takes playerId off the market of teamId, the club he is leaving: every
+// pending offer on him and his transfer and loan listings go, inside the caller's transaction, so
+// no listing or offer outlives his move (a later buyer would otherwise pay his old club).
+func clearPlayerMarketTx(tx *sql.Tx, playerId, teamId int64) error {
+	if _, err := tx.Exec(DeleteOffersForPlayerStmtSql, playerId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeleteTransferListingByPlayerAndTeamStmtSql, playerId, teamId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeleteLoanListingByPlayerAndTeamStmtSql, playerId, teamId); err != nil {
+		return err
+	}
+	return nil
+}
+
 const UpdatePlayerTeamStmtSql = "UPDATE players SET team_id = $1, shirt_number = $2 WHERE player_id = $3"
 
 // movePlayerToTeam moves playerId onto teamId's roster, assigning them teamId's lowest free
@@ -263,6 +279,21 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 	if sellingTeamId == buyerTeamId {
 		return ErrCannotBuyOwnPlayer
 	}
+	// A listing whose player has since left the seller (released, contract expired) is stale: it
+	// goes, and nobody pays the old club for him.
+	var ownerTeamId int64
+	if err := tx.QueryRow(GetPlayerTeamForUpdateStmtSql, playerId).Scan(&ownerTeamId); err != nil {
+		return err
+	}
+	if ownerTeamId != sellingTeamId {
+		if _, err := tx.Exec(DeleteTransferListingStmtSql, listingId); err != nil {
+			return err
+		}
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		return ErrListingNotFound
+	}
 
 	var buyerBudget int64
 	if err := tx.QueryRow(GetTeamBudgetStmtSql+" "+ForUpdate, buyerTeamId).Scan(&buyerBudget); err != nil {
@@ -307,6 +338,9 @@ func ExecuteTransfer(dbCtx *DatabaseContext, listingId int64, buyerTeamId int64)
 		return err
 	}
 	if _, err := tx.Exec(DeleteTransferListingStmtSql, listingId); err != nil {
+		return err
+	}
+	if err := clearPlayerMarketTx(tx, playerId, sellingTeamId); err != nil {
 		return err
 	}
 	// Sold: every pending pre-contract offer on him is off (openspec/specs/pre-contracts).
