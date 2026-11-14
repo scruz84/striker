@@ -93,7 +93,7 @@ const GetCupRoundWinnersStmtSql = "SELECT winner_team_id FROM cup_ties WHERE cup
 
 const SetCupCompletedStmtSql = "UPDATE cups SET completed = true, champion_team_id = $1 WHERE cup_id = $2"
 
-const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, home_team_id, away_team_id, match_date FROM cup_ties " +
+const GetSimulableCupTiesStmtSql = "SELECT tie_id, cup_id, round, home_team_id, away_team_id, match_date FROM cup_ties " +
 	"WHERE match_date is not null AND match_date <= now() AND played = false AND in_simulation = false " +
 	"AND home_team_id IS NOT NULL AND away_team_id IS NOT NULL AND " + simulationEligibleSql + " " + ForUpdate
 
@@ -325,7 +325,7 @@ func GetSimulableCupTies(dbCtx *DatabaseContext) ([]CupTie, error) {
 		var tie CupTie
 		var homeTeamId, awayTeamId int64
 		var matchDate time.Time
-		if err := rows.Scan(&tie.TieId, &tie.CupId, &homeTeamId, &awayTeamId, &matchDate); err != nil {
+		if err := rows.Scan(&tie.TieId, &tie.CupId, &tie.Round, &homeTeamId, &awayTeamId, &matchDate); err != nil {
 			return nil, err
 		}
 		tie.HomeTeamId = &homeTeamId

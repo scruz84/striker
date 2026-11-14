@@ -87,7 +87,10 @@ func TestExecuteTransfer_StaleListingMovesNoMoney(t *testing.T) {
 	var listing int64
 	accMust(t, db.QueryRow(`INSERT INTO transfer_listings (player_id, selling_team_id, asking_price) VALUES ($1, $2, 1000000) RETURNING listing_id`,
 		player, seller).Scan(&listing), "seeding listing")
-	accMust(t, func() error { _, err := db.Exec(`UPDATE players SET team_id = $1, shirt_number = NULL WHERE player_id = $2`, other, player); return err }(), "moving player")
+	accMust(t, func() error {
+		_, err := db.Exec(`UPDATE players SET team_id = $1, shirt_number = NULL WHERE player_id = $2`, other, player)
+		return err
+	}(), "moving player")
 	budgets := func() (int64, int64) {
 		return accInt(t, db, `SELECT budget FROM teams WHERE team_id = $1`, seller), accInt(t, db, `SELECT budget FROM teams WHERE team_id = $1`, buyer)
 	}
@@ -113,7 +116,10 @@ func TestAcceptLoan_StaleListingStartsNoLoan(t *testing.T) {
 	var listing int64
 	accMust(t, db.QueryRow(`INSERT INTO loan_listings (player_id, lending_team_id, duration_seasons) VALUES ($1, $2, 1) RETURNING listing_id`,
 		player, seller).Scan(&listing), "seeding loan listing")
-	accMust(t, func() error { _, err := db.Exec(`UPDATE players SET team_id = $1, shirt_number = NULL WHERE player_id = $2`, other, player); return err }(), "moving player")
+	accMust(t, func() error {
+		_, err := db.Exec(`UPDATE players SET team_id = $1, shirt_number = NULL WHERE player_id = $2`, other, player)
+		return err
+	}(), "moving player")
 
 	if err := AcceptLoan(dbCtx, listing, buyer); !errors.Is(err, ErrLoanListingNotFound) {
 		t.Fatalf("AcceptLoan on a stale listing = %v, want ErrLoanListingNotFound", err)

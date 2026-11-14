@@ -91,6 +91,12 @@ func awardCupRoundPrize(dbCtx *common.DatabaseContext, cupId int64, winnerTeamId
 		return
 	}
 	amount := int64(CupPrizePerRound * round)
+	if amount <= 0 {
+		// No round is numbered below 1; a 0 here means the caller lost the tie's round, and a
+		// "Cup round 0 prize money" row of 0 would only clutter the ledger.
+		log.Errorf("cup %d: no round prize for round %d", cupId, round)
+		return
+	}
 	description := fmt.Sprintf("Cup round %d prize money", round)
 	if err := common.AdjustTeamBudget(dbCtx, winnerTeamId, amount, common.TRANSACTION_PRIZE_MONEY, description); err != nil {
 		log.Errorf("error awarding cup round prize money to team %d: %s", winnerTeamId, err)
