@@ -15,16 +15,20 @@ type SeasonHistoryEntry struct {
 	FinalPosition *int    `json:"finalPosition"`
 	Promoted      bool    `json:"promoted"`
 	Relegated     bool    `json:"relegated"`
-	CupResult     *string `json:"cupResult"`
+	// ViaPlayoff is true when the promotion or relegation came through the promotion playoff (see
+	// openspec/specs/league-pyramid "Season history marks playoff moves").
+	ViaPlayoff bool    `json:"viaPlayoff"`
+	CupResult  *string `json:"cupResult"`
 }
 
 const UpsertSeasonHistoryLeagueStmtSql = `
-INSERT INTO season_history (team_id, season, league_id, league_name, final_position, promoted, relegated,
+INSERT INTO season_history (team_id, season, league_id, league_name, final_position, promoted, relegated, via_playoff,
 	matches, points, wins, draws, losses, goals_scored, goals_received)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 ON CONFLICT (team_id, season) DO UPDATE SET
 	league_id = EXCLUDED.league_id, league_name = EXCLUDED.league_name,
 	final_position = EXCLUDED.final_position, promoted = EXCLUDED.promoted, relegated = EXCLUDED.relegated,
+	via_playoff = EXCLUDED.via_playoff,
 	matches = EXCLUDED.matches, points = EXCLUDED.points, wins = EXCLUDED.wins, draws = EXCLUDED.draws,
 	losses = EXCLUDED.losses, goals_scored = EXCLUDED.goals_scored, goals_received = EXCLUDED.goals_received,
 	updated_at = now()`
@@ -34,20 +38,20 @@ INSERT INTO season_history (team_id, season, cup_result)
 VALUES ($1, $2, $3)
 ON CONFLICT (team_id, season) DO UPDATE SET cup_result = EXCLUDED.cup_result, updated_at = now()`
 
-const GetSeasonHistoryStmtSql = "SELECT team_id, season, league_id, league_name, final_position, promoted, relegated, cup_result " +
+const GetSeasonHistoryStmtSql = "SELECT team_id, season, league_id, league_name, final_position, promoted, relegated, via_playoff, cup_result " +
 	"FROM season_history WHERE team_id = $1 ORDER BY season DESC"
 
 // RecordSeasonHistoryLeagueResult upserts a team's final league position, its final table line
 // (line's matches, points, wins, draws, losses and goals) and promotion/relegation outcome for one
 // season, leaving any cup_result already recorded (from either order of arrival) untouched. A nil
 // line stores no counters, which init101_league_season_history.sql backfills from the played
-// matches on the next startup.
-func RecordSeasonHistoryLeagueResult(dbCtx *DatabaseContext, teamId int64, season int, leagueId int64, leagueName string, finalPosition int, line *ClassificationPosition, promoted bool, relegated bool) error {
+// matches on the next startup. viaPlayoff marks a promotion or relegation decided by the playoff.
+func RecordSeasonHistoryLeagueResult(dbCtx *DatabaseContext, teamId int64, season int, leagueId int64, leagueName string, finalPosition int, line *ClassificationPosition, promoted bool, relegated bool, viaPlayoff bool) error {
 	counters := make([]any, 7)
 	if line != nil {
 		counters = []any{line.Matches, line.Points, line.Wins, line.Draws, line.Losses, line.GoalsScored, line.GoalsReceived}
 	}
-	args := append([]any{teamId, season, leagueId, leagueName, finalPosition, promoted, relegated}, counters...)
+	args := append([]any{teamId, season, leagueId, leagueName, finalPosition, promoted, relegated, viaPlayoff}, counters...)
 	_, err := dbCtx.Db.Exec(UpsertSeasonHistoryLeagueStmtSql, args...)
 	return err
 }
@@ -72,7 +76,7 @@ func GetSeasonHistory(dbCtx *DatabaseContext, teamId int64) ([]SeasonHistoryEntr
 		var e SeasonHistoryEntry
 		var leagueName, cupResult sql.NullString
 		var leagueId, finalPosition sql.NullInt64
-		if err := rows.Scan(&e.TeamId, &e.Season, &leagueId, &leagueName, &finalPosition, &e.Promoted, &e.Relegated, &cupResult); err != nil {
+		if err := rows.Scan(&e.TeamId, &e.Season, &leagueId, &leagueName, &finalPosition, &e.Promoted, &e.Relegated, &e.ViaPlayoff, &cupResult); err != nil {
 			return nil, err
 		}
 		if leagueId.Valid {
@@ -114,6 +118,7 @@ type LeagueSeasonPosition struct {
 	GoalsReceived int    `json:"goalsReceived"`
 	Promoted      bool   `json:"promoted"`
 	Relegated     bool   `json:"relegated"`
+	ViaPlayoff    bool   `json:"viaPlayoff"`
 }
 
 // LeagueSeasonTable is a league's final table for a past season. Name is the league name recorded
@@ -130,7 +135,7 @@ const GetLeaguePastSeasonsStmtSql = "SELECT DISTINCT season FROM season_history 
 
 const GetLeagueSeasonTableStmtSql = "SELECT sh.final_position, sh.team_id, t.name, COALESCE(sh.league_name, ''), " +
 	"COALESCE(sh.matches, 0), COALESCE(sh.points, 0), COALESCE(sh.wins, 0), COALESCE(sh.draws, 0), COALESCE(sh.losses, 0), " +
-	"COALESCE(sh.goals_scored, 0), COALESCE(sh.goals_received, 0), sh.promoted, sh.relegated " +
+	"COALESCE(sh.goals_scored, 0), COALESCE(sh.goals_received, 0), sh.promoted, sh.relegated, sh.via_playoff " +
 	"FROM season_history sh JOIN teams t ON t.team_id = sh.team_id " +
 	"WHERE sh.league_id = $1 AND sh.season = $2 AND sh.final_position IS NOT NULL ORDER BY sh.final_position, sh.team_id"
 
@@ -170,7 +175,7 @@ func GetLeagueSeasonTable(dbCtx *DatabaseContext, leagueId int64, season int) (*
 	for rows.Next() {
 		var p LeagueSeasonPosition
 		if err := rows.Scan(&p.Position, &p.TeamId, &p.Name, &table.Name, &p.Matches, &p.Points, &p.Wins, &p.Draws, &p.Losses,
-			&p.GoalsScored, &p.GoalsReceived, &p.Promoted, &p.Relegated); err != nil {
+			&p.GoalsScored, &p.GoalsReceived, &p.Promoted, &p.Relegated, &p.ViaPlayoff); err != nil {
 			return nil, err
 		}
 		table.Positions = append(table.Positions, p)

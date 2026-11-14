@@ -22,8 +22,8 @@ docker compose --profile init run --rm init
 ```
 
 The seeded world spans four countries by default (`common.DefaultSeededCountries`): Spain
-(`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own three-tier league
-structure and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
+(`es`), England (`en`), France (`fr`), and Germany (`de`) - each with its own five-tier league
+pyramid (1/2/4/8/16 groups of 10, see "Promotion and relegation") and its own player/team name pool (`names_<code>`/`lastnames_<code>`, see
 `resources/sql/init.sql`). Spain's pool is a real ~29k-name
 dump; every other country's pool has at least 300 first names and 500 surnames, written as text
 sources under `utils/namepools/<code>/{first,last}.txt` and turned into idempotent SQL
@@ -219,40 +219,57 @@ fixtures independently.
 
 ### Promotion and relegation
 
-How many teams move between each pair of adjacent tiers at season rollover
-(`engine.ComputePromotionRelegation`) is admin-configurable via `PUT /v1/admin/promotion-relegation`:
+A country's leagues form a pyramid with a fixed rule (openspec/specs/league-pyramid): tier 1 has
+one group and every tier below it exactly twice the groups of the one above, all with the same
+teams per group (default 1/2/4/8/16 groups of 10, `common.DefaultWorldTiers`). The zones of every
+group follow from it (`common.PyramidZones`): below tier 1 the winner goes up and the runner-up
+plays the promotion playoff; above the bottom tier the last two go down and the two above them
+play the playoff. There is no admin setting for the slot counts any more.
 
-```json
-{"promotionSlotsPerGroup": 1, "relegationSlotsPerGroup": 2}
-```
+- **Playoff.** Once a country's last league broadcast ends, `advanceCountrySeasonIfComplete`
+  creates the season's playoff (`engine.startPlayoff`): one `cups` row of `kind = 'playoff'`
+  (`cups_playoff_once` makes it once per country and season) with a single-match tie per pairing,
+  the upper-tier team at home (`engine.ComputePlayoffPairings`). The ties are dated the day after
+  the last league matchday at the upper tier's league kickoff (`engine.playoffKickoff`) and are
+  simulated, broadcast and lineup-edited exactly like cup ties, but `AdvanceCups` never advances
+  them and they pay no cup round prize. The season rolls over only when every tie is played and
+  broadcast; then `ComputeSeasonMoves` applies the direct moves plus each tie's outcome (a swap when
+  the lower team won) and `season_history.via_playoff` records the playoff moves.
+- **Legacy pyramids.** A country whose active leagues break the rule (e.g. the old 1/4/16) plays
+  no playoff and keeps the old one-for-one swap for that season (`computeLegacyMoves`).
+- **Restructure.** At rollover, a country whose active leagues differ from the saved world
+  structure is reshaped into it (`engine.restructureIfNeeded`): every team is ranked down the
+  pyramid, tiers are filled top-down in snake order (teams that do not fit drop a tier), the bottom
+  tier is topped up with new CPU teams (`common.CreateTeam`), and leagues the structure no longer
+  has are archived (`leagues.archived_season`), never deleted.
 
-`promotionSlotsPerGroup` is how many of each lower-tier group's top teams are promotion
-candidates; `relegationSlotsPerGroup` is how many of each upper-tier league's bottom teams drop.
-Defaults (1 promoted, 2 relegated per group) match the values this was hardcoded to before it
-became configurable, so an existing world sees no behavior change until an admin touches this.
-Either can be set to 0 to turn that direction off entirely; both are capped at 10 (a league only
-ever has a handful of teams). The current values come back on `GET /v1/admin/overview` as
-`promotionSlotsPerGroup`/`relegationSlotsPerGroup`. It's still a straight swap with no play-off
-model - when a tier has more relegation slots open than promotion candidates available (fewer
-groups below than above), the extra bottom teams simply stay put. Only affects a season rollover
-that hasn't happened yet; one already applied doesn't get undone.
+### League kickoffs
+
+Each country has a league kickoff on its own clock (`countries.league_kickoff_minute`, default
+14:00): tier 1 kicks off then and every lower tier 15 minutes later (`common.EffectiveLeagueSchedule`),
+dated in the country's time zone so the local time holds across daylight-saving changes. The
+app-wide match schedule only sets the match days now. A league can still get its own override
+(`PUT /v1/admin/leagues/:id/schedule`), and `PUT /v1/admin/countries/:code/kickoff` changes a
+country's kickoff and re-dates its unplayed matches.
 
 ### World management
 
 Three more admin surfaces let a commissioner reshape the game world without a redeploy:
 
 **World structure** (`GET`/`PUT /v1/admin/world-config`) is the tier/group/teams-per-league
-shape used the next time leagues are (re)created for a country - see `common.TierConfig` and
-`common.GetWorldConfig`/`SetWorldConfig`. It's just saved settings; on its own it doesn't touch
-any league or team that already exists.
+shape new countries are created with, and the one every active country is restructured into at
+its own next season rollover (see "Promotion and relegation") - see `common.TierConfig` and
+`common.GetWorldConfig`/`SetWorldConfig`. Saving it changes nothing until then.
 
 ```json
 {"tiers": [{"tier": 1, "name": "I", "groups": 1, "teamsPerLeague": 10},
-           {"tier": 2, "name": "II", "groups": 4, "teamsPerLeague": 10}]}
+           {"tier": 2, "name": "II", "groups": 2, "teamsPerLeague": 10}]}
 ```
 
-`teamsPerLeague` must be even (`engine.randomWeekMatches2`'s round-robin fixture algorithm has
-no bye slot for an odd team out) - see `common.ValidateWorldConfig` for the full bounds.
+It must follow the pyramid rule (tier 1 one group, every tier twice the groups of the one above,
+the same even `teamsPerLeague` of at least 8 everywhere - `engine.randomWeekMatches2`'s round-robin
+has no bye slot for an odd team out) and hold at least as many teams as every active country
+already has - see `common.ValidateWorldConfig` / `ValidateWorldConfigFitsTeams`.
 
 **Recreating leagues** (`POST /v1/admin/recreate-leagues`) applies the saved structure right
 now: it wipes and regenerates every league, team, player and match for whichever countries are

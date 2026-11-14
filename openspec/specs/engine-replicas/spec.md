@@ -164,7 +164,12 @@ The engine SHALL run, once per deployment of this change via a job slot claim, a
   `TryWithSessionAdvisoryLock`, `WithSessionAdvisoryLock`, `ClaimEngineJobSlot`); schema
   `resources/sql/init84_engine_horizontal_scaling.sql` (`engine_job_runs`,
   `in_simulation_since`).
-- Rollover: `advanceCountrySeasonIfComplete` (`engine/season.go`). Fixtures:
+- Rollover: `advanceCountrySeasonIfComplete` (`engine/season.go`), which also creates the
+  country's promotion playoff once (`engine.startPlayoff` in `engine/playoff.go`,
+  `common.CreatePlayoff` inserting with `ON CONFLICT DO NOTHING` on `cups_playoff_once`,
+  `common.GetCountryPlayoff`) and restructures it (`engine.restructureIfNeeded` /
+  `applyRestructure` in `engine/restructure.go`), all under the country's lock. `AdvanceCups` skips
+  playoffs (`common.GetActiveCupsStmtSql` lists only `kind = 'cup'`). Fixtures:
   `generateMatchesForOneLeague` (`engine/engine.go`).
 - Cups: `advanceCup`, `simulateCupTieOnce`, `StartWorldCupIfDue`, `StartRegionalCupsIfDue`
   (`engine/cups.go`, lock `LockNamespaceRegionalCupStart`), `common.ClaimInternationalCupSeason`
@@ -193,6 +198,8 @@ The engine SHALL run, once per deployment of this change via a job slot claim, a
   `striker.engine.job.claims{engine_job,outcome}` (`common/telemetry.go`) shows how the claims are
   shared: each replica records `won` or `lost` for every claim.
 - Tests: `engine/engine_replicas_integration_test.go`, `common/enginelocks_integration_test.go`,
+  `engine/pyramid_integration_test.go` (`TestPyramid_PlayoffCreatedOnceAcrossReplicas`,
+  `TestPyramid_RestructureLegacyCountry` with three concurrent rollovers),
   plus `engine/season_advance_lock_integration_test.go`, `engine/cup_advance_lock_integration_test.go`,
   `engine/fixture_generation_lock_integration_test.go`,
   `common/national_team_friendly_lock_integration_test.go`,

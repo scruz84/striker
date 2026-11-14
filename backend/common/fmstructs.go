@@ -49,11 +49,13 @@ type DivisionDetails struct {
 	Classification      Classification `json:"classification"`
 	PreviousWeekMatches []WeekMatch    `json:"previousWeekMatches"`
 	NextWeekMatches     []WeekMatch    `json:"nextWeekMatches"`
-	// PromotionSlots/RelegationSlots are how many of this league's top/bottom finishers move
-	// between tiers at season rollover - 0 when there is no tier above/below to move to. They let
-	// the classification table mark the promotion and relegation zones.
-	PromotionSlots  int `json:"promotionSlots"`
-	RelegationSlots int `json:"relegationSlots"`
+	// Zones is how many of this league's places sit in each promotion/relegation zone of its
+	// country's pyramid (see PyramidZones) - all zero for an archived league or a single tier. They
+	// let the classification table colour its rows.
+	Zones Zones `json:"zones"`
+	// Playoff is the current season's promotion playoff ties with a side in this league (see
+	// GetLeaguePlayoffTies) - empty before the league ends and once the season has rolled over.
+	Playoff []CupTie `json:"playoff"`
 }
 
 type LoginRequest struct {

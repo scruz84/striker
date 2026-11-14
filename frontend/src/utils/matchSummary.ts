@@ -14,7 +14,12 @@ export function matchKindColor(kind: TeamMatchSummary['kind']): 'primary' | 'sec
   }
 }
 
-export function matchKindLabelKey(kind: TeamMatchSummary['kind']): string {
+// matchKindLabelKey labels a match by its competition. A promotion playoff tie (a cup tie whose
+// competition is 'playoff') reads "Playoff" rather than "Cup".
+export function matchKindLabelKey(kind: TeamMatchSummary['kind'], competition?: TeamMatchSummary['competition']): string {
+  if (kind === MATCH_KIND_CUP && competition === 'playoff') {
+    return 'competition.playoff'
+  }
   switch (kind) {
     case MATCH_KIND_LEAGUE:
       return 'team.matches.kindLeague'

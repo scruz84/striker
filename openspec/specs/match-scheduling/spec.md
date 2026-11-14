@@ -224,8 +224,15 @@ The spoiler-gated post-match effects (availability countdown and new injuries an
 - Lineup lock: `common/lineuplock.go` (`LineupLockMinutes`, `IsLineupLocked`); handlers
   `SetMatchLineupHandler`/`SetCupTieLineupHandler`/`SetFriendlyLineupHandler`; frontend
   `useIsLineupLocked` (`frontend/src/api/useLiveMatch.ts`).
-- Schedules: `common/leagueschedule.go`, `common/matchschedule.go`, `engine/schedule.go`
-  (`ComputeFixtureDates`), `engine/reschedule.go`; friendly delay `friendlyScheduleDelay` and
+- Schedules: `common/leagueschedule.go` (`EffectiveLeagueSchedule`, `GetEffectiveLeagueSchedules`,
+  `ListLeaguesForAdmin`), `common/leaguekickoff.go` (`countries.league_kickoff_minute`,
+  `GetCountryLeagueKickoff`/`SetCountryLeagueKickoff`, `TierKickoffMinute`,
+  `LeagueKickoffTierStagger`), `common/matchschedule.go` (`MatchSchedule.Location`),
+  `engine/schedule.go` (`ComputeFixtureDates`/`NextScheduledOccurrence`, dated on the schedule's
+  location), `engine/reschedule.go` (`RescheduleUnplayedMatchesForLeagues`/`...ForCountry`, each
+  league on its effective schedule); admin `handlers.AdminSetCountryKickoffHandler`
+  (`PUT /v1/admin/countries/:code/kickoff`); tests `TestEffectiveLeagueSchedule_*`,
+  `TestComputeFixtureDates_LocalKickoffHoldsAcrossDST`, `TestPyramid_CountryKickoffChangeReschedules`; friendly delay `friendlyScheduleDelay` and
   quarter-hour grid `IsFriendlyKickoffSlot`/`nextFriendlyKickoffSlot` (`common/friendlies.go`),
   mirrored by `isQuarterHour`/`kickoffErrorKey` (`frontend/src/utils/friendlyKickoff.ts`).
 - Cup kickoffs: `engine.cupTieKickoff` (`cupMinimumLead`, `cupRoundGap`, `engine/cups.go`) with

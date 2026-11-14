@@ -65,11 +65,11 @@ const current: DivisionDetails = {
   },
   previousWeekMatches: [weekMatch(5, 3)],
   nextWeekMatches: [weekMatch(6, 3)],
-  promotionSlots: 0,
-  relegationSlots: 2,
+  zones: { directUp: 0, playoffUp: 0, playoffDown: 0, directDown: 2, candidate: 0, legacy: false },
 } as DivisionDetails
 
-// Season 2's final table: club 10 champion and promoted, clubs 2 and 1 relegated.
+// Season 2's final table: club 10 champion and promoted, clubs 2 and 1 relegated, club 2 through
+// the playoff.
 const season2: LeagueSeasonTable = {
   id: 7,
   name: 'First division',
@@ -88,6 +88,7 @@ const season2: LeagueSeasonTable = {
     goalsReceived: 18,
     promoted: index === 0,
     relegated: index >= TEAMS - 2,
+    viaPlayoff: index === TEAMS - 2,
   })),
 }
 
@@ -205,6 +206,9 @@ describe('DivisionDetailsPage past seasons', () => {
     // Both zones come from what happened that season, though the league has no promotion slot now.
     expect(screen.getByText(i18n.t('division.legend.promotion'))).toBeInTheDocument()
     expect(screen.getByText(i18n.t('division.legend.relegation'))).toBeInTheDocument()
+    // A move through the playoff is marked beside the team; a direct one is not.
+    expect(within(rows[TEAMS - 2]).getByText(i18n.t('division.viaPlayoff'))).toBeInTheDocument()
+    expect(within(rows[TEAMS - 1]).queryByText(i18n.t('division.viaPlayoff'))).not.toBeInTheDocument()
   })
 
   it('shows the current season for a season that is not a past one', async () => {

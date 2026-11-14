@@ -11,7 +11,14 @@ import (
 // matching weekday and that time hasn't passed yet, from's own day is returned - so generating
 // fixtures at, say, 09:00 on a scheduled Saturday still lands the first match later that same
 // Saturday instead of skipping a full week ahead.
+//
+// The hour and minute are read on schedule.Location's clock when it is set (a league following
+// its country's local kickoff), else on from's own; each candidate is built with time.Date in that
+// location, so a local kickoff time holds across daylight-saving changes.
 func NextScheduledOccurrence(from time.Time, schedule common.MatchSchedule) time.Time {
+	if schedule.Location != nil {
+		from = from.In(schedule.Location)
+	}
 	dayStart := time.Date(from.Year(), from.Month(), from.Day(), schedule.Hour, schedule.Minute, 0, 0, from.Location())
 	for offset := 0; offset < 8; offset++ {
 		candidate := dayStart.AddDate(0, 0, offset)

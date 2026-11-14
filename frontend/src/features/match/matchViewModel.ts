@@ -137,7 +137,10 @@ export function fromWeekMatch(match: WeekMatch, division: DivisionDetails | unde
 export function fromCupTie(tie: CupTieDetails, cup: CupDetails | undefined, t: TFunction): MatchView {
   const penaltyWinner = cupTiePenaltyWinnerName(tie)
   let subtitleLabel: string | undefined
-  if (cup) {
+  if (tie.competition === 'playoff') {
+    // A promotion playoff tie: one match, no cup name or round.
+    subtitleLabel = t('competition.playoff')
+  } else if (cup) {
     const round = roundName(t, tie.round, expectedTotalRounds(cup.ties), tie.round === 1 && isFirstRoundPlayIn(cup.ties))
     subtitleLabel = `${translateCupName(t, cup.cup.name)} · ${round}`
   }

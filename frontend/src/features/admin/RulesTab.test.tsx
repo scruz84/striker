@@ -20,8 +20,6 @@ vi.mock('../../api/hooks', () => {
         matchScheduleWeekdaysMask: 127,
         matchScheduleHour: 12,
         matchScheduleMinute: 0,
-        promotionSlotsPerGroup: 2,
-        relegationSlotsPerGroup: 2,
         maxFriendliesPerWeek: 3,
         friendlyScheduleWeekdays: 127,
         freeAgentInjectionsPerWeek: 5,
@@ -30,7 +28,6 @@ vi.mock('../../api/hooks', () => {
     }),
     useAdminSetMaxFriendliesPerWeek: () => ({ mutate: mutations.maxFriendlies, isPending: false }),
     useSetMatchSchedule: () => ({ mutate: mutations.matchSchedule, isPending: false }),
-    useAdminSetPromotionRelegation: idle,
     useAdminSetFriendlySchedule: idle,
     useAdminSetFreeAgentInjectionsPerWeek: idle,
     useAdminSetOfferNegotiationWindow: idle,
@@ -59,9 +56,19 @@ describe('RulesTab', () => {
 
   it('shows one card per rule', () => {
     renderTab()
-    for (const key of ['matchSchedule', 'promotionRelegation', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow']) {
+    for (const key of ['matchSchedule', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow']) {
       expect(screen.getByText(i18n.t(`admin.${key}.title`))).toBeInTheDocument()
     }
+    // Promotion and relegation follow the league pyramid; there is no setting for them any more.
+    expect(screen.queryByText(/promotion|ascens/i)).not.toBeInTheDocument()
+  })
+
+  it('saves only the match days, keeping the stored kickoff time', () => {
+    renderTab()
+    const form = card(i18n.t('admin.matchSchedule.title'))
+    expect(within(form).queryByLabelText(i18n.t('admin.matchSchedule.time'))).not.toBeInTheDocument()
+    fireEvent.click(within(form).getByRole('button', { name: i18n.t('admin.matchSchedule.save') }))
+    expect(mutations.matchSchedule).toHaveBeenCalledWith({ weekdaysMask: 127, hour: 12, minute: 0 }, expect.any(Object))
   })
 
   it('saves a setting with its value and reports success as a notification', () => {

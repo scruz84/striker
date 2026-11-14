@@ -140,7 +140,11 @@
       "preContractJoined": "{{player}} joined {{team}} from {{from}} on a pre-contract",
       "preContractRetired": "{{player}} retired: your pre-contract with him lapsed",
       "releaseClausePaid": "{{team}} paid {{player}}'s {{fee}} release clause: he has left",
-      "releaseClauseSigned": "You signed {{player}} from {{team}} by paying his {{fee}} release clause"
+      "releaseClauseSigned": "You signed {{player}} from {{team}} by paying his {{fee}} release clause",
+      "promotedViaPlayoff": "{{team}} was promoted through the playoff!",
+      "relegatedViaPlayoff": "{{team}} was relegated through the playoff!",
+      "playoffQualified": "{{team}} will play the promotion playoff against {{opponent}}",
+      "restructureMoved": "{{team}} will play next season in {{league}} because of the league restructure"
     },
     "account": {
       "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
@@ -1115,7 +1119,9 @@
       "title": "Legend",
       "promotion": "Promotion",
       "relegation": "Relegation",
-      "columns": "P played · GD goal difference · Pts points"
+      "columns": "P played · GD goal difference · Pts points",
+      "playoff": "Playoff",
+      "candidate": "Promotion candidate"
     },
     "matchday": "Matchday {{week}}",
     "matchdayPicker": "Matchday",
@@ -1130,7 +1136,13 @@
     "champion": "Champion",
     "liveTable": "Live",
     "positionUp": "Up {{count}}",
-    "positionDown": "Down {{count}}"
+    "positionDown": "Down {{count}}",
+    "playoff": {
+      "title": "Promotion playoff",
+      "description": "One match at the upper-division side's ground, penalties on a draw. The winner plays in the upper division next season.",
+      "openTie": "Open the playoff tie {{home}} vs {{away}}"
+    },
+    "viaPlayoff": "(playoff)"
   },
   "liveScores": {
     "restOfMatchday": "Rest of the matchday",
@@ -1904,22 +1916,13 @@
       "error": "Failed to update AI level."
     },
     "matchSchedule": {
-      "title": "Match schedule",
-      "description": "Sets which days and what time league fixtures are dated on - e.g. Saturdays at 14:00, or every day at 16:00. Saving also re-dates the unplayed matches of every league without its own schedule (in all countries), starting from the next slot after now. To re-date just one country, use \"Reschedule fixtures\" in the Countries section.",
+      "title": "Match days",
+      "description": "Which days league fixtures are played on - e.g. Saturdays, or every day. The kickoff time is each country's own (see Countries): tier 1 at its league kickoff, every lower tier 15 minutes later. Saving re-dates the unplayed matches of every league without its own schedule (in all countries), starting from the next slot after now.",
       "time": "Kickoff time",
-      "save": "Save schedule",
+      "save": "Save match days",
       "noWeekdaysError": "Select at least one day.",
-      "success": "Match schedule updated.",
-      "error": "Failed to update match schedule."
-    },
-    "promotionRelegation": {
-      "title": "Promotion & relegation",
-      "description": "How many teams move between adjacent tiers at the end of each season. Set either to 0 to turn that direction off entirely. Only affects a season rollover that hasn't happened yet.",
-      "promoted": "Promoted per group",
-      "relegated": "Relegated per group",
-      "save": "Save slots",
-      "success": "Promotion/relegation slots updated.",
-      "error": "Failed to update promotion/relegation slots."
+      "success": "Match days updated.",
+      "error": "Failed to update the match days."
     },
     "maxFriendlies": {
       "title": "Friendly matches",
@@ -1955,7 +1958,7 @@
     },
     "worldStructure": {
       "title": "World structure",
-      "description": "Tiers, groups per tier, and teams per league used the next time leagues are (re)created. Saving this alone doesn't change anything that already exists - use \"Recreate all leagues now\" below to apply it.",
+      "description": "Tiers, groups per tier and teams per group. Every tier must have exactly twice the groups of the tier above it (tier 1 has one) and the same teams per group. New countries are created with this structure, and every active country is restructured into it at its own next season rollover: teams that do not fit drop a tier and the bottom tier is topped up with new CPU teams.",
       "tier": "Tier",
       "tierName": "Name",
       "groups": "Groups",
@@ -1964,12 +1967,24 @@
       "removeTier": "Remove",
       "save": "Save structure",
       "saveSuccess": "World structure saved.",
-      "saveError": "Failed to save world structure - check the tier, group and team-count limits.",
+      "saveError": "Failed to save the world structure - check the pyramid rule and that every country's teams still fit.",
       "recreateTitle": "Recreate leagues",
       "recreateButton": "Recreate all leagues now",
       "confirmRecreate": "Recreate every league and team using this structure? Every existing team, squad and match is rebuilt from scratch and everyone gets a brand new team - user accounts, admin access and the match schedule are kept. This can take a little while.",
       "recreateSuccess": "Leagues recreated.",
-      "recreateError": "Failed to recreate leagues."
+      "recreateError": "Failed to recreate leagues.",
+      "places": "{{count}} places per country.",
+      "pending": "Restructured at their next season rollover: {{countries}}.",
+      "errors": {
+        "tierCount": "Use between 1 and {{max}} tiers.",
+        "gaps": "Tiers must be numbered 1 to {{count}} with no gaps.",
+        "name": "Tier {{tier}} needs a name.",
+        "teams": "Tier {{tier}}: teams per group must be an even number between {{min}} and {{max}} (room for 2 promotion places, 4 relegation places and 2 safe teams).",
+        "topTier": "Tier 1 must have exactly 1 group.",
+        "doubling": "Tier {{tier}} must have exactly {{groups}} groups (twice tier {{upper}}).",
+        "sameTeams": "Every tier must have the same number of teams per group.",
+        "tooManyTeams": "This structure creates {{count}} teams per country, more than the {{max}} limit."
+      }
     },
     "countries": {
       "title": "Countries",
@@ -1979,7 +1994,7 @@
       "addDialogTitle": "Add {{name}}",
       "addDialogDescription": "This creates {{name}}'s leagues and teams right away.",
       "kickoffLabel": "Kickoff time",
-      "kickoffHelp": "Local time in {{name}}, not yours - every match day defaults to 14:00 there.",
+      "kickoffHelp": "Local time in {{name}}, not yours. Tier 1 kicks off at this time and every lower tier 15 minutes later.",
       "addError": "Failed to add that country.",
       "missingDivision": "Division {{name}} not created yet",
       "addDivision": "Add division",
@@ -1992,11 +2007,17 @@
       "reschedule": "Reschedule fixtures",
       "confirmReschedule": "Re-date all of {{country}}'s unplayed league matches from now, using each league's own schedule? Rounds keep their order; other countries and schedule settings are not touched.",
       "rescheduleError": "Failed to reschedule that country's fixtures.",
-      "rescheduleSuccess": "Fixtures rescheduled."
+      "rescheduleSuccess": "Fixtures rescheduled.",
+      "kickoffButton": "Kickoff {{time}}",
+      "kickoffDialogTitle": "League kickoff - {{name}}",
+      "kickoffDialogDescription": "Tier 1 of {{name}} kicks off at this local time and every lower tier 15 minutes later. Saving re-dates the unplayed matches of its leagues without their own schedule.",
+      "kickoffQuarterHour": "Pick a time on the quarter-hour (:00, :15, :30, :45).",
+      "kickoffError": "Failed to change the kickoff - the deepest tier must still kick off before midnight.",
+      "kickoffSave": "Save kickoff"
     },
     "leagueSchedules": {
       "title": "Per-league match schedule",
-      "description": "Overrides the default schedule above for one league at a time - e.g. Spain's top division on Sunday afternoons, England's on Saturday mornings.",
+      "description": "Overrides the league's own kickoff (its country's league kickoff for its tier) for one league at a time - e.g. Spain's top division on Sunday afternoons.",
       "filterCountry": "Country",
       "allCountries": "All countries",
       "league": "League",
@@ -2009,7 +2030,9 @@
       "dialogTitle": "Edit schedule - {{league}}",
       "save": "Save",
       "saveError": "Failed to update that league's schedule.",
-      "resetError": "Failed to reset that league's schedule."
+      "resetError": "Failed to reset that league's schedule.",
+      "countryTime": "(local)",
+      "derived": "Tier 1 + {{minutes}} min"
     },
     "usersTitle": "Users",
     "usersTable": {
@@ -2967,5 +2990,8 @@
     "clasico": "Clásico",
     "score": "{{score}} / {{max}}",
     "headToHead": "Head-to-head"
+  },
+  "competition": {
+    "playoff": "Playoff"
   }
 }

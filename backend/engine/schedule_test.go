@@ -144,3 +144,54 @@ func TestFixtureStart_IgnoresPastOrMissingMatches(t *testing.T) {
 		t.Fatalf("future last match: got %v, want one minute after it", got)
 	}
 }
+
+// Spec scenario "Staggered tiers": a 5-tier Spanish country with the default 14:00 kickoff dates
+// tier 1 at 14:00, tier 2 at 14:15 ... tier 5 at 15:00, Madrid time.
+func TestEffectiveLeagueSchedule_StaggeredTiers(t *testing.T) {
+	loc, err := time.LoadLocation("Europe/Madrid")
+	if err != nil {
+		t.Skipf("no tz data: %s", err)
+	}
+	def := common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask, Hour: 16, Minute: 0}
+	from := time.Date(2026, 11, 16, 9, 0, 0, 0, time.UTC)
+	for tier, want := range map[int]string{1: "14:00", 2: "14:15", 3: "14:30", 4: "14:45", 5: "15:00"} {
+		schedule := common.EffectiveLeagueSchedule(nil, def, "es", tier, common.DefaultLeagueKickoffMinute)
+		got := NextScheduledOccurrence(from, schedule).In(loc).Format("15:04")
+		if got != want {
+			t.Errorf("tier %d kicks off at %s Madrid time, want %s", tier, got, want)
+		}
+	}
+}
+
+// Spec scenario "Daylight saving": tier 1 keeps 14:00 on the Madrid clock across the end of
+// summer time (25 Oct 2026).
+func TestComputeFixtureDates_LocalKickoffHoldsAcrossDST(t *testing.T) {
+	loc, err := time.LoadLocation("Europe/Madrid")
+	if err != nil {
+		t.Skipf("no tz data: %s", err)
+	}
+	def := common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask}
+	schedule := common.EffectiveLeagueSchedule(nil, def, "es", 1, 14*60)
+	dates := ComputeFixtureDates(time.Date(2026, 10, 23, 9, 0, 0, 0, time.UTC), schedule, 4)
+	for _, d := range dates {
+		if got := d.In(loc).Format("15:04"); got != "14:00" {
+			t.Errorf("%s: %s on the Madrid clock, want 14:00", d.In(loc).Format("Mon 2 Jan"), got)
+		}
+	}
+	if dates[0].UTC().Hour() == dates[3].UTC().Hour() {
+		t.Errorf("the UTC kickoff should move by an hour across the change: %v", dates)
+	}
+}
+
+// Spec scenario "Override wins": an admin-set override is used as-is, on the server clock.
+func TestEffectiveLeagueSchedule_OverrideWins(t *testing.T) {
+	override := common.MatchSchedule{WeekdaysMask: common.WeekdaySaturday, Hour: 18, Minute: 0}
+	got := common.EffectiveLeagueSchedule(&override, common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask}, "es", 3, 14*60)
+	if got.Hour != 18 || got.Minute != 0 || got.WeekdaysMask != common.WeekdaySaturday || got.Location != nil {
+		t.Errorf("override not kept: %+v", got)
+	}
+	derived := common.EffectiveLeagueSchedule(nil, common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask}, "es", 3, 14*60)
+	if derived.Hour != 14 || derived.Minute != 30 {
+		t.Errorf("tier 3 without an override should kick off at 14:30, got %02d:%02d", derived.Hour, derived.Minute)
+	}
+}

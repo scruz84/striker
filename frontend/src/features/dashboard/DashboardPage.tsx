@@ -325,7 +325,7 @@ function SuggestedLiveMatch({
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ alignItems: { sm: 'center' } }}>
       <Stack spacing={0.5} sx={{ minWidth: 0 }}>
         <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-          <MatchKindChip kind={match.kind} />
+          <MatchKindChip kind={match.kind} competition={match.competition} />
           {match.kind === 'league' && match.tier !== undefined && (
             <Chip
               size="small"
@@ -509,14 +509,22 @@ function OpponentLine({ match }: { match: TeamMatchSummary }) {
 /** `onContainer`: the chip sits on a coloured hero (primaryContainer, errorContainer), so it takes
  * the hero's own text colour - a primary/secondary outline would vanish there, above all in the
  * high-contrast scheme. */
-function MatchKindChip({ kind, onContainer = false }: { kind: TeamMatchSummary['kind']; onContainer?: boolean }) {
+function MatchKindChip({
+  kind,
+  competition,
+  onContainer = false,
+}: {
+  kind: TeamMatchSummary['kind']
+  competition?: TeamMatchSummary['competition']
+  onContainer?: boolean
+}) {
   const { t } = useTranslation()
   return (
     <Chip
       size="small"
       variant="outlined"
       color={onContainer ? 'default' : matchKindColor(kind)}
-      label={t(matchKindLabelKey(kind))}
+      label={t(matchKindLabelKey(kind, competition))}
       sx={{ height: 20, alignSelf: 'flex-start', ...(onContainer && { color: 'inherit', borderColor: 'currentColor' }) }}
     />
   )
@@ -556,7 +564,7 @@ function NextMatchHero({ match, teamId }: { match: TeamMatchSummary | undefined;
           <Typography variant="overline" sx={{ lineHeight: 1 }}>
             {t('dashboard.nextMatch')}
           </Typography>
-          <MatchKindChip kind={match.kind} onContainer />
+          <MatchKindChip kind={match.kind} competition={match.competition} onContainer />
           <RivalryChip level={match.rivalry} />
         </Stack>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
@@ -627,7 +635,7 @@ export function LiveMatchHero({
           <Typography variant="overline" sx={{ lineHeight: 1 }}>
             {t('dashboard.liveNow')}
           </Typography>
-          <MatchKindChip kind={match.kind} />
+          <MatchKindChip kind={match.kind} competition={match.competition} />
         </Stack>
         <Stack direction="row" spacing={{ xs: 0.5, sm: 2 }} sx={{ alignItems: 'center' }}>
           <HeroTeam id={home.id} name={home.name} />
@@ -707,7 +715,7 @@ function LastResultCard({ match, recentForm }: { match: TeamMatchSummary | undef
       }
     >
       <Stack spacing={0.5}>
-        <MatchKindChip kind={match.kind} />
+        <MatchKindChip kind={match.kind} competition={match.competition} />
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Chip label={t(`dashboard.result.${outcome}`)} color={color} size="small" sx={{ fontWeight: 700 }} />
           <Typography variant="body2" sx={{ fontWeight: 700 }}>

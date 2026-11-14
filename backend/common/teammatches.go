@@ -31,6 +31,9 @@ type TeamMatchSummary struct {
 	// Round is only meaningful for a cup tie (MatchKindCup) - the round number within that cup's
 	// bracket. Zero, and omitted, for league/friendly entries.
 	Round int `json:"round,omitempty"`
+	// Competition is a cup tie's cup kind (CupKindCup or CupKindPlayoff); omitted for league and
+	// friendly entries.
+	Competition string `json:"competition,omitempty"`
 	// Rivalry is the fixture's rivalry level (RIVALRY_*, see common/rivalries.go): the one it was
 	// played at, or the pair's current one for a fixture still to come. Always 0 for a friendly.
 	Rivalry int `json:"rivalry"`
@@ -70,8 +73,8 @@ func getTeamLeagueMatches(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSumm
 
 // getTeamCupTies lists teamId's real cup ties (an INNER JOIN on both teams naturally excludes
 // bye rounds, which have no away_team_id and thus nothing to click into or field a lineup for).
-var GetTeamCupTiesStmtSql = "SELECT ct.tie_id, ct.round, ct.home_team_id, th.name, ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals, " + fixtureRivalrySql("ct") + " " +
-	"FROM cup_ties ct JOIN teams th ON th.team_id = ct.home_team_id JOIN teams ta ON ta.team_id = ct.away_team_id " +
+var GetTeamCupTiesStmtSql = "SELECT ct.tie_id, ct.round, ct.home_team_id, th.name, ct.away_team_id, ta.name, ct.match_date, ct.played, ct.home_goals, ct.away_goals, " + fixtureRivalrySql("ct") + ", c.kind " +
+	"FROM cup_ties ct JOIN cups c ON c.cup_id = ct.cup_id JOIN teams th ON th.team_id = ct.home_team_id JOIN teams ta ON ta.team_id = ct.away_team_id " +
 	"WHERE ct.home_team_id = $1 OR ct.away_team_id = $1 ORDER BY ct.match_date"
 
 func getTeamCupTies(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSummary, error) {
@@ -87,7 +90,7 @@ func getTeamCupTies(dbCtx *DatabaseContext, teamId int64) ([]TeamMatchSummary, e
 		var round int
 		var homeName, awayName string
 		var s TeamMatchSummary
-		if err := rows.Scan(&tieId, &round, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals, &s.Rivalry); err != nil {
+		if err := rows.Scan(&tieId, &round, &homeId, &homeName, &awayId, &awayName, &s.MatchDate, &s.Played, &s.HomeGoals, &s.AwayGoals, &s.Rivalry, &s.Competition); err != nil {
 			return nil, err
 		}
 		s.Kind = MatchKindCup

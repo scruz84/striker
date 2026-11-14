@@ -97,8 +97,7 @@ const details = {
   },
   previousWeekMatches: [MATCH_A, MATCH_B],
   nextWeekMatches: [],
-  promotionSlots: 0,
-  relegationSlots: 2,
+  zones: { directUp: 0, playoffUp: 0, playoffDown: 0, directDown: 2, candidate: 0, legacy: false },
 } as DivisionDetails
 
 function entry(match: WeekMatch, overrides: Partial<LeagueLiveScore>): LeagueLiveScore {

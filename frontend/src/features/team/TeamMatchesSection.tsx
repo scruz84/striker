@@ -120,7 +120,7 @@ function MatchRow({ match }: { match: TeamMatchSummary }) {
           <TeamNameWithFlag rawName={match.opponentName} />
         </NestedTeamNameLink>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.25 }}>
-          <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind))} sx={{ height: 20 }} />
+          <Chip size="small" color={matchKindColor(match.kind)} label={t(matchKindLabelKey(match.kind, match.competition))} sx={{ height: 20 }} />
           <RivalryChip level={match.rivalry} />
           <HomeAwayIcon isHome={match.isHome} />
           <Typography variant="caption" color="text.secondary">

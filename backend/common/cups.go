@@ -20,7 +20,17 @@ type Cup struct {
 	Completed        bool   `json:"completed"`
 	ChampionTeamId   *int64 `json:"championTeamId"`
 	ChampionTeamName string `json:"championTeamName"`
+	// Kind is CupKindCup for a real cup, CupKindPlayoff for a country's end-of-season promotion
+	// playoff (see openspec/specs/league-pyramid), which reuses the cup-tie machinery for its one
+	// round but is never advanced, crowned or listed as a cup.
+	Kind string `json:"kind"`
 }
+
+// Cup kinds - see Cup.Kind and resources/sql/init110_league_pyramid_playoffs.sql.
+const (
+	CupKindCup     = "cup"
+	CupKindPlayoff = "playoff"
+)
 
 // CupTie is one bracket slot - a match between two teams, or, if AwayTeamId is nil, an
 // automatic bye advancing HomeTeamId without a match being played.
@@ -48,12 +58,14 @@ const InsertInternationalCupStmtSql = "INSERT INTO cups (country, region, season
 const InsertCupTieStmtSql = "INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id, match_date, played, winner_team_id) " +
 	"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING tie_id"
 
-const GetActiveCupsStmtSql = "SELECT cup_id, country, region, season, name, completed, champion_team_id FROM cups WHERE completed = false"
+// GetActiveCupsStmtSql lists every running cup - never a promotion playoff, which has one round
+// and is completed by the season rollover instead (see engine.applyPromotionRelegation).
+const GetActiveCupsStmtSql = "SELECT cup_id, country, region, season, name, completed, champion_team_id, kind FROM cups WHERE completed = false AND kind = 'cup'"
 
-const GetCupStmtSql = "SELECT c.cup_id, c.country, c.region, c.season, c.name, c.completed, c.champion_team_id, t.name " +
+const GetCupStmtSql = "SELECT c.cup_id, c.country, c.region, c.season, c.name, c.completed, c.champion_team_id, t.name, c.kind " +
 	"FROM cups c LEFT JOIN teams t ON t.team_id = c.champion_team_id WHERE c.cup_id = $1"
 
-const GetLatestCupForCountryStmtSql = "SELECT cup_id FROM cups WHERE country = $1 ORDER BY cup_id DESC LIMIT 1"
+const GetLatestCupForCountryStmtSql = "SELECT cup_id FROM cups WHERE country = $1 AND kind = 'cup' ORDER BY cup_id DESC LIMIT 1"
 
 const GetLatestCupForRegionStmtSql = "SELECT cup_id FROM cups WHERE region = $1 ORDER BY cup_id DESC LIMIT 1"
 
@@ -150,7 +162,7 @@ func GetActiveCups(dbCtx *DatabaseContext) ([]Cup, error) {
 		var cup Cup
 		var country, region sql.NullString
 		var championTeamId sql.NullInt64
-		if err := rows.Scan(&cup.CupId, &country, &region, &cup.Season, &cup.Name, &cup.Completed, &championTeamId); err != nil {
+		if err := rows.Scan(&cup.CupId, &country, &region, &cup.Season, &cup.Name, &cup.Completed, &championTeamId, &cup.Kind); err != nil {
 			return nil, err
 		}
 		cup.Country = country.String
@@ -169,7 +181,7 @@ func GetCup(dbCtx *DatabaseContext, cupId int64) (*Cup, error) {
 	var championTeamId sql.NullInt64
 	var championTeamName sql.NullString
 	err := dbCtx.Db.QueryRow(GetCupStmtSql, cupId).Scan(&cup.CupId, &country, &region, &cup.Season, &cup.Name,
-		&cup.Completed, &championTeamId, &championTeamName)
+		&cup.Completed, &championTeamId, &championTeamName, &cup.Kind)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +302,12 @@ func GetCupRoundWinners(dbCtx *DatabaseContext, cupId int64, round int) ([]int64
 
 func SetCupCompleted(dbCtx *DatabaseContext, cupId int64, championTeamId int64) error {
 	_, err := dbCtx.Db.Exec(SetCupCompletedStmtSql, championTeamId, cupId)
+	return err
+}
+
+// SetCupCompletedWithoutChampion closes a cup that crowns nobody - a promotion playoff.
+func SetCupCompletedWithoutChampion(dbCtx *DatabaseContext, cupId int64) error {
+	_, err := dbCtx.Db.Exec(SetCupCompletedStmtSql, nil, cupId)
 	return err
 }
 
@@ -531,6 +549,9 @@ type CupTieDetails struct {
 	Assistant2Name  string `json:"assistant2Name,omitempty"`
 	// Rivalry is the tie's rivalry level - see GetFixtureRivalry.
 	Rivalry int `json:"rivalry"`
+	// Competition is the tie's cup kind: CupKindCup, or CupKindPlayoff for a promotion playoff tie,
+	// which the frontend labels "Playoff" instead of the cup name and round.
+	Competition string `json:"competition"`
 }
 
 // GetCupTieDetails assembles one cup tie's full detail view - see CupTieDetails.
@@ -539,7 +560,12 @@ func GetCupTieDetails(dbCtx *DatabaseContext, tieId int64) (*CupTieDetails, erro
 	if err != nil {
 		return nil, err
 	}
-	details := &CupTieDetails{CupTie: *tie}
+	details := &CupTieDetails{CupTie: *tie, Competition: CupKindCup}
+	if playoff, err := IsPlayoffCup(dbCtx, tie.CupId); err != nil {
+		return nil, err
+	} else if playoff {
+		details.Competition = CupKindPlayoff
+	}
 
 	events, err := GetCupTieEvents(dbCtx, tieId)
 	if err != nil {

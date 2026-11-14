@@ -83,7 +83,9 @@ const (
 	// statement (see DecayRivalryScore).
 	DecayCountryRivalriesStmtSql = "UPDATE team_rivalries SET score = CASE WHEN score * $2 < $3 THEN 0 ELSE score * $2 END, updated_at = now() " +
 		"WHERE country = $1 AND score > 0"
-	isCupFinalStmtSql = "SELECT count(*) = 1 FROM cup_ties WHERE cup_id = $1 AND round = $2"
+	// A promotion playoff's single round is never a final, however many ties it has.
+	isCupFinalStmtSql = "SELECT count(*) = 1 AND NOT EXISTS (SELECT 1 FROM cups WHERE cup_id = $1 AND kind = 'playoff') " +
+		"FROM cup_ties WHERE cup_id = $1 AND round = $2"
 )
 
 func rivalryPairIds(a int64, b int64) (int64, int64) {

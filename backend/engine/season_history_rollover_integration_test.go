@@ -69,12 +69,9 @@ func TestAdvanceCountrySeasonIfComplete_StartingOrderAndFinalTables(t *testing.T
 		VALUES ($1, 1, 1, now() - interval '3 hours', $2, $3, true), ($4, 1, 1, now() - interval '3 hours', $5, $6, true)`,
 		upper, u[0], u[1], lower, l[0], l[1])
 
-	// Whatever slot counts the shared test database is configured with: n teams swap places.
-	config := common.GetPromotionRelegationConfig(dbCtx)
-	n := min(config.RelegationSlotsPerGroup, config.PromotionSlotsPerGroup, len(u))
-	if n < 1 {
-		t.Skipf("promotion/relegation config %+v moves no team", config)
-	}
+	// One league per tier breaks the pyramid's ratio rule, so the country plays the legacy swap:
+	// its one tier-2 winner swaps with tier 1's worst team.
+	n := min(common.LegacyRelegationPerGroup, common.LegacyCandidatesPerGroup, len(u))
 
 	advanceCountrySeasonIfComplete(dbCtx, country)
 

@@ -259,6 +259,12 @@ func countryLocation(code string) *time.Location {
 	return time.UTC
 }
 
+// CountryLocation is countryLocation exported: code's representative *time.Location, UTC for an
+// unmapped code.
+func CountryLocation(code string) *time.Location {
+	return countryLocation(code)
+}
+
 // DefaultKickoffHour/DefaultKickoffMinute is the kickoff time a newly added country's leagues
 // default to, expressed in that country's own local time (see LocalTimeToServerSchedule) - a
 // plausible mid-afternoon matchday slot rather than a hardcoded server-time hour that would land

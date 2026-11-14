@@ -9,10 +9,8 @@ import {
   useAdminSetFriendlySchedule,
   useAdminSetMaxFriendliesPerWeek,
   useAdminSetOfferNegotiationWindow,
-  useAdminSetPromotionRelegation,
   useSetMatchSchedule,
 } from '../../api/hooks'
-import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
 import { SettingCard } from './components/SettingCard'
 import { WeekdayPicker } from './components/WeekdayPicker'
 import { useAdminFeedback } from './useAdminFeedback'
@@ -32,7 +30,7 @@ export function RulesTab() {
 
   return (
     <Grid container spacing={2} sx={{ mb: 2 }}>
-      {[MatchScheduleForm, PromotionRelegationForm, MaxFriendliesPerWeekForm, FriendlyScheduleForm, FreeAgentInjectionsForm, OfferNegotiationWindowForm].map(
+      {[MatchScheduleForm, MaxFriendliesPerWeekForm, FriendlyScheduleForm, FreeAgentInjectionsForm, OfferNegotiationWindowForm].map(
         (Form, index) => (
           <Grid key={index} size={{ xs: 12, md: 6 }}>
             <Form overview={overview} />
@@ -43,22 +41,21 @@ export function RulesTab() {
   )
 }
 
-function formatTime(hour: number, minute: number) {
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-}
-
+// MatchScheduleForm sets the days league matches are played. The kickoff time is not set here:
+// each country's tier 1 kicks off at its own local league kickoff and every lower tier 15 minutes
+// later (see the countries section of the World tab), so only the weekdays are saved; the stored
+// hour and minute are kept as they are.
 function MatchScheduleForm({ overview }: { overview: Overview }) {
   const { t } = useTranslation()
   const feedback = useAdminFeedback()
   const setMatchSchedule = useSetMatchSchedule()
   const [weekdaysMask, setWeekdaysMask] = useState(overview.matchScheduleWeekdaysMask)
-  const localTime = scheduleHourMinuteToLocal(overview.matchScheduleHour, overview.matchScheduleMinute)
-  const [time, setTime] = useState(formatTime(localTime.hour, localTime.minute))
 
   const handleSubmit = () => {
-    const [hourStr, minuteStr] = time.split(':')
-    const { hour, minute } = localHourMinuteToSchedule(Number(hourStr), Number(minuteStr))
-    setMatchSchedule.mutate({ weekdaysMask, hour, minute }, feedback('admin.matchSchedule.success', 'admin.matchSchedule.error'))
+    setMatchSchedule.mutate(
+      { weekdaysMask, hour: overview.matchScheduleHour, minute: overview.matchScheduleMinute },
+      feedback('admin.matchSchedule.success', 'admin.matchSchedule.error'),
+    )
   }
 
   return (
@@ -68,71 +65,13 @@ function MatchScheduleForm({ overview }: { overview: Overview }) {
       submitLabel={t('admin.matchSchedule.save')}
       onSubmit={handleSubmit}
       pending={setMatchSchedule.isPending}
-      invalid={weekdaysMask === 0 || !time}
+      invalid={weekdaysMask === 0}
       errorText={weekdaysMask === 0 ? t('admin.matchSchedule.noWeekdaysError') : undefined}
     >
       <WeekdayPicker value={weekdaysMask} onChange={setWeekdaysMask} />
-      <TextField
-        label={t('admin.matchSchedule.time')}
-        type="time"
-        size="small"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        sx={fieldWidth}
-        slotProps={{ inputLabel: { shrink: true } }}
-      />
     </SettingCard>
   )
 }
-
-function PromotionRelegationForm({ overview }: { overview: Overview }) {
-  const { t } = useTranslation()
-  const feedback = useAdminFeedback()
-  const setPromotionRelegation = useAdminSetPromotionRelegation()
-  const [promotionSlots, setPromotionSlots] = useState(String(overview.promotionSlotsPerGroup))
-  const [relegationSlots, setRelegationSlots] = useState(String(overview.relegationSlotsPerGroup))
-
-  const promotionSlotsPerGroup = Number(promotionSlots)
-  const relegationSlotsPerGroup = Number(relegationSlots)
-  const invalid =
-    Number.isNaN(promotionSlotsPerGroup) || promotionSlotsPerGroup < 0 || Number.isNaN(relegationSlotsPerGroup) || relegationSlotsPerGroup < 0
-
-  return (
-    <SettingCard
-      title={t('admin.promotionRelegation.title')}
-      description={t('admin.promotionRelegation.description')}
-      submitLabel={t('admin.promotionRelegation.save')}
-      onSubmit={() =>
-        setPromotionRelegation.mutate(
-          { promotionSlotsPerGroup, relegationSlotsPerGroup },
-          feedback('admin.promotionRelegation.success', 'admin.promotionRelegation.error'),
-        )
-      }
-      pending={setPromotionRelegation.isPending}
-      invalid={invalid}
-    >
-      <TextField
-        label={t('admin.promotionRelegation.promoted')}
-        type="number"
-        size="small"
-        value={promotionSlots}
-        onChange={(e) => setPromotionSlots(e.target.value)}
-        sx={fieldWidth}
-        slotProps={{ htmlInput: { min: 0, max: 10 } }}
-      />
-      <TextField
-        label={t('admin.promotionRelegation.relegated')}
-        type="number"
-        size="small"
-        value={relegationSlots}
-        onChange={(e) => setRelegationSlots(e.target.value)}
-        sx={fieldWidth}
-        slotProps={{ htmlInput: { min: 0, max: 10 } }}
-      />
-    </SettingCard>
-  )
-}
-
 function MaxFriendliesPerWeekForm({ overview }: { overview: Overview }) {
   const { t } = useTranslation()
   const feedback = useAdminFeedback()

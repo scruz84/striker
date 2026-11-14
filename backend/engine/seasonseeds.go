@@ -45,6 +45,8 @@ func ComputeSeasonSeeds(leagues []LeagueStandings, moves []LeagueMove) map[int64
 				entry.group = seedGroupRelegated
 				if move.Promoted {
 					entry.group = seedGroupPromoted
+				} else if move.Lateral {
+					entry.group = seedGroupStayed
 				}
 			}
 			entriesByLeague[newLeague] = append(entriesByLeague[newLeague], entry)

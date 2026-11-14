@@ -161,18 +161,21 @@ once they're already an admin themselves.
   `resources/sql/namepools/init91_name_pool_<code>.sql` (plus the table pair in an `initN_*.sql`);
   each is behind a guard test that names the missing code. An admin activates an inactive one via `POST /v1/admin/countries`.
 - `leagues` - one row per division-within-a-country-within-a-group, with a `tier` column
-  (1 = top division, increasing = lower). Promotion/relegation moves teams between tiers at
-  season rollover.
+  (1 = top division, increasing = lower) and `archived_season` (set when a restructure retires
+  it: the league keeps its history but no listing used for play returns it). Promotion/relegation
+  moves teams between tiers at season rollover.
 - `teams.owner_id` - `NULL` means unclaimed (AI-controlled or literally free). `AssignTeam`
   (`common/database.go`) hands an unclaimed team to a new user, picking by
   `GetFreeTeamStmtSql`: ordered by tier ascending then random - fills the top division first,
   only spilling into lower tiers once it's full of human owners.
 - `teams.ai_level` - unclaimed teams still "play" a season; higher AI levels take more actions
   (lineup freshness, contract renewals, transfer shopping - see backend/README.md's "AI teams").
-- Promotion/relegation slot counts (how many teams move between adjacent tiers each season) are
-  admin-configurable per-world (`season.promotion_slots_per_group`/`relegation_slots_per_group`,
-  `common.PromotionRelegationConfig`), not hardcoded - see backend/README.md's "Promotion and
-  relegation".
+- The league pyramid has a fixed rule (openspec/specs/league-pyramid): every tier has twice the
+  groups of the one above, and the zones of a group - direct promotion, the promotion/relegation
+  playoff, direct relegation - follow from it (`common.PyramidZones`), not from a setting. The
+  playoff is a `cups` row of `kind = 'playoff'` reusing the cup-tie stack; a country whose leagues
+  differ from the saved world structure is restructured at its next rollover - see
+  backend/README.md's "Promotion and relegation".
 
 ### Player lifecycle
 

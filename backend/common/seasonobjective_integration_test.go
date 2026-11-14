@@ -44,15 +44,17 @@ func TestGetTeamSeasonSituation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	config := GetPromotionRelegationConfig(dbCtx)
+	// One league per tier breaks the ratio rule, so the tier plays the legacy zones: 1 candidate
+	// place and 2 relegation places.
+	zones := PyramidZones(2, 3, 4, true)
 	if s.Index != 0 || len(s.Points) != 4 || s.Points[0] != 30 || s.Points[3] != 10 {
 		t.Errorf("table %+v at index %d, want the 4 clubs best to worst with the club first", s.Points, s.Index)
 	}
 	if s.Played != 4 || s.Remaining != 3 {
 		t.Errorf("played %d remaining %d, want 4 and the 3 unplayed matches of this season", s.Played, s.Remaining)
 	}
-	if s.PromotionSlots != config.PromotionSlotsPerGroup || s.RelegationSlots != config.RelegationSlotsPerGroup {
-		t.Errorf("slots %d/%d, want the configured %d/%d in a middle tier", s.PromotionSlots, s.RelegationSlots, config.PromotionSlotsPerGroup, config.RelegationSlotsPerGroup)
+	if s.PromotionSlots != zones.PromotionPlaces() || s.RelegationSlots != zones.RelegationPlaces() {
+		t.Errorf("slots %d/%d, want the pyramid's %d/%d in a middle tier", s.PromotionSlots, s.RelegationSlots, zones.PromotionPlaces(), zones.RelegationPlaces())
 	}
 	if got := TeamSeasonObjective(dbCtx, teams[0]); got != SeasonObjectiveFor(s) {
 		t.Errorf("TeamSeasonObjective %q, want %q", got, SeasonObjectiveFor(s))

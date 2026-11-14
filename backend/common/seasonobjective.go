@@ -72,7 +72,7 @@ const CountRemainingLeagueMatchesStmtSql = "SELECT count(*) FROM matches m JOIN 
 	"AND (m.home_team_id = $1 OR m.away_team_id = $1)"
 
 const getTeamLeagueTierStmtSql = "SELECT l.league_id, l.tier, l.country, " +
-	"(SELECT MAX(l2.tier) FROM leagues l2 WHERE l2.country = l.country) " +
+	"(SELECT MAX(l2.tier) FROM leagues l2 WHERE l2.country = l.country AND l2.archived_season IS NULL) " +
 	"FROM teams t JOIN leagues l ON l.league_id = t.league_id WHERE t.team_id = $1"
 
 // GetTeamSeasonSituation reads teamId's SeasonSituation: its league's ranked table, its record
@@ -98,13 +98,20 @@ func GetTeamSeasonSituation(dbCtx *DatabaseContext, teamId int64) (SeasonSituati
 	if err := dbCtx.Db.QueryRow(CountRemainingLeagueMatchesStmtSql, teamId).Scan(&remaining); err != nil {
 		return SeasonSituation{}, err
 	}
-	config := GetPromotionRelegationConfig(dbCtx)
+	// The places at stake come from the country's pyramid (see PyramidZones): below tier 1 the
+	// direct and playoff promotion places, above the bottom tier the direct and playoff relegation
+	// places. In tier 1 the place worth chasing is the title.
+	shape, err := GetCountryPyramidShape(dbCtx, country)
+	if err != nil {
+		return SeasonSituation{}, err
+	}
+	zones := PyramidZones(tier, maxTier, len(standings), !shape.FollowsRatioRule())
 	s := SeasonSituation{Index: -1, Played: record.Matches, Remaining: remaining, PromotionSlots: 1}
 	if tier > 1 {
-		s.PromotionSlots = config.PromotionSlotsPerGroup
+		s.PromotionSlots = zones.PromotionPlaces()
 	}
 	if tier < maxTier {
-		s.RelegationSlots = config.RelegationSlotsPerGroup
+		s.RelegationSlots = zones.RelegationPlaces()
 	}
 	s.Points = make([]int, len(standings))
 	for i, st := range standings {

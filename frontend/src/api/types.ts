@@ -822,11 +822,25 @@ export interface DivisionDetails {
   classification: Classification
   previousWeekMatches: WeekMatch[]
   nextWeekMatches: WeekMatch[]
-  // How many of the table's top / bottom finishers move tier at season rollover (0 when there is
-  // no tier above / below) - drives the promotion and relegation zones. Absent on responses cached
-  // before the field existed.
-  promotionSlots?: number
-  relegationSlots?: number
+  // How many of the table's places sit in each zone of the league pyramid (backend
+  // common.Zones) - drives the promotion, playoff and relegation colours. Absent on responses
+  // cached before the field existed.
+  zones?: PyramidZones
+  // The current season's promotion playoff ties with a side in this league; empty before the
+  // league ends and once the season has rolled over.
+  playoff?: CupTie[]
+}
+
+// Mirrors backend common.Zones: places counted from the top (directUp, playoffUp, candidate) or
+// the bottom (directDown, playoffDown) of a group's table. A legacy pyramid (one that breaks the
+// 2x groups rule) has only a candidate place at the top and direct relegation at the bottom.
+export interface PyramidZones {
+  directUp: number
+  playoffUp: number
+  playoffDown: number
+  directDown: number
+  candidate: number
+  legacy: boolean
 }
 
 // Mirrors backend/common.LeagueDirectoryEntry/CountryLeagueDirectory - the browsable list of
@@ -1293,6 +1307,8 @@ export interface SeasonHistoryEntry {
   finalPosition: number | null
   promoted: boolean
   relegated: boolean
+  // The promotion or relegation came through the promotion playoff. Absent on older responses.
+  viaPlayoff?: boolean
   cupResult: string | null
 }
 
@@ -1316,6 +1332,8 @@ export interface LeagueSeasonPosition {
   goalsReceived: number
   promoted: boolean
   relegated: boolean
+  // The promotion or relegation came through the promotion playoff. Absent on older responses.
+  viaPlayoff?: boolean
 }
 
 // A league's final table for a past season. `name` is the league name recorded that season.
@@ -1764,7 +1782,12 @@ export interface CupTieDetails extends CupTie {
   assistant2Name?: string
   // The match's rivalry level (RIVALRY_*): the one it was played at, or the pair's current one.
   rivalry?: number
+  // 'playoff' for a promotion playoff tie, labelled "Playoff" instead of the cup name and round.
+  competition?: CupCompetition
 }
+
+// A cup tie's competition (backend common.CupKind*): a real cup, or a country's promotion playoff.
+export type CupCompetition = 'cup' | 'playoff'
 
 // Match kind discriminators for TeamMatchSummary.kind - see backend/common/teammatches.go.
 export const MATCH_KIND_LEAGUE = 'league'
@@ -1787,6 +1810,8 @@ export interface TeamMatchSummary {
   awayGoals: number
   // Only meaningful for a cup tie - the round number within that cup's bracket.
   round?: number
+  // Only for a cup tie: 'playoff' marks a promotion playoff tie.
+  competition?: CupCompetition
   // The fixture's rivalry level (RIVALRY_*): the one it was played at, or the pair's current one
   // for a fixture still to come. 0 for a friendly.
   rivalry?: number
@@ -1860,6 +1885,8 @@ export interface LiveMatchSummary {
   awayGoals: number
   country?: string
   competitionName?: string
+  // Only for a cup tie: 'playoff' marks a promotion playoff tie.
+  competition?: CupCompetition
   tier?: number
   minute?: number
   addedMinute?: number
@@ -2003,12 +2030,13 @@ export interface AdminOverview {
   matchScheduleMinute: number
   maxFriendliesPerWeek: number
   friendlyScheduleWeekdays: number
-  promotionSlotsPerGroup: number
-  relegationSlotsPerGroup: number
   freeAgentInjectionsPerWeek: number
   offerNegotiationWindowMinutes: number
   // One row per AI level (backend common.AiLevelStats), human = owned clubs.
   aiLevels?: AiLevelStats[]
+  // Active countries whose leagues differ from the saved world structure: each is restructured at
+  // its own next season rollover.
+  pendingRestructure?: string[]
 }
 
 // One AI level's clubs (backend common.AiLevelStats): how many, their average budget, how many
@@ -2068,6 +2096,9 @@ export interface TierConfig {
 
 export interface CountryStatus extends CountryInfo {
   active: boolean
+  // An active country's tier-1 league kickoff, its local minute of day; every lower tier kicks
+  // off 15 minutes later.
+  leagueKickoffMinute?: number
 }
 
 export interface MatchSchedule {
@@ -2123,4 +2154,7 @@ export interface AdminLeagueInfo {
   tier: number
   schedule: MatchSchedule
   hasOverride: boolean
+  // True when schedule's hour and minute are the country's local time (a league with no override
+  // follows its country's league kickoff for its tier); an override is on the server clock.
+  localTime?: boolean
 }

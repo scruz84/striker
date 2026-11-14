@@ -93,10 +93,12 @@ type AdminOverview struct {
 	MatchScheduleMinute           int              `json:"matchScheduleMinute"`
 	MaxFriendliesPerWeek          int              `json:"maxFriendliesPerWeek"`
 	FriendlyScheduleWeekdays      int              `json:"friendlyScheduleWeekdays"`
-	PromotionSlotsPerGroup        int              `json:"promotionSlotsPerGroup"`
-	RelegationSlotsPerGroup       int              `json:"relegationSlotsPerGroup"`
 	FreeAgentInjectionsPerWeek    int              `json:"freeAgentInjectionsPerWeek"`
 	OfferNegotiationWindowMinutes int              `json:"offerNegotiationWindowMinutes"`
+	// PendingRestructure lists the active countries whose leagues differ from the saved world
+	// structure (or break the pyramid rule): each is restructured at its own next season rollover
+	// (see engine.restructureIfNeeded).
+	PendingRestructure []string `json:"pendingRestructure"`
 	// AiLevels is each AI level's club count, average budget, insolvent clubs and points per match
 	// (see GetAiLevelStats) - the same figures as the striker.ai.* gauges.
 	AiLevels []AiLevelStats `json:"aiLevels"`
@@ -114,8 +116,31 @@ func CountTeams(dbCtx *DatabaseContext) (int, error) {
 	return n, err
 }
 
+// GetPendingRestructureCountries returns the active countries whose active leagues do not match
+// tiers, or break the pyramid's ratio rule, in country order.
+func GetPendingRestructureCountries(dbCtx *DatabaseContext, tiers []TierConfig) ([]string, error) {
+	countries, err := GetActiveCountries(dbCtx)
+	if err != nil {
+		return nil, err
+	}
+	pending := make([]string, 0)
+	for _, country := range countries {
+		shape, err := GetCountryPyramidShape(dbCtx, country)
+		if err != nil {
+			return nil, err
+		}
+		if len(shape.Leagues) == 0 {
+			continue
+		}
+		if !shape.MatchesConfig(tiers) || !shape.FollowsRatioRule() {
+			pending = append(pending, country)
+		}
+	}
+	return pending, nil
+}
+
 func CountLeagues(dbCtx *DatabaseContext) (int, error) {
 	var n int
-	err := dbCtx.Db.QueryRow("SELECT count(*) FROM leagues").Scan(&n)
+	err := dbCtx.Db.QueryRow("SELECT count(*) FROM leagues WHERE archived_season IS NULL").Scan(&n)
 	return n, err
 }

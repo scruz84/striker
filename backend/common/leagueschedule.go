@@ -9,16 +9,21 @@ type AdminLeagueInfo struct {
 	Tier        int           `json:"tier"`
 	Schedule    MatchSchedule `json:"schedule"`
 	HasOverride bool          `json:"hasOverride"`
+	// LocalTime is true when Schedule's hour and minute are the country's local time - a league with
+	// no override follows its country's league kickoff for its tier (see EffectiveLeagueSchedule).
+	// An override's hour and minute are on the server clock.
+	LocalTime bool `json:"localTime"`
 }
 
 const listLeaguesForAdminStmtSql = "SELECT l.league_id, l.country, l.name, l.tier, " +
 	"ls.weekdays_mask, ls.hour, ls.minute " +
 	"FROM leagues l LEFT JOIN league_schedule ls ON ls.league_id = l.league_id " +
-	"ORDER BY l.country, l.tier, l.name"
+	"WHERE l.archived_season IS NULL ORDER BY l.country, l.tier, l.name"
 
-// ListLeaguesForAdmin lists every league with its effective match schedule - the per-league
-// override if one is set, otherwise the app-wide default (see GetMatchSchedule) - for the
-// commissioner's per-league schedule table.
+// ListLeaguesForAdmin lists every active league with its effective match schedule - the
+// per-league override if one is set, otherwise its country's league kickoff for its tier on the
+// app-wide default's weekdays (see EffectiveLeagueSchedule) - for the commissioner's per-league
+// schedule table.
 func ListLeaguesForAdmin(dbCtx *DatabaseContext) ([]AdminLeagueInfo, error) {
 	rows, err := dbCtx.Db.Query(listLeaguesForAdminStmtSql)
 	if err != nil {
@@ -27,6 +32,7 @@ func ListLeaguesForAdmin(dbCtx *DatabaseContext) ([]AdminLeagueInfo, error) {
 	defer rows.Close()
 
 	defaultSchedule := GetMatchSchedule(dbCtx)
+	kickoffs := make(map[string]int)
 
 	leagues := make([]AdminLeagueInfo, 0)
 	for rows.Next() {
@@ -39,11 +45,85 @@ func ListLeaguesForAdmin(dbCtx *DatabaseContext) ([]AdminLeagueInfo, error) {
 			info.Schedule = MatchSchedule{WeekdaysMask: *mask, Hour: *hour, Minute: *minute}
 			info.HasOverride = true
 		} else {
-			info.Schedule = defaultSchedule
+			kickoff, ok := kickoffs[info.Country]
+			if !ok {
+				kickoff = GetCountryLeagueKickoff(dbCtx, info.Country)
+				kickoffs[info.Country] = kickoff
+			}
+			info.Schedule = EffectiveLeagueSchedule(nil, defaultSchedule, info.Country, info.Tier, kickoff)
+			info.LocalTime = true
 		}
 		leagues = append(leagues, info)
 	}
 	return leagues, rows.Err()
+}
+
+// EffectiveLeagueSchedule is the schedule a league's fixtures are dated on (see
+// openspec/specs/match-scheduling "League kickoff schedule"): its admin-set override when it has
+// one, otherwise the app-wide default's weekdays at its country's league kickoff (kickoffMinute,
+// tier 1's local minute of day) plus LeagueKickoffTierStagger per tier below the first, read on the
+// country's own clock. Pure.
+func EffectiveLeagueSchedule(override *MatchSchedule, defaultSchedule MatchSchedule, country string, tier int, kickoffMinute int) MatchSchedule {
+	if override != nil {
+		return *override
+	}
+	minute := TierKickoffMinute(kickoffMinute, tier)
+	if minute >= minutesPerDay {
+		minute = minutesPerDay - 1
+	}
+	return MatchSchedule{
+		WeekdaysMask: defaultSchedule.WeekdaysMask,
+		Hour:         minute / 60,
+		Minute:       minute % 60,
+		Location:     CountryLocation(country),
+	}
+}
+
+const getLeaguesCountryTierStmtSql = "SELECT league_id, country, tier FROM leagues WHERE league_id = ANY($1)"
+
+// GetEffectiveLeagueSchedules returns the effective schedule of each of leagueIds (see
+// EffectiveLeagueSchedule). A league whose country and tier cannot be read falls back to the
+// app-wide default.
+func GetEffectiveLeagueSchedules(dbCtx *DatabaseContext, leagueIds []int64) (map[int64]MatchSchedule, error) {
+	defaultSchedule := GetMatchSchedule(dbCtx)
+	overrides, err := GetLeagueScheduleOverrides(dbCtx)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := dbCtx.Db.Query(getLeaguesCountryTierStmtSql, leagueIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	kickoffs := make(map[string]int)
+	schedules := make(map[int64]MatchSchedule, len(leagueIds))
+	for rows.Next() {
+		var leagueId int64
+		var country string
+		var tier int
+		if err := rows.Scan(&leagueId, &country, &tier); err != nil {
+			return nil, err
+		}
+		var override *MatchSchedule
+		if o, ok := overrides[leagueId]; ok {
+			override = &o
+		}
+		kickoff, ok := kickoffs[country]
+		if !ok {
+			kickoff = GetCountryLeagueKickoff(dbCtx, country)
+			kickoffs[country] = kickoff
+		}
+		schedules[leagueId] = EffectiveLeagueSchedule(override, defaultSchedule, country, tier, kickoff)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	for _, id := range leagueIds {
+		if _, ok := schedules[id]; !ok {
+			schedules[id] = defaultSchedule
+		}
+	}
+	return schedules, nil
 }
 
 const upsertLeagueScheduleStmtSql = "INSERT INTO league_schedule (league_id, weekdays_mask, hour, minute) " +

@@ -36,8 +36,11 @@ func assertOrder(t *testing.T, what string, got []int64, want ...int64) {
 func tenTeamUpperAndLower() ([]LeagueStandings, []LeagueMove) {
 	upper := rankedGroup(1, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5)
 	lower := rankedGroup(2, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5)
-	moves := ComputePromotionRelegation(map[int][]LeagueStandings{1: {upper}, 2: {lower}},
-		common.PromotionRelegationConfig{PromotionSlotsPerGroup: 2, RelegationSlotsPerGroup: 2})
+	// Two promoted (200 best, 201) swap with two relegated (109 worst, 108).
+	moves := []LeagueMove{
+		{TeamId: 200, NewLeagueId: 1, Promoted: true}, {TeamId: 109, NewLeagueId: 2},
+		{TeamId: 201, NewLeagueId: 1, Promoted: true}, {TeamId: 108, NewLeagueId: 2},
+	}
 	return []LeagueStandings{upper, lower}, moves
 }
 
@@ -61,7 +64,7 @@ func TestComputeSeasonSeeds_PromotedFromTwoGroups(t *testing.T) {
 	upper := rankedGroup(1, 50, 45, 40, 35)
 	groupA := LeagueStandings{LeagueId: 2, Standings: []common.TeamStanding{standing(201, 64, 20, 40), standing(202, 50, 0, 20)}}
 	groupB := LeagueStandings{LeagueId: 3, Standings: []common.TeamStanding{standing(301, 70, 25, 45), standing(302, 40, 0, 20)}}
-	moves := ComputePromotionRelegation(map[int][]LeagueStandings{1: {upper}, 2: {groupA, groupB}}, defaultConfig)
+	moves := ComputeDirectMoves(map[int][]LeagueStandings{1: {upper}, 2: {groupA, groupB}})
 	seeds := ComputeSeasonSeeds([]LeagueStandings{upper, groupA, groupB}, moves)
 
 	// Both group winners finished 1st: the 70-point team starts second to last, the 64-point one last.

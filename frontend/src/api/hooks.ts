@@ -1230,6 +1230,18 @@ export function useAdminRescheduleCountry() {
   })
 }
 
+export function useAdminSetCountryKickoff() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ country, hour, minute }: { country: string; hour: number; minute: number }) =>
+      api.put(`/v1/admin/countries/${country}/kickoff`, { hour, minute }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminLeagues })
+    },
+  })
+}
+
 export function useSetLeagueSchedule() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -1736,17 +1748,6 @@ export function useAdminSetFriendlySchedule() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (weekdaysMask: number) => api.put('/v1/admin/friendly-schedule', { weekdaysMask }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
-    },
-  })
-}
-
-export function useAdminSetPromotionRelegation() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (config: { promotionSlotsPerGroup: number; relegationSlotsPerGroup: number }) =>
-      api.put('/v1/admin/promotion-relegation', config),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
     },

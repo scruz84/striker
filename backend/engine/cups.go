@@ -621,7 +621,7 @@ func simulateCupTie(dbCtx *common.DatabaseContext, tie *common.CupTie) error {
 		func(weather string, attendance int, referee string, assistant1 string, assistant2 string) error {
 			return common.UpdateCupTieFlavor(dbCtx, tie.TieId, weather, attendance, referee, assistant1, assistant2)
 		})
-	awardCupRoundPrize(dbCtx, winnerTeamId, tie.Round)
+	awardCupRoundPrize(dbCtx, tie.CupId, winnerTeamId, tie.Round)
 	// UpdatePlayerAvailability and updateSkillsAfterPlayedMatch are deferred to onComplete, same
 	// as simulateMatch - see its own comment. A tie is simulated and marked played up to 15
 	// minutes before its advertised kickoff, so running these here would leak an injury or skill

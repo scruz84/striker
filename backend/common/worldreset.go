@@ -38,7 +38,7 @@ func ResetCurrentSeason(dbCtx *DatabaseContext) error {
 // creating a new country's leagues (see handlers.AdminAddCountryHandler) to generate fixtures
 // for exactly those leagues.
 func GetLeagueIdsForCountry(dbCtx *DatabaseContext, country string) ([]int64, error) {
-	rows, err := dbCtx.Db.Query("SELECT league_id FROM leagues WHERE country = $1", country)
+	rows, err := dbCtx.Db.Query("SELECT league_id FROM leagues WHERE country = $1 AND archived_season IS NULL", country)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func GetLeagueIdsForCountry(dbCtx *DatabaseContext, country string) ([]int64, er
 // check whether a division already exists before creating it again (see
 // handlers.AdminAddDivisionHandler, issue #68).
 func GetLeagueIdsForCountryTier(dbCtx *DatabaseContext, country string, tier int) ([]int64, error) {
-	rows, err := dbCtx.Db.Query("SELECT league_id FROM leagues WHERE country = $1 AND tier = $2", country, tier)
+	rows, err := dbCtx.Db.Query("SELECT league_id FROM leagues WHERE country = $1 AND tier = $2 AND archived_season IS NULL", country, tier)
 	if err != nil {
 		return nil, err
 	}

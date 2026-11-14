@@ -29,6 +29,10 @@ A CPU club SHALL derive a season objective from its league table once it has pla
 - **WHEN** a tier-1 club with no tier above is 2 points behind the leader after 20 of 30 matches
 - **THEN** its objective is `promotion_push` (the title race)
 
+#### Scenario: Playoff places count
+- **WHEN** a club plays in a middle tier of a pyramid that follows the league-pyramid ratio rule
+- **THEN** its promotion places are 1st and 2nd (direct and playoff) and its relegation zone is the bottom 4 (playoff and direct), so 2 promotion and 4 relegation places
+
 ### Requirement: Youth minutes when nothing is at stake
 At the kickoff of a league match a Director whose objective is `nothing_at_stake` SHALL start up to 2 fit players aged 21 or under from its bench: for each of its outfield starters from the lowest-valued up, the best such player at his slot replaces him when worth at least 80% of him. Its substitutions, orders and captain are then planned for that XI.
 

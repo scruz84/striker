@@ -140,7 +140,11 @@
       "preContractJoined": "{{player}} se ha incorporado a {{team}} desde {{from}} con un precontrato",
       "preContractRetired": "{{player}} se ha retirado: su precontrato contigo queda sin efecto",
       "releaseClausePaid": "{{team}} ha pagado la cláusula de rescisión de {{player}} ({{fee}}): se ha marchado",
-      "releaseClauseSigned": "Has fichado a {{player}} de {{team}} pagando su cláusula de rescisión de {{fee}}"
+      "releaseClauseSigned": "Has fichado a {{player}} de {{team}} pagando su cláusula de rescisión de {{fee}}",
+      "promotedViaPlayoff": "¡{{team}} ha ascendido en la promoción!",
+      "relegatedViaPlayoff": "¡{{team}} ha descendido en la promoción!",
+      "playoffQualified": "{{team}} jugará la promoción contra {{opponent}}",
+      "restructureMoved": "{{team}} jugará la próxima temporada en {{league}} por la reestructuración de las ligas"
     },
     "account": {
       "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
@@ -1112,7 +1116,9 @@
       "title": "Leyenda",
       "promotion": "Ascenso",
       "relegation": "Descenso",
-      "columns": "PJ partidos · DG diferencia de goles · Pts puntos"
+      "columns": "PJ partidos · DG diferencia de goles · Pts puntos",
+      "playoff": "Promoción",
+      "candidate": "Candidato al ascenso"
     },
     "matchday": "Jornada {{week}}",
     "matchdayPicker": "Jornada",
@@ -1127,7 +1133,13 @@
     "champion": "Campeón",
     "liveTable": "En directo",
     "positionUp": "Sube {{count}}",
-    "positionDown": "Baja {{count}}"
+    "positionDown": "Baja {{count}}",
+    "playoff": {
+      "title": "Promoción",
+      "description": "Partido único en el campo del equipo de la división superior, con penaltis si hay empate. El ganador juega la próxima temporada en la división superior.",
+      "openTie": "Abrir la eliminatoria de promoción {{home}} - {{away}}"
+    },
+    "viaPlayoff": "(promoción)"
   },
   "liveScores": {
     "restOfMatchday": "Resto de la jornada",
@@ -1898,22 +1910,13 @@
       "error": "No se pudo actualizar el nivel de IA."
     },
     "matchSchedule": {
-      "title": "Calendario de partidos",
-      "description": "Define en qué días y a qué hora se programan los partidos de liga - por ejemplo, sábados a las 14:00, o todos los días a las 16:00. Al guardar también se vuelven a fechar los partidos pendientes de todas las ligas sin calendario propio (en todos los países), empezando desde el siguiente hueco a partir de ahora. Para re-fechar solo un país, usa \"Re-fechar jornadas\" en la sección Países.",
+      "title": "Días de partido",
+      "description": "Qué días se juegan los partidos de liga - por ejemplo, los sábados o todos los días. La hora es la de cada país (ver Países): la primera categoría a su hora de liga y cada categoría inferior 15 minutos después. Al guardar se vuelven a fechar los partidos pendientes de todas las ligas sin calendario propio (en todos los países), desde el siguiente hueco a partir de ahora.",
       "time": "Hora de inicio",
-      "save": "Guardar calendario",
+      "save": "Guardar días",
       "noWeekdaysError": "Selecciona al menos un día.",
-      "success": "Calendario de partidos actualizado.",
-      "error": "No se pudo actualizar el calendario de partidos."
-    },
-    "promotionRelegation": {
-      "title": "Ascensos y descensos",
-      "description": "Cuántos equipos suben y bajan entre niveles adyacentes al final de cada temporada. Pon cualquiera de los dos a 0 para desactivar ese movimiento por completo. Solo afecta al próximo cambio de temporada que aún no haya ocurrido.",
-      "promoted": "Ascensos por grupo",
-      "relegated": "Descensos por grupo",
-      "save": "Guardar cifras",
-      "success": "Cifras de ascensos/descensos actualizadas.",
-      "error": "No se pudieron actualizar las cifras de ascensos/descensos."
+      "success": "Días de partido actualizados.",
+      "error": "No se pudieron actualizar los días de partido."
     },
     "maxFriendlies": {
       "title": "Partidos amistosos",
@@ -1949,7 +1952,7 @@
     },
     "worldStructure": {
       "title": "Estructura del mundo",
-      "description": "Categorías, grupos por categoría y equipos por liga usados la próxima vez que se (re)creen las ligas. Guardar esto por sí solo no cambia nada existente - usa \"Recrear todas las ligas ahora\" más abajo para aplicarlo.",
+      "description": "Categorías, grupos por categoría y equipos por grupo. Cada categoría debe tener exactamente el doble de grupos que la anterior (la primera tiene uno) y los mismos equipos por grupo. Los países nuevos se crean con esta estructura, y cada país activo se reestructura a ella en su próximo cambio de temporada: los equipos que no caben bajan de categoría y la última se completa con nuevos equipos CPU.",
       "tier": "Categoría",
       "tierName": "Nombre",
       "groups": "Grupos",
@@ -1958,12 +1961,24 @@
       "removeTier": "Quitar",
       "save": "Guardar estructura",
       "saveSuccess": "Estructura del mundo guardada.",
-      "saveError": "No se pudo guardar la estructura del mundo - revisa los límites de categorías, grupos y equipos.",
+      "saveError": "No se pudo guardar la estructura del mundo - revisa la regla de la pirámide y que los equipos de cada país sigan cabiendo.",
       "recreateTitle": "Recrear ligas",
       "recreateButton": "Recrear todas las ligas ahora",
       "confirmRecreate": "¿Recrear todas las ligas y equipos con esta estructura? Cada equipo, plantilla y partido existente se reconstruye desde cero y todos reciben un equipo nuevo - las cuentas de usuario, el acceso de administrador y el calendario de partidos se conservan. Esto puede tardar un poco.",
       "recreateSuccess": "Ligas recreadas.",
-      "recreateError": "No se pudieron recrear las ligas."
+      "recreateError": "No se pudieron recrear las ligas.",
+      "places": "{{count}} plazas por país.",
+      "pending": "Se reestructurarán en su próximo cambio de temporada: {{countries}}.",
+      "errors": {
+        "tierCount": "Usa entre 1 y {{max}} categorías.",
+        "gaps": "Las categorías deben ir numeradas del 1 al {{count}} sin huecos.",
+        "name": "La categoría {{tier}} necesita un nombre.",
+        "teams": "Categoría {{tier}}: los equipos por grupo deben ser un número par entre {{min}} y {{max}} (sitio para 2 plazas de ascenso, 4 de descenso y 2 equipos a salvo).",
+        "topTier": "La categoría 1 debe tener exactamente 1 grupo.",
+        "doubling": "La categoría {{tier}} debe tener exactamente {{groups}} grupos (el doble que la categoría {{upper}}).",
+        "sameTeams": "Todas las categorías deben tener los mismos equipos por grupo.",
+        "tooManyTeams": "Esta estructura crea {{count}} equipos por país, más que el límite de {{max}}."
+      }
     },
     "countries": {
       "title": "Países",
@@ -1973,7 +1988,7 @@
       "addDialogTitle": "Añadir {{name}}",
       "addDialogDescription": "Esto crea las ligas y equipos de {{name}} de inmediato.",
       "kickoffLabel": "Hora del partido",
-      "kickoffHelp": "Hora local en {{name}}, no la tuya - por defecto los partidos se juegan allí a las 14:00.",
+      "kickoffHelp": "Hora local en {{name}}, no la tuya. La primera categoría empieza a esta hora y cada categoría inferior 15 minutos después.",
       "addError": "No se pudo añadir ese país.",
       "missingDivision": "División {{name}} sin crear",
       "addDivision": "Añadir división",
@@ -1986,11 +2001,17 @@
       "reschedule": "Re-fechar jornadas",
       "confirmReschedule": "¿Volver a fechar todos los partidos de liga pendientes de {{country}} desde ahora, con el calendario de cada liga? Las jornadas mantienen su orden; no se toca ningún otro país ni la configuración de calendarios.",
       "rescheduleError": "No se pudieron re-fechar las jornadas de ese país.",
-      "rescheduleSuccess": "Jornadas re-fechadas."
+      "rescheduleSuccess": "Jornadas re-fechadas.",
+      "kickoffButton": "Hora {{time}}",
+      "kickoffDialogTitle": "Hora de liga - {{name}}",
+      "kickoffDialogDescription": "La primera categoría de {{name}} empieza a esta hora local y cada categoría inferior 15 minutos después. Al guardar se vuelven a fechar los partidos pendientes de sus ligas sin calendario propio.",
+      "kickoffQuarterHour": "Elige una hora en punto, y cuarto, y media o menos cuarto.",
+      "kickoffError": "No se pudo cambiar la hora - la última categoría debe seguir empezando antes de medianoche.",
+      "kickoffSave": "Guardar hora"
     },
     "leagueSchedules": {
       "title": "Calendario por liga",
-      "description": "Sustituye el calendario predeterminado de arriba para una liga concreta - por ejemplo, la primera división de España los domingos por la tarde, la de Inglaterra los sábados por la mañana.",
+      "description": "Sustituye la hora propia de la liga (la hora de liga de su país para su categoría) en una liga concreta - por ejemplo, la primera división de España los domingos por la tarde.",
       "filterCountry": "País",
       "allCountries": "Todos los países",
       "league": "Liga",
@@ -2003,7 +2024,9 @@
       "dialogTitle": "Editar calendario - {{league}}",
       "save": "Guardar",
       "saveError": "No se pudo actualizar el calendario de esa liga.",
-      "resetError": "No se pudo restablecer el calendario de esa liga."
+      "resetError": "No se pudo restablecer el calendario de esa liga.",
+      "countryTime": "(hora local)",
+      "derived": "Primera + {{minutes}} min"
     },
     "usersTitle": "Usuarios",
     "usersTable": {
@@ -2958,5 +2981,8 @@
     "clasico": "Clásico",
     "score": "{{score}} / {{max}}",
     "headToHead": "Cara a cara"
+  },
+  "competition": {
+    "playoff": "Promoción"
   }
 }

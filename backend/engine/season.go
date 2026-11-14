@@ -103,6 +103,32 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 		return
 	}
 
+	// The promotion playoff (see openspec/specs/league-pyramid "Playoff phase"): once the league
+	// is over and broadcast, the first tick creates the season's playoff ties and returns; the
+	// rollover then waits until every tie has been played and its broadcast has finished. Both are
+	// re-read here, inside the country's lock, so the ties are created once across replicas.
+	shape, err := common.GetCountryPyramidShape(dbCtx, country)
+	if err != nil {
+		log.Errorf("error reading %s's league pyramid: %s", country, err)
+		return
+	}
+	var playoff common.PlayoffState
+	if countryHasPlayoff(shape) {
+		if playoff, err = common.GetCountryPlayoff(dbCtx, country, currentSeason); err != nil {
+			log.Errorf("error reading %s's season %d playoff: %s", country, currentSeason, err)
+			return
+		}
+		if !playoff.Exists {
+			if err := startPlayoff(dbCtx, country, currentSeason, shape); err != nil {
+				log.Errorf("error starting %s's season %d playoff: %s", country, currentSeason, err)
+			}
+			return
+		}
+		if !playoff.Done() {
+			return
+		}
+	}
+
 	newSeason := currentSeason + 1
 	log.Infof("%s season %d complete (%d matches played), advancing to season %d", country, currentSeason, total, newSeason)
 	common.SeasonRolloversCounter.Add(context.Background(), 1)
@@ -114,7 +140,13 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 	}
 	ProgressPlayers(dbCtx, teamIds)
 	ReturnExpiredLoans(dbCtx, country, newSeason)
-	finalStandings, moves := applyPromotionRelegation(dbCtx, country, currentSeason)
+	finalStandings, moves := applyPromotionRelegation(dbCtx, country, currentSeason, shape, playoff)
+	// A country whose leagues differ from the saved structure is reshaped now, so the new season's
+	// cup, classification and fixtures see the new leagues; its starting order is then built from
+	// where every team ends up.
+	if restructureMoves := restructureIfNeeded(dbCtx, country, currentSeason, finalStandings); restructureMoves != nil {
+		moves = restructureMoves
+	}
 	if err := StartCupForCountry(dbCtx, country, newSeason); err != nil {
 		log.Errorf("error starting cup for %s season %d: %s", country, newSeason, err)
 	}
@@ -177,22 +209,20 @@ type leagueFinalStandings struct {
 }
 
 // applyPromotionRelegation ranks country's own leagues' final standings, computes its
-// promotion/relegation moves, applies them by repointing the moved teams' league_id - both on
-// teams and on their existing classification row, so the per-league reset that follows resets
-// the right rows - and records every team's final position and promotion/relegation outcome for
-// `season` into its season_history (see recordSeasonHistory) before that classification data is
-// gone for good. It returns every league's final standings and the moves applied, from which the
-// new season's starting order is built (see ComputeSeasonSeeds).
-func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, season int) ([]LeagueStandings, []LeagueMove) {
-	leagues, err := common.GetLeaguesWithTierForCountry(dbCtx, country)
-	if err != nil {
-		log.Errorf("error listing leagues for %s promotion/relegation: %s", country, err)
-		return nil, nil
-	}
-
-	results := make([]leagueFinalStandings, 0, len(leagues))
-	leaguesByCountryAndTier := make(map[string]map[int][]LeagueStandings)
-	for _, league := range leagues {
+// promotion/relegation moves (see ComputeSeasonMoves: the direct moves plus the outcomes of the
+// season's playoff, or the legacy swap for a pyramid that breaks the ratio rule), applies them by
+// repointing the moved teams' league_id - both on teams and on their existing classification row,
+// so the per-league reset that follows resets the right rows - marks the playoff completed, and
+// records every team's final position and promotion/relegation outcome for `season` into its
+// season_history (see recordSeasonHistory) before that classification data is gone for good. It
+// returns every league's final standings and the moves applied, from which the new season's
+// starting order is built (see ComputeSeasonSeeds).
+func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, season int, shape common.PyramidShape, playoff common.PlayoffState) ([]LeagueStandings, []LeagueMove) {
+	results := make([]leagueFinalStandings, 0, len(shape.Leagues))
+	leaguesByTier := make(map[int][]LeagueStandings)
+	leagueOfTeam := make(map[int64]int64)
+	tierOfLeague := make(map[int64]int)
+	for _, league := range shape.Leagues {
 		standings, err := common.GetRankedClassification(dbCtx, league.LeagueId)
 		if err != nil {
 			log.Errorf("error getting standings for league %d: %s", league.LeagueId, err)
@@ -215,50 +245,54 @@ func applyPromotionRelegation(dbCtx *common.DatabaseContext, country string, sea
 			lines[line.TeamId] = line
 		}
 		results = append(results, leagueFinalStandings{leagueId: league.LeagueId, leagueName: leagueName, standings: standings, lines: lines})
-
-		if leaguesByCountryAndTier[league.Country] == nil {
-			leaguesByCountryAndTier[league.Country] = make(map[int][]LeagueStandings)
+		leaguesByTier[league.Tier] = append(leaguesByTier[league.Tier], LeagueStandings{LeagueId: league.LeagueId, Standings: standings})
+		tierOfLeague[league.LeagueId] = league.Tier
+		for _, st := range standings {
+			leagueOfTeam[st.TeamId] = league.LeagueId
 		}
-		leaguesByCountryAndTier[league.Country][league.Tier] = append(
-			leaguesByCountryAndTier[league.Country][league.Tier],
-			LeagueStandings{LeagueId: league.LeagueId, Standings: standings},
-		)
 	}
 
-	config := common.GetPromotionRelegationConfig(dbCtx)
-	promotedByTeam := make(map[int64]bool)
-	allMoves := make([]LeagueMove, 0)
-	for country, leaguesByTier := range leaguesByCountryAndTier {
-		moves := ComputePromotionRelegation(leaguesByTier, config)
-		allMoves = append(allMoves, moves...)
-		for _, move := range moves {
-			promotedByTeam[move.TeamId] = move.Promoted
+	var playoffOutcomes []PlayoffResult
+	if playoff.Exists {
+		outcomes, err := playoffResults(dbCtx, playoff.CupId, leagueOfTeam, tierOfLeague)
+		if err != nil {
+			log.Errorf("error reading %s's season %d playoff results: %s", country, season, err)
 		}
-		if len(moves) == 0 {
+		playoffOutcomes = outcomes
+	}
+	moves := ComputeSeasonMoves(leaguesByTier, !shape.FollowsRatioRule(), playoffOutcomes)
+	outcomeByTeam := make(map[int64]LeagueMove, len(moves))
+	for _, move := range moves {
+		outcomeByTeam[move.TeamId] = move
+	}
+	if len(moves) > 0 {
+		log.Infof("applying %d promotion/relegation moves for %s", len(moves), country)
+	}
+	for _, move := range moves {
+		if err := common.UpdateTeamLeague(dbCtx, move.TeamId, move.NewLeagueId); err != nil {
+			log.Errorf("error moving team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
 			continue
 		}
-		log.Infof("applying %d promotion/relegation moves for %s", len(moves), country)
-		for _, move := range moves {
-			if err := common.UpdateTeamLeague(dbCtx, move.TeamId, move.NewLeagueId); err != nil {
-				log.Errorf("error moving team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
-				continue
-			}
-			if err := common.UpdateClassificationLeague(dbCtx, move.TeamId, move.NewLeagueId); err != nil {
-				log.Errorf("error repointing classification for team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
-			}
-			notifyPromotionRelegation(dbCtx, move)
-			redrawAiLevelAfterMove(dbCtx, move.TeamId, move.NewLeagueId, rand.New(rand.NewSource(time.Now().UnixNano()+move.TeamId)))
+		if err := common.UpdateClassificationLeague(dbCtx, move.TeamId, move.NewLeagueId); err != nil {
+			log.Errorf("error repointing classification for team %d to league %d: %s", move.TeamId, move.NewLeagueId, err)
+		}
+		notifyPromotionRelegation(dbCtx, move)
+		redrawAiLevelAfterMove(dbCtx, move.TeamId, move.NewLeagueId, rand.New(rand.NewSource(time.Now().UnixNano()+move.TeamId)))
+	}
+	if playoff.Exists && !playoff.Completed {
+		if err := common.SetCupCompletedWithoutChampion(dbCtx, playoff.CupId); err != nil {
+			log.Errorf("error completing %s's season %d playoff (cup %d): %s", country, season, playoff.CupId, err)
 		}
 	}
 
-	recordSeasonHistory(dbCtx, season, results, promotedByTeam)
+	recordSeasonHistory(dbCtx, season, results, outcomeByTeam)
 	applyTitleRaceRivalries(dbCtx, country, results)
 
 	finalStandings := make([]LeagueStandings, 0, len(results))
 	for _, result := range results {
 		finalStandings = append(finalStandings, LeagueStandings{LeagueId: result.leagueId, Standings: result.standings})
 	}
-	return finalStandings, allMoves
+	return finalStandings, moves
 }
 
 // applyTitleRaceRivalries adds the season's title race to each division's champion-runner-up pair
@@ -297,19 +331,21 @@ func applyTitleRaceRivalries(dbCtx *common.DatabaseContext, country string, resu
 }
 
 // recordSeasonHistory upserts every team's final league position, final table line and
-// promotion/relegation outcome for `season` - see common.RecordSeasonHistoryLeagueResult. moved is true (and its
-// value meaningful) only for teams that actually appear in promotedByTeam; everyone else neither
-// promoted nor relegated.
-func recordSeasonHistory(dbCtx *common.DatabaseContext, season int, results []leagueFinalStandings, promotedByTeam map[int64]bool) {
+// promotion/relegation outcome for `season` - see common.RecordSeasonHistoryLeagueResult. A team
+// in outcomeByTeam was promoted or relegated (through the playoff when its move says so); every
+// other team neither, including a team that won its playoff and stayed put.
+func recordSeasonHistory(dbCtx *common.DatabaseContext, season int, results []leagueFinalStandings, outcomeByTeam map[int64]LeagueMove) {
 	for _, result := range results {
 		for i, standing := range result.standings {
-			promoted, moved := promotedByTeam[standing.TeamId]
-			relegated := moved && !promoted
+			move, moved := outcomeByTeam[standing.TeamId]
+			promoted := moved && move.Promoted
+			relegated := moved && !move.Promoted
+			viaPlayoff := moved && move.ViaPlayoff
 			var line *common.ClassificationPosition
 			if l, ok := result.lines[standing.TeamId]; ok {
 				line = &l
 			}
-			if err := common.RecordSeasonHistoryLeagueResult(dbCtx, standing.TeamId, season, result.leagueId, result.leagueName, i+1, line, promoted, relegated); err != nil {
+			if err := common.RecordSeasonHistoryLeagueResult(dbCtx, standing.TeamId, season, result.leagueId, result.leagueName, i+1, line, promoted, relegated, viaPlayoff); err != nil {
 				log.Errorf("error recording season history for team %d season %d: %s", standing.TeamId, season, err)
 			}
 		}
@@ -330,8 +366,13 @@ func notifyPromotionRelegation(dbCtx *common.DatabaseContext, move LeagueMove) {
 		verb = "promoted"
 		key = "notifications.messages.promoted"
 	}
+	suffix := "!"
+	if move.ViaPlayoff {
+		key += "ViaPlayoff"
+		suffix = " through the playoff!"
+	}
 	msg := common.NotificationMessage{
-		Text:   team.TeamName + " was " + verb + "!",
+		Text:   team.TeamName + " was " + verb + suffix,
 		Key:    key,
 		Params: map[string]any{"team": team.TeamName},
 	}

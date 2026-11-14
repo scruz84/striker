@@ -60,15 +60,15 @@ func GenerateMatchesForLeagues(dbCtx *common.DatabaseContext, leagueIds []int64)
 	return nil
 }
 
-// generateMatchesForLeagueIds dates each league's fixtures on its own schedule override if it
-// has one (see common.GetLeagueScheduleOverrides), falling back to the app-wide default (see
-// common.GetMatchSchedule) otherwise.
+// generateMatchesForLeagueIds dates each league's fixtures on its effective schedule (see
+// common.EffectiveLeagueSchedule): its own override if it has one, otherwise its country's local
+// league kickoff for its tier on the app-wide default's weekdays.
 func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int64, country string, season int) {
 	defaultSchedule := common.GetMatchSchedule(dbCtx)
-	overrides, err := common.GetLeagueScheduleOverrides(dbCtx)
+	schedules, err := common.GetEffectiveLeagueSchedules(dbCtx, leagueIds)
 	if err != nil {
-		log.Errorf("error loading per-league schedule overrides, using the default for every league: %s", err)
-		overrides = nil
+		log.Errorf("error loading the leagues' schedules, using the default for every league: %s", err)
+		schedules = nil
 	}
 
 	// Searched from once, before any league's fixtures are inserted: a season closes while its last
@@ -85,8 +85,8 @@ func generateMatchesForLeagueIds(dbCtx *common.DatabaseContext, leagueIds []int6
 
 	for _, leagueId := range leagueIds {
 		schedule := defaultSchedule
-		if override, ok := overrides[leagueId]; ok {
-			schedule = override
+		if effective, ok := schedules[leagueId]; ok {
+			schedule = effective
 		}
 		if err := generateMatchesForOneLeague(dbCtx, leagueId, season, schedule, from); err != nil {
 			log.Errorf("error generating matches for league %d: %s", leagueId, err)

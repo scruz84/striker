@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -22,9 +23,11 @@ type setWorldConfigRequest struct {
 	Tiers []common.TierConfig `json:"tiers" binding:"required"`
 }
 
-// AdminSetWorldConfigHandler saves a new tier/group/teams-per-league structure. It only takes
-// effect the next time leagues are (re)created (AdminRecreateLeaguesHandler or
-// AdminAddCountryHandler) - it never touches any existing league/team itself.
+// AdminSetWorldConfigHandler saves a new tier/group/teams-per-league structure. It never touches
+// any existing league/team itself: new worlds and countries are created with it, and every active
+// country is restructured into it at its own next season rollover (see engine.restructureIfNeeded).
+// A structure that breaks the pyramid rule, or holds fewer teams than an active country already
+// has, is rejected (see openspec/specs/league-pyramid).
 func AdminSetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req setWorldConfigRequest
@@ -33,6 +36,16 @@ func AdminSetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		if err := common.ValidateWorldConfig(req.Tiers); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+		teamsByCountry, err := common.CountTeamsPerActiveCountry(dbCtx)
+		if err != nil {
+			log.Errorf("error counting teams per country for the world config check: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if err := common.ValidateWorldConfigFitsTeams(req.Tiers, teamsByCountry); err != nil {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
@@ -77,10 +90,18 @@ func AdminListCountriesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		type countryStatus struct {
 			common.CountryInfo
 			Active bool `json:"active"`
+			// LeagueKickoffMinute is an active country's tier-1 league kickoff, its local minute of
+			// day (see common.GetCountryLeagueKickoff); omitted for an inactive country.
+			LeagueKickoffMinute *int `json:"leagueKickoffMinute,omitempty"`
 		}
 		countries := make([]countryStatus, 0, len(common.KnownCountries))
 		for _, info := range common.KnownCountries {
-			countries = append(countries, countryStatus{CountryInfo: info, Active: activeSet[info.Code]})
+			status := countryStatus{CountryInfo: info, Active: activeSet[info.Code]}
+			if status.Active {
+				kickoff := common.GetCountryLeagueKickoff(dbCtx, info.Code)
+				status.LeagueKickoffMinute = &kickoff
+			}
+			countries = append(countries, status)
 		}
 		c.JSON(http.StatusOK, countries)
 	}
@@ -124,6 +145,10 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, "kickoff time must be between 00:00 and 23:59"))
 			return
 		}
+		if err := common.ValidateCountryLeagueKickoff(kickoffHour*60+kickoffMinute, len(common.GetWorldConfig(dbCtx))); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
 
 		active, err := common.GetActiveCountries(dbCtx)
 		if err != nil {
@@ -158,12 +183,11 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 
-		serverHour, serverMinute := common.LocalTimeToServerSchedule(code, kickoffHour, kickoffMinute)
-		schedule := common.MatchSchedule{WeekdaysMask: common.AllWeekdaysMask, Hour: serverHour, Minute: serverMinute}
-		for _, leagueId := range leagueIds {
-			if err := common.SetLeagueSchedule(dbCtx, leagueId, schedule); err != nil {
-				log.Errorf("error setting kickoff schedule for league %d of newly added country %s: %s", leagueId, code, err)
-			}
+		// The country's leagues follow its league kickoff, tier 1 at the requested local time and
+		// every lower tier 15 minutes later (see common.EffectiveLeagueSchedule) - no per-league
+		// override is written.
+		if err := common.SetCountryLeagueKickoff(dbCtx, code, kickoffHour*60+kickoffMinute, len(common.GetWorldConfig(dbCtx))); err != nil {
+			log.Errorf("error storing the league kickoff of newly added country %s: %s", code, err)
 		}
 
 		if err := engine.GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
@@ -179,6 +203,63 @@ func AdminAddCountryHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "country added"})
 	}
+}
+
+type setCountryKickoffRequest struct {
+	Hour   *int `json:"hour"`
+	Minute *int `json:"minute"`
+}
+
+// AdminSetCountryKickoffHandler changes an active country's league kickoff - tier 1's local time,
+// every lower tier 15 minutes later (see openspec/specs/match-scheduling "Country league kickoff
+// setting") - and immediately re-dates the country's unplayed matches of leagues without an
+// override onto it (see engine.RescheduleUnplayedMatchesForCountry). The time must leave room for
+// the deepest tier, the country's own or the saved structure's, before midnight.
+func AdminSetCountryKickoffHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code := strings.ToLower(strings.TrimSpace(c.Param("code")))
+		var req setCountryKickoffRequest
+		if err := c.BindJSON(&req); err != nil || req.Hour == nil || req.Minute == nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "hour and minute are required"))
+			return
+		}
+		if !isActiveCountry(dbCtx, code) {
+			c.JSON(http.StatusBadRequest, GetError(0, "country is not active"))
+			return
+		}
+		shape, err := common.GetCountryPyramidShape(dbCtx, code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		tierCount := max(shape.TierCount(), len(common.GetWorldConfig(dbCtx)))
+		if err := common.SetCountryLeagueKickoff(dbCtx, code, *req.Hour*60+*req.Minute, tierCount); err != nil {
+			if errors.Is(err, common.ErrInvalidLeagueKickoff) || errors.Is(err, common.ErrLeagueKickoffTooLate) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting %s's league kickoff: %s", code, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		if _, err := engine.RescheduleUnplayedMatchesForCountry(dbCtx, code); err != nil {
+			log.Errorf("error rescheduling %s's matches after a kickoff change: %s", code, err)
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "country kickoff updated"})
+	}
+}
+
+func isActiveCountry(dbCtx *common.DatabaseContext, code string) bool {
+	active, err := common.GetActiveCountries(dbCtx)
+	if err != nil {
+		return false
+	}
+	for _, existing := range active {
+		if existing == code {
+			return true
+		}
+	}
+	return false
 }
 
 // AdminRescheduleCountryHandler re-dates every unplayed league match of one active country's
@@ -395,9 +476,9 @@ func AdminSetLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFun
 	}
 }
 
-// AdminClearLeagueScheduleHandler removes a league's schedule override, reverting it to the
-// app-wide default, and immediately re-dates that league's unplayed matches onto that default
-// (issue #67).
+// AdminClearLeagueScheduleHandler removes a league's schedule override, so it follows its
+// country's league kickoff for its tier again (see common.EffectiveLeagueSchedule), and
+// immediately re-dates that league's unplayed matches onto it (issue #67).
 func AdminClearLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		leagueId, err := common.StringToInt64(c.Param(ID))
@@ -410,7 +491,7 @@ func AdminClearLeagueScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerF
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		if err := engine.RescheduleUnplayedMatches(dbCtx, leagueId, common.GetMatchSchedule(dbCtx)); err != nil {
+		if err := engine.RescheduleUnplayedMatchesForLeagues(dbCtx, []int64{leagueId}); err != nil {
 			log.Errorf("error rescheduling unplayed matches for league %d: %s", leagueId, err)
 		}
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "league schedule reset to the default"})

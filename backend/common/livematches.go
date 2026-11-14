@@ -23,6 +23,8 @@ type LiveMatchSummary struct {
 	AwayGoals       int       `json:"awayGoals"`
 	Country         string    `json:"country,omitempty"`
 	CompetitionName string    `json:"competitionName,omitempty"`
+	// Competition is a cup tie's cup kind (CupKindCup or CupKindPlayoff); omitted otherwise.
+	Competition string `json:"competition,omitempty"`
 	// Tier is the league's division tier (1 = the top flight) - only set for a league match
 	// (Kind == MatchKindLeague). A cup tie or friendly has no division to rank, so it's left zero.
 	Tier int `json:"tier,omitempty"`
@@ -62,7 +64,7 @@ func getLiveLeagueMatches(dbCtx *DatabaseContext, cutoff time.Time) ([]LiveMatch
 
 // cup_ties.match_date is nullable (an unscheduled bye/future round) - the played = true guard
 // below already excludes any row where it isn't set, so a plain scan into time.Time is safe here.
-const getLiveCupTiesStmtSql = "SELECT ct.tie_id, ht.name, at.name, ct.match_date, ct.home_goals, ct.away_goals, c.country, c.name " +
+const getLiveCupTiesStmtSql = "SELECT ct.tie_id, ht.name, at.name, ct.match_date, ct.home_goals, ct.away_goals, c.country, c.name, c.kind " +
 	"FROM cup_ties ct " +
 	"JOIN teams ht ON ht.team_id = ct.home_team_id " +
 	"JOIN teams at ON at.team_id = ct.away_team_id " +
@@ -80,7 +82,7 @@ func getLiveCupTies(dbCtx *DatabaseContext, cutoff time.Time) ([]LiveMatchSummar
 	for rows.Next() {
 		var s LiveMatchSummary
 		var country *string
-		if err := rows.Scan(&s.MatchId, &s.HomeTeamName, &s.AwayTeamName, &s.MatchDate, &s.HomeGoals, &s.AwayGoals, &country, &s.CompetitionName); err != nil {
+		if err := rows.Scan(&s.MatchId, &s.HomeTeamName, &s.AwayTeamName, &s.MatchDate, &s.HomeGoals, &s.AwayGoals, &country, &s.CompetitionName, &s.Competition); err != nil {
 			return nil, err
 		}
 		s.Kind = MatchKindCup

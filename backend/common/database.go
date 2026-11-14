@@ -25,7 +25,7 @@ const GetCurrentSeasonForLeagueStmtSql = "SELECT c.current_season FROM leagues l
 const GetCurrentSeasonForTeamStmtSql = "SELECT c.current_season FROM teams t JOIN countries c ON c.name = t.country WHERE t.team_id = $1"
 const GetCountryForLeagueStmtSql = "SELECT country FROM leagues WHERE league_id = $1"
 
-const GetAllLeagueIdsStmtSql = "SELECT league_id FROM leagues"
+const GetAllLeagueIdsStmtSql = "SELECT league_id FROM leagues WHERE archived_season IS NULL"
 
 // GetSeasonMatchCountsStmtSql/CountSeasonMatchesStillBroadcastingStmtSql are scoped to one
 // country's own leagues (see GetSeasonMatchCounts/CountSeasonMatchesStillBroadcasting) - a
@@ -88,10 +88,6 @@ const GetTeamClassificationPositionStmtSql = "SELECT position FROM (" +
 
 const GetDivisionNameStmtSql = "SELECT name from leagues WHERE league_id = $1"
 
-// getLeagueAdjacentTiersStmtSql reports whether the league's country has a tier directly above and
-// directly below it - the only neighbours teams can be promoted to / relegated into.
-const getLeagueAdjacentTiersStmtSql = "SELECT EXISTS (SELECT 1 FROM leagues u WHERE u.country = l.country AND u.tier = l.tier - 1), " +
-	"EXISTS (SELECT 1 FROM leagues d WHERE d.country = l.country AND d.tier = l.tier + 1) FROM leagues l WHERE l.league_id = $1"
 const GetDivisionTeamsStmtSql = "SELECT team_id from teams WHERE league_id = $1"
 
 // The owner's name is deliberately not selected: the public team API must not expose the real
@@ -241,7 +237,7 @@ const UpdateTeamClassificationStmtSql = "UPDATE classification set matches = mat
 
 const UpdateMatchSimulateStmtSql = "UPDATE matches SET in_simulation = $1, in_simulation_since = now(), " + simulationClaimSetSql + " WHERE "
 
-const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues ORDER BY country, tier, group_number"
+const GetLeaguesWithTierStmtSql = "SELECT league_id, country, tier FROM leagues WHERE archived_season IS NULL ORDER BY country, tier, group_number"
 
 const GetRankedClassificationStmtSql = "SELECT team_id, points, goals_scored - goals_received, goals_scored " +
 	"FROM classification WHERE league_id = $1 ORDER BY " + standingsOrderSql
@@ -1279,7 +1275,17 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 		previousWeekMatches = &aux
 	}
 
-	promotionSlots, relegationSlots := leaguePromotionRelegationSlots(dbCtx, leagueId, len(positions))
+	zones, err := GetLeagueZones(dbCtx, leagueId)
+	if err != nil {
+		// A lookup failure just means "no zones": the table is still correct without the markers.
+		log.Errorf("error reading the zones of league %d: %s", leagueId, err)
+		zones = Zones{}
+	}
+	playoff, err := GetLeaguePlayoffTies(dbCtx, leagueId)
+	if err != nil {
+		log.Errorf("error reading the playoff ties of league %d: %s", leagueId, err)
+		playoff = make([]CupTie, 0)
+	}
 
 	return &DivisionDetails{
 		Id:     leagueId,
@@ -1290,29 +1296,9 @@ func GetDivisionDetails(dbCtx *DatabaseContext, leagueId int64) (*DivisionDetail
 		},
 		PreviousWeekMatches: *previousWeekMatches,
 		NextWeekMatches:     *nextWeekMatches,
-		PromotionSlots:      promotionSlots,
-		RelegationSlots:     relegationSlots,
+		Zones:               zones,
+		Playoff:             playoff,
 	}, nil
-}
-
-// leaguePromotionRelegationSlots returns how many top / bottom finishers of the league move tier at
-// rollover (the admin-configured per-group slots, see GetPromotionRelegationConfig), or 0 for a
-// direction with no adjacent tier to move to. A lookup failure just means "no zones": the table
-// is still correct without the markers.
-func leaguePromotionRelegationSlots(dbCtx *DatabaseContext, leagueId int64, teams int) (int, int) {
-	var hasUpper, hasLower bool
-	if err := dbCtx.Db.QueryRow(getLeagueAdjacentTiersStmtSql, leagueId).Scan(&hasUpper, &hasLower); err != nil {
-		return 0, 0
-	}
-	config := GetPromotionRelegationConfig(dbCtx)
-	promotion, relegation := 0, 0
-	if hasUpper {
-		promotion = min(config.PromotionSlotsPerGroup, teams)
-	}
-	if hasLower {
-		relegation = min(config.RelegationSlotsPerGroup, teams)
-	}
-	return promotion, relegation
 }
 
 func WeekMatches(dbCtx *DatabaseContext, leagueId int64, season int, weekNumber int) (*[]WeekMatch, error) {
@@ -1973,7 +1959,7 @@ func GetLeaguesWithTier(dbCtx *DatabaseContext) ([]LeagueTierInfo, error) {
 	return leagues, nil
 }
 
-const GetLeaguesWithTierForCountryStmtSql = "SELECT league_id, country, tier FROM leagues WHERE country = $1 ORDER BY tier, group_number"
+const GetLeaguesWithTierForCountryStmtSql = "SELECT league_id, country, tier FROM leagues WHERE country = $1 AND archived_season IS NULL ORDER BY tier, group_number"
 
 // GetLeaguesWithTierForCountry is GetLeaguesWithTier scoped to one country - used to build just
 // that country's own promotion/relegation pyramid when it rolls its season over on its own (see

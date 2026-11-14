@@ -67,9 +67,10 @@ func TestLeagueSeasonHandlers(t *testing.T) {
 			if season == 2 {
 				position = 10 - i
 			}
-			exec(`INSERT INTO season_history (team_id, season, league_id, league_name, final_position, promoted, relegated,
+			// 9th goes down through the playoff, 10th directly.
+			exec(`INSERT INTO season_history (team_id, season, league_id, league_name, final_position, promoted, relegated, via_playoff,
 				matches, points, wins, draws, losses, goals_scored, goals_received)
-				VALUES ($1, $2, $3, 'S1', $4, false, $5, 18, $6, 0, 0, 0, 0, 0)`, teams[i], season, league, position, position >= 9, 40-position)
+				VALUES ($1, $2, $3, 'S1', $4, false, $5, $7, 18, $6, 0, 0, 0, 0, 0)`, teams[i], season, league, position, position >= 9, 40-position, position == 9)
 		}
 	}
 	exec(`INSERT INTO matches (league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals, played)
@@ -110,8 +111,11 @@ func TestLeagueSeasonHandlers(t *testing.T) {
 		if first := table.Positions[0]; first.TeamId != teams[9] || first.Name != "Club 10" || first.Points != 39 || first.Matches != 18 {
 			t.Errorf("season 2 champion (%s) = %+v, want Club 10 with 39 points", from, first)
 		}
-		if last := table.Positions[9]; !last.Relegated || last.TeamId != teams[0] {
-			t.Errorf("season 2 last (%s) = %+v, want Club 1 relegated", from, last)
+		if last := table.Positions[9]; !last.Relegated || last.ViaPlayoff || last.TeamId != teams[0] {
+			t.Errorf("season 2 last (%s) = %+v, want Club 1 relegated directly", from, last)
+		}
+		if ninth := table.Positions[8]; !ninth.Relegated || !ninth.ViaPlayoff {
+			t.Errorf("season 2 ninth (%s) = %+v, want relegated through the playoff", from, ninth)
 		}
 	}
 

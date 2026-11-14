@@ -1,6 +1,9 @@
 package common
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 // Weekday bit flags for MatchSchedule.WeekdaysMask, matching Go's time.Weekday numbering
 // (Sunday = 0 ... Saturday = 6) so bit i corresponds to time.Weekday(i).
@@ -32,6 +35,11 @@ type MatchSchedule struct {
 	WeekdaysMask int `json:"weekdaysMask"`
 	Hour         int `json:"hour"`
 	Minute       int `json:"minute"`
+	// Location is the clock Hour:Minute is read on: a country's own time zone for a league that
+	// follows its country's league kickoff (see EffectiveLeagueSchedule), so the kickoff holds
+	// across daylight-saving changes. Nil means the clock of the instant the dates are searched
+	// from - the server's, for an admin-set override or the app-wide default.
+	Location *time.Location `json:"-"`
 }
 
 var ErrInvalidMatchSchedule = errors.New("match schedule must select at least one weekday and a time between 00:00 and 23:59")

@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
-	"strconv"
 )
 
 type ActionResult struct {
@@ -222,28 +221,12 @@ func createSeason(dbCtx *common.DatabaseContext) {
 }
 
 func createLeague(dbCtx *common.DatabaseContext, country string, name string, tier int, groups int) []int64 {
-	log.Infof("initializing country %s league %s tier %d with %d group(s)", country, name, tier, groups)
-
-	leagues := make([]int64, 0)
-	insertStmt, errInsert := dbCtx.Db.Prepare("INSERT INTO leagues (country, group_number, name, tier) " +
-		"values ($1, $2, $3, $4) returning league_id")
-	if errInsert != nil {
-		log.Printf("error inserting new league %s", errInsert)
-	} else {
-		for g := 1; g <= groups; g++ {
-			leagueId := int64(-1)
-			tName := name + "." + strconv.Itoa(g)
-			_ = insertStmt.QueryRow(&country, &g, &tName, &tier).Scan(&leagueId)
-			leagues = append(leagues, leagueId)
-		}
-	}
-	defer insertStmt.Close()
-	return leagues
+	return common.CreateLeagues(dbCtx, country, name, tier, groups)
 }
 
 // createTeams creates leagues and teams for every country, shaped by tiers (see
 // common.GetWorldConfig) - tier 1 is the top division, each tier below it splits into more
-// groups; see engine.ComputePromotionRelegation for how teams move between them.
+// groups; see engine.ComputeDirectMoves for how teams move between them.
 func createTeams(dbCtx *common.DatabaseContext, countries []string, tiers []common.TierConfig) {
 	for i, country := range countries {
 		log.Infof("creating leagues and teams for country %s (%d/%d)", country, i+1, len(countries))
@@ -251,58 +234,14 @@ func createTeams(dbCtx *common.DatabaseContext, countries []string, tiers []comm
 	}
 }
 
-// createCountryLeagues creates one country's leagues and teams, shaped by tiers - the
-// incremental counterpart to createTeams' full loop, used to activate a single new country
-// mid-season without touching any other country (see handlers.AdminAddCountryHandler).
+// createCountryLeagues creates one country's leagues and teams, shaped by tiers - see
+// common.CreateCountryLeagues.
 func createCountryLeagues(dbCtx *common.DatabaseContext, country string, tiers []common.TierConfig) {
-	for _, tierConfig := range tiers {
-		leagueIds := createLeague(dbCtx, country, tierConfig.Name, tierConfig.Tier, tierConfig.Groups)
-		createTeamsForTier(dbCtx, country, leagueIds, tierConfig.Tier, tierConfig.TeamsPerLeague)
-	}
+	common.CreateCountryLeagues(dbCtx, country, tiers)
 }
 
 func createTeamsForTier(dbCtx *common.DatabaseContext, country string, leagueIds []int64, tier int, teamsPerLeague int) {
-	for _, leagueId := range leagueIds {
-		for i := 0; i < teamsPerLeague; i++ {
-			createTeam(dbCtx, country, leagueId, tier)
-		}
-		createClassification(dbCtx, leagueId)
-	}
-}
-
-func createTeam(dbCtx *common.DatabaseContext, country string, leagueId int64, tier int) {
-	teamId := int64(-1)
-	insertStmt, errInsert := dbCtx.Db.Prepare(
-		"INSERT INTO teams (country, league_id, name, stadium_name, stadium_capacity, ai_level) values ($1, $2, $3, $4, $5, $6) returning team_id")
-	teamName := common.RandomTeamName(country)
-	stadiumName := common.RandomStadiumName(country)
-	if errInsert != nil {
-		log.Printf("error inserting new teams %s", errInsert)
-	}
-	capacity := common.DefaultStadiumCapacity
-	// Every team starts unowned (see common.AssignTeam for how a human later claims one), so it
-	// gets an AI level right away - see common.RandomAiLevel.
-	aiLevel := common.RandomAiLevel(tier)
-	_ = insertStmt.QueryRow(&country, &leagueId, &teamName, &stadiumName, &capacity, &aiLevel).Scan(&teamId)
-	if err := common.AssignAiStyle(dbCtx, teamId); err != nil {
-		log.Errorf("error assigning a CPU style to team %d: %s", teamId, err)
-	}
-	common.CreatePlayers(dbCtx, teamId, country)
-	if err := common.GenerateTrainerCandidates(dbCtx, country, common.TrainerCandidatesPerTeam); err != nil {
-		log.Errorf("error generating trainer candidates for team %d: %s", teamId, err)
-	}
-	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
-	if err != nil {
-		log.Errorf("error fetching newly created squad for team %d: %s", teamId, err)
-	} else if err := common.InsertLineup(dbCtx, teamId, common.SelectBestLineup(*players), true); err != nil {
-		log.Errorf("error seeding default lineup for team %d: %s", teamId, err)
-	}
-	defer insertStmt.Close()
-}
-
-func createClassification(dbCtx *common.DatabaseContext, leagueId int64) {
-	teamIds := common.GetDivisionTeams(dbCtx, leagueId)
-	common.InsertTeamsToClassification(dbCtx, leagueId, 1, teamIds)
+	common.CreateTeamsForTier(dbCtx, country, leagueIds, tier, teamsPerLeague)
 }
 
 // deleteTable wipes one table, returning an error rather than just logging it - a caller

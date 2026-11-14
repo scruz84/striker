@@ -222,7 +222,17 @@ In the live table, a row whose position differs from its pre-matchday position S
   (`GetLeagueLiveScores`) behind `GET /v1/teams/division/:id/live` (see the `division-live-scores`
   spec). Strings: `division.liveTable`, `division.positionUp`, `division.positionDown`,
   `liveScores.fullTime` in `i18n/locales/{en,es}.json`.
+- Zones and playoff card: `backend/common/pyramid.go` (`PyramidZones`, `ZoneOf`,
+  `GetLeagueZones`) filling `DivisionDetails.Zones`, and `backend/common/playoffs.go`
+  (`GetLeaguePlayoffTies`, which hides a tie's result while it is broadcasting) filling
+  `DivisionDetails.Playoff` (`common.GetDivisionDetails`); frontend `features/division/zones.ts`
+  (`zoneFor`, `zonesLegend`), `features/division/PlayoffCard.tsx` and `ClassificationTable`'s
+  legend and `markOf` ("(playoff)" from `LeagueSeasonPosition.viaPlayoff`) in
+  `DivisionDetailsPage.tsx`. Strings: `division.legend.playoff`, `division.legend.candidate`,
+  `division.playoff.*`, `division.viaPlayoff`.
 - Tests: `backend/common/leaguetransfers_integration_test.go`,
   `frontend/src/features/leagues/RecentLeagueTransfers.test.tsx`,
   `frontend/src/features/division/liveTable.test.ts`,
-  `frontend/src/features/division/DivisionDetailsPage.liveTable.test.tsx`.
+  `frontend/src/features/division/DivisionDetailsPage.liveTable.test.tsx`,
+  `frontend/src/features/division/DivisionDetailsPage.zones.test.tsx`,
+  `frontend/src/features/division/PlayoffCard.test.tsx`.

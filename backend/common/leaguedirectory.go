@@ -18,7 +18,7 @@ type CountryLeagueDirectory struct {
 }
 
 const getLeagueDirectoryStmtSql = "SELECT league_id, country, name, tier, group_number " +
-	"FROM leagues ORDER BY country, tier, group_number"
+	"FROM leagues WHERE archived_season IS NULL ORDER BY country, tier, group_number"
 
 // GetLeagueDirectory lists every league in the game world, grouped by country - lets any
 // logged-in user browse into a league they don't play in via GetDivisionDetailsStmtSql, not just

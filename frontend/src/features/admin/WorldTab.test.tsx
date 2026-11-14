@@ -7,6 +7,7 @@ import { setPhone } from './testPhone'
 import { WorldTab } from './WorldTab'
 
 const setWorldConfig = vi.hoisted(() => vi.fn())
+const setCountryKickoff = vi.hoisted(() => vi.fn())
 
 vi.mock('../../api/hooks', () => {
   const idle = () => ({ mutate: vi.fn(), isPending: false })
@@ -16,14 +17,15 @@ vi.mock('../../api/hooks', () => {
       data: {
         tiers: [
           { tier: 1, name: 'Primera', groups: 1, teamsPerLeague: 10 },
-          { tier: 2, name: 'Segunda', groups: 4, teamsPerLeague: 10 },
+          { tier: 2, name: 'Segunda', groups: 2, teamsPerLeague: 10 },
         ],
       },
     }),
+    useAdminOverview: () => ({ isLoading: false, data: { pendingRestructure: ['es'] } }),
     useAdminCountries: () => ({
       isLoading: false,
       data: [
-        { code: 'es', name: 'Spain', active: true },
+        { code: 'es', name: 'Spain', active: true, leagueKickoffMinute: 840 },
         { code: 'fr', name: 'France', active: false },
       ],
     }),
@@ -39,6 +41,7 @@ vi.mock('../../api/hooks', () => {
     useAdminAddDivision: idle,
     useAdminRecreateLeagues: idle,
     useAdminRescheduleCountry: idle,
+    useAdminSetCountryKickoff: () => ({ mutate: setCountryKickoff, isPending: false, isError: false }),
     useClearLeagueSchedule: idle,
     useSetLeagueSchedule: idle,
   }
@@ -72,18 +75,56 @@ describe('WorldTab', () => {
   it('edits the world structure from a phone card and saves the changed tiers', () => {
     setPhone(true)
     renderTab()
-    const groups = screen.getAllByLabelText(i18n.t('admin.worldStructure.groups'))
-    expect(groups).toHaveLength(2)
-    fireEvent.change(groups[1], { target: { value: '8' } })
+    expect(screen.getByText(i18n.t('admin.worldStructure.places', { count: 30 }))).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.worldStructure.addTier') }))
+    const names = screen.getAllByLabelText(i18n.t('admin.worldStructure.tierName'))
+    fireEvent.change(names[2], { target: { value: 'Tercera' } })
     fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.worldStructure.save') }))
 
+    // A new tier follows the pyramid rule: twice the groups of the deepest one.
     expect(setWorldConfig).toHaveBeenCalledWith(
       [
         { tier: 1, name: 'Primera', groups: 1, teamsPerLeague: 10 },
-        { tier: 2, name: 'Segunda', groups: 8, teamsPerLeague: 10 },
+        { tier: 2, name: 'Segunda', groups: 2, teamsPerLeague: 10 },
+        { tier: 3, name: 'Tercera', groups: 4, teamsPerLeague: 10 },
       ],
       expect.any(Object),
     )
+  })
+
+  it('explains a structure that breaks the pyramid rule and does not save it', () => {
+    setPhone(true)
+    renderTab()
+    const groups = screen.getAllByLabelText(i18n.t('admin.worldStructure.groups'))
+    fireEvent.change(groups[1], { target: { value: '4' } })
+    expect(screen.getByText(i18n.t('admin.worldStructure.errors.doubling', { tier: 2, groups: 2, upper: 1 }))).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: i18n.t('admin.worldStructure.save') })).toBeDisabled()
+  })
+
+  it('lists the countries waiting for a restructure', () => {
+    setPhone(false)
+    renderTab()
+    expect(screen.getByText(i18n.t('admin.worldStructure.pending', { countries: 'ES' }))).toBeInTheDocument()
+  })
+
+  it('changes a country\'s league kickoff on the quarter-hour', () => {
+    setPhone(false)
+    renderTab()
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.countries.kickoffButton', { time: '14:00' }) }))
+    const dialog = screen.getByRole('dialog')
+    const field = within(dialog).getByLabelText(i18n.t('admin.countries.kickoffLabel'))
+    fireEvent.change(field, { target: { value: '13:10' } })
+    expect(within(dialog).getByRole('button', { name: i18n.t('admin.countries.kickoffSave') })).toBeDisabled()
+    fireEvent.change(field, { target: { value: '13:15' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: i18n.t('admin.countries.kickoffSave') }))
+    expect(setCountryKickoff).toHaveBeenCalledWith({ country: 'es', hour: 13, minute: 15 }, expect.any(Object))
+  })
+
+  it('marks a league that follows its country\'s kickoff apart from an override', () => {
+    setPhone(false)
+    renderTab()
+    expect(screen.getByText(i18n.t('admin.leagueSchedules.override'))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t('admin.leagueSchedules.derived', { minutes: 0 }))).toBeInTheDocument()
   })
 
   it('lists each league as a card on a phone and opens its editor full screen', () => {

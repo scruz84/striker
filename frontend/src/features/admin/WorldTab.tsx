@@ -28,7 +28,9 @@ import {
   useAdminCountries,
   useAdminLeagues,
   useAdminRecreateLeagues,
+  useAdminOverview,
   useAdminRescheduleCountry,
+  useAdminSetCountryKickoff,
   useAdminWorldConfig,
   useClearLeagueSchedule,
   useSetLeagueSchedule,
@@ -49,6 +51,7 @@ import { useAdminFeedback } from './useAdminFeedback'
 import { useIsPhone } from './useIsPhone'
 import { localizedCountryName, useSortedCountries } from '../../utils/countryOrder'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
+import { pyramidError, worldPlaces } from './pyramidRules'
 
 export function WorldTab() {
   const { data: worldConfig, isLoading } = useAdminWorldConfig(true)
@@ -112,16 +115,29 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
     setTiers((prev) => prev.map((tier, i) => (i === index ? { ...tier, ...patch } : tier)))
 
   const addTier = () => {
-    const nextTierNumber = tiers.length > 0 ? Math.max(...tiers.map((tier) => tier.tier)) + 1 : 1
-    setTiers((prev) => [...prev, { tier: nextTierNumber, name: String(nextTierNumber), groups: 1, teamsPerLeague: 10 }])
+    // A new tier follows the pyramid rule: twice the groups of the deepest one, same group size.
+    const deepest = tiers.reduce<TierConfig | undefined>((acc, tier) => (!acc || tier.tier > acc.tier ? tier : acc), undefined)
+    const nextTierNumber = deepest ? deepest.tier + 1 : 1
+    setTiers((prev) => [
+      ...prev,
+      { tier: nextTierNumber, name: String(nextTierNumber), groups: deepest ? deepest.groups * 2 : 1, teamsPerLeague: deepest?.teamsPerLeague ?? 10 },
+    ])
   }
 
   const removeTier = (index: number) => setTiers((prev) => prev.filter((_, i) => i !== index))
 
   const handleSave = () => setWorldConfig.mutate(tiers, feedback('admin.worldStructure.saveSuccess', 'admin.worldStructure.saveError'))
+  const error = pyramidError(tiers)
+  const { data: overview } = useAdminOverview(true)
+  const pending = overview?.pendingRestructure ?? []
 
   return (
     <AdminSection title={t('admin.worldStructure.title')} description={t('admin.worldStructure.description')}>
+      {pending.length > 0 && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('admin.worldStructure.pending', { countries: pending.map((code) => code.toUpperCase()).join(', ') })}
+        </Alert>
+      )}
       {isPhone ? (
         <Stack spacing={1.5}>
           {tiers.map((tier, index) => (
@@ -215,11 +231,20 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
           </Table>
         </TableContainer>
       )}
+      {error ? (
+        <Alert severity="warning" sx={{ mt: 2 }}>
+          {t(error.key, error.params)}
+        </Alert>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          {t('admin.worldStructure.places', { count: worldPlaces(tiers) })}
+        </Typography>
+      )}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 2 }}>
         <Button size="small" onClick={addTier}>
           {t('admin.worldStructure.addTier')}
         </Button>
-        <Button size="small" variant="contained" onClick={handleSave} disabled={setWorldConfig.isPending}>
+        <Button size="small" variant="contained" onClick={handleSave} disabled={setWorldConfig.isPending || error !== null}>
           {t('admin.worldStructure.save')}
         </Button>
       </Stack>
@@ -241,6 +266,7 @@ function CountriesSection() {
   const rescheduleCountry = useAdminRescheduleCountry()
   const feedback = useAdminFeedback()
   const [addingCountry, setAddingCountry] = useState<CountryStatus | null>(null)
+  const [editingKickoff, setEditingKickoff] = useState<CountryStatus | null>(null)
 
   const handleReschedule = async (country: CountryStatus) => {
     const ok = await confirm({
@@ -297,6 +323,11 @@ function CountriesSection() {
                 {country.active ? (
                   <>
                     <Chip size="small" color="success" label={t('admin.countries.active')} />
+                    {country.leagueKickoffMinute !== undefined && (
+                      <Button size="small" onClick={() => setEditingKickoff(country)}>
+                        {t('admin.countries.kickoffButton', { time: minuteOfDayToTime(country.leagueKickoffMinute) })}
+                      </Button>
+                    )}
                     <Button size="small" onClick={() => handleReschedule(country)} disabled={rescheduleCountry.isPending}>
                       {t('admin.countries.reschedule')}
                     </Button>
@@ -331,6 +362,7 @@ function CountriesSection() {
         })}
       </Stack>
       {addingCountry && <AddCountryDialog country={addingCountry} onClose={() => setAddingCountry(null)} />}
+      {editingKickoff && <CountryKickoffDialog country={editingKickoff} onClose={() => setEditingKickoff(null)} />}
     </AdminSection>
   )
 }
@@ -388,13 +420,74 @@ function AddCountryDialog({ country, onClose }: { country: CountryStatus; onClos
   )
 }
 
-function describeSchedule(t: ReturnType<typeof useTranslation>['t'], schedule: { weekdaysMask: number; hour: number; minute: number }) {
+function minuteOfDayToTime(minute: number) {
+  return `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`
+}
+
+// CountryKickoffDialog changes an active country's league kickoff: tier 1's local time, every lower
+// tier 15 minutes later. Saving re-dates the country's unplayed matches of leagues without an
+// override (backend handlers.AdminSetCountryKickoffHandler).
+function CountryKickoffDialog({ country, onClose }: { country: CountryStatus; onClose: () => void }) {
+  const { t } = useTranslation()
+  const setKickoff = useAdminSetCountryKickoff()
+  const isPhone = useIsPhone()
+  const [time, setTime] = useState(minuteOfDayToTime(country.leagueKickoffMinute ?? 14 * 60))
+  const name = localizedCountryName(t, country.code)
+  const [hourStr, minuteStr] = time.split(':')
+  const minute = Number(minuteStr)
+  const invalid = !time || Number.isNaN(minute) || minute % 15 !== 0
+
+  return (
+    <Dialog open onClose={onClose} maxWidth="xs" fullWidth fullScreen={isPhone}>
+      <DialogTitle>{t('admin.countries.kickoffDialogTitle', { name })}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('admin.countries.kickoffDialogDescription', { name })}
+          </Typography>
+          <TextField
+            label={t('admin.countries.kickoffLabel')}
+            type="time"
+            size="small"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            error={invalid}
+            helperText={invalid ? t('admin.countries.kickoffQuarterHour') : t('admin.countries.kickoffHelp', { name })}
+            slotProps={{ inputLabel: { shrink: true }, htmlInput: { step: 900 } }}
+          />
+          {setKickoff.isError && <Alert severity="error">{t('admin.countries.kickoffError')}</Alert>}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button
+          variant="contained"
+          disabled={invalid || setKickoff.isPending}
+          onClick={() => setKickoff.mutate({ country: country.code, hour: Number(hourStr), minute }, { onSuccess: onClose })}
+        >
+          {t('admin.countries.kickoffSave')}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+function describeSchedule(
+  t: ReturnType<typeof useTranslation>['t'],
+  schedule: { weekdaysMask: number; hour: number; minute: number },
+  localTime = false,
+) {
   const dayLabel =
     schedule.weekdaysMask === ALL_WEEKDAYS_MASK
       ? t('admin.leagueSchedules.everyDay')
       : WEEKDAY_OPTIONS.filter((d) => (schedule.weekdaysMask & d.bit) !== 0)
           .map((d) => t(`common.weekdaysShort.${d.key}`))
           .join(', ')
+  // A league without an override is on its country's own clock; an override on the server's,
+  // shown in the viewer's time.
+  if (localTime) {
+    return `${dayLabel} ${minuteOfDayToTime(schedule.hour * 60 + schedule.minute)} ${t('admin.leagueSchedules.countryTime')}`
+  }
   const local = scheduleHourMinuteToLocal(schedule.hour, schedule.minute)
   const time = `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`
   return `${dayLabel} ${time}`
@@ -446,9 +539,13 @@ function LeagueSchedulesSection() {
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mt: 0.5, alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
                 <Typography variant="body2" sx={{ flex: '1 1 auto' }}>
-                  {describeSchedule(t, league.schedule)}
+                  {describeSchedule(t, league.schedule, league.localTime)}
                 </Typography>
-                {league.hasOverride && <Chip size="small" label={t('admin.leagueSchedules.override')} />}
+                {league.hasOverride ? (
+                  <Chip size="small" label={t('admin.leagueSchedules.override')} />
+                ) : (
+                  <Chip size="small" variant="outlined" label={t('admin.leagueSchedules.derived', { minutes: (league.tier - 1) * 15 })} />
+                )}
                 <Button size="small" onClick={() => setEditingLeague(league)}>
                   {t('admin.leagueSchedules.edit')}
                 </Button>
@@ -475,8 +572,12 @@ function LeagueSchedulesSection() {
                   </TableCell>
                   <TableCell align="right">{league.tier}</TableCell>
                   <TableCell>
-                    {describeSchedule(t, league.schedule)}
-                    {league.hasOverride && <Chip size="small" label={t('admin.leagueSchedules.override')} sx={{ ml: 1 }} />}
+                    {describeSchedule(t, league.schedule, league.localTime)}
+                    {league.hasOverride ? (
+                      <Chip size="small" label={t('admin.leagueSchedules.override')} sx={{ ml: 1 }} />
+                    ) : (
+                      <Chip size="small" variant="outlined" label={t('admin.leagueSchedules.derived', { minutes: (league.tier - 1) * 15 })} sx={{ ml: 1 }} />
+                    )}
                   </TableCell>
                   <TableCell align="right">
                     <Button size="small" onClick={() => setEditingLeague(league)}>

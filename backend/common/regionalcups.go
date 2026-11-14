@@ -30,7 +30,7 @@ func (s RegionalCupCountryState) Fresh() bool {
 // among several tier-1 groups.
 const GetRegionalCupCountryStatesStmtSql = `
 WITH tier1 AS (
-	SELECT DISTINCT country FROM leagues WHERE tier = $1 AND country = ANY($2)
+	SELECT DISTINCT country FROM leagues WHERE tier = $1 AND country = ANY($2) AND archived_season IS NULL
 ), champions AS (
 	SELECT l.country, sh.season, sh.team_id, l.league_id
 	FROM season_history sh JOIN leagues l ON l.league_id = sh.league_id

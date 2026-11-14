@@ -80,8 +80,16 @@ func awardLeaguePrizeMoney(dbCtx *common.DatabaseContext, tier int, standings []
 	}
 }
 
-// awardCupRoundPrize pays a cup tie's winner for advancing - see simulateCupTie.
-func awardCupRoundPrize(dbCtx *common.DatabaseContext, winnerTeamId int64, round int) {
+// awardCupRoundPrize pays a cup tie's winner for advancing - see simulateCupTie. A promotion
+// playoff tie pays nothing of its own (see openspec/specs/league-pyramid "Playoff match"): its
+// winner earns only the gate and sponsorship every match pays.
+func awardCupRoundPrize(dbCtx *common.DatabaseContext, cupId int64, winnerTeamId int64, round int) {
+	if playoff, err := common.IsPlayoffCup(dbCtx, cupId); err != nil {
+		log.Errorf("error checking whether cup %d is a playoff before its round prize: %s", cupId, err)
+		return
+	} else if playoff {
+		return
+	}
 	amount := int64(CupPrizePerRound * round)
 	description := fmt.Sprintf("Cup round %d prize money", round)
 	if err := common.AdjustTeamBudget(dbCtx, winnerTeamId, amount, common.TRANSACTION_PRIZE_MONEY, description); err != nil {

@@ -104,6 +104,10 @@ describe('subtitleLabel per competition', () => {
     expect(fromCupTie(cupTie(), quarterfinalCup(), t).subtitleLabel).toBe('Copa del Rey · Quarterfinal')
   })
 
+  it('cup tie: a promotion playoff tie reads "Playoff", with no cup name or round', () => {
+    expect(fromCupTie({ ...cupTie(), competition: 'playoff' }, quarterfinalCup(), t).subtitleLabel).toBe(t('competition.playoff'))
+  })
+
   it('cup tie: a known cup name is translated', () => {
     expect(fromCupTie(cupTie(), quarterfinalCup('European Cup'), t).subtitleLabel).toBe(`${t('cup.names.europe')} · Quarterfinal`)
   })

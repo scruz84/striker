@@ -61,42 +61,38 @@ func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, sc
 }
 
 // RescheduleUnplayedMatchesForCountry re-dates every unplayed league match of country's current
-// season, league by league, each onto its own effective schedule (its per-league override if it
-// has one, otherwise the app-wide default - see common.GetLeagueScheduleOverrides/
-// common.GetMatchSchedule), starting from the next matching slot after now. For fixtures that
-// ended up dated far out (e.g. generated while the fixture-start date was computed from another
-// country's schedule) and need pulling forward without changing anyone's schedule setting.
-// Best-effort per league, like RescheduleUnplayedMatchesForLeagues; returns how many leagues it
-// was run for.
+// season, league by league, each onto its own effective schedule (see
+// common.EffectiveLeagueSchedule: its per-league override if it has one, otherwise the country's
+// league kickoff for its tier), starting from the next matching slot after now. Used by the admin
+// "reschedule country" action and after a country's league kickoff changes. Best-effort per
+// league, like RescheduleUnplayedMatchesForLeagues; returns how many leagues it was run for.
 func RescheduleUnplayedMatchesForCountry(dbCtx *common.DatabaseContext, country string) (int, error) {
 	leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, country)
 	if err != nil {
 		return 0, err
 	}
-	overrides, err := common.GetLeagueScheduleOverrides(dbCtx)
-	if err != nil {
+	if err := RescheduleUnplayedMatchesForLeagues(dbCtx, leagueIds); err != nil {
 		return 0, err
-	}
-	defaultSchedule := common.GetMatchSchedule(dbCtx)
-	for _, leagueId := range leagueIds {
-		schedule := defaultSchedule
-		if override, ok := overrides[leagueId]; ok {
-			schedule = override
-		}
-		if err := RescheduleUnplayedMatches(dbCtx, leagueId, schedule); err != nil {
-			log.Errorf("error rescheduling unplayed matches for league %d: %s", leagueId, err)
-		}
 	}
 	return len(leagueIds), nil
 }
 
 // RescheduleUnplayedMatchesForLeagues is RescheduleUnplayedMatches for several leagues at once,
-// best-effort per league - one league's failure to reschedule shouldn't abandon the rest (used
-// when the app-wide default schedule changes, affecting every league without its own override).
-func RescheduleUnplayedMatchesForLeagues(dbCtx *common.DatabaseContext, leagueIds []int64, schedule common.MatchSchedule) {
+// each onto its own effective schedule, best-effort per league - one league's failure to
+// reschedule shouldn't abandon the rest (used when the app-wide default schedule changes,
+// affecting every league without its own override).
+func RescheduleUnplayedMatchesForLeagues(dbCtx *common.DatabaseContext, leagueIds []int64) error {
+	if len(leagueIds) == 0 {
+		return nil
+	}
+	schedules, err := common.GetEffectiveLeagueSchedules(dbCtx, leagueIds)
+	if err != nil {
+		return err
+	}
 	for _, leagueId := range leagueIds {
-		if err := RescheduleUnplayedMatches(dbCtx, leagueId, schedule); err != nil {
+		if err := RescheduleUnplayedMatches(dbCtx, leagueId, schedules[leagueId]); err != nil {
 			log.Errorf("error rescheduling unplayed matches for league %d: %s", leagueId, err)
 		}
 	}
+	return nil
 }

@@ -50,6 +50,8 @@ import { PULSING_LIVE_SX } from '../../utils/liveChip'
 import { liveScoreLabel } from '../../utils/liveScoreLabel'
 import { applyLiveScores, compareClassification, type LiveTable } from './liveTable'
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
+import { PlayoffCard } from './PlayoffCard'
+import { zoneFor, zonesLegend, type Zone, type ZoneLegendFlags } from './zones'
 import { CountryFlag } from '../../components/CountryFlag'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
@@ -123,9 +125,9 @@ export function DivisionDetailsPage() {
   const totalWeeks = Math.max(0, (teamCount - 1) * 2)
   const myTeamId = userTeam?.team.id
 
-  const promotionSlots = divisionDetails.promotionSlots ?? 0
-  const relegationSlots = divisionDetails.relegationSlots ?? 0
+  const zones = divisionDetails.zones
   const rowCount = positions.filter((row) => row.teamId !== 0).length
+  const playoffTies = divisionDetails.playoff ?? []
 
   // The live table: the reverted standings plus the broadcast scores. The switch only exists
   // while at least one match is on air or over inside its window, on the current season.
@@ -149,10 +151,10 @@ export function DivisionDetailsPage() {
         positions={liveTable?.positions ?? positions}
         live={liveTable}
         myTeamId={myTeamId}
-        zoneOf={(row) => zoneFor(row.position, rowCount, promotionSlots, relegationSlots)}
-        showPromotionLegend={promotionSlots > 0}
-        showRelegationLegend={relegationSlots > 0}
+        zoneOf={(row) => zoneFor(row.position, rowCount, zones)}
+        legend={zonesLegend(zones)}
       />
+      {playoffTies.length > 0 && <PlayoffCard ties={playoffTies} myTeamId={myTeamId} />}
     </Stack>
   )
   const fixtures = (
@@ -250,9 +252,12 @@ function PastSeasonView({
         positions={positions}
         myTeamId={myTeamId}
         zoneOf={(row) => pastSeasonZone(byTeam.get(row.teamId))}
+        markOf={(row) => (byTeam.get(row.teamId)?.viaPlayoff ? t('division.viaPlayoff') : undefined)}
         champion
-        showPromotionLegend={table.positions.some((row) => row.promoted)}
-        showRelegationLegend={table.positions.some((row) => row.relegated)}
+        legend={{
+          promotion: table.positions.some((row) => row.promoted),
+          relegation: table.positions.some((row) => row.relegated),
+        }}
       />
     </Stack>
   )
@@ -319,7 +324,8 @@ function pastSeasonPositions(table: LeagueSeasonTable): ClassificationPosition[]
   }))
 }
 
-// A past season's zones are what really happened, not the current slot counts.
+// A past season's zones are what really happened, not the current zones; a move through the
+// playoff is marked "(playoff)" beside the team (see markOf).
 function pastSeasonZone(row: { promoted: boolean; relegated: boolean } | undefined): Zone {
   if (row?.promoted) return 'promotion'
   if (row?.relegated) return 'relegation'
@@ -582,34 +588,27 @@ export function hideStillLiveResults(positions: ClassificationPosition[], previo
   return reverted.map((row, index) => ({ ...row, position: index + 1 }))
 }
 
-type Zone = 'promotion' | 'relegation' | undefined
-
-function zoneFor(position: number, total: number, promotionSlots: number, relegationSlots: number): Zone {
-  if (promotionSlots > 0 && position <= promotionSlots) return 'promotion'
-  if (relegationSlots > 0 && position > total - relegationSlots) return 'relegation'
-  return undefined
-}
-
 // Compact (phone) shows # Team PJ DG Pts; the full table adds G/E/P/GF/GC and scrolls
 // horizontally with the first two columns pinned.
 function ClassificationTable({
   positions,
   myTeamId,
   zoneOf,
+  markOf,
   champion = false,
   live,
-  showPromotionLegend,
-  showRelegationLegend,
+  legend,
 }: {
   positions: ClassificationPosition[]
   myTeamId: number | undefined
   zoneOf: (row: ClassificationPosition) => Zone
+  // A short mark shown beside the team name, e.g. "(playoff)" on a past season's move.
+  markOf?: (row: ClassificationPosition) => string | undefined
   // The live table's position changes and the teams on air; the zones already follow row.position.
   live?: Pick<LiveTable, 'deltas' | 'playing'>
   // A finished season: a trophy marks the team in first place.
   champion?: boolean
-  showPromotionLegend: boolean
-  showRelegationLegend: boolean
+  legend: ZoneLegendFlags
 }) {
   const { t } = useTranslation()
   const theme = useTheme()
@@ -617,7 +616,7 @@ function ClassificationTable({
   const [showFull, setShowFull] = useState(false)
   const full = isDesktop || showFull
   const rows = positions.filter((row) => row.teamId !== 0)
-  const zoneColor = { promotion: theme.palette.success.main, relegation: theme.palette.error.main }
+  const zoneColor = { promotion: theme.palette.success.main, playoff: theme.palette.warning.main, relegation: theme.palette.error.main }
 
   return (
     <Box>
@@ -650,6 +649,7 @@ function ClassificationTable({
               const goalDiff = row.goalsScored - row.goalsReceived
               const rankColor = RANK_COLORS[row.position - 1]
               const zone = zoneOf(row)
+              const mark = markOf?.(row)
               const delta = live?.deltas.get(row.teamId)
               const onAir = live?.playing.has(row.teamId) ?? false
 
@@ -697,6 +697,11 @@ function ClassificationTable({
                       <TeamNameLink teamId={row.teamId} variant="body2" noWrap sx={{ minWidth: 0, fontWeight: isMyTeam ? 700 : 400 }}>
                         {row.teamName}
                       </TeamNameLink>
+                      {mark && (
+                        <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                          {mark}
+                        </Typography>
+                      )}
                       {champion && row.position === 1 && (
                         <EmojiEventsOutlinedIcon
                           titleAccess={t('division.champion')}
@@ -740,8 +745,11 @@ function ClassificationTable({
         </Table>
       </TableContainer>
       <Stack direction="row" spacing={2} sx={{ mt: 1, flexWrap: 'wrap', rowGap: 0.5 }} aria-label={t('division.legend.title')}>
-        {showPromotionLegend && <ZoneLegend color={zoneColor.promotion} label={t('division.legend.promotion')} />}
-        {showRelegationLegend && <ZoneLegend color={zoneColor.relegation} label={t('division.legend.relegation')} />}
+        {legend.promotion && <ZoneLegend color={zoneColor.promotion} label={t('division.legend.promotion')} />}
+        {legend.playoff && (
+          <ZoneLegend color={zoneColor.playoff} label={t(legend.candidate ? 'division.legend.candidate' : 'division.legend.playoff')} />
+        )}
+        {legend.relegation && <ZoneLegend color={zoneColor.relegation} label={t('division.legend.relegation')} />}
         <Typography variant="caption" color="text.secondary">
           {t('division.legend.columns')}
         </Typography>

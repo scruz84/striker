@@ -190,7 +190,7 @@ func settleCupTieByDefault(dbCtx *common.DatabaseContext, tie *common.CupTie) (b
 		if settleErr = common.SaveCupTieResultTx(dbCtx, tie.TieId, true, winner, result); settleErr != nil {
 			return nil
 		}
-		awardCupRoundPrize(dbCtx, winner, tie.Round)
+		awardCupRoundPrize(dbCtx, tie.CupId, winner, tie.Round)
 		publishDefaultComplete(dbCtx, common.CupTieChannel(tie.TieId))
 		settled = true
 		return nil
