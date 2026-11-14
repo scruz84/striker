@@ -14,6 +14,11 @@ import (
 // fixtures are first generated). Called whenever an admin changes a league's effective schedule
 // (its own override, or the app-wide default for a league with none) so the change is felt
 // immediately rather than only by fixtures generated at the next season rollover (issue #67).
+//
+// Only matches that have not started move: a round can be half played (its matches are simulated
+// in batches up to 15 minutes before kickoff, and a failed one waits for its retry), and a played
+// or in-simulation match keeps its date - moving it to the future would hide its result again as
+// "still live" and hold the season rollover back (issue #400).
 func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, schedule common.MatchSchedule) error {
 	season, err := common.GetCurrentSeasonForLeague(dbCtx, leagueId)
 	if err != nil {
@@ -21,7 +26,7 @@ func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, sc
 	}
 
 	rows, err := dbCtx.Db.Query(
-		"SELECT DISTINCT week_number FROM matches WHERE league_id = $1 AND season = $2 AND played = false ORDER BY week_number",
+		"SELECT DISTINCT week_number FROM matches WHERE league_id = $1 AND season = $2 AND played = false AND in_simulation = false ORDER BY week_number",
 		leagueId, season)
 	if err != nil {
 		return err
@@ -52,7 +57,7 @@ func RescheduleUnplayedMatches(dbCtx *common.DatabaseContext, leagueId int64, sc
 	dates := ComputeFixtureDates(FixtureStart(time.Now(), latestStarted), schedule, len(weekNumbers))
 	for i, week := range weekNumbers {
 		if _, err := dbCtx.Db.Exec(
-			"UPDATE matches SET match_date = $1 WHERE league_id = $2 AND season = $3 AND week_number = $4",
+			"UPDATE matches SET match_date = $1 WHERE league_id = $2 AND season = $3 AND week_number = $4 AND played = false AND in_simulation = false",
 			dates[i], leagueId, season, week); err != nil {
 			return err
 		}

@@ -152,12 +152,16 @@ A friendly MUST kick off on the hour, at quarter past, half past or quarter to (
 - **THEN** the request is rejected and the pickers already flag it, offering only quarter-hour steps
 
 ### Requirement: Rescheduling on schedule change
-Changing a league's schedule override, clearing it, changing the app-wide default, or changing a country's league kickoff time MUST immediately re-date every unplayed match of the affected leagues onto the new schedule, keeping round order. A league with its own override is unaffected by a default or country change.
+Changing a league's schedule override, clearing it, changing the app-wide default, or changing a country's league kickoff time MUST immediately re-date every unplayed match of the affected leagues onto the new schedule, keeping round order. A league with its own override is unaffected by a default or country change. A match that is played or in simulation MUST keep its date, even when other matches of its round move.
 
 #### Scenario: Admin changes the default schedule
 - **WHEN** the app-wide default schedule changes
 - **THEN** every unplayed match in leagues without an override is re-dated onto it, round by round
 - **AND** leagues with their own override keep their dates
+
+#### Scenario: Round half played
+- **WHEN** a league is rescheduled while one match of a round is played, one is in simulation and one has not started
+- **THEN** only the match that has not started is re-dated; the other two keep their dates
 
 #### Scenario: Admin changes a country's kickoff
 - **WHEN** the admin moves Italy's league kickoff from 14:00 to 15:00
@@ -263,7 +267,7 @@ Each country SHALL have a league kickoff time on its local clock, from 00:00 to 
   location), `engine/reschedule.go` (`RescheduleUnplayedMatchesForLeagues`/`...ForCountry`, each
   league on its effective schedule); admin `handlers.AdminSetCountryKickoffHandler`
   (`PUT /v1/admin/countries/:code/kickoff`); tests `TestEffectiveLeagueSchedule_*`,
-  `TestComputeFixtureDates_LocalKickoffHoldsAcrossDST`, `TestPyramid_CountryKickoffChangeReschedules`; friendly delay `friendlyScheduleDelay` and
+  `TestComputeFixtureDates_LocalKickoffHoldsAcrossDST`, `TestPyramid_CountryKickoffChangeReschedules`, `TestRescheduleUnplayedMatches_LeavesStartedMatchesOfAHalfPlayedRound`; friendly delay `friendlyScheduleDelay` and
   quarter-hour grid `IsFriendlyKickoffSlot`/`nextFriendlyKickoffSlot` (`common/friendlies.go`),
   mirrored by `isQuarterHour`/`kickoffErrorKey` (`frontend/src/utils/friendlyKickoff.ts`).
 - Cup kickoffs: `engine.cupTieKickoff` (`cupMinimumLead`, `cupRoundGap`, `engine/cups.go`) with
