@@ -96,3 +96,17 @@ func TestNextFriendlyKickoffSlot(t *testing.T) {
 		}
 	}
 }
+
+// The friendly schedule's days are UTC days whatever offset a kickoff arrives with (issue #403):
+// Saturday 00:30 in Madrid is Friday 23:30 UTC, Sunday 00:30 in Madrid is Saturday 23:30 UTC.
+func TestFriendlyWeekdayAllowed_JudgesTheDayInUTC(t *testing.T) {
+	madrid := time.FixedZone("CET", 3600)
+	saturdayLocal := time.Date(2026, 11, 14, 0, 30, 0, 0, madrid)
+	sundayLocal := time.Date(2026, 11, 15, 0, 30, 0, 0, madrid)
+	if friendlyWeekdayAllowed(saturdayLocal, WeekdaySaturday) {
+		t.Errorf("Saturday 00:30 +01:00 (Friday in UTC) allowed on a Saturdays-only schedule")
+	}
+	if !friendlyWeekdayAllowed(sundayLocal, WeekdaySaturday) {
+		t.Errorf("Sunday 00:30 +01:00 (Saturday in UTC) refused on a Saturdays-only schedule")
+	}
+}

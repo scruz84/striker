@@ -32,13 +32,19 @@ export function isQuarterHour(value: string): boolean {
   return date.getMinutes() % KICKOFF_STEP_MINUTES === 0 && date.getSeconds() === 0
 }
 
+// Every weekday bit set: the friendly schedule opens every day.
+const ALL_WEEKDAYS_MASK = 0x7f
+
 // Shared by every friendly kickoff picker (the challenge form's optional proposed-kickoff field,
 // the accept dialog's kickoff field, and the team-page challenge dialog) - all need to reject a
 // datetime-local value that falls on a day common.GetFriendlyScheduleWeekdays doesn't allow,
-// before the backend gets a chance to.
+// before the backend gets a chance to. The picked value is the viewer's local time, but the
+// server judges the kickoff's weekday in UTC (common.isAllowedFriendlyKickoff), like every
+// WeekdaysMask in this app (see scheduleTime.ts) - so the day is read in UTC here too, or a
+// kickoff near midnight would be accepted by one and refused by the other.
 export function isWeekdayAllowed(schedule: FriendlySchedule | undefined, value: string): boolean {
   if (!schedule || !value) return true
-  const day = new Date(value).getDay()
+  const day = new Date(value).getUTCDay()
   return (schedule.weekdaysMask & (1 << day)) !== 0
 }
 
@@ -47,5 +53,14 @@ export function isWeekdayAllowed(schedule: FriendlySchedule | undefined, value: 
 export function kickoffErrorKey(schedule: FriendlySchedule | undefined, value: string): string | null {
   if (!isWeekdayAllowed(schedule, value)) return 'friendlies.received.kickoffNotAllowed'
   if (!isQuarterHour(value)) return 'friendlies.received.kickoffNotQuarterHour'
+  return null
+}
+
+// The i18n key of a picker's helper text: what is wrong with the kickoff, else - when the friendly
+// schedule only opens some days - the reminder that those days are counted in UTC; null otherwise.
+export function kickoffHelperKey(schedule: FriendlySchedule | undefined, value: string): string | null {
+  const error = kickoffErrorKey(schedule, value)
+  if (error) return error
+  if (schedule && (schedule.weekdaysMask & ALL_WEEKDAYS_MASK) !== ALL_WEEKDAYS_MASK) return 'friendlies.received.kickoffDaysUtc'
   return null
 }

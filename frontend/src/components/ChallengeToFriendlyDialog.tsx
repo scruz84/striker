@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useChallengeToFriendly, useFriendlySchedule } from '../api/hooks'
 import { ResponsiveDialog } from './ResponsiveDialog'
-import { defaultKickoffValue, KICKOFF_STEP_SECONDS, kickoffErrorKey, MIN_KICKOFF_LEAD_MINUTES } from '../utils/friendlyKickoff'
+import { defaultKickoffValue, KICKOFF_STEP_SECONDS, kickoffErrorKey, kickoffHelperKey, MIN_KICKOFF_LEAD_MINUTES } from '../utils/friendlyKickoff'
 
 interface ChallengeToFriendlyDialogProps {
   opponentTeamId: number
@@ -40,6 +40,7 @@ export function ChallengeToFriendlyDialog({ opponentTeamId, opponentTeamName, op
 
   const proposedKickoffError = kickoffErrorKey(schedule, proposedKickoff)
   const proposedKickoffAllowed = proposedKickoffError === null
+  const proposedKickoffHelp = kickoffHelperKey(schedule, proposedKickoff)
 
   const handleSubmit = () => {
     if (proposedKickoff && !proposedKickoffAllowed) return
@@ -98,7 +99,7 @@ export function ChallengeToFriendlyDialog({ opponentTeamId, opponentTeamName, op
               value={proposedKickoff}
               onChange={(e) => setProposedKickoff(e.target.value)}
               error={!proposedKickoffAllowed}
-              helperText={proposedKickoffError ? t(proposedKickoffError) : ' '}
+              helperText={proposedKickoffHelp ? t(proposedKickoffHelp) : ' '}
               slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES), step: KICKOFF_STEP_SECONDS } }}
               fullWidth
             />

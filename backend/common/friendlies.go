@@ -133,8 +133,7 @@ func SetFriendlyScheduleWeekdays(dbCtx *DatabaseContext, weekdaysMask int) error
 func nextAllowedFriendlyDate(candidate time.Time, weekdaysMask int) time.Time {
 	for offset := 0; offset < 8; offset++ {
 		day := candidate.AddDate(0, 0, offset)
-		bit := 1 << int(day.Weekday())
-		if weekdaysMask&bit != 0 {
+		if friendlyWeekdayAllowed(day, weekdaysMask) {
 			return day
 		}
 	}
@@ -175,8 +174,15 @@ func isAllowedFriendlyKickoff(dbCtx *DatabaseContext, kickoff time.Time, now tim
 	if kickoff.Before(now.Add(friendlyScheduleDelay)) || !IsFriendlyKickoffSlot(kickoff) {
 		return false
 	}
-	bit := 1 << int(kickoff.Weekday())
-	return GetFriendlyScheduleWeekdays(dbCtx)&bit != 0
+	return friendlyWeekdayAllowed(kickoff, GetFriendlyScheduleWeekdays(dbCtx))
+}
+
+// friendlyWeekdayAllowed reports whether kickoff's weekday, in UTC, is set in weekdaysMask. The
+// friendly schedule's days are UTC days, like every WeekdaysMask in this app, whatever offset the
+// kickoff arrived with; the pickers read the day the same way (frontend
+// utils/friendlyKickoff.ts isWeekdayAllowed), so what the form accepts the server accepts.
+func friendlyWeekdayAllowed(kickoff time.Time, weekdaysMask int) bool {
+	return weekdaysMask&(1<<int(kickoff.UTC().Weekday())) != 0
 }
 
 const GetMaxFriendliesPerWeekStmtSql = "SELECT max_friendlies_per_week FROM season"

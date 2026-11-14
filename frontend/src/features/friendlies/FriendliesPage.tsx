@@ -39,6 +39,7 @@ import {
   defaultKickoffValue,
   KICKOFF_STEP_SECONDS,
   kickoffErrorKey,
+  kickoffHelperKey,
   MIN_KICKOFF_LEAD_MINUTES,
   toDateTimeLocalValue,
 } from '../../utils/friendlyKickoff'
@@ -64,6 +65,7 @@ export function FriendliesPage() {
 
   const proposedKickoffError = kickoffErrorKey(schedule, proposedKickoff)
   const proposedKickoffAllowed = proposedKickoffError === null
+  const proposedKickoffHelp = kickoffHelperKey(schedule, proposedKickoff)
 
   const handleChallenge = (event: FormEvent) => {
     event.preventDefault()
@@ -130,7 +132,7 @@ export function FriendliesPage() {
             value={proposedKickoff}
             onChange={(e) => setProposedKickoff(e.target.value)}
             error={!proposedKickoffAllowed}
-            helperText={proposedKickoffError ? t(proposedKickoffError) : undefined}
+            helperText={proposedKickoffHelp ? t(proposedKickoffHelp) : undefined}
             slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES), step: KICKOFF_STEP_SECONDS } }}
             fullWidth
           />
@@ -253,6 +255,7 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
 
   const kickoffError = kickoffErrorKey(schedule, kickoff)
   const kickoffAllowed = kickoffError === null
+  const kickoffHelp = kickoffHelperKey(schedule, kickoff)
 
   const handleReject = async (challenge: FriendlyChallenge) => {
     const ok = await confirm({
@@ -327,7 +330,7 @@ function ChallengesReceived({ challenges, isLoading }: { challenges?: FriendlyCh
                     value={kickoff}
                     onChange={(e) => setKickoff(e.target.value)}
                     error={!kickoffAllowed}
-                    helperText={kickoffError ? t(kickoffError) : ' '}
+                    helperText={kickoffHelp ? t(kickoffHelp) : ' '}
                     slotProps={{ inputLabel: { shrink: true }, htmlInput: { min: defaultKickoffValue(MIN_KICKOFF_LEAD_MINUTES), step: KICKOFF_STEP_SECONDS } }}
                   />
                   <Button

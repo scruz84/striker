@@ -151,6 +151,14 @@ A friendly MUST kick off on the hour, at quarter past, half past or quarter to (
 - **WHEN** an owner accepts a challenge with a kickoff at 18:50
 - **THEN** the request is rejected and the pickers already flag it, offering only quarter-hour steps
 
+### Requirement: Friendly days are UTC days
+The weekdays the friendly schedule allows SHALL be judged on the kickoff's UTC day, by the server and by every kickoff picker alike, so that a kickoff the form accepts is one the server accepts. When the schedule does not open every day, the pickers MUST say that the days are counted in UTC.
+
+#### Scenario: Kickoff just after local midnight
+- **WHEN** friendlies are Saturdays only and a viewer in UTC+1 picks Saturday 00:30 local (Friday 23:30 UTC)
+- **THEN** the picker flags the day and the server would refuse it
+- **AND** Sunday 00:30 local (Saturday 23:30 UTC) is accepted by both
+
 ### Requirement: Weekly friendly cap and clashes
 No club SHALL play more than `max_friendlies_per_week` friendlies in one calendar week (Monday to Monday, UTC), whichever side sent the challenge, and no club SHALL have two friendlies at the same kickoff. Accepting a challenge MUST re-check both rules for both teams, for the week of the chosen kickoff, even under concurrent acceptances. A friendly in a later week does not use up the current week's cap.
 
@@ -284,6 +292,8 @@ Each country SHALL have a league kickoff time on its local clock, from 00:00 to 
   (`PUT /v1/admin/countries/:code/kickoff`); tests `TestEffectiveLeagueSchedule_*`,
   `TestComputeFixtureDates_LocalKickoffHoldsAcrossDST`, `TestPyramid_CountryKickoffChangeReschedules`, `TestRescheduleUnplayedMatches_LeavesStartedMatchesOfAHalfPlayedRound`; friendly delay `friendlyScheduleDelay` and
   quarter-hour grid `IsFriendlyKickoffSlot`/`nextFriendlyKickoffSlot` (`common/friendlies.go`),
+  UTC weekday check `friendlyWeekdayAllowed` (`common/friendlies.go`; frontend
+  `utils/friendlyKickoff.ts` `isWeekdayAllowed`/`kickoffHelperKey`),
   weekly cap and clash check `CountFriendliesInWeekOf`/`lockTeamFriendliesTx` in
   `acceptFriendlyChallenge` (`common/friendlies.go`, tests `common/friendly_cap_integration_test.go`),
   mirrored by `isQuarterHour`/`kickoffErrorKey` (`frontend/src/utils/friendlyKickoff.ts`).
