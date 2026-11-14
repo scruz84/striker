@@ -134,3 +134,83 @@ func TestApplyProjectedReplacements_SwapsTheReplacementIntoTheSlotWithoutTouchin
 		t.Fatal("the input lineup must not be modified")
 	}
 }
+
+// A starter who has left the club since the lineup was saved (issue #399) is replaced at kickoff
+// like an injured one - he is not in the squad, so he would otherwise play with no skills.
+func TestExcludeUnavailableAndBackfill_ReplacesAStarterWhoLeftTheClub(t *testing.T) {
+	squad := projectionSquad()
+	lineup := projectionLineup(squad)
+	var sold LineupPosition
+	for _, p := range lineup.Positions {
+		if p.Position != GOALKEEPER {
+			sold = p
+			break
+		}
+	}
+	remaining := make([]*Player, 0, len(squad)-1)
+	for _, p := range squad {
+		if p.Id != sold.PlayerId {
+			remaining = append(remaining, p)
+		}
+	}
+	byPosition := make(map[int][]int64)
+	for _, p := range lineup.Positions {
+		byPosition[p.Position] = append(byPosition[p.Position], p.PlayerId)
+	}
+
+	ExcludeUnavailableAndBackfill(&byPosition, remaining, nil)
+
+	count := 0
+	for _, ids := range byPosition {
+		for _, id := range ids {
+			count++
+			if id == sold.PlayerId {
+				t.Fatalf("the sold player %d still starts: %v", sold.PlayerId, byPosition)
+			}
+		}
+	}
+	if count != len(lineup.Positions) {
+		t.Fatalf("expected a full XI of %d, got %d: %v", len(lineup.Positions), count, byPosition)
+	}
+	if ids := byPosition[sold.Position]; ids[len(ids)-1] != 13 {
+		t.Fatalf("expected the best outfield reserve (13) in the sold player's slot, got %v", ids)
+	}
+
+	got := ProjectKickoffReplacements(lineup, remaining, nil)
+	if len(got) != 1 || got[0].PlayerOutId != sold.PlayerId || got[0].PlayerInId != 13 {
+		t.Fatalf("expected the projection to replace the sold player with 13, got %v", got)
+	}
+}
+
+// A goalkeeper is exempt from the injury/suspension exclusion, but not from leaving the club.
+func TestExcludeUnavailableAndBackfill_ReplacesAKeeperWhoLeftTheClub(t *testing.T) {
+	squad := projectionSquad()
+	lineup := projectionLineup(squad)
+	byPosition := make(map[int][]int64)
+	for _, p := range lineup.Positions {
+		byPosition[p.Position] = append(byPosition[p.Position], p.PlayerId)
+	}
+	if keepers := byPosition[GOALKEEPER]; len(keepers) != 1 || keepers[0] != 1 {
+		t.Fatalf("expected keeper 1 in the lineup, got %v", keepers)
+	}
+	remaining := squad[1:]
+
+	ExcludeUnavailableAndBackfill(&byPosition, remaining, nil)
+
+	if keepers := byPosition[GOALKEEPER]; len(keepers) != 1 || keepers[0] != 12 {
+		t.Fatalf("expected the reserve keeper 12 in goal, got %v", keepers)
+	}
+	got := ProjectKickoffReplacements(lineup, remaining, nil)
+	if len(got) != 1 || got[0].PlayerOutId != 1 || got[0].PlayerInId != 12 || got[0].Position != GOALKEEPER {
+		t.Fatalf("expected the projection to put keeper 12 in for 1, got %v", got)
+	}
+}
+
+// A squad that could not be resolved (empty) never strips the lineup.
+func TestExcludeUnavailableAndBackfill_EmptySquadDepartsNobody(t *testing.T) {
+	byPosition := map[int][]int64{GOALKEEPER: {1}, DEFENSE: {2, 3}}
+	ExcludeUnavailableAndBackfill(&byPosition, nil, nil)
+	if len(byPosition[GOALKEEPER]) != 1 || len(byPosition[DEFENSE]) != 2 {
+		t.Fatalf("expected the lineup unchanged, got %v", byPosition)
+	}
+}

@@ -72,6 +72,28 @@ The lineup editor's Friendly tab SHALL show and save the friendly default's subs
 - **WHEN** a manager opens the Friendly tab of the lineup editor
 - **THEN** the hint no longer says scheduled substitutions are shared with the league/cup default, and the substitutions planner is shown
 
+### Requirement: A player who left the club never starts for it
+When a player leaves a club, by any route, he MUST be taken out of every lineup that club has yet to play: the standing defaults and the lineup of every match, cup tie or friendly not played and not in simulation, with their substitutions, orders and roles. Played matches keep their lineups, and a national team's lineups are not affected.
+
+#### Scenario: Sold after saving the next lineup
+- **WHEN** a manager saves the lineup of his next league match and then sells one of its starters
+- **THEN** the starter is no longer in that lineup
+
+#### Scenario: Played match keeps its lineup
+- **WHEN** a player who started a played match is released
+- **THEN** that match's stored lineup still names him
+
+### Requirement: The kickoff replaces a player not in the squad
+At kickoff, and in the lineup editor's projection, a lineup player who is not in the squad MUST be replaced by the refill like an injured player, the goalkeeper included.
+
+#### Scenario: Outfield starter no longer in the squad
+- **WHEN** a saved lineup still names an outfield player who has left the club
+- **THEN** the best available squad player starts in his slot and the old player gets no rating
+
+#### Scenario: Keeper no longer in the squad
+- **WHEN** a saved lineup still names a goalkeeper who has left the club
+- **THEN** the squad's best available keeper starts instead
+
 ## Code map
 
 - Storage and fallbacks: `backend/common/lineupsubstitutions.go` (`GetDefaultLineupSubstitutions` /
@@ -88,11 +110,17 @@ The lineup editor's Friendly tab SHALL show and save the friendly default's subs
   `GetLineupsForFriendly`'s lineup).
 - Reset: `common/accounts.go` (`DeleteTeamDefaultFriendlySubstitutionsStmtSql`),
   `handlers/initializer.go` (`teamPlayerDependentTables`).
+- A departing player: `common/lineupcleanup.go` (`removePlayerFromTeamLineupsTx`, called wherever
+  a player leaves a club), `common/kickoffrefill.go` (`ExcludeUnavailableAndBackfill` and
+  `ProjectKickoffReplacements` replace a lineup player who is not in the squad),
+  `resources/sql/init115_departed_players_out_of_lineups.sql` (cleans stored lineups; creates the
+  missing `friendly_lineup_substitutions` table).
 - Schema: `backend/resources/sql/init94_default_friendly_lineup_substitutions.sql`.
 - Frontend: `frontend/src/features/lineup/LineupEditorPage.tsx` (`FriendlyDefaultLineupForm`),
   `MatchLineupForm.tsx`, `api/hooks.ts` (`useSetFriendlyDefaultLineup`); hint under
   `lineup.friendlyHint` in `i18n/locales/{en,es}.json`.
 - Tests: `backend/common/default_friendly_substitutions_integration_test.go`,
+  `backend/common/lineupcleanup_integration_test.go`, `backend/common/kickoffrefill_test.go`,
   `backend/handlers/friendlyDefaultSubstitutions_test.go`,
   `backend/engine/friendly_default_substitutions_integration_test.go`,
   `frontend/src/features/lineup/LineupEditorPage.test.tsx`.

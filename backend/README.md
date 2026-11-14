@@ -198,7 +198,7 @@ offers go in the same transaction (`common.clearPlayerMarketTx` and its equivale
 line of defence, `ExecuteTransfer` and `AcceptLoan` re-read the player's club under lock and,
 when it is no longer the seller's or lender's, delete the stale listing and answer
 `ErrListingNotFound` / `ErrLoanListingNotFound` without moving money or the player.
-`init111_drop_orphan_market_rows.sql` removed the stale rows written before this rule.
+`init113_drop_orphan_market_rows.sql` removed the stale rows written before this rule.
 
 ### Match schedule
 

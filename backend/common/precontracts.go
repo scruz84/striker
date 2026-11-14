@@ -675,7 +675,7 @@ func completePreContractTx(tx *sql.Tx, playerId int64, fromTeamId int64) (int64,
 	if err != nil {
 		return 0, err
 	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	if err := removePlayerFromTeamLineupsTx(tx, playerId, fromTeamId); err != nil {
 		return 0, err
 	}
 	if err := movePlayerToTeam(tx, buyer, playerId); err != nil {

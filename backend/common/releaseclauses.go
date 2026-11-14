@@ -216,7 +216,7 @@ func PayReleaseClause(dbCtx *DatabaseContext, playerId int64, buyerTeamId int64,
 	if _, err := tx.Exec(UpdateTeamBudgetStmtSql, fee, sellerTeamId); err != nil {
 		return nil, err
 	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	if err := removePlayerFromTeamLineupsTx(tx, playerId, sellerTeamId); err != nil {
 		return nil, err
 	}
 	if err := movePlayerToTeam(tx, buyerTeamId, playerId); err != nil {

@@ -19,6 +19,10 @@ type ProjectedReplacement struct {
 // insurance; the backfill pass, unlike the exclusion, does cover every position - including the
 // goalkeeper, when the saved lineup has none at all. The lineup editor's projection (see
 // ProjectKickoffReplacements) runs this same function, so what it shows is what the match does.
+//
+// A player in the lineup who is no longer in squad (sold, loaned out or released after the lineup
+// was saved - see removePlayerFromTeamLineupsTx) is taken out the same way, goalkeeper included:
+// he no longer plays for this club at all.
 func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*Player, unavailable map[int64]bool) {
 	originalCounts := make(map[int]int, len(ALL_OUTFIELD_POSITIONS)+1)
 	for _, position := range ALL_OUTFIELD_POSITIONS {
@@ -26,13 +30,54 @@ func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*
 	}
 	// A saved lineup can be left without its goalkeeper - selling, loaning out or retiring the
 	// only starting keeper deletes his default_lineup_positions row (see
-	// DeletePlayerLineupPositionsStmtSql) and nothing re-picks one - and every goalkeeper lookup
+	// removePlayerFromTeamLineupsTx) and nothing re-picks one - and every goalkeeper lookup
 	// would then panic on an empty slice, so the match could never be simulated. The squad's
 	// best available keeper steps in; a lineup that already has one is left alone.
 	originalCounts[GOALKEEPER] = 1
 
+	departed := departedLineupPlayers(*playersByPosition, squad)
+	if len(departed) > 0 {
+		keepers := (*playersByPosition)[GOALKEEPER]
+		kept := keepers[:0]
+		for _, id := range keepers {
+			if !departed[id] {
+				kept = append(kept, id)
+			}
+		}
+		(*playersByPosition)[GOALKEEPER] = kept
+		for id := range unavailable {
+			departed[id] = true
+		}
+		unavailable = departed
+	}
+
 	FilterOutfieldPlayers(playersByPosition, unavailable)
 	BackfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)
+}
+
+// departedLineupPlayers returns the players of playersByPosition who are not in squad, nil when
+// there are none. An empty squad (nothing to check against, e.g. a national team, whose players
+// belong to their clubs) departs nobody.
+func departedLineupPlayers(playersByPosition map[int][]int64, squad []*Player) map[int64]bool {
+	if len(squad) == 0 {
+		return nil
+	}
+	inSquad := make(map[int64]bool, len(squad))
+	for _, p := range squad {
+		inSquad[p.Id] = true
+	}
+	var departed map[int64]bool
+	for _, ids := range playersByPosition {
+		for _, id := range ids {
+			if !inSquad[id] {
+				if departed == nil {
+					departed = make(map[int64]bool)
+				}
+				departed[id] = true
+			}
+		}
+	}
+	return departed
 }
 
 // FilterOutfieldPlayers removes every player in `exclude` from a team's non-goalkeeper
@@ -53,28 +98,31 @@ func FilterOutfieldPlayers(playersByPosition *map[int][]int64, exclude map[int64
 	}
 }
 
-// ProjectKickoffReplacements lists, for each unavailable outfield starter of lineup, the player
+// ProjectKickoffReplacements lists, for each unavailable outfield starter of lineup (and each
+// starter, keeper included, who is no longer in squad), the player
 // the pre-kickoff refill (ExcludeUnavailableAndBackfill) would put in his slot if the match
 // kicked off now. The i-th starter removed from a position is paired with the i-th player the
 // refill adds there; a starter nobody can replace (the squad ran out) has no entry. lineup is
 // not modified.
 func ProjectKickoffReplacements(lineup *Lineup, squad []*Player, unavailable map[int64]bool) []ProjectedReplacement {
-	if lineup == nil || len(unavailable) == 0 {
+	if lineup == nil {
 		return nil
 	}
 	playersByPosition := make(map[int][]int64)
 	for _, p := range lineup.Positions {
 		playersByPosition[p.Position] = append(playersByPosition[p.Position], p.PlayerId)
 	}
+	departed := departedLineupPlayers(playersByPosition, squad)
+	if len(unavailable) == 0 && len(departed) == 0 {
+		return nil
+	}
 
 	removed := make(map[int][]int64)
 	kept := make(map[int][]int64)
 	for _, position := range positionFillOrder {
-		if position == GOALKEEPER {
-			continue
-		}
 		for _, id := range playersByPosition[position] {
-			if unavailable[id] {
+			// The refill only takes a goalkeeper out when he has left the club.
+			if departed[id] || (position != GOALKEEPER && unavailable[id]) {
 				removed[position] = append(removed[position], id)
 			} else {
 				kept[position] = append(kept[position], id)

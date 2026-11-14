@@ -284,9 +284,8 @@ func withProjectedReplacements(dbCtx *common.DatabaseContext, teamId int64, line
 		log.Errorf("error getting unavailable players for team %d projection: %s", teamId, err)
 		return lineup
 	}
-	if len(unavailable) == 0 {
-		return lineup
-	}
+	// Even with nobody injured or suspended the squad is needed: a starter who has since left the
+	// club is replaced at kickoff too.
 	players, err := common.GetPlayersFromTeamId(dbCtx, teamId)
 	if err != nil {
 		log.Errorf("error getting players for team %d projection: %s", teamId, err)

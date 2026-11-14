@@ -510,7 +510,7 @@ func executeOfferTx(dbCtx *DatabaseContext, tx *sql.Tx, offer *lockedOffer, fee 
 	if _, err := tx.Exec(ApplyRenewalOfferStmtSql, offer.offeredYears, offer.offeredWage, playerId, clause); err != nil {
 		return nil, err
 	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	if err := removePlayerFromTeamLineupsTx(tx, playerId, toTeamId); err != nil {
 		return nil, err
 	}
 	if _, err := tx.Exec(DeleteOffersForPlayerStmtSql, playerId); err != nil {

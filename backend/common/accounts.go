@@ -263,7 +263,7 @@ func returnLoanInTx(tx *sql.Tx, loan PlayerLoan) error {
 	} else if err := movePlayerToTeam(tx, loan.FromTeamId, loan.PlayerId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, loan.PlayerId); err != nil {
+	if err := removePlayerFromTeamLineupsTx(tx, loan.PlayerId, loan.ToTeamId); err != nil {
 		return err
 	}
 	_, err := tx.Exec(DeletePlayerLoanStmtSql, loan.LoanId)

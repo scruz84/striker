@@ -326,7 +326,7 @@ func AcceptLoan(dbCtx *DatabaseContext, listingId int64, borrowingTeamId int64) 
 	if err := movePlayerToTeam(tx, borrowingTeamId, playerId); err != nil {
 		return err
 	}
-	if _, err := tx.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	if err := removePlayerFromTeamLineupsTx(tx, playerId, lendingTeamId); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(DeleteLoanListingStmtSql, listingId); err != nil {
