@@ -6,19 +6,32 @@ import "database/sql"
 // TeamId/Season can be absent: league fields are unset if the team's league data wasn't
 // recorded (shouldn't happen in practice, but the schema allows it - see init15_season_history.sql),
 // and CupResult is unset for a season the team's country's cup hadn't completed, or that had no
-// cup entry for them at all.
+// cup entry for them at all. CupResult is only ever a domestic cup ('Champion'); a regional cup win
+// is InternationalCup (see openspec/specs/team-history).
 type SeasonHistoryEntry struct {
-	TeamId        int64   `json:"teamId"`
-	Season        int     `json:"season"`
-	LeagueId      *int64  `json:"leagueId"`
-	LeagueName    *string `json:"leagueName"`
-	FinalPosition *int    `json:"finalPosition"`
-	Promoted      bool    `json:"promoted"`
-	Relegated     bool    `json:"relegated"`
+	TeamId     int64   `json:"teamId"`
+	Season     int     `json:"season"`
+	LeagueId   *int64  `json:"leagueId"`
+	LeagueName *string `json:"leagueName"`
+	// LeagueTier is the tier of LeagueId (1 = top division), unset with it.
+	LeagueTier    *int `json:"leagueTier"`
+	FinalPosition *int `json:"finalPosition"`
+	Promoted      bool `json:"promoted"`
+	Relegated     bool `json:"relegated"`
 	// ViaPlayoff is true when the promotion or relegation came through the promotion playoff (see
 	// openspec/specs/league-pyramid "Season history marks playoff moves").
 	ViaPlayoff bool    `json:"viaPlayoff"`
 	CupResult  *string `json:"cupResult"`
+	// InternationalCup is the regional cup edition the team won during this league season.
+	InternationalCup *SeasonHistoryInternationalCup `json:"internationalCup"`
+}
+
+// SeasonHistoryInternationalCup is a regional cup edition won: its cup id, region (the client
+// names the cup from it) and edition number within the region (cups.season).
+type SeasonHistoryInternationalCup struct {
+	CupId   int64  `json:"cupId"`
+	Region  string `json:"region"`
+	Edition int    `json:"edition"`
 }
 
 const UpsertSeasonHistoryLeagueStmtSql = `
@@ -38,8 +51,18 @@ INSERT INTO season_history (team_id, season, cup_result)
 VALUES ($1, $2, $3)
 ON CONFLICT (team_id, season) DO UPDATE SET cup_result = EXCLUDED.cup_result, updated_at = now()`
 
-const GetSeasonHistoryStmtSql = "SELECT team_id, season, league_id, league_name, final_position, promoted, relegated, via_playoff, cup_result " +
-	"FROM season_history WHERE team_id = $1 ORDER BY season DESC"
+// UpsertSeasonHistoryInternationalCupStmtSql records a regional cup title, leaving the league
+// columns and cup_result untouched.
+const UpsertSeasonHistoryInternationalCupStmtSql = `
+INSERT INTO season_history (team_id, season, international_cup_id)
+VALUES ($1, $2, $3)
+ON CONFLICT (team_id, season) DO UPDATE SET international_cup_id = EXCLUDED.international_cup_id, updated_at = now()`
+
+const GetSeasonHistoryStmtSql = "SELECT sh.team_id, sh.season, sh.league_id, sh.league_name, l.tier, sh.final_position, " +
+	"sh.promoted, sh.relegated, sh.via_playoff, sh.cup_result, ic.cup_id, ic.region, ic.season " +
+	"FROM season_history sh LEFT JOIN leagues l ON l.league_id = sh.league_id " +
+	"LEFT JOIN cups ic ON ic.cup_id = sh.international_cup_id " +
+	"WHERE sh.team_id = $1 ORDER BY sh.season DESC"
 
 // RecordSeasonHistoryLeagueResult upserts a team's final league position, its final table line
 // (line's matches, points, wins, draws, losses and goals) and promotion/relegation outcome for one
@@ -56,10 +79,17 @@ func RecordSeasonHistoryLeagueResult(dbCtx *DatabaseContext, teamId int64, seaso
 	return err
 }
 
-// RecordSeasonHistoryCupResult upserts a team's cup result for one season, leaving any league
-// data already recorded untouched.
+// RecordSeasonHistoryCupResult upserts a team's domestic cup result for one season (the cup's own
+// season), leaving any league data already recorded untouched.
 func RecordSeasonHistoryCupResult(dbCtx *DatabaseContext, teamId int64, season int, cupResult string) error {
 	_, err := dbCtx.Db.Exec(UpsertSeasonHistoryCupResultStmtSql, teamId, season, cupResult)
+	return err
+}
+
+// RecordSeasonHistoryInternationalCup records that teamId won regional cup cupId during its
+// league season season, leaving every other column of that season untouched.
+func RecordSeasonHistoryInternationalCup(dbCtx *DatabaseContext, teamId int64, season int, cupId int64) error {
+	_, err := dbCtx.Db.Exec(UpsertSeasonHistoryInternationalCupStmtSql, teamId, season, cupId)
 	return err
 }
 
@@ -74,10 +104,18 @@ func GetSeasonHistory(dbCtx *DatabaseContext, teamId int64) ([]SeasonHistoryEntr
 	entries := make([]SeasonHistoryEntry, 0)
 	for rows.Next() {
 		var e SeasonHistoryEntry
-		var leagueName, cupResult sql.NullString
-		var leagueId, finalPosition sql.NullInt64
-		if err := rows.Scan(&e.TeamId, &e.Season, &leagueId, &leagueName, &finalPosition, &e.Promoted, &e.Relegated, &e.ViaPlayoff, &cupResult); err != nil {
+		var leagueName, cupResult, cupRegion sql.NullString
+		var leagueId, leagueTier, finalPosition, cupId, cupEdition sql.NullInt64
+		if err := rows.Scan(&e.TeamId, &e.Season, &leagueId, &leagueName, &leagueTier, &finalPosition, &e.Promoted, &e.Relegated,
+			&e.ViaPlayoff, &cupResult, &cupId, &cupRegion, &cupEdition); err != nil {
 			return nil, err
+		}
+		if leagueTier.Valid {
+			tier := int(leagueTier.Int64)
+			e.LeagueTier = &tier
+		}
+		if cupId.Valid {
+			e.InternationalCup = &SeasonHistoryInternationalCup{CupId: cupId.Int64, Region: cupRegion.String, Edition: int(cupEdition.Int64)}
 		}
 		if leagueId.Valid {
 			e.LeagueId = &leagueId.Int64
@@ -94,7 +132,7 @@ func GetSeasonHistory(dbCtx *DatabaseContext, teamId int64) ([]SeasonHistoryEntr
 		}
 		entries = append(entries, e)
 	}
-	return entries, nil
+	return entries, rows.Err()
 }
 
 // LeagueSeasons is the league page's season picker: the league country's current season and

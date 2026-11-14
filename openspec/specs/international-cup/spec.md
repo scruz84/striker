@@ -2,8 +2,9 @@
 
 ## Purpose
 The regional (international) club cups - European Cup, Copa America, Asian Cup, African Cup:
-when a region starts a new edition from its countries' new league champions, who enters, how
-editions are numbered, and how the start stays safe on several engine replicas.
+when a region starts a new edition from its countries' new league champions, who enters (each
+country's top two), how the first round is drawn, how editions are numbered, and how the start
+stays safe on several engine replicas.
 
 ## Requirements
 
@@ -77,16 +78,19 @@ The International Cup page SHALL show every region's latest edition to every use
 ## Code map
 
 - Engine: `backend/engine/cups.go` (`StartRegionalCupsIfDue`, `regionalCupEntrants`,
-  `MinRegionalCupCountries`, `RegionalCupMaxUnusedChampions`, `internationalCupNames`,
-  `cupTieKickoff`), run by `RegionalCupJob` (`engine/tasks.go`, `StartRegionalCupScheduler` in
-  `engine/scheduler.go`). Rounds advance through `AdvanceCups` like a domestic cup.
-- Data: `backend/common/regionalcups.go` (`GetRegionalCupCountryStates`, `HasActiveRegionalCup`,
-  `CreateRegionalCup`), `common/cups.go` (`GetLatestCupForRegion`); regions in `common/regions.go`
-  (`RegionForCountry`); lock `LockNamespaceRegionalCupStart` (`common/enginelocks.go`).
+  `regionalCupTeams`, `RegionalCupEntrantsPerCountry`, `MinRegionalCupCountries`,
+  `RegionalCupMaxUnusedChampions`, `internationalCupNames`, `cupTieKickoff`), the draw in
+  `engine/regionalcupdraw.go` (`regionalCupFirstRound`), run by `RegionalCupJob`
+  (`engine/tasks.go`, `StartRegionalCupScheduler` in `engine/scheduler.go`). Rounds advance through `AdvanceCups` like a domestic cup; a completed
+  edition is recorded in its champion's history by `recordCupTitle` (see team-history).
+- Data: `backend/common/regionalcups.go` (`GetRegionalCupCountryStates`, `RegionalCupEntrant`,
+  `HasActiveRegionalCup`, `CreateRegionalCup`, `GetInternationalCupEntries`), `common/cups.go`
+  (`GetLatestCupForRegion`); regions in `common/regions.go` (`RegionForCountry`); lock `LockNamespaceRegionalCupStart` (`common/enginelocks.go`).
 - Schema: `resources/sql/init103_international_cup_entries.sql`
-  (`international_cup_entries`), `history/init52_international_cup.sql` (`cups.region`).
+  (`international_cup_entries`), `init112_international_cup_runners_up.sql` (`final_position`,
+  primary key `(cup_id, team_id)`), `history/init52_international_cup.sql` (`cups.region`).
 - API: `LatestInternationalCupHandler` (`handlers/cupHandlers.go`).
 - Frontend: `features/cup/InternationalCupPage.tsx` (`INTERNATIONAL_CUP_REGIONS`, one tab per
-  region); test `features/cup/InternationalCupPage.test.tsx`.
-- Tests: `engine/cups_test.go` (`regionalCupEntrants`), `engine/cups_integration_test.go`,
-  `engine/engine_replicas_integration_test.go`.
+  region, `?region=` / `?cup=` URL parameters); test `features/cup/InternationalCupPage.test.tsx`.
+- Tests: `engine/cups_test.go` (`regionalCupEntrants`), `engine/regionalcupdraw_test.go`,
+  `engine/cups_integration_test.go`, `engine/engine_replicas_integration_test.go`.

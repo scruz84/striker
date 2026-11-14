@@ -891,7 +891,7 @@
     "titleWithEdition": "{{name}} - Edición {{edition}}",
     "champion": "Campeón: {{name}}",
     "noCup": "Aún no hay copa para tu país.",
-    "noInternationalCup": "Aún no hay copa en esta región - cada edición empieza cuando todos los países de la región tienen un campeón nuevo, o antes si alguno termina dos temporadas primero (hacen falta al menos dos países).",
+    "noInternationalCup": "Aún no hay copa en esta región - cada edición empieza cuando todos los países de la región tienen un campeón nuevo, o antes si alguno termina dos temporadas primero (hacen falta al menos dos países). Cada país envía al campeón y al subcampeón de su primera división.",
     "round": "Ronda {{round}}",
     "playInRound": "Ronda previa",
     "final": "Final",
@@ -1261,6 +1261,11 @@
     "promoted": "Ascendido",
     "relegated": "Descendido",
     "leagueChampion": "Campeón de liga",
+    "cupWinner": "Campeón de copa",
+    "internationalCupWinner": "Campeón de la {{cup}} (Ed. {{edition}})",
+    "honours": "Palmarés",
+    "honoursLeague": "Ligas",
+    "honoursCup": "Copas",
     "makeOffer": "Hacer oferta",
     "amount": "Importe",
     "send": "Enviar",
@@ -2660,7 +2665,7 @@
           },
           {
             "q": "¿Qué es la copa internacional?",
-            "a": "Una competición eliminatoria regional entre los campeones de liga de los países de una región. Una nueva edición empieza cuando todos los países de la región han coronado un campeón nuevo desde la anterior, o en cuanto un país termina dos temporadas, para que una liga más lenta no retrase mucho al resto. Hacen falta al menos dos países. Cada eliminatoria se juega a las 20:45, hora local del país del equipo local."
+            "a": "Una competición eliminatoria regional entre los campeones y subcampeones de primera división de los países de una región. Los campeones reciben antes los pases directos y se cruzan con un subcampeón de otro país. Una nueva edición empieza cuando todos los países de la región han coronado un campeón nuevo desde la anterior, o en cuanto un país termina dos temporadas, para que una liga más lenta no retrase mucho al resto. Hacen falta al menos dos países. Cada eliminatoria se juega a las 20:45, hora local del país del equipo local."
           }
         ]
       },

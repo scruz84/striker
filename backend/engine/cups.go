@@ -117,7 +117,7 @@ func classificationPointsForSeeding(dbCtx *common.DatabaseContext, teamIds []int
 	return points
 }
 
-// InternationalCupTier is the league tier whose champion represents a country in its region's
+// InternationalCupTier is the league tier whose top two represent a country in its region's
 // international cup (issue #64, see StartRegionalCupsIfDue) - same tier the domestic cup draws its
 // entrants from.
 const InternationalCupTier = CupTier
@@ -148,11 +148,11 @@ const RegionalCupMaxUnusedChampions = 2
 
 // regionalCupEntrants decides, from one region's country states (see
 // common.GetRegionalCupCountryStates), whether a new edition of its cup is due and returns its
-// entrants - every fresh country, with its latest champion - or nil when it is not due. An edition
-// is due once at least MinRegionalCupCountries countries are fresh and either every country of the
-// region is, or one has RegionalCupMaxUnusedChampions unused champions: a slow (weekly schedule,
-// just activated or stuck) country never holds the others back by more than one season of the
-// fastest one. Pure, so the rule is unit-tested without a database.
+// entrants - every fresh country, with its latest champion (and runner-up, see regionalCupTeams) -
+// or nil when it is not due. An edition is due once at least MinRegionalCupCountries countries are
+// fresh and either every country of the region is, or one has RegionalCupMaxUnusedChampions unused
+// champions: a slow (weekly schedule, just activated or stuck) country never holds the others back
+// by more than one season of the fastest one. Pure, so the rule is unit-tested without a database.
 func regionalCupEntrants(states []common.RegionalCupCountryState) []common.RegionalCupCountryState {
 	fresh := make([]common.RegionalCupCountryState, 0, len(states))
 	overdue := false
@@ -172,6 +172,24 @@ func regionalCupEntrants(states []common.RegionalCupCountryState) []common.Regio
 		return nil
 	}
 	return fresh
+}
+
+// RegionalCupEntrantsPerCountry is how many teams a fresh country sends to its region's cup: the
+// champion and the runner-up of its latest tier-1 season (see regionalCupTeams).
+const RegionalCupEntrantsPerCountry = 2
+
+// regionalCupTeams expands the fresh countries regionalCupEntrants picked into the teams they send:
+// each one's latest tier-1 champion and, up to RegionalCupEntrantsPerCountry, that season's
+// runner-up when one is recorded (a country without one enters with its champion alone).
+func regionalCupTeams(entrants []common.RegionalCupCountryState) []common.RegionalCupEntrant {
+	teams := make([]common.RegionalCupEntrant, 0, len(entrants)*RegionalCupEntrantsPerCountry)
+	for _, e := range entrants {
+		teams = append(teams, common.RegionalCupEntrant{Country: e.Country, Season: e.ChampionSeason, TeamId: e.ChampionTeamId, FinalPosition: 1})
+		if e.RunnerUpTeamId != 0 {
+			teams = append(teams, common.RegionalCupEntrant{Country: e.Country, Season: e.ChampionSeason, TeamId: e.RunnerUpTeamId, FinalPosition: 2})
+		}
+	}
+	return teams
 }
 
 // StartRegionalCupsIfDue starts a new edition of every region's international club cup that is
@@ -230,21 +248,20 @@ func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countri
 		return nil
 	}
 
-	teamIds := make([]int64, len(entrants))
-	for i, e := range entrants {
-		teamIds[i] = e.ChampionTeamId
-	}
-	teamCountry := make(map[int64]string, len(entrants))
-	for _, e := range entrants {
-		teamCountry[e.ChampionTeamId] = e.Country
+	teams := regionalCupTeams(entrants)
+	teamIds := make([]int64, len(teams))
+	teamCountry := make(map[int64]string, len(teams))
+	for i, e := range teams {
+		teamIds[i] = e.TeamId
+		teamCountry[e.TeamId] = e.Country
 	}
 	now := time.Now()
 	regionalCup := &common.Cup{Region: region}
 	r := rand.New(rand.NewSource(now.UnixNano()))
-	pairs := BuildFirstRoundPairings(teamIds, r, classificationPointsForSeeding(dbCtx, teamIds))
+	pairs := regionalCupFirstRound(teams, classificationPointsForSeeding(dbCtx, teamIds), r)
 	ties := make([]common.RegionalCupTieSeed, 0, len(pairs))
 	for _, pair := range pairs {
-		// A bye is always the second side (see BuildFirstRoundPairings).
+		// A bye is always the second side (see regionalCupFirstRound).
 		ties = append(ties, common.RegionalCupTieSeed{
 			HomeTeamId: pair[0],
 			AwayTeamId: asTeamIdPtr(pair[1]),
@@ -252,11 +269,11 @@ func startRegionalCupIfDue(dbCtx *common.DatabaseContext, region string, countri
 		})
 	}
 
-	cupId, edition, err := common.CreateRegionalCup(dbCtx, region, internationalCupName(region), entrants, ties)
+	cupId, edition, err := common.CreateRegionalCup(dbCtx, region, internationalCupName(region), teams, ties)
 	if err != nil {
 		return err
 	}
-	log.Infof("%s edition %d (cup %d) started with %d countries", internationalCupName(region), edition, cupId, len(entrants))
+	log.Infof("%s edition %d (cup %d) started with %d teams from %d countries", internationalCupName(region), edition, cupId, len(teams), len(entrants))
 	return nil
 }
 
@@ -366,7 +383,7 @@ func AdvanceCups(dbCtx *common.DatabaseContext) {
 	}
 
 	for _, cup := range cups {
-		if err := advanceCup(dbCtx, cup.CupId, cup.Season); err != nil {
+		if err := advanceCup(dbCtx, cup); err != nil {
 			log.Errorf("error advancing cup %d: %s", cup.CupId, err)
 		}
 	}
@@ -387,7 +404,8 @@ func AdvanceCups(dbCtx *common.DatabaseContext) {
 // section spans several independent statements/implicit transactions, so the lock needs to
 // outlive any one of them. Keyed on cupId alone, the same shared single-int-key convention
 // common.SetDefaultLineup (teamId) and generateMatchesForOneLeague (leagueId) already use.
-func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
+func advanceCup(dbCtx *common.DatabaseContext, cup common.Cup) error {
+	cupId := cup.CupId
 	ctx := context.Background()
 	conn, err := dbCtx.Db.Conn(ctx)
 	if err != nil {
@@ -431,9 +449,7 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
 			return err
 		}
 		awardCupChampionBonus(dbCtx, winners[0])
-		if err := common.RecordSeasonHistoryCupResult(dbCtx, winners[0], season, "Champion"); err != nil {
-			log.Errorf("error recording cup champion history for team %d season %d: %s", winners[0], season, err)
-		}
+		recordCupTitle(dbCtx, cup, winners[0])
 		if team, err := common.GetTeamById(winners[0], dbCtx); err == nil {
 			msg := common.NotificationMessage{
 				Text:   team.TeamName + " won the cup!",
@@ -449,6 +465,31 @@ func advanceCup(dbCtx *common.DatabaseContext, cupId int64, season int) error {
 
 	pairs := BuildNextRoundPairings(winners, classificationPointsForSeeding(dbCtx, winners))
 	return createRoundTies(dbCtx, cupId, round+1, pairs)
+}
+
+// recordCupTitle writes a completed cup's title into its champion's history (see
+// openspec/specs/team-history): a domestic cup under its own season (the country's league season),
+// a regional cup under the league season the champion's country is playing now - never under
+// cups.season, which for a regional cup is the edition number. The World Cup knockout (national
+// teams) has its own roll of honour and writes nothing. Best-effort, like the notification.
+func recordCupTitle(dbCtx *common.DatabaseContext, cup common.Cup, championTeamId int64) {
+	switch {
+	case cup.Country != "":
+		if err := common.RecordSeasonHistoryCupResult(dbCtx, championTeamId, cup.Season, "Champion"); err != nil {
+			log.Errorf("error recording cup champion history for team %d season %d: %s", championTeamId, cup.Season, err)
+		}
+	case cup.Region == worldCupRegion:
+		return
+	default:
+		season, err := common.GetCurrentSeasonForTeam(dbCtx, championTeamId)
+		if err != nil {
+			log.Errorf("error reading the season of international cup %d champion %d: %s", cup.CupId, championTeamId, err)
+			return
+		}
+		if err := common.RecordSeasonHistoryInternationalCup(dbCtx, championTeamId, season, cup.CupId); err != nil {
+			log.Errorf("error recording international cup %d title for team %d season %d: %s", cup.CupId, championTeamId, season, err)
+		}
+	}
 }
 
 // SimulateCupTies simulates every cup tie whose match_date has arrived.

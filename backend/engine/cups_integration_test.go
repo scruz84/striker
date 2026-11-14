@@ -67,6 +67,12 @@ func (f *regionalCupFixture) champion(country string, season int, teamId int64) 
 	f.exec(`INSERT INTO season_history (team_id, season, league_id, final_position) VALUES ($1, $2, $3, 1)`, teamId, season, f.tier1[country])
 }
 
+// runnerUp records teamId as country's tier-1 runner-up of season.
+func (f *regionalCupFixture) runnerUp(country string, season int, teamId int64) {
+	f.t.Helper()
+	f.exec(`INSERT INTO season_history (team_id, season, league_id, final_position) VALUES ($1, $2, $3, 2)`, teamId, season, f.tier1[country])
+}
+
 func (f *regionalCupFixture) run(countries ...string) {
 	startRegionalCups(f.dbCtx, func() (map[string][]string, error) {
 		return map[string][]string{f.region: countries}, nil
@@ -104,17 +110,34 @@ func (f *regionalCupFixture) entrants(cupId int64) map[int64]bool {
 	return teams
 }
 
-func (f *regionalCupFixture) entries(cupId int64) map[string]common.InternationalCupEntry {
+// entries returns cupId's recorded entrants by team id.
+func (f *regionalCupFixture) entries(cupId int64) map[int64]common.InternationalCupEntry {
 	f.t.Helper()
 	list, err := common.GetInternationalCupEntries(f.dbCtx, cupId)
 	if err != nil {
 		f.t.Fatalf("GetInternationalCupEntries: %s", err)
 	}
-	byCountry := make(map[string]common.InternationalCupEntry, len(list))
+	byTeam := make(map[int64]common.InternationalCupEntry, len(list))
 	for _, e := range list {
-		byCountry[e.Country] = e
+		byTeam[e.TeamId] = e
 	}
-	return byCountry
+	return byTeam
+}
+
+// firstRoundTies returns a cup's round-1 ties.
+func (f *regionalCupFixture) firstRoundTies(cupId int64) []common.CupTie {
+	f.t.Helper()
+	ties, err := common.GetCupTies(f.dbCtx, cupId)
+	if err != nil {
+		f.t.Fatalf("GetCupTies: %s", err)
+	}
+	round1 := make([]common.CupTie, 0, len(ties))
+	for _, tie := range ties {
+		if tie.Round == 1 {
+			round1 = append(round1, tie)
+		}
+	}
+	return round1
 }
 
 // TestRegionalCup_EditionsFollowNewChampions walks one region through two editions: it waits for
@@ -155,8 +178,8 @@ func TestRegionalCup_EditionsFollowNewChampions(t *testing.T) {
 	if got[esStale] {
 		t.Errorf("live-table leader %d must not enter (entrants %v)", esStale, got)
 	}
-	if e := f.entries(cupId); len(e) != 3 || e[es].Season != 1 || e[es].TeamId != esChampion {
-		t.Errorf("first edition entries %v, want es/fr/it season 1", e)
+	if e := f.entries(cupId); len(e) != 3 || e[esChampion].Season != 1 || e[esChampion].Country != es || e[esChampion].FinalPosition != 1 {
+		t.Errorf("first edition entries %v, want the es/fr/it season-1 champions (no runner-up recorded)", e)
 	}
 
 	// Edition still running: nothing new however many champions appear.
@@ -181,8 +204,58 @@ func TestRegionalCup_EditionsFollowNewChampions(t *testing.T) {
 	if len(got) != 2 || !got[esChampion] || !got[frChampion] || got[esSecond] || got[itChampion] {
 		t.Errorf("second edition entrants %v, want es champion %d and fr champion %d", got, esChampion, frChampion)
 	}
-	if e := f.entries(cupId); len(e) != 2 || e[es].Season != 3 || e[fr].Season != 2 {
+	if e := f.entries(cupId); len(e) != 2 || e[esChampion].Season != 3 || e[frChampion].Season != 2 {
 		t.Errorf("second edition entries %v, want es season 3 and fr season 2", e)
+	}
+}
+
+// TestRegionalCup_TopTwoOfEachCountry covers international-cup "Top two of each country" and
+// "Two countries": each fresh country sends its latest season's champion and runner-up (not an
+// older season's runner-up), both are recorded with their position, and round 1 pairs each
+// champion with the other country's runner-up.
+func TestRegionalCup_TopTwoOfEachCountry(t *testing.T) {
+	f := newRegionalCupFixture(t)
+	es, fr := f.country(), f.country()
+	esChampion, esRunnerUp, esOldRunnerUp := f.team(es, "champion"), f.team(es, "runner-up"), f.team(es, "old runner-up")
+	frChampion, frRunnerUp := f.team(fr, "champion"), f.team(fr, "runner-up")
+	f.champion(es, 1, esChampion)
+	f.runnerUp(es, 1, esOldRunnerUp)
+	f.champion(es, 2, esChampion)
+	f.runnerUp(es, 2, esRunnerUp)
+	f.champion(fr, 1, frChampion)
+	f.runnerUp(fr, 1, frRunnerUp)
+
+	f.run(es, fr)
+	cupId, _ := f.latestCup()
+	e := f.entries(cupId)
+	want := map[int64]common.InternationalCupEntry{
+		esChampion: {Country: es, Season: 2, TeamId: esChampion, FinalPosition: 1},
+		esRunnerUp: {Country: es, Season: 2, TeamId: esRunnerUp, FinalPosition: 2},
+		frChampion: {Country: fr, Season: 1, TeamId: frChampion, FinalPosition: 1},
+		frRunnerUp: {Country: fr, Season: 1, TeamId: frRunnerUp, FinalPosition: 2},
+	}
+	if len(e) != len(want) {
+		t.Fatalf("entries %v, want the top two of es and fr", e)
+	}
+	for team, entry := range want {
+		if e[team] != entry {
+			t.Errorf("entry of team %d = %+v, want %+v", team, e[team], entry)
+		}
+	}
+
+	ties := f.firstRoundTies(cupId)
+	if len(ties) != 2 {
+		t.Fatalf("%d first-round ties, want 2", len(ties))
+	}
+	opponents := map[int64]int64{}
+	for _, tie := range ties {
+		if tie.HomeTeamId == nil || tie.AwayTeamId == nil {
+			t.Fatalf("first-round tie %+v has a bye, want none with 4 teams", tie)
+		}
+		opponents[*tie.HomeTeamId] = *tie.AwayTeamId
+	}
+	if opponents[esChampion] != frRunnerUp || opponents[frChampion] != esRunnerUp {
+		t.Errorf("first round %v, want es champion vs fr runner-up and fr champion vs es runner-up", opponents)
 	}
 }
 
@@ -192,9 +265,9 @@ func TestCreateRegionalCup_FailureLeavesNothing(t *testing.T) {
 	f := newRegionalCupFixture(t)
 	es := f.country()
 	team := f.team(es, "champion")
-	entrants := []common.RegionalCupCountryState{
-		{Country: es, ChampionSeason: 1, ChampionTeamId: team},
-		{Country: "zzzz", ChampionSeason: 1, ChampionTeamId: -1},
+	entrants := []common.RegionalCupEntrant{
+		{Country: es, Season: 1, TeamId: team, FinalPosition: 1},
+		{Country: "zzzz", Season: 1, TeamId: -1, FinalPosition: 1},
 	}
 	ties := []common.RegionalCupTieSeed{{HomeTeamId: team}}
 	if _, _, err := common.CreateRegionalCup(f.dbCtx, f.region, "Test Cup", entrants, ties); err == nil {
@@ -222,11 +295,27 @@ func TestInternationalCupEntriesMigration_BackfillsExistingEditions(t *testing.T
 	if err != nil {
 		t.Fatalf("reading migration: %s", err)
 	}
-	f.exec(string(migration))
-	f.exec(string(migration))
+	runnersUp, err := resources.SQLFiles.ReadFile("sql/init112_international_cup_runners_up.sql")
+	if err != nil {
+		t.Fatalf("reading migration: %s", err)
+	}
+	// Every startup re-applies both files, in order.
+	for i := 0; i < 2; i++ {
+		f.exec(string(migration))
+		f.exec(string(runnersUp))
+	}
 
 	e := f.entries(cupId)
-	if len(e) != 2 || e[es].Season != 3 || e[es].TeamId != esChampion || e[fr].Season != 1 || e[fr].TeamId != frChampion {
+	if len(e) != 2 || e[esChampion].Season != 3 || e[esChampion].Country != es || e[frChampion].Season != 1 || e[frChampion].Country != fr {
 		t.Fatalf("backfilled entries %v, want es season 3 and fr season 1", e)
+	}
+	for team, entry := range e {
+		if entry.FinalPosition != 1 {
+			t.Errorf("backfilled entry of team %d has final position %d, want 1 (a champion)", team, entry.FinalPosition)
+		}
+	}
+	if n := f.scan(`SELECT count(*) FROM pg_constraint c JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+		WHERE c.conrelid = 'international_cup_entries'::regclass AND c.contype = 'p' AND a.attname = 'team_id'`); n != 1 {
+		t.Errorf("international_cup_entries primary key does not include team_id")
 	}
 }

@@ -268,12 +268,14 @@ func TestStartWorldCupIfDue_ConcurrentReplicasClaimOneCycle(t *testing.T) {
 
 // TestStartRegionalCupsIfDue_ConcurrentReplicasStartOneEdition: every replica runs the 5-minute
 // regional cup check at the same instant; a due edition must be created once, with one set of
-// entries.
+// entries (each country's top two).
 func TestStartRegionalCupsIfDue_ConcurrentReplicasStartOneEdition(t *testing.T) {
 	f := newRegionalCupFixture(t)
 	es, fr := f.country(), f.country()
 	f.champion(es, 1, f.team(es, "champion"))
+	f.runnerUp(es, 1, f.team(es, "runner-up"))
 	f.champion(fr, 1, f.team(fr, "champion"))
+	f.runnerUp(fr, 1, f.team(fr, "runner-up"))
 
 	runConcurrently(replicas, func() { f.run(es, fr) })
 
@@ -281,11 +283,11 @@ func TestStartRegionalCupsIfDue_ConcurrentReplicasStartOneEdition(t *testing.T) 
 		t.Fatalf("concurrent checks created %d editions, want 1", n)
 	}
 	cupId, _ := f.latestCup()
-	if n := f.scan(`SELECT count(*) FROM international_cup_entries WHERE cup_id = $1`, cupId); n != 2 {
-		t.Errorf("edition %d has %d entries, want 2", cupId, n)
+	if n := f.scan(`SELECT count(*) FROM international_cup_entries WHERE cup_id = $1`, cupId); n != 4 {
+		t.Errorf("edition %d has %d entries, want 4", cupId, n)
 	}
-	if n := f.scan(`SELECT count(*) FROM cup_ties WHERE cup_id = $1`, cupId); n != 1 {
-		t.Errorf("edition %d has %d first-round ties, want 1", cupId, n)
+	if n := f.scan(`SELECT count(*) FROM cup_ties WHERE cup_id = $1`, cupId); n != 2 {
+		t.Errorf("edition %d has %d first-round ties, want 2", cupId, n)
 	}
 }
 

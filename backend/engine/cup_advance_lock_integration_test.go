@@ -72,7 +72,7 @@ func TestAdvanceCup_ConcurrentCallsDontDuplicateRound(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if err := advanceCup(dbCtx, cupId, season); err != nil {
+			if err := advanceCup(dbCtx, common.Cup{CupId: cupId, Country: "zv", Season: season}); err != nil {
 				t.Errorf("advanceCup: %s", err)
 			}
 		}()

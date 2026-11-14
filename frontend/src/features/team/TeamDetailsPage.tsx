@@ -21,6 +21,7 @@ import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
   useAcademy,
   useCupDetails,
@@ -265,6 +266,7 @@ export function TeamDetailsPage() {
                   </Typography>
                 )
               )}
+              <HonoursSummary history={history} />
               <TrophyCabinet history={history} />
             </>
           )}
@@ -278,17 +280,88 @@ export function TeamDetailsPage() {
 // consistently as "gold" wherever it shows up in the UI.
 const CHAMPION_COLOR = '#D4AF37'
 
+// The regional cups in the International Cup page's tab order, for the honours summary.
+const INTERNATIONAL_CUP_ORDER = ['europe', 'americas', 'asia', 'africa']
+
+// The stored domestic cup result of a cup win (common.RecordSeasonHistoryCupResult).
+const CUP_WINNER_RESULT = 'Champion'
+
+function internationalCupName(t: TFunction, region: string): string {
+  return INTERNATIONAL_CUP_ORDER.includes(region) ? t(`cup.names.${region}`) : t('cup.names.international')
+}
+
+// HonoursSummary counts the club's titles: tier-1 league wins, domestic cups and each regional
+// cup (openspec/specs/team-history "Honours summary"). Nothing is shown for a club without one.
+export function HonoursSummary({ history }: { history: SeasonHistoryEntry[] }) {
+  const { t } = useTranslation()
+  const leagues = history.filter((entry) => entry.finalPosition === 1 && entry.leagueTier === 1).length
+  const cups = history.filter((entry) => entry.cupResult === CUP_WINNER_RESULT).length
+  const international = new Map<string, number>()
+  for (const entry of history) {
+    if (entry.internationalCup) {
+      const region = entry.internationalCup.region
+      international.set(region, (international.get(region) ?? 0) + 1)
+    }
+  }
+  const regions = [...international.keys()].sort((a, b) => {
+    const rank = (region: string) => (INTERNATIONAL_CUP_ORDER.includes(region) ? INTERNATIONAL_CUP_ORDER.indexOf(region) : 99)
+    return rank(a) - rank(b)
+  })
+  const items = [
+    ...(leagues > 0 ? [`${t('team.honoursLeague')} ${leagues}`] : []),
+    ...(cups > 0 ? [`${t('team.honoursCup')} ${cups}`] : []),
+    ...regions.map((region) => `${internationalCupName(t, region)} ${international.get(region)}`),
+  ]
+  if (items.length === 0) {
+    return null
+  }
+  return (
+    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+      <EmojiEventsOutlinedIcon sx={{ color: CHAMPION_COLOR }} fontSize="small" />
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        {t('team.honours')}
+      </Typography>
+      <Typography variant="body2" data-testid="honours-summary">
+        {items.join(' · ')}
+      </Typography>
+    </Stack>
+  )
+}
+
 export function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
   const { t } = useTranslation()
   if (history.length === 0) {
     return <EmptyState compact title={t('team.noSeasons')} />
   }
 
+  const hasOutcome = (entry: SeasonHistoryEntry) =>
+    entry.promoted || entry.relegated || !!entry.cupResult || !!entry.internationalCup
   const outcomeChips = (entry: SeasonHistoryEntry) => (
     <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5 }}>
       {entry.promoted && <Chip size="small" color="success" label={t('team.promoted')} />}
       {entry.relegated && <Chip size="small" color="warning" label={t('team.relegated')} />}
-      {entry.cupResult && <Chip size="small" color="primary" label={entry.cupResult} />}
+      {entry.cupResult && (
+        <Chip
+          size="small"
+          color="primary"
+          label={entry.cupResult === CUP_WINNER_RESULT ? t('team.cupWinner') : entry.cupResult}
+        />
+      )}
+      {entry.internationalCup && (
+        <Chip
+          size="small"
+          clickable
+          component={RouterLink}
+          to={`/international-cup?region=${entry.internationalCup.region}&cup=${entry.internationalCup.cupId}`}
+          icon={<EmojiEventsOutlinedIcon sx={{ '&&': { color: CHAMPION_COLOR } }} />}
+          variant="outlined"
+          sx={{ borderColor: CHAMPION_COLOR }}
+          label={t('team.internationalCupWinner', {
+            cup: internationalCupName(t, entry.internationalCup.region),
+            edition: entry.internationalCup.edition,
+          })}
+        />
+      )}
     </Stack>
   )
   // A season with a recorded league links to that league's table for that season.
@@ -324,7 +397,7 @@ export function TrophyCabinet({ history }: { history: SeasonHistoryEntry[] }) {
       ]}
       mobile={{
         primary: (entry) => seasonLink(entry, `${t('team.table.season')} ${entry.season} · ${entry.leagueName ?? '-'}`),
-        secondary: (entry) => (entry.promoted || entry.relegated || entry.cupResult ? outcomeChips(entry) : null),
+        secondary: (entry) => (hasOutcome(entry) ? outcomeChips(entry) : null),
         end: (entry) => (
           <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
             {t('team.table.finalPosition')} {position(entry)}

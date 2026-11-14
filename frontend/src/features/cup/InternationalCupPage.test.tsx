@@ -9,6 +9,7 @@ const cupIdsByRegion: Record<string, number> = { europe: 11, americas: 22 }
 const cupsById: Record<number, { name: string; season: number }> = {
   11: { name: 'European Cup', season: 3 },
   22: { name: 'Copa America', season: 1 },
+  7: { name: 'European Cup', season: 1 },
 }
 let userCountry = 'ar'
 
@@ -27,9 +28,9 @@ vi.mock('../../api/hooks', () => ({
   }),
 }))
 
-function renderPage() {
+function renderPage(url = '/international-cup') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[url]}>
       <InternationalCupPage />
     </MemoryRouter>,
   )
@@ -72,5 +73,18 @@ describe('InternationalCupPage region tabs', () => {
     renderPage()
     fireEvent.click(screen.getByRole('tab', { name: 'Copa de Asia' }))
     expect(screen.getByText('Aún no hay edición')).toBeInTheDocument()
+  })
+
+  it('opens the edition given in the URL', () => {
+    renderPage('/international-cup?region=europe&cup=7')
+    expect(screen.getByRole('tab', { name: 'Copa de Europa', selected: true })).toBeInTheDocument()
+    expect(screen.getByText('Copa de Europa - Edición 1')).toBeInTheDocument()
+  })
+
+  it('goes back to the latest edition when another tab is picked', () => {
+    renderPage('/international-cup?region=europe&cup=7')
+    fireEvent.click(screen.getByRole('tab', { name: 'Copa América' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Copa de Europa' }))
+    expect(screen.getByText('Copa de Europa - Edición 3')).toBeInTheDocument()
   })
 })

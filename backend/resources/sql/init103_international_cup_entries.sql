@@ -3,7 +3,8 @@
 -- edition. A country is "fresh" for the next edition only once it has a champion from a newer
 -- season than the newest one recorded here.
 --
--- Re-runnable: the table and index are IF NOT EXISTS and the backfill skips rows already present.
+-- Re-runnable: the table and index are IF NOT EXISTS and the backfill skips editions that already
+-- have entries (init112 later changes the primary key, so the conflict clause names none).
 
 CREATE TABLE IF NOT EXISTS international_cup_entries (
     cup_id  bigint NOT NULL REFERENCES cups(cup_id) ON DELETE CASCADE,
@@ -25,5 +26,6 @@ JOIN cup_ties ct ON ct.cup_id = c.cup_id AND ct.round = 1
 JOIN season_history sh ON sh.team_id IN (ct.home_team_id, ct.away_team_id) AND sh.final_position = 1
 JOIN leagues l ON l.league_id = sh.league_id AND l.tier = 1
 WHERE c.region IS NOT NULL AND c.region <> 'world'
+  AND NOT EXISTS (SELECT 1 FROM international_cup_entries e WHERE e.cup_id = c.cup_id)
 ORDER BY c.cup_id, l.country, sh.season DESC
-ON CONFLICT (cup_id, country) DO NOTHING;
+ON CONFLICT DO NOTHING;

@@ -1304,12 +1304,24 @@ export interface SeasonHistoryEntry {
   // The league the team played in that season; null when it was not recorded.
   leagueId: number | null
   leagueName: string | null
+  // The tier of that league (1 = top division); null with it. Absent on older responses.
+  leagueTier?: number | null
   finalPosition: number | null
   promoted: boolean
   relegated: boolean
   // The promotion or relegation came through the promotion playoff. Absent on older responses.
   viaPlayoff?: boolean
+  // The domestic cup result of that season: 'Champion' when the team won its country's cup.
   cupResult: string | null
+  // The regional cup edition won during that league season. Absent on older responses.
+  internationalCup?: SeasonHistoryInternationalCup | null
+}
+
+export interface SeasonHistoryInternationalCup {
+  cupId: number
+  region: string
+  // The edition number within its region.
+  edition: number
 }
 
 // A league's season picker: the current season and every past one, newest first.

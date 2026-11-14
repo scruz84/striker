@@ -16,8 +16,20 @@ type RegionalCupCountryState struct {
 	// finished a season yet.
 	ChampionSeason int
 	ChampionTeamId int64
+	// RunnerUpTeamId is the runner-up (final_position 2) of that same league and season, 0 when
+	// none is recorded.
+	RunnerUpTeamId int64
 	// UnusedChampions counts its tier-1 seasons with a champion newer than LastEnteredSeason.
 	UnusedChampions int
+}
+
+// RegionalCupEntrant is one team a fresh country sends to an edition: its champion
+// (FinalPosition 1) or runner-up (2) of the tier-1 season Season.
+type RegionalCupEntrant struct {
+	Country       string
+	Season        int
+	TeamId        int64
+	FinalPosition int
 }
 
 // Fresh reports whether the country has a champion that has not played the cup yet.
@@ -27,7 +39,7 @@ func (s RegionalCupCountryState) Fresh() bool {
 
 // GetRegionalCupCountryStatesStmtSql returns one row per country in $2 that has a tier-1 ($1)
 // league. The latest champion is the newest season's final_position = 1 row, lowest league_id
-// among several tier-1 groups.
+// among several tier-1 groups; the runner-up is that league and season's final_position = 2 row.
 const GetRegionalCupCountryStatesStmtSql = `
 WITH tier1 AS (
 	SELECT DISTINCT country FROM leagues WHERE tier = $1 AND country = ANY($2) AND archived_season IS NULL
@@ -40,13 +52,19 @@ WITH tier1 AS (
 	WHERE country = ANY($2) GROUP BY country
 )
 SELECT t.country, COALESCE(e.season, 0), COALESCE(latest.season, 0), COALESCE(latest.team_id, 0),
+	COALESCE(runner_up.team_id, 0),
 	(SELECT count(DISTINCT c.season) FROM champions c WHERE c.country = t.country AND c.season > COALESCE(e.season, 0))
 FROM tier1 t
 LEFT JOIN entered e ON e.country = t.country
 LEFT JOIN LATERAL (
-	SELECT c.season, c.team_id FROM champions c WHERE c.country = t.country
+	SELECT c.season, c.team_id, c.league_id FROM champions c WHERE c.country = t.country
 	ORDER BY c.season DESC, c.league_id ASC LIMIT 1
 ) latest ON true
+LEFT JOIN LATERAL (
+	SELECT sh.team_id FROM season_history sh
+	WHERE sh.league_id = latest.league_id AND sh.season = latest.season AND sh.final_position = 2
+	ORDER BY sh.team_id LIMIT 1
+) runner_up ON true
 ORDER BY t.country`
 
 // GetRegionalCupCountryStates reads RegionalCupCountryState for every country in countries that
@@ -61,7 +79,7 @@ func GetRegionalCupCountryStates(dbCtx *DatabaseContext, tier int, countries []s
 	states := make([]RegionalCupCountryState, 0, len(countries))
 	for rows.Next() {
 		var s RegionalCupCountryState
-		if err := rows.Scan(&s.Country, &s.LastEnteredSeason, &s.ChampionSeason, &s.ChampionTeamId, &s.UnusedChampions); err != nil {
+		if err := rows.Scan(&s.Country, &s.LastEnteredSeason, &s.ChampionSeason, &s.ChampionTeamId, &s.RunnerUpTeamId, &s.UnusedChampions); err != nil {
 			return nil, err
 		}
 		states = append(states, s)
@@ -83,7 +101,7 @@ func HasActiveRegionalCup(dbCtx *DatabaseContext, region string) (bool, error) {
 const InsertRegionalCupStmtSql = "INSERT INTO cups (country, region, season, name) " +
 	"SELECT NULL, $1::varchar, COALESCE(max(season), 0) + 1, $2 FROM cups WHERE region = $1::varchar RETURNING cup_id, season"
 
-const InsertInternationalCupEntryStmtSql = "INSERT INTO international_cup_entries (cup_id, country, season, team_id) VALUES ($1, $2, $3, $4)"
+const InsertInternationalCupEntryStmtSql = "INSERT INTO international_cup_entries (cup_id, country, season, team_id, final_position) VALUES ($1, $2, $3, $4, $5)"
 
 // RegionalCupTieSeed is one first-round bracket slot: AwayTeamId nil is a bye for HomeTeamId.
 // MatchDate is the tie's kickoff (20:45 in the home side's country, see engine.cupTieKickoff),
@@ -97,9 +115,9 @@ type RegionalCupTieSeed struct {
 // CreateRegionalCup writes a new edition of region's cup in one transaction: the cups row
 // (numbered within the region), one international_cup_entries row per entrant and the first
 // round's ties, real ties kicking off at their own MatchDate and byes stored as already won (as
-// CreateCupTie does). It returns the cup id and its edition number. Nothing is left behind on
+// CreateCupTie does). A country may send two entrants (its champion and runner-up). It returns the cup id and its edition number. Nothing is left behind on
 // failure, so a half-written edition can never block its region (see HasActiveRegionalCup).
-func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entrants []RegionalCupCountryState, ties []RegionalCupTieSeed) (int64, int, error) {
+func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entrants []RegionalCupEntrant, ties []RegionalCupTieSeed) (int64, int, error) {
 	tx, err := dbCtx.Db.BeginTx(context.Background(), nil)
 	if err != nil {
 		return 0, 0, err
@@ -112,7 +130,7 @@ func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entra
 		return 0, 0, err
 	}
 	for _, e := range entrants {
-		if _, err := tx.Exec(InsertInternationalCupEntryStmtSql, cupId, e.Country, e.ChampionSeason, e.ChampionTeamId); err != nil {
+		if _, err := tx.Exec(InsertInternationalCupEntryStmtSql, cupId, e.Country, e.Season, e.TeamId, e.FinalPosition); err != nil {
 			return 0, 0, err
 		}
 	}
@@ -138,16 +156,19 @@ func CreateRegionalCup(dbCtx *DatabaseContext, region string, name string, entra
 	return cupId, edition, nil
 }
 
-const GetInternationalCupEntriesStmtSql = "SELECT country, season, team_id FROM international_cup_entries WHERE cup_id = $1 ORDER BY country"
+const GetInternationalCupEntriesStmtSql = "SELECT country, season, team_id, final_position FROM international_cup_entries " +
+	"WHERE cup_id = $1 ORDER BY country, final_position"
 
-// InternationalCupEntry is one recorded entrant of a regional cup edition.
+// InternationalCupEntry is one recorded entrant of a regional cup edition: FinalPosition 1 is its
+// country's champion, 2 its runner-up.
 type InternationalCupEntry struct {
-	Country string
-	Season  int
-	TeamId  int64
+	Country       string
+	Season        int
+	TeamId        int64
+	FinalPosition int
 }
 
-// GetInternationalCupEntries lists cupId's recorded entrants, by country.
+// GetInternationalCupEntries lists cupId's recorded entrants, by country and then final position.
 func GetInternationalCupEntries(dbCtx *DatabaseContext, cupId int64) ([]InternationalCupEntry, error) {
 	rows, err := dbCtx.Db.Query(GetInternationalCupEntriesStmtSql, cupId)
 	if err != nil {
@@ -157,7 +178,7 @@ func GetInternationalCupEntries(dbCtx *DatabaseContext, cupId int64) ([]Internat
 	entries := make([]InternationalCupEntry, 0)
 	for rows.Next() {
 		var e InternationalCupEntry
-		if err := rows.Scan(&e.Country, &e.Season, &e.TeamId); err != nil {
+		if err := rows.Scan(&e.Country, &e.Season, &e.TeamId, &e.FinalPosition); err != nil {
 			return nil, err
 		}
 		entries = append(entries, e)

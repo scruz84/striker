@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
@@ -7,6 +6,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { useCupDetails, useLatestInternationalCupId, useMe } from '../../api/hooks'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
@@ -19,18 +19,25 @@ import { CupBracket } from './CupPage'
 const INTERNATIONAL_CUP_REGIONS: readonly Region[] = ['europe', 'americas', 'asia', 'africa']
 
 /** The international-cup counterpart to CupPage (issue #64): one cup per region, entrants being
- * the tier-1 champion of each country in that region with a new champion since the previous
- * edition - see backend engine.StartRegionalCupsIfDue. A regional cup's `season` is its edition
+ * the tier-1 champion and runner-up of each country in that region with a new champion since the
+ * previous edition - see backend engine.StartRegionalCupsIfDue. A regional cup's `season` is its edition
  * number within the region. Every region's cup is visible to everyone through one tab per region;
  * the tab opened first is the logged-in user's own region (from their team's country via
  * regionForCountry, the same grouping the backend uses to decide entrants). Reuses CupPage's
- * bracket rendering outright - a tie is a tie regardless of which competition it belongs to. */
+ * bracket rendering outright - a tie is a tie regardless of which competition it belongs to.
+ * `?region=` picks the tab and `?cup=` shows that edition of it instead of the latest (the team
+ * history tab links a title this way); picking another tab drops `cup`. */
 export function InternationalCupPage() {
   const { t } = useTranslation()
   const { data: loggedUser } = useMe()
+  const [searchParams, setSearchParams] = useSearchParams()
   const ownRegion = loggedUser?.country ? regionForCountry(loggedUser.country) : undefined
-  const [pickedRegion, setPickedRegion] = useState<Region | undefined>(undefined)
+  const regionParam = searchParams.get('region')
+  const pickedRegion = INTERNATIONAL_CUP_REGIONS.find((entry) => entry === regionParam)
   const region = pickedRegion ?? ownRegion ?? 'europe'
+  const cupParam = Number(searchParams.get('cup'))
+  const cupId = pickedRegion && Number.isInteger(cupParam) && cupParam > 0 ? cupParam : undefined
+  const setPickedRegion = (value: Region) => setSearchParams({ region: value }, { replace: true })
 
   return (
     <Box>
@@ -47,15 +54,15 @@ export function InternationalCupPage() {
           ))}
         </Tabs>
       </Paper>
-      <RegionalCup region={region} />
+      <RegionalCup region={region} cupId={cupId} />
     </Box>
   )
 }
 
-function RegionalCup({ region }: { region: Region }) {
+function RegionalCup({ region, cupId }: { region: Region; cupId?: number }) {
   const { t } = useTranslation()
-  const { data: latestCup, isLoading: cupIdLoading } = useLatestInternationalCupId(region)
-  const { data: cupDetails, isLoading: detailsLoading } = useCupDetails(latestCup?.cupId)
+  const { data: latestCup, isLoading: cupIdLoading } = useLatestInternationalCupId(cupId === undefined ? region : undefined)
+  const { data: cupDetails, isLoading: detailsLoading } = useCupDetails(cupId ?? latestCup?.cupId)
 
   if (cupIdLoading || detailsLoading) {
     return <Skeleton variant="rectangular" height={300} />
