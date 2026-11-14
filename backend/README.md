@@ -251,6 +251,13 @@ play the playoff. There is no admin setting for the slot counts any more.
   pyramid, tiers are filled top-down in snake order (teams that do not fit drop a tier), the bottom
   tier is topped up with new CPU teams (`common.CreateTeam`), and leagues the structure no longer
   has are archived (`leagues.archived_season`), never deleted.
+- **Resuming.** The rollover runs as numbered steps (aging and contracts, loans, promotion/relegation
+  with prizes, restructure, cup, standings reset, season bump, fixtures), each recorded in
+  `countries.rollover_season`/`rollover_step`/`rollover_state` as it completes
+  (`init116_resumable_season_rollover.sql`). A run that stops halfway - a restart, an error between
+  steps - is resumed at the next step on the following tick, with the standings and moves stored
+  in the marker; the season bump records itself in the same `UPDATE`, and the fixtures clear the
+  marker (`engine.runSeasonRollover`, openspec/specs/engine-replicas "Resumable season rollover").
 
 ### League kickoffs
 

@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
 	"time"
 
@@ -48,6 +49,11 @@ func AdvanceSeasonsIfComplete(dbCtx *common.DatabaseContext) {
 // complete and both roll country over - double player aging, double promotion/relegation moves,
 // double prize money, a duplicate cup. Keyed on hashtext(country) rather than a bare int, since
 // country is a string.
+//
+// The lock does not cover a run that stops halfway (a restart, an error between steps), so each
+// step is recorded in the country's progress marker as it completes and a later run resumes at
+// the next step - see runSeasonRollover and openspec/specs/engine-replicas "Resumable season
+// rollover".
 func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country string) {
 	ctx := context.Background()
 	conn, err := dbCtx.Db.Conn(ctx)
@@ -78,29 +84,51 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 		log.Errorf("error reading current season for %s: %s", country, err)
 		return
 	}
+	progress, err := common.GetRolloverProgress(dbCtx, country)
+	if err != nil {
+		log.Errorf("error reading %s's rollover progress: %s", country, err)
+		return
+	}
+	// The season already moved but its fixtures were never generated: that is all that is left.
+	if progress.Step == rolloverStepSeasonAdvanced && progress.Season == currentSeason-1 {
+		ResetCurrentSeasonCache(dbCtx, country, currentSeason)
+		finishRolloverFixtures(dbCtx, country, currentSeason)
+		return
+	}
+	// A marker for the season being closed means an earlier run stopped halfway: the season was
+	// complete then, so the checks below are skipped and the rollover goes on from the next step.
+	// Any other marker is stale (another season's) and is ignored.
+	resuming := progress.Season == currentSeason && progress.Step > rolloverStepNone && progress.Step < rolloverStepSeasonAdvanced
+	if !resuming {
+		progress = common.RolloverProgress{}
+	}
 
-	total, unplayed, err := common.GetSeasonMatchCounts(dbCtx, country, currentSeason)
-	if err != nil {
-		log.Errorf("error checking %s season %d completion: %s", country, currentSeason, err)
-		return
-	}
-	if total == 0 || unplayed > 0 {
-		// season never started yet, or still has matches left to play
-		return
-	}
-	// A match flips to played = true when it is simulated, up to LiveBroadcastWindow before its
-	// live broadcast finishes. Closing the season now would send the prize, promotion and
-	// relegation notifications (and compute the final standings) while the last round is still
-	// being watched, spoiling its result - so wait until every match has finished broadcasting.
-	// The next scheduler tick picks the rollover up.
-	broadcasting, err := common.CountSeasonMatchesStillBroadcasting(dbCtx, country, currentSeason)
-	if err != nil {
-		log.Errorf("error checking live broadcasts for %s season %d: %s", country, currentSeason, err)
-		return
-	}
-	if broadcasting > 0 {
-		log.Infof("%s season %d has all matches played but %d still broadcasting, postponing rollover", country, currentSeason, broadcasting)
-		return
+	if !resuming {
+		total, unplayed, err := common.GetSeasonMatchCounts(dbCtx, country, currentSeason)
+		if err != nil {
+			log.Errorf("error checking %s season %d completion: %s", country, currentSeason, err)
+			return
+		}
+		if total == 0 || unplayed > 0 {
+			// season never started yet, or still has matches left to play
+			return
+		}
+		// A match flips to played = true when it is simulated, up to LiveBroadcastWindow before
+		// its live broadcast finishes. Closing the season now would send the prize, promotion and
+		// relegation notifications (and compute the final standings) while the last round is
+		// still being watched, spoiling its result - so wait until every match has finished
+		// broadcasting. The next scheduler tick picks the rollover up.
+		broadcasting, err := common.CountSeasonMatchesStillBroadcasting(dbCtx, country, currentSeason)
+		if err != nil {
+			log.Errorf("error checking live broadcasts for %s season %d: %s", country, currentSeason, err)
+			return
+		}
+		if broadcasting > 0 {
+			log.Infof("%s season %d has all matches played but %d still broadcasting, postponing rollover", country, currentSeason, broadcasting)
+			return
+		}
+	} else {
+		log.Infof("%s season %d rollover resuming after step %d", country, currentSeason, progress.Step)
 	}
 
 	// The promotion playoff (see openspec/specs/league-pyramid "Playoff phase"): once the league
@@ -118,37 +146,124 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 			log.Errorf("error reading %s's season %d playoff: %s", country, currentSeason, err)
 			return
 		}
-		if !playoff.Exists {
-			if err := startPlayoff(dbCtx, country, currentSeason, shape); err != nil {
-				log.Errorf("error starting %s's season %d playoff: %s", country, currentSeason, err)
+		if !resuming {
+			if !playoff.Exists {
+				if err := startPlayoff(dbCtx, country, currentSeason, shape); err != nil {
+					log.Errorf("error starting %s's season %d playoff: %s", country, currentSeason, err)
+				}
+				return
 			}
-			return
-		}
-		if !playoff.Done() {
-			return
+			if !playoff.Done() {
+				return
+			}
 		}
 	}
 
+	runSeasonRollover(dbCtx, country, currentSeason, shape, playoff, progress)
+}
+
+// The steps of a country's season rollover, in order. Each is recorded in the country's progress
+// marker (see common.SetRolloverProgress) as soon as it completes, so a rollover that stops
+// halfway resumes at the next step instead of repeating aging, prizes, the cup or
+// promotion/relegation (openspec/specs/engine-replicas "Resumable season rollover").
+const (
+	rolloverStepNone              = 0
+	rolloverStepPlayersProgressed = 1 // ProgressPlayers: age, contracts, retirements
+	rolloverStepLoansReturned     = 2 // ReturnExpiredLoans
+	rolloverStepPromotionApplied  = 3 // applyPromotionRelegation: prizes, income, awards, moves, history
+	rolloverStepRestructured      = 4 // restructureIfNeeded
+	rolloverStepCupStarted        = 5 // StartCupForCountry
+	rolloverStepStandingsReset    = 6 // classification reset and starting order
+	rolloverStepSeasonAdvanced    = 7 // current_season + 1; only the fixtures are left
+)
+
+// rolloverState is what later steps need from earlier ones, kept with the marker so a resumed
+// rollover uses the standings and moves computed before the classification moved on.
+type rolloverState struct {
+	FinalStandings []LeagueStandings `json:"finalStandings"`
+	Moves          []LeagueMove      `json:"moves"`
+}
+
+// rolloverInterruptAfter, when set (tests only), stops a rollover right after step has been
+// recorded - what a restart at that point does.
+var rolloverInterruptAfter func(step int) bool
+
+// runSeasonRollover runs the steps of country's season rollover after progress.Step, recording
+// each one. It stops, leaving the marker for the next tick, as soon as a step cannot be recorded or
+// an error leaves the rollover unable to go on.
+func runSeasonRollover(dbCtx *common.DatabaseContext, country string, currentSeason int, shape common.PyramidShape, playoff common.PlayoffState, progress common.RolloverProgress) {
 	newSeason := currentSeason + 1
-	log.Infof("%s season %d complete (%d matches played), advancing to season %d", country, currentSeason, total, newSeason)
-	common.SeasonRolloversCounter.Add(context.Background(), 1)
+	var state rolloverState
+	if len(progress.State) > 0 {
+		if err := json.Unmarshal(progress.State, &state); err != nil {
+			log.Errorf("error reading %s's season %d rollover state: %s", country, currentSeason, err)
+			return
+		}
+	}
+	step := progress.Step
+	record := func(done int) bool {
+		var raw json.RawMessage
+		if state.FinalStandings != nil || state.Moves != nil {
+			encoded, err := json.Marshal(state)
+			if err != nil {
+				log.Errorf("error encoding %s's season %d rollover state: %s", country, currentSeason, err)
+				return false
+			}
+			raw = encoded
+		}
+		if err := common.SetRolloverProgress(dbCtx, country, currentSeason, done, raw); err != nil {
+			log.Errorf("error recording step %d of %s's season %d rollover: %s", done, country, currentSeason, err)
+			return false
+		}
+		step = done
+		return rolloverInterruptAfter == nil || !rolloverInterruptAfter(done)
+	}
 
-	teamIds, err := common.GetTeamIdsForCountry(dbCtx, country)
-	if err != nil {
-		log.Errorf("error listing teams for %s season rollover: %s", country, err)
-		return
+	if step == rolloverStepNone {
+		log.Infof("%s season %d complete, advancing to season %d", country, currentSeason, newSeason)
+		common.SeasonRolloversCounter.Add(context.Background(), 1)
 	}
-	ProgressPlayers(dbCtx, teamIds)
-	ReturnExpiredLoans(dbCtx, country, newSeason)
-	finalStandings, moves := applyPromotionRelegation(dbCtx, country, currentSeason, shape, playoff)
-	// A country whose leagues differ from the saved structure is reshaped now, so the new season's
-	// cup, classification and fixtures see the new leagues; its starting order is then built from
-	// where every team ends up.
-	if restructureMoves := restructureIfNeeded(dbCtx, country, currentSeason, finalStandings); restructureMoves != nil {
-		moves = restructureMoves
+	if step < rolloverStepPlayersProgressed {
+		teamIds, err := common.GetTeamIdsForCountry(dbCtx, country)
+		if err != nil {
+			log.Errorf("error listing teams for %s season rollover: %s", country, err)
+			return
+		}
+		ProgressPlayers(dbCtx, teamIds)
+		if !record(rolloverStepPlayersProgressed) {
+			return
+		}
 	}
-	if err := StartCupForCountry(dbCtx, country, newSeason); err != nil {
-		log.Errorf("error starting cup for %s season %d: %s", country, newSeason, err)
+	if step < rolloverStepLoansReturned {
+		ReturnExpiredLoans(dbCtx, country, newSeason)
+		if !record(rolloverStepLoansReturned) {
+			return
+		}
+	}
+	if step < rolloverStepPromotionApplied {
+		state.FinalStandings, state.Moves = applyPromotionRelegation(dbCtx, country, currentSeason, shape, playoff)
+		if !record(rolloverStepPromotionApplied) {
+			return
+		}
+	}
+	if step < rolloverStepRestructured {
+		// A country whose leagues differ from the saved structure is reshaped now, so the new
+		// season's cup, classification and fixtures see the new leagues; its starting order is
+		// then built from where every team ends up.
+		if restructureMoves := restructureIfNeeded(dbCtx, country, currentSeason, state.FinalStandings); restructureMoves != nil {
+			state.Moves = restructureMoves
+		}
+		if !record(rolloverStepRestructured) {
+			return
+		}
+	}
+	if step < rolloverStepCupStarted {
+		if err := StartCupForCountry(dbCtx, country, newSeason); err != nil {
+			log.Errorf("error starting cup for %s season %d: %s", country, newSeason, err)
+		}
+		if !record(rolloverStepCupStarted) {
+			return
+		}
 	}
 
 	leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, country)
@@ -156,15 +271,21 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 		log.Errorf("error listing leagues for %s season rollover: %s", country, err)
 		return
 	}
-
-	for _, leagueId := range leagueIds {
-		if err := common.ResetClassificationForSeason(dbCtx, leagueId, newSeason); err != nil {
-			log.Errorf("error resetting classification for league %d season %d: %s", leagueId, newSeason, err)
+	if step < rolloverStepStandingsReset {
+		for _, leagueId := range leagueIds {
+			if err := common.ResetClassificationForSeason(dbCtx, leagueId, newSeason); err != nil {
+				log.Errorf("error resetting classification for league %d season %d: %s", leagueId, newSeason, err)
+			}
+		}
+		writeSeasonSeeds(dbCtx, leagueIds, state.FinalStandings, state.Moves)
+		if !record(rolloverStepStandingsReset) {
+			return
 		}
 	}
-	writeSeasonSeeds(dbCtx, leagueIds, finalStandings, moves)
 
-	if err := common.SetCurrentSeasonForCountry(dbCtx, country, newSeason); err != nil {
+	// The season moves and the bump is recorded in one statement: after a stop here the next tick
+	// sees the new season and only generates its fixtures.
+	if err := common.AdvanceSeasonRecordingStep(dbCtx, country, newSeason, rolloverStepSeasonAdvanced); err != nil {
 		log.Errorf("error advancing %s's current season to %d: %s", country, newSeason, err)
 		return
 	}
@@ -172,9 +293,27 @@ func advanceCountrySeasonIfComplete(dbCtx *common.DatabaseContext, country strin
 	// so GenerateMatchesForLeagues below picks up the new season immediately instead of
 	// regenerating fixtures under the season we just closed out.
 	ResetCurrentSeasonCache(dbCtx, country, newSeason)
+	if rolloverInterruptAfter != nil && rolloverInterruptAfter(rolloverStepSeasonAdvanced) {
+		return
+	}
+	finishRolloverFixtures(dbCtx, country, newSeason)
+}
 
+// finishRolloverFixtures generates country's fixtures for newSeason, the last step of its
+// rollover, and clears the progress marker. On failure the marker stays, so the next tick
+// retries; generating is safe to repeat (a league that already has upcoming fixtures is skipped).
+func finishRolloverFixtures(dbCtx *common.DatabaseContext, country string, newSeason int) {
+	leagueIds, err := common.GetLeagueIdsForCountry(dbCtx, country)
+	if err != nil {
+		log.Errorf("error listing leagues for %s season %d fixtures: %s", country, newSeason, err)
+		return
+	}
 	if err := GenerateMatchesForLeagues(dbCtx, leagueIds); err != nil {
 		log.Errorf("error generating fixtures for %s season %d: %s", country, newSeason, err)
+		return
+	}
+	if err := common.ClearRolloverProgress(dbCtx, country); err != nil {
+		log.Errorf("error clearing %s's rollover progress: %s", country, err)
 	}
 }
 

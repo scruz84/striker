@@ -22,7 +22,7 @@ Every engine step that reads state and then writes data derived from it MUST giv
 - **THEN** it ships with an integration test that runs it from several goroutines at once against Postgres
 
 ### Requirement: Season rollover once per country
-A country's rollover (aging, loans, promotion/relegation including playoff outcomes, restructure, prizes, cup start, classification reset, season bump, fixtures) SHALL run under a session advisory lock keyed `hashtext(country)`. Inside the lock it re-reads from the database the current season, its match counts and its playoff state. New fixtures MUST be built from the leagues as they stand after promotion/relegation and any restructure.
+A country's rollover (aging, loans, promotion/relegation including playoff outcomes, restructure, prizes, cup start, classification reset, season bump, fixtures) SHALL run under a session advisory lock keyed `hashtext(country)`. Inside the lock it re-reads from the database the current season, its match counts, its playoff state and the country's rollover progress marker. New fixtures MUST be built from the leagues as they stand after promotion/relegation and any restructure.
 
 #### Scenario: Three replicas see the season complete
 - **WHEN** three replicas run the rollover for the same finished country at once
@@ -154,6 +154,17 @@ A country's playoff ties SHALL be created under the same per-country lock as its
 - **WHEN** the cup job runs while every playoff tie is resolved
 - **THEN** it creates no second round and crowns no champion for the playoff
 
+### Requirement: Resumable season rollover
+Each step of a country's rollover SHALL be recorded in the country's progress marker (`countries.rollover_season`, `rollover_step`, `rollover_state`) as soon as it completes. A rollover that finds a marker for the season it is closing MUST skip the recorded steps and continue from the next one, using the standings and moves stored with the marker. The season bump records itself in the same statement; the new season's fixtures clear the marker.
+
+#### Scenario: Stopped after the prizes
+- **WHEN** a rollover stops after promotion/relegation and the prizes, and the next tick runs it again
+- **THEN** players age once, prizes and season income are paid once, one cup is created and the season advances by exactly 1
+
+#### Scenario: Stopped after the season bump
+- **WHEN** a rollover stops after moving the current season but before generating fixtures
+- **THEN** the next tick generates the new season's fixtures and nothing else of the rollover runs again
+
 ## Incident history
 
 - Before the per-country rollover lock and the fixture-generation lock (PRs #241 and #243,
@@ -185,7 +196,13 @@ A country's playoff ties SHALL be created under the same per-country lock as its
   `common.GetCountryPlayoff`) and restructures it (`engine.restructureIfNeeded` /
   `applyRestructure` in `engine/restructure.go`), all under the country's lock. `AdvanceCups` skips
   playoffs (`common.GetActiveCupsStmtSql` lists only `kind = 'cup'`). Fixtures:
-  `generateMatchesForOneLeague` (`engine/engine.go`).
+  `generateMatchesForOneLeague` (`engine/engine.go`). Resuming: `runSeasonRollover`,
+  `rolloverStep*`, `rolloverState` and `finishRolloverFixtures` (`engine/season.go`), the marker in
+  `common/rollover.go` (`GetRolloverProgress`, `SetRolloverProgress`,
+  `AdvanceSeasonRecordingStep`, `ClearRolloverProgress`) and
+  `resources/sql/init116_resumable_season_rollover.sql`; tests
+  `engine/season_rollover_resume_integration_test.go` (`rolloverInterruptAfter` stops a run after
+  a step).
 - Cups: `advanceCup`, `simulateCupTieOnce`, `StartWorldCupIfDue`, `StartRegionalCupsIfDue`
   (`engine/cups.go`, lock `LockNamespaceRegionalCupStart`), `common.ClaimInternationalCupSeason`
   (`common/database.go`), `common.CreateRegionalCup` (`common/regionalcups.go`),
