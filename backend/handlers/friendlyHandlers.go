@@ -50,6 +50,7 @@ func ChallengeToFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			case errors.Is(err, common.ErrCannotChallengeOwnTeam),
 				errors.Is(err, common.ErrFriendlyChallengeAlreadyExists),
 				errors.Is(err, common.ErrFriendlyLimitReached),
+				errors.Is(err, common.ErrFriendlyKickoffTaken),
 				errors.Is(err, common.ErrInvalidFriendlyKickoff):
 				c.JSON(http.StatusConflict, GetError(0, err.Error()))
 				return
@@ -147,7 +148,7 @@ func AcceptFriendlyChallengeHandler(dbCtx *common.DatabaseContext) gin.HandlerFu
 			c.JSON(http.StatusNotFound, GetError(0, err.Error()))
 		case errors.Is(err, common.ErrNotChallengeRecipient):
 			c.JSON(http.StatusForbidden, GetError(0, err.Error()))
-		case errors.Is(err, common.ErrFriendlyLimitReached), errors.Is(err, common.ErrInvalidFriendlyKickoff):
+		case errors.Is(err, common.ErrFriendlyLimitReached), errors.Is(err, common.ErrFriendlyKickoffTaken), errors.Is(err, common.ErrInvalidFriendlyKickoff):
 			c.JSON(http.StatusConflict, GetError(0, err.Error()))
 		default:
 			log.Errorf("error accepting friendly challenge %d for team %d: %s", challengeId, team.Id, err)

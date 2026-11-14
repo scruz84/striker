@@ -1045,7 +1045,7 @@
       "confirmKickoff": "Confirmar",
       "confirmReject": "¿Rechazar el reto de {{team}}?",
       "cancel": "Cancelar",
-      "acceptError": "No se pudo aceptar ese reto - puede que hayas alcanzado tu límite semanal.",
+      "acceptError": "No se pudo aceptar ese reto - puede que alguno de los dos equipos haya alcanzado su límite semanal o ya tenga un amistoso a esa hora.",
       "youPlayHome": "Jugarías en casa",
       "youPlayAway": "Jugarías fuera"
     },

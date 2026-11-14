@@ -33,6 +33,10 @@ const (
 	// LockNamespaceRegionalCupStart serializes starting regional international club cup editions
 	// (engine.StartRegionalCupsIfDue). One global key (id 0).
 	LockNamespaceRegionalCupStart int64 = 6
+	// LockNamespaceTeamFriendlies serializes accepting friendlies that involve one club, so the
+	// weekly cap and the kickoff-clash check hold under concurrent acceptances (see
+	// acceptFriendlyChallenge). Keyed by team id.
+	LockNamespaceTeamFriendlies int64 = 7
 )
 
 // NamespacedLockKey builds an advisory lock key for id inside namespace (see the constants above).

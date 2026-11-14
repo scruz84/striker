@@ -151,6 +151,21 @@ A friendly MUST kick off on the hour, at quarter past, half past or quarter to (
 - **WHEN** an owner accepts a challenge with a kickoff at 18:50
 - **THEN** the request is rejected and the pickers already flag it, offering only quarter-hour steps
 
+### Requirement: Weekly friendly cap and clashes
+No club SHALL play more than `max_friendlies_per_week` friendlies in one calendar week (Monday to Monday, UTC), whichever side sent the challenge, and no club SHALL have two friendlies at the same kickoff. Accepting a challenge MUST re-check both rules for both teams, for the week of the chosen kickoff, even under concurrent acceptances. A friendly in a later week does not use up the current week's cap.
+
+#### Scenario: Several challenges sent below the cap
+- **WHEN** a club with a cap of 1 and no friendly sends challenges to two human clubs and both accept for the same week
+- **THEN** the first acceptance creates the friendly and the second is rejected with the weekly limit
+
+#### Scenario: Same kickoff twice
+- **WHEN** a human club accepts two challenges for the same kickoff
+- **THEN** the second is rejected and the club keeps one friendly at that time
+
+#### Scenario: Friendly next week
+- **WHEN** a club with a cap of 1 has a friendly scheduled next week
+- **THEN** it can still be challenged and play one this week
+
 ### Requirement: Rescheduling on schedule change
 Changing a league's schedule override, clearing it, changing the app-wide default, or changing a country's league kickoff time MUST immediately re-date every unplayed match of the affected leagues onto the new schedule, keeping round order. A league with its own override is unaffected by a default or country change. A match that is played or in simulation MUST keep its date, even when other matches of its round move.
 
@@ -269,6 +284,8 @@ Each country SHALL have a league kickoff time on its local clock, from 00:00 to 
   (`PUT /v1/admin/countries/:code/kickoff`); tests `TestEffectiveLeagueSchedule_*`,
   `TestComputeFixtureDates_LocalKickoffHoldsAcrossDST`, `TestPyramid_CountryKickoffChangeReschedules`, `TestRescheduleUnplayedMatches_LeavesStartedMatchesOfAHalfPlayedRound`; friendly delay `friendlyScheduleDelay` and
   quarter-hour grid `IsFriendlyKickoffSlot`/`nextFriendlyKickoffSlot` (`common/friendlies.go`),
+  weekly cap and clash check `CountFriendliesInWeekOf`/`lockTeamFriendliesTx` in
+  `acceptFriendlyChallenge` (`common/friendlies.go`, tests `common/friendly_cap_integration_test.go`),
   mirrored by `isQuarterHour`/`kickoffErrorKey` (`frontend/src/utils/friendlyKickoff.ts`).
 - Cup kickoffs: `engine.cupTieKickoff` (`cupMinimumLead`, `cupRoundGap`, `engine/cups.go`) with
   `common.NextLocalKickoffAfter` and `NationalCupKickoffHour`/`InternationalCupKickoffHour`

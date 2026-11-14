@@ -1048,7 +1048,7 @@
       "confirmKickoff": "Confirm",
       "confirmReject": "Reject {{team}}'s challenge?",
       "cancel": "Cancel",
-      "acceptError": "Could not accept that challenge - you may be at your weekly limit.",
+      "acceptError": "Could not accept that challenge - one of the two teams may be at its weekly limit or already have a friendly at that time.",
       "youPlayHome": "You'd play at home",
       "youPlayAway": "You'd play away"
     },

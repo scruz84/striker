@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -19,6 +20,7 @@ var ErrInvalidFriendlySchedule = errors.New("friendly schedule must select at le
 var ErrInvalidFriendlyKickoff = errors.New("kickoff must be far enough in the future, on the hour, quarter past, half past or quarter to, and fall on a day the friendly schedule allows")
 var ErrNotFriendlyParticipant = errors.New("your team is not part of this friendly")
 var ErrFriendlyAlreadyPlayed = errors.New("this friendly has already been played")
+var ErrFriendlyKickoffTaken = errors.New("one of the teams already has a friendly at that kickoff")
 
 // FriendlyChallenge is a pending invite from one team to another - see ChallengeToFriendly.
 type FriendlyChallenge struct {
@@ -198,15 +200,36 @@ func SetMaxFriendliesPerWeek(dbCtx *DatabaseContext, n int) error {
 	return err
 }
 
-const CountFriendliesThisWeekStmtSql = "SELECT count(*) FROM friendly_matches WHERE (home_team_id = $1 OR away_team_id = $1) AND match_date >= $2"
+const CountFriendliesInWeekStmtSql = "SELECT count(*) FROM friendly_matches WHERE (home_team_id = $1 OR away_team_id = $1) AND match_date >= $2 AND match_date < $3"
 
-// CountFriendliesThisWeek counts teamId's accepted friendlies (scheduled or already played)
-// since the start of the current real calendar week - a friendly counts against the weekly cap
-// the moment it's accepted, not only once it's actually been played.
-func CountFriendliesThisWeek(dbCtx *DatabaseContext, teamId int64) (int, error) {
+// CountFriendliesInWeekOf counts teamId's accepted friendlies (scheduled or already played)
+// kicking off in the real calendar week (Monday to Monday, UTC - see StartOfWeek) that contains
+// t - a friendly counts against its week's cap the moment it's accepted, not only once it's
+// actually been played, and only against its own week: one scheduled for next week does not use
+// up this week's.
+func CountFriendliesInWeekOf(q sqlQuerier, teamId int64, t time.Time) (int, error) {
+	start := StartOfWeek(t)
 	var count int
-	err := dbCtx.Db.QueryRow(CountFriendliesThisWeekStmtSql, teamId, StartOfWeek(time.Now())).Scan(&count)
+	err := q.QueryRow(CountFriendliesInWeekStmtSql, teamId, start, start.AddDate(0, 0, 7)).Scan(&count)
 	return count, err
+}
+
+// CountFriendliesAtStmtSql counts the friendlies teamId already has at exactly one kickoff.
+const CountFriendliesAtStmtSql = "SELECT count(*) FROM friendly_matches WHERE (home_team_id = $1 OR away_team_id = $1) AND match_date = $2"
+
+// lockTeamFriendliesTx serializes, for the rest of tx, every friendly acceptance involving one
+// of teamIds: the weekly cap and the clash check read and then insert, so two acceptances
+// running at once must not both pass. Locks are taken in ascending id order, so two acceptances
+// sharing both teams can never deadlock.
+func lockTeamFriendliesTx(tx *sql.Tx, teamIds ...int64) error {
+	sorted := append([]int64(nil), teamIds...)
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i] < sorted[j] })
+	for _, id := range sorted {
+		if _, err := tx.Exec("SELECT pg_advisory_xact_lock($1)", NamespacedLockKey(LockNamespaceTeamFriendlies, id)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 const GetTeamsWithFriendlyTodayStmtSql = "SELECT home_team_id, away_team_id FROM friendly_matches WHERE match_date >= $1 AND match_date < $2"
@@ -269,7 +292,13 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 		return ErrInvalidFriendlyKickoff
 	}
 
-	challengerCount, err := CountFriendliesThisWeek(dbCtx, challengerTeamId)
+	// Judged for the week the friendly would be in when the challenger names a kickoff, else for
+	// this week; acceptance re-checks both sides for the week of the actual kickoff.
+	week := time.Now()
+	if proposedKickoff != nil {
+		week = *proposedKickoff
+	}
+	challengerCount, err := CountFriendliesInWeekOf(dbCtx.Db, challengerTeamId, week)
 	if err != nil {
 		return err
 	}
@@ -319,9 +348,9 @@ func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponen
 
 // AcceptFriendlyChallenge agrees to play a pending challenge: creates the actual fixture (see
 // friendly_matches) at the given kickoff and removes the challenge, atomically so a
-// double-accept can't create two fixtures from the same challenge. Re-checks the accepting
-// team's weekly limit now, since time may have passed (and other friendlies accepted) since the
-// challenge was sent - the same "re-validate at accept time" convention AcceptOffer uses for
+// double-accept can't create two fixtures from the same challenge. Re-checks both teams' weekly
+// limit for the kickoff's week, and that neither already has a friendly at that kickoff, now,
+// since time may have passed (and other friendlies accepted) since the challenge was sent - the same "re-validate at accept time" convention AcceptOffer uses for
 // budget. kickoff must be far enough ahead of the current moment to clear the simulation
 // scheduler's polling window and fall on a weekday the friendly schedule allows (see
 // isAllowedFriendlyKickoff) - this is the human-accept entry point, so "the current moment" is
@@ -357,19 +386,34 @@ func acceptFriendlyChallenge(dbCtx *DatabaseContext, challengeId int64, opponent
 		return ErrNotChallengeRecipient
 	}
 
-	opponentCount, err := CountFriendliesThisWeek(dbCtx, opponentTeamId)
-	if err != nil {
+	if !isAllowedFriendlyKickoff(dbCtx, kickoff, now) {
+		return ErrInvalidFriendlyKickoff
+	}
+	// Both sides' cap for the kickoff's week and their clashes are checked under a per-team lock,
+	// so challenges sent before either side reached its cap can't all be accepted past it, and
+	// two acceptances at the same moment can't both pass.
+	if err := lockTeamFriendliesTx(tx, challengerTeamId, opponentTeamId); err != nil {
 		return err
 	}
 	maxPerWeek, err := GetMaxFriendliesPerWeek(dbCtx)
 	if err != nil {
 		return err
 	}
-	if opponentCount >= maxPerWeek {
-		return ErrFriendlyLimitReached
-	}
-	if !isAllowedFriendlyKickoff(dbCtx, kickoff, now) {
-		return ErrInvalidFriendlyKickoff
+	for _, teamId := range []int64{opponentTeamId, challengerTeamId} {
+		count, err := CountFriendliesInWeekOf(tx, teamId, kickoff)
+		if err != nil {
+			return err
+		}
+		if count >= maxPerWeek {
+			return ErrFriendlyLimitReached
+		}
+		var clashes int
+		if err := tx.QueryRow(CountFriendliesAtStmtSql, teamId, kickoff).Scan(&clashes); err != nil {
+			return err
+		}
+		if clashes > 0 {
+			return ErrFriendlyKickoffTaken
+		}
 	}
 
 	homeTeamId, awayTeamId := challengerTeamId, opponentTeamId

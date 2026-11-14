@@ -1274,14 +1274,16 @@ func pickRandomOpponent(r *rand.Rand, teamIds []int64, exclude int64) (int64, bo
 // ErrFriendlyLimitReached (either side already at its weekly cap - the default is just 1) and
 // ErrFriendlyChallengeAlreadyExists (a pending challenge between this exact pair still
 // outstanding, which shouldn't happen between two auto-accepting sides but costs nothing to guard
-// against) are expected outcomes, not failures.
+// against) and ErrFriendlyKickoffTaken (either side already plays a friendly at that slot) are
+// expected outcomes, not failures.
 func challengeAiTeamToFriendly(dbCtx *common.DatabaseContext, r *rand.Rand, teamId int64, candidateIds []int64) {
 	opponent, ok := pickRandomOpponent(r, candidateIds, teamId)
 	if !ok {
 		return
 	}
 	if err := common.ChallengeToFriendly(dbCtx, teamId, opponent, nil, true); err != nil &&
-		!errors.Is(err, common.ErrFriendlyLimitReached) && !errors.Is(err, common.ErrFriendlyChallengeAlreadyExists) {
+		!errors.Is(err, common.ErrFriendlyLimitReached) && !errors.Is(err, common.ErrFriendlyChallengeAlreadyExists) &&
+		!errors.Is(err, common.ErrFriendlyKickoffTaken) {
 		log.Errorf("error challenging team %d to a friendly for AI-managed team %d: %s", opponent, teamId, err)
 	}
 }
