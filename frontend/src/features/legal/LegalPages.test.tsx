@@ -58,7 +58,7 @@ describe('legal pages', () => {
     renderPage(<TermsPage />)
     expect(screen.getByText(i18n.t('legal.notConfigured'))).toBeInTheDocument()
     expect(screen.getByText(/LEGAL_CONTROLLER_NAME, LEGAL_CONTACT_EMAIL/)).toBeInTheDocument()
-    expect(screen.getAllByText(new RegExp(i18n.t('legal.notConfiguredValue').replace(/[[\]]/g, '\\$&'))).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(new RegExp(i18n.t('legal.notConfiguredValue').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).length).toBeGreaterThan(0)
   })
 
   it('omits the address and hosting sentences when those properties are not set', () => {
