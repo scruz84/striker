@@ -2431,7 +2431,7 @@
         "items": [
           {
             "q": "How do I open Striker in my browser?",
-            "a": "Open Chrome, Safari, Edge or Firefox and go to https://striker.example.com. Sign in with your Google account. You don't need to install anything to play: the website works the same in any browser."
+            "a": "Open Chrome, Safari, Edge or Firefox and go to this Striker server's web address. Sign in with your Google account. You don't need to install anything to play: the website works the same in any browser."
           },
           {
             "q": "Can I have it as an app on my phone?",
@@ -2439,7 +2439,7 @@
           },
           {
             "q": "How do I install it on Android?",
-            "a": "In Chrome, go to striker.example.com, tap the menu (the three dots in the top corner) and choose \"Install app\" or \"Add to Home screen\". Confirm with \"Install\" and the icon will appear on your home screen."
+            "a": "In Chrome, open this Striker server's web address, tap the menu (the three dots in the top corner) and choose \"Install app\" or \"Add to Home screen\". Confirm with \"Install\" and the icon will appear on your home screen."
           },
           {
             "q": "How do I install it on iPhone or iPad?",
