@@ -23,15 +23,21 @@ func TestCorsAllowedOrigins_IncludesLocalDevDefaults(t *testing.T) {
 	}
 }
 
-func TestCorsAllowedOrigins_IncludesDeployedDomains(t *testing.T) {
+func TestCorsAllowedOrigins_DefaultsAreLocalOnly(t *testing.T) {
 	t.Setenv("CORS_ALLOWED_ORIGINS", "")
 
 	origins := CorsAllowedOrigins()
 
-	for _, want := range []string{"https://striker.example.com", "https://striker.example.com"} {
-		if !contains(origins, want) {
-			t.Fatalf("expected %q among default origins, got %v", want, origins)
-		}
+	if len(origins) != 2 {
+		t.Fatalf("expected only the two local dev origins by default, got %v", origins)
+	}
+}
+
+func TestCorsAllowedOrigins_DeploymentOriginComesFromEnv(t *testing.T) {
+	t.Setenv("CORS_ALLOWED_ORIGINS", "https://striker.example.com")
+
+	if !contains(CorsAllowedOrigins(), "https://striker.example.com") {
+		t.Fatalf("expected the configured deployment origin to be allowed")
 	}
 }
 

@@ -57,7 +57,7 @@ end).
 | `REALM` | `Striker Manager` | JWT realm name |
 | `SESSION_TIMEOUT` | `30m` | JWT session lifetime |
 | `DEV_LOGIN_ENABLED` | `false` | Opt into no-credential-check sign-in (local/CI only) |
-| `CORS_ALLOWED_ORIGINS` | *(empty)* | Extra allowed origins beyond the built-in defaults, comma-separated - needed if the frontend runs anywhere other than `:3000`/`:5173`/the deployed domains |
+| `CORS_ALLOWED_ORIGINS` | *(empty)* | Extra allowed origins beyond the built-in defaults, comma-separated - needed for any deployed frontend, or one running anywhere other than `:3000`/`:5173` |
 | `ADMIN_EMAILS` | *(unset)* | Comma-separated emails granted commissioner/admin access on login |
 
 ### Common frontend env vars (`frontend/.env`, or exported before `docker compose up`)

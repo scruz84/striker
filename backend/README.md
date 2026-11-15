@@ -90,10 +90,10 @@ the next time that person logs in; no manual DB edit needed.
 ### CORS
 
 The API only accepts cross-origin requests (including the OAuth login call) from an allowlisted
-set of origins - `common.CorsAllowedOrigins`, always including the deployed domains
-(`striker.example.com`, and the older `striker.example.com`) plus `http://localhost:3000` (the Docker/nginx-served frontend) and `http://localhost:5173`
-(Vite's default `npm run dev` port). Running the frontend on a different port, or from a
-different host entirely, needs `CORS_ALLOWED_ORIGINS` (comma-separated) set to that origin - e.g.
+set of origins - `common.CorsAllowedOrigins`, always including `http://localhost:3000` (the
+Docker/nginx-served frontend) and `http://localhost:5173` (Vite's default `npm run dev` port).
+A deployment, or a frontend on a different port, needs `CORS_ALLOWED_ORIGINS` (comma-separated)
+set to its origin(s) - e.g. `CORS_ALLOWED_ORIGINS=https://striker.example.com` or
 `CORS_ALLOWED_ORIGINS=http://localhost:4000`. Without it, the browser's preflight `OPTIONS`
 request gets rejected (visible in this service's logs as a `403` on `OPTIONS`), and every API
 call - login included - fails with a CORS error before it ever reaches a handler.
