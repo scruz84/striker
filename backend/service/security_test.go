@@ -69,6 +69,17 @@ func TestInitialize_RejectsForgedCookie(t *testing.T) {
 	}
 }
 
+// The instant archive setting is admin-only: without a valid session it is refused before any
+// handler runs (openspec/specs/match-data-retention "Not an admin").
+func TestInstantArchive_RequiresAdminSession(t *testing.T) {
+	router := securityRouter(t)
+	for name, cookie := range map[string]*http.Cookie{"no cookie": nil, "forged cookie": forgedCookie(t, "attacker-key")} {
+		if rec := do(router, http.MethodPut, "/v1/admin/instant-archive", true, cookie); rec.Code != http.StatusUnauthorized {
+			t.Errorf("%s: PUT /v1/admin/instant-archive = %d, want 401", name, rec.Code)
+		}
+	}
+}
+
 func TestOldUnauthenticatedEndpointsAreGone(t *testing.T) {
 	router := securityRouter(t)
 	for _, tc := range []struct{ method, path string }{

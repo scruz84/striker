@@ -61,6 +61,7 @@ func StartEngine() {
 	StartAiActivityScheduler(NewAiActivityJob(dbCtx))
 	StartAccountLifecycleScheduler(NewAccountLifecycleJob(dbCtx))
 	StartResetReleasedTeamsScheduler(NewResetReleasedTeamsJob(dbCtx))
+	StartInstantArchiveScheduler(NewInstantArchiveJob(dbCtx))
 	WaitUntilFinish()
 	//go longPeriodicTimeTasks(dbCtx)
 	//shortPeriodicTimeTasks(dbCtx)

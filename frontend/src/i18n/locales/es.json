@@ -1956,6 +1956,16 @@
       "success": "Ventana de negociación de ofertas actualizada.",
       "error": "No se pudo actualizar la ventana de negociación de ofertas."
     },
+    "instantArchive": {
+      "title": "Archivar temporadas antiguas",
+      "description": "Borra el detalle minuto a minuto (duelo de zonas y evolución de las notas) de los partidos anteriores a las temporadas que se conservan, para que la base de datos deje de crecer. Se mantienen el resultado, la crónica, las notas y las alineaciones. La temporada en curso nunca se archiva. Lo borrado no se puede recuperar.",
+      "enabled": "Archivado activado",
+      "keepSeasons": "Temporadas terminadas conservadas",
+      "rangeError": "Introduce un número del 0 al 10.",
+      "save": "Guardar archivado",
+      "success": "Archivado de temporadas actualizado.",
+      "error": "No se pudo actualizar el archivado de temporadas."
+    },
     "worldStructure": {
       "title": "Estructura del mundo",
       "description": "Categorías, grupos por categoría y equipos por grupo. Cada categoría debe tener exactamente el doble de grupos que la anterior (la primera tiene uno) y los mismos equipos por grupo. Los países nuevos se crean con esta estructura, y cada país activo se reestructura a ella en su próximo cambio de temporada: los equipos que no caben bajan de categoría y la última se completa con nuevos equipos CPU.",

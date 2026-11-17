@@ -82,6 +82,11 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		instantArchive, err := common.GetInstantArchiveSettings(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		aiLevels, err := common.GetAiLevelStats(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -108,6 +113,8 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			FriendlyScheduleWeekdays:      friendlyScheduleWeekdays,
 			FreeAgentInjectionsPerWeek:    freeAgentInjectionsPerWeek,
 			OfferNegotiationWindowMinutes: offerNegotiationWindowMinutes,
+			InstantArchiveEnabled:         instantArchive.Enabled,
+			InstantArchiveKeepSeasons:     instantArchive.KeepSeasons,
 			PendingRestructure:            pendingRestructure,
 		})
 	}
@@ -267,6 +274,35 @@ func AdminSetFreeAgentInjectionsPerWeekHandler(dbCtx *common.DatabaseContext) gi
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "free agent injections per week updated"})
+	}
+}
+
+type setInstantArchiveRequest struct {
+	Enabled     *bool `json:"enabled"`
+	KeepSeasons *int  `json:"keepSeasons"`
+}
+
+// AdminSetInstantArchiveHandler saves the instant archive setting (see
+// common.SetInstantArchiveSettings and openspec/specs/match-data-retention): whether the daily pass
+// deletes old seasons' per-minute instants, and how many finished seasons keep them.
+func AdminSetInstantArchiveHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setInstantArchiveRequest
+		if err := c.BindJSON(&req); err != nil || req.Enabled == nil || req.KeepSeasons == nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "enabled and keepSeasons are required"))
+			return
+		}
+		settings := common.InstantArchiveSettings{Enabled: *req.Enabled, KeepSeasons: *req.KeepSeasons}
+		if err := common.SetInstantArchiveSettings(dbCtx, settings); err != nil {
+			if errors.Is(err, common.ErrInvalidInstantArchiveKeepSeasons) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting the instant archive: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "instant archive updated"})
 	}
 }
 

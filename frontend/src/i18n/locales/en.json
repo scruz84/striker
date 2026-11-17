@@ -1962,6 +1962,16 @@
       "success": "Offer negotiation window updated.",
       "error": "Failed to update offer negotiation window."
     },
+    "instantArchive": {
+      "title": "Archive old seasons",
+      "description": "Deletes the minute-by-minute detail (zone duel and rating scrubber) of matches older than the seasons kept, so the database stops growing. Results, chronicle, ratings and lineups stay. The current season is always kept. What is deleted cannot be recovered.",
+      "enabled": "Archive on",
+      "keepSeasons": "Finished seasons kept",
+      "rangeError": "Enter a number from 0 to 10.",
+      "save": "Save archive",
+      "success": "Season archive updated.",
+      "error": "Failed to update the season archive."
+    },
     "worldStructure": {
       "title": "World structure",
       "description": "Tiers, groups per tier and teams per group. Every tier must have exactly twice the groups of the tier above it (tier 1 has one) and the same teams per group. New countries are created with this structure, and every active country is restructured into it at its own next season rollover: teams that do not fit drop a tier and the bottom tier is topped up with new CPU teams.",

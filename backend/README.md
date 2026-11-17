@@ -127,6 +127,15 @@ weekday/time-of-day fixtures are generated on - see "Match schedule" below), and
 management endpoints (world structure, recreating leagues, adding a country, per-league
 schedules - see "World management" below).
 
+`PUT instant-archive` (`{"enabled": bool, "keepSeasons": 0-10}`) turns on the season archive
+(off by default, Rules tab in the admin web). While it is on, the daily `instant_archive` engine
+job (04:41 UTC) deletes the per-minute instants of every fixture older than the finished seasons
+kept, in batches of 200 fixtures. Results, events, ratings and lineups stay, and deleted instants
+are never restored (see `openspec/specs/match-data-retention`). Postgres reuses the freed space
+for new rows, so the instants tables stop growing, but the files on disk only shrink after a
+`VACUUM FULL` (or `pg_repack`) of `match_instants`, `cup_tie_instants` and `friendly_instants`,
+which locks each table while it runs.
+
 `POST /v1/admin/initialize` wipes and reseeds the whole game (`handlers.Initialize`) and is the
 only HTTP route that does - behind the JWT and admin middleware like the rest of this group. The
 old unauthenticated `GET /v1/initData` no longer exists (404). An empty database is bootstrapped

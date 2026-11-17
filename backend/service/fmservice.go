@@ -367,6 +367,7 @@ func registerV1Routes(router *gin.Engine, dbCtx *common.DatabaseContext) {
 	v1AdminGroup.POST("/inject-free-agents", handlers.AdminInjectFreeAgentsNowHandler(dbCtx))
 	v1AdminGroup.PUT("/free-agent-injections-per-week", handlers.AdminSetFreeAgentInjectionsPerWeekHandler(dbCtx))
 	v1AdminGroup.PUT("/offer-negotiation-window", handlers.AdminSetOfferNegotiationWindowHandler(dbCtx))
+	v1AdminGroup.PUT("/instant-archive", handlers.AdminSetInstantArchiveHandler(dbCtx))
 	v1AdminGroup.POST("/teams/:"+handlers.ID+"/budget", handlers.AdminAdjustBudgetHandler(dbCtx))
 	v1AdminGroup.POST("/teams/inject-all", handlers.AdminInjectAllTeamsBudgetHandler(dbCtx))
 	v1AdminGroup.PUT("/teams/:"+handlers.ID+"/ai-level", handlers.AdminSetTeamAiLevelHandler(dbCtx))

@@ -95,6 +95,10 @@ type AdminOverview struct {
 	FriendlyScheduleWeekdays      int              `json:"friendlyScheduleWeekdays"`
 	FreeAgentInjectionsPerWeek    int              `json:"freeAgentInjectionsPerWeek"`
 	OfferNegotiationWindowMinutes int              `json:"offerNegotiationWindowMinutes"`
+	// InstantArchiveEnabled/KeepSeasons are the instant archive setting (see
+	// GetInstantArchiveSettings and openspec/specs/match-data-retention).
+	InstantArchiveEnabled     bool `json:"instantArchiveEnabled"`
+	InstantArchiveKeepSeasons int  `json:"instantArchiveKeepSeasons"`
 	// PendingRestructure lists the active countries whose leagues differ from the saved world
 	// structure (or break the pyramid rule): each is restructured at its own next season rollover
 	// (see engine.restructureIfNeeded).

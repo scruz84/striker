@@ -106,3 +106,25 @@ metrics.
 Deploy normally: `EnsureSchema` applies `init118` on startup (metadata-only column adds plus small
 partial indexes). Nothing changes until an admin turns the archive on. Rollback: turn it off. The
 columns are harmless if the code is reverted.
+
+## Code map for the archived spec
+
+To copy into `openspec/specs/match-data-retention/spec.md` when this change is archived.
+
+
+- Setting and archive: `backend/common/instantarchive.go` (`InstantArchiveSettings`,
+  `Get/SetInstantArchiveSettings`, `ArchiveOldInstants`, the `Archive*InstantsStmtSql` batches,
+  `FriendlyArchiveCutoffsStmtSql`, `InstantArchiveBatch`).
+- Schema: `backend/resources/sql/init118_instant_archive.sql` (`season.archive_instants_enabled`,
+  `season.archive_keep_seasons`, `instants_archived` on `matches` / `cup_ties` /
+  `friendly_matches`, the `*_instants_to_archive` partial indexes).
+- Engine: `backend/engine/instantarchive.go` (`InstantArchiveJob`, slot `instant_archive`,
+  `RunInstantArchive`, daily at 04:41 UTC via `StartInstantArchiveScheduler` in `StartEngine`).
+- API: `AdminSetInstantArchiveHandler` (`handlers/adminHandlers.go`, `PUT /v1/admin/instant-archive`),
+  `AdminOverview.instantArchiveEnabled` / `instantArchiveKeepSeasons`.
+- Frontend: `features/admin/RulesTab.tsx` (`InstantArchiveForm`), `useAdminSetInstantArchive`
+  (`api/hooks.ts`), strings `admin.instantArchive.*`. An archived match reads like one without
+  instants in `features/match/Lineups.tsx` and `utils/matchMinute.matchTimeline`.
+- Tests: `common/instantarchive_integration_test.go`, `engine/instantarchive_integration_test.go`,
+  `handlers/instantArchiveHandler_test.go`, `service/security_test.go`
+  (`TestInstantArchive_RequiresAdminSession`), `features/admin/RulesTab.test.tsx`.

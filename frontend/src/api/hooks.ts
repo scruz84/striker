@@ -1744,6 +1744,16 @@ export function useAdminSetOfferNegotiationWindow() {
   })
 }
 
+export function useAdminSetInstantArchive() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (settings: { enabled: boolean; keepSeasons: number }) => api.put('/v1/admin/instant-archive', settings),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useAdminSetFriendlySchedule() {
   const queryClient = useQueryClient()
   return useMutation({

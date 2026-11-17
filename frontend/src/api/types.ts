@@ -2044,6 +2044,10 @@ export interface AdminOverview {
   friendlyScheduleWeekdays: number
   freeAgentInjectionsPerWeek: number
   offerNegotiationWindowMinutes: number
+  // The instant archive (backend common.InstantArchiveSettings): whether old seasons' per-minute
+  // instants are deleted, and how many finished seasons keep them.
+  instantArchiveEnabled: boolean
+  instantArchiveKeepSeasons: number
   // One row per AI level (backend common.AiLevelStats), human = owned clubs.
   aiLevels?: AiLevelStats[]
   // Active countries whose leagues differ from the saved world structure: each is restructured at
