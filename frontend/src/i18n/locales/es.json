@@ -1160,6 +1160,7 @@
     "free": "Gratis"
   },
   "team": {
+    "dissolved": "Disuelto en la temporada {{season}}",
     "loanedOut": {
       "title": "Cedidos ({{count}})",
       "returns": "Vuelve en la temporada {{season}} de {{country}} (va por la {{current}})",
@@ -1955,6 +1956,31 @@
       "save": "Guardar ventana",
       "success": "Ventana de negociación de ofertas actualizada.",
       "error": "No se pudo actualizar la ventana de negociación de ofertas."
+    },
+    "instantArchive": {
+      "title": "Archivar temporadas antiguas",
+      "description": "Borra el detalle minuto a minuto (duelo de zonas y evolución de las notas) de los partidos anteriores a las temporadas que se conservan, para que la base de datos deje de crecer. Se mantienen el resultado, la crónica, las notas y las alineaciones. La temporada en curso nunca se archiva. Lo borrado no se puede recuperar.",
+      "enabled": "Archivado activado",
+      "keepSeasons": "Temporadas terminadas conservadas",
+      "rangeError": "Introduce un número del 0 al 10.",
+      "save": "Guardar archivado",
+      "success": "Archivado de temporadas actualizado.",
+      "error": "No se pudo actualizar el archivado de temporadas."
+    },
+    "countryStructure": {
+      "edit": "Estructura",
+      "ownChip": "Estructura propia",
+      "title": "Estructura de ligas de {{country}}",
+      "description": "Da a este país sus propias divisiones en lugar de la estructura global. Se aplica en el próximo cambio de temporada del país. Si hay menos plazas que equipos, se disuelven los equipos CPU peor clasificados; los equipos de usuarios siempre conservan su plaza.",
+      "useGlobal": "Usar la estructura global",
+      "save": "Guardar estructura",
+      "saveSuccess": "Estructura del país guardada. Se aplica en su próximo cambio de temporada.",
+      "clearSuccess": "El país vuelve a seguir la estructura global desde su próximo cambio de temporada.",
+      "saveError": "No se pudo guardar la estructura del país.",
+      "overridden": "Estos países tienen estructura propia y no siguen esta: {{countries}}.",
+      "dissolveCount": "{{country}}: {{count}}",
+      "confirmDissolve": "Esta estructura tiene menos plazas que equipos. En el próximo cambio de temporada de cada país se disolverán estos equipos CPU (sus jugadores pasan a agentes libres y se conserva su historial): {{list}}. ¿Continuar?",
+      "confirmDissolveButton": "Disolver y guardar"
     },
     "worldStructure": {
       "title": "Estructura del mundo",

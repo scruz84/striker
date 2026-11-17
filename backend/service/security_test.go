@@ -69,6 +69,25 @@ func TestInitialize_RejectsForgedCookie(t *testing.T) {
 	}
 }
 
+// The instant archive setting and the per-country structures are admin-only: without a valid
+// session they are refused before any handler runs (openspec/specs/match-data-retention "Not an
+// admin", league-pyramid "Per-country structure").
+func TestInstantArchive_RequiresAdminSession(t *testing.T) {
+	router := securityRouter(t)
+	for name, cookie := range map[string]*http.Cookie{"no cookie": nil, "forged cookie": forgedCookie(t, "attacker-key")} {
+		for _, tc := range []struct{ method, path string }{
+			{http.MethodPut, "/v1/admin/instant-archive"},
+			{http.MethodGet, "/v1/admin/countries/es/structure"},
+			{http.MethodPut, "/v1/admin/countries/es/structure"},
+			{http.MethodDelete, "/v1/admin/countries/es/structure"},
+		} {
+			if rec := do(router, tc.method, tc.path, true, cookie); rec.Code != http.StatusUnauthorized {
+				t.Errorf("%s: %s %s = %d, want 401", name, tc.method, tc.path, rec.Code)
+			}
+		}
+	}
+}
+
 func TestOldUnauthenticatedEndpointsAreGone(t *testing.T) {
 	router := securityRouter(t)
 	for _, tc := range []struct{ method, path string }{

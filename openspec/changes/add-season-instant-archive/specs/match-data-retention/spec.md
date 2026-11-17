@@ -1,0 +1,85 @@
+# Spec Delta
+
+## Purpose
+
+States which stored match data the game keeps and for how long, so an admin can bound database
+growth by archiving the per-minute detail of old seasons while every match keeps its record.
+
+## ADDED Requirements
+
+### Requirement: Instant archive setting
+The game SHALL have one global instant archive setting: whether it is enabled (default off) and how many finished seasons keep their per-minute instants (default 1, an integer from 0 to 10). While it is off, no instants are ever deleted.
+
+#### Scenario: Fresh world
+- **WHEN** a world is created or an existing database is upgraded
+- **THEN** the archive is off and keeps 1 finished season
+
+#### Scenario: Off keeps everything
+- **WHEN** the archive is off and the daily archive pass fires
+- **THEN** no instant of any match, cup tie or friendly is deleted
+
+### Requirement: Admin configures the archive
+An admin SHALL see and change both values in the admin web's Rules tab. A save with a count outside 0-10 MUST be rejected with no change. Only admins can read or change the setting.
+
+#### Scenario: Turning it on
+- **WHEN** an admin enables the archive with 2 seasons kept and saves
+- **THEN** the admin overview reports it enabled with 2 seasons kept
+
+#### Scenario: Count out of range
+- **WHEN** an admin saves 11 seasons kept
+- **THEN** the save is rejected and the setting is unchanged
+
+#### Scenario: Not an admin
+- **WHEN** a non-admin user calls the archive setting endpoint
+- **THEN** the request is refused and the setting is unchanged
+
+### Requirement: Which league matches and domestic cups are archived
+With the archive on and K seasons kept, a country whose current season is S SHALL have archived every played league match of its leagues with season ≤ S − 1 − K, and every tie of its domestic cups and playoffs of those seasons once that cup is completed. The current season is never archived.
+
+#### Scenario: Keeping one season
+- **WHEN** the archive is on with 1 season kept and Spain is in season 5
+- **THEN** Spain's league matches, cup ties and playoff ties of seasons 1-3 lose their instants, and those of seasons 4 and 5 keep them
+
+#### Scenario: Keeping none
+- **WHEN** the archive is on with 0 seasons kept and Spain is in season 5
+- **THEN** only Spain's season 5 matches keep their instants
+
+#### Scenario: Countries advance on their own
+- **WHEN** Spain is in season 5 and France in season 4, with 1 season kept
+- **THEN** Spain's season 3 is archived and France's season 3 is not
+
+### Requirement: Which international cups are archived
+A cup belonging to a region (regional club cups and international knockout cups) SHALL be archived once completed and its edition E satisfies E ≤ N − 1 − K, where N is the newest edition of that region and K the seasons kept.
+
+#### Scenario: Regional edition
+- **WHEN** the archive keeps 1 season and a region has editions 1-4, with edition 2 completed
+- **THEN** the ties of editions 1 and 2 lose their instants, and those of editions 3 and 4 keep them
+
+### Requirement: Which friendlies are archived
+A played friendly SHALL be archived when its kickoff is earlier than the first league kickoff of season S − K in its home team's country (S being that country's current season, K the seasons kept). This covers national-team friendlies and World Cup group matches. If that season has no league match, no friendly of that country is archived.
+
+#### Scenario: Friendly from an archived season
+- **WHEN** the archive keeps 1 season, Spain is in season 5, and a Spanish club hosted a friendly before Spain's first season-4 league match
+- **THEN** that friendly loses its instants
+
+#### Scenario: Recent friendly
+- **WHEN** the same club hosted a friendly after Spain's first season-4 league match
+- **THEN** that friendly keeps its instants
+
+### Requirement: Archiving keeps the match record
+Archiving SHALL delete only per-minute instants. A match's result, events, stored ratings, lineups, substitutions, orders, attendance, weather and referees MUST stay, and an archived match MUST appear in standings, history, statistics and the match viewer as before.
+
+#### Scenario: Viewing an archived match
+- **WHEN** a viewer opens an archived league match
+- **THEN** it shows its score, chronicle and stored ratings, and its Tácticas tab shows only the lineups pitch
+
+### Requirement: Daily archive pass
+While the archive is on, the engine SHALL run the archive pass once a day, in batches of at most 200 fixtures per statement, until no fixture to archive is left. Instants already deleted are never restored, even if the archive is turned off or the count raised.
+
+#### Scenario: First pass after turning it on
+- **WHEN** an admin turns the archive on over several old seasons
+- **THEN** the next daily pass deletes all their instants batch by batch, and later passes find nothing left from those seasons
+
+#### Scenario: Raising the count later
+- **WHEN** seasons 1-3 were archived and the admin then raises the seasons kept from 1 to 3
+- **THEN** seasons 1-3 stay without instants and no newer season is archived until it falls outside the new count

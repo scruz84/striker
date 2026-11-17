@@ -32,7 +32,7 @@ type AiLevelStats struct {
 const GetAiLevelStatsStmtSql = "SELECT t.ai_level, t.owner_id IS NOT NULL, count(*), COALESCE(SUM(t.budget), 0), " +
 	"count(*) FILTER (WHERE t.budget < -$1::bigint), COALESCE(SUM(c.points), 0), COALESCE(SUM(c.matches), 0) " +
 	"FROM teams t LEFT JOIN classification c ON c.team_id = t.team_id " +
-	"WHERE t.is_national_team = false AND t.reset_pending_since IS NULL GROUP BY 1, 2"
+	"WHERE t.is_national_team = false AND t.reset_pending_since IS NULL AND t.dissolved_season IS NULL GROUP BY 1, 2"
 
 // aiLevelBucket names the bucket of a club with aiLevel that is (or is not) owned; "" for an
 // unowned club with no AI level (it is not managed at all).

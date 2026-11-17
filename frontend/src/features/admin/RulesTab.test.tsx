@@ -9,6 +9,7 @@ type MutateOptions = { onSuccess?: () => void; onError?: () => void }
 const mutations = vi.hoisted(() => ({
   maxFriendlies: vi.fn(),
   matchSchedule: vi.fn(),
+  instantArchive: vi.fn(),
 }))
 
 vi.mock('../../api/hooks', () => {
@@ -24,6 +25,8 @@ vi.mock('../../api/hooks', () => {
         friendlyScheduleWeekdays: 127,
         freeAgentInjectionsPerWeek: 5,
         offerNegotiationWindowMinutes: 30,
+        instantArchiveEnabled: false,
+        instantArchiveKeepSeasons: 1,
       },
     }),
     useAdminSetMaxFriendliesPerWeek: () => ({ mutate: mutations.maxFriendlies, isPending: false }),
@@ -31,6 +34,7 @@ vi.mock('../../api/hooks', () => {
     useAdminSetFriendlySchedule: idle,
     useAdminSetFreeAgentInjectionsPerWeek: idle,
     useAdminSetOfferNegotiationWindow: idle,
+    useAdminSetInstantArchive: () => ({ mutate: mutations.instantArchive, isPending: false }),
   }
 })
 
@@ -56,7 +60,7 @@ describe('RulesTab', () => {
 
   it('shows one card per rule', () => {
     renderTab()
-    for (const key of ['matchSchedule', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow']) {
+    for (const key of ['matchSchedule', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow', 'instantArchive']) {
       expect(screen.getByText(i18n.t(`admin.${key}.title`))).toBeInTheDocument()
     }
     // Promotion and relegation follow the league pyramid; there is no setting for them any more.
@@ -105,5 +109,27 @@ describe('RulesTab', () => {
     expect(within(form).getByRole('button', { name: i18n.t('admin.matchSchedule.save') })).toBeDisabled()
     expect(within(form).getByText(i18n.t('admin.matchSchedule.noWeekdaysError'))).toBeInTheDocument()
     expect(mutations.matchSchedule).not.toHaveBeenCalled()
+  })
+
+  it('shows the season archive off, keeping 1 season, and saves it turned on', () => {
+    renderTab()
+    const form = card(i18n.t('admin.instantArchive.title'))
+    const toggle = within(form).getByRole('switch', { name: i18n.t('admin.instantArchive.enabled') })
+    expect(toggle).not.toBeChecked()
+    expect(within(form).getByRole('spinbutton')).toHaveValue(1)
+
+    fireEvent.click(toggle)
+    fireEvent.change(within(form).getByRole('spinbutton'), { target: { value: '2' } })
+    fireEvent.click(within(form).getByRole('button', { name: i18n.t('admin.instantArchive.save') }))
+    expect(mutations.instantArchive).toHaveBeenCalledWith({ enabled: true, keepSeasons: 2 }, expect.any(Object))
+  })
+
+  it('refuses to save a season archive count outside 0-10', () => {
+    renderTab()
+    const form = card(i18n.t('admin.instantArchive.title'))
+    fireEvent.change(within(form).getByRole('spinbutton'), { target: { value: '11' } })
+    expect(within(form).getByText(i18n.t('admin.instantArchive.rangeError'))).toBeInTheDocument()
+    expect(within(form).getByRole('button', { name: i18n.t('admin.instantArchive.save') })).toBeDisabled()
+    expect(mutations.instantArchive).not.toHaveBeenCalled()
   })
 })

@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import Skeleton from '@mui/material/Skeleton'
+import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import {
   useAdminOverview,
   useAdminSetFreeAgentInjectionsPerWeek,
   useAdminSetFriendlySchedule,
+  useAdminSetInstantArchive,
   useAdminSetMaxFriendliesPerWeek,
   useAdminSetOfferNegotiationWindow,
   useSetMatchSchedule,
@@ -30,13 +33,18 @@ export function RulesTab() {
 
   return (
     <Grid container spacing={2} sx={{ mb: 2 }}>
-      {[MatchScheduleForm, MaxFriendliesPerWeekForm, FriendlyScheduleForm, FreeAgentInjectionsForm, OfferNegotiationWindowForm].map(
-        (Form, index) => (
-          <Grid key={index} size={{ xs: 12, md: 6 }}>
-            <Form overview={overview} />
-          </Grid>
-        ),
-      )}
+      {[
+        MatchScheduleForm,
+        MaxFriendliesPerWeekForm,
+        FriendlyScheduleForm,
+        FreeAgentInjectionsForm,
+        OfferNegotiationWindowForm,
+        InstantArchiveForm,
+      ].map((Form, index) => (
+        <Grid key={index} size={{ xs: 12, md: 6 }}>
+          <Form overview={overview} />
+        </Grid>
+      ))}
     </Grid>
   )
 }
@@ -179,6 +187,48 @@ function OfferNegotiationWindowForm({ overview }: { overview: Overview }) {
         onChange={(e) => setOfferNegotiationWindowMinutesValue(e.target.value)}
         sx={fieldWidth}
         slotProps={{ htmlInput: { min: 0 } }}
+      />
+    </SettingCard>
+  )
+}
+
+// InstantArchiveForm turns the instant archive on or off and sets how many finished seasons keep
+// their minute-by-minute detail (openspec/specs/match-data-retention). Off by default; what it
+// deletes is gone for good, which the card says.
+function InstantArchiveForm({ overview }: { overview: Overview }) {
+  const { t } = useTranslation()
+  const feedback = useAdminFeedback()
+  const setInstantArchive = useAdminSetInstantArchive()
+  const [enabled, setEnabled] = useState(overview.instantArchiveEnabled)
+  const [keepSeasons, setKeepSeasons] = useState(String(overview.instantArchiveKeepSeasons))
+  const value = Number(keepSeasons)
+  const invalid = keepSeasons === '' || !Number.isInteger(value) || value < 0 || value > 10
+
+  return (
+    <SettingCard
+      title={t('admin.instantArchive.title')}
+      description={t('admin.instantArchive.description')}
+      submitLabel={t('admin.instantArchive.save')}
+      onSubmit={() =>
+        setInstantArchive.mutate({ enabled, keepSeasons: value }, feedback('admin.instantArchive.success', 'admin.instantArchive.error'))
+      }
+      pending={setInstantArchive.isPending}
+      invalid={invalid}
+      errorText={invalid ? t('admin.instantArchive.rangeError') : undefined}
+      color={enabled ? 'warning' : 'primary'}
+    >
+      <FormControlLabel
+        control={<Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />}
+        label={t('admin.instantArchive.enabled')}
+      />
+      <TextField
+        label={t('admin.instantArchive.keepSeasons')}
+        type="number"
+        size="small"
+        value={keepSeasons}
+        onChange={(e) => setKeepSeasons(e.target.value)}
+        sx={fieldWidth}
+        slotProps={{ htmlInput: { min: 0, max: 10 } }}
       />
     </SettingCard>
   )

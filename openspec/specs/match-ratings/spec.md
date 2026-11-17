@@ -135,7 +135,8 @@ A player's minutes in a match SHALL include every added minute he was on the pit
   `GetMatchPlayerRatings`, `LoadPlayerRatings`, `addRatedPlayers`, `encodePlayerContributions` /
   `decodePlayerContributions`), called from `WeekMatchById`, `GetCupTieDetails` and
   `EnrichPlayedFriendly`; table `match_player_ratings` and the `player_contributions` columns from
-  `resources/sql/init89_match_player_ratings.sql`.
+  `resources/sql/init89_match_player_ratings.sql` (stored as JSON text since
+  `init117_player_contributions_as_text.sql`).
 - Frontend port: `frontend/src/utils/liveMatchRatings.ts` (`computePlayerRatings`, `startingLineup`),
   pinned to the Go formula by `frontend/src/utils/testdata/match_ratings_parity.json`
   (`TestComputePlayerRatings_ParityFixture`, `liveMatchRatings.test.ts`; regenerate with

@@ -47,7 +47,7 @@ func ChallengeToFriendlyHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		challengerIsHome := req.ChallengerIsHome == nil || *req.ChallengerIsHome
 		if err := common.ChallengeToFriendly(dbCtx, team.Id, req.OpponentTeamId, req.ProposedKickoff, challengerIsHome); err != nil {
 			switch {
-			case errors.Is(err, common.ErrCannotChallengeOwnTeam),
+			case errors.Is(err, common.ErrCannotChallengeOwnTeam), errors.Is(err, common.ErrTeamDissolved),
 				errors.Is(err, common.ErrFriendlyChallengeAlreadyExists),
 				errors.Is(err, common.ErrFriendlyLimitReached),
 				errors.Is(err, common.ErrFriendlyKickoffTaken),

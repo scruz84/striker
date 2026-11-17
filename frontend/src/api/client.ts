@@ -2,11 +2,14 @@ import { getApiEndpoint } from '../config'
 
 export class ApiError extends Error {
   status: number
+  // The response's JSON body, when it had one (e.g. a 409's details), otherwise undefined.
+  body?: unknown
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, body?: unknown) {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.body = body
   }
 }
 
@@ -28,7 +31,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   })
 
   if (!response.ok) {
-    throw new ApiError(response.status, `${options.method ?? 'GET'} ${path} failed with status ${response.status}`)
+    let body: unknown
+    try {
+      const text = await response.text()
+      body = text ? JSON.parse(text) : undefined
+    } catch {
+      body = undefined
+    }
+    throw new ApiError(response.status, `${options.method ?? 'GET'} ${path} failed with status ${response.status}`, body)
   }
 
   if (response.status === 204) {

@@ -10,6 +10,7 @@ import (
 )
 
 var ErrCannotChallengeOwnTeam = errors.New("cannot challenge your own team to a friendly")
+var ErrTeamDissolved = errors.New("this club has been dissolved")
 var ErrFriendlyChallengeAlreadyExists = errors.New("you already have a pending friendly challenge against this team")
 var ErrFriendlyLimitReached = errors.New("weekly friendly match limit reached")
 var ErrFriendlyChallengeNotFound = errors.New("friendly challenge not found")
@@ -293,6 +294,11 @@ const friendlyScheduleDelay = 5 * time.Minute
 func ChallengeToFriendly(dbCtx *DatabaseContext, challengerTeamId int64, opponentTeamId int64, proposedKickoff *time.Time, challengerIsHome bool) error {
 	if challengerTeamId == opponentTeamId {
 		return ErrCannotChallengeOwnTeam
+	}
+	if dissolved, err := IsTeamDissolved(dbCtx, opponentTeamId); err != nil {
+		return err
+	} else if dissolved {
+		return ErrTeamDissolved
 	}
 	if proposedKickoff != nil && !isAllowedFriendlyKickoff(dbCtx, *proposedKickoff, time.Now()) {
 		return ErrInvalidFriendlyKickoff

@@ -111,7 +111,10 @@ export function TeamDetailsPage() {
   // skip fetching any of that for one, rather than pulling its country's unrelated domestic/
   // international club-cup standings.
   const isNationalTeam = !!teamDetails?.team.isNationalTeam
-  const teamCountry = !isNationalTeam ? teamDetails?.team.country : undefined
+  // A dissolved club (see Team.dissolvedSeason) no longer plays: no cups, no challenge, only its
+  // history and past matches.
+  const dissolvedSeason = teamDetails?.team.dissolvedSeason
+  const teamCountry = !isNationalTeam && !dissolvedSeason ? teamDetails?.team.country : undefined
   const { data: latestCup } = useLatestCupId(teamCountry)
   const { data: cupDetails } = useCupDetails(latestCup?.cupId)
   const region = teamCountry ? regionForCountry(teamCountry) : undefined
@@ -128,7 +131,7 @@ export function TeamDetailsPage() {
   const displayName = isNationalTeam
     ? t(COUNTRY_NAME_KEYS[teamDetails.team.country] ?? teamDetails.team.country)
     : teamDetails.team.name
-  const canChallenge = !isOwnTeam && !!userTeam && !isNationalTeam
+  const canChallenge = !isOwnTeam && !!userTeam && !isNationalTeam && !dissolvedSeason
 
   // Tabs mirror the sections the single long page used to stack: its own tab per concern, kept in
   // the URL (?tab=squad) so a section can be linked to and survives a reload.
@@ -147,7 +150,10 @@ export function TeamDetailsPage() {
             </Typography>
             <CountryFlag code={teamDetails.team.country} height={22} />
           </Stack>
-          {!isNationalTeam && (
+          {dissolvedSeason !== undefined && dissolvedSeason > 0 && (
+            <Chip size="small" sx={{ mt: 0.5 }} label={t('team.dissolved', { season: dissolvedSeason })} />
+          )}
+          {!isNationalTeam && !dissolvedSeason && (
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5, mt: 0.5 }}>
               <Chip
                 size="small"

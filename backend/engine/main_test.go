@@ -12,6 +12,6 @@ import (
 // reshape into a full 310-team country at their first rollover. The restructure tests set
 // restructureTarget themselves.
 func TestMain(m *testing.M) {
-	restructureTarget = func(*common.DatabaseContext) []common.TierConfig { return nil }
+	restructureTarget = func(*common.DatabaseContext, string) []common.TierConfig { return nil }
 	os.Exit(m.Run())
 }

@@ -1163,6 +1163,7 @@
     "free": "Free"
   },
   "team": {
+    "dissolved": "Dissolved in season {{season}}",
     "loanedOut": {
       "title": "Loaned out ({{count}})",
       "returns": "Returns in {{country}}'s season {{season}} (now in season {{current}})",
@@ -1961,6 +1962,31 @@
       "save": "Save window",
       "success": "Offer negotiation window updated.",
       "error": "Failed to update offer negotiation window."
+    },
+    "instantArchive": {
+      "title": "Archive old seasons",
+      "description": "Deletes the minute-by-minute detail (zone duel and rating scrubber) of matches older than the seasons kept, so the database stops growing. Results, chronicle, ratings and lineups stay. The current season is always kept. What is deleted cannot be recovered.",
+      "enabled": "Archive on",
+      "keepSeasons": "Finished seasons kept",
+      "rangeError": "Enter a number from 0 to 10.",
+      "save": "Save archive",
+      "success": "Season archive updated.",
+      "error": "Failed to update the season archive."
+    },
+    "countryStructure": {
+      "edit": "Structure",
+      "ownChip": "Own structure",
+      "title": "League structure of {{country}}",
+      "description": "Gives this country its own divisions instead of the global structure. It takes effect at the country's next season rollover. With fewer places than teams, the worst-ranked CPU teams are dissolved; user teams always keep a place.",
+      "useGlobal": "Use the global structure",
+      "save": "Save structure",
+      "saveSuccess": "Country structure saved. It applies at the country's next rollover.",
+      "clearSuccess": "The country follows the global structure again from its next rollover.",
+      "saveError": "Failed to save the country structure.",
+      "overridden": "These countries have their own structure and do not follow this one: {{countries}}.",
+      "dissolveCount": "{{country}}: {{count}}",
+      "confirmDissolve": "This structure has fewer places than teams. At each country's next rollover these CPU teams will be dissolved (their players become free agents; their history is kept): {{list}}. Continue?",
+      "confirmDissolveButton": "Dissolve and save"
     },
     "worldStructure": {
       "title": "World structure",
