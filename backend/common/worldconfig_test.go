@@ -120,12 +120,23 @@ func TestValidateWorldConfig_PyramidRule(t *testing.T) {
 	}
 }
 
-func TestValidateWorldConfigFitsTeams(t *testing.T) {
-	err := ValidateWorldConfigFitsTeams(pyramid(10, 1, 2, 4, 8), map[string]int{"es": 310, "it": 100})
-	if err == nil || err.Error() != "country es has 310 teams but this structure only has 150 places" {
-		t.Fatalf("got %v", err)
+// PlanStructureChange (league-pyramid "Structure fits existing teams"): fewer places than a
+// country's teams lists the CPU teams it loses, fewer places than its user teams is rejected.
+func TestPlanStructureChange(t *testing.T) {
+	dissolve, err := PlanStructureChange(pyramid(10, 1, 2, 4, 8), map[string]CountryTeams{
+		"es": {Teams: 310, UserTeams: 12}, "it": {Teams: 100, UserTeams: 3},
+	})
+	if err != nil {
+		t.Fatalf("12 user teams fit in 150 places, got %v", err)
 	}
-	if err := ValidateWorldConfigFitsTeams(pyramid(10, 1, 2, 4, 8, 16), map[string]int{"es": 210}); err != nil {
-		t.Fatalf("210 teams fit in 310 places, got %v", err)
+	if len(dissolve) != 1 || dissolve["es"] != 160 {
+		t.Fatalf("dissolve = %v, want only es: 160", dissolve)
+	}
+	if dissolve, err := PlanStructureChange(pyramid(10, 1, 2, 4, 8, 16), map[string]CountryTeams{"es": {Teams: 210}}); err != nil || len(dissolve) != 0 {
+		t.Fatalf("210 teams fit in 310 places, got %v / %v", dissolve, err)
+	}
+	_, err = PlanStructureChange(pyramid(10, 1, 2), map[string]CountryTeams{"ad": {Teams: 60, UserTeams: 40}})
+	if err == nil || err.Error() != "country ad has 40 user teams but this structure only has 30 places" {
+		t.Fatalf("got %v", err)
 	}
 }

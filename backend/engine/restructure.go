@@ -10,10 +10,11 @@ import (
 )
 
 // restructureTarget is the pyramid a country's leagues are reshaped into at rollover (see
-// restructureIfNeeded) - the saved world structure. A variable so tests that lay out their own tiny
-// pyramids can switch restructuring off (see TestMain); nil or empty means "never restructure".
-var restructureTarget = func(dbCtx *common.DatabaseContext) []common.TierConfig {
-	return common.GetWorldConfig(dbCtx)
+// restructureIfNeeded) - its effective structure: its own, or else the global one. A variable so
+// tests that lay out their own tiny pyramids can switch restructuring off (see TestMain); nil or
+// empty means "never restructure".
+var restructureTarget = func(dbCtx *common.DatabaseContext, country string) []common.TierConfig {
+	return common.EffectiveStructure(dbCtx, country)
 }
 
 // RankedTeam is one team as a restructure orders it: the tier it plays in after the season's
@@ -27,6 +28,9 @@ type RankedTeam struct {
 	Points      int
 	GoalDiff    int
 	GoalsScored int
+	// Protected is a team the restructure never dissolves: a user's club, or one still due to
+	// play a cup tie (see openspec/specs/league-pyramid "Surplus CPU teams are dissolved").
+	Protected bool
 }
 
 // GroupSlot names one group of a target structure.
@@ -35,10 +39,43 @@ type GroupSlot struct {
 	Group int
 }
 
-// RestructurePlan is where every team goes, plus how many new CPU teams each short group needs.
+// RestructurePlan is where every team goes, how many new CPU teams each short group needs, and
+// which teams are dissolved because the structure has fewer places than teams.
 type RestructurePlan struct {
 	Placement map[int64]GroupSlot
 	Missing   map[GroupSlot]int
+	Dissolve  []int64
+}
+
+// cutToPlaces keeps the first places teams of ordered and returns them with the rest, which are
+// dissolved. A protected team beyond the cut takes the last place instead, and the lowest-ranked
+// unprotected team inside the cut drops out in its place; one that finds no unprotected team to
+// swap with is kept anyway (the bottom tier then takes it over its size). Pure.
+func cutToPlaces(ordered []RankedTeam, places int) ([]RankedTeam, []RankedTeam) {
+	if len(ordered) <= places {
+		return ordered, nil
+	}
+	keep := append([]RankedTeam(nil), ordered[:places]...)
+	var dropped []RankedTeam
+	for _, team := range ordered[places:] {
+		if !team.Protected {
+			dropped = append(dropped, team)
+			continue
+		}
+		swap := -1
+		for i := len(keep) - 1; i >= 0; i-- {
+			if !keep[i].Protected {
+				swap = i
+				break
+			}
+		}
+		if swap >= 0 {
+			dropped = append(dropped, keep[swap])
+			keep = append(keep[:swap], keep[swap+1:]...)
+		}
+		keep = append(keep, team)
+	}
+	return keep, dropped
 }
 
 func rankedBefore(a, b RankedTeam) bool {
@@ -78,9 +115,8 @@ func snakeGroup(k, groups int) int {
 // ordering" and "Restructure fills groups and tops up"): it orders every team, cuts the list into
 // tiers top down by groups x teams per group, deals each tier's teams to its groups in snake
 // order, and counts the places left empty, which are all in the bottom tier when the structure
-// has more places than teams. Teams beyond the structure's places (never the case after
-// ValidateWorldConfigFitsTeams) are dealt into the bottom tier's groups anyway rather than
-// dropped. Pure.
+// has more places than teams. When it has fewer places than teams, the teams beyond the last
+// place are dissolved, never placed (see cutToPlaces). Pure.
 func PlanRestructure(teams []RankedTeam, target []common.TierConfig) RestructurePlan {
 	tiers := append([]common.TierConfig(nil), target...)
 	sort.Slice(tiers, func(i, j int) bool { return tiers[i].Tier < tiers[j].Tier })
@@ -90,6 +126,10 @@ func PlanRestructure(teams []RankedTeam, target []common.TierConfig) Restructure
 	plan := RestructurePlan{Placement: make(map[int64]GroupSlot, len(ordered)), Missing: make(map[GroupSlot]int)}
 	if len(tiers) == 0 {
 		return plan
+	}
+	ordered, dropped := cutToPlaces(ordered, common.WorldConfigPlaces(tiers))
+	for _, team := range dropped {
+		plan.Dissolve = append(plan.Dissolve, team.TeamId)
 	}
 	next := 0
 	for i, tc := range tiers {
@@ -126,12 +166,12 @@ func PlanRestructure(teams []RankedTeam, target []common.TierConfig) Restructure
 // final league differs from it, promoted or relegated by tier, lateral when it only changed group.
 // It returns nil when the country was not restructured, so the caller keeps seasonMoves.
 func restructureIfNeeded(dbCtx *common.DatabaseContext, country string, season int, finalStandings []LeagueStandings) []LeagueMove {
-	target := restructureTarget(dbCtx)
+	target := restructureTarget(dbCtx, country)
 	if len(target) == 0 {
 		return nil
 	}
 	if err := common.ValidateWorldConfig(target); err != nil {
-		log.Errorf("not restructuring %s: the saved world structure is invalid: %s", country, err)
+		log.Errorf("not restructuring %s: its structure is invalid: %s", country, err)
 		return nil
 	}
 	shape, err := common.GetCountryPyramidShape(dbCtx, country)
@@ -186,7 +226,37 @@ func applyRestructure(dbCtx *common.DatabaseContext, country string, season int,
 			teams = append(teams, rt)
 		}
 	}
+	protected, err := common.GetProtectedTeams(dbCtx, teamIdsOf(teams))
+	if err != nil {
+		// Without knowing which clubs are users' or still in a cup, dissolving any is unsafe.
+		log.Errorf("not restructuring %s: error reading its protected teams: %s", country, err)
+		return nil
+	}
+	for i := range teams {
+		teams[i].Protected = protected[teams[i].TeamId]
+	}
 	plan := PlanRestructure(teams, target)
+	// Dissolve the surplus first, so a rollover resumed after a crash finds them out of the
+	// leagues already and plans the same result for the rest.
+	dissolved := 0
+	for _, teamId := range plan.Dissolve {
+		ok, returned, err := common.DissolveTeam(dbCtx, teamId, season)
+		if err != nil {
+			log.Errorf("error dissolving team %d in %s's restructure: %s", teamId, country, err)
+			continue
+		}
+		if ok {
+			dissolved++
+			delete(currentLeague, teamId)
+			InvalidateTeamCaches(dbCtx, teamId)
+		}
+		for _, loan := range returned {
+			notifyLoanReturn(dbCtx, loan)
+		}
+	}
+	if dissolved > 0 {
+		log.Infof("restructure of %s dissolved %d CPU teams", country, dissolved)
+	}
 
 	// Reuse every league whose tier and group still exist; create the rest.
 	tierName := make(map[int]string, len(target))
@@ -289,6 +359,14 @@ func applyRestructure(dbCtx *common.DatabaseContext, country string, season int,
 	}
 	sort.Slice(moves, func(i, j int) bool { return moves[i].TeamId < moves[j].TeamId })
 	return moves
+}
+
+func teamIdsOf(teams []RankedTeam) []int64 {
+	ids := make([]int64, len(teams))
+	for i, t := range teams {
+		ids[i] = t.TeamId
+	}
+	return ids
 }
 
 // notifyRestructureMoved tells teamId's owner which league it plays in next season because of a

@@ -21,13 +21,62 @@ func AdminGetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 type setWorldConfigRequest struct {
 	Tiers []common.TierConfig `json:"tiers" binding:"required"`
+	// ConfirmDissolve must be true to save a structure that dissolves CPU teams (see
+	// refuseUnconfirmedDissolve).
+	ConfirmDissolve bool `json:"confirmDissolve"`
 }
 
-// AdminSetWorldConfigHandler saves a new tier/group/teams-per-league structure. It never touches
-// any existing league/team itself: new worlds and countries are created with it, and every active
-// country is restructured into it at its own next season rollover (see engine.restructureIfNeeded).
-// A structure that breaks the pyramid rule, or holds fewer teams than an active country already
-// has, is rejected (see openspec/specs/league-pyramid).
+// dissolveConfirmationResponse is the 409 a structure save answers when it would dissolve CPU
+// teams and was not confirmed: the teams each country would lose at its next rollover.
+type dissolveConfirmationResponse struct {
+	Message  string         `json:"message"`
+	Dissolve map[string]int `json:"dissolve"`
+}
+
+// checkStructureChange validates tiers against the countries it applies to and, unless confirm is
+// set, refuses a change that would dissolve CPU teams with a 409 listing them (see
+// openspec/specs/league-pyramid "Confirming a structure that dissolves teams"). It writes the
+// response and returns false when the save must not go ahead.
+func checkStructureChange(c *gin.Context, tiers []common.TierConfig, counts map[string]common.CountryTeams, confirm bool) bool {
+	dissolve, err := common.PlanStructureChange(tiers, counts)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		return false
+	}
+	if len(dissolve) > 0 && !confirm {
+		c.JSON(http.StatusConflict, dissolveConfirmationResponse{
+			Message:  "this structure dissolves CPU teams at each country's next rollover; send it again with confirmDissolve to save it",
+			Dissolve: dissolve,
+		})
+		return false
+	}
+	return true
+}
+
+// countryTeamCounts returns the club team counts of the active countries, keeping only those
+// keep accepts.
+func countryTeamCounts(c *gin.Context, dbCtx *common.DatabaseContext, keep func(country string) bool) (map[string]common.CountryTeams, bool) {
+	all, err := common.CountTeamsPerActiveCountry(dbCtx)
+	if err != nil {
+		log.Errorf("error counting teams per country for a structure check: %s", err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		return nil, false
+	}
+	counts := make(map[string]common.CountryTeams, len(all))
+	for country, n := range all {
+		if keep(country) {
+			counts[country] = n
+		}
+	}
+	return counts, true
+}
+
+// AdminSetWorldConfigHandler saves a new global tier/group/teams-per-league structure. It never
+// touches any existing league/team itself: new worlds and countries are created with it, and every
+// active country without its own structure is restructured into it at its own next season
+// rollover (see engine.restructureIfNeeded). A structure that breaks the pyramid rule, or has
+// fewer places than a country's user teams, is rejected; one that dissolves CPU teams needs
+// confirmDissolve (see openspec/specs/league-pyramid).
 func AdminSetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req setWorldConfigRequest
@@ -39,14 +88,13 @@ func AdminSetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 			return
 		}
-		teamsByCountry, err := common.CountTeamsPerActiveCountry(dbCtx)
+		own, err := common.GetCountryStructures(dbCtx)
 		if err != nil {
-			log.Errorf("error counting teams per country for the world config check: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		if err := common.ValidateWorldConfigFitsTeams(req.Tiers, teamsByCountry); err != nil {
-			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+		counts, ok := countryTeamCounts(c, dbCtx, func(country string) bool { return own[country] == nil })
+		if !ok || !checkStructureChange(c, req.Tiers, counts, req.ConfirmDissolve) {
 			return
 		}
 		if err := common.SetWorldConfig(dbCtx, req.Tiers); err != nil {
@@ -55,6 +103,92 @@ func AdminSetWorldConfigHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "world structure saved"})
+	}
+}
+
+// activeCountryParam reads the :code of an active country, answering 404 for any other.
+func activeCountryParam(c *gin.Context, dbCtx *common.DatabaseContext) (string, bool) {
+	code := strings.ToLower(c.Param("code"))
+	active, err := common.GetActiveCountries(dbCtx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		return "", false
+	}
+	for _, a := range active {
+		if a == code {
+			return code, true
+		}
+	}
+	c.JSON(http.StatusNotFound, GetError(0, "unknown or inactive country"))
+	return "", false
+}
+
+// AdminGetCountryStructureHandler returns an active country's own structure, or null tiers when it
+// follows the global one.
+func AdminGetCountryStructureHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code, ok := activeCountryParam(c, dbCtx)
+		if !ok {
+			return
+		}
+		tiers, err := common.GetCountryStructure(dbCtx, code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"tiers": tiers})
+	}
+}
+
+// AdminSetCountryStructureHandler gives an active country its own structure, checked like the
+// global one but against that country only (openspec/specs/league-pyramid "Per-country
+// structure"). It takes effect at the country's next rollover.
+func AdminSetCountryStructureHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code, ok := activeCountryParam(c, dbCtx)
+		if !ok {
+			return
+		}
+		var req setWorldConfigRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "tiers is required"))
+			return
+		}
+		if err := common.ValidateWorldConfig(req.Tiers); err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+			return
+		}
+		counts, ok := countryTeamCounts(c, dbCtx, func(country string) bool { return country == code })
+		if !ok || !checkStructureChange(c, req.Tiers, counts, req.ConfirmDissolve) {
+			return
+		}
+		if err := common.SetCountryStructure(dbCtx, code, req.Tiers); err != nil {
+			log.Errorf("error saving %s's own structure: %s", code, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "country structure saved"})
+	}
+}
+
+// AdminClearCountryStructureHandler puts an active country back on the global structure. Going
+// back can dissolve CPU teams too, so it takes the same confirmation, as ?confirmDissolve=true.
+func AdminClearCountryStructureHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		code, ok := activeCountryParam(c, dbCtx)
+		if !ok {
+			return
+		}
+		counts, ok := countryTeamCounts(c, dbCtx, func(country string) bool { return country == code })
+		if !ok || !checkStructureChange(c, common.GetWorldConfig(dbCtx), counts, c.Query("confirmDissolve") == "true") {
+			return
+		}
+		if err := common.SetCountryStructure(dbCtx, code, nil); err != nil {
+			log.Errorf("error clearing %s's own structure: %s", code, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "country back on the global structure"})
 	}
 }
 
@@ -93,6 +227,14 @@ func AdminListCountriesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			// LeagueKickoffMinute is an active country's tier-1 league kickoff, its local minute of
 			// day (see common.GetCountryLeagueKickoff); omitted for an inactive country.
 			LeagueKickoffMinute *int `json:"leagueKickoffMinute,omitempty"`
+			// Structure is an active country's own structure (see common.GetCountryStructure);
+			// omitted when it follows the global one.
+			Structure []common.TierConfig `json:"structure,omitempty"`
+		}
+		own, err := common.GetCountryStructures(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
 		}
 		countries := make([]countryStatus, 0, len(common.KnownCountries))
 		for _, info := range common.KnownCountries {
@@ -100,6 +242,7 @@ func AdminListCountriesHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			if status.Active {
 				kickoff := common.GetCountryLeagueKickoff(dbCtx, info.Code)
 				status.LeagueKickoffMinute = &kickoff
+				status.Structure = own[info.Code]
 			}
 			countries = append(countries, status)
 		}
@@ -232,7 +375,7 @@ func AdminSetCountryKickoffHandler(dbCtx *common.DatabaseContext) gin.HandlerFun
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		tierCount := max(shape.TierCount(), len(common.GetWorldConfig(dbCtx)))
+		tierCount := max(shape.TierCount(), len(common.EffectiveStructure(dbCtx, code)))
 		if err := common.SetCountryLeagueKickoff(dbCtx, code, *req.Hour*60+*req.Minute, tierCount); err != nil {
 			if errors.Is(err, common.ErrInvalidLeagueKickoff) || errors.Is(err, common.ErrLeagueKickoffTooLate) {
 				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
@@ -355,7 +498,7 @@ func AdminAddDivisionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 		}
 
 		var tierConfig *common.TierConfig
-		for _, tc := range common.GetWorldConfig(dbCtx) {
+		for _, tc := range common.EffectiveStructure(dbCtx, code) {
 			if tc.Tier == req.Tier {
 				found := tc
 				tierConfig = &found

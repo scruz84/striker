@@ -292,7 +292,7 @@ func TestPyramid_RestructureLegacyCountry(t *testing.T) {
 		{Tier: 3, Name: "III", Groups: 4, TeamsPerLeague: 8},
 	}
 	previous := restructureTarget
-	restructureTarget = func(*common.DatabaseContext) []common.TierConfig { return target }
+	restructureTarget = func(*common.DatabaseContext, string) []common.TierConfig { return target }
 	t.Cleanup(func() { restructureTarget = previous })
 
 	f := newPyramidCountry(t, 8, 1, 4)
@@ -428,5 +428,77 @@ func TestPyramid_CountryKickoffChangeReschedules(t *testing.T) {
 	}
 	if got := utcKickoff(override); got != overrideBefore {
 		t.Errorf("the league with an override moved from %s to %s", overrideBefore, got)
+	}
+}
+
+// A legacy 1/4 country of 8-team groups (40 teams) with its own 1/2 x 8 structure (24 places)
+// rolls over: the 16 worst-ranked CPU teams are dissolved, a user's team that would have been cut
+// keeps a place in tier 2 instead, no CPU team is created, and the season-2 fixtures leave the
+// dissolved teams out (spec "Removing the bottom tier", "User team at the bottom", "Country with
+// its own structure"). Five of them were already dissolved by an interrupted rollover, three
+// replicas roll over at once, and the total is still 16.
+func TestPyramid_RestructureDissolvesSurplus(t *testing.T) {
+	previous := restructureTarget
+	restructureTarget = func(dbCtx *common.DatabaseContext, country string) []common.TierConfig {
+		return common.EffectiveStructure(dbCtx, country)
+	}
+	t.Cleanup(func() { restructureTarget = previous })
+
+	f := newPyramidCountry(t, 8, 1, 4)
+	small := []common.TierConfig{{Tier: 1, Name: "I", Groups: 1, TeamsPerLeague: 8}, {Tier: 2, Name: "II", Groups: 2, TeamsPerLeague: 8}}
+	if err := common.SetCountryStructure(f.dbCtx, f.country, small); err != nil {
+		t.Fatal(err)
+	}
+	// The last team of the last tier-2 group belongs to a user.
+	lastGroup := f.leagues[1][3]
+	userTeam := f.teams[lastGroup][7]
+	user := f.scan(`INSERT INTO users (name, provider, email) VALUES ('shrink', 'dev', $1) RETURNING user_id`,
+		fmt.Sprintf("shrink-%d@test", time.Now().UnixNano()))
+	f.exec(`UPDATE teams SET owner_id = $1 WHERE team_id = $2`, user, userTeam)
+	// An interrupted earlier attempt already dissolved five of the worst teams of that group.
+	for _, teamId := range f.teams[lastGroup][2:7] {
+		if ok, _, err := common.DissolveTeam(f.dbCtx, teamId, 1); err != nil || !ok {
+			t.Fatalf("pre-dissolving %d: %v %v", teamId, ok, err)
+		}
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			advanceCountrySeasonIfComplete(f.dbCtx, f.country)
+		}()
+	}
+	wg.Wait()
+	if f.season() != 2 {
+		t.Fatalf("season %d, want 2", f.season())
+	}
+	if n := f.scan(`SELECT count(*) FROM teams WHERE country = $1 AND dissolved_season = 1 AND league_id = -1`, f.country); n != 16 {
+		t.Errorf("%d teams dissolved, want 16", n)
+	}
+	if n := f.scan(`SELECT count(*) FROM teams t JOIN leagues l ON l.league_id = t.league_id WHERE t.country = $1 AND l.archived_season IS NULL`, f.country); n != 24 {
+		t.Errorf("%d teams left in the active leagues, want 24", n)
+	}
+	if n := f.scan(`SELECT count(*) FROM teams WHERE country = $1`, f.country); n != 40 {
+		t.Errorf("%d team rows, want the 40 kept (no CPU team created, none deleted)", n)
+	}
+	if tier := f.scan(`SELECT l.tier FROM teams t JOIN leagues l ON l.league_id = t.league_id WHERE t.team_id = $1`, userTeam); tier != 2 {
+		t.Errorf("the user's team plays in tier %d, want 2", tier)
+	}
+	shape, err := common.GetCountryPyramidShape(f.dbCtx, f.country)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !shape.MatchesConfig(small) {
+		t.Fatalf("after the restructure the country is %+v", shape.Leagues)
+	}
+	if n := f.scan(`SELECT count(*) FROM matches m JOIN teams t ON t.team_id IN (m.home_team_id, m.away_team_id)
+		WHERE m.season = 2 AND t.country = $1 AND t.dissolved_season IS NOT NULL`, f.country); n != 0 {
+		t.Errorf("dissolved teams got %d season-2 fixtures", n)
+	}
+	// Already in shape: another pass dissolves nothing more.
+	if moves := restructureIfNeeded(f.dbCtx, f.country, 2, nil); moves != nil {
+		t.Errorf("a country already in shape was restructured again: %v", moves)
 	}
 }

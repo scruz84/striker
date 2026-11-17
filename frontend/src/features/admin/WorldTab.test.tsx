@@ -7,6 +7,8 @@ import { setPhone } from './testPhone'
 import { WorldTab } from './WorldTab'
 
 const setWorldConfig = vi.hoisted(() => vi.fn())
+const setCountryStructure = vi.hoisted(() => vi.fn())
+const confirmMock = vi.hoisted(() => vi.fn(async () => true))
 const setCountryKickoff = vi.hoisted(() => vi.fn())
 
 vi.mock('../../api/hooks', () => {
@@ -37,6 +39,10 @@ vi.mock('../../api/hooks', () => {
       ],
     }),
     useSetWorldConfig: () => ({ mutate: setWorldConfig, isPending: false }),
+    useAdminSetCountryStructure: () => ({ mutate: setCountryStructure, isPending: false }),
+    useAdminClearCountryStructure: idle,
+    // The real helper reads an ApiError's 409 body; tests hand the counts over directly.
+    dissolveCountsOf: (error: { dissolve?: Record<string, number> } | undefined) => error?.dissolve ?? null,
     useAdminAddCountry: idle,
     useAdminAddDivision: idle,
     useAdminRecreateLeagues: idle,
@@ -49,7 +55,7 @@ vi.mock('../../api/hooks', () => {
 
 function renderTab() {
   render(
-    <ConfirmContext.Provider value={async () => true}>
+    <ConfirmContext.Provider value={confirmMock}>
       <NotifyContext.Provider value={{ success: vi.fn(), error: vi.fn() }}>
         <WorldTab />
       </NotifyContext.Provider>
@@ -83,11 +89,14 @@ describe('WorldTab', () => {
 
     // A new tier follows the pyramid rule: twice the groups of the deepest one.
     expect(setWorldConfig).toHaveBeenCalledWith(
-      [
-        { tier: 1, name: 'Primera', groups: 1, teamsPerLeague: 10 },
-        { tier: 2, name: 'Segunda', groups: 2, teamsPerLeague: 10 },
-        { tier: 3, name: 'Tercera', groups: 4, teamsPerLeague: 10 },
-      ],
+      {
+        tiers: [
+          { tier: 1, name: 'Primera', groups: 1, teamsPerLeague: 10 },
+          { tier: 2, name: 'Segunda', groups: 2, teamsPerLeague: 10 },
+          { tier: 3, name: 'Tercera', groups: 4, teamsPerLeague: 10 },
+        ],
+        confirmDissolve: false,
+      },
       expect.any(Object),
     )
   })
@@ -99,6 +108,51 @@ describe('WorldTab', () => {
     fireEvent.change(groups[1], { target: { value: '4' } })
     expect(screen.getByText(i18n.t('admin.worldStructure.errors.doubling', { tier: 2, groups: 2, upper: 1 }))).toBeInTheDocument()
     expect(screen.getByRole('button', { name: i18n.t('admin.worldStructure.save') })).toBeDisabled()
+  })
+
+  it('asks before saving a structure that dissolves CPU teams, then saves it confirmed', async () => {
+    setPhone(true)
+    type Callbacks = { onSuccess: () => void; onError: (error: unknown) => void }
+    setWorldConfig.mockImplementationOnce((_args: unknown, callbacks: Callbacks) => callbacks.onError({ dissolve: { es: 160, it: 5 } }))
+    renderTab()
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.worldStructure.save') }))
+
+    const list = ['ES', 'IT'].map((country, i) => i18n.t('admin.countryStructure.dissolveCount', { country, count: [160, 5][i] })).join(', ')
+    await vi.waitFor(() => expect(confirmMock).toHaveBeenCalledWith(expect.objectContaining({ message: i18n.t('admin.countryStructure.confirmDissolve', { list }) })))
+    await vi.waitFor(() => expect(setWorldConfig).toHaveBeenCalledTimes(2))
+    expect(setWorldConfig.mock.calls[1][0]).toEqual(expect.objectContaining({ confirmDissolve: true }))
+  })
+
+  it('does not resend a structure the admin did not confirm', async () => {
+    setPhone(true)
+    type Callbacks = { onSuccess: () => void; onError: (error: unknown) => void }
+    setWorldConfig.mockImplementationOnce((_args: unknown, callbacks: Callbacks) => callbacks.onError({ dissolve: { es: 160 } }))
+    confirmMock.mockResolvedValueOnce(false)
+    renderTab()
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.worldStructure.save') }))
+    await vi.waitFor(() => expect(confirmMock).toHaveBeenCalled())
+    expect(setWorldConfig).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives an active country its own structure from its row', () => {
+    setPhone(false)
+    renderTab()
+    fireEvent.click(screen.getByRole('button', { name: i18n.t('admin.countryStructure.edit') }))
+    const dialog = screen.getByRole('dialog')
+    // A country without its own structure starts from the global one, and has nothing to remove.
+    expect(within(dialog).queryByRole('button', { name: i18n.t('admin.countryStructure.useGlobal') })).not.toBeInTheDocument()
+    fireEvent.click(within(dialog).getByRole('button', { name: i18n.t('admin.countryStructure.save') }))
+    expect(setCountryStructure).toHaveBeenCalledWith(
+      {
+        code: 'es',
+        tiers: [
+          { tier: 1, name: 'Primera', groups: 1, teamsPerLeague: 10 },
+          { tier: 2, name: 'Segunda', groups: 2, teamsPerLeague: 10 },
+        ],
+        confirmDissolve: false,
+      },
+      expect.any(Object),
+    )
   })
 
   it('lists the countries waiting for a restructure', () => {

@@ -444,6 +444,9 @@ export interface Team {
   divisionId: number
   divisionName: string
   classificationPosition: number
+  // The last season a dissolved club played (backend common.DissolveTeam); absent for every club
+  // still playing.
+  dissolvedSeason?: number
   // Only meaningfully populated on the caller's own team (GET /v1/user/team) - see
   // useRenameTeam. Elsewhere it's just the zero value, false.
   nameChanged: boolean
@@ -2044,6 +2047,12 @@ export interface AdminOverview {
   friendlyScheduleWeekdays: number
   freeAgentInjectionsPerWeek: number
   offerNegotiationWindowMinutes: number
+  // The instant archive (backend common.InstantArchiveSettings): whether old seasons' per-minute
+  // instants are deleted, and how many finished seasons keep them.
+  instantArchiveEnabled: boolean
+  instantArchiveKeepSeasons: number
+  // Active countries that have their own structure instead of the global one.
+  countryStructures?: string[]
   // One row per AI level (backend common.AiLevelStats), human = owned clubs.
   aiLevels?: AiLevelStats[]
   // Active countries whose leagues differ from the saved world structure: each is restructured at
@@ -2111,6 +2120,9 @@ export interface CountryStatus extends CountryInfo {
   // An active country's tier-1 league kickoff, its local minute of day; every lower tier kicks
   // off 15 minutes later.
   leagueKickoffMinute?: number
+  // An active country's own structure, overriding the global one; absent when it follows the
+  // global structure.
+  structure?: TierConfig[]
 }
 
 export interface MatchSchedule {

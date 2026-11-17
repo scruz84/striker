@@ -45,7 +45,7 @@ const ResetClassificationForSeasonStmtSql = "UPDATE classification SET season = 
 // manager should land in the top flight while there's room, not in a random division. Within
 // whichever tier ends up supplying the pick, the specific team is still random.
 const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.league_id = l.league_id " +
-	"WHERE t.owner_id IS NULL AND t.reset_pending_since IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
+	"WHERE t.owner_id IS NULL AND t.reset_pending_since IS NULL AND t.dissolved_season IS NULL AND t.country = $1 ORDER BY l.tier ASC, random() LIMIT 1"
 
 // For each of the two teams, returns EITHER all of that team's saved override rows for this match
 // (lineup/lineup_positions) OR, if it has none, all of its default rows (default_lineup_positions
@@ -280,12 +280,12 @@ const DeleteExpiredUnavailabilityStmtSql = "DELETE FROM player_unavailability WH
 
 const GetTeamBudgetStmtSql = "SELECT budget FROM teams WHERE team_id = $1"
 const UpdateTeamBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE team_id = $2"
-const UpdateAllTeamsBudgetStmtSql = "UPDATE teams SET budget = budget + $1"
+const UpdateAllTeamsBudgetStmtSql = "UPDATE teams SET budget = budget + $1 WHERE dissolved_season IS NULL"
 
 // InsertTeamTransactionForAllTeamsStmtSql logs the same mass adjustment against every team's own
 // ledger, one row per team_id, so a mass injection isn't invisible to any team's owner.
 const InsertTeamTransactionForAllTeamsStmtSql = "INSERT INTO team_transactions (team_id, amount, reason, description, player_id) " +
-	"SELECT team_id, $1, $2, $3, NULL FROM teams"
+	"SELECT team_id, $1, $2, $3, NULL FROM teams WHERE dissolved_season IS NULL"
 
 // player_id is nullable - only a transaction about one specific player (a transfer, a release)
 // sets it; team-level transactions (wages, ticket revenue, prize money, sponsorship, stadium
@@ -1634,6 +1634,9 @@ func GetTeamDetailsById(teamId int64, isOwner bool, dbCtx *DatabaseContext) (*Te
 	if isNationalTeam {
 		return getNationalTeamDetails(dbCtx, teamId, country)
 	}
+	if dissolved, err := getDissolvedTeamDetails(dbCtx, teamId); err != nil || dissolved != nil {
+		return dissolved, err
+	}
 
 	team, errTeam := GetTeamById(teamId, dbCtx)
 	if errTeam != nil {
@@ -2416,7 +2419,7 @@ func GetPlayersByIds(dbCtx *DatabaseContext, playerIds []int64) (*[]*Player, err
 // GetPlayersByBirthCountryStmtSql's "team_id IS NOT NULL" filter). The other callers merely logged
 // a harmless "no rows" error from GetTeamById (a national team has league_id = -1, so GetTeamById's
 // own league join finds nothing) and skipped it - no corruption there, just log noise.
-const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams WHERE is_national_team = false"
+const GetAllTeamIdsStmtSql = "SELECT team_id FROM teams WHERE is_national_team = false AND dissolved_season IS NULL"
 
 // Excludes academy prospects - topUpAcademy uses this to decide how far below SquadSize a
 // team's senior squad has fallen, and a prospect sitting unpromoted in the cantera shouldn't
@@ -2473,7 +2476,7 @@ func GetAllTeamIds(dbCtx *DatabaseContext) ([]int64, error) {
 
 // GetTeamIdsForCountryStmtSql excludes national teams for the same reason GetAllTeamIdsStmtSql
 // does (see its own doc comment) - a national team has no real roster of its own to age/top up.
-const GetTeamIdsForCountryStmtSql = "SELECT team_id FROM teams WHERE country = $1 AND is_national_team = false"
+const GetTeamIdsForCountryStmtSql = "SELECT team_id FROM teams WHERE country = $1 AND is_national_team = false AND dissolved_season IS NULL"
 
 // GetTeamIdsForCountry lists every real, manageable club team belonging to country - used to
 // scope season-end rollover work (player aging/academy top-up, expiring loans) to just the one
