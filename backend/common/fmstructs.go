@@ -193,6 +193,9 @@ type Team struct {
 	// AiStyle is a CPU club's style (see common.AiClubStyle*), read only by GetTeamById for the CPU
 	// routines - never sent to clients.
 	AiStyle string `json:"-"`
+	// DissolvedSeason is the last season a dissolved club played (see DissolveTeam), 0 for every
+	// club still playing. The team page shows "Dissolved in season N" and no squad or actions.
+	DissolvedSeason int `json:"dissolvedSeason,omitempty"`
 }
 
 type Player struct {

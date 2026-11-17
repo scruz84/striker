@@ -68,11 +68,15 @@ A save, global or per country, that would leave any active country with fewer pl
 - **THEN** the structure is saved and each country shrinks at its own next rollover
 
 ### Requirement: Surplus CPU teams are dissolved
-When a restructure has fewer places than teams, the teams to dissolve SHALL be the last in the restructure ordering that are CPU-owned. A user-owned team that would fall beyond the last place takes the last place of the bottom tier instead, and the lowest-ranked CPU team placed there is dissolved in its place. Every team dissolved is recorded with the season it ended in.
+When a restructure has fewer places than teams, the teams to dissolve SHALL be the last in the restructure ordering that are not protected. A protected team (user-owned, or due to play a cup tie) that would fall beyond the last place takes the last place of the bottom tier instead, and the lowest-ranked unprotected team placed there is dissolved in its place. Every dissolved team records the last season it played.
 
 #### Scenario: User team at the bottom
 - **WHEN** a country shrinks from 310 to 150 places and a user's team is 300th in the ordering
 - **THEN** that team plays next season in the bottom tier and the 150th team in the ordering, a CPU team, is dissolved instead
+
+#### Scenario: CPU team still in a cup
+- **WHEN** a CPU team that would be dissolved still has an unplayed regional cup tie
+- **THEN** it keeps a place in the bottom tier and the lowest-ranked other CPU team is dissolved instead
 
 ### Requirement: Dissolved team
 A dissolved team SHALL never play, be assigned to a user, act as a CPU team, or take part in the market again. Its players become free agents, its trainer returns to the market, and its pending offers, listings, loans and unplayed friendlies end. Its past matches, standings and history MUST stay viewable, and its page MUST read "Dissolved in season N".

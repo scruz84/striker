@@ -132,3 +132,75 @@ func TestPlanRestructure_AlreadyInShape(t *testing.T) {
 		t.Errorf("nothing to create, got %v", plan.Missing)
 	}
 }
+
+// defaultWorld is a 1/2/4/8/16 x 10 country: 310 ranked CPU teams, ids tier*10000 + group*100 +
+// position.
+func defaultWorld() []RankedTeam {
+	teams := make([]RankedTeam, 0, 310)
+	for _, tc := range common.DefaultWorldTiers {
+		for g := 1; g <= tc.Groups; g++ {
+			for pos := 1; pos <= tc.TeamsPerLeague; pos++ {
+				teams = append(teams, RankedTeam{TeamId: int64(tc.Tier*10000 + g*100 + pos), Tier: tc.Tier, Position: pos, Points: 60 - pos*5})
+			}
+		}
+	}
+	return teams
+}
+
+// Spec scenario "Removing the bottom tier": the first 150 teams of the ordering fill tiers 1-4
+// and the 160 of tier 5 are dissolved; no CPU team is created.
+func TestPlanRestructure_RemovingTheBottomTier(t *testing.T) {
+	plan := PlanRestructure(defaultWorld(), common.DefaultWorldTiers[:4])
+	if len(plan.Placement) != 150 || len(plan.Dissolve) != 160 || len(plan.Missing) != 0 {
+		t.Fatalf("placed %d, dissolved %d, short groups %d; want 150, 160, 0", len(plan.Placement), len(plan.Dissolve), len(plan.Missing))
+	}
+	for _, id := range plan.Dissolve {
+		if id/10000 != 5 {
+			t.Errorf("team %d of tier %d dissolved, want only tier-5 teams", id, id/10000)
+		}
+		if _, placed := plan.Placement[id]; placed {
+			t.Errorf("team %d is both placed and dissolved", id)
+		}
+	}
+}
+
+// Spec scenario "User team at the bottom": a user's team beyond the last place takes the last
+// place of the bottom tier, and the lowest-ranked CPU team inside the cut is dissolved instead.
+func TestPlanRestructure_UserTeamBeyondTheCutKeepsAPlace(t *testing.T) {
+	teams := defaultWorld()
+	plan := PlanRestructure(teams, common.DefaultWorldTiers[:4])
+	// Mark the very last team of the ordering as a user's and plan again.
+	const userTeam = int64(5*10000 + 16*100 + 10)
+	for i := range teams {
+		if teams[i].TeamId == userTeam {
+			teams[i].Protected = true
+		}
+	}
+	withUser := PlanRestructure(teams, common.DefaultWorldTiers[:4])
+	if slot, ok := withUser.Placement[userTeam]; !ok || slot.Tier != 4 {
+		t.Fatalf("the user's team is placed at %+v (%v), want tier 4", slot, ok)
+	}
+	if len(withUser.Placement) != 150 || len(withUser.Dissolve) != 160 {
+		t.Fatalf("placed %d, dissolved %d; want 150 and 160", len(withUser.Placement), len(withUser.Dissolve))
+	}
+	// The team dissolved in the user's place is the one that was placed without the user.
+	lastCpuInCut := int64(-1)
+	for _, id := range withUser.Dissolve {
+		if _, wasPlaced := plan.Placement[id]; wasPlaced {
+			lastCpuInCut = id
+		}
+		if id == userTeam {
+			t.Fatal("the user's team was dissolved")
+		}
+	}
+	if lastCpuInCut/10000 != 4 {
+		t.Errorf("the team dissolved in the user's place is %d, want a tier-4 team (the 150th of the ordering)", lastCpuInCut)
+	}
+}
+
+// A structure with at least as many places as teams dissolves nothing.
+func TestPlanRestructure_TopUpDissolvesNothing(t *testing.T) {
+	if plan := PlanRestructure(oldWorld(), common.DefaultWorldTiers); len(plan.Dissolve) != 0 {
+		t.Errorf("a top-up dissolved %d teams", len(plan.Dissolve))
+	}
+}

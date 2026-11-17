@@ -99,6 +99,9 @@ type AdminOverview struct {
 	// GetInstantArchiveSettings and openspec/specs/match-data-retention).
 	InstantArchiveEnabled     bool `json:"instantArchiveEnabled"`
 	InstantArchiveKeepSeasons int  `json:"instantArchiveKeepSeasons"`
+	// CountryStructures lists the active countries that have their own structure (see
+	// GetCountryStructures) instead of following the global one.
+	CountryStructures []string `json:"countryStructures"`
 	// PendingRestructure lists the active countries whose leagues differ from the saved world
 	// structure (or break the pyramid rule): each is restructured at its own next season rollover
 	// (see engine.restructureIfNeeded).
@@ -116,13 +119,13 @@ func CountUsers(dbCtx *DatabaseContext) (int, error) {
 
 func CountTeams(dbCtx *DatabaseContext) (int, error) {
 	var n int
-	err := dbCtx.Db.QueryRow("SELECT count(*) FROM teams").Scan(&n)
+	err := dbCtx.Db.QueryRow("SELECT count(*) FROM teams WHERE dissolved_season IS NULL").Scan(&n)
 	return n, err
 }
 
 // GetPendingRestructureCountries returns the active countries whose active leagues do not match
-// tiers, or break the pyramid's ratio rule, in country order.
-func GetPendingRestructureCountries(dbCtx *DatabaseContext, tiers []TierConfig) ([]string, error) {
+// their effective structure (EffectiveStructure), or break the pyramid's ratio rule, in country order.
+func GetPendingRestructureCountries(dbCtx *DatabaseContext) ([]string, error) {
 	countries, err := GetActiveCountries(dbCtx)
 	if err != nil {
 		return nil, err
@@ -136,7 +139,7 @@ func GetPendingRestructureCountries(dbCtx *DatabaseContext, tiers []TierConfig) 
 		if len(shape.Leagues) == 0 {
 			continue
 		}
-		if !shape.MatchesConfig(tiers) || !shape.FollowsRatioRule() {
+		if !shape.MatchesConfig(EffectiveStructure(dbCtx, country)) || !shape.FollowsRatioRule() {
 			pending = append(pending, country)
 		}
 	}

@@ -1149,14 +1149,54 @@ export function useAdminWorldConfig(enabled: boolean) {
   })
 }
 
+// A structure save that would dissolve CPU teams answers 409 until it is sent again with
+// confirmDissolve (see dissolveCountsOf).
 export function useSetWorldConfig() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (tiers: TierConfig[]) => api.put('/v1/admin/world-config', { tiers }),
+    mutationFn: ({ tiers, confirmDissolve = false }: { tiers: TierConfig[]; confirmDissolve?: boolean }) =>
+      api.put('/v1/admin/world-config', { tiers, confirmDissolve }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.adminWorldConfig })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
     },
   })
+}
+
+// Gives an active country its own structure (same 409 confirmation as useSetWorldConfig).
+export function useAdminSetCountryStructure() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, tiers, confirmDissolve = false }: { code: string; tiers: TierConfig[]; confirmDissolve?: boolean }) =>
+      api.put(`/v1/admin/countries/${code}/structure`, { tiers, confirmDissolve }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+// Puts an active country back on the global structure (same 409 confirmation).
+export function useAdminClearCountryStructure() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ code, confirmDissolve = false }: { code: string; confirmDissolve?: boolean }) =>
+      api.delete(`/v1/admin/countries/${code}/structure${confirmDissolve ? '?confirmDissolve=true' : ''}`),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminCountries })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
+// dissolveCountsOf reads the CPU teams per country a refused structure save would dissolve (its
+// 409 body), or null for any other error.
+export function dissolveCountsOf(error: unknown): Record<string, number> | null {
+  if (!(error instanceof ApiError) || error.status !== 409) {
+    return null
+  }
+  const dissolve = (error.body as { dissolve?: Record<string, number> } | undefined)?.dissolve
+  return dissolve && typeof dissolve === 'object' ? dissolve : null
 }
 
 export function useAdminRecreateLeagues() {

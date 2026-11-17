@@ -42,7 +42,7 @@ func AiStyleFromCode(code sql.NullInt64) string {
 }
 
 const SetTeamAiStyleStmtSql = "UPDATE teams SET ai_style = $1 WHERE team_id = $2"
-const getTeamsWithoutAiStyleStmtSql = "SELECT team_id FROM teams WHERE ai_style IS NULL AND is_national_team = false"
+const getTeamsWithoutAiStyleStmtSql = "SELECT team_id FROM teams WHERE ai_style IS NULL AND is_national_team = false AND dissolved_season IS NULL"
 
 // AssignAiStyle stores teamId's style (see AiClubStyleFor) - called when a club is created.
 func AssignAiStyle(dbCtx *DatabaseContext, teamId int64) error {

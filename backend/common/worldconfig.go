@@ -3,6 +3,7 @@ package common
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 
@@ -147,43 +148,147 @@ func WorldConfigPlaces(tiers []TierConfig) int {
 
 // CountTeamsPerActiveCountryStmtSql counts each active country's club teams (national teams have
 // no league).
-const CountTeamsPerActiveCountryStmtSql = "SELECT l.country, count(t.team_id) FROM teams t " +
+// CountTeamsPerActiveCountryStmtSql counts each active country's club teams in its leagues (a
+// dissolved team has left its league, league_id = -1) and how many of them a user owns.
+const CountTeamsPerActiveCountryStmtSql = "SELECT l.country, count(t.team_id), count(t.owner_id) FROM teams t " +
 	"JOIN leagues l ON l.league_id = t.league_id JOIN countries c ON c.name = l.country " +
+	"WHERE t.dissolved_season IS NULL AND NOT t.is_national_team " +
 	"GROUP BY l.country ORDER BY l.country"
 
-// CountTeamsPerActiveCountry returns each active country's club team count.
-func CountTeamsPerActiveCountry(dbCtx *DatabaseContext) (map[string]int, error) {
+// CountryTeams is an active country's club teams and how many of them users own.
+type CountryTeams struct {
+	Teams     int
+	UserTeams int
+}
+
+// CountTeamsPerActiveCountry returns each active country's club team counts.
+func CountTeamsPerActiveCountry(dbCtx *DatabaseContext) (map[string]CountryTeams, error) {
 	rows, err := dbCtx.Db.Query(CountTeamsPerActiveCountryStmtSql)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	counts := make(map[string]int)
+	counts := make(map[string]CountryTeams)
 	for rows.Next() {
 		var country string
-		var n int
-		if err := rows.Scan(&country, &n); err != nil {
+		var c CountryTeams
+		if err := rows.Scan(&country, &c.Teams, &c.UserTeams); err != nil {
 			return nil, err
 		}
-		counts[country] = n
+		counts[country] = c
 	}
 	return counts, rows.Err()
 }
 
-// ValidateWorldConfigFitsTeams rejects tiers that hold fewer teams than an active country already
-// has - a restructure never deletes a team (see openspec/specs/league-pyramid "Structure fits
-// existing teams"). Pure.
-func ValidateWorldConfigFitsTeams(tiers []TierConfig, teamsByCountry map[string]int) error {
+// PlanStructureChange checks tiers against the countries it would apply to (see
+// openspec/specs/league-pyramid "Structure fits existing teams"): it fails when a country has more
+// user-owned teams than tiers has places, naming the country and both numbers, and otherwise
+// returns the CPU teams each country would lose at its next rollover (countries losing none are
+// left out). Pure.
+func PlanStructureChange(tiers []TierConfig, teamsByCountry map[string]CountryTeams) (map[string]int, error) {
 	places := WorldConfigPlaces(tiers)
 	countries := make([]string, 0, len(teamsByCountry))
 	for country := range teamsByCountry {
 		countries = append(countries, country)
 	}
 	sort.Strings(countries)
+	dissolve := make(map[string]int)
 	for _, country := range countries {
-		if teamsByCountry[country] > places {
-			return fmt.Errorf("country %s has %d teams but this structure only has %d places", country, teamsByCountry[country], places)
+		c := teamsByCountry[country]
+		if c.UserTeams > places {
+			return nil, fmt.Errorf("country %s has %d user teams but this structure only has %d places", country, c.UserTeams, places)
+		}
+		if c.Teams > places {
+			dissolve[country] = c.Teams - places
 		}
 	}
+	return dissolve, nil
+}
+
+const getCountryStructureStmtSql = "SELECT structure FROM countries WHERE name = $1"
+const setCountryStructureStmtSql = "UPDATE countries SET structure = $2 WHERE name = $1"
+const getCountryStructuresStmtSql = "SELECT name, structure FROM countries WHERE structure IS NOT NULL ORDER BY name"
+
+// ErrUnknownCountry is returned when a country structure is saved for a country that does not
+// exist.
+var ErrUnknownCountry = errors.New("unknown country")
+
+func parseTiers(raw []byte) ([]TierConfig, error) {
+	var tiers []TierConfig
+	if err := json.Unmarshal(raw, &tiers); err != nil {
+		return nil, err
+	}
+	return tiers, nil
+}
+
+// GetCountryStructure returns country's own structure, or nil when it follows the global one.
+func GetCountryStructure(dbCtx *DatabaseContext, country string) ([]TierConfig, error) {
+	var raw []byte
+	err := dbCtx.Db.QueryRow(getCountryStructureStmtSql, country).Scan(&raw)
+	if errors.Is(err, sql.ErrNoRows) || (err == nil && raw == nil) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return parseTiers(raw)
+}
+
+// GetCountryStructures returns every country that has its own structure.
+func GetCountryStructures(dbCtx *DatabaseContext) (map[string][]TierConfig, error) {
+	rows, err := dbCtx.Db.Query(getCountryStructuresStmtSql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	structures := make(map[string][]TierConfig)
+	for rows.Next() {
+		var country string
+		var raw []byte
+		if err := rows.Scan(&country, &raw); err != nil {
+			return nil, err
+		}
+		tiers, err := parseTiers(raw)
+		if err != nil {
+			log.Errorf("ignoring %s's unreadable own structure: %s", country, err)
+			continue
+		}
+		structures[country] = tiers
+	}
+	return structures, rows.Err()
+}
+
+// SetCountryStructure saves country's own structure; nil tiers removes it, putting the country
+// back on the global structure. Validation is the caller's (see ValidateWorldConfig and
+// PlanStructureChange).
+func SetCountryStructure(dbCtx *DatabaseContext, country string, tiers []TierConfig) error {
+	var raw any
+	if tiers != nil {
+		b, err := json.Marshal(tiers)
+		if err != nil {
+			return err
+		}
+		raw = b
+	}
+	res, err := dbCtx.Db.Exec(setCountryStructureStmtSql, country, raw)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrUnknownCountry
+	}
 	return nil
+}
+
+// EffectiveStructure is the structure country is reshaped into at its next rollover: its own if it
+// has one, otherwise the global one.
+func EffectiveStructure(dbCtx *DatabaseContext, country string) []TierConfig {
+	own, err := GetCountryStructure(dbCtx, country)
+	if err != nil {
+		log.Errorf("error reading %s's own structure, using the global one: %s", country, err)
+	}
+	if len(own) > 0 {
+		return own
+	}
+	return GetWorldConfig(dbCtx)
 }

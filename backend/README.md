@@ -293,8 +293,27 @@ its own next season rollover (see "Promotion and relegation") - see `common.Tier
 
 It must follow the pyramid rule (tier 1 one group, every tier twice the groups of the one above,
 the same even `teamsPerLeague` of at least 8 everywhere - `engine.randomWeekMatches2`'s round-robin
-has no bye slot for an odd team out) and hold at least as many teams as every active country
-already has - see `common.ValidateWorldConfig` / `ValidateWorldConfigFitsTeams`.
+has no bye slot for an odd team out) and have at least as many places as every country it applies
+to has **user** teams - see `common.ValidateWorldConfig` / `PlanStructureChange`. A structure with
+fewer places than a country's teams is allowed but answers `409` with the CPU teams each country
+would lose (`{"dissolve": {"es": 160}}`) until it is sent again with `"confirmDissolve": true`.
+
+**Per-country structure** (`GET`/`PUT`/`DELETE /v1/admin/countries/:code/structure`, the
+"Structure" button on the World tab) gives one active country its own structure, stored in
+`countries.structure` and checked the same way against that country only. A country without one
+follows the global structure (`common.EffectiveStructure`), and `DELETE` puts it back on the global
+one (`?confirmDissolve=true` when that dissolves teams). Like the global structure, it changes
+nothing until the country's next rollover.
+
+**Shrinking dissolves CPU teams.** At that rollover the restructure (`engine.applyRestructure`)
+dissolves the teams beyond the structure's places: the worst-ranked ones that are not protected (a
+user's club, or one still due to play a cup tie, keeps a place). `common.DissolveTeam` frees the
+senior squad as free agents (with no last club, so no free-agent premium), removes the academy
+prospects, sends the trainer back to the market, clears offers, listings, challenges, pre-contracts,
+lineups and unplayed friendlies, sends loaned-in players home and releases loaned-out ones when
+their loan ends. The team row stays with `dissolved_season` set and `league_id = -1`, so its past
+matches and history still open. Every club listing skips it. Fewer teams means fewer matches: with
+the default structure, removing tier V (160 of 310 teams) halves a country's data per season.
 
 **Recreating leagues** (`POST /v1/admin/recreate-leagues`) applies the saved structure right
 now: it wipes and regenerates every league, team, player and match for whichever countries are

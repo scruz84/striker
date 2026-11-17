@@ -304,56 +304,12 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 		return false, nil, nil
 	}
 
-	// Players on loan TO this club go home (or to free agency if their own club was reset too).
-	rows, err := tx.Query(GetLoansToTeamForResetStmtSql, teamId)
+	returned, err := clearClubStateTx(tx, teamId)
 	if err != nil {
 		return false, nil, err
 	}
-	returned := make([]PlayerLoan, 0)
-	for rows.Next() {
-		var loan PlayerLoan
-		if err := rows.Scan(&loan.LoanId, &loan.PlayerId, &loan.FromTeamId, &loan.ToTeamId, &loan.ReleaseOnReturn); err != nil {
-			rows.Close()
-			return false, nil, err
-		}
-		returned = append(returned, loan)
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return false, nil, err
-	}
-	for _, loan := range returned {
-		if err := returnLoanInTx(tx, loan); err != nil {
-			return false, nil, err
-		}
-	}
-	// Players this club has out on loan are released when their loan ends.
-	if _, err := tx.Exec(MarkLoansOutReleaseOnReturnStmtSql, teamId); err != nil {
-		return false, nil, err
-	}
-
-	for _, stmt := range []string{
-		DeleteAcademyPlayersStmtSql,
-		DeleteTeamTransferListingsStmtSql, DeleteTeamLoanListingsStmtSql, DeleteTeamTransferOffersStmtSql,
-		DeleteTeamFriendlyChallengesStmtSql, ReleaseTeamTrainerStmtSql,
-		DeleteTeamDefaultLineupStmtSql, DeleteTeamDefaultSubstitutionsStmtSql, DeleteTeamDefaultFriendlyLineupStmtSql,
-		DeleteTeamDefaultFriendlySubstitutionsStmtSql, DeleteTeamDefaultLineupRolesStmtSql,
-		DeleteUnplayedLeagueLineupPositionsStmtSql, DeleteUnplayedLeagueLineupsStmtSql, DeleteUnplayedLeagueSubstitutionsStmtSql,
-		DeleteUnplayedFriendlyLineupPositionsStmtSql, DeleteUnplayedFriendlyLineupsStmtSql,
-		DeleteUnplayedCupLineupPositionsStmtSql, DeleteUnplayedCupLineupsStmtSql, DeleteUnplayedCupSubstitutionsStmtSql,
-		ReleaseSeniorSquadStmtSql,
-	} {
-		if _, err := tx.Exec(stmt, teamId); err != nil {
-			return false, nil, fmt.Errorf("resetting team %d: %w (%.60s)", teamId, err, stmt)
-		}
-	}
-	// Its pre-contract offers, pending or signed, go with its old owner (openspec/specs/
-	// pre-contracts): the reset club starts with nobody arriving.
-	if _, err := tx.Exec(deleteTeamPreContractOffersStmtSql, teamId); err != nil {
-		return false, nil, err
-	}
-	if err := ClearWatchlist(tx, teamId); err != nil {
-		return false, nil, err
+	if _, err := tx.Exec(ReleaseSeniorSquadStmtSql, teamId); err != nil {
+		return false, nil, fmt.Errorf("resetting team %d: %w", teamId, err)
 	}
 
 	insertStmt, err := tx.Prepare(InsertNewPlayerStmtSql)
@@ -393,6 +349,66 @@ func ResetReleasedTeam(dbCtx *DatabaseContext, teamId int64) (bool, []PlayerLoan
 	}
 	TeamsResetCounter.Add(context.Background(), 1, metric.WithAttributes(attribute.String("reason", reason)))
 	return true, returned, nil
+}
+
+// clearClubStateTx clears everything pending around a CPU club inside tx, shared by a reset
+// (ResetReleasedTeam) and a dissolution (DissolveTeam): players on loan to it go home, players it
+// has out on loan are released when their loan ends, its academy prospects are removed, its
+// listings, offers, challenges, trainer, standing lineups and lineups for unplayed fixtures go, and
+// so do its pre-contract offers and watchlist. Its senior squad is left to the caller. It returns
+// the loans sent home, so the caller can notify the owners involved after the commit.
+func clearClubStateTx(tx *sql.Tx, teamId int64) ([]PlayerLoan, error) {
+	// Players on loan TO this club go home (or to free agency if their own club was reset too).
+	rows, err := tx.Query(GetLoansToTeamForResetStmtSql, teamId)
+	if err != nil {
+		return nil, err
+	}
+	returned := make([]PlayerLoan, 0)
+	for rows.Next() {
+		var loan PlayerLoan
+		if err := rows.Scan(&loan.LoanId, &loan.PlayerId, &loan.FromTeamId, &loan.ToTeamId, &loan.ReleaseOnReturn); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		returned = append(returned, loan)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	for _, loan := range returned {
+		if err := returnLoanInTx(tx, loan); err != nil {
+			return nil, err
+		}
+	}
+	// Players this club has out on loan are released when their loan ends.
+	if _, err := tx.Exec(MarkLoansOutReleaseOnReturnStmtSql, teamId); err != nil {
+		return nil, err
+	}
+
+	for _, stmt := range []string{
+		DeleteAcademyPlayersStmtSql,
+		DeleteTeamTransferListingsStmtSql, DeleteTeamLoanListingsStmtSql, DeleteTeamTransferOffersStmtSql,
+		DeleteTeamFriendlyChallengesStmtSql, ReleaseTeamTrainerStmtSql,
+		DeleteTeamDefaultLineupStmtSql, DeleteTeamDefaultSubstitutionsStmtSql, DeleteTeamDefaultFriendlyLineupStmtSql,
+		DeleteTeamDefaultFriendlySubstitutionsStmtSql, DeleteTeamDefaultLineupRolesStmtSql,
+		DeleteUnplayedLeagueLineupPositionsStmtSql, DeleteUnplayedLeagueLineupsStmtSql, DeleteUnplayedLeagueSubstitutionsStmtSql,
+		DeleteUnplayedFriendlyLineupPositionsStmtSql, DeleteUnplayedFriendlyLineupsStmtSql,
+		DeleteUnplayedCupLineupPositionsStmtSql, DeleteUnplayedCupLineupsStmtSql, DeleteUnplayedCupSubstitutionsStmtSql,
+	} {
+		if _, err := tx.Exec(stmt, teamId); err != nil {
+			return nil, fmt.Errorf("clearing team %d: %w (%.60s)", teamId, err, stmt)
+		}
+	}
+	// Its pre-contract offers, pending or signed, go (openspec/specs/pre-contracts): the club starts
+	// with nobody arriving.
+	if _, err := tx.Exec(deleteTeamPreContractOffersStmtSql, teamId); err != nil {
+		return nil, err
+	}
+	if err := ClearWatchlist(tx, teamId); err != nil {
+		return nil, err
+	}
+	return returned, nil
 }
 
 // --- inactivity timers ---------------------------------------------------------------------

@@ -8,6 +8,7 @@ import (
 	"github.com/scruz84/striker/engine"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"sort"
 )
 
 // AdminOverviewHandler returns a snapshot of the game's overall state for the commissioner
@@ -92,7 +93,17 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		pendingRestructure, err := common.GetPendingRestructureCountries(dbCtx, common.GetWorldConfig(dbCtx))
+		ownStructures, err := common.GetCountryStructures(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		countryStructures := make([]string, 0, len(ownStructures))
+		for country := range ownStructures {
+			countryStructures = append(countryStructures, country)
+		}
+		sort.Strings(countryStructures)
+		pendingRestructure, err := common.GetPendingRestructureCountries(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
@@ -115,6 +126,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			OfferNegotiationWindowMinutes: offerNegotiationWindowMinutes,
 			InstantArchiveEnabled:         instantArchive.Enabled,
 			InstantArchiveKeepSeasons:     instantArchive.KeepSeasons,
+			CountryStructures:             countryStructures,
 			PendingRestructure:            pendingRestructure,
 		})
 	}

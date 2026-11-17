@@ -25,16 +25,19 @@ import { useTranslation } from 'react-i18next'
 import {
   useAdminAddCountry,
   useAdminAddDivision,
+  useAdminClearCountryStructure,
   useAdminCountries,
   useAdminLeagues,
   useAdminRecreateLeagues,
   useAdminOverview,
   useAdminRescheduleCountry,
   useAdminSetCountryKickoff,
+  useAdminSetCountryStructure,
   useAdminWorldConfig,
   useClearLeagueSchedule,
   useSetLeagueSchedule,
   useSetWorldConfig,
+  dissolveCountsOf,
 } from '../../api/hooks'
 import {
   ALL_WEEKDAYS_MASK,
@@ -44,14 +47,16 @@ import {
   type TierConfig,
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
+import { useNotify } from '../../components/notifyContext'
 import { AdminSection } from './components/AdminSection'
 import { DangerZone } from './components/DangerZone'
+import { TierEditor } from './components/TierEditor'
 import { WeekdayPicker } from './components/WeekdayPicker'
 import { useAdminFeedback } from './useAdminFeedback'
 import { useIsPhone } from './useIsPhone'
 import { localizedCountryName, useSortedCountries } from '../../utils/countryOrder'
 import { localHourMinuteToSchedule, scheduleHourMinuteToLocal } from '../../utils/scheduleTime'
-import { pyramidError, worldPlaces } from './pyramidRules'
+import { pyramidError } from './pyramidRules'
 
 export function WorldTab() {
   const { data: worldConfig, isLoading } = useAdminWorldConfig(true)
@@ -107,29 +112,18 @@ function RecreateLeaguesAction() {
 function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] }) {
   const { t } = useTranslation()
   const [tiers, setTiers] = useState<TierConfig[]>(initialTiers)
-  const feedback = useAdminFeedback()
-  const isPhone = useIsPhone()
   const setWorldConfig = useSetWorldConfig()
-
-  const updateTier = (index: number, patch: Partial<TierConfig>) =>
-    setTiers((prev) => prev.map((tier, i) => (i === index ? { ...tier, ...patch } : tier)))
-
-  const addTier = () => {
-    // A new tier follows the pyramid rule: twice the groups of the deepest one, same group size.
-    const deepest = tiers.reduce<TierConfig | undefined>((acc, tier) => (!acc || tier.tier > acc.tier ? tier : acc), undefined)
-    const nextTierNumber = deepest ? deepest.tier + 1 : 1
-    setTiers((prev) => [
-      ...prev,
-      { tier: nextTierNumber, name: String(nextTierNumber), groups: deepest ? deepest.groups * 2 : 1, teamsPerLeague: deepest?.teamsPerLeague ?? 10 },
-    ])
-  }
-
-  const removeTier = (index: number) => setTiers((prev) => prev.filter((_, i) => i !== index))
-
-  const handleSave = () => setWorldConfig.mutate(tiers, feedback('admin.worldStructure.saveSuccess', 'admin.worldStructure.saveError'))
-  const error = pyramidError(tiers)
+  const saveStructure = useStructureSave()
   const { data: overview } = useAdminOverview(true)
   const pending = overview?.pendingRestructure ?? []
+  const ownStructures = overview?.countryStructures ?? []
+
+  const handleSave = () =>
+    saveStructure(
+      (confirmDissolve, callbacks) => setWorldConfig.mutate({ tiers, confirmDissolve }, callbacks),
+      'admin.worldStructure.saveSuccess',
+      'admin.worldStructure.saveError',
+    )
 
   return (
     <AdminSection title={t('admin.worldStructure.title')} description={t('admin.worldStructure.description')}>
@@ -138,118 +132,71 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
           {t('admin.worldStructure.pending', { countries: pending.map((code) => code.toUpperCase()).join(', ') })}
         </Alert>
       )}
-      {isPhone ? (
-        <Stack spacing={1.5}>
-          {tiers.map((tier, index) => (
-            <Paper key={index} variant="outlined" sx={{ p: 1.5 }}>
-              <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-                <Typography variant="subtitle2">
-                  {t('admin.worldStructure.tier')} {tier.tier}
-                </Typography>
-                <Button size="small" color="secondary" onClick={() => removeTier(index)}>
-                  {t('admin.worldStructure.removeTier')}
-                </Button>
-              </Stack>
-              <Stack spacing={1.5}>
-                <TextField
-                  label={t('admin.worldStructure.tierName')}
-                  size="small"
-                  fullWidth
-                  value={tier.name}
-                  onChange={(e) => updateTier(index, { name: e.target.value })}
-                />
-                <TextField
-                  label={t('admin.worldStructure.groups')}
-                  size="small"
-                  type="number"
-                  fullWidth
-                  value={tier.groups}
-                  onChange={(e) => updateTier(index, { groups: Number(e.target.value) })}
-                />
-                <TextField
-                  label={t('admin.worldStructure.teamsPerLeague')}
-                  size="small"
-                  type="number"
-                  fullWidth
-                  value={tier.teamsPerLeague}
-                  onChange={(e) => updateTier(index, { teamsPerLeague: Number(e.target.value) })}
-                />
-              </Stack>
-            </Paper>
-          ))}
-        </Stack>
-      ) : (
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('admin.worldStructure.tier')}</TableCell>
-                <TableCell>{t('admin.worldStructure.tierName')}</TableCell>
-                <TableCell align="right">{t('admin.worldStructure.groups')}</TableCell>
-                <TableCell align="right">{t('admin.worldStructure.teamsPerLeague')}</TableCell>
-                <TableCell align="right" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tiers.map((tier, index) => (
-                <TableRow key={index}>
-                  <TableCell>{tier.tier}</TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      value={tier.name}
-                      onChange={(e) => updateTier(index, { name: e.target.value })}
-                      sx={{ width: 80 }}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <TextField
-                      size="small"
-                      type="number"
-                      value={tier.groups}
-                      onChange={(e) => updateTier(index, { groups: Number(e.target.value) })}
-                      sx={{ width: 90 }}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <TextField
-                      size="small"
-                      type="number"
-                      value={tier.teamsPerLeague}
-                      onChange={(e) => updateTier(index, { teamsPerLeague: Number(e.target.value) })}
-                      sx={{ width: 90 }}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Button size="small" color="secondary" onClick={() => removeTier(index)}>
-                      {t('admin.worldStructure.removeTier')}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-      {error ? (
-        <Alert severity="warning" sx={{ mt: 2 }}>
-          {t(error.key, error.params)}
+      {ownStructures.length > 0 && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('admin.countryStructure.overridden', { countries: ownStructures.map((code) => code.toUpperCase()).join(', ') })}
         </Alert>
-      ) : (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          {t('admin.worldStructure.places', { count: worldPlaces(tiers) })}
-        </Typography>
       )}
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 2 }}>
-        <Button size="small" onClick={addTier}>
-          {t('admin.worldStructure.addTier')}
-        </Button>
-        <Button size="small" variant="contained" onClick={handleSave} disabled={setWorldConfig.isPending || error !== null}>
-          {t('admin.worldStructure.save')}
-        </Button>
-      </Stack>
+      <TierEditor
+        tiers={tiers}
+        onChange={setTiers}
+        actions={
+          <Button size="small" variant="contained" onClick={handleSave} disabled={setWorldConfig.isPending || pyramidError(tiers) !== null}>
+            {t('admin.worldStructure.save')}
+          </Button>
+        }
+      />
     </AdminSection>
   )
+}
+
+type MutateCallbacks = { onSuccess: () => void; onError: (error: unknown) => void }
+
+// useStructureSave saves a structure (global or a country's own) and, when the backend refuses it
+// because it would dissolve CPU teams, asks the admin to confirm with the teams each country loses
+// before sending it again with confirmDissolve (openspec/specs/league-pyramid "Confirming a
+// structure that dissolves teams").
+function useStructureSave() {
+  const { t } = useTranslation()
+  const confirm = useConfirm()
+  const notify = useNotify()
+
+  return (
+    save: (confirmDissolve: boolean, callbacks: MutateCallbacks) => void,
+    successKey: string,
+    errorKey: string,
+    onSaved?: () => void,
+  ) => {
+    const done = {
+      onSuccess: () => {
+        notify.success(t(successKey))
+        onSaved?.()
+      },
+      onError: () => notify.error(t(errorKey)),
+    }
+    save(false, {
+      onSuccess: done.onSuccess,
+      onError: async (error) => {
+        const dissolve = dissolveCountsOf(error)
+        if (!dissolve) {
+          done.onError()
+          return
+        }
+        const list = Object.entries(dissolve)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([country, count]) => t('admin.countryStructure.dissolveCount', { country: country.toUpperCase(), count }))
+          .join(', ')
+        const ok = await confirm({
+          message: t('admin.countryStructure.confirmDissolve', { list }),
+          confirmLabel: t('admin.countryStructure.confirmDissolveButton'),
+          destructive: true,
+        })
+        if (ok) {
+          save(true, done)
+        }
+      },
+    })
+  }
 }
 
 function CountriesSection() {
@@ -267,6 +214,7 @@ function CountriesSection() {
   const feedback = useAdminFeedback()
   const [addingCountry, setAddingCountry] = useState<CountryStatus | null>(null)
   const [editingKickoff, setEditingKickoff] = useState<CountryStatus | null>(null)
+  const [editingStructure, setEditingStructure] = useState<CountryStatus | null>(null)
 
   const handleReschedule = async (country: CountryStatus) => {
     const ok = await confirm({
@@ -311,7 +259,7 @@ function CountriesSection() {
     <AdminSection title={t('admin.countries.title')} description={t('admin.countries.description')}>
       <Stack spacing={2}>
         {countries.map((country) => {
-          const missingTiers = (worldConfig?.tiers ?? []).filter(
+          const missingTiers = (country.structure ?? worldConfig?.tiers ?? []).filter(
             (tier) => !existingTiersByCountry.get(country.code)?.has(tier.tier),
           )
           return (
@@ -330,6 +278,10 @@ function CountriesSection() {
                     )}
                     <Button size="small" onClick={() => handleReschedule(country)} disabled={rescheduleCountry.isPending}>
                       {t('admin.countries.reschedule')}
+                    </Button>
+                    {country.structure && <Chip size="small" color="info" label={t('admin.countryStructure.ownChip')} />}
+                    <Button size="small" onClick={() => setEditingStructure(country)}>
+                      {t('admin.countryStructure.edit')}
                     </Button>
                   </>
                 ) : (
@@ -363,7 +315,76 @@ function CountriesSection() {
       </Stack>
       {addingCountry && <AddCountryDialog country={addingCountry} onClose={() => setAddingCountry(null)} />}
       {editingKickoff && <CountryKickoffDialog country={editingKickoff} onClose={() => setEditingKickoff(null)} />}
+      {editingStructure && worldConfig && (
+        <CountryStructureDialog
+          country={editingStructure}
+          countryName={countryName(editingStructure.code)}
+          globalTiers={worldConfig.tiers}
+          onClose={() => setEditingStructure(null)}
+        />
+      )}
     </AdminSection>
+  )
+}
+
+// CountryStructureDialog edits one active country's own structure (openspec/specs/league-pyramid
+// "Per-country structure"), starting from it or, for a country without one, from the global
+// structure. "Use the global structure" removes it. Either takes effect at the country's next
+// rollover, and one that dissolves CPU teams asks first (see useStructureSave).
+function CountryStructureDialog({
+  country,
+  countryName,
+  globalTiers,
+  onClose,
+}: {
+  country: CountryStatus
+  countryName: string
+  globalTiers: TierConfig[]
+  onClose: () => void
+}) {
+  const { t } = useTranslation()
+  const [tiers, setTiers] = useState<TierConfig[]>(country.structure ?? globalTiers)
+  const setCountryStructure = useAdminSetCountryStructure()
+  const clearCountryStructure = useAdminClearCountryStructure()
+  const saveStructure = useStructureSave()
+  const busy = setCountryStructure.isPending || clearCountryStructure.isPending
+
+  const handleSave = () =>
+    saveStructure(
+      (confirmDissolve, callbacks) => setCountryStructure.mutate({ code: country.code, tiers, confirmDissolve }, callbacks),
+      'admin.countryStructure.saveSuccess',
+      'admin.countryStructure.saveError',
+      onClose,
+    )
+  const handleClear = () =>
+    saveStructure(
+      (confirmDissolve, callbacks) => clearCountryStructure.mutate({ code: country.code, confirmDissolve }, callbacks),
+      'admin.countryStructure.clearSuccess',
+      'admin.countryStructure.saveError',
+      onClose,
+    )
+
+  return (
+    <Dialog open onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle>{t('admin.countryStructure.title', { country: countryName })}</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {t('admin.countryStructure.description')}
+        </Typography>
+        <TierEditor tiers={tiers} onChange={setTiers} />
+      </DialogContent>
+      <DialogActions sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+        {country.structure && (
+          <Button onClick={handleClear} disabled={busy}>
+            {t('admin.countryStructure.useGlobal')}
+          </Button>
+        )}
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button variant="contained" onClick={handleSave} disabled={busy || pyramidError(tiers) !== null}>
+          {t('admin.countryStructure.save')}
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 

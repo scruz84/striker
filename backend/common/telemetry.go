@@ -406,7 +406,7 @@ func RegisterMarketGauges(dbCtx *DatabaseContext) error {
 		_, err = Meter.Int64ObservableGauge("striker.economy.total_budget",
 			metric.WithDescription("Sum of every team's budget - total money currently in the game economy"),
 			metric.WithInt64Callback(func(ctx context.Context, o metric.Int64Observer) error {
-				total, err := queryInt64(dbCtx, "SELECT COALESCE(SUM(budget), 0) FROM teams")
+				total, err := queryInt64(dbCtx, "SELECT COALESCE(SUM(budget), 0) FROM teams WHERE dissolved_season IS NULL")
 				if err != nil {
 					return err
 				}

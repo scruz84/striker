@@ -112,3 +112,43 @@ dissolved team and checks it is absent from each listing.
 `init119` is applied on startup. Nothing changes until an admin saves a smaller structure, which
 takes effect at each country's next rollover. Rollback: save a larger structure again. Dissolved
 teams are not revived, and the larger structure tops up with new CPU teams.
+
+## Economy check (task 6.2)
+
+`ECON_SIM=1 ECON_SIM_SCENARIOS=shipped go test ./engine -run TestEconomySimulation -v` still runs
+and passes unchanged. The change touches no income or expense function. The simulator models each
+team's income and expenses by tier and does not model the free-agent market, transfers or a change
+of structure, so it cannot show how a shrink's burst of free agents affects wages and transfer
+prices. That risk stays open until the simulator models the market, or the first real shrink is
+watched on the market gauges (`striker.market.*`).
+
+## Code map for the archived spec
+
+To merge into the `league-pyramid` Code map when this change is archived.
+
+- Structures: `backend/common/worldconfig.go` (`EffectiveStructure`, `GetCountryStructure`,
+  `GetCountryStructures`, `SetCountryStructure`, `CountTeamsPerActiveCountry` with user teams,
+  `PlanStructureChange`), checked by `handlers.AdminSetWorldConfigHandler`,
+  `AdminSet/Get/ClearCountryStructureHandler` and `checkStructureChange`
+  (`handlers/worldAdminHandlers.go`); `AdminOverview.countryStructures`; pending countries in
+  `common.GetPendingRestructureCountries` against each country's effective structure.
+- Dissolution: `backend/engine/restructure.go` (`RankedTeam.Protected`, `cutToPlaces`,
+  `RestructurePlan.Dissolve`, `applyRestructure` dissolving first), `backend/common/dissolve.go`
+  (`DissolveTeam`, `GetProtectedTeams`, `IsTeamDissolved`, `getDissolvedTeamDetails`),
+  `clearClubStateTx` shared with `ResetReleasedTeam` (`common/accounts.go`); club listings skipping
+  `dissolved_season` (`GetAllTeamIdsStmtSql`, `GetTeamIdsForCountryStmtSql`, `GetFreeTeamStmtSql`,
+  the all-teams budget adjustment, AI style backfill, AI level stats, team count, budget gauge);
+  `ErrTeamDissolved` in `ChallengeToFriendly`.
+- Data: `backend/resources/sql/init119_country_structures.sql` (`countries.structure`,
+  `teams.dissolved_season`, `teams_active_clubs`).
+- Frontend: `features/admin/WorldTab.tsx` (`useStructureSave`, `CountryStructureDialog`, missing
+  divisions against the effective structure), `features/admin/components/TierEditor.tsx`,
+  `api/hooks.ts` (`useAdminSetCountryStructure`, `useAdminClearCountryStructure`,
+  `dissolveCountsOf`), `ApiError.body` (`api/client.ts`), the team page's dissolved chip
+  (`features/team/TeamDetailsPage.tsx`), strings `admin.countryStructure.*`, `team.dissolved`.
+- Tests: `common/worldconfig_test.go` (`TestPlanStructureChange`),
+  `common/countrystructure_integration_test.go`, `common/dissolve_integration_test.go`,
+  `engine/restructure_test.go`, `engine/pyramid_integration_test.go`
+  (`TestPyramid_RestructureDissolvesSurplus`), `handlers/worldConfigHandler_test.go`
+  (`TestAdminCountryStructure`), `service/security_test.go`, `features/admin/WorldTab.test.tsx`,
+  `features/team/DissolvedTeamPage.test.tsx`.
