@@ -8,7 +8,7 @@ import "math/rand"
 const LegendNameChance = 0.005
 
 // GetRandomLegendNameStmtSql draws one (first_name, last_name) pair from legend_names (see
-// resources/sql/init58_legend_names.sql) - a single random-order query rather than two
+// resources/sql/history/init58_legend_names.sql) - a single random-order query rather than two
 // independent ones (contrast GetRandomName's separate names_<suffix>/lastnames_<suffix> draws),
 // since a legend's first and last name have to stay paired ("Lionel" always with "Messi", never
 // mixed with an unrelated last name).

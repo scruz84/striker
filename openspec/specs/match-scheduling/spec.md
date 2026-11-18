@@ -268,7 +268,7 @@ Each country SHALL have a league kickoff time on its local clock, from 00:00 to 
   records an error or panic through `common.RecordSimulationFailure` (`common/simulationfailures.go`:
   `MaxSimulationAttempts`, `SimulationRetryBackoff`, `IsConnectionError`); columns
   `simulation_attempts`, `last_simulation_error` and `last_simulation_attempt_at`
-  (`resources/sql/init86_simulation_failures.sql`). Default 0-0: `engine.SettleDefaultResults`
+  (`resources/sql/history/init86_simulation_failures.sql`). Default 0-0: `engine.SettleDefaultResults`
   (`engine/defaultresults.go`), run first by `FinishStuckSimulationsJob`, after
   `engine.ReleaseRedatedFixtures` (`common.ReleaseRedatedFixtures`, `RedatedFixtureMargin` in
   `common/defaultresults.go`) gives back their attempts to exhausted fixtures re-dated to a later kickoff.

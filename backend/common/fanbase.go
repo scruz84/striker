@@ -1,7 +1,7 @@
 package common
 
 // DefaultFanbase is the value every new team starts with, and what every pre-existing team was
-// backfilled to (see resources/sql/init66_fanbase.sql) - the same neutral-midpoint convention
+// backfilled to (see resources/sql/history/init66_fanbase.sql) - the same neutral-midpoint convention
 // DefaultForm uses for a 0-99 attribute with no real history to derive a starting value from.
 const DefaultFanbase = 50
 

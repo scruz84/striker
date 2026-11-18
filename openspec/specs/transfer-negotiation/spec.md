@@ -65,7 +65,7 @@ The seller's received offers SHALL offer a "Counter" action on every pending off
   `common/offers.go` (`lockOffer`, `executeOfferTx`, `finishOfferTransfer`; `AcceptOffer` refuses
   a countered offer with `ErrOfferCountered`); `TransferOffer.CounterAmount` / `CounteredAt` /
   `CounterExpiresAt` read by `scanTransferOffers`.
-- Storage: `resources/sql/init98_offer_counters.sql` (`transfer_offers.counter_amount`,
+- Storage: `resources/sql/history/init98_offer_counters.sql` (`transfer_offers.counter_amount`,
   `countered_at`, partial index on `countered_at`).
 - API: `backend/handlers/offerHandlers.go` (`CounterOfferHandler`, `AcceptCounterOfferHandler`,
   `DeclineCounterOfferHandler`, `writeCounterOfferError`), routed in `service/fmservice.go` as

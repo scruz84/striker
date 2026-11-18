@@ -128,8 +128,9 @@ func goalEvent(team int64, other int64, minute int, homeGoals int) Event {
 		TeamOwnerPlayersNames: []string{"Scorer"}, HomeGoals: homeGoals}
 }
 
-// TestSimulationFailureColumns_MigrationSeedsStuckRowsOnce runs init86 against a scratch database
-// that has the schema without its columns: rows stuck for over an hour end with 2 attempts, a
+// TestSimulationFailureColumns_MigrationSeedsStuckRowsOnce runs init86 (archived under
+// resources/sql/history/ since init.sql carries its columns) against a scratch database that has
+// the schema without its columns: rows stuck for over an hour end with 2 attempts, a
 // fresh claim and a played row keep 0, and a second run changes nothing - not even a later stuck
 // row, because the seeding is guarded by the columns' absence.
 func TestSimulationFailureColumns_MigrationSeedsStuckRowsOnce(t *testing.T) {
@@ -204,9 +205,7 @@ func TestSimulationFailureColumns_MigrationSeedsStuckRowsOnce(t *testing.T) {
 		VALUES ($1, $2, now() - interval '3 hours', true, now() - interval '2 hours') RETURNING match_id`, home, away)
 
 	attempts := func(id int64) int64 { return scan(`SELECT simulation_attempts FROM matches WHERE match_id = $1`, id) }
-	if err := EnsureSchema(dbCtx); err != nil {
-		t.Fatalf("EnsureSchema after dropping the columns: %s", err)
-	}
+	applyHistoryMigration(t, db, "init86_simulation_failures.sql")
 	for id, want := range map[int64]int64{stuckTwoHours: 2, stuckNeverStamped: 2, freshClaim: 0, playedRow: 0} {
 		if got := attempts(id); got != want {
 			t.Errorf("match %d has %d attempts after the migration, want %d", id, got, want)
@@ -218,9 +217,7 @@ func TestSimulationFailureColumns_MigrationSeedsStuckRowsOnce(t *testing.T) {
 
 	// Run again: a row that became stuck since must not be seeded, and nothing else moves.
 	exec(`UPDATE matches SET in_simulation_since = now() - interval '5 hours' WHERE match_id = $1`, freshClaim)
-	if err := EnsureSchema(dbCtx); err != nil {
-		t.Fatalf("second EnsureSchema: %s", err)
-	}
+	applyHistoryMigration(t, db, "init86_simulation_failures.sql")
 	for id, want := range map[int64]int64{stuckTwoHours: 2, stuckNeverStamped: 2, freshClaim: 0, playedRow: 0} {
 		if got := attempts(id); got != want {
 			t.Errorf("match %d has %d attempts after the second run, want %d (the migration must be re-runnable)", id, got, want)

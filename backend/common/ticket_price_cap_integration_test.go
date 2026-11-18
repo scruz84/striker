@@ -2,11 +2,11 @@ package common
 
 import "testing"
 
-// TestCapTicketPriceMigration covers init87 of openspec fix-empty-gate-high-ticket-price: a team
-// left on a price above MaxTicketPrice is reset to the default, one already in range keeps its
-// price, and applying the migrations again changes nothing.
+// TestCapTicketPriceMigration covers init87 of openspec fix-empty-gate-high-ticket-price (archived
+// under resources/sql/history/): a team left on a price above MaxTicketPrice is reset to the
+// default, one already in range keeps its price, and applying the migration again changes nothing.
 func TestCapTicketPriceMigration(t *testing.T) {
-	db, dbCtx := openSimulationTestDb(t)
+	db, _ := openSimulationTestDb(t)
 	f := newSimulationFixture(t)
 
 	setPrice := func(teamId int64, price int) {
@@ -27,9 +27,7 @@ func TestCapTicketPriceMigration(t *testing.T) {
 	setPrice(f.away, 25)
 
 	for run := 1; run <= 2; run++ {
-		if err := EnsureSchema(dbCtx); err != nil {
-			t.Fatalf("EnsureSchema run %d: %s", run, err)
-		}
+		applyHistoryMigration(t, db, "init87_cap_ticket_price.sql")
 		if got := priceOf(f.home); got != DefaultTicketPrice {
 			t.Errorf("run %d: team at 69 has price %d, want %d", run, got, DefaultTicketPrice)
 		}

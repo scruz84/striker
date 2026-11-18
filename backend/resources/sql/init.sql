@@ -1,8 +1,9 @@
 -- Full baseline schema for a fresh database. This file used to be just the original tables,
 -- with every later change shipped as its own resources/sql/initN_*.sql migration; those have
--- since been folded in here (most recently init37_lower_starting_budget.sql through
--- init58_stadium_capacity_default.sql) so a new database only needs to run this one file (plus the
--- names_*/lastnames_* name-pool data dumps, which stay separate as bulk data). The superseded
+-- since been folded in here (most recently init58_legend_names.sql through
+-- init119_country_structures.sql) so a new database only needs to run this one file (plus the
+-- names_*/lastnames_* name-pool data dumps and the generated namepools/init91_name_pool_*.sql
+-- files, which stay separate as bulk data). The superseded
 -- migration files still exist under resources/sql/history/ for reference - see
 -- common.EnsureSchema for how the two directories are treated differently (only this directory's
 -- *.sql files auto-apply).
@@ -32,6 +33,25 @@ CREATE TABLE names_es
 CREATE TABLE countries (
     country_id 	bigserial NOT null,
     name varchar(4) null unique,
+    -- Each country advances its own season independently (see engine.AdvanceSeasonsIfComplete),
+    -- rather than every country waiting on one global counter.
+    current_season int NOT NULL DEFAULT 1,
+    -- Local minute of day tier 1 kicks off (default 14:00); every lower tier kicks off 15 minutes
+    -- later (see common.EffectiveLeagueSchedule).
+    league_kickoff_minute smallint NOT NULL DEFAULT 840,
+    -- Resumable season rollover (see engine.advanceCountrySeasonIfComplete): each completed step
+    -- of a country's rollover is recorded here, so a run that stops halfway resumes at the next
+    -- step instead of repeating aging, prizes, the cup and promotion/relegation.
+    --   rollover_season - the season being closed (NULL when no rollover is in progress)
+    --   rollover_step   - the last step completed, 0 for none (see engine.rolloverStep*)
+    --   rollover_state  - the final standings and moves later steps need (engine.rolloverState)
+    rollover_season integer,
+    rollover_step smallint NOT NULL DEFAULT 0,
+    rollover_state jsonb,
+    -- A country's own league structure, in world_config.tiers' format. NULL means the country
+    -- follows the global world_config (see common.EffectiveStructure). A restructure reshapes the
+    -- country into it at its next rollover.
+    structure jsonb,
     PRIMARY KEY (country_id)
 );
 
@@ -47,6 +67,16 @@ create table users (
    -- common.deliverExternalNotifications) can render in that language instead of always English.
    -- NULL (unset) means "no preference recorded yet" - falls back to English.
    language varchar(5),
+   -- User account lifecycle (see openspec/specs/user-accounts): activity tracking, terms
+   -- acceptance and the "your club was released" notice.
+   created_at timestamptz NOT NULL DEFAULT now(),
+   last_seen_at timestamptz NOT NULL DEFAULT now(),
+   -- 0 none, 1 = 14-day club warning sent, 2 = 7-day club warning sent, 3 = 14-day erasure
+   -- warning sent. Any recorded activity sets it back to 0.
+   inactivity_warning_stage smallint NOT NULL DEFAULT 0,
+   terms_version int,            -- NULL = never accepted
+   terms_accepted_at timestamptz,
+   released_team_name varchar(200), -- shown once at onboarding
    PRIMARY KEY (user_id)
 );
 
@@ -96,6 +126,39 @@ CREATE TABLE teams (
    -- have once stadium_upgrade_completes_at passes; both null means no upgrade is in progress.
    stadium_upgrade_target integer,
    stadium_upgrade_completes_at timestamptz,
+   -- A separate standing formation for friendlies (see default_friendly_lineup_positions and
+   -- common.GetLineupsForFriendly), so a manager can rest first-teamers in friendlies without
+   -- touching the competitive default.
+   friendly_formation smallint NOT NULL DEFAULT 0,
+   -- "Fanbase" index (0-99): how big/loyal a team's supporter base currently is. Drifts match by
+   -- match with results (see engine/fanbase.go) and feeds attendance, sponsorship and season
+   -- tickets/merchandising (see openspec/specs/fanbase). 50 is common.DefaultFanbase.
+   fanbase smallint NOT NULL DEFAULT 50,
+   -- Every active country gets one unowned, financially-inert national team row (see
+   -- common/nationalteam.go): league_id stays -1 and ai_level 0, so the free-team and AI-managed
+   -- queries skip it; budget/stadium_capacity are pinned to 0 and stadium_name left NULL.
+   is_national_team boolean NOT NULL DEFAULT false,
+   -- Club members: the paying core of a club's home crowd, which drives matchday attendance (see
+   -- engine/stadium.go's CalculateAttendance and engine/socios.go, which drifts it at every season
+   -- rollover). 500 is common.DefaultSocios.
+   socios integer NOT NULL DEFAULT 500,
+   -- Set when a club loses its owner; the engine resets the club later (common.ResetReleasedTeam).
+   reset_pending_since timestamptz,
+   -- Why the club was released (inactivity, self_deletion, admin_deletion, erasure) - only for the
+   -- striker.teams.reset metric's `reason` attribute, read when the reset actually runs.
+   reset_reason varchar(20),
+   -- Team mentality of the two standing default lineups (league/cup and friendly): Defensive (-1),
+   -- Balanced (0) or Attacking (+1) - see common.Lineup.Mentality.
+   mentality smallint NOT NULL DEFAULT 0 CHECK (mentality BETWEEN -1 AND 1),
+   friendly_mentality smallint NOT NULL DEFAULT 0 CHECK (friendly_mentality BETWEEN -1 AND 1),
+   -- A CPU club's style (see common.AiClubStyle*): 0 balanced, 1 youth, 2 frugal, 3 ambitious.
+   -- NULL reads as balanced; real clubs get one when created (handlers.createTeam) or from
+   -- common.BackfillAiStyles at service startup.
+   ai_style smallint,
+   -- The season a CPU team was dissolved in by a restructure with fewer places than teams (see
+   -- common.DissolveTeam). A dissolved team keeps its row, past matches and history but never
+   -- plays again: it leaves its league (league_id = -1) and every club listing skips it.
+   dissolved_season int,
    PRIMARY KEY (team_id)
 );
 
@@ -105,8 +168,8 @@ CREATE TABLE teams (
 -- match_schedule_minute_of_day is minutes since midnight (0-1439); default 960 is 16:00.
 -- friendly_schedule_weekdays uses the same bitmask convention but has no time-of-day component
 -- (see common.GetFriendlyScheduleWeekdays).
+-- The season counter itself lives on `countries` (one per country), not here.
 CREATE TABLE season (
-    current_season int,
     transfer_window_open boolean NOT NULL DEFAULT true,
     match_schedule_weekdays smallint NOT NULL DEFAULT 127,
     match_schedule_minute_of_day smallint NOT NULL DEFAULT 960,
@@ -125,7 +188,19 @@ CREATE TABLE season (
     -- Admin-configurable minimum time (in minutes) a received transfer offer must sit pending
     -- before it can be accepted (see common.GetOfferNegotiationWindowMinutes/common.AcceptOffer).
     -- Zero turns the window off entirely.
-    offer_negotiation_window_minutes smallint NOT NULL DEFAULT 120
+    offer_negotiation_window_minutes smallint NOT NULL DEFAULT 120,
+    -- The deliberately-decoupled cadence for regional/international cups and the World Cup (see
+    -- engine/cups.go): they don't wait for every country to roll over together, so they have
+    -- their own counter and their own "when did we last check" timestamp.
+    international_cup_season int NOT NULL DEFAULT 1,
+    last_international_cup_check timestamptz,
+    -- Optional archive of old seasons' per-minute instants (see openspec/specs/match-data-retention
+    -- and common.SetInstantArchiveSettings). While it is on, the daily engine.InstantArchiveJob
+    -- deletes the instants of every played fixture older than archive_keep_seasons finished seasons
+    -- and marks the fixture archived. Results, events, ratings and lineups are never touched.
+    archive_instants_enabled boolean NOT NULL DEFAULT false,
+    archive_keep_seasons smallint NOT NULL DEFAULT 1
+        CHECK (archive_keep_seasons BETWEEN 0 AND 10)
 );
 
 CREATE TABLE leagues (
@@ -134,6 +209,9 @@ CREATE TABLE leagues (
      group_number	int not null,
      name 		varchar(10) not null,
      tier int NOT NULL DEFAULT 1,
+     -- Set on a league a restructure retired (see engine.applyRestructure): it keeps its past
+     -- seasons and stays reachable by id, but no listing used for play returns it.
+     archived_season int,
      PRIMARY KEY (league_id)
 );
 
@@ -194,6 +272,35 @@ create table players (
      -- player's profile - lets the transfer market stats panel surface the most-viewed listed
      -- player (issue #72).
      view_count bigint NOT NULL DEFAULT 0,
+     -- Stamina (how well a player holds up physically within a single match, read every
+     -- simulated minute by engine.StaminaSimulation) and form (a slower-moving measure of recent
+     -- performances, read once per match by common.ComputeMatchRatings) - see
+     -- openspec/specs/player-development.
+     stamina integer NOT NULL DEFAULT 50,
+     form integer NOT NULL DEFAULT 50,
+     -- A player's individual, hidden lifetime ceiling for each of the seven core skills (see
+     -- common.rollSkillCap/PlayerSkillCaps and engine/progression.go's driftSkill). Never read by
+     -- any frontend-facing query (common.GetPlayerSkillCaps is the only reader) - a manager sees a
+     -- player's current skills, never their potential. Every INSERT INTO players supplies real
+     -- values; 0 would mean "never rolled".
+     goal_keeper_max integer NOT NULL DEFAULT 0,
+     defense_max integer NOT NULL DEFAULT 0,
+     lateral_max integer NOT NULL DEFAULT 0,
+     pass_max integer NOT NULL DEFAULT 0,
+     midfield_max integer NOT NULL DEFAULT 0,
+     dribbling_max integer NOT NULL DEFAULT 0,
+     shot_max integer NOT NULL DEFAULT 0,
+     -- Hidden "intelligence" tier, 1=Naive..5=Mastermind (see common.Intelligence* and
+     -- common.RandomIntelligence): how sharply the player reacts, in contract negotiations, to his
+     -- own recent skill trend. Never exposed to the frontend, like the *_max ceilings above.
+     -- Every INSERT INTO players supplies a real tier; 0 would mean "never assigned".
+     intelligence smallint NOT NULL DEFAULT 0,
+     -- Optional, public release clause (see openspec/specs/release-clauses): the fee any club may
+     -- pay to sign the player without his club's consent. NULL means no clause.
+     -- release_clause_set_at is when the contract that carries it was agreed (it can only be paid
+     -- 14 days later).
+     release_clause bigint,
+     release_clause_set_at timestamptz,
      PRIMARY KEY (player_id)
 );
 
@@ -217,7 +324,26 @@ CREATE TABLE matches (
      attendance integer,
      referee_name varchar(120),
      assistant1_name varchar(120),
-     assistant2_name varchar(120)
+     assistant2_name varchar(120),
+     -- When a simulation pass claimed this match (in_simulation = true). The stuck-simulation
+     -- recovery only re-simulates rows claimed long enough ago that no live pass can still be
+     -- working on them (see common.StuckSimulationAge and common/enginelocks.go).
+     in_simulation_since timestamptz,
+     -- Bounded, recoverable simulation: a fixture that reaches common.MaxSimulationAttempts
+     -- without being played is settled 0-0 (engine.SettleDefaultResults) instead of being retried
+     -- forever. last_simulation_error keeps why the latest attempt failed, and
+     -- last_simulation_attempt_at drives the retry backoff (common.SimulationRetryBackoff).
+     simulation_attempts int NOT NULL DEFAULT 0,
+     last_simulation_error text,
+     last_simulation_attempt_at timestamptz,
+     -- The rivalry level the match kicked off with (RIVALRY_NONE / _RIVAL / _CLASICO - see
+     -- team_rivalries), so a played match always shows the level it was played at.
+     rivalry_level smallint NOT NULL DEFAULT 0,
+     -- Stoppage time (see openspec/specs/stoppage-time): 1-5 added minutes per half.
+     first_half_added_time smallint NOT NULL DEFAULT 0,
+     second_half_added_time smallint NOT NULL DEFAULT 0,
+     -- Set once the instant archive deleted this match's instants (see season.archive_*).
+     instants_archived boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE match_events (
@@ -232,7 +358,18 @@ CREATE TABLE match_events (
     other_team_players varchar(200),
     other_team_player_names varchar(1000),
     home_goals int default 0,
-    away_goals int default 0
+    away_goals int default 0,
+    -- How a goal / missed chance came about: 0 open play, 1 penalty, 2 direct free kick (see
+    -- common.SET_PIECE_*). A set piece reuses the usual GOAL / NO_GOAL event.
+    set_piece smallint NOT NULL DEFAULT 0,
+    -- The new mentality of a MENTALITY_CHANGE event (common.Event.Mentality); NULL for every
+    -- other event.
+    mentality smallint NULL,
+    -- Stoppage time (see openspec/specs/stoppage-time): a minute in added time is its clock
+    -- minute (45 or 90) plus an added minute (1..N); a regulation minute has added minute 0.
+    -- added_time is the number of minutes an ADDED_TIME event (type 9) announces.
+    added_minute smallint NOT NULL DEFAULT 0,
+    added_time smallint
 );
 
 CREATE TABLE match_instants (
@@ -249,7 +386,16 @@ CREATE TABLE match_instants (
       AwayAttack_Right_Diff  double precision,
       AwayAttack_Left_Diff   double precision,
       AwayAttack_Center_Diff double precision,
-      primary key (match_id, minute)
+      -- That minute's per-player zone contribution as JSON text
+      -- ({"<playerId>": {"p": position, "o": own value, "r": rival value}}), from which the live
+      -- view and the minute scrubber rebuild the ratings as of any minute (see
+      -- common.encodePlayerContributions/decodePlayerContributions). Text rather than jsonb: Go
+      -- reads and writes it whole, and for this shape jsonb's binary form is much larger.
+      player_contributions text,
+      -- A first half with added time stores several instants at minute 45 (see
+      -- match_events.added_minute), hence the three-column primary key.
+      added_minute smallint NOT NULL DEFAULT 0,
+      primary key (match_id, minute, added_minute)
 );
 
 
@@ -269,6 +415,14 @@ create table lineup (
     -- default_lineup_positions; formation was the only piece missing to make this a complete
     -- mirror of friendly_lineup/friendly_lineup_positions.
     formation smallint NOT NULL DEFAULT 0,
+    -- Team mentality: Defensive (-1), Balanced (0) or Attacking (+1) - see common.Lineup.Mentality.
+    mentality smallint NOT NULL DEFAULT 0 CHECK (mentality BETWEEN -1 AND 1),
+    -- Lineup roles (see common.LineupRoles): an optional captain, penalty taker and free-kick
+    -- taker. A deleted player leaves the role empty ("automatic"). Same on cup_tie_lineup and
+    -- friendly_lineup; the standing defaults keep theirs in default_lineup_roles.
+    captain_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    penalty_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    free_kick_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
     unique (match_id, team_id)
 );
 
@@ -289,6 +443,11 @@ create table classification (
     draws   int default 0,
     goals_scored int default 0,
     goals_received int default 0,
+    -- A league's starting order for the current season, 1..N: teams relegated into the league
+    -- first, then the teams that stayed, then the teams promoted into it, each group in the order
+    -- it finished last season (engine.ComputeSeasonSeeds). The last tie-break of every standings
+    -- ordering, so a new season's table reads in that order on matchday 0.
+    seed int,
     primary key (league_id, team_id)
 );
 
@@ -355,7 +514,13 @@ CREATE TABLE cups (
     name             varchar(200) NOT NULL,
     completed        boolean NOT NULL DEFAULT false,
     champion_team_id bigint REFERENCES teams(team_id),
-    CONSTRAINT cups_country_xor_region CHECK ((country IS NULL) <> (region IS NULL))
+    -- Tells a domestic/international cup ('cup') from a country's end-of-season promotion playoff
+    -- ('playoff' - see openspec/specs/league-pyramid). A playoff is one round of cup_ties, so it
+    -- reuses the cup-tie simulation, lineups and live broadcast; the cups_playoff_once index makes
+    -- sure a country gets one per season even with several engine replicas.
+    kind varchar(16) NOT NULL DEFAULT 'cup',
+    CONSTRAINT cups_country_xor_region CHECK ((country IS NULL) <> (region IS NULL)),
+    CONSTRAINT cups_kind_check CHECK (kind IN ('cup', 'playoff'))
 );
 
 CREATE TABLE cup_ties (
@@ -372,6 +537,22 @@ CREATE TABLE cup_ties (
     away_goals      int NOT NULL DEFAULT 0,
     went_to_penalties boolean NOT NULL DEFAULT false,
     winner_team_id  bigint REFERENCES teams(team_id),
+    -- Same report flavor columns as `matches` (see there), so one match viewer serves every
+    -- competition.
+    weather         varchar(20),
+    attendance      integer,
+    referee_name    varchar(120),
+    assistant1_name varchar(120),
+    assistant2_name varchar(120),
+    -- A cup tie has no claim of its own (it is simulated under an advisory lock), so it only uses
+    -- the attempt columns of matches' bounded simulation.
+    simulation_attempts int NOT NULL DEFAULT 0,
+    last_simulation_error text,
+    last_simulation_attempt_at timestamptz,
+    rivalry_level smallint NOT NULL DEFAULT 0,
+    first_half_added_time smallint NOT NULL DEFAULT 0,
+    second_half_added_time smallint NOT NULL DEFAULT 0,
+    instants_archived boolean NOT NULL DEFAULT false,
     UNIQUE (cup_id, round, slot_number)
 );
 
@@ -385,7 +566,16 @@ CREATE TABLE cup_tie_events (
     team_players        varchar(200),
     team_player_names   varchar(1000),
     home_goals          int DEFAULT 0,
-    away_goals          int DEFAULT 0
+    away_goals          int DEFAULT 0,
+    -- Same as the match_events columns of the same names.
+    set_piece           smallint NOT NULL DEFAULT 0,
+    mentality           smallint NULL,
+    added_minute        smallint NOT NULL DEFAULT 0,
+    added_time          smallint,
+    -- The other side's players (e.g. the defending goalkeeper on every chance), as match_events
+    -- stores them.
+    other_team_players      varchar(200),
+    other_team_player_names varchar(1000)
 );
 
 -- Cup ties can NOT reuse lineup/lineup_positions the way league matches now do: cup_ties.tie_id
@@ -400,6 +590,11 @@ CREATE TABLE cup_tie_lineup (
     tie_id    bigint NOT NULL REFERENCES cup_ties(tie_id),
     team_id   bigint NOT NULL REFERENCES teams(team_id),
     formation smallint NOT NULL DEFAULT 0,
+    -- Same as the lineup columns of the same names.
+    mentality smallint NOT NULL DEFAULT 0 CHECK (mentality BETWEEN -1 AND 1),
+    captain_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    penalty_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    free_kick_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
     UNIQUE (tie_id, team_id)
 );
 
@@ -438,7 +633,16 @@ CREATE TABLE loan_listings (
     player_id        bigint NOT NULL UNIQUE REFERENCES players(player_id) ON DELETE CASCADE,
     lending_team_id  bigint NOT NULL REFERENCES teams(team_id),
     duration_seasons int NOT NULL,
-    listed_at        timestamptz NOT NULL DEFAULT now()
+    listed_at        timestamptz NOT NULL DEFAULT now(),
+    -- Optional economic terms (see common.CreateLoanListing/AcceptLoan and engine/wages.go):
+    --   * loan_fee: a one-time fee the borrower pays the lender when the loan is accepted.
+    --   * wage_contribution_percent: the share of the player's wage the lender keeps covering
+    --     for the duration of the loan (see engine.deductWages).
+    --   * buy_option_fee: a fixed fee the borrower can pay at any time during the loan to make
+    --     the move permanent (see common.ExerciseLoanBuyOption).
+    loan_fee         bigint NOT NULL DEFAULT 0,
+    wage_contribution_percent smallint NOT NULL DEFAULT 0,
+    buy_option_fee   bigint NOT NULL DEFAULT 0
 );
 
 CREATE TABLE player_loans (
@@ -447,7 +651,14 @@ CREATE TABLE player_loans (
     from_team_id  bigint NOT NULL REFERENCES teams(team_id),
     to_team_id    bigint NOT NULL REFERENCES teams(team_id),
     return_season int NOT NULL,
-    created_at    timestamptz NOT NULL DEFAULT now()
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    -- Carried over from the listing at accept time (see common.AcceptLoan) - the listing row is
+    -- deleted once accepted, so the active loan keeps its own copy of the terms.
+    wage_contribution_percent smallint NOT NULL DEFAULT 0,
+    buy_option_fee bigint NOT NULL DEFAULT 0,
+    -- A loaned-out player of a reset club (see teams.reset_pending_since) becomes a free agent
+    -- when his loan ends.
+    release_on_return boolean NOT NULL DEFAULT false
 );
 
 -- Direct transfer offers ("scouting"): unlike transfer_listings (a seller advertises a fixed
@@ -465,6 +676,14 @@ CREATE TABLE transfer_offers (
     offered_wage  integer NOT NULL DEFAULT 0,
     offered_years integer NOT NULL DEFAULT 0,
     created_at    timestamptz NOT NULL DEFAULT now(),
+    -- One counter-offer round (see openspec/specs/transfer-negotiation and common.CounterOffer):
+    -- the selling club may answer with a higher fee, which then waits for the buyer to accept or
+    -- decline until it expires (common.CounterOfferLifetime after countered_at). Both NULL on an
+    -- offer that was never countered.
+    counter_amount bigint NULL,
+    countered_at  timestamptz NULL,
+    -- The release clause the buyer proposes for the new contract (see players.release_clause).
+    offered_release_clause bigint,
     UNIQUE (player_id, from_team_id)
 );
 
@@ -494,6 +713,21 @@ CREATE TABLE season_history (
     relegated      boolean NOT NULL DEFAULT false,
     cup_result     varchar(50),
     updated_at     timestamptz NOT NULL DEFAULT now(),
+    -- The team's full final table line, so a past season's whole table can be shown again (see
+    -- openspec/specs/league-page).
+    matches        int,
+    points         int,
+    wins           int,
+    draws          int,
+    losses         int,
+    goals_scored   int,
+    goals_received int,
+    -- Whether the promotion or relegation came through the end-of-season playoff.
+    via_playoff    boolean NOT NULL DEFAULT false,
+    -- The regional cup edition (European Cup, Copa America, Asian Cup, African Cup) the team won
+    -- during this league season - engine.advanceCup records it in the season the champion's
+    -- country was playing when the final was resolved.
+    international_cup_id bigint REFERENCES cups(cup_id) ON DELETE SET NULL,
     PRIMARY KEY (team_id, season)
 );
 
@@ -1354,6 +1588,772 @@ INSERT INTO lastnames_ke (lastname, freq) VALUES
     ('Kiprop',1.0),('Cheruiyot',1.0),('Korir',1.0),('Ruto',1.0),('Sang',1.0),('Barasa',1.0),
     ('Wamalwa',1.0),('Nyongesa',1.0);
 
+-- Legend names for the random name generator (see common.GetPlayerName) - a small chance for a
+-- newly generated player to be named after a football legend, or a legend-sounding name, instead
+-- of drawing from the country's regular names_<suffix>/lastnames_<suffix> pool. Kept as a single
+-- (first_name, last_name) pair per row, unlike names_<suffix>/lastnames_<suffix>'s independent
+-- draws, so "Lionel" always lands with "Messi" rather than being mixed with an unrelated last
+-- name. Unique on the pair so a later migration adding more legends can use ON CONFLICT DO
+-- NOTHING.
+CREATE TABLE legend_names
+(
+     first_name varchar(100) NOT NULL,
+     last_name varchar(100) NOT NULL,
+     UNIQUE (first_name, last_name)
+);
+
+INSERT INTO legend_names (first_name, last_name) VALUES
+    ('Lionel', 'Messi'),
+    ('Cristiano', 'Ronaldo'),
+    ('Diego', 'Maradona'),
+    ('Edson Arantes', 'do Nascimento'),
+    ('Ronaldinho', 'Gaucho'),
+    ('Zinedine', 'Zidane'),
+    ('Ronaldo', 'Nazario'),
+    ('Andres', 'Iniesta'),
+    ('Xavi', 'Hernandez'),
+    ('Ricardo', 'Kaka'),
+    ('Thierry', 'Henry'),
+    ('Roberto', 'Carlos'),
+    ('Iker', 'Casillas'),
+    ('Franz', 'Beckenbauer'),
+    ('Johan', 'Cruyff'),
+    ('George', 'Best'),
+    ('Alfredo', 'Di Stefano'),
+    ('Michel', 'Platini'),
+    ('Marco', 'van Basten'),
+    ('Paolo', 'Maldini'),
+    ('Yuri', 'de Souza'),
+    ('Kaito', 'Nishimura'),
+    ('Erik', 'van der Berg'),
+    ('Mateus', 'Ferreira Lima'),
+    ('Aleksandr', 'Volkov'),
+    ('Dimitri', 'Papadopoulos'),
+    ('Chidi', 'Okonkwo'),
+    ('Rashid', 'Al-Farsi'),
+    ('Luca', 'Bellandi'),
+    ('Nikolai', 'Petrov'),
+    ('Sergio', 'Cruz'),
+    ('Marcos', 'Martínez'),
+    ('Javier', 'Sáez'),
+    ('Fernando', 'Viforcos'),
+    ('Alberto', 'Fernández'),
+    ('Martín', 'Rodríguez'),
+    ('Patrick', 'Mattiney'),
+    ('Marcelo', 'Buelta');
+
+-- 12 more countries, 3 per region (see common.RegionForCountry): Belgium, Turkey, Austria;
+-- Venezuela, Paraguay, Bolivia; Qatar, United Arab Emirates, Uzbekistan; Tunisia, Tanzania, Mali.
+-- Same pattern as the pools above; countries stay inactive until an admin activates one.
+
+CREATE TABLE names_be ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_be (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_at ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_at (lastname varchar(100) NULL, freq float8 NULL);
+
+CREATE TABLE names_ve ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ve (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_py ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_py (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bo ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bo (lastname varchar(100) NULL, freq float8 NULL);
+
+CREATE TABLE names_qa ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_qa (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ae ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ae (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_uz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_uz (lastname varchar(100) NULL, freq float8 NULL);
+
+CREATE TABLE names_tn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ml ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ml (lastname varchar(100) NULL, freq float8 NULL);
+
+INSERT INTO names_be ("name", freq) VALUES
+    ('Lucas',1.0),('Liam',1.0),('Noah',1.0),('Finn',1.0),('Sem',1.0),('Jonas',1.0),('Thomas',1.0),
+    ('Nathan',1.0),('Milan',1.0),('Lars',1.0),('Dries',1.0),('Kobe',1.0),('Tom',1.0),('Wout',1.0),
+    ('Stijn',1.0),('Bram',1.0),('Senne',1.0),('Tuur',1.0),('Mathis',1.0),('Victor',1.0),('Hugo',1.0),
+    ('Louis',1.0),('Arthur',1.0),('Axel',1.0),('Jens',1.0),('Niels',1.0),('Kevin',1.0),('Maxime',1.0),
+    ('Simon',1.0),('Florian',1.0);
+
+INSERT INTO lastnames_be (lastname, freq) VALUES
+    ('Peeters',1.0),('Janssens',1.0),('Maes',1.0),('Jacobs',1.0),('Mertens',1.0),('Willems',1.0),
+    ('Claes',1.0),('Goossens',1.0),('Wouters',1.0),('De Smet',1.0),('Dubois',1.0),('Lambert',1.0),
+    ('Dupont',1.0),('Lemmens',1.0),('Hermans',1.0),('Pauwels',1.0),('Verhoeven',1.0),('Vermeulen',1.0),
+    ('Janssen',1.0),('Bogaert',1.0),('Van Damme',1.0),('Vandenberghe',1.0),('De Clercq',1.0),
+    ('Michiels',1.0),('Desmet',1.0),('Lefevre',1.0),('Simon',1.0),('Henry',1.0),('Collard',1.0),('Smet',1.0);
+
+INSERT INTO names_tr ("name", freq) VALUES
+    ('Mehmet',1.0),('Mustafa',1.0),('Ahmet',1.0),('Ali',1.0),('Huseyin',1.0),('Hasan',1.0),
+    ('Ibrahim',1.0),('Yusuf',1.0),('Emre',1.0),('Burak',1.0),('Serkan',1.0),('Ozan',1.0),('Caner',1.0),
+    ('Kerem',1.0),('Baris',1.0),('Onur',1.0),('Murat',1.0),('Deniz',1.0),('Umut',1.0),('Fatih',1.0),
+    ('Cem',1.0),('Selim',1.0),('Tolga',1.0),('Kaan',1.0),('Volkan',1.0),('Gokhan',1.0),('Eren',1.0),
+    ('Arda',1.0),('Can',1.0),('Berk',1.0);
+
+INSERT INTO lastnames_tr (lastname, freq) VALUES
+    ('Yilmaz',1.0),('Kaya',1.0),('Demir',1.0),('Sahin',1.0),('Celik',1.0),('Yildiz',1.0),
+    ('Yildirim',1.0),('Ozturk',1.0),('Aydin',1.0),('Ozdemir',1.0),('Arslan',1.0),('Dogan',1.0),
+    ('Kilic',1.0),('Aslan',1.0),('Cetin',1.0),('Kara',1.0),('Koc',1.0),('Kurt',1.0),('Ozkan',1.0),
+    ('Simsek',1.0),('Polat',1.0),('Korkmaz',1.0),('Cakir',1.0),('Candan',1.0),('Erdogan',1.0),
+    ('Akin',1.0),('Tekin',1.0),('Bulut',1.0),('Gunes',1.0),('Acar',1.0);
+
+INSERT INTO names_at ("name", freq) VALUES
+    ('Lukas',1.0),('Felix',1.0),('David',1.0),('Jakob',1.0),('Simon',1.0),('Florian',1.0),
+    ('Michael',1.0),('Matthias',1.0),('Daniel',1.0),('Fabian',1.0),('Christoph',1.0),('Stefan',1.0),
+    ('Thomas',1.0),('Markus',1.0),('Philipp',1.0),('Andreas',1.0),('Martin',1.0),('Alexander',1.0),
+    ('Benjamin',1.0),('Julian',1.0),('Paul',1.0),('Tobias',1.0),('Maximilian',1.0),('Sebastian',1.0),
+    ('Dominik',1.0),('Patrick',1.0),('Clemens',1.0),('Georg',1.0),('Niklas',1.0),('Moritz',1.0);
+
+INSERT INTO lastnames_at (lastname, freq) VALUES
+    ('Gruber',1.0),('Huber',1.0),('Bauer',1.0),('Wagner',1.0),('Mueller',1.0),('Pichler',1.0),
+    ('Steiner',1.0),('Moser',1.0),('Mayer',1.0),('Hofer',1.0),('Leitner',1.0),('Berger',1.0),
+    ('Fuchs',1.0),('Eder',1.0),('Fischer',1.0),('Schmid',1.0),('Winkler',1.0),('Weber',1.0),
+    ('Schwarz',1.0),('Maier',1.0),('Wimmer',1.0),('Egger',1.0),('Brunner',1.0),('Lang',1.0),
+    ('Baumgartner',1.0),('Auer',1.0),('Reiter',1.0),('Mayr',1.0),('Schneider',1.0),('Wolf',1.0);
+
+INSERT INTO names_ve ("name", freq) VALUES
+    ('Carlos',1.0),('Jose',1.0),('Luis',1.0),('Miguel',1.0),('Juan',1.0),('Alejandro',1.0),
+    ('Francisco',1.0),('Rafael',1.0),('Antonio',1.0),('Eduardo',1.0),('Gustavo',1.0),('Ricardo',1.0),
+    ('Oswaldo',1.0),('Victor',1.0),('Pedro',1.0),('Manuel',1.0),('Ramon',1.0),('Jesus',1.0),
+    ('Angel',1.0),('Cesar',1.0),('Freddy',1.0),('Alberto',1.0),('Wilmer',1.0),('Yonathan',1.0),
+    ('Elvis',1.0),('Yoel',1.0),('Gerardo',1.0),('Ender',1.0),('Darwin',1.0),('Salomon',1.0);
+
+INSERT INTO lastnames_ve (lastname, freq) VALUES
+    ('Gonzalez',1.0),('Rodriguez',1.0),('Perez',1.0),('Martinez',1.0),('Hernandez',1.0),('Lopez',1.0),
+    ('Garcia',1.0),('Diaz',1.0),('Rojas',1.0),('Castillo',1.0),('Sanchez',1.0),('Ramirez',1.0),
+    ('Torres',1.0),('Flores',1.0),('Marin',1.0),('Mendoza',1.0),('Vargas',1.0),('Guerra',1.0),
+    ('Pacheco',1.0),('Escalona',1.0),('Aguilar',1.0),('Blanco',1.0),('Rosales',1.0),('Medina',1.0),
+    ('Carrero',1.0),('Bello',1.0),('Pino',1.0),('Prado',1.0),('Zambrano',1.0),('Colina',1.0);
+
+INSERT INTO names_py ("name", freq) VALUES
+    ('Diego',1.0),('Gustavo',1.0),('Ramon',1.0),('Victor',1.0),('Nestor',1.0),('Cristian',1.0),
+    ('Richard',1.0),('Pedro',1.0),('Ruben',1.0),('Pablo',1.0),('Miguel',1.0),('Dario',1.0),('Hugo',1.0),
+    ('Sergio',1.0),('Oscar',1.0),('Juan',1.0),('Antonio',1.0),('Carlos',1.0),('Fernando',1.0),
+    ('Alcides',1.0),('Julio',1.0),('Nelson',1.0),('Walter',1.0),('Osvaldo',1.0),('Angel',1.0),
+    ('Ever',1.0),('Derlis',1.0),('Celso',1.0),('Gabriel',1.0),('Marcelo',1.0);
+
+INSERT INTO lastnames_py (lastname, freq) VALUES
+    ('Gonzalez',1.0),('Benitez',1.0),('Rolon',1.0),('Ortiz',1.0),('Cardozo',1.0),('Villalba',1.0),
+    ('Sanabria',1.0),('Acosta',1.0),('Caceres',1.0),('Ferreira',1.0),('Martinez',1.0),('Fleitas',1.0),
+    ('Ayala',1.0),('Barreto',1.0),('Melgarejo',1.0),('Duarte',1.0),('Franco',1.0),('Riveros',1.0),
+    ('Zarate',1.0),('Gimenez',1.0),('Encina',1.0),('Vera',1.0),('Paredes',1.0),('Samudio',1.0),
+    ('Bogado',1.0),('Arrua',1.0),('Insfran',1.0),('Godoy',1.0),('Candia',1.0);
+
+INSERT INTO names_bo ("name", freq) VALUES
+    ('Marcelo',1.0),('Raul',1.0),('Ronald',1.0),('Diego',1.0),('Pablo',1.0),('Juan',1.0),('Luis',1.0),
+    ('Erwin',1.0),('Ramiro',1.0),('Boris',1.0),('Edward',1.0),('Henry',1.0),('Franz',1.0),('Alvaro',1.0),
+    ('Carmelo',1.0),('Walter',1.0),('Fernando',1.0),('Gualberto',1.0),('Victor',1.0),('Gustavo',1.0),
+    ('Jose',1.0),('Carlos',1.0),('Mauricio',1.0),('Jesus',1.0),('Richard',1.0),('Leonel',1.0),
+    ('Robson',1.0),('Moises',1.0),('Adrian',1.0),('Jhasmani',1.0);
+
+INSERT INTO lastnames_bo (lastname, freq) VALUES
+    ('Quiroga',1.0),('Mamani',1.0),('Choque',1.0),('Flores',1.0),('Rivero',1.0),('Vargas',1.0),
+    ('Pena',1.0),('Rojas',1.0),('Terrazas',1.0),('Chavez',1.0),('Saavedra',1.0),('Villarroel',1.0),
+    ('Justiniano',1.0),('Arce',1.0),('Ribera',1.0),('Suarez',1.0),('Melgar',1.0),('Duran',1.0),
+    ('Rocabado',1.0),('Cespedes',1.0),('Condori',1.0),('Rodriguez',1.0),('Gutierrez',1.0),
+    ('Moreno',1.0),('Roman',1.0),('Martinez',1.0),('Ortega',1.0),('Zurita',1.0),('Alanoca',1.0);
+
+INSERT INTO names_qa ("name", freq) VALUES
+    ('Mohammed',1.0),('Ahmed',1.0),('Abdullah',1.0),('Khalid',1.0),('Hamad',1.0),('Ali',1.0),
+    ('Rashid',1.0),('Saoud',1.0),('Jassim',1.0),('Nasser',1.0),('Faisal',1.0),('Tariq',1.0),
+    ('Yousuf',1.0),('Fahad',1.0),('Majed',1.0),('Saad',1.0),('Salem',1.0),('Omar',1.0),('Hassan',1.0),
+    ('Turki',1.0),('Essa',1.0),('Abdulrahman',1.0),('Mubarak',1.0),('Ghanim',1.0),('Mansour',1.0),
+    ('Sultan',1.0),('Marzouq',1.0),('Hilal',1.0),('Khalifa',1.0),('Thani',1.0);
+
+INSERT INTO lastnames_qa (lastname, freq) VALUES
+    ('Al-Thani',1.0),('Al-Kaabi',1.0),('Al-Marri',1.0),('Al-Sulaiti',1.0),('Al-Ansari',1.0),
+    ('Al-Hajri',1.0),('Al-Khalifa',1.0),('Al-Obaidli',1.0),('Al-Mannai',1.0),('Al-Mohannadi',1.0),
+    ('Al-Sayed',1.0),('Al-Yafei',1.0),('Al-Suwaidi',1.0),('Al-Naimi',1.0),('Al-Shammari',1.0),
+    ('Al-Emadi',1.0),('Al-Baker',1.0),('Al-Attiyah',1.0),('Al-Khater',1.0),('Al-Darwish',1.0),
+    ('Al-Jaber',1.0),('Al-Rumaihi',1.0),('Al-Nuaimi',1.0),('Al-Mahmoud',1.0),('Al-Qahtani',1.0),
+    ('Al-Dosari',1.0),('Al-Mulla',1.0),('Al-Hitmi',1.0),('Al-Sada',1.0);
+
+INSERT INTO names_ae ("name", freq) VALUES
+    ('Mohammed',1.0),('Ahmed',1.0),('Rashid',1.0),('Hamdan',1.0),('Saeed',1.0),('Khalifa',1.0),
+    ('Sultan',1.0),('Omar',1.0),('Hamad',1.0),('Abdullah',1.0),('Faisal',1.0),('Majid',1.0),
+    ('Khalid',1.0),('Tariq',1.0),('Saif',1.0),('Nasser',1.0),('Mansour',1.0),('Hilal',1.0),
+    ('Yousuf',1.0),('Ali',1.0),('Humaid',1.0),('Zayed',1.0),('Butti',1.0),('Dhiyab',1.0),
+    ('Marwan',1.0),('Juma',1.0),('Obaid',1.0),('Rakan',1.0),('Hazim',1.0),('Salem',1.0);
+
+INSERT INTO lastnames_ae (lastname, freq) VALUES
+    ('Al-Maktoum',1.0),('Al-Nahyan',1.0),('Al-Qasimi',1.0),('Al-Nuaimi',1.0),('Al-Shamsi',1.0),
+    ('Al-Zaabi',1.0),('Al-Mansouri',1.0),('Al-Suwaidi',1.0),('Al-Falasi',1.0),('Al-Kaabi',1.0),
+    ('Al-Hashimi',1.0),('Al-Marri',1.0),('Al-Ketbi',1.0),('Al-Dhaheri',1.0),('Al-Mazrouei',1.0),
+    ('Al-Rashidi',1.0),('Al-Ameri',1.0),('Al-Hameli',1.0),('Al-Blooshi',1.0),('Al-Habsi',1.0),
+    ('Al-Qubaisi',1.0),('Al-Hammadi',1.0),('Al-Mehrezi',1.0),('Al-Awadhi',1.0),('Al-Jaberi',1.0),
+    ('Al-Shehhi',1.0),('Al-Mulla',1.0),('Al-Romaithi',1.0),('Al-Zarouni',1.0),('Al-Yamahi',1.0);
+
+INSERT INTO names_uz ("name", freq) VALUES
+    ('Islom',1.0),('Jasur',1.0),('Sardor',1.0),('Bekzod',1.0),('Dilshod',1.0),('Farrukh',1.0),
+    ('Shohrux',1.0),('Rustam',1.0),('Otabek',1.0),('Javlon',1.0),('Sanjar',1.0),('Bobur',1.0),
+    ('Aziz',1.0),('Jamshid',1.0),('Alisher',1.0),('Timur',1.0),('Davron',1.0),('Shavkat',1.0),
+    ('Ulugbek',1.0),('Behzod',1.0),('Muzaffar',1.0),('Anvar',1.0),('Sherzod',1.0),('Nodir',1.0),
+    ('Ravshan',1.0),('Komil',1.0),('Rasul',1.0),('Firdavs',1.0),('Umid',1.0),('Zafar',1.0);
+
+INSERT INTO lastnames_uz (lastname, freq) VALUES
+    ('Karimov',1.0),('Yusupov',1.0),('Rashidov',1.0),('Islomov',1.0),('Abdullaev',1.0),
+    ('Nazarov',1.0),('Yuldashev',1.0),('Rustamov',1.0),('Saidov',1.0),('Ergashev',1.0),
+    ('Tursunov',1.0),('Mirzaev',1.0),('Khodjaev',1.0),('Sultanov',1.0),('Nuraliev',1.0),
+    ('Bekmuradov',1.0),('Jumaev',1.0),('Khalilov',1.0),('Shukurov',1.0),('Pulatov',1.0),
+    ('Egamberdiev',1.0),('Usmanov',1.0),('Fayzullaev',1.0),('Toirov',1.0),('Qosimov',1.0),
+    ('Berdiev',1.0),('Xolmatov',1.0),('Ismoilov',1.0),('Ochilov',1.0),('Tashkentov',1.0);
+
+INSERT INTO names_tn ("name", freq) VALUES
+    ('Mohamed',1.0),('Ahmed',1.0),('Youssef',1.0),('Karim',1.0),('Sami',1.0),('Walid',1.0),
+    ('Nabil',1.0),('Hichem',1.0),('Anis',1.0),('Rami',1.0),('Bilel',1.0),('Khalil',1.0),('Mehdi',1.0),
+    ('Amine',1.0),('Oussama',1.0),('Marouane',1.0),('Firas',1.0),('Zied',1.0),('Tarek',1.0),
+    ('Riadh',1.0),('Chiheb',1.0),('Moez',1.0),('Fares',1.0),('Montassar',1.0),('Haythem',1.0),
+    ('Aymen',1.0),('Souhail',1.0),('Hamza',1.0),('Skander',1.0),('Bassem',1.0);
+
+INSERT INTO lastnames_tn (lastname, freq) VALUES
+    ('Ben Ali',1.0),('Trabelsi',1.0),('Jebali',1.0),('Mabrouki',1.0),('Gharbi',1.0),('Hamdi',1.0),
+    ('Mansouri',1.0),('Saidi',1.0),('Bouazizi',1.0),('Khlifi',1.0),('Mejri',1.0),('Belhaj',1.0),
+    ('Kallel',1.0),('Chaabane',1.0),('Souissi',1.0),('Bouzid',1.0),('Ferjani',1.0),('Zaouali',1.0),
+    ('Dridi',1.0),('Naceur',1.0),('Haddad',1.0),('Khalfallah',1.0),('Riahi',1.0),('Mnif',1.0),
+    ('Mejdoub',1.0),('Bousnina',1.0),('Sahli',1.0),('Toumi',1.0),('Ayari',1.0),('Jlassi',1.0);
+
+INSERT INTO names_tz ("name", freq) VALUES
+    ('Juma',1.0),('Hassan',1.0),('Said',1.0),('Ally',1.0),('Mussa',1.0),('Ibrahim',1.0),
+    ('Rashid',1.0),('Omari',1.0),('Salum',1.0),('Hamisi',1.0),('Abdallah',1.0),('Mwinyi',1.0),
+    ('Yahya',1.0),('Shabani',1.0),('Issa',1.0),('Athumani',1.0),('Bakari',1.0),('Idrisa',1.0),
+    ('Selemani',1.0),('Kassim',1.0),('Daudi',1.0),('Baraka',1.0),('Emmanuel',1.0),('Fredy',1.0),
+    ('Godfrey',1.0),('Elias',1.0),('Mathias',1.0),('Erasto',1.0),('Deogratias',1.0);
+
+INSERT INTO lastnames_tz (lastname, freq) VALUES
+    ('Mwakalinga',1.0),('Kimaro',1.0),('Chacha',1.0),('Mushi',1.0),('Mrema',1.0),('Nyoni',1.0),
+    ('Mnyamani',1.0),('Lyimo',1.0),('Shirima',1.0),('Mallya',1.0),('Massawe',1.0),('Kweka',1.0),
+    ('Komba',1.0),('Mbwambo',1.0),('Sanga',1.0),('Mandara',1.0),('Haule',1.0),('Kapinga',1.0),
+    ('Mwamba',1.0),('Kessy',1.0),('Lugendo',1.0),('Mbise',1.0),('Rutta',1.0),('Kivuyo',1.0),
+    ('Mwampamba',1.0),('Mahundi',1.0),('Kinabo',1.0),('Mushaija',1.0),('Temba',1.0);
+
+INSERT INTO names_ml ("name", freq) VALUES
+    ('Oumar',1.0),('Moussa',1.0),('Ibrahim',1.0),('Sekou',1.0),('Mamadou',1.0),('Boubacar',1.0),
+    ('Modibo',1.0),('Drissa',1.0),('Amadou',1.0),('Yacouba',1.0),('Lassana',1.0),('Bakary',1.0),
+    ('Adama',1.0),('Souleymane',1.0),('Issa',1.0),('Cheick',1.0),('Alou',1.0),('Mahamadou',1.0),
+    ('Fousseyni',1.0),('Karim',1.0),('Siaka',1.0),('Abdoulaye',1.0),('Youssouf',1.0),('Daouda',1.0),
+    ('Zoumana',1.0),('Toumani',1.0),('Hamidou',1.0),('Seydou',1.0),('Kassim',1.0),('Baba',1.0);
+
+INSERT INTO lastnames_ml (lastname, freq) VALUES
+    ('Traore',1.0),('Diarra',1.0),('Keita',1.0),('Coulibaly',1.0),('Diallo',1.0),('Toure',1.0),
+    ('Cisse',1.0),('Konate',1.0),('Sangare',1.0),('Doumbia',1.0),('Kone',1.0),('Camara',1.0),
+    ('Sidibe',1.0),('Sanogo',1.0),('Fofana',1.0),('Dembele',1.0),('Haidara',1.0),('Tounkara',1.0),
+    ('Bagayogo',1.0),('Samake',1.0),('Maiga',1.0),('Diakite',1.0),('Kante',1.0),('Sow',1.0),
+    ('Tangara',1.0),('Kamissoko',1.0),('Djire',1.0),('Diabate',1.0),('Sissoko',1.0),('Niangadou',1.0);
+
+-- 11 more European countries: the three Celtic footballing nations plus Russia and the countries
+-- of the former Yugoslavia. Scotland/Wales use the invented 3-letter codes "sco"/"wal" (no ISO
+-- 3166-1 code exists for either - they're separate footballing nations, not separate states);
+-- every other code here is a real ISO 3166-1 alpha-2 code, except Kosovo's "xk" (the common
+-- unofficial/user-assigned code, since Kosovo has no ISO code either).
+
+CREATE TABLE names_sco ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sco (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_wal ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_wal (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ie ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ie (lastname varchar(100) NULL, freq float8 NULL);
+
+CREATE TABLE names_ru ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ru (lastname varchar(100) NULL, freq float8 NULL);
+
+CREATE TABLE names_rs ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_rs (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_hr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_hr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ba ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ba (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_si ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_si (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_me ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_me (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_xk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_xk (lastname varchar(100) NULL, freq float8 NULL);
+
+INSERT INTO names_sco ("name", freq) VALUES
+    ('Jack',1.0),('Lewis',1.0),('Ryan',1.0),('Callum',1.0),('Euan',1.0),('Fraser',1.0),
+    ('Angus',1.0),('Rory',1.0),('Cameron',1.0),('Ewan',1.0),('Liam',1.0),('Connor',1.0),
+    ('Gordon',1.0),('Hamish',1.0),('Alistair',1.0),('Craig',1.0),('Scott',1.0),('Kyle',1.0),
+    ('Robbie',1.0),('Stuart',1.0),('Graeme',1.0),('Keith',1.0),('Ian',1.0),('Murray',1.0),
+    ('Duncan',1.0),('Ross',1.0),('Calum',1.0),('Jamie',1.0),('Finlay',1.0),('Innes',1.0);
+
+INSERT INTO lastnames_sco (lastname, freq) VALUES
+    ('MacLeod',1.0),('MacDonald',1.0),('Campbell',1.0),('Stewart',1.0),('Robertson',1.0),
+    ('Morrison',1.0),('Fraser',1.0),('Grant',1.0),('Cameron',1.0),('Wallace',1.0),
+    ('Ferguson',1.0),('Henderson',1.0),('Murray',1.0),('Watson',1.0),('Kerr',1.0),
+    ('Reid',1.0),('Scott',1.0),('Mackay',1.0),('Ross',1.0),('Sinclair',1.0),
+    ('Anderson',1.0),('Buchanan',1.0),('Gordon',1.0),('MacKenzie',1.0),('Crawford',1.0),
+    ('Hamilton',1.0),('Munro',1.0),('Douglas',1.0),('Cunningham',1.0),('Baxter',1.0);
+
+INSERT INTO names_wal ("name", freq) VALUES
+    ('Dylan',1.0),('Rhys',1.0),('Gareth',1.0),('Owen',1.0),('Rhodri',1.0),('Gethin',1.0),
+    ('Aled',1.0),('Dafydd',1.0),('Ioan',1.0),('Carwyn',1.0),('Ifan',1.0),('Osian',1.0),
+    ('Tomos',1.0),('Ellis',1.0),('Harri',1.0),('Llewelyn',1.0),('Cai',1.0),('Steffan',1.0),
+    ('Garin',1.0),('Cerith',1.0),('Huw',1.0),('Emyr',1.0),('Tudur',1.0),('Bryn',1.0),
+    ('Gwilym',1.0),('Rhidian',1.0),('Macsen',1.0),('Elgan',1.0),('Iestyn',1.0),('Aneurin',1.0);
+
+INSERT INTO lastnames_wal (lastname, freq) VALUES
+    ('Jones',1.0),('Williams',1.0),('Davies',1.0),('Evans',1.0),('Thomas',1.0),
+    ('Roberts',1.0),('Lewis',1.0),('Hughes',1.0),('Morgan',1.0),('Griffiths',1.0),
+    ('Jenkins',1.0),('Rees',1.0),('Edwards',1.0),('Phillips',1.0),('Morris',1.0),
+    ('Owen',1.0),('Pritchard',1.0),('Price',1.0),('Rowlands',1.0),('Vaughan',1.0),
+    ('Powell',1.0),('Parry',1.0),('Pugh',1.0),('Lloyd',1.0),('Hopkins',1.0),
+    ('Meredith',1.0),('Probert',1.0),('Bevan',1.0),('Pryce',1.0),('Rhys',1.0);
+
+INSERT INTO names_ie ("name", freq) VALUES
+    ('Conor',1.0),('Sean',1.0),('Liam',1.0),('Patrick',1.0),('Cian',1.0),('Darragh',1.0),
+    ('Eoin',1.0),('Niall',1.0),('Cillian',1.0),('Oisin',1.0),('Ronan',1.0),('Aidan',1.0),
+    ('Fionn',1.0),('Diarmuid',1.0),('Shane',1.0),('Declan',1.0),('Brendan',1.0),('Donal',1.0),
+    ('Padraig',1.0),('Tadhg',1.0),('Ciaran',1.0),('Kevin',1.0),('Micheal',1.0),('Colm',1.0),
+    ('Barry',1.0),('Enda',1.0),('Cathal',1.0),('Rory',1.0),('Gearoid',1.0),('Brian',1.0);
+
+INSERT INTO lastnames_ie (lastname, freq) VALUES
+    ('Murphy',1.0),('Kelly',1.0),('Sullivan',1.0),('Walsh',1.0),('Smith',1.0),
+    ('O''Brien',1.0),('Byrne',1.0),('Ryan',1.0),('O''Connor',1.0),('O''Neill',1.0),
+    ('Reilly',1.0),('Doyle',1.0),('McCarthy',1.0),('Gallagher',1.0),('Kennedy',1.0),
+    ('Lynch',1.0),('Murray',1.0),('Quinn',1.0),('Moore',1.0),('McLoughlin',1.0),
+    ('Carroll',1.0),('Connolly',1.0),('Daly',1.0),('O''Connell',1.0),('Dunne',1.0),
+    ('Brennan',1.0),('Burke',1.0),('Collins',1.0),('Clarke',1.0),('Fitzgerald',1.0);
+
+INSERT INTO names_ru ("name", freq) VALUES
+    ('Ivan',1.0),('Dmitri',1.0),('Alexei',1.0),('Sergei',1.0),('Mikhail',1.0),('Andrei',1.0),
+    ('Nikolai',1.0),('Pavel',1.0),('Vladimir',1.0),('Yuri',1.0),('Oleg',1.0),('Viktor',1.0),
+    ('Igor',1.0),('Artem',1.0),('Denis',1.0),('Roman',1.0),('Maxim',1.0),('Anton',1.0),
+    ('Konstantin',1.0),('Egor',1.0),('Stanislav',1.0),('Boris',1.0),('Gennady',1.0),('Ruslan',1.0),
+    ('Vadim',1.0),('Leonid',1.0),('Grigori',1.0),('Timur',1.0),('Semyon',1.0),('Arkady',1.0);
+
+INSERT INTO lastnames_ru (lastname, freq) VALUES
+    ('Ivanov',1.0),('Smirnov',1.0),('Kuznetsov',1.0),('Popov',1.0),('Vasiliev',1.0),
+    ('Petrov',1.0),('Sokolov',1.0),('Mikhailov',1.0),('Novikov',1.0),('Fedorov',1.0),
+    ('Morozov',1.0),('Volkov',1.0),('Alekseev',1.0),('Lebedev',1.0),('Semenov',1.0),
+    ('Egorov',1.0),('Pavlov',1.0),('Kozlov',1.0),('Stepanov',1.0),('Nikolaev',1.0),
+    ('Orlov',1.0),('Andreev',1.0),('Makarov',1.0),('Nikitin',1.0),('Zakharov',1.0),
+    ('Zaytsev',1.0),('Soloviev',1.0),('Borisov',1.0),('Yakovlev',1.0),('Grigoriev',1.0);
+
+INSERT INTO names_rs ("name", freq) VALUES
+    ('Nikola',1.0),('Milos',1.0),('Marko',1.0),('Stefan',1.0),('Aleksandar',1.0),('Nemanja',1.0),
+    ('Dusan',1.0),('Vladimir',1.0),('Bojan',1.0),('Filip',1.0),('Luka',1.0),('Ognjen',1.0),
+    ('Zoran',1.0),('Dejan',1.0),('Goran',1.0),('Vuk',1.0),('Petar',1.0),('Radovan',1.0),
+    ('Branislav',1.0),('Sasa',1.0),('Slobodan',1.0),('Milan',1.0),('Dragan',1.0),('Veljko',1.0),
+    ('Jovan',1.0),('Andrija',1.0),('Bogdan',1.0),('Uros',1.0),('Nenad',1.0),('Rade',1.0);
+
+INSERT INTO lastnames_rs (lastname, freq) VALUES
+    ('Jovanovic',1.0),('Petrovic',1.0),('Nikolic',1.0),('Markovic',1.0),('Djordjevic',1.0),
+    ('Stojanovic',1.0),('Ilic',1.0),('Stankovic',1.0),('Pavlovic',1.0),('Milosevic',1.0),
+    ('Zivkovic',1.0),('Vukovic',1.0),('Ristic',1.0),('Tomic',1.0),('Simic',1.0),
+    ('Kovacevic',1.0),('Jankovic',1.0),('Lazic',1.0),('Radic',1.0),('Antic',1.0),
+    ('Savic',1.0),('Milic',1.0),('Dimitrijevic',1.0),('Maric',1.0),('Jaksic',1.0),
+    ('Vasic',1.0),('Ninkovic',1.0),('Rakic',1.0),('Obradovic',1.0),('Tadic',1.0);
+
+INSERT INTO names_hr ("name", freq) VALUES
+    ('Luka',1.0),('Ivan',1.0),('Marko',1.0),('Ante',1.0),('Josip',1.0),('Filip',1.0),
+    ('Mario',1.0),('Tomislav',1.0),('Petar',1.0),('Nikola',1.0),('Marin',1.0),('Domagoj',1.0),
+    ('Dario',1.0),('Zoran',1.0),('Davor',1.0),('Kresimir',1.0),('Bruno',1.0),('Mislav',1.0),
+    ('Sime',1.0),('Stipe',1.0),('Vedran',1.0),('Vinko',1.0),('Zvonimir',1.0),('Hrvoje',1.0),
+    ('Goran',1.0),('Tihomir',1.0),('Branimir',1.0),('Mateo',1.0),('Leon',1.0),('Jure',1.0);
+
+INSERT INTO lastnames_hr (lastname, freq) VALUES
+    ('Horvat',1.0),('Kovacevic',1.0),('Babic',1.0),('Markovic',1.0),('Novak',1.0),
+    ('Jurkovic',1.0),('Kovac',1.0),('Vukovic',1.0),('Juric',1.0),('Peric',1.0),
+    ('Matic',1.0),('Blazevic',1.0),('Kovacic',1.0),('Bosnjak',1.0),('Curic',1.0),
+    ('Radic',1.0),('Simic',1.0),('Tomic',1.0),('Zoric',1.0),('Grgic',1.0),
+    ('Ivankovic',1.0),('Petrovic',1.0),('Barisic',1.0),('Perkovic',1.0),('Vidovic',1.0),
+    ('Lovric',1.0),('Sabic',1.0),('Pavlovic',1.0),('Rados',1.0),('Maric',1.0);
+
+INSERT INTO names_ba ("name", freq) VALUES
+    ('Amar',1.0),('Haris',1.0),('Emir',1.0),('Adnan',1.0),('Kemal',1.0),('Edin',1.0),
+    ('Elvir',1.0),('Nermin',1.0),('Samir',1.0),('Sead',1.0),('Zlatan',1.0),('Dino',1.0),
+    ('Tarik',1.0),('Mirza',1.0),('Amel',1.0),('Senad',1.0),('Asim',1.0),('Vedad',1.0),
+    ('Ismet',1.0),('Alen',1.0),('Jasmin',1.0),('Denis',1.0),('Faruk',1.0),('Zijad',1.0),
+    ('Munib',1.0),('Nihad',1.0),('Rusmir',1.0),('Suad',1.0),('Ahmed',1.0),('Enes',1.0);
+
+INSERT INTO lastnames_ba (lastname, freq) VALUES
+    ('Hodzic',1.0),('Begic',1.0),('Karic',1.0),('Suljic',1.0),('Mehic',1.0),
+    ('Alic',1.0),('Delic',1.0),('Omerovic',1.0),('Husic',1.0),('Pasic',1.0),
+    ('Ibrahimovic',1.0),('Softic',1.0),('Music',1.0),('Kadic',1.0),('Halilovic',1.0),
+    ('Imamovic',1.0),('Kovacevic',1.0),('Dzafic',1.0),('Osmanovic',1.0),('Sarajlic',1.0),
+    ('Beganovic',1.0),('Hamzic',1.0),('Kurtovic',1.0),('Zilic',1.0),('Memic',1.0),
+    ('Durakovic',1.0),('Celic',1.0),('Avdic',1.0),('Zukic',1.0),('Sabanovic',1.0);
+
+INSERT INTO names_si ("name", freq) VALUES
+    ('Jure',1.0),('Luka',1.0),('Jan',1.0),('Matej',1.0),('Tilen',1.0),('Rok',1.0),
+    ('Ziga',1.0),('Nejc',1.0),('Miha',1.0),('Blaz',1.0),('Tim',1.0),('David',1.0),
+    ('Marko',1.0),('Tomaz',1.0),('Primoz',1.0),('Gregor',1.0),('Andrej',1.0),('Bojan',1.0),
+    ('Igor',1.0),('Uros',1.0),('Simon',1.0),('Peter',1.0),('Ales',1.0),('Bostjan',1.0),
+    ('Klemen',1.0),('Domen',1.0),('Vid',1.0),('Matic',1.0),('Erik',1.0),('Dejan',1.0);
+
+INSERT INTO lastnames_si (lastname, freq) VALUES
+    ('Novak',1.0),('Horvat',1.0),('Kovacic',1.0),('Zupancic',1.0),('Potocnik',1.0),
+    ('Krajnc',1.0),('Vidmar',1.0),('Kranjc',1.0),('Golob',1.0),('Bizjak',1.0),
+    ('Mlakar',1.0),('Kolar',1.0),('Rupar',1.0),('Pirc',1.0),('Erjavec',1.0),
+    ('Kastelic',1.0),('Tomsic',1.0),('Zupan',1.0),('Pavlin',1.0),('Bevc',1.0),
+    ('Hribar',1.0),('Zajc',1.0),('Oblak',1.0),('Skulj',1.0),('Vovk',1.0),
+    ('Dolinar',1.0),('Korosec',1.0),('Zadravec',1.0),('Plesnik',1.0),('Strnad',1.0);
+
+INSERT INTO names_mk ("name", freq) VALUES
+    ('Goran',1.0),('Darko',1.0),('Vlatko',1.0),('Stojan',1.0),('Zoran',1.0),('Dejan',1.0),
+    ('Bojan',1.0),('Igor',1.0),('Aleksandar',1.0),('Toni',1.0),('Filip',1.0),('Marjan',1.0),
+    ('Nikola',1.0),('Vanco',1.0),('Kire',1.0),('Trajce',1.0),('Petar',1.0),('Ljupco',1.0),
+    ('Blagoja',1.0),('Done',1.0),('Riste',1.0),('Boban',1.0),('Sasho',1.0),('Zlatko',1.0),
+    ('Dragan',1.0),('Branko',1.0),('Vasko',1.0),('Gjorgji',1.0),('Mite',1.0),('Pance',1.0);
+
+INSERT INTO lastnames_mk (lastname, freq) VALUES
+    ('Stojanovski',1.0),('Petrovski',1.0),('Nikolovski',1.0),('Trajkovski',1.0),('Angelovski',1.0),
+    ('Jovanovski',1.0),('Dimitrovski',1.0),('Georgievski',1.0),('Todorovski',1.0),('Spasovski',1.0),
+    ('Ristovski',1.0),('Kostovski',1.0),('Ilievski',1.0),('Mitrovski',1.0),('Lazarevski',1.0),
+    ('Markovski',1.0),('Stevanovski',1.0),('Bogdanovski',1.0),('Pavlovski',1.0),('Velkovski',1.0),
+    ('Cvetkovski',1.0),('Krstevski',1.0),('Andonovski',1.0),('Nacevski',1.0),('Mihajlovski',1.0),
+    ('Boshkovski',1.0),('Nestorovski',1.0),('Petkovski',1.0),('Ivanovski',1.0),('Simonovski',1.0);
+
+INSERT INTO names_me ("name", freq) VALUES
+    ('Nikola',1.0),('Marko',1.0),('Luka',1.0),('Vuk',1.0),('Stefan',1.0),('Petar',1.0),
+    ('Milos',1.0),('Andrija',1.0),('Bozidar',1.0),('Igor',1.0),('Vasilije',1.0),('Mihailo',1.0),
+    ('Rade',1.0),('Dusan',1.0),('Sava',1.0),('Aleksa',1.0),('Boris',1.0),('Zoran',1.0),
+    ('Dragan',1.0),('Nenad',1.0),('Veselin',1.0),('Radovan',1.0),('Ivan',1.0),('Filip',1.0),
+    ('Bojan',1.0),('Milan',1.0),('Darko',1.0),('Goran',1.0),('Jovan',1.0),('Nemanja',1.0);
+
+INSERT INTO lastnames_me (lastname, freq) VALUES
+    ('Vukotic',1.0),('Djuranovic',1.0),('Markovic',1.0),('Radovic',1.0),('Mijovic',1.0),
+    ('Kovacevic',1.0),('Petrovic',1.0),('Nikolic',1.0),('Bulatovic',1.0),('Gojkovic',1.0),
+    ('Vujovic',1.0),('Stankovic',1.0),('Bozovic',1.0),('Lekic',1.0),('Pavlovic',1.0),
+    ('Radonjic',1.0),('Mrvaljevic',1.0),('Ivanovic',1.0),('Jovanovic',1.0),('Rakocevic',1.0),
+    ('Adzic',1.0),('Perovic',1.0),('Djukanovic',1.0),('Knezevic',1.0),('Vucinic',1.0),
+    ('Lazarevic',1.0),('Simonovic',1.0),('Krivokapic',1.0),('Zivkovic',1.0),('Doderovic',1.0);
+
+INSERT INTO names_xk ("name", freq) VALUES
+    ('Arben',1.0),('Blerim',1.0),('Driton',1.0),('Fatmir',1.0),('Gezim',1.0),('Ilir',1.0),
+    ('Jeton',1.0),('Kushtrim',1.0),('Labinot',1.0),('Mergim',1.0),('Naim',1.0),('Petrit',1.0),
+    ('Qendrim',1.0),('Rinor',1.0),('Shpetim',1.0),('Trim',1.0),('Ujkan',1.0),('Valon',1.0),
+    ('Visar',1.0),('Xhevdet',1.0),('Ylli',1.0),('Zymer',1.0),('Besnik',1.0),('Dardan',1.0),
+    ('Endrit',1.0),('Flamur',1.0),('Genc',1.0),('Hekuran',1.0),('Ismail',1.0),('Luan',1.0);
+
+INSERT INTO lastnames_xk (lastname, freq) VALUES
+    ('Krasniqi',1.0),('Hoxha',1.0),('Berisha',1.0),('Gashi',1.0),('Kelmendi',1.0),
+    ('Thaci',1.0),('Rrahmani',1.0),('Shala',1.0),('Zogaj',1.0),('Morina',1.0),
+    ('Hasani',1.0),('Ademi',1.0),('Sylejmani',1.0),('Bytyqi',1.0),('Rama',1.0),
+    ('Lushtaku',1.0),('Dauti',1.0),('Fazliu',1.0),('Mustafa',1.0),('Veseli',1.0),
+    ('Kurteshi',1.0),('Jashari',1.0),('Pajaziti',1.0),('Rexhepi',1.0),('Sadiku',1.0),
+    ('Bislimi',1.0),('Mullademi',1.0),('Ibrahimi',1.0),('Emini',1.0),('Ahmeti',1.0);
+
+-- The remaining 148 FIFA member associations (see common.KnownCountries and
+-- openspec/specs/country-catalog), so every one of the 211 members can be activated by an admin.
+-- Only their names_<code>/lastnames_<code> tables are created here; the rows are loaded by the
+-- generated per-country files in resources/sql/namepools/ (init91_name_pool_<code>.sql, produced
+-- by utils/gen_name_pools.py from utils/namepools/), which run after this file.
+--
+-- name_pool_versions records, per country, which generation of its name pool has been loaded. A
+-- pool file only inserts when its version is not recorded yet, so after the first start every
+-- re-application on startup is a cheap no-op, and a later enlargement of the pools only has to
+-- bump the version in the generator.
+
+CREATE TABLE name_pool_versions (
+    country varchar(8) PRIMARY KEY,
+    version int NOT NULL
+);
+
+CREATE TABLE names_al ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_al (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ad ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ad (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_am ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_am (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_az ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_az (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_by ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_by (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cy ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cy (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_dk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_dk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ee ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ee (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_fo ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_fo (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_fi ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_fi (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ge ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ge (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gi ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gi (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_hu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_hu (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_is ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_is (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_il ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_il (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lv ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lv (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_li ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_li (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lt ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lt (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lu (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mt ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mt (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_md ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_md (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_nir ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_nir (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_no ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_no (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ro ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ro (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ch ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ch (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ua ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ua (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ai ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ai (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ag ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ag (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_aw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_aw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bs ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bs (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bb ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bb (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_vg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_vg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ky ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ky (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cu (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_dm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_dm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_do ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_do (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sv ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sv (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gd ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gd (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gt ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gt (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gy ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gy (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ht ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ht (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_hn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_hn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_jm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_jm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ms ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ms (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ni ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ni (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_pa ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_pa (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_pr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_pr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lc ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lc (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_vc ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_vc (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tt ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tt (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tc ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tc (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_vi ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_vi (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_af ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_af (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_au ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_au (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bh ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bh (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bd ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bd (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bt ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bt (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kh ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kh (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gu (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_hk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_hk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_iq ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_iq (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_jo ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_jo (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_la ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_la (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lb ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lb (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mo ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mo (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_my ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_my (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mv ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mv (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_np ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_np (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_kp ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_kp (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_om ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_om (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_pk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_pk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ps ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ps (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lk ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lk (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sy ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sy (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tj ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tj (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tl ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tl (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ye ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ye (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ao ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ao (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bj ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bj (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bf ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bf (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_bi ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_bi (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cv ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cv (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cf ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cf (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_td ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_td (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_km ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_km (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_cd ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_cd (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_dj ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_dj (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gq ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gq (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_er ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_er (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_et ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_et (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ga ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ga (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gn ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gn (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_gw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_gw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ls ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ls (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_lr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_lr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ly ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ly (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mr ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mr (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mu (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_mz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_mz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_na ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_na (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ne ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ne (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_rw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_rw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_st ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_st (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sc ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sc (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sl ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sl (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_so ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_so (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ss ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ss (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sd ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sd (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_tg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_tg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ug ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ug (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_zm ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_zm (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_zw ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_zw (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_as ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_as (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ck ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ck (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_fj ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_fj (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_nc ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_nc (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_nz ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_nz (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_pg ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_pg (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_ws ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_ws (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_sb ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_sb (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_pf ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_pf (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_to ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_to (lastname varchar(100) NULL, freq float8 NULL);
+CREATE TABLE names_vu ("name" varchar(100) NULL, freq float8 NULL);
+CREATE TABLE lastnames_vu (lastname varchar(100) NULL, freq float8 NULL);
+
 -- World structure config: the tier/group/teams-per-league shape used the next time leagues are
 -- (re)created (see common.GetWorldConfig/SetWorldConfig, handlers.createCountryLeagues).
 -- Singleton row - id is always 1.
@@ -1419,7 +2419,20 @@ CREATE TABLE friendly_matches (
     played         boolean NOT NULL DEFAULT false,
     in_simulation  boolean NOT NULL DEFAULT false,
     home_goals     int NOT NULL DEFAULT 0,
-    away_goals     int NOT NULL DEFAULT 0
+    away_goals     int NOT NULL DEFAULT 0,
+    -- Same as the `matches` columns of the same names.
+    weather        varchar(20),
+    attendance     integer,
+    referee_name   varchar(120),
+    assistant1_name varchar(120),
+    assistant2_name varchar(120),
+    in_simulation_since timestamptz,
+    simulation_attempts int NOT NULL DEFAULT 0,
+    last_simulation_error text,
+    last_simulation_attempt_at timestamptz,
+    first_half_added_time smallint NOT NULL DEFAULT 0,
+    second_half_added_time smallint NOT NULL DEFAULT 0,
+    instants_archived boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE friendly_events (
@@ -1432,7 +2445,14 @@ CREATE TABLE friendly_events (
     team_players        varchar(200),
     team_player_names   varchar(1000),
     home_goals          int DEFAULT 0,
-    away_goals          int DEFAULT 0
+    away_goals          int DEFAULT 0,
+    -- Same as the match_events columns of the same names.
+    set_piece           smallint NOT NULL DEFAULT 0,
+    mentality           smallint NULL,
+    added_minute        smallint NOT NULL DEFAULT 0,
+    added_time          smallint,
+    other_team_players      varchar(200),
+    other_team_player_names varchar(1000)
 );
 
 -- Per-minute zone-by-zone team-strength snapshots for a played friendly (see common.MatchInstant
@@ -1454,7 +2474,10 @@ CREATE TABLE friendly_instants (
     awayattack_right_diff double precision,
     awayattack_left_diff double precision,
     awayattack_center_diff double precision,
-    primary key (match_id, minute)
+    -- Same as the match_instants columns of the same names.
+    player_contributions text,
+    added_minute smallint NOT NULL DEFAULT 0,
+    primary key (match_id, minute, added_minute)
 );
 
 -- Per-match lineup override for a friendly, so a manager can set a different XI for each
@@ -1474,6 +2497,11 @@ CREATE TABLE friendly_lineup (
     match_id  bigint NOT NULL REFERENCES friendly_matches(match_id),
     team_id   bigint NOT NULL REFERENCES teams(team_id),
     formation smallint NOT NULL DEFAULT 0,
+    -- Same as the lineup columns of the same names.
+    mentality smallint NOT NULL DEFAULT 0 CHECK (mentality BETWEEN -1 AND 1),
+    captain_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    penalty_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    free_kick_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
     UNIQUE (match_id, team_id)
 );
 
@@ -1524,6 +2552,366 @@ CREATE TABLE player_progression_log (
     shot_before integer NOT NULL,
     shot_after integer NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- A team's standing lineup for friendly matches, separate from its league/cup default
+-- (teams.formation/default_lineup_positions) - a friendly with no saved per-match override (see
+-- friendly_lineup/friendly_lineup_positions) falls back to this, and then further to the league/cup
+-- default when this one hasn't been set (see common.GetLineupsForFriendly). Mirrors
+-- default_lineup_positions exactly; its formation is teams.friendly_formation.
+CREATE TABLE default_friendly_lineup_positions (
+    team_id bigint references teams(team_id),
+    player_id bigint references players(player_id) on delete set null,
+    position smallint not null,
+    primary key (team_id, player_id)
+);
+
+-- A manager's planned in-match substitutions for one specific league match's lineup override, and
+-- the cup-tie and friendly equivalents. A substitution only makes sense against the XI it's paired
+-- with (see handlers.validateSubstitutions), so these are scoped to the match/tie rather than the
+-- team as a whole, unlike default_lineup_substitutions. slot is 1-3, assigned by save order.
+CREATE TABLE lineup_substitutions (
+    match_id      bigint NOT NULL REFERENCES matches(match_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    player_out_id bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    minute        smallint NOT NULL CHECK (minute BETWEEN 1 AND 90),
+    PRIMARY KEY (match_id, team_id, slot)
+);
+
+CREATE TABLE cup_tie_lineup_substitutions (
+    tie_id        bigint NOT NULL REFERENCES cup_ties(tie_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    player_out_id bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    minute        smallint NOT NULL CHECK (minute BETWEEN 1 AND 90),
+    PRIMARY KEY (tie_id, team_id, slot)
+);
+
+-- World Cup: a group stage (round-robin, see common.BuildRoundRobinRounds) followed by a knockout
+-- stage that reuses the single-elimination cup engine outright - see
+-- common.CreateInternationalCup/engine.startWorldCupKnockout, which creates a regular `cups` row
+-- with region = 'world' and world_cups.knockout_cup_id pointing at it. Entrants are national teams
+-- (teams.is_national_team), never real clubs - see common.StartWorldCupForNewSeason.
+CREATE TABLE world_cups (
+    world_cup_id     bigserial PRIMARY KEY,
+    season           int NOT NULL,
+    name             varchar(200) NOT NULL,
+    -- 'groups' while group matches are still being played, 'knockout' once every group's fixtures
+    -- are done and the bracket has been seeded (see engine.AdvanceWorldCups).
+    stage            varchar(20) NOT NULL DEFAULT 'groups',
+    completed        boolean NOT NULL DEFAULT false,
+    champion_team_id bigint REFERENCES teams(team_id),
+    -- Set only once the group stage finishes and the knockout bracket is created - see
+    -- engine.startWorldCupKnockout. Null while stage = 'groups'.
+    knockout_cup_id  bigint REFERENCES cups(cup_id)
+);
+
+CREATE TABLE world_cup_groups (
+    group_id     bigserial PRIMARY KEY,
+    world_cup_id bigint NOT NULL REFERENCES world_cups(world_cup_id),
+    group_name   varchar(10) NOT NULL
+);
+
+-- One row per team per group, kept as running totals updated after each of that team's group
+-- matches is simulated (see common.UpdateWorldCupStandingsAfterMatch) rather than recomputed from
+-- scratch each read - the same running-totals approach league classification uses.
+CREATE TABLE world_cup_group_teams (
+    group_id      bigint NOT NULL REFERENCES world_cup_groups(group_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    played        int NOT NULL DEFAULT 0,
+    won           int NOT NULL DEFAULT 0,
+    drawn         int NOT NULL DEFAULT 0,
+    lost          int NOT NULL DEFAULT 0,
+    goals_for     int NOT NULL DEFAULT 0,
+    goals_against int NOT NULL DEFAULT 0,
+    PRIMARY KEY (group_id, team_id)
+);
+
+-- A group's fixture is a real friendly_matches row (so it's simulated by the ordinary FriendlyJob,
+-- and /friendlies/:id renders it with no changes needed) - this table only records which
+-- group/round it belongs to, so standings can be updated and the group stage's completion detected
+-- (see common.UpdateWorldCupStandingsAfterMatch/IsWorldCupGroupStageComplete).
+CREATE TABLE world_cup_group_matches (
+    group_id bigint NOT NULL REFERENCES world_cup_groups(group_id),
+    round    int NOT NULL,
+    match_id bigint NOT NULL REFERENCES friendly_matches(match_id),
+    PRIMARY KEY (match_id)
+);
+
+-- Permanent record of each league's season-end honors (see engine.awardSeasonHonors): award 1 is
+-- the Golden Boot (top scorer, value = goals), award 2 is Player of the Season (value = the
+-- weighted goals/cards score, see common.GetPlayerOfTheSeason). One winner per (league, season,
+-- award).
+CREATE TABLE player_season_awards (
+    league_id bigint   NOT NULL,
+    season    int      NOT NULL,
+    award     smallint NOT NULL,
+    player_id bigint   NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    value     int      NOT NULL DEFAULT 0,
+    PRIMARY KEY (league_id, season, award)
+);
+
+-- One row per player move between clubs (or to/from free agency), written in the same transaction
+-- as the ledger rows and budget changes of each flow - see common.RecordPlayerTransfer and its
+-- callers (ExecuteTransfer, AcceptOffer, SignFreeAgent, AcceptLoan, ExerciseLoanBuyOption,
+-- ReleasePlayer, AdvancePlayerContract).
+--
+-- from_team_id is NULL for a free agent signed with no previous club to pay; to_team_id is NULL
+-- when the player is released. kind is one of common.PLAYER_TRANSFER_*. fee is the price paid
+-- between clubs (0 when none changed hands).
+--
+-- position / age / average_skill are a snapshot of the moved player at the moment of the transfer
+-- - his best core position (common.BestCorePosition), age and average skill
+-- (common.AverageSkill). The transfer offer dialog compares a target with recent sales of similar
+-- players (common.GetTransferComparables) using only these three public figures, so his current
+-- private ratings never leak through the matching.
+CREATE TABLE player_transfers (
+    transfer_id  bigserial PRIMARY KEY,
+    player_id    bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    from_team_id bigint REFERENCES teams(team_id) ON DELETE SET NULL,
+    to_team_id   bigint REFERENCES teams(team_id) ON DELETE SET NULL,
+    fee          bigint NOT NULL DEFAULT 0,
+    kind         smallint NOT NULL,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    position     smallint,
+    age          smallint,
+    average_skill smallint
+);
+
+-- Remembers transfer offers that were turned down (or lapsed unanswered) so a CPU team that made
+-- the offer doesn't hammer the same player again straight away: see common.RecordOfferRejection,
+-- written by RejectOffer and by ExpireStaleOffers, and read by engine's AI market pass, which
+-- waits out common.AiOfferCooldown and then only returns with a better bid. The offer row itself
+-- is deleted the moment it resolves, so this is the only trace left of it.
+CREATE TABLE player_offer_rejections (
+    rejection_id bigserial PRIMARY KEY,
+    player_id    bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    from_team_id bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    amount       bigint NOT NULL,
+    rejected_at  timestamptz NOT NULL DEFAULT now()
+);
+
+-- The per-minute zone instants of a cup tie (league matches have match_instants, friendlies have
+-- friendly_instants), keyed by the tie id because cup ties have their own id sequence.
+CREATE TABLE cup_tie_instants (
+    tie_id bigint NOT NULL REFERENCES cup_ties(tie_id),
+    minute int NOT NULL,
+    home_goals int DEFAULT 0,
+    away_goals int DEFAULT 0,
+    home_qua varchar(500),
+    away_qua varchar(500),
+    midfield_diff double precision,
+    homeattack_right_diff double precision,
+    homeattack_left_diff double precision,
+    homeattack_center_diff double precision,
+    awayattack_right_diff double precision,
+    awayattack_left_diff double precision,
+    awayattack_center_diff double precision,
+    -- Same as the match_instants columns of the same names.
+    player_contributions text,
+    added_minute smallint NOT NULL DEFAULT 0,
+    PRIMARY KEY (tie_id, minute, added_minute)
+);
+
+-- Support for running several --engine replicas at once (see common/enginelocks.go):
+-- the last schedule slot each "once per period" engine job ran for. Every replica fires the same
+-- cron trigger at the same instant; common.ClaimEngineJobSlot lets exactly one of them claim the
+-- slot, so a weekly or daily job runs once per slot, not once per replica.
+CREATE TABLE engine_job_runs (
+    job_name  text PRIMARY KEY,
+    last_slot timestamptz NOT NULL
+);
+
+-- Post-match effects (availability countdown and new injuries/suspensions, skill growth, result
+-- notification) that wait for the live replay to finish. Written in the same transaction as the
+-- result, claimed with DELETE ... RETURNING by whoever applies them: the replay's completion, or
+-- the 5-minute recovery job once due_at (kickoff + common.LiveBroadcastWindow) has passed - so an
+-- engine restart during the replay doesn't lose them.
+CREATE TABLE pending_post_match_effects (
+    kind     text        NOT NULL,   -- 'league' | 'cup' | 'friendly'
+    match_id bigint      NOT NULL,
+    due_at   timestamptz NOT NULL,
+    payload  jsonb       NOT NULL,
+    PRIMARY KEY (kind, match_id)
+);
+
+-- Stored per-player match ratings (see openspec/specs/match-ratings): one row per player who
+-- featured in a simulated league match, cup tie or friendly, written in the same transaction as
+-- the result (common.replaceMatchEventsTx). kind is a common.SimulationKind* value and match_id is
+-- that kind's own id (matches.match_id, cup_ties.tie_id or friendly_matches.match_id - three
+-- independent sequences, hence no foreign key, same as pending_post_match_effects). rated is false
+-- for an appearance under 10 minutes ("s.c."): the row keeps its breakdown but the rating isn't
+-- shown or used for Form.
+CREATE TABLE match_player_ratings (
+    kind         text    NOT NULL,
+    match_id     bigint  NOT NULL,
+    player_id    bigint  NOT NULL,
+    team_id      bigint  NOT NULL,
+    rated        boolean NOT NULL,
+    rating       real    NOT NULL,
+    minutes      integer NOT NULL,
+    position     integer NOT NULL,
+    came_on      integer,
+    went_off     integer,
+    own_value    real,
+    rival_value  real,
+    zone_delta   real    NOT NULL,
+    goals_delta  real    NOT NULL,
+    cards_delta  real    NOT NULL,
+    injury_delta real    NOT NULL,
+    result_delta real    NOT NULL,
+    PRIMARY KEY (kind, match_id, player_id)
+);
+
+-- A team's standing scheduled substitutions for its friendly default lineup, independent of the
+-- league/cup set in default_lineup_substitutions. Same shape as that table.
+CREATE TABLE default_friendly_lineup_substitutions (
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    player_out_id bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    minute        smallint NOT NULL CHECK (minute BETWEEN 1 AND 90),
+    PRIMARY KEY (team_id, slot)
+);
+
+-- Conditional match orders (see openspec/specs/match-simulation "Conditional match orders" and
+-- common.LineupOrder): up to 3 per lineup, each armed from from_minute and fired once at the first
+-- minute whose starting score meets condition (ORDER_CONDITION_*), with one action
+-- (ORDER_ACTION_*): set the mentality, or substitute player_out_id for player_in_id. One table per
+-- lineup kind, like the scheduled substitutions; a deleted player takes his orders with him, as
+-- his scheduled substitutions do.
+CREATE TABLE default_lineup_orders (
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    from_minute   smallint NOT NULL CHECK (from_minute BETWEEN 1 AND 89),
+    condition     smallint NOT NULL CHECK (condition BETWEEN 0 AND 4),
+    action        smallint NOT NULL CHECK (action BETWEEN 0 AND 1),
+    mentality     smallint NULL CHECK (mentality BETWEEN -1 AND 1),
+    player_out_id bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    PRIMARY KEY (team_id, slot)
+);
+
+CREATE TABLE lineup_orders (
+    match_id      bigint NOT NULL REFERENCES matches(match_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    from_minute   smallint NOT NULL CHECK (from_minute BETWEEN 1 AND 89),
+    condition     smallint NOT NULL CHECK (condition BETWEEN 0 AND 4),
+    action        smallint NOT NULL CHECK (action BETWEEN 0 AND 1),
+    mentality     smallint NULL CHECK (mentality BETWEEN -1 AND 1),
+    player_out_id bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    PRIMARY KEY (match_id, team_id, slot)
+);
+
+CREATE TABLE cup_tie_lineup_orders (
+    tie_id        bigint NOT NULL REFERENCES cup_ties(tie_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    from_minute   smallint NOT NULL CHECK (from_minute BETWEEN 1 AND 89),
+    condition     smallint NOT NULL CHECK (condition BETWEEN 0 AND 4),
+    action        smallint NOT NULL CHECK (action BETWEEN 0 AND 1),
+    mentality     smallint NULL CHECK (mentality BETWEEN -1 AND 1),
+    player_out_id bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    PRIMARY KEY (tie_id, team_id, slot)
+);
+
+CREATE TABLE friendly_lineup_orders (
+    match_id      bigint NOT NULL REFERENCES friendly_matches(match_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    from_minute   smallint NOT NULL CHECK (from_minute BETWEEN 1 AND 89),
+    condition     smallint NOT NULL CHECK (condition BETWEEN 0 AND 4),
+    action        smallint NOT NULL CHECK (action BETWEEN 0 AND 1),
+    mentality     smallint NULL CHECK (mentality BETWEEN -1 AND 1),
+    player_out_id bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    PRIMARY KEY (match_id, team_id, slot)
+);
+
+-- Lineup roles of the two standing default lineups (league/cup with friendly = false, friendly
+-- with friendly = true) - the per-fixture lineup tables carry them as columns (see
+-- lineup.captain_id).
+CREATE TABLE default_lineup_roles (
+    team_id            bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    friendly           boolean NOT NULL,
+    captain_id         bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    penalty_taker_id   bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    free_kick_taker_id bigint NULL REFERENCES players(player_id) ON DELETE SET NULL,
+    PRIMARY KEY (team_id, friendly)
+);
+
+-- Player watchlist (see openspec/specs/player-watchlist and common/watchlist.go): the players a
+-- club follows, at most 30 (common.MaxWatchlistSize). Only the following club ever reads its rows.
+-- A deleted club or player takes its rows with it.
+CREATE TABLE player_watchlist (
+    team_id    bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    player_id  bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (team_id, player_id)
+);
+
+-- Emergent rivalries (see openspec/specs/rivalries and common/rivalries.go): one score per
+-- unordered pair of clubs of the same country (team_low_id < team_high_id), 0-40, grown by their
+-- shared history and decayed at each season rollover (see matches.rivalry_level).
+CREATE TABLE team_rivalries (
+    team_low_id  bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    team_high_id bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    country      varchar(4) NOT NULL,
+    score        real NOT NULL DEFAULT 0 CHECK (score >= 0 AND score <= 40),
+    updated_at   timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (team_low_id, team_high_id),
+    CHECK (team_low_id < team_high_id)
+);
+
+-- Regional (international) club cup entries (see openspec/specs/international-cup and
+-- engine.StartRegionalCupsIfDue): which domestic season's tier-1 team each country sent to each
+-- edition - two per country, final_position 1 for the champion and 2 for the runner-up. A country
+-- is "fresh" for the next edition only once it has a result from a newer season than the newest
+-- one recorded here.
+CREATE TABLE international_cup_entries (
+    cup_id  bigint NOT NULL REFERENCES cups(cup_id) ON DELETE CASCADE,
+    country varchar(4) NOT NULL,
+    season  int NOT NULL,
+    team_id bigint NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
+    final_position smallint NOT NULL DEFAULT 1,
+    PRIMARY KEY (cup_id, team_id)
+);
+
+-- Pre-contracts (see openspec/specs/pre-contracts): a club's offer of a contract for next season
+-- to another club's player in the last season of his contract. A row is pending until signed_at is
+-- set; a player signs at most one (the partial unique index below), and joins from_team_id at his
+-- country's next season rollover. reminded_at marks, on a player's first pending offer, that his
+-- club was reminded the decision is near. release_clause is the clause proposed for the new
+-- contract (see players.release_clause).
+CREATE TABLE pre_contract_offers (
+    offer_id     bigserial PRIMARY KEY,
+    player_id    bigint NOT NULL REFERENCES players (player_id) ON DELETE CASCADE,
+    from_team_id bigint NOT NULL REFERENCES teams (team_id) ON DELETE CASCADE,
+    wage         int NOT NULL,
+    years        int NOT NULL,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    signed_at    timestamptz,
+    reminded_at  timestamptz,
+    release_clause bigint,
+    UNIQUE (player_id, from_team_id)
+);
+
+-- A manager's planned in-match substitutions for one specific friendly's lineup override - see
+-- lineup_substitutions.
+CREATE TABLE friendly_lineup_substitutions (
+    match_id      bigint NOT NULL REFERENCES friendly_matches(match_id),
+    team_id       bigint NOT NULL REFERENCES teams(team_id),
+    slot          smallint NOT NULL CHECK (slot BETWEEN 1 AND 3),
+    player_out_id bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    player_in_id  bigint NOT NULL REFERENCES players(player_id) ON DELETE CASCADE,
+    minute        smallint NOT NULL CHECK (minute BETWEEN 1 AND 90),
+    PRIMARY KEY (match_id, team_id, slot)
 );
 
 -- Indexes carried over unchanged from the original schema.
@@ -1603,3 +2991,66 @@ CREATE INDEX idx_player_progression_log_player_id ON player_progression_log(play
 CREATE INDEX idx_push_subscriptions_user_id ON push_subscriptions(user_id);
 CREATE INDEX idx_player_club_history_player_id ON player_club_history(player_id);
 CREATE INDEX friendly_instants_idx ON friendly_instants(match_id);
+
+-- Indexes for the tables/columns folded in from init58_legend_names.sql through
+-- init119_country_structures.sql.
+--
+-- At most one national team per country - guards the rare race between the once-at-startup
+-- backfill (common.BackfillNationalTeams) and an admin activating that same country at the exact
+-- same moment (common.CreateNationalTeam retries via GetNationalTeamId on a violation).
+CREATE UNIQUE INDEX teams_national_team_country_idx ON teams(country) WHERE is_national_team;
+CREATE INDEX idx_player_season_awards_player_id ON player_season_awards(player_id);
+CREATE INDEX idx_player_transfers_player_id ON player_transfers(player_id, created_at DESC);
+CREATE INDEX idx_player_offer_rejections_team ON player_offer_rejections(from_team_id, rejected_at DESC);
+CREATE INDEX idx_player_offer_rejections_rejected_at ON player_offer_rejections(rejected_at);
+-- The transfer market's activity panel (GET /v1/transfers/stats, see
+-- common.GetTransferMarketStats): the "offers in the last hour/day" counts only need the newest
+-- rows of the append-only transfer_offer_log.
+CREATE INDEX transfer_offer_log_created_idx ON transfer_offer_log(created_at);
+-- The biggest fee ever paid. The partial predicate lists the kinds common.topTransferFeeKinds
+-- counts (listing, offer, free agent premium, buy option, permanent), so the query's ORDER BY fee
+-- DESC LIMIT 1 is a single index lookup.
+CREATE INDEX player_transfers_fee_idx ON player_transfers(fee DESC) WHERE kind IN (0, 1, 2, 4, 6);
+CREATE INDEX cup_tie_instants_idx ON cup_tie_instants(tie_id);
+-- The simulation backlog gauges (striker.matches.overdue / striker.matches.in_simulation, see
+-- common.CountMatchBacklog) only need unplayed rows; a row leaves the partial index the moment it
+-- is played, so each index stays small however much match history piles up.
+CREATE INDEX matches_unplayed_date_idx ON matches(match_date) WHERE played = false;
+CREATE INDEX friendly_matches_unplayed_date_idx ON friendly_matches(match_date) WHERE played = false;
+CREATE INDEX cup_ties_unplayed_date_idx ON cup_ties(match_date) WHERE played = false;
+CREATE INDEX pending_post_match_effects_due ON pending_post_match_effects (due_at);
+-- Serves common.getTransferComparablesStmtSql: equality on position, then the ORDER BY
+-- (created_at DESC, transfer_id DESC), so the planner walks it in order and stops after the LIMIT.
+-- The predicate keeps loans, releases, free-agent signings, free moves and rows without a snapshot
+-- out of the index; its kinds (0 listing, 1 offer, 4 buy option) and fee > 0 must be spelled as
+-- literals in the query for the planner to use it.
+CREATE INDEX player_transfers_comparables_idx
+    ON player_transfers (position, created_at DESC, transfer_id DESC)
+    WHERE kind IN (0, 1, 4) AND fee > 0 AND average_skill IS NOT NULL;
+CREATE INDEX users_last_seen_idx ON users(last_seen_at);
+CREATE INDEX teams_reset_pending_idx ON teams(reset_pending_since)
+  WHERE reset_pending_since IS NOT NULL;
+-- The league page's recent-transfers panel (common.GetRecentLeagueTransfers) reads the newest
+-- player_transfers rows first.
+CREATE INDEX player_transfers_created_at_idx ON player_transfers(created_at DESC);
+-- The periodic expiry (common.ExpireCounterOffers) only ever looks at countered offers.
+CREATE INDEX transfer_offers_countered_at_idx ON transfer_offers (countered_at) WHERE countered_at IS NOT NULL;
+CREATE INDEX player_watchlist_player_idx ON player_watchlist (player_id);
+CREATE INDEX team_rivalries_high_idx ON team_rivalries (team_high_id);
+CREATE INDEX team_rivalries_country_idx ON team_rivalries (country);
+CREATE INDEX season_history_idx2 ON season_history (league_id, season);
+CREATE INDEX international_cup_entries_country_idx ON international_cup_entries (country, season);
+CREATE UNIQUE INDEX pre_contract_offers_one_signed_per_player
+    ON pre_contract_offers (player_id) WHERE signed_at IS NOT NULL;
+CREATE INDEX pre_contract_offers_from_team_idx ON pre_contract_offers (from_team_id);
+-- One promotion playoff per country and season, even with several engine replicas
+-- (engine.startPlayoff inserts with ON CONFLICT DO NOTHING).
+CREATE UNIQUE INDEX cups_playoff_once ON cups (country, season) WHERE kind = 'playoff';
+CREATE INDEX leagues_active_idx ON leagues (country, tier) WHERE archived_season IS NULL;
+-- Each partial index only holds the played fixtures the instant archive hasn't archived yet: once
+-- the archive runs, that is only the kept seasons.
+CREATE INDEX matches_instants_to_archive ON matches (season) WHERE played AND NOT instants_archived;
+CREATE INDEX cup_ties_instants_to_archive ON cup_ties (cup_id) WHERE played AND NOT instants_archived;
+CREATE INDEX friendly_matches_instants_to_archive ON friendly_matches (match_date) WHERE played AND NOT instants_archived;
+-- Serves every club listing, which skips dissolved teams and national teams.
+CREATE INDEX teams_active_clubs ON teams (country) WHERE dissolved_season IS NULL AND NOT is_national_team;

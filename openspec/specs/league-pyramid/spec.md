@@ -198,7 +198,7 @@ After a restructure, the owner of every team that moved tier because of it, rath
   (admin overview `pendingRestructure`).
 - History: `season_history.via_playoff` (`common.RecordSeasonHistoryLeagueResult`,
   `SeasonHistoryEntry.ViaPlayoff`, `LeagueSeasonPosition.ViaPlayoff`).
-- Data: `backend/resources/sql/init110_league_pyramid_playoffs.sql` (`cups.kind`,
+- Data: `backend/resources/sql/history/init110_league_pyramid_playoffs.sql` (`cups.kind`,
   `cups_playoff_once`, `leagues.archived_season`, `season_history.via_playoff`, the world_config
   move to the new default, `countries.league_kickoff_minute`).
 - Notifications: `notifications.messages.playoffQualified`, `promotedViaPlayoff`,

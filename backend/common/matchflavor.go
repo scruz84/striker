@@ -36,7 +36,7 @@ const UpdateMatchFlavorStmtSql = "UPDATE matches SET weather = $1, attendance = 
 
 // UpdateMatchFlavor persists a just-simulated match's report flavor (weather, crowd size,
 // referee/assistants) - generated once here rather than on every later read, so a match's report
-// shows the same numbers/names every time it's viewed (see resources/sql/init40_match_flavor.sql).
+// shows the same numbers/names every time it's viewed (see resources/sql/history/init40_match_flavor.sql).
 // attendance is passed in rather than computed here so it can be the exact same figure already
 // shown in the home team's ticket-revenue transaction (see engine.creditTicketRevenue) - drawing
 // a second, independent random attendance here would let the two disagree.
@@ -46,7 +46,7 @@ func UpdateMatchFlavor(dbCtx *DatabaseContext, matchId int64, weather string, at
 }
 
 // UpdateCupTieFlavorStmtSql / UpdateFriendlyFlavorStmtSql are UpdateMatchFlavorStmtSql for the cup
-// tie and friendly tables (see resources/sql/init83_match_viewer_parity.sql), so every competition
+// tie and friendly tables (see resources/sql/history/init83_match_viewer_parity.sql), so every competition
 // stores the same report flavor and the match viewer needs no per-competition gaps.
 const UpdateCupTieFlavorStmtSql = "UPDATE cup_ties SET weather = $1, attendance = $2, referee_name = $3, " +
 	"assistant1_name = $4, assistant2_name = $5 WHERE tie_id = $6"

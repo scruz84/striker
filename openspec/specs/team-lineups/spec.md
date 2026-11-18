@@ -113,9 +113,9 @@ At kickoff, and in the lineup editor's projection, a lineup player who is not in
 - A departing player: `common/lineupcleanup.go` (`removePlayerFromTeamLineupsTx`, called wherever
   a player leaves a club), `common/kickoffrefill.go` (`ExcludeUnavailableAndBackfill` and
   `ProjectKickoffReplacements` replace a lineup player who is not in the squad),
-  `resources/sql/init115_departed_players_out_of_lineups.sql` (cleans stored lineups; creates the
+  `resources/sql/history/init115_departed_players_out_of_lineups.sql` (cleans stored lineups; creates the
   missing `friendly_lineup_substitutions` table).
-- Schema: `backend/resources/sql/init94_default_friendly_lineup_substitutions.sql`.
+- Schema: `backend/resources/sql/history/init94_default_friendly_lineup_substitutions.sql`.
 - Frontend: `frontend/src/features/lineup/LineupEditorPage.tsx` (`FriendlyDefaultLineupForm`),
   `MatchLineupForm.tsx`, `api/hooks.ts` (`useSetFriendlyDefaultLineup`); hint under
   `lineup.friendlyHint` in `i18n/locales/{en,es}.json`.

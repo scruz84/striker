@@ -241,7 +241,7 @@ A past season's table SHALL mark teams that went up or down through the playoff 
 
 - Backend: `backend/common/leaguetransfers.go` (`GetRecentLeagueTransfers`,
   `getRecentLeagueTransfersStmtSql`, `LeagueTransfer`), read from `player_transfers`
-  (`backend/common/playertransfers.go`); `backend/resources/sql/init93_player_transfers_recent_index.sql`;
+  (`backend/common/playertransfers.go`); `backend/resources/sql/history/init93_player_transfers_recent_index.sql`;
   `backend/handlers/statsHandlers.go` (`RecentLeagueTransfersHandler`).
 - Frontend: `frontend/src/features/leagues/LeaguesPage.tsx`,
   `frontend/src/features/leagues/RecentLeagueTransfers.tsx` (also on the dashboard),

@@ -291,11 +291,11 @@ func TestInternationalCupEntriesMigration_BackfillsExistingEditions(t *testing.T
 	cupId := f.scan(`INSERT INTO cups (country, region, season, name) VALUES (NULL, $1, 5, 'Old Cup') RETURNING cup_id`, f.region)
 	f.exec(`INSERT INTO cup_ties (cup_id, round, slot_number, home_team_id, away_team_id, played) VALUES ($1, 1, 1, $2, $3, false)`, cupId, esChampion, frChampion)
 
-	migration, err := resources.SQLFiles.ReadFile("sql/init103_international_cup_entries.sql")
+	migration, err := resources.SQLFiles.ReadFile("sql/history/init103_international_cup_entries.sql")
 	if err != nil {
 		t.Fatalf("reading migration: %s", err)
 	}
-	runnersUp, err := resources.SQLFiles.ReadFile("sql/init112_international_cup_runners_up.sql")
+	runnersUp, err := resources.SQLFiles.ReadFile("sql/history/init112_international_cup_runners_up.sql")
 	if err != nil {
 		t.Fatalf("reading migration: %s", err)
 	}

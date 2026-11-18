@@ -112,7 +112,7 @@ The owner SHALL be notified (`NOTIFICATION_FANBASE`, keys `sociosGrew`/`sociosSh
   after the save commits, and feeds the stored report flavor.
 - Drift: `engine/socios.go` (`sociosTarget`, `driftSocios`, `updateSociosAtSeasonEnd`), called
   from `awardSeasonTicketsAndMerchandising`; storage `common/socios.go`.
-- Initial backfill for existing teams: `resources/sql/init80_socios.sql`.
+- Initial backfill for existing teams: `resources/sql/history/init80_socios.sql`.
 - Rivalry multiplier: `rivalryAttendanceFactor` (`RivalryRivalAttendanceFactor`,
   `RivalryClasicoAttendanceFactor`) inside `rivalFactor`, from `matchdayContext.rivalryLevel`, which
   `simulateMatch` / `simulateCupTie` read at kickoff with `common.KickoffRivalryLevel` (friendlies

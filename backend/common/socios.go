@@ -1,7 +1,7 @@
 package common
 
 // DefaultSocios is the member count every new team starts with - the crowd a default-size ground
-// drew at the default ticket price before socios existed (see resources/sql/init80_socios.sql).
+// drew at the default ticket price before socios existed (see resources/sql/history/init80_socios.sql).
 const DefaultSocios = 500
 
 // RecentFormMatches is how many of a team's latest league matches count toward its "racha"

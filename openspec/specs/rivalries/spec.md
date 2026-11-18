@@ -105,7 +105,7 @@ A team's page SHALL list its top 3 pairs with a level (highest score first) with
 
 ## Code map
 
-- Storage: `backend/resources/sql/init100_team_rivalries.sql` (`team_rivalries`, `rivalry_level` on
+- Storage: `backend/resources/sql/history/init100_team_rivalries.sql` (`team_rivalries`, `rivalry_level` on
   `matches` and `cup_ties`).
 - Core: `common/rivalries.go` (`RIVALRY_*`, thresholds and point constants, `RivalryLevel`,
   `DecayRivalryScore`, `AddRivalryPoints` - row created then locked `FOR UPDATE`, so concurrent

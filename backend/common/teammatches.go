@@ -8,7 +8,7 @@ import (
 // Match kind discriminators for TeamMatchSummary.Kind - together with MatchId this tells the
 // frontend which detail/lineup route to use, since a league match_id, a cup_ties.tie_id, and a
 // friendly_matches.match_id are independent id sequences that can collide numerically (see
-// resources/sql/init38_match_lineup_overrides.sql for why that matters for lineup overrides too).
+// resources/sql/history/init38_match_lineup_overrides.sql for why that matters for lineup overrides too).
 const (
 	MatchKindLeague   = "league"
 	MatchKindCup      = "cup"

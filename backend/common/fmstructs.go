@@ -672,7 +672,7 @@ type WeekMatch struct {
 	AwayPlayers     *map[int64]Player `json:"awayPlayers"`
 	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the match report's cosmetic
 	// flavor (issue: Hattrick-style match report) - empty/0 for a match not yet simulated, or one
-	// simulated before this existed (see resources/sql/init40_match_flavor.sql). Generated once at
+	// simulated before this existed (see resources/sql/history/init40_match_flavor.sql). Generated once at
 	// simulation time (common.UpdateMatchFlavor) rather than per-request, so the report is stable.
 	Weather        string `json:"weather,omitempty"`
 	Attendance     int    `json:"attendance,omitempty"`

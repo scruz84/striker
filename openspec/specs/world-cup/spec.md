@@ -131,7 +131,7 @@ When no World Cup is running, the current World Cup response SHALL include the e
   `InternationalCupCycle`); handlers `CurrentWorldCupHandler`, `WorldCupHistoryHandler`
   (`handlers/nationalTeamHandlers.go`).
 - Frontend: `features/nationalteams/WorldCupTab.tsx`.
-- Schema: `resources/sql/init72_world_cup.sql`.
+- Schema: `resources/sql/history/init72_world_cup.sql`.
 - Viewing a group match: it renders through `frontend/src/features/match/MatchViewer.tsx` (route
   adapter `features/friendlies/FriendlyMatchPage.tsx`, `fromFriendly` in `matchViewModel.ts`); the
   "Mundial · Grupo X · Jornada N" label comes from `common.FriendlyMatch.WorldCupGroupName` /

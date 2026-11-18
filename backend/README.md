@@ -63,8 +63,9 @@ See `HOWTO_RUN.md`'s "Production checklist" for what a public deployment must se
 
 ### Account lifecycle
 
-Schema `resources/sql/init92_user_account_lifecycle.sql` (applied on startup like every `initN_*`;
-existing users start with `last_seen_at = now()` and no accepted terms).
+Schema: the `users`/`teams`/`player_loans` lifecycle columns in `resources/sql/init.sql` (first shipped
+as `resources/sql/history/init92_user_account_lifecycle.sql`, which gave the users that already
+existed `last_seen_at = now()` and no accepted terms).
 
 - **Activity**: any authenticated request or sign-in updates `users.last_seen_at` (at most hourly
   per replica, `handlers.ActivityMiddleware`). A valid token of a deleted user gets 401.
@@ -177,7 +178,7 @@ substitutions, injuries, cards and penalties (`engine/stoppage_time.go`, openspe
 and played with the normal per-minute stages (`engine.playMatchMinutes`). A minute in added time is
 stored as its clock minute (45 or 90) plus `added_minute`, an `ADDED_TIME` event (type 9) records the
 board, and each fixture keeps `first_half_added_time` / `second_half_added_time`
-(`resources/sql/init107_stoppage_time.sql`). The replay plays the added minutes at one per real minute;
+(`resources/sql/history/init107_stoppage_time.sql`). The replay plays the added minutes at one per real minute;
 the half-time break absorbs the first half's, so minute 46 still starts 59 minutes after kickoff and
 the final whistle comes at most 108 minutes after kickoff - `engine.TestLongestBroadcastFitsLiveWindow`
 keeps that at least 5 minutes inside the 2-hour live-broadcast window every time-based spoiler gate
@@ -361,7 +362,7 @@ row), so both mechanisms only apply it when the schema doesn't already exist.
 
 Every schema change that shipped before this file was consolidated is preserved, unchanged,
 under `resources/sql/history/` (`init2_league_tier.sql` through
-`init58_stadium_capacity_default.sql` at the time of writing) - kept for the record and for
+`init119_country_structures.sql` at the time of writing, so the next new migration is `init120_*`) - kept for the record and for
 upgrading a database that predates one of them, but never auto-applied (`EnsureSchema` only
 lists the top-level `resources/sql/` directory, not `history/`).
 
@@ -445,7 +446,7 @@ sets his last-season wage floor, his pre-contract premium and his clause discoun
 The tier is private: no API response gives it to a manager, not even after negotiating with him
 (the old `negotiation_insights` table is dropped by `init109_drop_negotiation_insights.sql`).
 
-**Pre-contracts** (`common/precontracts.go`, `resources/sql/init104_pre_contracts.sql`): once a
+**Pre-contracts** (`common/precontracts.go`, `resources/sql/history/init104_pre_contracts.sql`): once a
 player's league has played half its season, any other club may offer a player in the last season
 of his contract a deal for next season (`POST /v1/pre-contracts` `{playerId, wage, years}`, no fee).
 He only considers offers of at least his move premium x his expected wage (1.05 for a Naive
@@ -459,7 +460,7 @@ player in his last season carries the public `contractExpiring` flag. CPU Manage
 make pre-contract offers and counter the ones they receive (see `engine/aitransfers.go`
 `preContractCandidates`, `engine/aiteams.go` `answerPreContractOffers`).
 
-**Release clauses** (`common/releaseclauses.go`, `resources/sql/init105_release_clauses.sql`): a
+**Release clauses** (`common/releaseclauses.go`, `resources/sql/history/init105_release_clauses.sql`): a
 renewal, a free-agent signing, a transfer offer's personal terms and a pre-contract may carry an
 optional, public release clause (`releaseClause` in the request body) of at least 1.5 x the
 player's market value on a 3-season contract. The player asks 5% (Naive) to 15% (Mastermind)
@@ -696,7 +697,7 @@ production rather than exhaustive coverage of every code path:
   registered by the engine only and read with `max`, never `sum`. Overdue counts unplayed matches
   with both teams set whose kickoff passed more than 5 minutes ago (a cup bye never counts); in
   simulation counts the ones an engine replica has claimed and not finished. One query per export
-  tick, over the partial indexes of `resources/sql/init85_observability_indexes.sql`. A line that
+  tick, over the partial indexes of `resources/sql/history/init85_observability_indexes.sql`. A line that
   stays above 0 means the engine is not keeping up, or is down.
 - **Live viewers** (`striker.live.connections`) - live-match websockets currently open on each
   `svc` instance (an up/down counter: +1 after a successful upgrade, -1 when it closes). `sum` it

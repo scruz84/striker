@@ -124,7 +124,7 @@ A failure or a slow load of the comparables SHALL NOT stop the manager from list
 
 ## Code map
 
-- `backend/resources/sql/init88_player_transfer_snapshot.sql` (snapshot columns, partial index).
+- `backend/resources/sql/history/init88_player_transfer_snapshot.sql` (snapshot columns, partial index).
 - `backend/common/playertransfers.go` (`RecordPlayerTransfer` snapshot, `GetTransferComparables`,
   `getTransferComparablesStmtSql`, `TransferComparable`, `TransferComparablesResult`,
   `SummarizeComparables`, `Comparables*` band / window / limit constants).

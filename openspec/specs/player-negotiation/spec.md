@@ -39,7 +39,7 @@ A player's negotiation tier (Naive, Casual, Aware, Shrewd, Mastermind) SHALL sta
   `GetRecentPlayerEvolutionsStmtSql` (`common/playerprogression.go`).
 - Privacy: no response carries the tier (`PlayerDetails` has no tier field, guarded by
   `TestPlayerDetailsCarryNoNegotiationTier` in `common/playerdetails_test.go`); the old
-  `negotiation_insights` table is dropped by `resources/sql/init109_drop_negotiation_insights.sql`.
+  `negotiation_insights` table is dropped by `resources/sql/history/init109_drop_negotiation_insights.sql`.
   Frontend: only the tier ranges, never a player's own tier, in `utils/contractTerms.ts` and the
   `noPayCutRange` hint.
 - Tests: `common/personalterms_test.go`, `common/precontracts_test.go`,

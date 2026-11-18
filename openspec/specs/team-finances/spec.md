@@ -228,7 +228,7 @@ A transfer offer's personal terms SHALL be judged with the same intelligence- an
   `common.GetTeamLoanWageContribution`.
 - Stadium: `common/stadium.go` (`UpgradeStadium`, `StadiumUpgradeDuration`, `SetTicketPrice`);
   price bounds `common.MinTicketPrice`/`MaxTicketPrice` (`common/fmconstants.go`); recommended
-  price `engine.RecommendedTicketPrice`; legacy-price cap `resources/sql/init87_cap_ticket_price.sql`.
+  price `engine.RecommendedTicketPrice`; legacy-price cap `resources/sql/history/init87_cap_ticket_price.sql`.
 - Market money: `common/transfers.go`, `common/offers.go` (an accepted offer or counter-offer
   moves the money in `executeOfferTx`), `common/offercounters.go` (`AcceptCounterOffer` at the
   counter fee; see transfer-negotiation), `common/loans.go`, `common/contracts.go`; insolvency
