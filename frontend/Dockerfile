@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1
 
+# Multi-platform (linux/amd64 and linux/arm64, see .github/workflows/docker.yml): the build output
+# is static files, so the build stage runs on the builder's own platform; only the nginx stage is
+# per platform.
+
 ## Build
-FROM node:24-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24-alpine AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./

@@ -101,7 +101,7 @@ The deployment documentation SHALL list everything a public deployment must set:
   `--initialize` in `cmd/striker.go`.
 - Startup checks and secrets: `common/security.go` (`CheckDeploymentSecurity`,
   `DeploymentSecurityProblems`, `GoogleOAuthClientId`), called from `service.StartSvc`; tests in
-  `common/security_test.go`; env wiring in `docker-compose.yml`, `docker-compose-svc-only.yml`,
+  `common/security_test.go`; env wiring in the root `docker-compose.yml`, `.env.sample` and
   `app.env.sample`.
 - Google sign-in: `handlers/handlers.go` (`verifyGoogleIdToken`, `validateGoogleIdToken`,
   `DoExternalLogin`).

@@ -1,12 +1,12 @@
 ---
 name: Striker Rebuild Images
-description: Rebuild (regenerate) the Docker images for the Striker football manager - backend svc/engine and the frontend - from scratch with --no-cache, then recreate the running containers. Use when the user asks to rebuild, regenerate, refresh or redeploy the Striker images.
+description: Update or rebuild the Docker images for the Striker football manager - backend svc/engine and the frontend - either by pulling the published images or by building them from scratch with --no-cache, then recreate the running containers. Use when the user asks to update, rebuild, regenerate, refresh or redeploy the Striker images.
 ---
 
-# Striker - rebuild Docker images
+# Striker - update or rebuild Docker images
 
-Use this skill when the user wants the Striker Docker images regenerated (e.g. "rebuild the
-Striker images", "regenerate backend", "redeploy the frontend after my changes").
+Use this skill when the user wants the Striker containers running newer images (e.g. "update
+Striker", "rebuild the Striker images", "redeploy the frontend after my changes").
 
 ## Requirements
 
@@ -14,107 +14,124 @@ This skill only contains instructions. To follow it you need a tool that can run
 on the Docker host (Open Terminal, a shell/exec tool, etc.). If no such tool is available, give
 the user the exact commands below instead of pretending they ran.
 
-Never claim an image was rebuilt unless a command's output shows the build finished successfully.
+Never claim an image was pulled or rebuilt unless a command's output shows it finished
+successfully.
 
 ## Layout facts (do not guess, these are fixed)
 
 - Repository root: ask the user once where the `striker` checkout lives if you don't already
-  know it (below it is written `$STRIKER_DIR`). The two halves have **separate** compose files
-  and must each be run from their own directory.
-- **Backend** - `$STRIKER_DIR/backend`
-  - The backend uses the **external-services compose file**: `docker-compose-svc-only.yml`
-    (no bundled Postgres/Redis - they already run elsewhere). Always pass it with `-f`.
-    Do **not** use `docker-compose.yml` for the backend.
-  - Compose project name: `striker-backend`.
-  - Services: `svc` (API, port `1984`) and `engine` (simulation scheduler). Both build from
-    `resources/Dockerfile` with `backend/` as the context, so each service gets its own image.
-  - `init` is a one-off, **destructive** seed/reset job behind the `init` profile. A plain
-    `build` does not touch it. Never run it as part of a rebuild.
-- **Frontend** - `$STRIKER_DIR/frontend`
-  - Compose file: `docker-compose.yml`, project name `striker-frontend`, service `frontend`
-    (nginx, port `3000`).
-  - `API_URI` and `GOOGLE_OAUTH_CLIENT_ID` are **runtime** variables read from `frontend/.env` or
-    the shell when the container is created. They are not baked in at build time.
+  know it (below it is written `$STRIKER_DIR`). **Every command runs from `$STRIKER_DIR`**, the
+  repository root: there is a single `docker-compose.yml` there for everything (there are no
+  compose files under `backend/` or `frontend/` any more).
+- Compose project name: `striker`. Settings live in `$STRIKER_DIR/.env`.
+- Services:
+  - `svc` (API, port `1984`) and `engine` (simulation scheduler): both run the backend image
+    `ghcr.io/scruz84/striker-backend`.
+  - `frontend` (nginx, port `3000`): the image `ghcr.io/scruz84/striker-frontend`.
+  - `postgres` and `redis`: bundled databases, only started when `.env`'s `COMPOSE_PROFILES`
+    lists them. On a deployment with external Postgres/Redis, `COMPOSE_PROFILES` is empty and
+    these two do not exist - that is expected, never "fix" it.
+  - `init`: a one-off, **destructive** seed/reset job. Never run it as part of an update.
+- `STRIKER_TAG` in `.env` selects the published version (`latest` or `sha-<commit>`).
+- `API_URI`, `GOOGLE_OAUTH_CLIENT_ID` and the `LEGAL_*` frontend settings are **runtime**
+  variables read from `.env` when the container is created. They are not baked into the image.
 
 ## Ask first (only if unclear)
 
-Which part should be rebuilt: **backend**, **frontend**, or **both** (default if the user just
-says "the Striker images")? Do not ask anything else; the defaults below are fine.
+1. **Published or local build?** By default, update to the **published** images (they are built
+   by GitHub on every merge to `main`). Build from source only if the user asks for it, or wants
+   to deploy local changes that are not merged yet.
+2. Which part: **backend**, **frontend**, or **both** (default if the user just says "the Striker
+   images")?
+
+Do not ask anything else; the defaults below are fine.
 
 ## Procedure
 
 Run each step, check the exit code, and stop at the first failure (report the last ~30 lines of
 the error, do not retry blindly).
 
-### 1. Backend (svc + engine)
+### 0. Check the settings file
 
 ```bash
-cd "$STRIKER_DIR/backend"
-
-# Rebuild both images from scratch (this is the user's usual command)
-docker compose -f docker-compose-svc-only.yml build --no-cache
-
-# Recreate the containers so they run the new images
-docker compose -f docker-compose-svc-only.yml up -d --no-deps svc engine
+cd "$STRIKER_DIR"
+test -f .env && grep -E '^(COMPOSE_PROFILES|STRIKER_TAG|API_URI)=' .env
 ```
 
-Optional, only if the user asks for a fresh `init` image as well (this only builds it, it does
-not run it):
+If `.env` does not exist, stop and tell the user: the recreated containers would fall back to
+placeholder secrets, `API_URI=http://localhost:1984` and an empty Google client ID. Do not print
+any other line of `.env` (it holds secrets).
+
+### 1a. Update to the published images (default)
 
 ```bash
-docker compose -f docker-compose-svc-only.yml --profile init build --no-cache init
+cd "$STRIKER_DIR"
+
+# Both halves
+docker compose pull svc engine frontend
+docker compose up -d --no-deps svc engine frontend
+
+# Backend only:  docker compose pull svc engine   && docker compose up -d --no-deps svc engine
+# Frontend only: docker compose pull frontend     && docker compose up -d --no-deps frontend
 ```
 
-### 2. Frontend
+If `STRIKER_TAG` is pinned to a `sha-` tag, `pull` keeps that version: ask the user which tag to
+move to, change `STRIKER_TAG` in `.env` only with their agreement, then pull again.
+
+### 1b. Build from the local checkout instead
 
 ```bash
-cd "$STRIKER_DIR/frontend"
+cd "$STRIKER_DIR"
 
-docker compose build --no-cache
-docker compose up -d --no-deps frontend
+# Rebuild from scratch
+docker compose build --no-cache svc engine frontend
+docker compose up -d --no-deps svc engine frontend
+
+# Backend only:  docker compose build --no-cache svc engine && docker compose up -d --no-deps svc engine
+# Frontend only: docker compose build --no-cache frontend   && docker compose up -d --no-deps frontend
 ```
 
-Before recreating the frontend container, check that `frontend/.env` exists (or that `API_URI`
-and `GOOGLE_OAUTH_CLIENT_ID` are set in the environment). If neither is the case, the recreated
-container silently falls back to `API_URI=http://localhost:1984` and an empty Google client ID,
-which breaks sign-in on any non-local deployment. Warn the user and ask before continuing.
+A local build tags the images with the published names, so a later `docker compose pull` is what
+switches back to the published ones.
 
-### 3. Verify
+### 2. Verify
 
 ```bash
-cd "$STRIKER_DIR/backend"  && docker compose -f docker-compose-svc-only.yml ps
-cd "$STRIKER_DIR/frontend" && docker compose ps
+cd "$STRIKER_DIR"
+docker compose ps
 
-# Confirm the images are new (CREATED should read "seconds/minutes ago")
-docker images --filter "reference=striker-*"
+# Confirm which images run (CREATED should be recent after a build or a pull of a newer version)
+docker images --filter "reference=ghcr.io/scruz84/striker-*"
 
 # Quick health look at the backend
-docker compose -f "$STRIKER_DIR/backend/docker-compose-svc-only.yml" logs --tail=30 svc engine
+docker compose logs --tail=30 svc engine
 ```
 
-Report to the user: which images were rebuilt, their new IDs/creation times, and whether the
-containers are `running`. If a container is restarting, show its logs.
+Report to the user: which images were updated or rebuilt, their new IDs/creation times, and
+whether the containers are `running`. If a container is restarting, show its logs.
 
 ## Safety rules
 
 - Do **not** run `docker compose down -v`, `docker volume rm`, `docker system prune`, or
   `docker image prune -a`. They can destroy data or other projects' images.
-- Do **not** run the `init` service (`--profile init run ...`). It wipes and recreates all game
-  data. Only do it if the user explicitly asks for a database reset and confirms.
-- `--no-cache` makes the build slow (Go module download, `npm ci`). That is expected; do not
+- Do **not** run the `init` service (`docker compose run --rm init`). It wipes and recreates all
+  game data. Only do it if the user explicitly asks for a database reset and confirms.
+- Do not touch `postgres`/`redis` during an update (`--no-deps` keeps them out of it).
+- `--no-cache` makes a local build slow (Go module download, `npm ci`). That is expected; do not
   drop the flag unless the user asks for a quick/cached build.
-- Old images become dangling after a rebuild. Offer `docker image prune -f` (dangling only) to
+- Old images become dangling after an update. Offer `docker image prune -f` (dangling only) to
   reclaim disk space, but only run it if the user agrees.
 - Don't pass secrets (`SECRET_JWT`, `DB_PASSWORD`, `GOOGLE_OAUTH_CLIENT_ID`, ...) on the command
-  line or echo them back in the chat; they live in `.env` / `app.env` files and the environment.
+  line or echo them back in the chat; they live in `.env`.
 
-## Quick reference
+## Quick reference (all from `$STRIKER_DIR`)
 
-| Goal | Command (from the right directory) |
+| Goal | Command |
 |---|---|
-| Rebuild backend images | `docker compose -f docker-compose-svc-only.yml build --no-cache` |
-| Recreate backend containers | `docker compose -f docker-compose-svc-only.yml up -d --no-deps svc engine` |
-| Rebuild only the API image | `docker compose -f docker-compose-svc-only.yml build --no-cache svc` |
-| Rebuild only the engine image | `docker compose -f docker-compose-svc-only.yml build --no-cache engine` |
-| Rebuild frontend image | `docker compose build --no-cache` |
-| Recreate frontend container | `docker compose up -d --no-deps frontend` |
+| Update everything to the published images | `docker compose pull svc engine frontend && docker compose up -d --no-deps svc engine frontend` |
+| Update only the backend | `docker compose pull svc engine && docker compose up -d --no-deps svc engine` |
+| Update only the frontend | `docker compose pull frontend && docker compose up -d --no-deps frontend` |
+| Rebuild everything from the checkout | `docker compose build --no-cache svc engine frontend && docker compose up -d --no-deps svc engine frontend` |
+| Rebuild only the backend | `docker compose build --no-cache svc engine` |
+| Rebuild only the frontend | `docker compose build --no-cache frontend` |
+| Status | `docker compose ps` |

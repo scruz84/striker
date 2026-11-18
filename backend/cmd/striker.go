@@ -39,7 +39,7 @@ func main() {
 
 	// serviceName distinguishes the two long-running process shapes in exported metrics (see
 	// common.InitMetrics) - svc and engine can run as separate containers exporting to the same
-	// collector at once (see backend/docker-compose.yml), so their metrics need distinct
+	// collector at once (see the root docker-compose.yml), so their metrics need distinct
 	// service.name resource attributes to tell apart.
 	serviceName := "striker-engine"
 	switch {

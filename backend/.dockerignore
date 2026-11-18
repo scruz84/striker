@@ -1,0 +1,13 @@
+# Only the Go sources and resources/ are needed to build the image (see resources/Dockerfile).
+# Keep local data and secrets out of the build context.
+dump.rdb
+*.env
+.env*
+app.env*
+configs/
+**/client_secret*.json
+*.pem
+*.key
+/striker
+/cmd/cmd
+README.md
