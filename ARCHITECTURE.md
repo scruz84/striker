@@ -99,7 +99,8 @@ every startup, and against a database that already has a schema it re-applies ev
 `initN_*.sql` file, so restarting the containers after pulling a branch update is enough to pick
 up a new one (see backend/README.md's "Schema changes on an already-running database" section).
 Once enough of these accumulate, they can be folded into `init.sql` and moved to `history/`, as
-this consolidation did - fine to do opportunistically while the project isn't in production yet
+this consolidation did (the latest flatten folded everything up to `init119_country_structures.sql`,
+so the next new migration is `init120_*`) - fine to do opportunistically while the project isn't in production yet
 (no existing deployments to preserve incremental migrations for), but once real deployments exist
 it can no longer be retroactive: an already-running database will have applied the separate files
 directly, and folding them into `init.sql` at that point would only affect brand-new databases,
@@ -158,7 +159,7 @@ once they're already an admin themselves.
   `placeNamesByCountry` (16+ names), team/stadium patterns, a flag in `frontend/public/flags/`,
   `COUNTRY_NAME_KEYS`/`COUNTRY_REGIONS` and `countries.<code>` in both locale files, and a name pool
   under `utils/namepools/<code>/` that `utils/gen_name_pools.py` turns into
-  `resources/sql/namepools/init91_name_pool_<code>.sql` (plus the table pair in an `initN_*.sql`);
+  `resources/sql/namepools/init91_name_pool_<code>.sql` (plus the table pair in `init.sql`, or a new `initN_*.sql`);
   each is behind a guard test that names the missing code. An admin activates an inactive one via `POST /v1/admin/countries`.
 - `leagues` - one row per division-within-a-country-within-a-group, with a `tier` column
   (1 = top division, increasing = lower) and `archived_season` (set when a restructure retires

@@ -545,11 +545,11 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
 - Set pieces: `engine/scorer_simulation.go` (`classifyChance`, `processSetPiece`,
   `bestOnPitchOutfielder`, `penaltyConversionProbability`, `freeKickConversionProbability`);
   `common.Event.SetPiece` and `common.SET_PIECE_*`; persisted in the `set_piece` column of
-  `match_events`, `cup_tie_events` and `friendly_events` (`resources/sql/init82_match_event_set_piece.sql`).
+  `match_events`, `cup_tie_events` and `friendly_events` (`resources/sql/history/init82_match_event_set_piece.sql`).
   Defending keeper on every chance: `processChance` and `processSetPiece` fill
   `Event.OtherTeamPlayers`/`OtherTeamPlayersNames`; every event table stores them
   (`other_team_players`, `other_team_player_names`; cup and friendly columns added by
-  `resources/sql/init108_event_other_team_players.sql`), written by `common.replaceMatchEventsTx`
+  `resources/sql/history/init108_event_other_team_players.sql`), written by `common.replaceMatchEventsTx`
   and read by `GetMatchEvents`, `GetCupTieEvents` and `GetFriendlyEvents`. Tests:
   `engine/scorer_simulation_test.go` (`TestProcessChance_OpenPlayRecords*`),
   `common/open_play_keeper_integration_test.go`.
@@ -567,7 +567,7 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `MentalityFatigueShift`, `ValidateMentality`, `FatigueMaxPenaltyFor`, `Get/SetTeamMentality`,
   `Get/SetTeamFriendlyMentality`); `common.Lineup.Mentality`, stored in the `mentality` column of
   `lineup`, `cup_tie_lineup` and `friendly_lineup` and in `teams.mentality` /
-  `teams.friendly_mentality` (`resources/sql/init95_lineup_mentality.sql`), written by
+  `teams.friendly_mentality` (`resources/sql/history/init95_lineup_mentality.sql`), written by
   `SetLineupForMatch` / `SetCupTieLineup` / `SetFriendlyLineup` (so the kickoff snapshot keeps it)
   and read by every lineup getter. `MatchSimulation.HomeMentality` / `AwayMentality` are set from
   the kickoff lineups in `runMatchSimulation` and read by `applyMentality`
@@ -580,7 +580,7 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `ORDER_ACTION_*`, `MaxConditionalOrders`, `OrderConditionHolds`, `ValidateOrders`, storage per
   lineup kind, `GetOrdersForMatch` / `GetOrdersForCupTie` / `GetFriendlyLineupOrders`); tables
   `default_lineup_orders`, `lineup_orders`, `cup_tie_lineup_orders`, `friendly_lineup_orders` and
-  the `mentality` column of the three event tables (`resources/sql/init96_lineup_orders.sql`).
+  the `mentality` column of the three event tables (`resources/sql/history/init96_lineup_orders.sql`).
   `simulateMatch` / `simulateCupTie` / `simulateFriendly` put the resolved orders on the incoming
   lineups; `runMatchSimulation` moves them to `MatchSimulation.HomeOrders` / `AwayOrders` (the
   kickoff lineups never carry them) and the snapshot callback stores them. Firing:
@@ -594,7 +594,7 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `rolesSelectSql` reading a sold player's role as NULL, `Get`/`SetDefaultLineupRoles`,
   `RedactTakers` for the public match views, `CaptainCardCancelProbability`); columns on `lineup`,
   `cup_tie_lineup`, `friendly_lineup` and table `default_lineup_roles`
-  (`resources/sql/init97_lineup_roles.sql`). Taker choice: `processSetPiece` with
+  (`resources/sql/history/init97_lineup_roles.sql`). Taker choice: `processSetPiece` with
   `namedOnPitchOutfielder` / `sideRoles` (`engine/scorer_simulation.go`); captain:
   `captainCancelsCard` in `DisciplineSimulation.Apply` (`engine/discipline_simulation.go`). Tests:
   `engine/lineup_roles_test.go`, `engine/lineup_roles_integration_test.go`,
@@ -615,7 +615,7 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `common.GetCupTieInstants`, events by `common.GetFriendlyEvents` / `GetCupTieEvents`; report flavor through
   `common.UpdateMatchFlavor` / `UpdateCupTieFlavor` / `UpdateFriendlyFlavor` (`common/matchflavor.go`),
   all driven by `engine.updateMatchReportFlavor`; tables `cup_tie_instants` and the flavor columns of
-  `cup_ties` and `friendly_matches` (`resources/sql/init83_match_viewer_parity.sql`).
+  `cup_ties` and `friendly_matches` (`resources/sql/history/init83_match_viewer_parity.sql`).
 - Availability: `common.GetUnavailablePlayerIds`/`GetUnavailablePlayerIdsForFriendly`
   (`common/database.go`); substitutions cap `common.MaxScheduledSubstitutions`.
 - Rivalry level: `MatchSimulation.RivalryLevel`, passed to `runMatchSimulation` by `simulateMatch` /
@@ -634,7 +634,7 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `SecondHalfAddedTime` (`engine.newMatchResult`, `common.Save*ResultTx`) in the
   `added_minute` / `added_time` columns of the event and instant tables and the
   `first_half_added_time` / `second_half_added_time` columns of `matches`, `cup_ties` and
-  `friendly_matches` (`resources/sql/init107_stoppage_time.sql`); readers order by
+  `friendly_matches` (`resources/sql/history/init107_stoppage_time.sql`); readers order by
   `minute, added_minute, event_id`. Tests: `engine/stoppage_time_test.go`,
   `engine/conditional_orders_test.go` (added-time orders), `engine/stamina_simulation_test.go`
   (`TestApplyFatigue_AddedTimeIsCappedAtTheFullTimePenalty`),

@@ -108,7 +108,7 @@ func TestLeagueSeasonHistoryMigration_Backfill(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	if err := applySchemaFile(ctx, conn, "init101_league_season_history.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init101_league_season_history.sql"); err != nil {
 		t.Fatalf("applying migration: %s", err)
 	}
 
@@ -156,7 +156,7 @@ func TestLeagueSeasonHistoryMigration_Backfill(t *testing.T) {
 	// Re-applying (every startup does) must keep what is already set.
 	w.exec(`UPDATE classification SET seed = 9 WHERE team_id = $1`, w.a)
 	w.exec(`UPDATE season_history SET points = 77 WHERE team_id = $1 AND season = 1`, w.b)
-	if err := applySchemaFile(ctx, conn, "init101_league_season_history.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init101_league_season_history.sql"); err != nil {
 		t.Fatalf("re-applying migration: %s", err)
 	}
 	if got := seed(w.a); got != 9 {

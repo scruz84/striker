@@ -10,7 +10,7 @@ import (
 // Cup is a single-elimination competition for one season - either one country's own tier-1
 // teams (Country set, Region empty) or, for an international cup (issue #64), one team per
 // country from every active country in one region (Region set, Country empty). Exactly one of
-// the two is ever set - see resources/sql/init52_international_cup.sql's CHECK constraint.
+// the two is ever set - see resources/sql/history/init52_international_cup.sql's CHECK constraint.
 type Cup struct {
 	CupId            int64  `json:"cupId"`
 	Country          string `json:"country"`
@@ -26,7 +26,7 @@ type Cup struct {
 	Kind string `json:"kind"`
 }
 
-// Cup kinds - see Cup.Kind and resources/sql/init110_league_pyramid_playoffs.sql.
+// Cup kinds - see Cup.Kind and resources/sql/history/init110_league_pyramid_playoffs.sql.
 const (
 	CupKindCup     = "cup"
 	CupKindPlayoff = "playoff"
@@ -389,7 +389,7 @@ const InsertCupTieLineupPositionStmtSql = "INSERT INTO cup_tie_lineup_positions 
 // and substitutions outright, guarded by a non-blocking advisory lock scoped to this tie), but
 // against cup_tie_lineup/cup_tie_lineup_positions rather than lineup/lineup_positions -
 // cup_ties.tie_id is its own id sequence, independent of matches.match_id, so a tie can never
-// safely share the league-match-keyed tables (see resources/sql/init38_match_lineup_overrides.sql).
+// safely share the league-match-keyed tables (see resources/sql/history/init38_match_lineup_overrides.sql).
 func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formation int, mentality int, roles LineupRoles, positions []LineupPosition, substitutions []LineupSubstitution, orders []LineupOrder) error {
 	if err := ValidateMentality(mentality); err != nil {
 		return err
@@ -536,7 +536,7 @@ type CupTieDetails struct {
 	PlayerRatings []PlayerRating     `json:"playerRatings,omitempty"`
 	Ratings       *map[int64]float64 `json:"ratings,omitempty"`
 	// MatchInstants and the flavor fields below are only filled for a played tie, and only for one
-	// simulated after resources/sql/init83_match_viewer_parity.sql (an older tie has none, and the
+	// simulated after resources/sql/history/init83_match_viewer_parity.sql (an older tie has none, and the
 	// viewer then shows no zone duel / flavor lines) - the cup equivalent of WeekMatch's fields.
 	MatchInstants *[]MatchInstant `json:"matchInstants,omitempty"`
 	// HomeStadiumName is read at fetch time from the home team, like WeekMatch.HomeStadiumName; empty

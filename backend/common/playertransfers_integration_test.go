@@ -244,7 +244,7 @@ func TestPlayerTransfersMigration_BackfillsFromLedger(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	if err := applySchemaFile(ctx, conn, "init78_player_transfers.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init78_player_transfers.sql"); err != nil {
 		t.Fatalf("applying migration: %s", err)
 	}
 
@@ -266,7 +266,7 @@ func TestPlayerTransfersMigration_BackfillsFromLedger(t *testing.T) {
 	}
 
 	// Re-applying (every startup does) must not duplicate anything.
-	if err := applySchemaFile(ctx, conn, "init78_player_transfers.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init78_player_transfers.sql"); err != nil {
 		t.Fatalf("re-applying migration: %s", err)
 	}
 	if rows := byPlayer(bought); len(rows) != 1 {

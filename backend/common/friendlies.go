@@ -70,7 +70,7 @@ type FriendlyMatch struct {
 	// HomeStadiumName is the home team's stadium at fetch time (empty for a national team);
 	// Weather/Attendance/RefereeName/Assistant1Name/Assistant2Name are the stored report flavor of a
 	// played friendly (see UpdateFriendlyFlavor), empty for one played before
-	// resources/sql/init83_match_viewer_parity.sql - the friendly equivalent of WeekMatch's fields.
+	// resources/sql/history/init83_match_viewer_parity.sql - the friendly equivalent of WeekMatch's fields.
 	HomeStadiumName string `json:"homeStadiumName,omitempty"`
 	Weather         string `json:"weather,omitempty"`
 	Attendance      int    `json:"attendance,omitempty"`

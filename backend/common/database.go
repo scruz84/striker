@@ -329,8 +329,7 @@ const GetTeamWageBillStmtSql = "SELECT COALESCE(SUM(p.wage * (100 - COALESCE(pl.
 	"WHERE p.team_id = $1 AND p.in_academy = false"
 
 // nameTableSuffixByCountry maps a known country code to its names_<suffix>/lastnames_<suffix>
-// table pair (see resources/sql/init.sql, init90_fifa_countries.sql and the per-country
-// resources/sql/namepools/ files). Table names can't be parameterized like ordinary values, so
+// table pair (see resources/sql/init.sql and the per-country resources/sql/namepools/ files). Table names can't be parameterized like ordinary values, so
 // GetRandomName looks the suffix up here - an allowlist derived from KnownCountries - rather than
 // ever building SQL from the country string directly. Derived at init so it can't drift from the
 // catalog; a code that isn't 2-3 lowercase letters panics at startup, keeping the SQL-safety
@@ -457,7 +456,7 @@ const NextFreeShirtNumbersStmtSql = "SELECT n FROM generate_series(1, " +
 // fieldable senior roster (initial squad creation, an academy backfill, an academy promotion,
 // signing a free agent, a transfer or loan taking effect) uses this so numbers stay gap-free
 // within a squad and never collide with a teammate's. The unique (team_id, shirt_number) index
-// (see resources/sql/init39_player_shirt_number.sql) is the backstop against two concurrent
+// (see resources/sql/history/init39_player_shirt_number.sql) is the backstop against two concurrent
 // callers computing the same number for the same team before either commits - a real
 // possibility this doesn't itself guard against, but one this app's usage pattern (one manager
 // acting on their own team at a time) makes rare enough not to warrant an explicit lock for a

@@ -116,7 +116,7 @@ No result, standings change, scorer tally, head-to-head entry, cup or World Cup 
   `firstHalfAddedMinutes`, `secondHalfAddedMinutes`); tests in `engine/stoppage_time_test.go`.
 - Simulation and board: `engine.playMatchMinutes` / `announceAddedTime` (`engine/simulation.go`),
   `common.ADDED_TIME`, `Event.AddedMinute` / `AddedTime`, `MatchInstant.AddedMinute`.
-- Storage: `resources/sql/init107_stoppage_time.sql`; `MatchResult.FirstHalfAddedTime` /
+- Storage: `resources/sql/history/init107_stoppage_time.sql`; `MatchResult.FirstHalfAddedTime` /
   `SecondHalfAddedTime` in `common/matchresult.go`; round trip in
   `common/stoppage_time_integration_test.go`.
 - Bound: `engine.MaxBroadcastDuration` and `TestLongestBroadcastFitsLiveWindow`

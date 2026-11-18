@@ -178,7 +178,7 @@ The Per node row SHALL be filterable by the template variables `job` and `instan
 - Engine jobs: `scheduleJob` and `instrumentedJob` (`engine/scheduler.go`), `claimRun`
   (`engine/tasks.go`). Process wiring: `service.StartSvc` and `engine.StartEngine` call
   `RegisterDBPoolMetrics`; only `engine.StartEngine` calls `RegisterMarketGauges`.
-- Migration: `resources/sql/init85_observability_indexes.sql` (partial indexes on unplayed
+- Migration: `resources/sql/history/init85_observability_indexes.sql` (partial indexes on unplayed
   matches, cup ties and friendlies).
 - Dashboard: `backend/resources/grafana/striker-dashboard.json`, guarded by
   `common/telemetry_dashboard_test.go`.

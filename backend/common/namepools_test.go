@@ -111,12 +111,12 @@ func TestNamePoolFiles(t *testing.T) {
 	}
 }
 
-// The generated files sort after init90, which creates name_pool_versions and the new tables,
-// and the 91 prefix keeps them behind every older migration.
-func TestNamePoolFilesSortAfterTheTableMigration(t *testing.T) {
-	table, _ := schemaFileSortKey("init90_fifa_countries.sql")
+// The generated files sort after init.sql, which creates name_pool_versions and the name tables
+// they fill.
+func TestNamePoolFilesSortAfterTheBaseSchema(t *testing.T) {
+	table, _ := schemaFileSortKey("init.sql")
 	pool, _ := schemaFileSortKey(path.Join("namepools", "init91_name_pool_fj.sql"))
 	if pool <= table {
-		t.Errorf("name pool files sort at %d, not after the table migration at %d", pool, table)
+		t.Errorf("name pool files sort at %d, not after the base schema at %d", pool, table)
 	}
 }

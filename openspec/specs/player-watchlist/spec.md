@@ -56,7 +56,7 @@ Who follows a player SHALL be visible only to the follower. No API response, not
 
 ## Code map
 
-- Storage: `backend/resources/sql/init99_player_watchlist.sql` (`player_watchlist`, index on
+- Storage: `backend/resources/sql/history/init99_player_watchlist.sql` (`player_watchlist`, index on
   `player_id`).
 - Core: `common/watchlist.go` (`MaxWatchlistSize`, `WatchPlayer` under the
   `LockNamespaceWatchlist` advisory lock, `UnwatchPlayer`, `GetWatchlist` with each entry's

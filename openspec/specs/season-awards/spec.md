@@ -46,4 +46,4 @@ Awards SHALL be computed per league at rollover, alongside prize money and seaso
   (`engine/season.go`).
 - `common/seasonawards.go` (`GetPlayerOfTheSeason`, weights), `common.GetTopScorersFinal`,
   `common.RecordPlayerSeasonAward`, `common.GetPlayerSeasonAwards`.
-- Backfill of earlier seasons: `resources/sql/init76_player_season_awards.sql`.
+- Backfill of earlier seasons: `resources/sql/history/init76_player_season_awards.sql`.

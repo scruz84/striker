@@ -70,11 +70,11 @@ func TestTeamCupTitlesMigration(t *testing.T) {
 		}
 	}
 
-	if err := applySchemaFile(ctx, conn, "init111_team_cup_titles.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init111_team_cup_titles.sql"); err != nil {
 		t.Fatalf("applying migration: %s", err)
 	}
 	check("after the migration")
-	if err := applySchemaFile(ctx, conn, "init111_team_cup_titles.sql"); err != nil {
+	if err := applySchemaFile(ctx, conn, "history/init111_team_cup_titles.sql"); err != nil {
 		t.Fatalf("re-applying migration: %s", err)
 	}
 	check("after re-applying")

@@ -188,7 +188,7 @@ Each step of a country's rollover SHALL be recorded in the country's progress ma
 
 - Helpers: `backend/common/enginelocks.go` (`NamespacedLockKey`, `LockNamespace*`,
   `TryWithSessionAdvisoryLock`, `WithSessionAdvisoryLock`, `ClaimEngineJobSlot`); schema
-  `resources/sql/init84_engine_horizontal_scaling.sql` (`engine_job_runs`,
+  `resources/sql/history/init84_engine_horizontal_scaling.sql` (`engine_job_runs`,
   `in_simulation_since`).
 - Rollover: `advanceCountrySeasonIfComplete` (`engine/season.go`), which also creates the
   country's promotion playoff once (`engine.startPlayoff` in `engine/playoff.go`,
@@ -200,7 +200,7 @@ Each step of a country's rollover SHALL be recorded in the country's progress ma
   `rolloverStep*`, `rolloverState` and `finishRolloverFixtures` (`engine/season.go`), the marker in
   `common/rollover.go` (`GetRolloverProgress`, `SetRolloverProgress`,
   `AdvanceSeasonRecordingStep`, `ClearRolloverProgress`) and
-  `resources/sql/init116_resumable_season_rollover.sql`; tests
+  `resources/sql/history/init116_resumable_season_rollover.sql`; tests
   `engine/season_rollover_resume_integration_test.go` (`rolloverInterruptAfter` stops a run after
   a step).
 - Cups: `advanceCup`, `simulateCupTieOnce`, `StartWorldCupIfDue`, `StartRegionalCupsIfDue`

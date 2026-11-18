@@ -179,7 +179,7 @@ An account inactive for 365 days or more SHALL be deleted automatically with the
 
 ## Code map
 
-- Schema: `backend/resources/sql/init92_user_account_lifecycle.sql` (`users.created_at`,
+- Schema: `backend/resources/sql/history/init92_user_account_lifecycle.sql` (`users.created_at`,
   `last_seen_at`, `inactivity_warning_stage`, `terms_version`, `terms_accepted_at`,
   `released_team_name`; `teams.reset_pending_since`, `reset_reason`; `player_loans.release_on_return`).
 - Constants, activity, release and reset: `common/accounts.go` (`InactivityWarningDays`,

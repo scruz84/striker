@@ -116,7 +116,7 @@ The transfer market SHALL list the best 100 players (by combined skills) of othe
   `WithdrawPreContractOffer`, `DecidePreContracts` with `remindPreContractDecisions` /
   `decidePreContract`, `PreContractCounterBar`, `PreContractMinimumWage`, `PreContractKeepWage`,
   `completePreContractTx`, `LapsePreContractsOnRetirement`, `cancelPendingPreContracts`, the
-  `PreContract*` constants); storage `resources/sql/init104_pre_contracts.sql`.
+  `PreContract*` constants); storage `resources/sql/history/init104_pre_contracts.sql`.
 - Wiring: `common.MakeContractRenewalOffer` (counter bar, cancellation), `ReleasePlayer`,
   `CreateTransferListing`, `CreateLoanListing`, `MakeTransferOffer` (refuse a signed player),
   `ExecuteTransfer`, `executeOfferTx`, `AcceptLoan` (cancel pending offers),

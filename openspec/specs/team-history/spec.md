@@ -66,7 +66,7 @@ On upgrade, every recorded cup win that no domestic cup of that country and seas
 - Engine: `backend/engine/cups.go` (`advanceCup`, `recordCupTitle`).
 - Data: `backend/common/seasonhistory.go` (`SeasonHistoryEntry`, `SeasonHistoryInternationalCup`,
   `RecordSeasonHistoryCupResult`, `RecordSeasonHistoryInternationalCup`, `GetSeasonHistory`).
-- Schema: `resources/sql/init111_team_cup_titles.sql` (`season_history.international_cup_id`,
+- Schema: `resources/sql/history/init111_team_cup_titles.sql` (`season_history.international_cup_id`,
   clean-up and backfill), `history/init15_season_history.sql`, `init101_league_season_history.sql`.
 - API: `TeamHistoryHandler` (`handlers/seasonHistoryHandlers.go`).
 - Frontend: `features/team/TeamDetailsPage.tsx` (`TrophyCabinet`, `HonoursSummary`); test

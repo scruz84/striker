@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/scruz84/striker/common"
-	"github.com/scruz84/striker/resources"
 )
 
 // matchViewerParityEnv opens the integration database (STRIKER_TEST_DB_DSN; the test is skipped
@@ -32,18 +31,6 @@ func matchViewerParityEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 	dbCtx := &common.DatabaseContext{Db: db, LiveHub: common.NewLiveMatchHub(), ObjectCache: &memoryObjectCache{values: map[string]string{}}}
 	if err := common.EnsureSchema(dbCtx); err != nil {
 		t.Fatalf("EnsureSchema: %s", err)
-	}
-
-	// friendly_lineup_substitutions is only created by resources/sql/history/init59_friendly_lineup_substitutions.sql,
-	// which neither init.sql nor the auto-applied migrations carry, so a brand-new database lacks it and
-	// simulateFriendly fails on it. It is idempotent (CREATE TABLE IF NOT EXISTS), so apply it here to
-	// give the friendly test the table a long-running database already has.
-	history, err := resources.SQLFiles.ReadFile("sql/history/init59_friendly_lineup_substitutions.sql")
-	if err != nil {
-		t.Fatalf("reading init59_friendly_lineup_substitutions.sql: %s", err)
-	}
-	if _, err := db.Exec(string(history)); err != nil {
-		t.Fatalf("applying init59_friendly_lineup_substitutions.sql: %s", err)
 	}
 
 	scan := func(query string, args ...any) int64 {

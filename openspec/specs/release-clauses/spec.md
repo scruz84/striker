@@ -65,7 +65,7 @@ Every transfer market card (listings, loans, free agents) and every row of the p
 
 - Core: `backend/common/releaseclauses.go` (`ClauseBaseValue`, `MinReleaseClause`,
   `ReleaseClauseDiscount`, `DiscountedWage`, `ValidateReleaseClause`, `PayReleaseClause`,
-  `CpuMayPayClauseOn`, `ReleaseClauseLockIn`); storage `resources/sql/init105_release_clauses.sql`
+  `CpuMayPayClauseOn`, `ReleaseClauseLockIn`); storage `resources/sql/history/init105_release_clauses.sql`
   (`players.release_clause`, `release_clause_set_at`, `transfer_offers.offered_release_clause`,
   `pre_contract_offers.release_clause`).
 - Contracts: `ApplyRenewalOfferStmtSql` / `SignFreeAgentStmtSql` set the clause,

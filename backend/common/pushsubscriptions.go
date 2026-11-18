@@ -1,7 +1,7 @@
 package common
 
 // PushSubscription is one browser/device's Web Push subscription - see
-// resources/sql/init43_push_subscriptions.sql. A user can have several (one per device/browser
+// resources/sql/history/init43_push_subscriptions.sql. A user can have several (one per device/browser
 // they've enabled push on).
 type PushSubscription struct {
 	Id       int64  `json:"id"`

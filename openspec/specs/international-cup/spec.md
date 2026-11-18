@@ -135,7 +135,7 @@ With N entrants and P the largest power of two ≤ N, round 1 SHALL give 2P − 
 - Data: `backend/common/regionalcups.go` (`GetRegionalCupCountryStates`, `RegionalCupEntrant`,
   `HasActiveRegionalCup`, `CreateRegionalCup`, `GetInternationalCupEntries`), `common/cups.go`
   (`GetLatestCupForRegion`); regions in `common/regions.go` (`RegionForCountry`); lock `LockNamespaceRegionalCupStart` (`common/enginelocks.go`).
-- Schema: `resources/sql/init103_international_cup_entries.sql`
+- Schema: `resources/sql/history/init103_international_cup_entries.sql`
   (`international_cup_entries`), `init112_international_cup_runners_up.sql` (`final_position`,
   primary key `(cup_id, team_id)`), `history/init52_international_cup.sql` (`cups.region`).
 - API: `LatestInternationalCupHandler` (`handlers/cupHandlers.go`).

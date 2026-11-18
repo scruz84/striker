@@ -429,7 +429,7 @@ When it renews a player, a Manager SHALL set a release clause of 2 × its valuat
   `engine/aiformation_test.go`, `common/lineup_test.go`.
 - Club identity: `common/aistyle.go` (`AiClubStyleFor`, `AiStyleCode` / `AiStyleFromCode`,
   `AssignAiStyle`, `BackfillAiStyles`, `ApplyClubStyle`, `AiTransferProfileForTeam`), column
-  `teams.ai_style` (`resources/sql/init102_team_ai_style.sql`) read into `Team.AiStyle` by
+  `teams.ai_style` (`resources/sql/history/init102_team_ai_style.sql`) read into `Team.AiStyle` by
   `GetTeamById`, assigned in `handlers.createTeam` and at startup (`service.StartSvc`); the engine
   reads every CPU profile through `aiProfile` (`engine/aiteams.go`). Level after a division change:
   `common.RandomAiLevelFrom` / `StepAiLevelToward` (`common/aimanager.go`) and
