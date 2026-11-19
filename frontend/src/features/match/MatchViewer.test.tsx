@@ -209,7 +209,7 @@ describe('MatchViewer', () => {
       expect(screen.getByTestId('scoreboard')).toHaveTextContent('Amistoso')
     })
 
-    it('rates live players from the instants, without the withheld red cards and injuries', () => {
+    it('rates live players from the instants and every live event, red cards and injuries included', () => {
       ratingsProps.calls.length = 0
       clock.live = liveState({
         events: [
@@ -222,7 +222,7 @@ describe('MatchViewer', () => {
       const call = ratingsProps.calls.at(-1)
       expect(call?.live).toBe(true)
       expect(call?.instants).toEqual([instant])
-      expect(call?.events.map((e) => e.eventType)).toEqual([EVENT_TYPE_GOAL])
+      expect(call?.events.map((e) => e.eventType)).toEqual([EVENT_TYPE_GOAL, EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY])
     })
 
     // match-viewer "Half-time line in the chronicle": live, the line waits for the break.

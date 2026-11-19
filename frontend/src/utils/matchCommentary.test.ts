@@ -266,7 +266,7 @@ describe('narrateMatch line choice', () => {
     expect(rematch).not.toEqual(first)
   })
 
-  it('reads the same with or without the red cards and injuries hidden while live', () => {
+  it('reads the same with or without the red cards and injuries', () => {
     const visible = [
       ev({ type: EVENT_TYPE_YELLOW_CARD, minute: 12, side: 'home', player: 4 }),
       ev({ type: EVENT_TYPE_GOAL, minute: 20, side: 'away', player: 9, score: [0, 1] }),

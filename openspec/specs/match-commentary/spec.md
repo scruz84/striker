@@ -99,13 +99,13 @@ Within one match, each pool SHALL use every one of its lines once before it uses
 - **THEN** every line that is shown in both modes reads the same in both
 
 ### Requirement: Commentary stays the same from live to finished
-A line shown during the live broadcast SHALL read the same later in the live view and in the finished report. Red cards and injuries, which are hidden while live, MUST NOT change which line any other event gets.
+A line shown during the live broadcast SHALL read the same later in the live view and in the finished report. Red cards and injuries MUST NOT change which line any other event gets.
 
 #### Scenario: Line kept after full time
 - **WHEN** a viewer reads a minute-20 goal line live and opens the finished report later
 - **THEN** that goal and its situation sentence read the same
 
-#### Scenario: Hidden injury
+#### Scenario: Injury before a substitution
 - **WHEN** a match has an injury in minute 30 and a substitution in minute 31
 - **THEN** the substitution line is the same live and finished, and it never says the player coming off is injured
 

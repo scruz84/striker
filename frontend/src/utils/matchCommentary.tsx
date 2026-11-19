@@ -341,9 +341,9 @@ function scoreText(event: Pick<MatchEvent, 'homeGoals' | 'awayGoals'>): string {
   return `${event.homeGoals}-${event.awayGoals}`
 }
 
-// The pools red cards and injuries use. Those events are hidden while a match is live, so they
-// must only ever touch these pools (and no shared state), or hiding them would change the lines of
-// the events around them (spec "Commentary stays the same from live to finished").
+// The pools red cards and injuries use. Those events only ever touch these pools (and no shared
+// state), so the lines of the events around them read the same as they always have (spec
+// "Commentary stays the same from live to finished").
 const SPOILER_EVENT_TYPES = new Set<number>([EVENT_TYPE_RED_CARD, EVENT_TYPE_INJURY])
 
 /** Narrates a whole match: `events` in any order (they are put in match order here) and every one
@@ -392,7 +392,7 @@ export function narrateMatch(events: MatchEvent[], teams: NarrationTeams, t: Tra
       tailKey = 'match.commentary.colour.yellowCard'
     }
 
-    // Shared state - never touched by the events hidden while live.
+    // Shared state - never touched by red cards and injuries (see SPOILER_EVENT_TYPES).
     if (!SPOILER_EVENT_TYPES.has(event.eventType)) {
       if (event.eventType === EVENT_TYPE_GOAL) {
         if (playerId !== undefined) playerGoals.set(playerId, goals)
