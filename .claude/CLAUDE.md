@@ -2,6 +2,6 @@
 
 ## Commits and pull requests
 
-This is a public repository. Never put session ids or session links (for example a
-`Claude-Session:` trailer or a `claude.ai/code/session_...` URL) in commit messages, pull request
-titles or bodies, comments, or any other text pushed to GitHub.
+Never put session ids or session links (for example a `Claude-Session:` trailer or a
+`claude.ai/code/session_...` URL) in commit messages, pull request titles or bodies, comments, or
+any other text pushed to GitHub.
