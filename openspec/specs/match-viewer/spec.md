@@ -37,17 +37,16 @@ The viewer SHALL show one of three views:
 - **WHEN** a participating owner opens his upcoming league match before the lineup lock
 - **THEN** the scheduled view shows his lineup editor and the opponent preview
 
-### Requirement: Live spoiler withholding
-In the live view, the viewer SHALL hide injury and red-card events, for every competition, until the replay completes. Live per-player ratings are shown, but they MUST be computed without the withheld injury and red-card events. The finished view shows every event and the stored ratings.
+### Requirement: Live events shown in full
+In the live view, the viewer SHALL show every broadcast event as it happens, injuries and red cards included, for every competition, so an injury replacement is never shown without the injury that caused it. Live per-player ratings are computed from those same events. The finished view shows every event and the stored ratings.
+
+#### Scenario: Injury replacement in a live league match
+- **WHEN** a player is injured in minute 30 of a league match whose replay is at minute 45, and a bench player comes on for him
+- **THEN** the live chronicle lists the injury and then the substitution
 
 #### Scenario: Red card in a live cup tie
 - **WHEN** a player is sent off in minute 30 of a cup tie whose replay is at minute 45
-- **THEN** the live chronicle doesn't list the red card
-- **AND** the finished view lists it once the replay completes
-
-#### Scenario: Live rating ignores the red card
-- **WHEN** the same player's live rating is shown at minute 45
-- **THEN** it doesn't include the −1.5 for the red card, and the finished view's rating does
+- **THEN** the live chronicle lists the red card, and his live rating at minute 45 includes the −1.5 for it
 
 ### Requirement: Scoreboard subtitle
 The scoreboard subtitle SHALL read `<competition label> · <kickoff date and time> · <weather emoji>`. Any part that is unknown is left out. The labels are:

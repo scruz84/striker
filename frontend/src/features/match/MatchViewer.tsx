@@ -8,7 +8,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { isPast, mightStillBeLive, useIsBroadcastOver, useIsDue, useIsLineupLocked, useLiveMatch } from '../../api/useLiveMatch'
 import { HeadToHeadCard } from '../../components/HeadToHeadCard'
-import { withholdSpoilerEvents } from '../../utils/liveMatchEvents'
 import { goalScorers } from '../../utils/matchGoals'
 import { matchSubtitle } from '../../utils/matchSubtitle'
 import { matchTimeline } from '../../utils/matchMinute'
@@ -90,12 +89,10 @@ function LiveView({
   // Steps through every minute broadcast so far, added minutes included (see matchTimeline).
   const liveTimeline = matchTimeline(live.instants)
   const minuteScrub = useMinuteScrub(liveTimeline.length)
-  // Injury/red-card events are withheld from everything fed live events below (the narrated
-  // report and MatchMinuteRatings alike) - a live viewer shouldn't learn a team just went down to
-  // ten men, or which player just got injured, before the match itself is over (see
-  // withholdSpoilerEvents' own comment). Once the match completes, the page switches over to the
-  // finished-match view, which reads the real, unfiltered events straight from the backend.
-  const liveEvents = withholdSpoilerEvents(live.events)
+  // Every broadcast event is shown live, injuries and red cards included, so an injury
+  // replacement never shows up as an unexplained substitution (match-viewer "Live events shown in
+  // full").
+  const liveEvents = live.events
   const liveScorers = goalScorers(liveEvents, view.homeId)
   const subtitle = matchSubtitle(view.subtitleLabel, view.matchDate, view.weather)
 
