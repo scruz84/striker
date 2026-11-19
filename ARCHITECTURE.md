@@ -70,22 +70,20 @@ superseded migration files still exist, unchanged, under `resources/sql/history/
 record and for the manual-upgrade path described below; they are never auto-applied (see the
 directory-skipping behavior noted above).
 
-`init.sql` is applied by two independent mechanisms:
-
-1. Postgres's own `docker-entrypoint-initdb.d` auto-init, when the container starts against a
-   **fresh, empty** data volume (see `backend/docker-compose.yml`'s postgres service) - it globs
-   `resources/sql/*.sql` non-recursively, so `history/` is skipped the same way.
-2. `common.EnsureSchema`, called by `--initialize`, which applies every file in `resources/sql/`
-   (again non-recursive) itself the first time it's pointed at a database with no schema yet, in
-   `schemaFileSortKey` order: `init.sql` first, then any numbered `initN_*.sql` files in true
-   numeric order, then anything else lexicographically (the `names_*_.../lastnames_*_...` data
-   dumps). `collectSchemaFiles` also walks subdirectories other than `history/`, which is how the
-   generated per-country name-pool files in `resources/sql/namepools/` (`init91_name_pool_<code>.sql`)
-   are applied: Postgres's docker mount skips them, but `EnsureSchema` runs them on the first start.
+`init.sql` is applied by the backend itself: the SQL files are compiled into the binary
+(`resources.SQLFiles`), and `common.EnsureSchema` - called by `--svc`, `--engine` and
+`--initialize` on startup - applies them the first time it's pointed at a database with no schema
+yet, in `schemaFileSortKey` order: `init.sql` first, then any numbered `initN_*.sql` files in true
+numeric order, then anything else lexicographically (the `names_*_.../lastnames_*_...` data
+dumps). `collectSchemaFiles` also walks subdirectories other than `history/`, which is how the
+generated per-country name-pool files in `resources/sql/namepools/` (`init91_name_pool_<code>.sql`)
+are applied. Postgres itself loads nothing: the root `docker-compose.yml` mounts no SQL into it, so
+an external database and the bundled one are set up the same way, and a deployment needs no
+checkout of `resources/sql/`.
 
 `init.sql` and the name-pool dumps only ever run **once** each - they have no `IF NOT
 EXISTS`/idempotency guards, so re-running them against an already-seeded database duplicates data
-or errors outright; both mechanisms above only apply them when the schema doesn't already exist.
+or errors outright; `EnsureSchema` only applies them when the schema doesn't already exist.
 
 **Going forward**, keep making schema changes as additive migrations on top of this baseline: add
 one new `resources/sql/initN_whatever.sql` file (picking up numbering after the highest existing
@@ -370,8 +368,9 @@ key itself).
 
 ## Running it
 
-See `HOWTO_RUN.md` for concrete Docker commands, including the case where Postgres/Redis already
-run elsewhere and the app services need to be pointed at them instead of the bundled containers.
+See `HOWTO_RUN.md` for concrete Docker commands: the root `docker-compose.yml` runs everything,
+from the images `.github/workflows/docker.yml` publishes on every merge to `main` or from a local
+build, with bundled Postgres/Redis or ones that already run elsewhere.
 
 ## Conventions worth preserving
 

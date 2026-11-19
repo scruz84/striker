@@ -1,0 +1,158 @@
+# Striker, all in one: API (svc), simulation engine, frontend, and - optionally - bundled Postgres
+# and Redis. See HOWTO_RUN.md for every way to run it.
+#
+#   cp .env.sample .env                     # then edit it
+#   docker compose pull && docker compose up -d       # run the published images
+#   docker compose up --build -d                       # or build them from this checkout
+#   docker compose run --rm init                       # seed a world (DESTRUCTIVE, wipes game data)
+#
+# Bundled or external services: the `postgres` and `redis` services only start when their
+# profile is enabled, which .env.sample does by default (COMPOSE_PROFILES=postgres,redis). To use
+# a Postgres or Redis that already runs elsewhere, drop its profile from COMPOSE_PROFILES and point
+# DB_* / REDIS_* at it.
+name: striker
+
+# Everything the backend reads, shared by svc, engine and init. Every value comes from .env (or
+# the shell); the defaults point at the bundled containers.
+x-backend-env: &backend-env
+  DB_HOST: ${DB_HOST:-postgres}
+  DB_PORT: ${DB_PORT:-5432}
+  DB_DATABASE: ${DB_DATABASE:-striker}
+  DB_USER: ${DB_USER:-striker}
+  DB_PASSWORD: ${DB_PASSWORD:-striker}
+  REDIS_HOST: ${REDIS_HOST:-redis}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+  REDIS_DB: ${REDIS_DB:-0}
+  # The dev-only-change-me placeholders are REFUSED at startup unless DEV_LOGIN_ENABLED=true:
+  # set SECRET_JWT and SESSION_SECRET (>= 32 chars, e.g. `openssl rand -base64 48`) and
+  # GOOGLE_OAUTH_CLIENT_ID for anything that is not local development.
+  SECRET_JWT: ${SECRET_JWT:-dev-only-change-me}
+  SESSION_SECRET: ${SESSION_SECRET:-dev-only-change-me}
+  # Audience Google ID tokens are validated against - the same client id the frontend uses.
+  GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+  REALM: ${REALM:-Striker Manager}
+  SESSION_TIMEOUT: ${SESSION_TIMEOUT:-24h}
+  CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+  DEV_LOGIN_ENABLED: ${DEV_LOGIN_ENABLED:-false}
+  ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+  SEEDED_COUNTRIES: ${SEEDED_COUNTRIES:-}
+  # Web push (see common.ConfigureWebPushNotifier). Empty keys = log-only notifications.
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+  VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+  # OpenTelemetry metrics export - off by default, see backend/README.md's "OpenTelemetry
+  # metrics" section.
+  OTEL_METRICS_ENABLED: ${OTEL_METRICS_ENABLED:-false}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+# svc, engine and init run the same image with a different command. `image` is the published
+# image (`docker compose pull`); `build` lets `docker compose up --build` build it from this
+# checkout instead. STRIKER_TAG picks the version: latest, or sha-<commit> to pin one.
+x-backend: &backend
+  image: ghcr.io/scruz84/striker-backend:${STRIKER_TAG:-latest}
+  build:
+    context: ./backend
+    dockerfile: resources/Dockerfile
+  restart: unless-stopped
+  # required: false - when the bundled service's profile is off (an external Postgres/Redis),
+  # there is nothing to wait for.
+  depends_on:
+    postgres:
+      condition: service_healthy
+      required: false
+    redis:
+      condition: service_healthy
+      required: false
+  environment: *backend-env
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-striker}
+      POSTGRES_USER: ${DB_USER:-striker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-striker}
+    # Published on the host's loopback only (for psql or `go run` from this machine), never on
+    # every interface.
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    profiles: ["redis"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # The HTTP API. It creates the schema itself on an empty database (common.EnsureSchema), so
+  # no SQL has to be loaded into Postgres beforehand.
+  svc:
+    <<: *backend
+    command: ["--svc"]
+    ports:
+      - "${SVC_PORT:-1984}:1984"
+
+  # Simulates matches and rolls seasons over on a schedule. Can be scaled to several replicas
+  # (docker compose up -d --scale engine=2).
+  engine:
+    <<: *backend
+    command: ["--engine"]
+
+  # One-off, destructive seed/reset job: wipes and recreates all game data (countries, leagues,
+  # teams, players, season), so it never starts with a plain `docker compose up`. Run it
+  # explicitly and deliberately with:
+  #   docker compose run --rm init
+  # (naming the service enables its profile; `--profile init` would instead replace the
+  # COMPOSE_PROFILES from .env and leave the bundled Postgres/Redis out).
+  init:
+    <<: *backend
+    command: ["--initialize"]
+    restart: "no"
+    profiles: ["init"]
+
+  # The production frontend build, served by nginx. Its settings are written into config.js when
+  # the container starts (frontend/set-env.sh), so the same image fits every deployment.
+  frontend:
+    image: ghcr.io/scruz84/striker-frontend:${STRIKER_TAG:-latest}
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    environment:
+      # The browser calls this URL directly, so it must be reachable from wherever the user's
+      # browser runs - the API's public address, not a container name.
+      API_URI: ${API_URI:-http://localhost:1984}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      # Who runs this deployment, shown in the Privacy Policy / Terms / legal notice. Name and
+      # contact email are required for a public deployment; the rest are optional. See HOWTO_RUN.md.
+      LEGAL_CONTROLLER_NAME: ${LEGAL_CONTROLLER_NAME:-}
+      LEGAL_CONTACT_EMAIL: ${LEGAL_CONTACT_EMAIL:-}
+      LEGAL_CONTROLLER_TAX_ID: ${LEGAL_CONTROLLER_TAX_ID:-}
+      LEGAL_POSTAL_ADDRESS: ${LEGAL_POSTAL_ADDRESS:-}
+      LEGAL_HOSTING_PROVIDER: ${LEGAL_HOSTING_PROVIDER:-}
+      LEGAL_HOSTING_REGION: ${LEGAL_HOSTING_REGION:-}
+      LEGAL_NOTICE_ENABLED: ${LEGAL_NOTICE_ENABLED:-}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+
+volumes:
+  postgres-data:
+    # Override to keep using an existing volume, e.g. the one the old backend/docker-compose.yml
+    # created (striker-backend_postgres-data) - see HOWTO_RUN.md's "Moving from the per-half
+    # compose files".
+    name: ${POSTGRES_VOLUME:-striker_postgres-data}

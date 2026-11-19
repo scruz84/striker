@@ -7,8 +7,8 @@ import (
 
 // defaultCorsAllowedOrigins are always allowed, regardless of CORS_ALLOWED_ORIGINS - the two
 // ports the frontend actually runs on locally: 5173 for `npm run dev` (Vite's default) and 3000
-// for the Dockerized/nginx-served build (see frontend/docker-compose.yml). A deployment adds its
-// own public frontend origin(s) through CORS_ALLOWED_ORIGINS.
+// for the Dockerized/nginx-served build (the frontend service of the root docker-compose.yml). A
+// deployment adds its own public frontend origin(s) through CORS_ALLOWED_ORIGINS.
 var defaultCorsAllowedOrigins = []string{
 	"http://localhost:3000",
 	"http://localhost:5173",

@@ -1,83 +1,230 @@
 # How to run Striker
 
-Two independent halves, each with its own `docker-compose.yml`: `backend/` (API + engine +
-Postgres + Redis) and `frontend/` (nginx-served production build). They don't share a compose
-file - run each from its own directory.
+Everything runs from one Compose file at the repository root, `docker-compose.yml`: the API
+(`svc`), the simulation engine (`engine`), the frontend (nginx), and - unless you use your own -
+Postgres and Redis. Settings live in one `.env` file next to it.
 
-## Quick start (bundled Postgres/Redis)
+The application images are published to the GitHub Container Registry on every merge to `main`
+(see [Published images](#published-images)), so a server only needs `docker-compose.yml` and a
+`.env`, not a checkout or a build. You can still build everything from source.
 
-This is the default path: Docker Compose brings up its own Postgres and Redis containers for
-you.
+## Quick start
 
 ```bash
-# 1. Backend - API server, background engine, Postgres, Redis
-cd backend
-docker compose up --build -d
+cp .env.sample .env          # then edit it - see "Configuration" below
+docker compose pull          # fetch the published images
+docker compose up -d
 
-# 2. Seed the game world (destructive - wipes and recreates all game data). Only needed once,
-#    or whenever you deliberately want a fresh world.
-docker compose --profile init run --rm init
-
-# 3. Frontend - production build served by nginx
-cd ../frontend
-docker compose up --build -d
+# Seed the game world (destructive - wipes and recreates all game data). Only needed once, or
+# whenever you deliberately want a fresh world.
+docker compose run --rm init
 ```
 
-- Backend API: `http://localhost:1984` (override with `SVC_PORT`)
 - Frontend: `http://localhost:3000` (override with `FRONTEND_PORT`)
+- Backend API: `http://localhost:1984` (override with `SVC_PORT`)
 
-The frontend needs to know where the backend is reachable **from the browser**, not from inside
-its own container - set `API_URI` (backend's `docker-compose.yml` defaults it to
-`http://localhost:1984`, which is right for both running on the same machine):
+Run `init` exactly as shown. Naming the service is enough to start it, and keeps the bundled
+Postgres/Redis that `.env` enables; adding `--profile init` would replace those profiles and leave
+the database out.
+
+To try it without setting up Google OAuth, set `DEV_LOGIN_ENABLED=true` in `.env`: you can then
+sign in as a fixed set of dev users, and the API starts with the placeholder secrets. **Never set
+that on a deployment anyone else can reach** - it lets anyone sign in as any dev user, admin
+included, with no credential check. Without it the API refuses to start until `SECRET_JWT`,
+`SESSION_SECRET` and `GOOGLE_OAUTH_CLIENT_ID` are set (see the production checklist at the end).
+
+The schema needs no separate step: on an empty database, `svc` and `engine` create it themselves
+on startup (`common.EnsureSchema`), and they apply any newer migration on every later start.
+
+## Published images or a local build
+
+`docker-compose.yml` names, for each application service, both the published image and the
+Dockerfile it comes from:
+
+| Command | What runs |
+|---|---|
+| `docker compose pull && docker compose up -d` | The published images (`ghcr.io/scruz84/striker-backend` and `ghcr.io/scruz84/striker-frontend`) at `STRIKER_TAG` |
+| `docker compose up --build -d` | Images built from this checkout, tagged with the same names |
+
+`STRIKER_TAG` (in `.env`) picks the version: `latest` (the default) or `sha-<commit>` - the first
+seven characters of a commit on `main` - to pin one exact build. Pinning is the safer choice on a
+server: an upgrade then only happens when you change the tag, and rolling back is setting the
+previous one again.
+
+**Upgrading** to a newer published version:
 
 ```bash
-cd frontend
-API_URI=http://localhost:1984 GOOGLE_OAUTH_CLIENT_ID=<your client id> docker compose up --build -d
+docker compose pull          # or change STRIKER_TAG first
+docker compose up -d         # recreates only the containers whose image changed
 ```
 
-Without a real `GOOGLE_OAUTH_CLIENT_ID`, Google sign-in won't work - set
-`DEV_LOGIN_ENABLED=true` on the backend instead (see below) to sign in without any OAuth setup at
-all. **Never set that in a real deployment** - it lets anyone sign in as any of a fixed dev-user
-roster, admin included, with no credential check.
+Compose keeps using the image it already has until you `pull`; `up` alone never fetches a newer
+`latest`. After a local `--build`, the local image carries the published name, so run
+`docker compose pull` to go back to the published one.
 
-For local development with the bundled compose placeholders (`SECRET_JWT`/`SESSION_SECRET`
-unset), `DEV_LOGIN_ENABLED=true` is also what lets the backend start: it otherwise refuses to run
-with placeholder secrets or without `GOOGLE_OAUTH_CLIENT_ID` (see the production checklist at the
-end).
+## Configuration
 
-### Common backend env vars (`backend/.env`, or exported before `docker compose up`)
+Every setting is an environment variable read from `.env` (or the shell). `.env.sample` lists all
+of them with comments; the most common ones:
+
+### Backend
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `DB_DATABASE` / `DB_USER` / `DB_PASSWORD` | `striker` / `striker` / `striker` | Bundled Postgres credentials |
-| `DB_PORT` | `5432` | Host port Postgres is published on |
-| `SVC_PORT` | `1984` | Host port the API is published on |
-| `SECRET_JWT` / `SESSION_SECRET` | dev-only placeholders | **Required, >= 32 characters** (`openssl rand -base64 48`): the backend refuses to start with a placeholder or short value unless `DEV_LOGIN_ENABLED=true` |
-| `GOOGLE_OAUTH_CLIENT_ID` | *(empty)* | **Required** (unless dev login): the audience Google ID tokens are validated against - same value as the frontend's |
-| `REALM` | `Striker Manager` | JWT realm name |
-| `SESSION_TIMEOUT` | `30m` | JWT session lifetime |
+| `SECRET_JWT` / `SESSION_SECRET` | dev-only placeholders | **Required, >= 32 characters** (`openssl rand -base64 48`): the API refuses to start with a placeholder or short value unless `DEV_LOGIN_ENABLED=true` |
+| `GOOGLE_OAUTH_CLIENT_ID` | *(empty)* | **Required** (unless dev login): the audience Google ID tokens are validated against. The frontend uses the same variable |
 | `DEV_LOGIN_ENABLED` | `false` | Opt into no-credential-check sign-in (local/CI only) |
-| `CORS_ALLOWED_ORIGINS` | *(empty)* | Extra allowed origins beyond the built-in defaults, comma-separated - needed for any deployed frontend, or one running anywhere other than `:3000`/`:5173` |
-| `ADMIN_EMAILS` | *(unset)* | Comma-separated emails granted commissioner/admin access on login |
+| `ADMIN_EMAILS` | *(empty)* | Comma-separated emails granted commissioner/admin access on login |
+| `CORS_ALLOWED_ORIGINS` | *(empty)* | Extra allowed origins beyond `http://localhost:3000`/`:5173`, comma-separated - needed for any deployed frontend |
+| `REALM` | `Striker Manager` | JWT realm name |
+| `SESSION_TIMEOUT` | `24h` | JWT session lifetime |
+| `SEEDED_COUNTRIES` | *(empty = es,en,fr,de)* | Countries a fresh world (`init`) is seeded with |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | *(empty)* | Web push keypair; empty = notifications are only logged |
+| `OTEL_METRICS_ENABLED` / `OTEL_EXPORTER_OTLP_ENDPOINT` | `false` / *(empty)* | OpenTelemetry metrics export (see backend/README.md) |
+| `DB_*` / `REDIS_*` | the bundled containers | See [Using Postgres or Redis that already run elsewhere](#using-postgres-or-redis-that-already-run-elsewhere) |
 
-### Common frontend env vars (`frontend/.env`, or exported before `docker compose up`)
+### Frontend
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `API_URI` | `http://localhost:1984` | Backend URL - called directly by the browser, so it must be reachable from wherever the user's browser runs, not from inside the frontend's own container |
-| `GOOGLE_OAUTH_CLIENT_ID` | *(empty)* | Google OAuth client ID for sign-in |
-| `FRONTEND_PORT` | `3000` | Host port nginx is published on |
+| `GOOGLE_OAUTH_CLIENT_ID` | *(empty)* | Google OAuth client ID for sign-in (shared with the backend) |
+| `VAPID_PUBLIC_KEY` | *(empty)* | The browser needs the public key too, to subscribe to push (shared with the backend) |
+| `LEGAL_*` | *(empty)* | Who runs the deployment, shown in the Privacy Policy and Terms (see the production checklist) |
 
-Full details (every endpoint, every admin feature, the full schema-migration list) live in
-`backend/README.md` and `frontend/README.md` - this file only covers *running* the services.
+The frontend writes these into `config.js` when its container starts (`frontend/set-env.sh`), so
+changing one needs only `docker compose up -d`, never a rebuild.
+
+### Ports and images
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `SVC_PORT` / `FRONTEND_PORT` | `1984` / `3000` | Host ports the API and the frontend are published on |
+| `POSTGRES_HOST_PORT` / `REDIS_HOST_PORT` | `5432` / `6379` | Host ports of the bundled Postgres/Redis, bound to `127.0.0.1` only |
+| `STRIKER_TAG` | `latest` | Version of the published images |
+| `COMPOSE_PROFILES` | `postgres,redis` | Which bundled services start |
+| `POSTGRES_VOLUME` | `striker_postgres-data` | Volume holding the bundled Postgres data |
+
+Full details (every endpoint, every admin feature) live in `backend/README.md` and
+`frontend/README.md` - this file only covers *running* the services.
+
+## Using Postgres or Redis that already run elsewhere
+
+The bundled `postgres` and `redis` services only start when their Compose profile is enabled, and
+`.env.sample` enables both (`COMPOSE_PROFILES=postgres,redis`). To use a managed database, a
+shared server or containers you already run, remove that service from `COMPOSE_PROFILES` and
+point its variables at the real one. Each can be external on its own - for example an external
+Postgres with the bundled Redis:
+
+```bash
+# .env
+COMPOSE_PROFILES=redis             # only the bundled Redis; empty to bundle neither
+DB_HOST=db.example.internal
+DB_PORT=5432
+DB_DATABASE=striker
+DB_USER=striker
+DB_PASSWORD=<real password>
+```
+
+and for an external Redis as well:
+
+```bash
+COMPOSE_PROFILES=
+REDIS_HOST=cache.example.internal
+REDIS_PORT=6379
+REDIS_PASSWORD=<real password, or empty if none>
+REDIS_DB=0
+```
+
+Then start and seed exactly as in the quick start - `docker compose up -d`, and
+`docker compose run --rm init` once if the external database has no game world yet. An empty
+external database gets its schema from the backend itself, the same as the bundled one, so no
+manual `psql` step is needed.
+
+`DB_HOST`/`REDIS_HOST` must be reachable **from inside the containers**: a hostname, an IP, or -
+for a database on the Docker host itself - the host's address on the Docker network
+(`172.17.0.1` on a default Linux install), since `localhost` inside a container is the container
+itself. If Postgres or Redis is a container on another Docker network, attach the backend
+services to that network with a `docker-compose.override.yml` next to `docker-compose.yml`
+(Compose loads it automatically) and use the container's name as the host:
+
+```yaml
+# docker-compose.override.yml
+services:
+  svc:
+    networks: [default, shared]
+  engine:
+    networks: [default, shared]
+  init:
+    networks: [default, shared]
+
+networks:
+  shared:
+    external: true
+    name: my-existing-network   # the network the database container is on
+```
+
+The frontend never talks to Postgres/Redis (only to the API over HTTP), so nothing about it
+changes here.
+
+## Moving from the per-half compose files
+
+Before the all-in-one file, the backend and frontend each had their own compose file
+(`backend/docker-compose.yml`, `backend/docker-compose-svc-only.yml` and
+`frontend/docker-compose.yml`), with their own `.env` files and the Compose projects
+`striker-backend` and `striker-frontend`. To switch a running deployment over:
+
+1. **Merge the settings** into one `.env` at the repository root, starting from `.env.sample`:
+   take the backend values from `backend/.env` and the frontend ones (`API_URI`, `LEGAL_*`, ...)
+   from `frontend/.env`. `GOOGLE_OAUTH_CLIENT_ID` is now one variable for both.
+2. **Choose the services:**
+   - From `docker-compose-svc-only.yml` (external Postgres/Redis): set `COMPOSE_PROFILES=` (empty)
+     and keep your `DB_*`/`REDIS_*` values.
+   - From the bundled `backend/docker-compose.yml`: keep `COMPOSE_PROFILES=postgres,redis` and set
+     `POSTGRES_VOLUME=striker-backend_postgres-data`, so the new Postgres container uses the
+     existing data instead of starting empty.
+3. **Stop the old projects** - without `-v`, which would delete the bundled database's volume:
+
+   ```bash
+   docker compose -p striker-backend down
+   docker compose -p striker-frontend down
+   ```
+
+4. **Start the new one** from the repository root: `docker compose pull && docker compose up -d`.
+   Do **not** run `init`: the database already holds your world.
+
+## Published images
+
+`.github/workflows/docker.yml` builds and publishes two images to the GitHub Container Registry:
+
+- `ghcr.io/scruz84/striker-backend` - the API, engine and seed job (one image, three commands)
+- `ghcr.io/scruz84/striker-frontend` - the nginx-served frontend
+
+It runs after the CI workflow passes on a push to `main` - so an image is never published for a
+commit with failing checks - and on demand from the repository's Actions tab ("Docker images" ->
+"Run workflow"). Each image is built for `linux/amd64` and `linux/arm64` (an ARM server or a
+Raspberry Pi pulls the right one automatically) and tagged:
+
+- `sha-<commit>` - the first seven characters of the commit it was built from, never moved;
+- `latest` - the newest build of `main` (a manual run on another branch publishes only its
+  `sha-` tag).
+
+The images carry no secrets: every password, key and client id is passed in as an environment
+variable when the container starts. After the first run, check each package's visibility on its
+page (the repository's "Packages" section): if it shows as private, set it to public once
+("Package settings" -> "Change visibility"), so it can be pulled without logging in and doesn't
+count against the account's private storage.
 
 ## Local development without Docker
 
 ```bash
-# Backend - needs a reachable Postgres + Redis (local install, or `docker compose up postgres redis`
-# from backend/ to get just those two containers without the app services)
+# Postgres and Redis - any local install, or just the two bundled containers (published on
+# 127.0.0.1:5432 and 127.0.0.1:6379):
+docker compose up -d postgres redis
+
+# Backend
 cd backend
-cp app.env.sample app.env   # fill in DB_*/REDIS_*/SECRET_JWT/etc
+cp app.env.sample app.env   # fill in DB_*/REDIS_*/SECRET_JWT/etc (localhost for the containers above)
 go run ./cmd --svc --engine   # API + scheduler in one process; split into two terminals if preferred
 
 # Frontend
@@ -108,87 +255,6 @@ on `localhost`, which is the dev origin the backend's CORS and session cookie ac
 admin panel is not covered, and a freshly seeded world has no played matches, so the match page is
 checked in its scheduled view.
 
-## Running against Postgres/Redis that already run elsewhere
-
-`backend/docker-compose.yml` bundles its own Postgres/Redis containers and points `svc`/`engine`/
-`init` at them by container name (`DB_HOST=postgres`, `REDIS_HOST=redis`) - those two values are
-**hardcoded in the compose file**, not read from your `.env`, so simply setting `DB_HOST`/
-`REDIS_HOST` in `backend/.env` has no effect on the bundled setup. To point at Postgres/Redis
-running on other hosts (a managed database, a shared dev server, separate containers you already
-run), override the app services' environment and skip starting the bundled ones.
-
-1. Create an override file, e.g. `backend/docker-compose.external.yml`:
-
-   ```yaml
-   services:
-     svc:
-       environment:
-         DB_HOST: db.example.internal
-         DB_PORT: "5432"
-         DB_DATABASE: striker
-         DB_USER: striker
-         DB_PASSWORD: <real password>
-         REDIS_HOST: cache.example.internal
-         REDIS_PORT: "6379"
-         REDIS_PASSWORD: <real password, or "" if none>
-         REDIS_DB: "0"
-     engine:
-       environment:
-         DB_HOST: db.example.internal
-         DB_PORT: "5432"
-         DB_DATABASE: striker
-         DB_USER: striker
-         DB_PASSWORD: <real password>
-         REDIS_HOST: cache.example.internal
-         REDIS_PORT: "6379"
-         REDIS_PASSWORD: <real password, or "" if none>
-         REDIS_DB: "0"
-     # Only include this if you'll run the seed/reset job too
-     init:
-       environment:
-         DB_HOST: db.example.internal
-         DB_PORT: "5432"
-         DB_DATABASE: striker
-         DB_USER: striker
-         DB_PASSWORD: <real password>
-         REDIS_HOST: cache.example.internal
-         REDIS_PORT: "6379"
-         REDIS_PASSWORD: <real password, or "" if none>
-         REDIS_DB: "0"
-   ```
-
-   (Compose merges `environment` maps per-service, key by key, across `-f` files - an override
-   file only needs to list the keys that actually change; every other key from the base file's
-   `environment` block, like `SECRET_JWT` or `DEV_LOGIN_ENABLED`, still applies. The full
-   `DB_*`/`REDIS_*` set is listed above for clarity, but e.g. `DB_DATABASE`/`DB_USER`/
-   `DB_PASSWORD` can be left out if they're already correct via `backend/.env`.)
-
-2. Bring up just the app services, with `--no-deps` so Compose doesn't also start the bundled
-   Postgres/Redis containers it would otherwise pull in via `depends_on`:
-
-   ```bash
-   cd backend
-   docker compose -f docker-compose.yml -f docker-compose.external.yml up --build --no-deps -d svc engine
-   ```
-
-   Run the seed job the same way, once, if the external database is empty:
-
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.external.yml --profile init run --rm --no-deps init
-   ```
-
-3. If Postgres doesn't already have the schema loaded (a genuinely empty external database), the
-   `init` run above creates it (`--initialize` calls `common.EnsureSchema`, same as the bundled
-   case) - no manual `psql` step needed for a first-time setup. If instead it's an
-   **already-initialized** external database missing a schema file added since it was last
-   initialized, apply just that file manually - see backend/README.md's "Schema changes on an
-   already-running database" section, adjusting the `psql` connection details to the external
-   host.
-
-The frontend doesn't talk to Postgres/Redis at all (only to the backend API over HTTP), so
-nothing about it changes in this scenario - point its `API_URI` at wherever `svc` ends up
-reachable, same as the quick-start section above.
-
 ## Production checklist
 
 Before exposing a deployment to the internet:
@@ -197,18 +263,21 @@ Before exposing a deployment to the internet:
 - [ ] `SECRET_JWT` and `SESSION_SECRET`: two different random values of at least 32 characters
       (`openssl rand -base64 48`), never the compose placeholders. Rotating `SECRET_JWT` signs
       everyone out once.
-- [ ] `GOOGLE_OAUTH_CLIENT_ID` set on **both** the backend and the frontend, to the same value.
+- [ ] `GOOGLE_OAUTH_CLIENT_ID` set (one variable, used by both the backend and the frontend).
 - [ ] `ADMIN_EMAILS` lists only the real administrators.
 - [ ] `CORS_ALLOWED_ORIGINS` lists only the public frontend origin(s) - it also decides who can send
       the `X-Striker-Client` CSRF header.
+- [ ] `STRIKER_TAG` pinned to a `sha-<commit>` tag, so the version only changes when you decide.
+- [ ] With the bundled Postgres, `DB_PASSWORD` changed from the default `striker` before the first
+      start (it is only applied when the database volume is created).
 - [ ] HTTPS only (the session cookie is `Secure`); redirect HTTP to HTTPS at the proxy.
 - [ ] Security headers at the proxy/nginx: `Strict-Transport-Security`, a `Content-Security-Policy`,
       `X-Content-Type-Options`, `Referrer-Policy`.
 - [ ] Rate limiting at the proxy, at least on `/v1/login` and on `/v1` as a whole.
 - [ ] Logs rotated and kept at most 30 days; database backups kept at most 30 days.
 - [ ] Secrets live in the host's secret store or environment, never in the repository or an image.
-- [ ] The database is bootstrapped with `docker compose --profile init run --rm init` (there is
-      no unauthenticated reset route); `POST /v1/admin/initialize` is admin-only and destroys all data.
+- [ ] The database is bootstrapped with `docker compose run --rm init` (there is no
+      unauthenticated reset route); `POST /v1/admin/initialize` is admin-only and destroys all data.
 - [ ] Frontend `LEGAL_CONTROLLER_NAME` and `LEGAL_CONTACT_EMAIL` set (required: the Privacy Policy and
       Terms name the controller and the contact for privacy requests; without them the pages show
       a "legal details not configured" warning). Optional: `LEGAL_CONTROLLER_TAX_ID`,

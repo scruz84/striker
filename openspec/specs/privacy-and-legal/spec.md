@@ -93,8 +93,8 @@ When the property `LEGAL_NOTICE_ENABLED` is `true`, the app SHALL serve a public
 ## Code map
 
 - Legal identity: `frontend/src/config.ts` (`getLegalConfig`), placeholders in
-  `frontend/public/config.js`, escaped substitution in `frontend/set-env.sh`, env pass-through in
-  `frontend/docker-compose.yml`, `VITE_LEGAL_*` in `.env.development.local.sample`.
+  `frontend/public/config.js`, escaped substitution in `frontend/set-env.sh`, env pass-through in the
+  root `docker-compose.yml` and `.env.sample`, `VITE_LEGAL_*` in `.env.development.local.sample`.
 - Pages: `frontend/src/features/legal/` (`PrivacyPage`, `TermsPage`, `LegalNoticePage`,
   `LegalDocument`, `LegalLinks`, `AcceptTermsPage`, `useLegalValues`, `legalMeta`), routes in
   `src/app/App.tsx` (the legal notice route only when `noticeEnabled`); texts under

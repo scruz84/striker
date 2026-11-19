@@ -18,7 +18,7 @@ type ActionResult struct {
 // team any real user has built. Served at POST /v1/admin/initialize, so the JWT and RequireAdmin
 // middleware of the admin group have already authenticated an admin by the time it runs; it does
 // no identity check of its own. An empty database is bootstrapped with the --initialize CLI
-// instead (docker compose --profile init run --rm init).
+// instead (docker compose run --rm init).
 func Initialize(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log.Infof("[goroutine - %d] - Starting to initialize the database", common.CurGoroutineID())

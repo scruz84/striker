@@ -5,20 +5,27 @@ See `cmd/striker.go` for the three run modes: `--svc`, `--engine`, `--initialize
 
 ## Docker
 
+The backend runs from the root `docker-compose.yml`, together with the frontend (see
+`../HOWTO_RUN.md` for every option). From the repository root:
+
 ```bash
-docker compose up --build
+cp .env.sample .env
+docker compose pull && docker compose up -d   # published images; or `up --build -d` to build
 ```
 
-Starts Postgres, Redis, the API service (`svc`, published on `http://localhost:1984`) and the
-background engine (`engine`, which simulates matches and rolls over seasons on a schedule).
-Postgres is seeded from `resources/sql/*.sql` on first start.
+Starts Postgres and Redis (unless `.env` points at external ones), the API service (`svc`,
+published on `http://localhost:1984`) and the background engine (`engine`, which simulates
+matches and rolls over seasons on a schedule). All three backend services run one image -
+`ghcr.io/scruz84/striker-backend`, built from `resources/Dockerfile` with this directory as the
+context - with a different command (`--svc`, `--engine`, `--initialize`).
 
-The database itself is created empty by those `*.sql` files (schema + name-generation data) but
-has no countries/leagues/teams/players yet. Seed (or reset) the game world explicitly - this is
-**destructive**, it wipes and recreates all game data:
+On an empty database, `svc`/`engine` create the schema and the name-generation data themselves
+(`common.EnsureSchema`, from the `resources/sql/` files compiled into the binary), so Postgres
+needs no SQL of its own. The database then has no countries/leagues/teams/players yet. Seed (or
+reset) the game world explicitly - this is **destructive**, it wipes and recreates all game data:
 
 ```bash
-docker compose --profile init run --rm init
+docker compose run --rm init
 ```
 
 The seeded world spans four countries by default (`common.DefaultSeededCountries`): Spain
@@ -36,8 +43,8 @@ variable (e.g. `SEEDED_COUNTRIES=es,en,it,pt`) - each code must already be a kno
 team/stadium naming data; an unknown code is skipped with a logged error rather than failing the
 whole list. Unset or entirely invalid falls back to the four defaults above.
 
-Override any setting via a `.env` file in this directory (see `docker-compose.yml` for the full
-list: `DB_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`). The
+Override any setting via the `.env` file at the repository root (`.env.sample` lists every one:
+`DB_*`, `REDIS_*`, `SECRET_JWT`, `SESSION_SECRET`, `REALM`, `SESSION_TIMEOUT`, `SVC_PORT`, ...). The
 defaults are dev-only placeholders - `--svc` **refuses to start** with them (or any `SECRET_JWT` /
 `SESSION_SECRET` shorter than 32 characters) and without `GOOGLE_OAUTH_CLIENT_ID`, unless
 `DEV_LOGIN_ENABLED=true` (see "Dev login"), in which case it starts and logs each problem at ERROR
@@ -140,8 +147,7 @@ which locks each table while it runs.
 `POST /v1/admin/initialize` wipes and reseeds the whole game (`handlers.Initialize`) and is the
 only HTTP route that does - behind the JWT and admin middleware like the rest of this group. The
 old unauthenticated `GET /v1/initData` no longer exists (404). An empty database is bootstrapped
-with the CLI instead: `docker compose --profile init run --rm init` (or `go run ./cmd
---initialize`).
+with the CLI instead: `docker compose run --rm init` (or `go run ./cmd --initialize`).
 
 ### Live matches
 
@@ -151,7 +157,7 @@ simulates it (`engine.BroadcastMatchLive`) - the simulation itself is instant, c
 persisted to Postgres in one go; the ~22-second "live" pacing is purely a cosmetic replay of an
 already-known result for anyone watching. That replay is published over Redis pub/sub
 (`common.LiveMatchHub`), not an in-process channel - the API server and the simulation engine are
-separate processes (separate containers in `docker-compose.yml`, and still separate
+separate processes (separate containers in the root `docker-compose.yml`, and still separate
 `DatabaseContext`/hub instances even when both run together via `--svc --engine` in one process,
 per "Local development" below), so only a hub both of them actually connect to can deliver a
 message from one to the other. The frontend's `useMatchDetails` also polls every 5 seconds while
@@ -373,25 +379,26 @@ against a database that already has a schema it re-applies just the numbered `in
 migrations (skipping `init.sql` itself and the name-pool dumps, which are only safe to run once -
 see the doc comment on `EnsureSchema`). Every migration file is written to be safely re-run
 (`CREATE TABLE`/`ADD COLUMN`/`CREATE INDEX ... IF NOT EXISTS`, `UPDATE ... WHERE x IS NULL`), so
-restarting the containers after pulling a branch update (`docker compose up -d --build`) is
-enough to pick up a new one - no manual `psql` step required. If you'd rather apply it yourself
-without restarting anything, that still works too:
+restarting the containers on a new version (`docker compose pull && docker compose up -d`, or
+`docker compose up -d --build` after pulling a branch update) is enough to pick up a new one - no
+manual `psql` step required. If you'd rather apply it yourself without restarting anything, that
+still works too (from the repository root, with the bundled Postgres):
 
 ```bash
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/initN_whatever.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < backend/resources/sql/initN_whatever.sql
 ```
 
 If instead your database predates one of the migrations already folded into `init.sql`, apply the
 matching file from `resources/sql/history/` the same way, e.g.:
 
 ```bash
-docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < resources/sql/history/init2_league_tier.sql
+docker compose exec -T postgres psql -U ${DB_USER:-striker} -d ${DB_DATABASE:-striker} < backend/resources/sql/history/init2_league_tier.sql
 ```
 
 **Note:** the multi-country migration only adds the name-pool tables for the new countries
 (en/fr/de/it/pt) - it doesn't retroactively add their leagues/teams/players to a world that's
-already been seeded. Adding those requires a full reseed (`docker compose --profile init run --rm
-init`, destructive - see above).
+already been seeded. Adding those requires a full reseed (`docker compose run --rm init`,
+destructive - see above).
 
 ### Team names
 
@@ -748,7 +755,7 @@ go run ./cmd --svc          # or --engine / --initialize / --svc --engine
 
 `--svc` and `--engine` can be combined to run the API server and the match-simulation/season-
 rollover scheduler in one process - handy for local development so you don't need two terminals.
-Docker Compose still runs them as separate containers (see `docker-compose.yml`), which works
+Docker Compose still runs them as separate containers (see the root `docker-compose.yml`), which works
 exactly the same way.
 
 ## CI
@@ -758,3 +765,11 @@ vet`/`go test` for the backend, and `tsc --noEmit`/`oxlint`/`vitest run`/`npm ru
 frontend - the same checks expected before opening or merging a PR, just automated. Neither job
 needs Postgres/Redis running, since backend tests only ever cover pure formulas, never DB
 round-trips (no DB is available in CI to round-trip against).
+
+`.github/workflows/docker.yml` runs after CI passes on a push to `main` (and on demand from the
+Actions tab): it builds the backend and frontend images for `linux/amd64` and `linux/arm64` and
+publishes them to the GitHub Container Registry as `ghcr.io/scruz84/striker-backend` and
+`ghcr.io/scruz84/striker-frontend`, tagged `sha-<commit>` and `latest` - see `../HOWTO_RUN.md`'s
+"Published images". `resources/Dockerfile` cross-compiles the Go binary on the builder's own
+platform (`GOOS`/`GOARCH` from `TARGETOS`/`TARGETARCH`), so the arm64 image costs no emulated
+compile.

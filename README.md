@@ -79,25 +79,22 @@ logged in or not. It runs in any browser and installs as an app on your phone.
 
 ## Quick start
 
-You need Docker. From a fresh clone:
+You need Docker. One Compose file at the root runs everything - the API, the engine, the
+frontend, Postgres and Redis - from the images published on every merge to `main`:
 
 ```bash
-# Backend: API, engine, Postgres and Redis
-cd backend
-docker compose up --build -d
-docker compose --profile init run --rm init   # seed a world (wipes any existing game data)
-
-# Frontend, served by nginx
-cd ../frontend
-docker compose up --build -d
+cp .env.sample .env            # set DEV_LOGIN_ENABLED=true to try it without Google OAuth
+docker compose pull && docker compose up -d
+docker compose run --rm init   # seed a world (wipes any existing game data)
 ```
 
-The game is then at `http://localhost:3000` and the API at `http://localhost:1984`. To sign in
-without setting up Google OAuth, set `DEV_LOGIN_ENABLED=true` on the backend for local use only.
+The game is then at `http://localhost:3000` and the API at `http://localhost:1984`. Use
+`docker compose up --build -d` instead to build the images from your checkout. Dev login is for
+local use only.
 
-[`HOWTO_RUN.md`](HOWTO_RUN.md) has the full set of options: environment variables, local
-development without Docker, using an existing Postgres/Redis, and a checklist for a public
-deployment.
+[`HOWTO_RUN.md`](HOWTO_RUN.md) has the full set of options: environment variables, pinning and
+upgrading image versions, using an existing Postgres/Redis, local development without Docker, and
+a checklist for a public deployment.
 
 ## Documentation
 
