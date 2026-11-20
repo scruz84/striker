@@ -92,6 +92,10 @@ const TAB_NAMES = ['transfers', 'loans', 'offers', 'freeAgents', 'lastSeason', '
 // Parses a persisted filter string ("" when unset) into a number the filters can compare with.
 const num = (value: string) => Number(value)
 
+/** Your own players in alphabetical order of their displayed name, for the list/loan pickers. */
+const sortByName = (players: Player[]): Player[] =>
+  [...players].sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, undefined, { sensitivity: 'base' }))
+
 // The market's activity panel (issue #72): how many players are listed, how busy the offer
 // market has been in the last hour/day, the currently-listed player getting the most attention,
 // and the biggest transfer fee ever paid. A single horizontally scrollable row of compact tiles
@@ -242,7 +246,7 @@ function TransfersTab() {
 
   const myTeamId = userTeam.team.id
   const listedPlayerIds = new Set(listings.filter((l) => l.sellingTeamId === myTeamId).map((l) => l.player.id))
-  const listablePlayers = userTeam.players.filter((p) => !listedPlayerIds.has(p.id))
+  const listablePlayers = sortByName(userTeam.players.filter((p) => !listedPlayerIds.has(p.id)))
   const myListings = listings.filter((l) => l.sellingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.sellingTeamId !== myTeamId)
 
@@ -704,7 +708,7 @@ function LoansTab() {
 
   const myTeamId = userTeam.team.id
   const loanListedPlayerIds = new Set(listings.filter((l) => l.lendingTeamId === myTeamId).map((l) => l.player.id))
-  const loanablePlayers: Player[] = userTeam.players.filter((p) => !loanListedPlayerIds.has(p.id))
+  const loanablePlayers: Player[] = sortByName(userTeam.players.filter((p) => !loanListedPlayerIds.has(p.id)))
   const myListings = listings.filter((l) => l.lendingTeamId === myTeamId)
   const marketListings = listings.filter((l) => l.lendingTeamId !== myTeamId)
 
