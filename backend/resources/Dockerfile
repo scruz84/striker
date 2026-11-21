@@ -7,7 +7,7 @@
 # faster than compiling under emulation. Only the small runtime stage is per platform.
 
 ## Build
-FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.27.4-alpine AS build
 ARG TARGETOS
 ARG TARGETARCH
 
