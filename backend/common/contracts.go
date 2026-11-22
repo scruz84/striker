@@ -51,6 +51,12 @@ const GetFreeAgentsStmtSql = "SELECT player_id, first_name, last_name, birth_day
 	"FROM players WHERE team_id IS NULL " +
 	"ORDER BY (goal_keeper + defense + \"lateral\" + pass + midfield + dribbling + shot) DESC"
 
+// GetBestFreeAgentsStmtSql is GetFreeAgentsStmtSql cut to the best $1. Its ORDER BY expression
+// and WHERE are exactly those of the players_free_agents_by_skill index (see
+// init120_query_performance_indexes.sql), so Postgres reads the first $1 entries of that index
+// instead of sorting every free agent in the world.
+const GetBestFreeAgentsStmtSql = GetFreeAgentsStmtSql + " LIMIT $1"
+
 // GetPlayerOwnershipForUpdateStmtSql locks a player row and returns just enough to validate a
 // contract action: who (if anyone) currently employs them and their wage (needed for
 // ReleasePlayer's severance). team_id comes back NULL for a free agent.
@@ -134,7 +140,18 @@ func GetFreeAgentListings(dbCtx *DatabaseContext) ([]*FreeAgentListing, error) {
 // their contract expired (see AdvancePlayerContract) and any player orphaned by
 // common.AssignTeam reassigning a CPU team's squad to a new human owner.
 func GetFreeAgents(dbCtx *DatabaseContext) ([]*Player, error) {
-	rows, err := dbCtx.Db.Query(GetFreeAgentsStmtSql)
+	return queryFreeAgents(dbCtx, GetFreeAgentsStmtSql)
+}
+
+// GetBestFreeAgents returns the limit best-skilled unowned players, in GetFreeAgents' order - the
+// same as GetFreeAgents()[:limit], without loading the rest. For callers that only ever look at
+// the top of the list (an AI-managed team picking candidates) and run once per team.
+func GetBestFreeAgents(dbCtx *DatabaseContext, limit int) ([]*Player, error) {
+	return queryFreeAgents(dbCtx, GetBestFreeAgentsStmtSql, limit)
+}
+
+func queryFreeAgents(dbCtx *DatabaseContext, query string, args ...any) ([]*Player, error) {
+	rows, err := dbCtx.Db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
