@@ -24,6 +24,19 @@ type ProjectedReplacement struct {
 // was saved - see removePlayerFromTeamLineupsTx) is taken out the same way, goalkeeper included:
 // he no longer plays for this club at all.
 func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*Player, unavailable map[int64]bool) {
+	ExcludeUnavailableAndBackfillToFormation(playersByPosition, squad, unavailable, -1)
+}
+
+// ExcludeUnavailableAndBackfillToFormation is ExcludeUnavailableAndBackfill for a match kickoff:
+// when formation is valid, a lineup that has lost players is also topped back up to the
+// formation's full XI from the rest of the squad. A player who leaves the club (a loan that ends,
+// a sale, a contract that runs out, a retirement) has his row deleted from the club's saved
+// lineups (see removePlayerFromTeamLineupsTx), so his slot is no longer there to be refilled;
+// without this, a club whose saved lineup had been thinned that way kicked off with whoever was
+// left and forfeited at minute 0 (MinPlayersToContinueMatch) despite a full squad. An empty
+// lineup is topped up the same way. Positions are filled in positionFillOrder and the XI never
+// grows past the formation's size.
+func ExcludeUnavailableAndBackfillToFormation(playersByPosition *map[int][]int64, squad []*Player, unavailable map[int64]bool, formation int) {
 	originalCounts := make(map[int]int, len(ALL_OUTFIELD_POSITIONS)+1)
 	for _, position := range ALL_OUTFIELD_POSITIONS {
 		originalCounts[position] = len((*playersByPosition)[position])
@@ -34,6 +47,7 @@ func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*
 	// would then panic on an empty slice, so the match could never be simulated. The squad's
 	// best available keeper steps in; a lineup that already has one is left alone.
 	originalCounts[GOALKEEPER] = 1
+	topUpCountsToFormation(originalCounts, formation)
 
 	departed := departedLineupPlayers(*playersByPosition, squad)
 	if len(departed) > 0 {
@@ -53,6 +67,29 @@ func ExcludeUnavailableAndBackfill(playersByPosition *map[int][]int64, squad []*
 
 	FilterOutfieldPlayers(playersByPosition, unavailable)
 	BackfillEmptyPositions(playersByPosition, originalCounts, squad, unavailable)
+}
+
+// topUpCountsToFormation raises counts towards formation's headcount at each position, in
+// positionFillOrder, until the total reaches the formation's size; a position already at or above
+// its count is left as it is. A no-op for an invalid formation.
+func topUpCountsToFormation(counts map[int]int, formation int) {
+	if !IsValidFormation(formation) {
+		return
+	}
+	want := FormationPositionCounts(formation)
+	total, size := 0, 0
+	for _, c := range counts {
+		total += c
+	}
+	for _, c := range want {
+		size += c
+	}
+	for _, position := range positionFillOrder {
+		for counts[position] < want[position] && total < size {
+			counts[position]++
+			total++
+		}
+	}
 }
 
 // departedLineupPlayers returns the players of playersByPosition who are not in squad, nil when

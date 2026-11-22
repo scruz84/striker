@@ -236,6 +236,10 @@ func runSeasonRollover(dbCtx *common.DatabaseContext, country string, currentSea
 	}
 	if step < rolloverStepLoansReturned {
 		ReturnExpiredLoans(dbCtx, country, newSeason)
+		// A returning loanee leaves his borrower's saved lineup (see common.ReturnLoan), after
+		// ProgressPlayers already refreshed it - re-pick every unowned club's XI so a CPU side
+		// does not start the season with a lineup short of the players it just sent home.
+		refreshUnownedLineupsForCountry(dbCtx, country)
 		if !record(rolloverStepLoansReturned) {
 			return
 		}

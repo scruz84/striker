@@ -557,6 +557,19 @@ func autoManageLineupIfUnowned(dbCtx *common.DatabaseContext, teamId int64) {
 	refreshAiTeamLineup(dbCtx, teamId, team.AiLevel)
 }
 
+// refreshUnownedLineupsForCountry runs autoManageLineupIfUnowned for every team of country - the
+// season rollover's second pass, once expired loans have gone home (see runSeasonRollover).
+func refreshUnownedLineupsForCountry(dbCtx *common.DatabaseContext, country string) {
+	teamIds, err := common.GetTeamIdsForCountry(dbCtx, country)
+	if err != nil {
+		log.Errorf("error listing teams for %s lineup refresh: %s", country, err)
+		return
+	}
+	for _, teamId := range teamIds {
+		autoManageLineupIfUnowned(dbCtx, teamId)
+	}
+}
+
 func topUpAcademy(dbCtx *common.DatabaseContext, teamId int64, trainerSkill int) {
 	count, err := common.CountTeamPlayers(dbCtx, teamId)
 	if err != nil {

@@ -218,11 +218,11 @@ func runMatchSimulation(dbCtx *common.DatabaseContext, matchId int64, divisionId
 	// steps in, same as a real substitute (see common.BackfillEmptyPositions). The returned sets are
 	// kept on the match so InjurySimulation can reuse them later, when picking a bench player to
 	// bring on for someone injured mid-match, without re-querying the database.
-	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, matchSimulation.HomePlayersByPosition, *homePlayers, isFriendly)
+	homeUnavailable, err := excludeUnavailablePlayers(dbCtx, homeTeamId, (*lineups)[homeTeamId], matchSimulation.HomePlayersByPosition, *homePlayers, isFriendly)
 	if err != nil {
 		return nil, err
 	}
-	awayUnavailable, err := excludeUnavailablePlayers(dbCtx, awayTeamId, matchSimulation.AwayPlayersByPosition, *awayPlayers, isFriendly)
+	awayUnavailable, err := excludeUnavailablePlayers(dbCtx, awayTeamId, (*lineups)[awayTeamId], matchSimulation.AwayPlayersByPosition, *awayPlayers, isFriendly)
 	if err != nil {
 		return nil, err
 	}
@@ -462,10 +462,11 @@ func trackMinutesByPosition(playersByPosition *map[int][]int64, minutesByPositio
 
 // excludeUnavailablePlayers reads a team's unavailable players (suspensions and injuries; for a
 // friendly, injuries only) and applies the pre-kickoff removal and refill to its position groups
-// (see common.ExcludeUnavailableAndBackfill). The set is returned so InjurySimulation can reuse it
-// later, when picking a bench player to bring on for someone injured mid-match, without
-// re-querying the database.
-func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, playersByPosition *map[int][]int64, squad []*common.Player, isFriendly bool) (map[int64]bool, error) {
+// (see common.ExcludeUnavailableAndBackfillToFormation), topping a thinned lineup back up to
+// lineup's formation (nothing is topped up for a nil lineup). The set is returned so
+// InjurySimulation can reuse it later, when picking a bench player to bring on for someone
+// injured mid-match, without re-querying the database.
+func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, lineup *common.Lineup, playersByPosition *map[int][]int64, squad []*common.Player, isFriendly bool) (map[int64]bool, error) {
 	var unavailable map[int64]bool
 	var err error
 	if isFriendly {
@@ -477,7 +478,11 @@ func excludeUnavailablePlayers(dbCtx *common.DatabaseContext, teamId int64, play
 		return nil, err
 	}
 
-	common.ExcludeUnavailableAndBackfill(playersByPosition, squad, unavailable)
+	formation := -1
+	if lineup != nil {
+		formation = lineup.Formation
+	}
+	common.ExcludeUnavailableAndBackfillToFormation(playersByPosition, squad, unavailable, formation)
 	return unavailable, nil
 }
 

@@ -105,3 +105,30 @@ func TestLoanReturn_Abroad_ReturnsAtBorrowerCountryRollover(t *testing.T) {
 		t.Fatalf("after the borrower's rollover the player is at %d, want lender %d", got, lender)
 	}
 }
+
+// A CPU borrower whose XI includes a loanee who goes home at the rollover starts the new season
+// with a full saved lineup: the rollover re-picks it once the loans have returned.
+func TestLoanReturn_CpuBorrowerLineupIsFullAfterTheRollover(t *testing.T) {
+	country := uniqueCountryCode()
+	w := loanRolloverWorld(t, country)
+	lender := w.team(country, "Lender", common.AiLevelManager, nil, 1_000_000)
+	borrower := w.team(country, "Cpu Borrower", common.AiLevelDirector, nil, 1_000_000)
+	w.squad(country, lender)
+	w.squad(country, borrower)
+	star := w.player(country, lender, common.STRIKER, 90, 24)
+	w.acceptLoan(star, lender, borrower, 1)
+	refreshAiTeamLineup(w.dbCtx, borrower, common.AiLevelDirector)
+	if n := w.count(`SELECT count(*) FROM default_lineup_positions WHERE team_id = $1 AND player_id = $2`, borrower, star); n != 1 {
+		t.Fatalf("setup: expected the loanee in the borrower's XI")
+	}
+
+	w.completeSeason(w.league, lender, borrower)
+	advanceCountrySeasonIfComplete(w.dbCtx, country)
+
+	if got := w.playerTeam(star); got != lender {
+		t.Fatalf("after the rollover the player is at %d, want lender %d", got, lender)
+	}
+	if n := w.count(`SELECT count(*) FROM default_lineup_positions WHERE team_id = $1`, borrower); n != 11 {
+		t.Fatalf("expected the borrower to start the season with a full saved XI, got %d", n)
+	}
+}

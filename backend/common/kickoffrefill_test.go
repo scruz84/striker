@@ -214,3 +214,78 @@ func TestExcludeUnavailableAndBackfill_EmptySquadDepartsNobody(t *testing.T) {
 		t.Fatalf("expected the lineup unchanged, got %v", byPosition)
 	}
 }
+
+// A saved lineup thinned by players who left the club (their rows are deleted, see
+// removePlayerFromTeamLineupsTx) is topped back up to its formation's full XI at kickoff, instead
+// of kicking off short and forfeiting with a full squad on the books.
+func TestExcludeUnavailableAndBackfillToFormation_TopsUpAThinnedLineup(t *testing.T) {
+	squad := projectionSquad()
+	lineup := projectionLineup(squad)
+	byPosition := make(map[int][]int64)
+	removed := 0
+	for _, p := range lineup.Positions {
+		if p.Position != GOALKEEPER && removed < 5 {
+			removed++
+			continue
+		}
+		byPosition[p.Position] = append(byPosition[p.Position], p.PlayerId)
+	}
+
+	ExcludeUnavailableAndBackfillToFormation(&byPosition, squad, nil, lineup.Formation)
+
+	want := FormationPositionCounts(lineup.Formation)
+	seen := make(map[int64]bool)
+	for position, count := range want {
+		if got := len(byPosition[position]); got != count {
+			t.Fatalf("position %d: expected %d players, got %d (%v)", position, count, got, byPosition)
+		}
+		for _, id := range byPosition[position] {
+			if seen[id] {
+				t.Fatalf("player %d fielded twice: %v", id, byPosition)
+			}
+			seen[id] = true
+		}
+	}
+}
+
+// An empty saved lineup gets a full XI for its formation.
+func TestExcludeUnavailableAndBackfillToFormation_FillsAnEmptyLineup(t *testing.T) {
+	byPosition := make(map[int][]int64)
+
+	ExcludeUnavailableAndBackfillToFormation(&byPosition, projectionSquad(), nil, FormationBalanced)
+
+	total := 0
+	for _, ids := range byPosition {
+		total += len(ids)
+	}
+	if total != 11 || len(byPosition[GOALKEEPER]) != 1 || byPosition[GOALKEEPER][0] != 1 {
+		t.Fatalf("expected a full XI with keeper 1 in goal, got %v", byPosition)
+	}
+}
+
+// A full lineup is never grown past the formation's size, even when its positions do not match
+// the formation's counts.
+func TestExcludeUnavailableAndBackfillToFormation_NeverGrowsAFullLineup(t *testing.T) {
+	byPosition := map[int][]int64{GOALKEEPER: {1}, DEFENSE: {2, 3, 4, 5, 6}, MIDFIELD: {7, 8, 9}, STRIKER: {10, 11}}
+
+	ExcludeUnavailableAndBackfillToFormation(&byPosition, projectionSquad(), nil, FormationBalanced)
+
+	total := 0
+	for _, ids := range byPosition {
+		total += len(ids)
+	}
+	if total != 11 {
+		t.Fatalf("expected the XI to stay at 11, got %d: %v", total, byPosition)
+	}
+}
+
+// Without a valid formation nothing is topped up (the editor's projection relies on this).
+func TestExcludeUnavailableAndBackfillToFormation_InvalidFormationKeepsTheOldBehaviour(t *testing.T) {
+	byPosition := map[int][]int64{GOALKEEPER: {1}, DEFENSE: {2}}
+
+	ExcludeUnavailableAndBackfillToFormation(&byPosition, projectionSquad(), nil, -1)
+
+	if len(byPosition[GOALKEEPER]) != 1 || len(byPosition[DEFENSE]) != 1 || len(byPosition[MIDFIELD]) != 0 {
+		t.Fatalf("expected the lineup unchanged, got %v", byPosition)
+	}
+}
