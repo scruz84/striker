@@ -450,7 +450,8 @@ func SetCupTieLineup(dbCtx *DatabaseContext, tieId int64, teamId int64, formatio
 
 var GetCupTieLineupStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", cupTiePlayedSql("a")) + " FROM cup_tie_lineup a WHERE a.tie_id = $1 AND a.team_id = $2"
 
-const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie_lineup_positions WHERE lineup_id = $1"
+// Skips a retired player's slot (player_id NULL), like GetMatchLineupOverridePositionsStmtSql.
+const GetCupTieLineupPositionsStmtSql = "SELECT player_id, position FROM cup_tie_lineup_positions WHERE lineup_id = $1 AND player_id IS NOT NULL"
 
 // GetCupTieLineup returns teamId's saved override for one cup tie, including any substitutions
 // planned specifically for it (see GetCupTieLineupSubstitutions). hasOverride is false (with a

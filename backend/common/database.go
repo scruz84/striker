@@ -58,7 +58,7 @@ const GetFreeTeamStmtSql = "SELECT t.team_id FROM teams t JOIN leagues l ON t.le
 // this UNION ALL form (mirroring the Go-level hasOverride fallback GetFriendlyLineup/
 // GetCupTieLineup already use) is required now that SetLineupForMatch actually writes rows here.
 var GetLineupsForMatchStmtSql = "select c.team_id, d.player_id, d.\"position\", c.formation, c.mentality, " + rolesSelectSql("c", matchPlayedSql("c")) + " " +
-	"from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where c.team_id in ($1, $2) and c.match_id = $3 " +
+	"from lineup c join lineup_positions d on (c.lineup_id = d.lineup_id) where c.team_id in ($1, $2) and c.match_id = $3 and d.player_id is not null " +
 	"union all " +
 	"select a.team_id, a.player_id, a.\"position\", t.formation, t.mentality, " + rolesSelectSql("r", "false") + " " +
 	"from default_lineup_positions a join teams t on t.team_id = a.team_id " +
@@ -787,7 +787,9 @@ func SetLineupForMatch(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 
 var GetMatchLineupOverrideStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", matchPlayedSql("a")) + " FROM lineup a WHERE a.match_id = $1 AND a.team_id = $2"
 
-const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM lineup_positions WHERE lineup_id = $1"
+// A retired player's slot reads back as nothing: he is deleted and the row's player_id goes NULL
+// (lineup_positions is ON DELETE SET NULL), so the lineup shows who is still in the game.
+const GetMatchLineupOverridePositionsStmtSql = "SELECT player_id, position FROM lineup_positions WHERE lineup_id = $1 AND player_id IS NOT NULL"
 
 // GetMatchLineupOverride returns teamId's saved lineup override for one league match, including
 // any substitutions planned specifically for it (see GetMatchLineupSubstitutions) - the
@@ -2608,17 +2610,52 @@ func UpdatePlayerBirthday(dbCtx *DatabaseContext, playerId int64, age int, birth
 }
 
 // RetirePlayer removes a player from the game. player_unavailability and transfer_listings
-// both cascade-delete on the player_id FK, so those clean up automatically. But
-// default_lineup_positions.player_id only goes to NULL on delete (see init.sql) - leaving that
-// row behind would break GetDefaultLineup, which scans player_id into a non-nullable int64 -
-// so that one is deleted explicitly first, the same way the transfer market already does for a
-// sold player (see DeletePlayerLineupPositionsStmtSql).
+// both cascade-delete on the player_id FK, so those clean up automatically; his lineups are
+// cleared first, in the same transaction (see clearRetiringPlayerLineupsTx).
 func RetirePlayer(dbCtx *DatabaseContext, playerId int64) error {
-	if _, err := dbCtx.Db.Exec(DeletePlayerLineupPositionsStmtSql, playerId); err != nil {
+	tx, err := dbCtx.Db.Begin()
+	if err != nil {
 		return err
 	}
-	_, err := dbCtx.Db.Exec(DeletePlayerStmtSql, playerId)
-	return err
+	defer tx.Rollback()
+	if err := clearRetiringPlayerLineupsTx(tx, playerId); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(DeletePlayerStmtSql, playerId); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// DeletePlayerFriendlyLineupPositionsStmtSql is DeletePlayerLineupPositionsStmtSql for the
+// standing friendly default.
+const DeletePlayerFriendlyLineupPositionsStmtSql = "DELETE FROM default_friendly_lineup_positions WHERE player_id = $1"
+
+// clearRetiringPlayerLineupsTx takes a player who is about to be deleted out of the lineups that
+// cannot keep an empty slot for him, inside tx. The standing defaults have player_id in their
+// primary key, so the delete's ON DELETE SET NULL cannot apply there: a row left in
+// default_friendly_lineup_positions made the whole retirement fail. His club's lineups for
+// fixtures still to be played lose him like any departure (see removePlayerFromTeamLineupsTx),
+// so a kickoff never reads an empty slot. Lineups of played fixtures keep their row with
+// player_id NULL - the record of that match - and read back without him (see
+// GetMatchLineupOverridePositionsStmtSql and its cup/friendly twins).
+func clearRetiringPlayerLineupsTx(tx *sql.Tx, playerId int64) error {
+	var teamId sql.NullInt64
+	err := tx.QueryRow("SELECT team_id FROM players WHERE player_id = $1", playerId).Scan(&teamId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+	if teamId.Valid {
+		if err := removePlayerFromTeamLineupsTx(tx, playerId, teamId.Int64); err != nil {
+			return err
+		}
+	}
+	for _, stmt := range []string{DeletePlayerLineupPositionsStmtSql, DeletePlayerFriendlyLineupPositionsStmtSql} {
+		if _, err := tx.Exec(stmt, playerId); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // CreateAcademyPlayers generates `count` young prospects (lower skills, younger age than a
