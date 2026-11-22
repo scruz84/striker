@@ -781,7 +781,8 @@ func SetFriendlyLineup(dbCtx *DatabaseContext, matchId int64, teamId int64, form
 
 var GetFriendlyLineupStmtSql = "SELECT a.lineup_id, a.formation, a.mentality, " + rolesSelectSql("a", friendlyPlayedSql("a")) + " FROM friendly_lineup a WHERE a.match_id = $1 AND a.team_id = $2"
 
-const GetFriendlyLineupPositionsStmtSql = "SELECT player_id, position FROM friendly_lineup_positions WHERE lineup_id = $1"
+// Skips a retired player's slot (player_id NULL), like GetMatchLineupOverridePositionsStmtSql.
+const GetFriendlyLineupPositionsStmtSql = "SELECT player_id, position FROM friendly_lineup_positions WHERE lineup_id = $1 AND player_id IS NOT NULL"
 
 // GetFriendlyLineup returns teamId's saved override for one friendly, including any
 // substitutions planned specifically for it (see GetFriendlyLineupSubstitutions). hasOverride is
