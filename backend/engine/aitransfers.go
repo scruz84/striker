@@ -590,12 +590,9 @@ func gatherCandidates(dbCtx *common.DatabaseContext, team *common.Team, profile 
 	}
 
 	if profile.SearchesFreeAgents {
-		if freeAgents, err := common.GetFreeAgents(dbCtx); err != nil {
+		if freeAgents, err := common.GetBestFreeAgents(dbCtx, aiFreeAgentCandidates); err != nil {
 			log.Errorf("error fetching free agents for AI-managed team %d: %s", team.Id, err)
 		} else {
-			if len(freeAgents) > aiFreeAgentCandidates {
-				freeAgents = freeAgents[:aiFreeAgentCandidates]
-			}
 			for _, p := range freeAgents {
 				if seen[p.Id] || p.Age > aiMaxPlayerAge {
 					continue

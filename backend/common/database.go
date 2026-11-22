@@ -130,8 +130,13 @@ const GetPlayersFromTeamStmtSql = "SELECT player_id, p.team_id, first_name, last
 // season" on its own - a country's season only advances once every one of its own matches is
 // played, and no new (future-season) fixtures exist until that happens - so filtering by season
 // here would be redundant even if there were still a single season number to filter by.
+//
+// The flags are written "not played and not in_simulation" rather than "played is false": only
+// that form matches matches_unplayed_date_idx's "WHERE played = false" predicate, so the scheduler
+// reads the handful of due fixtures from that partial index instead of scanning every match ever
+// played, twice a second. Both forms leave out the same rows, NULL included.
 const GetSimulableMatchesStmtSql = "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, " +
-	"home_goals, away_goals from matches where match_date < now()+interval '15 minutes' and played is false and in_simulation is false " +
+	"home_goals, away_goals from matches where match_date < now()+interval '15 minutes' and not played and not in_simulation " +
 	"and " + simulationEligibleSql + " order by league_id"
 
 const GetSimulableMatchesStmtForUpdateSql = GetSimulableMatchesStmtSql + " " + ForUpdate
@@ -913,7 +918,7 @@ const StuckSimulationAge = 10 * time.Minute
 // in_simulation_since so a second replica running the same statement at the same instant finds
 // nothing - see GetStuckMatches.
 const GetStuckMatchesStmtSql = "WITH stuck AS (UPDATE matches SET in_simulation_since = now(), " + simulationClaimSetSql + " " +
-	"WHERE played is false and in_simulation is true and " + simulationAttemptsLeftSql + " " +
+	"WHERE not played and in_simulation and " + simulationAttemptsLeftSql + " " +
 	"and (in_simulation_since is null or in_simulation_since <= now() - ($1 * interval '1 second')) " +
 	"RETURNING match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals) " +
 	"select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
@@ -923,7 +928,7 @@ const GetStuckMatchesStmtSql = "WITH stuck AS (UPDATE matches SET in_simulation_
 // GetSimulableMatches (setting in_simulation = true) at least StuckSimulationAge ago but never
 // finished simulating - most likely because the process crashed mid-run. The caller is expected
 // to re-simulate them right away (see engine.FinishStuckMatches), since GetSimulableMatches' own
-// "and in_simulation is false" filter means the normal scheduler will never pick these back up on
+// "and not in_simulation" filter means the normal scheduler will never pick these back up on
 // its own. The re-claim is one statement, so when several --engine replicas run the recovery at
 // the same instant each stuck match goes to exactly one of them.
 func GetStuckMatches(dbCtx *DatabaseContext) (*[]WeekMatch, error) {
@@ -989,7 +994,7 @@ func GetMatchesForLeaguesUpToWeek(dbCtx *DatabaseContext, leagueIds []int64, sea
 	}
 	query := "select match_id, league_id, season, week_number, match_date, home_team_id, away_team_id, home_goals, away_goals " +
 		"from matches where league_id in " + leagueInClause + " and season = $1 and week_number <= $2 " +
-		"and played is false and in_simulation is false and " + simulationAttemptsLeftSql + " order by week_number, league_id"
+		"and not played and not in_simulation and " + simulationAttemptsLeftSql + " order by week_number, league_id"
 	rows, err := tx.Query(query, season, maxWeek)
 	if err != nil {
 		_ = tx.Rollback()

@@ -250,7 +250,7 @@ func SimulateMatchesNow(dbCtx *common.DatabaseContext, matches []common.WeekMatc
 
 // FinishStuckMatches re-simulates every league match a simulation pass claimed
 // (in_simulation = true) but never finished simulating - the case a server crash mid-run leaves
-// behind, since GetSimulableMatchesStmtSql's "and in_simulation is false" filter means the
+// behind, since GetSimulableMatchesStmtSql's "and not in_simulation" filter means the
 // normal scheduler never revisits a claimed match on its own (see common.GetStuckMatches).
 // Returns how many of them ended up played - rows resolved, not merely attempted. A re-simulation
 // that fails again releases the row and counts one more attempt (see runClaimedSimulation).
