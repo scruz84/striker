@@ -43,10 +43,12 @@ func NewInstantArchiveJob(dbCtx *common.DatabaseContext) *InstantArchiveJob {
 	return &InstantArchiveJob{desc: "instant archive job", dbCtx: dbCtx}
 }
 
-// RunInstantArchive is one day's pass: friendlies older than the days kept lose their instants
+// RunInstantArchive is one day's pass: old ledger and offer log rows nobody reads go first (see
+// common.LedgerRetention), then friendlies older than the days kept lose their instants
 // whatever the season archive setting, then, if the admin has the season archive on, every fixture
 // older than the seasons kept.
 func RunInstantArchive(dbCtx *common.DatabaseContext) {
+	runLogRetention(dbCtx)
 	runFriendlyInstantExpiry(dbCtx)
 	settings, err := common.GetInstantArchiveSettings(dbCtx)
 	if err != nil {
@@ -86,4 +88,20 @@ func runFriendlyInstantExpiry(dbCtx *common.DatabaseContext) {
 	}
 	log.Infof("friendly instant expiry (%d days kept): %d friendlies, %d instant rows deleted in %s",
 		keepDays, res.Friendlies, res.Instants, time.Since(started).Round(time.Second))
+}
+
+// runLogRetention deletes team-level ledger rows older than common.LedgerRetention and offer log
+// rows older than common.OfferLogRetention. A failure is logged and the rest of the pass still runs.
+func runLogRetention(dbCtx *common.DatabaseContext) {
+	started := time.Now()
+	ledger, err := common.PruneOldLedgerRows(dbCtx, started.Add(-common.LedgerRetention))
+	if err != nil {
+		log.Errorf("ledger retention stopped after %d rows: %s", ledger, err)
+	}
+	offers, err := common.PruneOldOfferLog(dbCtx, started.Add(-common.OfferLogRetention))
+	if err != nil {
+		log.Errorf("offer log retention stopped after %d rows: %s", offers, err)
+	}
+	log.Infof("log retention: %d ledger rows and %d offer log rows deleted in %s",
+		ledger, offers, time.Since(started).Round(time.Second))
 }

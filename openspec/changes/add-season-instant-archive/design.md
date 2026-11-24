@@ -115,6 +115,24 @@ after a few days, and without the expiry the friendly instants table grows by th
 Cup group matches are excluded:* they are competitive matches of a tournament that only happens
 once per international cycle, and few in number.
 
+### 6. Pruning old log rows
+- `common.PruneOldLedgerRows` walks `team_transactions` by primary key in pages of 5,000
+  (`PruneLedgerPageStmtSql`), deleting the page's rows with `player_id IS NULL` created before the
+  cutoff (`LedgerRetention`, 180 days), and stops after the first page that reaches the cutoff.
+  Every ledger row takes `now()` at insert, so ids grow with `created_at`. Walking the primary key
+  needs no new index on a table this change is trying to keep small; the only rows walked again
+  each day are the old player-tied rows it keeps.
+- `common.PruneOldOfferLog` deletes `transfer_offer_log` rows older than `OfferLogRetention`
+  (30 days) in batches through the existing `transfer_offer_log_created_idx`.
+- `engine.runLogRetention` runs both at the start of every daily `instant_archive` slot. They are
+  fixed constants, not admin settings: nothing in the game reads these rows.
+
+*Reviewed and left alone:* league and cup events, lineups and ratings (standings, top scorers,
+awards, player history and caps read them); national-team friendly lineups (caps); notifications
+(only human users get them, so they are few); `player_progression_log` (one row per player per
+season, and a player's page shows its history); `player_offer_rejections` (already pruned);
+`engine_job_runs` (one row per job).
+
 ## Risks / Trade-offs
 
 - [Turning it on over many seasons deletes millions of rows] → batches of 200 fixtures (~19k
@@ -125,6 +143,9 @@ once per international cycle, and few in number.
 - [The friendly expiry is on by default, so upgrading deletes friendlies' instants older than 7 days
   at the next 04:41 UTC slot] → this is the intended bound on growth; an admin who wants them kept
   sets the days to 0 before that slot (or higher, up to 365).
+- [Ledger pruning is not a setting, and the first pass on a world older than 180 days deletes most
+  of its ledger] → those rows are never read; budgets, the finance page (latest 50 rows) and
+  player transfer history do not change.
 - [A friendly whose country has no league match in season S − K is never archived] → only possible
   for a country still in its first K seasons. Its friendlies are archived once it gets there.
 
@@ -146,6 +167,9 @@ To copy into `openspec/specs/match-data-retention/spec.md` when this change is a
   `season.archive_keep_seasons`, `instants_archived` on `matches` / `cup_ties` /
   `friendly_matches`, the `*_instants_to_archive` partial indexes);
   `backend/resources/sql/init121_friendly_instant_retention.sql` (`season.friendly_instants_keep_days`).
+- Log retention: `common/dataretention.go` (`LedgerRetention`, `OfferLogRetention`,
+  `PruneOldLedgerRows`, `PruneOldOfferLog`), `engine/instantarchive.go` (`runLogRetention`); tests
+  in `common/dataretention_integration_test.go`.
 - Friendly expiry: `common/instantarchive.go` (`Get/SetFriendlyInstantKeepDays`,
   `ArchiveExpiredFriendlyInstants`, `ArchiveExpiredFriendlyInstantsStmtSql`),
   `engine/instantarchive.go` (`runFriendlyInstantExpiry`), `AdminSetFriendlyInstantRetentionHandler`

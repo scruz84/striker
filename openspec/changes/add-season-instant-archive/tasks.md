@@ -32,6 +32,11 @@
 - [x] 6.4 `PUT /v1/admin/friendly-instant-retention`, `AdminOverview.friendlyInstantKeepDays`, the admin-only check in `service/security_test.go`, and `TestAdminSetFriendlyInstantRetention` (200 and saved for 14, 400 for 366, -1, a missing field or bad JSON).
 - [x] 6.5 Frontend `FriendlyInstantRetentionForm` card, hook, type and en/es strings, with `RulesTab.test.tsx` cases for render, save and the 0-365 range.
 
+## 7. Log retention
+
+- [x] 7.1 `common/dataretention.go`: `PruneOldLedgerRows` (team-level rows older than 180 days, primary-key walk) and `PruneOldOfferLog` (rows older than 30 days). Verify with `TestPruneLedgerRows` (old team-level rows deleted across pages; an old transfer row, recent rows and a row past the stop kept) and `TestPruneOfferLog`.
+- [x] 7.2 `engine.runLogRetention` at the start of `RunInstantArchive`.
+
 ## Workflow follow-up
 
 - Archive the change once implemented and reviewed (`/opsx:archive`), syncing `match-data-retention` and the `engine-replicas` delta into `openspec/specs/`.

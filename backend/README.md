@@ -150,6 +150,11 @@ the instants of played friendlies (club and national-team) that kicked off more 
 ago. World Cup group matches are left to the season archive. `0` keeps friendlies' instants for
 good.
 
+The same daily job also prunes, with fixed retentions and no setting, team-level ledger rows
+(`team_transactions` with no `player_id`) older than 180 days, since the finance page only reads a
+team's latest 50, and `transfer_offer_log` rows older than 30 days. A player's transfer rows stay
+(see `common/dataretention.go`).
+
 `POST /v1/admin/initialize` wipes and reseeds the whole game (`handlers.Initialize`) and is the
 only HTTP route that does - behind the JWT and admin middleware like the rest of this group. The
 old unauthenticated `GET /v1/initData` no longer exists (404). An empty database is bootstrapped

@@ -31,6 +31,11 @@ match.
   for good). The same daily job deletes the instants of older friendlies whether the season
   archive is on or off. World Cup group matches (stored as friendlies) stay under the season rule.
   An admin sets the days in the Rules tab through `PUT /v1/admin/friendly-instant-retention`.
+- The same daily job also prunes two append-only logs nothing reads past a short window, with
+  fixed retentions and no setting: team-level ledger rows older than 180 days (the finance page
+  only reads a team's latest 50, and every club, CPU ones included, writes several per match) and
+  transfer offer log rows older than 30 days (only the last day is counted). Ledger rows about a
+  player stay, since they are his transfer history.
 
 ## Capabilities
 

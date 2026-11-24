@@ -3,7 +3,8 @@
 ## Purpose
 
 States which stored match data the game keeps and for how long, so an admin can bound database
-growth by archiving the per-minute detail of old seasons while every match keeps its record.
+growth by archiving the per-minute detail of old seasons while every match keeps its record. It also
+bounds the append-only logs that are only ever read over a short recent window.
 
 ## ADDED Requirements
 
@@ -117,3 +118,25 @@ The engine SHALL run the archive pass once a day: first the friendly retention, 
 #### Scenario: Raising the count later
 - **WHEN** seasons 1-3 were archived and the admin then raises the seasons kept from 1 to 3
 - **THEN** seasons 1-3 stay without instants and no newer season is archived until it falls outside the new count
+
+### Requirement: Old ledger rows
+Every day the engine SHALL delete a team's ledger rows older than 180 days that are not about a player (wages, gate, sponsorship, prize money, maintenance, season income, admin adjustments, club resets). Ledger rows about a player (transfers, release clauses, loan fees, severance) MUST stay. Budgets never change.
+
+#### Scenario: Old wage row
+- **WHEN** a club's wage row is 200 days old
+- **THEN** the next daily pass deletes it and the club's budget is unchanged
+
+#### Scenario: Old transfer row
+- **WHEN** a club's transfer fee row for a player is 200 days old
+- **THEN** it stays and still shows in that player's history
+
+#### Scenario: Recent rows
+- **WHEN** a club's ledger row is 10 days old
+- **THEN** it stays and the finance page shows it as before
+
+### Requirement: Old offer log rows
+Every day the engine SHALL delete transfer offer log rows older than 30 days. The market's offer counts only cover the last day, so they never change.
+
+#### Scenario: Old offer log row
+- **WHEN** an offer was logged 40 days ago
+- **THEN** the next daily pass deletes its log row, and an offer logged an hour ago stays
