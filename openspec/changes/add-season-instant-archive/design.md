@@ -91,6 +91,30 @@ metrics.
   deletion is permanent and keeps results, chronicle and ratings. Strings go under
   `admin.instantArchive.*` in `en.json` / `es.json`.
 
+### 5. Friendly retention by days
+Friendlies have no season, are played every week by a large share of the clubs, and their detail is
+only replayed right after the match. Keeping them for whole seasons (the archive's friendly rule)
+would still store tens of thousands of them per week, and only while the admin has the archive on.
+
+- Migration `init121_friendly_instant_retention.sql`: `season.friendly_instants_keep_days smallint
+  NOT NULL DEFAULT 7 CHECK (0..365)`, re-runnable.
+- `common.ArchiveExpiredFriendlyInstantsStmtSql` is the same one-statement batch shape as §2, over
+  played, not yet archived friendlies with `match_date < now() - keepDays days`, excluding World Cup
+  group matches (`world_cup_group_matches`), ordered by `match_date` so it walks the existing
+  `friendly_matches_instants_to_archive` partial index. It sets the same `instants_archived` flag,
+  so the season rule never looks at those rows again.
+- `engine.RunInstantArchive` runs this expiry first on every daily slot, archive on or off, and
+  then the season archive if it is on. `0` skips the expiry.
+- `common.Get/SetFriendlyInstantKeepDays` (0-365), `PUT /v1/admin/friendly-instant-retention`
+  `{ "keepDays": int }` (400 out of range or missing), `AdminOverview.friendlyInstantKeepDays`, and a
+  `FriendlyInstantRetentionForm` card in `RulesTab` with strings under
+  `admin.friendlyInstantRetention.*`.
+
+*Why on by default:* unlike seasons of league history, a friendly's per-minute detail has no value
+after a few days, and without the expiry the friendly instants table grows by the week. *Why World
+Cup group matches are excluded:* they are competitive matches of a tournament that only happens
+once per international cycle, and few in number.
+
 ## Risks / Trade-offs
 
 - [Turning it on over many seasons deletes millions of rows] → batches of 200 fixtures (~19k
@@ -98,6 +122,9 @@ metrics.
   stopped at any time by turning the setting off.
 - [Deleted instants cannot come back] → off by default, the UI warns, and only admins can change it.
 - [Disk does not shrink] → documented. The tables stop growing once the archive keeps pace.
+- [The friendly expiry is on by default, so upgrading deletes friendlies' instants older than 7 days
+  at the next 04:41 UTC slot] → this is the intended bound on growth; an admin who wants them kept
+  sets the days to 0 before that slot (or higher, up to 365).
 - [A friendly whose country has no league match in season S − K is never archived] → only possible
   for a country still in its first K seasons. Its friendlies are archived once it gets there.
 
@@ -117,7 +144,14 @@ To copy into `openspec/specs/match-data-retention/spec.md` when this change is a
   `FriendlyArchiveCutoffsStmtSql`, `InstantArchiveBatch`).
 - Schema: `backend/resources/sql/init118_instant_archive.sql` (`season.archive_instants_enabled`,
   `season.archive_keep_seasons`, `instants_archived` on `matches` / `cup_ties` /
-  `friendly_matches`, the `*_instants_to_archive` partial indexes).
+  `friendly_matches`, the `*_instants_to_archive` partial indexes);
+  `backend/resources/sql/init121_friendly_instant_retention.sql` (`season.friendly_instants_keep_days`).
+- Friendly expiry: `common/instantarchive.go` (`Get/SetFriendlyInstantKeepDays`,
+  `ArchiveExpiredFriendlyInstants`, `ArchiveExpiredFriendlyInstantsStmtSql`),
+  `engine/instantarchive.go` (`runFriendlyInstantExpiry`), `AdminSetFriendlyInstantRetentionHandler`
+  (`PUT /v1/admin/friendly-instant-retention`), `AdminOverview.friendlyInstantKeepDays`,
+  `FriendlyInstantRetentionForm` / `useAdminSetFriendlyInstantRetention`, strings
+  `admin.friendlyInstantRetention.*`.
 - Engine: `backend/engine/instantarchive.go` (`InstantArchiveJob`, slot `instant_archive`,
   `RunInstantArchive`, daily at 04:41 UTC via `StartInstantArchiveScheduler` in `StartEngine`).
 - API: `AdminSetInstantArchiveHandler` (`handlers/adminHandlers.go`, `PUT /v1/admin/instant-archive`),

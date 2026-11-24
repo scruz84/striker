@@ -144,6 +144,12 @@ for new rows, so the instants tables stop growing, but the files on disk only sh
 `VACUUM FULL` (or `pg_repack`) of `match_instants`, `cup_tie_instants` and `friendly_instants`,
 which locks each table while it runs.
 
+`PUT friendly-instant-retention` (`{"keepDays": 0-365}`, 7 by default, Rules tab) is the same job's
+short rule for friendlies, which runs whether the season archive is on or off: every day it deletes
+the instants of played friendlies (club and national-team) that kicked off more than that many days
+ago. World Cup group matches are left to the season archive. `0` keeps friendlies' instants for
+good.
+
 `POST /v1/admin/initialize` wipes and reseeds the whole game (`handlers.Initialize`) and is the
 only HTTP route that does - behind the JWT and admin middleware like the rest of this group. The
 old unauthenticated `GET /v1/initData` no longer exists (404). An empty database is bootstrapped

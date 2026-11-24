@@ -25,6 +25,12 @@ match.
   were stored. Its Tácticas tab shows only the lineups pitch, and its Notas tab shows the stored
   ratings. Scrubbing to an earlier minute rebuilds ratings without the zone component.
 - Turning the setting off stops the job. Instants already deleted are not restored.
+- Friendlies are by far the most numerous fixtures (every club can play several a week) and their
+  minute-by-minute detail is only looked at for a few days. A second setting, **on by default**,
+  keeps a played friendly's instants for a number of days (default 7, range 0-365, 0 keeps them
+  for good). The same daily job deletes the instants of older friendlies whether the season
+  archive is on or off. World Cup group matches (stored as friendlies) stay under the season rule.
+  An admin sets the days in the Rules tab through `PUT /v1/admin/friendly-instant-retention`.
 
 ## Capabilities
 
@@ -38,7 +44,8 @@ match.
 ## Impact
 
 - Schema: new migration adding `season.archive_instants_enabled` (boolean, default false) and
-  `season.archive_keep_seasons` (smallint, default 1).
+  `season.archive_keep_seasons` (smallint, default 1); a later one (`init121`) adds
+  `season.friendly_instants_keep_days` (smallint, default 7).
 - Backend: `common` settings getters/setters and batched delete statements; new
   `engine.InstantArchiveJob` scheduled daily; admin handler `PUT /v1/admin/instant-archive`; new
   fields on `common.AdminOverview`.

@@ -62,3 +62,52 @@ func TestAdminSetInstantArchive(t *testing.T) {
 		t.Errorf("a rejected save changed the setting to %+v", got)
 	}
 }
+
+// Saving the friendly instant retention: a valid save is stored, a value outside 0-365 or a missing
+// field is rejected with no change. Needs STRIKER_TEST_DB_DSN; the setting is restored afterwards.
+func TestAdminSetFriendlyInstantRetention(t *testing.T) {
+	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
+	if dsn == "" {
+		t.Skip("STRIKER_TEST_DB_DSN not set")
+	}
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		t.Fatalf("opening database: %s", err)
+	}
+	t.Cleanup(func() { db.Close() })
+	dbCtx := &common.DatabaseContext{Db: db}
+	if err := common.EnsureSchema(dbCtx); err != nil {
+		t.Fatalf("EnsureSchema: %s", err)
+	}
+	if _, err := db.Exec(`INSERT INTO season (transfer_window_open) SELECT true WHERE NOT EXISTS (SELECT 1 FROM season)`); err != nil {
+		t.Fatal(err)
+	}
+	before, err := common.GetFriendlyInstantKeepDays(dbCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = common.SetFriendlyInstantKeepDays(dbCtx, before) })
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.PUT("/friendly-instant-retention", AdminSetFriendlyInstantRetentionHandler(dbCtx))
+	put := func(body string) int {
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, httptest.NewRequest(http.MethodPut, "/friendly-instant-retention", strings.NewReader(body)))
+		return rec.Code
+	}
+	if code := put(`{"keepDays": 14}`); code != http.StatusOK {
+		t.Fatalf("valid save = %d, want 200", code)
+	}
+	if got, _ := common.GetFriendlyInstantKeepDays(dbCtx); got != 14 {
+		t.Fatalf("saved %d days, want 14", got)
+	}
+	for _, body := range []string{`{"keepDays": 366}`, `{"keepDays": -1}`, `{}`, `nope`} {
+		if code := put(body); code != http.StatusBadRequest {
+			t.Errorf("%s = %d, want 400", body, code)
+		}
+	}
+	if got, _ := common.GetFriendlyInstantKeepDays(dbCtx); got != 14 {
+		t.Errorf("a rejected save changed the setting to %d days", got)
+	}
+}

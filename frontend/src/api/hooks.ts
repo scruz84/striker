@@ -1794,6 +1794,16 @@ export function useAdminSetInstantArchive() {
   })
 }
 
+export function useAdminSetFriendlyInstantRetention() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (keepDays: number) => api.put('/v1/admin/friendly-instant-retention', { keepDays }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminOverview })
+    },
+  })
+}
+
 export function useAdminSetFriendlySchedule() {
   const queryClient = useQueryClient()
   return useMutation({

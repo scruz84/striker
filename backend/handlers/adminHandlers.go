@@ -88,6 +88,11 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
+		friendlyInstantKeepDays, err := common.GetFriendlyInstantKeepDays(dbCtx)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
 		aiLevels, err := common.GetAiLevelStats(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
@@ -126,6 +131,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			OfferNegotiationWindowMinutes: offerNegotiationWindowMinutes,
 			InstantArchiveEnabled:         instantArchive.Enabled,
 			InstantArchiveKeepSeasons:     instantArchive.KeepSeasons,
+			FriendlyInstantKeepDays:       friendlyInstantKeepDays,
 			CountryStructures:             countryStructures,
 			PendingRestructure:            pendingRestructure,
 		})
@@ -522,5 +528,32 @@ func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc
 		}
 
 		c.JSON(http.StatusOK, common.HttpResponse{Message: "match schedule updated"})
+	}
+}
+
+type setFriendlyInstantRetentionRequest struct {
+	KeepDays *int `json:"keepDays"`
+}
+
+// AdminSetFriendlyInstantRetentionHandler saves how many days a played friendly keeps its
+// per-minute instants before the daily archive pass deletes them (see
+// common.SetFriendlyInstantKeepDays and openspec/specs/match-data-retention); 0 keeps them for good.
+func AdminSetFriendlyInstantRetentionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req setFriendlyInstantRetentionRequest
+		if err := c.BindJSON(&req); err != nil || req.KeepDays == nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "keepDays is required"))
+			return
+		}
+		if err := common.SetFriendlyInstantKeepDays(dbCtx, *req.KeepDays); err != nil {
+			if errors.Is(err, common.ErrInvalidFriendlyInstantKeepDays) {
+				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
+				return
+			}
+			log.Errorf("error setting the friendly instant retention: %s", err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "friendly instant retention updated"})
 	}
 }

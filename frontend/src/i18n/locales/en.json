@@ -1973,6 +1973,15 @@
       "success": "Season archive updated.",
       "error": "Failed to update the season archive."
     },
+    "friendlyInstantRetention": {
+      "title": "Friendly match detail",
+      "description": "Deletes the minute-by-minute detail (zone duel and rating scrubber) of friendlies older than the days kept, every day, whether the season archive is on or not. World Cup group matches follow the season archive instead. Results, chronicle, ratings and lineups stay. 0 keeps the detail for good. What is deleted cannot be recovered.",
+      "keepDays": "Days kept",
+      "rangeError": "Enter a number from 0 to 365.",
+      "save": "Save friendly detail",
+      "success": "Friendly detail retention updated.",
+      "error": "Failed to update the friendly detail retention."
+    },
     "countryStructure": {
       "edit": "Structure",
       "ownChip": "Own structure",
