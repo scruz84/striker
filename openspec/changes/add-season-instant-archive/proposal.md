@@ -25,13 +25,13 @@ match.
   were stored. Its Tácticas tab shows only the lineups pitch, and its Notas tab shows the stored
   ratings. Scrubbing to an earlier minute rebuilds ratings without the zone component.
 - Turning the setting off stops the job. Instants already deleted are not restored.
-- The instants' only readers are the live replay and the finished match's zone duel and rating
-  scrubber, which matter for a few days after kickoff. A second setting, **on by default**, keeps
-  a played fixture's instants for a number of days (default 7, range 0-365, 0 keeps them for
-  good). The same daily job deletes the instants of every older league match, cup tie and
-  friendly whether the season archive is on or off, which bounds the instants tables to about a
-  week of matches. An admin sets the days in the Rules tab through
-  `PUT /v1/admin/instant-retention`. The season archive remains for an admin who sets the days to 0.
+- Club friendlies are by far the most numerous fixtures (every club can play several a week) and
+  their minute-by-minute detail is only looked at for a few days. A second setting, **on by
+  default**, keeps a played club friendly's instants for a number of days (default 7, range 0-365,
+  0 keeps them for good). The same daily job deletes the instants of older club friendlies whether
+  the season archive is on or off. National-team friendlies and World Cup group matches (stored as
+  friendlies) are few, so they stay under the season rule with league matches and cups.
+  An admin sets the days in the Rules tab through `PUT /v1/admin/friendly-instant-retention`.
 - The same daily job also prunes two append-only logs nothing reads past a short window, with
   fixed retentions and no setting: team-level ledger rows older than 180 days (the finance page
   only reads a team's latest 50, and every club, CPU ones included, writes several per match) and
@@ -51,7 +51,7 @@ match.
 
 - Schema: new migration adding `season.archive_instants_enabled` (boolean, default false) and
   `season.archive_keep_seasons` (smallint, default 1); a later one (`init121`) adds
-  `season.instants_keep_days` (smallint, default 7).
+  `season.friendly_instants_keep_days` (smallint, default 7).
 - Backend: `common` settings getters/setters and batched delete statements; new
   `engine.InstantArchiveJob` scheduled daily; admin handler `PUT /v1/admin/instant-archive`; new
   fields on `common.AdminOverview`.

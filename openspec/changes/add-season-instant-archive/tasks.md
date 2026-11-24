@@ -24,13 +24,13 @@
 - [x] 5.1 Write the `match-data-retention` Code map (kept in design.md until archive, since a delta cannot carry one) (the migration, `common/instantarchive.go`, the job, the handler, `RulesTab`). Mention the archive in `backend/README.md` next to the other admin rules, including that disk only shrinks with `VACUUM FULL`. Verify `openspec validate add-season-instant-archive --strict` passes.
 - [x] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` with `STRIKER_TEST_DB_DSN` set, and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`, all passing apart from the existing order-dependent engine failures, which also fail on `main`.
 
-## 6. Instant retention by days
+## 6. Friendly retention by days
 
-- [x] 6.1 Migration `init121_instant_retention.sql` (`season.instants_keep_days`, default 7, CHECK 0-365, and the two `*_instants_to_expire` partial indexes) and `common.Get/SetInstantKeepDays`. Verify with `TestInstantKeepDaysSetting` (default 7, saves 30, rejects 366 and -1 without a change).
-- [x] 6.2 `common.ArchiveExpiredInstants` (design §5). Verify with `TestArchiveExpiredInstants`: an old played league match, cup tie, friendly and World Cup group match are archived and keep their events (and the match its rating and lineup); recent and unplayed ones keep their instants; 0 days deletes nothing.
-- [x] 6.3 `engine.RunInstantArchive` expires instants on every slot, archive on or off. Verify with `TestInstantArchiveJob_OffKeepsSeasons` (archive off, 365 days kept: a 200-day-old season-1 match keeps its instants, a 400-day-old friendly loses them, a 2-day-old one keeps them).
-- [x] 6.4 `PUT /v1/admin/instant-retention`, `AdminOverview.instantKeepDays`, the admin-only check in `service/security_test.go`, and `TestAdminSetInstantRetention` (200 and saved for 14, 400 for 366, -1, a missing field or bad JSON).
-- [x] 6.5 Frontend `InstantRetentionForm` card, hook, type and en/es strings, with `RulesTab.test.tsx` cases for render, save and the 0-365 range.
+- [x] 6.1 Migration `init121_friendly_instant_retention.sql` (`season.friendly_instants_keep_days`, default 7, CHECK 0-365) and `common.Get/SetFriendlyInstantKeepDays`. Verify with `TestFriendlyInstantKeepDaysSetting` (default 7, saves 30, rejects 366 and -1 without a change).
+- [x] 6.2 `common.ArchiveExpiredFriendlyInstants` (design §5). Verify with `TestArchiveExpiredFriendlyInstants`: an old played club friendly is archived and keeps its event; a recent one, an unplayed one and an old national-team friendly keep their instants; 0 days deletes nothing.
+- [x] 6.3 `engine.RunInstantArchive` expires friendlies on every slot, archive on or off. Verify with `TestInstantArchiveJob_OffKeepsSeasons` (archive off: the season-1 match keeps its instants, a 400-day-old friendly loses them, a 2-day-old one keeps them).
+- [x] 6.4 `PUT /v1/admin/friendly-instant-retention`, `AdminOverview.friendlyInstantKeepDays`, the admin-only check in `service/security_test.go`, and `TestAdminSetFriendlyInstantRetention` (200 and saved for 14, 400 for 366, -1, a missing field or bad JSON).
+- [x] 6.5 Frontend `FriendlyInstantRetentionForm` card, hook, type and en/es strings, with `RulesTab.test.tsx` cases for render, save and the 0-365 range.
 
 ## 7. Log retention
 

@@ -1973,14 +1973,14 @@
       "success": "Season archive updated.",
       "error": "Failed to update the season archive."
     },
-    "instantRetention": {
-      "title": "Keep minute-by-minute detail",
-      "description": "Every day, deletes the minute-by-minute detail (zone duel and rating scrubber) of every league match, cup tie and friendly that kicked off more than the days kept ago, whether the season archive is on or not. This detail is most of what a match stores. Results, chronicle, ratings and lineups stay. 0 keeps the detail for good. What is deleted cannot be recovered.",
+    "friendlyInstantRetention": {
+      "title": "Club friendly detail",
+      "description": "Every day, deletes the minute-by-minute detail (zone duel and rating scrubber) of club friendlies that kicked off more than the days kept ago, whether the season archive is on or not. National-team friendlies, the World Cup, league matches and cups follow the season archive instead. Results, chronicle, ratings and lineups stay. 0 keeps the detail for good. What is deleted cannot be recovered.",
       "keepDays": "Days kept",
       "rangeError": "Enter a number from 0 to 365.",
-      "save": "Save detail retention",
-      "success": "Detail retention updated.",
-      "error": "Failed to update the detail retention."
+      "save": "Save friendly detail",
+      "success": "Friendly detail retention updated.",
+      "error": "Failed to update the friendly detail retention."
     },
     "countryStructure": {
       "edit": "Structure",

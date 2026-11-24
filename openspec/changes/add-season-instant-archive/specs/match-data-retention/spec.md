@@ -9,7 +9,7 @@ bounds the append-only logs that are only ever read over a short recent window.
 ## ADDED Requirements
 
 ### Requirement: Instant archive setting
-The game SHALL have one global instant archive setting: whether it is enabled (default off) and how many finished seasons keep their per-minute instants (default 1, an integer from 0 to 10). While it is off, fixtures lose their instants only through the instant retention by days.
+The game SHALL have one global instant archive setting: whether it is enabled (default off) and how many finished seasons keep their per-minute instants (default 1, an integer from 0 to 10). While it is off, no league match or cup tie loses its instants, and friendlies lose them only through the friendly retention.
 
 #### Scenario: Fresh world
 - **WHEN** a world is created or an existing database is upgraded
@@ -17,7 +17,7 @@ The game SHALL have one global instant archive setting: whether it is enabled (d
 
 #### Scenario: Off keeps every season
 - **WHEN** the archive is off and the daily archive pass fires
-- **THEN** no fixture within the days kept loses its instants, whatever its season
+- **THEN** no instant of any league match, cup tie or national-team friendly is deleted
 
 ### Requirement: Admin configures the archive
 An admin SHALL see and change both values in the admin web's Rules tab. A save with a count outside 0-10 MUST be rejected with no change. Only admins can read or change the setting.
@@ -34,35 +34,35 @@ An admin SHALL see and change both values in the admin web's Rules tab. A save w
 - **WHEN** a non-admin user calls the archive setting endpoint
 - **THEN** the request is refused and the setting is unchanged
 
-### Requirement: Instants are kept for a number of days
-The game SHALL have a global instant retention: how many days a played fixture keeps its per-minute instants after kickoff (default 7, an integer from 0 to 365, 0 meaning for good). Every day, whether the season archive is on or off, every played league match, cup tie and friendly (World Cup group matches included) that kicked off more than that many days ago SHALL lose its instants.
+### Requirement: Friendly instants are kept for a number of days
+The game SHALL have a global friendly retention: how many days a played friendly keeps its per-minute instants (default 7, an integer from 0 to 365, 0 meaning for good). Every day, whether the season archive is on or off, a played club friendly that kicked off more than that many days ago SHALL lose its instants. National-team friendlies, World Cup group matches included, are few and are left to the season archive.
 
-#### Scenario: Old match
-- **WHEN** fixtures keep 7 days and a league match, a cup tie and a friendly kicked off 8 days ago
-- **THEN** the next daily pass deletes their instants and keeps their results, chronicle, ratings and lineups
+#### Scenario: Old friendly
+- **WHEN** friendlies keep 7 days and a club's friendly kicked off 8 days ago
+- **THEN** the next daily pass deletes its instants and keeps its result, chronicle, ratings and lineups
 
-#### Scenario: Recent match within the days kept
-- **WHEN** fixtures keep 7 days and a match kicked off 2 days ago
-- **THEN** it keeps its instants, so its live replay and zone duel still work
+#### Scenario: Recent friendly within the days kept
+- **WHEN** friendlies keep 7 days and a friendly kicked off 2 days ago
+- **THEN** it keeps its instants
 
-#### Scenario: Instants expire with the archive off
-- **WHEN** the season archive is off and fixtures keep 7 days
-- **THEN** the daily pass still deletes the instants of every fixture older than 7 days
+#### Scenario: Friendlies expire with the archive off
+- **WHEN** the season archive is off and friendlies keep 7 days
+- **THEN** the daily pass still deletes the instants of friendlies older than 7 days, and no league match or cup tie loses its instants
 
-#### Scenario: World Cup group match
-- **WHEN** a World Cup group match kicked off more than the days kept ago
-- **THEN** it loses its instants like any other fixture
+#### Scenario: National-team friendly
+- **WHEN** a national-team friendly or World Cup group match kicked off more than the days kept ago
+- **THEN** it keeps its instants until the season archive archives it
 
-#### Scenario: Zero days keeps instants
+#### Scenario: Zero days keeps friendlies
 - **WHEN** an admin saves 0 days
-- **THEN** no fixture loses its instants through this rule, and only the season archive, if on, deletes them
+- **THEN** no friendly loses its instants through this rule
 
-### Requirement: Admin configures the instant retention
-An admin SHALL see and change the instant retention's days in the admin web's Rules tab. A save outside 0-365 MUST be rejected with no change. Only admins can change it.
+### Requirement: Admin configures the friendly retention
+An admin SHALL see and change the friendly retention's days in the admin web's Rules tab. A save outside 0-365 MUST be rejected with no change. Only admins can change it.
 
 #### Scenario: Changing the days
 - **WHEN** an admin saves 14 days
-- **THEN** the admin overview reports 14 days and fixtures keep their instants for 14 days
+- **THEN** the admin overview reports 14 days and friendlies keep their instants for 14 days
 
 #### Scenario: Days out of range
 - **WHEN** an admin saves 366 days
@@ -109,7 +109,7 @@ Archiving SHALL delete only per-minute instants. A match's result, events, store
 - **THEN** it shows its score, chronicle and stored ratings, and its Tácticas tab shows only the lineups pitch
 
 ### Requirement: Daily archive pass
-The engine SHALL run the archive pass once a day: first the instant retention by days, then, while the archive is on, the season archive, in batches of at most 200 fixtures per statement, until no fixture to archive is left. Instants already deleted are never restored, even if the archive is turned off or the count raised.
+The engine SHALL run the archive pass once a day: first the friendly retention, then, while the archive is on, the season archive, in batches of at most 200 fixtures per statement, until no fixture to archive is left. Instants already deleted are never restored, even if the archive is turned off or the count raised.
 
 #### Scenario: First pass after turning it on
 - **WHEN** an admin turns the archive on over several old seasons

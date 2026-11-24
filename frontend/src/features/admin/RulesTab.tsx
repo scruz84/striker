@@ -10,7 +10,7 @@ import {
   useAdminSetFreeAgentInjectionsPerWeek,
   useAdminSetFriendlySchedule,
   useAdminSetInstantArchive,
-  useAdminSetInstantRetention,
+  useAdminSetFriendlyInstantRetention,
   useAdminSetMaxFriendliesPerWeek,
   useAdminSetOfferNegotiationWindow,
   useSetMatchSchedule,
@@ -41,7 +41,7 @@ export function RulesTab() {
         FreeAgentInjectionsForm,
         OfferNegotiationWindowForm,
         InstantArchiveForm,
-        InstantRetentionForm,
+        FriendlyInstantRetentionForm,
       ].map((Form, index) => (
         <Grid key={index} size={{ xs: 12, md: 6 }}>
           <Form overview={overview} />
@@ -236,31 +236,31 @@ function InstantArchiveForm({ overview }: { overview: Overview }) {
   )
 }
 
-// InstantRetentionForm sets how many days a played league match, cup tie or friendly keeps its
-// minute-by-minute detail (openspec/specs/match-data-retention). It applies whether the season
-// archive is on or off; 0 keeps the detail for good.
-function InstantRetentionForm({ overview }: { overview: Overview }) {
+// FriendlyInstantRetentionForm sets how many days a played friendly keeps its minute-by-minute
+// detail (openspec/specs/match-data-retention). It applies whether the season archive is on or off;
+// 0 keeps friendlies' detail for good.
+function FriendlyInstantRetentionForm({ overview }: { overview: Overview }) {
   const { t } = useTranslation()
   const feedback = useAdminFeedback()
-  const setRetention = useAdminSetInstantRetention()
-  const [keepDays, setKeepDays] = useState(String(overview.instantKeepDays))
+  const setRetention = useAdminSetFriendlyInstantRetention()
+  const [keepDays, setKeepDays] = useState(String(overview.friendlyInstantKeepDays))
   const value = Number(keepDays)
   const invalid = keepDays === '' || !Number.isInteger(value) || value < 0 || value > 365
 
   return (
     <SettingCard
-      title={t('admin.instantRetention.title')}
-      description={t('admin.instantRetention.description')}
-      submitLabel={t('admin.instantRetention.save')}
+      title={t('admin.friendlyInstantRetention.title')}
+      description={t('admin.friendlyInstantRetention.description')}
+      submitLabel={t('admin.friendlyInstantRetention.save')}
       onSubmit={() =>
-        setRetention.mutate(value, feedback('admin.instantRetention.success', 'admin.instantRetention.error'))
+        setRetention.mutate(value, feedback('admin.friendlyInstantRetention.success', 'admin.friendlyInstantRetention.error'))
       }
       pending={setRetention.isPending}
       invalid={invalid}
-      errorText={invalid ? t('admin.instantRetention.rangeError') : undefined}
+      errorText={invalid ? t('admin.friendlyInstantRetention.rangeError') : undefined}
     >
       <TextField
-        label={t('admin.instantRetention.keepDays')}
+        label={t('admin.friendlyInstantRetention.keepDays')}
         type="number"
         size="small"
         value={keepDays}
