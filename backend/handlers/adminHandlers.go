@@ -88,7 +88,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		friendlyInstantKeepDays, err := common.GetFriendlyInstantKeepDays(dbCtx)
+		instantKeepDays, err := common.GetInstantKeepDays(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
@@ -131,7 +131,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			OfferNegotiationWindowMinutes: offerNegotiationWindowMinutes,
 			InstantArchiveEnabled:         instantArchive.Enabled,
 			InstantArchiveKeepSeasons:     instantArchive.KeepSeasons,
-			FriendlyInstantKeepDays:       friendlyInstantKeepDays,
+			InstantKeepDays:               instantKeepDays,
 			CountryStructures:             countryStructures,
 			PendingRestructure:            pendingRestructure,
 		})
@@ -531,29 +531,29 @@ func AdminSetMatchScheduleHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc
 	}
 }
 
-type setFriendlyInstantRetentionRequest struct {
+type setInstantRetentionRequest struct {
 	KeepDays *int `json:"keepDays"`
 }
 
-// AdminSetFriendlyInstantRetentionHandler saves how many days a played friendly keeps its
-// per-minute instants before the daily archive pass deletes them (see
-// common.SetFriendlyInstantKeepDays and openspec/specs/match-data-retention); 0 keeps them for good.
-func AdminSetFriendlyInstantRetentionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+// AdminSetInstantRetentionHandler saves how many days a played league match, cup tie or friendly
+// keeps its per-minute instants before the daily archive pass deletes them (see
+// common.SetInstantKeepDays and openspec/specs/match-data-retention); 0 keeps them for good.
+func AdminSetInstantRetentionHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req setFriendlyInstantRetentionRequest
+		var req setInstantRetentionRequest
 		if err := c.BindJSON(&req); err != nil || req.KeepDays == nil {
 			c.JSON(http.StatusBadRequest, GetError(0, "keepDays is required"))
 			return
 		}
-		if err := common.SetFriendlyInstantKeepDays(dbCtx, *req.KeepDays); err != nil {
-			if errors.Is(err, common.ErrInvalidFriendlyInstantKeepDays) {
+		if err := common.SetInstantKeepDays(dbCtx, *req.KeepDays); err != nil {
+			if errors.Is(err, common.ErrInvalidInstantKeepDays) {
 				c.JSON(http.StatusBadRequest, GetError(0, err.Error()))
 				return
 			}
-			log.Errorf("error setting the friendly instant retention: %s", err)
+			log.Errorf("error setting the instant retention: %s", err)
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
 		}
-		c.JSON(http.StatusOK, common.HttpResponse{Message: "friendly instant retention updated"})
+		c.JSON(http.StatusOK, common.HttpResponse{Message: "instant retention updated"})
 	}
 }

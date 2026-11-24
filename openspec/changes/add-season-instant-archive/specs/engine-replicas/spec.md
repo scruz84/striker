@@ -21,5 +21,5 @@ A job meant to run once per period SHALL first claim its slot (fire time truncat
 | `account_lifecycle_daily` | 24 h (inactivity warnings, club releases, account erasures) |
 | `offer_response` | 12 h |
 | `ai_activity` | 5 min |
-| `instant_archive` | 24 h (prunes old ledger and offer log rows; expires friendlies' instants after the days kept; deletes old seasons' instants while the archive is on) |
+| `instant_archive` | 24 h (prunes old ledger and offer log rows; expires every fixture's instants after the days kept; deletes old seasons' instants while the archive is on) |
 

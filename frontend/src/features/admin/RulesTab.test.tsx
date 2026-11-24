@@ -10,7 +10,7 @@ const mutations = vi.hoisted(() => ({
   maxFriendlies: vi.fn(),
   matchSchedule: vi.fn(),
   instantArchive: vi.fn(),
-  friendlyInstantRetention: vi.fn(),
+  instantRetention: vi.fn(),
 }))
 
 vi.mock('../../api/hooks', () => {
@@ -28,7 +28,7 @@ vi.mock('../../api/hooks', () => {
         offerNegotiationWindowMinutes: 30,
         instantArchiveEnabled: false,
         instantArchiveKeepSeasons: 1,
-        friendlyInstantKeepDays: 7,
+        instantKeepDays: 7,
       },
     }),
     useAdminSetMaxFriendliesPerWeek: () => ({ mutate: mutations.maxFriendlies, isPending: false }),
@@ -37,7 +37,7 @@ vi.mock('../../api/hooks', () => {
     useAdminSetFreeAgentInjectionsPerWeek: idle,
     useAdminSetOfferNegotiationWindow: idle,
     useAdminSetInstantArchive: () => ({ mutate: mutations.instantArchive, isPending: false }),
-    useAdminSetFriendlyInstantRetention: () => ({ mutate: mutations.friendlyInstantRetention, isPending: false }),
+    useAdminSetInstantRetention: () => ({ mutate: mutations.instantRetention, isPending: false }),
   }
 })
 
@@ -63,7 +63,7 @@ describe('RulesTab', () => {
 
   it('shows one card per rule', () => {
     renderTab()
-    for (const key of ['matchSchedule', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow', 'instantArchive', 'friendlyInstantRetention']) {
+    for (const key of ['matchSchedule', 'maxFriendlies', 'friendlySchedule', 'freeAgentInjections', 'offerNegotiationWindow', 'instantArchive', 'instantRetention']) {
       expect(screen.getByText(i18n.t(`admin.${key}.title`))).toBeInTheDocument()
     }
     // Promotion and relegation follow the league pyramid; there is no setting for them any more.
@@ -136,22 +136,22 @@ describe('RulesTab', () => {
     expect(mutations.instantArchive).not.toHaveBeenCalled()
   })
 
-  it('shows friendlies keeping 7 days of detail and saves a new count', () => {
+  it('shows matches keeping 7 days of detail and saves a new count', () => {
     renderTab()
-    const form = card(i18n.t('admin.friendlyInstantRetention.title'))
+    const form = card(i18n.t('admin.instantRetention.title'))
     expect(within(form).getByRole('spinbutton')).toHaveValue(7)
 
     fireEvent.change(within(form).getByRole('spinbutton'), { target: { value: '14' } })
-    fireEvent.click(within(form).getByRole('button', { name: i18n.t('admin.friendlyInstantRetention.save') }))
-    expect(mutations.friendlyInstantRetention).toHaveBeenCalledWith(14, expect.any(Object))
+    fireEvent.click(within(form).getByRole('button', { name: i18n.t('admin.instantRetention.save') }))
+    expect(mutations.instantRetention).toHaveBeenCalledWith(14, expect.any(Object))
   })
 
-  it('refuses to save a friendly detail count outside 0-365', () => {
+  it('refuses to save a detail retention count outside 0-365', () => {
     renderTab()
-    const form = card(i18n.t('admin.friendlyInstantRetention.title'))
+    const form = card(i18n.t('admin.instantRetention.title'))
     fireEvent.change(within(form).getByRole('spinbutton'), { target: { value: '366' } })
-    expect(within(form).getByText(i18n.t('admin.friendlyInstantRetention.rangeError'))).toBeInTheDocument()
-    expect(within(form).getByRole('button', { name: i18n.t('admin.friendlyInstantRetention.save') })).toBeDisabled()
-    expect(mutations.friendlyInstantRetention).not.toHaveBeenCalled()
+    expect(within(form).getByText(i18n.t('admin.instantRetention.rangeError'))).toBeInTheDocument()
+    expect(within(form).getByRole('button', { name: i18n.t('admin.instantRetention.save') })).toBeDisabled()
+    expect(mutations.instantRetention).not.toHaveBeenCalled()
   })
 })

@@ -9,8 +9,8 @@ import (
 // deletes the per-minute instants of fixtures older than the seasons kept, so the three instants
 // tables stop growing without bound. Every other piece of a match - result, events, ratings,
 // lineups, flavor - stays. Each archived fixture is flagged instants_archived (see
-// init118_instant_archive.sql), so no later pass looks at it again. Friendlies also expire on their
-// own after a number of days, archive on or off (see ArchiveExpiredFriendlyInstants).
+// init118_instant_archive.sql), so no later pass looks at it again. Every fixture also loses its
+// instants a number of days after kickoff, archive on or off (see ArchiveExpiredInstants).
 
 // InstantArchiveMaxKeepSeasons bounds the seasons kept (0 archives everything but the current
 // season).
@@ -22,10 +22,12 @@ const InstantArchiveBatch = 200
 
 var ErrInvalidInstantArchiveKeepSeasons = errors.New("seasons kept must be between 0 and 10")
 
-// FriendlyInstantMaxKeepDays bounds the days a friendly keeps its instants (0 keeps them for good).
-const FriendlyInstantMaxKeepDays = 365
+// InstantMaxKeepDays bounds the days a played fixture keeps its instants (0 keeps them for good).
+// The smallest non-zero value, 1 day, is well past LiveBroadcastWindow, so the live replay never
+// loses its instants.
+const InstantMaxKeepDays = 365
 
-var ErrInvalidFriendlyInstantKeepDays = errors.New("days kept must be between 0 and 365")
+var ErrInvalidInstantKeepDays = errors.New("days kept must be between 0 and 365")
 
 // InstantArchiveSettings is the global archive setting: whether the daily pass runs, and how many
 // finished seasons keep their instants.
@@ -53,26 +55,28 @@ func SetInstantArchiveSettings(dbCtx *DatabaseContext, s InstantArchiveSettings)
 	return err
 }
 
-// Friendlies keep their instants for a number of days (FriendlyInstantKeepDays, 7 by default),
-// whether the season archive is on or not: they are the most numerous fixtures and nobody replays
-// their minute-by-minute detail once they are a few days old. 0 keeps them for good.
+// Every played fixture - league match, cup tie or friendly - keeps its instants for a number of days
+// after kickoff (InstantKeepDays, 7 by default), whether the season archive is on or not. The
+// instants are by far the largest part of a match and are only read by the live replay and by the
+// finished match's zone duel and rating scrubber, which matter for recent matches. 0 keeps them for
+// good (then only the season archive, if on, deletes them).
 
-const GetFriendlyInstantKeepDaysStmtSql = "SELECT friendly_instants_keep_days FROM season"
-const SetFriendlyInstantKeepDaysStmtSql = "UPDATE season SET friendly_instants_keep_days = $1"
+const GetInstantKeepDaysStmtSql = "SELECT instants_keep_days FROM season"
+const SetInstantKeepDaysStmtSql = "UPDATE season SET instants_keep_days = $1"
 
-func GetFriendlyInstantKeepDays(dbCtx *DatabaseContext) (int, error) {
+func GetInstantKeepDays(dbCtx *DatabaseContext) (int, error) {
 	var days int
-	err := dbCtx.Db.QueryRow(GetFriendlyInstantKeepDaysStmtSql).Scan(&days)
+	err := dbCtx.Db.QueryRow(GetInstantKeepDaysStmtSql).Scan(&days)
 	return days, err
 }
 
-// SetFriendlyInstantKeepDays saves the days kept. Raising it only affects future passes: instants
+// SetInstantKeepDays saves the days kept. Raising it only affects future passes: instants
 // already deleted are not restored.
-func SetFriendlyInstantKeepDays(dbCtx *DatabaseContext, days int) error {
-	if days < 0 || days > FriendlyInstantMaxKeepDays {
-		return ErrInvalidFriendlyInstantKeepDays
+func SetInstantKeepDays(dbCtx *DatabaseContext, days int) error {
+	if days < 0 || days > InstantMaxKeepDays {
+		return ErrInvalidInstantKeepDays
 	}
-	_, err := dbCtx.Db.Exec(SetFriendlyInstantKeepDaysStmtSql, days)
+	_, err := dbCtx.Db.Exec(SetInstantKeepDaysStmtSql, days)
 	return err
 }
 
@@ -122,14 +126,30 @@ const ArchiveFriendlyInstantsStmtSql = "WITH batch AS (" +
 	"del AS (DELETE FROM friendly_instants WHERE match_id IN (SELECT match_id FROM batch) RETURNING 1) " +
 	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
 
-// ArchiveExpiredFriendlyInstantsStmtSql: played friendlies that kicked off more than $1 days ago,
-// World Cup group matches aside (the season archive handles those). $2 is the batch size. Ordered
-// by kickoff so it walks friendly_matches_instants_to_archive.
+// The expiry statements flag and delete a batch of played fixtures that kicked off more than $1
+// days ago ($2 is the batch size), oldest kickoff first through each table's
+// *_instants_to_expire / friendly_matches_instants_to_archive partial index (init118, init121).
+
+const ArchiveExpiredLeagueMatchInstantsStmtSql = "WITH batch AS (" +
+	"UPDATE matches SET instants_archived = true WHERE match_id IN (" +
+	"SELECT m.match_id FROM matches m " +
+	"WHERE m.played AND NOT m.instants_archived AND m.match_date < now() - make_interval(days => $1::int) " +
+	"ORDER BY m.match_date LIMIT $2 FOR UPDATE OF m SKIP LOCKED) RETURNING match_id), " +
+	"del AS (DELETE FROM match_instants WHERE match_id IN (SELECT match_id FROM batch) RETURNING 1) " +
+	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
+
+const ArchiveExpiredCupTieInstantsStmtSql = "WITH batch AS (" +
+	"UPDATE cup_ties SET instants_archived = true WHERE tie_id IN (" +
+	"SELECT ct.tie_id FROM cup_ties ct " +
+	"WHERE ct.played AND NOT ct.instants_archived AND ct.match_date < now() - make_interval(days => $1::int) " +
+	"ORDER BY ct.match_date LIMIT $2 FOR UPDATE OF ct SKIP LOCKED) RETURNING tie_id), " +
+	"del AS (DELETE FROM cup_tie_instants WHERE tie_id IN (SELECT tie_id FROM batch) RETURNING 1) " +
+	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
+
 const ArchiveExpiredFriendlyInstantsStmtSql = "WITH batch AS (" +
 	"UPDATE friendly_matches SET instants_archived = true WHERE match_id IN (" +
 	"SELECT f.match_id FROM friendly_matches f " +
 	"WHERE f.played AND NOT f.instants_archived AND f.match_date < now() - make_interval(days => $1::int) " +
-	"AND NOT EXISTS (SELECT 1 FROM world_cup_group_matches g WHERE g.match_id = f.match_id) " +
 	"ORDER BY f.match_date LIMIT $2 FOR UPDATE OF f SKIP LOCKED) RETURNING match_id), " +
 	"del AS (DELETE FROM friendly_instants WHERE match_id IN (SELECT match_id FROM batch) RETURNING 1) " +
 	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
@@ -200,18 +220,29 @@ func ArchiveOldInstants(dbCtx *DatabaseContext, keepSeasons int) (InstantArchive
 	return res, err
 }
 
-// ArchiveExpiredFriendlyInstants deletes the instants of every played friendly (World Cup group
-// matches aside) that kicked off more than keepDays days ago, batch by batch. keepDays 0 deletes
-// nothing. Safe to run on several replicas at once. It returns the friendlies archived and the
-// instant rows deleted, even when it stops on an error.
-func ArchiveExpiredFriendlyInstants(dbCtx *DatabaseContext, keepDays int) (InstantArchiveResult, error) {
+// ArchiveExpiredInstants deletes the instants of every played league match, cup tie and friendly
+// (World Cup group matches included) that kicked off more than keepDays days ago, batch by batch.
+// keepDays 0 deletes nothing. Safe to run on several replicas at once. It returns what it archived,
+// even when it stops on an error.
+func ArchiveExpiredInstants(dbCtx *DatabaseContext, keepDays int) (InstantArchiveResult, error) {
 	var res InstantArchiveResult
-	if keepDays < 0 || keepDays > FriendlyInstantMaxKeepDays {
-		return res, ErrInvalidFriendlyInstantKeepDays
+	if keepDays < 0 || keepDays > InstantMaxKeepDays {
+		return res, ErrInvalidInstantKeepDays
 	}
 	if keepDays == 0 {
 		return res, nil
 	}
-	err := archiveBatches(dbCtx, ArchiveExpiredFriendlyInstantsStmtSql, &res.Friendlies, &res.Instants, keepDays, InstantArchiveBatch)
-	return res, err
+	for _, kind := range []struct {
+		stmt     string
+		fixtures *int64
+	}{
+		{ArchiveExpiredLeagueMatchInstantsStmtSql, &res.LeagueMatches},
+		{ArchiveExpiredCupTieInstantsStmtSql, &res.CupTies},
+		{ArchiveExpiredFriendlyInstantsStmtSql, &res.Friendlies},
+	} {
+		if err := archiveBatches(dbCtx, kind.stmt, kind.fixtures, &res.Instants, keepDays, InstantArchiveBatch); err != nil {
+			return res, err
+		}
+	}
+	return res, nil
 }

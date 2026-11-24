@@ -14,14 +14,14 @@ import (
 const instantArchiveJobName = "instant_archive"
 
 // StartInstantArchiveScheduler runs the archive pass once a day at 04:41 UTC, clear of the other
-// daily jobs. With the season archive off it only expires old friendlies' instants.
+// daily jobs. With the season archive off it only prunes old logs and expires instants by age.
 func StartInstantArchiveScheduler(job quartz.Job) {
 	scheduleJob(job, "0 41 4 * * ?", instantArchiveJobName)
 }
 
 // InstantArchiveJob implements quartz.Job for the daily instant archive pass
 // (openspec/specs/match-data-retention): one replica per day wins the slot, then deletes the
-// instants of friendlies older than the days kept (common.ArchiveExpiredFriendlyInstants) and, with
+// instants of fixtures older than the days kept (common.ArchiveExpiredInstants) and, with
 // the season archive on, of every fixture older than the seasons kept (common.ArchiveOldInstants),
 // batch by batch.
 type InstantArchiveJob struct {
@@ -44,12 +44,12 @@ func NewInstantArchiveJob(dbCtx *common.DatabaseContext) *InstantArchiveJob {
 }
 
 // RunInstantArchive is one day's pass: old ledger and offer log rows nobody reads go first (see
-// common.LedgerRetention), then friendlies older than the days kept lose their instants
-// whatever the season archive setting, then, if the admin has the season archive on, every fixture
-// older than the seasons kept.
+// common.LedgerRetention), then every fixture older than the days kept loses its instants whatever
+// the season archive setting, then, if the admin has the season archive on, every fixture older
+// than the seasons kept.
 func RunInstantArchive(dbCtx *common.DatabaseContext) {
 	runLogRetention(dbCtx)
-	runFriendlyInstantExpiry(dbCtx)
+	runInstantExpiry(dbCtx)
 	settings, err := common.GetInstantArchiveSettings(dbCtx)
 	if err != nil {
 		log.Errorf("error reading the instant archive setting: %s", err)
@@ -69,25 +69,26 @@ func RunInstantArchive(dbCtx *common.DatabaseContext) {
 		settings.KeepSeasons, res.LeagueMatches, res.CupTies, res.Friendlies, res.Instants, time.Since(started).Round(time.Second))
 }
 
-// runFriendlyInstantExpiry deletes the instants of friendlies older than the days kept (none while
-// that is 0).
-func runFriendlyInstantExpiry(dbCtx *common.DatabaseContext) {
-	keepDays, err := common.GetFriendlyInstantKeepDays(dbCtx)
+// runInstantExpiry deletes the instants of every fixture that kicked off more than the days kept
+// ago (none while that is 0).
+func runInstantExpiry(dbCtx *common.DatabaseContext) {
+	keepDays, err := common.GetInstantKeepDays(dbCtx)
 	if err != nil {
-		log.Errorf("error reading the friendly instant retention: %s", err)
+		log.Errorf("error reading the instant retention: %s", err)
 		return
 	}
 	if keepDays == 0 {
 		return
 	}
 	started := time.Now()
-	res, err := common.ArchiveExpiredFriendlyInstants(dbCtx, keepDays)
+	res, err := common.ArchiveExpiredInstants(dbCtx, keepDays)
 	if err != nil {
-		log.Errorf("friendly instant expiry stopped after %d friendlies: %s", res.Friendlies, err)
+		log.Errorf("instant expiry stopped after %d league matches, %d cup ties and %d friendlies: %s",
+			res.LeagueMatches, res.CupTies, res.Friendlies, err)
 		return
 	}
-	log.Infof("friendly instant expiry (%d days kept): %d friendlies, %d instant rows deleted in %s",
-		keepDays, res.Friendlies, res.Instants, time.Since(started).Round(time.Second))
+	log.Infof("instant expiry (%d days kept): %d league matches, %d cup ties, %d friendlies, %d instant rows deleted in %s",
+		keepDays, res.LeagueMatches, res.CupTies, res.Friendlies, res.Instants, time.Since(started).Round(time.Second))
 }
 
 // runLogRetention deletes team-level ledger rows older than common.LedgerRetention and offer log

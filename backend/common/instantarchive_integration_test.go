@@ -269,82 +269,111 @@ func TestArchiveOldInstants_Friendlies(t *testing.T) {
 	}
 }
 
-// TestFriendlyInstantKeepDaysSetting covers the friendly retention save: 7 days by default, saved
+// TestInstantKeepDaysSetting covers the instant retention save: 7 days by default, saved
 // as given, and a value outside 0-365 rejected without a change.
-func TestFriendlyInstantKeepDaysSetting(t *testing.T) {
+func TestInstantKeepDaysSetting(t *testing.T) {
 	w := newArchiveWorld(t)
 	w.exec(`INSERT INTO season (transfer_window_open) SELECT true WHERE NOT EXISTS (SELECT 1 FROM season)`)
-	before, err := GetFriendlyInstantKeepDays(w.dbCtx)
+	before, err := GetInstantKeepDays(w.dbCtx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = SetFriendlyInstantKeepDays(w.dbCtx, before) })
+	t.Cleanup(func() { _ = SetInstantKeepDays(w.dbCtx, before) })
 
-	if got := w.scan(`SELECT column_default::int FROM information_schema.columns WHERE table_name = 'season' AND column_name = 'friendly_instants_keep_days'`); got != 7 {
+	if got := w.scan(`SELECT column_default::int FROM information_schema.columns WHERE table_name = 'season' AND column_name = 'instants_keep_days'`); got != 7 {
 		t.Errorf("default %d days, want 7", got)
 	}
-	if err := SetFriendlyInstantKeepDays(w.dbCtx, 30); err != nil {
+	if err := SetInstantKeepDays(w.dbCtx, 30); err != nil {
 		t.Fatal(err)
 	}
 	for _, bad := range []int{366, -1} {
-		if err := SetFriendlyInstantKeepDays(w.dbCtx, bad); !errors.Is(err, ErrInvalidFriendlyInstantKeepDays) {
-			t.Errorf("%d days: err %v, want ErrInvalidFriendlyInstantKeepDays", bad, err)
+		if err := SetInstantKeepDays(w.dbCtx, bad); !errors.Is(err, ErrInvalidInstantKeepDays) {
+			t.Errorf("%d days: err %v, want ErrInvalidInstantKeepDays", bad, err)
 		}
 	}
-	if got, _ := GetFriendlyInstantKeepDays(w.dbCtx); got != 30 {
+	if got, _ := GetInstantKeepDays(w.dbCtx); got != 30 {
 		t.Errorf("saved %d days, want 30", got)
 	}
 }
 
-// TestArchiveExpiredFriendlyInstants covers "Old friendly", "Recent friendly within the days kept",
-// "World Cup group match" and "Zero days keeps friendlies": a played friendly older than the days
-// kept loses its instants (and keeps its event), a newer one, an unplayed one and a World Cup group
-// match keep them. The friendlies sit more than a year back so other tests' passes, which keep at
-// most 365 days, never reach the ones expected to stay.
-func TestArchiveExpiredFriendlyInstants(t *testing.T) {
+// TestArchiveExpiredInstants covers "Old match", "Recent match within the days kept", "World Cup
+// group match" and "Zero days keeps instants": a played league match, cup tie or friendly older than
+// the days kept loses its instants and keeps its event, rating and lineup; newer and unplayed ones
+// keep them. The old fixtures sit more than a year back and the kept ones within it, so other tests'
+// passes, which keep at most 365 days, never reach the ones expected to stay.
+func TestArchiveExpiredInstants(t *testing.T) {
 	w := newArchiveWorld(t)
-	_, _, home, away := w.country(1)
+	_, league, home, away := w.country(5)
 	now := time.Now()
-	old := w.friendly(home, away, now.Add(-500*24*time.Hour))
-	recent := w.friendly(home, away, now.Add(-300*24*time.Hour))
-	unplayed := w.friendly(home, away, now.Add(-500*24*time.Hour))
-	w.exec(`UPDATE friendly_matches SET played = false WHERE match_id = $1`, unplayed)
-	worldCupGroup := w.friendly(home, away, now.Add(-500*24*time.Hour))
-	cup := w.scan(`INSERT INTO world_cups (season, name) VALUES (1, 'Archive test World Cup') RETURNING world_cup_id`)
-	group := w.scan(`INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'A') RETURNING group_id`, cup)
+	oldAge, recentAge := 500*24*time.Hour, 300*24*time.Hour
+	oldMatch := w.match(league, home, away, 5, true, now.Add(-oldAge))
+	recentMatch := w.match(league, home, away, 5, true, now.Add(-recentAge))
+	unplayedMatch := w.match(league, home, away, 5, false, now.Add(-oldAge))
+	cup := w.scan(`INSERT INTO cups (country, season, name) SELECT l.country, 5, 'Open cup' FROM leagues l WHERE l.league_id = $1 RETURNING cup_id`, league)
+	tie := func(age time.Duration) int64 {
+		id := w.cupTie(cup, home, away)
+		w.exec(`UPDATE cup_ties SET match_date = $1 WHERE tie_id = $2`, now.Add(-age), id)
+		return id
+	}
+	oldTie, recentTie := tie(oldAge), tie(recentAge)
+	oldFriendly := w.friendly(home, away, now.Add(-oldAge))
+	recentFriendly := w.friendly(home, away, now.Add(-recentAge))
+	unplayedFriendly := w.friendly(home, away, now.Add(-oldAge))
+	w.exec(`UPDATE friendly_matches SET played = false WHERE match_id = $1`, unplayedFriendly)
+	worldCupGroup := w.friendly(home, away, now.Add(-oldAge))
+	worldCup := w.scan(`INSERT INTO world_cups (season, name) VALUES (1, 'Archive test World Cup') RETURNING world_cup_id`)
+	group := w.scan(`INSERT INTO world_cup_groups (world_cup_id, group_name) VALUES ($1, 'A') RETURNING group_id`, worldCup)
 	w.exec(`INSERT INTO world_cup_group_matches (group_id, round, match_id) VALUES ($1, 1, $2)`, group, worldCupGroup)
 
-	count := func(id int64) int64 { return w.scan(`SELECT count(*) FROM friendly_instants WHERE match_id = $1`, id) }
-	flagged := func(id int64) bool {
+	tieInstants := func(id int64) int64 { return w.scan(`SELECT count(*) FROM cup_tie_instants WHERE tie_id = $1`, id) }
+	friendlyInstants := func(id int64) int64 {
+		return w.scan(`SELECT count(*) FROM friendly_instants WHERE match_id = $1`, id)
+	}
+	friendlyFlagged := func(id int64) bool {
 		return w.scan(`SELECT count(*) FROM friendly_matches WHERE match_id = $1 AND instants_archived`, id) == 1
 	}
 
-	if res, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 0); err != nil || res != (InstantArchiveResult{}) {
+	if res, err := ArchiveExpiredInstants(w.dbCtx, 0); err != nil || res != (InstantArchiveResult{}) {
 		t.Fatalf("0 days: %+v, %v; want nothing archived", res, err)
 	}
-	if got := count(old); got != archiveTestMinutes {
-		t.Fatalf("0 days deleted instants of an old friendly (%d left)", got)
-	}
-	if _, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 366); !errors.Is(err, ErrInvalidFriendlyInstantKeepDays) {
-		t.Errorf("366 days: err %v, want ErrInvalidFriendlyInstantKeepDays", err)
+	w.expectMatch(oldMatch, 5, false)
+	if _, err := ArchiveExpiredInstants(w.dbCtx, 366); !errors.Is(err, ErrInvalidInstantKeepDays) {
+		t.Errorf("366 days: err %v, want ErrInvalidInstantKeepDays", err)
 	}
 
-	res, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 365)
+	res, err := ArchiveExpiredInstants(w.dbCtx, 365)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Friendlies < 1 || res.Instants < archiveTestMinutes {
-		t.Errorf("result %+v, want at least our old friendly", res)
+	if res.LeagueMatches < 1 || res.CupTies < 1 || res.Friendlies < 2 || res.Instants < 4*archiveTestMinutes {
+		t.Errorf("result %+v, want at least our old match, tie, friendly and World Cup group match", res)
 	}
-	if got := count(old); got != 0 || !flagged(old) {
-		t.Errorf("old friendly: %d instants, flagged %v; want archived", got, flagged(old))
+
+	w.expectMatch(oldMatch, 5, true)
+	w.expectMatch(recentMatch, 5, false)
+	if got := w.scan(`SELECT count(*) FROM match_instants WHERE match_id = $1`, unplayedMatch); got != archiveTestMinutes {
+		t.Errorf("unplayed league match: %d instants, want kept", got)
 	}
-	if got := w.scan(`SELECT count(*) FROM friendly_events WHERE match_id = $1`, old); got != 1 {
+	if got := tieInstants(oldTie); got != 0 || w.scan(`SELECT count(*) FROM cup_ties WHERE tie_id = $1 AND instants_archived`, oldTie) != 1 {
+		t.Errorf("old cup tie: %d instants; want archived and flagged", got)
+	}
+	if got := w.scan(`SELECT count(*) FROM cup_tie_events WHERE tie_id = $1`, oldTie); got != 1 {
+		t.Error("archived cup tie lost its event")
+	}
+	if got := tieInstants(recentTie); got != archiveTestMinutes {
+		t.Errorf("recent cup tie: %d instants, want kept", got)
+	}
+	for name, id := range map[string]int64{"old friendly": oldFriendly, "old World Cup group match": worldCupGroup} {
+		if got := friendlyInstants(id); got != 0 || !friendlyFlagged(id) {
+			t.Errorf("%s: %d instants, flagged %v; want archived", name, got, friendlyFlagged(id))
+		}
+	}
+	if got := w.scan(`SELECT count(*) FROM friendly_events WHERE match_id = $1`, oldFriendly); got != 1 {
 		t.Error("archived friendly lost its event")
 	}
-	for name, id := range map[string]int64{"recent friendly": recent, "unplayed friendly": unplayed, "World Cup group match": worldCupGroup} {
-		if got := count(id); got != archiveTestMinutes || flagged(id) {
-			t.Errorf("%s: %d instants, flagged %v; want kept", name, got, flagged(id))
+	for name, id := range map[string]int64{"recent friendly": recentFriendly, "unplayed friendly": unplayedFriendly} {
+		if got := friendlyInstants(id); got != archiveTestMinutes || friendlyFlagged(id) {
+			t.Errorf("%s: %d instants, flagged %v; want kept", name, got, friendlyFlagged(id))
 		}
 	}
 }

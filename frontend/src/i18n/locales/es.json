@@ -1967,14 +1967,14 @@
       "success": "Archivado de temporadas actualizado.",
       "error": "No se pudo actualizar el archivado de temporadas."
     },
-    "friendlyInstantRetention": {
-      "title": "Detalle de los amistosos",
-      "description": "Borra cada día el detalle minuto a minuto (duelo de zonas y evolución de las notas) de los amistosos anteriores a los días que se conservan, esté o no activado el archivado de temporadas. Los partidos de grupo del Mundial siguen el archivado de temporadas. Se mantienen el resultado, la crónica, las notas y las alineaciones. Con 0 el detalle se conserva siempre. Lo borrado no se puede recuperar.",
+    "instantRetention": {
+      "title": "Conservar el detalle minuto a minuto",
+      "description": "Borra cada día el detalle minuto a minuto (duelo de zonas y evolución de las notas) de todos los partidos de liga, copa y amistosos que empezaron hace más de los días que se conservan, esté o no activado el archivado de temporadas. Este detalle es la mayor parte de lo que ocupa un partido. Se mantienen el resultado, la crónica, las notas y las alineaciones. Con 0 el detalle se conserva siempre. Lo borrado no se puede recuperar.",
       "keepDays": "Días conservados",
       "rangeError": "Introduce un número del 0 al 365.",
-      "save": "Guardar detalle de amistosos",
-      "success": "Conservación del detalle de amistosos actualizada.",
-      "error": "No se pudo actualizar la conservación del detalle de amistosos."
+      "save": "Guardar conservación del detalle",
+      "success": "Conservación del detalle actualizada.",
+      "error": "No se pudo actualizar la conservación del detalle."
     },
     "countryStructure": {
       "edit": "Estructura",

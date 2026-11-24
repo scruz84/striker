@@ -91,29 +91,32 @@ metrics.
   deletion is permanent and keeps results, chronicle and ratings. Strings go under
   `admin.instantArchive.*` in `en.json` / `es.json`.
 
-### 5. Friendly retention by days
-Friendlies have no season, are played every week by a large share of the clubs, and their detail is
-only replayed right after the match. Keeping them for whole seasons (the archive's friendly rule)
-would still store tens of thousands of them per week, and only while the admin has the archive on.
+### 5. Instant retention by days
+The instants are about 94% of what a match stores, and their readers (the live replay, within
+`common.LiveBroadcastWindow`, and the finished match's zone duel and rating scrubber) only matter
+for recent matches. Keeping whole seasons (§1-§3) still stores tens of thousands of matches' worth
+of instants per week, and only while the admin has the archive on.
 
-- Migration `init121_friendly_instant_retention.sql`: `season.friendly_instants_keep_days smallint
-  NOT NULL DEFAULT 7 CHECK (0..365)`, re-runnable.
-- `common.ArchiveExpiredFriendlyInstantsStmtSql` is the same one-statement batch shape as §2, over
-  played, not yet archived friendlies with `match_date < now() - keepDays days`, excluding World Cup
-  group matches (`world_cup_group_matches`), ordered by `match_date` so it walks the existing
-  `friendly_matches_instants_to_archive` partial index. It sets the same `instants_archived` flag,
-  so the season rule never looks at those rows again.
-- `engine.RunInstantArchive` runs this expiry first on every daily slot, archive on or off, and
-  then the season archive if it is on. `0` skips the expiry.
-- `common.Get/SetFriendlyInstantKeepDays` (0-365), `PUT /v1/admin/friendly-instant-retention`
-  `{ "keepDays": int }` (400 out of range or missing), `AdminOverview.friendlyInstantKeepDays`, and a
-  `FriendlyInstantRetentionForm` card in `RulesTab` with strings under
-  `admin.friendlyInstantRetention.*`.
+- Migration `init121_instant_retention.sql`: `season.instants_keep_days smallint NOT NULL DEFAULT 7
+  CHECK (0..365)`, and partial indexes `matches_instants_to_expire` / `cup_ties_instants_to_expire`
+  on `match_date WHERE played AND NOT instants_archived` (friendlies reuse
+  `friendly_matches_instants_to_archive`). Re-runnable. Like init120, an operator can create the two
+  indexes `CONCURRENTLY` beforehand to avoid blocking writes on a live world.
+- `common.ArchiveExpired{LeagueMatch,CupTie,Friendly}InstantsStmtSql` are the same one-statement
+  batch shape as §2, over played, not yet archived fixtures with `match_date < now() - keepDays
+  days`, oldest kickoff first. They set the same `instants_archived` flag, so the season rule never
+  looks at those rows again. `common.ArchiveExpiredInstants` runs the three in turn.
+- `engine.RunInstantArchive` runs this expiry on every daily slot, archive on or off, and then the
+  season archive if it is on. `0` skips the expiry. The smallest non-zero value, 1 day, is well past
+  the 2-hour live window.
+- `common.Get/SetInstantKeepDays` (0-365), `PUT /v1/admin/instant-retention` `{ "keepDays": int }`
+  (400 out of range or missing), `AdminOverview.instantKeepDays`, and an `InstantRetentionForm`
+  card in `RulesTab` with strings under `admin.instantRetention.*`.
 
-*Why on by default:* unlike seasons of league history, a friendly's per-minute detail has no value
-after a few days, and without the expiry the friendly instants table grows by the week. *Why World
-Cup group matches are excluded:* they are competitive matches of a tournament that only happens
-once per international cycle, and few in number.
+*Why on by default:* without it the instants tables grow by tens of GB per season, and nothing but
+a recent match's viewer reads them. *Why all kinds, World Cup group matches included:* the same
+reasoning holds for every fixture; the result, chronicle, ratings and lineups that make up a match's
+record are kept.
 
 ### 6. Pruning old log rows
 - `common.PruneOldLedgerRows` walks `team_transactions` by primary key in pages of 5,000
@@ -140,9 +143,11 @@ season, and a player's page shows its history); `player_offer_rejections` (alrea
   stopped at any time by turning the setting off.
 - [Deleted instants cannot come back] → off by default, the UI warns, and only admins can change it.
 - [Disk does not shrink] → documented. The tables stop growing once the archive keeps pace.
-- [The friendly expiry is on by default, so upgrading deletes friendlies' instants older than 7 days
-  at the next 04:41 UTC slot] → this is the intended bound on growth; an admin who wants them kept
-  sets the days to 0 before that slot (or higher, up to 365).
+- [The instant expiry is on by default, so upgrading deletes the instants of every fixture older
+  than 7 days at the next 04:41 UTC slot] → this is the intended bound on growth; an admin who
+  wants them kept sets the days to 0 before that slot (or higher, up to 365).
+- [The first pass on a large world deletes most instant rows at once] → batches of 200 fixtures in
+  short transactions, as the season archive.
 - [Ledger pruning is not a setting, and the first pass on a world older than 180 days deletes most
   of its ledger] → those rows are never read; budgets, the finance page (latest 50 rows) and
   player transfer history do not change.
@@ -166,16 +171,16 @@ To copy into `openspec/specs/match-data-retention/spec.md` when this change is a
 - Schema: `backend/resources/sql/init118_instant_archive.sql` (`season.archive_instants_enabled`,
   `season.archive_keep_seasons`, `instants_archived` on `matches` / `cup_ties` /
   `friendly_matches`, the `*_instants_to_archive` partial indexes);
-  `backend/resources/sql/init121_friendly_instant_retention.sql` (`season.friendly_instants_keep_days`).
+  `backend/resources/sql/init121_instant_retention.sql` (`season.instants_keep_days`).
 - Log retention: `common/dataretention.go` (`LedgerRetention`, `OfferLogRetention`,
   `PruneOldLedgerRows`, `PruneOldOfferLog`), `engine/instantarchive.go` (`runLogRetention`); tests
   in `common/dataretention_integration_test.go`.
-- Friendly expiry: `common/instantarchive.go` (`Get/SetFriendlyInstantKeepDays`,
-  `ArchiveExpiredFriendlyInstants`, `ArchiveExpiredFriendlyInstantsStmtSql`),
-  `engine/instantarchive.go` (`runFriendlyInstantExpiry`), `AdminSetFriendlyInstantRetentionHandler`
-  (`PUT /v1/admin/friendly-instant-retention`), `AdminOverview.friendlyInstantKeepDays`,
-  `FriendlyInstantRetentionForm` / `useAdminSetFriendlyInstantRetention`, strings
-  `admin.friendlyInstantRetention.*`.
+- Instant expiry: `common/instantarchive.go` (`Get/SetInstantKeepDays`,
+  `ArchiveExpiredInstants`, `ArchiveExpired{LeagueMatch,CupTie,Friendly}InstantsStmtSql`),
+  `engine/instantarchive.go` (`runInstantExpiry`), `AdminSetInstantRetentionHandler`
+  (`PUT /v1/admin/instant-retention`), `AdminOverview.instantKeepDays`,
+  `InstantRetentionForm` / `useAdminSetInstantRetention`, strings
+  `admin.instantRetention.*`.
 - Engine: `backend/engine/instantarchive.go` (`InstantArchiveJob`, slot `instant_archive`,
   `RunInstantArchive`, daily at 04:41 UTC via `StartInstantArchiveScheduler` in `StartEngine`).
 - API: `AdminSetInstantArchiveHandler` (`handlers/adminHandlers.go`, `PUT /v1/admin/instant-archive`),

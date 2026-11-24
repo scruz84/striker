@@ -2051,9 +2051,9 @@ export interface AdminOverview {
   // instants are deleted, and how many finished seasons keep them.
   instantArchiveEnabled: boolean
   instantArchiveKeepSeasons: number
-  // Days a played friendly keeps its per-minute instants (backend common.GetFriendlyInstantKeepDays),
-  // archive on or off; 0 keeps them for good.
-  friendlyInstantKeepDays: number
+  // Days a played league match, cup tie or friendly keeps its per-minute instants (backend
+  // common.GetInstantKeepDays), archive on or off; 0 keeps them for good.
+  instantKeepDays: number
   // Active countries that have their own structure instead of the global one.
   countryStructures?: string[]
   // One row per AI level (backend common.AiLevelStats), human = owned clubs.

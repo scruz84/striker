@@ -77,7 +77,7 @@ func TestInstantArchive_RequiresAdminSession(t *testing.T) {
 	for name, cookie := range map[string]*http.Cookie{"no cookie": nil, "forged cookie": forgedCookie(t, "attacker-key")} {
 		for _, tc := range []struct{ method, path string }{
 			{http.MethodPut, "/v1/admin/instant-archive"},
-			{http.MethodPut, "/v1/admin/friendly-instant-retention"},
+			{http.MethodPut, "/v1/admin/instant-retention"},
 			{http.MethodGet, "/v1/admin/countries/es/structure"},
 			{http.MethodPut, "/v1/admin/countries/es/structure"},
 			{http.MethodDelete, "/v1/admin/countries/es/structure"},

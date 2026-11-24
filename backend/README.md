@@ -144,11 +144,11 @@ for new rows, so the instants tables stop growing, but the files on disk only sh
 `VACUUM FULL` (or `pg_repack`) of `match_instants`, `cup_tie_instants` and `friendly_instants`,
 which locks each table while it runs.
 
-`PUT friendly-instant-retention` (`{"keepDays": 0-365}`, 7 by default, Rules tab) is the same job's
-short rule for friendlies, which runs whether the season archive is on or off: every day it deletes
-the instants of played friendlies (club and national-team) that kicked off more than that many days
-ago. World Cup group matches are left to the season archive. `0` keeps friendlies' instants for
-good.
+`PUT instant-retention` (`{"keepDays": 0-365}`, 7 by default, Rules tab) is the same job's
+short rule, which runs whether the season archive is on or off: every day it deletes the instants
+of every played league match, cup tie and friendly that kicked off more than that many days ago.
+Instants are about 94% of what a match stores, so this is what bounds the database. `0` keeps them
+for good (then only the season archive, if on, deletes them).
 
 The same daily job also prunes, with fixed retentions and no setting, team-level ledger rows
 (`team_transactions` with no `player_id`) older than 180 days, since the finance page only reads a

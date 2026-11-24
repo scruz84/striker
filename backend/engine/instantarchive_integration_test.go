@@ -13,7 +13,7 @@ import (
 // instantArchiveJobEnv opens the integration database (skipped without STRIKER_TEST_DB_DSN),
 // makes sure the season row exists, restores the archive setting afterwards, and returns a helper
 // that inserts a played season-1 league match with one instant in a country already in season 5,
-// and one that inserts a played friendly of the given age with one instant. Friendlies keep their
+// and one that inserts a played friendly of the given age with one instant. Fixtures keep their
 // instants 365 days while it runs.
 func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func() int64, func(time.Duration) int64) {
 	t.Helper()
@@ -46,14 +46,14 @@ func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = common.SetInstantArchiveSettings(dbCtx, before) })
-	keepDaysBefore, err := common.GetFriendlyInstantKeepDays(dbCtx)
+	keepDaysBefore, err := common.GetInstantKeepDays(dbCtx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { _ = common.SetFriendlyInstantKeepDays(dbCtx, keepDaysBefore) })
-	// The pass expires friendlies across the whole shared test database: keep a year so it never
-	// reaches the recent friendlies other packages' tests rely on.
-	if err := common.SetFriendlyInstantKeepDays(dbCtx, 365); err != nil {
+	t.Cleanup(func() { _ = common.SetInstantKeepDays(dbCtx, keepDaysBefore) })
+	// The pass expires instants across the whole shared test database: keep a year so it never
+	// reaches the recent fixtures other packages' tests rely on.
+	if err := common.SetInstantKeepDays(dbCtx, 365); err != nil {
 		t.Fatal(err)
 	}
 
@@ -67,7 +67,7 @@ func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 	oldMatch := func() int64 {
 		t.Helper()
 		id := must(`INSERT INTO matches (league_id, season, match_date, home_team_id, away_team_id, played)
-			VALUES ($1, 1, now() - interval '400 days', $2, $3, true) RETURNING match_id`, league, home, away)
+			VALUES ($1, 1, now() - interval '200 days', $2, $3, true) RETURNING match_id`, league, home, away)
 		if _, err := db.Exec(`INSERT INTO match_instants (match_id, minute) VALUES ($1, 1)`, id); err != nil {
 			t.Fatal(err)
 		}
@@ -120,9 +120,9 @@ func TestInstantArchiveJob_OncePerSlot(t *testing.T) {
 	}
 }
 
-// TestInstantArchiveJob_OffKeepsSeasons covers "Off keeps every season": with the season archive
-// off the pass leaves league matches alone but still expires friendlies older than the days kept
-// ("Friendlies expire with the archive off").
+// TestInstantArchiveJob_OffKeepsSeasons covers "Off keeps every season" and "Instants expire with
+// the archive off": with the season archive off, a season-1 league match within the days kept keeps
+// its instants, while a fixture older than the days kept loses them.
 func TestInstantArchiveJob_OffKeepsSeasons(t *testing.T) {
 	dbCtx, db, oldMatch, friendly := instantArchiveJobEnv(t)
 	if err := common.SetInstantArchiveSettings(dbCtx, common.InstantArchiveSettings{Enabled: false, KeepSeasons: 0}); err != nil {

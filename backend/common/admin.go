@@ -99,9 +99,9 @@ type AdminOverview struct {
 	// GetInstantArchiveSettings and openspec/specs/match-data-retention).
 	InstantArchiveEnabled     bool `json:"instantArchiveEnabled"`
 	InstantArchiveKeepSeasons int  `json:"instantArchiveKeepSeasons"`
-	// FriendlyInstantKeepDays is how many days a friendly keeps its instants (see
-	// GetFriendlyInstantKeepDays); 0 keeps them for good.
-	FriendlyInstantKeepDays int `json:"friendlyInstantKeepDays"`
+	// InstantKeepDays is how many days a played fixture keeps its instants (see
+	// GetInstantKeepDays); 0 keeps them for good.
+	InstantKeepDays int `json:"instantKeepDays"`
 	// CountryStructures lists the active countries that have their own structure (see
 	// GetCountryStructures) instead of following the global one.
 	CountryStructures []string `json:"countryStructures"`
