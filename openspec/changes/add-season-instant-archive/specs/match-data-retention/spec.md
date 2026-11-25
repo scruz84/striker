@@ -3,20 +3,21 @@
 ## Purpose
 
 States which stored match data the game keeps and for how long, so an admin can bound database
-growth by archiving the per-minute detail of old seasons while every match keeps its record.
+growth by archiving the per-minute detail of old seasons while every match keeps its record. It also
+bounds the append-only logs that are only ever read over a short recent window.
 
 ## ADDED Requirements
 
 ### Requirement: Instant archive setting
-The game SHALL have one global instant archive setting: whether it is enabled (default off) and how many finished seasons keep their per-minute instants (default 1, an integer from 0 to 10). While it is off, no instants are ever deleted.
+The game SHALL have one global instant archive setting: whether it is enabled (default off) and how many finished seasons keep their per-minute instants (default 1, an integer from 0 to 10). While it is off, no league match or cup tie loses its instants, and friendlies lose them only through the friendly retention.
 
 #### Scenario: Fresh world
 - **WHEN** a world is created or an existing database is upgraded
 - **THEN** the archive is off and keeps 1 finished season
 
-#### Scenario: Off keeps everything
+#### Scenario: Off keeps every season
 - **WHEN** the archive is off and the daily archive pass fires
-- **THEN** no instant of any match, cup tie or friendly is deleted
+- **THEN** no instant of any league match, cup tie or national-team friendly is deleted
 
 ### Requirement: Admin configures the archive
 An admin SHALL see and change both values in the admin web's Rules tab. A save with a count outside 0-10 MUST be rejected with no change. Only admins can read or change the setting.
@@ -32,6 +33,40 @@ An admin SHALL see and change both values in the admin web's Rules tab. A save w
 #### Scenario: Not an admin
 - **WHEN** a non-admin user calls the archive setting endpoint
 - **THEN** the request is refused and the setting is unchanged
+
+### Requirement: Friendly instants are kept for a number of days
+The game SHALL have a global friendly retention: how many days a played friendly keeps its per-minute instants (default 7, an integer from 0 to 365, 0 meaning for good). Every day, whether the season archive is on or off, a played club friendly that kicked off more than that many days ago SHALL lose its instants. National-team friendlies, World Cup group matches included, are few and are left to the season archive.
+
+#### Scenario: Old friendly
+- **WHEN** friendlies keep 7 days and a club's friendly kicked off 8 days ago
+- **THEN** the next daily pass deletes its instants and keeps its result, chronicle, ratings and lineups
+
+#### Scenario: Recent friendly within the days kept
+- **WHEN** friendlies keep 7 days and a friendly kicked off 2 days ago
+- **THEN** it keeps its instants
+
+#### Scenario: Friendlies expire with the archive off
+- **WHEN** the season archive is off and friendlies keep 7 days
+- **THEN** the daily pass still deletes the instants of friendlies older than 7 days, and no league match or cup tie loses its instants
+
+#### Scenario: National-team friendly
+- **WHEN** a national-team friendly or World Cup group match kicked off more than the days kept ago
+- **THEN** it keeps its instants until the season archive archives it
+
+#### Scenario: Zero days keeps friendlies
+- **WHEN** an admin saves 0 days
+- **THEN** no friendly loses its instants through this rule
+
+### Requirement: Admin configures the friendly retention
+An admin SHALL see and change the friendly retention's days in the admin web's Rules tab. A save outside 0-365 MUST be rejected with no change. Only admins can change it.
+
+#### Scenario: Changing the days
+- **WHEN** an admin saves 14 days
+- **THEN** the admin overview reports 14 days and friendlies keep their instants for 14 days
+
+#### Scenario: Days out of range
+- **WHEN** an admin saves 366 days
+- **THEN** the save is rejected and the setting is unchanged
 
 ### Requirement: Which league matches and domestic cups are archived
 With the archive on and K seasons kept, a country whose current season is S SHALL have archived every played league match of its leagues with season ≤ S − 1 − K, and every tie of its domestic cups and playoffs of those seasons once that cup is completed. The current season is never archived.
@@ -56,7 +91,7 @@ A cup belonging to a region (regional club cups and international knockout cups)
 - **THEN** the ties of editions 1 and 2 lose their instants, and those of editions 3 and 4 keep them
 
 ### Requirement: Which friendlies are archived
-A played friendly SHALL be archived when its kickoff is earlier than the first league kickoff of season S − K in its home team's country (S being that country's current season, K the seasons kept). This covers national-team friendlies and World Cup group matches. If that season has no league match, no friendly of that country is archived.
+With the season archive on, a played friendly SHALL also be archived when its kickoff is earlier than the first league kickoff of season S − K in its home team's country (S being that country's current season, K the seasons kept). This covers national-team friendlies and World Cup group matches. If that season has no league match, no friendly of that country is archived.
 
 #### Scenario: Friendly from an archived season
 - **WHEN** the archive keeps 1 season, Spain is in season 5, and a Spanish club hosted a friendly before Spain's first season-4 league match
@@ -74,7 +109,7 @@ Archiving SHALL delete only per-minute instants. A match's result, events, store
 - **THEN** it shows its score, chronicle and stored ratings, and its Tácticas tab shows only the lineups pitch
 
 ### Requirement: Daily archive pass
-While the archive is on, the engine SHALL run the archive pass once a day, in batches of at most 200 fixtures per statement, until no fixture to archive is left. Instants already deleted are never restored, even if the archive is turned off or the count raised.
+The engine SHALL run the archive pass once a day: first the friendly retention, then, while the archive is on, the season archive, in batches of at most 200 fixtures per statement, until no fixture to archive is left. Instants already deleted are never restored, even if the archive is turned off or the count raised.
 
 #### Scenario: First pass after turning it on
 - **WHEN** an admin turns the archive on over several old seasons
@@ -83,3 +118,25 @@ While the archive is on, the engine SHALL run the archive pass once a day, in ba
 #### Scenario: Raising the count later
 - **WHEN** seasons 1-3 were archived and the admin then raises the seasons kept from 1 to 3
 - **THEN** seasons 1-3 stay without instants and no newer season is archived until it falls outside the new count
+
+### Requirement: Old ledger rows
+Every day the engine SHALL delete a team's ledger rows older than 180 days that are not about a player (wages, gate, sponsorship, prize money, maintenance, season income, admin adjustments, club resets). Ledger rows about a player (transfers, release clauses, loan fees, severance) MUST stay. Budgets never change.
+
+#### Scenario: Old wage row
+- **WHEN** a club's wage row is 200 days old
+- **THEN** the next daily pass deletes it and the club's budget is unchanged
+
+#### Scenario: Old transfer row
+- **WHEN** a club's transfer fee row for a player is 200 days old
+- **THEN** it stays and still shows in that player's history
+
+#### Scenario: Recent rows
+- **WHEN** a club's ledger row is 10 days old
+- **THEN** it stays and the finance page shows it as before
+
+### Requirement: Old offer log rows
+Every day the engine SHALL delete transfer offer log rows older than 30 days. The market's offer counts only cover the last day, so they never change.
+
+#### Scenario: Old offer log row
+- **WHEN** an offer was logged 40 days ago
+- **THEN** the next daily pass deletes its log row, and an offer logged an hour ago stays

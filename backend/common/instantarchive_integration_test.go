@@ -269,6 +269,87 @@ func TestArchiveOldInstants_Friendlies(t *testing.T) {
 	}
 }
 
+// TestFriendlyInstantKeepDaysSetting covers the friendly retention save: 7 days by default, saved
+// as given, and a value outside 0-365 rejected without a change.
+func TestFriendlyInstantKeepDaysSetting(t *testing.T) {
+	w := newArchiveWorld(t)
+	w.exec(`INSERT INTO season (transfer_window_open) SELECT true WHERE NOT EXISTS (SELECT 1 FROM season)`)
+	before, err := GetFriendlyInstantKeepDays(w.dbCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = SetFriendlyInstantKeepDays(w.dbCtx, before) })
+
+	if got := w.scan(`SELECT column_default::int FROM information_schema.columns WHERE table_name = 'season' AND column_name = 'friendly_instants_keep_days'`); got != 7 {
+		t.Errorf("default %d days, want 7", got)
+	}
+	if err := SetFriendlyInstantKeepDays(w.dbCtx, 30); err != nil {
+		t.Fatal(err)
+	}
+	for _, bad := range []int{366, -1} {
+		if err := SetFriendlyInstantKeepDays(w.dbCtx, bad); !errors.Is(err, ErrInvalidFriendlyInstantKeepDays) {
+			t.Errorf("%d days: err %v, want ErrInvalidFriendlyInstantKeepDays", bad, err)
+		}
+	}
+	if got, _ := GetFriendlyInstantKeepDays(w.dbCtx); got != 30 {
+		t.Errorf("saved %d days, want 30", got)
+	}
+}
+
+// TestArchiveExpiredFriendlyInstants covers "Old friendly", "Recent friendly within the days kept",
+// "National-team friendly" and "Zero days keeps friendlies": a played club friendly older than the
+// days kept loses its instants (and keeps its event); a newer one, an unplayed one and an old
+// national-team friendly keep them. The friendlies sit more than a year back so other tests' passes, which keep at
+// most 365 days, never reach the ones expected to stay.
+func TestArchiveExpiredFriendlyInstants(t *testing.T) {
+	w := newArchiveWorld(t)
+	_, _, home, away := w.country(1)
+	now := time.Now()
+	old := w.friendly(home, away, now.Add(-500*24*time.Hour))
+	recent := w.friendly(home, away, now.Add(-300*24*time.Hour))
+	unplayed := w.friendly(home, away, now.Add(-500*24*time.Hour))
+	w.exec(`UPDATE friendly_matches SET played = false WHERE match_id = $1`, unplayed)
+	nationalTeam := func() int64 {
+		code, _, _, _ := w.country(1)
+		return w.scan(`INSERT INTO teams (name, country, is_national_team) VALUES ('National', $1, true) RETURNING team_id`, code)
+	}
+	national := w.friendly(nationalTeam(), nationalTeam(), now.Add(-500*24*time.Hour))
+
+	count := func(id int64) int64 { return w.scan(`SELECT count(*) FROM friendly_instants WHERE match_id = $1`, id) }
+	flagged := func(id int64) bool {
+		return w.scan(`SELECT count(*) FROM friendly_matches WHERE match_id = $1 AND instants_archived`, id) == 1
+	}
+
+	if res, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 0); err != nil || res != (InstantArchiveResult{}) {
+		t.Fatalf("0 days: %+v, %v; want nothing archived", res, err)
+	}
+	if got := count(old); got != archiveTestMinutes {
+		t.Fatalf("0 days deleted instants of an old friendly (%d left)", got)
+	}
+	if _, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 366); !errors.Is(err, ErrInvalidFriendlyInstantKeepDays) {
+		t.Errorf("366 days: err %v, want ErrInvalidFriendlyInstantKeepDays", err)
+	}
+
+	res, err := ArchiveExpiredFriendlyInstants(w.dbCtx, 365)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Friendlies < 1 || res.Instants < archiveTestMinutes {
+		t.Errorf("result %+v, want at least our old friendly", res)
+	}
+	if got := count(old); got != 0 || !flagged(old) {
+		t.Errorf("old friendly: %d instants, flagged %v; want archived", got, flagged(old))
+	}
+	if got := w.scan(`SELECT count(*) FROM friendly_events WHERE match_id = $1`, old); got != 1 {
+		t.Error("archived friendly lost its event")
+	}
+	for name, id := range map[string]int64{"recent friendly": recent, "unplayed friendly": unplayed, "national-team friendly": national} {
+		if got := count(id); got != archiveTestMinutes || flagged(id) {
+			t.Errorf("%s: %d instants, flagged %v; want kept", name, got, flagged(id))
+		}
+	}
+}
+
 // TestArchiveOldInstants_Concurrent runs two passes at once over the same fixtures: every eligible
 // fixture ends archived once, and the two passes together flag each of ours exactly once.
 func TestArchiveOldInstants_Concurrent(t *testing.T) {

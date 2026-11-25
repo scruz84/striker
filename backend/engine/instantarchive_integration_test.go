@@ -12,8 +12,10 @@ import (
 
 // instantArchiveJobEnv opens the integration database (skipped without STRIKER_TEST_DB_DSN),
 // makes sure the season row exists, restores the archive setting afterwards, and returns a helper
-// that inserts a played season-1 league match with one instant in a country already in season 5.
-func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func() int64) {
+// that inserts a played season-1 league match with one instant in a country already in season 5,
+// and one that inserts a played friendly of the given age with one instant. Friendlies keep their
+// instants 365 days while it runs.
+func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func() int64, func(time.Duration) int64) {
 	t.Helper()
 	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
 	if dsn == "" {
@@ -44,6 +46,16 @@ func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = common.SetInstantArchiveSettings(dbCtx, before) })
+	keepDaysBefore, err := common.GetFriendlyInstantKeepDays(dbCtx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = common.SetFriendlyInstantKeepDays(dbCtx, keepDaysBefore) })
+	// The pass expires friendlies across the whole shared test database: keep a year so it never
+	// reaches the recent friendlies other packages' tests rely on.
+	if err := common.SetFriendlyInstantKeepDays(dbCtx, 365); err != nil {
+		t.Fatal(err)
+	}
 
 	country := fmt.Sprintf("j%03d", time.Now().UnixNano()%1000)
 	if _, err := db.Exec(`INSERT INTO countries (name, current_season) VALUES ($1, 5) ON CONFLICT (name) DO UPDATE SET current_season = 5`, country); err != nil {
@@ -61,7 +73,15 @@ func instantArchiveJobEnv(t *testing.T) (*common.DatabaseContext, *sql.DB, func(
 		}
 		return id
 	}
-	return dbCtx, db, oldMatch
+	return dbCtx, db, oldMatch, func(age time.Duration) int64 {
+		t.Helper()
+		id := must(`INSERT INTO friendly_matches (home_team_id, away_team_id, match_date, played) VALUES ($1, $2, $3, true) RETURNING match_id`,
+			home, away, time.Now().Add(-age))
+		if _, err := db.Exec(`INSERT INTO friendly_instants (match_id, minute) VALUES ($1, 1)`, id); err != nil {
+			t.Fatal(err)
+		}
+		return id
+	}
 }
 
 func instantsOf(t *testing.T, db *sql.DB, matchId int64) int {
@@ -76,7 +96,7 @@ func instantsOf(t *testing.T, db *sql.DB, matchId int64) int {
 // TestInstantArchiveJob_OncePerSlot covers engine-replicas "Daily instant archive": the first
 // execution in a day's slot runs the pass, a second one in the same slot does nothing.
 func TestInstantArchiveJob_OncePerSlot(t *testing.T) {
-	dbCtx, db, oldMatch := instantArchiveJobEnv(t)
+	dbCtx, db, oldMatch, _ := instantArchiveJobEnv(t)
 	if err := common.SetInstantArchiveSettings(dbCtx, common.InstantArchiveSettings{Enabled: true, KeepSeasons: 1}); err != nil {
 		t.Fatal(err)
 	}
@@ -100,9 +120,11 @@ func TestInstantArchiveJob_OncePerSlot(t *testing.T) {
 	}
 }
 
-// TestInstantArchiveJob_OffDeletesNothing covers "Off keeps everything".
-func TestInstantArchiveJob_OffDeletesNothing(t *testing.T) {
-	dbCtx, db, oldMatch := instantArchiveJobEnv(t)
+// TestInstantArchiveJob_OffKeepsSeasons covers "Off keeps every season": with the season archive
+// off the pass leaves league matches alone but still expires friendlies older than the days kept
+// ("Friendlies expire with the archive off").
+func TestInstantArchiveJob_OffKeepsSeasons(t *testing.T) {
+	dbCtx, db, oldMatch, friendly := instantArchiveJobEnv(t)
 	if err := common.SetInstantArchiveSettings(dbCtx, common.InstantArchiveSettings{Enabled: false, KeepSeasons: 0}); err != nil {
 		t.Fatal(err)
 	}
@@ -110,10 +132,25 @@ func TestInstantArchiveJob_OffDeletesNothing(t *testing.T) {
 		t.Fatal(err)
 	}
 	id := oldMatch()
+	expired := friendly(400 * 24 * time.Hour)
+	recent := friendly(2 * 24 * time.Hour)
 	if err := NewInstantArchiveJob(dbCtx).Execute(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	if n := instantsOf(t, db, id); n != 1 {
 		t.Errorf("the archive is off but the match has %d instants left, want 1", n)
+	}
+	friendlyInstants := func(id int64) int {
+		var n int
+		if err := db.QueryRow(`SELECT count(*) FROM friendly_instants WHERE match_id = $1`, id).Scan(&n); err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	if n := friendlyInstants(expired); n != 0 {
+		t.Errorf("a 400-day-old friendly kept %d instants, want them deleted", n)
+	}
+	if n := friendlyInstants(recent); n != 1 {
+		t.Errorf("a 2-day-old friendly has %d instants left, want 1", n)
 	}
 }

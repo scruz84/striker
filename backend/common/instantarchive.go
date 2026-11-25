@@ -9,7 +9,8 @@ import (
 // deletes the per-minute instants of fixtures older than the seasons kept, so the three instants
 // tables stop growing without bound. Every other piece of a match - result, events, ratings,
 // lineups, flavor - stays. Each archived fixture is flagged instants_archived (see
-// init118_instant_archive.sql), so no later pass looks at it again.
+// init118_instant_archive.sql), so no later pass looks at it again. Friendlies also expire on their
+// own after a number of days, archive on or off (see ArchiveExpiredFriendlyInstants).
 
 // InstantArchiveMaxKeepSeasons bounds the seasons kept (0 archives everything but the current
 // season).
@@ -20,6 +21,11 @@ const InstantArchiveMaxKeepSeasons = 10
 const InstantArchiveBatch = 200
 
 var ErrInvalidInstantArchiveKeepSeasons = errors.New("seasons kept must be between 0 and 10")
+
+// FriendlyInstantMaxKeepDays bounds the days a friendly keeps its instants (0 keeps them for good).
+const FriendlyInstantMaxKeepDays = 365
+
+var ErrInvalidFriendlyInstantKeepDays = errors.New("days kept must be between 0 and 365")
 
 // InstantArchiveSettings is the global archive setting: whether the daily pass runs, and how many
 // finished seasons keep their instants.
@@ -44,6 +50,30 @@ func SetInstantArchiveSettings(dbCtx *DatabaseContext, s InstantArchiveSettings)
 		return ErrInvalidInstantArchiveKeepSeasons
 	}
 	_, err := dbCtx.Db.Exec(SetInstantArchiveSettingsStmtSql, s.Enabled, s.KeepSeasons)
+	return err
+}
+
+// Club friendlies keep their instants for a number of days (FriendlyInstantKeepDays, 7 by
+// default), whether the season archive is on or not: they are the most numerous fixtures and nobody
+// replays their minute-by-minute detail once they are a few days old. 0 keeps them for good.
+// National-team friendlies are few, so they follow the season archive like league matches and cups.
+
+const GetFriendlyInstantKeepDaysStmtSql = "SELECT friendly_instants_keep_days FROM season"
+const SetFriendlyInstantKeepDaysStmtSql = "UPDATE season SET friendly_instants_keep_days = $1"
+
+func GetFriendlyInstantKeepDays(dbCtx *DatabaseContext) (int, error) {
+	var days int
+	err := dbCtx.Db.QueryRow(GetFriendlyInstantKeepDaysStmtSql).Scan(&days)
+	return days, err
+}
+
+// SetFriendlyInstantKeepDays saves the days kept. Raising it only affects future passes: instants
+// already deleted are not restored.
+func SetFriendlyInstantKeepDays(dbCtx *DatabaseContext, days int) error {
+	if days < 0 || days > FriendlyInstantMaxKeepDays {
+		return ErrInvalidFriendlyInstantKeepDays
+	}
+	_, err := dbCtx.Db.Exec(SetFriendlyInstantKeepDaysStmtSql, days)
 	return err
 }
 
@@ -90,6 +120,19 @@ const ArchiveFriendlyInstantsStmtSql = "WITH batch AS (" +
 	"JOIN unnest($2::varchar[], $3::timestamptz[]) AS cut(country, start_at) ON cut.country = t.country " +
 	"WHERE f.played AND NOT f.instants_archived AND f.match_date < cut.start_at " +
 	"ORDER BY f.match_id LIMIT $1 FOR UPDATE OF f SKIP LOCKED) RETURNING match_id), " +
+	"del AS (DELETE FROM friendly_instants WHERE match_id IN (SELECT match_id FROM batch) RETURNING 1) " +
+	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
+
+// ArchiveExpiredFriendlyInstantsStmtSql: played club friendlies that kicked off more than $1 days
+// ago. National-team friendlies and World Cup group matches (a national team at home) are few and
+// left to the season archive. $2 is the batch size. Ordered by kickoff so it walks
+// friendly_matches_instants_to_archive.
+const ArchiveExpiredFriendlyInstantsStmtSql = "WITH batch AS (" +
+	"UPDATE friendly_matches SET instants_archived = true WHERE match_id IN (" +
+	"SELECT f.match_id FROM friendly_matches f JOIN teams t ON t.team_id = f.home_team_id " +
+	"WHERE f.played AND NOT f.instants_archived AND f.match_date < now() - make_interval(days => $1::int) " +
+	"AND NOT t.is_national_team " +
+	"ORDER BY f.match_date LIMIT $2 FOR UPDATE OF f SKIP LOCKED) RETURNING match_id), " +
 	"del AS (DELETE FROM friendly_instants WHERE match_id IN (SELECT match_id FROM batch) RETURNING 1) " +
 	"SELECT (SELECT count(*) FROM batch), (SELECT count(*) FROM del)"
 
@@ -156,5 +199,21 @@ func ArchiveOldInstants(dbCtx *DatabaseContext, keepSeasons int) (InstantArchive
 		return res, err
 	}
 	err = archiveBatches(dbCtx, ArchiveFriendlyInstantsStmtSql, &res.Friendlies, &res.Instants, InstantArchiveBatch, countries, cutoffs)
+	return res, err
+}
+
+// ArchiveExpiredFriendlyInstants deletes the instants of every played club friendly (national
+// teams aside) that kicked off more than keepDays days ago, batch by batch. keepDays 0 deletes
+// nothing. Safe to run on several replicas at once. It returns the friendlies archived and the
+// instant rows deleted, even when it stops on an error.
+func ArchiveExpiredFriendlyInstants(dbCtx *DatabaseContext, keepDays int) (InstantArchiveResult, error) {
+	var res InstantArchiveResult
+	if keepDays < 0 || keepDays > FriendlyInstantMaxKeepDays {
+		return res, ErrInvalidFriendlyInstantKeepDays
+	}
+	if keepDays == 0 {
+		return res, nil
+	}
+	err := archiveBatches(dbCtx, ArchiveExpiredFriendlyInstantsStmtSql, &res.Friendlies, &res.Instants, keepDays, InstantArchiveBatch)
 	return res, err
 }
