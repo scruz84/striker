@@ -129,7 +129,11 @@ against the unmodified squad's 4-4-2:
 
 **BREAKING (balance):** saved lineups keep working, but every team's ratings change. Most of the
 Director's edge came from the 4-3-3 exploit. Against its Caretaker it goes from 1.695 vs 1.079 to
-1.494 vs 1.270 points per match; a Manager goes from 1.499 vs 1.277 to 1.446 vs 1.313.
+1.421 vs 1.339 points per match; a Manager goes from 1.499 vs 1.277 to 1.423 vs 1.329 (20,000
+matches each). Because a Manager now also ranks formations by projected expected goals, a Director
+no longer gains a measurable edge over it in the calibration, where both sides field the same
+squad. The owner accepted that tie: the calibration only checks that a Director is not clearly
+worse than a Manager.
 
 ## Capabilities
 
@@ -188,8 +192,7 @@ Known limits of the model, which this change measures but does not remove:
 
 Open questions for the owner:
 
-- Is the Director's remaining edge over a Caretaker (≈0.22 points per match with identical
-  squads) enough, or should it get more back some other way, for example through mentality or
-  substitutions?
+- Should a Director get an edge over a Manager back some other way, for example through
+  mentality or substitutions? (Decided for now: a tie with a Manager is accepted.)
 - Should the goalkeeper's weight and defense's diminishing returns be reviewed in a follow-up
   change?

@@ -218,9 +218,11 @@ All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
 
 ## Risks / Trade-offs
 
-- [Every club's strength shifts mid-season, and CPU Directors lose part of their edge: 1.695 →
-  1.494 points per match against a Caretaker] → This is the owner's open question; compensating
-  the AI is out of scope.
+- [Every club's strength shifts mid-season, and CPU Directors lose most of their edge: 1.695 →
+  1.421 points per match against a Caretaker, level with a Manager's 1.423, since both now rank
+  formations by projection] → The owner accepted the tie. `TestAiLevelCalibration` checks that a
+  Director is never more than 0.05 points per match behind a Manager. Compensating the AI is out of
+  scope.
 - [Squad fit is modest. A good set of specialists is worth about 0.03 to 0.14 points per match
   for the right formation] → This reflects how much any single player moves the engine today. The
   requirement guards the direction and a minimum size; making players matter more is a separate
