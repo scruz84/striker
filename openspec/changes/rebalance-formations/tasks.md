@@ -44,8 +44,8 @@
 - [ ] 5.3 Add a `fitmc` block for "Five at the back with good and poor centre-backs" (150 squads × 12 matches: at least +0.08 points per match over 4-4-2 at 75, at most +0.03 at 40); verify `TACTICS_SIM=fitmc go test ./engine -run TestTacticsStudy -v` passes
 - [x] 5.4 Add a `real` block with 1,000 realistic squads (2–4 partial specialists of random types: one role skill from 60 to 80, the rest 15 lower), asserting "Realistic squads in full matches" (10 matches per squad and formation, every formation within 0.05 points per match of the 4-4-2 mirror) and "Variety across realistic squads" (no formation best for more than 30%, every formation for at least 8%); verify `TACTICS_SIM=real go test ./engine -run TestTacticsStudy -v`
 - [ ] 5.5 With 4.1 in place, tune `LineCoverWeight`, `LateralStrikerCentralWeight`, `LateralMidfieldCentralWeight`, `BackThreeWingBackCentralWeight` and the crowded-back-line term until 5.1–5.4 all pass together, narrowing the gap between fit gains (prototype: 4-3-3 +0.13 xG with two wingers, 5-3-2 +0.02 with three centre-backs) and raising 4-5-1 (18% best with no strikers); record the chosen values and figures in the constants' doc comments and in this change's proposal, or record which bound cannot be met and ask the owner before relaxing it
-- [ ] 5.6 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
-- [ ] 5.7 Add the calibration command and its blocks (`rr`, `xg`, `fit`, `fitmc`, `real`) to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
+- [x] 5.6 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
+- [x] 5.7 Add the calibration command and its blocks (`rr`, `xg`, `fit`, `fitmc`, `real`) to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
 
 ## 6. Integration
 

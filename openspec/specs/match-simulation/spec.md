@@ -565,6 +565,11 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   (0 counts as 1), passed in through `runMatchSimulation`'s `homeAdvantage` parameter. Neutral
   fixtures: `common.IsWorldCupGroupMatch` and `common.IsWorldCupKnockoutCup` (`common/worldcup.go`).
   Calibration: `engine/home_advantage_test.go` (`TestHomeAdvantageCalibration`, `HOME_ADV_SIM=1`).
+- Formation balance and squad fit: the zone constants in `engine/initial_simulation.go` (see Stages)
+  and `engine/scorer_simulation.go` (`strikerPool`, `midfieldPool`, `defensePool`, `shooterPool`),
+  `engine/expectedgoals.go` (`shooterMix`). Calibration: `engine/tactics_study_test.go`
+  (`TestTacticsStudy`, `TACTICS_SIM=1` or a comma-separated list of blocks; `rr`, `xg`, `goals`,
+  `fit`, `fitmc` and `real` assert the bounds, implemented in `engine/formation_calibration_test.go`).
 - Team mentality: constants, validation and storage helpers in `common/mentality.go`
   (`MENTALITY_*`, `MentalityAttackFactor` / `MentalityDefenseFactor`, `MentalityChanceShift`,
   `MentalityFatigueShift`, `ValidateMentality`, `FatigueMaxPenaltyFor`, `Get/SetTeamMentality`,
