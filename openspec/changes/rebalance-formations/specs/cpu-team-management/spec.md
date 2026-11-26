@@ -31,5 +31,6 @@ Every CPU team SHALL re-pick its best XI from the current squad whenever it acts
 
 
 #### Scenario: Best XI by optimal assignment
-- **WHEN** a formation's best XI is picked and a wide midfielder (Lateral, Midfield and Pass 75, the rest 25) and a full-back (Lateral and Defense 60, the rest 40) compete for the left-back and left-midfield slots
-- **THEN** the full-back plays left-back (slot value 57) and the wide midfielder left midfield (60), because the XI is the assignment of players to slots with the highest total slot value (117), not the slot-by-slot pick that would put the wide midfielder at left-back (58 + 48 = 106)
+- **WHEN** a squad's only flank players are a wide midfielder (Lateral, Midfield and Pass 75, the rest 25) and a full-back (Lateral and Defense 60, the rest 40), alongside a keeper, two centre-backs and weak reserves
+- **THEN** the full-back plays full-back (slot value 57) and the wide midfielder wide midfield (60), because the XI is the assignment of players to slots with the highest total slot value
+- **AND** the slot-by-slot pick, which reaches the back line first, would have put the wide midfielder at full-back (58) and a reserve in wide midfield

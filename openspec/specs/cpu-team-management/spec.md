@@ -446,6 +446,12 @@ When it renews a player, a Manager SHALL set a release clause of 2 × its valuat
   `planAiKickoffWithFormation`, `common.AiPlanOptions.Formation`) in `engine/aikickoff.go`.
   Manager rank 0 in `common.formationRankForAiLevel`. Tests: `engine/expectedgoals_test.go`,
   `engine/aiformation_test.go`, `common/lineup_test.go`.
+- Formation ranking and best XI: `common.SelectBestFormationAndLineup` ranks by the registered
+  `common.FormationScorer` (`SetFormationScorer`; the engine registers `projectedFormationScore`
+  from `init()` in `engine/aiformation.go`) against the squad's own best 4-4-2 XI;
+  `common.SelectBestLineupForFormation` picks each XI by optimal slot assignment
+  (`bestAssignmentLineup`, `optimalAssignment` in `common/assignment.go`). Tests:
+  `common/formationscorer_test.go`, `common/assignment_test.go`, `engine/aiformation_test.go`.
 - Club identity: `common/aistyle.go` (`AiClubStyleFor`, `AiStyleCode` / `AiStyleFromCode`,
   `AssignAiStyle`, `BackfillAiStyles`, `ApplyClubStyle`, `AiTransferProfileForTeam`), column
   `teams.ai_style` (`resources/sql/history/init102_team_ai_style.sql`) read into `Team.AiStyle` by

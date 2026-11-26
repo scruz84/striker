@@ -40,3 +40,29 @@ func TestChooseFormationAgainst_PicksTheBestExpectedGoalDifference(t *testing.T)
 		t.Error("the expected-goals pick never differed from the strongest-by-value formation over 30 squads")
 	}
 }
+
+// openspec cpu-team-management "Lineup and formation": the engine's registered scorer makes a
+// Manager play the formation whose best XI projects the highest goal difference against the same
+// squad's best 4-4-2 XI.
+func TestManagerFormation_IsTheBestProjectedAgainstItsOwnFourFourTwo(t *testing.T) {
+	rng := rand.New(rand.NewSource(12))
+	for trial := 0; trial < 20; trial++ {
+		squad := make([]*common.Player, 0, 18)
+		r := func() int { return 30 + rng.Intn(31) }
+		for id := int64(1); id <= 18; id++ {
+			squad = append(squad, &common.Player{Id: id, GoalKeeper: r(), Defense: r(), Lateral: r(), Pass: r(), Midfield: r(), Dribbling: r(), Shot: r()})
+		}
+		reference := &common.Lineup{Formation: common.FormationBalanced, Positions: common.FlattenLineup(common.SelectBestLineupForFormation(squad, common.FormationBalanced))}
+		best, bestDiff := -1, -1e9
+		for _, f := range common.AllFormations {
+			lineup := &common.Lineup{Formation: f, Positions: common.FlattenLineup(common.SelectBestLineupForFormation(squad, f))}
+			xg := ProjectExpectedGoals(ZoneDuelSide{Lineup: lineup, Squad: squad}, ZoneDuelSide{Lineup: reference, Squad: squad}, 1, true)
+			if d := xg.Own - xg.Opponent; d > bestDiff+1e-9 {
+				best, bestDiff = f, d
+			}
+		}
+		if got, _ := common.SelectBestFormationAndLineup(squad, common.AiLevelManager, rand.New(rand.NewSource(1))); got != best {
+			t.Errorf("trial %d: Manager plays %d, want %d (best projected difference %.3f)", trial, got, best, bestDiff)
+		}
+	}
+}

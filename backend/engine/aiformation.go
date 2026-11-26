@@ -2,6 +2,19 @@ package engine
 
 import "github.com/scruz84/striker/common"
 
+// init registers the engine's formation score with common.SelectBestFormationAndLineup (openspec
+// cpu-team-management "Lineup and formation"): the projected expected goal difference of a
+// formation's best XI against the same squad's best 4-4-2 XI on neutral ground.
+func init() {
+	common.SetFormationScorer(projectedFormationScore)
+}
+
+// projectedFormationScore is the common.FormationScorer the engine registers. Pure.
+func projectedFormationScore(squad []*common.Player, lineup *common.Lineup, reference *common.Lineup) float64 {
+	xg := ProjectExpectedGoals(ZoneDuelSide{Lineup: lineup, Squad: squad}, ZoneDuelSide{Lineup: reference, Squad: squad}, 1, true)
+	return xg.Own - xg.Opponent
+}
+
 // chooseFormationAgainst is the formation a Director picks for a competitive match once it knows
 // its opponent's XI (see openspec/specs/cpu-team-management "Director formation against the
 // opponent"): for each formation, the best XI it can field from available (see

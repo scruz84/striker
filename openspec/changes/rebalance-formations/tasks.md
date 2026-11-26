@@ -31,11 +31,11 @@
 
 ## 4. Best XI and CPU formation ranking
 
-- [ ] 4.1 Make `SelectBestLineupForFormation` (`common/lineup.go`) return the optimal assignment of players to the formation's slots by total `PositionValue` (exact Hungarian assignment, ties to the lower player id), leaving `BackfillEmptyPositions` greedy; verify with a common unit test for the cpu-team-management "Best XI by optimal assignment" scenario (117 against the greedy 106) and that existing `common/lineup_test.go` and `common/ailineup_test.go` cases pass or are updated where the old pick was suboptimal
-- [ ] 4.2 Add `common.SetFormationScorer` and make `SelectBestFormationAndLineup` rank by the registered score against the same squad's best 4-4-2 XI (ties: `lineupStrength`, then `AllFormations` order), falling back to `lineupStrength` when none is registered; verify with common unit tests for both paths using a stub scorer
-- [ ] 4.3 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
+- [x] 4.1 Make `SelectBestLineupForFormation` (`common/lineup.go`) return the optimal assignment of players to the formation's slots by total `PositionValue` (exact Hungarian assignment, ties to the lower player id), leaving `BackfillEmptyPositions` greedy; verify with a common unit test for the cpu-team-management "Best XI by optimal assignment" scenario (117 against the greedy 106) and that existing `common/lineup_test.go` and `common/ailineup_test.go` cases pass or are updated where the old pick was suboptimal
+- [x] 4.2 Add `common.SetFormationScorer` and make `SelectBestFormationAndLineup` rank by the registered score against the same squad's best 4-4-2 XI (ties: `lineupStrength`, then `AllFormations` order), falling back to `lineupStrength` when none is registered; verify with common unit tests for both paths using a stub scorer
+- [x] 4.3 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
 - [ ] 4.4 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go` (prototype before the assignment change: Manager 1.446 vs 1.313, Director 1.494 vs 1.270); verify the test passes (Manager and Director still ahead)
-- [ ] 4.5 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (optimal assignment in `SelectBestLineupForFormation`, `SetFormationScorer`, the engine registration)
+- [x] 4.5 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (optimal assignment in `SelectBestLineupForFormation`, `SetFormationScorer`, the engine registration)
 
 ## 5. Balance and squad-fit calibration
 
