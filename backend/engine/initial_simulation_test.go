@@ -158,11 +158,11 @@ func TestCalculateQua_IdenticalFourFourTwoAndFourThreeThree(t *testing.T) {
 }
 
 // openspec match-simulation "Crowded back line": a back five shuts its flanks, a back three leaves
-// them a little more exposed (54.1 / 50.8 / 48.1 with every skill at 50).
+// them a little more exposed (56.2 / 51.1 / 47.2 with every skill at 50).
 func TestCalculateQua_CrowdedBackLine(t *testing.T) {
-	assertZone(t, "5-3-2 left defense", evenQua(common.FormationDefensive).LeftDefense, 54.125)
-	assertZone(t, "4-4-2 left defense", evenQua(common.FormationBalanced).LeftDefense, 50.75)
-	assertZone(t, "3-4-3 right defense", evenQua(common.FormationAttacking).RightDefense, 48.125)
+	assertZone(t, "5-3-2 left defense", evenQua(common.FormationDefensive).LeftDefense, 56.1875)
+	assertZone(t, "4-4-2 left defense", evenQua(common.FormationBalanced).LeftDefense, 51.125)
+	assertZone(t, "3-4-3 right defense", evenQua(common.FormationAttacking).RightDefense, 47.1875)
 }
 
 // openspec match-simulation "Back-three wing-backs": with one DEFENSE slot each full-back adds

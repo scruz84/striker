@@ -44,8 +44,8 @@ The simulator SHALL recompute each team's attack, midfield and defense ratings (
 
 #### Scenario: Crowded back line
 - **WHEN** the defense line is blended and its central weight sum is W
-- **THEN** each flank defense also gains 0.15 × the central per-player average × (W ÷ 2 − 1), which is negative below a weight of 2
-- **AND** with every skill at 50 the flank defense is 54.1 in a 5-3-2, 50.8 in a 4-4-2 and 48.1 in a 3-4-3
+- **THEN** each flank defense also gains 0.225 × the central per-player average × (W ÷ 2 − 1), which is negative below a weight of 2
+- **AND** with every skill at 50 the flank defense is 56.2 in a 5-3-2, 51.1 in a 4-4-2 and 47.2 in a 3-4-3
 
 ### Requirement: Chance resolution
 An open-play chance SHALL be central 50%, left 25% or right 25%, taken by a striker 70%, midfielder 20% or defender 10% (falling back to any remaining line), and converted with a logistic probability bounded to 5%–65% and centered on 28% for an even matchup. Set-piece chances are resolved separately (see "Set-piece chances").

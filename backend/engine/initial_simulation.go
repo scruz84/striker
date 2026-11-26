@@ -132,6 +132,11 @@ const (
 	MidfieldPassWeight = 0.3
 	// AttackDribblingWeight is Dribbling's share of a player's attacking value (the rest is Shot).
 	AttackDribblingWeight = 0.25
+	// CrowdedBackLineWeight is how much of the central defense's per-player value each flank
+	// defense gains per extra half-player of central defensive weight over two (see
+	// crowdedBackLineFlankBonus): 1.5 x ZoneSpillover, tuned so a back five with good centre-backs
+	// pays off without making 5-3-2 the natural choice for most squads.
+	CrowdedBackLineWeight = 0.225
 )
 
 // midfieldValue is what a player brings to a midfield zone: 0.7 x Midfield + 0.3 x Pass.
@@ -254,15 +259,15 @@ func blendLine(left float32, centerTotal float32, centerWeight float32, right fl
 }
 
 // crowdedBackLineFlankBonus is what each flank defense gains from how crowded the central defense
-// is (match-simulation "Crowded back line"): ZoneSpillover x the line's per-player average x
-// (W / 2 - 1) for a central weight sum W. Near zero for a back four, positive for a back five and
+// is (match-simulation "Crowded back line"): CrowdedBackLineWeight x the line's per-player average
+// x (W / 2 - 1) for a central weight sum W. Near zero for a back four, positive for a back five and
 // negative for a back three - blendLine's own spillover uses the per-player average, so without
 // this a third centre-back would never reach the flanks.
 func crowdedBackLineFlankBonus(defense centralLine) float32 {
 	if defense.weight <= 0 {
 		return 0
 	}
-	return ZoneSpillover * defense.average() * (defense.weight/2 - 1)
+	return CrowdedBackLineWeight * defense.average() * (defense.weight/2 - 1)
 }
 
 // backThreeCentralDefenderCount is how many DEFENSE-slot players a back-three formation fields

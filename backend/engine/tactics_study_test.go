@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"sort"
@@ -18,7 +19,9 @@ import (
 //	TACTICS_SIM=1 go test ./engine -run TestTactics -v -timeout 30m
 //
 // TACTICS_SIM can instead name the blocks to run, comma-separated: rr (formation round robin),
-// zones, xg, mcrand, ment, weights, shooters.
+// zones, xg, mcrand, ment, weights, shooters, and the calibration blocks of
+// formation_calibration_test.go: goals, fit, fitmc, real. rr, xg, goals, fit, fitmc and real
+// assert the openspec match-simulation "Formation balance" and "Squad fit" bounds.
 
 var formationNames = map[int]string{
 	common.FormationBalanced: "4-4-2", common.FormationDefensive: "5-3-2", common.FormationAttacking: "3-4-3",
@@ -130,7 +133,11 @@ func TestTacticsStudy(t *testing.T) {
 		t.Skip("set TACTICS_SIM=1")
 	}
 	which := os.Getenv("TACTICS_SIM")
-	run := func(name string) bool { return which == "1" || strings.Contains(which, name) }
+	blocks := map[string]bool{}
+	for _, name := range strings.Split(which, ",") {
+		blocks[strings.TrimSpace(name)] = true
+	}
+	run := func(name string) bool { return which == "1" || blocks[name] }
 	rng := rand.New(rand.NewSource(42))
 
 	// ---------------------------------------------------------------- 1. formation round robin, identical uniform squads
@@ -158,6 +165,15 @@ func TestTacticsStudy(t *testing.T) {
 			}
 			ppg[a] = total / float64(len(common.AllFormations))
 			t.Logf("%s   %.2f", line, ppg[a])
+		}
+		mean := 0.0
+		for _, v := range ppg {
+			mean += v / float64(len(ppg))
+		}
+		for f, v := range ppg {
+			if math.Abs(v-mean) > 0.06 {
+				t.Errorf("Formation balance: %s averages %.2f points per match in the round robin, want within 0.06 of the mean %.2f", formationNames[f], v, mean)
+			}
 		}
 	}
 
@@ -219,6 +235,22 @@ func TestTacticsStudy(t *testing.T) {
 			t.Log(line)
 		}
 		t.Logf("CPU static ranking (LineupStrength) picks as #1: %v", namedCounts(bestCount))
+	}
+
+	if run("xg") {
+		calibrateGeneralists(t, rng)
+	}
+	if run("goals") {
+		calibrateGoalVolume(t, rng)
+	}
+	if run("fit") {
+		calibrateFit(t, rng)
+	}
+	if run("fitmc") {
+		calibrateFiveAtTheBack(t, rng)
+	}
+	if run("real") {
+		calibrateRealistic(t, rng)
 	}
 
 	// ---------------------------------------------------------------- 2b. random squads Monte Carlo: each formation vs 4-4-2

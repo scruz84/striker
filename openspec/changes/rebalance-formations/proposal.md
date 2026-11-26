@@ -31,8 +31,9 @@ outright, and so that a formation pays off when the squad has the players it nee
   adjacent central line: a defender to the midfield, a midfielder to the defense and the attack,
   and a striker to the midfield. It is kept small because more cover pulls specialists down in the
   lines they do not play.
-- **Crowded back line.** The central defense's spillover to the flanks scales with how many
-  players it holds, so a back five also shuts the flanks and a back three leaves them more exposed.
+- **Crowded back line.** Each flank defense gains 0.225 × the central defense's per-player value
+  for every half-player of central weight over two, so a back five also shuts the flanks and a back
+  three leaves them more exposed.
 - **Back-three wing-backs.** With a single DEFENSE slot, each full-back adds 15% of his Defense to
   the central defense.
 - **Wide forwards.** A lateral striker counts 50% (was 100%) toward the central attack.

@@ -112,8 +112,11 @@ The cover weight was measured at 0, 0.1, 0.2 and 0.4:
 
 ### 3. Defense head count reaches the flanks
 
-After `blendLine`, each flank defense gains `ZoneSpillover × centralAverage × (W ÷ 2 − 1)`, where
-W is the central defense's weight sum. A 4-4-2 is close to unchanged, a back five also shuts its
+After `blendLine`, each flank defense gains `CrowdedBackLineWeight × centralAverage × (W ÷ 2 − 1)`,
+where W is the central defense's weight sum. The prototype used `ZoneSpillover` (0.15). With the
+final slot weights and the optimal XI assignment that left 5-3-2 the best shape for only 3–4% of
+realistic squads, so implementation tuned it to 0.225 (1.5 × `ZoneSpillover`): every formation then
+falls between 12% and 23%. A 4-4-2 is close to unchanged, a back five also shuts its
 flanks, and a back three leaves them a little more exposed.
 
 This was the lever that let three good centre-backs make a 5-3-2 worth playing. Without it the
