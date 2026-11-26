@@ -56,22 +56,25 @@ outright, and so that a formation pays off when the squad has the players it nee
   A Caretaker keeps the third or fourth of that same ranking.
 - **New "Formation balance" and "Squad fit" requirements**, checked by the harness.
 
+Figures below are from the implementation (`TACTICS_SIM`), after tuning; the prototype's earlier
+figures are replaced.
+
 ### Balance with even squads
 
 Identical squads, 3,000 matches per pairing:
 
 | Formation | Points per match now | After |
 |---|---|---|
-| 4-4-2 | 1.39 | 1.41 |
-| 5-3-2 | 1.19 | 1.36 |
-| 3-4-3 | 1.32 | 1.39 |
-| 4-3-3 | 1.73 | 1.36 |
-| 4-5-1 | 1.39 | 1.39 |
+| 4-4-2 | 1.39 | 1.39 |
+| 5-3-2 | 1.19 | 1.38 |
+| 3-4-3 | 1.32 | 1.43 |
+| 4-3-3 | 1.73 | 1.39 |
+| 4-5-1 | 1.39 | 1.36 |
 | 3-5-2 | 1.39 | 1.42 |
 
-With random squads (skills U[30,60]), the Monte Carlo result of each formation against the same
-squad in 4-4-2 stays between 1.34 and 1.40 points per match. Goals per match barely move: 3.19 to
-3.16 with every skill at 50.
+With generalist random squads (skills U[30,60]), every formation's mean projected goal difference
+against the same squad's 4-4-2 lies between −0.042 and 0.000. Goals per match barely move: 3.19 to
+3.13 with every skill at 50.
 
 ### Realistic squads
 
@@ -81,52 +84,46 @@ drawn from 60 to 80, and the other skills 15 lower. Each formation played the sa
 
 | Formation | Points per match now | After |
 |---|---|---|
-| 4-4-2 (mirror) | 1.37 | 1.38 |
-| 5-3-2 | 1.18 | 1.34 |
+| 4-4-2 (mirror) | 1.37 | 1.34 |
+| 5-3-2 | 1.18 | 1.36 |
 | 3-4-3 | 1.33 | 1.38 |
-| 4-3-3 | 1.78 | 1.36 |
-| 4-5-1 | 1.40 | 1.35 |
-| 3-5-2 | 1.42 | 1.40 |
+| 4-3-3 | 1.78 | 1.37 |
+| 4-5-1 | 1.40 | 1.37 |
+| 3-5-2 | 1.42 | 1.38 |
 
-In real matches no formation is stronger: 4-3-3 is not the best shape any more.
+In real matches no formation is stronger. Each one is also the best projected choice for a fair
+share of realistic squads, so the CPU varies its shape by squad:
 
-What is still uneven is how often each shape is the best projected choice for a realistic squad:
+| | 4-4-2 | 5-3-2 | 3-4-3 | 4-3-3 | 4-5-1 | 3-5-2 |
+|---|---|---|---|---|---|---|
+| Before tuning (prototype) | 19% | 5% | 13% | 38% | 6% | 16% |
+| After | 22% | 14% | 12% | 23% | 13% | 16% |
 
-| 4-4-2 | 5-3-2 | 3-4-3 | 4-3-3 | 4-5-1 | 3-5-2 |
-|---|---|---|---|---|---|
-| 19% | 5% | 13% | 38% | 6% | 16% |
-
-4-3-3's mean edge over 4-4-2 is only +0.006 xG. It is chosen most often because it gets the most
-out of specialists, and from more kinds of them (wingers and central midfielders): +0.13 xG with
-two good wingers, against +0.02 for 5-3-2 with three good centre-backs. Left as it is, the CPU
-would play 4-3-3 far more than 5-3-2 or 4-5-1. The "Squad fit" requirement therefore also bounds
-these shares (task 5.5 tunes them).
+The optimal best-XI assignment and a stronger crowded back line (0.225 instead of 0.15) closed
+the gap: 4-3-3 had been chosen most often only because it got the most out of specialists, and
+from more kinds of them.
 
 ### Squad fit
 
 Random squads were given one kind of specialist at skill 75: a "pure" specialist is 75 in his role
 skills and 25 in the rest. The table shows how often each formation becomes the best projected
 shape for squads with **that** profile, against the same squad's 4-4-2. It measures fit, not
-overall strength: 4-3-3's 90% applies only to squads with two pure wingers. Without specialists
-4-3-3 is the best shape for 10% of squads.
+overall strength: 4-3-3's 99% applies only to squads with two pure wingers.
 
 | Formation | Squad profile | Best for, now | Best for, after |
 |---|---|---|---|
-| 5-3-2 | 3 pure centre-backs | 0% | 26% |
-| 3-4-3 | 3 pure strikers | 0% | 75% |
-| 4-3-3 | 2 pure wingers | 100% (as for every squad) | 90% |
-| 4-5-1 | no striker above 30 | 0% | 18% |
-| 3-5-2 | 2 pure full-backs | 0% | 50% |
+| 5-3-2 | 3 pure centre-backs | 0% | 61% |
+| 3-4-3 | 3 pure strikers | 0% | 69% |
+| 4-3-3 | 2 pure wingers | 100% (as for every squad) | 99% |
+| 4-5-1 | no striker above 30 | 0% | 89% |
+| 3-5-2 | 2 pure full-backs | 0% | 65% |
 
-In full matches (Monte Carlo), each line compares the formation with the same squad in 4-4-2, both
-against the unmodified squad's 4-4-2:
-
-| Squad | Its formation | Same squad in 4-4-2 |
-|---|---|---|
-| 3 good centre-backs (75), in a 5-3-2 | 1.47 | 1.33 |
-| The same 3 centre-backs at 40, in a 5-3-2 | 1.27 | 1.28 |
-| 3 good strikers, in a 3-4-3 | 1.55 | 1.52 |
-| 2 good full-backs, in a 3-5-2 | 1.52 | 1.48 |
+Every formation's projected edge over 4-4-2 grows as its specialists get better (at 75 against at
+40). For a 5-3-2 with three pure centre-backs it is +0.003 xG at 75 against −0.016 at 40. In full
+matches that edge is small: about +0.03 points per match between good and poor centre-backs over
+40,000 matches per case, with a good back five level with the same squad's 4-4-2. That is as large
+as the noise of a normal calibration run, so by the owner's decision the requirement is checked on
+the projection, and full-match figures are only reported.
 
 **BREAKING (balance):** saved lineups keep working, but every team's ratings change. Most of the
 Director's edge came from the 4-3-3 exploit. Against its Caretaker it goes from 1.695 vs 1.079 to
@@ -186,10 +183,8 @@ Known limits of the model, which this change measures but does not remove:
 - Defense has diminishing returns. A centre-back is only compared with the opponent's attack on
   central chances, and on top of the goalkeeper's skill, so a back line that is already strong
   gains little from getting stronger.
-- 4-5-1 is the weakest fit: it is the best shape for only 18% of squads that lack strikers.
-- The prototype does not yet meet the realistic-squad share bounds of "Squad fit": 4-3-3 is best
-  for 38% of squads, and 5-3-2 for 5%. Task 5.5 tunes them after the best-XI assignment lands, so
-  the figures in this proposal are to be replaced by the tuned ones.
+- Squad fit is small in full matches. The right specialists in the right formation are worth a
+  few hundredths of a point per match, about what one player moves the engine today.
 
 Open questions for the owner:
 

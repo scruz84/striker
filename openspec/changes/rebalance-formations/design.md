@@ -74,11 +74,12 @@ Four measurements are used together:
 
 4. **Realistic squads:** random squads plus 2 to 4 partial specialists of random types. They are
    used twice:
-   - In full matches, every formation should score like the 4-4-2 mirror. In the prototype all
-     six are within 1.34–1.40 against a 1.38 mirror (10,000 matches each, ±0.013).
+   - In full matches, every formation should score like the 4-4-2 mirror. In the implementation
+     all six are within 1.34–1.38 (10,000 matches each, ±0.013).
    - In the projection, no formation should be the natural choice for most squads. The prototype
-     still has 4-3-3 as the best shape for 38% of them, because it profits from more kinds of
-     specialists.
+     had 4-3-3 as the best shape for 38% of them, because it profits from more kinds of
+     specialists. After the optimal XI and the crowded-back-line tuning, every formation falls
+     between 12% and 23%.
 
 Projection and full matches have to be read together. A formation can be "best" most often with a
 mean edge of zero. In the reverse direction, small Monte Carlo samples are noisy (±0.03 to 0.04
@@ -226,16 +227,14 @@ All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
   formations by projection] → The owner accepted the tie. `TestAiLevelCalibration` checks that a
   Director is never more than 0.05 points per match behind a Manager. Compensating the AI is out of
   scope.
-- [Squad fit is modest. A good set of specialists is worth about 0.03 to 0.14 points per match
-  for the right formation] → This reflects how much any single player moves the engine today. The
-  requirement guards the direction and a minimum size; making players matter more is a separate
-  design question.
-- [The prototype misses the realistic-squad share bounds: 4-3-3 38%, 5-3-2 5%, 4-5-1 6%] → The
-  best-XI assignment changes who plays where, so it lands first. Task 5.5 then narrows the gap
-  between formations' fit gains (4-3-3 +0.13 xG with two wingers, 5-3-2 +0.02 with three
-  centre-backs) using the constants of decisions 2 to 4. If a bound still cannot be met without
-  breaking "Formation balance", the outcome is recorded and the owner decides whether to relax it.
-- [4-5-1 has the weakest fit, 18% best with no strikers] → Part of the same tuning in task 5.5.
+- [Squad fit is small in full matches. Three good centre-backs make a 5-3-2 worth about +0.03
+  points per match more than three poor ones, as large as a calibration run's noise] → The
+  "Squad fit" bounds are checked on the deterministic projection, and the full-match comparison is
+  only reported (the owner's decision). Making players matter more is a separate design question.
+- [Fit is uneven: 4-3-3 still profits most from its specialists (+0.08 xG with two pure wingers,
+  against +0.02 for 5-3-2 with three pure centre-backs)] → The realistic-squad share bounds (8% to
+  30% each) keep that from making any shape the natural choice: every formation falls between 12%
+  and 23%.
 - [Players whose value rested on Pass, for example central midfielders, lose some slot value;
   wide midfielders gain from Shot] → Wages and market value come from the seven skills
   (`PlayerWageFromSkills` via `MarketValue`), not from `PositionValue`, so no money moves. Only

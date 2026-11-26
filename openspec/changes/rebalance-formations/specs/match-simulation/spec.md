@@ -116,6 +116,6 @@ A formation SHALL pay off when the squad has the players it needs, and no format
 - **THEN** no formation is picked by more than 30% of them and every formation by at least 8%
 
 #### Scenario: Five at the back with good and poor centre-backs
-- **WHEN** squads with three pure centre-backs play 150 × 12 neutral matches against their own unmodified squad in 4-4-2
-- **THEN** with the centre-backs at 75 a 5-3-2 takes at least 0.08 points per match more than the same squad in 4-4-2
-- **AND** with them at 40 it takes no more than 0.03 more
+- **WHEN** 800 random squads get three pure centre-backs at 75, and again at 40, and each is projected in a 5-3-2 and in a 4-4-2 against its own unmodified squad's best 4-4-2 XI
+- **THEN** the 5-3-2's mean projected edge over the 4-4-2 is higher with the centre-backs at 75 than at 40
+- **AND** the same comparison in full matches is reported with its standard error but does not decide, since its effect (about +0.03 points per match) is as large as the noise of an 8,000-match run
