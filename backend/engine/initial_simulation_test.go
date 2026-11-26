@@ -88,23 +88,6 @@ func TestBlendLine_ZeroCenterCountSkipsBlendingInsteadOfDividingByZero(t *testin
 	}
 }
 
-// calculateMidfield used to sum the DEFENSE group's Midfield attribute instead of the MIDFIELD
-// group's (a copy-paste mix-up of the two parameters) - this pins the fix: it must read from the
-// actual central midfielders, not whoever's passed as the first argument.
-func TestCalculateMidfield_ReadsFromTheMidfieldGroupNotDefense(t *testing.T) {
-	players := map[int64]common.Player{
-		1: {Id: 1, Midfield: 10}, // a "defender" with a low Midfield stat
-		2: {Id: 2, Midfield: 90}, // the actual central midfielder
-	}
-	defenders := []int64{1}
-	midfielders := []int64{2}
-
-	got := calculateMidfield(defenders, midfielders, &players)
-	if got != 90 {
-		t.Fatalf("expected calculateMidfield to sum the midfield group's Midfield stat (90), got %v", got)
-	}
-}
-
 // calculateLateralAttack used to only ever read its first ("striker") argument - fine for
 // formations like 4-4-2 whose wide attacking outlet is the lateral midfielder passed into that
 // slot at the call site, but a 4-3-3 fields its wide attacker at LATERAL_STRIKER_LEFT/RIGHT
@@ -113,84 +96,148 @@ func TestCalculateMidfield_ReadsFromTheMidfieldGroupNotDefense(t *testing.T) {
 // positions is actually occupied should count.
 func TestCalculateLateralAttack_FallsBackBetweenStrikerAndMidfieldSlots(t *testing.T) {
 	players := map[int64]common.Player{
-		1: {Id: 1, Lateral: 80, Shot: 60}, // a 4-3-3 wide forward (LATERAL_STRIKER_LEFT/RIGHT)
-		2: {Id: 2, Lateral: 40, Shot: 20}, // a 4-4-2 winger (LATERAL_MIDFIELD_LEFT/RIGHT)
+		1: {Id: 1, Lateral: 80, Shot: 60, Dribbling: 60}, // a 4-3-3 wide forward (LATERAL_STRIKER_LEFT/RIGHT)
+		2: {Id: 2, Lateral: 40, Shot: 20, Dribbling: 20}, // a 4-4-2 winger (LATERAL_MIDFIELD_LEFT/RIGHT)
 	}
 
 	// 4-3-3 shape: only the striker slot is populated.
 	if got := calculateLateralAttack([]int64{1}, nil, &players); got != 70 {
-		t.Fatalf("expected the wide forward's own Lateral/Shot blend (70) when only the striker slot is filled, got %v", got)
+		t.Fatalf("expected the wide forward's own Lateral/attacking-value blend (70) when only the striker slot is filled, got %v", got)
 	}
 
 	// 4-4-2 shape: only the midfield slot is populated.
 	if got := calculateLateralAttack(nil, []int64{2}, &players); got != 30 {
-		t.Fatalf("expected a fallback to the winger's Lateral/Shot blend (30) when the striker slot is empty, got %v", got)
+		t.Fatalf("expected a fallback to the winger's Lateral/attacking-value blend (30) when the striker slot is empty, got %v", got)
 	}
 }
 
-// calculateQua's central Attack line used to sum only the STRIKER group, so a 4-3-3's two wide
-// forwards (LATERAL_STRIKER_LEFT/RIGHT) counted solely toward their own flank rating and never
-// toward the team's overall central scoring presence - unlike a 3-4-3's third central striker,
-// which the STRIKER group already picks up. Since blendLine scales a line's center by how many
-// players occupy it (see its doc comment), that left a 4-3-3 with only one central striker's
-// worth of weight versus a 4-4-2's two, so fielding three forwards (4-3-3) rated as a WEAKER
-// attack than fielding two (4-4-2) despite the extra nominal striker - the exact complaint the
-// LATERAL_STRIKER/LATERAL_MIDFIELD flank-zeroing fix above didn't address. This pins the fix:
-// a 4-3-3's wide forwards are still forwards by trade (unlike a full-back or a winger, whose
-// central counterpart is a genuinely different job), so they now also count toward the central
-// Attack pool, bringing a 4-3-3 with three forwards back in line with a 3-4-3's three forwards
-// and above a 4-4-2's two, instead of below it.
-func TestCalculateQua_FourThreeThreeWideForwardsCountTowardCentralAttack(t *testing.T) {
-	mkPlayers := func(ids []int64) map[int64]common.Player {
-		m := map[int64]common.Player{}
-		for _, id := range ids {
-			m[id] = common.Player{Id: id, Shot: 70, Lateral: 70, Defense: 70, Midfield: 70, Pass: 70, Dribbling: 70}
+// evenFormation lays out a formation's slots with players 1..11 who all have every skill at 50.
+func evenFormation(formation int) (map[int][]int64, map[int64]common.Player) {
+	pbp := map[int][]int64{}
+	players := map[int64]common.Player{}
+	id := int64(1)
+	for _, position := range []int{common.GOALKEEPER, common.LATERAL_DEFENSE_LEFT, common.DEFENSE, common.LATERAL_DEFENSE_RIGHT,
+		common.LATERAL_MIDFIELD_LEFT, common.MIDFIELD, common.LATERAL_MIDFIELD_RIGHT,
+		common.LATERAL_STRIKER_LEFT, common.STRIKER, common.LATERAL_STRIKER_RIGHT} {
+		for i := 0; i < common.FormationPositionCounts(formation)[position]; i++ {
+			pbp[position] = append(pbp[position], id)
+			players[id] = common.Player{Id: id, GoalKeeper: 50, Defense: 50, Lateral: 50, Pass: 50, Midfield: 50, Dribbling: 50, Shot: 50}
+			id++
 		}
-		return m
 	}
-	weightedAttack := func(pbp map[int][]int64) float32 {
-		players := mkPlayers([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11})
-		qua := &common.TeamQualification{}
-		calculateQua(qua, nil, &pbp, &players)
-		return 0.5*qua.Attack + 0.25*qua.LeftAttack + 0.25*qua.RightAttach
+	return pbp, players
+}
+
+func evenQua(formation int) common.TeamQualification {
+	pbp, players := evenFormation(formation)
+	qua := common.TeamQualification{}
+	calculateQua(&qua, nil, &pbp, &players)
+	return qua
+}
+
+func assertZone(t *testing.T, name string, got float32, want float64) {
+	t.Helper()
+	if math.Abs(float64(got)-want) > 0.05 {
+		t.Errorf("%s: got %.2f, want %.2f", name, got, want)
+	}
+}
+
+// openspec match-simulation "Identical 4-4-2 and 4-3-3": with every skill at 50, line cover and the
+// tucked-in wide players give a 4-4-2 central lines of 110/185/110 and a 4-3-3 115/165/115 - a
+// 4-3-3's wide forwards count only LateralStrikerCentralWeight toward the central attack, so it no
+// longer out-rates every other shape (its zones used to add up to 700 against everyone else's 600).
+func TestCalculateQua_IdenticalFourFourTwoAndFourThreeThree(t *testing.T) {
+	q := evenQua(common.FormationBalanced)
+	assertZone(t, "4-4-2 defense", q.Defense, 110)
+	assertZone(t, "4-4-2 midfield", q.Midfield, 185)
+	assertZone(t, "4-4-2 attack", q.Attack, 110)
+	q = evenQua(common.FormationFourThreeThree)
+	assertZone(t, "4-3-3 defense", q.Defense, 115)
+	assertZone(t, "4-3-3 midfield", q.Midfield, 165)
+	assertZone(t, "4-3-3 attack", q.Attack, 115)
+}
+
+// openspec match-simulation "Crowded back line": a back five shuts its flanks, a back three leaves
+// them a little more exposed (54.1 / 50.8 / 48.1 with every skill at 50).
+func TestCalculateQua_CrowdedBackLine(t *testing.T) {
+	assertZone(t, "5-3-2 left defense", evenQua(common.FormationDefensive).LeftDefense, 54.125)
+	assertZone(t, "4-4-2 left defense", evenQua(common.FormationBalanced).LeftDefense, 50.75)
+	assertZone(t, "3-4-3 right defense", evenQua(common.FormationAttacking).RightDefense, 48.125)
+}
+
+// openspec match-simulation "Back-three wing-backs": with one DEFENSE slot each full-back adds
+// BackThreeWingBackCentralWeight of his Defense to the central defense; in a back four he adds none.
+func TestCalculateQua_BackThreeWingBacksTuckIn(t *testing.T) {
+	pbp, players := evenFormation(common.FormationAttacking) // 3-4-3
+	before := common.TeamQualification{}
+	calculateQua(&before, nil, &pbp, &players)
+	for _, pos := range []int{common.LATERAL_DEFENSE_LEFT, common.LATERAL_DEFENSE_RIGHT} {
+		p := players[pbp[pos][0]]
+		p.Defense = 90
+		players[p.Id] = p
+	}
+	after := common.TeamQualification{}
+	calculateQua(&after, nil, &pbp, &players)
+	// The central weight sum is 1 (CB) + 2 x 0.1 (CM cover) + 2 x 0.15 (wing-backs) = 1.5. The two
+	// wing-backs' +40 Defense adds 2 x 0.15 x 40 = 12 to the raw total (+8 per-player average) and
+	// 0.65 x 40 = 26 to each flank, which spills back into the centre.
+	const weight = 1.5
+	want := ((1-2*ZoneSpillover)*(2*BackThreeWingBackCentralWeight*40/weight) + ZoneSpillover*2*0.65*40) * weight
+	if got := after.Defense - before.Defense; math.Abs(float64(got)-want) > 0.05 {
+		t.Errorf("back three: wing-backs' Defense moved the central defense by %.2f, want %.2f", got, want)
 	}
 
-	balanced := weightedAttack(map[int][]int64{ // 4-4-2: two central strikers
-		common.GOALKEEPER:             {1},
-		common.DEFENSE:                {2, 3},
-		common.LATERAL_DEFENSE_LEFT:   {4},
-		common.LATERAL_DEFENSE_RIGHT:  {5},
-		common.MIDFIELD:               {6, 7},
-		common.LATERAL_MIDFIELD_LEFT:  {8},
-		common.LATERAL_MIDFIELD_RIGHT: {9},
-		common.STRIKER:                {10, 11},
-	})
-	attacking := weightedAttack(map[int][]int64{ // 3-4-3: three central strikers
-		common.GOALKEEPER:             {1},
-		common.DEFENSE:                {2},
-		common.LATERAL_DEFENSE_LEFT:   {3},
-		common.LATERAL_DEFENSE_RIGHT:  {4},
-		common.MIDFIELD:               {5, 6},
-		common.LATERAL_MIDFIELD_LEFT:  {7},
-		common.LATERAL_MIDFIELD_RIGHT: {8},
-		common.STRIKER:                {9, 10, 11},
-	})
-	fourThreeThree := weightedAttack(map[int][]int64{ // 4-3-3: one central + two wide forwards
-		common.GOALKEEPER:            {1},
-		common.DEFENSE:               {2, 3},
-		common.LATERAL_DEFENSE_LEFT:  {4},
-		common.LATERAL_DEFENSE_RIGHT: {5},
-		common.MIDFIELD:              {6, 7, 8},
-		common.STRIKER:               {9},
-		common.LATERAL_STRIKER_LEFT:  {10},
-		common.LATERAL_STRIKER_RIGHT: {11},
-	})
-
-	if fourThreeThree <= balanced {
-		t.Fatalf("expected a 4-3-3's three forwards to out-rate a 4-4-2's two, got 4-3-3=%v 4-4-2=%v", fourThreeThree, balanced)
+	pbp, players = evenFormation(common.FormationBalanced) // 4-4-2
+	before = common.TeamQualification{}
+	calculateQua(&before, nil, &pbp, &players)
+	p := players[pbp[common.LATERAL_DEFENSE_LEFT][0]]
+	p.Defense = 90
+	players[p.Id] = p
+	after = common.TeamQualification{}
+	calculateQua(&after, nil, &pbp, &players)
+	centralDelta := after.Defense - before.Defense
+	if want := float32(ZoneSpillover * 0.5 * 40 * 2.2); math.Abs(float64(centralDelta-want)) > 0.05 {
+		t.Errorf("back four: a full-back's Defense should reach the centre only through spillover (%.2f), got %.2f", want, centralDelta)
 	}
-	if math.Abs(float64(fourThreeThree-attacking)) > 0.01 {
-		t.Fatalf("expected a 4-3-3's three forwards to rate the same as a 3-4-3's three forwards, got 4-3-3=%v 3-4-3=%v", fourThreeThree, attacking)
+}
+
+// openspec match-simulation "Flank midfield": with a lateral midfielder the flank's midfield is half
+// the full-back's flank-midfield value and half the wide midfielder's; without one it is the
+// full-back's alone.
+func TestCalculateLateralMidfield_SharesTheFlankWithTheWideMidfielder(t *testing.T) {
+	players := map[int64]common.Player{
+		1: {Id: 1, Lateral: 60, Midfield: 40},           // full-back: 0.5 x 60 + 0.5 x 40 = 50
+		2: {Id: 2, Lateral: 80, Midfield: 70, Pass: 40}, // wide midfielder: 0.5 x 80 + 0.5 x (0.7 x 70 + 0.3 x 40) = 70.5
+	}
+	if got := calculateLateralMidfield([]int64{1}, []int64{2}, &players, 2); math.Abs(float64(got)-60.25) > 0.01 {
+		t.Errorf("flank with a wide midfielder: got %.2f, want 60.25", got)
+	}
+	if got := calculateLateralMidfield([]int64{1}, nil, &players, 2); got != 50 {
+		t.Errorf("flank without a wide midfielder: got %.2f, want 50", got)
+	}
+}
+
+// Pass now counts toward a midfielder's midfield value and Dribbling toward a striker's attacking
+// value (match-simulation "Core ratings"), so a better passer or dribbler raises his line.
+func TestCalculateQua_PassAndDribblingRaiseTheirLines(t *testing.T) {
+	pbp, players := evenFormation(common.FormationBalanced)
+	base := common.TeamQualification{}
+	calculateQua(&base, nil, &pbp, &players)
+
+	cm := players[pbp[common.MIDFIELD][0]]
+	cm.Pass += 10
+	players[cm.Id] = cm
+	st := players[pbp[common.STRIKER][0]]
+	st.Dribbling += 10
+	players[st.Id] = st
+	got := common.TeamQualification{}
+	calculateQua(&got, nil, &pbp, &players)
+
+	if got.Midfield <= base.Midfield {
+		t.Errorf("+10 Pass on a central midfielder should raise the midfield: %.2f vs %.2f", got.Midfield, base.Midfield)
+	}
+	if got.Attack <= base.Attack {
+		t.Errorf("+10 Dribbling on a striker should raise the attack: %.2f vs %.2f", got.Attack, base.Attack)
 	}
 }
 

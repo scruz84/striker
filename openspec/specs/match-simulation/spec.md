@@ -537,8 +537,11 @@ A cup tie that is level after the last second-half added minute SHALL go to the 
   `simulateMatch`, `simulateCupTie` and `simulateFriendly` pass `persistResolvedLineupSnapshot`,
   `persistCupTieLineupSnapshot` and `persistFriendlyLineupSnapshot`. `MatchSimulation.HomeLineup`/
   `AwayLineup` hold that kickoff XI too.
-- Stages: `engine/stamina_simulation.go`, `engine/initial_simulation.go` (`blendLine`,
-  `ZoneSpillover`, `applyHomeAdvantage`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
+- Stages: `engine/stamina_simulation.go`, `engine/initial_simulation.go` (`calculateQua`,
+  `centralLines` with `LineCoverWeight`, `LateralStrikerCentralWeight`, `LateralMidfieldCentralWeight`,
+  `BackThreeWingBackCentralWeight`; `midfieldValue`/`attackValue` with `MidfieldPassWeight`/
+  `AttackDribblingWeight`; `calculateLateralMidfield` with `LateralMidfieldFlankShare`; the weighted
+  `blendLine`, `ZoneSpillover`, `crowdedBackLineFlankBonus`, `applyHomeAdvantage`), `engine/scorer_simulation.go`, `engine/discipline_simulation.go`,
   `engine/injury_simulation.go` (`bringOnInjuryReplacement`), `engine/substitution_simulation.go`
   (`applyScheduledSubstitutions`, `bestEligibleBenchPlayer`, `teamSide`; substituted-off sets
   `MatchSimulation.HomeSubstitutedOff`/`AwaySubstitutedOff`).

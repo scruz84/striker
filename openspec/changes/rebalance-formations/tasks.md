@@ -2,17 +2,17 @@
 
 ## 0. Prerequisite
 
-- [ ] 0.1 Archive `improve-cpu-tactics` (`openspec archive improve-cpu-tactics`) so `cpu-team-management` "Lineup and formation" carries its text before this change's delta applies; verify `openspec validate rebalance-formations` passes afterwards
+- [x] 0.1 Archive `improve-cpu-tactics` (`openspec archive improve-cpu-tactics`) so `cpu-team-management` "Lineup and formation" carries its text before this change's delta applies; verify `openspec validate rebalance-formations` passes afterwards
 
 ## 1. Zone model
 
-- [ ] 1.1 Add the named constants `LineCoverWeight = 0.1`, `LateralStrikerCentralWeight = 0.5`, `LateralMidfieldCentralWeight = 0.65`, `LateralMidfieldFlankShare = 0.5`, `BackThreeWingBackCentralWeight = 0.15`, `MidfieldPassWeight = 0.3` and `AttackDribblingWeight = 0.25` in `engine/initial_simulation.go`, each with a doc comment pointing to the "Formation balance" and "Squad fit" requirements; verify `go build ./...`
-- [ ] 1.2 Rewrite `calculateQua` to build weighted central totals (own line weight 1, line cover, lateral strikers, lateral midfielders, back-three wing-backs) and the shared flank midfield, and change `blendLine` to take a float weight sum; verify with new `engine/initial_simulation_test.go` cases for the "Identical 4-4-2 and 4-3-3" (110/185/110 and 115/165/115), "Back-three wing-backs" and "Flank midfield" scenarios
-- [ ] 1.3 Add the crowded-back-line flank term (0.15 × central average × (W ÷ 2 − 1)) to the defense line after blending; verify with a unit test for the "Crowded back line" scenario (54.1 / 50.8 / 48.1)
-- [ ] 1.4 Use the midfield value (0.7 × Midfield + 0.3 × Pass) and the attacking value (0.75 × Shot + 0.25 × Dribbling) in the central lines and in `lateralAttackValue`; verify with a unit test that +10 Pass raises a central midfielder's line and +10 Dribbling a striker's
-- [ ] 1.5 Update `newSideDuelists`/`sideContributions` so each player's contribution is his weighted value in every duel he feeds and the rival side uses weighted per-player averages; verify `go test ./engine -run 'PlayerContribution|ZoneDuel'` and fix the expected figures in `engine/player_contributions_test.go` and `engine/zoneduel_test.go`
-- [ ] 1.6 Verify that the back-three flank weights (35/65 for defense, 65/35 for midfield) and the red-card cases (empty central line, missing full-back) still behave as before with the existing `engine/initial_simulation_test.go` and `engine/discipline_simulation_test.go` tests
-- [ ] 1.7 Update `openspec/specs/match-simulation/spec.md` "Code map" (stages bullet: the new constants, the weighted `blendLine` and the crowded-back-line term)
+- [x] 1.1 Add the named constants `LineCoverWeight = 0.1`, `LateralStrikerCentralWeight = 0.5`, `LateralMidfieldCentralWeight = 0.65`, `LateralMidfieldFlankShare = 0.5`, `BackThreeWingBackCentralWeight = 0.15`, `MidfieldPassWeight = 0.3` and `AttackDribblingWeight = 0.25` in `engine/initial_simulation.go`, each with a doc comment pointing to the "Formation balance" and "Squad fit" requirements; verify `go build ./...`
+- [x] 1.2 Rewrite `calculateQua` to build weighted central totals (own line weight 1, line cover, lateral strikers, lateral midfielders, back-three wing-backs) and the shared flank midfield, and change `blendLine` to take a float weight sum; verify with new `engine/initial_simulation_test.go` cases for the "Identical 4-4-2 and 4-3-3" (110/185/110 and 115/165/115), "Back-three wing-backs" and "Flank midfield" scenarios
+- [x] 1.3 Add the crowded-back-line flank term (0.15 × central average × (W ÷ 2 − 1)) to the defense line after blending; verify with a unit test for the "Crowded back line" scenario (54.1 / 50.8 / 48.1)
+- [x] 1.4 Use the midfield value (0.7 × Midfield + 0.3 × Pass) and the attacking value (0.75 × Shot + 0.25 × Dribbling) in the central lines and in `lateralAttackValue`; verify with a unit test that +10 Pass raises a central midfielder's line and +10 Dribbling a striker's
+- [x] 1.5 Update `newSideDuelists`/`sideContributions` so each player's contribution is his weighted value in every duel he feeds and the rival side uses weighted per-player averages; verify `go test ./engine -run 'PlayerContribution|ZoneDuel'` and fix the expected figures in `engine/player_contributions_test.go` and `engine/zoneduel_test.go`
+- [x] 1.6 Verify that the back-three flank weights (35/65 for defense, 65/35 for midfield) and the red-card cases (empty central line, missing full-back) still behave as before with the existing `engine/initial_simulation_test.go` and `engine/discipline_simulation_test.go` tests
+- [x] 1.7 Update `openspec/specs/match-simulation/spec.md` "Code map" (stages bullet: the new constants, the weighted `blendLine` and the crowded-back-line term)
 
 ## 2. Shot takers
 

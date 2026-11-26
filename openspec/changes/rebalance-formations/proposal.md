@@ -146,6 +146,9 @@ None.
 - `cpu-team-management`: "Lineup and formation" ranks formations by projected expected goals for a
   Manager and a Caretaker, and picks each formation's best XI by optimal slot assignment.
 - `player-development`: "Match-triggered skill drift" now follows the new per-slot skill weights.
+- `match-ratings`: "Zone contribution per minute" uses the new value formulas, lets a wide
+  midfielder feed his flank's midfield too, and compares each player with the rival line's weighted
+  per-player value.
 
 ## Impact
 

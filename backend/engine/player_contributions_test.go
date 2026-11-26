@@ -8,7 +8,8 @@ import (
 
 // contributionsTestMatch builds one minute of a 4-4-2 (home, ids 1-11) against a 4-3-3 (away, ids
 // 101-111), with every skill at 40 unless overridden - the figures the match-ratings spec's "Zone
-// contribution per minute" scenarios use.
+// contribution per minute" scenarios use. Attackers' Dribbling matches their Shot, so each one's
+// attacking value (0.75 x Shot + 0.25 x Dribbling) is his Shot.
 func contributionsTestMatch() *common.MatchSimulation {
 	home := map[int][]int64{
 		common.GOALKEEPER:             {1},
@@ -48,12 +49,12 @@ func contributionsTestMatch() *common.MatchSimulation {
 	set(homePlayers, 1, func(p *common.Player) { p.GoalKeeper = 62 })
 	set(homePlayers, 2, func(p *common.Player) { p.Lateral, p.Defense, p.Midfield = 50, 50, 58 })
 	set(homePlayers, 10, func(p *common.Player) { p.Shot = 40 })
-	set(homePlayers, 11, func(p *common.Player) { p.Shot = 50 })
+	set(homePlayers, 11, func(p *common.Player) { p.Shot, p.Dribbling = 50, 50 })
 	set(awayPlayers, 103, func(p *common.Player) { p.Defense = 58 })
 	set(awayPlayers, 104, func(p *common.Player) { p.Defense = 58 })
 	set(awayPlayers, 105, func(p *common.Player) { p.Lateral, p.Midfield = 48, 48 })
-	set(awayPlayers, 109, func(p *common.Player) { p.Lateral, p.Shot = 50, 50 })
-	set(awayPlayers, 110, func(p *common.Player) { p.Shot = 70 })
+	set(awayPlayers, 109, func(p *common.Player) { p.Lateral, p.Shot, p.Dribbling = 50, 50, 50 })
+	set(awayPlayers, 110, func(p *common.Player) { p.Shot, p.Dribbling = 70, 70 })
 	set(awayPlayers, 111, func(p *common.Player) { p.Lateral, p.Shot = 40, 40 })
 
 	return &common.MatchSimulation{
@@ -81,10 +82,13 @@ func assertContribution(t *testing.T, got *common.InstantContributions, id int64
 
 func TestPlayerContributions_CentralDefenderAgainstPerStrikerShot(t *testing.T) {
 	got := playerContributions(contributionsTestMatch())
-	// Away central defender (Defense 58) against the home strikers' Shot 40 + 50 = 90 over two.
-	assertContribution(t, got, 103, common.PlayerContribution{Position: common.DEFENSE, Own: 58, Rival: 45})
-	// Home striker (Shot 50) against the away central defenders' 58 + 58 over two.
-	assertContribution(t, got, 11, common.PlayerContribution{Position: common.STRIKER, Own: 50, Rival: 58})
+	// Away central defender (Defense 58) against the home central attack's per-player value: the
+	// strikers' 40 + 50 plus the two central midfielders' line cover (0.1 x 40 each), over a weight
+	// of 2.2 -> 98 / 2.2 = 44.5.
+	assertContribution(t, got, 103, common.PlayerContribution{Position: common.DEFENSE, Own: 58, Rival: 44.5})
+	// Home striker (attacking value 50) against the away central defense: 58 + 58 plus three
+	// midfielders' cover (0.1 x 40 each), over a weight of 2.3 -> 128 / 2.3 = 55.7.
+	assertContribution(t, got, 11, common.PlayerContribution{Position: common.STRIKER, Own: 50, Rival: 55.7})
 }
 
 func TestPlayerContributions_FullBackFeedsTwoMirroredDuels(t *testing.T) {
@@ -96,14 +100,15 @@ func TestPlayerContributions_FullBackFeedsTwoMirroredDuels(t *testing.T) {
 
 func TestPlayerContributions_GoalkeeperAgainstMeanAttacker(t *testing.T) {
 	got := playerContributions(contributionsTestMatch())
-	// Away attackers: central Shot 50, 70, 40 plus flank values 50 (left) and 40 (right) -> 50.
+	// Away attackers: central attacking values 50, 70, 40 plus flank values 50 (left) and 40
+	// (right) -> 50.
 	assertContribution(t, got, 1, common.PlayerContribution{Position: common.GOALKEEPER, Own: 62, Rival: 50})
 }
 
 func TestPlayerContributions_LateralStrikerMeansFlankAndCentralDuels(t *testing.T) {
 	got := playerContributions(contributionsTestMatch())
 	// Away left wide forward: flank attack 50 against the home RIGHT back's (40+40)/2 = 40, and
-	// central Shot 50 against the home central defenders' 40 -> 50 vs 40.
+	// central attacking value 50 against the home central defense's per-player 40 -> 50 vs 40.
 	assertContribution(t, got, 109, common.PlayerContribution{Position: common.LATERAL_STRIKER_LEFT, Own: 50, Rival: 40})
 }
 
@@ -123,7 +128,8 @@ func TestPlayerContributions_ListsEveryPlayerOnThePitch(t *testing.T) {
 	if len(got.Home) != 11 || len(got.Away) != 11 {
 		t.Fatalf("got %d home and %d away contributions, want 11 each", len(got.Home), len(got.Away))
 	}
-	// A lateral midfielder in a 4-4-2 feeds his flank's attack, against the away RIGHT back's
-	// flank defense (48+40)/2 = 44.
-	assertContribution(t, got, 6, common.PlayerContribution{Position: common.LATERAL_MIDFIELD_LEFT, Own: 40, Rival: 44})
+	// A lateral midfielder in a 4-4-2 feeds his flank's attack (40 against the away RIGHT back's
+	// flank defense (48+40)/2 = 44) and his flank's midfield (40 against the away right flank's
+	// midfield, the right back's (48+48)/2 = 48) -> 40 vs 46.
+	assertContribution(t, got, 6, common.PlayerContribution{Position: common.LATERAL_MIDFIELD_LEFT, Own: 40, Rival: 46})
 }
