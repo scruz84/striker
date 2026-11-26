@@ -6,12 +6,13 @@
 
 ## 1. Zone model
 
-- [ ] 1.1 Add the named constants `LineCoverWeight = 0.2`, `LateralStrikerCentralWeight = 0.35`, `LateralMidfieldCentralWeight = 0.5`, `LateralMidfieldFlankShare = 0.5`, `MidfieldPassWeight = 0.3` and `AttackDribblingWeight = 0.25` in `engine/initial_simulation.go`, each with a doc comment pointing to the "Formation balance" requirement; verify `go build ./...`
-- [ ] 1.2 Rewrite `calculateQua` to build weighted central totals (own line weight 1, line cover, lateral strikers and lateral midfielders) and the shared flank midfield, and change `blendLine` to take a float weight sum; verify with new `engine/initial_simulation_test.go` cases for the "Identical 4-4-2 and 4-3-3" scenario (120/190/120 and 130/180/115) and the "Flank midfield" scenario
-- [ ] 1.3 Use the midfield value (0.7 × Midfield + 0.3 × Pass) and the attacking value (0.75 × Shot + 0.25 × Dribbling) in the central lines and in `lateralAttackValue`; verify with a unit test that +10 Pass raises a central midfielder's line and +10 Dribbling a striker's
-- [ ] 1.4 Update `newSideDuelists`/`sideContributions` so each player's contribution is his weighted value in every duel he feeds and the rival side uses weighted per-player averages; verify `go test ./engine -run 'PlayerContribution|ZoneDuel'` and fix the expected figures in `engine/player_contributions_test.go` and `engine/zoneduel_test.go`
-- [ ] 1.5 Verify that the back-three flank weights (35/65 for defense, 65/35 for midfield) and the red-card cases (empty central line, missing full-back) still behave as before with the existing `engine/initial_simulation_test.go` and `engine/discipline_simulation_test.go` tests
-- [ ] 1.6 Update `openspec/specs/match-simulation/spec.md` "Code map" (stages bullet: the new constants and the weighted `blendLine`)
+- [ ] 1.1 Add the named constants `LineCoverWeight = 0.1`, `LateralStrikerCentralWeight = 0.5`, `LateralMidfieldCentralWeight = 0.65`, `LateralMidfieldFlankShare = 0.5`, `BackThreeWingBackCentralWeight = 0.15`, `MidfieldPassWeight = 0.3` and `AttackDribblingWeight = 0.25` in `engine/initial_simulation.go`, each with a doc comment pointing to the "Formation balance" and "Squad fit" requirements; verify `go build ./...`
+- [ ] 1.2 Rewrite `calculateQua` to build weighted central totals (own line weight 1, line cover, lateral strikers, lateral midfielders, back-three wing-backs) and the shared flank midfield, and change `blendLine` to take a float weight sum; verify with new `engine/initial_simulation_test.go` cases for the "Identical 4-4-2 and 4-3-3" (110/185/110 and 115/165/115), "Back-three wing-backs" and "Flank midfield" scenarios
+- [ ] 1.3 Add the crowded-back-line flank term (0.15 × central average × (W ÷ 2 − 1)) to the defense line after blending; verify with a unit test for the "Crowded back line" scenario (54.1 / 50.8 / 48.1)
+- [ ] 1.4 Use the midfield value (0.7 × Midfield + 0.3 × Pass) and the attacking value (0.75 × Shot + 0.25 × Dribbling) in the central lines and in `lateralAttackValue`; verify with a unit test that +10 Pass raises a central midfielder's line and +10 Dribbling a striker's
+- [ ] 1.5 Update `newSideDuelists`/`sideContributions` so each player's contribution is his weighted value in every duel he feeds and the rival side uses weighted per-player averages; verify `go test ./engine -run 'PlayerContribution|ZoneDuel'` and fix the expected figures in `engine/player_contributions_test.go` and `engine/zoneduel_test.go`
+- [ ] 1.6 Verify that the back-three flank weights (35/65 for defense, 65/35 for midfield) and the red-card cases (empty central line, missing full-back) still behave as before with the existing `engine/initial_simulation_test.go` and `engine/discipline_simulation_test.go` tests
+- [ ] 1.7 Update `openspec/specs/match-simulation/spec.md` "Code map" (stages bullet: the new constants, the weighted `blendLine` and the crowded-back-line term)
 
 ## 2. Shot takers
 
@@ -32,14 +33,17 @@
 
 - [ ] 4.1 Add `common.SetFormationScorer` and make `SelectBestFormationAndLineup` rank by the registered score against the same squad's best 4-4-2 XI (ties: `lineupStrength`, then `AllFormations` order), falling back to `lineupStrength` when none is registered; verify with common unit tests for both paths using a stub scorer
 - [ ] 4.2 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
-- [ ] 4.3 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go`; verify the test passes (Manager and Director still ahead)
+- [ ] 4.3 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go` (prototype: Manager 1.446 vs 1.313, Director 1.494 vs 1.270); verify the test passes (Manager and Director still ahead)
 - [ ] 4.4 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (`SetFormationScorer`, the engine registration)
 
-## 5. Balance calibration
+## 5. Balance and squad-fit calibration
 
-- [ ] 5.1 Turn `engine/tactics_study_test.go` into the balance calibration: assert the "Formation balance" bounds in the `rr` and `xg` blocks and the goal-volume bounds (3.0–3.4) in a 4-4-2 mirror, still only with `TACTICS_SIM=1`; verify `TACTICS_SIM=rr,xg go test ./engine -run TestTacticsStudy -v` passes
-- [ ] 5.2 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
-- [ ] 5.3 Add the calibration command to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
+- [ ] 5.1 Turn `engine/tactics_study_test.go` into the balance calibration: assert the "Formation balance" bounds in the `rr` and `xg` blocks (round robin within 0.06 points per match of the mean; generalist random squads within ±0.05 xG of their own 4-4-2) and the goal-volume bounds (3.0–3.4) in a 4-4-2 mirror, still only with `TACTICS_SIM=1`; verify `TACTICS_SIM=rr,xg go test ./engine -run TestTacticsStudy -v` passes
+- [ ] 5.2 Add a `fit` block with the pure-specialist profiles (3 centre-backs, 3 strikers, 2 wingers, 2 full-backs at 75 and at 40) and the capped-strikers profile, asserting the "Squad fit" scenarios ("best for" at least 15% of 100 squads, and a larger edge over 4-4-2 at 75 than at 40); verify `TACTICS_SIM=fit go test ./engine -run TestTacticsStudy -v` passes
+- [ ] 5.3 Add a `fitmc` block for "Five at the back with good and poor centre-backs" (150 squads × 12 matches: at least +0.08 points per match over 4-4-2 at 75, at most +0.03 at 40); verify `TACTICS_SIM=fitmc go test ./engine -run TestTacticsStudy -v` passes
+- [ ] 5.4 Try to raise 4-5-1's fit (18% best with no strikers) within the balance bounds, for example by moving `LateralMidfieldCentralWeight` between 0.6 and 0.75, and re-run 5.1–5.3; record the chosen values and figures in the constants' doc comments and in this change's proposal
+- [ ] 5.5 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
+- [ ] 5.6 Add the calibration command and its blocks (`rr`, `xg`, `fit`, `fitmc`) to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
 
 ## 6. Integration
 

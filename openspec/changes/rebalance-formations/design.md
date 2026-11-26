@@ -7,11 +7,20 @@ See proposal.md (Why) for the findings. The current state that constrains the ap
 - `calculateQua` (`engine/initial_simulation.go`) builds three central totals: CB Defense, CM
   Midfield, and Shot over ST plus lateral strikers. It also builds three flank values from single
   players: the full-back for defense and midfield, and the lateral striker or lateral midfielder
-  for attack. `blendLine` then mixes each line, using an integer `centerCount`.
+  for attack. `blendLine` then mixes each line, using an integer `centerCount`, and its spillover
+  to the flanks uses the center's per-player average, so the head count never reaches the flanks.
+- Chance resolution compares attack and defense as ratios: the conversion logistic takes the
+  difference over the pair's mean, and the possession share takes the midfield difference over the
+  total. Two consequences shape this design:
+  - Scaling a whole line by a factor changes nothing relative to another formation, so a squad
+    whose every player is better at one skill does not prefer a different shape.
+  - The defense value (central defense plus the goalkeeper) is already large next to the attack
+    value, so extra defense has diminishing returns.
 - `newSideDuelists`/`playerContributions` mirror `calculateQua` player by player for the viewer's
   zone duel. `ProjectZoneDuel` and `ProjectExpectedGoals` run `calculateQua` itself, so the
   opponent preview and the Director's projection follow the engine automatically, except for
-  `shooterMix`, which copies `getPlayerForChance` by hand.
+  `shooterMix`, which copies `getPlayerForChance` by hand. The projection leaves out set pieces,
+  fatigue and cards, which slightly undervalues midfield.
 - `PositionValue` (`common/lineup.go`, via `common/fmteam.go`) is hand-written per slot and has
   hand-kept copies: `positionSkillSQL` (`common/aimarket.go`), `driftSkillsForPosition`
   (`engine/progression.go`) and the client's `midfieldValue`/`strikerValue`
@@ -19,76 +28,115 @@ See proposal.md (Why) for the findings. The current state that constrains the ap
 - `SelectBestFormationAndLineup` lives in `common` and is called from `engine/aiteams.go`
   (`refreshAiTeamLineup`), `common/ailineup.go` (`PlanAiMatchLineupWithOptions`) and
   `common/nationalteam.go`. The projection lives in `engine`, which `common` cannot import.
-- The prototype for every number below is the study harness in a throwaway worktree, with the
-  tunables as package variables. The production code uses named constants.
+- Every number below comes from prototyping in a throwaway worktree, with the tunables as package
+  variables and the study harness plus specialist-squad blocks. The production code uses named
+  constants.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- One zone model in which a formation only moves strength between lines and flanks.
+- A zone model in which a formation only moves strength between lines and flanks, and pays off
+  when the squad has the players that formation fields more of.
 - Slot values that rank players the way the engine rewards them.
-- The balance targets in the "Formation balance" requirement are checked by the harness, the same
-  way `HOME_ADV_SIM` and `AI_LEVEL_SIM` check theirs.
+- The targets in the "Formation balance" and "Squad fit" requirements are checked by the harness,
+  the same way `HOME_ADV_SIM` and `AI_LEVEL_SIM` check theirs.
 
 **Non-Goals:**
 
 - No new formations and no per-formation tuning constants.
 - No change to chance rate, possession share, conversion curve, set pieces, fatigue, home
   advantage or mentality constants.
+- Not removing the ratio invariance or defense's diminishing returns (see proposal, "Known
+  limits"). Both would need a change to the conversion and possession formulas, which reach every
+  calibration in the game.
 
 ## Decisions
 
-### 1. Symmetric line cover rather than per-formation multipliers
+### 1. How the study measured "no formation loses out"
 
-Each central player contributes weight 1 to his own line and `LineCoverWeight = 0.2` to each
-adjacent central line: CB → midfield, CM → defense and attack, ST → midfield. Central totals
-become weighted sums; `blendLine` takes a float weight sum instead of `centerCount`, both for
-averaging and for scaling back up.
+Balance alone is not enough. A model can be even on average and still make the squad irrelevant:
+before the rebalance, 4-3-3 was the best shape for 100% of squads whatever players they had.
 
-Alternatives considered, all measured with the harness (spread = max − min of the six formations'
-mean xG difference, with identical and random squads):
+Three measurements are used together:
 
-| Option | Spread | Goals (xG, 4-4-2 mirror) |
+1. **Even squads:** a round robin with every skill at 50, which is the "Formation balance"
+   requirement.
+2. **Generalist random squads:** each formation's mean projected goal difference against the same
+   squad's 4-4-2 should be close to 0. Random squads are generalists, so the gap between formations
+   barely varies from squad to squad, by about ±0.02 xG. A structural offset of only 0.03 is then
+   enough to swing a formation between 0% and 80% "best for".
+3. **Specialist squads:** random squads plus two or three pure specialists (75 in their role
+   skills, 25 elsewhere), or with one line capped at 30. This is the "Squad fit" requirement.
+   - Each formation should become the best projected shape for a fair share of its profile's
+     squads.
+   - Its edge over 4-4-2 should be larger with specialists at 75 than at 40.
+
+Uniform "every player +12 in Defense" profiles were tried first. They move nothing, because of the
+ratio invariance, so the requirement is written in terms of specialists. In football terms, a
+5-3-2 pays off when you have three good centre-backs, not when all your players defend a bit
+better.
+
+### 2. Light, symmetric line cover
+
+Each central player weighs 1 in his own line and `LineCoverWeight = 0.1` in each adjacent central
+line: CB → midfield, CM → defense and attack, ST → midfield. Central totals become weighted sums,
+and `blendLine` takes a float weight sum instead of `centerCount`.
+
+The cover weight was measured at 0, 0.1, 0.2 and 0.4:
+
+| Cover weight | Even squads | Specialist fit |
 |---|---|---|
-| Today | ≈1.2 | 2.71 |
-| Drop the lateral-striker fold only | 4-3-3 becomes structurally identical to 4-5-1; 5-3-2 still dominated | — |
-| Cover only in the defensive direction (CM→D, CB→M, ST→M) | 0.05 | 2.48 (−8% goals) |
-| **Symmetric cover K = 0.2** | **0.07** | **2.71 (unchanged)** |
-| Hard-coded multipliers per formation | — (rejected: opaque, must be retuned on every engine change) | — |
+| 0 | 5-3-2 stays dominated | — |
+| 0.2 | Best even-squad balance (spread 0.07 xG) | 5-3-2 and 3-4-3 are best for 0% of squads, even with their specialists |
+| 0.4 | — | A pure centre-back's Midfield of 25 pulls a 5-3-2's midfield down, so three great centre-backs helped a 4-4-2 (+0.12 points per match) more than a 5-3-2 (+0.02) |
+| **0.1** | Keeps even squads balanced | Keeps specialists useful |
 
-The symmetric option was chosen. It keeps goal volume without retuning the conversion constants,
-and it uses one constant instead of four. Cover is also what fixes 5-3-2: its three centre-backs
-and two strikers feed its lone midfielder's line.
+0.1 combined with decisions 3 to 5 was chosen. Alternatives rejected:
 
-### 2. Wide players
+- Hard-coded per-formation multipliers: opaque, and they must be retuned on every engine change.
+- Dropping only the lateral-striker fold: 4-3-3 becomes structurally the same as 4-5-1, and 5-3-2
+  stays dominated.
 
-- `LateralStrikerCentralWeight = 0.35` replaces the full fold into the central attack. The study
-  tried 0.25, 0.35 and 0.5; at 0.35 the 4-3-3's mean xG difference is 0.00 with random squads,
-  where 0.25 gives −0.03 and 0.5 gives +0.05.
-- `LateralMidfieldCentralWeight = 0.5`: a wide midfielder tucks in. Values of 0.4 to 0.6 behave
-  alike and 0.5 is the round one.
+### 3. Defense head count reaches the flanks
+
+After `blendLine`, each flank defense gains `ZoneSpillover × centralAverage × (W ÷ 2 − 1)`, where
+W is the central defense's weight sum. A 4-4-2 is close to unchanged, a back five also shuts its
+flanks, and a back three leaves them a little more exposed.
+
+This was the lever that let three good centre-backs make a 5-3-2 worth playing. Without it the
+squads with centre-back specialists picked 5-3-2 only 9% of the time; with it, 26%. Making central
+chances more frequent (60% instead of 50%) was also measured. It made 4-5-1 never best and changed
+the chance model's calibration, so it was rejected.
+
+### 4. Wide players and back-three wing-backs
+
+- `LateralStrikerCentralWeight = 0.5` replaces the full fold of the lateral strikers into the
+  central attack.
+- `LateralMidfieldCentralWeight = 0.65`: a wide midfielder tucks in.
 - `LateralMidfieldFlankShare = 0.5`: a flank's midfield is the mean of the full-back's and the
   wide midfielder's flank-midfield values. It is the full-back's value alone where the formation
-  has no wide midfielder (4-3-3). With uniform squads this changes no formation's ratings; it only
-  makes a wide midfielder's Midfield and Lateral count.
+  has no wide midfielder (4-3-3).
+- `BackThreeWingBackCentralWeight = 0.15`: with a single DEFENSE slot, each full-back adds that
+  share of his Defense to the central defense. At 0.3, 3-4-3 and 3-5-2 move ahead of the other
+  shapes by about 0.08 xG, so 0.15 was kept.
 - Lateral strikers, lateral midfielders and full-backs join the striker, midfielder and defender
   shooter pools in `getPlayerForChance`, and `shooterMix` is changed the same way.
 
-### 3. Pass and Dribbling enter the line values
+### 5. Pass and Dribbling enter the line values
 
 - `MidfieldPassWeight = 0.3`: the midfield value is 0.7 × Midfield + 0.3 × Pass.
 - `AttackDribblingWeight = 0.25`: the attacking value is 0.75 × Shot + 0.25 × Dribbling, used for
   the central attack and in the wide attack's 0.5 × Lateral + 0.5 × attacking value.
 - `getPlayerScorerValue` (the finisher's own value) is unchanged.
 
-### 4. One slot-weight table for `PositionValue` and its copies
+### 6. One slot-weight table for `PositionValue` and its copies
 
 A new `common/slotweights.go` holds `SlotWeights` (a fixed array of seven integer percentages
 per position) plus `PositionValue = Σ skill × weight / 100`, rounded. The weights are the
-rounded shares of the harness's marginal xG table: +10 in one skill for one player at that slot,
-in a 4-4-2, or a 4-3-3 for the wide striker. They are listed in the player-development delta's
-"Slot weights" scenario. The goalkeeper stays GoalKeeper only.
+rounded shares of the harness's marginal xG table, measured on the final prototype: +10 in one
+skill for one player at that slot, in a 4-4-2, or a 4-3-3 for the wide striker. They are listed
+in the player-development delta's "Slot weights" scenario. The goalkeeper stays GoalKeeper only.
 
 The copies are derived from the table rather than kept by hand where possible:
 
@@ -99,12 +147,14 @@ The copies are derived from the table rather than kept by hand where possible:
 - The client's `playerRating.ts` keeps a hand-written copy of the three core outfield rows
   (DEFENSE, MIDFIELD, STRIKER) for `bestCorePosition`. A Vitest case pins it to the same numbers.
 
+Because lineup selection uses `PositionValue`, the squad-fit figures depend on these weights.
+Task 5 re-measures them once the final table is in place.
+
 Alternative considered: deriving the weights analytically from the engine constants. Rejected,
 because a slot's effective weight depends on the formation, the spillover and the conversion
-curve. The harness's `weights` block prints the measured table next to `SlotWeights`, so a later
-engine change shows how far the table has drifted.
+curve.
 
-### 5. CPU formation ranking by projected expected goals
+### 7. CPU formation ranking by projected expected goals
 
 `SelectBestFormationAndLineup` ranks formations by a score supplied by the engine. Its score is
 the expected goal difference from `ProjectExpectedGoals`, rating each formation's best XI against
@@ -115,31 +165,40 @@ the same squad's best 4-4-2 XI on neutral ground. Ties go first to `lineupStreng
   `SetFormationScorer(func(squad []*Player, lineup *Lineup, reference *Lineup) float64)`.
   `engine` registers its scorer from an `init()`.
 - When no scorer is registered, as in common's own unit tests, the ranking falls back to
-  `lineupStrength`, so those tests keep their current behaviour.
-- Threading a function argument through the three call chains instead was rejected: they cross
-  `PlanAiMatchLineupWithOptions` and the national-team call-up, so it touches many signatures for
-  one value.
+  `lineupStrength`.
+- Threading a function argument through the three call chains instead was rejected: it touches
+  many signatures for one value.
 - Moving the projection into `common` was rejected: it depends on the engine's simulation types.
 - National teams call at Director level, so they also pick their shape by projection.
 
-Measured with random squads, a Manager's first pick becomes 4-4-2 51%, 4-3-3 29%, 4-5-1 15% and
-3-5-2 4%. With summed slot values it was 5-3-2 66%.
+Ranking by summed slot values would undo the squad-fit work: it picks 5-3-2 for about two thirds
+of random squads whatever their players.
 
-### 6. Harness becomes the balance calibration
+### 8. Harness becomes the balance and fit calibration
 
-`engine/tactics_study_test.go` gains assertions for the "Formation balance" requirement in its
-`rr`, `xg` and goal-volume blocks. They still run only with `TACTICS_SIM=1`, like the other
-calibrations.
+`engine/tactics_study_test.go` gains:
+
+- assertions for "Formation balance" in its `rr`, `xg` and goal-volume blocks;
+- a `fit` block with the specialist profiles, asserting "Squad fit";
+- a `fitmc` block with the good-versus-poor centre-back Monte Carlo.
+
+All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
 
 ## Risks / Trade-offs
 
-- [Every club's strength shifts mid-season, and CPU Directors lose most of their edge (proposal:
-  1.695 → 1.438 points per match against a Caretaker)] → This is the owner's open question;
-  compensating the AI is out of scope.
+- [Every club's strength shifts mid-season, and CPU Directors lose part of their edge: 1.695 →
+  1.494 points per match against a Caretaker] → This is the owner's open question; compensating
+  the AI is out of scope.
+- [Squad fit is modest. A good set of specialists is worth about 0.03 to 0.14 points per match
+  for the right formation] → This reflects how much any single player moves the engine today. The
+  requirement guards the direction and a minimum size; making players matter more is a separate
+  design question.
+- [4-5-1 has the weakest fit, 18% best with no strikers] → Task 5.4 tries to raise it within the
+  balance bounds and records the outcome.
 - [Players whose value rested on Pass, for example central midfielders, lose some slot value;
   wide midfielders gain from Shot] → Wages and market value come from the seven skills
-  (`PlayerWageFromSkills`), not from `PositionValue`, so no money moves. Only CPU lineup, transfer
-  and sale judgements change.
+  (`PlayerWageFromSkills` via `MarketValue`), not from `PositionValue`, so no money moves. Only
+  CPU lineup, transfer and sale judgements change.
 - [The client's `bestCorePosition` copy can drift from `SlotWeights`] → The Vitest case pins it,
   and the Code map names both.
 - [The zone duel's per-player contributions show weighted figures, so a full-back now appears in
@@ -157,6 +216,5 @@ calibrations.
 
 ## Open Questions
 
-- Whether `LineCoverWeight` should later differ per direction (for example a stronger CM →
-  defense) to give mentality-style trade-offs. Deferrable: it changes only constants, not the
-  approach.
+- Whether `LineCoverWeight` should later differ per direction to give mentality-style
+  trade-offs. Deferrable: it changes only constants, not the approach.
