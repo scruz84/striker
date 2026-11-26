@@ -7,8 +7,8 @@ import (
 )
 
 func makePlayer(id int64, skill int) *Player {
-	// A flat skill for every stat keeps the derived position values (GetLateralDefenseValue
-	// etc.) proportional to it too, so "higher skill" unambiguously means "should be picked
+	// A flat skill for every stat keeps every slot value (see SlotWeights)
+	// equal to it too, so "higher skill" unambiguously means "should be picked
 	// first" regardless of which slot is being filled.
 	return &Player{
 		Id: id, GoalKeeper: skill, Defense: skill, Lateral: skill, Pass: skill,

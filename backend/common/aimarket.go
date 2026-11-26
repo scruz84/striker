@@ -1,17 +1,37 @@
 package common
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-// positionSkillSQL mirrors PositionValue (see GetMidfieldValue/GetStrikerValue) for each core
-// position as a SQL expression over the players table - how a market-wide search ranks players
-// for a position without loading every player into memory. The match is only a pre-selection:
-// the candidates it returns are hydrated and judged properly in Go afterwards.
-var positionSkillSQL = map[int]string{
-	GOALKEEPER: "p.goal_keeper",
-	DEFENSE:    "p.defense",
-	MIDFIELD:   "((p.midfield + p.pass) / 2)",
-	STRIKER:    "((p.shot * 2 + p.dribbling + p.pass + 2) / 4)",
+// skillColumns are the players-table columns of the seven skills, in SkillWeights order
+// ("lateral" is quoted: LATERAL is a reserved word in Postgres).
+var skillColumns = [7]string{"p.goal_keeper", "p.defense", `p."lateral"`, "p.pass", "p.midfield", "p.dribbling", "p.shot"}
+
+// slotValueSQL is SkillWeights.Value as a SQL expression over the players table: the weighted sum
+// plus 50, integer-divided by 100, exactly as Go rounds it.
+func slotValueSQL(weights SkillWeights) string {
+	terms := make([]string, 0, len(weights))
+	for i, w := range weights {
+		if w != 0 {
+			terms = append(terms, fmt.Sprintf("%s * %d", skillColumns[i], w))
+		}
+	}
+	return "((" + strings.Join(terms, " + ") + " + 50) / 100)"
 }
+
+// positionSkillSQL is PositionValue for each core position as a SQL expression over the players
+// table, generated from SlotWeights - how a market-wide search ranks players for a position
+// without loading every player into memory. The match is only a pre-selection: the candidates it
+// returns are hydrated and judged properly in Go afterwards.
+var positionSkillSQL = func() map[int]string {
+	out := make(map[int]string, len(CorePositions))
+	for _, position := range CorePositions {
+		out[position] = slotValueSQL(SlotWeights[position])
+	}
+	return out
+}()
 
 // marketCandidateFilter keeps a market-wide search to players another team could actually be
 // asked for: on a real club's senior squad (not an academy prospect, not a national team's), not

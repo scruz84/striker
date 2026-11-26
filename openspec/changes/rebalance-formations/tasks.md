@@ -21,13 +21,13 @@
 
 ## 3. Slot weights
 
-- [ ] 3.1 Add `common/slotweights.go` with `SlotWeights` (the table in the player-development "Slot weights" scenario) and rewrite `PositionValue` on top of it, keeping goalkeeper = GoalKeeper; verify with a table test of every slot on a fixed player
-- [ ] 3.2 Make `GetMidfieldValue`, `GetStrikerValue` and the `GetLateral*Value` helpers in `common/fmteam.go` wrap `PositionValue`, or remove them where every caller can use `PositionValue`; verify `go build ./... && go vet ./...`
-- [ ] 3.3 Generate `positionSkillSQL` (`common/aimarket.go`) from `SlotWeights` for GOALKEEPER, DEFENSE, MIDFIELD and STRIKER; verify with a new `common/aimarket_test.go` that each generated expression names the same weights as `SlotWeights` and that its integer arithmetic gives `PositionValue` for a fixed player
-- [ ] 3.4 Make `driftSkillsForPosition` drift every skill whose slot weight is at least `DriftSkillMinWeight = 15`; verify `engine/progression_test.go`, updated for the "Full match as a striker" and "Position skill sets" scenarios
-- [ ] 3.5 Check `BestCorePosition` and the `transfer-comparables`/`squad-list` callers with the new values; verify `common/playerdetails_test.go` and any snapshot test, updating figures only where the best position legitimately changes
-- [ ] 3.6 Update `frontend/src/utils/playerRating.ts` (`midfieldValue`, `strikerValue`, the defense value) to the DEFENSE, MIDFIELD and STRIKER rows of `SlotWeights` with Go's rounding; verify with `frontend/src/utils/playerRating.test.ts` cases pinned to the same numbers as the Go table test
-- [ ] 3.7 Update `openspec/specs/player-development/spec.md` "Code map" (drift: `DriftSkillMinWeight`, `common/slotweights.go`) and the comment in `common/aimarket.go`
+- [x] 3.1 Add `common/slotweights.go` with `SlotWeights` (the table in the player-development "Slot weights" scenario) and rewrite `PositionValue` on top of it, keeping goalkeeper = GoalKeeper; verify with a table test of every slot on a fixed player
+- [x] 3.2 Make `GetMidfieldValue`, `GetStrikerValue` and the `GetLateral*Value` helpers in `common/fmteam.go` wrap `PositionValue`, or remove them where every caller can use `PositionValue`; verify `go build ./... && go vet ./...`
+- [x] 3.3 Generate `positionSkillSQL` (`common/aimarket.go`) from `SlotWeights` for GOALKEEPER, DEFENSE, MIDFIELD and STRIKER; verify with a new `common/aimarket_test.go` that each generated expression names the same weights as `SlotWeights` and that its integer arithmetic gives `PositionValue` for a fixed player
+- [x] 3.4 Make `driftSkillsForPosition` drift every skill whose slot weight is at least `DriftSkillMinWeight = 15`; verify `engine/progression_test.go`, updated for the "Full match as a striker" and "Position skill sets" scenarios
+- [x] 3.5 Check `BestCorePosition` and the `transfer-comparables`/`squad-list` callers with the new values; verify `common/playerdetails_test.go` and any snapshot test, updating figures only where the best position legitimately changes
+- [x] 3.6 Update `frontend/src/utils/playerRating.ts` (`midfieldValue`, `strikerValue`, the defense value) to the DEFENSE, MIDFIELD and STRIKER rows of `SlotWeights` with Go's rounding; verify with `frontend/src/utils/playerRating.test.ts` cases pinned to the same numbers as the Go table test
+- [x] 3.7 Update `openspec/specs/player-development/spec.md` "Code map" (drift: `DriftSkillMinWeight`, `common/slotweights.go`) and the comment in `common/aimarket.go`
 
 ## 4. Best XI and CPU formation ranking
 

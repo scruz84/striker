@@ -197,24 +197,11 @@ func SelectBestFormationAndLineup(players []*Player, aiLevel int, rng *rand.Rand
 // engine's excludeUnavailablePlayers/common.BackfillEmptyPositions) - a human-edited lineup (see
 // common.ValidateLineup) can use those positions regardless of which formation generated it.
 func PositionValue(position int, p Player) int {
-	switch position {
-	case GOALKEEPER:
-		return p.GoalKeeper
-	case DEFENSE:
-		return p.Defense
-	case LATERAL_DEFENSE_LEFT, LATERAL_DEFENSE_RIGHT:
-		return GetLateralDefenseValue(p)
-	case MIDFIELD:
-		return GetMidfieldValue(p)
-	case LATERAL_MIDFIELD_LEFT, LATERAL_MIDFIELD_RIGHT:
-		return GetLateralMidfieldValue(p)
-	case STRIKER:
-		return GetStrikerValue(p)
-	case LATERAL_STRIKER_LEFT, LATERAL_STRIKER_RIGHT:
-		return GetLateralStrikerValue(p)
-	default:
+	weights, ok := SlotWeights[position]
+	if !ok {
 		return 0
 	}
+	return weights.Value(p)
 }
 
 // FlattenLineup converts a position->players map (as returned by SelectBestLineup/

@@ -2,8 +2,7 @@ package common
 
 // CorePositions is every position SquadStrength/AssessPositionNeeds groups player depth by - the
 // same four BestCorePosition ever returns, deliberately excluding every lateral position (a
-// winger or full-back's value is folded into MIDFIELD/DEFENSE by GetLateralMidfieldValue/
-// GetLateralDefenseValue, and STRIKER covers lateral-striker-capable players too - see
+// winger or full-back is judged by the core slot whose SlotWeights suit him best - see
 // PositionValue).
 var CorePositions = []int{GOALKEEPER, DEFENSE, MIDFIELD, STRIKER}
 

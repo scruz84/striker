@@ -188,40 +188,34 @@ func primaryPosition(minutesByPosition map[int]int) (position int, totalMinutes 
 	return position, totalMinutes, position != -1
 }
 
+// DriftSkillMinWeight is the smallest share (in percent) a skill must have in a slot's
+// common.SlotWeights for match minutes at that slot to sharpen it (openspec player-development
+// "Match-triggered skill drift").
+const DriftSkillMinWeight = 15
+
 // driftSkillsForPosition is driftSkill restricted to whichever of a player's seven numeric
-// skills actually get used playing `position` - mirroring common.PositionValue's own
-// position->attribute weighting, so what improves tracks exactly what match minutes at that
-// position would plausibly sharpen (a defender's shooting doesn't get better from defending).
-// Every relevant skill independently rolls playChance (see updatePlayerSkillsAfterMatch's
-// MatchSkillGrowthMinutesReference) before drifting; skills outside the relevant set are always
-// left untouched.
+// skills actually get used playing `position` - every skill that weighs at least
+// DriftSkillMinWeight in that slot's common.SlotWeights, so what improves tracks what the match
+// engine rewards at that slot (a defender's shooting doesn't get better from defending). Every
+// relevant skill independently rolls playChance (see updatePlayerSkillsAfterMatch's
+// MatchSkillGrowthMinutesReference) before drifting, in SlotWeights order; skills outside the
+// relevant set are always left untouched, as is every skill for a position with no weights.
 func driftSkillsForPosition(p common.Player, caps common.PlayerSkillCaps, position int, playChance float32, age int, trainerSkill int, r *rand.Rand) (
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot int) {
+	skills := [7]*int{&goalKeeper, &defense, &lateral, &pass, &midfield, &dribbling, &shot}
+	ceilings := [7]int{caps.GoalKeeperMax, caps.DefenseMax, caps.LateralMax, caps.PassMax, caps.MidfieldMax, caps.DribblingMax, caps.ShotMax}
 	goalKeeper, defense, lateral, pass, midfield, dribbling, shot =
 		p.GoalKeeper, p.Defense, p.Lateral, p.Pass, p.Midfield, p.Dribbling, p.Shot
 
-	maybeDrift := func(current int, max int) int {
-		if r.Float32() >= playChance {
-			return current
-		}
-		return driftSkill(current, max, age, trainerSkill, r)
+	weights, ok := common.SlotWeights[position]
+	if !ok {
+		return
 	}
-
-	switch position {
-	case common.GOALKEEPER:
-		goalKeeper = maybeDrift(goalKeeper, caps.GoalKeeperMax)
-	case common.DEFENSE:
-		defense = maybeDrift(defense, caps.DefenseMax)
-	case common.LATERAL_DEFENSE_LEFT, common.LATERAL_DEFENSE_RIGHT:
-		lateral, defense = maybeDrift(lateral, caps.LateralMax), maybeDrift(defense, caps.DefenseMax)
-	case common.MIDFIELD:
-		midfield, pass = maybeDrift(midfield, caps.MidfieldMax), maybeDrift(pass, caps.PassMax)
-	case common.LATERAL_MIDFIELD_LEFT, common.LATERAL_MIDFIELD_RIGHT:
-		lateral, midfield, pass = maybeDrift(lateral, caps.LateralMax), maybeDrift(midfield, caps.MidfieldMax), maybeDrift(pass, caps.PassMax)
-	case common.STRIKER:
-		shot, pass, dribbling = maybeDrift(shot, caps.ShotMax), maybeDrift(pass, caps.PassMax), maybeDrift(dribbling, caps.DribblingMax)
-	case common.LATERAL_STRIKER_LEFT, common.LATERAL_STRIKER_RIGHT:
-		lateral, shot, pass, dribbling = maybeDrift(lateral, caps.LateralMax), maybeDrift(shot, caps.ShotMax), maybeDrift(pass, caps.PassMax), maybeDrift(dribbling, caps.DribblingMax)
+	for i, weight := range weights {
+		if weight < DriftSkillMinWeight || r.Float32() >= playChance {
+			continue
+		}
+		*skills[i] = driftSkill(*skills[i], ceilings[i], age, trainerSkill, r)
 	}
 	return
 }
