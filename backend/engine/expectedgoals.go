@@ -80,14 +80,21 @@ type weightedShooter struct {
 	weight float64
 }
 
-// shooterMix is who takes an open-play chance and how often (see getPlayerForChance): 70% a
-// striker, 20% a midfielder, 10% a defender, each line's share spread evenly over its players and
-// an empty line's share falling back to the striker, midfield, then defense lines.
+// shooterMix is who takes an open-play chance and how often (see getPlayerForChance): 70% the
+// striker pool, 20% the midfield pool, 10% the defense pool, each pool's share spread evenly over
+// its players (wide ones included) and an empty pool's share falling back to the striker,
+// midfield, then defense pools.
 func shooterMix(lineup *common.Lineup) []weightedShooter {
+	poolOf := map[int]int{}
+	for _, pool := range [][]int{strikerPool, midfieldPool, defensePool} {
+		for _, position := range pool {
+			poolOf[position] = pool[0]
+		}
+	}
 	byLine := map[int][]int64{}
 	for _, p := range lineup.Positions {
-		if p.Position == common.STRIKER || p.Position == common.MIDFIELD || p.Position == common.DEFENSE {
-			byLine[p.Position] = append(byLine[p.Position], p.PlayerId)
+		if line, ok := poolOf[p.Position]; ok {
+			byLine[line] = append(byLine[line], p.PlayerId)
 		}
 	}
 	fallback := func() int {

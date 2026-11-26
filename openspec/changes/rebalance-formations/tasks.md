@@ -16,8 +16,8 @@
 
 ## 2. Shot takers
 
-- [ ] 2.1 Make `getPlayerForChance` draw the 70/20/10 share from the striker pool (STRIKER plus lateral strikers), the midfield pool (MIDFIELD plus lateral midfielders) and the defense pool (DEFENSE plus full-backs), keeping the fallbacks; verify with a seeded test that a 4-3-3's three forwards each take about 23.3% of open-play chances
-- [ ] 2.2 Change `shooterMix` in `engine/expectedgoals.go` the same way; verify the existing `engine/expectedgoals_test.go` cases ("Projection matches the engine") still pass with updated figures
+- [x] 2.1 Make `getPlayerForChance` draw the 70/20/10 share from the striker pool (STRIKER plus lateral strikers), the midfield pool (MIDFIELD plus lateral midfielders) and the defense pool (DEFENSE plus full-backs), keeping the fallbacks; verify with a seeded test that a 4-3-3's three forwards each take about 23.3% of open-play chances
+- [x] 2.2 Change `shooterMix` in `engine/expectedgoals.go` the same way; verify the existing `engine/expectedgoals_test.go` cases ("Projection matches the engine") still pass with updated figures
 
 ## 3. Slot weights
 
