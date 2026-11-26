@@ -29,3 +29,7 @@ Every CPU team SHALL re-pick its best XI from the current squad whenever it acts
 - **WHEN** two formations project the same expected goal difference within 0.000000001
 - **THEN** the one whose XI has the higher summed slot value ranks first, and after that the earlier one in the order 4-4-2, 5-3-2, 3-4-3, 4-3-3, 4-5-1, 3-5-2
 
+
+#### Scenario: Best XI by optimal assignment
+- **WHEN** a formation's best XI is picked and a wide midfielder (Lateral, Midfield and Pass 75, the rest 25) and a full-back (Lateral and Defense 60, the rest 40) compete for the left-back and left-midfield slots
+- **THEN** the full-back plays left-back (slot value 57) and the wide midfielder left midfield (60), because the XI is the assignment of players to slots with the highest total slot value (117), not the slot-by-slot pick that would put the wide midfielder at left-back (58 + 48 = 106)

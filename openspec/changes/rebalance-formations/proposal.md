@@ -46,6 +46,10 @@ outright, and so that a formation pays off when the squad has the players it nee
   per slot, matching what each skill is worth to the engine at that slot. Skill drift,
   `BestCorePosition`, the market SQL pre-selection and the client's best-position helper follow
   it.
+- **Best-XI assignment.** A formation's best XI is the assignment of players to its eleven slots
+  with the highest total slot value. Today slots are filled greedily, back line first, which puts
+  a wide-midfield specialist at full-back because his Lateral fills that slot before the midfield
+  is reached.
 - **Manager formation.** A Manager ranks the six formations by the projected expected goal
   difference of each best XI against the same squad's 4-4-2 XI, instead of by summed slot values.
   A Caretaker keeps the third or fourth of that same ranking.
@@ -68,11 +72,42 @@ With random squads (skills U[30,60]), the Monte Carlo result of each formation a
 squad in 4-4-2 stays between 1.34 and 1.40 points per match. Goals per match barely move: 3.19 to
 3.16 with every skill at 50.
 
+### Realistic squads
+
+Realistic squads are random squads plus 2–4 partial specialists of random types: a role skill
+drawn from 60 to 80, and the other skills 15 lower. Each formation played the same squad in
+4-4-2, 10,000 matches per formation (±0.013 points per match):
+
+| Formation | Points per match now | After |
+|---|---|---|
+| 4-4-2 (mirror) | 1.37 | 1.38 |
+| 5-3-2 | 1.18 | 1.34 |
+| 3-4-3 | 1.33 | 1.38 |
+| 4-3-3 | 1.78 | 1.36 |
+| 4-5-1 | 1.40 | 1.35 |
+| 3-5-2 | 1.42 | 1.40 |
+
+In real matches no formation is stronger: 4-3-3 is not the best shape any more.
+
+What is still uneven is how often each shape is the best projected choice for a realistic squad:
+
+| 4-4-2 | 5-3-2 | 3-4-3 | 4-3-3 | 4-5-1 | 3-5-2 |
+|---|---|---|---|---|---|
+| 19% | 5% | 13% | 38% | 6% | 16% |
+
+4-3-3's mean edge over 4-4-2 is only +0.006 xG. It is chosen most often because it gets the most
+out of specialists, and from more kinds of them (wingers and central midfielders): +0.13 xG with
+two good wingers, against +0.02 for 5-3-2 with three good centre-backs. Left as it is, the CPU
+would play 4-3-3 far more than 5-3-2 or 4-5-1. The "Squad fit" requirement therefore also bounds
+these shares (task 5.5 tunes them).
+
 ### Squad fit
 
-Random squads were given specialists at skill 75: a "pure" specialist is 75 in his role skills and
-25 in the rest. The table shows how often each formation becomes the best projected shape for the
-squad, against the same squad's 4-4-2.
+Random squads were given one kind of specialist at skill 75: a "pure" specialist is 75 in his role
+skills and 25 in the rest. The table shows how often each formation becomes the best projected
+shape for squads with **that** profile, against the same squad's 4-4-2. It measures fit, not
+overall strength: 4-3-3's 90% applies only to squads with two pure wingers. Without specialists
+4-3-3 is the best shape for 10% of squads.
 
 | Formation | Squad profile | Best for, now | Best for, after |
 |---|---|---|---|
@@ -109,7 +144,7 @@ None.
   "Chance resolution" adds wide players to the shooter pools. New "Formation balance" and "Squad
   fit" requirements are added.
 - `cpu-team-management`: "Lineup and formation" ranks formations by projected expected goals for a
-  Manager and a Caretaker.
+  Manager and a Caretaker, and picks each formation's best XI by optimal slot assignment.
 - `player-development`: "Match-triggered skill drift" now follows the new per-slot skill weights.
 
 ## Impact
@@ -144,6 +179,9 @@ Known limits of the model, which this change measures but does not remove:
   central chances, and on top of the goalkeeper's skill, so a back line that is already strong
   gains little from getting stronger.
 - 4-5-1 is the weakest fit: it is the best shape for only 18% of squads that lack strikers.
+- The prototype does not yet meet the realistic-squad share bounds of "Squad fit": 4-3-3 is best
+  for 38% of squads, and 5-3-2 for 5%. Task 5.5 tunes them after the best-XI assignment lands, so
+  the figures in this proposal are to be replaced by the tuned ones.
 
 Open questions for the owner:
 

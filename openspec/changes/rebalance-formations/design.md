@@ -58,7 +58,7 @@ See proposal.md (Why) for the findings. The current state that constrains the ap
 Balance alone is not enough. A model can be even on average and still make the squad irrelevant:
 before the rebalance, 4-3-3 was the best shape for 100% of squads whatever players they had.
 
-Three measurements are used together:
+Four measurements are used together:
 
 1. **Even squads:** a round robin with every skill at 50, which is the "Formation balance"
    requirement.
@@ -71,6 +71,18 @@ Three measurements are used together:
    - Each formation should become the best projected shape for a fair share of its profile's
      squads.
    - Its edge over 4-4-2 should be larger with specialists at 75 than at 40.
+
+4. **Realistic squads:** random squads plus 2 to 4 partial specialists of random types. They are
+   used twice:
+   - In full matches, every formation should score like the 4-4-2 mirror. In the prototype all
+     six are within 1.34–1.40 against a 1.38 mirror (10,000 matches each, ±0.013).
+   - In the projection, no formation should be the natural choice for most squads. The prototype
+     still has 4-3-3 as the best shape for 38% of them, because it profits from more kinds of
+     specialists.
+
+Projection and full matches have to be read together. A formation can be "best" most often with a
+mean edge of zero. In the reverse direction, small Monte Carlo samples are noisy (±0.03 to 0.04
+points per match at 2,000 matches), so every points-per-match bound uses 10,000 matches.
 
 Uniform "every player +12 in Defense" profiles were tried first. They move nothing, because of the
 ratio invariance, so the requirement is written in terms of specialists. In football terms, a
@@ -174,13 +186,33 @@ the same squad's best 4-4-2 XI on neutral ground. Ties go first to `lineupStreng
 Ranking by summed slot values would undo the squad-fit work: it picks 5-3-2 for about two thirds
 of random squads whatever their players.
 
-### 8. Harness becomes the balance and fit calibration
+### 8. Best XI by optimal assignment
+
+`SelectBestLineupForFormation` fills slots in `positionFillOrder` (goalkeeper, back line,
+midfield, attack), each time with the best remaining player for that slot. A player whose best
+slot comes later can be taken by an earlier one. In the study, wide-midfield specialists (Lateral,
+Midfield and Pass 75) always ended up at full-back, so the "2 pure LM" profile was really
+measuring full-backs.
+
+It becomes an optimal assignment: the eleven players and slots that maximize the total
+`PositionValue`. Ties go to the lower player id, so the result stays deterministic.
+
+- A squad is at most a few dozen players for 11 slots. An exact Hungarian assignment over that
+  matrix costs microseconds, so there is no need for a heuristic.
+- The match-day backfill (`BackfillEmptyPositions`) keeps filling single holes greedily. It
+  replaces one or two unavailable starters, where the greedy choice is the optimal one.
+- Every caller gets the new XI: CPU lineups, the friendly fallback, a new team's default lineup
+  and national teams. A human's saved lineup is never re-picked.
+
+### 9. Harness becomes the balance and fit calibration
 
 `engine/tactics_study_test.go` gains:
 
 - assertions for "Formation balance" in its `rr`, `xg` and goal-volume blocks;
 - a `fit` block with the specialist profiles, asserting "Squad fit";
-- a `fitmc` block with the good-versus-poor centre-back Monte Carlo.
+- a `fitmc` block with the good-versus-poor centre-back Monte Carlo;
+- a `real` block with the realistic squads, asserting the full-match bound and the share bounds
+  (no formation above 30%, none below 8%).
 
 All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
 
@@ -193,8 +225,12 @@ All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
   for the right formation] → This reflects how much any single player moves the engine today. The
   requirement guards the direction and a minimum size; making players matter more is a separate
   design question.
-- [4-5-1 has the weakest fit, 18% best with no strikers] → Task 5.4 tries to raise it within the
-  balance bounds and records the outcome.
+- [The prototype misses the realistic-squad share bounds: 4-3-3 38%, 5-3-2 5%, 4-5-1 6%] → The
+  best-XI assignment changes who plays where, so it lands first. Task 5.5 then narrows the gap
+  between formations' fit gains (4-3-3 +0.13 xG with two wingers, 5-3-2 +0.02 with three
+  centre-backs) using the constants of decisions 2 to 4. If a bound still cannot be met without
+  breaking "Formation balance", the outcome is recorded and the owner decides whether to relax it.
+- [4-5-1 has the weakest fit, 18% best with no strikers] → Part of the same tuning in task 5.5.
 - [Players whose value rested on Pass, for example central midfielders, lose some slot value;
   wide midfielders gain from Shot] → Wages and market value come from the seven skills
   (`PlayerWageFromSkills` via `MarketValue`), not from `PositionValue`, so no money moves. Only

@@ -92,12 +92,16 @@ No formation SHALL be better or worse than another by construction. With identic
 - **WHEN** 400 squads with every skill drawn from 30 to 60 are each projected in every formation against their own best 4-4-2 XI
 - **THEN** each formation's mean expected goal difference lies between −0.05 and +0.05
 
+#### Scenario: Realistic squads in full matches
+- **WHEN** 1,000 random squads, each with 2 to 4 partial specialists (one role skill from 60 to 80, the other skills 15 lower), play 10 neutral matches per formation against the same squad in 4-4-2
+- **THEN** every formation's points per match lies within 0.05 of the 4-4-2 mirror's
+
 #### Scenario: Goal volume
 - **WHEN** two identical 4-4-2 squads with every skill at 50 play
 - **THEN** they score 3.0 to 3.4 goals per match between them (3.19 before the rebalance)
 
 ### Requirement: Squad fit
-A formation SHALL pay off when the squad has the players it needs. For each formation other than 4-4-2, a squad with that formation's specialists MUST find it the best projected shape for at least 15% of random squads, and its edge over the same squad's 4-4-2 MUST grow as those specialists get better.
+A formation SHALL pay off when the squad has the players it needs, and no formation MUST be the natural choice for most squads. For each formation other than 4-4-2, a squad with that formation's specialists MUST find it the best projected shape for at least 15% of random squads, and its edge over the same squad's 4-4-2 MUST grow as those specialists get better.
 
 #### Scenario: Specialist profiles
 - **WHEN** random squads get pure specialists at 75 in their role skills and 25 in the rest (5-3-2: 3 centre-backs on Defense; 3-4-3: 3 strikers on Shot and Dribbling; 4-3-3: 2 wingers on Lateral, Shot and Dribbling; 3-5-2: 2 full-backs on Lateral and Defense), or every Shot and Dribbling is capped at 30 (4-5-1)
@@ -106,6 +110,10 @@ A formation SHALL pay off when the squad has the players it needs. For each form
 #### Scenario: Better specialists, bigger edge
 - **WHEN** the same profiles are built with specialists at 75 and again at 40, for 5-3-2, 3-4-3, 4-3-3 and 3-5-2
 - **THEN** the formation's mean projected goal difference minus the same squad's 4-4-2 is higher at 75 than at 40
+
+#### Scenario: Variety across realistic squads
+- **WHEN** 1,000 realistic squads (as in "Realistic squads in full matches") each pick the formation whose best XI projects the highest goal difference against their own best 4-4-2 XI
+- **THEN** no formation is picked by more than 30% of them and every formation by at least 8%
 
 #### Scenario: Five at the back with good and poor centre-backs
 - **WHEN** squads with three pure centre-backs play 150 × 12 neutral matches against their own unmodified squad in 4-4-2

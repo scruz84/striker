@@ -29,21 +29,23 @@
 - [ ] 3.6 Update `frontend/src/utils/playerRating.ts` (`midfieldValue`, `strikerValue`, the defense value) to the DEFENSE, MIDFIELD and STRIKER rows of `SlotWeights` with Go's rounding; verify with `frontend/src/utils/playerRating.test.ts` cases pinned to the same numbers as the Go table test
 - [ ] 3.7 Update `openspec/specs/player-development/spec.md` "Code map" (drift: `DriftSkillMinWeight`, `common/slotweights.go`) and the comment in `common/aimarket.go`
 
-## 4. CPU formation ranking
+## 4. Best XI and CPU formation ranking
 
-- [ ] 4.1 Add `common.SetFormationScorer` and make `SelectBestFormationAndLineup` rank by the registered score against the same squad's best 4-4-2 XI (ties: `lineupStrength`, then `AllFormations` order), falling back to `lineupStrength` when none is registered; verify with common unit tests for both paths using a stub scorer
-- [ ] 4.2 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
-- [ ] 4.3 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go` (prototype: Manager 1.446 vs 1.313, Director 1.494 vs 1.270); verify the test passes (Manager and Director still ahead)
-- [ ] 4.4 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (`SetFormationScorer`, the engine registration)
+- [ ] 4.1 Make `SelectBestLineupForFormation` (`common/lineup.go`) return the optimal assignment of players to the formation's slots by total `PositionValue` (exact Hungarian assignment, ties to the lower player id), leaving `BackfillEmptyPositions` greedy; verify with a common unit test for the cpu-team-management "Best XI by optimal assignment" scenario (117 against the greedy 106) and that existing `common/lineup_test.go` and `common/ailineup_test.go` cases pass or are updated where the old pick was suboptimal
+- [ ] 4.2 Add `common.SetFormationScorer` and make `SelectBestFormationAndLineup` rank by the registered score against the same squad's best 4-4-2 XI (ties: `lineupStrength`, then `AllFormations` order), falling back to `lineupStrength` when none is registered; verify with common unit tests for both paths using a stub scorer
+- [ ] 4.3 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
+- [ ] 4.4 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go` (prototype before the assignment change: Manager 1.446 vs 1.313, Director 1.494 vs 1.270); verify the test passes (Manager and Director still ahead)
+- [ ] 4.5 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (optimal assignment in `SelectBestLineupForFormation`, `SetFormationScorer`, the engine registration)
 
 ## 5. Balance and squad-fit calibration
 
 - [ ] 5.1 Turn `engine/tactics_study_test.go` into the balance calibration: assert the "Formation balance" bounds in the `rr` and `xg` blocks (round robin within 0.06 points per match of the mean; generalist random squads within ±0.05 xG of their own 4-4-2) and the goal-volume bounds (3.0–3.4) in a 4-4-2 mirror, still only with `TACTICS_SIM=1`; verify `TACTICS_SIM=rr,xg go test ./engine -run TestTacticsStudy -v` passes
 - [ ] 5.2 Add a `fit` block with the pure-specialist profiles (3 centre-backs, 3 strikers, 2 wingers, 2 full-backs at 75 and at 40) and the capped-strikers profile, asserting the "Squad fit" scenarios ("best for" at least 15% of 100 squads, and a larger edge over 4-4-2 at 75 than at 40); verify `TACTICS_SIM=fit go test ./engine -run TestTacticsStudy -v` passes
 - [ ] 5.3 Add a `fitmc` block for "Five at the back with good and poor centre-backs" (150 squads × 12 matches: at least +0.08 points per match over 4-4-2 at 75, at most +0.03 at 40); verify `TACTICS_SIM=fitmc go test ./engine -run TestTacticsStudy -v` passes
-- [ ] 5.4 Try to raise 4-5-1's fit (18% best with no strikers) within the balance bounds, for example by moving `LateralMidfieldCentralWeight` between 0.6 and 0.75, and re-run 5.1–5.3; record the chosen values and figures in the constants' doc comments and in this change's proposal
-- [ ] 5.5 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
-- [ ] 5.6 Add the calibration command and its blocks (`rr`, `xg`, `fit`, `fitmc`) to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
+- [ ] 5.4 Add a `real` block with 1,000 realistic squads (2–4 partial specialists of random types: one role skill from 60 to 80, the rest 15 lower), asserting "Realistic squads in full matches" (10 matches per squad and formation, every formation within 0.05 points per match of the 4-4-2 mirror) and "Variety across realistic squads" (no formation best for more than 30%, every formation for at least 8%); verify `TACTICS_SIM=real go test ./engine -run TestTacticsStudy -v`
+- [ ] 5.5 With 4.1 in place, tune `LineCoverWeight`, `LateralStrikerCentralWeight`, `LateralMidfieldCentralWeight`, `BackThreeWingBackCentralWeight` and the crowded-back-line term until 5.1–5.4 all pass together, narrowing the gap between fit gains (prototype: 4-3-3 +0.13 xG with two wingers, 5-3-2 +0.02 with three centre-backs) and raising 4-5-1 (18% best with no strikers); record the chosen values and figures in the constants' doc comments and in this change's proposal, or record which bound cannot be met and ask the owner before relaxing it
+- [ ] 5.6 Re-run `HOME_ADV_SIM=1 go test ./engine -run TestHomeAdvantageCalibration -v`; verify it passes, or retune `HomeAdvantageBase`/`HomeAdvantageCrowdWeight` and record why
+- [ ] 5.7 Add the calibration command and its blocks (`rr`, `xg`, `fit`, `fitmc`, `real`) to `openspec/specs/match-simulation/spec.md` "Code map", next to the home advantage calibration
 
 ## 6. Integration
 
