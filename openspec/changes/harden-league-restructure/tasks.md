@@ -23,7 +23,7 @@
 ## 5. Specs and checks
 
 - [x] 5.1 Update the `league-pyramid` Code map (in this change's design.md until archive): `PyramidShape.Differences`, `GetDissolveSkipReason`, the `dissolveTeam`/`createLeague` hooks, `rolloverState.RestructureAttempts`, and `pendingRestructureDetails`. Update the restructure notes in the backend README. Verify that `openspec validate harden-league-restructure --strict` passes.
-- [ ] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` with `STRIKER_TEST_DB_DSN` set, and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`. Verify that all pass, apart from failures that also fail on `main`; list any such failures in the PR.
+- [x] 5.2 Run backend `go build ./... && go vet ./... && go test ./...` with `STRIKER_TEST_DB_DSN` set, and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`. Verify that all pass, apart from failures that also fail on `main`; list any such failures in the PR.
 
 ## Workflow follow-up
 
