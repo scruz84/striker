@@ -109,6 +109,9 @@ type AdminOverview struct {
 	// structure (or break the pyramid rule): each is restructured at its own next season rollover
 	// (see engine.restructureIfNeeded).
 	PendingRestructure []string `json:"pendingRestructure"`
+	// PendingRestructureDetails says, for each of those countries, how its leagues differ from its
+	// structure (see openspec/specs/league-pyramid "Admin sees why a country is pending").
+	PendingRestructureDetails []PendingRestructure `json:"pendingRestructureDetails"`
 	// AiLevels is each AI level's club count, average budget, insolvent clubs and points per match
 	// (see GetAiLevelStats) - the same figures as the striker.ai.* gauges.
 	AiLevels []AiLevelStats `json:"aiLevels"`
@@ -126,14 +129,22 @@ func CountTeams(dbCtx *DatabaseContext) (int, error) {
 	return n, err
 }
 
-// GetPendingRestructureCountries returns the active countries whose active leagues do not match
-// their effective structure (EffectiveStructure), or break the pyramid's ratio rule, in country order.
-func GetPendingRestructureCountries(dbCtx *DatabaseContext) ([]string, error) {
+// PendingRestructure is an active country whose leagues differ from its effective structure, and
+// every way they differ.
+type PendingRestructure struct {
+	Country     string            `json:"country"`
+	Differences []ShapeDifference `json:"differences"`
+}
+
+// GetPendingRestructureCountries returns the active countries whose active leagues differ from
+// their effective structure (EffectiveStructure) - including a shape that breaks the pyramid's
+// ratio rule or a structure that is itself invalid - with the differences, in country order.
+func GetPendingRestructureCountries(dbCtx *DatabaseContext) ([]PendingRestructure, error) {
 	countries, err := GetActiveCountries(dbCtx)
 	if err != nil {
 		return nil, err
 	}
-	pending := make([]string, 0)
+	pending := make([]PendingRestructure, 0)
 	for _, country := range countries {
 		shape, err := GetCountryPyramidShape(dbCtx, country)
 		if err != nil {
@@ -142,8 +153,8 @@ func GetPendingRestructureCountries(dbCtx *DatabaseContext) ([]string, error) {
 		if len(shape.Leagues) == 0 {
 			continue
 		}
-		if !shape.MatchesConfig(EffectiveStructure(dbCtx, country)) || !shape.FollowsRatioRule() {
-			pending = append(pending, country)
+		if diffs := shape.Differences(EffectiveStructure(dbCtx, country)); len(diffs) > 0 {
+			pending = append(pending, PendingRestructure{Country: country, Differences: diffs})
 		}
 	}
 	return pending, nil

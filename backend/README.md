@@ -277,7 +277,14 @@ play the playoff. There is no admin setting for the slot counts any more.
   structure is reshaped into it (`engine.restructureIfNeeded`): every team is ranked down the
   pyramid, tiers are filled top-down in snake order (teams that do not fit drop a tier), the bottom
   tier is topped up with new CPU teams (`common.CreateTeam`), and leagues the structure no longer
-  has are archived (`leagues.archived_season`), never deleted.
+  has are archived (`leagues.archived_season`), never deleted. A club the plan dissolves that is
+  not dissolved (an error, or a club a user claimed meanwhile) is kept like a protected one and the
+  plan is made again, so another CPU club goes instead and every group keeps its size. Afterwards
+  the country is read back and compared with its structure (`common.PyramidShape.Differences`); if
+  it still differs, the rollover stays before the cup and the next tick restructures again, up to 3
+  attempts (`rolloverState.RestructureAttempts`), then moves on and the country stays pending. The
+  admin overview's `pendingRestructureDetails` lists every difference (extra, missing or wrong-size
+  groups, a broken doubling rule, an invalid structure), shown under the World tab's pending notice.
 - **Resuming.** The rollover runs as numbered steps (aging and contracts, loans, promotion/relegation
   with prizes, restructure, cup, standings reset, season bump, fixtures), each recorded in
   `countries.rollover_season`/`rollover_step`/`rollover_state` as it completes

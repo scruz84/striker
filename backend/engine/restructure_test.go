@@ -204,3 +204,48 @@ func TestPlanRestructure_TopUpDissolvesNothing(t *testing.T) {
 		t.Errorf("a top-up dissolved %d teams", len(plan.Dissolve))
 	}
 }
+
+// Spec scenario "Club claimed during the restructure": the replanning round pins every club the
+// first plan meant to dissolve but could not (here, the 200th and 250th of the ordering), and the
+// next plan dissolves lower-ranked CPU clubs inside the cut instead, keeping every group at its
+// size.
+func TestPlanRestructure_PinnedTeamsKeepEveryGroupFull(t *testing.T) {
+	target := common.DefaultWorldTiers[:4]
+	teams := defaultWorld()
+	first := PlanRestructure(teams, target)
+	pinned := map[int64]bool{first.Dissolve[40]: true, first.Dissolve[100]: true}
+	for i := range teams {
+		teams[i].Protected = pinned[teams[i].TeamId]
+	}
+	replanned := PlanRestructure(teams, target)
+	if len(replanned.Placement) != 150 || len(replanned.Dissolve) != 160 || len(replanned.Missing) != 0 {
+		t.Fatalf("placed %d, dissolved %d, short groups %d; want 150, 160, 0", len(replanned.Placement), len(replanned.Dissolve), len(replanned.Missing))
+	}
+	for id := range pinned {
+		if slot, ok := replanned.Placement[id]; !ok || slot.Tier != 4 {
+			t.Errorf("pinned team %d placed at %+v (%v), want the bottom tier", id, slot, ok)
+		}
+	}
+	perGroup := make(map[GroupSlot]int)
+	for _, slot := range replanned.Placement {
+		perGroup[slot]++
+	}
+	for slot, n := range perGroup {
+		if n != 10 {
+			t.Errorf("group %+v has %d teams, want 10", slot, n)
+		}
+	}
+	// The clubs dissolved in their place were placed by the first plan: the two lowest-ranked of it.
+	swapped := 0
+	for _, id := range replanned.Dissolve {
+		if pinned[id] {
+			t.Errorf("pinned team %d is still on the dissolution list", id)
+		}
+		if _, wasPlaced := first.Placement[id]; wasPlaced {
+			swapped++
+		}
+	}
+	if swapped != 2 {
+		t.Errorf("%d clubs the first plan placed are now dissolved, want 2", swapped)
+	}
+}

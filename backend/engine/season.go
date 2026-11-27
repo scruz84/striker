@@ -182,7 +182,15 @@ const (
 type rolloverState struct {
 	FinalStandings []LeagueStandings `json:"finalStandings"`
 	Moves          []LeagueMove      `json:"moves"`
+	// RestructureAttempts counts the restructures of this rollover that left the country differing
+	// from its structure (see maxRestructureAttempts).
+	RestructureAttempts int `json:"restructureAttempts,omitempty"`
 }
+
+// maxRestructureAttempts is how many restructures one rollover runs, one per tick, before it
+// moves on with a country that still differs from its structure (see
+// openspec/specs/league-pyramid "Restructure result is checked").
+const maxRestructureAttempts = 3
 
 // rolloverInterruptAfter, when set (tests only), stops a rollover right after step has been
 // recorded - what a restart at that point does.
@@ -254,8 +262,23 @@ func runSeasonRollover(dbCtx *common.DatabaseContext, country string, currentSea
 		// A country whose leagues differ from the saved structure is reshaped now, so the new
 		// season's cup, classification and fixtures see the new leagues; its starting order is
 		// then built from where every team ends up.
-		if restructureMoves := restructureIfNeeded(dbCtx, country, currentSeason, state.FinalStandings); restructureMoves != nil {
+		restructureMoves, diffs := restructureIfNeeded(dbCtx, country, currentSeason, state.FinalStandings)
+		if restructureMoves != nil {
 			state.Moves = restructureMoves
+		}
+		if len(diffs) > 0 {
+			// The restructure did not reach the structure. Keep the step where it was, so the next
+			// tick runs it again from what is there now, unless it has failed too often: then move
+			// on, and the country stays pending for its next rollover.
+			state.RestructureAttempts++
+			if state.RestructureAttempts < maxRestructureAttempts {
+				log.Warnf("%s's restructure attempt %d of %d left it differing from its structure, retrying next tick: %s",
+					country, state.RestructureAttempts, maxRestructureAttempts, common.DescribeShapeDifferences(diffs))
+				record(rolloverStepPromotionApplied)
+				return
+			}
+			log.Errorf("%s's restructure still differs from its structure after %d attempts, advancing the season anyway: %s",
+				country, state.RestructureAttempts, common.DescribeShapeDifferences(diffs))
 		}
 		if !record(rolloverStepRestructured) {
 			return

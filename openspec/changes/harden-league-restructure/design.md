@@ -163,3 +163,25 @@ Deploy the backend and frontend together. The new overview field is additive. ES
 step: it is pending, so at the end of season 4 its rollover restructures it with the new code.
 To roll back, redeploy the previous version. Any `restructureAttempts` left in a progress
 marker is ignored by the old code.
+
+## Code map (merge into `openspec/specs/league-pyramid` at archive)
+
+A delta spec cannot carry a Code map, so these additions to the league-pyramid Code map wait here
+until archive:
+
+- Shape check: `backend/common/pyramid.go` (`ShapeDifference`, the `ShapeDiff*` kinds,
+  `PyramidShape.Differences`, `DescribeShapeDifferences`; `MatchesConfig` is now
+  `len(Differences) == 0`), tested in `common/pyramid_test.go`.
+- Restructure: `backend/engine/restructure.go` (the replanning loop in `applyRestructure`,
+  `maxDissolveRounds`, `restructureTeams`, `teamFinish`, the `dissolveTeam`/`createLeague` hooks;
+  `restructureIfNeeded` returns the differences left), `backend/common/dissolve.go`
+  (`GetDissolveSkipReason`, `DissolveSkip*`).
+- Retry: `backend/engine/season.go` (`rolloverState.RestructureAttempts`,
+  `maxRestructureAttempts`, the restructure step of `runSeasonRollover`).
+- Admin: `common.GetPendingRestructureCountries` returns `[]PendingRestructure`; the overview's
+  `pendingRestructureDetails` (`handlers.AdminOverviewHandler`), rendered by
+  `describeDifference` in `frontend/src/features/admin/WorldTab.tsx` with
+  `admin.worldStructure.pendingDetail.*` strings.
+- Tests: `engine/restructure_hardening_integration_test.go`, `engine/restructure_test.go`
+  (`TestPlanRestructure_PinnedTeamsKeepEveryGroupFull`), `handlers/adminOverviewPending_test.go`,
+  `frontend/src/features/admin/WorldTab.test.tsx`.

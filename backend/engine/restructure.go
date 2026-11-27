@@ -17,6 +17,14 @@ var restructureTarget = func(dbCtx *common.DatabaseContext, country string) []co
 	return common.EffectiveStructure(dbCtx, country)
 }
 
+// dissolveTeam and createLeague are what a restructure calls to dissolve a surplus club and to
+// create a missing group. Variables so integration tests can make them fail (see
+// openspec/specs/league-pyramid "Restructure leaves no team behind").
+var (
+	dissolveTeam = common.DissolveTeam
+	createLeague = common.CreateLeague
+)
+
 // RankedTeam is one team as a restructure orders it: the tier it plays in after the season's
 // moves, then its final position, points, goal difference and goals scored (see
 // openspec/specs/league-pyramid "Restructure ordering"). A team with no final standing (e.g. one
@@ -164,26 +172,37 @@ func PlanRestructure(teams []RankedTeam, target []common.TierConfig) Restructure
 // It returns the moves the new season's starting order should be built from (see
 // ComputeSeasonSeeds), relative to the league each team finished the season in: every team whose
 // final league differs from it, promoted or relegated by tier, lateral when it only changed group.
-// It returns nil when the country was not restructured, so the caller keeps seasonMoves.
-func restructureIfNeeded(dbCtx *common.DatabaseContext, country string, season int, finalStandings []LeagueStandings) []LeagueMove {
+// It returns nil moves when the country was not restructured, so the caller keeps seasonMoves.
+//
+// After restructuring it reads the country again and returns every way it still differs from its
+// structure (see openspec/specs/league-pyramid "Restructure result is checked"): none when the
+// restructure reached it. A country it did not restructure - in shape already, with no or an
+// invalid structure, or unreadable - reports none, since running it again would change nothing.
+func restructureIfNeeded(dbCtx *common.DatabaseContext, country string, season int, finalStandings []LeagueStandings) ([]LeagueMove, []common.ShapeDifference) {
 	target := restructureTarget(dbCtx, country)
 	if len(target) == 0 {
-		return nil
+		return nil, nil
 	}
 	if err := common.ValidateWorldConfig(target); err != nil {
 		log.Errorf("not restructuring %s: its structure is invalid: %s", country, err)
-		return nil
+		return nil, nil
 	}
 	shape, err := common.GetCountryPyramidShape(dbCtx, country)
 	if err != nil {
 		log.Errorf("error reading %s's league pyramid before a restructure: %s", country, err)
-		return nil
+		return nil, nil
 	}
 	if shape.MatchesConfig(target) {
-		return nil
+		return nil, nil
 	}
 	log.Infof("restructuring %s's leagues into %d tiers (%d places)", country, len(target), common.WorldConfigPlaces(target))
-	return applyRestructure(dbCtx, country, season, shape, target, finalStandings)
+	moves := applyRestructure(dbCtx, country, season, shape, target, finalStandings)
+	after, err := common.GetCountryPyramidShape(dbCtx, country)
+	if err != nil {
+		log.Errorf("error reading %s's league pyramid after a restructure: %s", country, err)
+		return moves, []common.ShapeDifference{{Kind: common.ShapeDiffUnreadable, Message: err.Error()}}
+	}
+	return moves, after.Differences(target)
 }
 
 func applyRestructure(dbCtx *common.DatabaseContext, country string, season int, shape common.PyramidShape, target []common.TierConfig,
@@ -201,57 +220,71 @@ func applyRestructure(dbCtx *common.DatabaseContext, country string, season int,
 	}
 
 	// Each team's final standing and the league it finished the season in.
-	type finish struct {
-		position int
-		standing common.TeamStanding
-		leagueId int64
-	}
-	finishes := make(map[int64]finish)
+	finishes := make(map[int64]teamFinish)
 	for _, league := range finalStandings {
 		for i, st := range league.Standings {
-			finishes[st.TeamId] = finish{position: i + 1, standing: st, leagueId: league.LeagueId}
+			finishes[st.TeamId] = teamFinish{position: i + 1, standing: st, leagueId: league.LeagueId}
 		}
 	}
 
-	// Every team as it stands now, after the season's moves.
-	currentLeague := make(map[int64]int64)
-	teams := make([]RankedTeam, 0)
-	for _, l := range shape.Leagues {
-		for _, teamId := range common.GetDivisionTeams(dbCtx, l.LeagueId) {
-			currentLeague[teamId] = l.LeagueId
-			rt := RankedTeam{TeamId: teamId, Tier: l.Tier}
-			if f, ok := finishes[teamId]; ok {
-				rt.Position, rt.Points, rt.GoalDiff, rt.GoalsScored = f.position, f.standing.Points, f.standing.GoalDiff, f.standing.GoalsScored
-			}
-			teams = append(teams, rt)
-		}
-	}
-	protected, err := common.GetProtectedTeams(dbCtx, teamIdsOf(teams))
-	if err != nil {
-		// Without knowing which clubs are users' or still in a cup, dissolving any is unsafe.
-		log.Errorf("not restructuring %s: error reading its protected teams: %s", country, err)
-		return nil
-	}
-	for i := range teams {
-		teams[i].Protected = protected[teams[i].TeamId]
-	}
-	plan := PlanRestructure(teams, target)
 	// Dissolve the surplus first, so a rollover resumed after a crash finds them out of the
-	// leagues already and plans the same result for the rest.
+	// leagues already and plans the same result for the rest. A planned club that is not dissolved
+	// (an error, or a club that got a user since the plan) is pinned like a protected one and the
+	// plan is made again, so a lower-ranked CPU club goes instead and no group is left short or
+	// long (see openspec/specs/league-pyramid "Restructure leaves no team behind").
+	pinned := make(map[int64]bool)
+	var plan RestructurePlan
+	var currentLeague map[int64]int64
 	dissolved := 0
-	for _, teamId := range plan.Dissolve {
-		ok, returned, err := common.DissolveTeam(dbCtx, teamId, season)
+	for round := 1; ; round++ {
+		var teams []RankedTeam
+		teams, currentLeague = restructureTeams(dbCtx, shape, finishes)
+		protected, err := common.GetProtectedTeams(dbCtx, teamIdsOf(teams))
 		if err != nil {
-			log.Errorf("error dissolving team %d in %s's restructure: %s", teamId, country, err)
-			continue
+			// Without knowing which clubs are users' or still in a cup, dissolving any is unsafe.
+			log.Errorf("not restructuring %s: error reading its protected teams: %s", country, err)
+			return nil
 		}
-		if ok {
-			dissolved++
-			delete(currentLeague, teamId)
-			InvalidateTeamCaches(dbCtx, teamId)
+		for i := range teams {
+			teams[i].Protected = protected[teams[i].TeamId] || pinned[teams[i].TeamId]
 		}
-		for _, loan := range returned {
-			notifyLoanReturn(dbCtx, loan)
+		plan = PlanRestructure(teams, target)
+		if round > maxDissolveRounds {
+			// Out of rounds: place everyone the last plan places, and leave the rest to the shape
+			// check (see restructureIfNeeded).
+			break
+		}
+		newlyPinned := 0
+		for _, teamId := range plan.Dissolve {
+			ok, returned, err := dissolveTeam(dbCtx, teamId, season)
+			for _, loan := range returned {
+				notifyLoanReturn(dbCtx, loan)
+			}
+			if err != nil {
+				log.Errorf("error dissolving team %d in %s's restructure, keeping it and dissolving another: %s", teamId, country, err)
+				pinned[teamId] = true
+				newlyPinned++
+				continue
+			}
+			if ok {
+				dissolved++
+				delete(currentLeague, teamId)
+				InvalidateTeamCaches(dbCtx, teamId)
+				continue
+			}
+			reason, err := common.GetDissolveSkipReason(dbCtx, teamId)
+			if err != nil {
+				log.Errorf("error reading why team %d was not dissolved in %s's restructure: %s", teamId, country, err)
+			}
+			if reason == common.DissolveSkipAlreadyDissolved {
+				continue
+			}
+			log.Warnf("team %d was not dissolved in %s's restructure (%s), keeping it and dissolving another", teamId, country, reason)
+			pinned[teamId] = true
+			newlyPinned++
+		}
+		if newlyPinned == 0 {
+			break
 		}
 	}
 	if dissolved > 0 {
@@ -267,7 +300,7 @@ func applyRestructure(dbCtx *common.DatabaseContext, country string, season int,
 			if _, ok := leagueOfSlot[slot]; ok {
 				continue
 			}
-			leagueId, err := common.CreateLeague(dbCtx, country, tc.Name, tc.Tier, g)
+			leagueId, err := createLeague(dbCtx, country, tc.Name, tc.Tier, g)
 			if err != nil {
 				log.Errorf("error creating league %s for %s's restructure: %s", common.LeagueName(tc.Name, g), country, err)
 				continue
@@ -359,6 +392,36 @@ func applyRestructure(dbCtx *common.DatabaseContext, country string, season int,
 	}
 	sort.Slice(moves, func(i, j int) bool { return moves[i].TeamId < moves[j].TeamId })
 	return moves
+}
+
+// teamFinish is a team's final standing of the season and the league it finished it in.
+type teamFinish struct {
+	position int
+	standing common.TeamStanding
+	leagueId int64
+}
+
+// maxDissolveRounds bounds how many times a restructure plans again after a planned club could
+// not be dissolved (see applyRestructure).
+const maxDissolveRounds = 5
+
+// restructureTeams reads every team in shape's leagues as a restructure ranks it - the tier it
+// plays in now, after the season's moves, and its final standing - and the league each one is in.
+// A dissolved team has left its league and is not read.
+func restructureTeams(dbCtx *common.DatabaseContext, shape common.PyramidShape, finishes map[int64]teamFinish) ([]RankedTeam, map[int64]int64) {
+	currentLeague := make(map[int64]int64)
+	teams := make([]RankedTeam, 0)
+	for _, l := range shape.Leagues {
+		for _, teamId := range common.GetDivisionTeams(dbCtx, l.LeagueId) {
+			currentLeague[teamId] = l.LeagueId
+			rt := RankedTeam{TeamId: teamId, Tier: l.Tier}
+			if f, ok := finishes[teamId]; ok {
+				rt.Position, rt.Points, rt.GoalDiff, rt.GoalsScored = f.position, f.standing.Points, f.standing.GoalDiff, f.standing.GoalsScored
+			}
+			teams = append(teams, rt)
+		}
+	}
+	return teams, currentLeague
 }
 
 func teamIdsOf(teams []RankedTeam) []int64 {
