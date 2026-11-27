@@ -97,8 +97,8 @@ dissolved team and checks it is absent from each listing.
 
 - [A large shrink floods the free-agent market (e.g. 160 teams × 18 players per country)] →
   free agents already retire after 2 unsigned seasons (`FreeAgencyRetirementSeasons`). Check with
-  `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v` on a shrink from 5 to 4 tiers, and
-  retire the oldest released players if wages collapse.
+  `ECON_SIM=1 ECON_SIM_TIERS=4 go test ./engine -run TestEconomySimulation -v` (see "Economy check
+  (task 6.2)": wages are skill-based, so they cannot collapse).
 - [A missed club listing lets a dissolved team act] → the audit task plus the absence test, and
   `league_id = -1` already keeps it out of every per-league query.
 - [The admin shrinks by mistake] → the 409 confirmation names the numbers, and nothing happens
@@ -115,12 +115,45 @@ teams are not revived, and the larger structure tops up with new CPU teams.
 
 ## Economy check (task 6.2)
 
-`ECON_SIM=1 ECON_SIM_SCENARIOS=shipped go test ./engine -run TestEconomySimulation -v` still runs
-and passes unchanged. The change touches no income or expense function. The simulator models each
-team's income and expenses by tier and does not model the free-agent market, transfers or a change
-of structure, so it cannot show how a shrink's burst of free agents affects wages and transfer
-prices. That risk stays open until the simulator models the market, or the first real shrink is
-watched on the market gauges (`striker.market.*`).
+The simulator now takes `ECON_SIM_TIERS=N` (`engine/economysim_test.go`, `simTiers`): it keeps the
+top N tiers of the default structure, and reports what the removed tiers' dissolved clubs would
+free (`dissolvedByShrink`). The shipped scenario was run for 40 seasons with 5 and 4 tiers, seeds 1,
+2 and 3:
+
+```
+ECON_SIM=1 ECON_SIM_SCENARIOS=shipped ECON_SIM_TIERS=4 ECON_SIM_SEED=1 go test ./engine -run TestEconomySimulation -v -count=1
+```
+
+- **Free agents.** Removing tier V dissolves 160 clubs per country and frees 2,880 senior players
+  at once. They were on about 710,000 a round, or 12.8 million a season of 18 rounds: about 4,440
+  a season per player, the same in all three seeds. That wage bill leaves the economy with the
+  clubs, and so do the dissolved clubs' budgets: nothing is paid out.
+- **Wages.** A free agent's asking wage comes from his skills (`PlayerWageFromSkills`,
+  `ExpectedWageWithIntelligence`), not from how many free agents there are, so a burst of free
+  agents cannot drive wages down. The burst clears on its own: whoever is not signed within 2
+  seasons retires (`FreeAgencyRetirementSeasons`) and becomes a trainer candidate.
+- **Passive-team income/expense ratios, seasons 2-40.** These stay within the simulator's bounds,
+  and differ less between 5 and 4 tiers than between seeds:
+
+  | seed | tiers | I | II | III | IV | V |
+  |---|---|---|---|---|---|---|
+  | 1 | 5 | 1.32 | 1.14 | 1.09 | 1.00 | 1.00 |
+  | 1 | 4 | 1.28 | 1.14 | 0.99 | 0.98 | - |
+  | 2 | 5 | 1.37 | 1.00 | 0.96 | 0.95 | 0.92 |
+  | 2 | 4 | 1.32 | 1.00 | 0.88 | 0.97 | - |
+  | 3 | 5 | 1.45 | 1.27 | 0.92 | 0.96 | 0.99 |
+  | 3 | 4 | 1.48 | 1.24 | 0.90 | 0.96 | - |
+
+- **Money supply (seed 1).** It stops growing in both shapes. With 5 tiers (310 clubs, 124M at the
+  start) it goes 166M, 201M, 218M, 222M, 217M, 205M at seasons 6 to 36. With 4 tiers (150 clubs,
+  60M at the start) it goes 82M, 101M, 113M, 119M, 122M, 122M. The median club budget ends at about
+  550,000 in both, against about 510,000 with 5 tiers. The average club is richer with 4 tiers
+  because the removed tier-V clubs were the poorest.
+
+What the simulator still cannot show is the second-order market effect: CPU clubs may sign the
+cheap free agents of the burst instead of buying listed players, which would lower transfer
+activity for up to 2 seasons. Watch it on the market gauges (`striker.market.*`) after the first
+real shrink.
 
 ## Code map for the archived spec
 
