@@ -1760,8 +1760,11 @@
   "headToHead": {
     "title": "Enfrentamientos directos",
     "noMeetings": "Estos equipos aún no se han enfrentado.",
-    "draws": "Empates",
-    "goals": "Goles: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
+    "wins": "Victorias",
+    "goalsLabel": "Goles",
+    "drawsCount_one": "{{count}} empate",
+    "drawsCount_other": "{{count}} empates",
+    "meetingLabel": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}, {{date}}"
   },
   "groups": {
     "title": "Grupos de amigos",
