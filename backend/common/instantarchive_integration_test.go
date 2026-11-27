@@ -46,11 +46,25 @@ func (w *archiveWorld) exec(query string, args ...any) {
 func (w *archiveWorld) country(currentSeason int) (string, int64, int64, int64) {
 	w.t.Helper()
 	const letters = "abcdefghijklmnopqrstuvwxyz"
-	code := "z"
-	for i := 0; i < 3; i++ {
-		code += string(letters[rand.Intn(len(letters))])
+	// countries.name is varchar(4) and the shared test database keeps every earlier run's
+	// countries (other tests draw from the same "z" space), so a random code can already be
+	// taken: draw again until one is free rather than reuse a country this world does not own.
+	var code string
+	for attempt := 0; ; attempt++ {
+		code = "z"
+		for i := 0; i < 3; i++ {
+			code += string(letters[rand.Intn(len(letters))])
+		}
+		var id int64
+		err := w.db.QueryRow(`INSERT INTO countries (name, current_season) VALUES ($1, $2)
+			ON CONFLICT (name) DO NOTHING RETURNING country_id`, code, currentSeason).Scan(&id)
+		if err == nil {
+			break
+		}
+		if !errors.Is(err, sql.ErrNoRows) || attempt == 100 {
+			w.t.Fatalf("creating a test country: %s", err)
+		}
 	}
-	w.exec(`INSERT INTO countries (name, current_season) VALUES ($1, $2)`, code, currentSeason)
 	league := w.scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'I', 1) RETURNING league_id`, code)
 	home := w.scan(`INSERT INTO teams (name, country, league_id) VALUES ('Home', $1, $2) RETURNING team_id`, code, league)
 	away := w.scan(`INSERT INTO teams (name, country, league_id) VALUES ('Away', $1, $2) RETURNING team_id`, code, league)

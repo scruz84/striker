@@ -4,21 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"testing"
-	"time"
 )
-
-// seasonHistoryTestCountry returns a fresh 4-character country code per run: the test database
-// persists across runs, so every run seeds its own country.
-func seasonHistoryTestCountry() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	code := []byte("y___")
-	for i := 1; i < 4; i++ {
-		code[i] = byte('a' + r.Intn(26))
-	}
-	return string(code)
-}
 
 // seasonHistoryWorld is a two-tier country at the start of season 2. Season 1 ended with U = A 1st,
 // B 2nd, C 3rd (relegated) and L = D 1st (promoted), E 2nd, F 3rd; season 2 has U = A, B, D and
@@ -33,7 +20,7 @@ type seasonHistoryWorld struct {
 
 func seedSeasonHistoryWorld(t *testing.T, db *sql.DB) seasonHistoryWorld {
 	t.Helper()
-	w := seasonHistoryWorld{country: seasonHistoryTestCountry()}
+	w := seasonHistoryWorld{country: unusedTestCountryCode(t, db, 'y')}
 	w.exec = func(query string, args ...any) {
 		t.Helper()
 		if _, err := db.Exec(query, args...); err != nil {

@@ -3,7 +3,6 @@ package common
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"net/url"
 	"os"
 	"strings"
@@ -53,12 +52,7 @@ type simulationFixture struct {
 func newSimulationFixture(t *testing.T) *simulationFixture {
 	t.Helper()
 	db, dbCtx := openSimulationTestDb(t)
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	code := []byte("y___")
-	for i := 1; i < 4; i++ {
-		code[i] = byte('a' + r.Intn(26))
-	}
-	f := &simulationFixture{t: t, db: db, dbCtx: dbCtx, country: string(code)}
+	f := &simulationFixture{t: t, db: db, dbCtx: dbCtx, country: unusedTestCountryCode(t, db, 'y')}
 	f.exec(`INSERT INTO countries (name, current_season) VALUES ($1, 1)`, f.country)
 	f.leagueId = f.scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'L', 1) RETURNING league_id`, f.country)
 	f.home = f.scan(`INSERT INTO teams (name, country, league_id) VALUES ('Home', $1, $2) RETURNING team_id`, f.country, f.leagueId)

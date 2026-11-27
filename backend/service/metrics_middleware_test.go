@@ -28,7 +28,10 @@ func TestMetricsMiddleware_WebsocketUpgradeIsCountedButNotTimed(t *testing.T) {
 	live := attribute.String("route", "/v1/live")
 	ok := attribute.String("route", "/v1/ok")
 
+	// Baselines, not absolutes: the meter provider is process-wide, so a repeated run (go test
+	// -count=N) starts from what the earlier ones recorded.
 	countedBefore := metrictest.Sum(t, "striker.http.requests", live)
+	timedBefore := metrictest.HistogramCount(t, "striker.http.request.duration", live)
 
 	req := httptest.NewRequest(http.MethodGet, "/v1/live", nil)
 	req.Header.Set("Connection", "Upgrade")
@@ -38,16 +41,17 @@ func TestMetricsMiddleware_WebsocketUpgradeIsCountedButNotTimed(t *testing.T) {
 	if got := metrictest.Sum(t, "striker.http.requests", live) - countedBefore; got != 1 {
 		t.Errorf("websocket request count grew by %v, want 1", got)
 	}
-	if got := metrictest.HistogramCount(t, "striker.http.request.duration", live); got != 0 {
+	if got := metrictest.HistogramCount(t, "striker.http.request.duration", live) - timedBefore; got != 0 {
 		t.Errorf("websocket upgrade recorded %d durations, want 0", got)
 	}
 
 	countedBefore = metrictest.Sum(t, "striker.http.requests", ok)
+	timedBefore = metrictest.HistogramCount(t, "striker.http.request.duration", ok)
 	router.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/v1/ok", nil))
 	if got := metrictest.Sum(t, "striker.http.requests", ok) - countedBefore; got != 1 {
 		t.Errorf("plain request count grew by %v, want 1", got)
 	}
-	if got := metrictest.HistogramCount(t, "striker.http.request.duration", ok); got != 1 {
+	if got := metrictest.HistogramCount(t, "striker.http.request.duration", ok) - timedBefore; got != 1 {
 		t.Errorf("plain request recorded %d durations, want 1", got)
 	}
 }

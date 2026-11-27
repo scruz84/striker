@@ -74,7 +74,7 @@ func NewScorerSimulation() *ScorerSimulation {
 }
 
 func (s ScorerSimulation) Apply(dbCtx *common.DatabaseContext, match *common.MatchSimulation) {
-	if rand.Float32() < chanceProbability(match) {
+	if s.r.Float32() < chanceProbability(match) {
 		teamChance := getTeamChance(s, match)
 		processChance(s, dbCtx, match, teamChance)
 	}
@@ -121,7 +121,7 @@ func processChance(s ScorerSimulation, dbCtx *common.DatabaseContext, match *com
 	isRight := false
 	isLeft := false
 	//decide if is right, left or center chance
-	randValue := rand.Float32()
+	randValue := s.r.Float32()
 	if randValue > ProbCenterChance {
 		if randValue < (ProbLateralChance + ProbCenterChance) {
 			isRight = true
