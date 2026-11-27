@@ -5,6 +5,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/scruz84/striker/resources"
 )
 
 // TestEnsureSchema_RestartDoesNotTouchPlayerData runs EnsureSchema against a real, empty Postgres
@@ -129,5 +131,64 @@ func checkNamePools(t *testing.T, db *sql.DB, before map[string]int) {
 	}
 	if want := len(KnownCountries) - 1; versions != want {
 		t.Errorf("name_pool_versions has %d countries at version 2, want %d", versions, want)
+	}
+}
+
+// TestQueryPerformanceIndexes_RestartTakesNoTableLocks re-applies init120 - as every --svc/--engine
+// restart does - on a database that already has its indexes, and checks it holds no SHARE lock on
+// any table: CREATE INDEX IF NOT EXISTS takes one even when the index exists, and holding them all
+// in one transaction deadlocked with a lineup save writing two of those tables, failing the
+// startup. It also drops one index in the same transaction to check a missing one is still built.
+// Needs STRIKER_TEST_DB_DSN.
+func TestQueryPerformanceIndexes_RestartTakesNoTableLocks(t *testing.T) {
+	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
+	if dsn == "" {
+		t.Skip("STRIKER_TEST_DB_DSN not set")
+	}
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		t.Fatalf("opening database: %s", err)
+	}
+	defer db.Close()
+	if err := EnsureSchema(&DatabaseContext{Db: db}); err != nil {
+		t.Fatalf("EnsureSchema: %s", err)
+	}
+	contents, err := resources.SQLFiles.ReadFile("sql/init120_query_performance_indexes.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	shareLocks := func() int {
+		var n int
+		if err := tx.QueryRow(`SELECT count(*) FROM pg_locks
+			WHERE pid = pg_backend_pid() AND locktype = 'relation' AND mode = 'ShareLock'`).Scan(&n); err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	if _, err := tx.Exec(string(contents)); err != nil {
+		t.Fatalf("re-applying init120: %s", err)
+	}
+	if n := shareLocks(); n != 0 {
+		t.Errorf("re-applying init120 with every index in place holds %d SHARE table locks, want 0", n)
+	}
+
+	if _, err := tx.Exec(`DROP INDEX lineup_positions_player_id_idx`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := tx.Exec(string(contents)); err != nil {
+		t.Fatalf("applying init120 with an index missing: %s", err)
+	}
+	var exists bool
+	if err := tx.QueryRow(`SELECT to_regclass('lineup_positions_player_id_idx') IS NOT NULL`).Scan(&exists); err != nil {
+		t.Fatal(err)
+	}
+	if !exists {
+		t.Error("init120 did not recreate the missing lineup_positions_player_id_idx")
 	}
 }

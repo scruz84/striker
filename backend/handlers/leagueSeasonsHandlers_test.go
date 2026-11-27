@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"math/rand"
 	"net/http"
 	"os"
@@ -54,9 +55,22 @@ func TestLeagueSeasonHandlers(t *testing.T) {
 		}
 	}
 
+	// The test database keeps every earlier run's countries, and only 26^3 codes start with x:
+	// draw again until one is free.
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	country := string([]byte{'x', byte('a' + r.Intn(26)), byte('a' + r.Intn(26)), byte('a' + r.Intn(26))})
-	exec(`INSERT INTO countries (name, current_season) VALUES ($1, 3)`, country)
+	var country string
+	for attempt := 0; ; attempt++ {
+		country = string([]byte{'x', byte('a' + r.Intn(26)), byte('a' + r.Intn(26)), byte('a' + r.Intn(26))})
+		var inserted bool
+		err := db.QueryRow(`INSERT INTO countries (name, current_season) VALUES ($1, 3)
+			ON CONFLICT (name) DO NOTHING RETURNING true`, country).Scan(&inserted)
+		if err == nil {
+			break
+		}
+		if !errors.Is(err, sql.ErrNoRows) || attempt == 100 {
+			t.Fatalf("creating a test country: %s", err)
+		}
+	}
 	league := scan(`INSERT INTO leagues (country, group_number, name, tier) VALUES ($1, 1, 'S1', 1) RETURNING league_id`, country)
 	teams := make([]int64, 10)
 	for i := range teams {

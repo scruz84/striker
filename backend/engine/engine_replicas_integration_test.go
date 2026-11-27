@@ -41,15 +41,46 @@ func openReplicaTestDb(t *testing.T) (*sql.DB, *common.DatabaseContext) {
 	return db, dbCtx
 }
 
-// uniqueCountryCode returns a made-up four-letter country code (countries.name is varchar(4)), so
-// re-running a test against the same database never trips over a previous run's rows.
+var (
+	countryCodeMu    sync.Mutex
+	countryCodeRand  = rand.New(rand.NewSource(time.Now().UnixNano()))
+	countryCodeGiven = map[string]bool{}
+	countryCodeDb    *sql.DB
+)
+
+// uniqueCountryCode returns a made-up four-letter country code (countries.name is varchar(4)) that
+// no country in the test database has yet and no earlier call in this run returned. The database
+// keeps every earlier run's countries, and with only 26^3 codes a blind random draw soon picks one
+// of them: the test's INSERT then fails on the unique name, or - with ON CONFLICT DO NOTHING -
+// quietly works on another test's country.
 func uniqueCountryCode() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	code := []byte("z___")
-	for i := 1; i < 4; i++ {
-		code[i] = byte('a' + r.Intn(26))
+	countryCodeMu.Lock()
+	defer countryCodeMu.Unlock()
+	if countryCodeDb == nil {
+		if dsn := os.Getenv("STRIKER_TEST_DB_DSN"); dsn != "" {
+			if db, err := sql.Open("pgx", dsn); err == nil {
+				countryCodeDb = db
+			}
+		}
 	}
-	return string(code)
+	for attempt := 0; ; attempt++ {
+		code := []byte("z___")
+		for i := 1; i < 4; i++ {
+			code[i] = byte('a' + countryCodeRand.Intn(26))
+		}
+		if countryCodeGiven[string(code)] {
+			continue
+		}
+		// A failed lookup leaves taken false: the code is then used unchecked, as before.
+		taken := false
+		if countryCodeDb != nil {
+			_ = countryCodeDb.QueryRow(`SELECT EXISTS (SELECT 1 FROM countries WHERE name = $1)`, string(code)).Scan(&taken)
+		}
+		if !taken || attempt == 1000 {
+			countryCodeGiven[string(code)] = true
+			return string(code)
+		}
+	}
 }
 
 func runConcurrently(n int, fn func()) {
