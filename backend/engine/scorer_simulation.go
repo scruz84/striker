@@ -452,6 +452,22 @@ func chanceQualityMultiplier(r *rand.Rand, attackValue float32, defenseValue flo
 	return HalfChanceQualityMultiplier
 }
 
+// Open-play shooter pools (match-simulation "Wide players shoot"): each line's share of chances is
+// spread evenly over its central and wide players - lateral strikers shoot with the strikers,
+// lateral midfielders with the midfielders and full-backs with the defenders.
+var strikerPool = []int{common.STRIKER, common.LATERAL_STRIKER_LEFT, common.LATERAL_STRIKER_RIGHT}
+var midfieldPool = []int{common.MIDFIELD, common.LATERAL_MIDFIELD_LEFT, common.LATERAL_MIDFIELD_RIGHT}
+var defensePool = []int{common.DEFENSE, common.LATERAL_DEFENSE_LEFT, common.LATERAL_DEFENSE_RIGHT}
+
+// shooterPool is every on-pitch player in the given positions, in the pool's position order.
+func shooterPool(playersByPosition *map[int][]int64, positions []int) []int64 {
+	pool := make([]int64, 0, 5)
+	for _, position := range positions {
+		pool = append(pool, (*playersByPosition)[position]...)
+	}
+	return pool
+}
+
 func getPlayerForChance(r *rand.Rand, playersByPosition *map[int][]int64) int64 {
 	//70% striker
 	//20% midfield
@@ -459,22 +475,22 @@ func getPlayerForChance(r *rand.Rand, playersByPosition *map[int][]int64) int64 
 	v := r.Float32()
 	var playersToSelect []int64
 	if v <= 0.70 {
-		playersToSelect = (*playersByPosition)[common.STRIKER]
+		playersToSelect = shooterPool(playersByPosition, strikerPool)
 	} else if v <= 0.90 {
-		playersToSelect = (*playersByPosition)[common.MIDFIELD]
+		playersToSelect = shooterPool(playersByPosition, midfieldPool)
 	} else {
-		playersToSelect = (*playersByPosition)[common.DEFENSE]
+		playersToSelect = shooterPool(playersByPosition, defensePool)
 	}
 	//Next fallbacks are for cases when there are no more players on the positions
 	//(e.g. a red card emptied that group - see DisciplineSimulation).
 	if len(playersToSelect) == 0 {
-		playersToSelect = (*playersByPosition)[common.STRIKER]
+		playersToSelect = shooterPool(playersByPosition, strikerPool)
 	}
 	if len(playersToSelect) == 0 {
-		playersToSelect = (*playersByPosition)[common.MIDFIELD]
+		playersToSelect = shooterPool(playersByPosition, midfieldPool)
 	}
 	if len(playersToSelect) == 0 {
-		playersToSelect = (*playersByPosition)[common.DEFENSE]
+		playersToSelect = shooterPool(playersByPosition, defensePool)
 	}
 	if len(playersToSelect) == 0 {
 		return -1

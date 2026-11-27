@@ -1,9 +1,14 @@
 package common
 
 import (
+	"math"
 	"math/rand"
 	"sort"
 )
+
+// formationScoreTolerance is how close two formations' scores must be to count as tied (see
+// SelectBestFormationAndLineup).
+const formationScoreTolerance = 1e-9
 
 // formationSlotOrder returns formation's position slots in a fixed, deterministic fill order -
 // goalkeeper first, then the back line (left flank, then every central slot together, then the
@@ -74,17 +79,23 @@ func BackfillEmptyPositions(playersByPosition *map[int][]int64, wantCounts map[i
 	}
 }
 
-// SelectBestLineupForFormation greedily fills formation's position slots (see
-// formationSlotOrder), each with the highest-value remaining player for that slot (see
-// PositionValue), so nobody is picked twice - a simple stand-in for a manager's judgement. If
-// players has fewer entries than the formation needs, the remaining slots are simply left
-// unfilled rather than erroring - the match simulation already tolerates an understaffed position
-// group (see excludeUnavailablePlayers and its callers).
+// SelectBestLineupForFormation picks formation's best XI: the assignment of players to its slots
+// (see formationSlotOrder) with the highest total PositionValue, so nobody is picked twice and a
+// player whose best slot comes late in the fill order is not taken by an earlier one (openspec
+// cpu-team-management "Best XI by optimal assignment"); ties field the lowest-id players. If
+// players has fewer entries than the formation needs, slots are instead filled greedily in fill
+// order and the remaining ones are simply left unfilled rather than erroring - the match
+// simulation already tolerates an understaffed position group (see excludeUnavailablePlayers and
+// its callers).
 func SelectBestLineupForFormation(players []*Player, formation int) map[int][]int64 {
+	slots := formationSlotOrder(formation)
+	if len(players) >= len(slots) {
+		return bestAssignmentLineup(players, slots)
+	}
+
 	lineup := make(map[int][]int64)
 	pool := append([]*Player(nil), players...)
-
-	for _, position := range formationSlotOrder(formation) {
+	for _, position := range slots {
 		if len(pool) == 0 {
 			continue
 		}
@@ -131,8 +142,8 @@ func lineupStrength(lineup map[int][]int64, playersById map[int64]*Player) int {
 }
 
 // formationRankForAiLevel decides which rank (0 = strongest) among AllFormations' candidates an
-// AI-managed team of this level settles for. A Manager and a Director take the strongest shape by
-// XI strength (a Director then re-picks against its opponent at kickoff, by expected goals - see
+// AI-managed team of this level settles for. A Manager and a Director take the best-ranked shape
+// (a Director then re-picks against its opponent at kickoff, by expected goals - see
 // engine.chooseFormationAgainst); a Caretaker settles for the third or fourth best, decided by a
 // coin flip each time it's recomputed (see common.AiLevelCaretaker/Manager/Director). numCandidates guards against a shorter list than the
 // chosen rank expects (there are only ever len(AllFormations), but this keeps the function safe
@@ -143,7 +154,7 @@ func formationRankForAiLevel(aiLevel int, numCandidates int, rng *rand.Rand) int
 	rank := 0
 	switch aiLevel {
 	case AiLevelDirector, AiLevelManager:
-		// A Manager settles for the strongest shape by XI strength; a Director goes on to pick
+		// A Manager settles for the best-ranked shape; a Director goes on to pick
 		// its formation against the opponent at kickoff (see engine.chooseFormationAgainst).
 		rank = 0
 	default: // AiLevelCaretaker, and any unassigned/legacy level below it
@@ -159,17 +170,36 @@ func formationRankForAiLevel(aiLevel int, numCandidates int, rng *rand.Rand) int
 	return rank
 }
 
+// FormationScorer rates how well a squad's best XI in one formation would do against the same
+// squad's best 4-4-2 XI (reference), higher being better. The engine registers one built on its
+// expected-goals projection (engine.ProjectExpectedGoals), which common cannot import.
+type FormationScorer func(squad []*Player, lineup *Lineup, reference *Lineup) float64
+
+// formationScorer is the registered FormationScorer, nil until SetFormationScorer is called.
+var formationScorer FormationScorer
+
+// SetFormationScorer registers the score SelectBestFormationAndLineup ranks formations by (see
+// openspec cpu-team-management "Lineup and formation"). Called once, from the engine package's
+// init, before any CPU lineup is picked.
+func SetFormationScorer(scorer FormationScorer) {
+	formationScorer = scorer
+}
+
 // SelectBestFormationAndLineup picks both a formation and that formation's best-XI for an
 // AI-managed team, factoring in how sharp its AI level is (see formationRankForAiLevel) - this is
 // what makes an unowned team actually vary its formation by squad composition instead of always
-// defaulting to FormationBalanced's 4-4-2 (see refreshAiTeamLineup, the only caller). Builds every
-// formation's own best-XI (see SelectBestLineupForFormation) and ranks them by total strength (see
-// lineupStrength) before picking the rank the team's AI level settles for. rng is passed straight
-// to formationRankForAiLevel.
+// defaulting to FormationBalanced's 4-4-2. Builds every formation's own best-XI (see
+// SelectBestLineupForFormation) and ranks them by the registered FormationScorer against the
+// squad's own best 4-4-2 XI - ties going to the stronger XI by summed slot value (see
+// lineupStrength), then to the earlier formation in AllFormations - before picking the rank the
+// team's AI level settles for. With no scorer registered (common's own unit tests) the ranking is
+// by summed slot value alone. A formation whose XI is empty (no players at all) is left out. rng
+// is passed straight to formationRankForAiLevel.
 func SelectBestFormationAndLineup(players []*Player, aiLevel int, rng *rand.Rand) (int, map[int][]int64) {
 	type candidate struct {
 		formation int
 		lineup    map[int][]int64
+		score     float64
 		strength  int
 	}
 
@@ -178,12 +208,23 @@ func SelectBestFormationAndLineup(players []*Player, aiLevel int, rng *rand.Rand
 		playersById[p.Id] = p
 	}
 
+	reference := &Lineup{TeamId: -1, Formation: FormationBalanced, Positions: FlattenLineup(SelectBestLineupForFormation(players, FormationBalanced))}
 	candidates := make([]candidate, 0, len(AllFormations))
 	for _, formation := range AllFormations {
 		lineup := SelectBestLineupForFormation(players, formation)
-		candidates = append(candidates, candidate{formation, lineup, lineupStrength(lineup, playersById)})
+		c := candidate{formation: formation, lineup: lineup, strength: lineupStrength(lineup, playersById)}
+		if formationScorer != nil && len(lineup) > 0 && len(reference.Positions) > 0 {
+			c.score = formationScorer(players, &Lineup{TeamId: -1, Formation: formation, Positions: FlattenLineup(lineup)}, reference)
+		}
+		candidates = append(candidates, c)
 	}
-	sort.Slice(candidates, func(i, j int) bool { return candidates[i].strength > candidates[j].strength })
+	// Stable, so equal candidates keep AllFormations order.
+	sort.SliceStable(candidates, func(i, j int) bool {
+		if math.Abs(candidates[i].score-candidates[j].score) > formationScoreTolerance {
+			return candidates[i].score > candidates[j].score
+		}
+		return candidates[i].strength > candidates[j].strength
+	})
 
 	chosen := candidates[formationRankForAiLevel(aiLevel, len(candidates), rng)]
 	return chosen.formation, chosen.lineup
@@ -197,24 +238,11 @@ func SelectBestFormationAndLineup(players []*Player, aiLevel int, rng *rand.Rand
 // engine's excludeUnavailablePlayers/common.BackfillEmptyPositions) - a human-edited lineup (see
 // common.ValidateLineup) can use those positions regardless of which formation generated it.
 func PositionValue(position int, p Player) int {
-	switch position {
-	case GOALKEEPER:
-		return p.GoalKeeper
-	case DEFENSE:
-		return p.Defense
-	case LATERAL_DEFENSE_LEFT, LATERAL_DEFENSE_RIGHT:
-		return GetLateralDefenseValue(p)
-	case MIDFIELD:
-		return GetMidfieldValue(p)
-	case LATERAL_MIDFIELD_LEFT, LATERAL_MIDFIELD_RIGHT:
-		return GetLateralMidfieldValue(p)
-	case STRIKER:
-		return GetStrikerValue(p)
-	case LATERAL_STRIKER_LEFT, LATERAL_STRIKER_RIGHT:
-		return GetLateralStrikerValue(p)
-	default:
+	weights, ok := SlotWeights[position]
+	if !ok {
 		return 0
 	}
+	return weights.Value(p)
 }
 
 // FlattenLineup converts a position->players map (as returned by SelectBestLineup/

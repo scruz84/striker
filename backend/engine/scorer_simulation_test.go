@@ -392,3 +392,43 @@ func TestProcessChance_OpenPlayRecordsTheHomeKeeper(t *testing.T) {
 		}
 	}
 }
+
+// openspec match-simulation "Lone striker in a 4-3-3": the striker share is spread over the central
+// striker and both lateral strikers, so each takes about 70% / 3 = 23.3% of open-play chances, and
+// the wide midfielders and full-backs of a 4-4-2 shoot with their lines ("Wide players shoot").
+func TestGetPlayerForChance_WidePlayersShoot(t *testing.T) {
+	r := rand.New(rand.NewSource(7))
+	fourThreeThree := map[int][]int64{
+		common.GOALKEEPER: {1}, common.LATERAL_DEFENSE_LEFT: {2}, common.DEFENSE: {3, 4}, common.LATERAL_DEFENSE_RIGHT: {5},
+		common.MIDFIELD: {6, 7, 8}, common.LATERAL_STRIKER_LEFT: {9}, common.STRIKER: {10}, common.LATERAL_STRIKER_RIGHT: {11},
+	}
+	const draws = 60000
+	counts := map[int64]int{}
+	for i := 0; i < draws; i++ {
+		counts[getPlayerForChance(r, &fourThreeThree)]++
+	}
+	for _, id := range []int64{9, 10, 11} {
+		if share := float64(counts[id]) / draws; share < 0.223 || share > 0.243 {
+			t.Errorf("4-3-3 forward %d took %.3f of open-play chances, want about 0.233", id, share)
+		}
+	}
+	if counts[1] != 0 {
+		t.Errorf("the goalkeeper must never take an open-play chance, took %d", counts[1])
+	}
+
+	fourFourTwo := map[int][]int64{
+		common.GOALKEEPER: {1}, common.LATERAL_DEFENSE_LEFT: {2}, common.DEFENSE: {3, 4}, common.LATERAL_DEFENSE_RIGHT: {5},
+		common.LATERAL_MIDFIELD_LEFT: {6}, common.MIDFIELD: {7, 8}, common.LATERAL_MIDFIELD_RIGHT: {9}, common.STRIKER: {10, 11},
+	}
+	counts = map[int64]int{}
+	for i := 0; i < draws; i++ {
+		counts[getPlayerForChance(r, &fourFourTwo)]++
+	}
+	// Midfield share 20% over four midfielders, defense share 10% over four defenders.
+	if share := float64(counts[6]) / draws; share < 0.045 || share > 0.055 {
+		t.Errorf("4-4-2 left midfielder took %.3f of open-play chances, want about 0.05", share)
+	}
+	if share := float64(counts[2]) / draws; share < 0.02 || share > 0.03 {
+		t.Errorf("4-4-2 left back took %.3f of open-play chances, want about 0.025", share)
+	}
+}

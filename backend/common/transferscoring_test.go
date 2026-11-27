@@ -682,3 +682,24 @@ func TestMarketValue_ContractFactor(t *testing.T) {
 		}
 	}
 }
+
+// cpu-team-management "Answering transfer offers": a CPU club does not sell a player it signed
+// within AiMinHoldPeriod, whatever the fee - otherwise two clubs could bounce a fresh signing
+// between them at the same price.
+func TestEvaluateIncomingOffer_RecentSigningIsNotForSale(t *testing.T) {
+	squad := settledSquad()
+	signing := midfielderAged(60, 50, 26)
+	squad = append(squad, signing)
+	for _, level := range []int{AiLevelCaretaker, AiLevelManager, AiLevelDirector} {
+		profile := AiTransferProfileFor(level)
+		ctx := offerContext(squad, signing, MarketValue(*signing)*10)
+		ctx.RecentlySigned = true
+		if d := EvaluateIncomingOffer(profile, ctx, newRng(7)); d.Accept || d.Reason != OfferReasonRecentSigning {
+			t.Errorf("level %d sold a recent signing for 10x his value: %+v", level, d)
+		}
+		ctx.RecentlySigned = false
+		if d := EvaluateIncomingOffer(profile, ctx, newRng(7)); !d.Accept {
+			t.Errorf("level %d refused 10x the value once the hold is over: %+v", level, d)
+		}
+	}
+}

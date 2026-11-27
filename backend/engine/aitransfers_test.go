@@ -91,7 +91,7 @@ func TestRankCandidates_SkipsAttemptedAndSortsBestFirst(t *testing.T) {
 func TestRankCandidates_ManagerNeedsAClearerUpgradeThanDirector(t *testing.T) {
 	// A small upgrade (a couple of points) clears a Director's bar but not a Manager's.
 	squad := adultSquad()
-	small := midfielder(500, 80) // adds 3 points to the XI: over a Director's bar of 3, under a Manager's 5
+	small := midfielder(500, 90) // central-midfield value 63 over the 85's 60: adds 3 points to the XI, a Director's bar of 3, under a Manager's 5
 	small.Age = 27
 	candidates := []transferCandidate{listedCandidate(1, small)}
 
@@ -106,9 +106,11 @@ func TestRankCandidates_ManagerNeedsAClearerUpgradeThanDirector(t *testing.T) {
 }
 
 func TestRankCandidates_ProjectsAreDirectorOnly(t *testing.T) {
-	prospect := midfielder(500, 70) // too weak to start today, but with a 99 ceiling
+	// A central midfielder at 50 in every skill his slot weighs (common.SlotWeights): too weak to
+	// start today, but with a 99 ceiling in all of them.
+	prospect := &common.Player{Id: 500, Defense: 50, Pass: 50, Midfield: 50, Dribbling: 50, Shot: 50}
 	prospect.Age = 18
-	caps := &common.PlayerSkillCaps{MidfieldMax: 99, PassMax: 99}
+	caps := &common.PlayerSkillCaps{DefenseMax: 99, PassMax: 99, MidfieldMax: 99, DribblingMax: 99, ShotMax: 99}
 	c := unlistedCandidate(prospect)
 	c.Caps = caps
 
@@ -274,10 +276,12 @@ func TestProjectsInUse_CountsYoungPlayersOutsideTheBestXI(t *testing.T) {
 
 func TestWeakestStarterValue(t *testing.T) {
 	squad := adultSquad()
-	// squadOf's midfielders are 90, 85, 80, 75, 70 (value = (midfield+pass)/2): the 4-4-2 best XI
-	// plays four of them (two central, two wide), so the weakest starter is the 75.
-	if got := weakestStarterValue(squad, common.MIDFIELD); got != 75 {
-		t.Errorf("weakest starting midfielder = %d, want 75", got)
+	// squadOf's midfielders are 90, 85, 80, 75, 70 in Midfield and Pass, worth 63, 60, 56, 53, 49
+	// in central midfield (common.SlotWeights). The 4-4-2 best XI plays two of them centrally - its
+	// wide-midfield slots go to strikers, whose Shot weighs more on a flank - so the weakest
+	// starting midfielder is the 85's 60.
+	if got := weakestStarterValue(squad, common.MIDFIELD); got != 60 {
+		t.Errorf("weakest starting midfielder = %d, want 60", got)
 	}
 	if got := weakestStarterValue(nil, common.MIDFIELD); got != 0 {
 		t.Errorf("an empty squad has no starter to beat, got %d", got)

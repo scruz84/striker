@@ -158,6 +158,17 @@ func measureAiLevel(matches int, seed int64, level int) (levelRecord, levelRecor
 	return own, caretaker
 }
 
+// aiLevelCalibrationNoise is how far a Director may fall behind a Manager in TestAiLevelCalibration
+// before it counts as worse: about 1.7 standard errors of the difference between two 4,000-match
+// runs. Since openspec rebalance-formations a Manager also ranks formations by projected expected
+// goals (against its own 4-4-2 XI), so with the same squad on both sides a Director's re-pick
+// against the opponent's XI gains it almost nothing: over 20,000 matches each (seeds 23 and 37) a
+// Manager took 1.423 points per match against its Caretaker's 1.329 and a Director 1.421 against
+// 1.339. The owner accepted that tie; a Director must still never be clearly worse. Runs are not
+// exactly reproducible (whether a minute has a chance is drawn from the global source, see
+// ScorerSimulation.Apply), so two 4,000-match runs can swap which of the two is ahead.
+const aiLevelCalibrationNoise = 0.05
+
 func TestAiLevelCalibration(t *testing.T) {
 	if os.Getenv("AI_LEVEL_SIM") != "1" {
 		t.Skip("set AI_LEVEL_SIM=1 to run the AI level calibration")
@@ -178,7 +189,8 @@ func TestAiLevelCalibration(t *testing.T) {
 	if manager.pointsPerMatch() <= managerOpp.pointsPerMatch() {
 		t.Errorf("a Manager takes %.3f points per match against a Caretaker's %.3f, want more", manager.pointsPerMatch(), managerOpp.pointsPerMatch())
 	}
-	if director.pointsPerMatch() <= manager.pointsPerMatch() {
-		t.Errorf("a Director takes %.3f points per match against a Caretaker, a Manager %.3f, want the Director ahead", director.pointsPerMatch(), manager.pointsPerMatch())
+	if director.pointsPerMatch() < manager.pointsPerMatch()-aiLevelCalibrationNoise {
+		t.Errorf("a Director takes %.3f points per match against a Caretaker, a Manager %.3f, want the Director no further behind than %.2f",
+			director.pointsPerMatch(), manager.pointsPerMatch(), aiLevelCalibrationNoise)
 	}
 }

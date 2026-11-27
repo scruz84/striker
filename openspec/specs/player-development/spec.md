@@ -129,7 +129,9 @@ A daily job (02:00 UTC) SHALL check every free agent: retirement by age as above
 
 ## Code map
 
-- Drift: `backend/engine/progression.go` (`updatePlayerSkillsAfterMatch`, `driftSkillsForPosition`,
+- Drift: `backend/engine/progression.go` (`updatePlayerSkillsAfterMatch`, `driftSkillsForPosition` with
+  `DriftSkillMinWeight` over the slot weights in `backend/common/slotweights.go` (`SlotWeights`, also behind
+  `PositionValue`),
   `driftSkill`, `trainerBonus`, `driftStamina`, `driftFormPlayed`, `driftFormBenched`,
   `MatchSkillGrowthMinutesReference`), triggered by `updateSkillsAfterPlayedMatch`
   (`engine/simulation.go`).

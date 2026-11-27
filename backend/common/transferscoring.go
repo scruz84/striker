@@ -22,8 +22,9 @@ const MinSquadSizeAfterSale = SquadSize - 2
 const MaxAiSquadSize = SquadSize + 4
 
 // AiMinHoldPeriod is how long a CPU team keeps a player it just signed before it will list him as
-// surplus - without it a signing that happens to be the weakest at an overstocked position gets
-// listed the moment he arrives, and bounces between clubs at the same fee.
+// surplus or sell him for an offer - without it a signing that happens to be the weakest at an
+// overstocked position gets listed the moment he arrives, or is bought straight back by the club
+// that sold him, and bounces between clubs at the same fee.
 const AiMinHoldPeriod = 14 * 24 * time.Hour
 
 const (
@@ -319,6 +320,7 @@ const (
 	OfferReasonSquadTooSmall = "squad_too_small"
 	OfferReasonThinPosition  = "thin_position"
 	OfferReasonInternational = "international"
+	OfferReasonRecentSigning = "recent_signing"
 )
 
 // OfferContext is everything EvaluateIncomingOffer needs to know about an offer on one of a CPU
@@ -337,6 +339,10 @@ type OfferContext struct {
 	// settles for CrisisOfferShare of its usual threshold (openspec/specs/cpu-team-management
 	// "Crisis offer discount").
 	Distressed bool
+	// RecentlySigned is whether the club signed him within AiMinHoldPeriod: it then refuses any
+	// offer, as it refuses to list him (openspec/specs/cpu-team-management "Answering transfer
+	// offers").
+	RecentlySigned bool
 }
 
 // CrisisOfferShare is the share of its usual threshold a CPU club in financial crisis accepts.
@@ -363,6 +369,11 @@ func EvaluateIncomingOffer(profile AiTransferProfile, ctx OfferContext, rng *ran
 
 	if len(ctx.Squad)-1 < MinSquadSizeAfterSale {
 		return OfferDecision{Threshold: int64(math.Round(threshold)), Reason: OfferReasonSquadTooSmall}
+	}
+	if ctx.RecentlySigned {
+		// Not for sale yet: without this two CPU clubs that each value him just above the other's
+		// key-player bar could bounce a fresh signing between them at the same fee.
+		return OfferDecision{Threshold: int64(math.Round(threshold)), Reason: OfferReasonRecentSigning}
 	}
 	if position := BestCorePosition(ctx.Player); positionDepthOf(ctx.Squad, position)-1 < MinPositionDepth[position] {
 		return OfferDecision{Threshold: int64(math.Round(threshold)), Reason: OfferReasonThinPosition}

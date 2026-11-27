@@ -383,3 +383,46 @@ func TestMatchRatingsForProgression_FallsBackWithoutStoredRatings(t *testing.T) 
 		t.Fatalf("got %v, want scorer 7.7 (6 + 1.4 + 0.3) and loser 5.7", ratings)
 	}
 }
+
+// openspec player-development "Position skill sets": a slot drifts exactly the skills that weigh at
+// least DriftSkillMinWeight in its common.SlotWeights - a striker no longer sharpens his Pass, a
+// central defender only his Defense. Many rolls at playChance 1 for a 20-year-old (age trend +1)
+// reveal every skill that can move.
+func TestDriftSkillsForPosition_PositionSkillSets(t *testing.T) {
+	want := map[int]map[string]bool{
+		common.GOALKEEPER:            {"goalKeeper": true},
+		common.DEFENSE:               {"defense": true},
+		common.LATERAL_DEFENSE_LEFT:  {"lateral": true, "defense": true, "midfield": true},
+		common.MIDFIELD:              {"midfield": true, "pass": true, "shot": true},
+		common.LATERAL_MIDFIELD_LEFT: {"lateral": true, "shot": true, "midfield": true},
+		common.STRIKER:               {"shot": true, "dribbling": true},
+		common.LATERAL_STRIKER_LEFT:  {"shot": true, "lateral": true, "dribbling": true},
+	}
+	for position, skills := range want {
+		r := rand.New(rand.NewSource(int64(position) + 1))
+		moved := map[string]bool{}
+		p := striker50()
+		for i := 0; i < 200; i++ {
+			goalKeeper, defense, lateral, pass, midfield, dribbling, shot :=
+				driftSkillsForPosition(p, uncappedCaps, position, 1, 20, 0, r)
+			for name, changed := range map[string]bool{
+				"goalKeeper": goalKeeper != p.GoalKeeper, "defense": defense != p.Defense, "lateral": lateral != p.Lateral,
+				"pass": pass != p.Pass, "midfield": midfield != p.Midfield, "dribbling": dribbling != p.Dribbling, "shot": shot != p.Shot,
+			} {
+				if changed {
+					moved[name] = true
+				}
+			}
+		}
+		for name := range moved {
+			if !skills[name] {
+				t.Errorf("position %d drifted %s, which its slot does not weigh enough", position, name)
+			}
+		}
+		for name := range skills {
+			if !moved[name] {
+				t.Errorf("position %d never drifted %s in 200 full matches", position, name)
+			}
+		}
+	}
+}

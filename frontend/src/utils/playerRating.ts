@@ -46,16 +46,26 @@ export function overallRating(player: Player): number {
   return Math.round(total / SKILL_FIELDS.length)
 }
 
-// Mirrors backend common.GetMidfieldValue/GetStrikerValue (lineup.go/fmteam.go) - the same value
-// formulas BestCorePosition compares, kept in sync by hand since there's no shared source between
-// the Go engine and this client-side "quick reference" use (transfer market rows, lineup cards).
-function midfieldValue(player: Player): number {
-  return (player.midfield + player.pass) / 2
+// The DEFENSE, MIDFIELD and STRIKER rows of backend common.SlotWeights (backend/common/
+// slotweights.go): each skill's share, in percent, of a player's value at that slot, in the order
+// goalKeeper, defense, lateral, pass, midfield, dribbling, shot. Kept in sync by hand - there's no
+// shared source between the Go engine and this client-side quick reference (transfer market rows,
+// lineup cards) - and pinned by playerRating.test.ts to the same figures as the Go table test.
+const CORE_SLOT_WEIGHTS: Record<number, readonly number[]> = {
+  [POSITION_DEFENSE]: [0, 90, 0, 0, 10, 0, 0],
+  [POSITION_MIDFIELD]: [0, 10, 0, 20, 50, 5, 15],
+  [POSITION_STRIKER]: [0, 0, 5, 10, 0, 20, 65],
 }
-// Shot counts twice as much as Dribbling or Pass - see GetStrikerValue's own comment in fmteam.go
-// for why. Math.floor mirrors Go's integer division (the "+2" rounds to nearest first).
-function strikerValue(player: Player): number {
-  return Math.floor((player.shot * 2 + player.dribbling + player.pass + 2) / 4)
+
+/** A player's value at a core outfield slot (defense, midfield or striker), mirroring backend
+ * common.PositionValue: the weighted sum of his skills, rounded like Go's (sum + 50) / 100. */
+export function coreSlotValue(player: Player, position: number): number {
+  const weights = CORE_SLOT_WEIGHTS[position]
+  if (!weights) {
+    return 0
+  }
+  const total = SKILL_FIELDS.reduce((sum, field, index) => sum + player[field] * weights[index], 0)
+  return Math.floor((total + 50) / 100)
 }
 
 /** Which of the four non-lateral tactical positions (goalkeeper/defense/midfield/striker) a
@@ -65,9 +75,9 @@ function strikerValue(player: Player): number {
 export function bestCorePosition(player: Player): number {
   const values: [number, number][] = [
     [POSITION_GOALKEEPER, player.goalKeeper],
-    [POSITION_DEFENSE, player.defense],
-    [POSITION_MIDFIELD, midfieldValue(player)],
-    [POSITION_STRIKER, strikerValue(player)],
+    [POSITION_DEFENSE, coreSlotValue(player, POSITION_DEFENSE)],
+    [POSITION_MIDFIELD, coreSlotValue(player, POSITION_MIDFIELD)],
+    [POSITION_STRIKER, coreSlotValue(player, POSITION_STRIKER)],
   ]
   return values.reduce((best, current) => (current[1] > best[1] ? current : best))[0]
 }

@@ -30,11 +30,14 @@ func TestProjectExpectedGoals(t *testing.T) {
 }
 
 // The projection tracks the simulation: over seeded matches between an even XI and a stronger
-// one, the side with the higher expected goal difference wins more points.
+// one, the side with the higher expected goal difference wins more points. 120 random pairings
+// give enough clear matchups: with no formation better than another by construction (match-
+// simulation "Formation balance"), random squads differ by about 0.15 expected goals on average,
+// so only about one pairing in five is a clear one.
 func TestProjectExpectedGoals_AgreesWithTheSimulation(t *testing.T) {
 	rng := rand.New(rand.NewSource(5))
 	agree, total := 0, 0
-	for i := 0; i < 40; i++ {
+	for i := 0; i < 120; i++ {
 		a := calibrationSquad(rand.New(rand.NewSource(int64(i))), 1)
 		b := calibrationSquad(rand.New(rand.NewSource(int64(i)+1000)), 101)
 		sa := calibrationSide{squad: a, plan: common.PlanAiMatchLineup(a, nil, nil, common.AiLevelDirector, false, rand.New(rand.NewSource(1)))}
