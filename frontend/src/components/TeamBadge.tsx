@@ -10,9 +10,11 @@ function initialsFor(teamName: string): string {
 }
 
 /** A colored "shield" of a team's initials, deterministic per team id - teams have no crest
- * artwork, so this stands in as a lightweight visual identity wherever a team needs one. */
-export function TeamBadge({ teamId, teamName, size = 40 }: { teamId: number; teamName: string; size?: number }) {
-  const color = useMemo(() => teamColor(teamId), [teamId])
+ * artwork, so this stands in as a lightweight visual identity wherever a team needs one. Pass
+ * `color` to override it, e.g. with matchTeamColors so two teams shown side by side never share one. */
+export function TeamBadge({ teamId, teamName, size = 40, color: colorOverride }: { teamId: number; teamName: string; size?: number; color?: string }) {
+  const defaultColor = useMemo(() => teamColor(teamId), [teamId])
+  const color = colorOverride ?? defaultColor
   const initials = initialsFor(teamName)
 
   return (

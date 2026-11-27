@@ -1766,8 +1766,11 @@
   "headToHead": {
     "title": "Head to head",
     "noMeetings": "These teams haven't played each other yet.",
-    "draws": "Draws",
-    "goals": "Goals: {{teamA}} {{teamAGoals}} - {{teamBGoals}} {{teamB}}"
+    "wins": "Wins",
+    "goalsLabel": "Goals",
+    "drawsCount_one": "{{count}} draw",
+    "drawsCount_other": "{{count}} draws",
+    "meetingLabel": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}, {{date}}"
   },
   "groups": {
     "title": "Friend groups",
