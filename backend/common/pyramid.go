@@ -1,6 +1,10 @@
 package common
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+	"strings"
+)
 
 // The league pyramid (see openspec/specs/league-pyramid): every tier has PyramidGroupRatio times the
 // groups of the tier above it, so each pair of adjacent tiers balances exactly. An upper tier with
@@ -186,30 +190,106 @@ func (s PyramidShape) Zones(l PyramidLeague) Zones {
 	return PyramidZones(l.Tier, s.TierCount(), l.Teams, !s.FollowsRatioRule())
 }
 
-// MatchesConfig reports whether the shape is exactly tiers: same tier count, groups per tier and
-// teams in every group. A country that matches needs no restructure (see
-// engine.restructureIfNeeded).
-func (s PyramidShape) MatchesConfig(tiers []TierConfig) bool {
-	if len(tiers) == 0 || s.TierCount() != len(tiers) {
-		return false
+// Kinds of ShapeDifference.
+const (
+	ShapeDiffExtra            = "extra"             // an active league whose tier and group the structure lacks
+	ShapeDiffMissing          = "missing"           // a group of the structure with no active league
+	ShapeDiffSize             = "size"              // a group whose team count is not the structure's
+	ShapeDiffRatio            = "ratio"             // the active leagues break the doubling rule
+	ShapeDiffInvalidStructure = "invalid_structure" // the structure itself breaks ValidateWorldConfig
+	// ShapeDiffUnreadable is a restructure that could not read the country back to check it (see
+	// engine.restructureIfNeeded); Differences never returns it.
+	ShapeDiffUnreadable = "unreadable"
+)
+
+// ShapeDifference is one way a country's active leagues differ from its structure (see
+// openspec/specs/league-pyramid "Admin sees why a country is pending").
+type ShapeDifference struct {
+	Kind     string `json:"kind"`
+	Tier     int    `json:"tier,omitempty"`
+	Group    int    `json:"group,omitempty"`
+	League   string `json:"league,omitempty"`
+	Teams    int    `json:"teams,omitempty"`
+	Expected int    `json:"expected,omitempty"`
+	// Message is the validation error of an invalid structure.
+	Message string `json:"message,omitempty"`
+}
+
+// Differences lists every way the shape differs from target, in tier and group order: extra
+// groups, missing groups, groups of the wrong size, then a broken doubling rule. A target that
+// breaks ValidateWorldConfig is reported alone, as invalid_structure, because no restructure can
+// reach it (see engine.restructureIfNeeded). Pure.
+func (s PyramidShape) Differences(target []TierConfig) []ShapeDifference {
+	if err := ValidateWorldConfig(target); err != nil {
+		return []ShapeDifference{{Kind: ShapeDiffInvalidStructure, Message: err.Error()}}
 	}
-	byTier := make(map[int]TierConfig, len(tiers))
-	for _, tc := range tiers {
+	byTier := make(map[int]TierConfig, len(target))
+	for _, tc := range target {
 		byTier[tc.Tier] = tc
 	}
-	groups := s.GroupsByTier()
-	for tier := 1; tier <= len(tiers); tier++ {
-		tc, ok := byTier[tier]
-		if !ok || groups[tier] != tc.Groups {
-			return false
-		}
-	}
+	type slot struct{ tier, group int }
+	present := make(map[slot]bool, len(s.Leagues))
+	out := make([]ShapeDifference, 0)
 	for _, l := range s.Leagues {
-		if l.Teams != byTier[l.Tier].TeamsPerLeague {
-			return false
+		key := slot{l.Tier, l.GroupNumber}
+		duplicate := present[key]
+		present[key] = true
+		tc, ok := byTier[l.Tier]
+		if !ok || l.GroupNumber < 1 || l.GroupNumber > tc.Groups || duplicate {
+			out = append(out, ShapeDifference{Kind: ShapeDiffExtra, Tier: l.Tier, Group: l.GroupNumber, League: l.Name, Teams: l.Teams})
+			continue
+		}
+		if l.Teams != tc.TeamsPerLeague {
+			out = append(out, ShapeDifference{Kind: ShapeDiffSize, Tier: l.Tier, Group: l.GroupNumber, League: l.Name, Teams: l.Teams, Expected: tc.TeamsPerLeague})
 		}
 	}
-	return true
+	tiers := append([]TierConfig(nil), target...)
+	sort.Slice(tiers, func(i, j int) bool { return tiers[i].Tier < tiers[j].Tier })
+	for _, tc := range tiers {
+		for g := 1; g <= tc.Groups; g++ {
+			if !present[slot{tc.Tier, g}] {
+				out = append(out, ShapeDifference{Kind: ShapeDiffMissing, Tier: tc.Tier, Group: g, League: LeagueName(tc.Name, g), Expected: tc.TeamsPerLeague})
+			}
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Tier != out[j].Tier {
+			return out[i].Tier < out[j].Tier
+		}
+		return out[i].Group < out[j].Group
+	})
+	if len(s.Leagues) > 0 && !s.FollowsRatioRule() {
+		out = append(out, ShapeDifference{Kind: ShapeDiffRatio})
+	}
+	return out
+}
+
+// DescribeShapeDifferences renders diffs on one line for the logs, e.g.
+// "missing III.4 (expected 10 teams); extra III.7 (4 teams); doubling rule broken".
+func DescribeShapeDifferences(diffs []ShapeDifference) string {
+	parts := make([]string, 0, len(diffs))
+	for _, d := range diffs {
+		switch d.Kind {
+		case ShapeDiffExtra:
+			parts = append(parts, fmt.Sprintf("extra %s (tier %d group %d, %d teams)", d.League, d.Tier, d.Group, d.Teams))
+		case ShapeDiffMissing:
+			parts = append(parts, fmt.Sprintf("missing %s (expected %d teams)", d.League, d.Expected))
+		case ShapeDiffSize:
+			parts = append(parts, fmt.Sprintf("%s has %d teams, expected %d", d.League, d.Teams, d.Expected))
+		case ShapeDiffRatio:
+			parts = append(parts, "doubling rule broken")
+		default:
+			parts = append(parts, d.Kind+": "+d.Message)
+		}
+	}
+	return strings.Join(parts, "; ")
+}
+
+// MatchesConfig reports whether the shape is exactly tiers: same tier count, groups per tier and
+// teams in every group, with tiers a valid structure. A country that matches needs no restructure
+// (see engine.restructureIfNeeded).
+func (s PyramidShape) MatchesConfig(tiers []TierConfig) bool {
+	return len(tiers) > 0 && len(s.Differences(tiers)) == 0
 }
 
 // GetCountryPyramidShapeStmtSql lists a country's active leagues with their team counts.

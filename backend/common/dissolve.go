@@ -112,6 +112,37 @@ func GetProtectedTeams(dbCtx *DatabaseContext, teamIds []int64) (map[int64]bool,
 	return protected, rows.Err()
 }
 
+// Reasons DissolveTeam changed nothing (see GetDissolveSkipReason).
+const (
+	DissolveSkipOwner            = "owner"
+	DissolveSkipNationalTeam     = "national_team"
+	DissolveSkipAlreadyDissolved = "already_dissolved"
+	DissolveSkipMissing          = "missing"
+)
+
+const GetDissolveSkipReasonStmtSql = "SELECT owner_id IS NOT NULL, is_national_team, dissolved_season IS NOT NULL FROM teams WHERE team_id = $1"
+
+// GetDissolveSkipReason says why DissolveTeam reported false for teamId: one of the
+// DissolveSkip* reasons, or "" for a team DissolveTeam could still dissolve. It is read after the
+// fact, for logging, so the answer can be newer than the dissolution it explains.
+func GetDissolveSkipReason(dbCtx *DatabaseContext, teamId int64) (string, error) {
+	var owned, national, dissolved bool
+	err := dbCtx.Db.QueryRow(GetDissolveSkipReasonStmtSql, teamId).Scan(&owned, &national, &dissolved)
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return DissolveSkipMissing, nil
+	case err != nil:
+		return "", err
+	case dissolved:
+		return DissolveSkipAlreadyDissolved, nil
+	case owned:
+		return DissolveSkipOwner, nil
+	case national:
+		return DissolveSkipNationalTeam, nil
+	}
+	return "", nil
+}
+
 const IsTeamDissolvedStmtSql = "SELECT dissolved_season IS NOT NULL FROM teams WHERE team_id = $1"
 
 // IsTeamDissolved reports whether teamId was dissolved (false for an unknown team).

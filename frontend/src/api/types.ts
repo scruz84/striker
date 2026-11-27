@@ -2061,6 +2061,25 @@ export interface AdminOverview {
   // Active countries whose leagues differ from the saved world structure: each is restructured at
   // its own next season rollover.
   pendingRestructure?: string[]
+  // Why each of those countries is pending (backend common.PendingRestructure).
+  pendingRestructureDetails?: PendingRestructure[]
+}
+
+// One way a country's active leagues differ from its structure (backend common.ShapeDifference).
+export interface ShapeDifference {
+  kind: 'extra' | 'missing' | 'size' | 'ratio' | 'invalid_structure' | 'unreadable'
+  tier?: number
+  group?: number
+  league?: string
+  teams?: number
+  expected?: number
+  message?: string
+}
+
+// A country waiting for a restructure, with every way its leagues differ from its structure.
+export interface PendingRestructure {
+  country: string
+  differences: ShapeDifference[]
 }
 
 // One AI level's clubs (backend common.AiLevelStats): how many, their average budget, how many

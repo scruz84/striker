@@ -10,6 +10,7 @@ const setWorldConfig = vi.hoisted(() => vi.fn())
 const setCountryStructure = vi.hoisted(() => vi.fn())
 const confirmMock = vi.hoisted(() => vi.fn(async () => true))
 const setCountryKickoff = vi.hoisted(() => vi.fn())
+const overview = vi.hoisted(() => ({ data: { pendingRestructure: ['es'] } as Record<string, unknown> }))
 
 vi.mock('../../api/hooks', () => {
   const idle = () => ({ mutate: vi.fn(), isPending: false })
@@ -23,7 +24,7 @@ vi.mock('../../api/hooks', () => {
         ],
       },
     }),
-    useAdminOverview: () => ({ isLoading: false, data: { pendingRestructure: ['es'] } }),
+    useAdminOverview: () => ({ isLoading: false, data: overview.data }),
     useAdminCountries: () => ({
       isLoading: false,
       data: [
@@ -64,7 +65,10 @@ function renderTab() {
 }
 
 describe('WorldTab', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    overview.data = { pendingRestructure: ['es'] }
+  })
 
   it('uses tables on a wide screen', () => {
     setPhone(false)
@@ -159,6 +163,39 @@ describe('WorldTab', () => {
     setPhone(false)
     renderTab()
     expect(screen.getByText(i18n.t('admin.worldStructure.pending', { countries: 'ES' }))).toBeInTheDocument()
+  })
+
+  it('explains why each country is waiting, one line per difference', () => {
+    setPhone(false)
+    overview.data = {
+      pendingRestructure: ['es'],
+      pendingRestructureDetails: [
+        {
+          country: 'es',
+          differences: [
+            { kind: 'extra', tier: 3, group: 7, league: 'III.7', teams: 1 },
+            { kind: 'missing', tier: 3, group: 4, league: 'III.4', expected: 10 },
+            { kind: 'size', tier: 3, group: 2, league: 'III.2', teams: 11, expected: 10 },
+            { kind: 'ratio' },
+          ],
+        },
+      ],
+    }
+    renderTab()
+    const notice = screen.getByText(i18n.t('admin.worldStructure.pending', { countries: 'ES' })).closest('[role="alert"]') as HTMLElement
+    expect(within(notice).getAllByRole('listitem')).toHaveLength(4)
+    expect(within(notice).getByText(i18n.t('admin.worldStructure.pendingDetail.extra', { country: 'ES', league: 'III.7', teams: 1 }))).toBeInTheDocument()
+    expect(within(notice).getByText(i18n.t('admin.worldStructure.pendingDetail.missing', { country: 'ES', league: 'III.4' }))).toBeInTheDocument()
+    expect(within(notice).getByText(i18n.t('admin.worldStructure.pendingDetail.size', { country: 'ES', league: 'III.2', teams: 11, expected: 10 }))).toBeInTheDocument()
+    expect(within(notice).getByText(i18n.t('admin.worldStructure.pendingDetail.ratio', { country: 'ES' }))).toBeInTheDocument()
+  })
+
+  it('shows no pending notice when every country matches its structure', () => {
+    setPhone(false)
+    overview.data = { pendingRestructure: [], pendingRestructureDetails: [] }
+    renderTab()
+    expect(screen.queryByText(i18n.t('admin.worldStructure.pending', { countries: '' }))).not.toBeInTheDocument()
+    expect(screen.queryByText(/ES: /)).not.toBeInTheDocument()
   })
 
   it('changes a country\'s league kickoff on the quarter-hour', () => {

@@ -2016,6 +2016,14 @@
       "recreateError": "Failed to recreate leagues.",
       "places": "{{count}} places per country.",
       "pending": "Restructured at their next season rollover: {{countries}}.",
+      "pendingDetail": {
+        "extra": "{{country}}: group {{league}} is not part of its structure ({{teams}} teams).",
+        "missing": "{{country}}: group {{league}} is missing.",
+        "size": "{{country}}: {{league}} has {{teams}} teams, its structure has {{expected}}.",
+        "ratio": "{{country}}: its groups break the doubling rule, so it plays without the promotion playoff.",
+        "invalidStructure": "{{country}}: its saved structure is invalid ({{message}}), so it is never restructured.",
+        "other": "{{country}}: {{message}}"
+      },
       "errors": {
         "tierCount": "Use between 1 and {{max}} tiers.",
         "gaps": "Tiers must be numbered 1 to {{count}} with no gaps.",

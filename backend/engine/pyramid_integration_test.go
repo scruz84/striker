@@ -365,7 +365,7 @@ func TestPyramid_RestructureLegacyCountry(t *testing.T) {
 	// exactly three new teams.
 	shortGroup := f.scan(`SELECT league_id FROM leagues WHERE country = $1 AND tier = 3 AND archived_season IS NULL ORDER BY group_number DESC LIMIT 1`, f.country)
 	f.exec(`UPDATE teams SET league_id = NULL WHERE team_id IN (SELECT team_id FROM teams WHERE league_id = $1 ORDER BY team_id DESC LIMIT 3)`, shortGroup)
-	restructureIfNeeded(f.dbCtx, f.country, 2, nil)
+	_, _ = restructureIfNeeded(f.dbCtx, f.country, 2, nil)
 	if n := f.scan(`SELECT count(*) FROM teams WHERE league_id = $1`, shortGroup); n != 8 {
 		t.Errorf("the short group has %d teams after the rerun, want 8", n)
 	}
@@ -375,7 +375,7 @@ func TestPyramid_RestructureLegacyCountry(t *testing.T) {
 
 	// Already in shape: a second restructure changes nothing.
 	before := f.scan(`SELECT count(*) FROM teams WHERE country = $1`, f.country)
-	if moves := restructureIfNeeded(f.dbCtx, f.country, 2, nil); moves != nil {
+	if moves, _ := restructureIfNeeded(f.dbCtx, f.country, 2, nil); moves != nil {
 		t.Errorf("a country already in shape was restructured again: %v", moves)
 	}
 	if after := f.scan(`SELECT count(*) FROM teams WHERE country = $1`, f.country); after != before {
@@ -498,7 +498,7 @@ func TestPyramid_RestructureDissolvesSurplus(t *testing.T) {
 		t.Errorf("dissolved teams got %d season-2 fixtures", n)
 	}
 	// Already in shape: another pass dissolves nothing more.
-	if moves := restructureIfNeeded(f.dbCtx, f.country, 2, nil); moves != nil {
+	if moves, _ := restructureIfNeeded(f.dbCtx, f.country, 2, nil); moves != nil {
 		t.Errorf("a country already in shape was restructured again: %v", moves)
 	}
 }

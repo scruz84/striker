@@ -108,10 +108,14 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			countryStructures = append(countryStructures, country)
 		}
 		sort.Strings(countryStructures)
-		pendingRestructure, err := common.GetPendingRestructureCountries(dbCtx)
+		pendingRestructureDetails, err := common.GetPendingRestructureCountries(dbCtx)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
 			return
+		}
+		pendingRestructure := make([]string, 0, len(pendingRestructureDetails))
+		for _, p := range pendingRestructureDetails {
+			pendingRestructure = append(pendingRestructure, p.Country)
 		}
 		c.JSON(http.StatusOK, common.AdminOverview{
 			Seasons:                       seasons,
@@ -134,6 +138,7 @@ func AdminOverviewHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			FriendlyInstantKeepDays:       friendlyInstantKeepDays,
 			CountryStructures:             countryStructures,
 			PendingRestructure:            pendingRestructure,
+			PendingRestructureDetails:     pendingRestructureDetails,
 		})
 	}
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Dialog from '@mui/material/Dialog'
@@ -21,6 +22,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import {
   useAdminAddCountry,
@@ -44,6 +46,7 @@ import {
   WEEKDAY_OPTIONS,
   type AdminLeagueInfo,
   type CountryStatus,
+  type ShapeDifference,
   type TierConfig,
 } from '../../api/types'
 import { useConfirm } from '../../components/confirmDialogContext'
@@ -109,6 +112,34 @@ function RecreateLeaguesAction() {
   )
 }
 
+// describeDifference explains one way a pending country's leagues differ from its structure
+// (backend common.ShapeDifference), e.g. "ES: group III.4 is missing".
+function describeDifference(t: TFunction, country: string, difference: ShapeDifference): string {
+  const params = {
+    country: country.toUpperCase(),
+    league: difference.league ?? '',
+    tier: difference.tier ?? 0,
+    group: difference.group ?? 0,
+    teams: difference.teams ?? 0,
+    expected: difference.expected ?? 0,
+    message: difference.message ?? '',
+  }
+  switch (difference.kind) {
+    case 'extra':
+      return t('admin.worldStructure.pendingDetail.extra', params)
+    case 'missing':
+      return t('admin.worldStructure.pendingDetail.missing', params)
+    case 'size':
+      return t('admin.worldStructure.pendingDetail.size', params)
+    case 'ratio':
+      return t('admin.worldStructure.pendingDetail.ratio', params)
+    case 'invalid_structure':
+      return t('admin.worldStructure.pendingDetail.invalidStructure', params)
+    default:
+      return t('admin.worldStructure.pendingDetail.other', params)
+  }
+}
+
 function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] }) {
   const { t } = useTranslation()
   const [tiers, setTiers] = useState<TierConfig[]>(initialTiers)
@@ -116,6 +147,7 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
   const saveStructure = useStructureSave()
   const { data: overview } = useAdminOverview(true)
   const pending = overview?.pendingRestructure ?? []
+  const pendingDetails = overview?.pendingRestructureDetails ?? []
   const ownStructures = overview?.countryStructures ?? []
 
   const handleSave = () =>
@@ -130,6 +162,17 @@ function WorldStructureSection({ tiers: initialTiers }: { tiers: TierConfig[] })
       {pending.length > 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           {t('admin.worldStructure.pending', { countries: pending.map((code) => code.toUpperCase()).join(', ') })}
+          {pendingDetails.length > 0 && (
+            <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+              {pendingDetails.flatMap(({ country, differences }) =>
+                differences.map((difference, i) => (
+                  <li key={`${country}-${i}`}>
+                    <Typography variant="body2">{describeDifference(t, country, difference)}</Typography>
+                  </li>
+                )),
+              )}
+            </Box>
+          )}
         </Alert>
       )}
       {ownStructures.length > 0 && (

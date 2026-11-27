@@ -2010,6 +2010,14 @@
       "recreateError": "No se pudieron recrear las ligas.",
       "places": "{{count}} plazas por país.",
       "pending": "Se reestructurarán en su próximo cambio de temporada: {{countries}}.",
+      "pendingDetail": {
+        "extra": "{{country}}: el grupo {{league}} no forma parte de su estructura ({{teams}} equipos).",
+        "missing": "{{country}}: falta el grupo {{league}}.",
+        "size": "{{country}}: {{league}} tiene {{teams}} equipos y su estructura tiene {{expected}}.",
+        "ratio": "{{country}}: sus grupos rompen la regla del doble, así que juega sin promoción.",
+        "invalidStructure": "{{country}}: su estructura guardada no es válida ({{message}}), así que nunca se reestructura.",
+        "other": "{{country}}: {{message}}"
+      },
       "errors": {
         "tierCount": "Usa entre 1 y {{max}} categorías.",
         "gaps": "Las categorías deben ir numeradas del 1 al {{count}} sin huecos.",
