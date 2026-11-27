@@ -247,6 +247,13 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 	// A club in financial crisis sells cheaper (openspec/specs/cpu-team-management "Crisis offer
 	// discount").
 	distressed := teamInCrisis(dbCtx, teamId)
+	// A player signed within common.AiMinHoldPeriod is not for sale (cpu-team-management
+	// "Answering transfer offers"), the same hold that keeps him off the transfer list.
+	recent, err := common.GetPlayerIdsAcquiredSince(dbCtx, teamId, time.Now().Add(-common.AiMinHoldPeriod))
+	if err != nil {
+		log.Errorf("error reading recent signings of AI-managed team %d to respond to offers: %s", teamId, err)
+		recent = map[int64]bool{}
+	}
 
 	for _, offer := range offers {
 		if offer.CounterAmount != nil {
@@ -267,6 +274,7 @@ func respondToReceivedOffers(dbCtx *common.DatabaseContext, teamId int64) {
 			International:     international,
 			InternationalCaps: nationalCaps,
 			Distressed:        distressed,
+			RecentlySigned:    recent[offer.Player.Id],
 		}, rand.New(rand.NewSource(offer.OfferId)))
 
 		if !decision.Accept {

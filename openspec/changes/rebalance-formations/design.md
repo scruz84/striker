@@ -220,6 +220,17 @@ It becomes an optimal assignment: the eleven players and slots that maximize the
 
 All of them still run only with `TACTICS_SIM=1`, like the other calibrations.
 
+### 10. Recent signings are not for sale
+
+Integration testing against Postgres showed `TestAiTransferMarket_Simulation` failing on a fresh
+database: two Directors traded a 62-rated striker 8 times in 12 days. A buyer signs a player whose
+4-4-2 XI gain clears its bar (3 points), while the seller does not count him as a key player
+because losing him costs it less than `keyPlayerStrengthDrop` (6). That gap already existed, and
+the new slot values happened to put a player in it. `AiMinHoldPeriod` already kept a fresh
+signing off the transfer list, so `EvaluateIncomingOffer` now applies the same hold to incoming
+offers (`OfferContext.RecentlySigned`, reason `recent_signing`). Such an offer is refused and never
+countered. This was added by the owner's decision.
+
 ## Risks / Trade-offs
 
 - [Every club's strength shifts mid-season, and CPU Directors lose most of their edge: 1.695 →

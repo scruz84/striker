@@ -54,6 +54,9 @@ outright, and so that a formation pays off when the squad has the players it nee
 - **Manager formation.** A Manager ranks the six formations by the projected expected goal
   difference of each best XI against the same squad's 4-4-2 XI, instead of by summed slot values.
   A Caretaker keeps the third or fourth of that same ranking.
+- **Recent signings are not for sale.** A CPU team refuses every offer for a player it signed
+  within the 14-day hold that already keeps him off its transfer list. Without it, the new slot
+  values let two Directors trade the same player back and forth.
 - **New "Formation balance" and "Squad fit" requirements**, checked by the harness.
 
 Figures below are from the implementation (`TACTICS_SIM`), after tuning; the prototype's earlier
@@ -147,6 +150,7 @@ None.
   fit" requirements are added.
 - `cpu-team-management`: "Lineup and formation" ranks formations by projected expected goals for a
   Manager and a Caretaker, and picks each formation's best XI by optimal slot assignment.
+  "Answering transfer offers" refuses offers for a player signed within the last 14 days.
 - `player-development`: "Match-triggered skill drift" now follows the new per-slot skill weights.
 - `match-ratings`: "Zone contribution per minute" uses the new value formulas, lets a wide
   midfielder feed his flank's midfield too, and compares each player with the rival line's weighted

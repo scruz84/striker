@@ -477,5 +477,6 @@ When it renews a player, a Manager SHALL set a release clause of 2 × its valuat
   claimable until its reset.
 - `common/aimanager.go` (`RandomAiLevel`, `AiTransferProfileFor`), `common/lineup.go`
   (`SelectBestFormationAndLineup`, `formationRankForAiLevel`), `common/timezones.go`
-  (`IsWithinLocalActivityWindow`), `common/transferscoring.go` (`EvaluateIncomingOffer`,
+  (`IsWithinLocalActivityWindow`), `common/transferscoring.go` (`EvaluateIncomingOffer`, whose `OfferContext.RecentlySigned` comes from
+  `GetPlayerIdsAcquiredSince` in `engine/aiteams.go` `respondToReceivedOffers`,
   `MarketValue`, `IsKeyPlayer`), `common/squadassessment.go` (`MinPositionDepth`).

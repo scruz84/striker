@@ -63,7 +63,8 @@ func TestSelectBestLineupForFormation_OptimalAssignmentPlaysSpecialistsInTheirSl
 	for id := int64(4); id <= 5; id++ {
 		players = append(players, &Player{Id: id, GoalKeeper: 10, Defense: 70, Lateral: 10, Pass: 10, Midfield: 10, Dribbling: 10, Shot: 10})
 	}
-	for id := int64(6); id <= 14; id++ {		players = append(players, &Player{Id: id, GoalKeeper: 10, Defense: 10, Lateral: 10, Pass: 10, Midfield: 10, Dribbling: 10, Shot: 10})
+	for id := int64(6); id <= 14; id++ {
+		players = append(players, &Player{Id: id, GoalKeeper: 10, Defense: 10, Lateral: 10, Pass: 10, Midfield: 10, Dribbling: 10, Shot: 10})
 	}
 
 	greedy := greedyLineupForTest(players, FormationBalanced)

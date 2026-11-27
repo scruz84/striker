@@ -36,6 +36,7 @@
 - [x] 4.3 Register the engine scorer (`ProjectExpectedGoals`, neutral, own XI vs reference XI) from an `init()` in `engine/aiformation.go`; verify with an engine test that a Manager-level pick for a fixed squad equals the formation with the best projected difference
 - [x] 4.4 Re-run `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v` and record the new figures in the comment of `engine/ai_level_calibration_test.go` (prototype before the assignment change: Manager 1.446 vs 1.313, Director 1.494 vs 1.270); verify the test passes (Manager ahead of its Caretaker; Director, by the owner's decision, no more than 0.05 points per match behind the Manager)
 - [x] 4.5 Update `openspec/specs/cpu-team-management/spec.md` "Code map" (optimal assignment in `SelectBestLineupForFormation`, `SetFormationScorer`, the engine registration)
+- [x] 4.6 Refuse every offer for a player a CPU team signed within `common.AiMinHoldPeriod` (`OfferContext.RecentlySigned`, `OfferReasonRecentSigning`, set in `respondToReceivedOffers`), never countered - added during verification, by the owner's decision, after the integration test `TestAiTransferMarket_Simulation` showed two Directors trading one player 8 times in 12 days under the new slot values; verify `common/transferscoring_test.go` (`TestEvaluateIncomingOffer_RecentSigningIsNotForSale`), `engine/aiteams_test.go` (`TestCpuCounterAmount_NoCounterForARecentSigning`) and that integration test against Postgres
 
 ## 5. Balance and squad-fit calibration
 

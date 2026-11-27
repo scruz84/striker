@@ -414,3 +414,11 @@ func TestContractsToRenew_CaretakerRenewsOnlyExpiringStarters(t *testing.T) {
 		t.Errorf("caretaker renews %v, want only the expiring starters %d and %d", got, squad[0].Id, squad[5].Id)
 	}
 }
+
+// A recent signing's refusal is final: a CPU seller does not counter it.
+func TestCpuCounterAmount_NoCounterForARecentSigning(t *testing.T) {
+	decision := common.OfferDecision{Threshold: 10_000, Reason: common.OfferReasonRecentSigning}
+	if counter, ok := cpuCounterAmount(common.AiLevelDirector, decision, 9_000); ok {
+		t.Errorf("a Director countered an offer for a recent signing with %d", counter)
+	}
+}
