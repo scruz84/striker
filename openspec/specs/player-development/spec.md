@@ -9,11 +9,11 @@ contract and academy steps (plus the free-agent equivalent).
 ## Requirements
 
 ### Requirement: Match-triggered skill drift
-After every league match, cup tie and friendly, each player who featured SHALL get an independent chance for each skill used by the position he played most minutes at in that match. The chance per skill is minutes played in that match ÷ 900.
+After every league match, cup tie and friendly, each player who featured SHALL get an independent chance for each skill used by the position he played most minutes at in that match. A skill is used by a position when it weighs at least 15% in that position's slot value. The chance per skill is minutes played in that match ÷ 900.
 
 #### Scenario: Full match as a striker
 - **WHEN** a striker plays all 90 minutes
-- **THEN** each of Shot, Pass and Dribbling has a 10% chance to drift and his Defense never moves
+- **THEN** each of Shot and Dribbling has a 10% chance to drift and his Pass and Defense never move
 
 #### Scenario: Friendly
 - **WHEN** a player features in a friendly
@@ -21,7 +21,11 @@ After every league match, cup tie and friendly, each player who featured SHALL g
 
 #### Scenario: Position skill sets
 - **WHEN** the most-played position is decided
-- **THEN** goalkeeper drifts GoalKeeper; central defender Defense; full-back Lateral and Defense; central midfielder Midfield and Pass; wide midfielder Lateral, Midfield and Pass; striker Shot, Pass and Dribbling; wide striker Lateral, Shot, Pass and Dribbling
+- **THEN** goalkeeper drifts GoalKeeper; central defender Defense; full-back Lateral, Defense and Midfield; central midfielder Midfield, Pass and Shot; wide midfielder Lateral, Shot and Midfield; striker Shot and Dribbling; wide striker Shot, Lateral and Dribbling
+
+#### Scenario: Slot weights
+- **WHEN** a slot value is computed for drift, lineups and transfers
+- **THEN** it uses these weights (GoalKeeper/Defense/Lateral/Pass/Midfield/Dribbling/Shot, in %): goalkeeper 100/0/0/0/0/0/0; central defender 0/90/0/0/10/0/0; full-back 0/35/50/0/15/0/0; central midfielder 0/10/0/20/50/5/15; wide midfielder 0/0/40/10/20/5/25; striker 0/0/5/10/0/20/65; wide striker 0/0/30/5/0/15/50
 
 ### Requirement: Drift amount
 A drifting skill SHALL change by the age trend (+1 under 24, 0 from 24 to 29, −1 from 30) plus the trainer bonus plus a random −1/0/+1, clamped to [1, the player's own ceiling]. The trainer bonus MUST only apply while the age trend is not negative.

@@ -9,7 +9,7 @@ plus how national-team status acts as a scouting radar.
 ## Requirements
 
 ### Requirement: Transfer pass
-Every CPU team SHALL run one shopping pass per management tick, after roster upkeep, with no signing quota. A Caretaker or a Manager signs at most 1 player per pass; a Director up to 3, of which at most 2 new offers. Accepting a loan and exercising a buy option each count as one signing.
+Every CPU team SHALL run one shopping pass per management tick, after roster upkeep, with no signing quota, except while in financial crisis (budget below 0), when it runs none. A Caretaker or a Manager signs at most 1 player per pass; a Director up to 3, of which at most 2 new offers. Accepting a loan and exercising a buy option each count as one signing.
 
 #### Scenario: Nothing worth buying
 - **WHEN** no candidate clears the team's minimum score
@@ -26,6 +26,10 @@ Every CPU team SHALL run one shopping pass per management tick, after roster upk
 #### Scenario: Loan beats a transfer
 - **WHEN** a Manager's best-scoring candidate is a loan listing and the next one a listed player
 - **THEN** it accepts the loan and signs nobody else that pass
+
+#### Scenario: Club in crisis
+- **WHEN** a Director's budget is −1
+- **THEN** it runs no shopping pass, so it makes no signing, loan or offer
 
 ### Requirement: Markets searched
 A Caretaker SHALL consider the best 60 free agents and the transfer list; a Manager also the loan market. A Director MUST additionally consider the best players at each core position anywhere (other humans' included), a random sample of 20 youngsters, and the national-team radar. Players older than 36 are ignored.
@@ -224,6 +228,21 @@ A Director SHALL treat a scanned player whose release clause is at most 1.5 × i
 #### Scenario: Rate limit
 - **WHEN** a CPU club paid a clause on a human club 3 days ago
 - **THEN** no CPU club pays another clause on that human club's players
+
+### Requirement: Market urgency
+A Manager or Director whose season objective is `relegation_fight` SHALL shop with its minimum score lowered by 2 (never below 1) and half its usual budget reserve; a Director whose objective is `promotion_push` SHALL lower its minimum score by 1. Every other objective leaves its profile unchanged.
+
+#### Scenario: Manager fighting relegation
+- **WHEN** a Manager (minimum score 5, reserve 50%) is in a relegation fight
+- **THEN** it signs a candidate scoring 3 that leaves 30% of its budget
+
+#### Scenario: Director in a promotion push
+- **WHEN** a Director (minimum score 3) is in a promotion push
+- **THEN** a candidate scoring 2 clears its minimum
+
+#### Scenario: Manager in a promotion push
+- **WHEN** a Manager is in a promotion push
+- **THEN** its minimum score stays 5
 
 ## Code map
 
