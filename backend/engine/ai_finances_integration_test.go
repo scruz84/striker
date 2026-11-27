@@ -13,6 +13,7 @@ import (
 func TestAiCrisis_DirectorInDebtSellsAndSignsNobody(t *testing.T) {
 	const country = "zv"
 	w := newLoanWorld(t, country)
+	w.crowdPool(country) // otherwise the whole squad is the country's national-team pool
 	team := w.team(country, "Debtors", common.AiLevelDirector, nil, -50_000)
 	w.squad(country, team)
 	// The earner is as good as his team-mates (so not a key player) but paid far more; a weaker

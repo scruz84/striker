@@ -53,12 +53,15 @@ func TestAiTransferMarket_Simulation(t *testing.T) {
 	}
 
 	common.ResetNationalRadarCache() // pools are rebuilt over this world's players
-	// Earlier tests in the package leave listings and free agents in the shared database; clear
-	// what a CPU team could prefer to this world's market (free agents are put out of reach by
-	// age - the CPU ignores anyone over aiMaxPlayerAge - rather than deleted).
+	// Earlier tests in the package leave listings, free agents and whole clubs in the shared
+	// database; clear what a CPU team could prefer to this world's market. Every player that already
+	// exists - free agents and other worlds' club players alike - is put out of reach by age (the CPU
+	// ignores anyone over aiMaxPlayerAge) rather than deleted: this world's squads have no Lateral
+	// at all, so a leftover all-rounder from another test is a bigger upgrade on a flank than the
+	// humans' star strikers and would draw the Directors' bids away from them.
 	exec(`DELETE FROM loan_listings`)
 	exec(`DELETE FROM transfer_listings`)
-	exec(`UPDATE players SET age = 50 WHERE team_id IS NULL`)
+	exec(`UPDATE players SET age = 50`)
 	exec(`INSERT INTO season (transfer_window_open) SELECT true WHERE NOT EXISTS (SELECT 1 FROM season)`)
 	exec(`UPDATE season SET transfer_window_open = true, offer_negotiation_window_minutes = 0`)
 	exec(`INSERT INTO countries (name, current_season) VALUES ('zx', 1) ON CONFLICT (name) DO NOTHING`)

@@ -88,6 +88,7 @@ func TestContractTerms_PayCutRefused(t *testing.T) {
 func TestContractTerms_ManagerListsTheVeteranItDoesNotRenew(t *testing.T) {
 	const country = "zv"
 	w := newLoanWorld(t, country)
+	w.crowdPool(country) // otherwise both squads are the country's national-team pool
 	for _, level := range []int{common.AiLevelManager, common.AiLevelCaretaker} {
 		team := w.team(country, "Expiring "+string(rune('A'+level)), level, nil, 5_000_000)
 		w.squad(country, team)
