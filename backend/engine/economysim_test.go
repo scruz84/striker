@@ -15,7 +15,9 @@ package engine
 //	ECON_SIM=1 go test ./engine -run TestEconomySimulation -v -count=1
 //
 // Optional env: ECON_SIM_SCENARIOS=baseline,B-socios+tier-wages (comma list, default all),
-// ECON_SIM_SEASONS=40, ECON_SIM_SEED=1. See openspec/changes/archive/2026-10-19-rebalance-economy-socios/design.md
+// ECON_SIM_SEASONS=40, ECON_SIM_SEED=1, ECON_SIM_TIERS=4 (keep only the top N tiers of the default
+// structure, as a world that removed its bottom tiers; the report then adds the players those tiers'
+// dissolved clubs would free). See openspec/changes/archive/2026-10-19-rebalance-economy-socios/design.md
 // for what it found and what each scenario means.
 
 import (
@@ -189,12 +191,12 @@ func pickClass(tier int, r *rand.Rand) simClass {
 	}
 }
 
-// buildWorld creates the default world (1 + 4 + 16 leagues of 10 teams). In every league, team 0 is
-// a passive human and team 1 an optimising human - two reference points a real manager lands
-// between; the other eight are CPU teams with the shipped AI-level mix.
-func buildWorld(sc simScenario, r *rand.Rand) []*simLeague {
+// buildWorld creates a world shaped by tiers (the default: 1/2/4/8/16 leagues of 10 teams). In
+// every league, team 0 is a passive human and team 1 an optimising human - two reference points a
+// real manager lands between; the other eight are CPU teams with the shipped AI-level mix.
+func buildWorld(sc simScenario, tiers []common.TierConfig, r *rand.Rand) []*simLeague {
 	var leagues []*simLeague
-	for _, cfg := range common.DefaultWorldTiers {
+	for _, cfg := range tiers {
 		for g := 0; g < cfg.Groups; g++ {
 			l := &simLeague{tier: cfg.Tier}
 			for i := 0; i < cfg.TeamsPerLeague; i++ {
@@ -297,14 +299,57 @@ type snapshot struct {
 }
 
 type simOutput struct {
-	stats map[string]*simStats
-	snaps []snapshot
+	stats      map[string]*simStats
+	snaps      []snapshot
+	startMoney int64
+	wave       dissolutionWave // set when the world removed tiers (see simTiers)
+}
+
+// simTiers is the structure a run simulates: the default one, cut to its top ECON_SIM_TIERS tiers
+// when that is set.
+func simTiers() []common.TierConfig {
+	tiers := common.DefaultWorldTiers
+	if v := os.Getenv("ECON_SIM_TIERS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 1 && n < len(tiers) {
+			tiers = tiers[:n]
+		}
+	}
+	return tiers
+}
+
+// dissolutionWave is what removing the default structure's tiers below kept would free at once:
+// the dissolved clubs' senior players and the season wage bill they were on, from the same wage
+// functions as the simulated clubs (see openspec/changes/allow-removing-divisions).
+type dissolutionWave struct {
+	clubs, players int
+	wageBill       int64 // per league round, like simTeam.wageBill
+	rounds         int   // league rounds in a season
+}
+
+func dissolvedByShrink(sc simScenario, kept []common.TierConfig, seed int64) dissolutionWave {
+	r := rand.New(rand.NewSource(seed))
+	wave := dissolutionWave{rounds: (common.TeamsPerLeague - 1) * 2}
+	for _, cfg := range common.DefaultWorldTiers[len(kept):] {
+		for g := 0; g < cfg.Groups; g++ {
+			for i := 0; i < cfg.TeamsPerLeague; i++ {
+				t := newSimTeam(cfg.Tier, pickClass(cfg.Tier, r), sc, r)
+				wave.clubs++
+				wave.players += common.SquadSize
+				wave.wageBill += t.wageBill
+			}
+		}
+	}
+	return wave
 }
 
 func runEconomySim(sc simScenario, seasons int, seed int64) simOutput {
 	r := rand.New(rand.NewSource(seed))
-	leagues := buildWorld(sc, r)
-	out := simOutput{stats: map[string]*simStats{}}
+	tiers := simTiers()
+	leagues := buildWorld(sc, tiers, r)
+	out := simOutput{stats: map[string]*simStats{}, startMoney: 400000 * int64(common.WorldConfigPlaces(tiers))}
+	if len(tiers) < len(common.DefaultWorldTiers) {
+		out.wave = dissolvedByShrink(sc, tiers, seed)
+	}
 	keyOf := func(t *simTeam) string { return fmt.Sprintf("%s|T%d", t.class, t.tier) }
 	for _, l := range leagues {
 		for _, t := range l.teams {
@@ -561,7 +606,12 @@ func report(sc simScenario, out simOutput, seasons int) string {
 			iN, eN, ratio(iN, eN), crowd, fill*100, topShare(rest, incomeKeys, 1), topShare(rest, expenseKeys, -1))
 	}
 
-	fmt.Fprintf(&b, "\nmoney supply across all teams (start = %d):\n", 400000*210)
+	if out.wave.clubs > 0 {
+		season := out.wave.wageBill * int64(out.wave.rounds)
+		fmt.Fprintf(&b, "\nremoved tiers dissolve %d clubs per country: %d senior free agents at once, who were on %d a round (%d a season of %d rounds) in wages, %d a season per player\n",
+			out.wave.clubs, out.wave.players, out.wave.wageBill, season, out.wave.rounds, season/int64(out.wave.players))
+	}
+	fmt.Fprintf(&b, "\nmoney supply across all teams (start = %d):\n", out.startMoney)
 	step := int(math.Max(1, float64(len(out.snaps))/6))
 	for i := step - 1; i < len(out.snaps); i += step {
 		s := out.snaps[i]

@@ -26,7 +26,7 @@
 ## 6. Specs, economy and checks
 
 - [x] 6.1 Update the `league-pyramid` Code map (kept in design.md until archive, since a delta cannot carry one) (migration, `EffectiveStructure`, `PlanStructureChange`, `DissolveTeam`, the new handlers) and the backend README's world-management section. Verify `openspec validate allow-removing-divisions --strict` passes.
-- [ ] 6.2 Run `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v` with a 5→4 tier shrink and record the free-agent and wage figures in this change's design. Verify the economy stays within the simulation's existing bounds.
+- [x] 6.2 Run `ECON_SIM=1 go test ./engine -run TestEconomySimulation -v` with a 5→4 tier shrink and record the free-agent and wage figures in this change's design. Verify the economy stays within the simulation's existing bounds.
 - [x] 6.3 Run backend `go build ./... && go vet ./... && go test ./...` with `STRIKER_TEST_DB_DSN` set, and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`, all passing apart from the existing order-dependent engine failures, which also fail on `main`.
 
 ## Workflow follow-up
