@@ -56,11 +56,15 @@
 ## Workflow follow-up
 
 - Archive the change once it is merged and the calibrations are recorded.
-- Integration tests (`STRIKER_TEST_DB_DSN`, not run by CI) were also run against a local Postgres.
-  `TestAiCrisis_DirectorInDebtSellsAndSignsNobody` fails before and after this change.
-  `TestContractTerms_ManagerListsTheVeteranItDoesNotRenew` fails before and after on a fresh
-  database, depending on database state. `TestAiTransferMarket_Simulation` passes on fresh
-  databases (4 of 4) and on identical copies of a used one (2 of 2, old and new code alike), but
-  inside a full `-p 1` run it failed 2 of 5 times after this change, against 0 of 3 before.
-  Candidate searches there are crowded by other tests' leftovers, for example NULL-skill players
-  sorting first. Left for the owner to decide.
+- Integration tests (`STRIKER_TEST_DB_DSN`, not run by CI) were also run against a local Postgres,
+  and three test-side fixes were made:
+  - `TestAiTransferMarket_Simulation` churned (two Directors trading one player back and forth),
+    which task 4.6 fixes. It then still failed now and then inside a full `-p 1` run, because
+    all-rounders that other tests leave on their clubs outscored its star strikers in the
+    Directors' searches. The test now ages every pre-existing player out of the CPU's reach, not
+    only free agents.
+  - `TestAiCrisis_DirectorInDebtSellsAndSignsNobody` and
+    `TestContractTerms_ManagerListsTheVeteranItDoesNotRenew` failed on a fresh database before and
+    after this change. Their test country had fewer than 40 players, so the whole squad was its
+    national-team pool, and internationals are never sold. Both now call `crowdPool`, as the loan
+    tests already did.
