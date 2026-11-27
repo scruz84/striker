@@ -101,6 +101,10 @@ A job meant to run once per period SHALL first claim its slot (fire time truncat
 - **WHEN** Sunday 00:00 UTC fires on two replicas
 - **THEN** one batch of free agents is injected, not two
 
+#### Scenario: Daily instant archive
+- **WHEN** the daily instant archive fires on two replicas with the archive on
+- **THEN** one replica runs the archive pass and the other does nothing
+
 | Job | Slot |
 | --- | --- |
 | `free_agent_progression` | 24 h |
@@ -109,6 +113,7 @@ A job meant to run once per period SHALL first claim its slot (fire time truncat
 | `account_lifecycle_daily` | 24 h (inactivity warnings, club releases, account erasures) |
 | `offer_response` | 12 h |
 | `ai_activity` | 5 min |
+| `instant_archive` | 24 h (prunes old ledger and offer log rows; expires friendlies' instants after the days kept; deletes old seasons' instants while the archive is on) |
 
 ### Requirement: Advisory lock keys
 Existing locks keep their bare keys (`leagueId`, `cupId`, `hashtext(country)`, constants 8817224/8817225) so a replica on the previous build still contends during a rolling deploy. New locks MUST use `NamespacedLockKey(namespace, id)` (namespace in the top 16 bits) so they never collide with a bare id.

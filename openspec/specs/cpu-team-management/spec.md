@@ -50,7 +50,7 @@ Inside its local window each CPU team SHALL roll for a friendly challenge (about
 - **THEN** a friendly against a random awake CPU opponent is accepted at once and dated 5 minutes later
 
 ### Requirement: Lineup and formation
-Every CPU team SHALL re-pick its best XI from the current squad whenever it acts and again at the kickoff of each of its matches, choosing among the six formations ranked by best-XI strength: a Manager or Director takes the strongest (rank 0), a Caretaker the third or fourth at random; a Director then re-picks against its opponent at competitive kickoffs (see "Director formation against the opponent"). A Manager or Director MUST pick only from players available for that match; a Caretaker picks from the whole squad.
+Every CPU team SHALL re-pick its best XI from the current squad whenever it acts and again at the kickoff of each of its matches, ranking the six formations by the projected expected goal difference of each formation's best XI against the same squad's best 4-4-2 XI: a Manager or Director takes the first, a Caretaker the third or fourth at random; a Director then re-picks against its opponent at competitive kickoffs (see "Director formation against the opponent"). A Manager or Director MUST pick only from players available for that match; a Caretaker picks from the whole squad.
 
 #### Scenario: New signing
 - **WHEN** a CPU team signs a better striker
@@ -69,8 +69,17 @@ Every CPU team SHALL re-pick its best XI from the current squad whenever it acts
 - **THEN** he may play, because suspensions only bar league and cup matches
 
 #### Scenario: Manager's shape
-- **WHEN** a Manager's 3-4-3 gives a stronger XI than any other formation
+- **WHEN** a Manager's best 3-4-3 XI projects a higher expected goal difference against its own best 4-4-2 XI than any other formation's best XI
 - **THEN** it plays 3-4-3
+
+#### Scenario: Ranking ties
+- **WHEN** two formations project the same expected goal difference within 0.000000001
+- **THEN** the one whose XI has the higher summed slot value ranks first, and after that the earlier one in the order 4-4-2, 5-3-2, 3-4-3, 4-3-3, 4-5-1, 3-5-2
+
+#### Scenario: Best XI by optimal assignment
+- **WHEN** a squad's only flank players are a wide midfielder (Lateral, Midfield and Pass 75, the rest 25) and a full-back (Lateral and Defense 60, the rest 40), alongside a keeper, two centre-backs and weak reserves
+- **THEN** the full-back plays full-back (slot value 57) and the wide midfielder wide midfield (60), because the XI is the assignment of players to slots with the highest total slot value
+- **AND** the slot-by-slot pick, which reaches the back line first, would have put the wide midfielder at full-back (58) and a reserve in wide midfield
 
 ### Requirement: Director formation against the opponent
 At the kickoff of a league match or cup tie a Director SHALL rate the best XI it can field in each of the six formations against its opponent's XI by expected goal difference, computed from the minute-1 zone ratings with the engine's chance-rate, chance-share and conversion formulas and no randomness, and play the highest; ties go to the stronger XI. Its substitutions, orders, captain and mentality are then planned for that XI.
@@ -88,7 +97,7 @@ At the kickoff of a league match or cup tie a Director SHALL rate the best XI it
 - **THEN** both expect the same goals, about 1.2 open-play goals each per match
 
 ### Requirement: Answering transfer offers
-Every CPU team SHALL accept an offer, highest first, when the fee reaches its threshold: its perceived value (market value with level noise: 30% / 15% / 5%), raised for key starters (×2 Manager, ×2.5 Director) and internationals (Director +25% up to +50% at 20 caps). Sales that leave the squad or the position too thin MUST be refused. A Manager or Director counters an offer of at least 70% of its threshold (see transfer-negotiation) instead of rejecting it.
+Every CPU team SHALL accept an offer, highest first, when the fee reaches its threshold: its perceived value (market value with level noise: 30% / 15% / 5%), raised for key starters (×2 Manager, ×2.5 Director) and internationals (Director +25% up to +50% at 20 caps). Sales that leave the squad or the position too thin, or of a player it signed within the last 14 days, MUST be refused. A Manager or Director counters an offer of at least 70% of its threshold (see transfer-negotiation) instead of rejecting it.
 
 #### Scenario: Thin position
 - **WHEN** selling would leave the squad under its size minus 2 or the player's position under its minimum depth
@@ -122,11 +131,15 @@ Every CPU team SHALL accept an offer, highest first, when the fee reaches its th
 - **WHEN** an offer at 95% of the threshold would leave the player's position too thin
 - **THEN** it is rejected, never countered
 
+#### Scenario: Recent signing
+- **WHEN** a CPU team receives an offer of ten times his value for a player it signed 3 days ago
+- **THEN** it rejects the offer at every AI level and does not counter it, the same 14-day hold that keeps him off its transfer list
+
 ### Requirement: Contract renewals
-Every time it acts, a CPU team SHALL renew the contract of each player with one season or less left: a Manager or Director every such player, a Caretaker only those in its current default XI. The offer MUST be the player's skill-based wage at his age's maximum term; if the player declines it, the team MUST repeat the offer once at exactly the wage and term the player reported he expects. A player on loan is never renewed by the borrowing club.
+Every time it acts, a CPU team SHALL renew the contract of each player with one season or less left whom it keeps: a Caretaker, or a club in financial crisis, keeps only its current default XI; otherwise a Manager or Director keeps its XI, every player under 30 and anyone whose position would fall under minimum depth without him. The offer MUST be the skill-based wage at the age's maximum term; if declined, it is repeated once on the player's own terms, for a starter or when his wage is at most 1.25 × the skill-based one. A loanee is never renewed by the borrower.
 
 #### Scenario: Improving player asks for a raise
-- **WHEN** a Manager's player with one season left has just improved and declines his skill-based wage
+- **WHEN** a Manager's 21-year-old with one season left has just improved and declines his skill-based wage, asking for 1.2 × that wage
 - **THEN** the team renews him at the higher wage he asked for instead of letting him leave as a free agent
 
 #### Scenario: Caretaker bench player
@@ -136,6 +149,18 @@ Every time it acts, a CPU team SHALL renew the contract of each player with one 
 #### Scenario: Caretaker starter
 - **WHEN** a Caretaker's player with one season left is in its current default XI
 - **THEN** his contract is renewed
+
+#### Scenario: Bench veteran
+- **WHEN** a Director's 31-year-old bench midfielder with one season left plays a position that keeps its minimum depth without him
+- **THEN** his contract is not renewed
+
+#### Scenario: Veteran keeping the depth
+- **WHEN** a Manager's 33-year-old bench goalkeeper is one of its only 2 goalkeepers
+- **THEN** he is renewed, since goalkeepers need a depth of 2
+
+#### Scenario: Greedy bench player
+- **WHEN** a Manager's 24-year-old bench player declines his skill-based wage and asks for 1.4 × it
+- **THEN** no second offer is made and he leaves at season end
 
 ### Requirement: Manager roster upkeep
 A Manager or Director SHALL, in order: withdraw listings that are no longer surplus and list at most one surplus player; withdraw loan listings that are no longer surplus and offer at most one player on loan; promote an academy prospect into a thin position; set the revenue-maximising ticket price.
@@ -297,11 +322,15 @@ At the kickoff of a league match or cup tie a CPU team SHALL add conditional ord
 - **THEN** it switches to Attacking in minute 80
 
 ### Requirement: CPU captain
-At kickoff of every match a CPU team SHALL name as captain its oldest outfield starter, ties going to the lowest player id, and leave both set-piece takers automatic.
+At kickoff of every match a CPU team SHALL name as captain its oldest outfield starter who is not the outgoing player of one of its scheduled substitutions, ties going to the lowest player id, and leave both set-piece takers automatic. If every outfield starter is due off, the oldest outfield starter is captain.
 
 #### Scenario: Veteran captain
-- **WHEN** a CPU team's outfield starters are aged 24, 31 and 33 among others, with 33 the oldest
+- **WHEN** a CPU team's outfield starters are aged 24, 31 and 33 among others, with 33 the oldest, and none of them is scheduled off
 - **THEN** the 33-year-old is its captain
+
+#### Scenario: Veteran due off
+- **WHEN** the 33-year-old is the outgoing player of one of the team's scheduled substitutions
+- **THEN** the 31-year-old is its captain
 
 #### Scenario: Takers
 - **WHEN** a CPU team wins a penalty
@@ -370,6 +399,202 @@ When it renews a player, a Manager SHALL set a release clause of 2 × its valuat
 #### Scenario: Director key player
 - **WHEN** a Director renews its key striker
 - **THEN** it sets no clause and pays his full expected wage
+
+### Requirement: AI level after a division change
+At the season rollover a CPU club (unowned, AI level 1 or more) that is promoted or relegated SHALL draw a level with its new tier's weights (see "AI levels") and move one step towards it: up one level if the draw is higher, down one if lower, unchanged if equal. A club with a human owner or no AI level is untouched.
+
+#### Scenario: Caretaker reaches the top flight
+- **WHEN** a Caretaker is promoted to tier 1 and the draw gives Director
+- **THEN** it becomes a Manager
+
+#### Scenario: Director relegated
+- **WHEN** a Director is relegated to tier 3 and the draw gives Caretaker
+- **THEN** it becomes a Manager
+
+#### Scenario: Same draw
+- **WHEN** a promoted Manager draws Manager
+- **THEN** it stays a Manager
+
+### Requirement: Club style
+Every CPU club SHALL have a style, assigned once from its team id and stored for its whole life (a club with none reads as balanced): of every 5 consecutive ids, 2 are balanced, 1 youth, 1 frugal and 1 ambitious. A Manager's or Director's transfer profile is adjusted by it; a Caretaker ignores it.
+
+#### Scenario: Youth club
+- **WHEN** a Manager's style is youth
+- **THEN** it signs players for their projected growth and lends out benched under-22s, as a Director does
+
+#### Scenario: Frugal club
+- **WHEN** a Director's style is frugal
+- **THEN** its budget reserve is 30% instead of 15% and its key-player price multiplier is 2.0 instead of 2.5
+
+#### Scenario: Ambitious club
+- **WHEN** a Manager's style is ambitious
+- **THEN** its budget reserve is 40%, its minimum score 4 and its key-player multiplier 2.5
+
+#### Scenario: Stable
+- **WHEN** the same club's style is read twice, before and after a restart
+- **THEN** it is the same
+
+### Requirement: Prospects by potential
+On its management pass a Director, or a Manager whose style is youth, that has not promoted an academy prospect into a thin position SHALL promote the prospect with the highest projected value at his best core position, read through its potential noise 3 seasons on, when that value is at least its weakest starter's value at that position, within the weekly promotion cap.
+
+#### Scenario: Gifted prospect
+- **WHEN** a Director's 17-year-old academy striker projects to 64 and its weakest starting striker is worth 60
+- **THEN** it promotes him to the senior squad
+
+#### Scenario: Ordinary prospect
+- **WHEN** its best prospect projects to 50 against a weakest starter of 60
+- **THEN** nobody is promoted
+
+#### Scenario: Balanced Manager
+- **WHEN** a balanced Manager has the same gifted prospect
+- **THEN** it only promotes for a thin position
+
+### Requirement: CPU season objective
+A CPU club SHALL derive a season objective from its league table once it has played a third of its league matches (`open` before): `relegation_fight` within 3 points of the relegation zone, else `promotion_push` within 3 points of the last promotion place (the title in a top division), else `nothing_at_stake` when it can neither reach that place nor be caught by the zone at 3 points per remaining match, else `open`.
+
+#### Scenario: Early season
+- **WHEN** a club has played 9 of its 30 league matches
+- **THEN** its objective is `open` whatever its position
+
+#### Scenario: Just above the drop
+- **WHEN** with 2 relegation places a club has 20 points and the best side in the zone has 18, after 12 of 30 matches
+- **THEN** its objective is `relegation_fight`
+
+#### Scenario: Chasing promotion
+- **WHEN** with 2 promotion places a club in 4th has 40 points and 2nd place has 42
+- **THEN** its objective is `promotion_push`
+
+#### Scenario: Dead rubber
+- **WHEN** with 3 league matches left a club has 45 points, 2nd place has 60 and the best side in the relegation zone 30
+- **THEN** its objective is `nothing_at_stake`, since 45 + 9 < 60 and 30 + 9 < 45
+
+#### Scenario: Points compared
+- **WHEN** the objective is computed
+- **THEN** "within 3 points of the zone" means points ≤ those of the best-placed side in the relegation zone + 3 (only with a tier below), and "within 3 points of the place" means points ≥ that place's points − 3
+
+#### Scenario: Top division
+- **WHEN** a tier-1 club with no tier above is 2 points behind the leader after 20 of 30 matches
+- **THEN** its objective is `promotion_push` (the title race)
+
+#### Scenario: Playoff places count
+- **WHEN** a club plays in a middle tier of a pyramid that follows the league-pyramid ratio rule
+- **THEN** its promotion places are 1st and 2nd (direct and playoff) and its relegation zone is the bottom 4 (playoff and direct), so 2 promotion and 4 relegation places
+
+### Requirement: Youth minutes when nothing is at stake
+At the kickoff of a league match a Director whose objective is `nothing_at_stake` SHALL start up to 2 fit players aged 21 or under from its bench: for each of its outfield starters from the lowest-valued up, the best such player at his slot replaces him when worth at least 80% of him. Its substitutions, orders and captain are then planned for that XI.
+
+#### Scenario: Two prospects get a start
+- **WHEN** a Director with nothing at stake has bench players aged 19 and 20 worth 85% and 90% of its two weakest outfield starters at their slots
+- **THEN** both start in their place
+
+#### Scenario: Prospect too raw
+- **WHEN** its only bench player under 22 is worth 60% of the weakest starter at his slot
+- **THEN** the XI is unchanged
+
+#### Scenario: Still something to play for
+- **WHEN** the same Director's objective is `relegation_fight`
+- **THEN** it plays its usual XI
+
+### Requirement: CPU sponsor deal
+On each management pass a Manager or Director that has played at least 6 league matches this season and has not yet chosen a deal this season SHALL compute each deal's expected payout per match from its season win rate w and draw rate d, and switch to the best one when it is not its current deal. Ties keep the current deal. A Caretaker never changes its deal.
+
+#### Scenario: Payout formulas
+- **WHEN** the expected payouts are computed, in units of the tier's base sponsorship
+- **THEN** Steady is 1.3, Balanced is 1 + 0.6 × w + 0.3 × d and Performance is 0.6 + 1.2 × w + 0.4 × d
+
+#### Scenario: Strugglers take the guarantee
+- **WHEN** a Manager has 1 win and 2 draws in 8 league matches (w = 0.125, d = 0.25)
+- **THEN** Steady (1.3) beats Balanced (1.15) and Performance (0.85), and it switches to Steady, locked for the season
+
+#### Scenario: Runaway leader
+- **WHEN** a Director has 7 wins and 1 draw in 9 league matches (w ≈ 0.778, d ≈ 0.111)
+- **THEN** Performance (≈ 1.578) beats Balanced (≈ 1.50) and it switches to Performance
+
+#### Scenario: Too early
+- **WHEN** a Director has played 5 league matches this season
+- **THEN** it keeps its current deal
+
+### Requirement: Manager trainer
+A Manager with no trainer SHALL hire, on its management pass, the most skilled available trainer whose skill is below 80; it MUST NOT fire a trainer it has. A Director keeps its rule (hire the best, or swap for one at least 10 better). A Caretaker never hires.
+
+#### Scenario: Elite coaches left alone
+- **WHEN** a Manager with no trainer finds trainers of skill 88, 79 and 45 on the market
+- **THEN** it hires the 79
+
+#### Scenario: Only elite coaches
+- **WHEN** every available trainer has skill 80 or more
+- **THEN** the Manager hires nobody
+
+#### Scenario: Better coach appears
+- **WHEN** a Manager already has a trainer of skill 40 and one of skill 75 becomes available
+- **THEN** it keeps its trainer
+
+### Requirement: Director cup orders
+At kickoff of a cup tie a Director SHALL add, after its other conditional orders, "from 75, if drawing" with mentality Attacking when its kickoff XI's strength is at least the opponent's, and Defensive otherwise. A draw goes to a penalty shootout won by either side with probability 50%, so a weaker side settles for it.
+
+#### Scenario: Favourite level late
+- **WHEN** a Director whose XI is worth 1,050 against 1,000 is drawing at the start of minute 75 of a cup tie
+- **THEN** it switches to Attacking in minute 75
+
+#### Scenario: Underdog level late
+- **WHEN** a Director whose XI is worth 950 against 1,000 is drawing at the start of minute 80 of a cup tie
+- **THEN** it switches to Defensive
+
+#### Scenario: League match
+- **WHEN** a Director plays a league match
+- **THEN** it adds no drawing order
+
+### Requirement: AI level calibration
+An opt-in simulation (`AI_LEVEL_SIM=1`) SHALL play 4,000 matches of each level against a Caretaker on a neutral ground, both sides with the same squad, each side planning its XI, formation, substitutions, mentality and orders as at a league kickoff, and report each side's win, draw and loss rates and points per match. A Manager MUST score more points per match than the Caretaker it plays, and a Director more than a Manager does.
+
+#### Scenario: Running it
+- **WHEN** an operator runs `AI_LEVEL_SIM=1 go test ./engine -run TestAiLevelCalibration -v`
+- **THEN** the log lists, for Manager vs Caretaker and Director vs Caretaker, both sides' win/draw/loss rates and points per match
+
+### Requirement: CPU financial crisis
+A CPU club SHALL be in financial crisis while its budget is below 0. A Manager or Director in crisis MUST NOT sign, borrow or exercise a buy option (its transfer pass is skipped) and, once per management pass while it has fewer than 2 open transfer listings, SHALL list its highest-wage owned player who is not a key player, an international, signed in the last 14 days, transfer- or loan-listed, and whose sale keeps minimum depth and squad size − 2, at 80% of his usual asking price.
+
+#### Scenario: In debt
+- **WHEN** a Director's budget is −50,000 and the transfer window is open
+- **THEN** it makes no signing or offer that pass and lists its best-paid sellable player at 80% of his asking price
+
+#### Scenario: Two listings already
+- **WHEN** a Manager in crisis already has 2 players on the transfer list
+- **THEN** it lists nobody else that pass
+
+#### Scenario: Back in the black
+- **WHEN** the same club's budget is 10,000
+- **THEN** its transfer pass runs as usual
+
+#### Scenario: Caretaker in debt
+- **WHEN** a Caretaker's budget is below 0
+- **THEN** it lists nobody (it only answers offers)
+
+### Requirement: Crisis offer discount
+A CPU club of any level in financial crisis SHALL accept an offer that reaches 80% of the threshold it would otherwise ask (see "Answering transfer offers"); refusals for a thin squad or position are unchanged and a Manager's or Director's counter-offer is computed from the discounted threshold.
+
+#### Scenario: Cheaper sale in debt
+- **WHEN** a club in crisis values a player at a threshold of 500,000 and receives 410,000
+- **THEN** it accepts, since 410,000 ≥ 400,000
+
+#### Scenario: Not in debt
+- **WHEN** the same club with a positive budget receives 410,000
+- **THEN** a Manager or Director counters and a Caretaker rejects
+
+### Requirement: Releasing unsold veterans
+A Manager or Director not in financial crisis, owning more players than the squad size (18), SHALL release through the human release rules at most one player per management pass: the one with the highest wage among owned players aged 30 or more, with 2 or more seasons left, transfer- or loan-listed for at least 14 days, and only when its budget is at least 3 × his severance (10 × wage). His listing is withdrawn first.
+
+#### Scenario: Nobody wanted him
+- **WHEN** a Manager owning 20 players has had a 32-year-old with 2 seasons left on the loan list for 15 days, with a wage of 3,000 and a budget of 200,000
+- **THEN** it withdraws the listing and releases him, paying a severance of 30,000
+
+#### Scenario: Squad at its size
+- **WHEN** the same Manager owns 18 players
+- **THEN** it releases nobody
+
+#### Scenario: Listed for 10 days
+- **WHEN** the veteran has been listed for 10 days
+- **THEN** he stays
 
 ## Code map
 
