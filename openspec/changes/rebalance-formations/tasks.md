@@ -50,9 +50,17 @@
 
 ## 6. Integration
 
-- [ ] 6.1 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify both are green
-- [ ] 6.2 Run `openspec validate rebalance-formations --strict`; verify it passes
+- [x] 6.1 Run backend `go build ./... && go vet ./... && go test ./...` and frontend `npx tsc --noEmit && npx oxlint && npx vitest run`; verify both are green
+- [x] 6.2 Run `openspec validate rebalance-formations --strict`; verify it passes
 
 ## Workflow follow-up
 
 - Archive the change once it is merged and the calibrations are recorded.
+- Integration tests (`STRIKER_TEST_DB_DSN`, not run by CI) were also run against a local Postgres.
+  `TestAiCrisis_DirectorInDebtSellsAndSignsNobody` fails before and after this change.
+  `TestContractTerms_ManagerListsTheVeteranItDoesNotRenew` fails before and after on a fresh
+  database, depending on database state. `TestAiTransferMarket_Simulation` passes on fresh
+  databases (4 of 4) and on identical copies of a used one (2 of 2, old and new code alike), but
+  inside a full `-p 1` run it failed 2 of 5 times after this change, against 0 of 3 before.
+  Candidate searches there are crowded by other tests' leftovers, for example NULL-skill players
+  sorting first. Left for the owner to decide.
