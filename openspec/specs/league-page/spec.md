@@ -92,10 +92,10 @@ The page SHALL NOT request the matchday endpoint for a matchday whose matches th
 - **THEN** the cards show matchdays 11 and 12, matchday 12 comes from the division details response, only matchday 11 is requested from `/weeks/11`, and the division live scores are requested from `/live`
 
 ### Requirement: Mobile tabs
-On viewports narrower than the `md` breakpoint (900 px), the page SHALL show four full-width tabs in this order: "Tabla", "Jornadas", "Estadísticas" (league leaders and team of the week) and "Traspasos" (recent transfers only). In a past season "Tabla", "Jornadas" and "Estadísticas" SHALL be shown. "Tabla" SHALL be selected on open, or "Estadísticas" when the URL names a team of the week. Labels MUST fit at 360 px without clipping, each tab at least 44 px tall.
+On viewports narrower than the `md` breakpoint (900 px), the page SHALL show four full-width tabs in this order: "Tabla", "Jornadas", "Datos" (league leaders and team of the week) and "Traspasos" (recent transfers only). In a past season "Tabla", "Jornadas" and "Datos" SHALL be shown. "Tabla" SHALL be selected on open, or "Datos" when the URL names a team of the week. Labels MUST fit at 360 px without clipping, each tab at least 44 px tall.
 
 #### Scenario: Transfers on a phone
-- **WHEN** a user on a 360 px phone opens the "Estadísticas" tab
+- **WHEN** a user on a 360 px phone opens the "Datos" tab
 - **THEN** the leaders panel is shown, and the recent-transfers panel is shown only under "Traspasos"
 
 #### Scenario: English labels
@@ -104,7 +104,7 @@ On viewports narrower than the `md` breakpoint (900 px), the page SHALL show fou
 
 #### Scenario: Past season on a phone
 - **WHEN** a user on a 360 px phone opens `/division/7?season=2`
-- **THEN** the "Tabla", "Jornadas" and "Estadísticas" tabs are shown
+- **THEN** the "Tabla", "Jornadas" and "Datos" tabs are shown
 
 ### Requirement: Desktop layout
 From the `md` breakpoint up, the page SHALL show the standings (8 of 12 columns) beside a stack of league leaders, team of the week and recent transfers (4 of 12 columns), with the matchday navigator and the two matchday cards side by side below, and no tabs.
