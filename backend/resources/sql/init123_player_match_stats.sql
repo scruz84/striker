@@ -45,9 +45,24 @@ CREATE TABLE IF NOT EXISTS player_match_stats (
     PRIMARY KEY (kind, match_id, player_id)
 );
 
-CREATE INDEX IF NOT EXISTS player_match_stats_player_idx ON player_match_stats (player_id, season);
-CREATE INDEX IF NOT EXISTS player_match_stats_competition_idx ON player_match_stats (competition, competition_id, season);
-CREATE INDEX IF NOT EXISTS player_match_stats_team_idx ON player_match_stats (team_id, season);
+-- CREATE INDEX IF NOT EXISTS locks its table in SHARE mode before it checks the index exists, and
+-- this file runs again on every startup while results are being saved: each index is only created
+-- when to_regclass, which takes no lock, does not find it (see init120).
+DO $$
+DECLARE
+    idx record;
+BEGIN
+    FOR idx IN SELECT * FROM (VALUES
+        ('player_match_stats_player_idx', 'CREATE INDEX IF NOT EXISTS player_match_stats_player_idx ON player_match_stats (player_id, season)'),
+        ('player_match_stats_competition_idx', 'CREATE INDEX IF NOT EXISTS player_match_stats_competition_idx ON player_match_stats (competition, competition_id, season)'),
+        ('player_match_stats_team_idx', 'CREATE INDEX IF NOT EXISTS player_match_stats_team_idx ON player_match_stats (team_id, season)')
+    ) AS v(name, ddl) LOOP
+        IF to_regclass(idx.name) IS NULL THEN
+            EXECUTE idx.ddl;
+        END IF;
+    END LOOP;
+END
+$$;
 
 -- One row per one-off data backfill that must not run again on the next startup.
 CREATE TABLE IF NOT EXISTS schema_backfills (
@@ -57,78 +72,88 @@ CREATE TABLE IF NOT EXISTS schema_backfills (
 
 -- Backfill from what every played fixture already stores: its ratings rows (who featured, for how
 -- long, how well) and its goal/card events (team_players holds the one player concerned, as JSON).
-WITH done AS (SELECT 1 FROM schema_backfills WHERE name = 'player_match_stats'),
-season_starts AS (
-    SELECT l.country, m.season, min(m.match_date) AS starts_at
-    FROM matches m JOIN leagues l ON l.league_id = m.league_id
-    GROUP BY l.country, m.season
-),
-fixtures AS (
-    SELECT 'league'::text AS kind, m.match_id AS id, m.match_date AS kickoff, m.season AS season,
-           1::smallint AS competition, m.league_id AS competition_id
-    FROM matches m WHERE m.played
-    UNION ALL
-    SELECT 'cup', ct.tie_id, COALESCE(ct.match_date, now()),
-           CASE WHEN c.country IS NOT NULL THEN c.season END,
-           (CASE WHEN c.kind = 'playoff' THEN 3 WHEN c.country IS NOT NULL THEN 2 WHEN c.region = 'world' THEN 5 ELSE 4 END)::smallint,
-           CASE WHEN c.region = 'world' THEN wc.world_cup_id ELSE c.cup_id END
-    FROM cup_ties ct JOIN cups c ON c.cup_id = ct.cup_id
-    LEFT JOIN world_cups wc ON wc.knockout_cup_id = c.cup_id
-    WHERE ct.played
-    UNION ALL
-    SELECT 'friendly', fm.match_id, fm.match_date, NULL::int,
-           (CASE WHEN g.world_cup_id IS NOT NULL THEN 5 WHEN h.is_national_team THEN 7 ELSE 6 END)::smallint,
-           g.world_cup_id
-    FROM friendly_matches fm JOIN teams h ON h.team_id = fm.home_team_id
-    LEFT JOIN world_cup_group_matches wgm ON wgm.match_id = fm.match_id
-    LEFT JOIN world_cup_groups g ON g.group_id = wgm.group_id
-    WHERE fm.played
-),
-events AS (
-    SELECT 'league'::text AS kind, match_id AS id, event_type, set_piece, team_owner, team_players FROM match_events
-    WHERE event_type IN (0, 2, 3)
-    UNION ALL
-    SELECT 'cup', tie_id, event_type, set_piece, team_owner, team_players FROM cup_tie_events WHERE event_type IN (0, 2, 3)
-    UNION ALL
-    SELECT 'friendly', match_id, event_type, set_piece, team_owner, team_players FROM friendly_events WHERE event_type IN (0, 2, 3)
-),
-event_tally AS (
-    SELECT kind, id, (team_players::jsonb ->> 0)::bigint AS player_id, min(team_owner) AS team_id,
-           count(*) FILTER (WHERE event_type = 0)::smallint AS goals,
-           count(*) FILTER (WHERE event_type = 0 AND set_piece = 1)::smallint AS penalty_goals,
-           count(*) FILTER (WHERE event_type = 2)::smallint AS yellow_cards,
-           count(*) FILTER (WHERE event_type = 3)::smallint AS red_cards
-    FROM events
-    WHERE team_players LIKE '[%' AND team_players::jsonb ->> 0 IS NOT NULL
-    GROUP BY kind, id, (team_players::jsonb ->> 0)::bigint
-),
-appearances AS (
-    SELECT r.kind, r.match_id AS id, r.player_id, r.team_id, true AS appeared, r.came_on IS NULL AS started,
-           r.minutes, r.rated, r.rating, r.position::smallint AS position,
-           COALESCE(e.goals, 0)::smallint AS goals, COALESCE(e.penalty_goals, 0)::smallint AS penalty_goals,
-           COALESCE(e.yellow_cards, 0)::smallint AS yellow_cards, COALESCE(e.red_cards, 0)::smallint AS red_cards
-    FROM match_player_ratings r
-    LEFT JOIN event_tally e ON e.kind = r.kind AND e.id = r.match_id AND e.player_id = r.player_id
-    UNION ALL
-    SELECT e.kind, e.id, e.player_id, e.team_id, false, false, 0, false, 0, NULL::smallint,
-           e.goals, e.penalty_goals, e.yellow_cards, e.red_cards
-    FROM event_tally e
-    WHERE e.team_id IS NOT NULL AND NOT EXISTS (
-        SELECT 1 FROM match_player_ratings r WHERE r.kind = e.kind AND r.match_id = e.id AND r.player_id = e.player_id)
-)
-INSERT INTO player_match_stats (kind, match_id, player_id, team_id, kickoff, season, competition, competition_id,
-                                appeared, started, minutes, rated, rating, position, goals, penalty_goals, yellow_cards, red_cards)
-SELECT a.kind, a.id, a.player_id, a.team_id, f.kickoff,
-       COALESCE(f.season,
-                (SELECT max(s.season) FROM season_starts s WHERE s.country = t.country AND s.starts_at <= f.kickoff),
-                c.current_season, 1),
-       f.competition, f.competition_id,
-       a.appeared, a.started, a.minutes, a.rated, a.rating, a.position, a.goals, a.penalty_goals, a.yellow_cards, a.red_cards
-FROM appearances a
-JOIN fixtures f ON f.kind = a.kind AND f.id = a.id
-JOIN teams t ON t.team_id = a.team_id
-LEFT JOIN countries c ON c.name = t.country
-WHERE NOT EXISTS (SELECT 1 FROM done)
-ON CONFLICT (kind, match_id, player_id) DO NOTHING;
-
-INSERT INTO schema_backfills (name) VALUES ('player_match_stats') ON CONFLICT (name) DO NOTHING;
+--
+-- season_starts is MATERIALIZED: it is read from a correlated subquery once per friendly or
+-- international line, and inlined (Postgres' default for a CTE read once) it re-aggregated every
+-- league match of the country for each of those lines, which on a real world took tens of minutes.
+-- It sits in a DO block that only enters it while schema_backfills has no 'player_match_stats'
+-- row: every svc and engine startup re-applies this file, and a guard inside the query itself
+-- (a NOT EXISTS filter) still let Postgres run most of the backfill before discarding it.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM schema_backfills WHERE name = 'player_match_stats') THEN
+    WITH season_starts AS MATERIALIZED (
+        SELECT l.country, m.season, min(m.match_date) AS starts_at
+        FROM matches m JOIN leagues l ON l.league_id = m.league_id
+        GROUP BY l.country, m.season
+    ),
+    fixtures AS (
+        SELECT 'league'::text AS kind, m.match_id AS id, m.match_date AS kickoff, m.season AS season,
+               1::smallint AS competition, m.league_id AS competition_id
+        FROM matches m WHERE m.played
+        UNION ALL
+        SELECT 'cup', ct.tie_id, COALESCE(ct.match_date, now()),
+               CASE WHEN c.country IS NOT NULL THEN c.season END,
+               (CASE WHEN c.kind = 'playoff' THEN 3 WHEN c.country IS NOT NULL THEN 2 WHEN c.region = 'world' THEN 5 ELSE 4 END)::smallint,
+               CASE WHEN c.region = 'world' THEN wc.world_cup_id ELSE c.cup_id END
+        FROM cup_ties ct JOIN cups c ON c.cup_id = ct.cup_id
+        LEFT JOIN world_cups wc ON wc.knockout_cup_id = c.cup_id
+        WHERE ct.played
+        UNION ALL
+        SELECT 'friendly', fm.match_id, fm.match_date, NULL::int,
+               (CASE WHEN g.world_cup_id IS NOT NULL THEN 5 WHEN h.is_national_team THEN 7 ELSE 6 END)::smallint,
+               g.world_cup_id
+        FROM friendly_matches fm JOIN teams h ON h.team_id = fm.home_team_id
+        LEFT JOIN world_cup_group_matches wgm ON wgm.match_id = fm.match_id
+        LEFT JOIN world_cup_groups g ON g.group_id = wgm.group_id
+        WHERE fm.played
+    ),
+    events AS (
+        SELECT 'league'::text AS kind, match_id AS id, event_type, set_piece, team_owner, team_players FROM match_events
+        WHERE event_type IN (0, 2, 3)
+        UNION ALL
+        SELECT 'cup', tie_id, event_type, set_piece, team_owner, team_players FROM cup_tie_events WHERE event_type IN (0, 2, 3)
+        UNION ALL
+        SELECT 'friendly', match_id, event_type, set_piece, team_owner, team_players FROM friendly_events WHERE event_type IN (0, 2, 3)
+    ),
+    event_tally AS (
+        SELECT kind, id, (team_players::jsonb ->> 0)::bigint AS player_id, min(team_owner) AS team_id,
+               count(*) FILTER (WHERE event_type = 0)::smallint AS goals,
+               count(*) FILTER (WHERE event_type = 0 AND set_piece = 1)::smallint AS penalty_goals,
+               count(*) FILTER (WHERE event_type = 2)::smallint AS yellow_cards,
+               count(*) FILTER (WHERE event_type = 3)::smallint AS red_cards
+        FROM events
+        WHERE team_players LIKE '[%' AND team_players::jsonb ->> 0 IS NOT NULL
+        GROUP BY kind, id, (team_players::jsonb ->> 0)::bigint
+    ),
+    appearances AS (
+        SELECT r.kind, r.match_id AS id, r.player_id, r.team_id, true AS appeared, r.came_on IS NULL AS started,
+               r.minutes, r.rated, r.rating, r.position::smallint AS position,
+               COALESCE(e.goals, 0)::smallint AS goals, COALESCE(e.penalty_goals, 0)::smallint AS penalty_goals,
+               COALESCE(e.yellow_cards, 0)::smallint AS yellow_cards, COALESCE(e.red_cards, 0)::smallint AS red_cards
+        FROM match_player_ratings r
+        LEFT JOIN event_tally e ON e.kind = r.kind AND e.id = r.match_id AND e.player_id = r.player_id
+        UNION ALL
+        SELECT e.kind, e.id, e.player_id, e.team_id, false, false, 0, false, 0, NULL::smallint,
+               e.goals, e.penalty_goals, e.yellow_cards, e.red_cards
+        FROM event_tally e
+        WHERE e.team_id IS NOT NULL AND NOT EXISTS (
+            SELECT 1 FROM match_player_ratings r WHERE r.kind = e.kind AND r.match_id = e.id AND r.player_id = e.player_id)
+    )
+    INSERT INTO player_match_stats (kind, match_id, player_id, team_id, kickoff, season, competition, competition_id,
+                                    appeared, started, minutes, rated, rating, position, goals, penalty_goals, yellow_cards, red_cards)
+    SELECT a.kind, a.id, a.player_id, a.team_id, f.kickoff,
+           COALESCE(f.season,
+                    (SELECT max(s.season) FROM season_starts s WHERE s.country = t.country AND s.starts_at <= f.kickoff),
+                    c.current_season, 1),
+           f.competition, f.competition_id,
+           a.appeared, a.started, a.minutes, a.rated, a.rating, a.position, a.goals, a.penalty_goals, a.yellow_cards, a.red_cards
+    FROM appearances a
+    JOIN fixtures f ON f.kind = a.kind AND f.id = a.id
+    JOIN teams t ON t.team_id = a.team_id
+    LEFT JOIN countries c ON c.name = t.country
+    ON CONFLICT (kind, match_id, player_id) DO NOTHING;
+    INSERT INTO schema_backfills (name) VALUES ('player_match_stats') ON CONFLICT (name) DO NOTHING;
+  END IF;
+END
+$$;

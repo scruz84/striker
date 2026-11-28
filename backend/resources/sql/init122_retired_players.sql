@@ -8,7 +8,8 @@
 -- three history tables drop their foreign key to players, so their rows outlive him; a world reset
 -- (handlers.teamPlayerDependentTables) clears them explicitly instead.
 --
--- Re-runnable: CREATE TABLE IF NOT EXISTS, DROP CONSTRAINT IF EXISTS.
+-- Re-runnable, and takes no blocking lock once applied: CREATE TABLE IF NOT EXISTS, and each
+-- constraint dropped only while it exists.
 
 CREATE TABLE IF NOT EXISTS retired_players (
     player_id      bigint PRIMARY KEY,
@@ -27,6 +28,22 @@ CREATE TABLE IF NOT EXISTS retired_players (
     retired_at     timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE player_season_awards DROP CONSTRAINT IF EXISTS player_season_awards_player_id_fkey;
-ALTER TABLE player_transfers DROP CONSTRAINT IF EXISTS player_transfers_player_id_fkey;
-ALTER TABLE player_club_history DROP CONSTRAINT IF EXISTS player_club_history_player_id_fkey;
+-- This file runs again on every startup, and ALTER TABLE takes an ACCESS EXCLUSIVE lock on its
+-- table even when the constraint is already gone - held until the file ends, against transfers
+-- writing those tables (see init120). Each constraint is therefore only dropped while pg_constraint,
+-- read without a table lock, still lists it.
+DO $$
+DECLARE
+    fk record;
+BEGIN
+    FOR fk IN SELECT * FROM (VALUES
+        ('player_season_awards', 'player_season_awards_player_id_fkey'),
+        ('player_transfers', 'player_transfers_player_id_fkey'),
+        ('player_club_history', 'player_club_history_player_id_fkey')
+    ) AS v(tbl, name) LOOP
+        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = fk.name AND conrelid = to_regclass(fk.tbl)) THEN
+            EXECUTE format('ALTER TABLE %I DROP CONSTRAINT %I', fk.tbl, fk.name);
+        END IF;
+    END LOOP;
+END
+$$;
