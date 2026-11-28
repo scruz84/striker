@@ -4,6 +4,13 @@ import { api, ApiError, CLIENT_HEADER, CLIENT_HEADER_VALUE, isUnauthorized } fro
 import { subscribeToPush, unsubscribeFromPush } from '../pushNotifications'
 import type { SupportedLanguage } from '../i18n'
 import type {
+  BestXi,
+  ClubRecords,
+  LeadersCategory,
+  LeagueLeaders,
+  LeagueRecords,
+  PlayerProfile,
+  TeamSeasonStats,
   AccountInfo,
   AcademyOverview,
   AdminLeagueInfo,
@@ -91,6 +98,13 @@ export const queryKeys = {
   leagueSeasons: (leagueId: string) => ['leagueSeasons', leagueId] as const,
   leagueSeasonTable: (leagueId: string, season: number) => ['leagueSeasonTable', leagueId, season] as const,
   topScorers: (leagueId: string) => ['topScorers', leagueId] as const,
+  // season is undefined for the league's current season.
+  leagueLeaders: (leagueId: string, category: string, season?: number) => ['leagueLeaders', leagueId, category, season ?? 'current'] as const,
+  leagueRecords: (leagueId: string) => ['leagueRecords', leagueId] as const,
+  // week undefined is the latest matchday with one; season undefined the current season.
+  bestXi: (leagueId: string, season?: number, week?: number) => ['bestXi', leagueId, season ?? 'current', week ?? 'latest'] as const,
+  teamSeasonStats: (teamId: string, season?: number) => ['teamSeasonStats', teamId, season ?? 'latest'] as const,
+  teamRecords: (teamId: string) => ['teamRecords', teamId] as const,
   recentLeagueTransfers: (leagueId: string) => ['recentLeagueTransfers', leagueId] as const,
   leagueDirectory: ['leagueDirectory'] as const,
   match: (id: string) => ['match', id] as const,
@@ -339,6 +353,66 @@ export function usePlayerDetails(playerId: string | undefined) {
     queryKey: queryKeys.player(playerId ?? ''),
     queryFn: () => api.get<PlayerDetails>(`/v1/teams/player/${playerId}/`),
     enabled: !!playerId,
+  })
+}
+
+// The player page's profile: an active player's PlayerDetails, or a retired player's record (see
+// isRetiredProfile). Same query as usePlayerDetails.
+export function usePlayerProfile(playerId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.player(playerId ?? ''),
+    queryFn: () => api.get<PlayerProfile>(`/v1/teams/player/${playerId}/`),
+    enabled: !!playerId,
+  })
+}
+
+// A league season's leaders in one category (openspec player-stats "League leaders").
+export function useLeagueLeaders(leagueId: string | undefined, category: LeadersCategory, season?: number) {
+  return useQuery({
+    queryKey: queryKeys.leagueLeaders(leagueId ?? '', category, season),
+    queryFn: () =>
+      api.get<LeagueLeaders>(`/v1/teams/division/${leagueId}/leaders?category=${category}${season !== undefined ? `&season=${season}` : ''}`),
+    enabled: !!leagueId,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useLeagueRecords(leagueId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.leagueRecords(leagueId ?? ''),
+    queryFn: () => api.get<LeagueRecords>(`/v1/teams/division/${leagueId}/records`),
+    enabled: !!leagueId,
+  })
+}
+
+// A league's team of the week (week >= 1, the latest by default) or of the season (week 0).
+export function useBestXi(leagueId: string | undefined, season?: number, week?: number) {
+  const params = new URLSearchParams()
+  if (season !== undefined) params.set('season', String(season))
+  if (week !== undefined) params.set('week', String(week))
+  const query = params.toString()
+  return useQuery({
+    queryKey: queryKeys.bestXi(leagueId ?? '', season, week),
+    queryFn: () => api.get<BestXi>(`/v1/teams/division/${leagueId}/best-xi${query ? `?${query}` : ''}`),
+    enabled: !!leagueId,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useTeamSeasonStats(teamId: string | undefined, season?: number, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.teamSeasonStats(teamId ?? '', season),
+    queryFn: () => api.get<TeamSeasonStats>(`/v1/teams/team/${teamId}/stats${season !== undefined ? `?season=${season}` : ''}`),
+    enabled: !!teamId && enabled,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useTeamRecords(teamId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.teamRecords(teamId ?? ''),
+    queryFn: () => api.get<ClubRecords>(`/v1/teams/team/${teamId}/records`),
+    enabled: !!teamId && enabled,
   })
 }
 

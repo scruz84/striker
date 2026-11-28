@@ -297,7 +297,7 @@ describe('DivisionDetailsPage matchday navigation', () => {
     expect(screen.getByRole('button', { name: i18n.t('division.nextMatchday') })).toBeInTheDocument()
   })
 
-  it('splits top scorers and recent transfers into their own phone tabs', async () => {
+  it('splits the league stats and recent transfers into their own phone tabs', async () => {
     viewport.desktop = false
     serve(division(12, [weekMatch(12)], [weekMatch(13)]))
     renderPage()
@@ -305,12 +305,13 @@ describe('DivisionDetailsPage matchday navigation', () => {
     const transfersHeading = () => screen.queryByRole('heading', { name: i18n.t('recentTransfers.title') })
     expect(await screen.findAllByRole('tab')).toHaveLength(4)
 
-    fireEvent.click(await screen.findByRole('tab', { name: i18n.t('division.tabs.scorers') }))
-    expect(await screen.findByRole('heading', { name: i18n.t('division.topScorers.title') })).toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('tab', { name: i18n.t('division.tabs.stats') }))
+    expect(await screen.findByRole('heading', { name: i18n.t('stats.leaders.title') })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: i18n.t('stats.bestXi.title') })).toBeInTheDocument()
     expect(transfersHeading()).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('tab', { name: i18n.t('division.tabs.transfers') }))
     expect(await screen.findByRole('heading', { name: i18n.t('recentTransfers.title') })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: i18n.t('division.topScorers.title') })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: i18n.t('stats.leaders.title') })).not.toBeInTheDocument()
   })
 })

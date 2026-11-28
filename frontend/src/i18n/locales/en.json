@@ -144,7 +144,9 @@
       "promotedViaPlayoff": "{{team}} was promoted through the playoff!",
       "relegatedViaPlayoff": "{{team}} was relegated through the playoff!",
       "playoffQualified": "{{team}} will play the promotion playoff against {{opponent}}",
-      "restructureMoved": "{{team}} will play next season in {{league}} because of the league restructure"
+      "restructureMoved": "{{team}} will play next season in {{league}} because of the league restructure",
+      "teamOfTheWeek": "Team of the week (matchday {{week}}): {{names}}",
+      "teamOfTheSeason": "Team of the season {{season}}: {{names}}"
     },
     "account": {
       "releaseWarning": "You haven't played for a long time: {{team}} will be released in {{days}} days unless you come back",
@@ -1113,7 +1115,7 @@
     "tabs": {
       "table": "Table",
       "fixtures": "Fixtures",
-      "scorers": "Scorers",
+      "stats": "Stats",
       "transfers": "Transfers"
     },
     "legend": {
@@ -2180,7 +2182,10 @@
       "contract": "Contract",
       "wage": "Wage",
       "averageSkill": "Average skill",
-      "releaseClause": "Release clause"
+      "releaseClause": "Release clause",
+      "appearances": "Appearances",
+      "teamsOfTheWeek": "Teams of the week",
+      "teamsOfTheSeason": "Teams of the season"
     },
     "listForTransfer": {
       "button": "List for transfer"
@@ -3042,5 +3047,124 @@
   },
   "competition": {
     "playoff": "Playoff"
+  },
+  "stats": {
+    "seasonShort": "S{{season}}",
+    "summary": "{{appearances}} apps · {{minutes}}' · {{cards}} cards",
+    "goalsShort_one": "{{count}} goal",
+    "goalsShort_other": "{{count}} goals",
+    "competitions": {
+      "league": "League",
+      "playoff": "Promotion playoff",
+      "worldCup": "World Cup",
+      "clubFriendly": "Friendlies",
+      "nationalFriendly": "International friendlies"
+    },
+    "columns": {
+      "season": "Season",
+      "competition": "Competition",
+      "team": "Team",
+      "player": "Player",
+      "appearances": "Apps (starts)",
+      "minutes": "Min",
+      "goals": "Goals",
+      "penalties": "Pens",
+      "cards": "Cards",
+      "rating": "Rating"
+    },
+    "playerSeasons": {
+      "title": "Season by season"
+    },
+    "leaders": {
+      "title": "League leaders",
+      "categories": {
+        "goals": "Goals",
+        "rating": "Rating",
+        "minutes": "Minutes",
+        "cards": "Cards"
+      },
+      "empty": {
+        "goals": "No goals yet this season",
+        "rating": "Nobody has played enough minutes yet",
+        "minutes": "No minutes played yet this season",
+        "cards": "No cards yet this season"
+      },
+      "appearances_one": "{{count}} app",
+      "appearances_other": "{{count}} apps",
+      "ratingNote": "Players with at least 40% of their team's possible minutes."
+    },
+    "bestXi": {
+      "title": "Team of the week",
+      "week": "Matchday {{week}}",
+      "season": "Season",
+      "previous": "Previous",
+      "next": "Next",
+      "empty": "The first team of the week is picked when a matchday ends",
+      "matches_one": "{{count}} match",
+      "matches_other": "{{count}} matches"
+    },
+    "team": {
+      "title": "Squad stats",
+      "playersView": "Squad",
+      "statsView": "Stats",
+      "season": "Season",
+      "sort": "Sort by",
+      "sorts": {
+        "minutes": "Minutes",
+        "appearances": "Appearances",
+        "goals": "Goals",
+        "rating": "Rating",
+        "cards": "Cards"
+      },
+      "empty": "No official match played yet",
+      "retired": "Retired",
+      "left": "Left"
+    },
+    "records": {
+      "clubTitle": "Club records",
+      "leagueTitle": "History and records",
+      "leagueButton": "History",
+      "backToLeague": "League",
+      "leagueEmpty": "This league has no history yet",
+      "results": "Results",
+      "streaks": "League streaks",
+      "seasonsAndMarket": "Seasons and transfers",
+      "biggestWin": "Biggest win",
+      "biggestDefeat": "Biggest defeat",
+      "highestScoring": "Most goals in a match",
+      "attendance": "Record attendance",
+      "winningStreak": "Wins in a row",
+      "unbeatenStreak": "Unbeaten run",
+      "losingStreak": "Defeats in a row",
+      "matches_one": "{{count}} match",
+      "matches_other": "{{count}} matches",
+      "ongoing": "Ongoing",
+      "bestFinish": "Best finish",
+      "finish": "{{position}} in {{league}} (S{{season}})",
+      "mostPoints": "Most points in a season",
+      "points": "{{points}} pts (S{{season}})",
+      "pointsColumn": "Points",
+      "pointsShort": "{{points}} pts",
+      "recordSigning": "Record signing",
+      "recordSale": "Record sale",
+      "from": "from",
+      "to": "to",
+      "topScorers": "All-time top scorers",
+      "mostAppearances": "Most appearances",
+      "champions": "Champions",
+      "champion": "Champion",
+      "noChampions": "No season finished yet",
+      "mostTitles": "Most titles",
+      "titles_one": "{{count}} title",
+      "titles_other": "{{count}} titles",
+      "goldenBoots": "Golden Boots",
+      "allTimeScorers": "All-time top scorers"
+    }
+  },
+  "retiredPlayer": {
+    "chip": "Retired",
+    "retiredInSeason": "Retired in season {{season}}, aged {{age}}",
+    "retiredAtAge": "Retired aged {{age}}",
+    "lastClub": "Last club:"
   }
 }

@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from 'react'
-import SportsSoccerOutlinedIcon from '@mui/icons-material/SportsSoccerOutlined'
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -34,14 +33,12 @@ import {
   useLeagueSeasons,
   useLeagueSeasonTable,
   useLeagueWeekMatches,
-  useTopScorers,
   useUserTeam,
 } from '../../api/hooks'
-import type { ClassificationPosition, LeagueLiveScore, LeagueSeasonTable, ScorerStanding, WeekMatch } from '../../api/types'
+import type { ClassificationPosition, LeagueLiveScore, LeagueSeasonTable, WeekMatch } from '../../api/types'
 import { EmptyState } from '../../components/EmptyState'
 import { PageHeader } from '../../components/PageHeader'
 import { TeamBadge } from '../../components/TeamBadge'
-import { PlayerNameLink } from '../../components/PlayerNameLink'
 import { TeamNameLink } from '../../components/TeamNameLink'
 import { isPast, mightStillBeLive } from '../../api/useLiveMatch'
 import { formatDivisionName } from '../../utils/divisionName'
@@ -52,12 +49,13 @@ import { applyLiveScores, compareClassification, type LiveTable } from './liveTa
 import { RecentLeagueTransfers } from '../leagues/RecentLeagueTransfers'
 import { PlayoffCard } from './PlayoffCard'
 import { zoneFor, zonesLegend, type Zone, type ZoneLegendFlags } from './zones'
-import { CountryFlag } from '../../components/CountryFlag'
+import { BestXiCard } from '../stats/BestXiCard'
+import { LeagueLeadersCard } from '../stats/LeagueLeadersCard'
 
 const RANK_COLORS = ['#D4AF37', '#A8A9AD', '#B08D57'] as const
 const TOP_SCORERS_PREVIEW = 5
 
-type DivisionTab = 'table' | 'fixtures' | 'scorers' | 'transfers'
+type DivisionTab = 'table' | 'fixtures' | 'stats' | 'transfers'
 
 export function DivisionDetailsPage() {
   const { t } = useTranslation()
@@ -68,7 +66,9 @@ export function DivisionDetailsPage() {
   const { data: divisionDetails, isLoading, dataUpdatedAt: divisionUpdatedAt } = useDivisionDetails(id)
   const { data: seasons, isLoading: seasonsLoading } = useLeagueSeasons(id)
   const { data: userTeam } = useUserTeam(true)
-  const [tab, setTab] = useState<DivisionTab>('table')
+  // A notification's link opens a team of the week (?xi=<week>, 0 the team of the season).
+  const requestedXi = requestedXiWeek(searchParams.get('xi'))
+  const [tab, setTab] = useState<DivisionTab>(requestedXi !== undefined ? 'stats' : 'table')
   // The live table switch: on by default, not remembered between visits.
   const [liveTableOn, setLiveTableOn] = useState(true)
 
@@ -110,8 +110,9 @@ export function DivisionDetailsPage() {
         picker={picker}
         myTeamId={userTeam?.team.id}
         isDesktop={isDesktop}
-        tab={tab === 'fixtures' ? 'fixtures' : 'table'}
+        tab={tab === 'fixtures' || tab === 'stats' ? tab : 'table'}
         onTab={setTab}
+        initialXiWeek={requestedXi ?? 0}
       />
     )
   }
@@ -183,6 +184,7 @@ export function DivisionDetailsPage() {
             ? t('division.subtitle', { season: divisionDetails.season, week: currentWeek, total: totalWeeks })
             : t('division.season', { season: divisionDetails.season })
         }
+        action={<LeagueHistoryButton leagueId={id} />}
       />
 
       {isDesktop ? (
@@ -191,7 +193,8 @@ export function DivisionDetailsPage() {
             <Grid size={{ md: 8 }}>{table}</Grid>
             <Grid size={{ md: 4 }}>
               <Stack spacing={2}>
-                <TopScorers leagueId={id} limit={TOP_SCORERS_PREVIEW} />
+                <LeagueLeadersCard leagueId={id} limit={TOP_SCORERS_PREVIEW} />
+                <BestXiCard leagueId={id} initialWeek={requestedXi} />
                 <RecentLeagueTransfers leagueId={id} />
               </Stack>
             </Grid>
@@ -209,12 +212,17 @@ export function DivisionDetailsPage() {
             {/* Four tabs share 328px at 360px wide: drop MUI's 90px minWidth and trim the padding. */}
             <Tab value="table" label={t('division.tabs.table')} sx={{ minWidth: 0, px: 1 }} />
             <Tab value="fixtures" label={t('division.tabs.fixtures')} sx={{ minWidth: 0, px: 1 }} />
-            <Tab value="scorers" label={t('division.tabs.scorers')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="stats" label={t('division.tabs.stats')} sx={{ minWidth: 0, px: 1 }} />
             <Tab value="transfers" label={t('division.tabs.transfers')} sx={{ minWidth: 0, px: 1 }} />
           </Tabs>
           {tab === 'table' && table}
           {tab === 'fixtures' && fixtures}
-          {tab === 'scorers' && <TopScorers leagueId={id} limit={TOP_SCORERS_PREVIEW} />}
+          {tab === 'stats' && (
+            <Stack spacing={2}>
+              <LeagueLeadersCard leagueId={id} limit={TOP_SCORERS_PREVIEW} />
+              <BestXiCard leagueId={id} initialWeek={requestedXi} />
+            </Stack>
+          )}
           {tab === 'transfers' && <RecentLeagueTransfers leagueId={id} />}
         </>
       )}
@@ -233,14 +241,16 @@ function PastSeasonView({
   isDesktop,
   tab,
   onTab,
+  initialXiWeek,
 }: {
   leagueId: string | undefined
   table: LeagueSeasonTable
   picker: ReactNode
   myTeamId: number | undefined
   isDesktop: boolean
-  tab: 'table' | 'fixtures'
+  tab: 'table' | 'fixtures' | 'stats'
   onTab: (tab: DivisionTab) => void
+  initialXiWeek: number
 }) {
   const { t } = useTranslation()
   const positions = pastSeasonPositions(table)
@@ -275,17 +285,27 @@ function PastSeasonView({
     />
   )
 
+  // The season's leaders and its team of the season (or of any of its matchdays).
+  const stats = (
+    <Stack spacing={2}>
+      <BestXiCard key={table.season} leagueId={leagueId} season={table.season} initialWeek={initialXiWeek} />
+      <LeagueLeadersCard key={`leaders-${table.season}`} leagueId={leagueId} season={table.season} limit={TOP_SCORERS_PREVIEW} />
+    </Stack>
+  )
+
   return (
     <Box>
       <PageHeader
         title={formatDivisionName(t, table.name)}
         titleText={table.name}
         subtitle={t('division.seasonFinal', { season: table.season })}
+        action={<LeagueHistoryButton leagueId={leagueId} />}
       />
       {isDesktop ? (
         <Stack spacing={2}>
           <Grid container spacing={2}>
             <Grid size={{ md: 8 }}>{standings}</Grid>
+            <Grid size={{ md: 4 }}>{stats}</Grid>
           </Grid>
           {fixtures}
         </Stack>
@@ -299,9 +319,11 @@ function PastSeasonView({
           >
             <Tab value="table" label={t('division.tabs.table')} sx={{ minWidth: 0, px: 1 }} />
             <Tab value="fixtures" label={t('division.tabs.fixtures')} sx={{ minWidth: 0, px: 1 }} />
+            <Tab value="stats" label={t('division.tabs.stats')} sx={{ minWidth: 0, px: 1 }} />
           </Tabs>
           {tab === 'table' && standings}
           {tab === 'fixtures' && fixtures}
+          {tab === 'stats' && stats}
         </>
       )}
     </Box>
@@ -330,6 +352,23 @@ function pastSeasonZone(row: { promoted: boolean; relegated: boolean } | undefin
   if (row?.promoted) return 'promotion'
   if (row?.relegated) return 'relegation'
   return undefined
+}
+
+// requestedXiWeek reads the `xi` query parameter: a matchday, or 0 for the team of the season.
+function requestedXiWeek(param: string | null): number | undefined {
+  if (param === null || !/^\d+$/.test(param)) return undefined
+  return Number(param)
+}
+
+// The link from a division to its history and records page.
+function LeagueHistoryButton({ leagueId }: { leagueId: string | undefined }) {
+  const { t } = useTranslation()
+  if (!leagueId) return null
+  return (
+    <Button component={RouterLink} to={`/division/${leagueId}/records`} size="small" variant="tonal" startIcon={<EmojiEventsOutlinedIcon />}>
+      {t('stats.records.leagueButton')}
+    </Button>
+  )
 }
 
 // requestedSeason reads the `season` query parameter: anything that isn't a positive integer is ignored.
@@ -764,79 +803,6 @@ function ZoneLegend({ color, label }: { color: string; label: string }) {
       <Box sx={{ width: 4, height: 16, borderRadius: 1, bgcolor: color }} />
       <Typography variant="caption">{label}</Typography>
     </Stack>
-  )
-}
-
-function TopScorers({ leagueId, limit }: { leagueId: string | undefined; limit: number }) {
-  const { t } = useTranslation()
-  const { data: scorers, isLoading } = useTopScorers(leagueId)
-  const [showAll, setShowAll] = useState(false)
-  const visible = scorers ? (showAll ? scorers : scorers.slice(0, limit)) : []
-
-  return (
-    <Paper variant="outlined" sx={{ height: '100%' }}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', p: 2, pb: 1 }}>
-        <SportsSoccerOutlinedIcon color="primary" fontSize="small" />
-        <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 700 }}>
-          {t('division.topScorers.title')}
-        </Typography>
-      </Stack>
-      {isLoading || !scorers ? (
-        <Skeleton variant="rectangular" height={100} sx={{ m: 2, borderRadius: 1 }} />
-      ) : scorers.length === 0 ? (
-        <EmptyState compact title={t('division.topScorers.noGoals')} />
-      ) : (
-        <>
-          <Stack divider={<Box sx={{ borderBottom: '1px solid', borderColor: 'divider' }} />}>
-            {visible.map((scorer: ScorerStanding, index: number) => {
-              const rankColor = RANK_COLORS[index]
-              return (
-                <Stack key={scorer.playerId} direction="row" spacing={1.5} sx={{ alignItems: 'center', px: 2, py: 1 }}>
-                  <Box
-                    sx={{
-                      width: 22,
-                      height: 22,
-                      flexShrink: 0,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      typography: 'chipLabel',
-                      fontWeight: 700,
-                      bgcolor: rankColor ?? 'action.selected',
-                      color: rankColor ? '#fff' : 'text.secondary',
-                    }}
-                  >
-                    {index + 1}
-                  </Box>
-                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                    <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
-                      <CountryFlag code={scorer.birthCountry} height={14} marginRight={0.5} />
-                      <PlayerNameLink playerId={scorer.playerId}>
-                        {scorer.firstName} {scorer.lastName}
-                      </PlayerNameLink>
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
-                      <TeamNameLink teamId={scorer.teamId}>{scorer.teamName}</TeamNameLink>
-                    </Typography>
-                  </Box>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {scorer.goals}
-                  </Typography>
-                </Stack>
-              )
-            })}
-          </Stack>
-          {scorers.length > limit && (
-            <Box sx={{ p: 1, textAlign: 'center' }}>
-              <Button onClick={() => setShowAll((current) => !current)}>
-                {showAll ? t('common.viewLess') : t('division.topScorers.viewAll', { count: scorers.length })}
-              </Button>
-            </Box>
-          )}
-        </>
-      )}
-    </Paper>
   )
 }
 

@@ -172,7 +172,7 @@ describe('DivisionDetailsPage past seasons', () => {
     expect(screen.getByTestId('location').textContent).toBe('/division/7')
   })
 
-  it('browses season 2: final table, last matchdays with scores, no scorers or transfers', async () => {
+  it('browses season 2: final table, last matchdays with scores, its leaders, no transfers', async () => {
     serve({ current: 3, past: [2, 1] })
     renderPage('/division/7?season=2')
 
@@ -190,7 +190,9 @@ describe('DivisionDetailsPage past seasons', () => {
     expect(screen.queryByText(i18n.t('division.lastWeek'))).not.toBeInTheDocument()
     expect(screen.queryByText(i18n.t('division.nextWeek'))).not.toBeInTheDocument()
 
-    expect(screen.queryByRole('heading', { name: i18n.t('division.topScorers.title') })).not.toBeInTheDocument()
+    // The season's own leaders and team of the season; recent transfers belong to the current season.
+    expect(await screen.findByRole('heading', { name: i18n.t('stats.leaders.title') })).toBeInTheDocument()
+    expect(get.mock.calls.some(([path]) => path === '/v1/teams/division/7/leaders?category=goals&season=2')).toBe(true)
     expect(screen.queryByRole('heading', { name: i18n.t('recentTransfers.title') })).not.toBeInTheDocument()
     expect(get.mock.calls.some(([path]) => path.endsWith('/top-scorers') || path.endsWith('/recent-transfers'))).toBe(false)
   })
@@ -219,13 +221,17 @@ describe('DivisionDetailsPage past seasons', () => {
     expect(screen.queryByText(i18n.t('division.seasonFinal', { season: 5 }))).not.toBeInTheDocument()
   })
 
-  it('shows only the Table and Fixtures tabs for a past season on a phone', async () => {
+  it('shows the Table, Fixtures and Stats tabs for a past season on a phone', async () => {
     viewport.desktop = false
     serve({ current: 3, past: [2, 1] })
     renderPage('/division/7?season=2')
 
     const tabs = await screen.findAllByRole('tab')
-    expect(tabs.map((tab) => tab.textContent)).toEqual([i18n.t('division.tabs.table'), i18n.t('division.tabs.fixtures')])
+    expect(tabs.map((tab) => tab.textContent)).toEqual([
+      i18n.t('division.tabs.table'),
+      i18n.t('division.tabs.fixtures'),
+      i18n.t('division.tabs.stats'),
+    ])
     fireEvent.click(screen.getByRole('tab', { name: i18n.t('division.tabs.fixtures') }))
     expect(await heading(17)).toBeInTheDocument()
   })

@@ -144,7 +144,9 @@
       "promotedViaPlayoff": "¡{{team}} ha ascendido en la promoción!",
       "relegatedViaPlayoff": "¡{{team}} ha descendido en la promoción!",
       "playoffQualified": "{{team}} jugará la promoción contra {{opponent}}",
-      "restructureMoved": "{{team}} jugará la próxima temporada en {{league}} por la reestructuración de las ligas"
+      "restructureMoved": "{{team}} jugará la próxima temporada en {{league}} por la reestructuración de las ligas",
+      "teamOfTheWeek": "Once ideal de la jornada {{week}}: {{names}}",
+      "teamOfTheSeason": "Once ideal de la temporada {{season}}: {{names}}"
     },
     "account": {
       "releaseWarning": "Llevas mucho tiempo sin jugar: {{team}} se liberará en {{days}} días si no vuelves",
@@ -1110,7 +1112,7 @@
     "tabs": {
       "table": "Tabla",
       "fixtures": "Jornadas",
-      "scorers": "Goleadores",
+      "stats": "Estadísticas",
       "transfers": "Traspasos"
     },
     "legend": {
@@ -2174,7 +2176,10 @@
       "contract": "Contrato",
       "wage": "Salario",
       "averageSkill": "Habilidad media",
-      "releaseClause": "Cláusula de rescisión"
+      "releaseClause": "Cláusula de rescisión",
+      "appearances": "Partidos",
+      "teamsOfTheWeek": "Once ideal de la jornada",
+      "teamsOfTheSeason": "Once ideal de la temporada"
     },
     "listForTransfer": {
       "button": "Poner en el mercado"
@@ -3033,5 +3038,124 @@
   },
   "competition": {
     "playoff": "Promoción"
+  },
+  "stats": {
+    "seasonShort": "T{{season}}",
+    "summary": "{{appearances}} PJ · {{minutes}}' · {{cards}} tarj.",
+    "goalsShort_one": "{{count}} gol",
+    "goalsShort_other": "{{count}} goles",
+    "competitions": {
+      "league": "Liga",
+      "playoff": "Promoción",
+      "worldCup": "Mundial",
+      "clubFriendly": "Amistosos",
+      "nationalFriendly": "Amistosos internacionales"
+    },
+    "columns": {
+      "season": "Temporada",
+      "competition": "Competición",
+      "team": "Equipo",
+      "player": "Jugador",
+      "appearances": "PJ (tit.)",
+      "minutes": "Min",
+      "goals": "Goles",
+      "penalties": "Pen.",
+      "cards": "Tarjetas",
+      "rating": "Nota"
+    },
+    "playerSeasons": {
+      "title": "Temporada a temporada"
+    },
+    "leaders": {
+      "title": "Líderes de la liga",
+      "categories": {
+        "goals": "Goles",
+        "rating": "Nota",
+        "minutes": "Minutos",
+        "cards": "Tarjetas"
+      },
+      "empty": {
+        "goals": "Aún no hay goles esta temporada",
+        "rating": "Nadie ha jugado aún los minutos suficientes",
+        "minutes": "Aún no se ha jugado esta temporada",
+        "cards": "Aún no hay tarjetas esta temporada"
+      },
+      "appearances_one": "{{count}} PJ",
+      "appearances_other": "{{count}} PJ",
+      "ratingNote": "Jugadores con al menos el 40 % de los minutos posibles de su equipo."
+    },
+    "bestXi": {
+      "title": "Once ideal",
+      "week": "Jornada {{week}}",
+      "season": "Temporada",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "empty": "El primer once ideal se elige al terminar una jornada",
+      "matches_one": "{{count}} partido",
+      "matches_other": "{{count}} partidos"
+    },
+    "team": {
+      "title": "Estadísticas de la plantilla",
+      "playersView": "Plantilla",
+      "statsView": "Estadísticas",
+      "season": "Temporada",
+      "sort": "Ordenar por",
+      "sorts": {
+        "minutes": "Minutos",
+        "appearances": "Partidos",
+        "goals": "Goles",
+        "rating": "Nota",
+        "cards": "Tarjetas"
+      },
+      "empty": "Aún no ha jugado ningún partido oficial",
+      "retired": "Retirado",
+      "left": "Ya no está"
+    },
+    "records": {
+      "clubTitle": "Récords del club",
+      "leagueTitle": "Historia y récords",
+      "leagueButton": "Historia",
+      "backToLeague": "Liga",
+      "leagueEmpty": "Esta liga aún no tiene historia",
+      "results": "Resultados",
+      "streaks": "Rachas en liga",
+      "seasonsAndMarket": "Temporadas y fichajes",
+      "biggestWin": "Mayor victoria",
+      "biggestDefeat": "Mayor derrota",
+      "highestScoring": "Partido con más goles",
+      "attendance": "Récord de asistencia",
+      "winningStreak": "Victorias seguidas",
+      "unbeatenStreak": "Partidos invicto",
+      "losingStreak": "Derrotas seguidas",
+      "matches_one": "{{count}} partido",
+      "matches_other": "{{count}} partidos",
+      "ongoing": "En curso",
+      "bestFinish": "Mejor clasificación",
+      "finish": "{{position}} en {{league}} (T{{season}})",
+      "mostPoints": "Más puntos en una temporada",
+      "points": "{{points}} pts (T{{season}})",
+      "pointsColumn": "Puntos",
+      "pointsShort": "{{points}} pts",
+      "recordSigning": "Fichaje más caro",
+      "recordSale": "Venta más cara",
+      "from": "desde",
+      "to": "a",
+      "topScorers": "Máximos goleadores históricos",
+      "mostAppearances": "Más partidos",
+      "champions": "Campeones",
+      "champion": "Campeón",
+      "noChampions": "Aún no ha terminado ninguna temporada",
+      "mostTitles": "Más títulos",
+      "titles_one": "{{count}} título",
+      "titles_other": "{{count}} títulos",
+      "goldenBoots": "Botas de Oro",
+      "allTimeScorers": "Máximos goleadores históricos"
+    }
+  },
+  "retiredPlayer": {
+    "chip": "Retirado",
+    "retiredInSeason": "Se retiró en la temporada {{season}}, con {{age}} años",
+    "retiredAtAge": "Se retiró con {{age}} años",
+    "lastClub": "Último club:"
   }
 }
