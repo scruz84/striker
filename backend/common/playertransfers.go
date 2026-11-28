@@ -130,13 +130,16 @@ const (
 // pins the literals to the constants. The ordered LIMIT sits in a subquery over player_transfers
 // alone, so the planner walks the index in ORDER BY order and stops after the limit before any join
 // (with the joins in the same level it may trade that for a merge join and a sort); only the few
-// survivors are joined to the names. Selected columns are an explicit allow-list: nothing private.
+// survivors are joined to the names. A retired player's sale (kept since
+// init122_retired_players.sql) is left out inside the subquery, so it cannot take a slot of the
+// limit and then fall out at the join. Selected columns are an explicit allow-list: nothing private.
 const getTransferComparablesStmtSql = "SELECT t.transfer_id, t.player_id, p.first_name, p.last_name, t.position, t.age, t.average_skill, " +
 	"t.fee, t.kind, t.created_at, t.from_team_id, COALESCE(f.name, ''), t.to_team_id, COALESCE(d.name, '') " +
 	"FROM (SELECT * FROM player_transfers " +
 	"WHERE kind IN (0, 1, 4) AND fee > 0 AND position = $1 " +
 	"AND age BETWEEN $2 AND $3 AND average_skill BETWEEN $4 AND $5 " +
 	"AND created_at > now() - interval '60 days' AND player_id <> $6 " +
+	"AND EXISTS (SELECT 1 FROM players ep WHERE ep.player_id = player_transfers.player_id) " +
 	"ORDER BY created_at DESC, transfer_id DESC LIMIT $7) t " +
 	"JOIN players p ON p.player_id = t.player_id " +
 	"LEFT JOIN teams f ON f.team_id = t.from_team_id " +

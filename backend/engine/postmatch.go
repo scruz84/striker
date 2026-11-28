@@ -91,7 +91,9 @@ func ApplyDuePostMatchEffects(dbCtx *common.DatabaseContext) int {
 
 // applyPostMatchEffects runs a match's deferred effects from its stored payload: new
 // injuries/suspensions and the availability countdown, skill growth (unless nobody played - a
-// default result), and the result notification matching the fixture's kind.
+// default result), and the result notification matching the fixture's kind. A league match then
+// closes its matchday's team of the week if it was the last one still pending (see
+// maybeCompleteBestXi).
 func applyPostMatchEffects(dbCtx *common.DatabaseContext, kind string, matchId int64, payload *common.PostMatchPayload) {
 	events := payload.Events
 	match := &common.MatchSimulation{
@@ -131,5 +133,6 @@ func applyPostMatchEffects(dbCtx *common.DatabaseContext, kind string, matchId i
 		notifyCupTieResult(dbCtx, match, payload.WentToPenalties)
 	default:
 		NotifyMatchResult(dbCtx, match)
+		maybeCompleteBestXi(dbCtx, matchId)
 	}
 }

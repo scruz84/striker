@@ -214,7 +214,9 @@ func TestStoppageTime_LongestMatchStaysHiddenUntilTheWindowCloses(t *testing.T) 
 		t.Errorf("post-match effects due at %s, want kickoff + %s, still in the future", dueAt, LiveBroadcastWindow)
 	}
 
+	// Time passes: the match and its player stats (which carry the kickoff) move into the past.
 	mustExec(`UPDATE matches SET match_date = $1 WHERE match_id = $2`, time.Now().Add(-LiveBroadcastWindow-time.Minute), matchId)
+	mustExec(`UPDATE player_match_stats SET kickoff = $1 WHERE kind = 'league' AND match_id = $2`, time.Now().Add(-LiveBroadcastWindow-time.Minute), matchId)
 	if meetings, goals := visible(); meetings != 1 || goals != 1 {
 		t.Errorf("after the live-broadcast window: head-to-head has %d meetings and the scorer %d goals, want 1 and 1", meetings, goals)
 	}

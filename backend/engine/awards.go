@@ -35,6 +35,8 @@ func awardSeasonHonors(dbCtx *common.DatabaseContext, leagueId int64, season int
 		}
 		notifyPlayerOfTheSeason(dbCtx, *playerOfSeason)
 	}
+
+	awardSeasonBestXi(dbCtx, leagueId, season)
 }
 
 func notifyGoldenBoot(dbCtx *common.DatabaseContext, scorer common.ScorerStanding) {

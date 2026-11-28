@@ -61,6 +61,8 @@ var spanishNotificationTemplates = map[string]string{
 	"notifications.messages.playerEvolutions":        "{{count}} de tus jugadores han evolucionado esta temporada - revisa sus últimas evoluciones",
 	"notifications.messages.goldenBoot":              "¡{{name}} ha ganado la Bota de Oro con {{goals}} goles!",
 	"notifications.messages.playerOfSeason":          "¡{{name}} ha sido nombrado Jugador de la Temporada!",
+	"notifications.messages.teamOfTheWeek":           "Once ideal de la jornada {{week}}: {{names}}",
+	"notifications.messages.teamOfTheSeason":         "Once ideal de la temporada {{season}}: {{names}}",
 	"notifications.messages.fanbaseGrew":             "Tu afición ha crecido a {{fanbase}}",
 	"notifications.messages.fanbaseShrank":           "Tu afición ha bajado a {{fanbase}}",
 	"notifications.messages.loanBuyOptionExercised":  "{{team}} ha ejecutado la opción de compra de {{player}}",

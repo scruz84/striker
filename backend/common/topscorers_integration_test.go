@@ -59,15 +59,16 @@ func TestGetTopScorersFinal_CountsLiveWindowMatches(t *testing.T) {
 	insertMatch(&oldMatch, time.Now().Add(-24*time.Hour))
 	insertMatch(&liveMatch, time.Now().Add(15*time.Minute))
 
-	goal := func(matchId, playerId int64) {
+	goal := func(matchId, playerId, teamId int64) {
 		mustExec(`INSERT INTO match_events (match_id, event_type, team_players) VALUES ($1, $2, $3)`,
 			matchId, GOAL, fmt.Sprintf("[%d]", playerId))
+		addLeagueGoalStatForTest(t, db, matchId, playerId, teamId)
 	}
-	goal(oldMatch, playerA)
-	goal(oldMatch, playerA)
-	goal(oldMatch, playerB)
-	goal(liveMatch, playerB)
-	goal(liveMatch, playerB)
+	goal(oldMatch, playerA, teamA)
+	goal(oldMatch, playerA, teamA)
+	goal(oldMatch, playerB, teamB)
+	goal(liveMatch, playerB, teamB)
+	goal(liveMatch, playerB, teamB)
 
 	public, err := GetTopScorers(dbCtx, leagueId, season, 1)
 	if err != nil || len(public) != 1 {

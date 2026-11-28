@@ -77,6 +77,15 @@ func teamPlayerDependentTables() []string {
 		"friendly_instants",
 		"friendly_matches",
 		"friendly_challenges",
+		// Kept past a player's retirement (openspec/specs/retired-players), so no longer cleared
+		// by the cascade from players; player_match_stats and the best XIs never referenced him.
+		"player_season_awards",
+		"player_transfers",
+		"player_club_history",
+		"retired_players",
+		"player_match_stats",
+		"best_xi_players",
+		"best_xi_rounds",
 		"players",
 	}
 }

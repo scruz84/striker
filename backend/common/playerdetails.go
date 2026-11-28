@@ -9,40 +9,6 @@ import (
 	"slices"
 )
 
-// PlayerCareerStats is a player's all-time totals, computed from match_events - see
-// engine/scorer_simulation.go and engine/discipline_simulation.go for how those events are
-// written. team_players is always a single-element JSON array holding the acting player's id
-// (never a real list), so an exact string match on "[<id>]" finds their events without
-// decoding JSON per row.
-//
-// There's deliberately no "appearances" count here: counting one would need an index over every
-// lineup_positions/cup_tie_lineup_positions/friendly_lineup_positions row by player_id, and nothing
-// here needs that shape of lookup yet (see engine.persistResolvedLineupSnapshot and its cup-tie/
-// friendly equivalents for how those per-match rows end up populated).
-type PlayerCareerStats struct {
-	Goals       int `json:"goals"`
-	YellowCards int `json:"yellowCards"`
-	RedCards    int `json:"redCards"`
-	// GoalsForTeam is goals scored while contracted to whichever team currently employs this
-	// player (0 for a free agent, who currently plays for none) - narrower than Goals, which
-	// counts every team a player has ever scored for across their whole career.
-	GoalsForTeam int `json:"goalsForTeam"`
-	// Caps is how many played national-team friendlies this player was selected to start (see
-	// common.SetNationalTeamLineup/ScheduleNationalTeamFriendlies) - counted from
-	// friendly_lineup_positions rather than match_events, since an appearance alone (not a
-	// goal/card action) is what a cap actually is.
-	Caps int `json:"caps"`
-}
-
-// match_date <= $3 excludes an event from a match still inside its live-broadcast window (see
-// LiveBroadcastWindow) - otherwise a player's career goal/card tally here would jump the instant
-// their match is simulated, well before that match's own page stops showing it as "LIVE" (issue:
-// match results review).
-const countPlayerEventStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
-	"WHERE me.event_type = $1 AND me.team_players = $2 AND m.match_date <= $3"
-const countPlayerEventForTeamStmtSql = "SELECT count(*) FROM match_events me JOIN matches m ON m.match_id = me.match_id " +
-	"WHERE me.event_type = $1 AND me.team_players = $2 AND me.team_owner = $3 AND m.match_date <= $4"
-
 // countPlayerCapsStmtSql counts played national-team appearances playerId was selected to
 // start - a weekly friendly (see common.SetNationalTeamLineup, friendly_lineup_positions) plus a
 // World Cup knockout tie (see common.SetNationalTeamCupTieLineup, cup_tie_lineup_positions); both
@@ -140,31 +106,6 @@ func GetPlayerCapsBatch(dbCtx *DatabaseContext, playerIds []int64) (map[int64]in
 		}
 	}
 	return caps, nil
-}
-
-// GetPlayerCareerStats totals goals and cards across every match the player has ever taken part
-// in, regardless of which team they were on at the time, plus GoalsForTeam scoped to teamId (the
-// player's current team - see PlayerDetails.TeamId).
-func GetPlayerCareerStats(dbCtx *DatabaseContext, playerId int64, teamId int64) (PlayerCareerStats, error) {
-	var stats PlayerCareerStats
-	marker := fmt.Sprintf("[%d]", playerId)
-	cutoff := LiveBroadcastCutoff()
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, GOAL, marker, cutoff).Scan(&stats.Goals); err != nil {
-		return stats, err
-	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, YELLOW_CARD, marker, cutoff).Scan(&stats.YellowCards); err != nil {
-		return stats, err
-	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventStmtSql, RED_CARD, marker, cutoff).Scan(&stats.RedCards); err != nil {
-		return stats, err
-	}
-	if err := dbCtx.Db.QueryRow(countPlayerEventForTeamStmtSql, GOAL, marker, teamId, cutoff).Scan(&stats.GoalsForTeam); err != nil {
-		return stats, err
-	}
-	if err := dbCtx.Db.QueryRow(countPlayerCapsStmtSql, playerId).Scan(&stats.Caps); err != nil {
-		return stats, err
-	}
-	return stats, nil
 }
 
 // PlayerStatus is a player's current situation, as opposed to their history - on loan, listed
@@ -308,6 +249,11 @@ type PlayerDetails struct {
 	// GetPlayerClubHistory. Unlike History (financial transactions), this is never redacted: which
 	// clubs a player has played for is public the same way their transfer-market listing is.
 	ClubHistory []PlayerClubHistoryEntry `json:"clubHistory"`
+	// SeasonStats is his line per season, competition and team (see GetPlayerSeasonStats), newest
+	// season first. Public, like the match reports it is totalled from.
+	SeasonStats []PlayerSeasonStats `json:"seasonStats"`
+	// BestXi counts his teams of the week and of the season (see GetPlayerBestXiCounts).
+	BestXi PlayerBestXiCounts `json:"bestXi"`
 	// RecentMatches is this player's current team's most recent played league matches, with the
 	// player's own goals/cards and (when available) match rating - see GetPlayerRecentMatches.
 	// Empty for a free agent. Unlike History/skills, this is never redacted: a team's results and

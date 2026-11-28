@@ -252,6 +252,9 @@ func RetireFreeAgentAsTrainer(dbCtx *DatabaseContext, player *Player) error {
 	if _, err := tx.Exec(InsertTrainerStmtSql, player.FirstName, player.LastName, skill, wage); err != nil {
 		return err
 	}
+	if err := recordRetiredPlayerTx(tx, *player); err != nil {
+		return err
+	}
 	if err := clearRetiringPlayerLineupsTx(tx, player.Id); err != nil {
 		return err
 	}
