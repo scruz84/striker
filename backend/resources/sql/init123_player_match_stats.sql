@@ -57,8 +57,12 @@ CREATE TABLE IF NOT EXISTS schema_backfills (
 
 -- Backfill from what every played fixture already stores: its ratings rows (who featured, for how
 -- long, how well) and its goal/card events (team_players holds the one player concerned, as JSON).
+--
+-- season_starts is MATERIALIZED: it is read from a correlated subquery once per friendly or
+-- international line, and inlined (Postgres' default for a CTE read once) it re-aggregated every
+-- league match of the country for each of those lines, which on a real world took tens of minutes.
 WITH done AS (SELECT 1 FROM schema_backfills WHERE name = 'player_match_stats'),
-season_starts AS (
+season_starts AS MATERIALIZED (
     SELECT l.country, m.season, min(m.match_date) AS starts_at
     FROM matches m JOIN leagues l ON l.league_id = m.league_id
     GROUP BY l.country, m.season
