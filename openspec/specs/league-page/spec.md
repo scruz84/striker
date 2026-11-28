@@ -92,26 +92,26 @@ The page SHALL NOT request the matchday endpoint for a matchday whose matches th
 - **THEN** the cards show matchdays 11 and 12, matchday 12 comes from the division details response, only matchday 11 is requested from `/weeks/11`, and the division live scores are requested from `/live`
 
 ### Requirement: Mobile tabs
-On viewports narrower than the `md` breakpoint (900 px), the page SHALL show four full-width tabs in this order: "Tabla" (standings), "Jornadas" (matchday navigator and cards), "Goleadores" (top scorers only) and "Traspasos" (recent transfers only). In a past season only "Tabla" and "Jornadas" SHALL be shown. "Tabla" SHALL be selected on open. All labels MUST fit at 360 px wide without clipping or horizontal scroll, and each tab MUST be at least 44 px tall.
+On viewports narrower than the `md` breakpoint (900 px), the page SHALL show four full-width tabs in this order: "Tabla", "Jornadas", "Estadísticas" (league leaders and team of the week) and "Traspasos" (recent transfers only). In a past season "Tabla", "Jornadas" and "Estadísticas" SHALL be shown. "Tabla" SHALL be selected on open, or "Estadísticas" when the URL names a team of the week. Labels MUST fit at 360 px without clipping, each tab at least 44 px tall.
 
 #### Scenario: Transfers on a phone
-- **WHEN** a user on a 360 px phone opens the "Goleadores" tab
-- **THEN** only the top-scorers panel is shown, and the recent-transfers panel is shown only under "Traspasos"
+- **WHEN** a user on a 360 px phone opens the "Estadísticas" tab
+- **THEN** the leaders panel is shown, and the recent-transfers panel is shown only under "Traspasos"
 
 #### Scenario: English labels
 - **WHEN** the language is English
-- **THEN** the tabs read "Table", "Fixtures", "Scorers" and "Transfers"
+- **THEN** the tabs read "Table", "Fixtures", "Stats" and "Transfers"
 
 #### Scenario: Past season on a phone
 - **WHEN** a user on a 360 px phone opens `/division/7?season=2`
-- **THEN** only the "Tabla" and "Jornadas" tabs are shown
+- **THEN** the "Tabla", "Jornadas" and "Estadísticas" tabs are shown
 
 ### Requirement: Desktop layout
-From the `md` breakpoint up, the page SHALL show the standings (8 of 12 columns) beside a stack of top scorers and recent transfers (4 of 12 columns), with the matchday navigator and the two matchday cards side by side below, and no tabs.
+From the `md` breakpoint up, the page SHALL show the standings (8 of 12 columns) beside a stack of league leaders, team of the week and recent transfers (4 of 12 columns), with the matchday navigator and the two matchday cards side by side below, and no tabs.
 
 #### Scenario: Desktop browse
 - **WHEN** a user on a 1280 px screen taps "›" in the navigator
-- **THEN** only the two matchday cards change, and the standings, top scorers and recent transfers stay as they were
+- **THEN** only the two matchday cards change, and the standings and the side panels stay as they were
 
 ### Requirement: Recent transfers content
 The recent-transfers panel of a division (division page and dashboard) SHALL list the 10 most recent player moves in which the buying or selling club belongs to that division, newest first: bought listings, accepted offers, exercised buy options, permanent moves recorded before structured history, free-agent signings that paid a premium to a previous club, and loans. Releases and premium-free free-agent signings MUST NOT appear.
@@ -321,11 +321,11 @@ The standings SHALL carry a season picker listing the current season and every p
 - **THEN** no season picker is shown
 
 ### Requirement: Past season view
-A past season SHALL be read-only: its final table from the history endpoint, with zones from the recorded promotions and relegations and a trophy on position 1, and its matchdays with the navigator starting at its last pair (T−1, T) with no chips. Top scorers and recent transfers SHALL be hidden. The subtitle SHALL read "Temporada N · Clasificación final".
+A past season SHALL be read-only: its final table from the history endpoint, with zones from the recorded promotions and relegations and a trophy on position 1, and its matchdays with the navigator starting at its last pair (T−1, T) with no chips. Its own league leaders and team of the season SHALL be shown; recent transfers SHALL be hidden. The subtitle SHALL read "Temporada N · Clasificación final".
 
 #### Scenario: Browse season 2
 - **WHEN** a user opens `/division/7?season=2` for a 10-team league
-- **THEN** the table shows season 2's final standings, the cards show matchdays 17 and 18 with final scores, and no scorers or transfers panel is shown
+- **THEN** the table shows season 2's final standings, the cards show matchdays 17 and 18 with final scores, the leaders are season 2's, and no transfers panel is shown
 
 #### Scenario: Promoted in a past season
 - **WHEN** the season 2 champion was promoted
@@ -348,6 +348,10 @@ Each season of a team's history tab that has a recorded league SHALL link to `/d
   `frontend/src/features/leagues/RecentLeagueTransfers.tsx` (also on the dashboard),
   `frontend/src/api/types.ts` (`LeagueTransfer`); strings under `recentTransfers.*` in
   `i18n/locales/{en,es}.json`.
+- Stats panels: `frontend/src/features/stats/LeagueLeadersCard.tsx` and `BestXiCard.tsx` (see
+  openspec/specs/player-stats and best-xi), placed by `DivisionDetailsPage.tsx` (the "Stats" phone
+  tab, the desktop side stack, `PastSeasonView`, the `?xi=` parameter) next to the
+  `LeagueHistoryButton` to `/division/:id/records` (openspec/specs/records).
 - Live scores and live table: `frontend/src/features/division/DivisionDetailsPage.tsx`
   (`hideStillLiveResults`, the "Live" switch, `FixturesCard` broadcast scores, `ClassificationTable`'s
   `live` markers), `features/division/liveTable.ts` (`applyLiveScores`, `compareClassification`),
