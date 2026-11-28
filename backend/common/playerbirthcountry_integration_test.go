@@ -59,6 +59,7 @@ func TestSummaryRowsCarryBirthCountry(t *testing.T) {
 	for _, playerId := range []int64{withCountry, withCountry, withoutCountry} {
 		mustExec(`INSERT INTO match_events (match_id, event_type, team_players) VALUES ($1, $2, $3)`,
 			matchId, GOAL, fmt.Sprintf("[%d]", playerId))
+		addLeagueGoalStatForTest(t, db, matchId, playerId, teamId)
 	}
 
 	scorers, err := GetTopScorers(dbCtx, leagueId, season, 0)

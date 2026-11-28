@@ -70,7 +70,7 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		player, err := common.GetPlayerById(dbCtx, playerId)
 		if errors.Is(err, sql.ErrNoRows) {
-			c.JSON(http.StatusNotFound, GetError(0, "player not found"))
+			retiredPlayerDetails(c, dbCtx, playerId)
 			return
 		}
 		if err != nil {
@@ -132,6 +132,18 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 			details.ClubHistory = clubHistory
 		}
 
+		details.SeasonStats = []common.PlayerSeasonStats{}
+		if seasonStats, err := common.GetPlayerSeasonStats(dbCtx, playerId); err != nil {
+			log.Errorf("error loading season stats for player %d: %s", playerId, err)
+		} else {
+			details.SeasonStats = seasonStats
+		}
+		if bestXi, err := common.GetPlayerBestXiCounts(dbCtx, playerId); err != nil {
+			log.Errorf("error counting best XI selections for player %d: %s", playerId, err)
+		} else {
+			details.BestXi = bestXi
+		}
+
 		if transfers, err := common.GetPlayerTransfers(dbCtx, playerId, PlayerHistoryLimit); err != nil {
 			log.Errorf("error loading transfer history for player %d: %s", playerId, err)
 			details.Transfers = []common.PlayerTransfer{}
@@ -191,6 +203,61 @@ func PlayerDetailsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, details)
 	}
+}
+
+// retiredPlayerDetails answers the profile of a player who is no longer in the game: his
+// retirement snapshot plus the record kept under his id (openspec/specs/retired-players), or 404
+// when no player with that id ever retired. Nothing in it is private: a retired player has no club
+// to protect it for.
+func retiredPlayerDetails(c *gin.Context, dbCtx *common.DatabaseContext, playerId int64) {
+	retired, err := common.GetRetiredPlayer(dbCtx, playerId)
+	if err != nil {
+		log.Errorf("error fetching retired player %d: %s", playerId, err)
+		c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+		return
+	}
+	if retired == nil {
+		c.JSON(http.StatusNotFound, GetError(0, "player not found"))
+		return
+	}
+
+	details := common.RetiredPlayerDetails{
+		Retired:     *retired,
+		ClubHistory: []common.PlayerClubHistoryEntry{},
+		Transfers:   []common.PlayerTransfer{},
+		SeasonStats: []common.PlayerSeasonStats{},
+	}
+	if stats, err := common.GetPlayerCareerStats(dbCtx, playerId, 0); err != nil {
+		log.Errorf("error computing career stats for retired player %d: %s", playerId, err)
+	} else {
+		details.PlayerCareerStats = stats
+	}
+	if seasonStats, err := common.GetPlayerSeasonStats(dbCtx, playerId); err != nil {
+		log.Errorf("error loading season stats for retired player %d: %s", playerId, err)
+	} else {
+		details.SeasonStats = seasonStats
+	}
+	if bestXi, err := common.GetPlayerBestXiCounts(dbCtx, playerId); err != nil {
+		log.Errorf("error counting best XI selections for retired player %d: %s", playerId, err)
+	} else {
+		details.BestXi = bestXi
+	}
+	if awards, err := common.GetPlayerSeasonAwards(dbCtx, playerId); err != nil {
+		log.Errorf("error loading season awards for retired player %d: %s", playerId, err)
+	} else {
+		details.SeasonAwards = awards
+	}
+	if clubHistory, err := common.GetPlayerClubHistory(dbCtx, playerId); err != nil {
+		log.Errorf("error loading club history for retired player %d: %s", playerId, err)
+	} else if clubHistory != nil {
+		details.ClubHistory = clubHistory
+	}
+	if transfers, err := common.GetPlayerTransfers(dbCtx, playerId, PlayerHistoryLimit); err != nil {
+		log.Errorf("error loading transfer history for retired player %d: %s", playerId, err)
+	} else {
+		details.Transfers = transfers
+	}
+	c.JSON(http.StatusOK, details)
 }
 
 // TeamLatestEvolutionsHandler lists the caller's own squad's progression results (see

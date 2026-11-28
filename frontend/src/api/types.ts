@@ -1388,6 +1388,10 @@ export interface PlayerDetails extends Player {
   // player page can show a rough scouting figure without the full breakdown. See backend
   // common.AverageSkill.
   averageSkill: number
+  // Career totals over every competition but club friendlies (openspec player-stats "Career
+  // totals") - see backend common.GetPlayerCareerStats.
+  appearances: number
+  minutes: number
   goals: number
   yellowCards: number
   redCards: number
@@ -1395,6 +1399,10 @@ export interface PlayerDetails extends Player {
   // How many played national-team friendlies this player was selected to start - see backend
   // common.SetNationalTeamLineup/GetPlayerCareerStats.
   caps: number
+  // His line per season, competition and team, newest season first.
+  seasonStats: PlayerSeasonStats[]
+  // How many teams of the week / of the season he made (openspec best-xi).
+  bestXi: PlayerBestXiCounts
   unavailableReason?: number
   unavailableMatchesRemaining?: number
   onLoanFromTeamId?: number
@@ -2203,4 +2211,221 @@ export interface AdminLeagueInfo {
   // True when schedule's hour and minute are the country's local time (a league with no override
   // follows its country's league kickoff for its tier); an override is on the server clock.
   localTime?: boolean
+}
+
+// ---- Stats and history (openspec player-stats, retired-players, records, best-xi) ----
+
+// Competition of a stats line - backend common.StatsCompetition*.
+export const STATS_COMPETITION_LEAGUE = 1
+export const STATS_COMPETITION_DOMESTIC_CUP = 2
+export const STATS_COMPETITION_PLAYOFF = 3
+export const STATS_COMPETITION_INTERNATIONAL_CUP = 4
+export const STATS_COMPETITION_WORLD_CUP = 5
+export const STATS_COMPETITION_CLUB_FRIENDLY = 6
+export const STATS_COMPETITION_NATIONAL_FRIENDLY = 7
+
+// Mirrors backend common.StatLine: the totals of a set of match lines.
+export interface StatLine {
+  appearances: number
+  starts: number
+  minutes: number
+  goals: number
+  penaltyGoals: number
+  yellowCards: number
+  redCards: number
+  // Mean of the rated appearances, two decimals; absent without one.
+  averageRating?: number
+  ratedMatches: number
+}
+
+export interface PlayerSeasonStats extends StatLine {
+  season: number
+  competition: number
+  competitionId?: number
+  competitionName: string
+  competitionRegion?: string
+  teamId: number
+  teamName: string
+}
+
+export interface PlayerBestXiCounts {
+  weeks: number
+  seasons: number
+}
+
+// Mirrors backend common.RetiredPlayer.
+export interface RetiredPlayer {
+  id: number
+  firstName: string
+  lastName: string
+  birthCountry?: string
+  bestPosition: number
+  age: number
+  lastTeamId?: number
+  lastTeamName?: string
+  retiredSeason?: number
+  retiredAt: string
+}
+
+// The profile of a player who is no longer in the game - what GET /v1/teams/player/:id/ answers
+// for a retired id (backend common.RetiredPlayerDetails). `retired` tells it from PlayerDetails.
+export interface RetiredPlayerDetails {
+  retired: RetiredPlayer
+  appearances: number
+  minutes: number
+  goals: number
+  yellowCards: number
+  redCards: number
+  caps: number
+  seasonAwards: { goldenBoots: number; playerOfSeasons: number }
+  seasonStats: PlayerSeasonStats[]
+  clubHistory: PlayerClubHistoryEntry[]
+  transfers: PlayerTransfer[]
+  bestXi: PlayerBestXiCounts
+}
+
+export type PlayerProfile = PlayerDetails | RetiredPlayerDetails
+
+export function isRetiredProfile(profile: PlayerProfile): profile is RetiredPlayerDetails {
+  return 'retired' in profile && !!(profile as RetiredPlayerDetails).retired
+}
+
+export type LeadersCategory = 'goals' | 'rating' | 'minutes' | 'cards'
+
+export interface LeagueLeader extends StatLine {
+  playerId: number
+  firstName: string
+  lastName: string
+  birthCountry?: string
+  retired?: boolean
+  teamId: number
+  teamName: string
+}
+
+export interface LeagueLeaders {
+  season: number
+  category: LeadersCategory
+  leaders: LeagueLeader[]
+}
+
+export interface TeamPlayerStats extends StatLine {
+  playerId: number
+  firstName: string
+  lastName: string
+  birthCountry?: string
+  retired?: boolean
+  inSquad: boolean
+}
+
+export interface TeamSeasonStats {
+  // 0 when the team has no stats yet.
+  season: number
+  seasons: number[]
+  players: TeamPlayerStats[]
+}
+
+// Mirrors backend common.RecordMatch.
+export interface RecordMatch {
+  kind: 'league' | 'cup'
+  matchId: number
+  matchDate: string
+  season: number
+  homeTeamId: number
+  homeTeamName: string
+  awayTeamId: number
+  awayTeamName: string
+  homeGoals: number
+  awayGoals: number
+  attendance?: number
+}
+
+export interface RecordStreak {
+  length: number
+  from: string
+  to: string
+  ongoing: boolean
+}
+
+export interface RecordSeason {
+  season: number
+  leagueId?: number
+  leagueName: string
+  leagueTier: number
+  position: number
+  points: number
+}
+
+export interface RecordTransfer {
+  playerId: number
+  playerName: string
+  fee: number
+  otherTeamId?: number
+  otherTeamName: string
+  occurredAt: string
+}
+
+export interface RecordPlayer {
+  playerId: number
+  firstName: string
+  lastName: string
+  birthCountry?: string
+  retired?: boolean
+  goals: number
+  appearances: number
+}
+
+export interface ClubRecords {
+  biggestWin?: RecordMatch
+  biggestDefeat?: RecordMatch
+  highestScoring?: RecordMatch
+  recordAttendance?: RecordMatch
+  longestWinningStreak?: RecordStreak
+  longestUnbeatenStreak?: RecordStreak
+  longestLosingStreak?: RecordStreak
+  bestFinish?: RecordSeason
+  mostPoints?: RecordSeason
+  recordSigning?: RecordTransfer
+  recordSale?: RecordTransfer
+  topScorers: RecordPlayer[]
+  mostAppearances: RecordPlayer[]
+}
+
+export interface LeagueRecords {
+  champions: { season: number; teamId: number; teamName: string; points?: number }[]
+  mostTitles: { teamId: number; teamName: string; titles: number; lastSeason: number }[]
+  goldenBoots: { season: number; playerId: number; firstName: string; lastName: string; retired?: boolean; goals: number }[]
+  mostPoints?: { season: number; teamId: number; teamName: string; points: number }
+  biggestWin?: RecordMatch
+  highestScoring?: RecordMatch
+  topScorers: RecordPlayer[]
+}
+
+// Lines of a best XI - backend common.BestXiLine*.
+export const BEST_XI_LINE_GOALKEEPER = 1
+export const BEST_XI_LINE_DEFENCE = 2
+export const BEST_XI_LINE_MIDFIELD = 3
+export const BEST_XI_LINE_ATTACK = 4
+
+export interface BestXiPlayer {
+  slot: number
+  line: number
+  playerId: number
+  firstName: string
+  lastName: string
+  birthCountry?: string
+  retired?: boolean
+  teamId: number
+  teamName: string
+  rating: number
+  goals: number
+  matches: number
+}
+
+// A league's team of the week (week >= 1) or of the season (week 0), and the rounds of its season
+// that have one. players is empty when none is stored yet.
+export interface BestXi {
+  season: number
+  week: number
+  weeks: number[]
+  players: BestXiPlayer[]
 }

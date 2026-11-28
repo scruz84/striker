@@ -12,15 +12,18 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { usePlayerDetails, useUserTeam } from '../../api/hooks'
+import { usePlayerProfile, useUserTeam } from '../../api/hooks'
 import type { NationalTeamCallUp, PlayerMatchSummary } from '../../api/types'
+import { isRetiredProfile } from '../../api/types'
+import { PlayerSeasonStatsSection } from '../stats/PlayerSeasonStatsSection'
+import { ClubHistorySection } from './ClubHistorySection'
+import { RetiredPlayerView } from './RetiredPlayerView'
 import { TeamNameWithFlag } from '../../components/TeamNameWithFlag'
 import { PlayerAttributesPanel } from '../../components/PlayerAttributesPanel'
 import { PlayerConditionPanel } from '../../components/PlayerConditionPanel'
 import { PlayerEvolutionCard } from '../../components/PlayerEvolutionCard'
 import { PlayerProfileRail } from '../../components/PlayerProfileRail'
-import { TeamNameLink } from '../../components/TeamNameLink'
-import { formatDateTime, formatDayTime, formatShortDate } from '../../utils/formatDate'
+import { formatDayTime, formatShortDate } from '../../utils/formatDate'
 import { HomeAwayIcon } from '../../components/HomeAwayIcon'
 import Box from '@mui/material/Box'
 import { matchRatingColor } from '../../utils/matchRating'
@@ -30,12 +33,16 @@ export function PlayerDetailsPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
-  const { data: player, isLoading } = usePlayerDetails(id)
+  const { data: profile, isLoading } = usePlayerProfile(id)
   const { data: userTeam } = useUserTeam(true)
 
-  if (isLoading || !player) {
+  if (isLoading || !profile) {
     return <Skeleton variant="rectangular" height={300} />
   }
+  if (isRetiredProfile(profile)) {
+    return <RetiredPlayerView profile={profile} />
+  }
+  const player = profile
 
   // A rostered player's contract length and financial history are the owning manager's business
   // - the backend already redacts them for anyone else (see common.Player.RedactFinancials), so
@@ -73,33 +80,9 @@ export function PlayerDetailsPage() {
 
       {canSeeSkills && player.latestEvolution && <PlayerEvolutionCard evolution={player.latestEvolution} />}
 
-      {player.clubHistory.length > 0 && (
-        <Stack spacing={1}>
-          <Typography variant="h6">{t('playerPage.clubHistory.title')}</Typography>
-          <TableContainer component={Paper}>
-            <Table size="small" aria-label="Club history" sx={{ '& td, & th': { px: { xs: 0.75, sm: 2 } } }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('playerPage.clubHistory.club')}</TableCell>
-                  <TableCell align="right">{t('playerPage.clubHistory.joined')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {player.clubHistory.map((entry) => (
-                  <TableRow key={`${entry.teamId}-${entry.joinedAt}`}>
-                    <TableCell>
-                      <TeamNameLink teamId={entry.teamId}>{entry.teamName}</TeamNameLink>
-                    </TableCell>
-                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                      {formatDateTime(entry.joinedAt)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Stack>
-      )}
+      <PlayerSeasonStatsSection lines={player.seasonStats ?? []} />
+
+      <ClubHistorySection entries={player.clubHistory} />
 
       {player.teamId !== 0 && (
         <Stack spacing={1}>

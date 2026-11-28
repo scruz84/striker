@@ -2616,13 +2616,22 @@ func UpdatePlayerBirthday(dbCtx *DatabaseContext, playerId int64, age int, birth
 
 // RetirePlayer removes a player from the game. player_unavailability and transfer_listings
 // both cascade-delete on the player_id FK, so those clean up automatically; his lineups are
-// cleared first, in the same transaction (see clearRetiringPlayerLineupsTx).
+// cleared first, in the same transaction (see clearRetiringPlayerLineupsTx). His retirement
+// snapshot is written in that transaction too (see recordRetiredPlayerTx), so his awards,
+// transfers, club history and match stats - kept under his id - still have a name to show.
 func RetirePlayer(dbCtx *DatabaseContext, playerId int64) error {
+	player, err := GetPlayerById(dbCtx, playerId)
+	if err != nil {
+		return err
+	}
 	tx, err := dbCtx.Db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
+	if err := recordRetiredPlayerTx(tx, *player); err != nil {
+		return err
+	}
 	if err := clearRetiringPlayerLineupsTx(tx, playerId); err != nil {
 		return err
 	}

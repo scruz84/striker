@@ -325,8 +325,9 @@ func TestTransferComparables_UsesIndex(t *testing.T) {
 			t.Errorf("%s: plan scans player_transfers sequentially:\n%s", band.name, plan.String())
 		}
 		// The limit sits directly on the ordered index walk: no sort of the transfers (the outer
-		// ORDER BY only orders the few joined survivors).
-		if !regexp.MustCompile(`Limit[^\n]*\n\s+->\s+Index Scan using player_transfers_comparables_idx`).MatchString(plan.String()) {
+		// ORDER BY only orders the few joined survivors). The walk may go through the nested loop
+		// that probes players' primary key for the still-in-the-game check, which keeps the order.
+		if !regexp.MustCompile(`Limit[^\n]*\n(\s+->\s+Nested Loop[^\n]*\n)?\s+->\s+Index Scan using player_transfers_comparables_idx`).MatchString(plan.String()) {
 			t.Errorf("%s: the limit is not applied straight on the ordered index walk:\n%s", band.name, plan.String())
 		}
 	}

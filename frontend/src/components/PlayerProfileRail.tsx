@@ -271,10 +271,13 @@ export function PlayerProfileRail({
           )}
           <SpecRow label={t('playerPage.stats.wage')} value={formatCurrency(player.wage)} />
           <SpecRow label={t('playerPage.stats.caps')} value={player.caps} />
+          <SpecRow label={t('playerPage.stats.appearances')} value={player.appearances ?? 0} />
           <SpecRow label={t('playerPage.stats.goals')} value={player.goals} />
           {!isFreeAgent && <SpecRow label={t('playerPage.stats.goalsForTeam')} value={player.goalsForTeam} />}
           <SpecRow label={t('playerPage.stats.goldenBoots')} value={player.seasonAwards.goldenBoots} />
           <SpecRow label={t('playerPage.stats.playerOfSeasons')} value={player.seasonAwards.playerOfSeasons} />
+          {(player.bestXi?.weeks ?? 0) > 0 && <SpecRow label={t('playerPage.stats.teamsOfTheWeek')} value={player.bestXi.weeks} />}
+          {(player.bestXi?.seasons ?? 0) > 0 && <SpecRow label={t('playerPage.stats.teamsOfTheSeason')} value={player.bestXi.seasons} />}
           <SpecRow label={t('playerPage.stats.yellowCards')} value={player.yellowCards} />
           <SpecRow label={t('playerPage.stats.redCards')} value={player.redCards} />
         </Stack>

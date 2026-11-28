@@ -27,12 +27,14 @@ type LeagueTransfer struct {
 // RecordPlayerTransfer), the same source as a player's transfer history. The inner joins on both
 // teams drop releases (no destination) and free-agent signings that paid no premium (no origin
 // club), neither of which is a move between clubs. A free-agent row only appears when a premium
-// went to the previous club. $1 is the league, $2 the row limit.
+// went to the previous club. A retired player's moves (kept since init122_retired_players.sql)
+// are left out, as they were when his transfers were deleted with him. $1 is the league, $2 the row limit.
 var getRecentLeagueTransfersStmtSql = fmt.Sprintf("SELECT pt.player_id, pt.fee, pt.kind, pt.to_team_id, bt.name, pt.from_team_id, st.name, pt.created_at "+
 	"FROM player_transfers pt "+
 	"JOIN teams bt ON bt.team_id = pt.to_team_id "+
 	"JOIN teams st ON st.team_id = pt.from_team_id "+
 	"WHERE pt.kind IN (%d, %d, %d, %d, %d, %d) AND (bt.league_id = $1 OR st.league_id = $1) "+
+	"AND EXISTS (SELECT 1 FROM players p WHERE p.player_id = pt.player_id) "+
 	"ORDER BY pt.created_at DESC, pt.transfer_id DESC LIMIT $2",
 	PLAYER_TRANSFER_LISTING, PLAYER_TRANSFER_OFFER, PLAYER_TRANSFER_FREE_AGENT, PLAYER_TRANSFER_LOAN,
 	PLAYER_TRANSFER_BUY_OPTION, PLAYER_TRANSFER_PERMANENT)

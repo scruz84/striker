@@ -69,11 +69,14 @@ var topTransferFeeKinds = fmt.Sprintf("%d, %d, %d, %d, %d", PLAYER_TRANSFER_LIST
 
 // getTopTransferFeeStmtSql reads the biggest fee straight from player_transfers (see
 // RecordPlayerTransfer), instead of re-pairing the two team_transactions rows of each transfer.
+// The panel shows a player still in the game, so a retired player's transfer (kept since
+// init122_retired_players.sql) gives way to the next biggest, as it did when it was deleted.
 var getTopTransferFeeStmtSql = "SELECT pt.player_id, pt.fee, pt.to_team_id, bt.name, pt.from_team_id, st.name, pt.created_at " +
 	"FROM player_transfers pt " +
 	"JOIN teams bt ON bt.team_id = pt.to_team_id " +
 	"JOIN teams st ON st.team_id = pt.from_team_id " +
 	"WHERE pt.kind IN (" + topTransferFeeKinds + ") AND pt.fee > 0 " +
+	"AND EXISTS (SELECT 1 FROM players p WHERE p.player_id = pt.player_id) " +
 	"ORDER BY pt.fee DESC LIMIT 1"
 
 // GetTransferMarketStats computes every figure on the transfer market's activity panel in one

@@ -136,3 +136,157 @@ func RecentLeagueTransfersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc
 		c.JSON(http.StatusOK, transfers)
 	}
 }
+
+// LeagueLeadersLimit bounds how many players a league leaders list shows.
+const LeagueLeadersLimit = 10
+
+// LeagueLeadersHandler returns a league season's leaders in one category - goals, rating, minutes
+// or cards (?category=, goals by default) - for the current season or a past one (?season=). See
+// common.GetLeagueLeaders. Public, like the top scorers.
+func LeagueLeadersHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		leagueId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid league id"))
+			return
+		}
+		category := c.DefaultQuery("category", common.LeadersGoals)
+		if !common.IsLeadersCategory(category) {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid category"))
+			return
+		}
+		season, ok := optionalSeasonParam(c)
+		if !ok {
+			return
+		}
+		if season == 0 {
+			if season, err = common.GetCurrentSeasonForLeague(dbCtx, leagueId); err != nil {
+				log.Errorf("error getting current season for league %d leaders: %s", leagueId, err)
+				c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+				return
+			}
+		}
+		cutoff := common.LiveBroadcastCutoff()
+		leaders, err := common.GetLeagueLeaders(dbCtx, leagueId, season, category, LeagueLeadersLimit, &cutoff)
+		if err != nil {
+			log.Errorf("error getting %s leaders for league %d: %s", category, leagueId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"season": season, "category": category, "leaders": leaders})
+	}
+}
+
+// TeamSeasonStatsHandler returns a team's squad stats for one season (?season=, its newest season
+// with any by default) and the seasons it has any for. See common.GetTeamSeasonStats. Public, like
+// the match reports they are totalled from.
+func TeamSeasonStatsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		teamId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid team id"))
+			return
+		}
+		season, ok := optionalSeasonParam(c)
+		if !ok {
+			return
+		}
+		stats, err := common.GetTeamSeasonStats(dbCtx, teamId, season)
+		if err != nil {
+			log.Errorf("error getting season stats for team %d: %s", teamId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, stats)
+	}
+}
+
+// optionalSeasonParam reads the ?season= query parameter: 0 when absent, a positive season
+// otherwise. An invalid value answers 400 and returns false.
+func optionalSeasonParam(c *gin.Context) (int, bool) {
+	raw := c.Query("season")
+	if raw == "" {
+		return 0, true
+	}
+	season, err := strconv.Atoi(raw)
+	if err != nil || season < 1 {
+		c.JSON(http.StatusBadRequest, GetError(0, "invalid season"))
+		return 0, false
+	}
+	return season, true
+}
+
+// TeamRecordsHandler returns a club's records (see common.GetClubRecords). Public.
+func TeamRecordsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		teamId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid team id"))
+			return
+		}
+		records, err := common.GetClubRecords(dbCtx, teamId)
+		if err != nil {
+			log.Errorf("error getting records for team %d: %s", teamId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, records)
+	}
+}
+
+// LeagueRecordsHandler returns a league's champions and records (see common.GetLeagueRecords).
+// Public.
+func LeagueRecordsHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		leagueId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid league id"))
+			return
+		}
+		records, err := common.GetLeagueRecords(dbCtx, leagueId)
+		if err != nil {
+			log.Errorf("error getting records for league %d: %s", leagueId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, records)
+	}
+}
+
+// LeagueBestXiHandler returns a league's team of the week (?week=, its latest matchday with one by
+// default) or of the season (?week=0), for the current season or a past one (?season=). See
+// common.GetBestXi. Public.
+func LeagueBestXiHandler(dbCtx *common.DatabaseContext) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		leagueId, err := common.StringToInt64(c.Param(ID))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, GetError(0, "invalid league id"))
+			return
+		}
+		season, ok := optionalSeasonParam(c)
+		if !ok {
+			return
+		}
+		if season == 0 {
+			if season, err = common.GetCurrentSeasonForLeague(dbCtx, leagueId); err != nil {
+				log.Errorf("error getting current season for league %d best XI: %s", leagueId, err)
+				c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+				return
+			}
+		}
+		week := -1
+		if raw := c.Query("week"); raw != "" {
+			if week, err = strconv.Atoi(raw); err != nil || week < 0 {
+				c.JSON(http.StatusBadRequest, GetError(0, "invalid week"))
+				return
+			}
+		}
+		xi, err := common.GetBestXi(dbCtx, leagueId, season, week)
+		if err != nil {
+			log.Errorf("error getting the best XI of league %d: %s", leagueId, err)
+			c.JSON(http.StatusInternalServerError, GetError(0, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, xi)
+	}
+}

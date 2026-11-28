@@ -223,6 +223,9 @@ func replaceMatchEventsTx(tx *sql.Tx, kind string, eventsTable string, idColumn 
 	if err := replaceMatchPlayerRatingsTx(tx, kind, id, result.PlayerRatings); err != nil {
 		return err
 	}
+	if err := replacePlayerMatchStatsTx(tx, kind, id, result); err != nil {
+		return err
+	}
 
 	insertEvent, err := tx.Prepare(insertEventSql)
 	if err != nil {

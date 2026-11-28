@@ -16,6 +16,8 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
@@ -64,6 +66,8 @@ import { formatDate, formatDateTime } from '../../utils/formatDate'
 import { ratingTierColor } from '../../utils/playerRating'
 import { NationalTeamMatchesTab } from '../nationalteams/NationalTeamMatchesTab'
 import { teamTabs, type TeamTab } from './teamTabs'
+import { ClubRecordsSection } from '../stats/ClubRecordsSection'
+import { TeamStatsSection } from '../stats/TeamStatsSection'
 
 const RECENT_MATCHES_LIMIT = 5
 
@@ -138,6 +142,8 @@ export function TeamDetailsPage() {
   const tabs = teamTabs(isNationalTeam, isOwnTeam)
   const requestedTab = searchParams.get('tab') as TeamTab | null
   const tab: TeamTab = requestedTab && tabs.includes(requestedTab) ? requestedTab : 'summary'
+  // The squad tab shows the current squad or, with ?view=stats, the season's squad stats.
+  const squadView = searchParams.get('view') === 'stats' ? 'stats' : 'players'
 
   return (
     <Stack spacing={1.5}>
@@ -230,19 +236,42 @@ export function TeamDetailsPage() {
 
       {tab === 'squad' && (
         <Box sx={{ pt: 1 }}>
-          {isNationalTeam && (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              {t('team.nationalTeam.squadNote')}
-            </Typography>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={squadView}
+            onChange={(_event, value: 'players' | 'stats' | null) => {
+              if (!value) return
+              const next = new URLSearchParams(searchParams)
+              if (value === 'stats') next.set('view', 'stats')
+              else next.delete('view')
+              setSearchParams(next, { replace: true })
+            }}
+            aria-label={t('team.tabs.squad')}
+            sx={{ mb: 1.5 }}
+          >
+            <ToggleButton value="players">{t('stats.team.playersView')}</ToggleButton>
+            <ToggleButton value="stats">{t('stats.team.statsView')}</ToggleButton>
+          </ToggleButtonGroup>
+          {squadView === 'stats' ? (
+            <TeamStatsSection teamId={String(teamDetails.team.id)} />
+          ) : (
+            <>
+              {isNationalTeam && (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  {t('team.nationalTeam.squadNote')}
+                </Typography>
+              )}
+              <SquadList
+                players={teamDetails.players}
+                isOwnTeam={isOwnTeam}
+                unavailability={unavailability}
+                transferListed={transferListed}
+                loanedIn={teamDetails.loanedIn}
+              />
+              <LoanedOutSection loanedOut={teamDetails.loanedOut ?? []} isOwnTeam={isOwnTeam} />
+            </>
           )}
-          <SquadList
-            players={teamDetails.players}
-            isOwnTeam={isOwnTeam}
-            unavailability={unavailability}
-            transferListed={transferListed}
-            loanedIn={teamDetails.loanedIn}
-          />
-          <LoanedOutSection loanedOut={teamDetails.loanedOut ?? []} isOwnTeam={isOwnTeam} />
         </Box>
       )}
 
@@ -276,6 +305,7 @@ export function TeamDetailsPage() {
               <TrophyCabinet history={history} />
             </>
           )}
+          <ClubRecordsSection teamId={String(teamDetails.team.id)} />
         </Stack>
       )}
     </Stack>

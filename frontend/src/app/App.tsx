@@ -37,6 +37,7 @@ const routes: RouteObject[] = [
       { path: '/admin', lazy: () => import('../features/admin/AdminPage').then((m) => ({ Component: m.AdminPage })) },
       { path: '/leagues', lazy: () => import('../features/leagues/LeaguesPage').then((m) => ({ Component: m.LeaguesPage })) },
       { path: '/division/:id', lazy: () => import('../features/division/DivisionDetailsPage').then((m) => ({ Component: m.DivisionDetailsPage })) },
+      { path: '/division/:id/records', lazy: () => import('../features/stats/LeagueRecordsPage').then((m) => ({ Component: m.LeagueRecordsPage })) },
       { path: '/match/:id', lazy: () => import('../features/match/MatchDetailsPage').then((m) => ({ Component: m.MatchDetailsPage })) },
       { path: '/team/:id', lazy: () => import('../features/team/TeamDetailsPage').then((m) => ({ Component: m.TeamDetailsPage })) },
       { path: '/team/:id/matches', lazy: () => import('../features/team/TeamMatchesPage').then((m) => ({ Component: m.TeamMatchesPage })) },
