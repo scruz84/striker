@@ -192,3 +192,57 @@ func TestQueryPerformanceIndexes_RestartTakesNoTableLocks(t *testing.T) {
 		t.Error("init120 did not recreate the missing lineup_positions_player_id_idx")
 	}
 }
+
+// TestStatsMigrations_RestartTakesNoBlockingLocks pins the same rule for init122-init124, which
+// every svc and engine startup re-applies too: once applied, re-applying each holds no lock that
+// blocks writers (SHARE from CREATE INDEX IF NOT EXISTS, ACCESS EXCLUSIVE from ALTER TABLE) on the
+// tables a transfer, a result save or a best XI writes, and does not run the stats backfill again.
+// Needs STRIKER_TEST_DB_DSN.
+func TestStatsMigrations_RestartTakesNoBlockingLocks(t *testing.T) {
+	dsn := os.Getenv("STRIKER_TEST_DB_DSN")
+	if dsn == "" {
+		t.Skip("STRIKER_TEST_DB_DSN not set")
+	}
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		t.Fatalf("opening database: %s", err)
+	}
+	defer db.Close()
+	if err := EnsureSchema(&DatabaseContext{Db: db}); err != nil {
+		t.Fatalf("EnsureSchema: %s", err)
+	}
+	for _, file := range []string{"init122_retired_players.sql", "init123_player_match_stats.sql", "init124_best_xi.sql"} {
+		contents, err := resources.SQLFiles.ReadFile("sql/" + file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		func() {
+			tx, err := db.Begin()
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer tx.Rollback()
+			if _, err := tx.Exec(string(contents)); err != nil {
+				t.Fatalf("re-applying %s: %s", file, err)
+			}
+			var locks []string
+			rows, err := tx.Query(`SELECT c.relname || ' ' || l.mode FROM pg_locks l JOIN pg_class c ON c.oid = l.relation
+				WHERE l.pid = pg_backend_pid() AND l.locktype = 'relation'
+				AND l.mode IN ('ShareLock', 'ShareRowExclusiveLock', 'ExclusiveLock', 'AccessExclusiveLock')`)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for rows.Next() {
+				var lock string
+				if err := rows.Scan(&lock); err != nil {
+					t.Fatal(err)
+				}
+				locks = append(locks, lock)
+			}
+			rows.Close()
+			if len(locks) != 0 {
+				t.Errorf("re-applying %s holds blocking locks %v, want none", file, locks)
+			}
+		}()
+	}
+}

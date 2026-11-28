@@ -37,4 +37,19 @@ CREATE TABLE IF NOT EXISTS best_xi_players (
     FOREIGN KEY (league_id, season, week_number) REFERENCES best_xi_rounds (league_id, season, week_number) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS best_xi_players_player_idx ON best_xi_players (player_id);
+-- CREATE INDEX IF NOT EXISTS locks its table in SHARE mode before it checks the index exists, and
+-- this file runs again on every startup while results are being saved: each index is only created
+-- when to_regclass, which takes no lock, does not find it (see init120).
+DO $$
+DECLARE
+    idx record;
+BEGIN
+    FOR idx IN SELECT * FROM (VALUES
+        ('best_xi_players_player_idx', 'CREATE INDEX IF NOT EXISTS best_xi_players_player_idx ON best_xi_players (player_id)')
+    ) AS v(name, ddl) LOOP
+        IF to_regclass(idx.name) IS NULL THEN
+            EXECUTE idx.ddl;
+        END IF;
+    END LOOP;
+END
+$$;
